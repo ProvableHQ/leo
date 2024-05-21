@@ -302,6 +302,26 @@
 <a href="#300" id="300">300</a>
 <a href="#301" id="301">301</a>
 <a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -321,16 +341,13 @@
 </span><span class="kw">pub mod </span>function_symbol;
 <span class="kw">pub use </span>function_symbol::<span class="kw-2">*</span>;
 
-<span class="kw">pub mod </span>location;
-<span class="kw">pub use </span>location::<span class="kw-2">*</span>;
-
 <span class="kw">pub mod </span>variable_symbol;
 
 <span class="kw">pub use </span>variable_symbol::<span class="kw-2">*</span>;
 
 <span class="kw">use </span>std::cell::RefCell;
 
-<span class="kw">use </span>leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function};
+<span class="kw">use </span>leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function, Location};
 <span class="kw">use </span>leo_errors::{AstError, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
@@ -433,11 +450,35 @@
         <span class="bool-val">true
     </span>}
 
+    <span class="doccomment">/// Attach a finalize to a function.
+    </span><span class="kw">pub fn </span>attach_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: Location, callee: Location) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.functions.get_mut(<span class="kw-2">&amp;</span>caller) {
+            func.finalize = <span class="prelude-val">Some</span>(callee);
+            <span class="prelude-val">Ok</span>(())
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_mut() {
+            parent.attach_finalize(caller, callee)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(AstError::function_not_found(caller.name).into())
+        }
+    }
+
     <span class="doccomment">/// Inserts a variable into the symbol table.
     </span><span class="kw">pub fn </span>insert_variable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, location: Location, insert: VariableSymbol) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, <span class="bool-val">false</span>, insert.span)<span class="question-mark">?</span>;
         <span class="self">self</span>.variables.insert(location, insert);
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Inserts futures into the function definition.
+    </span><span class="kw">pub fn </span>insert_futures(<span class="kw-2">&amp;mut </span><span class="self">self</span>, program: Symbol, function: Symbol, futures: Vec&lt;Location&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.functions.get_mut(<span class="kw-2">&amp;</span>Location::new(<span class="prelude-val">Some</span>(program), function)) {
+            func.future_inputs = futures;
+            <span class="prelude-val">Ok</span>(())
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_mut() {
+            parent.insert_futures(program, function, futures)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(AstError::function_not_found(function).into())
+        }
     }
 
     <span class="doccomment">/// Removes a variable from the symbol table.
@@ -569,7 +610,6 @@
                 variant: Variant::Inline,
                 span: Default::default(),
                 input: Vec::new(),
-                finalize: <span class="prelude-val">None</span>,
                 identifier: Identifier::new(Symbol::intern(<span class="string">"transfer_public"</span>), Default::default()),
                 output: <span class="macro">vec!</span>[],
                 block: Default::default(),

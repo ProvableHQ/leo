@@ -155,6 +155,13 @@
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -308,6 +315,13 @@
         args: (struct_: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"There are two definitions of struct `{struct_}` that do not match."</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"Check the import files to see if there are any struct definitions of the same name."</span>.to_string()),
+    }
+
+    @backtraced
+    function_not_found {
+        args: (func: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"function `{func}` not found"</span>),
+        help: <span class="prelude-val">None</span>,
     }
 );
 </code></pre></div></section></main></body></html>

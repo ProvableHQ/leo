@@ -559,39 +559,6 @@
 <a href="#557" id="557">557</a>
 <a href="#558" id="558">558</a>
 <a href="#559" id="559">559</a>
-<a href="#560" id="560">560</a>
-<a href="#561" id="561">561</a>
-<a href="#562" id="562">562</a>
-<a href="#563" id="563">563</a>
-<a href="#564" id="564">564</a>
-<a href="#565" id="565">565</a>
-<a href="#566" id="566">566</a>
-<a href="#567" id="567">567</a>
-<a href="#568" id="568">568</a>
-<a href="#569" id="569">569</a>
-<a href="#570" id="570">570</a>
-<a href="#571" id="571">571</a>
-<a href="#572" id="572">572</a>
-<a href="#573" id="573">573</a>
-<a href="#574" id="574">574</a>
-<a href="#575" id="575">575</a>
-<a href="#576" id="576">576</a>
-<a href="#577" id="577">577</a>
-<a href="#578" id="578">578</a>
-<a href="#579" id="579">579</a>
-<a href="#580" id="580">580</a>
-<a href="#581" id="581">581</a>
-<a href="#582" id="582">582</a>
-<a href="#583" id="583">583</a>
-<a href="#584" id="584">584</a>
-<a href="#585" id="585">585</a>
-<a href="#586" id="586">586</a>
-<a href="#587" id="587">587</a>
-<a href="#588" id="588">588</a>
-<a href="#589" id="589">589</a>
-<a href="#590" id="590">590</a>
-<a href="#591" id="591">591</a>
-<a href="#592" id="592">592</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -661,8 +628,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) returns: Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, ReturnStatement)&gt;,
     <span class="doccomment">/// The program name.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
-    <span class="doccomment">/// Whether we are currently traversing a `finalize` block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_finalize: bool,
+    <span class="doccomment">/// Whether the function is an async function.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_async: bool,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Flattener&lt;<span class="lifetime">'a</span>&gt; {
@@ -680,7 +647,7 @@
             condition_stack: Vec::new(),
             returns: Vec::new(),
             program: <span class="prelude-val">None</span>,
-            is_finalize: <span class="bool-val">false</span>,
+            is_async: <span class="bool-val">false</span>,
         }
     }
 
@@ -814,24 +781,9 @@
         </span><span class="kw">if </span>!returns.is_empty() {
             <span class="kw">let </span><span class="kw-2">mut </span>return_expressions = Vec::with_capacity(returns.len());
 
-            <span class="comment">// Construct a vector for each argument position.
-            // Note that the indexing is safe since we check that `returns` is not empty.
-            </span><span class="kw">let </span>(has_finalize, number_of_finalize_arguments) = <span class="kw">match </span><span class="kw-2">&amp;</span>returns[<span class="number">0</span>].<span class="number">1</span>.finalize_arguments {
-                <span class="prelude-val">None </span>=&gt; (<span class="bool-val">false</span>, <span class="number">0</span>),
-                <span class="prelude-val">Some</span>(args) =&gt; (<span class="bool-val">true</span>, args.len()),
-            };
-            <span class="kw">let </span><span class="kw-2">mut </span>finalize_arguments: Vec&lt;Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, Expression)&gt;&gt; =
-                <span class="macro">vec!</span>[Vec::with_capacity(returns.len()); number_of_finalize_arguments];
-
             <span class="comment">// Aggregate the return expressions and finalize arguments and their respective guards.
             </span><span class="kw">for </span>(guard, return_statement) <span class="kw">in </span>returns {
                 return_expressions.push((guard.clone(), return_statement.expression));
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = return_statement.finalize_arguments {
-                    <span class="kw">for </span>(i, argument) <span class="kw">in </span>arguments.into_iter().enumerate() {
-                        <span class="comment">// Note that the indexing is safe since we initialize `finalize_arguments` with the correct length.
-                        </span>finalize_arguments[i].push((guard.clone(), argument));
-                    }
-                }
             }
 
             <span class="comment">// Fold the return expressions into a single expression.
@@ -840,26 +792,9 @@
             <span class="comment">// Add all of the accumulated statements to the end of the block.
             </span>block.statements.extend(stmts);
 
-            <span class="comment">// For each position in the finalize call, fold the corresponding arguments into a single expression.
-            </span><span class="kw">let </span>finalize_arguments = <span class="kw">match </span>has_finalize {
-                <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
-                <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(
-                    finalize_arguments
-                        .into_iter()
-                        .enumerate()
-                        .map(|(i, arguments)| {
-                            <span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"finalize${i}$"</span>), arguments);
-                            block.statements.extend(stmts);
-                            expression
-                        })
-                        .collect(),
-                ),
-            };
-
             <span class="comment">// Add the `ReturnStatement` to the end of the block.
             </span>block.statements.push(Statement::Return(ReturnStatement {
                 expression,
-                finalize_arguments,
                 span: Default::default(),
                 id: <span class="self">self</span>.node_builder.next_id(),
             }));
@@ -871,7 +806,6 @@
                     <span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
                     Expression::Unit(UnitExpression { span: Default::default(), id })
                 },
-                finalize_arguments: <span class="prelude-val">None</span>,
                 span: Default::default(),
                 id: <span class="self">self</span>.node_builder.next_id(),
             }));

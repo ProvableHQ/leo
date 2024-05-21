@@ -71,6 +71,7 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -87,9 +88,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{CodeGenerator, Location};
+</span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 
-<span class="kw">use </span>leo_ast::{Mode, Type};
+<span class="kw">use </span>leo_ast::{Location, Mode, Type};
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CodeGenerator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_type(input: <span class="kw-2">&amp;</span>Type) -&gt; String {
@@ -101,6 +102,7 @@
             | Type::Scalar
             | Type::Signature
             | Type::String
+            | Type::Future(..)
             | Type::Composite(..)
             | Type::Identifier(..)
             | Type::Integer(..) =&gt; <span class="macro">format!</span>(<span class="string">"{input}"</span>),

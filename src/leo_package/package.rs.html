@@ -236,8 +236,8 @@
 
 <span class="kw">impl</span>&lt;N: Network&gt; Package&lt;N&gt; {
     <span class="kw">pub fn </span>new(package_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="comment">// Check that the package name is valid.
-        </span><span class="kw">if </span>!<span class="self">Self</span>::is_package_name_valid(package_name) {
+        <span class="comment">// Check that the package name is a valid Aleo program name.
+        </span><span class="kw">if </span>!<span class="self">Self</span>::is_aleo_name_valid(package_name) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::invalid_package_name(package_name).into());
         }
 
@@ -250,35 +250,35 @@
         })
     }
 
-    <span class="doccomment">/// Returns `true` if the package name is valid.
+    <span class="doccomment">/// Returns `true` if it is a valid Aleo name.
     ///
-    /// Package names can only contain ASCII alphanumeric characters and underscores.
-    </span><span class="kw">pub fn </span>is_package_name_valid(package_name: <span class="kw-2">&amp;</span>str) -&gt; bool {
-        <span class="comment">// Check that the package name is nonempty.
-        </span><span class="kw">if </span>package_name.is_empty() {
-            <span class="macro">tracing::error!</span>(<span class="string">"Project names must be nonempty"</span>);
+    /// Aleo names can only contain ASCII alphanumeric characters and underscores.
+    </span><span class="kw">pub fn </span>is_aleo_name_valid(name: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="comment">// Check that the name is nonempty.
+        </span><span class="kw">if </span>name.is_empty() {
+            <span class="macro">tracing::error!</span>(<span class="string">"Aleo names must be nonempty"</span>);
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="kw">let </span>first = package_name.chars().next().unwrap();
+        <span class="kw">let </span>first = name.chars().next().unwrap();
 
         <span class="comment">// Check that the first character is not an underscore.
         </span><span class="kw">if </span>first == <span class="string">'_' </span>{
-            <span class="macro">tracing::error!</span>(<span class="string">"Project names cannot begin with an underscore"</span>);
+            <span class="macro">tracing::error!</span>(<span class="string">"Aleo names cannot begin with an underscore"</span>);
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
         <span class="comment">// Check that the first character is not a number.
         </span><span class="kw">if </span>first.is_numeric() {
-            <span class="macro">tracing::error!</span>(<span class="string">"Project names cannot begin with a number"</span>);
+            <span class="macro">tracing::error!</span>(<span class="string">"Aleo names cannot begin with a number"</span>);
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="comment">// Iterate and check that the package name is valid.
-        </span><span class="kw">for </span>current <span class="kw">in </span>package_name.chars() {
-            <span class="comment">// Check that the package name contains only ASCII alphanumeric or underscores.
+        <span class="comment">// Iterate and check that the name is valid.
+        </span><span class="kw">for </span>current <span class="kw">in </span>name.chars() {
+            <span class="comment">// Check that the program name contains only ASCII alphanumeric or underscores.
             </span><span class="kw">if </span>!current.is_ascii_alphanumeric() &amp;&amp; current != <span class="string">'_' </span>{
-                <span class="macro">tracing::error!</span>(<span class="string">"Project names must can only contain ASCII alphanumeric characters and underscores."</span>);
+                <span class="macro">tracing::error!</span>(<span class="string">"Aleo names must can only contain ASCII alphanumeric characters and underscores."</span>);
                 <span class="kw">return </span><span class="bool-val">false</span>;
             }
         }
@@ -288,8 +288,8 @@
 
     <span class="doccomment">/// Returns `true` if a package is can be initialized at a given path.
     </span><span class="kw">pub fn </span>can_initialize(package_name: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>Path) -&gt; bool {
-        <span class="comment">// Check that the package name is valid.
-        </span><span class="kw">if </span>!<span class="self">Self</span>::is_package_name_valid(package_name) {
+        <span class="comment">// Check that the package name is a valid Aleo program name.
+        </span><span class="kw">if </span>!<span class="self">Self</span>::is_aleo_name_valid(package_name) {
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
@@ -311,8 +311,8 @@
 
     <span class="doccomment">/// Returns `true` if a package is initialized at the given path
     </span><span class="kw">pub fn </span>is_initialized(package_name: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>Path) -&gt; bool {
-        <span class="comment">// Check that the package name is valid.
-        </span><span class="kw">if </span>!<span class="self">Self</span>::is_package_name_valid(package_name) {
+        <span class="comment">// Check that the package name is a valid Aleo program name.
+        </span><span class="kw">if </span>!<span class="self">Self</span>::is_aleo_name_valid(package_name) {
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
@@ -368,30 +368,30 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">type </span>CurrentNetwork = snarkvm::prelude::Testnet3;
+    <span class="kw">type </span>CurrentNetwork = snarkvm::prelude::MainnetV0;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_is_package_name_valid() {
-        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo"</span>));
-        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo_bar"</span>));
-        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo1"</span>));
-        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo_bar___baz_"</span>));
+        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo"</span>));
+        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo_bar"</span>));
+        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo1"</span>));
+        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo_bar___baz_"</span>));
 
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo-bar"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo-bar-baz"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo-1"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">""</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"-"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"-foo"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"-foo-"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"_foo"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo--bar"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo---bar"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo--bar--baz"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo---bar---baz"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo*bar"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"foo,bar"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_package_name_valid(<span class="string">"1-foo"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo-bar"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo-bar-baz"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo-1"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">""</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"-"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"-foo"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"-foo-"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"_foo"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo--bar"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo---bar"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo--bar--baz"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo---bar---baz"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo*bar"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo,bar"</span>));
+        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"1-foo"</span>));
     }
 }
 </code></pre></div></section></main></body></html>

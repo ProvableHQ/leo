@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["compile_leo_file"],"struct":["Build"],"type":["CurrentNetwork"]};
+window.SIDEBAR_ITEMS = {"fn":["compile_leo_file"],"struct":["Build"]};

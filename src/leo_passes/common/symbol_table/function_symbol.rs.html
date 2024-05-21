@@ -55,15 +55,6 @@
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -80,21 +71,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_ast::{Function, Input, Type, Variant};
+</span><span class="kw">use </span>leo_ast::{Function, Input, Location, Type, Variant};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 
 <span class="kw">use </span><span class="kw">crate</span>::SymbolTable;
-
-<span class="doccomment">/// Metadata associated with the finalize block.
-</span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-</span><span class="kw">pub struct </span>FinalizeData {
-    <span class="doccomment">/// The inputs to the finalize block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) input: Vec&lt;Input&gt;,
-    <span class="doccomment">/// The output type of the finalize block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) output_type: Type,
-}
 
 <span class="doccomment">/// An entry for a function in the symbol table.
 </span><span class="attr">#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -109,8 +91,10 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) _span: Span,
     <span class="doccomment">/// The inputs to the function.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) input: Vec&lt;Input&gt;,
-    <span class="doccomment">/// Metadata associated with the finalize block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) finalize: <span class="prelude-ty">Option</span>&lt;FinalizeData&gt;,
+    <span class="doccomment">/// Future inputs.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) future_inputs: Vec&lt;Location&gt;,
+    <span class="doccomment">/// The finalize block associated with the function.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) finalize: <span class="prelude-ty">Option</span>&lt;Location&gt;,
 }
 
 <span class="kw">impl </span>SymbolTable {
@@ -121,10 +105,8 @@
             variant: func.variant,
             _span: func.span,
             input: func.input.clone(),
-            finalize: func.finalize.as_ref().map(|finalize| FinalizeData {
-                input: finalize.input.clone(),
-                output_type: finalize.output_type.clone(),
-            }),
+            future_inputs: Vec::new(),
+            finalize: <span class="prelude-val">None</span>,
         }
     }
 }

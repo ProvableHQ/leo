@@ -836,6 +836,25 @@
 <a href="#834" id="834">834</a>
 <a href="#835" id="835">835</a>
 <a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -870,10 +889,10 @@
     <span class="attr">#[clap(subcommand)]
     </span>command: Commands,
 
-    <span class="attr">#[clap(long, global = <span class="bool-val">true</span>, help = <span class="string">"Optional path to Leo program root folder"</span>)]
+    <span class="attr">#[clap(long, global = <span class="bool-val">true</span>, help = <span class="string">"Path to Leo program root folder"</span>)]
     </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 
-    <span class="attr">#[clap(long, global = <span class="bool-val">true</span>, help = <span class="string">"Optional path to aleo program registry."</span>)]
+    <span class="attr">#[clap(long, global = <span class="bool-val">true</span>, help = <span class="string">"Path to aleo program registry"</span>)]
     </span><span class="kw">pub </span>home: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 }
 
@@ -884,11 +903,6 @@
     </span>Account {
         <span class="attr">#[clap(subcommand)]
         </span>command: Account,
-    },
-    <span class="attr">#[clap(about = <span class="string">"Add a new on-chain or local dependency to the current package."</span>)]
-    </span>Add {
-        <span class="attr">#[clap(flatten)]
-        </span>command: Add,
     },
     <span class="attr">#[clap(about = <span class="string">"Create a new Leo package in a new directory"</span>)]
     </span>New {
@@ -915,11 +929,25 @@
         <span class="attr">#[clap(flatten)]
         </span>command: Deploy,
     },
-
+    <span class="attr">#[clap(about = <span class="string">"Query live data from the Aleo network"</span>)]
+    </span>Query {
+        <span class="attr">#[clap(flatten)]
+        </span>command: Query,
+    },
     <span class="attr">#[clap(about = <span class="string">"Compile the current package as a program"</span>)]
     </span>Build {
         <span class="attr">#[clap(flatten)]
         </span>command: Build,
+    },
+    <span class="attr">#[clap(about = <span class="string">"Add a new on-chain or local dependency to the current package."</span>)]
+    </span>Add {
+        <span class="attr">#[clap(flatten)]
+        </span>command: Add,
+    },
+    <span class="attr">#[clap(about = <span class="string">"Remove a dependency from the current package."</span>)]
+    </span>Remove {
+        <span class="attr">#[clap(flatten)]
+        </span>command: Remove,
     },
     <span class="attr">#[clap(about = <span class="string">"Clean the output directory"</span>)]
     </span>Clean {
@@ -962,11 +990,13 @@
         Commands::Account { command } =&gt; command.try_execute(context),
         Commands::New { command } =&gt; command.try_execute(context),
         Commands::Build { command } =&gt; command.try_execute(context),
+        Commands::Query { command } =&gt; command.try_execute(context),
         Commands::Clean { command } =&gt; command.try_execute(context),
         Commands::Deploy { command } =&gt; command.try_execute(context),
         Commands::Example { command } =&gt; command.try_execute(context),
         Commands::Run { command } =&gt; command.try_execute(context),
         Commands::Execute { command } =&gt; command.try_execute(context),
+        Commands::Remove { command } =&gt; command.try_execute(context),
         Commands::Update { command } =&gt; command.try_execute(context),
     }
 }
@@ -1012,7 +1042,7 @@
         });
 
         <span class="comment">// TODO: Clear tmp directory
-        // let registry = temp_dir.join(".aleo").join("registry").join("testnet3");
+        // let registry = temp_dir.join(".aleo").join("registry").join("mainnet");
         // std::fs::remove_dir_all(registry).unwrap();
         // std::fs::remove_dir_all(project_directory).unwrap();
     </span>}
@@ -1222,7 +1252,8 @@ function external_nested_function:
                 command: Add {
                     name: <span class="string">"nested_example_layer_0"</span>.to_string(),
                     local: <span class="prelude-val">None</span>,
-                    network: <span class="string">"testnet3"</span>.to_string(),
+                    network: <span class="string">"mainnet"</span>.to_string(),
+                    clear: <span class="bool-val">false</span>,
                 },
             },
             path: <span class="prelude-val">Some</span>(project_directory.clone()),
@@ -1234,7 +1265,7 @@ function external_nested_function:
         });
 
         <span class="comment">// Add custom `.aleo` directory
-        </span><span class="kw">let </span>registry = temp_dir.join(<span class="string">".aleo"</span>).join(<span class="string">"registry"</span>).join(<span class="string">"testnet3"</span>);
+        </span><span class="kw">let </span>registry = temp_dir.join(<span class="string">".aleo"</span>).join(<span class="string">"registry"</span>).join(<span class="string">"mainnet"</span>);
         std::fs::create_dir_all(<span class="kw-2">&amp;</span>registry).unwrap();
         std::fs::write(registry.join(<span class="string">"nested_example_layer_0.aleo"</span>), nested_example_layer_0).unwrap();
         std::fs::write(registry.join(<span class="string">"nested_example_layer_1.aleo"</span>), nested_example_layer_1).unwrap();
@@ -1315,7 +1346,8 @@ program child.aleo {
                 command: Add {
                     name: <span class="string">"parent"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(parent_directory.clone()),
-                    network: <span class="string">"testnet3"</span>.to_string(),
+                    network: <span class="string">"mainnet"</span>.to_string(),
+                    clear: <span class="bool-val">false</span>,
                 },
             },
             path: <span class="prelude-val">Some</span>(grandparent_directory.clone()),
@@ -1329,7 +1361,8 @@ program child.aleo {
                 command: Add {
                     name: <span class="string">"child"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(child_directory.clone()),
-                    network: <span class="string">"testnet3"</span>.to_string(),
+                    network: <span class="string">"mainnet"</span>.to_string(),
+                    clear: <span class="bool-val">false</span>,
                 },
             },
             path: <span class="prelude-val">Some</span>(grandparent_directory.clone()),
@@ -1343,7 +1376,8 @@ program child.aleo {
                 command: Add {
                     name: <span class="string">"child"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(child_directory.clone()),
-                    network: <span class="string">"testnet3"</span>.to_string(),
+                    network: <span class="string">"mainnet"</span>.to_string(),
+                    clear: <span class="bool-val">false</span>,
                 },
             },
             path: <span class="prelude-val">Some</span>(parent_directory.clone()),
@@ -1466,7 +1500,8 @@ program outer.aleo {
                 command: Add {
                     name: <span class="string">"inner_1"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(inner_1_directory.clone()),
-                    network: <span class="string">"testnet3"</span>.to_string(),
+                    network: <span class="string">"mainnet"</span>.to_string(),
+                    clear: <span class="bool-val">false</span>,
                 },
             },
             path: <span class="prelude-val">Some</span>(outer_directory.clone()),
@@ -1480,7 +1515,8 @@ program outer.aleo {
                 command: Add {
                     name: <span class="string">"inner_2"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(inner_2_directory.clone()),
-                    network: <span class="string">"testnet3"</span>.to_string(),
+                    network: <span class="string">"mainnet"</span>.to_string(),
+                    clear: <span class="bool-val">false</span>,
                 },
             },
             path: <span class="prelude-val">Some</span>(outer_directory.clone()),
@@ -1633,7 +1669,8 @@ program outer_2.aleo {
                 command: Add {
                     name: <span class="string">"inner_1"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(inner_1_directory.clone()),
-                    network: <span class="string">"testnet3"</span>.to_string(),
+                    network: <span class="string">"mainnet"</span>.to_string(),
+                    clear: <span class="bool-val">false</span>,
                 },
             },
             path: <span class="prelude-val">Some</span>(outer_directory.clone()),
@@ -1647,7 +1684,8 @@ program outer_2.aleo {
                 command: Add {
                     name: <span class="string">"inner_2"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(inner_2_directory.clone()),
-                    network: <span class="string">"testnet3"</span>.to_string(),
+                    network: <span class="string">"mainnet"</span>.to_string(),
+                    clear: <span class="bool-val">false</span>,
                 },
             },
             path: <span class="prelude-val">Some</span>(outer_directory.clone()),

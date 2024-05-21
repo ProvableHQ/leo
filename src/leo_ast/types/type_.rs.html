@@ -181,6 +181,26 @@
 <a href="#179" id="179">179</a>
 <a href="#180" id="180">180</a>
 <a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -197,7 +217,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{common, ArrayType, CompositeType, Identifier, IntegerType, MappingType, TupleType};
+</span><span class="kw">use crate</span>::{common, ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, TupleType};
 
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>leo_span::Symbol;
@@ -222,6 +242,8 @@
     </span>Composite(CompositeType),
     <span class="doccomment">/// The `field` type.
     </span>Field,
+    <span class="doccomment">/// The `future` type.
+    </span>Future(FutureType),
     <span class="doccomment">/// The `group` type.
     </span>Group,
     <span class="doccomment">/// A reference to a built in type.
@@ -264,7 +286,7 @@
             (Type::Array(left), Type::Array(right)) =&gt; {
                 left.element_type().eq_flat(right.element_type()) &amp;&amp; left.length() == right.length()
             }
-            (Type::Identifier(left), Type::Identifier(right)) =&gt; left.matches(right),
+            (Type::Identifier(left), Type::Identifier(right)) =&gt; left.name == right.name,
             (Type::Integer(left), Type::Integer(right)) =&gt; left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) =&gt; {
                 left.key.eq_flat(<span class="kw-2">&amp;</span>right.key) &amp;&amp; left.value.eq_flat(<span class="kw-2">&amp;</span>right.value)
@@ -276,6 +298,16 @@
                 .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             (Type::Composite(left), Type::Composite(right)) =&gt; {
                 left.id.name == right.id.name &amp;&amp; left.program == right.program
+            }
+            (Type::Future(left), Type::Future(right))
+                <span class="kw">if </span>left.inputs.len() == right.inputs.len() &amp;&amp; left.location.is_some() &amp;&amp; right.location.is_some() =&gt;
+            {
+                left.location == right.location
+                    &amp;&amp; left
+                        .inputs()
+                        .iter()
+                        .zip_eq(right.inputs().iter())
+                        .all(|(left_type, right_type)| left_type.eq_flat(right_type))
             }
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
@@ -310,6 +342,13 @@
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_flat_relax_composite(right_type)),
             (Type::Composite(left), Type::Composite(right)) =&gt; left.id.name == right.id.name,
+            <span class="comment">// Don't type check when type hasn't been explicitly defined.
+            </span>(Type::Future(left), Type::Future(right)) <span class="kw">if </span>!left.is_explicit || !right.is_explicit =&gt; <span class="bool-val">true</span>,
+            (Type::Future(left), Type::Future(right)) <span class="kw">if </span>left.inputs.len() == right.inputs.len() =&gt; left
+                .inputs()
+                .iter()
+                .zip_eq(right.inputs().iter())
+                .all(|(left_type, right_type)| left_type.eq_flat_relax_composite(right_type)),
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
@@ -348,6 +387,7 @@
             Type::Array(<span class="kw-2">ref </span>array_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{array_type}"</span>),
             Type::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">"boolean"</span>),
             Type::Field =&gt; <span class="macro">write!</span>(f, <span class="string">"field"</span>),
+            Type::Future(<span class="kw-2">ref </span>future_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{future_type}"</span>),
             Type::Group =&gt; <span class="macro">write!</span>(f, <span class="string">"group"</span>),
             Type::Identifier(<span class="kw-2">ref </span>variable) =&gt; <span class="macro">write!</span>(f, <span class="string">"{variable}"</span>),
             Type::Integer(<span class="kw-2">ref </span>integer_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{integer_type}"</span>),

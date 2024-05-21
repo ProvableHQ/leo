@@ -288,23 +288,6 @@
 <a href="#286" id="286">286</a>
 <a href="#287" id="287">287</a>
 <a href="#288" id="288">288</a>
-<a href="#289" id="289">289</a>
-<a href="#290" id="290">290</a>
-<a href="#291" id="291">291</a>
-<a href="#292" id="292">292</a>
-<a href="#293" id="293">293</a>
-<a href="#294" id="294">294</a>
-<a href="#295" id="295">295</a>
-<a href="#296" id="296">296</a>
-<a href="#297" id="297">297</a>
-<a href="#298" id="298">298</a>
-<a href="#299" id="299">299</a>
-<a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a>
-<a href="#302" id="302">302</a>
-<a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -323,11 +306,11 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 
-<span class="kw">use </span>leo_ast::{Composite, Function, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
+<span class="kw">use </span>leo_ast::{Composite, Function, Location, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
+<span class="kw">use </span>leo_span::{sym, Symbol};
 
 <span class="kw">use </span>indexmap::IndexMap;
 <span class="kw">use </span>itertools::Itertools;
-<span class="kw">use </span>leo_span::{sym, Symbol};
 <span class="kw">use </span>std::fmt::Write <span class="kw">as _</span>;
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CodeGenerator&lt;<span class="lifetime">'a</span>&gt; {
@@ -404,15 +387,38 @@
                 .functions
                 .iter()
                 .map(|(<span class="kw">_</span>, function)| {
-                    <span class="comment">// Set the `is_transition_function` flag.
-                    </span><span class="self">self</span>.is_transition_function = <span class="macro">matches!</span>(function.variant, Variant::Transition);
+                    <span class="kw">if </span>function.variant != Variant::AsyncFunction {
+                        <span class="kw">let </span><span class="kw-2">mut </span>function_string = <span class="self">self</span>.visit_function(function);
 
-                    <span class="kw">let </span>function_string = <span class="self">self</span>.visit_function(function);
+                        <span class="comment">// Attach the associated finalize to async transitions.
+                        </span><span class="kw">if </span>function.variant == Variant::AsyncTransition {
+                            <span class="comment">// Set state variables.
+                            </span><span class="self">self</span>.finalize_caller = <span class="prelude-val">Some</span>(function.identifier.name);
+                            <span class="comment">// Generate code for the associated finalize function.
+                            </span><span class="kw">let </span>finalize = <span class="kw-2">&amp;</span><span class="self">self
+                                </span>.symbol_table
+                                .lookup_fn_symbol(Location::new(
+                                    <span class="prelude-val">Some</span>(<span class="self">self</span>.program_id.unwrap().name.name),
+                                    function.identifier.name,
+                                ))
+                                .unwrap()
+                                .clone()
+                                .finalize
+                                .unwrap()
+                                .name;
+                            <span class="comment">// Write the finalize string.
+                            </span>function_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                                <span class="string">"{}\n"</span>,
+                                <span class="kw-2">&amp;</span><span class="self">self</span>.visit_function(
+                                    <span class="kw-2">&amp;</span>program_scope.functions.iter().find(|(name, _f)| name == finalize).unwrap().<span class="number">1
+                                </span>)
+                            ));
+                        }
 
-                    <span class="comment">// Unset the `is_transition_function` flag.
-                    </span><span class="self">self</span>.is_transition_function = <span class="bool-val">false</span>;
-
-                    function_string
+                        function_string
+                    } <span class="kw">else </span>{
+                        String::new()
+                    }
                 })
                 .join(<span class="string">"\n"</span>),
         );
@@ -479,10 +485,11 @@
         <span class="comment">// Initialize the state of `self` with the appropriate values before visiting `function`.
         </span><span class="self">self</span>.next_register = <span class="number">0</span>;
         <span class="self">self</span>.variable_mapping = IndexMap::new();
-        <span class="self">self</span>.futures.clear();
+        <span class="self">self</span>.variant = <span class="prelude-val">Some</span>(function.variant);
         <span class="comment">// TODO: Figure out a better way to initialize.
         </span><span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::SelfLower, <span class="string">"self"</span>.to_string());
         <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::block, <span class="string">"block"</span>.to_string());
+        <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::network, <span class="string">"network"</span>.to_string());
         <span class="self">self</span>.current_function = <span class="prelude-val">Some</span>(function);
 
         <span class="comment">// Construct the header of the function.
@@ -490,22 +497,39 @@
         // if it is a standard function generate an Aleo `closure`,
         // otherwise, it is an inline function, in which case a function should not be generated.
         </span><span class="kw">let </span><span class="kw-2">mut </span>function_string = <span class="kw">match </span>function.variant {
-            Variant::Transition =&gt; <span class="macro">format!</span>(<span class="string">"\nfunction {}:\n"</span>, function.identifier),
-            Variant::Standard =&gt; <span class="macro">format!</span>(<span class="string">"\nclosure {}:\n"</span>, function.identifier),
+            Variant::Transition | Variant::AsyncTransition =&gt; <span class="macro">format!</span>(<span class="string">"\nfunction {}:\n"</span>, function.identifier),
+            Variant::Function =&gt; <span class="macro">format!</span>(<span class="string">"\nclosure {}:\n"</span>, function.identifier),
+            Variant::AsyncFunction =&gt; <span class="macro">format!</span>(<span class="string">"\nfinalize {}:\n"</span>, <span class="self">self</span>.finalize_caller.unwrap()),
             Variant::Inline =&gt; <span class="kw">return </span>String::from(<span class="string">"\n"</span>),
         };
 
         <span class="comment">// Construct and append the input declarations of the function.
-        </span><span class="kw">for </span>input <span class="kw">in </span>function.input.iter() {
+        </span><span class="kw">let </span><span class="kw-2">mut </span>futures = <span class="self">self
+            </span>.symbol_table
+            .lookup_fn_symbol(Location::new(<span class="prelude-val">Some</span>(<span class="self">self</span>.program_id.unwrap().name.name), function.identifier.name))
+            .unwrap()
+            .future_inputs
+            .clone();
+        <span class="kw">for </span>input <span class="kw">in </span>function.input.iter() {
             <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
             <span class="self">self</span>.next_register += <span class="number">1</span>;
 
-            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
-            <span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.is_transition_function, input.mode) {
-                (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Private,
-                <span class="kw">_ </span>=&gt; input.mode,
+            <span class="kw">let </span>type_string = {
+                <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
+                <span class="comment">// Note that this unwrap is safe because we set the variant at the beginning of the function.
+                </span><span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.variant.unwrap(), input.mode) {
+                    (Variant::AsyncTransition, Mode::None) | (Variant::Transition, Mode::None) =&gt; Mode::Private,
+                    (Variant::AsyncFunction, Mode::None) =&gt; Mode::Public,
+                    <span class="kw">_ </span>=&gt; input.mode,
+                };
+                <span class="comment">// Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
+                </span><span class="kw">if </span><span class="macro">matches!</span>(input.type_, Type::Future(<span class="kw">_</span>)) {
+                    <span class="kw">let </span>location = futures.remove(<span class="number">0</span>);
+                    <span class="macro">format!</span>(<span class="string">"{}.aleo/{}.future"</span>, location.program.unwrap(), location.name)
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility)
+                }
             };
-            <span class="kw">let </span>type_string = <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility);
 
             <span class="macro">writeln!</span>(function_string, <span class="string">"    input {register_string} as {type_string};"</span>,)
                 .expect(<span class="string">"failed to write to string"</span>);
@@ -514,64 +538,6 @@
         <span class="comment">//  Construct and append the function body.
         </span><span class="kw">let </span>block_string = <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>function.block);
         function_string.push_str(<span class="kw-2">&amp;</span>block_string);
-
-        <span class="comment">// If the finalize block exists, generate the appropriate bytecode.
-        </span><span class="kw">if </span>!<span class="self">self</span>.futures.is_empty() || function.finalize.is_some() {
-            <span class="comment">// Clear the register count.
-            </span><span class="self">self</span>.next_register = <span class="number">0</span>;
-            <span class="self">self</span>.in_finalize = <span class="bool-val">true</span>;
-
-            <span class="comment">// Clear the variable mapping.
-            // TODO: Figure out a better way to initialize.
-            </span><span class="self">self</span>.variable_mapping = IndexMap::new();
-            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::SelfLower, <span class="string">"self"</span>.to_string());
-            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::block, <span class="string">"block"</span>.to_string());
-
-            function_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"\nfinalize {}:\n"</span>, function.identifier));
-
-            <span class="comment">// If the function contained calls that produced futures, then we need to add the futures to the finalize block as input.
-            // Store the new future registers.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>future_registers = Vec::new();
-            <span class="kw">for </span>(<span class="kw">_</span>, future_type) <span class="kw">in </span><span class="self">self</span>.futures.drain(..) {
-                <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
-                <span class="macro">writeln!</span>(function_string, <span class="string">"    input {register_string} as {future_type}.future;"</span>)
-                    .expect(<span class="string">"failed to write to string"</span>);
-                future_registers.push(register_string);
-                <span class="self">self</span>.next_register += <span class="number">1</span>;
-            }
-
-            <span class="comment">// Construct and append the input declarations of the finalize block, if it exists.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span>function.finalize {
-                <span class="kw">for </span>input <span class="kw">in </span>finalize.input.iter() {
-                    <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
-                    <span class="self">self</span>.next_register += <span class="number">1</span>;
-
-                    <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
-
-                    <span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.is_transition_function, input.mode) {
-                        (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Public,
-                        <span class="kw">_ </span>=&gt; input.mode,
-                    };
-
-                    <span class="kw">let </span>type_string = <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility);
-
-                    <span class="macro">writeln!</span>(function_string, <span class="string">"    input {register_string} as {type_string};"</span>,)
-                        .expect(<span class="string">"failed to write to string"</span>);
-                }
-            }
-
-            <span class="comment">// Invoke `await` on each future.
-            </span><span class="kw">for </span>register <span class="kw">in </span>future_registers {
-                <span class="macro">writeln!</span>(function_string, <span class="string">"    await {register};"</span>).expect(<span class="string">"failed to write to string"</span>);
-            }
-
-            <span class="comment">// Construct and append the finalize block body, if it exists.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span>function.finalize {
-                function_string.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>finalize.block));
-            }
-
-            <span class="self">self</span>.in_finalize = <span class="bool-val">false</span>;
-        }
 
         function_string
     }

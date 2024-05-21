@@ -98,7 +98,7 @@
 //! The pass flattens `ConditionalStatement`s into a sequence of `AssignStatement`s.
 //! The pass rewrites `ReturnStatement`s into `AssignStatement`s and consolidates the returned values as a single `ReturnStatement` at the end of the function.
 //! The pass rewrites ternary expressions over composite data types, into ternary expressions over the individual fields of the composite data type, followed by an expression constructing the composite data type.
-//! Note that this transformation is only applied to non-finalize code.
+//! Note that this transformation is not applied to async functioins.
 //!
 //! Consider the following Leo code, output by the SSA pass.
 //! ```leo

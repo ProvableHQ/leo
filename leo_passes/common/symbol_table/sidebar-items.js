@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["function_symbol","location","variable_symbol"],"struct":["SymbolTable"]};
+window.SIDEBAR_ITEMS = {"mod":["function_symbol","variable_symbol"],"struct":["SymbolTable"]};

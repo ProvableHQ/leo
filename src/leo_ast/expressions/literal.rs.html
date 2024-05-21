@@ -130,7 +130,7 @@
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>Literal {
     <span class="comment">// todo: deserialize values here
-    </span><span class="doccomment">/// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9`.
+    </span><span class="doccomment">/// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9` or `hello.aleo`.
     </span>Address(String, <span class="attr">#[serde(with = <span class="string">"leo_span::span_json"</span>)] </span>Span, NodeID),
     <span class="doccomment">/// A boolean literal, either `true` or `false`.
     </span>Boolean(bool, <span class="attr">#[serde(with = <span class="string">"leo_span::span_json"</span>)] </span>Span, NodeID),

@@ -150,19 +150,6 @@
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
 <a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -187,9 +174,6 @@
 
 <span class="kw">pub mod </span>variant;
 <span class="kw">pub use </span>variant::<span class="kw-2">*</span>;
-
-<span class="kw">pub mod </span>finalize;
-<span class="kw">pub use </span>finalize::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>input;
 <span class="kw">pub use </span>input::<span class="kw-2">*</span>;
@@ -223,8 +207,6 @@
     </span><span class="kw">pub </span>output_type: Type,
     <span class="doccomment">/// The body of the function.
     </span><span class="kw">pub </span>block: Block,
-    <span class="doccomment">/// An optional finalize block
-    </span><span class="kw">pub </span>finalize: <span class="prelude-ty">Option</span>&lt;Finalize&gt;,
     <span class="doccomment">/// The entire span of the function definition.
     </span><span class="kw">pub </span>span: Span,
     <span class="doccomment">/// The ID of the node.
@@ -249,7 +231,6 @@
         input: Vec&lt;Input&gt;,
         output: Vec&lt;Output&gt;,
         block: Block,
-        finalize: <span class="prelude-ty">Option</span>&lt;Finalize&gt;,
         span: Span,
         id: NodeID,
     ) -&gt; <span class="self">Self </span>{
@@ -259,7 +240,7 @@
             <span class="kw">_ </span>=&gt; Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
         };
 
-        Function { annotations, variant, identifier, input, output, output_type, block, finalize, span, id }
+        Function { annotations, variant, identifier, input, output, output_type, block, span, id }
     }
 
     <span class="doccomment">/// Returns function name.
@@ -273,8 +254,8 @@
     </span><span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self</span>.variant {
             Variant::Inline =&gt; <span class="macro">write!</span>(f, <span class="string">"inline "</span>)<span class="question-mark">?</span>,
-            Variant::Standard =&gt; <span class="macro">write!</span>(f, <span class="string">"function "</span>)<span class="question-mark">?</span>,
-            Variant::Transition =&gt; <span class="macro">write!</span>(f, <span class="string">"transition "</span>)<span class="question-mark">?</span>,
+            Variant::Function | Variant::AsyncFunction =&gt; <span class="macro">write!</span>(f, <span class="string">"function "</span>)<span class="question-mark">?</span>,
+            Variant::Transition | Variant::AsyncTransition =&gt; <span class="macro">write!</span>(f, <span class="string">"transition "</span>)<span class="question-mark">?</span>,
         }
         <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
 
@@ -286,18 +267,12 @@
         };
         <span class="macro">write!</span>(f, <span class="string">"({parameters}) -&gt; {returns} {}"</span>, <span class="self">self</span>.block)<span class="question-mark">?</span>;
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span><span class="self">self</span>.finalize {
-            <span class="kw">let </span>parameters = finalize.input.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">","</span>);
-            <span class="macro">write!</span>(f, <span class="string">" finalize ({parameters}) {}"</span>, finalize.block)
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(())
-        }
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl </span>From&lt;FunctionStub&gt; <span class="kw">for </span>Function {
     <span class="kw">fn </span>from(function: FunctionStub) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>finalize = function.finalize_stub.map(Finalize::from);
         <span class="self">Self </span>{
             annotations: function.annotations,
             variant: function.variant,
@@ -306,7 +281,6 @@
             output: function.output,
             output_type: function.output_type,
             block: Block::default(),
-            finalize,
             span: function.span,
             id: function.id,
         }

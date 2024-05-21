@@ -255,6 +255,11 @@
 <a href="#253" id="253">253</a>
 <a href="#254" id="254">254</a>
 <a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -277,11 +282,13 @@
 <span class="kw">use </span>leo_errors::{emitter::Handler, ParserError, ParserWarning, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use </span>std::{fmt::Display, mem};
+<span class="kw">use </span>snarkvm::prelude::Network;
+
+<span class="kw">use </span>std::{fmt::Display, marker::PhantomData, mem};
 
 <span class="doccomment">/// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ParserContext&lt;<span class="lifetime">'a</span>&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ParserContext&lt;<span class="lifetime">'a</span>, N: Network&gt; {
     <span class="doccomment">/// Handler used to side-channel emit errors from the parser.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
     <span class="doccomment">/// Counter used to generate unique node ids.
@@ -298,12 +305,14 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) disallow_struct_construction: bool,
     <span class="doccomment">/// The name of the program being parsed.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) program_name: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
+    <span class="comment">// Allows the parser to be generic over the network.
+    </span>phantom: PhantomData&lt;N&gt;,
 }
 
 <span class="doccomment">/// Dummy span used to appease borrow checker.
 </span><span class="kw">const </span>DUMMY_EOF: SpannedToken = SpannedToken { token: Token::Eof, span: Span::dummy() };
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ParserContext&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; ParserContext&lt;<span class="lifetime">'a</span>, N&gt; {
     <span class="doccomment">/// Returns a new [`ParserContext`] type given a vector of tokens.
     </span><span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler, node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder, <span class="kw-2">mut </span>tokens: Vec&lt;SpannedToken&gt;) -&gt; <span class="self">Self </span>{
         <span class="comment">// Strip out comments.
@@ -320,6 +329,7 @@
             token,
             tokens,
             program_name: <span class="prelude-val">None</span>,
+            phantom: Default::default(),
         };
         p.bump();
         p

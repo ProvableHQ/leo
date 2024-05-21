@@ -615,8 +615,6 @@
 <a href="#613" id="613">613</a>
 <a href="#614" id="614">614</a>
 <a href="#615" id="615">615</a>
-<a href="#616" id="616">616</a>
-<a href="#617" id="617">617</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -633,7 +631,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{CodeGenerator, Location};
+</span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 <span class="kw">use </span>leo_ast::{
     AccessExpression,
     ArrayAccess,
@@ -648,9 +646,9 @@
     Expression,
     Identifier,
     Literal,
+    Location,
     LocatorExpression,
     MemberAccess,
-    ProgramScope,
     StructExpression,
     TernaryExpression,
     TupleExpression,
@@ -658,6 +656,7 @@
     UnaryExpression,
     UnaryOperation,
     UnitExpression,
+    Variant,
 };
 <span class="kw">use </span>leo_span::sym;
 <span class="kw">use </span>std::borrow::Borrow;
@@ -922,8 +921,8 @@
     }
 
     <span class="kw">fn </span>visit_member_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>MemberAccess) -&gt; (String, String) {
-        <span class="kw">let </span>(inner_struct, <span class="kw">_</span>) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.inner);
-        <span class="kw">let </span>member_access = <span class="macro">format!</span>(<span class="string">"{inner_struct}.{}"</span>, input.name);
+        <span class="kw">let </span>(inner_expr, <span class="kw">_</span>) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.inner);
+        <span class="kw">let </span>member_access = <span class="macro">format!</span>(<span class="string">"{}.{}"</span>, inner_expr, input.name);
 
         (member_access, String::new())
     }
@@ -1094,7 +1093,14 @@
                 .expect(<span class="string">"failed to write to string"</span>);
                 (destination_register, instruction)
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"All core functions should be known at this phase of compilation"</span>),
+            sym::Future =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    await"</span>.to_string();
+                <span class="macro">writeln!</span>(instruction, <span class="string">" {};"</span>, arguments[<span class="number">0</span>]).expect(<span class="string">"failed to write to string"</span>);
+                (String::new(), instruction)
+            }
+            <span class="kw">_ </span>=&gt; {
+                <span class="macro">unreachable!</span>(<span class="string">"All core functions should be known at this phase of compilation"</span>)
+            }
         };
         <span class="comment">// Add the instruction to the list of instructions.
         </span>instructions.push_str(<span class="kw-2">&amp;</span>instruction);
@@ -1115,32 +1121,34 @@
     }
 
     <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CallExpression) -&gt; (String, String) {
-        <span class="comment">// Need to determine the program the function originated from as well as if the function has a finalize block.
-        </span><span class="kw">let </span>(<span class="kw-2">mut </span>call_instruction, has_finalize);
+        <span class="comment">// Lookup the function return type.
+        </span><span class="kw">let </span>function_name = <span class="kw">match </span>input.function.borrow() {
+            Expression::Identifier(identifier) =&gt; identifier.name,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>),
+        };
 
         <span class="comment">// Check if function is external.
         </span><span class="kw">let </span>main_program = input.program.unwrap();
-        <span class="kw">if </span>main_program != <span class="self">self</span>.program_id.unwrap().name.name {
+        <span class="comment">// Need to determine the program the function originated from as well as if the function has a finalize block.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>call_instruction = <span class="kw">if </span>main_program != <span class="self">self</span>.program_id.unwrap().name.name {
             <span class="comment">// All external functions must be defined as stubs.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(stub_program) = <span class="self">self</span>.program.stubs.get(<span class="kw-2">&amp;</span>main_program) {
-                <span class="kw">let </span>stub_scope = ProgramScope::from(stub_program.clone());
-                <span class="kw">let </span>function_name = <span class="kw">match </span><span class="kw-2">*</span>input.function {
-                    Expression::Identifier(identifier) =&gt; identifier.name,
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>),
-                };
-
-                <span class="comment">// Check if the external function has a finalize block.
-                </span>has_finalize = <span class="kw">match </span>stub_scope.functions.iter().find(|(sym, <span class="kw">_</span>)| <span class="kw-2">*</span>sym == function_name) {
-                    <span class="prelude-val">Some</span>((<span class="kw">_</span>, function)) =&gt; function.finalize.is_some(),
-                    <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that imported functions are well defined."</span>),
-                };
-                call_instruction = <span class="macro">format!</span>(<span class="string">"    call {}.aleo/{}"</span>, main_program, input.function);
+            </span><span class="kw">if </span><span class="self">self</span>.program.stubs.get(<span class="kw-2">&amp;</span>main_program).is_some() {
+                <span class="macro">format!</span>(<span class="string">"    call {}.aleo/{}"</span>, main_program, input.function)
             } <span class="kw">else </span>{
                 <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that imported and stub programs are well defined."</span>)
             }
         } <span class="kw">else </span>{
-            (call_instruction, has_finalize) = (<span class="macro">format!</span>(<span class="string">"    call {}"</span>, input.function), <span class="bool-val">false</span>);
-        }
+            <span class="comment">// Lookup in symbol table to determine if its an async function.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.symbol_table.lookup_fn_symbol(Location::new(input.program, function_name)) {
+                <span class="kw">if </span>func.variant.is_async() &amp;&amp; input.program.unwrap() == <span class="self">self</span>.program_id.unwrap().name.name {
+                    <span class="macro">format!</span>(<span class="string">"    async {}"</span>, <span class="self">self</span>.current_function.unwrap().identifier)
+                } <span class="kw">else </span>{
+                    <span class="macro">format!</span>(<span class="string">"    call {}"</span>, input.function)
+                }
+            } <span class="kw">else </span>{
+                <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that all functions are well defined."</span>)
+            }
+        };
         <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
 
         <span class="kw">for </span>argument <span class="kw">in </span>input.arguments.iter() {
@@ -1149,18 +1157,12 @@
             instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
         }
 
-        <span class="comment">// Lookup the function return type.
-        </span><span class="kw">let </span>function_name = <span class="kw">match </span>input.function.borrow() {
-            Expression::Identifier(identifier) =&gt; identifier.name,
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>),
-        };
-
         <span class="comment">// Initialize storage for the destination registers.
         </span><span class="kw">let </span><span class="kw-2">mut </span>destinations = Vec::new();
 
-        <span class="kw">let </span>return_type =
-            <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.lookup_fn_symbol(Location::new(<span class="prelude-val">Some</span>(main_program), function_name)).unwrap().output_type;
-        <span class="kw">match </span>return_type {
+        <span class="comment">// Create operands for the output registers.
+        </span><span class="kw">let </span>func = <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.lookup_fn_symbol(Location::new(<span class="prelude-val">Some</span>(main_program), function_name)).unwrap();
+        <span class="kw">match </span>func.output_type.clone() {
             Type::Unit =&gt; {} <span class="comment">// Do nothing
             </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
                 <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a tuple type has at least two elements"</span>),
@@ -1179,21 +1181,15 @@
             }
         }
 
+        <span class="comment">// Add a register for async functions to represent the future created.
+        </span><span class="kw">if </span>func.variant == Variant::AsyncFunction {
+            <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
+            destinations.push(destination_register);
+            <span class="self">self</span>.next_register += <span class="number">1</span>;
+        }
+
         <span class="comment">// Construct the output operands. These are the destination registers **without** the future.
         </span><span class="kw">let </span>output_operands = destinations.join(<span class="string">" "</span>);
-
-        <span class="comment">// If `has_finalize`, create another destination register for the future.
-        </span><span class="kw">if </span>has_finalize {
-            <span class="comment">// Construct the future register.
-            </span><span class="kw">let </span>future_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
-            <span class="self">self</span>.next_register += <span class="number">1</span>;
-
-            <span class="comment">// Add the futures register to the list of futures.
-            </span><span class="self">self</span>.futures.push((future_register.clone(), <span class="macro">format!</span>(<span class="string">"{}.aleo/{function_name}"</span>, main_program)));
-
-            <span class="comment">// Add the future register to the list of destinations.
-            </span>destinations.push(future_register);
-        }
 
         <span class="comment">// If destination registers were created, write them to the call instruction.
         </span><span class="kw">if </span>!destinations.is_empty() {

@@ -66,14 +66,14 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) used_variables: IndexSet&lt;Symbol&gt;,
     <span class="doccomment">/// Whether or not the variables are necessary.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_necessary: bool,
-    <span class="doccomment">/// Whether or not we are currently traversing a finalize block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_finalize: bool,
+    <span class="doccomment">/// Whether or not we are currently traversing an async function.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_async: bool,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DeadCodeEliminator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Initializes a new `DeadCodeEliminator`.
     </span><span class="kw">pub fn </span>new(node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ node_builder, used_variables: Default::default(), is_necessary: <span class="bool-val">false</span>, is_finalize: <span class="bool-val">false </span>}
+        <span class="self">Self </span>{ node_builder, used_variables: Default::default(), is_necessary: <span class="bool-val">false</span>, is_async: <span class="bool-val">false </span>}
     }
 }
 </code></pre></div></section></main></body></html>

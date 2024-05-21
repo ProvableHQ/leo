@@ -87,10 +87,6 @@
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -109,7 +105,7 @@
 
 </span><span class="kw">use crate</span>::{CallGraph, StructGraph, SymbolTable, TypeTable};
 
-<span class="kw">use </span>leo_ast::{Function, Program, ProgramId};
+<span class="kw">use </span>leo_ast::{Function, Program, ProgramId, Variant};
 <span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>indexmap::IndexMap;
@@ -135,17 +131,14 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) composite_mapping: IndexMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Symbol, (bool, String)&gt;,
     <span class="doccomment">/// Mapping of global identifiers to their associated names.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) global_mapping: IndexMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Symbol, String&gt;,
-    <span class="doccomment">/// Are we traversing a transition function?
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_transition_function: bool,
-    <span class="doccomment">/// Are we traversing a finalize block?
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) in_finalize: bool,
-    <span class="comment">// TODO (@d0cd): There are a temporary solution to be compatible with futures introduced in Aleo instructions.
-    // The registers containing futures produced in the current transition.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) futures: Vec&lt;(String, String)&gt;,
-    <span class="comment">// A reference to program. This is needed to look up external programs.
+    <span class="doccomment">/// The variant of the function we are currently traversing.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) variant: <span class="prelude-ty">Option</span>&lt;Variant&gt;,
+    <span class="doccomment">/// A reference to program. This is needed to look up external programs.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) program: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Program,
-    <span class="comment">// The program ID of the current program.
+    <span class="doccomment">/// The program ID of the current program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) program_id: <span class="prelude-ty">Option</span>&lt;ProgramId&gt;,
+    <span class="doccomment">/// A reference to the finalize caller.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) finalize_caller: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
     <span class="doccomment">/// A counter to track the next available label.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) next_label: u64,
     <span class="doccomment">/// The depth of the current conditional block.
@@ -172,11 +165,10 @@
             variable_mapping: IndexMap::new(),
             composite_mapping: IndexMap::new(),
             global_mapping: IndexMap::new(),
-            is_transition_function: <span class="bool-val">false</span>,
-            in_finalize: <span class="bool-val">false</span>,
-            futures: Vec::new(),
+            variant: <span class="prelude-val">None</span>,
             program,
             program_id: <span class="prelude-val">None</span>,
+            finalize_caller: <span class="prelude-val">None</span>,
             next_label: <span class="number">0u64</span>,
             conditional_depth: <span class="number">0u64</span>,
         }

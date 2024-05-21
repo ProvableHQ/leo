@@ -192,7 +192,7 @@
 
     <span class="doccomment">/// Flattening removes conditional statements from the program.
     </span><span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="kw">if </span>!<span class="self">self</span>.is_finalize {
+        <span class="kw">if </span>!<span class="self">self</span>.is_async {
             <span class="macro">unreachable!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
         } <span class="kw">else </span>{
             (

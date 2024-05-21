@@ -246,47 +246,6 @@
 <a href="#244" id="244">244</a>
 <a href="#245" id="245">245</a>
 <a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
-<a href="#274" id="274">274</a>
-<a href="#275" id="275">275</a>
-<a href="#276" id="276">276</a>
-<a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a>
-<a href="#280" id="280">280</a>
-<a href="#281" id="281">281</a>
-<a href="#282" id="282">282</a>
-<a href="#283" id="283">283</a>
-<a href="#284" id="284">284</a>
-<a href="#285" id="285">285</a>
-<a href="#286" id="286">286</a>
-<a href="#287" id="287">287</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -319,10 +278,10 @@
     Mode,
     ReturnStatement,
     Statement,
+    Type,
 };
 
 <span class="kw">use </span>itertools::Itertools;
-<span class="kw">use </span>std::fmt::Write <span class="kw">as _</span>;
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CodeGenerator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Statement) -&gt; String {
@@ -369,52 +328,51 @@
     }
 
     <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ReturnStatement) -&gt; String {
-        <span class="kw">let </span><span class="kw-2">mut </span>outputs = <span class="kw">match </span>input.expression {
+        <span class="kw">let </span>outputs = <span class="kw">match </span>input.expression {
             <span class="comment">// Skip empty return statements.
             </span>Expression::Unit(<span class="kw">_</span>) =&gt; String::new(),
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">let </span>(operand, <span class="kw-2">mut </span>expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression);
                 <span class="comment">// Get the output type of the function.
-                </span><span class="kw">let </span>output = <span class="kw">if </span><span class="self">self</span>.in_finalize {
-                    <span class="comment">// Note that the first unwrap is safe, since `current_function` is set in `visit_function`.
-                    </span><span class="self">self</span>.current_function.unwrap().finalize.as_ref().unwrap().output.iter()
-                } <span class="kw">else </span>{
-                    <span class="comment">// Note that this unwrap is safe, since `current_function` is set in `visit_function`.
-                    </span><span class="self">self</span>.current_function.unwrap().output.iter()
-                };
+                </span><span class="kw">let </span>output = <span class="self">self</span>.current_function.unwrap().output.iter();
                 <span class="comment">// If the operand string is empty, initialize an empty vector.
                 </span><span class="kw">let </span>operand_strings = <span class="kw">match </span>operand.is_empty() {
                     <span class="bool-val">true </span>=&gt; <span class="macro">vec!</span>[],
                     <span class="bool-val">false </span>=&gt; operand.split(<span class="string">' '</span>).collect_vec(),
                 };
-                <span class="kw">let </span>instructions = operand_strings
+
+                <span class="kw">let </span><span class="kw-2">mut </span>future_output = String::new();
+                <span class="kw">let </span><span class="kw-2">mut </span>instructions = operand_strings
                     .iter()
                     .zip_eq(output)
                     .map(|(operand, output)| {
-                        <span class="kw">let </span>visibility = <span class="kw">if </span><span class="self">self</span>.is_transition_function {
-                            <span class="kw">match </span><span class="self">self</span>.in_finalize {
-                                <span class="comment">// If in finalize block, the default visibility is public.
-                                </span><span class="bool-val">true </span>=&gt; <span class="kw">match </span>output.mode {
-                                    Mode::None =&gt; Mode::Public,
-                                    mode =&gt; mode,
-                                },
-                                <span class="comment">// If not in finalize block, the default visibility is private.
-                                </span><span class="bool-val">false </span>=&gt; <span class="kw">match </span>output.mode {
-                                    Mode::None =&gt; Mode::Private,
-                                    mode =&gt; mode,
-                                },
-                            }
-                        } <span class="kw">else </span>{
-                            <span class="comment">// Only program functions have visibilities associated with their outputs.
-                            </span>Mode::None
+                        <span class="comment">// Transitions outputs with no mode are private.
+                        // Note that this unwrap is safe because we set the variant before traversing the function.
+                        </span><span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.variant.unwrap().is_transition(), output.mode) {
+                            (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Private,
+                            (<span class="kw">_</span>, mode) =&gt; mode,
                         };
-                        <span class="macro">format!</span>(
-                            <span class="string">"    output {} as {};\n"</span>,
-                            operand,
-                            <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>output.type_, visibility)
-                        )
+
+                        <span class="kw">if let </span>Type::Future(<span class="kw">_</span>) = output.type_ {
+                            future_output = <span class="macro">format!</span>(
+                                <span class="string">"    output {} as {}.aleo/{}.future;\n"</span>,
+                                operand,
+                                <span class="self">self</span>.program_id.unwrap().name,
+                                <span class="self">self</span>.current_function.unwrap().identifier,
+                            );
+                            String::new()
+                        } <span class="kw">else </span>{
+                            <span class="macro">format!</span>(
+                                <span class="string">"    output {} as {};\n"</span>,
+                                operand,
+                                <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>output.type_, visibility)
+                            )
+                        }
                     })
                     .join(<span class="string">""</span>);
+
+                <span class="comment">// Insert future output at the end.
+                </span>instructions.push_str(<span class="kw-2">&amp;</span>future_output);
 
                 expression_instructions.push_str(<span class="kw-2">&amp;</span>instructions);
 
@@ -422,48 +380,7 @@
             }
         };
 
-        <span class="comment">// Initialize storage for the instructions.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
-
-        <span class="comment">// If there are any futures or if the return instruction has `finalize_arguments`, then
-        // create an `async` instruction that uses them.
-        </span><span class="kw">if </span>!<span class="self">self</span>.futures.is_empty() || input.finalize_arguments.is_some() {
-            <span class="comment">// Note that this unwrap is safe, since `current_function` is set in `visit_function`.
-            </span><span class="kw">let </span>function_id = <span class="self">self</span>.current_function.unwrap().name();
-            <span class="kw">let </span><span class="kw-2">mut </span>async_instruction = <span class="macro">format!</span>(<span class="string">"    async {function_id}"</span>);
-            <span class="comment">// Add the futures to the async instruction.
-            </span><span class="kw">for </span>(future_register, <span class="kw">_</span>) <span class="kw">in </span><span class="self">self</span>.futures.iter() {
-                <span class="macro">write!</span>(async_instruction, <span class="string">" {}"</span>, future_register).expect(<span class="string">"failed to write to string"</span>);
-            }
-            <span class="comment">// Add the finalize arguments to the async instruction.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = <span class="kw-2">&amp;</span>input.finalize_arguments {
-                <span class="kw">for </span>argument <span class="kw">in </span>arguments.iter() {
-                    <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
-                    <span class="macro">write!</span>(async_instruction, <span class="string">" {argument}"</span>).expect(<span class="string">"failed to write to string"</span>);
-                    instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
-                }
-            }
-            <span class="comment">// Write the destination register.
-            </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
-            <span class="macro">writeln!</span>(async_instruction, <span class="string">" into {};"</span>, destination_register).expect(<span class="string">"failed to write to string"</span>);
-            <span class="comment">// Increment the register counter.
-            </span><span class="self">self</span>.next_register += <span class="number">1</span>;
-            <span class="comment">// Add the async instruction to the instructions.
-            </span>instructions.push_str(<span class="kw-2">&amp;</span>async_instruction);
-
-            <span class="comment">// Add the destination register to the outputs.
-            </span><span class="kw">let </span>program_id = <span class="kw">match </span><span class="self">self</span>.program_id {
-                <span class="prelude-val">Some</span>(program_id) =&gt; program_id,
-                <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"`program_id` should be set in `visit_function`"</span>),
-            };
-            outputs
-                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"    output {} as {}/{}.future;\n"</span>, destination_register, program_id, function_id));
-        }
-
-        <span class="comment">// Extend the instructions with the outputs.
-        </span>instructions.push_str(<span class="kw-2">&amp;</span>outputs);
-
-        instructions
+        outputs
     }
 
     <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DefinitionStatement) -&gt; String {
@@ -509,7 +426,8 @@
     }
 
     <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConditionalStatement) -&gt; String {
-        <span class="kw">if </span>!<span class="self">self</span>.in_finalize {
+        <span class="comment">// Note that this unwrap is safe because we set the variant before traversing the function.
+        </span><span class="kw">if </span>!<span class="self">self</span>.variant.unwrap().is_async_function() {
             <span class="macro">unreachable!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
         } <span class="kw">else </span>{
             <span class="comment">// Construct a label for the end of the `then` block.

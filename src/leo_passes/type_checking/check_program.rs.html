@@ -365,6 +365,51 @@
 <a href="#363" id="363">363</a>
 <a href="#364" id="364">364</a>
 <a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -381,23 +426,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{DiGraphError, Location, TypeChecker};
+</span><span class="kw">use crate</span>::{DiGraphError, TypeChecker};
 
-<span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_errors::TypeCheckerError;
+<span class="kw">use </span>leo_ast::{Type, <span class="kw-2">*</span>};
+<span class="kw">use </span>leo_errors::{TypeCheckerError, TypeCheckerWarning};
 <span class="kw">use </span>leo_span::sym;
 
-<span class="kw">use </span>snarkvm::console::network::{Network, Testnet3};
+<span class="kw">use </span>snarkvm::console::network::Network;
 
 <span class="kw">use </span>std::collections::HashSet;
 
 <span class="comment">// TODO: Cleanup logic for tuples.
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ProgramVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; ProgramVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>, N&gt; {
     <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Program) {
         <span class="comment">// Typecheck the program's stubs.
         </span>input.stubs.iter().for_each(|(symbol, stub)| {
-            <span class="kw">if </span>symbol != <span class="kw-2">&amp;</span>stub.stub_id.name.name {
+            <span class="comment">// Check that naming and ordering is consistent.
+            </span><span class="kw">if </span>symbol != <span class="kw-2">&amp;</span>stub.stub_id.name.name {
                 <span class="self">self</span>.emit_err(TypeCheckerError::stub_name_mismatch(
                     symbol,
                     stub.stub_id.name,
@@ -406,79 +452,15 @@
             }
             <span class="self">self</span>.visit_stub(stub)
         });
-        <span class="self">self</span>.is_stub = <span class="bool-val">false</span>;
+        <span class="self">self</span>.scope_state.is_stub = <span class="bool-val">false</span>;
 
         <span class="comment">// Typecheck the program scopes.
         </span>input.program_scopes.values().for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
     }
 
-    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stub) {
-        <span class="comment">// Set the current program name.
-        </span><span class="self">self</span>.program_name = <span class="prelude-val">Some</span>(input.stub_id.name.name);
-
-        <span class="comment">// Cannot have constant declarations in stubs.
-        </span><span class="kw">if </span>!input.consts.is_empty() {
-            <span class="self">self</span>.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.first().unwrap().<span class="number">1</span>.span));
-        }
-
-        <span class="comment">// Typecheck the program's structs.
-        </span>input.structs.iter().for_each(|(<span class="kw">_</span>, function)| <span class="self">self</span>.visit_struct_stub(function));
-
-        <span class="comment">// Typecheck the program's functions.
-        </span>input.functions.iter().for_each(|(<span class="kw">_</span>, function)| <span class="self">self</span>.visit_function_stub(function));
-    }
-
-    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FunctionStub) {
-        <span class="comment">// Must not be an inline function
-        </span><span class="kw">if </span>input.variant == Variant::Inline {
-            <span class="self">self</span>.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
-        }
-
-        <span class="comment">// Lookup function metadata in the symbol table.
-        // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        </span><span class="kw">let </span>function_index = <span class="self">self
-            </span>.symbol_table
-            .borrow()
-            .lookup_fn_symbol(Location::new(<span class="self">self</span>.program_name, input.identifier.name))
-            .unwrap()
-            .id;
-
-        <span class="comment">// Enter the function's scope.
-        </span><span class="self">self</span>.enter_scope(function_index);
-
-        <span class="comment">// Create a new child scope for the function's parameters and body.
-        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
-
-        <span class="comment">// Query helper function to type check function parameters and outputs.
-        </span><span class="self">self</span>.check_function_signature(<span class="kw-2">&amp;</span>Function::from(input.clone()));
-
-        <span class="comment">// Exit the scope for the function's parameters and body.
-        </span><span class="self">self</span>.exit_scope(scope_index);
-
-        <span class="comment">// Check that the finalize scope is valid
-        </span><span class="kw">if </span>input.finalize_stub.is_some() {
-            <span class="comment">// Create a new child scope for the finalize block.
-            </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
-
-            <span class="comment">// Check the finalize signature.
-            </span><span class="kw">let </span>function = <span class="kw-2">&amp;</span>Function::from(input.clone());
-            <span class="self">self</span>.check_finalize_signature(function.finalize.as_ref().unwrap(), function);
-
-            <span class="comment">// Exit the scope for the finalize block.
-            </span><span class="self">self</span>.exit_scope(scope_index);
-        }
-
-        <span class="comment">// Exit the function's scope.
-        </span><span class="self">self</span>.exit_scope(function_index);
-    }
-
-    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
-        <span class="self">self</span>.visit_struct(input);
-    }
-
     <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ProgramScope) {
         <span class="comment">// Set the current program name.
-        </span><span class="self">self</span>.program_name = <span class="prelude-val">Some</span>(input.program_id.name.name);
+        </span><span class="self">self</span>.scope_state.program_name = <span class="prelude-val">Some</span>(input.program_id.name.name);
 
         <span class="comment">// Typecheck each const definition, and append to symbol table.
         </span>input.consts.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_const(c));
@@ -499,9 +481,9 @@
         }
 
         <span class="comment">// Check that the number of mappings does not exceed the maximum.
-        </span><span class="kw">if </span>mapping_count &gt; Testnet3::MAX_MAPPINGS {
+        </span><span class="kw">if </span>mapping_count &gt; N::MAX_MAPPINGS {
             <span class="self">self</span>.emit_err(TypeCheckerError::too_many_mappings(
-                Testnet3::MAX_MAPPINGS,
+                N::MAX_MAPPINGS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -510,7 +492,7 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>transition_count = <span class="number">0</span>;
         <span class="kw">for </span>(<span class="kw">_</span>, function) <span class="kw">in </span>input.functions.iter() {
             <span class="self">self</span>.visit_function(function);
-            <span class="kw">if </span><span class="macro">matches!</span>(function.variant, Variant::Transition) {
+            <span class="kw">if </span>function.variant.is_transition() {
                 transition_count += <span class="number">1</span>;
             }
         }
@@ -522,9 +504,9 @@
 
         <span class="comment">// TODO: Need similar checks for structs (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
-        </span><span class="kw">if </span>transition_count &gt; Testnet3::MAX_FUNCTIONS {
+        </span><span class="kw">if </span>transition_count &gt; N::MAX_FUNCTIONS {
             <span class="self">self</span>.emit_err(TypeCheckerError::too_many_transitions(
-                Testnet3::MAX_FUNCTIONS,
+                N::MAX_FUNCTIONS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -533,6 +515,22 @@
         </span><span class="kw">else if </span>transition_count == <span class="number">0 </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::no_transitions(input.program_id.name.span + input.program_id.network.span));
         }
+    }
+
+    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stub) {
+        <span class="comment">// Set the current program name.
+        </span><span class="self">self</span>.scope_state.program_name = <span class="prelude-val">Some</span>(input.stub_id.name.name);
+
+        <span class="comment">// Cannot have constant declarations in stubs.
+        </span><span class="kw">if </span>!input.consts.is_empty() {
+            <span class="self">self</span>.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.first().unwrap().<span class="number">1</span>.span));
+        }
+
+        <span class="comment">// Typecheck the program's structs.
+        </span>input.structs.iter().for_each(|(<span class="kw">_</span>, function)| <span class="self">self</span>.visit_struct_stub(function));
+
+        <span class="comment">// Typecheck the program's functions.
+        </span>input.functions.iter().for_each(|(<span class="kw">_</span>, function)| <span class="self">self</span>.visit_function_stub(function));
     }
 
     <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
@@ -568,7 +566,7 @@
             check_has_field(sym::owner, Type::Address);
         }
 
-        <span class="kw">if </span>!(input.is_record &amp;&amp; <span class="self">self</span>.is_stub) {
+        <span class="kw">if </span>!(input.is_record &amp;&amp; <span class="self">self</span>.scope_state.is_stub) {
             <span class="kw">for </span>Member { mode, identifier, type_, span, .. } <span class="kw">in </span>input.members.iter() {
                 <span class="comment">// Check that the member type is not a tuple.
                 </span><span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
@@ -645,14 +643,15 @@
             </span><span class="self">self</span>.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
         }
 
-        <span class="self">self</span>.variant = <span class="prelude-val">Some</span>(function.variant);
+        <span class="comment">// Set type checker variables for function variant details.
+        </span><span class="self">self</span>.scope_state.initialize_function_state(function.variant);
 
         <span class="comment">// Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
         </span><span class="kw">let </span>function_index = <span class="self">self
             </span>.symbol_table
             .borrow()
-            .lookup_fn_symbol(Location::new(<span class="self">self</span>.program_name, function.identifier.name))
+            .lookup_fn_symbol(Location::new(<span class="self">self</span>.scope_state.program_name, function.identifier.name))
             .unwrap()
             .id;
 
@@ -660,13 +659,10 @@
         </span><span class="self">self</span>.enter_scope(function_index);
 
         <span class="comment">// The function's body does not have a return statement.
-        </span><span class="self">self</span>.has_return = <span class="bool-val">false</span>;
-
-        <span class="comment">// The function's body does not have a finalize statement.
-        </span><span class="self">self</span>.has_finalize = <span class="bool-val">false</span>;
+        </span><span class="self">self</span>.scope_state.has_return = <span class="bool-val">false</span>;
 
         <span class="comment">// Store the name of the function.
-        </span><span class="self">self</span>.function = <span class="prelude-val">Some</span>(function.name());
+        </span><span class="self">self</span>.scope_state.function = <span class="prelude-val">Some</span>(function.name());
 
         <span class="comment">// Create a new child scope for the function's parameters and body.
         </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
@@ -674,60 +670,154 @@
         <span class="comment">// Query helper function to type check function parameters and outputs.
         </span><span class="self">self</span>.check_function_signature(function);
 
+        <span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction) {
+            <span class="comment">// Async functions cannot have empty blocks
+            </span><span class="kw">if </span>function.block.statements.is_empty() {
+                <span class="self">self</span>.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(function.block.span));
+            }
+
+            <span class="comment">// Initialize the list of input futures. Each one must be awaited before the end of the function.
+            </span><span class="self">self</span>.await_checker.set_futures(
+                function
+                    .input
+                    .iter()
+                    .filter_map(|input| {
+                        <span class="kw">if let </span>Type::Future(<span class="kw">_</span>) = input.type_.clone() { <span class="prelude-val">Some</span>(input.identifier.name) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+                    })
+                    .collect(),
+            );
+        }
+
         <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>function.block);
 
         <span class="comment">// If the function has a return type, then check that it has a return.
-        </span><span class="kw">if </span>function.output_type != Type::Unit &amp;&amp; !<span class="self">self</span>.has_return {
+        </span><span class="kw">if </span>function.output_type != Type::Unit &amp;&amp; !<span class="self">self</span>.scope_state.has_return {
             <span class="self">self</span>.emit_err(TypeCheckerError::missing_return(function.span));
-        }
-
-        <span class="comment">// If the function has a finalize block, then check that it has at least one finalize statement.
-        </span><span class="kw">if </span>function.finalize.is_some() &amp;&amp; !<span class="self">self</span>.has_finalize {
-            <span class="self">self</span>.emit_err(TypeCheckerError::missing_finalize(function.span));
         }
 
         <span class="comment">// Exit the scope for the function's parameters and body.
         </span><span class="self">self</span>.exit_scope(scope_index);
 
-        <span class="comment">// Traverse and check the finalize block if it exists.
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span>function.finalize {
-            <span class="self">self</span>.is_finalize = <span class="bool-val">true</span>;
-            <span class="comment">// The function's finalize block does not have a return statement.
-            </span><span class="self">self</span>.has_return = <span class="bool-val">false</span>;
-            <span class="comment">// The function's finalize block does not have a finalize statement.
-            </span><span class="self">self</span>.has_finalize = <span class="bool-val">false</span>;
-
-            <span class="comment">// Create a new child scope for the finalize block.
-            </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
-
-            <span class="comment">// Check the finalize signature.
-            </span><span class="self">self</span>.check_finalize_signature(finalize, function);
-
-            <span class="comment">// TODO: Remove if this restriction is relaxed at Aleo instructions level
-            // Check that the finalize block is not empty.
-            </span><span class="kw">if </span>finalize.block.statements.is_empty() {
-                <span class="self">self</span>.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(finalize.span));
-            }
-
-            <span class="comment">// Type check the finalize block.
-            </span><span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>finalize.block);
-
-            <span class="comment">// If the function has a return type, then check that it has a return.
-            </span><span class="kw">if </span>finalize.output_type != Type::Unit &amp;&amp; !<span class="self">self</span>.has_return {
-                <span class="self">self</span>.emit_err(TypeCheckerError::missing_return(finalize.span));
-            }
-
-            <span class="comment">// Exit the scope for the finalize block.
-            </span><span class="self">self</span>.exit_scope(scope_index);
-
-            <span class="self">self</span>.is_finalize = <span class="bool-val">false</span>;
-        }
-
         <span class="comment">// Exit the function's scope.
         </span><span class="self">self</span>.exit_scope(function_index);
 
-        <span class="comment">// Unset the `variant`.
-        </span><span class="self">self</span>.variant = <span class="prelude-val">None</span>;
+        <span class="comment">// Make sure that async transitions call finalize.
+        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; !<span class="self">self</span>.scope_state.has_called_finalize {
+            <span class="self">self</span>.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
+        }
+
+        <span class="comment">// Check that all futures were awaited exactly once.
+        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction) {
+            <span class="comment">// Throw error if not all futures awaits even appear once.
+            </span><span class="kw">if </span>!<span class="self">self</span>.await_checker.static_to_await.is_empty() {
+                <span class="self">self</span>.emit_err(TypeCheckerError::future_awaits_missing(
+                    <span class="self">self</span>.await_checker
+                        .static_to_await
+                        .clone()
+                        .iter()
+                        .map(|f| f.to_string())
+                        .collect::&lt;Vec&lt;String&gt;&gt;()
+                        .join(<span class="string">", "</span>),
+                    function.span(),
+                ));
+            } <span class="kw">else if </span><span class="self">self</span>.await_checker.enabled &amp;&amp; !<span class="self">self</span>.await_checker.to_await.is_empty() {
+                <span class="comment">// Tally up number of paths that are unawaited and number of paths that are awaited more than once.
+                </span><span class="kw">let </span>(num_paths_unawaited, num_paths_duplicate_awaited, num_perfect) =
+                    <span class="self">self</span>.await_checker.to_await.iter().fold((<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>), |(unawaited, duplicate, perfect), path| {
+                        (
+                            unawaited + <span class="kw">if </span>!path.elements.is_empty() { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>},
+                            duplicate + <span class="kw">if </span>path.counter &gt; <span class="number">0 </span>{ <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>},
+                            perfect + <span class="kw">if </span>path.counter &gt; <span class="number">0 </span>|| !path.elements.is_empty() { <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">1 </span>},
+                        )
+                    });
+
+                <span class="comment">// Throw error if there does not exist a path in which all futures are awaited exactly once.
+                </span><span class="kw">if </span>num_perfect == <span class="number">0 </span>{
+                    <span class="self">self</span>.emit_err(TypeCheckerError::no_path_awaits_all_futures_exactly_once(
+                        <span class="self">self</span>.await_checker.to_await.len(),
+                        function.span(),
+                    ));
+                }
+
+                <span class="comment">// Throw warning if some futures are awaited more than once in some paths.
+                </span><span class="kw">if </span>num_paths_unawaited &gt; <span class="number">0 </span>{
+                    <span class="self">self</span>.emit_warning(TypeCheckerWarning::some_paths_do_not_await_all_futures(
+                        <span class="self">self</span>.await_checker.to_await.len(),
+                        num_paths_unawaited,
+                        function.span(),
+                    ));
+                }
+
+                <span class="comment">// Throw warning if not all futures are awaited in some paths.
+                </span><span class="kw">if </span>num_paths_duplicate_awaited &gt; <span class="number">0 </span>{
+                    <span class="self">self</span>.emit_warning(TypeCheckerWarning::some_paths_contain_duplicate_future_awaits(
+                        <span class="self">self</span>.await_checker.to_await.len(),
+                        num_paths_duplicate_awaited,
+                        function.span(),
+                    ));
+                }
+            }
+        }
+    }
+
+    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FunctionStub) {
+        <span class="comment">// Must not be an inline function
+        </span><span class="kw">if </span>input.variant == Variant::Inline {
+            <span class="self">self</span>.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
+        }
+
+        <span class="comment">// Lookup function metadata in the symbol table.
+        // Note that this unwrap is safe since function metadata is stored in a prior pass.
+        </span><span class="kw">let </span>function_index = <span class="self">self
+            </span>.symbol_table
+            .borrow()
+            .lookup_fn_symbol(Location::new(<span class="self">self</span>.scope_state.program_name, input.identifier.name))
+            .unwrap()
+            .id;
+
+        <span class="comment">// Enter the function's scope.
+        </span><span class="self">self</span>.enter_scope(function_index);
+
+        <span class="comment">// Create a new child scope for the function's parameters and body.
+        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
+
+        <span class="comment">// Create future stubs.
+        </span><span class="kw">if </span>input.variant == Variant::AsyncFunction {
+            <span class="kw">let </span>finalize_input_map = <span class="kw-2">&amp;mut </span><span class="self">self</span>.async_function_input_types;
+            <span class="kw">let </span>resolved_inputs: Vec&lt;Type&gt; = input
+                .input
+                .iter()
+                .map(|input| {
+                    <span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
+                        Type::Future(f) =&gt; {
+                            <span class="comment">// Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
+                            </span>Type::Future(FutureType::new(
+                                finalize_input_map.get(<span class="kw-2">&amp;</span>f.location.clone().unwrap()).unwrap().clone(),
+                                f.location.clone(),
+                                <span class="bool-val">true</span>,
+                            ))
+                        }
+                        <span class="kw">_ </span>=&gt; input.clone().type_,
+                    }
+                })
+                .collect();
+
+            finalize_input_map
+                .insert(Location::new(<span class="self">self</span>.scope_state.program_name, input.identifier.name), resolved_inputs);
+        }
+
+        <span class="comment">// Query helper function to type check function parameters and outputs.
+        </span><span class="self">self</span>.check_function_signature(<span class="kw-2">&amp;</span>Function::from(input.clone()));
+
+        <span class="comment">// Exit the scope for the function's parameters and body.
+        </span><span class="self">self</span>.exit_scope(scope_index);
+
+        <span class="comment">// Exit the function's scope.
+        </span><span class="self">self</span>.exit_scope(function_index);
+    }
+
+    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
+        <span class="self">self</span>.visit_struct(input);
     }
 }
 </code></pre></div></section></main></body></html>

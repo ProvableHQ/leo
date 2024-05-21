@@ -57,6 +57,7 @@
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -73,22 +74,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Location, Network};
+</span><span class="kw">use crate</span>::{Location, NetworkName};
 <span class="kw">use </span>leo_span::Symbol;
+
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::path::PathBuf;
 
 <span class="comment">// Information required to retrieve external program
-</span><span class="attr">#[derive(Debug, Clone, std::cmp::Eq, PartialEq, Hash, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>Dependency {
     name: String,
     location: Location,
-    network: <span class="prelude-ty">Option</span>&lt;Network&gt;,
+    network: <span class="prelude-ty">Option</span>&lt;NetworkName&gt;,
     path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 }
 
 <span class="kw">impl </span>Dependency {
-    <span class="kw">pub fn </span>new(name: String, location: Location, network: <span class="prelude-ty">Option</span>&lt;Network&gt;, path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>new(name: String, location: Location, network: <span class="prelude-ty">Option</span>&lt;NetworkName&gt;, path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ name, location, network, path }
     }
 
@@ -100,7 +102,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.location
     }
 
-    <span class="kw">pub fn </span>network(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Network&gt; {
+    <span class="kw">pub fn </span>network(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;NetworkName&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.network
     }
 

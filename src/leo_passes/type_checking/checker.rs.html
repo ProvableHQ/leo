@@ -1348,6 +1348,41 @@
 <a href="#1346" id="1346">1346</a>
 <a href="#1347" id="1347">1347</a>
 <a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a>
+<a href="#1357" id="1357">1357</a>
+<a href="#1358" id="1358">1358</a>
+<a href="#1359" id="1359">1359</a>
+<a href="#1360" id="1360">1360</a>
+<a href="#1361" id="1361">1361</a>
+<a href="#1362" id="1362">1362</a>
+<a href="#1363" id="1363">1363</a>
+<a href="#1364" id="1364">1364</a>
+<a href="#1365" id="1365">1365</a>
+<a href="#1366" id="1366">1366</a>
+<a href="#1367" id="1367">1367</a>
+<a href="#1368" id="1368">1368</a>
+<a href="#1369" id="1369">1369</a>
+<a href="#1370" id="1370">1370</a>
+<a href="#1371" id="1371">1371</a>
+<a href="#1372" id="1372">1372</a>
+<a href="#1373" id="1373">1373</a>
+<a href="#1374" id="1374">1374</a>
+<a href="#1375" id="1375">1375</a>
+<a href="#1376" id="1376">1376</a>
+<a href="#1377" id="1377">1377</a>
+<a href="#1378" id="1378">1378</a>
+<a href="#1379" id="1379">1379</a>
+<a href="#1380" id="1380">1380</a>
+<a href="#1381" id="1381">1381</a>
+<a href="#1382" id="1382">1382</a>
+<a href="#1383" id="1383">1383</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1364,33 +1399,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{CallGraph, Location, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
-
-<span class="kw">use </span>leo_ast::{
-    Composite,
-    CompositeType,
-    CoreConstant,
-    CoreFunction,
-    Finalize,
-    Function,
-    Identifier,
-    IntegerType,
-    MappingType,
-    Mode,
-    Node,
-    Type,
-    Variant,
+</span><span class="kw">use crate</span>::{
+    type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
+    CallGraph,
+    StructGraph,
+    SymbolTable,
+    TypeTable,
+    VariableSymbol,
+    VariableType,
 };
-<span class="kw">use </span>leo_errors::{emitter::Handler, TypeCheckerError};
+
+<span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
+<span class="kw">use </span>leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use </span>snarkvm::console::network::{Network, Testnet3};
+<span class="kw">use </span>snarkvm::console::network::Network;
 
-<span class="kw">use </span>indexmap::IndexSet;
+<span class="kw">use </span>indexmap::{IndexMap, IndexSet};
 <span class="kw">use </span>itertools::Itertools;
-<span class="kw">use </span>std::cell::RefCell;
+<span class="kw">use </span>std::{cell::RefCell, marker::PhantomData};
 
-<span class="kw">pub struct </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">pub struct </span>TypeChecker&lt;<span class="lifetime">'a</span>, N: Network&gt; {
     <span class="doccomment">/// The symbol table for the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: RefCell&lt;SymbolTable&gt;,
     <span class="doccomment">/// A mapping from node IDs to their types.
@@ -1401,26 +1430,16 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) call_graph: CallGraph,
     <span class="doccomment">/// The error handler.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
-    <span class="doccomment">/// The name of the function that we are currently traversing.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) function: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
-    <span class="doccomment">/// The variant of the function that we are currently traversing.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) variant: <span class="prelude-ty">Option</span>&lt;Variant&gt;,
-    <span class="doccomment">/// Whether or not the function that we are currently traversing has a return statement.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_return: bool,
-    <span class="doccomment">/// Whether or not the function that we are currently traversing invokes the finalize block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_finalize: bool,
-    <span class="doccomment">/// Whether or not we are currently traversing a finalize block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_finalize: bool,
-    <span class="doccomment">/// Whether or not we are currently traversing a return statement.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_return: bool,
-    <span class="doccomment">/// Current program name.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) program_name: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
-    <span class="doccomment">/// Whether or not we are currently traversing a stub.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_stub: bool,
+    <span class="doccomment">/// The state of the current scope being traversed.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) scope_state: ScopeState,
+    <span class="doccomment">/// Struct to store the state relevant to checking all futures are awaited.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) await_checker: AwaitChecker,
+    <span class="doccomment">/// Mapping from async function name to the inferred input types.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) async_function_input_types: IndexMap&lt;Location, Vec&lt;Type&gt;&gt;,
     <span class="doccomment">/// The set of used composites.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) used_structs: IndexSet&lt;Symbol&gt;,
-    <span class="doccomment">/// Whether or not we are currently traversing a conditional statement.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_conditional: bool,
+    <span class="comment">// Allows the type checker to be generic over the network.
+    </span>phantom: PhantomData&lt;N&gt;,
 }
 
 <span class="kw">const </span>ADDRESS_TYPE: Type = Type::Address;
@@ -1467,11 +1486,16 @@
 <span class="kw">const </span>MAGNITUDE_TYPES: [Type; <span class="number">3</span>] =
     [Type::Integer(IntegerType::U8), Type::Integer(IntegerType::U16), Type::Integer(IntegerType::U32)];
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; TypeChecker&lt;<span class="lifetime">'a</span>, N&gt; {
     <span class="doccomment">/// Returns a new type checker given a symbol table and error handler.
-    </span><span class="kw">pub fn </span>new(symbol_table: SymbolTable, type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable, handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler) -&gt; <span class="self">Self </span>{
-        <span class="comment">// Initialize w/ only structs and non-external records.
-        </span><span class="kw">let </span>struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
+    </span><span class="kw">pub fn </span>new(
+        symbol_table: SymbolTable,
+        type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
+        handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
+        max_depth: usize,
+        disabled: bool,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
         <span class="kw">let </span>function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
 
         <span class="comment">// Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
@@ -1481,16 +1505,11 @@
             struct_graph: StructGraph::new(struct_names),
             call_graph: CallGraph::new(function_names),
             handler,
-            function: <span class="prelude-val">None</span>,
-            variant: <span class="prelude-val">None</span>,
-            has_return: <span class="bool-val">false</span>,
-            has_finalize: <span class="bool-val">false</span>,
-            is_finalize: <span class="bool-val">false</span>,
-            is_return: <span class="bool-val">false</span>,
-            program_name: <span class="prelude-val">None</span>,
-            is_stub: <span class="bool-val">true</span>,
+            scope_state: ScopeState::new(),
+            await_checker: AwaitChecker::new(max_depth, !disabled),
+            async_function_input_types: IndexMap::new(),
             used_structs: IndexSet::new(),
-            is_conditional: <span class="bool-val">false</span>,
+            phantom: Default::default(),
         }
     }
 
@@ -1523,6 +1542,11 @@
         <span class="self">self</span>.handler.emit_err(err);
     }
 
+    <span class="doccomment">/// Emits a type checker warning
+    </span><span class="kw">pub fn </span>emit_warning(<span class="kw-2">&amp;</span><span class="self">self</span>, warning: TypeCheckerWarning) {
+        <span class="self">self</span>.handler.emit_warning(warning.into());
+    }
+
     <span class="doccomment">/// Emits an error to the handler if the given type is invalid.
     </span><span class="kw">fn </span>check_type(<span class="kw-2">&amp;</span><span class="self">self</span>, is_valid: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>Type) -&gt; bool, error_string: String, type_: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(type_) = type_ {
@@ -1533,9 +1557,14 @@
     }
 
     <span class="doccomment">/// Emits an error if the two given types are not equal.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_eq_types(<span class="kw-2">&amp;mut </span><span class="self">self</span>, t1: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, t2: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_eq_types(<span class="kw-2">&amp;</span><span class="self">self</span>, t1: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, t2: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) {
         <span class="kw">match </span>(t1, t2) {
             (<span class="prelude-val">Some</span>(t1), <span class="prelude-val">Some</span>(t2)) <span class="kw">if </span>!Type::eq_flat_relax_composite(t1, t2) =&gt; {
+                <span class="comment">// If both types are futures, print them out.
+                </span><span class="kw">if let </span>(Type::Future(f1), Type::Future(f2)) = (t1, t2) {
+                    <span class="macro">println!</span>(<span class="string">"Future 1: {:?}"</span>, f1);
+                    <span class="macro">println!</span>(<span class="string">"Future 2: {:?}"</span>, f2);
+                }
                 <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
             }
             (<span class="prelude-val">Some</span>(type_), <span class="prelude-val">None</span>) | (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(type_)) =&gt; {
@@ -2280,10 +2309,7 @@
             }
             CoreFunction::MappingGet =&gt; {
                 <span class="comment">// Check that the operation is invoked in a `finalize` block.
-                </span><span class="kw">if </span>!<span class="self">self</span>.is_finalize {
-                    <span class="self">self</span>.handler
-                        .emit_err(TypeCheckerError::invalid_operation_outside_finalize(<span class="string">"Mapping::get"</span>, function_span))
-                }
+                </span><span class="self">self</span>.check_access_allowed(<span class="string">"Mapping::get"</span>, <span class="bool-val">true</span>, function_span);
                 <span class="comment">// Check that the first argument is a mapping.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(mapping_type) = <span class="self">self</span>.assert_mapping_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>) {
                     <span class="comment">// Check that the second argument matches the key type of the mapping.
@@ -2296,12 +2322,7 @@
             }
             CoreFunction::MappingGetOrUse =&gt; {
                 <span class="comment">// Check that the operation is invoked in a `finalize` block.
-                </span><span class="kw">if </span>!<span class="self">self</span>.is_finalize {
-                    <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
-                        <span class="string">"Mapping::get_or"</span>,
-                        function_span,
-                    ))
-                }
+                </span><span class="self">self</span>.check_access_allowed(<span class="string">"Mapping::get_or"</span>, <span class="bool-val">true</span>, function_span);
                 <span class="comment">// Check that the first argument is a mapping.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(mapping_type) = <span class="self">self</span>.assert_mapping_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>) {
                     <span class="comment">// Check that the second argument matches the key type of the mapping.
@@ -2316,14 +2337,11 @@
             }
             CoreFunction::MappingSet =&gt; {
                 <span class="comment">// Check that the operation is invoked in a `finalize` block.
-                </span><span class="kw">if </span>!<span class="self">self</span>.is_finalize {
-                    <span class="self">self</span>.handler
-                        .emit_err(TypeCheckerError::invalid_operation_outside_finalize(<span class="string">"Mapping::set"</span>, function_span))
-                }
+                </span><span class="self">self</span>.check_access_allowed(<span class="string">"Mapping::set"</span>, <span class="bool-val">true</span>, function_span);
                 <span class="comment">// Check that the first argument is a mapping.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(mapping_type) = <span class="self">self</span>.assert_mapping_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>) {
                     <span class="comment">// Cannot modify external mappings.
-                    </span><span class="kw">if </span>mapping_type.program != <span class="self">self</span>.program_name.unwrap() {
+                    </span><span class="kw">if </span>mapping_type.program != <span class="self">self</span>.scope_state.program_name.unwrap() {
                         <span class="self">self</span>.handler.emit_err(TypeCheckerError::cannot_modify_external_mapping(<span class="string">"set"</span>, function_span));
                     }
                     <span class="comment">// Check that the second argument matches the key type of the mapping.
@@ -2338,16 +2356,11 @@
             }
             CoreFunction::MappingRemove =&gt; {
                 <span class="comment">// Check that the operation is invoked in a `finalize` block.
-                </span><span class="kw">if </span>!<span class="self">self</span>.is_finalize {
-                    <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
-                        <span class="string">"Mapping::remove"</span>,
-                        function_span,
-                    ))
-                }
+                </span><span class="self">self</span>.check_access_allowed(<span class="string">"Mapping::remove"</span>, <span class="bool-val">true</span>, function_span);
                 <span class="comment">// Check that the first argument is a mapping.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(mapping_type) = <span class="self">self</span>.assert_mapping_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>) {
                     <span class="comment">// Cannot modify external mappings.
-                    </span><span class="kw">if </span>mapping_type.program != <span class="self">self</span>.program_name.unwrap() {
+                    </span><span class="kw">if </span>mapping_type.program != <span class="self">self</span>.scope_state.program_name.unwrap() {
                         <span class="self">self</span>.handler
                             .emit_err(TypeCheckerError::cannot_modify_external_mapping(<span class="string">"remove"</span>, function_span));
                     }
@@ -2361,19 +2374,9 @@
             }
             CoreFunction::MappingContains =&gt; {
                 <span class="comment">// Check that the operation is invoked in a `finalize` block.
-                </span><span class="kw">if </span>!<span class="self">self</span>.is_finalize {
-                    <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
-                        <span class="string">"Mapping::contains"</span>,
-                        function_span,
-                    ))
-                }
+                </span><span class="self">self</span>.check_access_allowed(<span class="string">"Mapping::contains"</span>, <span class="bool-val">true</span>, function_span);
                 <span class="comment">// Check that the first argument is a mapping.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(mapping_type) = <span class="self">self</span>.assert_mapping_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>) {
-                    <span class="comment">// Cannot use `contains` on external mappings.
-                    </span><span class="kw">if </span>mapping_type.program != <span class="self">self</span>.program_name.unwrap() {
-                        <span class="self">self</span>.handler
-                            .emit_err(TypeCheckerError::cannot_modify_external_mapping(<span class="string">"contains"</span>, function_span));
-                    }
                     <span class="comment">// Check that the second argument matches the key type of the mapping.
                     </span><span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>arguments[<span class="number">1</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>mapping_type.key, arguments[<span class="number">1</span>].<span class="number">1</span>);
                     <span class="comment">// Return a boolean.
@@ -2410,6 +2413,7 @@
                 <span class="comment">// Return a boolean.
                 </span><span class="prelude-val">Some</span>(Type::Boolean)
             }
+            CoreFunction::FutureAwait =&gt; <span class="prelude-val">Some</span>(Type::Unit),
         }
     }
 
@@ -2469,9 +2473,10 @@
                 <span class="comment">// Check that the array length is valid.
                 </span><span class="kw">match </span>array_type.length() {
                     <span class="number">0 </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::array_empty(span)),
-                    <span class="number">1</span>..=Testnet3::MAX_ARRAY_ELEMENTS =&gt; {}
                     length =&gt; {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::array_too_large(length, Testnet3::MAX_ARRAY_ELEMENTS, span))
+                        <span class="kw">if </span>length &gt; N::MAX_ARRAY_ELEMENTS {
+                            <span class="self">self</span>.emit_err(TypeCheckerError::array_too_large(length, N::MAX_ARRAY_ELEMENTS, span))
+                        }
                     }
                 }
                 <span class="comment">// Check that the array element type is valid.
@@ -2513,26 +2518,86 @@
 
     <span class="doccomment">/// Helper function to check that the input and output of function are valid
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_function_signature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span>Function) {
-        <span class="self">self</span>.variant = <span class="prelude-val">Some</span>(function.variant);
+        <span class="self">self</span>.scope_state.variant = <span class="prelude-val">Some</span>(function.variant);
+
+        <span class="comment">// Special type checking for finalize blocks. Can skip for stubs.
+        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; !<span class="self">self</span>.scope_state.is_stub {
+            <span class="comment">// Finalize functions are not allowed to return values.
+            </span><span class="kw">if </span>!function.output.is_empty() {
+                <span class="self">self</span>.emit_err(TypeCheckerError::async_function_cannot_return_value(function.span()));
+            }
+
+            <span class="comment">// Check that the input types are consistent with when the function is invoked.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(inferred_input_types) = <span class="self">self</span>.async_function_input_types.get(<span class="kw-2">&amp;</span><span class="self">self</span>.scope_state.location()) {
+                <span class="comment">// Check same number of inputs as expected.
+                </span><span class="kw">if </span>inferred_input_types.len() != function.input.len() {
+                    <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::async_function_input_length_mismatch(
+                        inferred_input_types.len(),
+                        function.input.len(),
+                        function.span(),
+                    ));
+                }
+                <span class="comment">// Check that the input parameters match the inferred types from when the async function is invoked.
+                </span><span class="kw">for </span>(t1, t2) <span class="kw">in </span>function.input.iter().zip_eq(inferred_input_types.iter()) {
+                    <span class="comment">// Allow partial type matching of futures since inferred are fully typed, whereas AST has default futures.
+                    </span><span class="kw">if </span><span class="macro">matches!</span>(t2, Type::Future(<span class="kw">_</span>)) &amp;&amp; <span class="macro">matches!</span>(t1.type_(), Type::Future(<span class="kw">_</span>)) {
+                        <span class="comment">// Insert to symbol table
+                        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
+                            Location::new(<span class="prelude-val">None</span>, t1.identifier().name),
+                            VariableSymbol {
+                                type_: t2.clone(),
+                                span: t1.identifier.span(),
+                                declaration: VariableType::Input(Mode::Public),
+                            },
+                        ) {
+                            <span class="self">self</span>.handler.emit_err(err);
+                        }
+                    }
+                    <span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(t1.type_().clone()), <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(t2.clone()), t1.span())
+                }
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.emit_warning(TypeCheckerWarning::async_function_is_never_called_by_transition_function(
+                    function.identifier.name,
+                    function.span(),
+                ));
+            }
+        }
 
         <span class="comment">// Type check the function's parameters.
-        </span>function.input.iter().for_each(|input_var| {
+        </span>function.input.iter().enumerate().for_each(|(_index, input_var)| {
             <span class="comment">// Check that the type of input parameter is defined.
             </span><span class="self">self</span>.assert_type_is_valid(input_var.type_(), input_var.span());
             <span class="comment">// Check that the type of the input parameter is not a tuple.
             </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
                 <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
             }
+            <span class="comment">// Check that the input parameter is not a record.
+            </span><span class="kw">else if let </span>Type::Composite(struct_) = input_var.type_() {
+                <span class="comment">// Throw error for undefined type.
+                </span><span class="kw">if </span>!function.variant.is_transition() {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(elem) = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name) {
+                        <span class="kw">if </span>elem.is_record {
+                            <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()))
+                        }
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(struct_.id, input_var.span()));
+                    }
+                }
+            }
 
             <span class="comment">// Note that this unwrap is safe since we assign to `self.variant` above.
-            </span><span class="kw">match </span><span class="self">self</span>.variant.unwrap() {
+            </span><span class="kw">match </span><span class="self">self</span>.scope_state.variant.unwrap() {
                 <span class="comment">// If the function is a transition function, then check that the parameter mode is not a constant.
-                </span>Variant::Transition <span class="kw">if </span>input_var.mode() == Mode::Constant =&gt; {
+                </span>Variant::Transition | Variant::AsyncTransition <span class="kw">if </span>input_var.mode() == Mode::Constant =&gt; {
                     <span class="self">self</span>.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
                 }
-                <span class="comment">// If the function is not a transition function, then check that the parameters do not have an associated mode.
-                </span>Variant::Standard | Variant::Inline <span class="kw">if </span>input_var.mode() != Mode::None =&gt; {
+                <span class="comment">// If the function is standard function or inline, then check that the parameters do not have an associated mode.
+                </span>Variant::Function | Variant::Inline <span class="kw">if </span>input_var.mode() != Mode::None =&gt; {
                     <span class="self">self</span>.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
+                }
+                <span class="comment">// If the function is an async function, then check that the input parameter is not constant or private.
+                </span>Variant::AsyncFunction <span class="kw">if </span>input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private =&gt; {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::async_function_input_must_be_public(input_var.span()));
                 }
                 <span class="kw">_ </span>=&gt; {} <span class="comment">// Do nothing.
             </span>}
@@ -2540,14 +2605,14 @@
             <span class="comment">// If the function is not a transition function, then it cannot have a record as input
             </span><span class="kw">if let </span>Type::Composite(struct_) = input_var.type_() {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name) {
-                    <span class="kw">if </span>val.is_record &amp;&amp; !<span class="macro">matches!</span>(function.variant, Variant::Transition) {
+                    <span class="kw">if </span>val.is_record &amp;&amp; !function.variant.is_transition() {
                         <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
                     }
                 }
             }
 
-            <span class="comment">// Add non-stub inputs to the symbol table.
-            </span><span class="kw">if </span>!<span class="self">self</span>.is_stub {
+            <span class="comment">// Add function inputs to the symbol table. Futures have already been added.
+            </span><span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input_var.type_(), <span class="kw-2">&amp;</span>Type::Future(<span class="kw">_</span>)) {
                 <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
                     Location::new(<span class="prelude-val">None</span>, input_var.identifier().name),
                     VariableSymbol {
@@ -2563,12 +2628,12 @@
 
         <span class="comment">// Type check the function's return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
-        </span>function.output.iter().for_each(|function_output| {
+        </span>function.output.iter().enumerate().for_each(|(index, function_output)| {
             <span class="comment">// If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
             </span><span class="kw">if let </span>Type::Composite(struct_) = function_output.type_.clone() {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name) {
-                    <span class="kw">if </span>val.is_record &amp;&amp; !<span class="macro">matches!</span>(function.variant, Variant::Transition) {
+                    <span class="kw">if </span>val.is_record &amp;&amp; !function.variant.is_transition() {
                         <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
                     }
                 }
@@ -2577,7 +2642,7 @@
             </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>function_output.type_, function_output.span) {
                 <span class="comment">// If the function is not a transition function, then it cannot output a record.
                 </span><span class="kw">if let </span>Type::Composite(struct_) = function_output.type_.clone() {
-                    <span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition)
+                    <span class="kw">if </span>!function.variant.is_transition()
                         &amp;&amp; <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record
                     {
                         <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
@@ -2593,103 +2658,108 @@
             </span><span class="kw">if </span>function_output.mode == Mode::Constant {
                 <span class="self">self</span>.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
             }
-        });
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_finalize_signature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, finalize: <span class="kw-2">&amp;</span>Finalize, function: <span class="kw-2">&amp;</span>Function) {
-        <span class="comment">// Check that the function is a transition function.
-        </span><span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition) {
-            <span class="self">self</span>.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(finalize.span));
-        }
-
-        <span class="comment">// Check that the name of the finalize block matches the function name.
-        </span><span class="kw">if </span>function.identifier.name != finalize.identifier.name {
-            <span class="self">self</span>.emit_err(TypeCheckerError::finalize_name_mismatch(
-                function.identifier.name,
-                finalize.identifier.name,
-                finalize.span,
-            ));
-        }
-
-        finalize.input.iter().for_each(|input_var| {
-            <span class="comment">// Check that the type of input parameter is defined.
-            </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(input_var.type_(), input_var.span()) {
-                <span class="comment">// Check that the input parameter is not a tuple.
-                </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
-                }
-                <span class="comment">// Check that the input parameter is not a record.
-                </span><span class="kw">if let </span>Type::Composite(struct_) = input_var.type_() {
-                    <span class="comment">// Note that this unwrap is safe, as the type is defined.
-                    </span><span class="kw">if </span><span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_take_record_as_input(input_var.span()))
-                    }
-                }
-                <span class="comment">// Check that the input parameter is not constant or private.
-                </span><span class="kw">if </span>input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
-                }
-                <span class="comment">// Add non-stub inputs to the symbol table.
-                </span><span class="kw">if </span>!<span class="self">self</span>.is_stub {
-                    <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-                        Location::new(<span class="prelude-val">None</span>, input_var.identifier().name),
-                        VariableSymbol {
-                            type_: input_var.type_().clone(),
-                            span: input_var.identifier().span(),
-                            declaration: VariableType::Input(input_var.mode()),
-                        },
-                    ) {
-                        <span class="self">self</span>.handler.emit_err(err);
-                    }
-                }
+            <span class="comment">// Async transitions must return exactly one future, and it must be in the last position.
+            </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition)
+                &amp;&amp; ((index &lt; function.output.len() - <span class="number">1 </span>&amp;&amp; <span class="macro">matches!</span>(function_output.type_, Type::Future(<span class="kw">_</span>)))
+                    || (index == function.output.len() - <span class="number">1 </span>&amp;&amp; !<span class="macro">matches!</span>(function_output.type_, Type::Future(<span class="kw">_</span>))))
+            {
+                <span class="self">self</span>.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
+            }
+            <span class="comment">// If the function is not an async transition, then it cannot have a future as output.
+            </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant != <span class="prelude-val">Some</span>(Variant::AsyncTransition)
+                &amp;&amp; <span class="macro">matches!</span>(function_output.type_, Type::Future(<span class="kw">_</span>))
+            {
+                <span class="self">self</span>.emit_err(TypeCheckerError::only_async_transition_can_return_future(function_output.span));
             }
         });
-
-        <span class="comment">// Check that the finalize block's return type is a unit type.
-        // Note: This is a temporary restriction to be compatible with the current version of snarkVM.
-        // Note: This restriction may be lifted in the future.
-        // Note: This check is still compatible with the other checks below.
-        </span><span class="kw">if </span>finalize.output_type != Type::Unit {
-            <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_return_value(finalize.span));
-        }
-
-        <span class="comment">// Type check the finalize block's return type.
-        // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
-        </span>finalize.output.iter().for_each(|output_type| {
-            <span class="comment">// Check that the type of output is defined.
-            </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>output_type.type_().clone(), output_type.span()) {
-                <span class="comment">// Check that the output is not a tuple. This is necessary to forbid nested tuples.
-                </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>output_type.type_(), Type::Tuple(<span class="kw">_</span>)) {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
-                }
-                <span class="comment">// Check that the output is not a record.
-                </span><span class="kw">if let </span>Type::Composite(struct_) = output_type.type_() {
-                    <span class="comment">// Note that this unwrap is safe, as the type is defined.
-                    </span><span class="kw">if </span><span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_output_record(output_type.span()))
-                    }
-                }
-                <span class="comment">// Check that the mode of the output is valid.
-                // Note that a finalize block can have only public outputs.
-                </span><span class="kw">if </span><span class="macro">matches!</span>(output_type.mode(), Mode::Constant | Mode::Private) {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(output_type.span()));
-                }
-            }
-        });
-
-        <span class="comment">// Check that the return type is defined. Note that the component types are already checked.
-        </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>finalize.output_type, finalize.span);
     }
 
     <span class="doccomment">/// Wrapper around lookup_struct that additionally records all structs that are used in the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>lookup_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;, name: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;Composite&gt; {
-        <span class="kw">let </span>struct_ =
-            <span class="self">self</span>.symbol_table.borrow().lookup_struct(Location::new(program, name), <span class="self">self</span>.program_name).cloned();
+        <span class="kw">let </span>struct_ = <span class="self">self
+            </span>.symbol_table
+            .borrow()
+            .lookup_struct(Location::new(program, name), <span class="self">self</span>.scope_state.program_name)
+            .cloned();
         <span class="comment">// Record the usage.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = <span class="kw-2">&amp;</span>struct_ {
             <span class="self">self</span>.used_structs.insert(s.identifier.name);
         }
         struct_
+    }
+
+    <span class="doccomment">/// Type checks the awaiting of a future.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_future_await(<span class="kw-2">&amp;mut </span><span class="self">self</span>, future: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Expression&gt;, span: Span) {
+        <span class="comment">// Make sure that it is an identifier expression.
+        </span><span class="kw">let </span>future_variable = <span class="kw">match </span>future {
+            <span class="prelude-val">Some</span>(Expression::Identifier(name)) =&gt; name,
+            <span class="kw">_ </span>=&gt; {
+                <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::invalid_await_call(span));
+            }
+        };
+
+        <span class="comment">// Make sure that the future is defined.
+        </span><span class="kw">match </span><span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">None</span>, future_variable.name)) {
+            <span class="prelude-val">Some</span>(var) =&gt; {
+                <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>var.type_, <span class="kw-2">&amp;</span>Type::Future(<span class="kw">_</span>)) {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::expected_future(future_variable.name, future_variable.span()));
+                }
+                <span class="comment">// Mark the future as consumed.
+                </span><span class="self">self</span>.await_checker.remove(future_variable);
+            }
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="self">self</span>.emit_err(TypeCheckerError::expected_future(future_variable.name, future_variable.span()));
+            }
+        }
+    }
+
+    <span class="doccomment">/// Inserts variable to symbol table.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>insert_variable(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        inferred_type: <span class="prelude-ty">Option</span>&lt;Type&gt;,
+        name: <span class="kw-2">&amp;</span>Identifier,
+        type_: Type,
+        index: usize,
+        span: Span,
+    ) {
+        <span class="kw">let </span>ty: Type = <span class="kw">if let </span>Type::Future(<span class="kw">_</span>) = type_ {
+            <span class="comment">// Need to insert the fully inferred future type, or else will just be default future type.
+            </span><span class="kw">let </span>ret = <span class="kw">match </span>inferred_type.unwrap() {
+                Type::Future(future) =&gt; Type::Future(future),
+                Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.elements().get(index) {
+                    <span class="prelude-val">Some</span>(Type::Future(future)) =&gt; Type::Future(future.clone()),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that the inferred type is a future."</span>),
+                },
+                <span class="kw">_ </span>=&gt; {
+                    <span class="macro">unreachable!</span>(<span class="string">"TYC guarantees that the inferred type is a future, or tuple containing futures."</span>)
+                }
+            };
+            <span class="comment">// Insert future into list of futures for the function.
+            </span><span class="self">self</span>.scope_state.futures.insert(name.name, <span class="self">self</span>.scope_state.call_location.clone().unwrap());
+            ret
+        } <span class="kw">else </span>{
+            type_
+        };
+        <span class="comment">// Insert the variable into the symbol table.
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+            <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(Location::new(<span class="prelude-val">None</span>, name.name), VariableSymbol {
+                type_: ty,
+                span,
+                declaration: VariableType::Mut,
+            })
+        {
+            <span class="self">self</span>.handler.emit_err(err);
+        }
+    }
+
+    <span class="comment">// Checks if the access operation is valid inside the current function variant.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_access_allowed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, finalize_op: bool, span: Span) {
+        <span class="comment">// Check that the function context matches.
+        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; !finalize_op {
+            <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span))
+        } <span class="kw">else if </span><span class="self">self</span>.scope_state.variant != <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; finalize_op {
+            <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
+        }
     }
 }
 

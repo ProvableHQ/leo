@@ -185,6 +185,11 @@
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -201,23 +206,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">pub mod </span>network;
-
-<span class="kw">use </span>indexmap::IndexSet;
-<span class="kw">pub use </span>network::<span class="kw-2">*</span>;
-<span class="kw">use </span>sha2::{Digest, Sha256};
-<span class="kw">use </span>std::path::{Path, PathBuf};
-<span class="kw">pub mod </span>location;
+</span><span class="kw">pub mod </span>location;
 <span class="kw">pub use </span>location::Location;
-<span class="kw">pub mod </span>manifest;
-<span class="kw">pub use </span>manifest::<span class="kw-2">*</span>;
+
 <span class="kw">pub mod </span>dependency;
 <span class="kw">pub use </span>dependency::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_ast::Stub;
-<span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">pub mod </span>lock_file_entry;
 <span class="kw">pub use </span>lock_file_entry::<span class="kw-2">*</span>;
+
+<span class="kw">pub mod </span>manifest;
+<span class="kw">pub use </span>manifest::<span class="kw-2">*</span>;
+
+<span class="kw">pub mod </span>network_name;
+<span class="kw">pub use </span>network_name::<span class="kw-2">*</span>;
+
+<span class="kw">use </span>leo_ast::Stub;
+<span class="kw">use </span>leo_span::Symbol;
+
+<span class="kw">use </span>indexmap::IndexSet;
+<span class="kw">use </span>sha2::{Digest, Sha256};
+<span class="kw">use </span>std::path::{Path, PathBuf};
+
 <span class="kw">use </span>std::fmt::Write;
 
 <span class="attr">#[derive(Clone, Debug)]
@@ -225,7 +235,7 @@
     name: Symbol,
     full_name: String,
     location: Location,
-    network: <span class="prelude-ty">Option</span>&lt;Network&gt;,
+    network: <span class="prelude-ty">Option</span>&lt;NetworkName&gt;,
     path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
     full_path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
     compiled_file_path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
@@ -263,7 +273,7 @@
     }
 
     <span class="comment">// Method to extract 'network', panics if `None`. Only safe to access if location is 'Network'
-    </span><span class="kw">pub fn </span>network(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Network {
+    </span><span class="kw">pub fn </span>network(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>NetworkName {
         <span class="self">self</span>.network.as_ref().expect(<span class="string">"ProgramContext network is None"</span>)
     }
 
@@ -359,7 +369,7 @@
             name: Symbol::from(<span class="kw-2">&amp;</span>dependency),
             full_name: dependency.name().clone(),
             location: dependency.location().clone(),
-            network: dependency.network().clone(),
+            network: <span class="kw-2">*</span>dependency.network(),
             path: dependency.path().clone(),
             full_path: <span class="prelude-val">None</span>,
             compiled_file_path: <span class="prelude-val">None</span>,

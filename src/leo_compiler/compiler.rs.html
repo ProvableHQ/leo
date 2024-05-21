@@ -374,6 +374,18 @@
 <a href="#372" id="372">372</a>
 <a href="#373" id="373">373</a>
 <a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -393,22 +405,25 @@
 </span><span class="doccomment">//! The compiler for Leo programs.
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
-</span><span class="kw">pub use </span>leo_ast::Ast;
+
+</span><span class="kw">use </span><span class="kw">crate</span>::CompilerOptions;
+
+<span class="kw">pub use </span>leo_ast::Ast;
 <span class="kw">use </span>leo_ast::{NodeBuilder, Program, Stub};
 <span class="kw">use </span>leo_errors::{emitter::Handler, CompilerError, <span class="prelude-ty">Result</span>};
 <span class="kw">pub use </span>leo_passes::SymbolTable;
 <span class="kw">use </span>leo_passes::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_span::{source_map::FileName, symbol::with_session_globals, Symbol};
 
+<span class="kw">use </span>snarkvm::prelude::Network;
+
+<span class="kw">use </span>indexmap::{IndexMap, IndexSet};
 <span class="kw">use </span>sha2::{Digest, Sha256};
 <span class="kw">use </span>std::{fs, path::PathBuf};
 
-<span class="kw">use </span><span class="kw">crate</span>::CompilerOptions;
-<span class="kw">use </span>indexmap::{IndexMap, IndexSet};
-
 <span class="doccomment">/// The primary entry point of the Leo compiler.
 </span><span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>Compiler&lt;<span class="lifetime">'a</span>&gt; {
+</span><span class="kw">pub struct </span>Compiler&lt;<span class="lifetime">'a</span>, N: Network&gt; {
     <span class="doccomment">/// The handler is used for error and warning emissions.
     </span>handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
     <span class="doccomment">/// The path to the main leo file.
@@ -431,9 +446,11 @@
     </span>type_table: TypeTable,
     <span class="doccomment">/// The stubs for imported programs. Produced by `Retriever` module.
     </span>import_stubs: IndexMap&lt;Symbol, Stub&gt;,
+    <span class="comment">// Allows the compiler to be generic over the network.
+    </span>phantom: std::marker::PhantomData&lt;N&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Compiler&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; Compiler&lt;<span class="lifetime">'a</span>, N&gt; {
     <span class="doccomment">/// Returns a new Leo compiler.
     </span><span class="kw">pub fn </span>new(
         program_name: String,
@@ -459,6 +476,7 @@
             assigner,
             import_stubs,
             type_table,
+            phantom: Default::default(),
         }
     }
 
@@ -482,7 +500,7 @@
         </span><span class="kw">let </span>prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
 
         <span class="comment">// Use the parser to construct the abstract syntax tree (ast).
-        </span><span class="self">self</span>.ast = leo_parser::parse_ast(<span class="self">self</span>.handler, <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder, <span class="kw-2">&amp;</span>prg_sf.src, prg_sf.start_pos)<span class="question-mark">?</span>;
+        </span><span class="self">self</span>.ast = leo_parser::parse_ast::&lt;N&gt;(<span class="self">self</span>.handler, <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder, <span class="kw-2">&amp;</span>prg_sf.src, prg_sf.start_pos)<span class="question-mark">?</span>;
 
         <span class="comment">// If the program is imported, then check that the name of its program scope matches the file name.
         // Note that parsing enforces that there is exactly one program scope in a file.
@@ -525,8 +543,14 @@
 
     <span class="doccomment">/// Runs the type checker pass.
     </span><span class="kw">pub fn </span>type_checker_pass(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, symbol_table: SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, StructGraph, CallGraph)&gt; {
-        <span class="kw">let </span>(symbol_table, struct_graph, call_graph) =
-            TypeChecker::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler, symbol_table, <span class="kw-2">&amp;</span><span class="self">self</span>.type_table))<span class="question-mark">?</span>;
+        <span class="kw">let </span>(symbol_table, struct_graph, call_graph) = TypeChecker::&lt;N&gt;::do_pass((
+            <span class="kw-2">&amp;</span><span class="self">self</span>.ast,
+            <span class="self">self</span>.handler,
+            symbol_table,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.type_table,
+            <span class="self">self</span>.compiler_options.build.conditional_block_max_depth,
+            <span class="self">self</span>.compiler_options.build.disable_conditional_branch_type_checking,
+        ))<span class="question-mark">?</span>;
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.type_checked_symbol_table {
             <span class="self">self</span>.write_symbol_table_to_json(<span class="string">"type_checked_symbol_table.json"</span>, <span class="kw-2">&amp;</span>symbol_table)<span class="question-mark">?</span>;
         }

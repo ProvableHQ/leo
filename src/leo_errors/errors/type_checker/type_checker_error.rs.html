@@ -785,6 +785,103 @@
 <a href="#783" id="783">783</a>
 <a href="#784" id="784">784</a>
 <a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1072,6 +1169,13 @@
     }
 
     @formatted
+    async_function_input_cannot_be_private {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">"Async functions cannot have private inputs."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely."</span>.to_string()),
+    }
+
+    @formatted
     struct_or_record_cannot_contain_record {
         args: (parent: <span class="kw">impl </span>Display, child: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"A struct or record cannot contain another record."</span>),
@@ -1086,52 +1190,31 @@
     }
 
     @formatted
-    only_transition_functions_can_have_finalize {
+    async_function_input_must_be_public {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"Only transition functions can have a `finalize` block."</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">"Remove the `finalize` block or use the keyword `transition` instead of `function`."</span>.to_string()),
-    }
-
-    @formatted
-    finalize_input_mode_must_be_public {
-        args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"An input to a finalize block must be public."</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"An input to an async function must be public."</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely."</span>.to_string()),
     }
 
     @formatted
     finalize_output_mode_must_be_public {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"An output from a finalize block must be public."</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"An output from an async function block must be public."</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"Use a `public` modifier to the output type declaration or remove the visibility modifier entirely."</span>.to_string()),
-    }
-
-    @formatted
-    finalize_in_finalize {
-        args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"A finalize block cannot contain a finalize statement."</span>),
-        help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     invalid_operation_outside_finalize {
         args: (operation: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"`{operation}` must be inside a finalize block."</span>),
-        help: <span class="prelude-val">None</span>,
-    }
-
-    @formatted
-    finalize_without_finalize_block {
-        args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"Cannot use a `finalize` statement without a `finalize` block."</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"`{operation}` must be inside an async function block."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     loop_body_contains_finalize {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"Loop body contains a finalize statement."</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">"Remove the finalize statement."</span>.to_string()),
+        msg: <span class="macro">format!</span>(<span class="string">"Loop body contains an async function call."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Remove the async function call."</span>.to_string()),
     }
 
     @formatted
@@ -1144,7 +1227,7 @@
     @formatted
     finalize_block_must_not_be_empty {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"A finalize block cannot be empty."</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"An async function call block cannot be empty."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -1163,32 +1246,9 @@
     }
 
     @formatted
-    incorrect_num_args_to_finalize {
-        args: (expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(
-            <span class="string">"`finalize` expected `{expected}` args, but got `{received}`"</span>,
-        ),
-        help: <span class="prelude-val">None</span>,
-    }
-
-    @formatted
     invalid_self_access {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"The allowed accesses to `self` are `self.caller` and `self.signer`."</span>),
-        help: <span class="prelude-val">None</span>,
-    }
-
-    @formatted
-    missing_finalize {
-        args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"Function must contain a `finalize` statement on all execution paths."</span>),
-        help: <span class="prelude-val">None</span>,
-    }
-
-    @formatted
-    finalize_name_mismatch {
-        args: (finalize_name: <span class="kw">impl </span>Display, function_name: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"`finalize` name `{finalize_name}` does not match function name `{function_name}`"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -1272,23 +1332,9 @@
     }
 
     @formatted
-    finalize_cannot_take_tuple_as_input {
-        args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"A finalize block cannot take in a tuple as input."</span>),
-        help: <span class="prelude-val">None</span>,
-    }
-
-    @formatted
     nested_tuple_expression {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"A tuple expression cannot contain another tuple expression."</span>),
-        help: <span class="prelude-val">None</span>,
-    }
-
-    @formatted
-    finalize_statement_cannot_contain_tuples {
-        args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"A finalize statement cannot contain tuple expressions."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -1323,7 +1369,7 @@
     @formatted
     function_cannot_input_or_output_a_record {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"A `function` cannot have a record as input or output."</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Only `transition` functions can have a record as input or output."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -1362,26 +1408,6 @@
     }
 
     @formatted
-    finalize_cannot_take_record_as_input {
-        args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"A finalize block cannot take in a record as input."</span>),
-        help: <span class="prelude-val">None</span>,
-    }
-
-    @formatted
-    finalize_cannot_output_record {
-        args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"A finalize block cannot return a record."</span>),
-        help: <span class="prelude-val">None</span>,
-    }
-
-    @formatted
-    finalize_cannot_return_value {
-        args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"A finalize block cannot return a value."</span>),
-        help: <span class="prelude-val">None</span>,
-    }
-    @formatted
     too_many_mappings {
         args: (max: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"The number of mappings exceeds the maximum. snarkVM allows up to {max} mappings within a single program."</span>),
@@ -1419,14 +1445,14 @@
     @formatted
     invalid_operation_inside_finalize {
         args: (operation: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"`{operation}` is not a valid operand in a finalize context."</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"`{operation}` is not a valid operand in an async function call context."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     operation_must_be_in_finalize_block {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"This operation can only be used in a `finalize` block."</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"This operation can only be used in an async function block."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -1538,7 +1564,7 @@
     @formatted
     no_transitions {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"A program must have at least one transition function."</span>),
+        msg: <span class="string">"A program must have at least one transition function."</span>.to_string(),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -1557,17 +1583,185 @@
     }
 
     @formatted
-    cannot_modify_external_mapping {
-        args: (operation: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Cannot use operation `{operation}` on external mapping."</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">"The only valid operations on external mappings are get, and get_or_use."</span>.to_string()),
+    async_transition_invalid_output {
+        args: (),
+        msg: <span class="string">"An async transition must return a future as the final output, and in no other position return a future."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Example: `async transition foo() -&gt; (u8, bool, Future) {...}`"</span>.to_string()),
     }
 
     @formatted
-    finalize_cannot_assign_outside_conditional {
+    must_propagate_all_futures {
+        args: (never_propagated: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"All futures generated from external transition calls must be inserted into an async function call in the order they were called. The following were never were: {never_propagated}"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Example: `async transition foo() -&gt; Future { let a: Future = b.aleo/bar(); return await_futures(a); }`"</span>.to_string()),
+    }
+
+    @formatted
+    async_transition_must_call_async_function {
+        args: (),
+        msg: <span class="string">"An async transition must call an async function."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Example: `async transition foo() -&gt; Future { let a: Future = bar(); return await_futures(a); }`"</span>.to_string()),
+    }
+    @formatted
+    async_function_input_length_mismatch {
+        args: (expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Expected `{expected}` inputs, but got `{received}`"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Check that the number of arguments passed in are the same as the number in the function signature. Ex: `async function foo(a: u8, b: u8)` has two input arguments."</span>.to_string()),
+    }
+
+    @formatted
+    invalid_future_access {
+        args: (num: <span class="kw">impl </span>Display, len: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">"Cannot access argument `{num}` from future. The future only has `{len}` arguments."
+        </span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    future_access_must_be_number {
+        args: (name: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Future access must be a number not `{name}`."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">" Future arguments must be addressed by their index. Ex: `f.1.3`."</span>.to_string()),
+    }
+
+    @formatted
+    no_path_awaits_all_futures_exactly_once {
+        args: (num_total_paths: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Futures must be awaited exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all futures are awaited exactly once."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` to await a future. Remove duplicate future await redundancies, and add future awaits for un-awaited futures."</span>.to_string()),
+    }
+
+    @formatted
+    future_awaits_missing {
+        args: (unawaited: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"The following futures were never awaited: {unawaited}"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` to await a future."</span>.to_string()),
+    }
+
+    @formatted
+    cannot_reassign_future_variable {
+        args: (var: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Cannot reassign variable `{var}` since it has type Future."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Futures can only be defined as the result of async calls."</span>.to_string()),
+    }
+
+    @formatted
+    invalid_await_call {
+        args: (),
+        msg: <span class="string">"Not a valid await call."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future."</span>.to_string()),
+    }
+
+    @formatted
+    can_only_await_one_future_at_a_time {
+        args: (),
+        msg: <span class="string">"Must await exactly one future at a time"</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future."</span>.to_string()),
+    }
+
+    @formatted
+    expected_future {
+        args: (type_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Expected a future, but found `{type_}`"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Only futures can be awaited."</span>.to_string()),
+    }
+
+    @formatted
+    invalid_method_call {
+        args: (),
+        msg: <span class="string">"Not a valid method call."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"For a `f: Future`, call the associated method `f.await()`."</span>.to_string()),
+    }
+
+    @formatted
+    async_call_in_conditional {
+        args: (),
+        msg: <span class="string">"Cannot call an async function in a conditional block."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call outside of the conditional block."</span>.to_string()),
+    }
+
+    @formatted
+    must_call_async_function_once {
+        args: (),
+        msg: <span class="string">"Must call exactly one local async function per transition function."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call outside of the transition block."</span>.to_string()),
+    }
+
+    @formatted
+    async_call_can_only_be_done_from_async_transition {
+        args: (),
+        msg: <span class="string">"Can only make an async call from an async transition."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call inside of the async transition block."</span>.to_string()),
+    }
+
+    @formatted
+    external_transition_call_must_be_before_finalize {
+        args: (),
+        msg: <span class="string">"External async transition calls cannot be made after local async function call"</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call before the function call."</span>.to_string()),
+    }
+
+    @formatted
+    unknown_future_consumed {
+        args: (future: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Unknown future consumed: `{future}`"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Make sure the future is defined and consumed exactly once."</span>.to_string()),
+    }
+
+    @formatted
+    not_all_futures_consumed {
+        args: (unconsumed: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Not all futures were consumed: {unconsumed}"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Make sure all futures are consumed exactly once. Consume by passing to an async function call."</span>.to_string()),
+    }
+
+    @formatted
+    async_transition_missing_future_to_return {
+        args: (),
+        msg: <span class="string">"An async transition must return a future."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Call an async function inside of the async transition body so that there is a future to return."</span>.to_string()),
+    }
+
+    @formatted
+    async_function_cannot_return_value {
+        args: (),
+        msg: <span class="string">"An async function is not allowed to return a value."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written."</span>.to_string()),
+    }
+
+    @formatted
+    return_type_of_finalize_function_is_future {
+        args: (),
+        msg: <span class="string">"The output of an async function must be assigned to a `Future` type.."</span>.to_string(),
+        help: <span class="prelude-val">None</span>,
+    }
+    @formatted
+    cannot_modify_external_mapping {
+        args: (operation: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Cannot use operation `{operation}` on external mapping."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"The only valid operations on external mappings are contains, get, and get_or_use."</span>.to_string()),
+    }
+
+    @formatted
+    async_cannot_assign_outside_conditional {
         args: (variable: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Cannot re-assign to `{variable}` from a conditional scope to an outer scope in a finalize block."</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">"This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/AleoHQ/ARCs) will support more complex assignments in finalize blocks."</span>.to_string()),
+        msg: <span class="macro">format!</span>(<span class="string">"Cannot re-assign to `{variable}` from a conditional scope to an outer scope in an async function."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/AleoHQ/ARCs) will support more complex assignments in async functions."</span>.to_string()),
+    }
+
+    @formatted
+    only_async_transition_can_return_future {
+        args: (),
+        msg: <span class="string">"A `transition` cannot return a future."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Use an `async transition` instead."</span>.to_string()),
+    }
+
+    @formatted
+    async_function_not_found {
+        args: (name: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"The async function `{name}` does not exist."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"Ensure that `{name}` is defined as an async function in the current program."</span>)),
     }
 );
 </code></pre></div></section></main></body></html>

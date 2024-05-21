@@ -395,29 +395,6 @@
 <a href="#393" id="393">393</a>
 <a href="#394" id="394">394</a>
 <a href="#395" id="395">395</a>
-<a href="#396" id="396">396</a>
-<a href="#397" id="397">397</a>
-<a href="#398" id="398">398</a>
-<a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-<a href="#416" id="416">416</a>
-<a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -438,7 +415,7 @@
 
 <span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>};
 
-<span class="kw">impl </span>ParserContext&lt;<span class="lifetime">'_</span>&gt; {
+<span class="kw">impl</span>&lt;N: Network&gt; ParserContext&lt;<span class="lifetime">'_</span>, N&gt; {
     <span class="doccomment">/// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     </span><span class="kw">pub fn </span>parse_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Program&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>imports = IndexMap::new();
@@ -535,7 +512,7 @@
 
         <span class="comment">// Parse the body of the program scope.
         </span><span class="kw">let </span><span class="kw-2">mut </span>consts: Vec&lt;(Symbol, ConstDeclaration)&gt; = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>functions: Vec&lt;(Symbol, Function)&gt; = Vec::new();
+        <span class="kw">let </span>(<span class="kw-2">mut </span>transitions, <span class="kw-2">mut </span>functions) = (Vec::new(), Vec::new());
         <span class="kw">let </span><span class="kw-2">mut </span>structs: Vec&lt;(Symbol, Composite)&gt; = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>mappings: Vec&lt;(Symbol, Mapping)&gt; = Vec::new();
 
@@ -553,9 +530,15 @@
                     <span class="kw">let </span>(id, mapping) = <span class="self">self</span>.parse_mapping()<span class="question-mark">?</span>;
                     mappings.push((id, mapping));
                 }
-                Token::At | Token::Function | Token::Transition | Token::Inline =&gt; {
+                Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline =&gt; {
                     <span class="kw">let </span>(id, function) = <span class="self">self</span>.parse_function()<span class="question-mark">?</span>;
-                    functions.push((id, function));
+
+                    <span class="comment">// Partition into transitions and functions so that don't have to sort later.
+                    </span><span class="kw">if </span>function.variant.is_transition() {
+                        transitions.push((id, function));
+                    } <span class="kw">else </span>{
+                        functions.push((id, function));
+                    }
                 }
                 Token::RightCurly =&gt; <span class="kw">break</span>,
                 <span class="kw">_ </span>=&gt; {
@@ -576,7 +559,14 @@
         <span class="comment">// Parse `}`.
         </span><span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightCurly)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(ProgramScope { program_id, consts, functions, structs, mappings, span: start + end })
+        <span class="prelude-val">Ok</span>(ProgramScope {
+            program_id,
+            consts,
+            functions: [transitions, functions].concat(),
+            structs,
+            mappings,
+            span: start + end,
+        })
     }
 
     <span class="doccomment">/// Returns a [`Vec&lt;Member&gt;`] AST node if the next tokens represent a struct member.
@@ -746,11 +736,19 @@
         <span class="kw">while </span><span class="self">self</span>.look_ahead(<span class="number">0</span>, |t| <span class="kw-2">&amp;</span>t.token) == <span class="kw-2">&amp;</span>Token::At {
             annotations.push(<span class="self">self</span>.parse_annotation()<span class="question-mark">?</span>)
         }
+        <span class="comment">// Parse a potential async signifier.
+        </span><span class="kw">let </span>(is_async, start_async) =
+            <span class="kw">if </span><span class="self">self</span>.token.token == Token::Async { (<span class="bool-val">true</span>, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Async)<span class="question-mark">?</span>) } <span class="kw">else </span>{ (<span class="bool-val">false</span>, Span::dummy()) };
         <span class="comment">// Parse `&lt;variant&gt; IDENT`, where `&lt;variant&gt;` is `function`, `transition`, or `inline`.
-        </span><span class="kw">let </span>(variant, start) = <span class="kw">match </span><span class="self">self</span>.token.token {
+        </span><span class="kw">let </span>(variant, start) = <span class="kw">match </span><span class="self">self</span>.token.token.clone() {
             Token::Inline =&gt; (Variant::Inline, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Inline)<span class="question-mark">?</span>),
-            Token::Function =&gt; (Variant::Standard, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Function)<span class="question-mark">?</span>),
-            Token::Transition =&gt; (Variant::Transition, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Transition)<span class="question-mark">?</span>),
+            Token::Function =&gt; {
+                (<span class="kw">if </span>is_async { Variant::AsyncFunction } <span class="kw">else </span>{ Variant::Function }, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Function)<span class="question-mark">?</span>)
+            }
+            Token::Transition =&gt; (
+                <span class="kw">if </span>is_async { Variant::AsyncTransition } <span class="kw">else </span>{ Variant::Transition },
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Transition)<span class="question-mark">?</span>,
+            ),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.unexpected(<span class="string">"'function', 'transition', or 'inline'"</span>)<span class="question-mark">?</span>,
         };
         <span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
@@ -782,55 +780,11 @@
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.unexpected(<span class="string">"block or semicolon"</span>)<span class="question-mark">?</span>,
         };
 
-        <span class="comment">// Parse the `finalize` block if it exists.
-        </span><span class="kw">let </span>finalize = <span class="kw">match </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Finalize) {
-            <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
-            <span class="bool-val">true </span>=&gt; {
-                <span class="comment">// Get starting span.
-                </span><span class="kw">let </span>start = <span class="self">self</span>.prev_token.span;
+        <span class="kw">let </span>span = <span class="kw">if </span>start_async == Span::dummy() { start + block.span } <span class="kw">else </span>{ start_async + block.span };
 
-                <span class="comment">// Parse the identifier.
-                </span><span class="kw">let </span>identifier = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
-
-                <span class="comment">// Parse parameters.
-                </span><span class="kw">let </span>(input, ..) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_input().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
-
-                <span class="comment">// Parse return type.
-                </span><span class="kw">let </span>output = <span class="kw">match </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Arrow) {
-                    <span class="bool-val">false </span>=&gt; <span class="macro">vec!</span>[],
-                    <span class="bool-val">true </span>=&gt; {
-                        <span class="self">self</span>.disallow_struct_construction = <span class="bool-val">true</span>;
-                        <span class="kw">let </span>output = <span class="kw">match </span><span class="self">self</span>.peek_is_left_par() {
-                            <span class="bool-val">true </span>=&gt; <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_output().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>.<span class="number">0</span>,
-                            <span class="bool-val">false </span>=&gt; <span class="macro">vec!</span>[<span class="self">self</span>.parse_output()<span class="question-mark">?</span>],
-                        };
-                        <span class="self">self</span>.disallow_struct_construction = <span class="bool-val">false</span>;
-                        output
-                    }
-                };
-
-                <span class="comment">// Parse the finalize body.
-                </span><span class="kw">let </span>block = <span class="self">self</span>.parse_block()<span class="question-mark">?</span>;
-                <span class="kw">let </span>span = start + block.span;
-
-                <span class="prelude-val">Some</span>(Finalize::new(identifier, input, output, block, span, <span class="self">self</span>.node_builder.next_id()))
-            }
-        };
-
-        <span class="kw">let </span>span = start + block.span;
         <span class="prelude-val">Ok</span>((
             name.name,
-            Function::new(
-                annotations,
-                variant,
-                name,
-                inputs,
-                output,
-                block,
-                finalize,
-                span,
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
+            Function::new(annotations, variant, name, inputs, output, block, span, <span class="self">self</span>.node_builder.next_id()),
         ))
     }
 }

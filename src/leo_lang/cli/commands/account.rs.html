@@ -612,7 +612,7 @@
 
 <span class="comment">// Write the network and private key to the .env file in project directory.
 </span><span class="kw">fn </span>write_to_env_file(private_key: PrivateKey&lt;CurrentNetwork&gt;, ctx: <span class="kw-2">&amp;</span>Context) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">let </span>data = <span class="macro">format!</span>(<span class="string">"NETWORK=testnet3\nPRIVATE_KEY={private_key}\n"</span>);
+    <span class="kw">let </span>data = <span class="macro">format!</span>(<span class="string">"NETWORK=mainnet\nPRIVATE_KEY={private_key}\n"</span>);
     <span class="kw">let </span>program_dir = ctx.dir()<span class="question-mark">?</span>;
     Env::&lt;CurrentNetwork&gt;::from(data).write_to(<span class="kw-2">&amp;</span>program_dir)<span class="question-mark">?</span>;
     <span class="macro">tracing::info!</span>(<span class="string">"✅ Private Key written to {}"</span>, program_dir.join(<span class="string">".env"</span>).display());

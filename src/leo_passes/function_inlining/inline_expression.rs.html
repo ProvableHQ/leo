@@ -108,6 +108,8 @@
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -163,7 +165,6 @@
 
         <span class="comment">// Inline the callee function, if required, otherwise, return the call expression.
         </span><span class="kw">match </span>callee.variant {
-            Variant::Transition | Variant::Standard =&gt; (Expression::Call(input), Default::default()),
             Variant::Inline =&gt; {
                 <span class="comment">// Construct a mapping from input variables of the callee function to arguments passed to the callee.
                 </span><span class="kw">let </span>parameter_to_argument = callee
@@ -212,6 +213,9 @@
                 };
 
                 (result, inlined_statements)
+            }
+            Variant::Function | Variant::AsyncFunction | Variant::Transition | Variant::AsyncTransition =&gt; {
+                (Expression::Call(input), Default::default())
             }
         }
     }

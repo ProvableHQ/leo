@@ -458,16 +458,6 @@
 <a href="#456" id="456">456</a>
 <a href="#457" id="457">457</a>
 <a href="#458" id="458">458</a>
-<a href="#459" id="459">459</a>
-<a href="#460" id="460">460</a>
-<a href="#461" id="461">461</a>
-<a href="#462" id="462">462</a>
-<a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-<a href="#465" id="465">465</a>
-<a href="#466" id="466">466</a>
-<a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -484,17 +474,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Location, TypeChecker, VariableSymbol, VariableType};
+</span><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{ConditionalTreeNode, TypeChecker, VariableSymbol, VariableType};
+
+<span class="kw">use </span>leo_ast::{
+    Type::{Future, Tuple},
+    <span class="kw-2">*</span>,
+};
+<span class="kw">use </span>leo_errors::TypeCheckerError;
+
 <span class="kw">use </span>itertools::Itertools;
 
-<span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_errors::TypeCheckerError;
-<span class="kw">use </span>leo_span::{Span, Symbol};
-
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; StatementVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; StatementVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>, N&gt; {
     <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Statement) {
         <span class="comment">// No statements can follow a return statement.
-        </span><span class="kw">if </span><span class="self">self</span>.has_return {
+        </span><span class="kw">if </span><span class="self">self</span>.scope_state.has_return {
             <span class="self">self</span>.emit_err(TypeCheckerError::unreachable_code_after_return(input.span()));
             <span class="kw">return</span>;
         }
@@ -550,16 +544,21 @@
                 VariableType::Mut | VariableType::Input(<span class="kw">_</span>) =&gt; {}
             }
 
-            <span class="comment">// If the variable exists and its in a finalize, then check that it is in the current scope.
-            </span><span class="kw">if </span><span class="self">self</span>.is_finalize
-                &amp;&amp; <span class="self">self</span>.is_conditional
+            <span class="comment">// If the variable exists and its in an async function, then check that it is in the current scope.
+            // Note that this unwrap is safe because the scope state is initalized before traversing the function.
+            </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant.unwrap().is_async_function()
+                &amp;&amp; <span class="self">self</span>.scope_state.is_conditional
                 &amp;&amp; <span class="self">self
                     </span>.symbol_table
                     .borrow()
                     .lookup_variable_in_current_scope(Location::new(<span class="prelude-val">None</span>, var_name.name))
                     .is_none()
             {
-                <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_assign_outside_conditional(var_name, var.span));
+                <span class="self">self</span>.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(var_name, var.span));
+            }
+            <span class="comment">// Prohibit reassignment of futures.
+            </span><span class="kw">if let </span>Type::Future(<span class="kw">_</span>) = var.type_ {
+                <span class="self">self</span>.emit_err(TypeCheckerError::cannot_reassign_future_variable(var_name, var.span));
             }
 
             <span class="prelude-val">Some</span>(var.type_.clone())
@@ -589,28 +588,34 @@
         <span class="kw">let </span><span class="kw-2">mut </span>then_block_has_return = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>otherwise_block_has_return = <span class="bool-val">false</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>then_block_has_finalize = <span class="bool-val">false</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>otherwise_block_has_finalize = <span class="bool-val">false</span>;
-
         <span class="comment">// Set the `has_return` flag for the then-block.
-        </span><span class="kw">let </span>previous_has_return = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.has_return, then_block_has_return);
-        <span class="comment">// Set the `has_finalize` flag for the then-block.
-        </span><span class="kw">let </span>previous_has_finalize = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.has_finalize, then_block_has_finalize);
+        </span><span class="kw">let </span>previous_has_return = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.scope_state.has_return, then_block_has_return);
         <span class="comment">// Set the `is_conditional` flag.
-        </span><span class="kw">let </span>previous_is_conditional = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.is_conditional, <span class="bool-val">true</span>);
+        </span><span class="kw">let </span>previous_is_conditional = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.scope_state.is_conditional, <span class="bool-val">true</span>);
 
-        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.then);
+        <span class="comment">// Create scope for checking awaits in `then` branch of conditional.
+        </span><span class="kw">let </span>current_bst_nodes: Vec&lt;ConditionalTreeNode&gt; = <span class="kw">match </span><span class="self">self
+            </span>.await_checker
+            .create_then_scope(<span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction), input.span)
+        {
+            <span class="prelude-val">Ok</span>(nodes) =&gt; nodes,
+            <span class="prelude-val">Err</span>(warn) =&gt; <span class="kw">return </span><span class="self">self</span>.emit_warning(warn),
+        };
+
+        <span class="comment">// Visit block.
+        </span><span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.then);
 
         <span class="comment">// Store the `has_return` flag for the then-block.
-        </span>then_block_has_return = <span class="self">self</span>.has_return;
-        <span class="comment">// Store the `has_finalize` flag for the then-block.
-        </span>then_block_has_finalize = <span class="self">self</span>.has_finalize;
+        </span>then_block_has_return = <span class="self">self</span>.scope_state.has_return;
+
+        <span class="comment">// Exit scope for checking awaits in `then` branch of conditional.
+        </span><span class="kw">let </span>saved_paths = <span class="self">self
+            </span>.await_checker
+            .exit_then_scope(<span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction), current_bst_nodes);
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(otherwise) = <span class="kw-2">&amp;</span>input.otherwise {
             <span class="comment">// Set the `has_return` flag for the otherwise-block.
-            </span><span class="self">self</span>.has_return = otherwise_block_has_return;
-            <span class="comment">// Set the `has_finalize` flag for the otherwise-block.
-            </span><span class="self">self</span>.has_finalize = otherwise_block_has_finalize;
+            </span><span class="self">self</span>.scope_state.has_return = otherwise_block_has_return;
 
             <span class="kw">match </span><span class="kw-2">&amp;**</span>otherwise {
                 Statement::Block(stmt) =&gt; {
@@ -622,17 +627,16 @@
             }
 
             <span class="comment">// Store the `has_return` flag for the otherwise-block.
-            </span>otherwise_block_has_return = <span class="self">self</span>.has_return;
-            <span class="comment">// Store the `has_finalize` flag for the otherwise-block.
-            </span>otherwise_block_has_finalize = <span class="self">self</span>.has_finalize;
+            </span>otherwise_block_has_return = <span class="self">self</span>.scope_state.has_return;
         }
 
+        <span class="comment">// Update the set of all possible BST paths.
+        </span><span class="self">self</span>.await_checker.exit_statement_scope(<span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction), saved_paths);
+
         <span class="comment">// Restore the previous `has_return` flag.
-        </span><span class="self">self</span>.has_return = previous_has_return || (then_block_has_return &amp;&amp; otherwise_block_has_return);
-        <span class="comment">// Restore the previous `has_finalize` flag.
-        </span><span class="self">self</span>.has_finalize = previous_has_finalize || (then_block_has_finalize &amp;&amp; otherwise_block_has_finalize);
+        </span><span class="self">self</span>.scope_state.has_return = previous_has_return || (then_block_has_return &amp;&amp; otherwise_block_has_return);
         <span class="comment">// Restore the previous `is_conditional` flag.
-        </span><span class="self">self</span>.is_conditional = previous_is_conditional;
+        </span><span class="self">self</span>.scope_state.is_conditional = previous_is_conditional;
     }
 
     <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConsoleStatement) {
@@ -718,26 +722,12 @@
         </span>}
 
         <span class="comment">// Check the expression on the right-hand side.
-        </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone()));
-
-        <span class="comment">// TODO: Dedup with unrolling pass.
-        // Helper to insert the variables into the symbol table.
-        </span><span class="kw">let </span>insert_variable = |symbol: Symbol, type_: Type, span: Span| {
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(Location::new(<span class="prelude-val">None</span>, symbol), VariableSymbol {
-                    type_,
-                    span,
-                    declaration: VariableType::Mut,
-                })
-            {
-                <span class="self">self</span>.handler.emit_err(err);
-            }
-        };
+        </span><span class="kw">let </span>inferred_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone()));
 
         <span class="comment">// Insert the variables into the symbol table.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
             Expression::Identifier(identifier) =&gt; {
-                insert_variable(identifier.name, input.type_.clone(), identifier.span)
+                <span class="self">self</span>.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), <span class="number">0</span>, identifier.span)
             }
             Expression::Tuple(tuple_expression) =&gt; {
                 <span class="kw">let </span>tuple_type = <span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
@@ -754,19 +744,18 @@
                     ));
                 }
 
-                tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(
-                    |(expression, type_)| {
-                        <span class="kw">let </span>identifier = <span class="kw">match </span>expression {
-                            Expression::Identifier(identifier) =&gt; identifier,
-                            <span class="kw">_ </span>=&gt; {
-                                <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(
-                                    expression.span(),
-                                ));
-                            }
-                        };
-                        insert_variable(identifier.name, type_.clone(), identifier.span)
-                    },
-                );
+                <span class="kw">for </span>((index, expr), type_) <span class="kw">in
+                    </span>tuple_expression.elements.iter().enumerate().zip_eq(tuple_type.elements().iter())
+                {
+                    <span class="kw">let </span>identifier = <span class="kw">match </span>expr {
+                        Expression::Identifier(identifier) =&gt; identifier,
+                        <span class="kw">_ </span>=&gt; {
+                            <span class="kw">return </span><span class="self">self
+                                </span>.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
+                        }
+                    };
+                    <span class="self">self</span>.insert_variable(inferred_type.clone(), identifier, type_.clone(), index, identifier.span);
+                }
             }
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
         }
@@ -803,21 +792,21 @@
             <span class="self">self</span>.handler.emit_err(err);
         }
 
-        <span class="kw">let </span>prior_has_return = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.has_return);
-        <span class="kw">let </span>prior_has_finalize = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.has_finalize);
+        <span class="kw">let </span>prior_has_return = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.scope_state.has_return);
+        <span class="kw">let </span>prior_has_finalize = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.scope_state.has_called_finalize);
 
         <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
 
-        <span class="kw">if </span><span class="self">self</span>.has_return {
+        <span class="kw">if </span><span class="self">self</span>.scope_state.has_return {
             <span class="self">self</span>.emit_err(TypeCheckerError::loop_body_contains_return(input.span()));
         }
 
-        <span class="kw">if </span><span class="self">self</span>.has_finalize {
+        <span class="kw">if </span><span class="self">self</span>.scope_state.has_called_finalize {
             <span class="self">self</span>.emit_err(TypeCheckerError::loop_body_contains_finalize(input.span()));
         }
 
-        <span class="self">self</span>.has_return = prior_has_return;
-        <span class="self">self</span>.has_finalize = prior_has_finalize;
+        <span class="self">self</span>.scope_state.has_return = prior_has_return;
+        <span class="self">self</span>.scope_state.has_called_finalize = prior_has_finalize;
 
         <span class="comment">// Exit the scope.
         </span><span class="self">self</span>.exit_scope(scope_index);
@@ -867,19 +856,48 @@
     <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ReturnStatement) {
         <span class="comment">// We can safely unwrap all self.parent instances because
         // statements should always have some parent block
-        </span><span class="kw">let </span>parent = <span class="self">self</span>.function.unwrap();
-        <span class="kw">let </span>return_type =
-            <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(Location::new(<span class="self">self</span>.program_name, parent)).map(|f| {
-                <span class="kw">match </span><span class="self">self</span>.is_finalize {
-                    <span class="comment">// TODO: Check this.
-                    // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
-                    </span><span class="bool-val">true </span>=&gt; f.finalize.as_ref().unwrap().output_type.clone(),
-                    <span class="bool-val">false </span>=&gt; f.output_type.clone(),
+        </span><span class="kw">let </span>parent = <span class="self">self</span>.scope_state.function.unwrap();
+        <span class="kw">let </span>func =
+            <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(Location::new(<span class="self">self</span>.scope_state.program_name, parent)).cloned();
+        <span class="kw">let </span><span class="kw-2">mut </span>return_type = func.clone().map(|f| f.output_type.clone());
+
+        <span class="comment">// Fully type the expected return value.
+        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; <span class="self">self</span>.scope_state.has_called_finalize {
+            <span class="kw">let </span>inferred_future_type =
+                <span class="kw">match </span><span class="self">self</span>.async_function_input_types.get(<span class="kw-2">&amp;</span>func.unwrap().finalize.clone().unwrap()) {
+                    <span class="prelude-val">Some</span>(types) =&gt; Future(FutureType::new(
+                        types.clone(),
+                        <span class="prelude-val">Some</span>(Location::new(<span class="self">self</span>.scope_state.program_name, parent)),
+                        <span class="bool-val">true</span>,
+                    )),
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="kw">return </span><span class="self">self
+                            </span>.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
+                    }
+                };
+            <span class="comment">// Need to modify return type since the function signature is just default future, but the actual return type is the fully inferred future of the finalize input type.
+            </span><span class="kw">let </span>inferred = <span class="kw">match </span>return_type.clone() {
+                <span class="prelude-val">Some</span>(Future(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(inferred_future_type),
+                <span class="prelude-val">Some</span>(Tuple(tuple)) =&gt; <span class="prelude-val">Some</span>(Tuple(TupleType::new(
+                    tuple
+                        .elements()
+                        .iter()
+                        .map(|t| <span class="kw">if </span><span class="macro">matches!</span>(t, Future(<span class="kw">_</span>)) { inferred_future_type.clone() } <span class="kw">else </span>{ t.clone() })
+                        .collect::&lt;Vec&lt;Type&gt;&gt;(),
+                ))),
+                <span class="kw">_ </span>=&gt; {
+                    <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
                 }
-            });
+            };
+
+            <span class="comment">// Check that the explicit type declared in the function output signature matches the inferred type.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(ty) = inferred {
+                return_type = <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(ty, <span class="kw-2">&amp;</span>return_type, input.span()));
+            }
+        }
 
         <span class="comment">// Set the `has_return` flag.
-        </span><span class="self">self</span>.has_return = <span class="bool-val">true</span>;
+        </span><span class="self">self</span>.scope_state.has_return = <span class="bool-val">true</span>;
 
         <span class="comment">// Check that the return expression is not a nested tuple.
         </span><span class="kw">if let </span>Expression::Tuple(TupleExpression { elements, .. }) = <span class="kw-2">&amp;</span>input.expression {
@@ -891,49 +909,11 @@
         }
 
         <span class="comment">// Set the `is_return` flag. This is necessary to allow unit expressions in the return statement.
-        </span><span class="self">self</span>.is_return = <span class="bool-val">true</span>;
+        </span><span class="self">self</span>.scope_state.is_return = <span class="bool-val">true</span>;
         <span class="comment">// Type check the associated expression.
-        </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, return_type);
+        </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>return_type);
         <span class="comment">// Unset the `is_return` flag.
-        </span><span class="self">self</span>.is_return = <span class="bool-val">false</span>;
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = <span class="kw-2">&amp;</span>input.finalize_arguments {
-            <span class="kw">if </span><span class="self">self</span>.is_finalize {
-                <span class="self">self</span>.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
-            }
-
-            <span class="comment">// Set the `has_finalize` flag.
-            </span><span class="self">self</span>.has_finalize = <span class="bool-val">true</span>;
-
-            <span class="comment">// Check that the function has a finalize block.
-            // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
-            // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
-            </span><span class="kw">let </span>finalize = <span class="self">self
-                </span>.symbol_table
-                .borrow()
-                .lookup_fn_symbol(Location::new(<span class="self">self</span>.program_name, <span class="self">self</span>.function.unwrap()))
-                .unwrap()
-                .finalize
-                .clone();
-            <span class="kw">match </span>finalize {
-                <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
-                <span class="prelude-val">Some</span>(finalize) =&gt; {
-                    <span class="comment">// Check number of function arguments.
-                    </span><span class="kw">if </span>finalize.input.len() != arguments.len() {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
-                            finalize.input.len(),
-                            arguments.len(),
-                            input.span(),
-                        ));
-                    }
-
-                    <span class="comment">// Check function argument types.
-                    </span>finalize.input.iter().zip(arguments.iter()).for_each(|(expected, argument)| {
-                        <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_().clone()));
-                    });
-                }
-            }
-        }
+        </span><span class="self">self</span>.scope_state.is_return = <span class="bool-val">false</span>;
     }
 }
 </code></pre></div></section></main></body></html>

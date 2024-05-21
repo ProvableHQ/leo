@@ -1103,6 +1103,10 @@
 <a href="#1101" id="1101">1101</a>
 <a href="#1102" id="1102">1102</a>
 <a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1393,6 +1397,7 @@
     GroupToYCoordinate,
 
     SignatureVerify,
+    FutureAwait,
 }
 
 <span class="kw">impl </span>CoreFunction {
@@ -1669,6 +1674,7 @@
             (sym::group, sym::to_y_coordinate) =&gt; <span class="self">Self</span>::GroupToYCoordinate,
 
             (sym::signature, sym::verify) =&gt; <span class="self">Self</span>::SignatureVerify,
+            (sym::Future, sym::Await) =&gt; <span class="self">Self</span>::FutureAwait,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         })
     }
@@ -1946,13 +1952,15 @@
             <span class="self">Self</span>::GroupToYCoordinate =&gt; <span class="number">1</span>,
 
             <span class="self">Self</span>::SignatureVerify =&gt; <span class="number">3</span>,
+            <span class="self">Self</span>::FutureAwait =&gt; <span class="number">1</span>,
         }
     }
 
     <span class="doccomment">/// Returns whether or not this function is finalize command.
     </span><span class="kw">pub fn </span>is_finalize_command(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">match </span><span class="self">self </span>{
-            CoreFunction::ChaChaRandAddress
+            CoreFunction::FutureAwait
+            | CoreFunction::ChaChaRandAddress
             | CoreFunction::ChaChaRandBool
             | CoreFunction::ChaChaRandField
             | CoreFunction::ChaChaRandGroup

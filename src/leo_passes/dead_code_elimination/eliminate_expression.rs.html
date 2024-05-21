@@ -131,7 +131,7 @@
     </span><span class="kw">fn </span>reconstruct_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssociatedFunction) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// If the associated function manipulates a mapping, mark the statement as necessary.
         </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>input.variant.name, input.name.name) {
-            (<span class="kw-2">&amp;</span>sym::Mapping, sym::remove) | (<span class="kw-2">&amp;</span>sym::Mapping, sym::set) =&gt; {
+            (<span class="kw-2">&amp;</span>sym::Mapping, sym::remove) | (<span class="kw-2">&amp;</span>sym::Mapping, sym::set) | (<span class="kw-2">&amp;</span>sym::Future, sym::Await) =&gt; {
                 <span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
             }
             <span class="kw">_ </span>=&gt; {}

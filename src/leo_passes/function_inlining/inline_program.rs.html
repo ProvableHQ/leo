@@ -85,15 +85,6 @@
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -112,7 +103,7 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::FunctionInliner;
 
-<span class="kw">use </span>leo_ast::{Finalize, Function, ProgramReconstructor, ProgramScope, StatementReconstructor};
+<span class="kw">use </span>leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor};
 <span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>indexmap::IndexMap;
@@ -165,24 +156,15 @@
             input: input.input,
             output: input.output,
             output_type: input.output_type,
-            block: <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>,
-            finalize: input.finalize.map(|finalize| {
-                <span class="comment">// Set the `is_finalize` flag before reconstructing the finalize block.
-                </span><span class="self">self</span>.is_finalize = <span class="bool-val">true</span>;
-                <span class="comment">// Reconstruct the finalize block.
-                </span><span class="kw">let </span>finalize = Finalize {
-                    identifier: finalize.identifier,
-                    input: finalize.input,
-                    output: finalize.output,
-                    output_type: finalize.output_type,
-                    block: <span class="self">self</span>.reconstruct_block(finalize.block).<span class="number">0</span>,
-                    span: finalize.span,
-                    id: finalize.id,
-                };
-                <span class="comment">// Reset the `is_finalize` flag.
-                </span><span class="self">self</span>.is_finalize = <span class="bool-val">false</span>;
-                finalize
-            }),
+            block: {
+                <span class="comment">// Set the `is_async` flag before reconstructing the block.
+                </span><span class="self">self</span>.is_async = input.variant.is_async_function();
+                <span class="comment">// Reconstruct the block.
+                </span><span class="kw">let </span>block = <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>;
+                <span class="comment">// Reset the `is_async` flag.
+                </span><span class="self">self</span>.is_async = <span class="bool-val">false</span>;
+                block
+            },
             span: input.span,
             id: input.id,
         }

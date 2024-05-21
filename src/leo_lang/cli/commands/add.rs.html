@@ -98,6 +98,42 @@
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -115,21 +151,24 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_retriever::{Dependency, Location, Manifest, Network};
+<span class="kw">use </span>leo_retriever::{Dependency, Location, Manifest, NetworkName};
 <span class="kw">use </span>std::path::PathBuf;
 
-<span class="doccomment">/// Clean outputs folder command
+<span class="doccomment">/// Add a new on-chain or local dependency to the current package.
 </span><span class="attr">#[derive(Parser, Debug)]
 #[clap(name = <span class="string">"leo"</span>, author = <span class="string">"The Aleo Team &lt;hello@aleo.org&gt;"</span>, version)]
 </span><span class="kw">pub struct </span>Add {
-    <span class="attr">#[clap(name = <span class="string">"NAME"</span>, help = <span class="string">"The dependency name"</span>)]
+    <span class="attr">#[clap(name = <span class="string">"NAME"</span>, help = <span class="string">"The dependency name. Ex: `credits.aleo` or `credits`."</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) name: String,
 
-    <span class="attr">#[clap(short = <span class="string">'l'</span>, long, help = <span class="string">"Optional path to local dependency"</span>)]
+    <span class="attr">#[clap(short = <span class="string">'l'</span>, long, help = <span class="string">"Path to local dependency"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) local: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 
-    <span class="attr">#[clap(short = <span class="string">'n'</span>, long, help = <span class="string">"Optional name of the network to use"</span>, default_value = <span class="string">"testnet3"</span>)]
+    <span class="attr">#[clap(short = <span class="string">'n'</span>, long, help = <span class="string">"Name of the network to use"</span>, default_value = <span class="string">"mainnet"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) network: String,
+
+    <span class="attr">#[clap(short = <span class="string">'c'</span>, long, help = <span class="string">"Clear all previous dependencies."</span>, default_value = <span class="string">"false"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) clear: bool,
 }
 
 <span class="kw">impl </span>Command <span class="kw">for </span>Add {
@@ -147,41 +186,74 @@
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span>path = context.dir()<span class="question-mark">?</span>;
 
-        <span class="comment">// Deserialize the manifest
+        <span class="comment">// Deserialize the manifest.
         </span><span class="kw">let </span>program_data: String = std::fs::read_to_string(path.join(<span class="string">"program.json"</span>))
             .map_err(|err| PackageError::failed_to_read_file(path.to_str().unwrap(), err))<span class="question-mark">?</span>;
         <span class="kw">let </span>manifest: Manifest = serde_json::from_str(<span class="kw-2">&amp;</span>program_data)
             .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))<span class="question-mark">?</span>;
 
-        <span class="comment">// Allow both `credits.aleo` and `credits` syntax
-        </span><span class="kw">let </span>name = <span class="kw">match </span><span class="self">self</span>.name {
-            name <span class="kw">if </span>name.ends_with(<span class="string">".aleo"</span>) =&gt; name,
-            name =&gt; <span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, name),
+        <span class="comment">// Make sure the program name is valid.
+        // Allow both `credits.aleo` and `credits` syntax.
+        </span><span class="kw">let </span>name: String = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.name {
+            name <span class="kw">if </span>name.ends_with(<span class="string">".aleo"</span>)
+                &amp;&amp; Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="kw-2">&amp;</span>name[<span class="number">0</span>..<span class="self">self</span>.name.len() - <span class="number">5</span>]) =&gt;
+            {
+                name.clone()
+            }
+            name <span class="kw">if </span>Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(name) =&gt; <span class="macro">format!</span>(<span class="string">"{name}.aleo"</span>),
+            name =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::invalid_file_name_dependency(name).into()),
         };
 
-        <span class="comment">// Add dependency section to manifest if it doesn't exist
-        </span><span class="kw">let </span><span class="kw-2">mut </span>dependencies = <span class="kw">match </span>manifest.dependencies() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>dependencies) =&gt; dependencies
+        <span class="comment">// Add dependency section to manifest if it doesn't exist.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>dependencies = <span class="kw">match </span>(<span class="self">self</span>.clear, manifest.dependencies()) {
+            (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>dependencies)) =&gt; dependencies
                 .iter()
                 .filter_map(|dependency| {
-                    <span class="kw">if </span>dependency.name() == <span class="kw-2">&amp;</span>name {
-                        <span class="macro">println!</span>(<span class="string">"{} already exists as a dependency. Overwriting."</span>, name);
+                    <span class="comment">// Overwrite old dependencies of the same name.
+                    </span><span class="kw">if </span>dependency.name() == <span class="kw-2">&amp;</span>name {
+                        <span class="kw">let </span>msg = <span class="kw">match </span>(dependency.path(), dependency.network()) {
+                            (<span class="prelude-val">Some</span>(local_path), <span class="kw">_</span>) =&gt; {
+                                <span class="macro">format!</span>(<span class="string">"local dependency at path `{}`"</span>, local_path.to_str().unwrap().replace(<span class="string">'\"'</span>, <span class="string">""</span>))
+                            }
+                            (<span class="kw">_</span>, <span class="prelude-val">Some</span>(network)) =&gt; {
+                                <span class="macro">format!</span>(<span class="string">"network dependency from `{}`"</span>, network)
+                            }
+                            <span class="kw">_ </span>=&gt; <span class="string">"git dependency"</span>.to_string(),
+                        };
+                        <span class="macro">tracing::warn!</span>(<span class="string">"⚠️  Program `{name}` already exists as a {msg}. Overwriting."</span>);
+                        <span class="prelude-val">None
+                    </span>} <span class="kw">else if </span><span class="self">self</span>.local.is_some() &amp;&amp; <span class="kw-2">&amp;</span><span class="self">self</span>.local == dependency.path() {
+                        <span class="comment">// Overwrite old dependencies at the same local path.
+                        </span><span class="macro">tracing::warn!</span>(
+                            <span class="string">"⚠️  Path `{}` already exists as the location for local dependency `{}`. Overwriting."</span>,
+                            <span class="self">self</span>.local.clone().unwrap().to_str().unwrap().replace(<span class="string">'\"'</span>, <span class="string">""</span>),
+                            dependency.name()
+                        );
                         <span class="prelude-val">None
                     </span>} <span class="kw">else </span>{
                         <span class="prelude-val">Some</span>(dependency.clone())
                     }
                 })
                 .collect(),
-            <span class="prelude-val">None </span>=&gt; Vec::new(),
+            <span class="kw">_ </span>=&gt; Vec::new(),
         };
 
-        <span class="comment">// Add new dependency to manifest
+        <span class="comment">// Add new dependency to the manifest.
         </span>dependencies.push(<span class="kw">match </span><span class="self">self</span>.local {
-            <span class="prelude-val">Some</span>(local_path) =&gt; Dependency::new(name, Location::Local, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(local_path)),
-            <span class="prelude-val">None </span>=&gt; Dependency::new(name, Location::Network, <span class="prelude-val">Some</span>(Network::from(<span class="kw-2">&amp;</span><span class="self">self</span>.network)), <span class="prelude-val">None</span>),
+            <span class="prelude-val">Some</span>(local_path) =&gt; {
+                <span class="macro">tracing::info!</span>(
+                    <span class="string">"✅ Added local dependency to program `{name}` at path `{}`."</span>,
+                    local_path.to_str().unwrap().replace(<span class="string">'\"'</span>, <span class="string">""</span>)
+                );
+                Dependency::new(name, Location::Local, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(local_path))
+            }
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="macro">tracing::info!</span>(<span class="string">"✅ Added network dependency to program `{name}` from network `{}`."</span>, <span class="self">self</span>.network);
+                Dependency::new(name, Location::Network, <span class="prelude-val">Some</span>(NetworkName::from(<span class="kw-2">&amp;</span><span class="self">self</span>.network)), <span class="prelude-val">None</span>)
+            }
         });
 
-        <span class="comment">// Update manifest
+        <span class="comment">// Update the manifest file.
         </span><span class="kw">let </span>new_manifest = Manifest::new(
             manifest.program(),
             manifest.version(),

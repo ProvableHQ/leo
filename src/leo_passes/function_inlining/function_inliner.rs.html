@@ -91,8 +91,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) reconstructed_functions: Vec&lt;(Symbol, Function)&gt;,
     <span class="doccomment">/// The main program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
-    <span class="doccomment">/// Whether or not we are currently traversing a finalize block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_finalize: bool,
+    <span class="doccomment">/// Whether or not we are currently traversing an async function block.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_async: bool,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; FunctionInliner&lt;<span class="lifetime">'a</span>&gt; {
@@ -110,7 +110,7 @@
             reconstructed_functions: Default::default(),
             type_table,
             program: <span class="prelude-val">None</span>,
-            is_finalize: <span class="bool-val">false</span>,
+            is_async: <span class="bool-val">false</span>,
         }
     }
 }
