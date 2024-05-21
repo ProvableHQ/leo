@@ -67,6 +67,8 @@ pub struct Flattener<'a> {
     pub(crate) returns: Vec<(Option<Expression>, ReturnStatement)>,
     /// The program name.
     pub(crate) program: Option<Symbol>,
+    /// Whether we are currently traversing a `finalize` block.
+    pub(crate) is_finalize: bool,
 }
 
 impl<'a> Flattener<'a> {
@@ -84,6 +86,7 @@ impl<'a> Flattener<'a> {
             condition_stack: Vec::new(),
             returns: Vec::new(),
             program: None,
+            is_finalize: false,
         }
     }
 

@@ -16,7 +16,7 @@
 
 use crate::Flattener;
 
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, Statement, StatementReconstructor};
+use leo_ast::{Finalize, Function, ProgramReconstructor, ProgramScope, Statement, StatementReconstructor};
 
 impl ProgramReconstructor for Flattener<'_> {
     /// Flattens a program scope.
@@ -59,7 +59,23 @@ impl ProgramReconstructor for Flattener<'_> {
             output: function.output,
             output_type: function.output_type,
             block,
-            finalize: function.finalize,
+            finalize: function.finalize.map(|finalize| {
+                // Set the `is_finalize` flag before reconstructing the finalize block.
+                self.is_finalize = true;
+                // Reconstruct the finalize block.
+                let finalize = Finalize {
+                    identifier: finalize.identifier,
+                    input: finalize.input,
+                    output: finalize.output,
+                    output_type: finalize.output_type,
+                    block: self.reconstruct_block(finalize.block).0,
+                    span: finalize.span,
+                    id: finalize.id,
+                };
+                // Reset the `is_finalize` flag.
+                self.is_finalize = false;
+                finalize
+            }),
             span: function.span,
             id: function.id,
         }

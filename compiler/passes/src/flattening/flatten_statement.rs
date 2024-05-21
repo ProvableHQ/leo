@@ -61,6 +61,11 @@ impl StatementReconstructor for Flattener<'_> {
     fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
         let mut statements = Vec::new();
 
+        // If traversing a `finalize` block, return the assert as is.
+        if self.is_finalize {
+            return (Statement::Assert(input), statements);
+        }
+
         // Flatten the arguments of the assert statement.
         let assert = AssertStatement {
             span: input.span,
@@ -222,6 +227,26 @@ impl StatementReconstructor for Flattener<'_> {
     fn reconstruct_conditional(&mut self, conditional: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
         let mut statements = Vec::with_capacity(conditional.then.statements.len());
 
+        // If traversing a `finalize` block, only reconstruct the if and else blocks of the conditional statement.
+        if self.is_finalize {
+            let then_block = self.reconstruct_block(conditional.then).0;
+            let otherwise_block = conditional.otherwise.map(|statement| match *statement {
+                Statement::Block(block) => Box::new(Statement::Block(self.reconstruct_block(block).0)),
+                _ => unreachable!("Parsing guarantees that the `otherwise` is always a `Block`"),
+            });
+
+            return (
+                Statement::Conditional(ConditionalStatement {
+                    condition: conditional.condition,
+                    then: then_block,
+                    otherwise: otherwise_block,
+                    span: conditional.span,
+                    id: conditional.id,
+                }),
+                statements,
+            );
+        }
+
         // Add condition to the condition stack.
         self.condition_stack.push(conditional.condition.clone());
 
@@ -269,6 +294,10 @@ impl StatementReconstructor for Flattener<'_> {
     /// Transforms a return statement into an empty block statement.
     /// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.
     fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
+        // If traversing a `finalize` block, return as is.
+        if self.is_finalize {
+            return (Statement::Return(input), Default::default());
+        }
         // Construct the associated guard.
         let guard = self.construct_guard();
 
