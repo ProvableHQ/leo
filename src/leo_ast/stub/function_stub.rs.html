@@ -642,7 +642,7 @@
     <span class="kw">pub fn </span>from_finalize&lt;N: Network, Instruction: InstructionTrait&lt;N&gt;, Command: CommandTrait&lt;N&gt;&gt;(
         function: <span class="kw-2">&amp;</span>FunctionCore&lt;N, Instruction, Command&gt;,
         key_name: Symbol,
-        _program: Symbol,
+        program: Symbol,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             annotations: Vec::new(),
@@ -658,7 +658,7 @@
                     identifier: Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"arg{}"</span>, index + <span class="number">1</span>)), Default::default()),
                     mode: Mode::None,
                     type_: <span class="kw">match </span>input.finalize_type() {
-                        PlaintextFinalizeType(val) =&gt; Type::from_snarkvm(val, <span class="prelude-val">Some</span>(key_name)),
+                        PlaintextFinalizeType(val) =&gt; Type::from_snarkvm(val, <span class="prelude-val">Some</span>(program)),
                         FutureFinalizeType(val) =&gt; Type::Future(FutureType::new(
                             Vec::new(),
                             <span class="prelude-val">Some</span>(Location::new(
