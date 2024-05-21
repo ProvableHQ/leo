@@ -334,54 +334,6 @@
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
 <a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
-<a href="#357" id="357">357</a>
-<a href="#358" id="358">358</a>
-<a href="#359" id="359">359</a>
-<a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
-<a href="#362" id="362">362</a>
-<a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a>
-<a href="#365" id="365">365</a>
-<a href="#366" id="366">366</a>
-<a href="#367" id="367">367</a>
-<a href="#368" id="368">368</a>
-<a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-<a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
-<a href="#375" id="375">375</a>
-<a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
-<a href="#382" id="382">382</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -399,13 +351,12 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use crate</span>::{
+    finalize_stub::<span class="kw-2">*</span>,
     Annotation,
     CompositeType,
     Function,
-    FutureType,
     Identifier,
     Input,
-    Location,
     Mode,
     Node,
     NodeID,
@@ -417,13 +368,11 @@
 };
 <span class="kw">use </span>leo_span::{sym, Span, Symbol};
 
+<span class="kw">use </span><span class="kw">crate</span>::Type::Composite;
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>snarkvm::{
-    console::program::{
-        FinalizeType::{Future <span class="kw">as </span>FutureFinalizeType, Plaintext <span class="kw">as </span>PlaintextFinalizeType},
-        RegisterType::{ExternalRecord, Future, Plaintext, Record},
-    },
+    console::program::RegisterType::{ExternalRecord, Future, Plaintext, Record},
     prelude::{Network, ValueType},
     synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
 };
@@ -444,6 +393,8 @@
     </span><span class="kw">pub </span>output: Vec&lt;Output&gt;,
     <span class="doccomment">/// The function's output type.
     </span><span class="kw">pub </span>output_type: Type,
+    <span class="doccomment">/// An optional finalize stub
+    </span><span class="kw">pub </span>finalize_stub: <span class="prelude-ty">Option</span>&lt;FinalizeStub&gt;,
     <span class="doccomment">/// The entire span of the function definition.
     </span><span class="kw">pub </span>span: Span,
     <span class="doccomment">/// The ID of the node.
@@ -463,11 +414,11 @@
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>new(
         annotations: Vec&lt;Annotation&gt;,
-        _is_async: bool,
         variant: Variant,
         identifier: Identifier,
         input: Vec&lt;Input&gt;,
         output: Vec&lt;Output&gt;,
+        finalize_stub: <span class="prelude-ty">Option</span>&lt;FinalizeStub&gt;,
         span: Span,
         id: NodeID,
     ) -&gt; <span class="self">Self </span>{
@@ -477,7 +428,7 @@
             <span class="kw">_ </span>=&gt; Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
         };
 
-        FunctionStub { annotations, variant, identifier, input, output, output_type, span, id }
+        FunctionStub { annotations, variant, identifier, input, output, output_type, finalize_stub, span, id }
     }
 
     <span class="doccomment">/// Returns function name.
@@ -496,8 +447,8 @@
     </span><span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self</span>.variant {
             Variant::Inline =&gt; <span class="macro">write!</span>(f, <span class="string">"inline "</span>)<span class="question-mark">?</span>,
-            Variant::Function | Variant::AsyncFunction =&gt; <span class="macro">write!</span>(f, <span class="string">"function "</span>)<span class="question-mark">?</span>,
-            Variant::Transition | Variant::AsyncTransition =&gt; <span class="macro">write!</span>(f, <span class="string">"transition "</span>)<span class="question-mark">?</span>,
+            Variant::Standard =&gt; <span class="macro">write!</span>(f, <span class="string">"function "</span>)<span class="question-mark">?</span>,
+            Variant::Transition =&gt; <span class="macro">write!</span>(f, <span class="string">"transition "</span>)<span class="question-mark">?</span>,
         }
         <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
 
@@ -509,7 +460,12 @@
         };
         <span class="macro">write!</span>(f, <span class="string">"({parameters}) -&gt; {returns}"</span>)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(())
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span><span class="self">self</span>.finalize_stub {
+            <span class="kw">let </span>parameters = finalize.input.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">","</span>);
+            <span class="macro">write!</span>(f, <span class="string">" finalize ({parameters})"</span>)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(())
+        }
     }
 
     <span class="doccomment">/// Converts from snarkvm function type to leo FunctionStub, while also carrying the parent program name.
@@ -541,7 +497,7 @@
                 }],
                 ValueType::Record(id) =&gt; <span class="macro">vec!</span>[Output {
                     mode: Mode::None,
-                    type_: Type::Composite(CompositeType { id: Identifier::from(id), program: <span class="prelude-val">Some</span>(program) }),
+                    type_: Composite(CompositeType { id: Identifier::from(id), program: <span class="prelude-val">Some</span>(program) }),
                     span: Default::default(),
                     id: Default::default(),
                 }],
@@ -550,23 +506,14 @@
                         mode: Mode::None,
                         span: Default::default(),
                         id: Default::default(),
-                        type_: Type::Composite(CompositeType {
+                        type_: Composite(CompositeType {
                             id: Identifier::from(loc.resource()),
                             program: <span class="prelude-val">Some</span>(ProgramId::from(loc.program_id()).name.name),
                         }),
                     }]
                 }
-                ValueType::Future(<span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[Output {
-                    mode: Mode::None,
-                    span: Default::default(),
-                    id: Default::default(),
-                    type_: Type::Future(FutureType::new(
-                        Vec::new(),
-                        <span class="prelude-val">Some</span>(Location::new(<span class="prelude-val">Some</span>(program), Identifier::from(function.name()).name)),
-                        <span class="bool-val">false</span>,
-                    )),
-                }],
-            })
+                ValueType::Future(<span class="kw">_</span>) =&gt; Vec::new(), <span class="comment">// Don't include futures in the output signature
+            </span>})
             .collect_vec()
             .concat();
         <span class="kw">let </span>output_vec = outputs.iter().map(|output| output.type_.clone()).collect_vec();
@@ -578,17 +525,14 @@
 
         <span class="self">Self </span>{
             annotations: Vec::new(),
-            variant: <span class="kw">match </span>function.finalize_logic().is_some() {
-                <span class="bool-val">true </span>=&gt; Variant::AsyncTransition,
-                <span class="bool-val">false </span>=&gt; Variant::Transition,
-            },
+            variant: Variant::Transition,
             identifier: Identifier::from(function.name()),
             input: function
                 .inputs()
                 .iter()
                 .enumerate()
                 .map(|(index, input)| {
-                    <span class="kw">let </span>arg_name = Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"arg{}"</span>, index + <span class="number">1</span>)), Default::default());
+                    <span class="kw">let </span>arg_name = Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"a{}"</span>, index + <span class="number">1</span>)), Default::default());
                     <span class="kw">match </span>input.value_type() {
                         ValueType::Constant(val) =&gt; Input {
                             identifier: arg_name,
@@ -614,7 +558,7 @@
                         ValueType::Record(id) =&gt; Input {
                             identifier: arg_name,
                             mode: Mode::None,
-                            type_: Type::Composite(CompositeType { id: Identifier::from(id), program: <span class="prelude-val">Some</span>(program) }),
+                            type_: Composite(CompositeType { id: Identifier::from(id), program: <span class="prelude-val">Some</span>(program) }),
                             span: Default::default(),
                             id: Default::default(),
                         },
@@ -623,7 +567,7 @@
                             mode: Mode::None,
                             span: Default::default(),
                             id: Default::default(),
-                            type_: Type::Composite(CompositeType {
+                            type_: Composite(CompositeType {
                                 id: Identifier::from(loc.name()),
                                 program: <span class="prelude-val">Some</span>(ProgramId::from(loc.program_id()).name.name),
                             }),
@@ -634,62 +578,20 @@
                 .collect_vec(),
             output: outputs,
             output_type,
+            finalize_stub: function.finalize_logic().map(|f| FinalizeStub::from_snarkvm(f)),
             span: Default::default(),
             id: Default::default(),
         }
     }
 
-    <span class="kw">pub fn </span>from_finalize&lt;N: Network, Instruction: InstructionTrait&lt;N&gt;, Command: CommandTrait&lt;N&gt;&gt;(
-        function: <span class="kw-2">&amp;</span>FunctionCore&lt;N, Instruction, Command&gt;,
-        key_name: Symbol,
-        program: Symbol,
-    ) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            annotations: Vec::new(),
-            variant: Variant::AsyncFunction,
-            identifier: Identifier::new(key_name, Default::default()),
-            input: function
-                .finalize_logic()
-                .unwrap()
-                .inputs()
-                .iter()
-                .enumerate()
-                .map(|(index, input)| Input {
-                    identifier: Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"arg{}"</span>, index + <span class="number">1</span>)), Default::default()),
-                    mode: Mode::None,
-                    type_: <span class="kw">match </span>input.finalize_type() {
-                        PlaintextFinalizeType(val) =&gt; Type::from_snarkvm(val, <span class="prelude-val">Some</span>(program)),
-                        FutureFinalizeType(val) =&gt; Type::Future(FutureType::new(
-                            Vec::new(),
-                            <span class="prelude-val">Some</span>(Location::new(
-                                <span class="prelude-val">Some</span>(Identifier::from(val.program_id().name()).name),
-                                Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"finalize/{}"</span>, val.resource())),
-                            )),
-                            <span class="bool-val">false</span>,
-                        )),
-                    },
-                    span: Default::default(),
-                    id: Default::default(),
-                })
-                .collect_vec(),
-            output: Vec::new(),
-            output_type: Type::Unit,
-            span: Default::default(),
-            id: <span class="number">0</span>,
-        }
-    }
-
-    <span class="kw">pub fn </span>from_closure&lt;N: Network, Instruction: InstructionTrait&lt;N&gt;&gt;(
-        closure: <span class="kw-2">&amp;</span>ClosureCore&lt;N, Instruction&gt;,
-        program: Symbol,
-    ) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from_closure&lt;N: Network, Instruction: InstructionTrait&lt;N&gt;&gt;(closure: <span class="kw-2">&amp;</span>ClosureCore&lt;N, Instruction&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>outputs = closure
             .outputs()
             .iter()
             .map(|output| <span class="kw">match </span>output.register_type() {
                 Plaintext(val) =&gt; Output {
                     mode: Mode::None,
-                    type_: Type::from_snarkvm(val, <span class="prelude-val">Some</span>(program)),
+                    type_: Type::from_snarkvm(val, <span class="prelude-val">None</span>),
                     span: Default::default(),
                     id: Default::default(),
                 },
@@ -706,14 +608,14 @@
         };
         <span class="self">Self </span>{
             annotations: Vec::new(),
-            variant: Variant::Function,
+            variant: Variant::Standard,
             identifier: Identifier::from(closure.name()),
             input: closure
                 .inputs()
                 .iter()
                 .enumerate()
                 .map(|(index, input)| {
-                    <span class="kw">let </span>arg_name = Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"arg{}"</span>, index + <span class="number">1</span>)), Default::default());
+                    <span class="kw">let </span>arg_name = Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"a{}"</span>, index + <span class="number">1</span>)), Default::default());
                     <span class="kw">match </span>input.register_type() {
                         Plaintext(val) =&gt; Input {
                             identifier: arg_name,
@@ -732,6 +634,7 @@
             output_type,
             span: Default::default(),
             id: Default::default(),
+            finalize_stub: <span class="prelude-val">None</span>,
         }
     }
 }
@@ -745,6 +648,7 @@
             input: function.input,
             output: function.output,
             output_type: function.output_type,
+            finalize_stub: function.finalize.map(FinalizeStub::from),
             span: function.span,
             id: function.id,
         }

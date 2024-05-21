@@ -311,11 +311,6 @@
 <a href="#309" id="309">309</a>
 <a href="#310" id="310">310</a>
 <a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -379,8 +374,8 @@
     </span><span class="kw">fn </span>reconstruct_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssertStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
 
-        <span class="comment">// If we are traversing an async function, then we can return the assert as it.
-        </span><span class="kw">if </span><span class="self">self</span>.is_async {
+        <span class="comment">// If traversing a `finalize` block, return the assert as is.
+        </span><span class="kw">if </span><span class="self">self</span>.is_finalize {
             <span class="kw">return </span>(Statement::Assert(input), statements);
         }
 
@@ -545,22 +540,19 @@
     </span><span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, conditional: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::with_capacity(conditional.then.statements.len());
 
-        <span class="comment">// If we are traversing an async function, reconstruct the if and else blocks, but do not flatten them.
-        </span><span class="kw">if </span><span class="self">self</span>.is_async {
+        <span class="comment">// If traversing a `finalize` block, only reconstruct the if and else blocks of the conditional statement.
+        </span><span class="kw">if </span><span class="self">self</span>.is_finalize {
             <span class="kw">let </span>then_block = <span class="self">self</span>.reconstruct_block(conditional.then).<span class="number">0</span>;
-            <span class="kw">let </span>otherwise_block = <span class="kw">match </span>conditional.otherwise {
-                <span class="prelude-val">Some</span>(statement) =&gt; <span class="kw">match </span><span class="kw-2">*</span>statement {
-                    Statement::Block(block) =&gt; <span class="self">self</span>.reconstruct_block(block).<span class="number">0</span>,
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"SSA guarantees that the `otherwise` is always a `Block`"</span>),
-                },
-                <span class="prelude-val">None </span>=&gt; Block { span: Default::default(), statements: Vec::new(), id: <span class="self">self</span>.node_builder.next_id() },
-            };
+            <span class="kw">let </span>otherwise_block = conditional.otherwise.map(|statement| <span class="kw">match </span><span class="kw-2">*</span>statement {
+                Statement::Block(block) =&gt; Box::new(Statement::Block(<span class="self">self</span>.reconstruct_block(block).<span class="number">0</span>)),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that the `otherwise` is always a `Block`"</span>),
+            });
 
             <span class="kw">return </span>(
                 Statement::Conditional(ConditionalStatement {
                     condition: conditional.condition,
                     then: then_block,
-                    otherwise: <span class="prelude-val">Some</span>(Box::new(Statement::Block(otherwise_block))),
+                    otherwise: otherwise_block,
                     span: conditional.span,
                     id: conditional.id,
                 }),
@@ -615,17 +607,15 @@
     <span class="doccomment">/// Transforms a return statement into an empty block statement.
     /// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.
     </span><span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="comment">// If we are traversing an async function, return as is.
-        </span><span class="kw">if </span><span class="self">self</span>.is_async {
+        <span class="comment">// If traversing a `finalize` block, return as is.
+        </span><span class="kw">if </span><span class="self">self</span>.is_finalize {
             <span class="kw">return </span>(Statement::Return(input), Default::default());
         }
         <span class="comment">// Construct the associated guard.
         </span><span class="kw">let </span>guard = <span class="self">self</span>.construct_guard();
 
         <span class="kw">match </span>input.expression {
-            Expression::Unit(<span class="kw">_</span>) | Expression::Identifier(<span class="kw">_</span>) | Expression::Access(<span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.returns.push((guard, input))
-            }
+            Expression::Unit(<span class="kw">_</span>) | Expression::Identifier(<span class="kw">_</span>) =&gt; <span class="self">self</span>.returns.push((guard, input)),
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"SSA guarantees that the expression is always an identifier or unit expression."</span>),
         };
 

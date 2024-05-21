@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["type_checker_error","type_checker_warning"]};
+window.SIDEBAR_ITEMS = {"mod":["type_checker_error"]};

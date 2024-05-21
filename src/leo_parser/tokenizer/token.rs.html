@@ -400,11 +400,6 @@
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
 <a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -520,15 +515,13 @@
     Assert,
     AssertEq,
     AssertNeq,
-    Async,
     Console,
     Const,
     Constant,
     Else,
-    Fn,
+    Finalize,
     For,
     Function,
-    Future,
     If,
     Import,
     In,
@@ -543,6 +536,7 @@
     Return,
     SelfLower,
     Struct,
+    Then,
     Transition,
 
     <span class="comment">// Meta Tokens
@@ -550,7 +544,6 @@
     Block,
     Eof,
     Leo,
-    Network,
 }
 
 <span class="doccomment">/// Represents all valid Leo keyword tokens.
@@ -564,7 +557,6 @@
     Token::Assert,
     Token::AssertEq,
     Token::AssertNeq,
-    Token::Async,
     Token::Bool,
     Token::Console,
     Token::Const,
@@ -572,10 +564,9 @@
     Token::Else,
     Token::False,
     Token::Field,
-    Token::Fn,
+    Token::Finalize,
     Token::For,
     Token::Function,
-    Token::Future,
     Token::Group,
     Token::I8,
     Token::I16,
@@ -588,7 +579,6 @@
     Token::Inline,
     Token::Let,
     Token::Mapping,
-    Token::Network,
     Token::Private,
     Token::Program,
     Token::Public,
@@ -599,6 +589,7 @@
     Token::Scalar,
     Token::String,
     Token::Struct,
+    Token::Then,
     Token::Transition,
     Token::True,
     Token::U8,
@@ -631,6 +622,7 @@
             Token::Else =&gt; sym::Else,
             Token::False =&gt; sym::False,
             Token::Field =&gt; sym::field,
+            Token::Finalize =&gt; sym::finalize,
             Token::For =&gt; sym::For,
             Token::Function =&gt; sym::function,
             Token::Group =&gt; sym::group,
@@ -646,7 +638,6 @@
             Token::Let =&gt; sym::Let,
             Token::Leo =&gt; sym::leo,
             Token::Mapping =&gt; sym::mapping,
-            Token::Network =&gt; sym::network,
             Token::Private =&gt; sym::private,
             Token::Program =&gt; sym::program,
             Token::Public =&gt; sym::public,
@@ -657,6 +648,7 @@
             Token::SelfLower =&gt; sym::SelfLower,
             Token::String =&gt; sym::string,
             Token::Struct =&gt; sym::Struct,
+            Token::Then =&gt; sym::then,
             Token::Transition =&gt; sym::transition,
             Token::True =&gt; sym::True,
             Token::U8 =&gt; sym::u8,
@@ -759,15 +751,13 @@
             Assert =&gt; <span class="macro">write!</span>(f, <span class="string">"assert"</span>),
             AssertEq =&gt; <span class="macro">write!</span>(f, <span class="string">"assert_eq"</span>),
             AssertNeq =&gt; <span class="macro">write!</span>(f, <span class="string">"assert_neq"</span>),
-            Async =&gt; <span class="macro">write!</span>(f, <span class="string">"async"</span>),
             Console =&gt; <span class="macro">write!</span>(f, <span class="string">"console"</span>),
             Const =&gt; <span class="macro">write!</span>(f, <span class="string">"const"</span>),
             Constant =&gt; <span class="macro">write!</span>(f, <span class="string">"constant"</span>),
             Else =&gt; <span class="macro">write!</span>(f, <span class="string">"else"</span>),
-            Fn =&gt; <span class="macro">write!</span>(f, <span class="string">"Fn"</span>),
+            Finalize =&gt; <span class="macro">write!</span>(f, <span class="string">"finalize"</span>),
             For =&gt; <span class="macro">write!</span>(f, <span class="string">"for"</span>),
             Function =&gt; <span class="macro">write!</span>(f, <span class="string">"function"</span>),
-            Future =&gt; <span class="macro">write!</span>(f, <span class="string">"Future"</span>),
             If =&gt; <span class="macro">write!</span>(f, <span class="string">"if"</span>),
             Import =&gt; <span class="macro">write!</span>(f, <span class="string">"import"</span>),
             In =&gt; <span class="macro">write!</span>(f, <span class="string">"in"</span>),
@@ -780,11 +770,11 @@
             Return =&gt; <span class="macro">write!</span>(f, <span class="string">"return"</span>),
             SelfLower =&gt; <span class="macro">write!</span>(f, <span class="string">"self"</span>),
             Struct =&gt; <span class="macro">write!</span>(f, <span class="string">"struct"</span>),
+            Then =&gt; <span class="macro">write!</span>(f, <span class="string">"then"</span>),
             Transition =&gt; <span class="macro">write!</span>(f, <span class="string">"transition"</span>),
             Block =&gt; <span class="macro">write!</span>(f, <span class="string">"block"</span>),
             Leo =&gt; <span class="macro">write!</span>(f, <span class="string">"leo"</span>),
             Eof =&gt; <span class="macro">write!</span>(f, <span class="string">"&lt;eof&gt;"</span>),
-            Network =&gt; <span class="macro">write!</span>(f, <span class="string">"network"</span>),
         }
     }
 }

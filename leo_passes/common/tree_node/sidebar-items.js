@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["TreeNode"],"trait":["Node"],"type":["ConditionalTreeNode"]};

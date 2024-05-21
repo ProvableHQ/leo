@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["disassemble","disassemble_from_str"]};
+window.SIDEBAR_ITEMS = {"fn":["disassemble","disassemble_from_str"],"type":["CurrentNetwork"]};
