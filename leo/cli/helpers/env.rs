@@ -18,7 +18,7 @@ use snarkvm::prelude::{anyhow, Network, PrivateKey, Result};
 
 fn env_template() -> String {
     r#"
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY={{PASTE_YOUR_PRIVATE_KEY_HERE}}
 "#
     .to_string()

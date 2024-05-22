@@ -12,9 +12,10 @@ mapping balances:
 function issue:
     input r0 as address.private;
     input r1 as u64.private;
-    assert.eq self.caller aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a;
+    assert.eq self.caller aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
     cast r0 r1 into r2 as Token.record;
     output r2 as Token.record;
+
 
 
 function deposit:
@@ -33,6 +34,7 @@ finalize deposit:
     get.or_use balances[r0] 0u64 into r2;
     add r2 r1 into r3;
     set r3 into balances[r0];
+
 
 
 closure calculate_interest:
@@ -542,12 +544,13 @@ closure calculate_interest:
     output r502 as u64;
 
 
+
 function withdraw:
     input r0 as address.private;
     input r1 as u64.private;
     input r2 as u64.private;
     input r3 as u64.private;
-    assert.eq self.caller aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a;
+    assert.eq self.caller aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
     hash.bhp256 r0 into r4 as field;
     call calculate_interest r1 r2 r3 into r5;
     cast r0 r5 into r6 as Token.record;
@@ -561,3 +564,4 @@ finalize withdraw:
     get.or_use balances[r0] 0u64 into r2;
     sub r2 r1 into r3;
     set r3 into balances[r0];
+

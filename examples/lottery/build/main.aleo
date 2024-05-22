@@ -8,6 +8,7 @@ mapping num_winners:
 	key as u8.public;
 	value as u8.public;
 
+
 function play:
     cast self.caller into r0 as Ticket.record;
     async play into r1;
@@ -24,3 +25,4 @@ finalize play:
     assert.eq r3 true;
     add r2 1u8 into r4;
     set r4 into num_winners[0u8];
+

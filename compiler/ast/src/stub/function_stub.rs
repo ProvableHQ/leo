@@ -258,7 +258,7 @@ impl FunctionStub {
     pub fn from_finalize<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
         function: &FunctionCore<N, Instruction, Command>,
         key_name: Symbol,
-        _program: Symbol,
+        program: Symbol,
     ) -> Self {
         Self {
             annotations: Vec::new(),
@@ -274,7 +274,7 @@ impl FunctionStub {
                     identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
                     mode: Mode::None,
                     type_: match input.finalize_type() {
-                        PlaintextFinalizeType(val) => Type::from_snarkvm(val, Some(key_name)),
+                        PlaintextFinalizeType(val) => Type::from_snarkvm(val, Some(program)),
                         FutureFinalizeType(val) => Type::Future(FutureType::new(
                             Vec::new(),
                             Some(Location::new(
