@@ -1967,7 +1967,7 @@ dependencies = [
  "tracing-subscriber",
  "ureq",
  "walkdir",
- "zip 1.3.1",
+ "zip 2.1.0",
 ]
 
 [[package]]
@@ -5783,9 +5783,9 @@ dependencies = [
 
 [[package]]
 name = "zip"
-version = "1.3.1"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b7a5a9285bd4ee13bdeb3f8a4917eb46557e53f270c783849db8bef37b0ad00"
+checksum = "e2568cd0f20e86cd9a7349fe05178f7bd22f22724678448ae5a9bac266df2689"
 dependencies = [
  "aes",
  "arbitrary",
@@ -5799,6 +5799,7 @@ dependencies = [
  "hmac",
  "indexmap 2.2.6",
  "lzma-rs",
+ "memchr",
  "pbkdf2",
  "rand",
  "sha1",
