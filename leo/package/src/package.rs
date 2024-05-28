@@ -21,22 +21,22 @@ use crate::{
     source::{MainFile, SourceDirectory},
 };
 use leo_errors::{PackageError, Result};
-use snarkvm::console::prelude::Network;
 
+use leo_retriever::NetworkName;
 use serde::Deserialize;
-use std::{marker::PhantomData, path::Path};
+use std::path::Path;
 
 #[derive(Deserialize)]
-pub struct Package<N: Network> {
+pub struct Package {
     pub name: String,
     pub version: String,
     pub description: Option<String>,
     pub license: Option<String>,
-    _phantom: PhantomData<N>,
+    pub network: NetworkName,
 }
 
-impl<N: Network> Package<N> {
-    pub fn new(package_name: &str) -> Result<Self> {
+impl Package {
+    pub fn new(package_name: &str, network: NetworkName) -> Result<Self> {
         // Check that the package name is a valid Aleo program name.
         if !Self::is_aleo_name_valid(package_name) {
             return Err(PackageError::invalid_package_name(package_name).into());
@@ -47,7 +47,7 @@ impl<N: Network> Package<N> {
             version: "0.1.0".to_owned(),
             description: None,
             license: None,
-            _phantom: PhantomData,
+            network,
         })
     }
 
@@ -126,7 +126,7 @@ impl<N: Network> Package<N> {
     }
 
     /// Creates a Leo package at the given path
-    pub fn initialize(package_name: &str, path: &Path) -> Result<()> {
+    pub fn initialize(package_name: &str, network: NetworkName, path: &Path) -> Result<()> {
         // Verify that the .gitignore file does not exist.
         if !Gitignore::exists_at(path) {
             // Create the .gitignore file.
@@ -134,9 +134,9 @@ impl<N: Network> Package<N> {
         }
 
         // Verify that the .env file does not exist.
-        if !Env::<N>::exists_at(path) {
+        if !Env::exists_at(path) {
             // Create the .env file.
-            Env::<N>::new()?.write_to(path)?;
+            Env::new(network)?.write_to(path)?;
         }
 
         // Create the source directory.
@@ -169,29 +169,27 @@ impl<N: Network> Package<N> {
 mod tests {
     use super::*;
 
-    type CurrentNetwork = snarkvm::prelude::MainnetV0;
-
     #[test]
     fn test_is_package_name_valid() {
-        assert!(Package::<CurrentNetwork>::is_aleo_name_valid("foo"));
-        assert!(Package::<CurrentNetwork>::is_aleo_name_valid("foo_bar"));
-        assert!(Package::<CurrentNetwork>::is_aleo_name_valid("foo1"));
-        assert!(Package::<CurrentNetwork>::is_aleo_name_valid("foo_bar___baz_"));
+        assert!(Package::is_aleo_name_valid("foo"));
+        assert!(Package::is_aleo_name_valid("foo_bar"));
+        assert!(Package::is_aleo_name_valid("foo1"));
+        assert!(Package::is_aleo_name_valid("foo_bar___baz_"));
 
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo-bar"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo-bar-baz"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo-1"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid(""));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("-"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("-foo"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("-foo-"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("_foo"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo--bar"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo---bar"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo--bar--baz"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo---bar---baz"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo*bar"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo,bar"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("1-foo"));
+        assert!(!Package::is_aleo_name_valid("foo-bar"));
+        assert!(!Package::is_aleo_name_valid("foo-bar-baz"));
+        assert!(!Package::is_aleo_name_valid("foo-1"));
+        assert!(!Package::is_aleo_name_valid(""));
+        assert!(!Package::is_aleo_name_valid("-"));
+        assert!(!Package::is_aleo_name_valid("-foo"));
+        assert!(!Package::is_aleo_name_valid("-foo-"));
+        assert!(!Package::is_aleo_name_valid("_foo"));
+        assert!(!Package::is_aleo_name_valid("foo--bar"));
+        assert!(!Package::is_aleo_name_valid("foo---bar"));
+        assert!(!Package::is_aleo_name_valid("foo--bar--baz"));
+        assert!(!Package::is_aleo_name_valid("foo---bar---baz"));
+        assert!(!Package::is_aleo_name_valid("foo*bar"));
+        assert!(!Package::is_aleo_name_valid("foo,bar"));
+        assert!(!Package::is_aleo_name_valid("1-foo"));
     }
 }

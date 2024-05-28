@@ -16,26 +16,28 @@
 
 //! The `.env` file.
 use leo_errors::{PackageError, Result};
-use snarkvm::console::{account::PrivateKey, prelude::Network};
+use snarkvm::console::account::PrivateKey;
 
+use leo_retriever::NetworkName;
 use serde::Deserialize;
-use std::{borrow::Cow, fs::File, io::Write, marker::PhantomData, path::Path};
+use snarkvm::prelude::{MainnetV0, TestnetV0};
+use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
 pub static ENV_FILENAME: &str = ".env";
 
+// TODO: Should this be generic over network?
 #[derive(Deserialize, Default)]
-pub struct Env<N: Network> {
+pub struct Env {
     data: String,
-    _phantom: PhantomData<N>,
 }
 
-impl<N: Network> Env<N> {
-    pub fn new() -> Result<Self> {
-        Ok(Self { data: Self::template()?, _phantom: PhantomData })
+impl Env {
+    pub fn new(network: NetworkName) -> Result<Self> {
+        Ok(Self { data: Self::template(network)? })
     }
 
     pub fn from(data: String) -> Self {
-        Self { data, _phantom: PhantomData }
+        Self { data }
     }
 
     pub fn exists_at(path: &Path) -> bool {
@@ -57,13 +59,16 @@ impl<N: Network> Env<N> {
         Ok(())
     }
 
-    fn template() -> Result<String> {
+    fn template(network: NetworkName) -> Result<String> {
         // Initialize an RNG.
         let rng = &mut rand::thread_rng();
 
         // Initialize a new development private key.
-        let private_key = PrivateKey::<N>::new(rng)?;
+        let private_key = match network {
+            NetworkName::MainnetV0 => PrivateKey::<MainnetV0>::new(rng)?.to_string(),
+            NetworkName::TestnetV0 => PrivateKey::<TestnetV0>::new(rng)?.to_string(),
+        };
 
-        Ok(format!("NETWORK=mainnet\nPRIVATE_KEY={private_key}\n"))
+        Ok(format!("NETWORK={network}\nPRIVATE_KEY={private_key}\n"))
     }
 }

@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_errors::{CliError, LeoError};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -26,12 +27,14 @@ pub enum NetworkName {
     MainnetV0,
 }
 
-impl From<&String> for NetworkName {
-    fn from(network: &String) -> Self {
-        match network.to_ascii_lowercase().as_str() {
-            "testnet" => NetworkName::TestnetV0,
-            "mainnet" => NetworkName::MainnetV0,
-            _ => panic!("Invalid network"),
+impl TryFrom<&str> for NetworkName {
+    type Error = LeoError;
+
+    fn try_from(network: &str) -> Result<Self, LeoError> {
+        match network {
+            "testnet" => Ok(NetworkName::TestnetV0),
+            "mainnet" => Ok(NetworkName::MainnetV0),
+            _ => Err(LeoError::CliError(CliError::invalid_network_name(network))),
         }
     }
 }

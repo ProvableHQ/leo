@@ -1888,6 +1888,7 @@ dependencies = [
  "leo-package",
  "leo-parser",
  "leo-passes",
+ "leo-retriever",
  "leo-span",
  "leo-test-framework",
  "rand",

@@ -130,6 +130,8 @@ pub trait Command {
 pub struct BuildOptions {
     #[clap(long, help = "Endpoint to retrieve network state from.", default_value = "http://api.explorer.aleo.org/v1")]
     pub endpoint: String,
+    #[clap(long, help = "Network to broadcast to. Defaults to mainnet.", default_value = "mainnet")]
+    pub(crate) network: String,
     #[clap(long, help = "Does not recursively compile dependencies.")]
     pub non_recursive: bool,
     #[clap(long, help = "Enables offline mode.")]
@@ -174,8 +176,6 @@ pub struct BuildOptions {
 pub struct FeeOptions {
     #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
     pub(crate) priority_fee: String,
-    #[clap(long, help = "Network to broadcast to. Defaults to mainnet.", default_value = "mainnet")]
-    pub(crate) network: String,
     #[clap(long, help = "Private key to authorize fee expenditure.")]
     pub(crate) private_key: Option<String>,
     #[clap(

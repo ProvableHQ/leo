@@ -222,4 +222,11 @@ create_messages!(
         msg: "Cannot combine recursive deploy with private fee.".to_string(),
         help: None,
     }
+
+    @backtraced
+    invalid_network_name {
+        args: (network: impl Display),
+        msg: format!("Invalid network name: {network}"),
+        help: Some("Valid network names are `testnet` and `mainnet`.".to_string()),
+    }
 );

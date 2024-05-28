@@ -54,7 +54,7 @@ impl Command for Program {
         // Build custom url to fetch from based on the flags and user's input.
         let url = if let Some(mapping_info) = self.mapping_value {
             // Check that the mapping name is valid.
-            Package::<CurrentNetwork>::is_aleo_name_valid(&mapping_info[0]);
+            Package::is_aleo_name_valid(&mapping_info[0]);
             format!("program/{}/mapping/{}/{}", program, mapping_info[0], mapping_info[1])
         } else if self.mappings {
             format!("program/{}/mappings", program)

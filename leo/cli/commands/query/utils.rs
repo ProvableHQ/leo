@@ -85,10 +85,10 @@ pub fn is_valid_field(field: &str) -> Result<String, LeoError> {
 // Checks if the string is a valid program name in Aleo.
 pub fn check_valid_program_name(name: String) -> String {
     if name.ends_with(".aleo") {
-        Package::<CurrentNetwork>::is_aleo_name_valid(&name[0..name.len() - 5]);
+        Package::is_aleo_name_valid(&name[0..name.len() - 5]);
         name
     } else {
-        Package::<CurrentNetwork>::is_aleo_name_valid(&name);
+        Package::is_aleo_name_valid(&name);
         format!("{}.aleo", name)
     }
 }

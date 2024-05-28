@@ -27,6 +27,7 @@ use leo_errors::{
     LeoWarning,
 };
 use leo_package::root::env::Env;
+use leo_retriever::NetworkName;
 use leo_span::source_map::FileName;
 use leo_test_framework::{test::TestConfig, Test};
 
@@ -136,9 +137,16 @@ pub fn setup_build_directory(
     // Create the manifest file.
     let _manifest_file = Manifest::create(&directory, &program_id).unwrap();
 
+    // Get the network name.
+    let network = match CurrentNetwork::ID {
+        MainnetV0::ID => NetworkName::MainnetV0,
+        TestnetV0::ID => NetworkName::TestnetV0,
+        _ => panic!("Invalid network"),
+    };
+
     // Create the environment file.
-    Env::<CurrentNetwork>::new().unwrap().write_to(&directory).unwrap();
-    if Env::<CurrentNetwork>::exists_at(&directory) {
+    Env::new(network).unwrap().write_to(&directory).unwrap();
+    if Env::exists_at(&directory) {
         println!(".env file created at {:?}", &directory);
     }
 
