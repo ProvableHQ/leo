@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
 use aleo_std;
 use leo_errors::{CliError, PackageError, Result};
 use leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};

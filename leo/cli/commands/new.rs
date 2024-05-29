@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use snarkvm::prelude::{MainnetV0, TestnetV0};
 
 use leo_retriever::NetworkName;
 
@@ -44,15 +45,22 @@ impl Command for New {
         let network = NetworkName::try_from(self.network.as_str())?;
 
         // Derive the location of the parent directory to the project.
-        let mut package_path = context.parent_dir()?;
+        let package_path = context.parent_dir()?;
 
         // Change the cwd to the Leo package directory to initialize all files.
         std::env::set_current_dir(&package_path)
             .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))?;
 
         // Open the program manifest.
-        let manifest = context.open_manifest()?;
-
+        // Note that this has the side effect of create the appropriate directories and files.
+        match network {
+            NetworkName::MainnetV0 => {
+                context.open_manifest::<MainnetV0>()?;
+            }
+            NetworkName::TestnetV0 => {
+                context.open_manifest::<TestnetV0>()?;
+            }
+        }
 
         // Initialize the package.
         match network {

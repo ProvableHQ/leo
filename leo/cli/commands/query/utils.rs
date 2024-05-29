@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
-
 use leo_errors::{LeoError, Result, UtilError};
-
 use leo_package::package::Package;
 
 // A valid hash is 61 characters long, with preface "ab1" and all characters lowercase or numbers.

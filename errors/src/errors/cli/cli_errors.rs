@@ -229,4 +229,11 @@ create_messages!(
         msg: format!("Invalid network name: {network}"),
         help: Some("Valid network names are `testnet` and `mainnet`.".to_string()),
     }
+
+    @backtraced
+    invalid_example {
+        args: (example: impl Display),
+        msg: format!("Invalid Leo example: {example}"),
+        help: Some("Valid Leo examples are `lottery`, `tictactoe`, and `token`.".to_string()),
+    }
 );

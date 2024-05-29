@@ -360,21 +360,21 @@ mod tests {
 
     #[test]
     fn test_signature_raw() {
-        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".parse().unwrap();
+        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".to_string();
         let message = "Hello, world!".to_string();
         assert!(sign_message::<CurrentNetwork>(message, None, true, Some(key), None).is_ok());
     }
 
     #[test]
     fn test_signature() {
-        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".parse().unwrap();
+        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".to_string();
         let message = "5field".to_string();
         assert!(sign_message::<CurrentNetwork>(message, None, false, Some(key), None).is_ok());
     }
 
     #[test]
     fn test_signature_fail() {
-        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".parse().unwrap();
+        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".to_string();
         let message = "not a literal value".to_string();
         assert!(sign_message::<CurrentNetwork>(message, None, false, Some(key), None).is_err());
     }
@@ -382,7 +382,7 @@ mod tests {
     #[test]
     fn test_seeded_signature_raw() {
         let seed = Some(38868010450269069);
-        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".parse().unwrap();
+        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".to_string();
         let message = "Hello, world!".to_string();
         let expected = "sign175pmqldmkqw2nwp7wz7tfmpyqdnvzaq06mh8t2g22frsmrdtuvpf843p0wzazg27rwrjft8863vwn5a5cqgr97ldw69cyq53l0zlwqhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkevd26g";
         let actual = sign_message::<CurrentNetwork>(message, seed, true, Some(key), None).unwrap();
@@ -392,7 +392,7 @@ mod tests {
     #[test]
     fn test_seeded_signature() {
         let seed = Some(38868010450269069);
-        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".parse().unwrap();
+        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".to_string();
         let message = "5field".to_string();
         let expected = "sign1ad29myqy8gv6xve2r6tuly39m63l2mpfpyvqkwdl2umxqek6q5qxmy63zmhjx75x90sqxq69u5ntzp25kp59e0hp4hj8l8085sg7vqlesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk7v46re";
         let actual = sign_message::<CurrentNetwork>(message, seed, false, Some(key), None).unwrap();
@@ -402,20 +402,20 @@ mod tests {
     #[test]
     fn test_verify_raw() {
         // test signature of "Hello, world!"
-        let address = "aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j".parse().unwrap();
+        let address = "aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j".to_string();
         let signature = "sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq".to_string();
         let message = "Hello, world!".to_string();
-        assert!(verify_message::<CurrentNetwork>(address, signature, message, true).is_ok());
+        assert!(verify_message::<CurrentNetwork>(address.clone(), signature, message, true).is_ok());
 
         // test signature of "Hello, world!" against the message "Different Message"
         let signature = "sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq".to_string();
         let message = "Different Message".to_string();
-        assert!(verify_message::<CurrentNetwork>(address, signature, message, true).is_err());
+        assert!(verify_message::<CurrentNetwork>(address.clone(), signature, message, true).is_err());
 
         // test signature of "Hello, world!" against the wrong address
         let signature = "sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq".to_string();
         let message = "Hello, world!".to_string();
-        let wrong_address = "aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5".parse().unwrap();
+        let wrong_address = "aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5".to_string();
         assert!(verify_message::<CurrentNetwork>(wrong_address, signature, message, true).is_err());
 
         // test a valid signature of "Different Message"
@@ -427,20 +427,20 @@ mod tests {
     #[test]
     fn test_verify() {
         // test signature of 5u8
-        let address = "aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j".parse().unwrap();
+        let address = "aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j".to_string();
         let signature = "sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews".to_string();
         let message = "5field".to_string();
-        assert!(verify_message::<CurrentNetwork>(address, signature, message, false).is_ok());
+        assert!(verify_message::<CurrentNetwork>(address.clone(), signature, message, false).is_ok());
 
         // test signature of 5u8 against the message 10u8
         let signature = "sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews".to_string();
         let message = "10field".to_string();
-        assert!(verify_message::<CurrentNetwork>(address, signature, message, false).is_err());
+        assert!(verify_message::<CurrentNetwork>(address.clone(), signature, message, false).is_err());
 
         // test signature of 5u8 against the wrong address
         let signature = "sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews".to_string();
         let message = "5field".to_string();
-        let wrong_address = "aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5".parse().unwrap();
+        let wrong_address = "aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5".to_string();
         assert!(verify_message::<CurrentNetwork>(wrong_address, signature, message, false).is_err());
 
         // test a valid signature of 10u8

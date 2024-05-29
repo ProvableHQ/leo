@@ -16,7 +16,6 @@
 
 use super::*;
 use leo_retriever::{Dependency, Manifest};
-use std::path::PathBuf;
 
 /// Remove a dependency from the current package.
 #[derive(Parser, Debug)]

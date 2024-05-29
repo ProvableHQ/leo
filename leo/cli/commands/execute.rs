@@ -64,14 +64,14 @@ impl Command for Execute {
         // Parse the network.
         let network = NetworkName::try_from(self.compiler_options.network.as_str())?;
         match network {
-            NetworkName::MainnetV0 => handle_execute::<MainnetV0>(&self, context),
-            NetworkName::TestnetV0 => handle_execute::<TestnetV0>(&self, context),
+            NetworkName::MainnetV0 => handle_execute::<MainnetV0>(self, context),
+            NetworkName::TestnetV0 => handle_execute::<TestnetV0>(self, context),
         }
     }
 }
 
 // A helper function to handle the `execute` command.
-fn handle_execute<N: Network>(command: &Execute, context: Context) -> Result<<Execute as Command>::Output> {
+fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Execute as Command>::Output> {
     // If the `broadcast` flag is set, then broadcast the transaction.
     if command.broadcast {
         // Get the program name.
