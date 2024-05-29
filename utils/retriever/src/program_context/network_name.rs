@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use snarkvm::prelude::{MainnetV0, Network, TestnetV0};
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -24,6 +26,15 @@ pub enum NetworkName {
     TestnetV0,
     #[serde(rename = "mainnet")]
     MainnetV0,
+}
+
+impl NetworkName {
+    pub fn id(&self) -> u16 {
+        match self {
+            NetworkName::TestnetV0 => TestnetV0::ID,
+            NetworkName::MainnetV0 => MainnetV0::ID,
+        }
+    }
 }
 
 impl From<&String> for NetworkName {

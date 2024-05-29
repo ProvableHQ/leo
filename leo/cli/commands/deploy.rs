@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use leo_retriever::NetworkName;
 use snarkos_cli::commands::{Deploy as SnarkOSDeploy, Developer};
 use snarkvm::cli::helpers::dotenv_private_key;
 use std::path::PathBuf;
@@ -90,6 +91,8 @@ impl Command for Deploy {
                 self.fee_options.priority_fee.to_string(),
                 "--path".to_string(),
                 path.to_str().unwrap().parse().unwrap(),
+                "--network".to_string(),
+                NetworkName::from(&self.fee_options.network).id().to_string(),
                 "--broadcast".to_string(),
                 format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.fee_options.network)
                     .to_string(),

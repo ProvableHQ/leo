@@ -16,6 +16,7 @@
 
 use super::*;
 use clap::Parser;
+use leo_retriever::NetworkName;
 use snarkos_cli::commands::{Developer, Execute as SnarkOSExecute};
 use snarkvm::{
     cli::{helpers::dotenv_private_key, Execute as SnarkVMExecute},
@@ -93,6 +94,8 @@ impl Command for Execute {
                 self.compiler_options.endpoint.clone(),
                 "--priority-fee".to_string(),
                 self.fee_options.priority_fee.to_string(),
+                "--network".to_string(),
+                NetworkName::from(&self.fee_options.network).id().to_string(),
                 "--broadcast".to_string(),
                 format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.fee_options.network)
                     .to_string(),
