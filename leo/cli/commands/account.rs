@@ -324,9 +324,8 @@ pub(crate) fn verify_message<N: Network>(
 
 // Write the network and private key to the .env file in project directory.
 fn write_to_env_file<N: Network>(private_key: PrivateKey<N>, ctx: &Context) -> Result<()> {
-    let data = format!("PRIVATE_KEY={private_key}\n");
     let program_dir = ctx.dir()?;
-    Env::from(data).write_to(&program_dir)?;
+    Env::<N>::from(private_key).write_to(&program_dir)?;
     tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());
     Ok(())
 }

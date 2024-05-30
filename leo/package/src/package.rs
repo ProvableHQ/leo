@@ -22,8 +22,9 @@ use crate::{
 };
 use leo_errors::{PackageError, Result};
 
-use leo_retriever::NetworkName;
+use leo_retriever::{Manifest, NetworkName};
 use serde::Deserialize;
+use snarkvm::prelude::Network;
 use std::path::Path;
 
 #[derive(Deserialize)]
@@ -126,7 +127,7 @@ impl Package {
     }
 
     /// Creates a Leo package at the given path
-    pub fn initialize(package_name: &str, network: NetworkName, path: &Path) -> Result<()> {
+    pub fn initialize<N: Network>(package_name: &str, path: &Path) -> Result<()> {
         // Verify that the .gitignore file does not exist.
         if !Gitignore::exists_at(path) {
             // Create the .gitignore file.
@@ -134,10 +135,14 @@ impl Package {
         }
 
         // Verify that the .env file does not exist.
-        if !Env::exists_at(path) {
+        if !Env::<N>::exists_at(path) {
             // Create the .env file.
-            Env::new(network)?.write_to(path)?;
+            Env::<N>::new()?.write_to(path)?;
         }
+
+        // Create a manifest.
+        let manifest = Manifest::default(package_name);
+        manifest.write_to_dir(path.to_path_buf())?;
 
         // Create the source directory.
         SourceDirectory::create(path)?;
@@ -158,11 +163,6 @@ impl Package {
 
         Ok(())
     }
-    //
-    // /// Removes the package at the given path
-    // pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<()> {
-    //     ImportsDirectory::remove_import(path, package_name)
-    // }
 }
 
 #[cfg(test)]

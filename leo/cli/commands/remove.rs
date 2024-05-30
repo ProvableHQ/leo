@@ -104,9 +104,7 @@ impl Command for Remove {
             manifest.license(),
             Some(dependencies),
         );
-        let new_manifest_data = serde_json::to_string_pretty(&new_manifest)
-            .map_err(|err| PackageError::failed_to_serialize_manifest_file(path.to_str().unwrap(), err))?;
-        std::fs::write(path.join("program.json"), new_manifest_data).map_err(PackageError::failed_to_write_manifest)?;
+        new_manifest.write_to_dir(path)?;
 
         Ok(())
     }

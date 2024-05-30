@@ -51,21 +51,10 @@ impl Command for New {
         std::env::set_current_dir(&package_path)
             .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))?;
 
-        // Open the program manifest.
-        // Note that this has the side effect of create the appropriate directories and files.
-        match network {
-            NetworkName::MainnetV0 => {
-                context.open_manifest::<MainnetV0>()?;
-            }
-            NetworkName::TestnetV0 => {
-                context.open_manifest::<TestnetV0>()?;
-            }
-        }
-
         // Initialize the package.
         match network {
-            NetworkName::MainnetV0 => Package::initialize(&self.name, network, &package_path),
-            NetworkName::TestnetV0 => Package::initialize(&self.name, network, &package_path),
+            NetworkName::MainnetV0 => Package::initialize::<MainnetV0>(&self.name, &package_path),
+            NetworkName::TestnetV0 => Package::initialize::<TestnetV0>(&self.name, &package_path),
         }?;
 
         Ok(())

@@ -15,7 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Dependency;
+use leo_errors::PackageError;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 // Struct representation of program's `program.json` specification
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -44,6 +46,16 @@ impl Manifest {
         }
     }
 
+    pub fn default(program: &str) -> Self {
+        Self {
+            program: program.to_owned(),
+            version: "0.1.0".to_owned(),
+            description: "".to_owned(),
+            license: "MIT".to_owned(),
+            dependencies: None,
+        }
+    }
+
     pub fn program(&self) -> &String {
         &self.program
     }
@@ -62,5 +74,13 @@ impl Manifest {
 
     pub fn dependencies(&self) -> &Option<Vec<Dependency>> {
         &self.dependencies
+    }
+
+    pub fn write_to_dir(&self, path: PathBuf) -> Result<(), PackageError> {
+        // Serialize the manifest to a JSON string.
+        let contents = serde_json::to_string_pretty(&self)
+            .map_err(|err| PackageError::failed_to_serialize_manifest_file(path.to_str().unwrap(), err))?;
+        // Write the manifest to the file.
+        std::fs::write(path.join("program.json"), contents).map_err(PackageError::failed_to_write_manifest)
     }
 }

@@ -16,28 +16,31 @@
 
 //! The `.env` file.
 use leo_errors::{PackageError, Result};
+use leo_retriever::NetworkName;
 use snarkvm::console::account::PrivateKey;
 
-use leo_retriever::NetworkName;
+use snarkvm::prelude::{MainnetV0, Network, TestnetV0};
+
 use serde::Deserialize;
-use snarkvm::prelude::{MainnetV0, TestnetV0};
 use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
 pub static ENV_FILENAME: &str = ".env";
 
-// TODO: Should this be generic over network?
-#[derive(Deserialize, Default)]
-pub struct Env {
-    data: String,
+#[derive(Deserialize)]
+pub struct Env<N: Network> {
+    #[serde(bound(deserialize = ""))]
+    private_key: PrivateKey<N>,
 }
 
-impl Env {
-    pub fn new(network: NetworkName) -> Result<Self> {
-        Ok(Self { data: Self::template(network)? })
-    }
+impl<N: Network> Env<N> {
+    pub fn new() -> Result<Self> {
+        // Initialize an RNG.
+        let rng = &mut rand::thread_rng();
 
-    pub fn from(data: String) -> Self {
-        Self { data }
+        // Generate a development private key.
+        let private_key = PrivateKey::<N>::new(rng)?;
+
+        Ok(Self { private_key })
     }
 
     pub fn exists_at(path: &Path) -> bool {
@@ -55,20 +58,26 @@ impl Env {
         }
 
         let mut file = File::create(&path).map_err(PackageError::io_error_env_file)?;
-        file.write_all(self.data.as_bytes()).map_err(PackageError::io_error_env_file)?;
+        file.write_all(self.to_string().as_bytes()).map_err(PackageError::io_error_env_file)?;
         Ok(())
     }
+}
 
-    fn template(network: NetworkName) -> Result<String> {
-        // Initialize an RNG.
-        let rng = &mut rand::thread_rng();
+impl<N: Network> From<PrivateKey<N>> for Env<N> {
+    fn from(private_key: PrivateKey<N>) -> Self {
+        Self { private_key }
+    }
+}
 
-        // Initialize a new development private key.
-        let private_key = match network {
-            NetworkName::MainnetV0 => PrivateKey::<MainnetV0>::new(rng)?.to_string(),
-            NetworkName::TestnetV0 => PrivateKey::<TestnetV0>::new(rng)?.to_string(),
+impl<N: Network> ToString for Env<N> {
+    fn to_string(&self) -> String {
+        // Get the network name.
+        let network = match N::ID {
+            MainnetV0::ID => NetworkName::MainnetV0,
+            TestnetV0::ID => NetworkName::TestnetV0,
+            _ => unimplemented!("Unsupported network"),
         };
-
-        Ok(format!("NETWORK={network}\nPRIVATE_KEY={private_key}\n"))
+        // Return the formatted string.
+        format!("NETWORK={network}\nPRIVATE_KEY={}\n", self.private_key)
     }
 }
