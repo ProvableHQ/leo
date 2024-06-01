@@ -236,4 +236,11 @@ create_messages!(
         msg: format!("Invalid Leo example: {example}"),
         help: Some("Valid Leo examples are `lottery`, `tictactoe`, and `token`.".to_string()),
     }
+
+    @backtraced
+    build_error {
+        args: (error: impl Display),
+        msg: format!("Failed to build program: {error}"),
+        help: None,
+    }
 );

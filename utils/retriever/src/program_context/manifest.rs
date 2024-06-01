@@ -48,7 +48,7 @@ impl Manifest {
 
     pub fn default(program: &str) -> Self {
         Self {
-            program: program.to_owned(),
+            program: format!("{program}.aleo"),
             version: "0.1.0".to_owned(),
             description: "".to_owned(),
             license: "MIT".to_owned(),

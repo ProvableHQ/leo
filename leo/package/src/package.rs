@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    build::BuildDirectory,
     root::{Env, Gitignore},
     source::{MainFile, SourceDirectory},
 };

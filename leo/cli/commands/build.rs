@@ -18,7 +18,7 @@ use super::*;
 
 use leo_ast::Stub;
 use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
-use leo_errors::UtilError;
+use leo_errors::{CliError, UtilError};
 use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
 use leo_retriever::{Manifest, NetworkName, Retriever};
 use leo_span::Symbol;
@@ -32,6 +32,7 @@ use indexmap::IndexMap;
 use std::{
     io::Write,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
 impl From<BuildOptions> for CompilerOptions {
@@ -106,18 +107,22 @@ fn handle_build<N: Network>(command: &Build, context: Context) -> Result<<Build 
     let package_path = context.dir()?;
     let home_path = context.home()?;
 
-    // Open the build directory.
-    let build_directory = BuildDirectory::create(&package_path)?;
-
     // Get the program id.
     let manifest = Manifest::read_from_dir(&package_path)?;
-    let program_name = manifest.program();
+    let program_id = ProgramID::<N>::from_str(manifest.program())?;
+
+    // Clear and recreate the build directory.
+    let build_directory = package_path.join("build");
+    if build_directory.exists() {
+        std::fs::remove_dir_all(&build_directory).map_err(|err| CliError::build_error(err))?;
+    }
+    Package::create(&build_directory, &program_id).map_err(|err| CliError::build_error(err))?;
 
     // Initialize error handler
     let handler = Handler::default();
 
     // Retrieve all local dependencies in post order
-    let main_sym = Symbol::intern(program_name);
+    let main_sym = Symbol::intern(&program_id.name().to_string());
     let mut retriever = Retriever::<N>::new(main_sym, &package_path, &home_path, command.options.endpoint.clone())
         .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
     let mut local_dependencies =
