@@ -157,9 +157,6 @@ impl Package {
         // Create the source directory.
         SourceDirectory::create(&path)?;
 
-        // Create the Leo build/ directory
-        BuildDirectory::create(&path)?;
-
         // Create the main file in the source directory.
         MainFile::new(package_name).write_to(&path)?;
 

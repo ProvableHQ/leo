@@ -32,7 +32,6 @@ use indexmap::IndexMap;
 use std::{
     io::Write,
     path::{Path, PathBuf},
-    str::FromStr,
 };
 
 impl From<BuildOptions> for CompilerOptions {
@@ -112,13 +111,13 @@ fn handle_build<N: Network>(command: &Build, context: Context) -> Result<<Build 
 
     // Get the program id.
     let manifest = Manifest::read_from_dir(&package_path)?;
-    let program_id = ProgramID::<N>::from_str(manifest.program())?;
+    let program_name = manifest.program();
 
     // Initialize error handler
     let handler = Handler::default();
 
     // Retrieve all local dependencies in post order
-    let main_sym = Symbol::intern(&program_id.name().to_string());
+    let main_sym = Symbol::intern(program_name);
     let mut retriever = Retriever::<N>::new(main_sym, &package_path, &home_path, command.options.endpoint.clone())
         .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
     let mut local_dependencies =
