@@ -17,7 +17,7 @@
 use crate::Dependency;
 use leo_errors::PackageError;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::Path;
 
 // Struct representation of program's `program.json` specification
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -76,11 +76,20 @@ impl Manifest {
         &self.dependencies
     }
 
-    pub fn write_to_dir(&self, path: PathBuf) -> Result<(), PackageError> {
+    pub fn write_to_dir(&self, path: &Path) -> Result<(), PackageError> {
         // Serialize the manifest to a JSON string.
         let contents = serde_json::to_string_pretty(&self)
             .map_err(|err| PackageError::failed_to_serialize_manifest_file(path.to_str().unwrap(), err))?;
         // Write the manifest to the file.
         std::fs::write(path.join("program.json"), contents).map_err(PackageError::failed_to_write_manifest)
+    }
+
+    pub fn read_from_dir(path: &Path) -> Result<Self, PackageError> {
+        // Read the manifest file.
+        let contents = std::fs::read_to_string(path.join("program.json"))
+            .map_err(|err| PackageError::failed_to_read_file(path.to_str().unwrap(), err))?;
+        // Deserialize the manifest.
+        serde_json::from_str(&contents)
+            .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))
     }
 }

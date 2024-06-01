@@ -104,7 +104,7 @@ impl Command for Remove {
             manifest.license(),
             Some(dependencies),
         );
-        new_manifest.write_to_dir(path)?;
+        new_manifest.write_to_dir(&path)?;
 
         Ok(())
     }

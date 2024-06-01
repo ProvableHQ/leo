@@ -20,16 +20,19 @@ use leo_ast::Stub;
 use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
 use leo_errors::UtilError;
 use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
-use leo_retriever::{NetworkName, Retriever};
+use leo_retriever::{Manifest, NetworkName, Retriever};
 use leo_span::Symbol;
 
-use snarkvm::{package::Package, prelude::ProgramID};
+use snarkvm::{
+    package::Package,
+    prelude::{MainnetV0, Network, ProgramID, TestnetV0},
+};
 
 use indexmap::IndexMap;
-use snarkvm::prelude::{MainnetV0, Network, TestnetV0};
 use std::{
     io::Write,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
 impl From<BuildOptions> for CompilerOptions {
@@ -108,8 +111,8 @@ fn handle_build<N: Network>(command: &Build, context: Context) -> Result<<Build 
     let build_directory = BuildDirectory::create(&package_path)?;
 
     // Get the program id.
-    let manifest = context.open_manifest::<N>()?;
-    let program_id = manifest.program_id();
+    let manifest = Manifest::read_from_dir(&package_path)?;
+    let program_id = ProgramID::<N>::from_str(manifest.program())?;
 
     // Initialize error handler
     let handler = Handler::default();

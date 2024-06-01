@@ -152,7 +152,7 @@ impl Package {
 
         // Create a manifest.
         let manifest = Manifest::default(package_name);
-        manifest.write_to_dir(path.to_path_buf())?;
+        manifest.write_to_dir(&path)?;
 
         // Create the source directory.
         SourceDirectory::create(&path)?;

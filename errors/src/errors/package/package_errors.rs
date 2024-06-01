@@ -397,4 +397,11 @@ create_messages!(
         msg: "The name of the program to execute on-chain is missing.".to_string(),
         help: Some("Either set `--local` to execute the local program on chain, or set `--program <PROGRAM>`.".to_string()),
     }
+
+    @backtraced
+    failed_to_read_manifest_file {
+        args: (path: impl Display, error: impl ErrorArg),
+        msg: format!("Failed to read manifest file from the provided file path {path} - {error}"),
+        help: None,
+    }
 );
