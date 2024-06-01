@@ -57,14 +57,15 @@ use super::*;
 use crate::cli::helpers::context::*;
 use leo_errors::{emitter::Handler, CliError, PackageError, Result};
 use leo_package::{build::*, outputs::OutputsDirectory, package::*};
-use snarkvm::prelude::{block::Transaction, Ciphertext, Plaintext, PrivateKey, Record, ViewKey};
-use snarkvm::{console::network::Network};
+use snarkvm::{
+    console::network::Network,
+    prelude::{block::Transaction, Ciphertext, Plaintext, PrivateKey, Record, ViewKey},
+};
 
 use clap::Parser;
 use colored::Colorize;
 use std::str::FromStr;
 use tracing::span::Span;
-
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {
