@@ -198,8 +198,8 @@ create_messages!(
     /// For when the package failed to initialize.
     @backtraced
     failed_to_initialize_package {
-        args: (package: impl Display, path: impl Debug),
-        msg: format!("failed to initialize package {package} {path:?}"),
+        args: (package: impl Display, path: impl Debug, error: impl Display),
+        msg: format!("Failed to initialize package {package} at {path:?}. Error: {error}"),
         help: None,
     }
 
@@ -207,7 +207,7 @@ create_messages!(
     @backtraced
     invalid_package_name {
         args: (package: impl Display),
-        msg: format!("invalid project name {package}"),
+        msg: format!("Invalid project name {package}"),
         help: None,
     }
 

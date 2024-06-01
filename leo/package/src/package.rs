@@ -16,7 +16,6 @@
 
 use crate::{
     build::BuildDirectory,
-    inputs::InputsDirectory,
     root::{Env, Gitignore},
     source::{MainFile, SourceDirectory},
 };
@@ -128,37 +127,50 @@ impl Package {
 
     /// Creates a Leo package at the given path
     pub fn initialize<N: Network>(package_name: &str, path: &Path) -> Result<()> {
-        // Verify that the .gitignore file does not exist.
-        if !Gitignore::exists_at(path) {
-            // Create the .gitignore file.
-            Gitignore::new().write_to(path)?;
+        // Construct the path to the package directory.
+        let path = path.join(package_name);
+
+        // Verify that there is no existing directory at the path.
+        if path.exists() {
+            return Err(
+                PackageError::failed_to_initialize_package(package_name, &path, "Directory already exists").into()
+            );
         }
 
-        // Verify that the .env file does not exist.
-        if !Env::<N>::exists_at(path) {
-            // Create the .env file.
-            Env::<N>::new()?.write_to(path)?;
-        }
+        // Create the package directory.
+        std::fs::create_dir(&path).map_err(|e| PackageError::failed_to_initialize_package(package_name, &path, e))?;
+
+        // Change the current working directory to the package directory.
+        std::env::set_current_dir(&path)
+            .map_err(|e| PackageError::failed_to_initialize_package(package_name, &path, e))?;
+
+        // Create the .gitignore file.
+        Gitignore::new().write_to(&path)?;
+
+        // Create the .env file.
+        Env::<N>::new()?.write_to(&path)?;
 
         // Create a manifest.
         let manifest = Manifest::default(package_name);
         manifest.write_to_dir(path.to_path_buf())?;
 
         // Create the source directory.
-        SourceDirectory::create(path)?;
-
-        // Create the inputs directory.
-        InputsDirectory::create(path)?;
+        SourceDirectory::create(&path)?;
 
         // Create the Leo build/ directory
-        BuildDirectory::create(path)?;
+        BuildDirectory::create(&path)?;
 
         // Create the main file in the source directory.
-        MainFile::new(package_name).write_to(path)?;
+        MainFile::new(package_name).write_to(&path)?;
 
         // Next, verify that a valid Leo package has been initialized in this directory
-        if !Self::is_initialized(package_name, path) {
-            return Err(PackageError::failed_to_initialize_package(package_name, path.as_os_str()).into());
+        if !Self::is_initialized(package_name, &path) {
+            return Err(PackageError::failed_to_initialize_package(
+                package_name,
+                &path,
+                "Failed to correctly initialize package",
+            )
+            .into());
         }
 
         Ok(())
