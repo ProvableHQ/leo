@@ -114,9 +114,9 @@ fn handle_build<N: Network>(command: &Build, context: Context) -> Result<<Build 
     // Clear and recreate the build directory.
     let build_directory = package_path.join("build");
     if build_directory.exists() {
-        std::fs::remove_dir_all(&build_directory).map_err(|err| CliError::build_error(err))?;
+        std::fs::remove_dir_all(&build_directory).map_err(CliError::build_error)?;
     }
-    Package::create(&build_directory, &program_id).map_err(|err| CliError::build_error(err))?;
+    Package::create(&build_directory, &program_id).map_err(CliError::build_error)?;
 
     // Initialize error handler
     let handler = Handler::default();
