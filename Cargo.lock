@@ -1873,7 +1873,6 @@ dependencies = [
  "tracing-subscriber",
  "ureq",
  "walkdir",
- "zip 2.1.3",
 ]
 
 [[package]]
@@ -5652,35 +5651,6 @@ dependencies = [
  "crc32fast",
  "crossbeam-utils",
  "time",
-]
-
-[[package]]
-name = "zip"
-version = "2.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "775a2b471036342aa69bc5a602bc889cb0a06cda00477d0c69566757d5553d39"
-dependencies = [
- "aes",
- "arbitrary",
- "bzip2",
- "constant_time_eq",
- "crc32fast",
- "crossbeam-utils",
- "deflate64",
- "displaydoc",
- "flate2",
- "hmac",
- "indexmap 2.2.6",
- "lzma-rs",
- "memchr",
- "pbkdf2",
- "rand",
- "sha1",
- "thiserror",
- "time",
- "zeroize",
- "zopfli",
- "zstd",
 ]
 
 [[package]]
