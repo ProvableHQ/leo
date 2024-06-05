@@ -1868,11 +1868,12 @@ dependencies = [
  "snarkvm",
  "sys-info",
  "test_dir",
- "toml 0.8.13",
+ "toml 0.8.14",
  "tracing",
  "tracing-subscriber",
  "ureq",
  "walkdir",
+ "zip 2.1.3",
 ]
 
 [[package]]
@@ -1889,7 +1890,7 @@ dependencies = [
  "serial_test",
  "snarkos-cli",
  "snarkvm",
- "toml 0.8.13",
+ "toml 0.8.14",
  "tracing",
 ]
 
@@ -1945,7 +1946,7 @@ dependencies = [
  "sha2",
  "snarkvm",
  "tempfile",
- "toml 0.8.13",
+ "toml 0.8.14",
  "ureq",
 ]
 
@@ -4993,9 +4994,9 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.8.13"
+version = "0.8.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4e43f8cc456c9704c851ae29c67e17ef65d2c30017c17a9765b89c382dc8bba"
+checksum = "6f49eb2ab21d2f26bd6db7bf383edc527a7ebaee412d17af4d40fdccd442f335"
 dependencies = [
  "serde",
  "serde_spanned",
@@ -5014,9 +5015,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.22.13"
+version = "0.22.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c127785850e8c20836d49732ae6abfa47616e60bf9d9f57c43c250361a9db96c"
+checksum = "f21c7aaf97f1bd9ca9d4f9e73b0a6c74bd5afef56f2bc931943a6e1c37e04e38"
 dependencies = [
  "indexmap 2.2.6",
  "serde",
@@ -5651,6 +5652,35 @@ dependencies = [
  "crc32fast",
  "crossbeam-utils",
  "time",
+]
+
+[[package]]
+name = "zip"
+version = "2.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "775a2b471036342aa69bc5a602bc889cb0a06cda00477d0c69566757d5553d39"
+dependencies = [
+ "aes",
+ "arbitrary",
+ "bzip2",
+ "constant_time_eq",
+ "crc32fast",
+ "crossbeam-utils",
+ "deflate64",
+ "displaydoc",
+ "flate2",
+ "hmac",
+ "indexmap 2.2.6",
+ "lzma-rs",
+ "memchr",
+ "pbkdf2",
+ "rand",
+ "sha1",
+ "thiserror",
+ "time",
+ "zeroize",
+ "zopfli",
+ "zstd",
 ]
 
 [[package]]
