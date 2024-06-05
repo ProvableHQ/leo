@@ -105,6 +105,8 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
             command.compiler_options.endpoint.clone(),
             "--priority-fee".to_string(),
             command.fee_options.priority_fee.to_string(),
+            "--network".to_string(),
+            N::ID.to_string(),
             "--broadcast".to_string(),
             format!("{}/{}/transaction/broadcast", command.compiler_options.endpoint, command.compiler_options.network)
                 .to_string(),

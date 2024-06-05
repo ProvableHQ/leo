@@ -97,6 +97,8 @@ impl Command for Deploy {
                 self.compiler_options.endpoint.clone(),
                 "--priority-fee".to_string(),
                 self.fee_options.priority_fee.to_string(),
+                "--network".to_string(),
+                network.id().to_string(),
                 "--path".to_string(),
                 path.to_str().unwrap().parse().unwrap(),
                 "--broadcast".to_string(),
