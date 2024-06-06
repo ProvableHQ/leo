@@ -15,8 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use leo_retriever::NetworkName;
 use snarkos_cli::commands::{Deploy as SnarkOSDeploy, Developer};
-use snarkvm::cli::helpers::dotenv_private_key;
+use snarkvm::{
+    cli::helpers::dotenv_private_key,
+    prelude::{MainnetV0, TestnetV0},
+};
 use std::path::PathBuf;
 
 /// Deploys an Aleo program.
@@ -54,8 +58,13 @@ impl Command for Deploy {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        // Parse the network.
+        let network = NetworkName::try_from(self.compiler_options.network.as_str())?;
         // Get the program name.
-        let project_name = context.open_manifest()?.program_id().to_string();
+        let project_name = match network {
+            NetworkName::MainnetV0 => context.open_manifest::<MainnetV0>()?.program_id().to_string(),
+            NetworkName::TestnetV0 => context.open_manifest::<TestnetV0>()?.program_id().to_string(),
+        };
 
         // Get the private key.
         let mut private_key = self.fee_options.private_key;
@@ -88,10 +97,12 @@ impl Command for Deploy {
                 self.compiler_options.endpoint.clone(),
                 "--priority-fee".to_string(),
                 self.fee_options.priority_fee.to_string(),
+                "--network".to_string(),
+                network.id().to_string(),
                 "--path".to_string(),
                 path.to_str().unwrap().parse().unwrap(),
                 "--broadcast".to_string(),
-                format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.fee_options.network)
+                format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.compiler_options.network)
                     .to_string(),
                 name.clone(),
             ];

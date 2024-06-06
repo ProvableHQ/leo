@@ -126,10 +126,12 @@ pub trait Command {
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
-#[derive(Parser, Clone, Debug, Default)]
+#[derive(Parser, Clone, Debug)]
 pub struct BuildOptions {
     #[clap(long, help = "Endpoint to retrieve network state from.", default_value = "http://api.explorer.aleo.org/v1")]
     pub endpoint: String,
+    #[clap(long, help = "Network to broadcast to. Defaults to mainnet.", default_value = "mainnet")]
+    pub(crate) network: String,
     #[clap(long, help = "Does not recursively compile dependencies.")]
     pub non_recursive: bool,
     #[clap(long, help = "Enables offline mode.")]
@@ -168,14 +170,39 @@ pub struct BuildOptions {
     pub disable_conditional_branch_type_checking: bool,
 }
 
+impl Default for BuildOptions {
+    fn default() -> Self {
+        Self {
+            endpoint: "http://api.explorer.aleo.org/v1".to_string(),
+            network: "mainnet".to_string(),
+            non_recursive: false,
+            offline: false,
+            enable_symbol_table_spans: false,
+            enable_initial_symbol_table_snapshot: false,
+            enable_type_checked_symbol_table_snapshot: false,
+            enable_unrolled_symbol_table_snapshot: false,
+            enable_ast_spans: false,
+            enable_dce: false,
+            enable_all_ast_snapshots: false,
+            enable_initial_ast_snapshot: false,
+            enable_unrolled_ast_snapshot: false,
+            enable_ssa_ast_snapshot: false,
+            enable_flattened_ast_snapshot: false,
+            enable_destructured_ast_snapshot: false,
+            enable_inlined_ast_snapshot: false,
+            enable_dce_ast_snapshot: false,
+            conditional_block_max_depth: 10,
+            disable_conditional_branch_type_checking: false,
+        }
+    }
+}
+
 /// On Chain Execution Options to set preferences for keys, fees and networks.
 /// Used by Execute and Deploy commands.
-#[derive(Parser, Clone, Debug, Default)]
+#[derive(Parser, Clone, Debug)]
 pub struct FeeOptions {
     #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
     pub(crate) priority_fee: String,
-    #[clap(long, help = "Network to broadcast to. Defaults to mainnet.", default_value = "mainnet")]
-    pub(crate) network: String,
     #[clap(long, help = "Private key to authorize fee expenditure.")]
     pub(crate) private_key: Option<String>,
     #[clap(
@@ -184,4 +211,10 @@ pub struct FeeOptions {
         long
     )]
     record: Option<String>,
+}
+
+impl Default for FeeOptions {
+    fn default() -> Self {
+        Self { priority_fee: "0".to_string(), private_key: None, record: None }
+    }
 }

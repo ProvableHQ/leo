@@ -54,7 +54,7 @@ enum Commands {
     },
     #[clap(about = "Create a new Leo example package in a new directory")]
     Example {
-        #[clap(subcommand)]
+        #[clap(flatten)]
         command: Example,
     },
     #[clap(about = "Run a program with input variables")]
@@ -314,6 +314,8 @@ mod test_helpers {
     use leo_span::symbol::create_session_if_not_set_then;
     use std::path::Path;
 
+    const NETWORK: &str = "mainnet";
+
     pub(crate) fn sample_nested_package(temp_dir: &Path) {
         let name = "nested";
 
@@ -327,7 +329,7 @@ mod test_helpers {
         let new = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: name.to_string() } },
+            command: Commands::New { command: New { name: name.to_string(), network: NETWORK.to_string() } },
             path: Some(project_directory.clone()),
             home: None,
         };
@@ -395,7 +397,7 @@ function external_nested_function:
                 command: Add {
                     name: "nested_example_layer_0".to_string(),
                     local: None,
-                    network: "mainnet".to_string(),
+                    network: NETWORK.to_string(),
                     clear: false,
                 },
             },
@@ -428,7 +430,7 @@ function external_nested_function:
         let create_grandparent_project = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: "grandparent".to_string() } },
+            command: Commands::New { command: New { name: "grandparent".to_string(), network: NETWORK.to_string() } },
             path: Some(grandparent_directory.clone()),
             home: None,
         };
@@ -436,7 +438,7 @@ function external_nested_function:
         let create_parent_project = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: "parent".to_string() } },
+            command: Commands::New { command: New { name: "parent".to_string(), network: NETWORK.to_string() } },
             path: Some(parent_directory.clone()),
             home: None,
         };
@@ -444,7 +446,7 @@ function external_nested_function:
         let create_child_project = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: "child".to_string() } },
+            command: Commands::New { command: New { name: "child".to_string(), network: NETWORK.to_string() } },
             path: Some(child_directory.clone()),
             home: None,
         };
@@ -489,7 +491,7 @@ program child.aleo {
                 command: Add {
                     name: "parent".to_string(),
                     local: Some(parent_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: NETWORK.to_string(),
                     clear: false,
                 },
             },
@@ -504,7 +506,7 @@ program child.aleo {
                 command: Add {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: NETWORK.to_string(),
                     clear: false,
                 },
             },
@@ -519,7 +521,7 @@ program child.aleo {
                 command: Add {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: NETWORK.to_string(),
                     clear: false,
                 },
             },
@@ -559,7 +561,7 @@ program child.aleo {
         let create_outer_project = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: "outer".to_string() } },
+            command: Commands::New { command: New { name: "outer".to_string(), network: NETWORK.to_string() } },
             path: Some(outer_directory.clone()),
             home: None,
         };
@@ -567,7 +569,7 @@ program child.aleo {
         let create_inner_1_project = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: "inner_1".to_string() } },
+            command: Commands::New { command: New { name: "inner_1".to_string(), network: NETWORK.to_string() } },
             path: Some(inner_1_directory.clone()),
             home: None,
         };
@@ -575,7 +577,7 @@ program child.aleo {
         let create_inner_2_project = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: "inner_2".to_string() } },
+            command: Commands::New { command: New { name: "inner_2".to_string(), network: NETWORK.to_string() } },
             path: Some(inner_2_directory.clone()),
             home: None,
         };
@@ -643,7 +645,7 @@ program outer.aleo {
                 command: Add {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: NETWORK.to_string(),
                     clear: false,
                 },
             },
@@ -658,7 +660,7 @@ program outer.aleo {
                 command: Add {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: NETWORK.to_string(),
                     clear: false,
                 },
             },
@@ -697,7 +699,7 @@ program outer.aleo {
         let create_outer_project = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: "outer_2".to_string() } },
+            command: Commands::New { command: New { name: "outer_2".to_string(), network: NETWORK.to_string() } },
             path: Some(outer_directory.clone()),
             home: None,
         };
@@ -705,7 +707,7 @@ program outer.aleo {
         let create_inner_1_project = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: "inner_1".to_string() } },
+            command: Commands::New { command: New { name: "inner_1".to_string(), network: NETWORK.to_string() } },
             path: Some(inner_1_directory.clone()),
             home: None,
         };
@@ -713,7 +715,7 @@ program outer.aleo {
         let create_inner_2_project = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: "inner_2".to_string() } },
+            command: Commands::New { command: New { name: "inner_2".to_string(), network: NETWORK.to_string() } },
             path: Some(inner_2_directory.clone()),
             home: None,
         };
@@ -812,7 +814,7 @@ program outer_2.aleo {
                 command: Add {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: NETWORK.to_string(),
                     clear: false,
                 },
             },
@@ -827,7 +829,7 @@ program outer_2.aleo {
                 command: Add {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: NETWORK.to_string(),
                     clear: false,
                 },
             },

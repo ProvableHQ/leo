@@ -15,28 +15,27 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    build::BuildDirectory,
-    inputs::InputsDirectory,
     root::{Env, Gitignore},
     source::{MainFile, SourceDirectory},
 };
 use leo_errors::{PackageError, Result};
-use snarkvm::console::prelude::Network;
 
+use leo_retriever::{Manifest, NetworkName};
 use serde::Deserialize;
-use std::{marker::PhantomData, path::Path};
+use snarkvm::prelude::Network;
+use std::path::Path;
 
 #[derive(Deserialize)]
-pub struct Package<N: Network> {
+pub struct Package {
     pub name: String,
     pub version: String,
     pub description: Option<String>,
     pub license: Option<String>,
-    _phantom: PhantomData<N>,
+    pub network: NetworkName,
 }
 
-impl<N: Network> Package<N> {
-    pub fn new(package_name: &str) -> Result<Self> {
+impl Package {
+    pub fn new(package_name: &str, network: NetworkName) -> Result<Self> {
         // Check that the package name is a valid Aleo program name.
         if !Self::is_aleo_name_valid(package_name) {
             return Err(PackageError::invalid_package_name(package_name).into());
@@ -47,7 +46,7 @@ impl<N: Network> Package<N> {
             version: "0.1.0".to_owned(),
             description: None,
             license: None,
-            _phantom: PhantomData,
+            network,
         })
     }
 
@@ -126,72 +125,79 @@ impl<N: Network> Package<N> {
     }
 
     /// Creates a Leo package at the given path
-    pub fn initialize(package_name: &str, path: &Path) -> Result<()> {
-        // Verify that the .gitignore file does not exist.
-        if !Gitignore::exists_at(path) {
-            // Create the .gitignore file.
-            Gitignore::new().write_to(path)?;
+    pub fn initialize<N: Network>(package_name: &str, path: &Path) -> Result<()> {
+        // Construct the path to the package directory.
+        let path = path.join(package_name);
+
+        // Verify that there is no existing directory at the path.
+        if path.exists() {
+            return Err(
+                PackageError::failed_to_initialize_package(package_name, &path, "Directory already exists").into()
+            );
         }
 
-        // Verify that the .env file does not exist.
-        if !Env::<N>::exists_at(path) {
-            // Create the .env file.
-            Env::<N>::new()?.write_to(path)?;
-        }
+        // Create the package directory.
+        std::fs::create_dir(&path).map_err(|e| PackageError::failed_to_initialize_package(package_name, &path, e))?;
+
+        // Change the current working directory to the package directory.
+        std::env::set_current_dir(&path)
+            .map_err(|e| PackageError::failed_to_initialize_package(package_name, &path, e))?;
+
+        // Create the .gitignore file.
+        Gitignore::new().write_to(&path)?;
+
+        // Create the .env file.
+        Env::<N>::new()?.write_to(&path)?;
+
+        // Create a manifest.
+        let manifest = Manifest::default(package_name);
+        manifest.write_to_dir(&path)?;
 
         // Create the source directory.
-        SourceDirectory::create(path)?;
-
-        // Create the inputs directory.
-        InputsDirectory::create(path)?;
-
-        // Create the Leo build/ directory
-        BuildDirectory::create(path)?;
+        SourceDirectory::create(&path)?;
 
         // Create the main file in the source directory.
-        MainFile::new(package_name).write_to(path)?;
+        MainFile::new(package_name).write_to(&path)?;
 
         // Next, verify that a valid Leo package has been initialized in this directory
-        if !Self::is_initialized(package_name, path) {
-            return Err(PackageError::failed_to_initialize_package(package_name, path.as_os_str()).into());
+        if !Self::is_initialized(package_name, &path) {
+            return Err(PackageError::failed_to_initialize_package(
+                package_name,
+                &path,
+                "Failed to correctly initialize package",
+            )
+            .into());
         }
 
         Ok(())
     }
-    //
-    // /// Removes the package at the given path
-    // pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<()> {
-    //     ImportsDirectory::remove_import(path, package_name)
-    // }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    type CurrentNetwork = snarkvm::prelude::MainnetV0;
-
     #[test]
     fn test_is_package_name_valid() {
-        assert!(Package::<CurrentNetwork>::is_aleo_name_valid("foo"));
-        assert!(Package::<CurrentNetwork>::is_aleo_name_valid("foo_bar"));
-        assert!(Package::<CurrentNetwork>::is_aleo_name_valid("foo1"));
-        assert!(Package::<CurrentNetwork>::is_aleo_name_valid("foo_bar___baz_"));
+        assert!(Package::is_aleo_name_valid("foo"));
+        assert!(Package::is_aleo_name_valid("foo_bar"));
+        assert!(Package::is_aleo_name_valid("foo1"));
+        assert!(Package::is_aleo_name_valid("foo_bar___baz_"));
 
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo-bar"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo-bar-baz"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo-1"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid(""));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("-"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("-foo"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("-foo-"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("_foo"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo--bar"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo---bar"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo--bar--baz"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo---bar---baz"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo*bar"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("foo,bar"));
-        assert!(!Package::<CurrentNetwork>::is_aleo_name_valid("1-foo"));
+        assert!(!Package::is_aleo_name_valid("foo-bar"));
+        assert!(!Package::is_aleo_name_valid("foo-bar-baz"));
+        assert!(!Package::is_aleo_name_valid("foo-1"));
+        assert!(!Package::is_aleo_name_valid(""));
+        assert!(!Package::is_aleo_name_valid("-"));
+        assert!(!Package::is_aleo_name_valid("-foo"));
+        assert!(!Package::is_aleo_name_valid("-foo-"));
+        assert!(!Package::is_aleo_name_valid("_foo"));
+        assert!(!Package::is_aleo_name_valid("foo--bar"));
+        assert!(!Package::is_aleo_name_valid("foo---bar"));
+        assert!(!Package::is_aleo_name_valid("foo--bar--baz"));
+        assert!(!Package::is_aleo_name_valid("foo---bar---baz"));
+        assert!(!Package::is_aleo_name_valid("foo*bar"));
+        assert!(!Package::is_aleo_name_valid("foo,bar"));
+        assert!(!Package::is_aleo_name_valid("1-foo"));
     }
 }

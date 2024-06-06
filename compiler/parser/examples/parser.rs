@@ -26,8 +26,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-type CurrentNetwork = snarkvm::prelude::MainnetV0;
-
 #[derive(Debug, Parser)]
 #[clap(name = "leo parser", about = "Parse Leo AST and store it as a JSON")]
 struct Opt {
@@ -40,6 +38,10 @@ struct Opt {
     /// Whether to print result to STDOUT.
     #[clap(short, long)]
     print_stdout: bool,
+
+    /// The network to use. Defaults to mainnet.
+    #[clap(long, default_value = "mainnet")]
+    pub(crate) network: String,
 }
 
 fn main() -> Result<(), String> {
@@ -50,7 +52,15 @@ fn main() -> Result<(), String> {
 
         Handler::with(|h| {
             let node_builder = NodeBuilder::default();
-            let ast = leo_parser::parse_ast::<CurrentNetwork>(h, &node_builder, &code.src, code.start_pos)?;
+            let ast = match opt.network.as_str() {
+                "mainnet" => {
+                    leo_parser::parse_ast::<snarkvm::prelude::MainnetV0>(h, &node_builder, &code.src, code.start_pos)
+                }
+                "testnet" => {
+                    leo_parser::parse_ast::<snarkvm::prelude::TestnetV0>(h, &node_builder, &code.src, code.start_pos)
+                }
+                _ => panic!("Invalid network"),
+            }?;
             let json = Ast::to_json_string(&ast)?;
             println!("{json}");
             Ok(json)

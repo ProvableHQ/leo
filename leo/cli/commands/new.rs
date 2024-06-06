@@ -15,14 +15,17 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use snarkvm::prelude::{MainnetV0, TestnetV0};
 
-use snarkvm::{cli::New as SnarkVMNew, file::AleoFile};
+use leo_retriever::NetworkName;
 
 /// Create new Leo project
 #[derive(Parser, Debug)]
 pub struct New {
     #[clap(name = "NAME", help = "Set package name")]
     pub(crate) name: String,
+    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
+    pub(crate) network: String,
 }
 
 impl Command for New {
@@ -38,55 +41,21 @@ impl Command for New {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        // Parse the network.
+        let network = NetworkName::try_from(self.network.as_str())?;
+
         // Derive the location of the parent directory to the project.
-        let mut package_path = context.parent_dir()?;
+        let package_path = context.parent_dir()?;
 
         // Change the cwd to the Leo package directory to initialize all files.
         std::env::set_current_dir(&package_path)
             .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))?;
 
-        // Call the `aleo new` command from the Aleo SDK.
-        let command =
-            SnarkVMNew::try_parse_from([SNARKVM_COMMAND, &self.name]).map_err(CliError::failed_to_parse_new)?;
-        let result = command.parse().map_err(CliError::failed_to_execute_new)?;
-
-        // Log the output of the `aleo new` command.
-        tracing::info!("{}", result);
-
-        // Initialize the Leo package in the directory created by `aleo new`.
-        package_path.push(&self.name);
-        std::env::set_current_dir(&package_path)
-            .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))?;
-        Package::<CurrentNetwork>::initialize(&self.name, &package_path)?;
-
-        // Open the program manifest.
-        let manifest = context.open_manifest()?;
-
-        // Create a path to the build directory.
-        let mut build_directory = package_path.clone();
-        build_directory.push(BUILD_DIRECTORY_NAME);
-
-        // Write the Aleo file into the build directory.
-        AleoFile::create(&build_directory, manifest.program_id(), true)
-            .map_err(PackageError::failed_to_create_aleo_file)?;
-
-        // build_aleo_file.push(AleoFile::<Network>::main_file_name());
-        //
-        // println!("{}", build_aleo_file.display());
-        //
-        //
-        // std::fs::File::create(build_aleo_file).map_err()
-        // aleo_file.write_to(&build_aleo_file).map_err(PackageError::failed_to_write_aleo_file)?;
-
-        // Open the `main.aleo` file path.
-        let aleo_file = AleoFile::open(&package_path, manifest.program_id(), true)
-            .map_err(PackageError::failed_to_open_aleo_file)?;
-
-        let mut aleo_file_path = package_path.clone();
-        aleo_file_path.push(AleoFile::<CurrentNetwork>::main_file_name());
-
-        // Remove the Aleo file from the package directory.
-        aleo_file.remove(&aleo_file_path).map_err(PackageError::failed_to_remove_aleo_file)?;
+        // Initialize the package.
+        match network {
+            NetworkName::MainnetV0 => Package::initialize::<MainnetV0>(&self.name, &package_path),
+            NetworkName::TestnetV0 => Package::initialize::<TestnetV0>(&self.name, &package_path),
+        }?;
 
         Ok(())
     }

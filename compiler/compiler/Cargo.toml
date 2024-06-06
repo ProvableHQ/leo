@@ -51,11 +51,14 @@ features = [ ]
 [dev-dependencies.leo-disassembler]
 path = "../../utils/disassembler"
 
-[dev-dependencies.leo-test-framework]
-path = "../../tests/test-framework"
-
 [dev-dependencies.leo-package]
 path = "../../leo/package"
+
+[dev-dependencies.leo-retriever]
+path = "../../utils/retriever"
+
+[dev-dependencies.leo-test-framework]
+path = "../../tests/test-framework"
 
 [dev-dependencies.aleo-std-storage]
 version = "0.1.7"

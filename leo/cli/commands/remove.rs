@@ -16,7 +16,6 @@
 
 use super::*;
 use leo_retriever::{Dependency, Manifest};
-use std::path::PathBuf;
 
 /// Remove a dependency from the current package.
 #[derive(Parser, Debug)]
@@ -28,12 +27,6 @@ pub struct Remove {
         required_unless_present = "all"
     )]
     pub(crate) name: Option<String>,
-
-    #[clap(short = 'l', long, help = "Path to local dependency")]
-    pub(crate) local: Option<PathBuf>,
-
-    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet3")]
-    pub(crate) network: String,
 
     #[clap(long, help = "Clear all previous dependencies.", default_value = "false")]
     pub(crate) all: bool,
@@ -62,18 +55,8 @@ impl Command for Remove {
             .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))?;
 
         let dependencies: Vec<Dependency> = if !self.all {
-            // Make sure the program name is valid.
-            // Allow both `credits.aleo` and `credits` syntax.
-            let name: String = match &self.name {
-                Some(name)
-                    if name.ends_with(".aleo")
-                        && Package::<CurrentNetwork>::is_aleo_name_valid(&name[0..name.len() - 5]) =>
-                {
-                    name.clone()
-                }
-                Some(name) if Package::<CurrentNetwork>::is_aleo_name_valid(name) => format!("{name}.aleo"),
-                name => return Err(PackageError::invalid_file_name_dependency(name.clone().unwrap()).into()),
-            };
+            // Note that this unwrap is safe since `name` is required if `all` is `false`.
+            let name: String = self.name.unwrap().clone();
 
             let mut found_match = false;
             let dep = match manifest.dependencies() {
@@ -121,9 +104,7 @@ impl Command for Remove {
             manifest.license(),
             Some(dependencies),
         );
-        let new_manifest_data = serde_json::to_string_pretty(&new_manifest)
-            .map_err(|err| PackageError::failed_to_serialize_manifest_file(path.to_str().unwrap(), err))?;
-        std::fs::write(path.join("program.json"), new_manifest_data).map_err(PackageError::failed_to_write_manifest)?;
+        new_manifest.write_to_dir(&path)?;
 
         Ok(())
     }

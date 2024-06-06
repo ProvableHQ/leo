@@ -18,17 +18,21 @@ use super::*;
 
 use leo_ast::Stub;
 use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
-use leo_errors::UtilError;
+use leo_errors::{CliError, UtilError};
 use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
-use leo_retriever::Retriever;
+use leo_retriever::{Manifest, NetworkName, Retriever};
 use leo_span::Symbol;
 
-use snarkvm::{package::Package, prelude::ProgramID};
+use snarkvm::{
+    package::Package,
+    prelude::{MainnetV0, Network, ProgramID, TestnetV0},
+};
 
 use indexmap::IndexMap;
 use std::{
     io::Write,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
 impl From<BuildOptions> for CompilerOptions {
@@ -88,101 +92,96 @@ impl Command for Build {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Get the package path.
-        let package_path = context.dir()?;
-        let home_path = context.home()?;
+        // Parse the network.
+        let network = NetworkName::try_from(self.options.network.as_str())?;
+        match network {
+            NetworkName::MainnetV0 => handle_build::<MainnetV0>(&self, context),
+            NetworkName::TestnetV0 => handle_build::<TestnetV0>(&self, context),
+        }
+    }
+}
 
-        // Open the build directory.
-        let build_directory = BuildDirectory::create(&package_path)?;
+// A helper function to handle the build command.
+fn handle_build<N: Network>(command: &Build, context: Context) -> Result<<Build as Command>::Output> {
+    // Get the package path.
+    let package_path = context.dir()?;
+    let home_path = context.home()?;
 
-        // Get the program id.
-        let manifest = context.open_manifest()?;
-        let program_id = manifest.program_id();
+    // Get the program id.
+    let manifest = Manifest::read_from_dir(&package_path)?;
+    let program_id = ProgramID::<N>::from_str(manifest.program())?;
 
-        // Initialize error handler
-        let handler = Handler::default();
+    // Clear and recreate the build directory.
+    let build_directory = package_path.join("build");
+    if build_directory.exists() {
+        std::fs::remove_dir_all(&build_directory).map_err(CliError::build_error)?;
+    }
+    Package::create(&build_directory, &program_id).map_err(CliError::build_error)?;
 
-        // Retrieve all local dependencies in post order
-        let main_sym = Symbol::intern(&program_id.name().to_string());
-        let mut retriever =
-            Retriever::<CurrentNetwork>::new(main_sym, &package_path, &home_path, self.options.endpoint.clone())
-                .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
-        let mut local_dependencies =
-            retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+    // Initialize error handler
+    let handler = Handler::default();
 
-        // Push the main program at the end of the list to be compiled after all of its dependencies have been processed
-        local_dependencies.push(main_sym);
+    // Retrieve all local dependencies in post order
+    let main_sym = Symbol::intern(&program_id.name().to_string());
+    let mut retriever = Retriever::<N>::new(main_sym, &package_path, &home_path, command.options.endpoint.clone())
+        .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+    let mut local_dependencies =
+        retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
-        // Recursive build will recursively compile all local dependencies. Can disable to save compile time.
-        let recursive_build = !self.options.non_recursive;
+    // Push the main program at the end of the list to be compiled after all of its dependencies have been processed
+    local_dependencies.push(main_sym);
 
-        // Loop through all local dependencies and compile them in order
-        for dependency in local_dependencies.into_iter() {
-            if recursive_build || dependency == main_sym {
-                // Get path to the local project
-                let (local_path, stubs) = retriever.prepare_local(dependency)?;
+    // Recursive build will recursively compile all local dependencies. Can disable to save compile time.
+    let recursive_build = !command.options.non_recursive;
 
-                // Create the outputs directory.
-                let local_outputs_directory = OutputsDirectory::create(&local_path)?;
+    // Loop through all local dependencies and compile them in order
+    for dependency in local_dependencies.into_iter() {
+        if recursive_build || dependency == main_sym {
+            // Get path to the local project
+            let (local_path, stubs) = retriever.prepare_local(dependency)?;
 
-                // Open the build directory.
-                let local_build_directory = BuildDirectory::create(&local_path)?;
+            // Create the outputs directory.
+            let local_outputs_directory = OutputsDirectory::create(&local_path)?;
 
-                // Fetch paths to all .leo files in the source directory.
-                let local_source_files = SourceDirectory::files(&local_path)?;
+            // Open the build directory.
+            let local_build_directory = BuildDirectory::create(&local_path)?;
 
-                // Check the source files.
-                SourceDirectory::check_files(&local_source_files)?;
+            // Fetch paths to all .leo files in the source directory.
+            let local_source_files = SourceDirectory::files(&local_path)?;
 
-                // Compile all .leo files into .aleo files.
-                for file_path in local_source_files {
-                    compile_leo_file(
-                        file_path,
-                        &ProgramID::<CurrentNetwork>::try_from(format!("{}.aleo", dependency))
-                            .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
-                        &local_outputs_directory,
-                        &local_build_directory,
-                        &handler,
-                        self.options.clone(),
-                        stubs.clone(),
-                    )?;
-                }
+            // Check the source files.
+            SourceDirectory::check_files(&local_source_files)?;
+
+            // Compile all .leo files into .aleo files.
+            for file_path in local_source_files {
+                compile_leo_file(
+                    file_path,
+                    &ProgramID::<N>::try_from(format!("{}.aleo", dependency))
+                        .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
+                    &local_outputs_directory,
+                    &local_build_directory,
+                    &handler,
+                    command.options.clone(),
+                    stubs.clone(),
+                )?;
             }
-
-            // Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
-            retriever.process_local(dependency, recursive_build)?;
         }
 
-        // `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
-        Package::<CurrentNetwork>::open(&build_directory).map_err(CliError::failed_to_execute_build)?;
-
-        // // Unset the Leo panic hook.
-        // let _ = std::panic::take_hook();
-        //
-        // // Change the cwd to the build directory to compile aleo files.
-        // std::env::set_current_dir(&build_directory)
-        //     .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
-        //
-        // // Call the `build` command.
-        // let mut args = vec![SNARKVM_COMMAND];
-        // if self.options.offline {
-        //     args.push("--offline");
-        // }
-        // let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
-        // let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
-        //
-        // // Log the result of the build
-        // tracing::info!("{}", result);
-
-        Ok(())
+        // Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
+        retriever.process_local(dependency, recursive_build)?;
     }
+
+    // `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
+    Package::<N>::open(&build_directory).map_err(CliError::failed_to_execute_build)?;
+
+    Ok(())
 }
 
 /// Compiles a Leo file in the `src/` directory.
 #[allow(clippy::too_many_arguments)]
-fn compile_leo_file(
+fn compile_leo_file<N: Network>(
     file_path: PathBuf,
-    program_id: &ProgramID<CurrentNetwork>,
+    program_id: &ProgramID<N>,
     outputs: &Path,
     build: &Path,
     handler: &Handler,
@@ -197,7 +196,7 @@ fn compile_leo_file(
     aleo_file_path.push(format!("main.{}", program_id.network()));
 
     // Create a new instance of the Leo compiler.
-    let mut compiler = Compiler::<CurrentNetwork>::new(
+    let mut compiler = Compiler::<N>::new(
         program_name.clone(),
         program_id.network().to_string(),
         handler,

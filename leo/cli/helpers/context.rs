@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
 use aleo_std;
 use leo_errors::{CliError, PackageError, Result};
 use leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
@@ -24,6 +23,7 @@ use snarkvm::file::Manifest;
 
 use aleo_std::aleo_dir;
 use indexmap::IndexMap;
+use snarkvm::prelude::Network;
 use std::{
     env::current_dir,
     fs::File,
@@ -76,10 +76,10 @@ impl Context {
 
     /// Returns the package name as a String.
     /// Opens the manifest file `program.json` and creates the build directory if it doesn't exist.
-    pub fn open_manifest(&self) -> Result<Manifest<CurrentNetwork>> {
+    pub fn open_manifest<N: Network>(&self) -> Result<Manifest<N>> {
         // Open the manifest file.
         let path = self.dir()?;
-        let manifest = Manifest::<CurrentNetwork>::open(&path).map_err(PackageError::failed_to_open_manifest)?;
+        let manifest = Manifest::<N>::open(&path).map_err(PackageError::failed_to_open_manifest)?;
 
         // Lookup the program id.
         // let program_id = manifest.program_id();
@@ -97,7 +97,7 @@ impl Context {
             std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_read_manifest)?;
 
         // Construct the file path.
-        let build_manifest_path = build_path.join(Manifest::<CurrentNetwork>::file_name());
+        let build_manifest_path = build_path.join(Manifest::<N>::file_name());
 
         // Write the file.
         File::create(build_manifest_path)

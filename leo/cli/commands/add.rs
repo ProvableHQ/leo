@@ -59,12 +59,10 @@ impl Command for Add {
         // Make sure the program name is valid.
         // Allow both `credits.aleo` and `credits` syntax.
         let name: String = match &self.name {
-            name if name.ends_with(".aleo")
-                && Package::<CurrentNetwork>::is_aleo_name_valid(&name[0..self.name.len() - 5]) =>
-            {
+            name if name.ends_with(".aleo") && Package::is_aleo_name_valid(&name[0..self.name.len() - 5]) => {
                 name.clone()
             }
-            name if Package::<CurrentNetwork>::is_aleo_name_valid(name) => format!("{name}.aleo"),
+            name if Package::is_aleo_name_valid(name) => format!("{name}.aleo"),
             name => return Err(PackageError::invalid_file_name_dependency(name).into()),
         };
 
@@ -113,7 +111,7 @@ impl Command for Add {
             }
             None => {
                 tracing::info!("✅ Added network dependency to program `{name}` from network `{}`.", self.network);
-                Dependency::new(name, Location::Network, Some(NetworkName::from(&self.network)), None)
+                Dependency::new(name, Location::Network, Some(NetworkName::try_from(self.network.as_str())?), None)
             }
         });
 
@@ -125,9 +123,7 @@ impl Command for Add {
             manifest.license(),
             Some(dependencies),
         );
-        let new_manifest_data = serde_json::to_string_pretty(&new_manifest)
-            .map_err(|err| PackageError::failed_to_serialize_manifest_file(path.to_str().unwrap(), err))?;
-        std::fs::write(path.join("program.json"), new_manifest_data).map_err(PackageError::failed_to_write_manifest)?;
+        new_manifest.write_to_dir(&path)?;
 
         Ok(())
     }
