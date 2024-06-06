@@ -33,6 +33,7 @@ use snarkvm::{
     },
 };
 use std::{path::PathBuf, str::FromStr};
+use text_tables;
 
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]
@@ -115,61 +116,70 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         // Fetch the package from the directory.
         let package = SnarkVMPackage::<N>::open(path)?;
 
-        println!("📦 Creating deployment transaction for '{}'...\n", &name.bold());
+        if !command.fee_options.estimate_fee {
+            println!("📦 Creating deployment transaction for '{}'...\n", &name.bold());
+        } else {
+            println!("📦 Estimating deployment cost for '{}'...\n", &name.bold());
+        }
 
         // Generate the deployment
         let deployment = package.deploy::<A>(None)?;
         let deployment_id = deployment.to_deployment_id()?;
 
-        // Generate the deployment transaction.
-        let transaction = {
-            // Initialize an RNG.
-            let rng = &mut rand::thread_rng();
 
-            let store = ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?;
+        let store = ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?;
 
-            // Initialize the VM.
-            let vm = VM::from(store)?;
+        // Initialize the VM.
+        let vm = VM::from(store)?;
 
-            // Compute the minimum deployment cost.
-            let (minimum_deployment_cost, _) = deployment_cost(&deployment)?;
+        // Compute the minimum deployment cost.
+        let (total_cost, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(&deployment)?;
+        
+        if command.fee_options.estimate_fee {
+            // Use `credit` denomination instead of `microcredit`.
+            display_cost_breakdown(name, total_cost as f64 / 1_000_000.0, storage_cost as f64 / 1_000_000.0, synthesis_cost as f64 / 1_000_000.0, namespace_cost as f64 / 1_000_000.0);
+            continue;
+        }
 
-            // Prepare the fees.
-            let fee = match &command.fee_options.record {
-                Some(record) => {
-                    let fee_record = parse_record(&private_key, record)?;
-                    let fee_authorization = vm.authorize_fee_private(
-                        &private_key,
-                        fee_record,
-                        minimum_deployment_cost,
-                        command.fee_options.priority_fee,
-                        deployment_id,
-                        rng,
-                    )?;
-                    vm.execute_fee_authorization(fee_authorization, Some(query.clone()), rng)?
-                }
-                None => {
-                    let fee_authorization = vm.authorize_fee_public(
-                        &private_key,
-                        minimum_deployment_cost,
-                        command.fee_options.priority_fee,
-                        deployment_id,
-                        rng,
-                    )?;
-                    vm.execute_fee_authorization(fee_authorization, Some(query.clone()), rng)?
-                }
-            };
-            // Construct the owner.
-            let owner = ProgramOwner::new(&private_key, deployment_id, rng)?;
-
-            // Create a new transaction.
-            Transaction::from_deployment(owner, deployment, fee)?
+        // Initialize an RNG.
+        let rng = &mut rand::thread_rng();
+        
+        // Prepare the fees.
+        let fee = match &command.fee_options.record {
+            Some(record) => {
+                let fee_record = parse_record(&private_key, record)?;
+                let fee_authorization = vm.authorize_fee_private(
+                    &private_key,
+                    fee_record,
+                    total_cost,
+                    command.fee_options.priority_fee,
+                    deployment_id,
+                    rng,
+                )?;
+                vm.execute_fee_authorization(fee_authorization, Some(query.clone()), rng)?
+            }
+            None => {
+                let fee_authorization = vm.authorize_fee_public(
+                    &private_key,
+                    total_cost,
+                    command.fee_options.priority_fee,
+                    deployment_id,
+                    rng,
+                )?;
+                vm.execute_fee_authorization(fee_authorization, Some(query.clone()), rng)?
+            }
         };
+        // Construct the owner.
+        let owner = ProgramOwner::new(&private_key, deployment_id, rng)?;
+
+        // Generate the deployment transaction.
+        let transaction = Transaction::from_deployment(owner, deployment, fee)?;
+            
         println!("✅ Created deployment transaction for '{}'", name.bold());
 
         // Determine if the transaction should be broadcast, stored, or displayed to the user.
         handle_broadcast(
-            &format!("{}/{}/transaction/broadcast", command.options.endpoint, command.fee_options.network),
+            &format!("{}/{}/transaction/broadcast", command.options.endpoint, command.options.network),
             transaction,
             name,
         )?;
@@ -180,4 +190,14 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
     }
 
     Ok(())
+}
+
+// A helper function to display a cost breakdown of the deployment.
+fn display_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, synthesis_cost: f64, namespace_cost: f64) {
+    println!("✅ Estimated deployment cost for '{}' is {} credits.", name.bold(), total_cost);
+    // Display the cost breakdown in a table.
+    let data = [[name, "Cost (credits)", "Cost reduction tips"], ["Storage", &format!("{:.6}", storage_cost),  "Use less instructions"], ["Synthesis", &format!("{:.6}", synthesis_cost),  "Remove expensive operations (Ex: SHA3), or unnecessary imports"], ["Namespace", &format!("{:.6}", namespace_cost), "Lengthen the program name (each additional character makes it 10x cheaper)"], ["Total", &format!("{:.6}", total_cost), ""]];
+    let mut out = Vec::new();
+    text_tables::render(&mut out, data).unwrap();
+    println!("{}", ::std::str::from_utf8(&out).unwrap());
 }
