@@ -119,6 +119,17 @@
 <a href="#117" id="117">117</a>
 <a href="#118" id="118">118</a>
 <a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -136,8 +147,12 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>leo_retriever::NetworkName;
 <span class="kw">use </span>snarkos_cli::commands::{Deploy <span class="kw">as </span>SnarkOSDeploy, Developer};
-<span class="kw">use </span>snarkvm::cli::helpers::dotenv_private_key;
+<span class="kw">use </span>snarkvm::{
+    cli::helpers::dotenv_private_key,
+    prelude::{MainnetV0, TestnetV0},
+};
 <span class="kw">use </span>std::path::PathBuf;
 
 <span class="doccomment">/// Deploys an Aleo program.
@@ -175,8 +190,13 @@
     }
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="comment">// Parse the network.
+        </span><span class="kw">let </span>network = NetworkName::try_from(<span class="self">self</span>.compiler_options.network.as_str())<span class="question-mark">?</span>;
         <span class="comment">// Get the program name.
-        </span><span class="kw">let </span>project_name = context.open_manifest()<span class="question-mark">?</span>.program_id().to_string();
+        </span><span class="kw">let </span>project_name = <span class="kw">match </span>network {
+            NetworkName::MainnetV0 =&gt; context.open_manifest::&lt;MainnetV0&gt;()<span class="question-mark">?</span>.program_id().to_string(),
+            NetworkName::TestnetV0 =&gt; context.open_manifest::&lt;TestnetV0&gt;()<span class="question-mark">?</span>.program_id().to_string(),
+        };
 
         <span class="comment">// Get the private key.
         </span><span class="kw">let </span><span class="kw-2">mut </span>private_key = <span class="self">self</span>.fee_options.private_key;
@@ -209,10 +229,12 @@
                 <span class="self">self</span>.compiler_options.endpoint.clone(),
                 <span class="string">"--priority-fee"</span>.to_string(),
                 <span class="self">self</span>.fee_options.priority_fee.to_string(),
+                <span class="string">"--network"</span>.to_string(),
+                network.id().to_string(),
                 <span class="string">"--path"</span>.to_string(),
                 path.to_str().unwrap().parse().unwrap(),
                 <span class="string">"--broadcast"</span>.to_string(),
-                <span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, <span class="self">self</span>.compiler_options.endpoint, <span class="self">self</span>.fee_options.network)
+                <span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, <span class="self">self</span>.compiler_options.endpoint, <span class="self">self</span>.compiler_options.network)
                     .to_string(),
                 name.clone(),
             ];

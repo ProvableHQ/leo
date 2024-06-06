@@ -114,6 +114,32 @@
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -134,15 +160,13 @@
 
 <span class="kw">use </span>std::fs;
 
-<span class="doccomment">/// The example programs that can be generated.
+<span class="doccomment">/// Initialize a new Leo example.
 </span><span class="attr">#[derive(Parser, Debug)]
-</span><span class="kw">pub enum </span>Example {
-    <span class="attr">#[clap(name = <span class="string">"lottery"</span>, about = <span class="string">"A public lottery program"</span>)]
-    </span>Lottery,
-    <span class="attr">#[clap(name = <span class="string">"tictactoe"</span>, about = <span class="string">"A standard tic-tac-toe game program"</span>)]
-    </span>TicTacToe,
-    <span class="attr">#[clap(name = <span class="string">"token"</span>, about = <span class="string">"A transparent &amp; shielded custom token program"</span>)]
-    </span>Token,
+</span><span class="kw">pub struct </span>Example {
+    <span class="attr">#[clap(name = <span class="string">"NAME"</span>, help = <span class="string">"The example to initialize."</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) name: String,
+    <span class="attr">#[clap(short = <span class="string">'n'</span>, long, help = <span class="string">"Name of the network to use"</span>, default_value = <span class="string">"mainnet"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) network: String,
 }
 
 <span class="kw">impl </span>Command <span class="kw">for </span>Example {
@@ -150,8 +174,8 @@
     <span class="kw">type </span>Output = ();
 
     <span class="kw">fn </span>prelude(<span class="kw-2">&amp;</span><span class="self">self</span>, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Input&gt; {
-        <span class="comment">// Run leo new EXAMPLE_NAME
-        </span>(New { name: <span class="self">self</span>.name() }).execute(context)
+        <span class="comment">// Run leo new &lt;name&gt; --network &lt;network&gt;
+        </span>(New { name: <span class="self">self</span>.name.clone(), network: <span class="self">self</span>.network.clone() }).execute(context)
     }
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt;
@@ -160,22 +184,26 @@
     {
         <span class="kw">let </span>package_dir = context.dir()<span class="question-mark">?</span>;
 
+        <span class="comment">// Parse the example variant.
+        </span><span class="kw">let </span>example_variant =
+            ExampleVariant::try_from(<span class="self">self</span>.name.as_str()).map_err(|<span class="kw">_</span>| CliError::invalid_example(<span class="self">self</span>.name.as_str()))<span class="question-mark">?</span>;
+
         <span class="comment">// Write the main file.
         </span><span class="kw">let </span>main_file_path = package_dir.join(<span class="string">"src"</span>).join(<span class="string">"main.leo"</span>);
-        fs::write(main_file_path, <span class="self">self</span>.main_file_string()).map_err(CliError::failed_to_write_file)<span class="question-mark">?</span>;
+        fs::write(main_file_path, example_variant.main_file_string()).map_err(CliError::failed_to_write_file)<span class="question-mark">?</span>;
 
         <span class="comment">// Write the README file.
         </span><span class="kw">let </span>readme_file_path = package_dir.join(<span class="string">"README.md"</span>);
         <span class="kw">let </span>readme_file_path_string = readme_file_path.display().to_string();
-        fs::write(readme_file_path, <span class="self">self</span>.readme_file_string()).map_err(CliError::failed_to_write_file)<span class="question-mark">?</span>;
+        fs::write(readme_file_path, example_variant.readme_file_string()).map_err(CliError::failed_to_write_file)<span class="question-mark">?</span>;
 
         <span class="comment">// Write the run.sh file.
         </span><span class="kw">let </span>run_file_path = package_dir.join(<span class="string">"run.sh"</span>);
-        fs::write(run_file_path, <span class="self">self</span>.run_file_string()).map_err(CliError::failed_to_write_file)<span class="question-mark">?</span>;
+        fs::write(run_file_path, example_variant.run_file_string()).map_err(CliError::failed_to_write_file)<span class="question-mark">?</span>;
 
         <span class="macro">tracing::info!</span>(
             <span class="string">"🚀 To run the '{}' program follow the instructions at {}"</span>,
-            <span class="self">self</span>.name().bold(),
+            example_variant.name().bold(),
             readme_file_path_string
         );
 
@@ -183,12 +211,23 @@
     }
 }
 
-<span class="kw">impl </span>Example {
+<span class="doccomment">/// The example programs that can be generated.
+</span><span class="attr">#[derive(Parser, Debug, Copy, Clone)]
+</span><span class="kw">pub enum </span>ExampleVariant {
+    <span class="attr">#[clap(name = <span class="string">"lottery"</span>, about = <span class="string">"A public lottery program"</span>)]
+    </span>Lottery,
+    <span class="attr">#[clap(name = <span class="string">"tictactoe"</span>, about = <span class="string">"A standard tic-tac-toe game program"</span>)]
+    </span>TicTacToe,
+    <span class="attr">#[clap(name = <span class="string">"token"</span>, about = <span class="string">"A transparent &amp; shielded custom token program"</span>)]
+    </span>Token,
+}
+
+<span class="kw">impl </span>ExampleVariant {
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">match </span><span class="self">self </span>{
-            Example::Lottery =&gt; <span class="string">"lottery"</span>.to_string(),
-            Example::TicTacToe =&gt; <span class="string">"tictactoe"</span>.to_string(),
-            Example::Token =&gt; <span class="string">"token"</span>.to_string(),
+            <span class="self">Self</span>::Lottery =&gt; <span class="string">"lottery"</span>.to_string(),
+            <span class="self">Self</span>::TicTacToe =&gt; <span class="string">"tictactoe"</span>.to_string(),
+            <span class="self">Self</span>::Token =&gt; <span class="string">"token"</span>.to_string(),
         }
     }
 
@@ -225,6 +264,19 @@
                 <span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">"CARGO_MANIFEST_DIR"</span>), <span class="string">"/examples/tictactoe/run.sh"</span>)).to_string()
             }
             <span class="self">Self</span>::Token =&gt; <span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">"CARGO_MANIFEST_DIR"</span>), <span class="string">"/examples/token/run.sh"</span>)).to_string(),
+        }
+    }
+}
+
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>str&gt; <span class="kw">for </span>ExampleVariant {
+    <span class="kw">type </span>Error = ();
+
+    <span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>str) -&gt; std::result::Result&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span>value {
+            <span class="string">"lottery" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Lottery),
+            <span class="string">"tictactoe" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::TicTacToe),
+            <span class="string">"token" </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Token),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(()),
         }
     }
 }

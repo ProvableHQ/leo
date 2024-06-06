@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Account"],"fn":["display_string_discreetly","print_keys","sign_message","verify_message","wait_for_keypress","write_to_env_file"]};
+window.SIDEBAR_ITEMS = {"enum":["Account"],"fn":["display_string_discreetly","generate_new_account","import_account","print_keys","sign_message","verify_message","wait_for_keypress","write_to_env_file"]};

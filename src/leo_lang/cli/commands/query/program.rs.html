@@ -123,7 +123,7 @@
         <span class="comment">// Build custom url to fetch from based on the flags and user's input.
         </span><span class="kw">let </span>url = <span class="kw">if let </span><span class="prelude-val">Some</span>(mapping_info) = <span class="self">self</span>.mapping_value {
             <span class="comment">// Check that the mapping name is valid.
-            </span>Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="kw-2">&amp;</span>mapping_info[<span class="number">0</span>]);
+            </span>Package::is_aleo_name_valid(<span class="kw-2">&amp;</span>mapping_info[<span class="number">0</span>]);
             <span class="macro">format!</span>(<span class="string">"program/{}/mapping/{}/{}"</span>, program, mapping_info[<span class="number">0</span>], mapping_info[<span class="number">1</span>])
         } <span class="kw">else if </span><span class="self">self</span>.mappings {
             <span class="macro">format!</span>(<span class="string">"program/{}/mappings"</span>, program)

@@ -156,8 +156,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use super</span>::<span class="kw-2">*</span>;
-<span class="kw">use </span>aleo_std;
+</span><span class="kw">use </span>aleo_std;
 <span class="kw">use </span>leo_errors::{CliError, PackageError, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
 <span class="kw">use </span>leo_retriever::LockFileEntry;
@@ -166,6 +165,7 @@
 
 <span class="kw">use </span>aleo_std::aleo_dir;
 <span class="kw">use </span>indexmap::IndexMap;
+<span class="kw">use </span>snarkvm::prelude::Network;
 <span class="kw">use </span>std::{
     env::current_dir,
     fs::File,
@@ -218,10 +218,10 @@
 
     <span class="doccomment">/// Returns the package name as a String.
     /// Opens the manifest file `program.json` and creates the build directory if it doesn't exist.
-    </span><span class="kw">pub fn </span>open_manifest(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Manifest&lt;CurrentNetwork&gt;&gt; {
+    </span><span class="kw">pub fn </span>open_manifest&lt;N: Network&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Manifest&lt;N&gt;&gt; {
         <span class="comment">// Open the manifest file.
         </span><span class="kw">let </span>path = <span class="self">self</span>.dir()<span class="question-mark">?</span>;
-        <span class="kw">let </span>manifest = Manifest::&lt;CurrentNetwork&gt;::open(<span class="kw-2">&amp;</span>path).map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?</span>;
+        <span class="kw">let </span>manifest = Manifest::&lt;N&gt;::open(<span class="kw-2">&amp;</span>path).map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?</span>;
 
         <span class="comment">// Lookup the program id.
         // let program_id = manifest.program_id();
@@ -239,7 +239,7 @@
             std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_read_manifest)<span class="question-mark">?</span>;
 
         <span class="comment">// Construct the file path.
-        </span><span class="kw">let </span>build_manifest_path = build_path.join(Manifest::&lt;CurrentNetwork&gt;::file_name());
+        </span><span class="kw">let </span>build_manifest_path = build_path.join(Manifest::&lt;N&gt;::file_name());
 
         <span class="comment">// Write the file.
         </span>File::create(build_manifest_path)

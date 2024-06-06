@@ -400,6 +400,13 @@
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
 <a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -600,8 +607,8 @@
     <span class="doccomment">/// For when the package failed to initialize.
     </span>@backtraced
     failed_to_initialize_package {
-        args: (package: <span class="kw">impl </span>Display, path: <span class="kw">impl </span>Debug),
-        msg: <span class="macro">format!</span>(<span class="string">"failed to initialize package {package} {path:?}"</span>),
+        args: (package: <span class="kw">impl </span>Display, path: <span class="kw">impl </span>Debug, error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to initialize package {package} at {path:?}. Error: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -609,7 +616,7 @@
     </span>@backtraced
     invalid_package_name {
         args: (package: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"invalid project name {package}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid project name {package}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -798,6 +805,13 @@
         args: (),
         msg: <span class="string">"The name of the program to execute on-chain is missing."</span>.to_string(),
         help: <span class="prelude-val">Some</span>(<span class="string">"Either set `--local` to execute the local program on chain, or set `--program &lt;PROGRAM&gt;`."</span>.to_string()),
+    }
+
+    @backtraced
+    failed_to_read_manifest_file {
+        args: (path: <span class="kw">impl </span>Display, error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to read manifest file from the provided file path {path} - {error}"</span>),
+        help: <span class="prelude-val">None</span>,
     }
 );
 </code></pre></div></section></main></body></html>

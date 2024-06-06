@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Execute"]};
+window.SIDEBAR_ITEMS = {"fn":["handle_execute"],"struct":["Execute"]};

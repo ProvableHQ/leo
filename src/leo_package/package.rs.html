@@ -197,6 +197,12 @@
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -214,28 +220,27 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use crate</span>::{
-    build::BuildDirectory,
-    inputs::InputsDirectory,
     root::{Env, Gitignore},
     source::{MainFile, SourceDirectory},
 };
 <span class="kw">use </span>leo_errors::{PackageError, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>snarkvm::console::prelude::Network;
 
+<span class="kw">use </span>leo_retriever::{Manifest, NetworkName};
 <span class="kw">use </span>serde::Deserialize;
-<span class="kw">use </span>std::{marker::PhantomData, path::Path};
+<span class="kw">use </span>snarkvm::prelude::Network;
+<span class="kw">use </span>std::path::Path;
 
 <span class="attr">#[derive(Deserialize)]
-</span><span class="kw">pub struct </span>Package&lt;N: Network&gt; {
+</span><span class="kw">pub struct </span>Package {
     <span class="kw">pub </span>name: String,
     <span class="kw">pub </span>version: String,
     <span class="kw">pub </span>description: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="kw">pub </span>license: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    _phantom: PhantomData&lt;N&gt;,
+    <span class="kw">pub </span>network: NetworkName,
 }
 
-<span class="kw">impl</span>&lt;N: Network&gt; Package&lt;N&gt; {
-    <span class="kw">pub fn </span>new(package_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+<span class="kw">impl </span>Package {
+    <span class="kw">pub fn </span>new(package_name: <span class="kw-2">&amp;</span>str, network: NetworkName) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="comment">// Check that the package name is a valid Aleo program name.
         </span><span class="kw">if </span>!<span class="self">Self</span>::is_aleo_name_valid(package_name) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::invalid_package_name(package_name).into());
@@ -246,7 +251,7 @@
             version: <span class="string">"0.1.0"</span>.to_owned(),
             description: <span class="prelude-val">None</span>,
             license: <span class="prelude-val">None</span>,
-            _phantom: PhantomData,
+            network,
         })
     }
 
@@ -325,73 +330,80 @@
     </span>}
 
     <span class="doccomment">/// Creates a Leo package at the given path
-    </span><span class="kw">pub fn </span>initialize(package_name: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="comment">// Verify that the .gitignore file does not exist.
-        </span><span class="kw">if </span>!Gitignore::exists_at(path) {
-            <span class="comment">// Create the .gitignore file.
-            </span>Gitignore::new().write_to(path)<span class="question-mark">?</span>;
+    </span><span class="kw">pub fn </span>initialize&lt;N: Network&gt;(package_name: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="comment">// Construct the path to the package directory.
+        </span><span class="kw">let </span>path = path.join(package_name);
+
+        <span class="comment">// Verify that there is no existing directory at the path.
+        </span><span class="kw">if </span>path.exists() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(
+                PackageError::failed_to_initialize_package(package_name, <span class="kw-2">&amp;</span>path, <span class="string">"Directory already exists"</span>).into()
+            );
         }
 
-        <span class="comment">// Verify that the .env file does not exist.
-        </span><span class="kw">if </span>!Env::&lt;N&gt;::exists_at(path) {
-            <span class="comment">// Create the .env file.
-            </span>Env::&lt;N&gt;::new()<span class="question-mark">?</span>.write_to(path)<span class="question-mark">?</span>;
-        }
+        <span class="comment">// Create the package directory.
+        </span>std::fs::create_dir(<span class="kw-2">&amp;</span>path).map_err(|e| PackageError::failed_to_initialize_package(package_name, <span class="kw-2">&amp;</span>path, e))<span class="question-mark">?</span>;
+
+        <span class="comment">// Change the current working directory to the package directory.
+        </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>path)
+            .map_err(|e| PackageError::failed_to_initialize_package(package_name, <span class="kw-2">&amp;</span>path, e))<span class="question-mark">?</span>;
+
+        <span class="comment">// Create the .gitignore file.
+        </span>Gitignore::new().write_to(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
+
+        <span class="comment">// Create the .env file.
+        </span>Env::&lt;N&gt;::new()<span class="question-mark">?</span>.write_to(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
+
+        <span class="comment">// Create a manifest.
+        </span><span class="kw">let </span>manifest = Manifest::default(package_name);
+        manifest.write_to_dir(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
 
         <span class="comment">// Create the source directory.
-        </span>SourceDirectory::create(path)<span class="question-mark">?</span>;
-
-        <span class="comment">// Create the inputs directory.
-        </span>InputsDirectory::create(path)<span class="question-mark">?</span>;
-
-        <span class="comment">// Create the Leo build/ directory
-        </span>BuildDirectory::create(path)<span class="question-mark">?</span>;
+        </span>SourceDirectory::create(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
 
         <span class="comment">// Create the main file in the source directory.
-        </span>MainFile::new(package_name).write_to(path)<span class="question-mark">?</span>;
+        </span>MainFile::new(package_name).write_to(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
 
         <span class="comment">// Next, verify that a valid Leo package has been initialized in this directory
-        </span><span class="kw">if </span>!<span class="self">Self</span>::is_initialized(package_name, path) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::failed_to_initialize_package(package_name, path.as_os_str()).into());
+        </span><span class="kw">if </span>!<span class="self">Self</span>::is_initialized(package_name, <span class="kw-2">&amp;</span>path) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::failed_to_initialize_package(
+                package_name,
+                <span class="kw-2">&amp;</span>path,
+                <span class="string">"Failed to correctly initialize package"</span>,
+            )
+            .into());
         }
 
         <span class="prelude-val">Ok</span>(())
     }
-    <span class="comment">//
-    // /// Removes the package at the given path
-    // pub fn remove_imported_package(package_name: &amp;str, path: &amp;Path) -&gt; Result&lt;()&gt; {
-    //     ImportsDirectory::remove_import(path, package_name)
-    // }
-</span>}
+}
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">type </span>CurrentNetwork = snarkvm::prelude::MainnetV0;
-
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_is_package_name_valid() {
-        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo"</span>));
-        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo_bar"</span>));
-        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo1"</span>));
-        <span class="macro">assert!</span>(Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo_bar___baz_"</span>));
+        <span class="macro">assert!</span>(Package::is_aleo_name_valid(<span class="string">"foo"</span>));
+        <span class="macro">assert!</span>(Package::is_aleo_name_valid(<span class="string">"foo_bar"</span>));
+        <span class="macro">assert!</span>(Package::is_aleo_name_valid(<span class="string">"foo1"</span>));
+        <span class="macro">assert!</span>(Package::is_aleo_name_valid(<span class="string">"foo_bar___baz_"</span>));
 
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo-bar"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo-bar-baz"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo-1"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">""</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"-"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"-foo"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"-foo-"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"_foo"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo--bar"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo---bar"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo--bar--baz"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo---bar---baz"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo*bar"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"foo,bar"</span>));
-        <span class="macro">assert!</span>(!Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="string">"1-foo"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"foo-bar"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"foo-bar-baz"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"foo-1"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">""</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"-"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"-foo"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"-foo-"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"_foo"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"foo--bar"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"foo---bar"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"foo--bar--baz"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"foo---bar---baz"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"foo*bar"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"foo,bar"</span>));
+        <span class="macro">assert!</span>(!Package::is_aleo_name_valid(<span class="string">"1-foo"</span>));
     }
 }
 </code></pre></div></section></main></body></html>

@@ -111,25 +111,6 @@
 <a href="#109" id="109">109</a>
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -148,7 +129,6 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_retriever::{Dependency, Manifest};
-<span class="kw">use </span>std::path::PathBuf;
 
 <span class="doccomment">/// Remove a dependency from the current package.
 </span><span class="attr">#[derive(Parser, Debug)]
@@ -160,12 +140,6 @@
         required_unless_present = <span class="string">"all"
     </span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) name: <span class="prelude-ty">Option</span>&lt;String&gt;,
-
-    <span class="attr">#[clap(short = <span class="string">'l'</span>, long, help = <span class="string">"Path to local dependency"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) local: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
-
-    <span class="attr">#[clap(short = <span class="string">'n'</span>, long, help = <span class="string">"Name of the network to use"</span>, default_value = <span class="string">"testnet3"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) network: String,
 
     <span class="attr">#[clap(long, help = <span class="string">"Clear all previous dependencies."</span>, default_value = <span class="string">"false"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) all: bool,
@@ -194,18 +168,8 @@
             .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))<span class="question-mark">?</span>;
 
         <span class="kw">let </span>dependencies: Vec&lt;Dependency&gt; = <span class="kw">if </span>!<span class="self">self</span>.all {
-            <span class="comment">// Make sure the program name is valid.
-            // Allow both `credits.aleo` and `credits` syntax.
-            </span><span class="kw">let </span>name: String = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.name {
-                <span class="prelude-val">Some</span>(name)
-                    <span class="kw">if </span>name.ends_with(<span class="string">".aleo"</span>)
-                        &amp;&amp; Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="kw-2">&amp;</span>name[<span class="number">0</span>..name.len() - <span class="number">5</span>]) =&gt;
-                {
-                    name.clone()
-                }
-                <span class="prelude-val">Some</span>(name) <span class="kw">if </span>Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(name) =&gt; <span class="macro">format!</span>(<span class="string">"{name}.aleo"</span>),
-                name =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::invalid_file_name_dependency(name.clone().unwrap()).into()),
-            };
+            <span class="comment">// Note that this unwrap is safe since `name` is required if `all` is `false`.
+            </span><span class="kw">let </span>name: String = <span class="self">self</span>.name.unwrap().clone();
 
             <span class="kw">let </span><span class="kw-2">mut </span>found_match = <span class="bool-val">false</span>;
             <span class="kw">let </span>dep = <span class="kw">match </span>manifest.dependencies() {
@@ -253,9 +217,7 @@
             manifest.license(),
             <span class="prelude-val">Some</span>(dependencies),
         );
-        <span class="kw">let </span>new_manifest_data = serde_json::to_string_pretty(<span class="kw-2">&amp;</span>new_manifest)
-            .map_err(|err| PackageError::failed_to_serialize_manifest_file(path.to_str().unwrap(), err))<span class="question-mark">?</span>;
-        std::fs::write(path.join(<span class="string">"program.json"</span>), new_manifest_data).map_err(PackageError::failed_to_write_manifest)<span class="question-mark">?</span>;
+        new_manifest.write_to_dir(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }

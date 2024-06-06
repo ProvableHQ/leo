@@ -191,6 +191,19 @@
 <a href="#189" id="189">189</a>
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -209,10 +222,11 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>clap::Parser;
+<span class="kw">use </span>leo_retriever::NetworkName;
 <span class="kw">use </span>snarkos_cli::commands::{Developer, Execute <span class="kw">as </span>SnarkOSExecute};
 <span class="kw">use </span>snarkvm::{
     cli::{helpers::dotenv_private_key, Execute <span class="kw">as </span>SnarkVMExecute},
-    prelude::Parser <span class="kw">as </span>SnarkVMParser,
+    prelude::{MainnetV0, Network, Parser <span class="kw">as </span>SnarkVMParser, TestnetV0},
 };
 
 <span class="doccomment">/// Build, Prove and Run Leo program with inputs
@@ -253,133 +267,145 @@
     }
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, _input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-        <span class="comment">// If the `broadcast` flag is set, then broadcast the transaction.
-        </span><span class="kw">if </span><span class="self">self</span>.broadcast {
-            <span class="comment">// Get the program name.
-            </span><span class="kw">let </span>program_name = <span class="kw">match </span>(<span class="self">self</span>.program, <span class="self">self</span>.local) {
-                (<span class="prelude-val">Some</span>(name), <span class="bool-val">true</span>) =&gt; {
-                    <span class="kw">let </span>local = context.open_manifest()<span class="question-mark">?</span>.program_id().to_string();
-                    <span class="comment">// Throw error if local name doesn't match the specified name.
-                    </span><span class="kw">if </span>name == local {
-                        local
-                    } <span class="kw">else </span>{
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::conflicting_on_chain_program_name(local, name).into());
-                    }
-                }
-                (<span class="prelude-val">Some</span>(name), <span class="bool-val">false</span>) =&gt; name,
-                (<span class="prelude-val">None</span>, <span class="bool-val">true</span>) =&gt; context.open_manifest()<span class="question-mark">?</span>.program_id().to_string(),
-                (<span class="prelude-val">None</span>, <span class="bool-val">false</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::missing_on_chain_program_name().into()),
-            };
-
-            <span class="comment">// Get the private key.
-            </span><span class="kw">let </span>private_key = <span class="kw">match </span><span class="self">self</span>.fee_options.private_key {
-                <span class="prelude-val">Some</span>(private_key) =&gt; private_key,
-                <span class="prelude-val">None </span>=&gt; dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)<span class="question-mark">?</span>.to_string(),
-            };
-
-            <span class="comment">// Set deploy arguments.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>fee_args = <span class="macro">vec!</span>[
-                <span class="string">"snarkos"</span>.to_string(),
-                <span class="string">"--private-key"</span>.to_string(),
-                private_key.clone(),
-                <span class="string">"--query"</span>.to_string(),
-                <span class="self">self</span>.compiler_options.endpoint.clone(),
-                <span class="string">"--priority-fee"</span>.to_string(),
-                <span class="self">self</span>.fee_options.priority_fee.to_string(),
-                <span class="string">"--broadcast"</span>.to_string(),
-                <span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, <span class="self">self</span>.compiler_options.endpoint, <span class="self">self</span>.fee_options.network)
-                    .to_string(),
-            ];
-
-            <span class="comment">// Use record as payment option if it is provided.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(record) = <span class="self">self</span>.fee_options.record.clone() {
-                fee_args.push(<span class="string">"--record"</span>.to_string());
-                fee_args.push(record);
-            };
-
-            <span class="comment">// Execute program.
-            </span>Developer::Execute(
-                SnarkOSExecute::try_parse_from(
-                    [
-                        <span class="comment">// The arguments for determining fee.
-                        </span>fee_args,
-                        <span class="comment">// The program ID and function name.
-                        </span><span class="macro">vec!</span>[program_name, <span class="self">self</span>.name],
-                        <span class="comment">// The function inputs.
-                        </span><span class="self">self</span>.inputs,
-                    ]
-                    .concat(),
-                )
-                .unwrap(),
-            )
-            .parse()
-            .map_err(CliError::failed_to_execute_deploy)<span class="question-mark">?</span>;
-
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+        <span class="comment">// Parse the network.
+        </span><span class="kw">let </span>network = NetworkName::try_from(<span class="self">self</span>.compiler_options.network.as_str())<span class="question-mark">?</span>;
+        <span class="kw">match </span>network {
+            NetworkName::MainnetV0 =&gt; handle_execute::&lt;MainnetV0&gt;(<span class="self">self</span>, context),
+            NetworkName::TestnetV0 =&gt; handle_execute::&lt;TestnetV0&gt;(<span class="self">self</span>, context),
         }
-
-        <span class="comment">// If input values are provided, then run the program with those inputs.
-        // Otherwise, use the input file.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>inputs = <span class="self">self</span>.inputs;
-
-        <span class="comment">// Compose the `execute` command.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[SNARKVM_COMMAND.to_string(), <span class="self">self</span>.name];
-
-        <span class="comment">// Add the inputs to the arguments.
-        </span><span class="kw">match </span><span class="self">self</span>.file {
-            <span class="prelude-val">Some</span>(file) =&gt; {
-                <span class="comment">// Get the contents from the file.
-                </span><span class="kw">let </span>path = context.dir()<span class="question-mark">?</span>.join(file);
-                <span class="kw">let </span>raw_content = std::fs::read_to_string(<span class="kw-2">&amp;</span>path)
-                    .map_err(|err| PackageError::failed_to_read_file(path.display(), err))<span class="question-mark">?</span>;
-                <span class="comment">// Parse the values from the file.
-                </span><span class="kw">let </span><span class="kw-2">mut </span>content = raw_content.as_str();
-                <span class="kw">let </span><span class="kw-2">mut </span>values = <span class="macro">vec!</span>[];
-                <span class="kw">while let </span><span class="prelude-val">Ok</span>((remaining, value)) = snarkvm::prelude::Value::&lt;CurrentNetwork&gt;::parse(content) {
-                    content = remaining;
-                    values.push(value);
-                }
-                <span class="comment">// Check that the remaining content is empty.
-                </span><span class="kw">if </span>!content.trim().is_empty() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::failed_to_read_input_file(path.display()).into());
-                }
-                <span class="comment">// Convert the values to strings.
-                </span><span class="kw">let </span><span class="kw-2">mut </span>inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::&lt;Vec&lt;String&gt;&gt;();
-                <span class="comment">// Add the inputs from the file to the arguments.
-                </span>arguments.append(<span class="kw-2">&amp;mut </span>inputs_from_file);
-            }
-            <span class="prelude-val">None </span>=&gt; arguments.append(<span class="kw-2">&amp;mut </span>inputs),
-        }
-
-        <span class="comment">// Add the compiler options to the arguments.
-        </span><span class="kw">if </span><span class="self">self</span>.compiler_options.offline {
-            arguments.push(String::from(<span class="string">"--offline"</span>));
-        }
-
-        <span class="comment">// Add the endpoint to the arguments.
-        </span>arguments.push(String::from(<span class="string">"--endpoint"</span>));
-        arguments.push(<span class="self">self</span>.compiler_options.endpoint.clone());
-
-        <span class="comment">// Open the Leo build/ directory.
-        </span><span class="kw">let </span>path = context.dir()<span class="question-mark">?</span>;
-        <span class="kw">let </span>build_directory = BuildDirectory::open(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
-
-        <span class="comment">// Change the cwd to the Leo build/ directory to compile aleo files.
-        </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>build_directory)
-            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))<span class="question-mark">?</span>;
-
-        <span class="comment">// Unset the Leo panic hook.
-        </span><span class="kw">let _ </span>= std::panic::take_hook();
-
-        <span class="comment">// Call the `execute` command.
-        </span><span class="macro">println!</span>();
-        <span class="kw">let </span>command = SnarkVMExecute::try_parse_from(<span class="kw-2">&amp;</span>arguments).map_err(CliError::failed_to_parse_execute)<span class="question-mark">?</span>;
-        <span class="kw">let </span>res = command.parse().map_err(CliError::failed_to_execute_execute)<span class="question-mark">?</span>;
-
-        <span class="comment">// Log the output of the `execute` command.
-        </span><span class="macro">tracing::info!</span>(<span class="string">"{}"</span>, res);
-
-        <span class="prelude-val">Ok</span>(())
     }
+}
+
+<span class="comment">// A helper function to handle the `execute` command.
+</span><span class="kw">fn </span>handle_execute&lt;N: Network&gt;(command: Execute, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Execute <span class="kw">as </span>Command&gt;::Output&gt; {
+    <span class="comment">// If the `broadcast` flag is set, then broadcast the transaction.
+    </span><span class="kw">if </span>command.broadcast {
+        <span class="comment">// Get the program name.
+        </span><span class="kw">let </span>program_name = <span class="kw">match </span>(command.program, command.local) {
+            (<span class="prelude-val">Some</span>(name), <span class="bool-val">true</span>) =&gt; {
+                <span class="kw">let </span>local = context.open_manifest::&lt;N&gt;()<span class="question-mark">?</span>.program_id().to_string();
+                <span class="comment">// Throw error if local name doesn't match the specified name.
+                </span><span class="kw">if </span>name == local {
+                    local
+                } <span class="kw">else </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::conflicting_on_chain_program_name(local, name).into());
+                }
+            }
+            (<span class="prelude-val">Some</span>(name), <span class="bool-val">false</span>) =&gt; name,
+            (<span class="prelude-val">None</span>, <span class="bool-val">true</span>) =&gt; context.open_manifest::&lt;N&gt;()<span class="question-mark">?</span>.program_id().to_string(),
+            (<span class="prelude-val">None</span>, <span class="bool-val">false</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::missing_on_chain_program_name().into()),
+        };
+
+        <span class="comment">// Get the private key.
+        </span><span class="kw">let </span>private_key = <span class="kw">match </span>command.fee_options.private_key {
+            <span class="prelude-val">Some</span>(private_key) =&gt; private_key,
+            <span class="prelude-val">None </span>=&gt; dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)<span class="question-mark">?</span>.to_string(),
+        };
+
+        <span class="comment">// Set deploy arguments.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>fee_args = <span class="macro">vec!</span>[
+            <span class="string">"snarkos"</span>.to_string(),
+            <span class="string">"--private-key"</span>.to_string(),
+            private_key.clone(),
+            <span class="string">"--query"</span>.to_string(),
+            command.compiler_options.endpoint.clone(),
+            <span class="string">"--priority-fee"</span>.to_string(),
+            command.fee_options.priority_fee.to_string(),
+            <span class="string">"--network"</span>.to_string(),
+            N::ID.to_string(),
+            <span class="string">"--broadcast"</span>.to_string(),
+            <span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, command.compiler_options.endpoint, command.compiler_options.network)
+                .to_string(),
+        ];
+
+        <span class="comment">// Use record as payment option if it is provided.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(record) = command.fee_options.record.clone() {
+            fee_args.push(<span class="string">"--record"</span>.to_string());
+            fee_args.push(record);
+        };
+
+        <span class="comment">// Execute program.
+        </span>Developer::Execute(
+            SnarkOSExecute::try_parse_from(
+                [
+                    <span class="comment">// The arguments for determining fee.
+                    </span>fee_args,
+                    <span class="comment">// The program ID and function name.
+                    </span><span class="macro">vec!</span>[program_name, command.name],
+                    <span class="comment">// The function inputs.
+                    </span>command.inputs,
+                ]
+                .concat(),
+            )
+            .unwrap(),
+        )
+        .parse()
+        .map_err(CliError::failed_to_execute_deploy)<span class="question-mark">?</span>;
+
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+    }
+
+    <span class="comment">// If input values are provided, then run the program with those inputs.
+    // Otherwise, use the input file.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>inputs = command.inputs;
+
+    <span class="comment">// Compose the `execute` command.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[SNARKVM_COMMAND.to_string(), command.name];
+
+    <span class="comment">// Add the inputs to the arguments.
+    </span><span class="kw">match </span>command.file {
+        <span class="prelude-val">Some</span>(file) =&gt; {
+            <span class="comment">// Get the contents from the file.
+            </span><span class="kw">let </span>path = context.dir()<span class="question-mark">?</span>.join(file);
+            <span class="kw">let </span>raw_content =
+                std::fs::read_to_string(<span class="kw-2">&amp;</span>path).map_err(|err| PackageError::failed_to_read_file(path.display(), err))<span class="question-mark">?</span>;
+            <span class="comment">// Parse the values from the file.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>content = raw_content.as_str();
+            <span class="kw">let </span><span class="kw-2">mut </span>values = <span class="macro">vec!</span>[];
+            <span class="kw">while let </span><span class="prelude-val">Ok</span>((remaining, value)) = snarkvm::prelude::Value::&lt;N&gt;::parse(content) {
+                content = remaining;
+                values.push(value);
+            }
+            <span class="comment">// Check that the remaining content is empty.
+            </span><span class="kw">if </span>!content.trim().is_empty() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::failed_to_read_input_file(path.display()).into());
+            }
+            <span class="comment">// Convert the values to strings.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::&lt;Vec&lt;String&gt;&gt;();
+            <span class="comment">// Add the inputs from the file to the arguments.
+            </span>arguments.append(<span class="kw-2">&amp;mut </span>inputs_from_file);
+        }
+        <span class="prelude-val">None </span>=&gt; arguments.append(<span class="kw-2">&amp;mut </span>inputs),
+    }
+
+    <span class="comment">// Add the compiler options to the arguments.
+    </span><span class="kw">if </span>command.compiler_options.offline {
+        arguments.push(String::from(<span class="string">"--offline"</span>));
+    }
+
+    <span class="comment">// Add the endpoint to the arguments.
+    </span>arguments.push(String::from(<span class="string">"--endpoint"</span>));
+    arguments.push(command.compiler_options.endpoint.clone());
+
+    <span class="comment">// Open the Leo build/ directory.
+    </span><span class="kw">let </span>path = context.dir()<span class="question-mark">?</span>;
+    <span class="kw">let </span>build_directory = BuildDirectory::open(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
+
+    <span class="comment">// Change the cwd to the Leo build/ directory to compile aleo files.
+    </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>build_directory)
+        .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))<span class="question-mark">?</span>;
+
+    <span class="comment">// Unset the Leo panic hook.
+    </span><span class="kw">let _ </span>= std::panic::take_hook();
+
+    <span class="comment">// Call the `execute` command.
+    </span><span class="macro">println!</span>();
+    <span class="kw">let </span>command = SnarkVMExecute::try_parse_from(<span class="kw-2">&amp;</span>arguments).map_err(CliError::failed_to_parse_execute)<span class="question-mark">?</span>;
+    <span class="kw">let </span>res = command.parse().map_err(CliError::failed_to_execute_execute)<span class="question-mark">?</span>;
+
+    <span class="comment">// Log the output of the `execute` command.
+    </span><span class="macro">tracing::info!</span>(<span class="string">"{}"</span>, res);
+
+    <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div></section></main></body></html>

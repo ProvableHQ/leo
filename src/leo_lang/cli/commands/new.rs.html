@@ -62,37 +62,6 @@
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -110,14 +79,17 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>snarkvm::prelude::{MainnetV0, TestnetV0};
 
-<span class="kw">use </span>snarkvm::{cli::New <span class="kw">as </span>SnarkVMNew, file::AleoFile};
+<span class="kw">use </span>leo_retriever::NetworkName;
 
 <span class="doccomment">/// Create new Leo project
 </span><span class="attr">#[derive(Parser, Debug)]
 </span><span class="kw">pub struct </span>New {
     <span class="attr">#[clap(name = <span class="string">"NAME"</span>, help = <span class="string">"Set package name"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) name: String,
+    <span class="attr">#[clap(short = <span class="string">'n'</span>, long, help = <span class="string">"Name of the network to use"</span>, default_value = <span class="string">"mainnet"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) network: String,
 }
 
 <span class="kw">impl </span>Command <span class="kw">for </span>New {
@@ -133,55 +105,21 @@
     }
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="comment">// Parse the network.
+        </span><span class="kw">let </span>network = NetworkName::try_from(<span class="self">self</span>.network.as_str())<span class="question-mark">?</span>;
+
         <span class="comment">// Derive the location of the parent directory to the project.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>package_path = context.parent_dir()<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>package_path = context.parent_dir()<span class="question-mark">?</span>;
 
         <span class="comment">// Change the cwd to the Leo package directory to initialize all files.
         </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>package_path)
             .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))<span class="question-mark">?</span>;
 
-        <span class="comment">// Call the `aleo new` command from the Aleo SDK.
-        </span><span class="kw">let </span>command =
-            SnarkVMNew::try_parse_from([SNARKVM_COMMAND, <span class="kw-2">&amp;</span><span class="self">self</span>.name]).map_err(CliError::failed_to_parse_new)<span class="question-mark">?</span>;
-        <span class="kw">let </span>result = command.parse().map_err(CliError::failed_to_execute_new)<span class="question-mark">?</span>;
-
-        <span class="comment">// Log the output of the `aleo new` command.
-        </span><span class="macro">tracing::info!</span>(<span class="string">"{}"</span>, result);
-
-        <span class="comment">// Initialize the Leo package in the directory created by `aleo new`.
-        </span>package_path.push(<span class="kw-2">&amp;</span><span class="self">self</span>.name);
-        std::env::set_current_dir(<span class="kw-2">&amp;</span>package_path)
-            .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))<span class="question-mark">?</span>;
-        Package::&lt;CurrentNetwork&gt;::initialize(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
-
-        <span class="comment">// Open the program manifest.
-        </span><span class="kw">let </span>manifest = context.open_manifest()<span class="question-mark">?</span>;
-
-        <span class="comment">// Create a path to the build directory.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>build_directory = package_path.clone();
-        build_directory.push(BUILD_DIRECTORY_NAME);
-
-        <span class="comment">// Write the Aleo file into the build directory.
-        </span>AleoFile::create(<span class="kw-2">&amp;</span>build_directory, manifest.program_id(), <span class="bool-val">true</span>)
-            .map_err(PackageError::failed_to_create_aleo_file)<span class="question-mark">?</span>;
-
-        <span class="comment">// build_aleo_file.push(AleoFile::&lt;Network&gt;::main_file_name());
-        //
-        // println!("{}", build_aleo_file.display());
-        //
-        //
-        // std::fs::File::create(build_aleo_file).map_err()
-        // aleo_file.write_to(&amp;build_aleo_file).map_err(PackageError::failed_to_write_aleo_file)?;
-
-        // Open the `main.aleo` file path.
-        </span><span class="kw">let </span>aleo_file = AleoFile::open(<span class="kw-2">&amp;</span>package_path, manifest.program_id(), <span class="bool-val">true</span>)
-            .map_err(PackageError::failed_to_open_aleo_file)<span class="question-mark">?</span>;
-
-        <span class="kw">let </span><span class="kw-2">mut </span>aleo_file_path = package_path.clone();
-        aleo_file_path.push(AleoFile::&lt;CurrentNetwork&gt;::main_file_name());
-
-        <span class="comment">// Remove the Aleo file from the package directory.
-        </span>aleo_file.remove(<span class="kw-2">&amp;</span>aleo_file_path).map_err(PackageError::failed_to_remove_aleo_file)<span class="question-mark">?</span>;
+        <span class="comment">// Initialize the package.
+        </span><span class="kw">match </span>network {
+            NetworkName::MainnetV0 =&gt; Package::initialize::&lt;MainnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>package_path),
+            NetworkName::TestnetV0 =&gt; Package::initialize::&lt;TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>package_path),
+        }<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }

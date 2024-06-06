@@ -220,7 +220,6 @@
 <a href="#218" id="218">218</a>
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -241,17 +240,21 @@
 
 <span class="kw">use </span>leo_ast::Stub;
 <span class="kw">use </span>leo_compiler::{Compiler, CompilerOptions, OutputOptions};
-<span class="kw">use </span>leo_errors::UtilError;
+<span class="kw">use </span>leo_errors::{CliError, UtilError};
 <span class="kw">use </span>leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
-<span class="kw">use </span>leo_retriever::Retriever;
+<span class="kw">use </span>leo_retriever::{Manifest, NetworkName, Retriever};
 <span class="kw">use </span>leo_span::Symbol;
 
-<span class="kw">use </span>snarkvm::{package::Package, prelude::ProgramID};
+<span class="kw">use </span>snarkvm::{
+    package::Package,
+    prelude::{MainnetV0, Network, ProgramID, TestnetV0},
+};
 
 <span class="kw">use </span>indexmap::IndexMap;
 <span class="kw">use </span>std::{
     io::Write,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
 <span class="kw">impl </span>From&lt;BuildOptions&gt; <span class="kw">for </span>CompilerOptions {
@@ -311,101 +314,96 @@
     }
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-        <span class="comment">// Get the package path.
-        </span><span class="kw">let </span>package_path = context.dir()<span class="question-mark">?</span>;
-        <span class="kw">let </span>home_path = context.home()<span class="question-mark">?</span>;
+        <span class="comment">// Parse the network.
+        </span><span class="kw">let </span>network = NetworkName::try_from(<span class="self">self</span>.options.network.as_str())<span class="question-mark">?</span>;
+        <span class="kw">match </span>network {
+            NetworkName::MainnetV0 =&gt; handle_build::&lt;MainnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context),
+            NetworkName::TestnetV0 =&gt; handle_build::&lt;TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context),
+        }
+    }
+}
 
-        <span class="comment">// Open the build directory.
-        </span><span class="kw">let </span>build_directory = BuildDirectory::create(<span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
+<span class="comment">// A helper function to handle the build command.
+</span><span class="kw">fn </span>handle_build&lt;N: Network&gt;(command: <span class="kw-2">&amp;</span>Build, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Build <span class="kw">as </span>Command&gt;::Output&gt; {
+    <span class="comment">// Get the package path.
+    </span><span class="kw">let </span>package_path = context.dir()<span class="question-mark">?</span>;
+    <span class="kw">let </span>home_path = context.home()<span class="question-mark">?</span>;
 
-        <span class="comment">// Get the program id.
-        </span><span class="kw">let </span>manifest = context.open_manifest()<span class="question-mark">?</span>;
-        <span class="kw">let </span>program_id = manifest.program_id();
+    <span class="comment">// Get the program id.
+    </span><span class="kw">let </span>manifest = Manifest::read_from_dir(<span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
+    <span class="kw">let </span>program_id = ProgramID::&lt;N&gt;::from_str(manifest.program())<span class="question-mark">?</span>;
 
-        <span class="comment">// Initialize error handler
-        </span><span class="kw">let </span>handler = Handler::default();
+    <span class="comment">// Clear and recreate the build directory.
+    </span><span class="kw">let </span>build_directory = package_path.join(<span class="string">"build"</span>);
+    <span class="kw">if </span>build_directory.exists() {
+        std::fs::remove_dir_all(<span class="kw-2">&amp;</span>build_directory).map_err(CliError::build_error)<span class="question-mark">?</span>;
+    }
+    Package::create(<span class="kw-2">&amp;</span>build_directory, <span class="kw-2">&amp;</span>program_id).map_err(CliError::build_error)<span class="question-mark">?</span>;
 
-        <span class="comment">// Retrieve all local dependencies in post order
-        </span><span class="kw">let </span>main_sym = Symbol::intern(<span class="kw-2">&amp;</span>program_id.name().to_string());
-        <span class="kw">let </span><span class="kw-2">mut </span>retriever =
-            Retriever::&lt;CurrentNetwork&gt;::new(main_sym, <span class="kw-2">&amp;</span>package_path, <span class="kw-2">&amp;</span>home_path, <span class="self">self</span>.options.endpoint.clone())
-                .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>local_dependencies =
-            retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
+    <span class="comment">// Initialize error handler
+    </span><span class="kw">let </span>handler = Handler::default();
 
-        <span class="comment">// Push the main program at the end of the list to be compiled after all of its dependencies have been processed
-        </span>local_dependencies.push(main_sym);
+    <span class="comment">// Retrieve all local dependencies in post order
+    </span><span class="kw">let </span>main_sym = Symbol::intern(<span class="kw-2">&amp;</span>program_id.name().to_string());
+    <span class="kw">let </span><span class="kw-2">mut </span>retriever = Retriever::&lt;N&gt;::new(main_sym, <span class="kw-2">&amp;</span>package_path, <span class="kw-2">&amp;</span>home_path, command.options.endpoint.clone())
+        .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>local_dependencies =
+        retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
 
-        <span class="comment">// Recursive build will recursively compile all local dependencies. Can disable to save compile time.
-        </span><span class="kw">let </span>recursive_build = !<span class="self">self</span>.options.non_recursive;
+    <span class="comment">// Push the main program at the end of the list to be compiled after all of its dependencies have been processed
+    </span>local_dependencies.push(main_sym);
 
-        <span class="comment">// Loop through all local dependencies and compile them in order
-        </span><span class="kw">for </span>dependency <span class="kw">in </span>local_dependencies.into_iter() {
-            <span class="kw">if </span>recursive_build || dependency == main_sym {
-                <span class="comment">// Get path to the local project
-                </span><span class="kw">let </span>(local_path, stubs) = retriever.prepare_local(dependency)<span class="question-mark">?</span>;
+    <span class="comment">// Recursive build will recursively compile all local dependencies. Can disable to save compile time.
+    </span><span class="kw">let </span>recursive_build = !command.options.non_recursive;
 
-                <span class="comment">// Create the outputs directory.
-                </span><span class="kw">let </span>local_outputs_directory = OutputsDirectory::create(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
+    <span class="comment">// Loop through all local dependencies and compile them in order
+    </span><span class="kw">for </span>dependency <span class="kw">in </span>local_dependencies.into_iter() {
+        <span class="kw">if </span>recursive_build || dependency == main_sym {
+            <span class="comment">// Get path to the local project
+            </span><span class="kw">let </span>(local_path, stubs) = retriever.prepare_local(dependency)<span class="question-mark">?</span>;
 
-                <span class="comment">// Open the build directory.
-                </span><span class="kw">let </span>local_build_directory = BuildDirectory::create(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
+            <span class="comment">// Create the outputs directory.
+            </span><span class="kw">let </span>local_outputs_directory = OutputsDirectory::create(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
 
-                <span class="comment">// Fetch paths to all .leo files in the source directory.
-                </span><span class="kw">let </span>local_source_files = SourceDirectory::files(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
+            <span class="comment">// Open the build directory.
+            </span><span class="kw">let </span>local_build_directory = BuildDirectory::create(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
 
-                <span class="comment">// Check the source files.
-                </span>SourceDirectory::check_files(<span class="kw-2">&amp;</span>local_source_files)<span class="question-mark">?</span>;
+            <span class="comment">// Fetch paths to all .leo files in the source directory.
+            </span><span class="kw">let </span>local_source_files = SourceDirectory::files(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
 
-                <span class="comment">// Compile all .leo files into .aleo files.
-                </span><span class="kw">for </span>file_path <span class="kw">in </span>local_source_files {
-                    compile_leo_file(
-                        file_path,
-                        <span class="kw-2">&amp;</span>ProgramID::&lt;CurrentNetwork&gt;::try_from(<span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, dependency))
-                            .map_err(|<span class="kw">_</span>| UtilError::snarkvm_error_building_program_id(Default::default()))<span class="question-mark">?</span>,
-                        <span class="kw-2">&amp;</span>local_outputs_directory,
-                        <span class="kw-2">&amp;</span>local_build_directory,
-                        <span class="kw-2">&amp;</span>handler,
-                        <span class="self">self</span>.options.clone(),
-                        stubs.clone(),
-                    )<span class="question-mark">?</span>;
-                }
+            <span class="comment">// Check the source files.
+            </span>SourceDirectory::check_files(<span class="kw-2">&amp;</span>local_source_files)<span class="question-mark">?</span>;
+
+            <span class="comment">// Compile all .leo files into .aleo files.
+            </span><span class="kw">for </span>file_path <span class="kw">in </span>local_source_files {
+                compile_leo_file(
+                    file_path,
+                    <span class="kw-2">&amp;</span>ProgramID::&lt;N&gt;::try_from(<span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, dependency))
+                        .map_err(|<span class="kw">_</span>| UtilError::snarkvm_error_building_program_id(Default::default()))<span class="question-mark">?</span>,
+                    <span class="kw-2">&amp;</span>local_outputs_directory,
+                    <span class="kw-2">&amp;</span>local_build_directory,
+                    <span class="kw-2">&amp;</span>handler,
+                    command.options.clone(),
+                    stubs.clone(),
+                )<span class="question-mark">?</span>;
             }
-
-            <span class="comment">// Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
-            </span>retriever.process_local(dependency, recursive_build)<span class="question-mark">?</span>;
         }
 
-        <span class="comment">// `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
-        </span>Package::&lt;CurrentNetwork&gt;::open(<span class="kw-2">&amp;</span>build_directory).map_err(CliError::failed_to_execute_build)<span class="question-mark">?</span>;
-
-        <span class="comment">// // Unset the Leo panic hook.
-        // let _ = std::panic::take_hook();
-        //
-        // // Change the cwd to the build directory to compile aleo files.
-        // std::env::set_current_dir(&amp;build_directory)
-        //     .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
-        //
-        // // Call the `build` command.
-        // let mut args = vec![SNARKVM_COMMAND];
-        // if self.options.offline {
-        //     args.push("--offline");
-        // }
-        // let command = AleoBuild::try_parse_from(&amp;args).map_err(CliError::failed_to_execute_aleo_build)?;
-        // let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
-        //
-        // // Log the result of the build
-        // tracing::info!("{}", result);
-
-        </span><span class="prelude-val">Ok</span>(())
+        <span class="comment">// Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
+        </span>retriever.process_local(dependency, recursive_build)<span class="question-mark">?</span>;
     }
+
+    <span class="comment">// `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
+    </span>Package::&lt;N&gt;::open(<span class="kw-2">&amp;</span>build_directory).map_err(CliError::failed_to_execute_build)<span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="doccomment">/// Compiles a Leo file in the `src/` directory.
 </span><span class="attr">#[allow(clippy::too_many_arguments)]
-</span><span class="kw">fn </span>compile_leo_file(
+</span><span class="kw">fn </span>compile_leo_file&lt;N: Network&gt;(
     file_path: PathBuf,
-    program_id: <span class="kw-2">&amp;</span>ProgramID&lt;CurrentNetwork&gt;,
+    program_id: <span class="kw-2">&amp;</span>ProgramID&lt;N&gt;,
     outputs: <span class="kw-2">&amp;</span>Path,
     build: <span class="kw-2">&amp;</span>Path,
     handler: <span class="kw-2">&amp;</span>Handler,
@@ -420,7 +418,7 @@
     aleo_file_path.push(<span class="macro">format!</span>(<span class="string">"main.{}"</span>, program_id.network()));
 
     <span class="comment">// Create a new instance of the Leo compiler.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::&lt;CurrentNetwork&gt;::new(
+    </span><span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::&lt;N&gt;::new(
         program_name.clone(),
         program_id.network().to_string(),
         handler,

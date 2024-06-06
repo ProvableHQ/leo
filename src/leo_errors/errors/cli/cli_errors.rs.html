@@ -225,6 +225,27 @@
 <a href="#223" id="223">223</a>
 <a href="#224" id="224">224</a>
 <a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -320,7 +341,7 @@
     @backtraced
     failed_to_load_instructions {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to load compiled Aleo instructions into an Aleo file.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to load compiled Aleo instructions into an Aleo file.\nError: {error}"</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"Generated Aleo instructions have been left in `main.aleo`"</span>.to_string()),
     }
 
@@ -334,84 +355,84 @@
     @backtraced
     failed_to_execute_build {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `build` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `build` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_execute_new {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `new` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `new` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_execute_run {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `run` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `run` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_execute_node {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `node` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `node` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_execute_deploy {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `deploy` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `deploy` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_parse_new {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the `new` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the `new` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_parse_run {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the `run` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the `run` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_parse_node {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the `node` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the `node` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_parse_deploy {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the `deploy` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the `deploy` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_parse_execute {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the `execute` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the `execute` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_execute_execute {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `execute` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `execute` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_parse_seed {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the seed string for account.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the seed string for account.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -425,14 +446,14 @@
     @backtraced
     failed_to_parse_private_key {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse private key.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse private key.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
     failed_to_execute_account {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `account` command.\nSnarkVM Error: {error}"</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `account` command.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -447,6 +468,27 @@
     recursive_deploy_with_record {
         args: (),
         msg: <span class="string">"Cannot combine recursive deploy with private fee."</span>.to_string(),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    invalid_network_name {
+        args: (network: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid network name: {network}"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Valid network names are `testnet` and `mainnet`."</span>.to_string()),
+    }
+
+    @backtraced
+    invalid_example {
+        args: (example: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid Leo example: {example}"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Valid Leo examples are `lottery`, `tictactoe`, and `token`."</span>.to_string()),
+    }
+
+    @backtraced
+    build_error {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to build program: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

@@ -396,6 +396,60 @@
 <a href="#394" id="394">394</a>
 <a href="#395" id="395">395</a>
 <a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -416,14 +470,15 @@
 <span class="kw">use </span>leo_errors::UtilError;
 <span class="kw">use </span>leo_package::root::Env;
 <span class="kw">use </span>snarkvm::{
-    cli::dotenv_private_key,
     console::program::{Signature, ToFields, Value},
     prelude::{Address, PrivateKey, ViewKey},
 };
 
 <span class="kw">use </span>crossterm::ExecutableCommand;
+<span class="kw">use </span>leo_retriever::NetworkName;
 <span class="kw">use </span>rand::SeedableRng;
 <span class="kw">use </span>rand_chacha::ChaChaRng;
+<span class="kw">use </span>snarkvm::prelude::{MainnetV0, Network, TestnetV0};
 <span class="kw">use </span>std::{
     io::{<span class="self">self</span>, Read, Write},
     path::PathBuf,
@@ -444,23 +499,27 @@
         <span class="doccomment">/// Print sensitive information (such as private key) discreetly to an alternate screen
         </span><span class="attr">#[clap(long)]
         </span>discreet: bool,
+        <span class="attr">#[clap(short = <span class="string">'n'</span>, long, help = <span class="string">"Name of the network to use"</span>, default_value = <span class="string">"mainnet"</span>)]
+        </span>network: String,
     },
     <span class="doccomment">/// Derive an Aleo account from a private key.
     </span>Import {
         <span class="doccomment">/// Private key plaintext
-        </span>private_key: <span class="prelude-ty">Option</span>&lt;PrivateKey&lt;CurrentNetwork&gt;&gt;,
+        </span>private_key: <span class="prelude-ty">Option</span>&lt;String&gt;,
         <span class="doccomment">/// Write the private key to the .env file.
         </span><span class="attr">#[clap(short = <span class="string">'w'</span>, long)]
         </span>write: bool,
         <span class="doccomment">/// Print sensitive information (such as private key) discreetly to an alternate screen
         </span><span class="attr">#[clap(long)]
         </span>discreet: bool,
+        <span class="attr">#[clap(short = <span class="string">'n'</span>, long, help = <span class="string">"Name of the network to use"</span>, default_value = <span class="string">"mainnet"</span>)]
+        </span>network: String,
     },
     <span class="doccomment">/// Sign a message using your Aleo private key.
     </span>Sign {
         <span class="doccomment">/// Specify the account private key of the node
         </span><span class="attr">#[clap(long = <span class="string">"private-key"</span>)]
-        </span>private_key: <span class="prelude-ty">Option</span>&lt;PrivateKey&lt;CurrentNetwork&gt;&gt;,
+        </span>private_key: <span class="prelude-ty">Option</span>&lt;String&gt;,
         <span class="doccomment">/// Specify the path to a file containing the account private key of the node
         </span><span class="attr">#[clap(long = <span class="string">"private-key-file"</span>)]
         </span>private_key_file: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -473,12 +532,14 @@
         <span class="doccomment">/// When enabled, parses the message as bytes instead of Aleo literals
         </span><span class="attr">#[clap(short = <span class="string">'r'</span>, long)]
         </span>raw: bool,
+        <span class="attr">#[clap(short = <span class="string">'n'</span>, long, help = <span class="string">"Name of the network to use"</span>, default_value = <span class="string">"mainnet"</span>)]
+        </span>network: String,
     },
     <span class="doccomment">/// Verify a message from an Aleo address.
     </span>Verify {
         <span class="doccomment">/// Address to use for verification
         </span><span class="attr">#[clap(short = <span class="string">'a'</span>, long)]
-        </span>address: Address&lt;CurrentNetwork&gt;,
+        </span>address: String,
         <span class="doccomment">/// Signature to verify
         </span><span class="attr">#[clap(short = <span class="string">'s'</span>, long)]
         </span>signature: String,
@@ -488,6 +549,8 @@
         <span class="doccomment">/// When enabled, parses the message as bytes instead of Aleo literals
         </span><span class="attr">#[clap(short = <span class="string">'r'</span>, long)]
         </span>raw: bool,
+        <span class="attr">#[clap(short = <span class="string">'n'</span>, long, help = <span class="string">"Name of the network to use"</span>, default_value = <span class="string">"mainnet"</span>)]
+        </span>network: String,
     },
 }
 
@@ -507,79 +570,43 @@
         </span><span class="self">Self</span>: Sized,
     {
         <span class="kw">match </span><span class="self">self </span>{
-            Account::New { seed, write, discreet } =&gt; {
-                <span class="comment">// Sample a new Aleo account.
-                </span><span class="kw">let </span>private_key = <span class="kw">match </span>seed {
-                    <span class="comment">// Recover the field element deterministically.
-                    </span><span class="prelude-val">Some</span>(seed) =&gt; PrivateKey::new(<span class="kw-2">&amp;mut </span>ChaChaRng::seed_from_u64(seed)),
-                    <span class="comment">// Sample a random field element.
-                    </span><span class="prelude-val">None </span>=&gt; PrivateKey::new(<span class="kw-2">&amp;mut </span>ChaChaRng::from_entropy()),
-                }
-                .map_err(CliError::failed_to_parse_seed)<span class="question-mark">?</span>;
-
-                <span class="comment">// Derive the view key and address and print to stdout.
-                </span>print_keys(private_key, discreet)<span class="question-mark">?</span>;
-
-                <span class="comment">// Save key data to .env file.
-                </span><span class="kw">if </span>write {
-                    write_to_env_file(private_key, <span class="kw-2">&amp;</span>ctx)<span class="question-mark">?</span>;
-                }
-            }
-            Account::Import { private_key, write, discreet } =&gt; {
-                <span class="kw">let </span>priv_key = <span class="kw">match </span>discreet {
-                    <span class="bool-val">true </span>=&gt; {
-                        <span class="kw">let </span>private_key_input = rpassword::prompt_password(<span class="string">"Please enter your private key: "</span>).unwrap();
-                        snarkvm::prelude::FromStr::from_str(<span class="kw-2">&amp;</span>private_key_input)
-                            .map_err(CliError::failed_to_parse_private_key)<span class="question-mark">?
-                    </span>}
-                    <span class="bool-val">false </span>=&gt; <span class="kw">match </span>private_key {
-                        <span class="prelude-val">Some</span>(private_key) =&gt; private_key,
-                        <span class="prelude-val">None </span>=&gt; {
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::failed_to_execute_account(
-                                <span class="string">"PRIVATE_KEY shouldn't be empty when --discreet is false"</span>,
-                            )
-                            .into());
-                        }
-                    },
-                };
-                <span class="comment">// Derive the view key and address and print to stdout.
-                </span>print_keys(priv_key, discreet)<span class="question-mark">?</span>;
-
-                <span class="comment">// Save key data to .env file.
-                </span><span class="kw">if </span>write {
-                    write_to_env_file(priv_key, <span class="kw-2">&amp;</span>ctx)<span class="question-mark">?</span>;
-                }
-            }
-            <span class="self">Self</span>::Sign { message, seed, raw, private_key, private_key_file } =&gt; {
-                <span class="kw">let </span>key = <span class="kw">match </span>(private_key, private_key_file) {
-                    (<span class="prelude-val">Some</span>(private_key), <span class="prelude-val">None</span>) =&gt; private_key,
-                    (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(private_key_file)) =&gt; {
-                        <span class="kw">let </span>path = private_key_file
-                            .parse::&lt;PathBuf&gt;()
-                            .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"invalid path - {e}"</span>)))<span class="question-mark">?</span>;
-                        <span class="kw">let </span>key_str = std::fs::read_to_string(path).map_err(UtilError::failed_to_read_file)<span class="question-mark">?</span>;
-                        PrivateKey::&lt;CurrentNetwork&gt;::from_str(key_str.trim())
-                            .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"could not parse private key: {e}"</span>)))<span class="question-mark">?
-                    </span>}
-                    (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
-                        <span class="comment">// Attempt to pull private key from env, then .env file
-                        </span><span class="kw">match </span>dotenvy::var(<span class="string">"PRIVATE_KEY"</span>)
-                            .map_or_else(|<span class="kw">_</span>| dotenv_private_key(), |key| PrivateKey::&lt;CurrentNetwork&gt;::from_str(<span class="kw-2">&amp;</span>key))
-                        {
-                            <span class="prelude-val">Ok</span>(key) =&gt; key,
-                            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(CliError::cli_invalid_input(
-                                <span class="string">"missing the '--private-key', '--private-key-file', PRIVATE_KEY env, or .env"</span>,
-                            ))<span class="question-mark">?</span>,
-                        }
+            Account::New { seed, write, discreet, network } =&gt; {
+                <span class="comment">// Parse the network.
+                </span><span class="kw">let </span>network = NetworkName::try_from(network.as_str())<span class="question-mark">?</span>;
+                <span class="kw">match </span>network {
+                    NetworkName::MainnetV0 =&gt; generate_new_account::&lt;MainnetV0&gt;(seed, write, discreet, <span class="kw-2">&amp;</span>ctx),
+                    NetworkName::TestnetV0 =&gt; generate_new_account::&lt;TestnetV0&gt;(seed, write, discreet, <span class="kw-2">&amp;</span>ctx),
+                }<span class="question-mark">?
+            </span>}
+            Account::Import { private_key, write, discreet, network } =&gt; {
+                <span class="comment">// Parse the network.
+                </span><span class="kw">let </span>network = NetworkName::try_from(network.as_str())<span class="question-mark">?</span>;
+                <span class="kw">match </span>network {
+                    NetworkName::MainnetV0 =&gt; import_account::&lt;MainnetV0&gt;(private_key, write, discreet, <span class="kw-2">&amp;</span>ctx),
+                    NetworkName::TestnetV0 =&gt; import_account::&lt;TestnetV0&gt;(private_key, write, discreet, <span class="kw-2">&amp;</span>ctx),
+                }<span class="question-mark">?
+            </span>}
+            <span class="self">Self</span>::Sign { message, seed, raw, private_key, private_key_file, network } =&gt; {
+                <span class="comment">// Parse the network.
+                </span><span class="kw">let </span>network = NetworkName::try_from(network.as_str())<span class="question-mark">?</span>;
+                <span class="kw">let </span>result = <span class="kw">match </span>network {
+                    NetworkName::MainnetV0 =&gt; {
+                        sign_message::&lt;MainnetV0&gt;(message, seed, raw, private_key, private_key_file)
                     }
-                    (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(CliError::cli_invalid_input(
-                        <span class="string">"cannot specify both the '--private-key' and '--private-key-file' flags"</span>,
-                    ))<span class="question-mark">?</span>,
-                };
-                <span class="macro">println!</span>(<span class="string">"{}"</span>, sign_message(key, message, seed, raw)<span class="question-mark">?</span>);
+                    NetworkName::TestnetV0 =&gt; {
+                        sign_message::&lt;TestnetV0&gt;(message, seed, raw, private_key, private_key_file)
+                    }
+                }<span class="question-mark">?</span>;
+                <span class="macro">println!</span>(<span class="string">"{result}"</span>)
             }
-            <span class="self">Self</span>::Verify { address, signature, message, raw } =&gt; {
-                <span class="macro">println!</span>(<span class="string">"{}"</span>, verify_message(address, signature, message, raw)<span class="question-mark">?</span>)
+            <span class="self">Self</span>::Verify { address, signature, message, raw, network } =&gt; {
+                <span class="comment">// Parse the network.
+                </span><span class="kw">let </span>network = NetworkName::try_from(network.as_str())<span class="question-mark">?</span>;
+                <span class="kw">let </span>result = <span class="kw">match </span>network {
+                    NetworkName::MainnetV0 =&gt; verify_message::&lt;MainnetV0&gt;(address, signature, message, raw),
+                    NetworkName::TestnetV0 =&gt; verify_message::&lt;TestnetV0&gt;(address, signature, message, raw),
+                }<span class="question-mark">?</span>;
+                <span class="macro">println!</span>(<span class="string">"{result}"</span>)
             }
         }
         <span class="prelude-val">Ok</span>(())
@@ -588,10 +615,60 @@
 
 <span class="comment">// Helper functions
 
-// Print keys as a formatted string without log level.
-</span><span class="kw">fn </span>print_keys(private_key: PrivateKey&lt;CurrentNetwork&gt;, discreet: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+// Generate a new account.
+</span><span class="kw">fn </span>generate_new_account&lt;N: Network&gt;(seed: <span class="prelude-ty">Option</span>&lt;u64&gt;, write: bool, discreet: bool, ctx: <span class="kw-2">&amp;</span>Context) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="comment">// Sample a new Aleo account.
+    </span><span class="kw">let </span>private_key = <span class="kw">match </span>seed {
+        <span class="comment">// Recover the field element deterministically.
+        </span><span class="prelude-val">Some</span>(seed) =&gt; PrivateKey::&lt;N&gt;::new(<span class="kw-2">&amp;mut </span>ChaChaRng::seed_from_u64(seed)),
+        <span class="comment">// Sample a random field element.
+        </span><span class="prelude-val">None </span>=&gt; PrivateKey::new(<span class="kw-2">&amp;mut </span>ChaChaRng::from_entropy()),
+    }
+    .map_err(CliError::failed_to_parse_seed)<span class="question-mark">?</span>;
+
+    <span class="comment">// Derive the view key and address and print to stdout.
+    </span>print_keys(private_key, discreet)<span class="question-mark">?</span>;
+
+    <span class="comment">// Save key data to .env file.
+    </span><span class="kw">if </span>write {
+        write_to_env_file(private_key, ctx)<span class="question-mark">?</span>;
+    }
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="comment">// Import an account.
+</span><span class="kw">fn </span>import_account&lt;N: Network&gt;(private_key: <span class="prelude-ty">Option</span>&lt;String&gt;, write: bool, discreet: bool, ctx: <span class="kw-2">&amp;</span>Context) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>priv_key = <span class="kw">match </span>discreet {
+        <span class="bool-val">true </span>=&gt; {
+            <span class="kw">let </span>private_key_input = rpassword::prompt_password(<span class="string">"Please enter your private key: "</span>).unwrap();
+            FromStr::from_str(<span class="kw-2">&amp;</span>private_key_input).map_err(CliError::failed_to_parse_private_key)<span class="question-mark">?
+        </span>}
+        <span class="bool-val">false </span>=&gt; <span class="kw">match </span>private_key {
+            <span class="prelude-val">Some</span>(private_key) =&gt; FromStr::from_str(<span class="kw-2">&amp;</span>private_key).map_err(CliError::failed_to_parse_private_key)<span class="question-mark">?</span>,
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::failed_to_execute_account(
+                    <span class="string">"PRIVATE_KEY shouldn't be empty when --discreet is false"</span>,
+                )
+                .into());
+            }
+        },
+    };
+
+    <span class="comment">// Derive the view key and address and print to stdout.
+    </span>print_keys::&lt;N&gt;(priv_key, discreet)<span class="question-mark">?</span>;
+
+    <span class="comment">// Save key data to .env file.
+    </span><span class="kw">if </span>write {
+        write_to_env_file::&lt;N&gt;(priv_key, ctx)<span class="question-mark">?</span>;
+    }
+
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="comment">// Print keys as a formatted string without log level.
+</span><span class="kw">fn </span>print_keys&lt;N: Network&gt;(private_key: PrivateKey&lt;N&gt;, discreet: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">let </span>view_key = ViewKey::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
-    <span class="kw">let </span>address = Address::&lt;CurrentNetwork&gt;::try_from(<span class="kw-2">&amp;</span>view_key)<span class="question-mark">?</span>;
+    <span class="kw">let </span>address = Address::&lt;N&gt;::try_from(<span class="kw-2">&amp;</span>view_key)<span class="question-mark">?</span>;
 
     <span class="kw">if </span>!discreet {
         <span class="macro">println!</span>(
@@ -607,14 +684,100 @@
         <span class="string">"### Do not share or lose this private key! Press any key to complete. ###"</span>,
     )<span class="question-mark">?</span>;
     <span class="macro">println!</span>(<span class="string">"\n {:&gt;12}  {view_key}\n {:&gt;12}  {address}\n"</span>, <span class="string">"View Key"</span>.cyan().bold(), <span class="string">"Address"</span>.cyan().bold(),);
+
     <span class="prelude-val">Ok</span>(())
 }
 
+<span class="comment">// Sign a message with an Aleo private key
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sign_message&lt;N: Network&gt;(
+    message: String,
+    seed: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+    raw: bool,
+    private_key: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    private_key_file: <span class="prelude-ty">Option</span>&lt;String&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="kw">let </span>private_key = <span class="kw">match </span>(private_key, private_key_file) {
+        (<span class="prelude-val">Some</span>(private_key), <span class="prelude-val">None</span>) =&gt; PrivateKey::&lt;N&gt;::from_str(private_key.trim())
+            .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"could not parse private key: {e}"</span>)))<span class="question-mark">?</span>,
+        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(private_key_file)) =&gt; {
+            <span class="kw">let </span>path = private_key_file
+                .parse::&lt;PathBuf&gt;()
+                .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"invalid path - {e}"</span>)))<span class="question-mark">?</span>;
+            <span class="kw">let </span>key_str = std::fs::read_to_string(path).map_err(UtilError::failed_to_read_file)<span class="question-mark">?</span>;
+            PrivateKey::&lt;N&gt;::from_str(key_str.trim())
+                .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"could not parse private key: {e}"</span>)))<span class="question-mark">?
+        </span>}
+        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
+            <span class="comment">// Attempt to pull private key from env, then .env file
+            </span><span class="kw">match </span>dotenvy::var(<span class="string">"PRIVATE_KEY"</span>) {
+                <span class="prelude-val">Ok</span>(key) =&gt; PrivateKey::&lt;N&gt;::from_str(key.trim())
+                    .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"could not parse private key: {e}"</span>)))<span class="question-mark">?</span>,
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(CliError::cli_invalid_input(
+                    <span class="string">"missing the '--private-key', '--private-key-file', PRIVATE_KEY env, or .env"</span>,
+                ))<span class="question-mark">?</span>,
+            }
+        }
+        (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; {
+            <span class="prelude-val">Err</span>(CliError::cli_invalid_input(<span class="string">"cannot specify both the '--private-key' and '--private-key-file' flags"</span>))<span class="question-mark">?
+        </span>}
+    };
+    <span class="comment">// Recover the seed.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="kw">match </span>seed {
+        <span class="comment">// Recover the field element deterministically.
+        </span><span class="prelude-val">Some</span>(seed) =&gt; ChaChaRng::seed_from_u64(seed),
+        <span class="comment">// Sample a random field element.
+        </span><span class="prelude-val">None </span>=&gt; ChaChaRng::from_entropy(),
+    };
+
+    <span class="comment">// Sign the message
+    </span><span class="kw">let </span>signature = <span class="kw">if </span>raw {
+        private_key.sign_bytes(message.as_bytes(), <span class="kw-2">&amp;mut </span>rng)
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>fields = Value::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>message)<span class="question-mark">?
+            </span>.to_fields()
+            .map_err(|<span class="kw">_</span>| CliError::cli_invalid_input(<span class="string">"Failed to parse a valid Aleo value"</span>))<span class="question-mark">?</span>;
+        private_key.sign(<span class="kw-2">&amp;</span>fields, <span class="kw-2">&amp;mut </span>rng)
+    }
+    .map_err(|<span class="kw">_</span>| CliError::cli_runtime_error(<span class="string">"Failed to sign the message"</span>))<span class="question-mark">?
+    </span>.to_string();
+    <span class="comment">// Return the signature as a string
+    </span><span class="prelude-val">Ok</span>(signature)
+}
+
+<span class="comment">// Verify a signature with an Aleo address
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>verify_message&lt;N: Network&gt;(
+    address: String,
+    signature: String,
+    message: String,
+    raw: bool,
+) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="comment">// Parse the address.
+    </span><span class="kw">let </span>address = Address::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>address)<span class="question-mark">?</span>;
+
+    <span class="kw">let </span>signature = Signature::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>signature)
+        .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"Failed to parse a valid signature: {e}"</span>)))<span class="question-mark">?</span>;
+
+    <span class="comment">// Verify the signature
+    </span><span class="kw">let </span>verified = <span class="kw">if </span>raw {
+        signature.verify_bytes(<span class="kw-2">&amp;</span>address, message.as_bytes())
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>fields = Value::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>message)<span class="question-mark">?
+            </span>.to_fields()
+            .map_err(|<span class="kw">_</span>| CliError::cli_invalid_input(<span class="string">"Failed to parse a valid Aleo value"</span>))<span class="question-mark">?</span>;
+        signature.verify(<span class="kw-2">&amp;</span>address, <span class="kw-2">&amp;</span>fields)
+    };
+
+    <span class="comment">// Return the verification result
+    </span><span class="kw">match </span>verified {
+        <span class="bool-val">true </span>=&gt; <span class="prelude-val">Ok</span>(<span class="string">"✅ The signature is valid"</span>.to_string()),
+        <span class="bool-val">false </span>=&gt; <span class="prelude-val">Err</span>(CliError::cli_runtime_error(<span class="string">"❌ The signature is invalid"</span>))<span class="question-mark">?</span>,
+    }
+}
+
 <span class="comment">// Write the network and private key to the .env file in project directory.
-</span><span class="kw">fn </span>write_to_env_file(private_key: PrivateKey&lt;CurrentNetwork&gt;, ctx: <span class="kw-2">&amp;</span>Context) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">let </span>data = <span class="macro">format!</span>(<span class="string">"NETWORK=mainnet\nPRIVATE_KEY={private_key}\n"</span>);
+</span><span class="kw">fn </span>write_to_env_file&lt;N: Network&gt;(private_key: PrivateKey&lt;N&gt;, ctx: <span class="kw-2">&amp;</span>Context) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">let </span>program_dir = ctx.dir()<span class="question-mark">?</span>;
-    Env::&lt;CurrentNetwork&gt;::from(data).write_to(<span class="kw-2">&amp;</span>program_dir)<span class="question-mark">?</span>;
+    Env::&lt;N&gt;::from(private_key).write_to(<span class="kw-2">&amp;</span>program_dir)<span class="question-mark">?</span>;
     <span class="macro">tracing::info!</span>(<span class="string">"✅ Private Key written to {}"</span>, program_dir.join(<span class="string">".env"</span>).display());
     <span class="prelude-val">Ok</span>(())
 }
@@ -640,156 +803,101 @@
     std::io::stdin().read_exact(<span class="kw-2">&amp;mut </span>single_key).unwrap();
 }
 
-<span class="comment">// Sign a message with an Aleo private key
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sign_message(
-    private_key: PrivateKey&lt;CurrentNetwork&gt;,
-    message: String,
-    seed: <span class="prelude-ty">Option</span>&lt;u64&gt;,
-    raw: bool,
-) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-    <span class="comment">// Recover the seed.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="kw">match </span>seed {
-        <span class="comment">// Recover the field element deterministically.
-        </span><span class="prelude-val">Some</span>(seed) =&gt; ChaChaRng::seed_from_u64(seed),
-        <span class="comment">// Sample a random field element.
-        </span><span class="prelude-val">None </span>=&gt; ChaChaRng::from_entropy(),
-    };
-
-    <span class="comment">// Sign the message
-    </span><span class="kw">let </span>signature = <span class="kw">if </span>raw {
-        private_key.sign_bytes(message.as_bytes(), <span class="kw-2">&amp;mut </span>rng)
-    } <span class="kw">else </span>{
-        <span class="kw">let </span>fields = Value::&lt;CurrentNetwork&gt;::from_str(<span class="kw-2">&amp;</span>message)<span class="question-mark">?
-            </span>.to_fields()
-            .map_err(|<span class="kw">_</span>| CliError::cli_invalid_input(<span class="string">"Failed to parse a valid Aleo value"</span>))<span class="question-mark">?</span>;
-        private_key.sign(<span class="kw-2">&amp;</span>fields, <span class="kw-2">&amp;mut </span>rng)
-    }
-    .map_err(|<span class="kw">_</span>| CliError::cli_runtime_error(<span class="string">"Failed to sign the message"</span>))<span class="question-mark">?
-    </span>.to_string();
-    <span class="comment">// Return the signature as a string
-    </span><span class="prelude-val">Ok</span>(signature)
-}
-
-<span class="comment">// Verify a signature with an Aleo address
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>verify_message(
-    address: Address&lt;CurrentNetwork&gt;,
-    signature: String,
-    message: String,
-    raw: bool,
-) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-    <span class="kw">let </span>signature = Signature::&lt;CurrentNetwork&gt;::from_str(<span class="kw-2">&amp;</span>signature)
-        .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"Failed to parse a valid signature: {e}"</span>)))<span class="question-mark">?</span>;
-
-    <span class="comment">// Verify the signature
-    </span><span class="kw">let </span>verified = <span class="kw">if </span>raw {
-        signature.verify_bytes(<span class="kw-2">&amp;</span>address, message.as_bytes())
-    } <span class="kw">else </span>{
-        <span class="kw">let </span>fields = Value::&lt;CurrentNetwork&gt;::from_str(<span class="kw-2">&amp;</span>message)<span class="question-mark">?
-            </span>.to_fields()
-            .map_err(|<span class="kw">_</span>| CliError::cli_invalid_input(<span class="string">"Failed to parse a valid Aleo value"</span>))<span class="question-mark">?</span>;
-        signature.verify(<span class="kw-2">&amp;</span>address, <span class="kw-2">&amp;</span>fields)
-    };
-
-    <span class="comment">// Return the verification result
-    </span><span class="kw">match </span>verified {
-        <span class="bool-val">true </span>=&gt; <span class="prelude-val">Ok</span>(<span class="string">"✅ The signature is valid"</span>.to_string()),
-        <span class="bool-val">false </span>=&gt; <span class="prelude-val">Err</span>(CliError::cli_runtime_error(<span class="string">"❌ The signature is invalid"</span>))<span class="question-mark">?</span>,
-    }
-}
-
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::{sign_message, verify_message};
 
+    <span class="kw">type </span>CurrentNetwork = snarkvm::prelude::MainnetV0;
+
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_signature_raw() {
-        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.parse().unwrap();
+        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"Hello, world!"</span>.to_string();
-        <span class="macro">assert!</span>(sign_message(key, message, <span class="prelude-val">None</span>, <span class="bool-val">true</span>).is_ok());
+        <span class="macro">assert!</span>(sign_message::&lt;CurrentNetwork&gt;(message, <span class="prelude-val">None</span>, <span class="bool-val">true</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_signature() {
-        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.parse().unwrap();
+        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"5field"</span>.to_string();
-        <span class="macro">assert!</span>(sign_message(key, message, <span class="prelude-val">None</span>, <span class="bool-val">false</span>).is_ok());
+        <span class="macro">assert!</span>(sign_message::&lt;CurrentNetwork&gt;(message, <span class="prelude-val">None</span>, <span class="bool-val">false</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_signature_fail() {
-        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.parse().unwrap();
+        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"not a literal value"</span>.to_string();
-        <span class="macro">assert!</span>(sign_message(key, message, <span class="prelude-val">None</span>, <span class="bool-val">false</span>).is_err());
+        <span class="macro">assert!</span>(sign_message::&lt;CurrentNetwork&gt;(message, <span class="prelude-val">None</span>, <span class="bool-val">false</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_seeded_signature_raw() {
         <span class="kw">let </span>seed = <span class="prelude-val">Some</span>(<span class="number">38868010450269069</span>);
-        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.parse().unwrap();
+        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"Hello, world!"</span>.to_string();
         <span class="kw">let </span>expected = <span class="string">"sign175pmqldmkqw2nwp7wz7tfmpyqdnvzaq06mh8t2g22frsmrdtuvpf843p0wzazg27rwrjft8863vwn5a5cqgr97ldw69cyq53l0zlwqhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkevd26g"</span>;
-        <span class="kw">let </span>actual = sign_message(key, message, seed, <span class="bool-val">true</span>).unwrap();
+        <span class="kw">let </span>actual = sign_message::&lt;CurrentNetwork&gt;(message, seed, <span class="bool-val">true</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).unwrap();
         <span class="macro">assert_eq!</span>(expected, actual);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_seeded_signature() {
         <span class="kw">let </span>seed = <span class="prelude-val">Some</span>(<span class="number">38868010450269069</span>);
-        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.parse().unwrap();
+        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"5field"</span>.to_string();
         <span class="kw">let </span>expected = <span class="string">"sign1ad29myqy8gv6xve2r6tuly39m63l2mpfpyvqkwdl2umxqek6q5qxmy63zmhjx75x90sqxq69u5ntzp25kp59e0hp4hj8l8085sg7vqlesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk7v46re"</span>;
-        <span class="kw">let </span>actual = sign_message(key, message, seed, <span class="bool-val">false</span>).unwrap();
+        <span class="kw">let </span>actual = sign_message::&lt;CurrentNetwork&gt;(message, seed, <span class="bool-val">false</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).unwrap();
         <span class="macro">assert_eq!</span>(expected, actual);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_verify_raw() {
         <span class="comment">// test signature of "Hello, world!"
-        </span><span class="kw">let </span>address = <span class="string">"aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j"</span>.parse().unwrap();
+        </span><span class="kw">let </span>address = <span class="string">"aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j"</span>.to_string();
         <span class="kw">let </span>signature = <span class="string">"sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"Hello, world!"</span>.to_string();
-        <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">true</span>).is_ok());
+        <span class="macro">assert!</span>(verify_message::&lt;CurrentNetwork&gt;(address.clone(), signature, message, <span class="bool-val">true</span>).is_ok());
 
         <span class="comment">// test signature of "Hello, world!" against the message "Different Message"
         </span><span class="kw">let </span>signature = <span class="string">"sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"Different Message"</span>.to_string();
-        <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">true</span>).is_err());
+        <span class="macro">assert!</span>(verify_message::&lt;CurrentNetwork&gt;(address.clone(), signature, message, <span class="bool-val">true</span>).is_err());
 
         <span class="comment">// test signature of "Hello, world!" against the wrong address
         </span><span class="kw">let </span>signature = <span class="string">"sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"Hello, world!"</span>.to_string();
-        <span class="kw">let </span>wrong_address = <span class="string">"aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5"</span>.parse().unwrap();
-        <span class="macro">assert!</span>(verify_message(wrong_address, signature, message, <span class="bool-val">true</span>).is_err());
+        <span class="kw">let </span>wrong_address = <span class="string">"aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5"</span>.to_string();
+        <span class="macro">assert!</span>(verify_message::&lt;CurrentNetwork&gt;(wrong_address, signature, message, <span class="bool-val">true</span>).is_err());
 
         <span class="comment">// test a valid signature of "Different Message"
         </span><span class="kw">let </span>signature = <span class="string">"sign1424ztyt9hcm77nq450gvdszrvtg9kvhc4qadg4nzy9y0ah7wdqq7t36cxal42p9jj8e8pjpmc06lfev9nvffcpqv0cxwyr0a2j2tjqlesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk3yrr50"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"Different Message"</span>.to_string();
-        <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">true</span>).is_ok());
+        <span class="macro">assert!</span>(verify_message::&lt;CurrentNetwork&gt;(address, signature, message, <span class="bool-val">true</span>).is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_verify() {
         <span class="comment">// test signature of 5u8
-        </span><span class="kw">let </span>address = <span class="string">"aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j"</span>.parse().unwrap();
+        </span><span class="kw">let </span>address = <span class="string">"aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j"</span>.to_string();
         <span class="kw">let </span>signature = <span class="string">"sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"5field"</span>.to_string();
-        <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">false</span>).is_ok());
+        <span class="macro">assert!</span>(verify_message::&lt;CurrentNetwork&gt;(address.clone(), signature, message, <span class="bool-val">false</span>).is_ok());
 
         <span class="comment">// test signature of 5u8 against the message 10u8
         </span><span class="kw">let </span>signature = <span class="string">"sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"10field"</span>.to_string();
-        <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">false</span>).is_err());
+        <span class="macro">assert!</span>(verify_message::&lt;CurrentNetwork&gt;(address.clone(), signature, message, <span class="bool-val">false</span>).is_err());
 
         <span class="comment">// test signature of 5u8 against the wrong address
         </span><span class="kw">let </span>signature = <span class="string">"sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"5field"</span>.to_string();
-        <span class="kw">let </span>wrong_address = <span class="string">"aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5"</span>.parse().unwrap();
-        <span class="macro">assert!</span>(verify_message(wrong_address, signature, message, <span class="bool-val">false</span>).is_err());
+        <span class="kw">let </span>wrong_address = <span class="string">"aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5"</span>.to_string();
+        <span class="macro">assert!</span>(verify_message::&lt;CurrentNetwork&gt;(wrong_address, signature, message, <span class="bool-val">false</span>).is_err());
 
         <span class="comment">// test a valid signature of 10u8
         </span><span class="kw">let </span>signature = <span class="string">"sign1t9v2t5tljk8pr5t6vkcqgkus0a3v69vryxmfrtwrwg0xtj7yv5qj2nz59e5zcyl50w23lhntxvt6vzeqfyu6dt56698zvfj2l6lz6q0esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk8rh9kt"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"10field"</span>.to_string();
-        <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">false</span>).is_ok());
+        <span class="macro">assert!</span>(verify_message::&lt;CurrentNetwork&gt;(address, signature, message, <span class="bool-val">false</span>).is_ok());
     }
 }
 </code></pre></div></section></main></body></html>

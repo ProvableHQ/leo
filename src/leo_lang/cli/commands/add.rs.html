@@ -130,10 +130,6 @@
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -195,12 +191,10 @@
         <span class="comment">// Make sure the program name is valid.
         // Allow both `credits.aleo` and `credits` syntax.
         </span><span class="kw">let </span>name: String = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.name {
-            name <span class="kw">if </span>name.ends_with(<span class="string">".aleo"</span>)
-                &amp;&amp; Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(<span class="kw-2">&amp;</span>name[<span class="number">0</span>..<span class="self">self</span>.name.len() - <span class="number">5</span>]) =&gt;
-            {
+            name <span class="kw">if </span>name.ends_with(<span class="string">".aleo"</span>) &amp;&amp; Package::is_aleo_name_valid(<span class="kw-2">&amp;</span>name[<span class="number">0</span>..<span class="self">self</span>.name.len() - <span class="number">5</span>]) =&gt; {
                 name.clone()
             }
-            name <span class="kw">if </span>Package::&lt;CurrentNetwork&gt;::is_aleo_name_valid(name) =&gt; <span class="macro">format!</span>(<span class="string">"{name}.aleo"</span>),
+            name <span class="kw">if </span>Package::is_aleo_name_valid(name) =&gt; <span class="macro">format!</span>(<span class="string">"{name}.aleo"</span>),
             name =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::invalid_file_name_dependency(name).into()),
         };
 
@@ -249,7 +243,7 @@
             }
             <span class="prelude-val">None </span>=&gt; {
                 <span class="macro">tracing::info!</span>(<span class="string">"✅ Added network dependency to program `{name}` from network `{}`."</span>, <span class="self">self</span>.network);
-                Dependency::new(name, Location::Network, <span class="prelude-val">Some</span>(NetworkName::from(<span class="kw-2">&amp;</span><span class="self">self</span>.network)), <span class="prelude-val">None</span>)
+                Dependency::new(name, Location::Network, <span class="prelude-val">Some</span>(NetworkName::try_from(<span class="self">self</span>.network.as_str())<span class="question-mark">?</span>), <span class="prelude-val">None</span>)
             }
         });
 
@@ -261,9 +255,7 @@
             manifest.license(),
             <span class="prelude-val">Some</span>(dependencies),
         );
-        <span class="kw">let </span>new_manifest_data = serde_json::to_string_pretty(<span class="kw-2">&amp;</span>new_manifest)
-            .map_err(|err| PackageError::failed_to_serialize_manifest_file(path.to_str().unwrap(), err))<span class="question-mark">?</span>;
-        std::fs::write(path.join(<span class="string">"program.json"</span>), new_manifest_data).map_err(PackageError::failed_to_write_manifest)<span class="question-mark">?</span>;
+        new_manifest.write_to_dir(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
