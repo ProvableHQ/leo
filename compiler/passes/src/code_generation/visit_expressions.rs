@@ -16,10 +16,30 @@
 
 use crate::CodeGenerator;
 use leo_ast::{
-    AccessExpression, ArrayAccess, ArrayExpression, AssociatedConstant, AssociatedFunction, BinaryExpression,
-    BinaryOperation, CallExpression, CastExpression, ErrExpression, Expression, Identifier, Literal, Location,
-    LocatorExpression, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
-    UnaryOperation, UnitExpression, Variant,
+    AccessExpression,
+    ArrayAccess,
+    ArrayExpression,
+    AssociatedConstant,
+    AssociatedFunction,
+    BinaryExpression,
+    BinaryOperation,
+    CallExpression,
+    CastExpression,
+    ErrExpression,
+    Expression,
+    Identifier,
+    Literal,
+    Location,
+    LocatorExpression,
+    MemberAccess,
+    StructExpression,
+    TernaryExpression,
+    TupleExpression,
+    Type,
+    UnaryExpression,
+    UnaryOperation,
+    UnitExpression,
+    Variant,
 };
 use leo_span::sym;
 use std::borrow::Borrow;

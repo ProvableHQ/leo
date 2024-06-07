@@ -17,7 +17,12 @@
 use crate::DeadCodeEliminator;
 
 use leo_ast::{
-    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Identifier, StructExpression,
+    AccessExpression,
+    AssociatedFunction,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    StructExpression,
     StructVariableInitializer,
 };
 use leo_span::sym;

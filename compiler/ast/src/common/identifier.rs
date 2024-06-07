@@ -21,9 +21,13 @@ use snarkvm::console::program::Identifier as IdentifierCore;
 use crate::{simple_node_impl, Node, NodeID};
 use serde::{
     de::{
-        Visitor, {self},
+        Visitor,
+        {self},
     },
-    Deserialize, Deserializer, Serialize, Serializer,
+    Deserialize,
+    Deserializer,
+    Serialize,
+    Serializer,
 };
 use snarkvm::prelude::Network;
 use std::{

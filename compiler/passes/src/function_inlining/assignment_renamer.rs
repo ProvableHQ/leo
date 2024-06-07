@@ -16,8 +16,19 @@
 
 use crate::{Assigner, RenameTable};
 use leo_ast::{
-    AssignStatement, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor,
-    Identifier, IterationStatement, NodeID, ProgramReconstructor, Statement, StatementReconstructor, StructExpression,
+    AssignStatement,
+    ConditionalStatement,
+    ConsoleStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    IterationStatement,
+    NodeID,
+    ProgramReconstructor,
+    Statement,
+    StatementReconstructor,
+    StructExpression,
     StructVariableInitializer,
 };
 use leo_span::Symbol;

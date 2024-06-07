@@ -270,11 +270,7 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
                     .input
                     .iter()
                     .filter_map(|input| {
-                        if let Type::Future(_) = input.type_.clone() {
-                            Some(input.identifier.name)
-                        } else {
-                            None
-                        }
+                        if let Type::Future(_) = input.type_.clone() { Some(input.identifier.name) } else { None }
                     })
                     .collect(),
             );

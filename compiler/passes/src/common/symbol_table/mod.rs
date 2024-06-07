@@ -68,11 +68,7 @@ impl SymbolTable {
         } else if self.variables.contains_key(location) {
             return Err(AstError::shadowed_variable(location.name, span).into());
         }
-        if let Some(parent) = self.parent.as_ref() {
-            parent.check_shadowing(location, is_struct, span)
-        } else {
-            Ok(())
-        }
+        if let Some(parent) = self.parent.as_ref() { parent.check_shadowing(location, is_struct, span) } else { Ok(()) }
     }
 
     /// Returns the current scope index.
@@ -192,11 +188,7 @@ impl SymbolTable {
                 return Some(struct_);
             }
         }
-        if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_struct(location, main_program)
-        } else {
-            None
-        }
+        if let Some(parent) = self.parent.as_ref() { parent.lookup_struct(location, main_program) } else { None }
     }
 
     /// Attempts to lookup a variable in the symbol table.
@@ -306,23 +298,21 @@ mod tests {
                 )
                 .unwrap();
             symbol_table
-                .insert_struct(
-                    Location::new(Some(Symbol::intern("credits")), Symbol::intern("token")),
-                    &Composite {
-                        is_record: false,
-                        span: Default::default(),
-                        id: 0,
-                        identifier: Identifier::new(Symbol::intern("token"), Default::default()),
-                        members: Vec::new(),
-                        external: None,
-                    },
-                )
+                .insert_struct(Location::new(Some(Symbol::intern("credits")), Symbol::intern("token")), &Composite {
+                    is_record: false,
+                    span: Default::default(),
+                    id: 0,
+                    identifier: Identifier::new(Symbol::intern("token"), Default::default()),
+                    members: Vec::new(),
+                    external: None,
+                })
                 .unwrap();
             symbol_table
-                .insert_variable(
-                    Location::new(None, Symbol::intern("foo")),
-                    VariableSymbol { type_: Type::Address, span: Default::default(), declaration: VariableType::Const },
-                )
+                .insert_variable(Location::new(None, Symbol::intern("foo")), VariableSymbol {
+                    type_: Type::Address,
+                    span: Default::default(),
+                    declaration: VariableType::Const,
+                })
                 .unwrap();
             let json = symbol_table.to_json_string().unwrap();
             let deserialized = SymbolTable::from_json_string(&json).unwrap();

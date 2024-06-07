@@ -84,9 +84,8 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
             false => None,
         };
         // Add the variable associated with the mapping to the symbol table.
-        if let Err(err) = self.symbol_table.insert_variable(
-            Location::new(program, input.identifier.name),
-            VariableSymbol {
+        if let Err(err) =
+            self.symbol_table.insert_variable(Location::new(program, input.identifier.name), VariableSymbol {
                 type_: Type::Mapping(MappingType {
                     key: Box::new(input.key_type.clone()),
                     value: Box::new(input.value_type.clone()),
@@ -94,8 +93,8 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
                 }),
                 span: input.span,
                 declaration: VariableType::Mut,
-            },
-        ) {
+            })
+        {
             self.handler.emit_err(err);
         }
     }

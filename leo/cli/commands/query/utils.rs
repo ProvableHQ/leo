@@ -58,11 +58,7 @@ pub fn is_valid_transition_id(transition: &str) -> Result<(), LeoError> {
 
 // A valid numerical input is a u32.
 pub fn is_valid_numerical_input(num: &str) -> Result<(), LeoError> {
-    if num.parse::<u32>().is_err() {
-        Err(UtilError::invalid_numerical_input(num).into())
-    } else {
-        Ok(())
-    }
+    if num.parse::<u32>().is_err() { Err(UtilError::invalid_numerical_input(num).into()) } else { Ok(()) }
 }
 
 // A valid height or hash.

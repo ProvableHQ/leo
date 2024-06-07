@@ -17,8 +17,17 @@
 use crate::FunctionInliner;
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression,
-    ExpressionReconstructor, ExpressionStatement, IterationStatement, Statement, StatementReconstructor,
+    AssignStatement,
+    Block,
+    ConditionalStatement,
+    ConsoleStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    ExpressionStatement,
+    IterationStatement,
+    Statement,
+    StatementReconstructor,
 };
 
 impl StatementReconstructor for FunctionInliner<'_> {

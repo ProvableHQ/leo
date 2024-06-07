@@ -20,7 +20,8 @@ use itertools::Itertools;
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{
-    Network, PlaintextType,
+    Network,
+    PlaintextType,
     PlaintextType::{Array, Literal, Struct},
 };
 use std::fmt;

@@ -23,7 +23,8 @@ use serde::Deserialize;
 use std::{
     borrow::Cow,
     fs::{
-        File, {self},
+        File,
+        {self},
     },
     io::Write,
     path::Path,

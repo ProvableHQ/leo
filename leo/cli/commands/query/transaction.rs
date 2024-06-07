@@ -58,11 +58,7 @@ impl Command for Transaction {
             format!("find/transactionID/deployment/{}", check_valid_program_name(program))
         } else if let Some(id) = self.id {
             is_valid_transaction_id(&id)?;
-            if self.confirmed {
-                format!("transaction/confirmed/{}", id)
-            } else {
-                format!("transaction/{}", id)
-            }
+            if self.confirmed { format!("transaction/confirmed/{}", id) } else { format!("transaction/{}", id) }
         } else {
             unreachable!("All command paths covered.")
         };

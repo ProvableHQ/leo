@@ -17,8 +17,15 @@
 use crate::Flattener;
 
 use leo_ast::{
-    Expression, ExpressionReconstructor, Location, Node, Statement, StructExpression, StructVariableInitializer,
-    TernaryExpression, Type,
+    Expression,
+    ExpressionReconstructor,
+    Location,
+    Node,
+    Statement,
+    StructExpression,
+    StructVariableInitializer,
+    TernaryExpression,
+    Type,
 };
 
 impl ExpressionReconstructor for Flattener<'_> {

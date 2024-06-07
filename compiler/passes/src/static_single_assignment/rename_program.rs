@@ -17,8 +17,17 @@
 use crate::StaticSingleAssigner;
 
 use leo_ast::{
-    Block, Composite, Function, FunctionConsumer, Member, Program, ProgramConsumer, ProgramScope, ProgramScopeConsumer,
-    StatementConsumer, StructConsumer,
+    Block,
+    Composite,
+    Function,
+    FunctionConsumer,
+    Member,
+    Program,
+    ProgramConsumer,
+    ProgramScope,
+    ProgramScopeConsumer,
+    StatementConsumer,
+    StructConsumer,
 };
 use leo_span::{sym, Symbol};
 

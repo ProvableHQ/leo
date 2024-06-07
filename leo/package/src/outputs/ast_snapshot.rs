@@ -33,16 +33,12 @@ pub enum Snapshot {
 
 impl fmt::Display for Snapshot {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::Initial => "initial_ast",
-                Self::ImportsResolved => "imports_resolved_ast",
-                Self::TypeInference => "type_inferenced_ast",
-                Self::Canonicalization => "canonicalization_ast",
-            }
-        )
+        write!(f, "{}", match self {
+            Self::Initial => "initial_ast",
+            Self::ImportsResolved => "imports_resolved_ast",
+            Self::TypeInference => "type_inferenced_ast",
+            Self::Canonicalization => "canonicalization_ast",
+        })
     }
 }
 

@@ -23,7 +23,8 @@ pub use output::*;
 use leo_compiler::{BuildOptions, Compiler, CompilerOptions};
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
-    LeoError, LeoWarning,
+    LeoError,
+    LeoWarning,
 };
 use leo_package::root::env::Env;
 use leo_span::source_map::FileName;
@@ -37,7 +38,8 @@ use leo_span::Symbol;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
-    fmt, fs,
+    fmt,
+    fs,
     fs::File,
     path::{Path, PathBuf},
     rc::Rc,

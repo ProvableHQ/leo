@@ -137,11 +137,7 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_struct_or_record(&mut self, struct_: &'a Composite) -> String {
-        if struct_.is_record {
-            self.visit_record(struct_)
-        } else {
-            self.visit_struct(struct_)
-        }
+        if struct_.is_record { self.visit_record(struct_) } else { self.visit_struct(struct_) }
     }
 
     fn visit_struct(&mut self, struct_: &'a Composite) -> String {

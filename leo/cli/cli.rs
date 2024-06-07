@@ -118,13 +118,10 @@ pub fn handle_error<T>(res: Result<T>) -> T {
 pub fn run_with_args(cli: CLI) -> Result<()> {
     if !cli.quiet {
         // Init logger with optional debug flag.
-        logger::init_logger(
-            "leo",
-            match cli.debug {
-                false => 1,
-                true => 2,
-            },
-        )?;
+        logger::init_logger("leo", match cli.debug {
+            false => 1,
+            true => 2,
+        })?;
     }
 
     // Get custom root folder and create context for it.
@@ -150,7 +147,8 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 mod tests {
     use crate::cli::{
         cli::{test_helpers, Commands},
-        run_with_args, CLI,
+        run_with_args,
+        CLI,
     };
     use leo_span::symbol::create_session_if_not_set_then;
     use serial_test::serial;

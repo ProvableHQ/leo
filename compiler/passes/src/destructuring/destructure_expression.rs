@@ -17,7 +17,14 @@
 use crate::Destructurer;
 
 use leo_ast::{
-    AccessExpression, ArrayAccess, Expression, ExpressionReconstructor, IntegerType, Literal, Statement, TupleAccess,
+    AccessExpression,
+    ArrayAccess,
+    Expression,
+    ExpressionReconstructor,
+    IntegerType,
+    Literal,
+    Statement,
+    TupleAccess,
     Type,
 };
 
