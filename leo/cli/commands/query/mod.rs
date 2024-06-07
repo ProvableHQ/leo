@@ -49,11 +49,11 @@ pub struct Query {
         short,
         long,
         global = true,
-        help = "Endpoint to retrieve network state from. Defaults to http://api.explorer.aleo.org/v1.",
-        default_value = "http://api.explorer.aleo.org/v1"
+        help = "Endpoint to retrieve network state from. Defaults to https://api.explorer.aleo.org/v1.",
+        default_value = "https://api.explorer.aleo.org/v1"
     )]
     pub endpoint: String,
-    #[clap(short, long, global = true, help = "Network to use. Defaults to testnet3.", default_value = "testnet3")]
+    #[clap(short, long, global = true, help = "Network to use. Defaults to testnet.", default_value = "testnet")]
     pub(crate) network: String,
     #[clap(subcommand)]
     command: QueryCommands,
@@ -79,7 +79,7 @@ impl Command for Query {
             QueryCommands::Stateroot { command } => command.apply(context, ())?,
             QueryCommands::Committee { command } => command.apply(context, ())?,
             QueryCommands::Mempool { command } => {
-                if self.endpoint == "http://api.explorer.aleo.org/v1" {
+                if self.endpoint == "https://api.explorer.aleo.org/v1" {
                     tracing::warn!(
                         "⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                     );
@@ -87,7 +87,7 @@ impl Command for Query {
                 command.apply(context, ())?
             }
             QueryCommands::Peers { command } => {
-                if self.endpoint == "http://api.explorer.aleo.org/v1" {
+                if self.endpoint == "https://api.explorer.aleo.org/v1" {
                     tracing::warn!(
                         "⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                     );
