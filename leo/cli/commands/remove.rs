@@ -32,7 +32,7 @@ pub struct Remove {
     #[clap(short = 'l', long, help = "Path to local dependency")]
     pub(crate) local: Option<PathBuf>,
 
-    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet3")]
+    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
     pub(crate) network: String,
 
     #[clap(long, help = "Clear all previous dependencies.", default_value = "false")]
