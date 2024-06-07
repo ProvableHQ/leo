@@ -133,16 +133,22 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 
         // Compute the minimum deployment cost.
         let (total_cost, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(&deployment)?;
-        
+
         if command.fee_options.estimate_fee {
             // Use `credit` denomination instead of `microcredit`.
-            deploy_cost_breakdown(name, total_cost as f64 / 1_000_000.0, storage_cost as f64 / 1_000_000.0, synthesis_cost as f64 / 1_000_000.0, namespace_cost as f64 / 1_000_000.0);
+            deploy_cost_breakdown(
+                name,
+                total_cost as f64 / 1_000_000.0,
+                storage_cost as f64 / 1_000_000.0,
+                synthesis_cost as f64 / 1_000_000.0,
+                namespace_cost as f64 / 1_000_000.0,
+            );
             continue;
         }
 
         // Initialize an RNG.
         let rng = &mut rand::thread_rng();
-        
+
         // Prepare the fees.
         let fee = match &command.fee_options.record {
             Some(record) => {
@@ -173,7 +179,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 
         // Generate the deployment transaction.
         let transaction = Transaction::from_deployment(owner, deployment, fee)?;
-            
+
         println!("✅ Created deployment transaction for '{}'", name.bold());
 
         // Determine if the transaction should be broadcast, stored, or displayed to the user.
@@ -195,7 +201,21 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 fn deploy_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, synthesis_cost: f64, namespace_cost: f64) {
     println!("✅ Estimated deployment cost for '{}' is {} credits.", name.bold(), total_cost);
     // Display the cost breakdown in a table.
-    let data = [[name, "Cost (credits)", "Cost reduction tips"], ["Storage", &format!("{:.6}", storage_cost),  "Use less instructions"], ["Synthesis", &format!("{:.6}", synthesis_cost),  "Remove expensive operations (Ex: SHA3), or unnecessary imports"], ["Namespace", &format!("{:.6}", namespace_cost), "Lengthen the program name (each additional character makes it 10x cheaper)"], ["Total", &format!("{:.6}", total_cost), ""]];
+    let data = [
+        [name, "Cost (credits)", "Cost reduction tips"],
+        ["Storage", &format!("{:.6}", storage_cost), "Use less instructions"],
+        [
+            "Synthesis",
+            &format!("{:.6}", synthesis_cost),
+            "Remove expensive operations (Ex: SHA3), or unnecessary imports",
+        ],
+        [
+            "Namespace",
+            &format!("{:.6}", namespace_cost),
+            "Lengthen the program name (each additional character makes it 10x cheaper)",
+        ],
+        ["Total", &format!("{:.6}", total_cost), ""],
+    ];
     let mut out = Vec::new();
     text_tables::render(&mut out, data).unwrap();
     println!("{}", ::std::str::from_utf8(&out).unwrap());

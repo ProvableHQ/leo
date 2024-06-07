@@ -64,7 +64,7 @@ use colored::Colorize;
 use std::str::FromStr;
 use tracing::span::Span;
 
-use snarkvm::{console::network::Network, prelude::ToBytes};
+use snarkvm::console::network::Network;
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {
@@ -205,7 +205,11 @@ impl Default for BuildOptions {
 /// Used by Execute and Deploy commands.
 #[derive(Parser, Clone, Debug)]
 pub struct FeeOptions {
-    #[clap(long, help = "Estimate the deploy or execution fee without broadcasting to the network.", default_value = "false")]
+    #[clap(
+        long,
+        help = "Estimate the deploy or execution fee without broadcasting to the network.",
+        default_value = "false"
+    )]
     pub(crate) estimate_fee: bool,
     #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
     pub(crate) priority_fee: u64,

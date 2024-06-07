@@ -14,22 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use aleo_std::StorageMode;
 use super::*;
+use aleo_std::StorageMode;
 use clap::Parser;
 use snarkvm::{
     cli::{helpers::dotenv_private_key, Execute as SnarkVMExecute},
     prelude::{MainnetV0, Network, Parser as SnarkVMParser, TestnetV0},
-    };
-use snarkvm::file::AleoFile;
-use snarkvm::ledger::Execution;
-use snarkvm::ledger::Transaction::Execute as ExecuteTransaction;
-use snarkvm::prelude::store::ConsensusStore;
-use snarkvm::prelude::store::helpers::memory::{BlockMemory, ConsensusMemory};
-use snarkvm::prelude::{Address, execution_cost, Process, Program as SnarkVMProgram, ProgramID, VM};
-use snarkvm::prelude::query::Query as SnarkVMQuery;
+};
+
 use crate::cli::query::QueryCommands;
-use crate::cli::query::QueryCommands::Program;
+use leo_retriever::NetworkName;
+use snarkvm::{
+    ledger::Transaction::Execute as ExecuteTransaction,
+    prelude::{
+        execution_cost,
+        query::Query as SnarkVMQuery,
+        store::{
+            helpers::memory::{BlockMemory, ConsensusMemory},
+            ConsensusStore,
+        },
+        Address,
+        Process,
+        Program as SnarkVMProgram,
+        ProgramID,
+        VM,
+    },
+};
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -68,7 +78,7 @@ impl Command for Execute {
         (Build { options: self.compiler_options.clone() }).execute(context)
     }
 
-    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
         // Parse the network.
         let network = NetworkName::try_from(self.compiler_options.network.as_str())?;
         match network {
@@ -80,7 +90,6 @@ impl Command for Execute {
 
 // A helper function to handle the `execute` command.
 fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Execute as Command>::Output> {
-
     // If input values are provided, then run the program with those inputs.
     // Otherwise, use the input file.
     let mut inputs = command.inputs.clone();
@@ -116,9 +125,8 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
 
     // If the `broadcast` flag is set, then broadcast the transaction.
     if command.broadcast {
-        
         // Get the program name.
-        let program_name = match (command.program.clone(), command.local.clone()) {
+        let program_name = match (command.program.clone(), command.local) {
             (Some(name), true) => {
                 let local = context.open_manifest::<N>()?.program_id().to_string();
                 // Throw error if local name doesn't match the specified name.
@@ -143,18 +151,18 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
 
         // Specify the query
         let query = SnarkVMQuery::<N, BlockMemory<N>>::from(command.compiler_options.endpoint.clone());
-        
+
         // Initialize an RNG.
         let rng = &mut rand::thread_rng();
-        
+
         // Initialize the storage.
         let store = ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?;
-        
+
         // Initialize the VM.
         let vm = VM::from(store)?;
-        
+
         // Load the main program, and all of its imports.
-        let program_id = &ProgramID::<N>::from_str(&format!("{}.aleo", program_name))?; 
+        let program_id = &ProgramID::<N>::from_str(&format!("{}.aleo", program_name))?;
         // TODO: create a local version too
         load_program_from_network(&command, context.clone(), &mut vm.process().write(), program_id)?;
 
@@ -165,11 +173,19 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
         };
 
         // Create a new transaction.
-        let transaction = vm.execute(&private_key, (program_id, command.name), inputs.iter(), fee_record.clone(), command.fee_options.priority_fee, Some(query), rng)?;
-        
+        let transaction = vm.execute(
+            &private_key,
+            (program_id, command.name),
+            inputs.iter(),
+            fee_record.clone(),
+            command.fee_options.priority_fee,
+            Some(query),
+            rng,
+        )?;
+
         // Check the transaction cost.
         let (total_cost, (storage_cost, finalize_cost)) = if let ExecuteTransaction(_, execution, _) = &transaction {
-            execution_cost(&vm.process().read(), &execution)?
+            execution_cost(&vm.process().read(), execution)?
         } else {
             panic!("All transactions should be of type Execute.")
         };
@@ -179,13 +195,18 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
             // Derive the account address.
             let address = Address::<N>::try_from(ViewKey::try_from(&private_key)?)?;
             // Query the public balance of the address on the `account` mapping from `credits.aleo`.
-            let mut public_balance = Query{ endpoint: command.compiler_options.endpoint.clone(), network: command.compiler_options.network.clone(), command: QueryCommands::Program {
-                command: crate::cli::commands::query::Program {
-                    name: "credits".to_string(),
-                    mappings: false,
-                    mapping_value: Some(vec!["account".to_string(), address.to_string()]),
+            let mut public_balance = Query {
+                endpoint: command.compiler_options.endpoint.clone(),
+                network: command.compiler_options.network.clone(),
+                command: QueryCommands::Program {
+                    command: crate::cli::commands::query::Program {
+                        name: "credits".to_string(),
+                        mappings: false,
+                        mapping_value: Some(vec!["account".to_string(), address.to_string()]),
+                    },
                 },
-            } }.execute(context.clone())?;
+            }
+            .execute(context.clone())?;
             // Check balance.
             // Remove the last 3 characters since they represent the `u64` suffix.
             public_balance.truncate(public_balance.len() - 3);
@@ -196,17 +217,29 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
 
         // Print the cost breakdown.
         if command.fee_options.estimate_fee {
-            execution_cost_breakdown(&program_name, total_cost as f64 / 1_000_000.0, storage_cost as f64 / 1_000_000.0, finalize_cost as f64 / 1_000_000.0);
+            execution_cost_breakdown(
+                &program_name,
+                total_cost as f64 / 1_000_000.0,
+                storage_cost as f64 / 1_000_000.0,
+                finalize_cost as f64 / 1_000_000.0,
+            );
             return Ok(());
         }
 
         println!("✅ Created execution transaction for '{}'", program_id.to_string().bold());
-        
-        handle_broadcast(&format!("{}/{}/transaction/broadcast", command.compiler_options.endpoint, command.compiler_options.network), transaction, &program_name)?;
+
+        handle_broadcast(
+            &format!(
+                "{}/{}/transaction/broadcast",
+                command.compiler_options.endpoint, command.compiler_options.network
+            ),
+            transaction,
+            &program_name,
+        )?;
 
         return Ok(());
     }
-    
+
     // Add the compiler options to the arguments.
     if command.compiler_options.offline {
         arguments.push(String::from("--offline"));
@@ -239,15 +272,25 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
 }
 
 /// A helper function to recursively load the program and all of its imports into the process. Lifted from snarkOS.
-fn load_program_from_network<N: Network>(command: &Execute, context: Context, process: &mut Process<N>, program_id: &ProgramID<N>) -> Result<()> {
+fn load_program_from_network<N: Network>(
+    command: &Execute,
+    context: Context,
+    process: &mut Process<N>,
+    program_id: &ProgramID<N>,
+) -> Result<()> {
     // Fetch the program.
-    let program_src = Query{ endpoint: command.compiler_options.endpoint.clone(), network: command.compiler_options.network.clone(), command: QueryCommands::Program {
-        command: crate::cli::commands::query::Program {
-            name: program_id.to_string(),
-            mappings: false,
-            mapping_value: None,
+    let program_src = Query {
+        endpoint: command.compiler_options.endpoint.clone(),
+        network: command.compiler_options.network.clone(),
+        command: QueryCommands::Program {
+            command: crate::cli::commands::query::Program {
+                name: program_id.to_string(),
+                mappings: false,
+                mapping_value: None,
+            },
         },
-    } }.execute(context.clone())?;
+    }
+    .execute(context.clone())?;
     let program = SnarkVMProgram::<N>::from_str(&program_src).unwrap();
 
     // Return early if the program is already loaded.
@@ -276,7 +319,20 @@ fn load_program_from_network<N: Network>(command: &Execute, context: Context, pr
 fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, finalize_cost: f64) {
     println!("✅ Estimated execution cost for '{}' is {} credits.", name.bold(), total_cost);
     // Display the cost breakdown in a table.
-    let data = [[name, "Cost (credits)", "Cost reduction tips"], ["Storage", &format!("{:.6}", storage_cost),  "Use fewer nested transition functions and smaller input and output datatypes"], ["On-chain", &format!("{:.6}", finalize_cost),  "Remove operations that are expensive computationally (Ex: hash functions) or storage-wise (Ex: Mapping insertions)"],  ["Total", &format!("{:.6}", total_cost), ""]];
+    let data = [
+        [name, "Cost (credits)", "Cost reduction tips"],
+        [
+            "Storage",
+            &format!("{:.6}", storage_cost),
+            "Use fewer nested transition functions and smaller input and output datatypes",
+        ],
+        [
+            "On-chain",
+            &format!("{:.6}", finalize_cost),
+            "Remove operations that are expensive computationally (Ex: hash functions) or storage-wise (Ex: Mapping insertions)",
+        ],
+        ["Total", &format!("{:.6}", total_cost), ""],
+    ];
     let mut out = Vec::new();
     text_tables::render(&mut out, data).unwrap();
     println!("{}", ::std::str::from_utf8(&out).unwrap());
