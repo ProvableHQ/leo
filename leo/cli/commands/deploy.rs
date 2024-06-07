@@ -116,11 +116,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         // Fetch the package from the directory.
         let package = SnarkVMPackage::<N>::open(path)?;
 
-        if !command.fee_options.estimate_fee {
-            println!("📦 Creating deployment transaction for '{}'...\n", &name.bold());
-        } else {
-            println!("📦 Estimating deployment cost for '{}'...\n", &name.bold());
-        }
+        println!("📦 Creating deployment transaction for '{}'...\n", &name.bold());
 
         // Generate the deployment
         let deployment = package.deploy::<A>(None)?;
@@ -134,17 +130,14 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         // Compute the minimum deployment cost.
         let (total_cost, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(&deployment)?;
 
-        if command.fee_options.estimate_fee {
-            // Use `credit` denomination instead of `microcredit`.
-            deploy_cost_breakdown(
-                name,
-                total_cost as f64 / 1_000_000.0,
-                storage_cost as f64 / 1_000_000.0,
-                synthesis_cost as f64 / 1_000_000.0,
-                namespace_cost as f64 / 1_000_000.0,
-            );
-            continue;
-        }
+        // Display the deployment cost breakdown using `credit` denomination.
+        deploy_cost_breakdown(
+            name,
+            total_cost as f64 / 1_000_000.0,
+            storage_cost as f64 / 1_000_000.0,
+            synthesis_cost as f64 / 1_000_000.0,
+            namespace_cost as f64 / 1_000_000.0,
+        );
 
         // Initialize an RNG.
         let rng = &mut rand::thread_rng();
@@ -183,14 +176,16 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         println!("✅ Created deployment transaction for '{}'", name.bold());
 
         // Determine if the transaction should be broadcast, stored, or displayed to the user.
-        handle_broadcast(
-            &format!("{}/{}/transaction/broadcast", command.options.endpoint, command.options.network),
-            transaction,
-            name,
-        )?;
-
-        if index < all_paths.len() - 1 {
-            std::thread::sleep(std::time::Duration::from_secs(command.wait));
+        if !command.fee_options.dry_run {
+            handle_broadcast(
+                &format!("{}/{}/transaction/broadcast", command.options.endpoint, command.options.network),
+                transaction,
+                name,
+            )?;
+            // Wait between successive deployments to prevent out of order deployments. 
+            if index < all_paths.len() - 1 {
+                std::thread::sleep(std::time::Duration::from_secs(command.wait));
+            }
         }
     }
 
@@ -199,22 +194,20 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 
 // A helper function to display a cost breakdown of the deployment.
 fn deploy_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, synthesis_cost: f64, namespace_cost: f64) {
-    println!("✅ Estimated deployment cost for '{}' is {} credits.", name.bold(), total_cost);
+    println!("Base deployment cost for '{}' is {} credits.", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
-        [name, "Cost (credits)", "Cost reduction tips"],
-        ["Storage", &format!("{:.6}", storage_cost), "Use less instructions"],
+        [name, "Cost (credits)"],
+        ["Transaction Storage", &format!("{:.6}", storage_cost)],
         [
-            "Synthesis",
+            "Program Synthesis",
             &format!("{:.6}", synthesis_cost),
-            "Remove expensive operations (Ex: SHA3), or unnecessary imports",
         ],
         [
             "Namespace",
             &format!("{:.6}", namespace_cost),
-            "Lengthen the program name (each additional character makes it 10x cheaper)",
         ],
-        ["Total", &format!("{:.6}", total_cost), ""],
+        ["Total", &format!("{:.6}", total_cost)],
     ];
     let mut out = Vec::new();
     text_tables::render(&mut out, data).unwrap();

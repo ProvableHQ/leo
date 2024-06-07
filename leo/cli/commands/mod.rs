@@ -209,12 +209,8 @@ impl Default for BuildOptions {
 /// Used by Execute and Deploy commands.
 #[derive(Parser, Clone, Debug)]
 pub struct FeeOptions {
-    #[clap(
-        long,
-        help = "Estimate the deploy or execution fee without broadcasting to the network.",
-        default_value = "false"
-    )]
-    pub(crate) estimate_fee: bool,
+    #[clap(short, long, help = "Performs a dry-run of transaction generation")]
+    pub(crate) dry_run: bool,
     #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
     pub(crate) priority_fee: u64,
     #[clap(long, help = "Private key to authorize fee expenditure.")]

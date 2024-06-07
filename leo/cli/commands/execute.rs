@@ -216,26 +216,26 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
         }
 
         // Print the cost breakdown.
-        if command.fee_options.estimate_fee {
-            execution_cost_breakdown(
-                &program_name,
-                total_cost as f64 / 1_000_000.0,
-                storage_cost as f64 / 1_000_000.0,
-                finalize_cost as f64 / 1_000_000.0,
-            );
-            return Ok(());
-        }
+        execution_cost_breakdown(
+            &program_name,
+            total_cost as f64 / 1_000_000.0,
+            storage_cost as f64 / 1_000_000.0,
+            finalize_cost as f64 / 1_000_000.0,
+        );
 
         println!("✅ Created execution transaction for '{}'", program_id.to_string().bold());
-
-        handle_broadcast(
-            &format!(
-                "{}/{}/transaction/broadcast",
-                command.compiler_options.endpoint, command.compiler_options.network
-            ),
-            transaction,
-            &program_name,
-        )?;
+        
+        // Broadcast the execution transaction.
+        if !command.fee_options.dry_run {
+            handle_broadcast(
+                &format!(
+                    "{}/{}/transaction/broadcast",
+                    command.compiler_options.endpoint, command.compiler_options.network
+                ),
+                transaction,
+                &program_name,
+            )?;
+        }
 
         return Ok(());
     }
@@ -317,21 +317,19 @@ fn load_program_from_network<N: Network>(
 
 // A helper function to display a cost breakdown of the execution.
 fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, finalize_cost: f64) {
-    println!("✅ Estimated execution cost for '{}' is {} credits.", name.bold(), total_cost);
+    println!("Base execution cost for '{}' is {} credits.", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
-        [name, "Cost (credits)", "Cost reduction tips"],
+        [name, "Cost (credits)"],
         [
-            "Storage",
+            "Transaction Storage",
             &format!("{:.6}", storage_cost),
-            "Use fewer nested transition functions and smaller input and output datatypes",
         ],
         [
-            "On-chain",
+            "On-chain Execution",
             &format!("{:.6}", finalize_cost),
-            "Remove operations that are expensive computationally (Ex: hash functions) or storage-wise (Ex: Mapping insertions)",
         ],
-        ["Total", &format!("{:.6}", total_cost), ""],
+        ["Total", &format!("{:.6}", total_cost)],
     ];
     let mut out = Vec::new();
     text_tables::render(&mut out, data).unwrap();
