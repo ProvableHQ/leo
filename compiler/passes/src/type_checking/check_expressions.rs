@@ -30,7 +30,11 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<T
         (Some(t1), Some(t2)) if t1 == t2 => Some(t1),
         (Some(t1), Some(t2)) => {
             if let Some(expected) = expected {
-                if &t1 != expected { Some(t1) } else { Some(t2) }
+                if &t1 != expected {
+                    Some(t1)
+                } else {
+                    Some(t2)
+                }
             } else {
                 Some(t1)
             }

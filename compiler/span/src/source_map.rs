@@ -17,9 +17,7 @@
 use crate::span::{BytePos, CharPos, Pos, Span};
 use std::{
     cell::RefCell,
-    fmt,
-    fs,
-    io,
+    fmt, fs, io,
     path::{Path, PathBuf},
     rc::Rc,
 };

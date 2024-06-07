@@ -15,21 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    Annotation,
-    CompositeType,
-    Function,
-    FutureType,
-    Identifier,
-    Input,
-    Location,
-    Mode,
-    Node,
-    NodeID,
-    Output,
-    ProgramId,
-    TupleType,
-    Type,
-    Variant,
+    Annotation, CompositeType, Function, FutureType, Identifier, Input, Location, Mode, Node, NodeID, Output,
+    ProgramId, TupleType, Type, Variant,
 };
 use leo_span::{sym, Span, Symbol};
 

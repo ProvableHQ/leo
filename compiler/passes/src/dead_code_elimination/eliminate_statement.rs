@@ -17,21 +17,9 @@
 use crate::DeadCodeEliminator;
 
 use leo_ast::{
-    AccessExpression,
-    AssertStatement,
-    AssertVariant,
-    AssignStatement,
-    Block,
-    ConditionalStatement,
-    ConsoleStatement,
-    DefinitionStatement,
-    Expression,
-    ExpressionReconstructor,
-    ExpressionStatement,
-    IterationStatement,
-    ReturnStatement,
-    Statement,
-    StatementReconstructor,
+    AccessExpression, AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement,
+    DefinitionStatement, Expression, ExpressionReconstructor, ExpressionStatement, IterationStatement, ReturnStatement,
+    Statement, StatementReconstructor,
 };
 
 impl StatementReconstructor for DeadCodeEliminator<'_> {

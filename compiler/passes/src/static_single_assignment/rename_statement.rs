@@ -17,29 +17,10 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AccessExpression,
-    AssertStatement,
-    AssertVariant,
-    AssignStatement,
-    AssociatedFunction,
-    Block,
-    CallExpression,
-    ConditionalStatement,
-    ConsoleStatement,
-    ConstDeclaration,
-    DefinitionStatement,
-    Expression,
-    ExpressionConsumer,
-    ExpressionStatement,
-    Identifier,
-    IterationStatement,
-    Node,
-    ReturnStatement,
-    Statement,
-    StatementConsumer,
-    TernaryExpression,
-    TupleExpression,
-    Type,
+    AccessExpression, AssertStatement, AssertVariant, AssignStatement, AssociatedFunction, Block, CallExpression,
+    ConditionalStatement, ConsoleStatement, ConstDeclaration, DefinitionStatement, Expression, ExpressionConsumer,
+    ExpressionStatement, Identifier, IterationStatement, Node, ReturnStatement, Statement, StatementConsumer,
+    TernaryExpression, TupleExpression, Type,
 };
 use leo_span::Symbol;
 

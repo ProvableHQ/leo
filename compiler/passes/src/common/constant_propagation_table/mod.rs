@@ -77,7 +77,11 @@ impl ConstantPropagationTable {
     /// Returns true if the constant exists in any parent scope
     pub fn constant_in_parent_scope(&self, symbol: Symbol) -> bool {
         if let Some(parent) = self.parent.as_ref() {
-            if parent.constants.contains_key(&symbol) { true } else { parent.constant_in_parent_scope(symbol) }
+            if parent.constants.contains_key(&symbol) {
+                true
+            } else {
+                parent.constant_in_parent_scope(symbol)
+            }
         } else {
             false
         }

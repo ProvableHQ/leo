@@ -17,25 +17,9 @@
 use crate::Flattener;
 
 use leo_ast::{
-    AssertStatement,
-    AssertVariant,
-    AssignStatement,
-    BinaryExpression,
-    BinaryOperation,
-    Block,
-    ConditionalStatement,
-    ConsoleStatement,
-    DefinitionStatement,
-    Expression,
-    ExpressionReconstructor,
-    IterationStatement,
-    Node,
-    ReturnStatement,
-    Statement,
-    StatementReconstructor,
-    Type,
-    UnaryExpression,
-    UnaryOperation,
+    AssertStatement, AssertVariant, AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement,
+    ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor, IterationStatement, Node,
+    ReturnStatement, Statement, StatementReconstructor, Type, UnaryExpression, UnaryOperation,
 };
 
 use itertools::Itertools;

@@ -188,7 +188,11 @@ impl<'a, N: Network> ParserContext<'a, N> {
 
     /// Eats the expected `token`, or errors.
     pub(super) fn expect(&mut self, token: &Token) -> Result<Span> {
-        if self.eat(token) { Ok(self.prev_token.span) } else { self.unexpected(token) }
+        if self.eat(token) {
+            Ok(self.prev_token.span)
+        } else {
+            self.unexpected(token)
+        }
     }
 
     /// Eats one of the expected `tokens`, or errors.

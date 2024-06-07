@@ -16,12 +16,7 @@
 
 use crate::{
     type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
-    CallGraph,
-    StructGraph,
-    SymbolTable,
-    TypeTable,
-    VariableSymbol,
-    VariableType,
+    CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType,
 };
 
 use leo_ast::*;
@@ -1356,13 +1351,10 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             type_
         };
         // Insert the variable into the symbol table.
-        if let Err(err) =
-            self.symbol_table.borrow_mut().insert_variable(Location::new(None, name.name), VariableSymbol {
-                type_: ty,
-                span,
-                declaration: VariableType::Mut,
-            })
-        {
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+            Location::new(None, name.name),
+            VariableSymbol { type_: ty, span, declaration: VariableType::Mut },
+        ) {
             self.handler.emit_err(err);
         }
     }

@@ -92,7 +92,11 @@ impl AwaitChecker {
         parent_nodes: Vec<ConditionalTreeNode>,
     ) -> Vec<ConditionalTreeNode> {
         // Check if a nested conditional statement signaled their existence.
-        if is_finalize && self.enabled { core::mem::replace(&mut self.to_await, parent_nodes) } else { Vec::new() }
+        if is_finalize && self.enabled {
+            core::mem::replace(&mut self.to_await, parent_nodes)
+        } else {
+            Vec::new()
+        }
     }
 
     /// Exit scope for conditional statement at current depth.

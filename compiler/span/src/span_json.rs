@@ -21,8 +21,7 @@ use crate::Span;
 use serde::{
     de::{MapAccess, Visitor},
     ser::SerializeMap,
-    Deserializer,
-    Serializer,
+    Deserializer, Serializer,
 };
 use std::fmt;
 

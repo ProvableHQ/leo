@@ -15,15 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
-    Block,
-    Expression,
-    IntegerType,
-    IterationStatement,
-    Literal,
-    NodeBuilder,
-    Statement,
-    StatementReconstructor,
-    Type,
+    Block, Expression, IntegerType, IterationStatement, Literal, NodeBuilder, Statement, StatementReconstructor, Type,
     Value,
 };
 use std::cell::RefCell;
@@ -32,12 +24,7 @@ use leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
 use leo_span::Symbol;
 
 use crate::{
-    constant_propagation_table::ConstantPropagationTable,
-    Clusivity,
-    LoopBound,
-    RangeIterator,
-    SymbolTable,
-    TypeTable,
+    constant_propagation_table::ConstantPropagationTable, Clusivity, LoopBound, RangeIterator, SymbolTable, TypeTable,
 };
 
 pub struct Unroller<'a> {
@@ -81,7 +68,11 @@ impl<'a> Unroller<'a> {
     /// Returns the index of the current scope.
     /// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.
     pub(crate) fn current_scope_index(&mut self) -> usize {
-        if self.is_unrolling { self.symbol_table.borrow_mut().insert_block() } else { self.scope_index }
+        if self.is_unrolling {
+            self.symbol_table.borrow_mut().insert_block()
+        } else {
+            self.scope_index
+        }
     }
 
     /// Enters a child scope.

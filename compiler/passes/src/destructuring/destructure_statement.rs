@@ -17,21 +17,9 @@
 use crate::Destructurer;
 
 use leo_ast::{
-    AssignStatement,
-    Block,
-    ConditionalStatement,
-    ConsoleStatement,
-    DefinitionStatement,
-    Expression,
-    ExpressionReconstructor,
-    Identifier,
-    IterationStatement,
-    Node,
-    ReturnStatement,
-    Statement,
-    StatementReconstructor,
-    TupleExpression,
-    Type,
+    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression,
+    ExpressionReconstructor, Identifier, IterationStatement, Node, ReturnStatement, Statement, StatementReconstructor,
+    TupleExpression, Type,
 };
 
 use itertools::Itertools;
