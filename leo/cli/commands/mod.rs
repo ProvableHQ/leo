@@ -132,7 +132,11 @@ pub trait Command {
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug)]
 pub struct BuildOptions {
-    #[clap(long, help = "Endpoint to retrieve network state from.", default_value = "http://api.explorer.aleo.org/v1")]
+    #[clap(
+        long,
+        help = "Endpoint to retrieve network state from.",
+        default_value = "https://api.explorer.aleo.org/v1"
+    )]
     pub endpoint: String,
     #[clap(long, help = "Network to broadcast to. Defaults to mainnet.", default_value = "mainnet")]
     pub(crate) network: String,
