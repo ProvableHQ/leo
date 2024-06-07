@@ -19,8 +19,8 @@ use super::*;
 mod block;
 use block::Block;
 
-mod program;
-use program::Program;
+pub mod program;
+pub use program::Program;
 
 mod state_root;
 use state_root::StateRoot;
@@ -53,15 +53,15 @@ pub struct Query {
         default_value = "http://api.explorer.aleo.org/v1"
     )]
     pub endpoint: String,
-    #[clap(short, long, global = true, help = "Network to use. Defaults to testnet3.", default_value = "testnet3")]
+    #[clap(short, long, global = true, help = "Network to use. Defaults to mainnet.", default_value = "mainnet")]
     pub(crate) network: String,
     #[clap(subcommand)]
-    command: QueryCommands,
+    pub command: QueryCommands,
 }
 
 impl Command for Query {
     type Input = ();
-    type Output = ();
+    type Output = String;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -105,8 +105,9 @@ impl Command for Query {
         if response.status() == 200 {
             tracing::info!("✅ Successfully retrieved data from '{url}'.\n");
             // Unescape the newlines.
-            println!("{}\n", response.into_string().unwrap().replace("\\n", "\n"));
-            Ok(())
+            let result = response.into_string().unwrap().replace("\\n", "\n").replace('\"', "");
+            println!("{}\n", result);
+            Ok(result)
         } else {
             Err(UtilError::network_error(url, response.status(), Default::default()).into())
         }
@@ -114,7 +115,7 @@ impl Command for Query {
 }
 
 #[derive(Parser, Debug)]
-enum QueryCommands {
+pub enum QueryCommands {
     #[clap(about = "Query block information")]
     Block {
         #[clap(flatten)]

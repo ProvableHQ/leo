@@ -126,7 +126,6 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         let deployment = package.deploy::<A>(None)?;
         let deployment_id = deployment.to_deployment_id()?;
 
-
         let store = ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?;
 
         // Initialize the VM.
@@ -137,7 +136,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         
         if command.fee_options.estimate_fee {
             // Use `credit` denomination instead of `microcredit`.
-            display_cost_breakdown(name, total_cost as f64 / 1_000_000.0, storage_cost as f64 / 1_000_000.0, synthesis_cost as f64 / 1_000_000.0, namespace_cost as f64 / 1_000_000.0);
+            deploy_cost_breakdown(name, total_cost as f64 / 1_000_000.0, storage_cost as f64 / 1_000_000.0, synthesis_cost as f64 / 1_000_000.0, namespace_cost as f64 / 1_000_000.0);
             continue;
         }
 
@@ -193,7 +192,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 }
 
 // A helper function to display a cost breakdown of the deployment.
-fn display_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, synthesis_cost: f64, namespace_cost: f64) {
+fn deploy_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, synthesis_cost: f64, namespace_cost: f64) {
     println!("✅ Estimated deployment cost for '{}' is {} credits.", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [[name, "Cost (credits)", "Cost reduction tips"], ["Storage", &format!("{:.6}", storage_cost),  "Use less instructions"], ["Synthesis", &format!("{:.6}", synthesis_cost),  "Remove expensive operations (Ex: SHA3), or unnecessary imports"], ["Namespace", &format!("{:.6}", namespace_cost), "Lengthen the program name (each additional character makes it 10x cheaper)"], ["Total", &format!("{:.6}", total_cost), ""]];

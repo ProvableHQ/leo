@@ -240,15 +240,6 @@ fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, 
     // Get the transaction id.
     let transaction_id = transaction.id();
 
-    // TODO: remove
-    println!("Transaction {:?}", transaction);
-    let tx_bytes = transaction.to_bytes_le()?;
-    println!("Transaction bytes: {:?}", tx_bytes);
-    let tx_json = serde_json::to_string(&transaction).unwrap();
-    println!("Transaction JSON: {:?}", tx_json);
-    let deserialize_tx_json = serde_json::from_str::<Transaction<N>>(&tx_json).unwrap();
-    println!("Deserialized transaction: {:?}", deserialize_tx_json);
-
     // Send the deployment request to the local development node.
     return match ureq::post(endpoint).send_json(&transaction) {
         Ok(id) => {
