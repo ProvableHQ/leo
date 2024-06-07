@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::collections::HashMap;
 use super::*;
 use aleo_std::StorageMode;
 use clap::Parser;
@@ -38,8 +39,12 @@ use snarkvm::{
         Program as SnarkVMProgram,
         ProgramID,
         VM,
-    },
+    }, 
+    package::Package as SnarkVMPackage,
 };
+use snarkvm::circuit::{Aleo, AleoTestnetV0, AleoV0};
+use snarkvm::cli::LOCALE;
+use snarkvm::prelude::{Identifier, Locator, Value};
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -82,20 +87,17 @@ impl Command for Execute {
         // Parse the network.
         let network = NetworkName::try_from(self.compiler_options.network.as_str())?;
         match network {
-            NetworkName::MainnetV0 => handle_execute::<MainnetV0>(self, context),
-            NetworkName::TestnetV0 => handle_execute::<TestnetV0>(self, context),
+            NetworkName::MainnetV0 => handle_execute::<AleoV0>(self, context),
+            NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context),
         }
     }
 }
 
 // A helper function to handle the `execute` command.
-fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Execute as Command>::Output> {
+fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execute as Command>::Output> {
     // If input values are provided, then run the program with those inputs.
     // Otherwise, use the input file.
     let mut inputs = command.inputs.clone();
-
-    // Compose the `execute` command.
-    let mut arguments = vec![SNARKVM_COMMAND.to_string(), command.name.clone()];
 
     // Add the inputs to the arguments.
     match command.file.clone() {
@@ -107,7 +109,7 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
             // Parse the values from the file.
             let mut content = raw_content.as_str();
             let mut values = vec![];
-            while let Ok((remaining, value)) = snarkvm::prelude::Value::<N>::parse(content) {
+            while let Ok((remaining, value)) = snarkvm::prelude::Value::<A::Network>::parse(content) {
                 content = remaining;
                 values.push(value);
             }
@@ -118,17 +120,28 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
             // Convert the values to strings.
             let mut inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::<Vec<String>>();
             // Add the inputs from the file to the arguments.
-            arguments.append(&mut inputs_from_file);
+            inputs.append(&mut inputs_from_file);
         }
-        None => arguments.append(&mut inputs),
+        None => {},
     }
+
+    // Initialize an RNG.
+    let rng = &mut rand::thread_rng();
+
+    // Get the private key.
+    let private_key = match command.fee_options.private_key.clone() {
+        Some(key) => PrivateKey::from_str(&key)?,
+        None => PrivateKey::from_str(
+            &dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string(),
+        )?,
+    };
 
     // If the `broadcast` flag is set, then broadcast the transaction.
     if command.broadcast {
         // Get the program name.
         let program_name = match (command.program.clone(), command.local) {
             (Some(name), true) => {
-                let local = context.open_manifest::<N>()?.program_id().to_string();
+                let local = context.open_manifest::<A::Network>()?.program_id().to_string();
                 // Throw error if local name doesn't match the specified name.
                 if name == local {
                     local
@@ -137,33 +150,22 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
                 }
             }
             (Some(name), false) => name.clone(),
-            (None, true) => context.open_manifest::<N>()?.program_id().to_string(),
+            (None, true) => context.open_manifest::<A::Network>()?.program_id().to_string(),
             (None, false) => return Err(PackageError::missing_on_chain_program_name().into()),
         };
 
-        // Get the private key.
-        let private_key = match command.fee_options.private_key.clone() {
-            Some(key) => PrivateKey::from_str(&key)?,
-            None => PrivateKey::from_str(
-                &dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string(),
-            )?,
-        };
-
         // Specify the query
-        let query = SnarkVMQuery::<N, BlockMemory<N>>::from(command.compiler_options.endpoint.clone());
-
-        // Initialize an RNG.
-        let rng = &mut rand::thread_rng();
+        let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(command.compiler_options.endpoint.clone());
 
         // Initialize the storage.
-        let store = ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?;
+        let store = ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?;
 
         // Initialize the VM.
         let vm = VM::from(store)?;
 
         // Load the main program, and all of its imports.
-        let program_id = &ProgramID::<N>::from_str(&format!("{}.aleo", program_name))?;
-        // TODO: create a local version too
+        let program_id = &ProgramID::<A::Network>::from_str(&format!("{}.aleo", program_name))?;
+        // TODO: X
         load_program_from_network(&command, context.clone(), &mut vm.process().write(), program_id)?;
 
         let fee_record = if let Some(record) = command.fee_options.record {
@@ -193,7 +195,7 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
         // Check if the public balance is sufficient.
         if fee_record.is_none() {
             // Derive the account address.
-            let address = Address::<N>::try_from(ViewKey::try_from(&private_key)?)?;
+            let address = Address::<A::Network>::try_from(ViewKey::try_from(&private_key)?)?;
             // Query the public balance of the address on the `account` mapping from `credits.aleo`.
             let mut public_balance = Query {
                 endpoint: command.compiler_options.endpoint.clone(),
@@ -215,14 +217,6 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
             }
         }
 
-        // Print the cost breakdown.
-        execution_cost_breakdown(
-            &program_name,
-            total_cost as f64 / 1_000_000.0,
-            storage_cost as f64 / 1_000_000.0,
-            finalize_cost as f64 / 1_000_000.0,
-        );
-
         println!("✅ Created execution transaction for '{}'", program_id.to_string().bold());
         
         // Broadcast the execution transaction.
@@ -240,34 +234,81 @@ fn handle_execute<N: Network>(command: Execute, context: Context) -> Result<<Exe
         return Ok(());
     }
 
-    // Add the compiler options to the arguments.
-    if command.compiler_options.offline {
-        arguments.push(String::from("--offline"));
-    }
-
-    // Add the endpoint to the arguments.
-    arguments.push(String::from("--endpoint"));
-    arguments.push(command.compiler_options.endpoint.clone());
-
     // Open the Leo build/ directory.
-    let path = context.dir()?;
-    let build_directory = BuildDirectory::open(&path)?;
-
-    // Change the cwd to the Leo build/ directory to compile aleo files.
-    std::env::set_current_dir(&build_directory)
-        .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
+    let path = context.dir()?.join("build/");
 
     // Unset the Leo panic hook.
     let _ = std::panic::take_hook();
 
-    // Call the `execute` command.
+    // Conduct the execution locally (code lifted from snarkVM).
+    // Load the package.
+    let package = SnarkVMPackage::open(&path)?;
+    // Convert the inputs.
+    let inputs = inputs.iter().map(|input| Value::from_str(input).unwrap()).collect::<Vec<Value<A::Network>>>();
+    // Execute the request.
+    let (response, execution, metrics) =
+        package.execute::<A, _>(command.compiler_options.endpoint.clone(), &private_key, Identifier::try_from(command.name.clone())?, &inputs, rng).map_err(|err| PackageError::execution_error(err))?;
+
+    let fee = None;
+
+    // Construct the transaction.
+    let transaction = Transaction::from_execution(execution, fee)?;
+
+    // Log the metrics.
+    use num_format::ToFormattedString;
+
+    // Count the number of times a function is called.
+    let mut program_frequency = HashMap::<String, usize>::new();
+    for metric in metrics.iter() {
+        // Prepare the function name string.
+        let function_name_string = format!("'{}/{}'", metric.program_id, metric.function_name).bold();
+
+        // Prepare the function constraints string
+        let function_constraints_string = format!(
+            "{function_name_string} - {} constraints",
+            metric.num_function_constraints.to_formatted_string(LOCALE)
+        );
+
+        // Increment the counter for the function call.
+        match program_frequency.get_mut(&function_constraints_string) {
+            Some(counter) => *counter += 1,
+            None => {
+                let _ = program_frequency.insert(function_constraints_string, 1);
+            }
+        }
+    }
+
+    println!("⛓  Constraints\n");
+    for (function_constraints, counter) in program_frequency {
+        // Log the constraints
+        let counter_string = match counter {
+            1 => "(called 1 time)".to_string().dimmed(),
+            counter => format!("(called {counter} times)").dimmed(),
+        };
+
+        println!(" •  {function_constraints} {counter_string}",)
+    }
+
+    // Log the outputs.
+    match response.outputs().len() {
+        0 => (),
+        1 => println!("\n➡️  Output\n"),
+        _ => println!("\n➡️  Outputs\n"),
+    };
+    for output in response.outputs() {
+        println!("{}", format!(" • {output}"));
+    }
     println!();
-    let command = SnarkVMExecute::try_parse_from(&arguments).map_err(CliError::failed_to_parse_execute)?;
-    let res = command.parse().map_err(CliError::failed_to_execute_execute)?;
 
-    // Log the output of the `execute` command.
-    tracing::info!("{}", res);
+    // Print the transaction.
+    println!("{transaction}\n");
 
+    // Prepare the locator.
+    let locator = Locator::<A::Network>::from_str(&format!("{}/{}", package.program_id(), command.name))?;
+    // Prepare the path string.
+    let path_string = format!("(in \"{}\")", path.display());
+
+    println!("✅ Executed '{}' {}", locator.to_string().bold(), path_string.dimmed());
     Ok(())
 }
 

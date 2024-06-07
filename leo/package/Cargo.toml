@@ -37,6 +37,9 @@ default-features = false
 version = "1.9"
 features = [ "serde" ]
 
+[dependencies.num-format]
+version = "0.4.4"
+
 [dependencies.rand]
 version = "0.8"
 

@@ -411,4 +411,11 @@ create_messages!(
         msg: format!("❌ The public balance of {balance} is insufficient to pay the base fee of {fee}"),
         help: None,
     }
+    
+    @backtraced
+    execution_error {
+        args: (error: impl Display),
+        msg: format!("❌ Execution error: {error}"),
+        help: None,
+    }
 );
