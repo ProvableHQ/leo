@@ -213,10 +213,9 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
             )?;
         }
 
-        println!("✅ Created execution transaction for '{}'", program_id.to_string().bold());
-
         // Broadcast the execution transaction.
         if !command.fee_options.dry_run {
+            println!("✅ Created execution transaction for '{}'", program_id.to_string().bold());
             handle_broadcast(
                 &format!(
                     "{}/{}/transaction/broadcast",
@@ -225,6 +224,8 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
                 transaction,
                 &program_name,
             )?;
+        } else {
+            println!("✅ Successful dry run execution for '{}'", program_id.to_string().bold());
         }
 
         return Ok(());

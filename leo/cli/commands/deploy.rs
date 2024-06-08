@@ -183,10 +183,9 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         // Generate the deployment transaction.
         let transaction = Transaction::from_deployment(owner, deployment, fee)?;
 
-        println!("✅ Created deployment transaction for '{}'", name.bold());
-
         // Determine if the transaction should be broadcast, stored, or displayed to the user.
         if !command.fee_options.dry_run {
+            println!("✅ Created deployment transaction for '{}'", name.bold());
             handle_broadcast(
                 &format!("{}/{}/transaction/broadcast", command.options.endpoint, command.options.network),
                 transaction,
@@ -196,6 +195,8 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             if index < all_paths.len() - 1 {
                 std::thread::sleep(std::time::Duration::from_secs(command.wait));
             }
+        } else {
+            println!("✅ Successful dry run deployment for '{}'", name.bold());
         }
     }
 
