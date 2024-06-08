@@ -128,15 +128,17 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         let vm = VM::from(store)?;
 
         // Compute the minimum deployment cost.
-        let (total_cost, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(&deployment)?;
+        let (mut total_cost, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(&deployment)?;
 
         // Display the deployment cost breakdown using `credit` denomination.
+        total_cost += command.fee_options.priority_fee;
         deploy_cost_breakdown(
             name,
             total_cost as f64 / 1_000_000.0,
             storage_cost as f64 / 1_000_000.0,
             synthesis_cost as f64 / 1_000_000.0,
             namespace_cost as f64 / 1_000_000.0,
+            command.fee_options.priority_fee as f64 / 1_000_000.0,
         );
 
         // Initialize an RNG.
@@ -157,6 +159,8 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
                 vm.execute_fee_authorization(fee_authorization, Some(query.clone()), rng)?
             }
             None => {
+                // Make sure the user has enough public balance to pay for the deployment.
+                check_balance(&private_key,  &command.options.endpoint, &command.options.network, context.clone(), total_cost)?;
                 let fee_authorization = vm.authorize_fee_public(
                     &private_key,
                     total_cost,
@@ -193,7 +197,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 }
 
 // A helper function to display a cost breakdown of the deployment.
-fn deploy_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, synthesis_cost: f64, namespace_cost: f64) {
+fn deploy_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, synthesis_cost: f64, namespace_cost: f64, priority_fee: f64) {
     println!("Base deployment cost for '{}' is {} credits.", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
@@ -207,6 +211,7 @@ fn deploy_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, synt
             "Namespace",
             &format!("{:.6}", namespace_cost),
         ],
+        ["Priority Fee", &format!("{:.6}", priority_fee)],
         ["Total", &format!("{:.6}", total_cost)],
     ];
     let mut out = Vec::new();

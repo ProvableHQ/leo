@@ -186,35 +186,25 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
         )?;
 
         // Check the transaction cost.
-        let (total_cost, (storage_cost, finalize_cost)) = if let ExecuteTransaction(_, execution, _) = &transaction {
+        let (mut total_cost, (storage_cost, finalize_cost)) = if let ExecuteTransaction(_, execution, _) = &transaction {
             execution_cost(&vm.process().read(), execution)?
         } else {
             panic!("All transactions should be of type Execute.")
         };
 
+        // Print the cost breakdown.
+        total_cost += command.fee_options.priority_fee;
+        execution_cost_breakdown(
+            &program_name,
+            total_cost as f64 / 1_000_000.0,
+            storage_cost as f64 / 1_000_000.0,
+            finalize_cost as f64 / 1_000_000.0,
+            command.fee_options.priority_fee as f64 / 1_000_000.0,
+        );
+        
         // Check if the public balance is sufficient.
         if fee_record.is_none() {
-            // Derive the account address.
-            let address = Address::<A::Network>::try_from(ViewKey::try_from(&private_key)?)?;
-            // Query the public balance of the address on the `account` mapping from `credits.aleo`.
-            let mut public_balance = Query {
-                endpoint: command.compiler_options.endpoint.clone(),
-                network: command.compiler_options.network.clone(),
-                command: QueryCommands::Program {
-                    command: crate::cli::commands::query::Program {
-                        name: "credits".to_string(),
-                        mappings: false,
-                        mapping_value: Some(vec!["account".to_string(), address.to_string()]),
-                    },
-                },
-            }
-            .execute(context.clone())?;
-            // Check balance.
-            // Remove the last 3 characters since they represent the `u64` suffix.
-            public_balance.truncate(public_balance.len() - 3);
-            if public_balance.parse::<u64>().unwrap() < total_cost {
-                return Err(PackageError::insufficient_balance(public_balance, total_cost).into());
-            }
+            check_balance::<A::Network>(&private_key, &command.compiler_options.endpoint, &command.compiler_options.network, context, total_cost)?;
         }
 
         println!("✅ Created execution transaction for '{}'", program_id.to_string().bold());
@@ -331,7 +321,7 @@ fn load_program_from_network<N: Network>(
             },
         },
     }
-    .execute(context.clone())?;
+    .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
     let program = SnarkVMProgram::<N>::from_str(&program_src).unwrap();
 
     // Return early if the program is already loaded.
@@ -357,7 +347,7 @@ fn load_program_from_network<N: Network>(
 }
 
 // A helper function to display a cost breakdown of the execution.
-fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, finalize_cost: f64) {
+fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, finalize_cost: f64, priority_fee: f64) {
     println!("Base execution cost for '{}' is {} credits.", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
@@ -369,6 +359,10 @@ fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, f
         [
             "On-chain Execution",
             &format!("{:.6}", finalize_cost),
+        ],
+        [
+            "Priority Fee",
+            &format!("{:.6}", priority_fee),
         ],
         ["Total", &format!("{:.6}", total_cost)],
     ];

@@ -72,6 +72,7 @@ impl Command for Query {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        let recursive = context.recursive;
         let output = match self.command {
             QueryCommands::Block { command } => command.apply(context, ())?,
             QueryCommands::Transaction { command } => command.apply(context, ())?,
@@ -103,10 +104,12 @@ impl Command for Query {
             .call()
             .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
         if response.status() == 200 {
-            tracing::info!("✅ Successfully retrieved data from '{url}'.\n");
             // Unescape the newlines.
             let result = response.into_string().unwrap().replace("\\n", "\n").replace('\"', "");
-            println!("{}\n", result);
+            if !recursive {
+                tracing::info!("✅ Successfully retrieved data from '{url}'.\n");
+                println!("{}\n", result);
+            }
             Ok(result)
         } else {
             Err(UtilError::network_error(url, response.status(), Default::default()).into())

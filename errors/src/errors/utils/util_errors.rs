@@ -65,7 +65,7 @@ create_messages!(
     network_error {
         args: (url: impl Display, status: impl Display),
         msg: format!("Failed network request to {url}. Status: {status}"),
-        help: None,
+        help: Some("Make sure that you are using the right network and endpoint. Use `--network testnet` to switch to testnet.".to_string()),
     }
 
     @formatted

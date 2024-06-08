@@ -416,6 +416,6 @@ create_messages!(
     execution_error {
         args: (error: impl Display),
         msg: format!("❌ Execution error: {error}"),
-        help: None,
+        help: Some("Make sure that you are using the right network. Use `--network testnet` to switch to testnet.".to_string()),
     }
 );
