@@ -57,15 +57,15 @@ use super::*;
 use crate::cli::helpers::context::*;
 use leo_errors::{emitter::Handler, CliError, PackageError, Result};
 use leo_package::{build::*, outputs::OutputsDirectory, package::*};
-use snarkvm::prelude::{Address, block::Transaction, Ciphertext, Plaintext, PrivateKey, Record, ViewKey};
+use snarkvm::prelude::{block::Transaction, Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey};
 
 use clap::Parser;
 use colored::Colorize;
 use std::str::FromStr;
 use tracing::span::Span;
 
-use snarkvm::console::network::Network;
 use crate::cli::query::QueryCommands;
+use snarkvm::console::network::Network;
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {
@@ -239,13 +239,19 @@ pub fn parse_record<N: Network>(private_key: &PrivateKey<N>, record: &str) -> Re
     }
 }
 
-fn check_balance<N: Network>(private_key: &PrivateKey<N>, endpoint: &String, network: &String, context: Context, total_cost: u64) -> Result<()> {
+fn check_balance<N: Network>(
+    private_key: &PrivateKey<N>,
+    endpoint: &str,
+    network: &str,
+    context: Context,
+    total_cost: u64,
+) -> Result<()> {
     // Derive the account address.
     let address = Address::<N>::try_from(ViewKey::try_from(private_key)?)?;
     // Query the public balance of the address on the `account` mapping from `credits.aleo`.
     let mut public_balance = Query {
-        endpoint: endpoint.clone(),
-        network: network.clone(),
+        endpoint: endpoint.to_string(),
+        network: network.to_string(),
         command: QueryCommands::Program {
             command: crate::cli::commands::query::Program {
                 name: "credits".to_string(),
@@ -254,12 +260,12 @@ fn check_balance<N: Network>(private_key: &PrivateKey<N>, endpoint: &String, net
             },
         },
     }
-        .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
+    .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
     // Remove the last 3 characters since they represent the `u64` suffix.
     public_balance.truncate(public_balance.len() - 3);
     // Compare balance.
     if public_balance.parse::<u64>().unwrap() < total_cost {
-        return Err(PackageError::insufficient_balance(public_balance, total_cost).into());
+        Err(PackageError::insufficient_balance(public_balance, total_cost).into())
     } else {
         Ok(())
     }

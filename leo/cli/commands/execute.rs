@@ -14,19 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::collections::HashMap;
 use super::*;
 use aleo_std::StorageMode;
 use clap::Parser;
 use snarkvm::{
-    cli::{helpers::dotenv_private_key, Execute as SnarkVMExecute},
-    prelude::{MainnetV0, Network, Parser as SnarkVMParser, TestnetV0},
+    cli::helpers::dotenv_private_key,
+    prelude::{Network, Parser as SnarkVMParser},
 };
+use std::collections::HashMap;
 
 use crate::cli::query::QueryCommands;
 use leo_retriever::NetworkName;
 use snarkvm::{
+    circuit::{Aleo, AleoTestnetV0, AleoV0},
+    cli::LOCALE,
     ledger::Transaction::Execute as ExecuteTransaction,
+    package::Package as SnarkVMPackage,
     prelude::{
         execution_cost,
         query::Query as SnarkVMQuery,
@@ -34,17 +37,15 @@ use snarkvm::{
             helpers::memory::{BlockMemory, ConsensusMemory},
             ConsensusStore,
         },
-        Address,
+        Identifier,
+        Locator,
         Process,
         Program as SnarkVMProgram,
         ProgramID,
+        Value,
         VM,
-    }, 
-    package::Package as SnarkVMPackage,
+    },
 };
-use snarkvm::circuit::{Aleo, AleoTestnetV0, AleoV0};
-use snarkvm::cli::LOCALE;
-use snarkvm::prelude::{Identifier, Locator, Value};
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -100,29 +101,26 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
     let mut inputs = command.inputs.clone();
 
     // Add the inputs to the arguments.
-    match command.file.clone() {
-        Some(file) => {
-            // Get the contents from the file.
-            let path = context.dir()?.join(file);
-            let raw_content =
-                std::fs::read_to_string(&path).map_err(|err| PackageError::failed_to_read_file(path.display(), err))?;
-            // Parse the values from the file.
-            let mut content = raw_content.as_str();
-            let mut values = vec![];
-            while let Ok((remaining, value)) = snarkvm::prelude::Value::<A::Network>::parse(content) {
-                content = remaining;
-                values.push(value);
-            }
-            // Check that the remaining content is empty.
-            if !content.trim().is_empty() {
-                return Err(PackageError::failed_to_read_input_file(path.display()).into());
-            }
-            // Convert the values to strings.
-            let mut inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::<Vec<String>>();
-            // Add the inputs from the file to the arguments.
-            inputs.append(&mut inputs_from_file);
+    if let Some(file) = command.file.clone() {
+        // Get the contents from the file.
+        let path = context.dir()?.join(file);
+        let raw_content =
+            std::fs::read_to_string(&path).map_err(|err| PackageError::failed_to_read_file(path.display(), err))?;
+        // Parse the values from the file.
+        let mut content = raw_content.as_str();
+        let mut values = vec![];
+        while let Ok((remaining, value)) = snarkvm::prelude::Value::<A::Network>::parse(content) {
+            content = remaining;
+            values.push(value);
         }
-        None => {},
+        // Check that the remaining content is empty.
+        if !content.trim().is_empty() {
+            return Err(PackageError::failed_to_read_input_file(path.display()).into());
+        }
+        // Convert the values to strings.
+        let mut inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::<Vec<String>>();
+        // Add the inputs from the file to the arguments.
+        inputs.append(&mut inputs_from_file);
     }
 
     // Initialize an RNG.
@@ -155,7 +153,8 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
         };
 
         // Specify the query
-        let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(command.compiler_options.endpoint.clone());
+        let query =
+            SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(command.compiler_options.endpoint.clone());
 
         // Initialize the storage.
         let store = ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?;
@@ -186,7 +185,8 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
         )?;
 
         // Check the transaction cost.
-        let (mut total_cost, (storage_cost, finalize_cost)) = if let ExecuteTransaction(_, execution, _) = &transaction {
+        let (mut total_cost, (storage_cost, finalize_cost)) = if let ExecuteTransaction(_, execution, _) = &transaction
+        {
             execution_cost(&vm.process().read(), execution)?
         } else {
             panic!("All transactions should be of type Execute.")
@@ -201,14 +201,20 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
             finalize_cost as f64 / 1_000_000.0,
             command.fee_options.priority_fee as f64 / 1_000_000.0,
         );
-        
+
         // Check if the public balance is sufficient.
         if fee_record.is_none() {
-            check_balance::<A::Network>(&private_key, &command.compiler_options.endpoint, &command.compiler_options.network, context, total_cost)?;
+            check_balance::<A::Network>(
+                &private_key,
+                &command.compiler_options.endpoint,
+                &command.compiler_options.network,
+                context,
+                total_cost,
+            )?;
         }
 
         println!("✅ Created execution transaction for '{}'", program_id.to_string().bold());
-        
+
         // Broadcast the execution transaction.
         if !command.fee_options.dry_run {
             handle_broadcast(
@@ -236,8 +242,15 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
     // Convert the inputs.
     let inputs = inputs.iter().map(|input| Value::from_str(input).unwrap()).collect::<Vec<Value<A::Network>>>();
     // Execute the request.
-    let (response, execution, metrics) =
-        package.execute::<A, _>(command.compiler_options.endpoint.clone(), &private_key, Identifier::try_from(command.name.clone())?, &inputs, rng).map_err(|err| PackageError::execution_error(err))?;
+    let (response, execution, metrics) = package
+        .execute::<A, _>(
+            command.compiler_options.endpoint.clone(),
+            &private_key,
+            Identifier::try_from(command.name.clone())?,
+            &inputs,
+            rng,
+        )
+        .map_err(PackageError::execution_error)?;
 
     let fee = None;
 
@@ -286,7 +299,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
         _ => println!("\n➡️  Outputs\n"),
     };
     for output in response.outputs() {
-        println!("{}", format!(" • {output}"));
+        println!(" • {output}");
     }
     println!();
 
@@ -352,18 +365,9 @@ fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, f
     // Display the cost breakdown in a table.
     let data = [
         [name, "Cost (credits)"],
-        [
-            "Transaction Storage",
-            &format!("{:.6}", storage_cost),
-        ],
-        [
-            "On-chain Execution",
-            &format!("{:.6}", finalize_cost),
-        ],
-        [
-            "Priority Fee",
-            &format!("{:.6}", priority_fee),
-        ],
+        ["Transaction Storage", &format!("{:.6}", storage_cost)],
+        ["On-chain Execution", &format!("{:.6}", finalize_cost)],
+        ["Priority Fee", &format!("{:.6}", priority_fee)],
         ["Total", &format!("{:.6}", total_cost)],
     ];
     let mut out = Vec::new();

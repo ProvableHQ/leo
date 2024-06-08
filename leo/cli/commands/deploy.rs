@@ -160,7 +160,13 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             }
             None => {
                 // Make sure the user has enough public balance to pay for the deployment.
-                check_balance(&private_key,  &command.options.endpoint, &command.options.network, context.clone(), total_cost)?;
+                check_balance(
+                    &private_key,
+                    &command.options.endpoint,
+                    &command.options.network,
+                    context.clone(),
+                    total_cost,
+                )?;
                 let fee_authorization = vm.authorize_fee_public(
                     &private_key,
                     total_cost,
@@ -186,7 +192,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
                 transaction,
                 name,
             )?;
-            // Wait between successive deployments to prevent out of order deployments. 
+            // Wait between successive deployments to prevent out of order deployments.
             if index < all_paths.len() - 1 {
                 std::thread::sleep(std::time::Duration::from_secs(command.wait));
             }
@@ -197,20 +203,21 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 }
 
 // A helper function to display a cost breakdown of the deployment.
-fn deploy_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, synthesis_cost: f64, namespace_cost: f64, priority_fee: f64) {
+fn deploy_cost_breakdown(
+    name: &String,
+    total_cost: f64,
+    storage_cost: f64,
+    synthesis_cost: f64,
+    namespace_cost: f64,
+    priority_fee: f64,
+) {
     println!("Base deployment cost for '{}' is {} credits.", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
         [name, "Cost (credits)"],
         ["Transaction Storage", &format!("{:.6}", storage_cost)],
-        [
-            "Program Synthesis",
-            &format!("{:.6}", synthesis_cost),
-        ],
-        [
-            "Namespace",
-            &format!("{:.6}", namespace_cost),
-        ],
+        ["Program Synthesis", &format!("{:.6}", synthesis_cost)],
+        ["Namespace", &format!("{:.6}", namespace_cost)],
         ["Priority Fee", &format!("{:.6}", priority_fee)],
         ["Total", &format!("{:.6}", total_cost)],
     ];
