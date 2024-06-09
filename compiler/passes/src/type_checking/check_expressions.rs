@@ -677,8 +677,9 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                     // Check function argument types.
                     self.scope_state.is_call = true;
                     let (mut input_futures, mut inferred_finalize_inputs) = (Vec::new(), Vec::new());
-                    func.input.iter().zip(input.arguments.iter()).for_each(|(expected, argument)| {
-                        let ty = self.visit_expression(argument, &Some(expected.type_().clone()));
+                    for (expected, argument) in func.input.iter().zip(input.arguments.iter()) {
+                        // Get the type of the expression. If the type is not known, do not attempt to attempt any futher inference.
+                        let ty = self.visit_expression(argument, &Some(expected.type_().clone()))?;
                         // Extract information about futures that are being consumed.
                         if func.variant == Variant::AsyncFunction && matches!(expected.type_(), Type::Future(_)) {
                             match argument {
@@ -690,7 +691,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                                             // Get the external program and function name.
                                             input_futures.push(location);
                                             // Get the full inferred type.
-                                            inferred_finalize_inputs.push(ty.unwrap());
+                                            inferred_finalize_inputs.push(ty);
                                         }
                                         None => {
                                             self.emit_err(TypeCheckerError::unknown_future_consumed(
@@ -708,9 +709,9 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                                 }
                             }
                         } else {
-                            inferred_finalize_inputs.push(ty.unwrap());
+                            inferred_finalize_inputs.push(ty);
                         }
-                    });
+                    }
                     self.scope_state.is_call = false;
 
                     // Add the call to the call graph.
