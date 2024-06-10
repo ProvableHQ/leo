@@ -1069,6 +1069,7 @@
 <a href="#1067" id="1067">1067</a>
 <a href="#1068" id="1068">1068</a>
 <a href="#1069" id="1069">1069</a>
+<a href="#1070" id="1070">1070</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1748,8 +1749,9 @@
                     <span class="comment">// Check function argument types.
                     </span><span class="self">self</span>.scope_state.is_call = <span class="bool-val">true</span>;
                     <span class="kw">let </span>(<span class="kw-2">mut </span>input_futures, <span class="kw-2">mut </span>inferred_finalize_inputs) = (Vec::new(), Vec::new());
-                    func.input.iter().zip(input.arguments.iter()).for_each(|(expected, argument)| {
-                        <span class="kw">let </span>ty = <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_().clone()));
+                    <span class="kw">for </span>(expected, argument) <span class="kw">in </span>func.input.iter().zip(input.arguments.iter()) {
+                        <span class="comment">// Get the type of the expression. If the type is not known, do not attempt to attempt any futher inference.
+                        </span><span class="kw">let </span>ty = <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_().clone()))<span class="question-mark">?</span>;
                         <span class="comment">// Extract information about futures that are being consumed.
                         </span><span class="kw">if </span>func.variant == Variant::AsyncFunction &amp;&amp; <span class="macro">matches!</span>(expected.type_(), Type::Future(<span class="kw">_</span>)) {
                             <span class="kw">match </span>argument {
@@ -1761,7 +1763,7 @@
                                             <span class="comment">// Get the external program and function name.
                                             </span>input_futures.push(location);
                                             <span class="comment">// Get the full inferred type.
-                                            </span>inferred_finalize_inputs.push(ty.unwrap());
+                                            </span>inferred_finalize_inputs.push(ty);
                                         }
                                         <span class="prelude-val">None </span>=&gt; {
                                             <span class="self">self</span>.emit_err(TypeCheckerError::unknown_future_consumed(
@@ -1779,9 +1781,9 @@
                                 }
                             }
                         } <span class="kw">else </span>{
-                            inferred_finalize_inputs.push(ty.unwrap());
+                            inferred_finalize_inputs.push(ty);
                         }
-                    });
+                    }
                     <span class="self">self</span>.scope_state.is_call = <span class="bool-val">false</span>;
 
                     <span class="comment">// Add the call to the call graph.
