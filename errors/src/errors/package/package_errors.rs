@@ -407,7 +407,7 @@ create_messages!(
 
     @backtraced
     insufficient_balance {
-        args: (balance: impl Display, fee: impl Display),
+        args: (address: impl Display, balance: impl Display, fee: impl Display),
         msg: format!("❌ Your public balance of {balance} for {address} is insufficient to pay the base fee of {fee}"),
         help: None,
     }

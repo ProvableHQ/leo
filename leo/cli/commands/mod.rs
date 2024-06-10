@@ -208,7 +208,7 @@ impl Default for BuildOptions {
 
 /// On Chain Execution Options to set preferences for keys, fees and networks.
 /// Used by Execute and Deploy commands.
-#[derive(Parser, Clone, Debug)]
+#[derive(Parser, Clone, Debug, Default)]
 pub struct FeeOptions {
     #[clap(short, long, help = "Performs a dry-run of transaction generation")]
     pub(crate) dry_run: bool,
@@ -265,7 +265,7 @@ fn check_balance<N: Network>(
     public_balance.truncate(public_balance.len() - 3);
     // Compare balance.
     if public_balance.parse::<u64>().unwrap() < total_cost {
-        Err(PackageError::insufficient_balance(public_balance, total_cost).into())
+        Err(PackageError::insufficient_balance(address, public_balance, total_cost).into())
     } else {
         Ok(())
     }

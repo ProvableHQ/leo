@@ -40,6 +40,7 @@ pub struct Context {
     /// Path to use for the Aleo registry, None when default
     pub home: Option<PathBuf>,
     /// Recursive flag.
+    // TODO: Shift from callee to caller by including display method
     pub recursive: bool,
 }
 
