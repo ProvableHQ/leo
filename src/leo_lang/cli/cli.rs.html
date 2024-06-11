@@ -985,7 +985,7 @@
 
     <span class="comment">// Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
-    </span><span class="kw">let </span>context = handle_error(Context::new(cli.path, cli.home));
+    </span><span class="kw">let </span>context = handle_error(Context::new(cli.path, cli.home, <span class="bool-val">false</span>));
 
     <span class="kw">match </span>cli.command {
         Commands::Add { command } =&gt; command.try_execute(context),

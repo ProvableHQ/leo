@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["account","add","build","clean","deploy","example","execute","new","query","remove","run","update"],"struct":["BuildOptions","FeeOptions"],"trait":["Command"]};
+window.SIDEBAR_ITEMS = {"fn":["check_balance","handle_broadcast","parse_record"],"mod":["account","add","build","clean","deploy","example","execute","new","query","remove","run","update"],"struct":["BuildOptions","FeeOptions"],"trait":["Command"]};

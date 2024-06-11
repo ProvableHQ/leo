@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["handle_execute"],"struct":["Execute"]};
+window.SIDEBAR_ITEMS = {"fn":["execution_cost_breakdown","handle_execute","load_program_from_network"],"struct":["Execute"]};

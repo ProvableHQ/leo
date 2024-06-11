@@ -248,14 +248,14 @@
     @formatted
     snarkvm_parsing_error {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"SnarkVM failure to parse `.aleo` program"</span>),
+        msg: <span class="string">"SnarkVM failure to parse `.aleo` program"</span>.to_string(),
         help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     circular_dependency_error {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"Circular dependency detected"</span>),
+        msg: <span class="string">"Circular dependency detected"</span>.to_string(),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -263,7 +263,7 @@
     network_error {
         args: (url: <span class="kw">impl </span>Display, status: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Failed network request to {url}. Status: {status}"</span>),
-        help: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">Some</span>(<span class="string">"Make sure that you are using the correct `--network` and `--endpoint` options."</span>.to_string()),
     }
 
     @formatted

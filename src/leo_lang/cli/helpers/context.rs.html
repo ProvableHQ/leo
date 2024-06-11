@@ -140,6 +140,9 @@
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -181,11 +184,14 @@
     </span><span class="kw">pub </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
     <span class="doccomment">/// Path to use for the Aleo registry, None when default
     </span><span class="kw">pub </span>home: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
+    <span class="doccomment">/// Recursive flag.
+    </span><span class="comment">// TODO: Shift from callee to caller by including display method
+    </span><span class="kw">pub </span>recursive: bool,
 }
 
 <span class="kw">impl </span>Context {
-    <span class="kw">pub fn </span>new(path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;, home: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Context&gt; {
-        <span class="prelude-val">Ok</span>(Context { path, home })
+    <span class="kw">pub fn </span>new(path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;, home: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;, recursive: bool) -&gt; <span class="prelude-ty">Result</span>&lt;Context&gt; {
+        <span class="prelude-val">Ok</span>(Context { path, home, recursive })
     }
 
     <span class="doccomment">/// Returns the path of the parent directory to the Leo package.
