@@ -31,8 +31,8 @@ use std::{
     io::Read,
     marker::PhantomData,
     path::{Path, PathBuf},
+    str::FromStr,
 };
-use std::str::FromStr;
 
 // Retriever is responsible for retrieving external programs
 pub struct Retriever<N: Network> {
@@ -440,7 +440,7 @@ fn retrieve_from_network<N: Network>(
     // Check if the file is already cached in `~/.aleo/registry/{network}/{program}`
     let move_to_path = home_path.join(network.to_string());
     let path = move_to_path.join(name.clone());
-    let mut file_str: String;
+    let file_str: String;
     if !path.exists() {
         // Create directories along the way if they don't exist
         std::fs::create_dir_all(&move_to_path).map_err(|err| {
@@ -454,7 +454,7 @@ fn retrieve_from_network<N: Network>(
         // Fetch from network
         println!("Retrieving {name} from {endpoint} on {network}.");
         file_str = fetch_from_network(&format!("{endpoint}/{network}/program/{}", &name))?;
-        verify_valid_program::<N>(&name, &file_str)?;
+        verify_valid_program::<N>(name, &file_str)?;
         println!("Successfully retrieved {} from {:?}!", name, endpoint);
 
         // Write file to cache
@@ -516,7 +516,7 @@ fn retrieve_from_network<N: Network>(
     ))
 }
 
-// Fetch the given endpoint url and return the sanitized response. 
+// Fetch the given endpoint url and return the sanitized response.
 pub fn fetch_from_network(url: &String) -> Result<String, UtilError> {
     let response = ureq::get(&url.clone())
         .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")

@@ -14,9 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm::circuit::{AleoTestnetV0, AleoV0};
-use snarkvm::prelude::{MainnetV0, TestnetV0};
 use super::*;
+use snarkvm::prelude::{MainnetV0, TestnetV0};
 
 mod block;
 use block::Block;
@@ -43,7 +42,7 @@ mod utils;
 use utils::*;
 
 use leo_errors::UtilError;
-use leo_retriever::{fetch_from_network, NetworkName, verify_valid_program};
+use leo_retriever::{fetch_from_network, verify_valid_program, NetworkName};
 
 ///  Query live data from the Aleo network.
 #[derive(Parser, Debug)]
@@ -82,39 +81,35 @@ impl Command for Query {
             NetworkName::TestnetV0 => handle_query::<TestnetV0>(self, context),
         }
     }
-
 }
 
 // A helper function to handle the `query` command.
 fn handle_query<N: Network>(query: Query, context: Context) -> Result<<Query as Command>::Output> {
     let recursive = context.recursive;
-    let (program, output, ) = match query.command {
+    let (program, output) = match query.command {
         QueryCommands::Block { command } => (None, command.apply(context, ())?),
         QueryCommands::Transaction { command } => (None, command.apply(context, ())?),
         QueryCommands::Program { command } => {
             // Check if querying for program source code.
-            let program = if command.mappings || command.mapping_value.is_some() {
-                None
-            } else {
-                Some(command.name.clone())
-            };
+            let program =
+                if command.mappings || command.mapping_value.is_some() { None } else { Some(command.name.clone()) };
             (program, command.apply(context, ())?)
-        },
+        }
         QueryCommands::Stateroot { command } => (None, command.apply(context, ())?),
         QueryCommands::Committee { command } => (None, command.apply(context, ())?),
         QueryCommands::Mempool { command } => {
             if query.endpoint == "https://api.explorer.aleo.org/v1" {
                 tracing::warn!(
-                        "⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
-                    );
+                    "⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
+                );
             }
             (None, command.apply(context, ())?)
         }
         QueryCommands::Peers { command } => {
             if query.endpoint == "https://api.explorer.aleo.org/v1" {
                 tracing::warn!(
-                        "⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
-                    );
+                    "⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
+                );
             }
             (None, command.apply(context, ())?)
         }
