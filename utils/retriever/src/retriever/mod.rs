@@ -22,7 +22,7 @@ use leo_errors::UtilError;
 use leo_passes::{common::DiGraph, DiGraphError};
 use leo_span::Symbol;
 
-use snarkvm::prelude::Network;
+use snarkvm::prelude::{Network, Program};
 
 use indexmap::{IndexMap, IndexSet};
 use std::{
@@ -32,6 +32,7 @@ use std::{
     marker::PhantomData,
     path::{Path, PathBuf},
 };
+use std::str::FromStr;
 
 // Retriever is responsible for retrieving external programs
 pub struct Retriever<N: Network> {
@@ -309,7 +310,7 @@ impl<N: Network> Retriever<N> {
             })?;
 
             // Cache the disassembled stub
-            let stub: Stub = disassemble_from_str::<N>(&content)?;
+            let stub: Stub = disassemble_from_str::<N>(&name.to_string(), &content)?;
             if cur_context.add_stub(stub.clone()) {
                 Err(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))?;
             }
@@ -450,13 +451,10 @@ fn retrieve_from_network<N: Network>(
             )
         })?;
 
-        // Construct the endpoint for the network.
-        let endpoint = format!("{endpoint}/{network}");
-
         // Fetch from network
-        println!("Retrieving {name} from {endpoint}.");
-        file_str = fetch_from_network(&endpoint, name)?;
-        file_str = file_str.replace("\\n", "\n").replace('\"', "");
+        println!("Retrieving {name} from {endpoint} on {network}.");
+        file_str = fetch_from_network(&format!("{endpoint}/{network}/program/{}", &name))?;
+        verify_valid_program::<N>(&name, &file_str)?;
         println!("Successfully retrieved {} from {:?}!", name, endpoint);
 
         // Write file to cache
@@ -498,7 +496,7 @@ fn retrieve_from_network<N: Network>(
     })?;
 
     // Disassemble into Stub
-    let stub: Stub = disassemble_from_str::<N>(&file_str)?;
+    let stub: Stub = disassemble_from_str::<N>(name, &file_str)?;
 
     // Create entry for leo.lock
     Ok((
@@ -518,14 +516,23 @@ fn retrieve_from_network<N: Network>(
     ))
 }
 
-fn fetch_from_network(endpoint: &String, program: &String) -> Result<String, UtilError> {
-    let url = format!("{}/program/{}", endpoint, program);
+// Fetch the given endpoint url and return the sanitized response. 
+pub fn fetch_from_network(url: &String) -> Result<String, UtilError> {
     let response = ureq::get(&url.clone())
+        .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
     if response.status() == 200 {
-        Ok(response.into_string().unwrap())
+        Ok(response.into_string().unwrap().replace("\\n", "\n").replace('\"', ""))
     } else {
         Err(UtilError::network_error(url, response.status(), Default::default()))
+    }
+}
+
+// Verify that a fetched program is valid aleo instructions.
+pub fn verify_valid_program<N: Network>(name: &String, program: &String) -> Result<(), UtilError> {
+    match Program::<N>::from_str(program) {
+        Ok(_) => Ok(()),
+        Err(_) => Err(UtilError::snarkvm_parsing_error(name, Default::default())),
     }
 }

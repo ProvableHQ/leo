@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use snarkvm::circuit::{AleoTestnetV0, AleoV0};
+use snarkvm::prelude::{MainnetV0, TestnetV0};
 use super::*;
 
 mod block;
@@ -41,6 +43,7 @@ mod utils;
 use utils::*;
 
 use leo_errors::UtilError;
+use leo_retriever::{fetch_from_network, NetworkName, verify_valid_program};
 
 ///  Query live data from the Aleo network.
 #[derive(Parser, Debug)]
@@ -72,49 +75,65 @@ impl Command for Query {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        let recursive = context.recursive;
-        let output = match self.command {
-            QueryCommands::Block { command } => command.apply(context, ())?,
-            QueryCommands::Transaction { command } => command.apply(context, ())?,
-            QueryCommands::Program { command } => command.apply(context, ())?,
-            QueryCommands::Stateroot { command } => command.apply(context, ())?,
-            QueryCommands::Committee { command } => command.apply(context, ())?,
-            QueryCommands::Mempool { command } => {
-                if self.endpoint == "https://api.explorer.aleo.org/v1" {
-                    tracing::warn!(
-                        "⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
-                    );
-                }
-                command.apply(context, ())?
-            }
-            QueryCommands::Peers { command } => {
-                if self.endpoint == "https://api.explorer.aleo.org/v1" {
-                    tracing::warn!(
-                        "⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
-                    );
-                }
-                command.apply(context, ())?
-            }
-        };
-
-        // Make GET request to retrieve on-chain state.
-        let url = format!("{}/{}/{}", self.endpoint, self.network, output);
-        let response = ureq::get(&url.clone())
-            .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")
-            .call()
-            .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
-        if response.status() == 200 {
-            // Unescape the newlines.
-            let result = response.into_string().unwrap().replace("\\n", "\n").replace('\"', "");
-            if !recursive {
-                tracing::info!("✅ Successfully retrieved data from '{url}'.\n");
-                println!("{}\n", result);
-            }
-            Ok(result)
-        } else {
-            Err(UtilError::network_error(url, response.status(), Default::default()).into())
+        // Parse the network.
+        let network = NetworkName::try_from(self.network.as_str())?;
+        match network {
+            NetworkName::MainnetV0 => handle_query::<MainnetV0>(self, context),
+            NetworkName::TestnetV0 => handle_query::<TestnetV0>(self, context),
         }
     }
+
+}
+
+// A helper function to handle the `query` command.
+fn handle_query<N: Network>(query: Query, context: Context) -> Result<<Query as Command>::Output> {
+    let recursive = context.recursive;
+    let (program, output, ) = match query.command {
+        QueryCommands::Block { command } => (None, command.apply(context, ())?),
+        QueryCommands::Transaction { command } => (None, command.apply(context, ())?),
+        QueryCommands::Program { command } => {
+            // Check if querying for program source code.
+            let program = if command.mappings || command.mapping_value.is_some() {
+                None
+            } else {
+                Some(command.name.clone())
+            };
+            (program, command.apply(context, ())?)
+        },
+        QueryCommands::Stateroot { command } => (None, command.apply(context, ())?),
+        QueryCommands::Committee { command } => (None, command.apply(context, ())?),
+        QueryCommands::Mempool { command } => {
+            if query.endpoint == "https://api.explorer.aleo.org/v1" {
+                tracing::warn!(
+                        "⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
+                    );
+            }
+            (None, command.apply(context, ())?)
+        }
+        QueryCommands::Peers { command } => {
+            if query.endpoint == "https://api.explorer.aleo.org/v1" {
+                tracing::warn!(
+                        "⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
+                    );
+            }
+            (None, command.apply(context, ())?)
+        }
+    };
+
+    // Make GET request to retrieve on-chain state.
+    let url = format!("{}/{}/{output}", query.endpoint, query.network);
+    let result = fetch_from_network(&url)?;
+    if !recursive {
+        tracing::info!("✅ Successfully retrieved data from '{url}'.\n");
+        println!("{}\n", result);
+    }
+
+    // Verify that the source file parses into a valid Aleo program.
+    if let Some(name) = program {
+        verify_valid_program::<N>(&name, &result)?;
+    }
+
+    Ok(result)
 }
 
 #[derive(Parser, Debug)]
