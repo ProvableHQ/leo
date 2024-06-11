@@ -517,8 +517,8 @@ fn retrieve_from_network<N: Network>(
 }
 
 // Fetch the given endpoint url and return the sanitized response.
-pub fn fetch_from_network(url: &String) -> Result<String, UtilError> {
-    let response = ureq::get(&url.clone())
+pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
+    let response = ureq::get(url)
         .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
@@ -530,7 +530,7 @@ pub fn fetch_from_network(url: &String) -> Result<String, UtilError> {
 }
 
 // Verify that a fetched program is valid aleo instructions.
-pub fn verify_valid_program<N: Network>(name: &String, program: &String) -> Result<(), UtilError> {
+pub fn verify_valid_program<N: Network>(name: &str, program: &str) -> Result<(), UtilError> {
     match Program::<N>::from_str(program) {
         Ok(_) => Ok(()),
         Err(_) => Err(UtilError::snarkvm_parsing_error(name, Default::default())),
