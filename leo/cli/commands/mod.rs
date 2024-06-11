@@ -57,10 +57,15 @@ use super::*;
 use crate::cli::helpers::context::*;
 use leo_errors::{emitter::Handler, CliError, PackageError, Result};
 use leo_package::{build::*, outputs::OutputsDirectory, package::*};
+use snarkvm::prelude::{block::Transaction, Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey};
 
 use clap::Parser;
 use colored::Colorize;
+use std::str::FromStr;
 use tracing::span::Span;
+
+use crate::cli::query::QueryCommands;
+use snarkvm::console::network::Network;
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {
@@ -128,7 +133,11 @@ pub trait Command {
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug)]
 pub struct BuildOptions {
-    #[clap(long, help = "Endpoint to retrieve network state from.", default_value = "http://api.explorer.aleo.org/v1")]
+    #[clap(
+        long,
+        help = "Endpoint to retrieve network state from.",
+        default_value = "https://api.explorer.aleo.org/v1"
+    )]
     pub endpoint: String,
     #[clap(long, help = "Network to broadcast to. Defaults to mainnet.", default_value = "mainnet")]
     pub(crate) network: String,
@@ -199,10 +208,12 @@ impl Default for BuildOptions {
 
 /// On Chain Execution Options to set preferences for keys, fees and networks.
 /// Used by Execute and Deploy commands.
-#[derive(Parser, Clone, Debug)]
+#[derive(Parser, Clone, Debug, Default)]
 pub struct FeeOptions {
+    #[clap(short, long, help = "Performs a dry-run of transaction generation")]
+    pub(crate) dry_run: bool,
     #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
-    pub(crate) priority_fee: String,
+    pub(crate) priority_fee: u64,
     #[clap(long, help = "Private key to authorize fee expenditure.")]
     pub(crate) private_key: Option<String>,
     #[clap(
@@ -213,8 +224,113 @@ pub struct FeeOptions {
     record: Option<String>,
 }
 
-impl Default for FeeOptions {
-    fn default() -> Self {
-        Self { priority_fee: "0".to_string(), private_key: None, record: None }
+/// Parses the record string. If the string is a ciphertext, then attempt to decrypt it. Lifted from snarkOS.
+pub fn parse_record<N: Network>(private_key: &PrivateKey<N>, record: &str) -> Result<Record<N, Plaintext<N>>> {
+    match record.starts_with("record1") {
+        true => {
+            // Parse the ciphertext.
+            let ciphertext = Record::<N, Ciphertext<N>>::from_str(record)?;
+            // Derive the view key.
+            let view_key = ViewKey::try_from(private_key)?;
+            // Decrypt the ciphertext.
+            Ok(ciphertext.decrypt(&view_key)?)
+        }
+        false => Ok(Record::<N, Plaintext<N>>::from_str(record)?),
     }
+}
+
+fn check_balance<N: Network>(
+    private_key: &PrivateKey<N>,
+    endpoint: &str,
+    network: &str,
+    context: Context,
+    total_cost: u64,
+) -> Result<()> {
+    // Derive the account address.
+    let address = Address::<N>::try_from(ViewKey::try_from(private_key)?)?;
+    // Query the public balance of the address on the `account` mapping from `credits.aleo`.
+    let mut public_balance = Query {
+        endpoint: endpoint.to_string(),
+        network: network.to_string(),
+        command: QueryCommands::Program {
+            command: crate::cli::commands::query::Program {
+                name: "credits".to_string(),
+                mappings: false,
+                mapping_value: Some(vec!["account".to_string(), address.to_string()]),
+            },
+        },
+    }
+    .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
+    // Remove the last 3 characters since they represent the `u64` suffix.
+    public_balance.truncate(public_balance.len() - 3);
+    // Compare balance.
+    if public_balance.parse::<u64>().unwrap() < total_cost {
+        Err(PackageError::insufficient_balance(address, public_balance, total_cost).into())
+    } else {
+        Ok(())
+    }
+}
+
+/// Determine if the transaction should be broadcast or displayed to user.
+fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, operation: &String) -> Result<()> {
+    println!("Broadcasting transaction to {}...", endpoint.clone());
+    // Get the transaction id.
+    let transaction_id = transaction.id();
+
+    // Send the deployment request to the local development node.
+    return match ureq::post(endpoint).send_json(&transaction) {
+        Ok(id) => {
+            // Remove the quotes from the response.
+            let _response_string =
+                id.into_string().map_err(CliError::string_parse_error)?.trim_matches('\"').to_string();
+
+            match transaction {
+                Transaction::Deploy(..) => {
+                    println!(
+                        "⌛ Deployment {transaction_id} ('{}') has been broadcast to {}.",
+                        operation.bold(),
+                        endpoint
+                    )
+                }
+                Transaction::Execute(..) => {
+                    println!(
+                        "⌛ Execution {transaction_id} ('{}') has been broadcast to {}.",
+                        operation.bold(),
+                        endpoint
+                    )
+                }
+                Transaction::Fee(..) => {
+                    println!("❌ Failed to broadcast fee '{}' to the {}.", operation.bold(), endpoint)
+                }
+            }
+            Ok(())
+        }
+        Err(error) => {
+            let error_message = match error {
+                ureq::Error::Status(code, response) => {
+                    format!("(status code {code}: {:?})", response.into_string().map_err(CliError::string_parse_error)?)
+                }
+                ureq::Error::Transport(err) => format!("({err})"),
+            };
+
+            let msg = match transaction {
+                Transaction::Deploy(..) => {
+                    format!("❌ Failed to deploy '{}' to {}: {}", operation.bold(), &endpoint, error_message)
+                }
+                Transaction::Execute(..) => {
+                    format!(
+                        "❌ Failed to broadcast execution '{}' to {}: {}",
+                        operation.bold(),
+                        &endpoint,
+                        error_message
+                    )
+                }
+                Transaction::Fee(..) => {
+                    format!("❌ Failed to broadcast fee '{}' to {}: {}", operation.bold(), &endpoint, error_message)
+                }
+            };
+
+            Err(CliError::broadcast_error(msg).into())
+        }
+    };
 }

@@ -243,4 +243,25 @@ create_messages!(
         msg: format!("Failed to build program: {error}"),
         help: None,
     }
+
+    @backtraced
+    failed_to_parse_record {
+        args: (error: impl Display),
+        msg: format!("Failed to parse the record string.\nSnarkVM Error: {error}"),
+        help: None,
+    }
+
+    @backtraced
+    string_parse_error {
+        args: (error: impl Display),
+        msg: format!("{error}"),
+        help: None,
+    }
+
+    @backtraced
+    broadcast_error {
+        args: (error: impl Display),
+        msg: format!("{error}"),
+        help: None,
+    }
 );

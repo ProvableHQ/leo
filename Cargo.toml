@@ -43,14 +43,10 @@ members = [
   "utils/retriever"
 ]
 
-[workspace.dependencies.snarkos-cli]
-git = "https://github.com/AleoNet/snarkOS.git"
-rev = "01ea476"
-
 [workspace.dependencies.snarkvm]
 #version = "0.16.19"
 git = "https://github.com/AleoNet/snarkVM.git"
-rev = "140ff26"
+rev = "fddd8b9"
 
 [lib]
 path = "leo/lib.rs"
@@ -65,6 +61,8 @@ ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 
 [dependencies]
+num-format = "0.4.4"
+text-tables = "0.3.1"
 ureq = "2.9.7"
 
 [dependencies.leo-ast]
@@ -155,9 +153,6 @@ version = "1.0"
 
 [dependencies.serial_test]
 version = "3.1.1"
-
-[dependencies.snarkos-cli]
-workspace = true
 
 [dependencies.snarkvm]
 workspace = true
