@@ -157,6 +157,20 @@
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -174,6 +188,7 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>snarkvm::prelude::{MainnetV0, TestnetV0};
 
 <span class="kw">mod </span>block;
 <span class="kw">use </span>block::Block;
@@ -200,6 +215,7 @@
 <span class="kw">use </span>utils::<span class="kw-2">*</span>;
 
 <span class="kw">use </span>leo_errors::UtilError;
+<span class="kw">use </span>leo_retriever::{fetch_from_network, verify_valid_program, NetworkName};
 
 <span class="doccomment">///  Query live data from the Aleo network.
 </span><span class="attr">#[derive(Parser, Debug)]
@@ -231,49 +247,61 @@
     }
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-        <span class="kw">let </span>recursive = context.recursive;
-        <span class="kw">let </span>output = <span class="kw">match </span><span class="self">self</span>.command {
-            QueryCommands::Block { command } =&gt; command.apply(context, ())<span class="question-mark">?</span>,
-            QueryCommands::Transaction { command } =&gt; command.apply(context, ())<span class="question-mark">?</span>,
-            QueryCommands::Program { command } =&gt; command.apply(context, ())<span class="question-mark">?</span>,
-            QueryCommands::Stateroot { command } =&gt; command.apply(context, ())<span class="question-mark">?</span>,
-            QueryCommands::Committee { command } =&gt; command.apply(context, ())<span class="question-mark">?</span>,
-            QueryCommands::Mempool { command } =&gt; {
-                <span class="kw">if </span><span class="self">self</span>.endpoint == <span class="string">"https://api.explorer.aleo.org/v1" </span>{
-                    <span class="macro">tracing::warn!</span>(
-                        <span class="string">"⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
-                    </span>);
-                }
-                command.apply(context, ())<span class="question-mark">?
-            </span>}
-            QueryCommands::Peers { command } =&gt; {
-                <span class="kw">if </span><span class="self">self</span>.endpoint == <span class="string">"https://api.explorer.aleo.org/v1" </span>{
-                    <span class="macro">tracing::warn!</span>(
-                        <span class="string">"⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
-                    </span>);
-                }
-                command.apply(context, ())<span class="question-mark">?
-            </span>}
-        };
-
-        <span class="comment">// Make GET request to retrieve on-chain state.
-        </span><span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/{}/{}"</span>, <span class="self">self</span>.endpoint, <span class="self">self</span>.network, output);
-        <span class="kw">let </span>response = ureq::get(<span class="kw-2">&amp;</span>url.clone())
-            .set(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"X-Aleo-Leo-{}"</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>)), <span class="string">"true"</span>)
-            .call()
-            .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))<span class="question-mark">?</span>;
-        <span class="kw">if </span>response.status() == <span class="number">200 </span>{
-            <span class="comment">// Unescape the newlines.
-            </span><span class="kw">let </span>result = response.into_string().unwrap().replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>).replace(<span class="string">'\"'</span>, <span class="string">""</span>);
-            <span class="kw">if </span>!recursive {
-                <span class="macro">tracing::info!</span>(<span class="string">"✅ Successfully retrieved data from '{url}'.\n"</span>);
-                <span class="macro">println!</span>(<span class="string">"{}\n"</span>, result);
-            }
-            <span class="prelude-val">Ok</span>(result)
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(UtilError::network_error(url, response.status(), Default::default()).into())
+        <span class="comment">// Parse the network.
+        </span><span class="kw">let </span>network = NetworkName::try_from(<span class="self">self</span>.network.as_str())<span class="question-mark">?</span>;
+        <span class="kw">match </span>network {
+            NetworkName::MainnetV0 =&gt; handle_query::&lt;MainnetV0&gt;(<span class="self">self</span>, context),
+            NetworkName::TestnetV0 =&gt; handle_query::&lt;TestnetV0&gt;(<span class="self">self</span>, context),
         }
     }
+}
+
+<span class="comment">// A helper function to handle the `query` command.
+</span><span class="kw">fn </span>handle_query&lt;N: Network&gt;(query: Query, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Query <span class="kw">as </span>Command&gt;::Output&gt; {
+    <span class="kw">let </span>recursive = context.recursive;
+    <span class="kw">let </span>(program, output) = <span class="kw">match </span>query.command {
+        QueryCommands::Block { command } =&gt; (<span class="prelude-val">None</span>, command.apply(context, ())<span class="question-mark">?</span>),
+        QueryCommands::Transaction { command } =&gt; (<span class="prelude-val">None</span>, command.apply(context, ())<span class="question-mark">?</span>),
+        QueryCommands::Program { command } =&gt; {
+            <span class="comment">// Check if querying for program source code.
+            </span><span class="kw">let </span>program =
+                <span class="kw">if </span>command.mappings || command.mapping_value.is_some() { <span class="prelude-val">None </span>} <span class="kw">else </span>{ <span class="prelude-val">Some</span>(command.name.clone()) };
+            (program, command.apply(context, ())<span class="question-mark">?</span>)
+        }
+        QueryCommands::Stateroot { command } =&gt; (<span class="prelude-val">None</span>, command.apply(context, ())<span class="question-mark">?</span>),
+        QueryCommands::Committee { command } =&gt; (<span class="prelude-val">None</span>, command.apply(context, ())<span class="question-mark">?</span>),
+        QueryCommands::Mempool { command } =&gt; {
+            <span class="kw">if </span>query.endpoint == <span class="string">"https://api.explorer.aleo.org/v1" </span>{
+                <span class="macro">tracing::warn!</span>(
+                    <span class="string">"⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
+                </span>);
+            }
+            (<span class="prelude-val">None</span>, command.apply(context, ())<span class="question-mark">?</span>)
+        }
+        QueryCommands::Peers { command } =&gt; {
+            <span class="kw">if </span>query.endpoint == <span class="string">"https://api.explorer.aleo.org/v1" </span>{
+                <span class="macro">tracing::warn!</span>(
+                    <span class="string">"⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
+                </span>);
+            }
+            (<span class="prelude-val">None</span>, command.apply(context, ())<span class="question-mark">?</span>)
+        }
+    };
+
+    <span class="comment">// Make GET request to retrieve on-chain state.
+    </span><span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/{}/{output}"</span>, query.endpoint, query.network);
+    <span class="kw">let </span>result = fetch_from_network(<span class="kw-2">&amp;</span>url)<span class="question-mark">?</span>;
+    <span class="kw">if </span>!recursive {
+        <span class="macro">tracing::info!</span>(<span class="string">"✅ Successfully retrieved data from '{url}'.\n"</span>);
+        <span class="macro">println!</span>(<span class="string">"{}\n"</span>, result);
+    }
+
+    <span class="comment">// Verify that the source file parses into a valid Aleo program.
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(name) = program {
+        verify_valid_program::&lt;N&gt;(<span class="kw-2">&amp;</span>name, <span class="kw-2">&amp;</span>result)<span class="question-mark">?</span>;
+    }
+
+    <span class="prelude-val">Ok</span>(result)
 }
 
 <span class="attr">#[derive(Parser, Debug)]

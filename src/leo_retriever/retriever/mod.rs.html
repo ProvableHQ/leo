@@ -531,6 +531,13 @@
 <a href="#529" id="529">529</a>
 <a href="#530" id="530">530</a>
 <a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -555,7 +562,7 @@
 <span class="kw">use </span>leo_passes::{common::DiGraph, DiGraphError};
 <span class="kw">use </span>leo_span::Symbol;
 
-<span class="kw">use </span>snarkvm::prelude::Network;
+<span class="kw">use </span>snarkvm::prelude::{Network, Program};
 
 <span class="kw">use </span>indexmap::{IndexMap, IndexSet};
 <span class="kw">use </span>std::{
@@ -564,6 +571,7 @@
     io::Read,
     marker::PhantomData,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
 <span class="comment">// Retriever is responsible for retrieving external programs
@@ -842,7 +850,7 @@
             })<span class="question-mark">?</span>;
 
             <span class="comment">// Cache the disassembled stub
-            </span><span class="kw">let </span>stub: Stub = disassemble_from_str::&lt;N&gt;(<span class="kw-2">&amp;</span>content)<span class="question-mark">?</span>;
+            </span><span class="kw">let </span>stub: Stub = disassemble_from_str::&lt;N&gt;(<span class="kw-2">&amp;</span>name.to_string(), <span class="kw-2">&amp;</span>content)<span class="question-mark">?</span>;
             <span class="kw">if </span>cur_context.add_stub(stub.clone()) {
                 <span class="prelude-val">Err</span>(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))<span class="question-mark">?</span>;
             }
@@ -972,7 +980,7 @@
     <span class="comment">// Check if the file is already cached in `~/.aleo/registry/{network}/{program}`
     </span><span class="kw">let </span>move_to_path = home_path.join(network.to_string());
     <span class="kw">let </span>path = move_to_path.join(name.clone());
-    <span class="kw">let </span><span class="kw-2">mut </span>file_str: String;
+    <span class="kw">let </span>file_str: String;
     <span class="kw">if </span>!path.exists() {
         <span class="comment">// Create directories along the way if they don't exist
         </span>std::fs::create_dir_all(<span class="kw-2">&amp;</span>move_to_path).map_err(|err| {
@@ -983,13 +991,10 @@
             )
         })<span class="question-mark">?</span>;
 
-        <span class="comment">// Construct the endpoint for the network.
-        </span><span class="kw">let </span>endpoint = <span class="macro">format!</span>(<span class="string">"{endpoint}/{network}"</span>);
-
         <span class="comment">// Fetch from network
-        </span><span class="macro">println!</span>(<span class="string">"Retrieving {name} from {endpoint}."</span>);
-        file_str = fetch_from_network(<span class="kw-2">&amp;</span>endpoint, name)<span class="question-mark">?</span>;
-        file_str = file_str.replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>).replace(<span class="string">'\"'</span>, <span class="string">""</span>);
+        </span><span class="macro">println!</span>(<span class="string">"Retrieving {name} from {endpoint} on {network}."</span>);
+        file_str = fetch_from_network(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{endpoint}/{network}/program/{}"</span>, <span class="kw-2">&amp;</span>name))<span class="question-mark">?</span>;
+        verify_valid_program::&lt;N&gt;(name, <span class="kw-2">&amp;</span>file_str)<span class="question-mark">?</span>;
         <span class="macro">println!</span>(<span class="string">"Successfully retrieved {} from {:?}!"</span>, name, endpoint);
 
         <span class="comment">// Write file to cache
@@ -1031,7 +1036,7 @@
     })<span class="question-mark">?</span>;
 
     <span class="comment">// Disassemble into Stub
-    </span><span class="kw">let </span>stub: Stub = disassemble_from_str::&lt;N&gt;(<span class="kw-2">&amp;</span>file_str)<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>stub: Stub = disassemble_from_str::&lt;N&gt;(name, <span class="kw-2">&amp;</span>file_str)<span class="question-mark">?</span>;
 
     <span class="comment">// Create entry for leo.lock
     </span><span class="prelude-val">Ok</span>((
@@ -1051,15 +1056,24 @@
     ))
 }
 
-<span class="kw">fn </span>fetch_from_network(endpoint: <span class="kw-2">&amp;</span>String, program: <span class="kw-2">&amp;</span>String) -&gt; <span class="prelude-ty">Result</span>&lt;String, UtilError&gt; {
-    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/program/{}"</span>, endpoint, program);
-    <span class="kw">let </span>response = ureq::get(<span class="kw-2">&amp;</span>url.clone())
+<span class="comment">// Fetch the given endpoint url and return the sanitized response.
+</span><span class="kw">pub fn </span>fetch_from_network(url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String, UtilError&gt; {
+    <span class="kw">let </span>response = ureq::get(url)
+        .set(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"X-Aleo-Leo-{}"</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>)), <span class="string">"true"</span>)
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))<span class="question-mark">?</span>;
     <span class="kw">if </span>response.status() == <span class="number">200 </span>{
-        <span class="prelude-val">Ok</span>(response.into_string().unwrap())
+        <span class="prelude-val">Ok</span>(response.into_string().unwrap().replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>).replace(<span class="string">'\"'</span>, <span class="string">""</span>))
     } <span class="kw">else </span>{
         <span class="prelude-val">Err</span>(UtilError::network_error(url, response.status(), Default::default()))
+    }
+}
+
+<span class="comment">// Verify that a fetched program is valid aleo instructions.
+</span><span class="kw">pub fn </span>verify_valid_program&lt;N: Network&gt;(name: <span class="kw-2">&amp;</span>str, program: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), UtilError&gt; {
+    <span class="kw">match </span>Program::&lt;N&gt;::from_str(program) {
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(UtilError::snarkvm_parsing_error(name, Default::default())),
     }
 }
 </code></pre></div></section></main></body></html>

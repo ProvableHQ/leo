@@ -247,8 +247,8 @@
 
     @formatted
     snarkvm_parsing_error {
-        args: (),
-        msg: <span class="string">"SnarkVM failure to parse `.aleo` program"</span>.to_string(),
+        args: (name: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse the source file for `{name}.aleo` into a valid Aleo program."</span>),
         help: <span class="prelude-val">None</span>,
     }
 

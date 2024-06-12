@@ -130,6 +130,7 @@
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -218,10 +219,10 @@
     }
 }
 
-<span class="kw">pub fn </span>disassemble_from_str&lt;N: Network&gt;(program: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Stub, UtilError&gt; {
+<span class="kw">pub fn </span>disassemble_from_str&lt;N: Network&gt;(name: <span class="kw-2">&amp;</span>str, program: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Stub, UtilError&gt; {
     <span class="kw">match </span>Program::&lt;N&gt;::from_str(program) {
         <span class="prelude-val">Ok</span>(p) =&gt; <span class="prelude-val">Ok</span>(disassemble(p)),
-        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(UtilError::snarkvm_parsing_error(Default::default())),
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(UtilError::snarkvm_parsing_error(name, Default::default())),
     }
 }
 
@@ -256,7 +257,8 @@
         create_session_if_not_set_then(|<span class="kw">_</span>| {
             <span class="kw">let </span>program_from_file =
                 fs::read_to_string(<span class="string">"../tmp/.aleo/registry/mainnet/zk_bitwise_stack_v0_0_2.aleo"</span>).unwrap();
-            <span class="kw">let </span>_program = disassemble_from_str::&lt;CurrentNetwork&gt;(<span class="kw-2">&amp;</span>program_from_file).unwrap();
+            <span class="kw">let </span>_program =
+                disassemble_from_str::&lt;CurrentNetwork&gt;(<span class="string">"zk_bitwise_stack_v0_0_2"</span>, <span class="kw-2">&amp;</span>program_from_file).unwrap();
         });
     }
 }
