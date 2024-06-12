@@ -1186,7 +1186,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             if matches!(input_var.type_(), Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
             }
-            // Check that the input parameter is not a record.
+            // Make sure only transitions can take a record as an input.
             else if let Type::Composite(struct_) = input_var.type_() {
                 // Throw error for undefined type.
                 if !function.variant.is_transition() {
