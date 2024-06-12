@@ -24,6 +24,7 @@ use snarkvm::{
 use std::collections::HashMap;
 
 use crate::cli::query::QueryCommands;
+use dialoguer::{theme::ColorfulTheme, Confirm};
 use leo_retriever::NetworkName;
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0, AleoV0},
@@ -133,6 +134,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
             &dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string(),
         )?,
     };
+    let address = Address::try_from(&private_key)?;
 
     // If the `broadcast` flag is set, then broadcast the transaction.
     if command.broadcast {
@@ -176,7 +178,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
         // Create a new transaction.
         let transaction = vm.execute(
             &private_key,
-            (program_id, command.name),
+            (program_id, command.name.clone()),
             inputs.iter(),
             fee_record.clone(),
             command.fee_options.priority_fee,
@@ -215,7 +217,22 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
 
         // Broadcast the execution transaction.
         if !command.fee_options.dry_run {
-            println!("✅ Created execution transaction for '{}'", program_id.to_string().bold());
+            if !command.fee_options.yes {
+                let prompt = format!(
+                    "Do you want to submit execution of function `{}` on program `{program_name}.aleo` to network {} via endpoint {} using address {}?",
+                    &command.name, command.compiler_options.network, command.compiler_options.endpoint, address
+                );
+                let confirmation = Confirm::with_theme(&ColorfulTheme::default())
+                    .with_prompt(prompt)
+                    .default(false)
+                    .interact()
+                    .unwrap();
+                if !confirmation {
+                    println!("✅ Successfully aborted the execution transaction for '{}'\n", program_name.bold());
+                    return Ok(());
+                }
+            }
+            println!("✅ Created execution transaction for '{}'\n", program_id.to_string().bold());
             handle_broadcast(
                 &format!(
                     "{}/{}/transaction/broadcast",
@@ -225,7 +242,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
                 &program_name,
             )?;
         } else {
-            println!("✅ Successful dry run execution for '{}'", program_id.to_string().bold());
+            println!("✅ Successful dry run execution for '{}'\n", program_id.to_string().bold());
         }
 
         return Ok(());
@@ -362,7 +379,7 @@ fn load_program_from_network<N: Network>(
 
 // A helper function to display a cost breakdown of the execution.
 fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, finalize_cost: f64, priority_fee: f64) {
-    println!("Base execution cost for '{}' is {} credits.", name.bold(), total_cost);
+    println!("\nBase execution cost for '{}' is {} credits.\n", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
         [name, "Cost (credits)"],

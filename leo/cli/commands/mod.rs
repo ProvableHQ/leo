@@ -210,6 +210,8 @@ impl Default for BuildOptions {
 /// Used by Execute and Deploy commands.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct FeeOptions {
+    #[clap(short, long, help = "Don't ask for confirmation.", default_value = "false")]
+    pub(crate) yes: bool,
     #[clap(short, long, help = "Performs a dry-run of transaction generation")]
     pub(crate) dry_run: bool,
     #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
@@ -273,7 +275,7 @@ fn check_balance<N: Network>(
 
 /// Determine if the transaction should be broadcast or displayed to user.
 fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, operation: &String) -> Result<()> {
-    println!("Broadcasting transaction to {}...", endpoint.clone());
+    println!("Broadcasting transaction to {}...\n", endpoint.clone());
     // Get the transaction id.
     let transaction_id = transaction.id();
 
@@ -287,20 +289,20 @@ fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, 
             match transaction {
                 Transaction::Deploy(..) => {
                     println!(
-                        "⌛ Deployment {transaction_id} ('{}') has been broadcast to {}.",
+                        "⌛ Deployment {transaction_id} ('{}') has been broadcast to {}.\n",
                         operation.bold(),
                         endpoint
                     )
                 }
                 Transaction::Execute(..) => {
                     println!(
-                        "⌛ Execution {transaction_id} ('{}') has been broadcast to {}.",
+                        "⌛ Execution {transaction_id} ('{}') has been broadcast to {}.\n",
                         operation.bold(),
                         endpoint
                     )
                 }
                 Transaction::Fee(..) => {
-                    println!("❌ Failed to broadcast fee '{}' to the {}.", operation.bold(), endpoint)
+                    println!("❌ Failed to broadcast fee '{}' to the {}.\n", operation.bold(), endpoint)
                 }
             }
             Ok(())

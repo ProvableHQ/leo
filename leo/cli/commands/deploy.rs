@@ -16,6 +16,7 @@
 
 use super::*;
 use aleo_std::StorageMode;
+use dialoguer::{theme::ColorfulTheme, Confirm};
 use leo_retriever::NetworkName;
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0, AleoV0},
@@ -94,6 +95,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             &dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string(),
         )?,
     };
+    let address = Address::try_from(&private_key)?;
 
     // Specify the query
     let query = SnarkVMQuery::from(&command.options.endpoint);
@@ -185,7 +187,22 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 
         // Determine if the transaction should be broadcast, stored, or displayed to the user.
         if !command.fee_options.dry_run {
-            println!("✅ Created deployment transaction for '{}'", name.bold());
+            if !command.fee_options.yes {
+                let prompt = format!(
+                    "Do you want to submit deployment of program `{name}.aleo` to network {} via endpoint {} using address {}?",
+                    command.options.network, command.options.endpoint, address
+                );
+                let confirmation = Confirm::with_theme(&ColorfulTheme::default())
+                    .with_prompt(prompt)
+                    .default(false)
+                    .interact()
+                    .unwrap();
+                if !confirmation {
+                    println!("✅ Successfully aborted the execution transaction for '{}'\n", name.bold());
+                    return Ok(());
+                }
+            }
+            println!("✅ Created deployment transaction for '{}'\n", name.bold());
             handle_broadcast(
                 &format!("{}/{}/transaction/broadcast", command.options.endpoint, command.options.network),
                 transaction,
@@ -196,7 +213,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
                 std::thread::sleep(std::time::Duration::from_secs(command.wait));
             }
         } else {
-            println!("✅ Successful dry run deployment for '{}'", name.bold());
+            println!("✅ Successful dry run deployment for '{}'\n", name.bold());
         }
     }
 
@@ -212,7 +229,7 @@ fn deploy_cost_breakdown(
     namespace_cost: f64,
     priority_fee: f64,
 ) {
-    println!("Base deployment cost for '{}' is {} credits.", name.bold(), total_cost);
+    println!("\nBase deployment cost for '{}' is {} credits.\n", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
         [name, "Cost (credits)"],
