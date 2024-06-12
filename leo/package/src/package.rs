@@ -125,7 +125,7 @@ impl Package {
     }
 
     /// Creates a Leo package at the given path
-    pub fn initialize<N: Network>(package_name: &str, path: &Path) -> Result<()> {
+    pub fn initialize<N: Network>(package_name: &str, path: &Path, endpoint: String) -> Result<()> {
         // Construct the path to the package directory.
         let path = path.join(package_name);
 
@@ -147,7 +147,7 @@ impl Package {
         Gitignore::new().write_to(&path)?;
 
         // Create the .env file.
-        Env::<N>::new()?.write_to(&path)?;
+        Env::<N>::new(None, endpoint)?.write_to(&path)?;
 
         // Create a manifest.
         let manifest = Manifest::default(package_name);
