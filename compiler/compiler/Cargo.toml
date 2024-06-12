@@ -51,11 +51,14 @@ features = [ ]
 [dev-dependencies.leo-disassembler]
 path = "../../utils/disassembler"
 
-[dev-dependencies.leo-test-framework]
-path = "../../tests/test-framework"
-
 [dev-dependencies.leo-package]
 path = "../../leo/package"
+
+[dev-dependencies.leo-retriever]
+path = "../../utils/retriever"
+
+[dev-dependencies.leo-test-framework]
+path = "../../tests/test-framework"
 
 [dev-dependencies.aleo-std-storage]
 version = "0.1.7"
@@ -75,7 +78,7 @@ workspace = true
 version = "1.10.4"
 
 [dev-dependencies.serde]
-version = "1.0.202"
+version = "1.0.203"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]

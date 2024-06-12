@@ -16,7 +16,11 @@
 
 use super::*;
 
-use snarkvm::{cli::Run as SnarkVMRun, prelude::Parser as SnarkVMParser};
+use leo_retriever::NetworkName;
+use snarkvm::{
+    cli::Run as SnarkVMRun,
+    prelude::{MainnetV0, Network, Parser as SnarkVMParser, TestnetV0},
+};
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -47,56 +51,66 @@ impl Command for Run {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        let mut inputs = self.inputs;
-
-        // Compose the `run` command.
-        let mut arguments = vec![SNARKVM_COMMAND.to_string(), self.name];
-
-        // Add the inputs to the arguments.
-        match self.file {
-            Some(file) => {
-                // Get the contents from the file.
-                let path = context.dir()?.join(file);
-                let raw_content = std::fs::read_to_string(&path)
-                    .map_err(|err| PackageError::failed_to_read_file(path.display(), err))?;
-                // Parse the values from the file.
-                let mut content = raw_content.as_str();
-                let mut values = vec![];
-                while let Ok((remaining, value)) = snarkvm::prelude::Value::<CurrentNetwork>::parse(content) {
-                    content = remaining;
-                    values.push(value);
-                }
-                // Check that the remaining content is empty.
-                if !content.trim().is_empty() {
-                    return Err(PackageError::failed_to_read_input_file(path.display()).into());
-                }
-                // Convert the values to strings.
-                let mut inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::<Vec<String>>();
-                // Add the inputs from the file to the arguments.
-                arguments.append(&mut inputs_from_file);
-            }
-            None => arguments.append(&mut inputs),
+        // Parse the network.
+        let network = NetworkName::try_from(self.compiler_options.network.as_str())?;
+        match network {
+            NetworkName::MainnetV0 => handle_run::<MainnetV0>(self, context),
+            NetworkName::TestnetV0 => handle_run::<TestnetV0>(self, context),
         }
-
-        // Open the Leo build/ directory
-        let path = context.dir()?;
-        let build_directory = BuildDirectory::open(&path)?;
-
-        // Change the cwd to the Leo build/ directory to compile aleo files.
-        std::env::set_current_dir(&build_directory)
-            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
-
-        // Unset the Leo panic hook
-        let _ = std::panic::take_hook();
-
-        // Call the `run` command.
-        println!();
-        let command = SnarkVMRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_run)?;
-        let res = command.parse().map_err(CliError::failed_to_execute_run)?;
-
-        // Log the output of the `run` command.
-        tracing::info!("{}", res);
-
-        Ok(())
     }
+}
+
+// A helper function to handle the run command.
+fn handle_run<N: Network>(command: Run, context: Context) -> Result<<Run as Command>::Output> {
+    let mut inputs = command.inputs;
+
+    // Compose the `run` command.
+    let mut arguments = vec![SNARKVM_COMMAND.to_string(), command.name];
+
+    // Add the inputs to the arguments.
+    match command.file {
+        Some(file) => {
+            // Get the contents from the file.
+            let path = context.dir()?.join(file);
+            let raw_content =
+                std::fs::read_to_string(&path).map_err(|err| PackageError::failed_to_read_file(path.display(), err))?;
+            // Parse the values from the file.
+            let mut content = raw_content.as_str();
+            let mut values = vec![];
+            while let Ok((remaining, value)) = snarkvm::prelude::Value::<N>::parse(content) {
+                content = remaining;
+                values.push(value);
+            }
+            // Check that the remaining content is empty.
+            if !content.trim().is_empty() {
+                return Err(PackageError::failed_to_read_input_file(path.display()).into());
+            }
+            // Convert the values to strings.
+            let mut inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::<Vec<String>>();
+            // Add the inputs from the file to the arguments.
+            arguments.append(&mut inputs_from_file);
+        }
+        None => arguments.append(&mut inputs),
+    }
+
+    // Open the Leo build/ directory
+    let path = context.dir()?;
+    let build_directory = BuildDirectory::open(&path)?;
+
+    // Change the cwd to the Leo build/ directory to compile aleo files.
+    std::env::set_current_dir(&build_directory)
+        .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
+
+    // Unset the Leo panic hook
+    let _ = std::panic::take_hook();
+
+    // Call the `run` command.
+    println!();
+    let command = SnarkVMRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_run)?;
+    let res = command.parse().map_err(CliError::failed_to_execute_run)?;
+
+    // Log the output of the `run` command.
+    tracing::info!("{}", res);
+
+    Ok(())
 }

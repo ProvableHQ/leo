@@ -93,7 +93,7 @@ create_messages!(
     @backtraced
     failed_to_load_instructions {
         args: (error: impl Display),
-        msg: format!("Failed to load compiled Aleo instructions into an Aleo file.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to load compiled Aleo instructions into an Aleo file.\nError: {error}"),
         help: Some("Generated Aleo instructions have been left in `main.aleo`".to_string()),
     }
 
@@ -107,84 +107,84 @@ create_messages!(
     @backtraced
     failed_to_execute_build {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `build` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `build` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_execute_new {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `new` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `new` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_execute_run {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `run` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `run` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_execute_node {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `node` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `node` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_execute_deploy {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `deploy` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `deploy` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_parse_new {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `new` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse the `new` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_parse_run {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `run` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse the `run` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_parse_node {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `node` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse the `node` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_parse_deploy {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `deploy` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse the `deploy` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_parse_execute {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `execute` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse the `execute` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_execute_execute {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `execute` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `execute` command.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_parse_seed {
         args: (error: impl Display),
-        msg: format!("Failed to parse the seed string for account.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse the seed string for account.\nError: {error}"),
         help: None,
     }
 
@@ -198,14 +198,14 @@ create_messages!(
     @backtraced
     failed_to_parse_private_key {
         args: (error: impl Display),
-        msg: format!("Failed to parse private key.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse private key.\nError: {error}"),
         help: None,
     }
 
     @backtraced
     failed_to_execute_account {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `account` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `account` command.\nError: {error}"),
         help: None,
     }
 
@@ -220,6 +220,27 @@ create_messages!(
     recursive_deploy_with_record {
         args: (),
         msg: "Cannot combine recursive deploy with private fee.".to_string(),
+        help: None,
+    }
+
+    @backtraced
+    invalid_network_name {
+        args: (network: impl Display),
+        msg: format!("Invalid network name: {network}"),
+        help: Some("Valid network names are `testnet` and `mainnet`.".to_string()),
+    }
+
+    @backtraced
+    invalid_example {
+        args: (example: impl Display),
+        msg: format!("Invalid Leo example: {example}"),
+        help: Some("Valid Leo examples are `lottery`, `tictactoe`, and `token`.".to_string()),
+    }
+
+    @backtraced
+    build_error {
+        args: (error: impl Display),
+        msg: format!("Failed to build program: {error}"),
         help: None,
     }
 );
