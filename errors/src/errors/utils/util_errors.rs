@@ -49,8 +49,8 @@ create_messages!(
 
     @formatted
     snarkvm_parsing_error {
-        args: (),
-        msg: "SnarkVM failure to parse `.aleo` program".to_string(),
+        args: (name: impl Display),
+        msg: format!("Failed to parse the source file for `{name}.aleo` into a valid Aleo program."),
         help: None,
     }
 

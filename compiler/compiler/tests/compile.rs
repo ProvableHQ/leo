@@ -140,8 +140,9 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
             handler.extend_if_error(process.add_program(&aleo_program).map_err(LeoError::Anyhow))?;
 
             // Add the bytecode to the import stubs.
-            let stub =
-                handler.extend_if_error(disassemble_from_str::<CurrentNetwork>(&bytecode).map_err(|err| err.into()))?;
+            let stub = handler.extend_if_error(
+                disassemble_from_str::<CurrentNetwork>(&program_name, &bytecode).map_err(|err| err.into()),
+            )?;
             import_stubs.insert(Symbol::intern(&program_name), stub);
 
             // Hash the ast files.
