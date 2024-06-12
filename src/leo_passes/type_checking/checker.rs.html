@@ -2571,7 +2571,7 @@
             </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
                 <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
             }
-            <span class="comment">// Check that the input parameter is not a record.
+            <span class="comment">// Make sure only transitions can take a record as an input.
             </span><span class="kw">else if let </span>Type::Composite(struct_) = input_var.type_() {
                 <span class="comment">// Throw error for undefined type.
                 </span><span class="kw">if </span>!function.variant.is_transition() {
