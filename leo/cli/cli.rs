@@ -126,7 +126,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
-    let context = handle_error(Context::new(cli.path, cli.home));
+    let context = handle_error(Context::new(cli.path, cli.home, false));
 
     match cli.command {
         Commands::Add { command } => command.try_execute(context),

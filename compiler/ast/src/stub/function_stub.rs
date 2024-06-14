@@ -240,7 +240,7 @@ impl FunctionStub {
                             span: Default::default(),
                             id: Default::default(),
                             type_: Type::Composite(CompositeType {
-                                id: Identifier::from(loc.name()),
+                                id: Identifier::from(loc.resource()),
                                 program: Some(ProgramId::from(loc.program_id()).name.name),
                             }),
                         },

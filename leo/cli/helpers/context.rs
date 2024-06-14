@@ -39,11 +39,14 @@ pub struct Context {
     pub path: Option<PathBuf>,
     /// Path to use for the Aleo registry, None when default
     pub home: Option<PathBuf>,
+    /// Recursive flag.
+    // TODO: Shift from callee to caller by including display method
+    pub recursive: bool,
 }
 
 impl Context {
-    pub fn new(path: Option<PathBuf>, home: Option<PathBuf>) -> Result<Context> {
-        Ok(Context { path, home })
+    pub fn new(path: Option<PathBuf>, home: Option<PathBuf>, recursive: bool) -> Result<Context> {
+        Ok(Context { path, home, recursive })
     }
 
     /// Returns the path of the parent directory to the Leo package.

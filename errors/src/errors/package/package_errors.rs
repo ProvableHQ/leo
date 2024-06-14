@@ -404,4 +404,18 @@ create_messages!(
         msg: format!("Failed to read manifest file from the provided file path {path} - {error}"),
         help: None,
     }
+
+    @backtraced
+    insufficient_balance {
+        args: (address: impl Display, balance: impl Display, fee: impl Display),
+        msg: format!("❌ Your public balance of {balance} for {address} is insufficient to pay the base fee of {fee}"),
+        help: None,
+    }
+
+    @backtraced
+    execution_error {
+        args: (error: impl Display),
+        msg: format!("❌ Execution error: {error}"),
+        help: Some("Make sure that you are using the right `--network` options.".to_string()),
+    }
 );

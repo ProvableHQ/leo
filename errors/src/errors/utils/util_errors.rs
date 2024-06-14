@@ -49,15 +49,15 @@ create_messages!(
 
     @formatted
     snarkvm_parsing_error {
-        args: (),
-        msg: format!("SnarkVM failure to parse `.aleo` program"),
+        args: (name: impl Display),
+        msg: format!("Failed to parse the source file for `{name}.aleo` into a valid Aleo program."),
         help: None,
     }
 
     @formatted
     circular_dependency_error {
         args: (),
-        msg: format!("Circular dependency detected"),
+        msg: "Circular dependency detected".to_string(),
         help: None,
     }
 
@@ -65,7 +65,7 @@ create_messages!(
     network_error {
         args: (url: impl Display, status: impl Display),
         msg: format!("Failed network request to {url}. Status: {status}"),
-        help: None,
+        help: Some("Make sure that you are using the correct `--network` and `--endpoint` options.".to_string()),
     }
 
     @formatted
