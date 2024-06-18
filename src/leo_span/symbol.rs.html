@@ -486,7 +486,7 @@
 <span class="kw">use </span>std::cell::RefCell;
 
 <span class="doccomment">/// A helper for `symbols` defined below.
-/// The macro's job is to bind conveniently  usable `const` items to the symbol names provided.
+/// The macro's job is to bind conveniently usable `const` items to the symbol names provided.
 /// For example, with `symbol { a, b }` you'd have `sym::a` and `sym::b`.
 </span><span class="macro">macro_rules!</span> consts {
     (<span class="macro-nonterminal">$val</span>: expr, <span class="macro-nonterminal">$sym</span>:ident $(,)<span class="question-mark">?</span>) =&gt; {
@@ -507,7 +507,7 @@
 }
 
 <span class="doccomment">/// A helper for `symbols` defined below.
-/// The macro's job is to merge all the hard coded strings into a single array of strings.
+/// The macro's job is to merge all the hard-coded strings into a single array of strings.
 /// The strategy applied is [push-down accumulation](https://danielkeep.github.io/tlborm/book/pat-push-down-accumulation.html).
 </span><span class="macro">macro_rules!</span> strings {
     <span class="comment">// Final step 0) in the push-down accumulation.
@@ -538,12 +538,12 @@
 }
 
 <span class="doccomment">/// Creates predefined symbols used throughout the Leo compiler and language.
-/// Broadly speaking, any hard coded string in the compiler should be defined here.
+/// Broadly speaking, any hard-coded string in the compiler should be defined here.
 ///
 /// The macro accepts symbols separated by commas,
 /// and a symbol is either specified as a Rust identifier, in which case it is `stringify!`ed,
-/// or as `ident: "string"` where `"string"` is the actual hard coded string.
-/// The latter case can be used when the hard coded string is not a valid identifier.
+/// or as `ident: "string"` where `"string"` is the actual hard-coded string.
+/// The latter case can be used when the hard-coded string is not a valid identifier.
 /// In either case, a `const $ident: Symbol` will be created that you can access as `sym::$ident`.
 </span><span class="macro">macro_rules!</span> symbols {
     ($(<span class="macro-nonterminal">$symbols</span>:tt)<span class="kw-2">*</span>) =&gt; {

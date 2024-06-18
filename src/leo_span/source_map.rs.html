@@ -435,6 +435,16 @@
 <a href="#435" id="435">435</a>
 <a href="#436" id="436">436</a>
 <a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -450,6 +460,16 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
+
+</span><span class="doccomment">//! The source map provides an address space for positions in spans
+//! that is global across the source files that are compiled together.
+//! The source files are organized in a sequence,
+//! with the positions of each source following the ones of the previous source
+//! in the address space of positions
+//! (except for the first source, which starts at the beginning of the address space).
+//! This way, any place in any source is identified by a single position
+//! within the address space covered by the sequence of sources;
+//! the source file is determined from the position.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::span::{BytePos, CharPos, Pos, Span};
 <span class="kw">use </span>std::{
@@ -521,7 +541,7 @@
         <span class="prelude-val">Some</span>(LineCol { source_file, line, col })
     }
 
-    <span class="doccomment">/// Retrieves the location (source file, line, col) on the given span.
+    <span class="doccomment">/// Retrieves the location (source file, lines, columns) on the given span.
     </span><span class="kw">pub fn </span>span_to_location(<span class="kw-2">&amp;</span><span class="self">self</span>, sp: Span) -&gt; <span class="prelude-ty">Option</span>&lt;SpanLocation&gt; {
         <span class="kw">let </span>lo = <span class="self">self</span>.find_line_col(sp.lo)<span class="question-mark">?</span>;
         <span class="kw">let </span>hi = <span class="self">self</span>.find_line_col(sp.hi)<span class="question-mark">?</span>;
@@ -593,8 +613,8 @@
 
 <span class="doccomment">/// A file name.
 ///
-/// For now it's simply a wrapper around `PathBuf`,
-/// but may become more complicated in the future.
+/// This is either a wrapper around `PathBuf`,
+/// or a custom string description.
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub enum </span>FileName {
     <span class="doccomment">/// A real file.
@@ -635,7 +655,7 @@
 }
 
 <span class="kw">impl </span>SourceFile {
-    <span class="doccomment">/// Creates a new `SourceMap` given the file `name`,
+    <span class="doccomment">/// Creates a new `SourceFile` given the file `name`,
     /// source contents, and the `start_pos`ition.
     ///
     /// This position is used for analysis purposes.
@@ -670,7 +690,7 @@
 
     <span class="doccomment">/// Finds the line containing the given position. The return value is the
     /// index into the `lines` array of this `SourceFile`, not the 1-based line
-    /// number. If the source_file is empty or the position is located before the
+    /// number. If the source file is empty or the position is located before the
     /// first line, `None` is returned.
     </span><span class="kw">fn </span>lookup_line(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: BytePos) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         <span class="kw">match </span><span class="self">self</span>.lines.binary_search(<span class="kw-2">&amp;</span>pos) {
@@ -761,7 +781,7 @@
 
 <span class="doccomment">/// Replaces `\r\n` with `\n` in-place in `src`.
 ///
-/// Returns error if there's a lone `\r` in the string.
+/// Isolated carriage returns are left alone.
 </span><span class="kw">fn </span>normalize_newlines(src: <span class="kw-2">&amp;mut </span>String) {
     <span class="kw">if </span>!src.as_bytes().contains(<span class="kw-2">&amp;</span><span class="string">b'\r'</span>) {
         <span class="kw">return</span>;
