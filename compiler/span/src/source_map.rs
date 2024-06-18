@@ -14,6 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! The source map provides an address space for positions in spans
+//! that is global across the source files that are compiled together.
+//! The source files are organized in a sequence,
+//! with the positions of each source following the ones of the previous source
+//! in the address space of positions
+//! (except for the first source, which starts at the beginning of the address space).
+//! This way, any place in any source is identified by a single position
+//! within the address space covered by the sequence of sources;
+//! the source file is determined from the position.
+
 use crate::span::{BytePos, CharPos, Pos, Span};
 use std::{
     cell::RefCell,
@@ -84,7 +94,7 @@ impl SourceMap {
         Some(LineCol { source_file, line, col })
     }
 
-    /// Retrieves the location (source file, line, col) on the given span.
+    /// Retrieves the location (source file, lines, columns) on the given span.
     pub fn span_to_location(&self, sp: Span) -> Option<SpanLocation> {
         let lo = self.find_line_col(sp.lo)?;
         let hi = self.find_line_col(sp.hi)?;
@@ -156,8 +166,8 @@ impl SourceMapInner {
 
 /// A file name.
 ///
-/// For now it's simply a wrapper around `PathBuf`,
-/// but may become more complicated in the future.
+/// This is either a wrapper around `PathBuf`,
+/// or a custom string description.
 #[derive(Clone)]
 pub enum FileName {
     /// A real file.
@@ -198,7 +208,7 @@ pub struct SourceFile {
 }
 
 impl SourceFile {
-    /// Creates a new `SourceMap` given the file `name`,
+    /// Creates a new `SourceFile` given the file `name`,
     /// source contents, and the `start_pos`ition.
     ///
     /// This position is used for analysis purposes.
@@ -233,7 +243,7 @@ impl SourceFile {
 
     /// Finds the line containing the given position. The return value is the
     /// index into the `lines` array of this `SourceFile`, not the 1-based line
-    /// number. If the source_file is empty or the position is located before the
+    /// number. If the source file is empty or the position is located before the
     /// first line, `None` is returned.
     fn lookup_line(&self, pos: BytePos) -> Option<usize> {
         match self.lines.binary_search(&pos) {
@@ -324,7 +334,7 @@ fn remove_bom(src: &mut String) {
 
 /// Replaces `\r\n` with `\n` in-place in `src`.
 ///
-/// Returns error if there's a lone `\r` in the string.
+/// Isolated carriage returns are left alone.
 fn normalize_newlines(src: &mut String) {
     if !src.as_bytes().contains(&b'\r') {
         return;

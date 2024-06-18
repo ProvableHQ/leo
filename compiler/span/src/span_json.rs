@@ -50,7 +50,7 @@ impl<'de> Visitor<'de> for SpanMapVisitor {
     type Value = Span;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("Mapping from `span` keyword to span information")
+        formatter.write_str("mapping from `span` keyword to span information")
     }
 
     fn visit_map<M: MapAccess<'de>>(self, mut access: M) -> Result<Self::Value, M::Error> {
