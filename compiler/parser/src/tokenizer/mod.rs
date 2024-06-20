@@ -16,7 +16,7 @@
 
 //! The tokenizer to convert Leo code text into tokens.
 //!
-//! This module contains the [`tokenize()`] method which breaks down string text into tokens,
+//! This module contains the [`tokenize()`] function, which breaks down string text into tokens,
 //! optionally separated by whitespace.
 
 pub(crate) mod token;
