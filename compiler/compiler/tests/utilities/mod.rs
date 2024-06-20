@@ -285,13 +285,4 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a, CurrentNetwork>) -> 
     Ok(bytecode)
 }
 
-/// Returns the private key from the .env file specified in the directory.
-#[allow(unused)]
-pub fn dotenv_private_key(directory: &Path) -> Result<PrivateKey<CurrentNetwork>> {
-    use std::str::FromStr;
-    dotenvy::from_path(directory.join(".env")).map_err(|_| anyhow!("Missing a '.env' file in the test directory."))?;
-    // Load the private key from the environment.
-    let private_key = dotenvy::var("PRIVATE_KEY").map_err(|e| anyhow!("Missing PRIVATE_KEY - {e}"))?;
-    // Parse the private key.
-    PrivateKey::<CurrentNetwork>::from_str(&private_key)
-}
+

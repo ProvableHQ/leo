@@ -72,10 +72,11 @@ impl Command for Deploy {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(self.options.network.as_str())?;
+        let network = NetworkName::try_from(context.get_network(&self.options.network, "deploy")?)?;
+        let endpoint = context.get_endpoint(&self.options.endpoint, "deploy")?;
         match network {
-            NetworkName::MainnetV0 => handle_deploy::<AleoV0, MainnetV0>(&self, context),
-            NetworkName::TestnetV0 => handle_deploy::<AleoTestnetV0, TestnetV0>(&self, context),
+            NetworkName::MainnetV0 => handle_deploy::<AleoV0, MainnetV0>(&self, context, network, &endpoint),
+            NetworkName::TestnetV0 => handle_deploy::<AleoTestnetV0, TestnetV0>(&self, context, network, &endpoint),
         }
     }
 }
@@ -84,21 +85,18 @@ impl Command for Deploy {
 fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
     command: &Deploy,
     context: Context,
+    network: NetworkName,
+    endpoint: &str,
 ) -> Result<<Deploy as Command>::Output> {
     // Get the program name.
     let project_name = context.open_manifest::<N>()?.program_id().to_string();
 
     // Get the private key.
-    let private_key = match &command.fee_options.private_key {
-        Some(key) => PrivateKey::from_str(key)?,
-        None => PrivateKey::from_str(
-            &dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string(),
-        )?,
-    };
+    let private_key = context.get_private_key(&command.fee_options.private_key, "deploy")?;
     let address = Address::try_from(&private_key)?;
 
     // Specify the query
-    let query = SnarkVMQuery::from(&command.options.endpoint);
+    let query = SnarkVMQuery::from(endpoint);
 
     let mut all_paths: Vec<(String, PathBuf)> = Vec::new();
 
@@ -164,8 +162,8 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
                 // Make sure the user has enough public balance to pay for the deployment.
                 check_balance(
                     &private_key,
-                    &command.options.endpoint,
-                    &command.options.network,
+                    &endpoint,
+                    &network.to_string(),
                     context.clone(),
                     total_cost,
                 )?;
@@ -190,7 +188,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             if !command.fee_options.yes {
                 let prompt = format!(
                     "Do you want to submit deployment of program `{name}.aleo` to network {} via endpoint {} using address {}?",
-                    command.options.network, command.options.endpoint, address
+                    network, endpoint, address
                 );
                 let confirmation = Confirm::with_theme(&ColorfulTheme::default())
                     .with_prompt(prompt)
@@ -204,7 +202,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             }
             println!("✅ Created deployment transaction for '{}'\n", name.bold());
             handle_broadcast(
-                &format!("{}/{}/transaction/broadcast", command.options.endpoint, command.options.network),
+                &format!("{}/{}/transaction/broadcast", endpoint, network),
                 transaction,
                 name,
             )?;

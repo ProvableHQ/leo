@@ -52,7 +52,7 @@ impl Command for Run {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(self.compiler_options.network.as_str())?;
+        let network = NetworkName::try_from(context.get_network(&self.compiler_options.network, "run")?)?;
         match network {
             NetworkName::MainnetV0 => handle_run::<MainnetV0>(self, context),
             NetworkName::TestnetV0 => handle_run::<TestnetV0>(self, context),

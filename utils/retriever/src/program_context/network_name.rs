@@ -48,6 +48,19 @@ impl TryFrom<&str> for NetworkName {
         }
     }
 }
+impl TryFrom<String> for NetworkName {
+    type Error = LeoError;
+
+    fn try_from(network: String) -> Result<Self, LeoError> {
+        if network == "testnet" {
+            Ok(NetworkName::TestnetV0)
+        } else if network == "mainnet" {
+            Ok(NetworkName::MainnetV0)
+        } else {
+            Err(LeoError::CliError(CliError::invalid_network_name(&network)))
+        }
+    }
+}
 
 impl fmt::Display for NetworkName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

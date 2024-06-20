@@ -135,12 +135,10 @@ pub trait Command {
 pub struct BuildOptions {
     #[clap(
         long,
-        help = "Endpoint to retrieve network state from.",
-        default_value = "https://api.explorer.aleo.org/v1"
-    )]
-    pub endpoint: String,
-    #[clap(long, help = "Network to broadcast to. Defaults to mainnet.", default_value = "mainnet")]
-    pub(crate) network: String,
+        help = "Endpoint to retrieve network state from. Overrides setting in `.env`.")]
+    pub endpoint: Option<String>,
+    #[clap(long, help = "Network to broadcast to. Overrides setting in `.env`.")] 
+    pub(crate) network: Option<String>,
     #[clap(long, help = "Does not recursively compile dependencies.")]
     pub non_recursive: bool,
     #[clap(long, help = "Enables offline mode.")]
@@ -182,8 +180,8 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            endpoint: "http://api.explorer.aleo.org/v1".to_string(),
-            network: "mainnet".to_string(),
+            endpoint: None,
+            network:None,
             non_recursive: false,
             offline: false,
             enable_symbol_table_spans: false,
@@ -252,8 +250,8 @@ fn check_balance<N: Network>(
     let address = Address::<N>::try_from(ViewKey::try_from(private_key)?)?;
     // Query the public balance of the address on the `account` mapping from `credits.aleo`.
     let mut public_balance = Query {
-        endpoint: endpoint.to_string(),
-        network: network.to_string(),
+        endpoint: Some(endpoint.to_string()),
+        network: Some(network.to_string()),
         command: QueryCommands::Program {
             command: crate::cli::commands::query::Program {
                 name: "credits".to_string(),

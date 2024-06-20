@@ -87,16 +87,17 @@ impl Command for Execute {
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(self.compiler_options.network.as_str())?;
+        let network = NetworkName::try_from(context.get_network(&self.compiler_options.network, "deploy")?)?;
+        let endpoint = context.get_endpoint(&self.compiler_options.endpoint, "deploy")?;
         match network {
-            NetworkName::MainnetV0 => handle_execute::<AleoV0>(self, context),
-            NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context),
+            NetworkName::MainnetV0 => handle_execute::<AleoV0>(self, context, network, &endpoint),
+            NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context, network, &endpoint),
         }
     }
 }
 
 // A helper function to handle the `execute` command.
-fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execute as Command>::Output> {
+fn handle_execute<A: Aleo>(command: Execute, context: Context, network: NetworkName, endpoint: &str) -> Result<<Execute as Command>::Output> {
     // If input values are provided, then run the program with those inputs.
     // Otherwise, use the input file.
     let mut inputs = command.inputs.clone();
@@ -156,7 +157,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
 
         // Specify the query
         let query =
-            SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(command.compiler_options.endpoint.clone());
+            SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(endpoint);
 
         // Initialize the storage.
         let store = ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?;
@@ -167,7 +168,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
         // Load the main program, and all of its imports.
         let program_id = &ProgramID::<A::Network>::from_str(&format!("{}.aleo", program_name))?;
         // TODO: X
-        load_program_from_network(&command, context.clone(), &mut vm.process().write(), program_id)?;
+        load_program_from_network(&command, context.clone(), &mut vm.process().write(), program_id, network, endpoint)?;
 
         let fee_record = if let Some(record) = command.fee_options.record {
             Some(parse_record(&private_key, &record)?)
@@ -208,8 +209,8 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
         if fee_record.is_none() {
             check_balance::<A::Network>(
                 &private_key,
-                &command.compiler_options.endpoint,
-                &command.compiler_options.network,
+                endpoint,
+                &network.to_string(),
                 context,
                 total_cost,
             )?;
@@ -220,7 +221,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
             if !command.fee_options.yes {
                 let prompt = format!(
                     "Do you want to submit execution of function `{}` on program `{program_name}.aleo` to network {} via endpoint {} using address {}?",
-                    &command.name, command.compiler_options.network, command.compiler_options.endpoint, address
+                    &command.name, network, endpoint, address
                 );
                 let confirmation = Confirm::with_theme(&ColorfulTheme::default())
                     .with_prompt(prompt)
@@ -236,7 +237,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
             handle_broadcast(
                 &format!(
                     "{}/{}/transaction/broadcast",
-                    command.compiler_options.endpoint, command.compiler_options.network
+                    endpoint, network
                 ),
                 transaction,
                 &program_name,
@@ -262,7 +263,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
     // Execute the request.
     let (response, execution, metrics) = package
         .execute::<A, _>(
-            command.compiler_options.endpoint.clone(),
+            endpoint.to_string(),
             &private_key,
             Identifier::try_from(command.name.clone())?,
             &inputs,
@@ -339,11 +340,13 @@ fn load_program_from_network<N: Network>(
     context: Context,
     process: &mut Process<N>,
     program_id: &ProgramID<N>,
+    network: NetworkName,
+    endpoint: &str,
 ) -> Result<()> {
     // Fetch the program.
     let program_src = Query {
-        endpoint: command.compiler_options.endpoint.clone(),
-        network: command.compiler_options.network.clone(),
+        endpoint: Some(endpoint.to_string()),
+        network: Some(network.to_string()),
         command: QueryCommands::Program {
             command: crate::cli::commands::query::Program {
                 name: program_id.to_string(),
@@ -365,7 +368,7 @@ fn load_program_from_network<N: Network>(
         // Add the imports to the process if does not exist yet.
         if !process.contains_program(import_program_id) {
             // Recursively load the program and its imports.
-            load_program_from_network(command, context.clone(), process, import_program_id)?;
+            load_program_from_network(command, context.clone(), process, import_program_id, network, endpoint)?;
         }
     }
 
