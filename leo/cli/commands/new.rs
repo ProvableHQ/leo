@@ -62,6 +62,7 @@ impl Command for New {
         match network {
             NetworkName::MainnetV0 => Package::initialize::<MainnetV0>(&self.name, &package_path, self.endpoint),
             NetworkName::TestnetV0 => Package::initialize::<TestnetV0>(&self.name, &package_path, self.endpoint),
+            NetworkName::CanaryV0 => Package::initialize::<TestnetV0>(&self.name, &package_path, self.endpoint),
         }?;
 
         Ok(())

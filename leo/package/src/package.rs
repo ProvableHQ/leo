@@ -23,8 +23,7 @@ use leo_errors::{PackageError, Result};
 use leo_retriever::{Manifest, NetworkName};
 use serde::Deserialize;
 use snarkvm::prelude::{Network, PrivateKey};
-use std::path::Path;
-use std::str::FromStr;
+use std::{path::Path, str::FromStr};
 
 #[derive(Deserialize)]
 pub struct Package {
@@ -147,9 +146,13 @@ impl Package {
         // Create the .gitignore file.
         Gitignore::new().write_to(&path)?;
 
-        // Create the .env file. 
+        // Create the .env file.
         // Include the private key of validator 0 for ease of use with local devnets, as it will automatically be seeded with funds.
-        Env::<N>::new(Some(PrivateKey::<N>::from_str("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")?), endpoint)?.write_to(&path)?;
+        Env::<N>::new(
+            Some(PrivateKey::<N>::from_str("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")?),
+            endpoint,
+        )?
+        .write_to(&path)?;
 
         // Create a manifest.
         let manifest = Manifest::default(package_name);

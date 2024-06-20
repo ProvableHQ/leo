@@ -284,5 +284,3 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a, CurrentNetwork>) -> 
 
     Ok(bytecode)
 }
-
-

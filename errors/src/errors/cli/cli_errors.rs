@@ -264,35 +264,35 @@ create_messages!(
         msg: format!("{error}"),
         help: None,
     }
-    
+
     @backtraced
     failed_to_get_endpoint_from_env {
         args: (command: impl Display),
         msg: "Failed to get an endpoint.".to_string(),
         help: Some(format!("Either make sure you have a `.env` file in current project directory with an `ENDPOINT` variable set, or set the `--endpoint` flag when invoking the CLI command.\n Example: `ENDPOINT=https://api.explorer.aleo.org/v1` or `leo {command} --endpoint \"https://api.explorer.aleo.org/v1\"`.")),
     }
-    
+
     @backtraced
     failed_to_get_private_key_from_env {
         args: (command: impl Display),
         msg: "Failed to get a private key.".to_string(),
         help: Some(format!("Either make sure you have a `.env` file in current project directory with a `PRIVATE_KEY` variable set, or set the `--private-key` flag when invoking the CLI command.\n Example: `PRIVATE_KEY=0x1234...` or `leo {command} --private-key \"APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH\"`.")),
     }
-    
+
     @backtraced
     failed_to_get_network_from_env {
         args: (command: impl Display),
         msg: "Failed to get a network.".to_string(),
         help: Some(format!("Either make sure you have a `.env` file in current project directory with a `NETWORK` variable set, or set the `--network` flag when invoking the CLI command.\n Example: `NETWORK=testnet` or `leo {command} --network testnet`.")),
     }
-    
+
     @backtraced
     constraint_limit_exceeded {
         args: (program: impl Display, limit: u64, network: impl Display),
         msg: format!("Program `{program}` exceeds the constraint limit {limit} for deployment on network {network}."),
         help: Some("Reduce the number of constraints in the program by reducing the number of instructions in transition functions.".to_string()),
     }
-    
+
     @backtraced
     variable_limit_exceeded {
         args: (program: impl Display, limit: u64, network: impl Display),

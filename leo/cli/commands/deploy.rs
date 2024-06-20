@@ -20,20 +20,18 @@ use dialoguer::{theme::ColorfulTheme, Confirm};
 use leo_retriever::NetworkName;
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0, AleoV0},
-    cli::helpers::dotenv_private_key,
     ledger::query::Query as SnarkVMQuery,
     package::Package as SnarkVMPackage,
     prelude::{
         deployment_cost,
         store::{helpers::memory::ConsensusMemory, ConsensusStore},
         MainnetV0,
-        PrivateKey,
         ProgramOwner,
         TestnetV0,
         VM,
     },
 };
-use std::{path::PathBuf, str::FromStr};
+use std::path::PathBuf;
 use text_tables;
 
 /// Deploys an Aleo program.
@@ -77,6 +75,7 @@ impl Command for Deploy {
         match network {
             NetworkName::MainnetV0 => handle_deploy::<AleoV0, MainnetV0>(&self, context, network, &endpoint),
             NetworkName::TestnetV0 => handle_deploy::<AleoTestnetV0, TestnetV0>(&self, context, network, &endpoint),
+            NetworkName::CanaryV0 => handle_deploy::<AleoV0, MainnetV0>(&self, context, network, &endpoint),
         }
     }
 }
@@ -120,15 +119,15 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 
         // Generate the deployment
         let deployment = package.deploy::<A>(None)?;
-        
+
         // Check if the number of variables and constraints are within the limits.
         if deployment.num_combined_variables()? > N::MAX_DEPLOYMENT_VARIABLES {
             return Err(CliError::variable_limit_exceeded(name, N::MAX_DEPLOYMENT_VARIABLES, network).into());
-        } 
+        }
         if deployment.num_combined_constraints()? > N::MAX_DEPLOYMENT_CONSTRAINTS {
             return Err(CliError::constraint_limit_exceeded(name, N::MAX_DEPLOYMENT_CONSTRAINTS, network).into());
         }
-        
+
         let deployment_id = deployment.to_deployment_id()?;
 
         let store = ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?;
@@ -169,13 +168,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             }
             None => {
                 // Make sure the user has enough public balance to pay for the deployment.
-                check_balance(
-                    &private_key,
-                    &endpoint,
-                    &network.to_string(),
-                    context.clone(),
-                    total_cost,
-                )?;
+                check_balance(&private_key, endpoint, &network.to_string(), context.clone(), total_cost)?;
                 let fee_authorization = vm.authorize_fee_public(
                     &private_key,
                     total_cost,
@@ -210,11 +203,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
                 }
             }
             println!("✅ Created deployment transaction for '{}'\n", name.bold());
-            handle_broadcast(
-                &format!("{}/{}/transaction/broadcast", endpoint, network),
-                transaction,
-                name,
-            )?;
+            handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), transaction, name)?;
             // Wait between successive deployments to prevent out of order deployments.
             if index < all_paths.len() - 1 {
                 std::thread::sleep(std::time::Duration::from_secs(command.wait));

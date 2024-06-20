@@ -152,6 +152,7 @@ impl Command for Account {
                 match network {
                     NetworkName::MainnetV0 => generate_new_account::<MainnetV0>(seed, write, discreet, &ctx, endpoint),
                     NetworkName::TestnetV0 => generate_new_account::<TestnetV0>(seed, write, discreet, &ctx, endpoint),
+                    NetworkName::CanaryV0 => generate_new_account::<MainnetV0>(seed, write, discreet, &ctx, endpoint),
                 }?
             }
             Account::Import { private_key, write, discreet, network, endpoint } => {
@@ -160,6 +161,7 @@ impl Command for Account {
                 match network {
                     NetworkName::MainnetV0 => import_account::<MainnetV0>(private_key, write, discreet, &ctx, endpoint),
                     NetworkName::TestnetV0 => import_account::<TestnetV0>(private_key, write, discreet, &ctx, endpoint),
+                    NetworkName::CanaryV0 => import_account::<MainnetV0>(private_key, write, discreet, &ctx, endpoint),
                 }?
             }
             Self::Sign { message, seed, raw, private_key, private_key_file, network, endpoint: _ } => {
@@ -172,6 +174,9 @@ impl Command for Account {
                     NetworkName::TestnetV0 => {
                         sign_message::<TestnetV0>(message, seed, raw, private_key, private_key_file)
                     }
+                    NetworkName::CanaryV0 => {
+                        sign_message::<MainnetV0>(message, seed, raw, private_key, private_key_file)
+                    }
                 }?;
                 println!("{result}")
             }
@@ -181,6 +186,7 @@ impl Command for Account {
                 let result = match network {
                     NetworkName::MainnetV0 => verify_message::<MainnetV0>(address, signature, message, raw),
                     NetworkName::TestnetV0 => verify_message::<TestnetV0>(address, signature, message, raw),
+                    NetworkName::CanaryV0 => verify_message::<MainnetV0>(address, signature, message, raw),
                 }?;
                 println!("{result}")
             }

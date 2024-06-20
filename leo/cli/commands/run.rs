@@ -56,6 +56,7 @@ impl Command for Run {
         match network {
             NetworkName::MainnetV0 => handle_run::<MainnetV0>(self, context),
             NetworkName::TestnetV0 => handle_run::<TestnetV0>(self, context),
+            NetworkName::CanaryV0 => handle_run::<TestnetV0>(self, context),
         }
     }
 }

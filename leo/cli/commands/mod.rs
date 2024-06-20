@@ -133,11 +133,9 @@ pub trait Command {
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug)]
 pub struct BuildOptions {
-    #[clap(
-        long,
-        help = "Endpoint to retrieve network state from. Overrides setting in `.env`.")]
+    #[clap(long, help = "Endpoint to retrieve network state from. Overrides setting in `.env`.")]
     pub endpoint: Option<String>,
-    #[clap(long, help = "Network to broadcast to. Overrides setting in `.env`.")] 
+    #[clap(long, help = "Network to broadcast to. Overrides setting in `.env`.")]
     pub(crate) network: Option<String>,
     #[clap(long, help = "Does not recursively compile dependencies.")]
     pub non_recursive: bool,
@@ -181,7 +179,7 @@ impl Default for BuildOptions {
     fn default() -> Self {
         Self {
             endpoint: None,
-            network:None,
+            network: None,
             non_recursive: false,
             offline: false,
             enable_symbol_table_spans: false,

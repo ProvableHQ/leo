@@ -47,12 +47,7 @@ use leo_retriever::{fetch_from_network, verify_valid_program, NetworkName};
 ///  Query live data from the Aleo network.
 #[derive(Parser, Debug)]
 pub struct Query {
-    #[clap(
-        short,
-        long,
-        global = true,
-        help = "Endpoint to retrieve network state from. Defaults to entry in `.env`.",
-    )]
+    #[clap(short, long, global = true, help = "Endpoint to retrieve network state from. Defaults to entry in `.env`.")]
     pub endpoint: Option<String>,
     #[clap(short, long, global = true, help = "Network to use. Defaults to entry in `.env`.")]
     pub(crate) network: Option<String>,
@@ -79,12 +74,18 @@ impl Command for Query {
         match network {
             NetworkName::MainnetV0 => handle_query::<MainnetV0>(self, context, &network.to_string(), &endpoint),
             NetworkName::TestnetV0 => handle_query::<TestnetV0>(self, context, &network.to_string(), &endpoint),
+            NetworkName::CanaryV0 => handle_query::<MainnetV0>(self, context, &network.to_string(), &endpoint),
         }
     }
 }
 
 // A helper function to handle the `query` command.
-fn handle_query<N: Network>(query: Query, context: Context, network: &str, endpoint: &str) -> Result<<Query as Command>::Output> {
+fn handle_query<N: Network>(
+    query: Query,
+    context: Context,
+    network: &str,
+    endpoint: &str,
+) -> Result<<Query as Command>::Output> {
     let recursive = context.recursive;
     let (program, output) = match query.command {
         QueryCommands::Block { command } => (None, command.apply(context, ())?),

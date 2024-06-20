@@ -92,12 +92,18 @@ impl Command for Execute {
         match network {
             NetworkName::MainnetV0 => handle_execute::<AleoV0>(self, context, network, &endpoint),
             NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context, network, &endpoint),
+            NetworkName::CanaryV0 => handle_execute::<AleoV0>(self, context, network, &endpoint),
         }
     }
 }
 
 // A helper function to handle the `execute` command.
-fn handle_execute<A: Aleo>(command: Execute, context: Context, network: NetworkName, endpoint: &str) -> Result<<Execute as Command>::Output> {
+fn handle_execute<A: Aleo>(
+    command: Execute,
+    context: Context,
+    network: NetworkName,
+    endpoint: &str,
+) -> Result<<Execute as Command>::Output> {
     // If input values are provided, then run the program with those inputs.
     // Otherwise, use the input file.
     let mut inputs = command.inputs.clone();
@@ -156,8 +162,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context, network: NetworkN
         };
 
         // Specify the query
-        let query =
-            SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(endpoint);
+        let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(endpoint);
 
         // Initialize the storage.
         let store = ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?;
@@ -207,13 +212,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context, network: NetworkN
 
         // Check if the public balance is sufficient.
         if fee_record.is_none() {
-            check_balance::<A::Network>(
-                &private_key,
-                endpoint,
-                &network.to_string(),
-                context,
-                total_cost,
-            )?;
+            check_balance::<A::Network>(&private_key, endpoint, &network.to_string(), context, total_cost)?;
         }
 
         // Broadcast the execution transaction.
@@ -234,14 +233,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context, network: NetworkN
                 }
             }
             println!("✅ Created execution transaction for '{}'\n", program_id.to_string().bold());
-            handle_broadcast(
-                &format!(
-                    "{}/{}/transaction/broadcast",
-                    endpoint, network
-                ),
-                transaction,
-                &program_name,
-            )?;
+            handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), transaction, &program_name)?;
         } else {
             println!("✅ Successful dry run execution for '{}'\n", program_id.to_string().bold());
         }
@@ -262,13 +254,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context, network: NetworkN
     let inputs = inputs.iter().map(|input| Value::from_str(input).unwrap()).collect::<Vec<Value<A::Network>>>();
     // Execute the request.
     let (response, execution, metrics) = package
-        .execute::<A, _>(
-            endpoint.to_string(),
-            &private_key,
-            Identifier::try_from(command.name.clone())?,
-            &inputs,
-            rng,
-        )
+        .execute::<A, _>(endpoint.to_string(), &private_key, Identifier::try_from(command.name.clone())?, &inputs, rng)
         .map_err(PackageError::execution_error)?;
 
     let fee = None;

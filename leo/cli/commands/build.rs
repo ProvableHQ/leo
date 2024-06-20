@@ -97,6 +97,7 @@ impl Command for Build {
         match network {
             NetworkName::MainnetV0 => handle_build::<MainnetV0>(&self, context),
             NetworkName::TestnetV0 => handle_build::<TestnetV0>(&self, context),
+            NetworkName::CanaryV0 => handle_build::<MainnetV0>(&self, context),
         }
     }
 }
@@ -123,8 +124,13 @@ fn handle_build<N: Network>(command: &Build, context: Context) -> Result<<Build 
 
     // Retrieve all local dependencies in post order
     let main_sym = Symbol::intern(&program_id.name().to_string());
-    let mut retriever = Retriever::<N>::new(main_sym, &package_path, &home_path, context.get_endpoint(&command.options.endpoint, "build")?.to_string())
-        .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+    let mut retriever = Retriever::<N>::new(
+        main_sym,
+        &package_path,
+        &home_path,
+        context.get_endpoint(&command.options.endpoint, "build")?.to_string(),
+    )
+    .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
     let mut local_dependencies =
         retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
