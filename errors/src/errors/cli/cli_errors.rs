@@ -285,4 +285,18 @@ create_messages!(
         msg: "Failed to get a network.".to_string(),
         help: Some(format!("Either make sure you have a `.env` file in current project directory with a `NETWORK` variable set, or set the `--network` flag when invoking the CLI command.\n Example: `NETWORK=testnet` or `leo {command} --network testnet`.")),
     }
+    
+    @backtraced
+    constraint_limit_exceeded {
+        args: (program: impl Display, limit: u64, network: impl Display),
+        msg: format!("Program `{program}` exceeds the constraint limit {limit} for deployment on network {network}."),
+        help: Some("Reduce the number of constraints in the program by reducing the number of instructions in transition functions.".to_string()),
+    }
+    
+    @backtraced
+    variable_limit_exceeded {
+        args: (program: impl Display, limit: u64, network: impl Display),
+        msg: format!("Program `{program}` exceeds the variable limit {limit} for deployment on network {network}."),
+        help: Some("Reduce the number of variables in the program by reducing the number of instructions in transition functions.".to_string()),
+    }
 );

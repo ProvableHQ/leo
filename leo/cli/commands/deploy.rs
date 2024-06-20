@@ -120,6 +120,15 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 
         // Generate the deployment
         let deployment = package.deploy::<A>(None)?;
+        
+        // Check if the number of variables and constraints are within the limits.
+        if deployment.num_combined_variables()? > N::MAX_DEPLOYMENT_VARIABLES {
+            return Err(CliError::variable_limit_exceeded(name, N::MAX_DEPLOYMENT_VARIABLES, network).into());
+        } 
+        if deployment.num_combined_constraints()? > N::MAX_DEPLOYMENT_CONSTRAINTS {
+            return Err(CliError::constraint_limit_exceeded(name, N::MAX_DEPLOYMENT_CONSTRAINTS, network).into());
+        }
+        
         let deployment_id = deployment.to_deployment_id()?;
 
         let store = ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?;
