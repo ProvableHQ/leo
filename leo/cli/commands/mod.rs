@@ -264,9 +264,11 @@ fn check_balance<N: Network>(
     // Remove the last 3 characters since they represent the `u64` suffix.
     public_balance.truncate(public_balance.len() - 3);
     // Compare balance.
-    if public_balance.parse::<u64>().unwrap() < total_cost {
+    let balance = public_balance.parse::<u64>().unwrap();
+    if balance < total_cost {
         Err(PackageError::insufficient_balance(address, public_balance, total_cost).into())
     } else {
+        println!("Your current public balance is {} credits.\n", balance as f64 / 1_000_000.0);
         Ok(())
     }
 }
