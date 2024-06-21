@@ -19,6 +19,7 @@ echo "
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 echo "✅ Successfully initialized Player 1."
@@ -117,6 +118,7 @@ echo "
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 leo run play '{
@@ -187,6 +189,7 @@ echo "
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 leo run play '{
@@ -250,4 +253,5 @@ echo "
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env

@@ -20,6 +20,7 @@ fi
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 # Have the bank issue 100 tokens to the user.
@@ -164,6 +165,7 @@ echo "
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 # Have the bank withdraw all of the user's tokens with compound interest over 15 periods at 12.34%.

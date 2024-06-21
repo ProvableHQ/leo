@@ -172,8 +172,7 @@ fn handle_execute<A: Aleo>(
 
         // Load the main program, and all of its imports.
         let program_id = &ProgramID::<A::Network>::from_str(&format!("{}.aleo", program_name))?;
-        // TODO: X
-        load_program_from_network(&command, context.clone(), &mut vm.process().write(), program_id, network, endpoint)?;
+        load_program_from_network(context.clone(), &mut vm.process().write(), program_id, network, endpoint)?;
 
         let fee_record = if let Some(record) = command.fee_options.record {
             Some(parse_record(&private_key, &record)?)
@@ -322,7 +321,6 @@ fn handle_execute<A: Aleo>(
 
 /// A helper function to recursively load the program and all of its imports into the process. Lifted from snarkOS.
 fn load_program_from_network<N: Network>(
-    command: &Execute,
     context: Context,
     process: &mut Process<N>,
     program_id: &ProgramID<N>,
@@ -354,7 +352,7 @@ fn load_program_from_network<N: Network>(
         // Add the imports to the process if does not exist yet.
         if !process.contains_program(import_program_id) {
             // Recursively load the program and its imports.
-            load_program_from_network(command, context.clone(), process, import_program_id, network, endpoint)?;
+            load_program_from_network(context.clone(), process, import_program_id, network, endpoint)?;
         }
     }
 

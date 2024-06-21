@@ -23,7 +23,7 @@ use snarkvm::file::Manifest;
 
 use aleo_std::aleo_dir;
 use indexmap::IndexMap;
-use snarkvm::prelude::{Itertools, Network, PrivateKey};
+use snarkvm::prelude::{Network, PrivateKey};
 use std::{
     env::current_dir,
     fs::File,

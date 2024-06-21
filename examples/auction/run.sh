@@ -40,6 +40,7 @@ echo "
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 # Have the first bidder place a bid of 10.
@@ -141,6 +142,7 @@ leo run finish "{
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 

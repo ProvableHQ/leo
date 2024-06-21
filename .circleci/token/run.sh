@@ -21,6 +21,7 @@ fi
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 # Publicly mint 100 tokens for Alice.
@@ -89,6 +90,7 @@ leo run mint_private aleo17vy26rpdhqx4598y5gp7nvaa9rk7tnvl6ufhvvf4calsrrqdaqyshd
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 # Publicly transfer 10 tokens from Alice to Bob.
@@ -161,6 +163,7 @@ leo run transfer_private "{
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 # Convert 30 public tokens from Alice into 30 private tokens for Bob.
@@ -237,4 +240,5 @@ leo run transfer_private_to_public "{
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
