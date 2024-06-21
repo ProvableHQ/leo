@@ -71,6 +71,7 @@ leo run issue aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t 10
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
+ENDPOINT=https://api.explorer.aleo.org/v1
 " > .env
 
 # Have the user deposit 50 tokens into the bank.
