@@ -31,7 +31,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::cell::RefCell;
 
 /// A helper for `symbols` defined below.
-/// The macro's job is to bind conveniently  usable `const` items to the symbol names provided.
+/// The macro's job is to bind conveniently usable `const` items to the symbol names provided.
 /// For example, with `symbol { a, b }` you'd have `sym::a` and `sym::b`.
 macro_rules! consts {
     ($val: expr, $sym:ident $(,)?) => {
@@ -52,7 +52,7 @@ macro_rules! consts {
 }
 
 /// A helper for `symbols` defined below.
-/// The macro's job is to merge all the hard coded strings into a single array of strings.
+/// The macro's job is to merge all the hard-coded strings into a single array of strings.
 /// The strategy applied is [push-down accumulation](https://danielkeep.github.io/tlborm/book/pat-push-down-accumulation.html).
 macro_rules! strings {
     // Final step 0) in the push-down accumulation.
@@ -83,12 +83,12 @@ macro_rules! strings {
 }
 
 /// Creates predefined symbols used throughout the Leo compiler and language.
-/// Broadly speaking, any hard coded string in the compiler should be defined here.
+/// Broadly speaking, any hard-coded string in the compiler should be defined here.
 ///
 /// The macro accepts symbols separated by commas,
 /// and a symbol is either specified as a Rust identifier, in which case it is `stringify!`ed,
-/// or as `ident: "string"` where `"string"` is the actual hard coded string.
-/// The latter case can be used when the hard coded string is not a valid identifier.
+/// or as `ident: "string"` where `"string"` is the actual hard-coded string.
+/// The latter case can be used when the hard-coded string is not a valid identifier.
 /// In either case, a `const $ident: Symbol` will be created that you can access as `sym::$ident`.
 macro_rules! symbols {
     ($($symbols:tt)*) => {

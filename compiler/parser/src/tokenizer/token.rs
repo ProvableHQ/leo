@@ -14,25 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_span::{sym, Symbol};
-
-use serde::{Deserialize, Serialize};
 use std::fmt;
 
+use serde::{Deserialize, Serialize};
+
+use leo_span::{sym, Symbol};
+
 /// Represents all valid Leo syntax tokens.
+///
+/// The notion of 'token' here is a bit more general than in the ABNF grammar:
+/// since it includes comments and whitespace,
+/// it corresponds to the notion of 'lexeme' in the ABNF grammar.
+/// There are also a few other differences, noted in comments below.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Token {
-    // Lexical Grammar
-    // Literals
+    // Comments
     CommentLine(String),
     CommentBlock(String),
-    StaticString(String),
-    Identifier(Symbol),
-    Integer(String),
+
+    // Whitespace (we do not distinguish among different kinds here)
+    WhiteSpace,
+
+    // Literals (= atomic literals and numerals in the ABNF grammar)
+    // The string in Integer(String) consists of digits optionally followed by a type
+    // The string in AddressLit(String) has the form `aleo1...`
     True,
     False,
+    Integer(String), // = numeric literal or numeral in the ABNF grammar
     AddressLit(String),
-    WhiteSpace,
+    StaticString(String),
+
+    // Identifiers
+    Identifier(Symbol),
 
     // Symbols
     Not,
@@ -44,6 +57,8 @@ pub enum Token {
     BitAndAssign,
     BitOr,
     BitOrAssign,
+    BitXor,
+    BitXorAssign,
     Eq,
     NotEq,
     Lt,
@@ -62,6 +77,10 @@ pub enum Token {
     PowAssign,
     Rem,
     RemAssign,
+    Shl,
+    ShlAssign,
+    Shr,
+    ShrAssign,
     Assign,
     LeftParen,
     RightParen,
@@ -78,42 +97,39 @@ pub enum Token {
     Question,
     Arrow,
     BigArrow,
-    Shl,
-    ShlAssign,
-    Shr,
-    ShrAssign,
     Underscore,
-    BitXor,
-    BitXorAssign,
     At,
+    // There is no symbol for `)group` here (unlike the ABNF grammar),
+    // because we handle that differently in the lexer.
 
-    // Syntactic Grammar
-    // Types
+    // Type keywords
     Address,
     Bool,
     Field,
     Group,
-    Scalar,
-    Signature,
-    String,
     I8,
     I16,
     I32,
     I64,
     I128,
+    Record,
+    Scalar,
+    Signature,
+    String,
+    Struct,
     U8,
     U16,
     U32,
     U64,
     U128,
-    Record,
 
-    // Regular Keywords
+    // Other keywords
     As,
     Assert,
     AssertEq,
     AssertNeq,
     Async,
+    Block,
     Console,
     Const,
     Constant,
@@ -130,26 +146,23 @@ pub enum Token {
     Mapping,
     Private,
     Program,
-
-    // Public inputs.
     Public,
     Return,
     SelfLower,
-    Struct,
     Transition,
 
-    // Meta Tokens
+    // Meta tokens
     Aleo,
-    Block,
     Eof,
     Leo,
     Network,
 }
 
 /// Represents all valid Leo keyword tokens.
-/// This differs from the ABNF grammar for the following reasons:
-/// Adding true and false to the keywords of the ABNF grammar makes the lexical grammar ambiguous,
-/// because true and false are also boolean literals, which are different tokens from keywords.
+/// This also includes the boolean literals `true` and `false`,
+/// unlike the ABNF grammar, which classifies them as literals and not keywords.
+/// But for the purposes of our lexer implementation,
+/// it is fine to include the boolean literals in this list.
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
     Token::Aleo,
@@ -187,9 +200,9 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Public,
     Token::Record,
     Token::Return,
+    Token::Scalar,
     Token::SelfLower,
     Token::Signature,
-    Token::Scalar,
     Token::String,
     Token::Struct,
     Token::Transition,
@@ -268,13 +281,16 @@ impl fmt::Display for Token {
         match self {
             CommentLine(s) => write!(f, "{s}"),
             CommentBlock(s) => write!(f, "{s}"),
-            StaticString(s) => write!(f, "\"{s}\""),
-            Identifier(s) => write!(f, "{s}"),
-            Integer(s) => write!(f, "{s}"),
+
+            WhiteSpace => write!(f, "whitespace"),
+
             True => write!(f, "true"),
             False => write!(f, "false"),
+            Integer(s) => write!(f, "{s}"),
             AddressLit(s) => write!(f, "{s}"),
-            WhiteSpace => write!(f, "whitespace"),
+            StaticString(s) => write!(f, "\"{s}\""),
+
+            Identifier(s) => write!(f, "{s}"),
 
             Not => write!(f, "!"),
             And => write!(f, "&&"),
@@ -285,6 +301,8 @@ impl fmt::Display for Token {
             BitAndAssign => write!(f, "&="),
             BitOr => write!(f, "|"),
             BitOrAssign => write!(f, "|="),
+            BitXor => write!(f, "^"),
+            BitXorAssign => write!(f, "^="),
             Eq => write!(f, "=="),
             NotEq => write!(f, "!="),
             Lt => write!(f, "<"),
@@ -303,6 +321,10 @@ impl fmt::Display for Token {
             PowAssign => write!(f, "**="),
             Rem => write!(f, "%"),
             RemAssign => write!(f, "%="),
+            Shl => write!(f, "<<"),
+            ShlAssign => write!(f, "<<="),
+            Shr => write!(f, ">>"),
+            ShrAssign => write!(f, ">>="),
             Assign => write!(f, "="),
             LeftParen => write!(f, "("),
             RightParen => write!(f, ")"),
@@ -319,40 +341,35 @@ impl fmt::Display for Token {
             Question => write!(f, "?"),
             Arrow => write!(f, "->"),
             BigArrow => write!(f, "=>"),
-            Shl => write!(f, "<<"),
-            ShlAssign => write!(f, "<<="),
-            Shr => write!(f, ">>"),
-            ShrAssign => write!(f, ">>="),
             Underscore => write!(f, "_"),
-            BitXor => write!(f, "^"),
-            BitXorAssign => write!(f, "^="),
             At => write!(f, "@"),
 
             Address => write!(f, "address"),
             Bool => write!(f, "bool"),
             Field => write!(f, "field"),
             Group => write!(f, "group"),
-            Scalar => write!(f, "scalar"),
-            Signature => write!(f, "signature"),
-            String => write!(f, "string"),
             I8 => write!(f, "i8"),
             I16 => write!(f, "i16"),
             I32 => write!(f, "i32"),
             I64 => write!(f, "i64"),
             I128 => write!(f, "i128"),
+            Record => write!(f, "record"),
+            Scalar => write!(f, "scalar"),
+            Signature => write!(f, "signature"),
+            String => write!(f, "string"),
+            Struct => write!(f, "struct"),
             U8 => write!(f, "u8"),
             U16 => write!(f, "u16"),
             U32 => write!(f, "u32"),
             U64 => write!(f, "u64"),
             U128 => write!(f, "u128"),
-            Record => write!(f, "record"),
 
-            Aleo => write!(f, "aleo"),
             As => write!(f, "as"),
             Assert => write!(f, "assert"),
             AssertEq => write!(f, "assert_eq"),
             AssertNeq => write!(f, "assert_neq"),
             Async => write!(f, "async"),
+            Block => write!(f, "block"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),
             Constant => write!(f, "constant"),
@@ -372,11 +389,11 @@ impl fmt::Display for Token {
             Public => write!(f, "public"),
             Return => write!(f, "return"),
             SelfLower => write!(f, "self"),
-            Struct => write!(f, "struct"),
             Transition => write!(f, "transition"),
-            Block => write!(f, "block"),
-            Leo => write!(f, "leo"),
+
+            Aleo => write!(f, "aleo"),
             Eof => write!(f, "<eof>"),
+            Leo => write!(f, "leo"),
             Network => write!(f, "network"),
         }
     }
