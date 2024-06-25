@@ -69,8 +69,11 @@ impl Command for Block {
             is_valid_numerical_input(&range[0])?;
             is_valid_numerical_input(&range[1])?;
 
+            // Parse the range values.
+            let end = &range[1].parse::<u32>().map_err(|_| UtilError::invalid_bound(&range[1]))?;
+            let start = &range[0].parse::<u32>().map_err(|_| UtilError::invalid_bound(&range[0]))?;
             // Make sure the range is not too large.
-            if range[1].parse::<u32>().unwrap() - range[0].parse::<u32>().unwrap() > 50 {
+            if end - start > 50 {
                 return Err(UtilError::invalid_range().into());
             }
             format!("blocks?start={}&end={}", range[0], range[1])

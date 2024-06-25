@@ -313,4 +313,11 @@ create_messages!(
         msg: format!("Invalid public balance for account: {account}"),
         help: Some("Make sure the account has enough balance to pay for the deployment.".to_string()),
     }
+    
+    @backtraced
+    table_render_failed {
+        args: (error: impl Display),
+        msg: format!("Failed to render table.\nError: {error}"),
+        help: None,
+    }
 );

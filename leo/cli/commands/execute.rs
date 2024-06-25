@@ -254,13 +254,14 @@ fn handle_execute<A: Aleo>(
     // Load the package.
     let package = SnarkVMPackage::open(&path)?;
     // Convert the inputs.
-    let inputs = inputs
-        .iter()
-        .map(|input| Value::from_str(input).map_err(PackageError::snarkvm_error).unwrap())
-        .collect::<Vec<Value<A::Network>>>();
+    let mut parsed_inputs: Vec<Value<A::Network>> = Vec::new();
+    for input in inputs.iter() {
+        let value = Value::from_str(input)?;
+        parsed_inputs.push(value);
+    }
     // Execute the request.
     let (response, execution, metrics) = package
-        .execute::<A, _>(endpoint.to_string(), &private_key, Identifier::try_from(command.name.clone())?, &inputs, rng)
+        .execute::<A, _>(endpoint.to_string(), &private_key, Identifier::try_from(command.name.clone())?, &parsed_inputs, rng)
         .map_err(PackageError::execution_error)?;
 
     let fee = None;
@@ -343,7 +344,7 @@ fn load_program_from_network<N: Network>(
         },
     }
     .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
-    let program = SnarkVMProgram::<N>::from_str(&program_src).unwrap();
+    let program = SnarkVMProgram::<N>::from_str(&program_src)?;
 
     // Return early if the program is already loaded.
     if process.contains_program(program.id()) {
@@ -368,7 +369,7 @@ fn load_program_from_network<N: Network>(
 }
 
 // A helper function to display a cost breakdown of the execution.
-fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, finalize_cost: f64, priority_fee: f64) {
+fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, finalize_cost: f64, priority_fee: f64) -> Result<()> {
     println!("\nBase execution cost for '{}' is {} credits.\n", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
@@ -379,6 +380,7 @@ fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, f
         ["Total", &format!("{:.6}", total_cost)],
     ];
     let mut out = Vec::new();
-    text_tables::render(&mut out, data).unwrap();
-    println!("{}", std::str::from_utf8(&out).unwrap());
+    text_tables::render(&mut out, data).map_err(|err| CliError::table_render_failed(err))?;
+    println!("{}", std::str::from_utf8(&out).map_err(|err| CliError::table_render_failed(err))?);
+    Ok(())
 }

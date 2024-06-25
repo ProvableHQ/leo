@@ -228,7 +228,7 @@ fn deploy_cost_breakdown(
     synthesis_cost: f64,
     namespace_cost: f64,
     priority_fee: f64,
-) {
+) -> Result<()> {
     println!("\nBase deployment cost for '{}' is {} credits.\n", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
@@ -240,6 +240,7 @@ fn deploy_cost_breakdown(
         ["Total", &format!("{:.6}", total_cost)],
     ];
     let mut out = Vec::new();
-    text_tables::render(&mut out, data).unwrap();
-    println!("{}", ::std::str::from_utf8(&out).unwrap());
+    text_tables::render(&mut out, data).map_err(|err| CliError::table_render_failed(err))?;
+    println!("{}", ::std::str::from_utf8(&out).map_err(|err| CliError::table_render_failed(err))?);
+    Ok(())
 }
