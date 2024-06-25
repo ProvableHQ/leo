@@ -124,7 +124,7 @@ version = "1.9"
 features = [ "serde" ]
 
 [dependencies.lazy_static]
-version = "1.4.0"
+version = "1.5.0"
 
 [dependencies.rand]
 version = "0.8"
