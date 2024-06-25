@@ -193,7 +193,7 @@ create_messages!(
         msg: format!("Invalid field: {field}."),
         help: Some("Field element must be numerical string with optional \"field\" suffix.".to_string()),
     }
-    
+
     @backtraced
     invalid_bound {
         args: (bound: impl Display),

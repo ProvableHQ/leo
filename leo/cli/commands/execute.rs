@@ -207,7 +207,7 @@ fn handle_execute<A: Aleo>(
             storage_cost as f64 / 1_000_000.0,
             finalize_cost as f64 / 1_000_000.0,
             command.fee_options.priority_fee as f64 / 1_000_000.0,
-        );
+        )?;
 
         // Check if the public balance is sufficient.
         if fee_record.is_none() {
@@ -261,7 +261,13 @@ fn handle_execute<A: Aleo>(
     }
     // Execute the request.
     let (response, execution, metrics) = package
-        .execute::<A, _>(endpoint.to_string(), &private_key, Identifier::try_from(command.name.clone())?, &parsed_inputs, rng)
+        .execute::<A, _>(
+            endpoint.to_string(),
+            &private_key,
+            Identifier::try_from(command.name.clone())?,
+            &parsed_inputs,
+            rng,
+        )
         .map_err(PackageError::execution_error)?;
 
     let fee = None;
@@ -369,7 +375,13 @@ fn load_program_from_network<N: Network>(
 }
 
 // A helper function to display a cost breakdown of the execution.
-fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, finalize_cost: f64, priority_fee: f64) -> Result<()> {
+fn execution_cost_breakdown(
+    name: &String,
+    total_cost: f64,
+    storage_cost: f64,
+    finalize_cost: f64,
+    priority_fee: f64,
+) -> Result<()> {
     println!("\nBase execution cost for '{}' is {} credits.\n", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
@@ -380,7 +392,7 @@ fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, f
         ["Total", &format!("{:.6}", total_cost)],
     ];
     let mut out = Vec::new();
-    text_tables::render(&mut out, data).map_err(|err| CliError::table_render_failed(err))?;
-    println!("{}", std::str::from_utf8(&out).map_err(|err| CliError::table_render_failed(err))?);
+    text_tables::render(&mut out, data).map_err(CliError::table_render_failed)?;
+    println!("{}", std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
     Ok(())
 }

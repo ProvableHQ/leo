@@ -148,7 +148,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             synthesis_cost as f64 / 1_000_000.0,
             namespace_cost as f64 / 1_000_000.0,
             command.fee_options.priority_fee as f64 / 1_000_000.0,
-        );
+        )?;
 
         // Initialize an RNG.
         let rng = &mut rand::thread_rng();
@@ -240,7 +240,7 @@ fn deploy_cost_breakdown(
         ["Total", &format!("{:.6}", total_cost)],
     ];
     let mut out = Vec::new();
-    text_tables::render(&mut out, data).map_err(|err| CliError::table_render_failed(err))?;
-    println!("{}", ::std::str::from_utf8(&out).map_err(|err| CliError::table_render_failed(err))?);
+    text_tables::render(&mut out, data).map_err(CliError::table_render_failed)?;
+    println!("{}", ::std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
     Ok(())
 }
