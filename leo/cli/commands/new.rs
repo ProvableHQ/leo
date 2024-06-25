@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use snarkvm::prelude::{MainnetV0, TestnetV0};
+use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
 use leo_retriever::NetworkName;
 
@@ -62,7 +62,7 @@ impl Command for New {
         match network {
             NetworkName::MainnetV0 => Package::initialize::<MainnetV0>(&self.name, &package_path, self.endpoint),
             NetworkName::TestnetV0 => Package::initialize::<TestnetV0>(&self.name, &package_path, self.endpoint),
-            NetworkName::CanaryV0 => Package::initialize::<TestnetV0>(&self.name, &package_path, self.endpoint),
+            NetworkName::CanaryV0 => Package::initialize::<CanaryV0>(&self.name, &package_path, self.endpoint),
         }?;
 
         Ok(())

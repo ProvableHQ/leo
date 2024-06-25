@@ -87,7 +87,7 @@ impl Manifest {
     pub fn read_from_dir(path: &Path) -> Result<Self, PackageError> {
         // Read the manifest file.
         let contents = std::fs::read_to_string(path.join("program.json"))
-            .map_err(|err| PackageError::failed_to_read_file(path.to_str().unwrap(), err))?;
+            .map_err(|_| PackageError::failed_to_load_package(path.to_str().unwrap()))?;
         // Deserialize the manifest.
         serde_json::from_str(&contents)
             .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))

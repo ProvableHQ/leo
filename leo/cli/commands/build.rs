@@ -29,6 +29,7 @@ use snarkvm::{
 };
 
 use indexmap::IndexMap;
+use snarkvm::prelude::CanaryV0;
 use std::{
     io::Write,
     path::{Path, PathBuf},
@@ -93,11 +94,11 @@ impl Command for Build {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(context.get_network(&self.options.network, "build")?)?;
+        let network = NetworkName::try_from(context.get_network(&self.options.network)?)?;
         match network {
             NetworkName::MainnetV0 => handle_build::<MainnetV0>(&self, context),
             NetworkName::TestnetV0 => handle_build::<TestnetV0>(&self, context),
-            NetworkName::CanaryV0 => handle_build::<MainnetV0>(&self, context),
+            NetworkName::CanaryV0 => handle_build::<CanaryV0>(&self, context),
         }
     }
 }
@@ -128,7 +129,7 @@ fn handle_build<N: Network>(command: &Build, context: Context) -> Result<<Build 
         main_sym,
         &package_path,
         &home_path,
-        context.get_endpoint(&command.options.endpoint, "build")?.to_string(),
+        context.get_endpoint(&command.options.endpoint)?.to_string(),
     )
     .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
     let mut local_dependencies =

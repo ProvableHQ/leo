@@ -143,54 +143,52 @@ impl Context {
     }
 
     /// Returns the private key from the .env file specified in the directory.
-    pub fn dotenv_private_key<N: Network>(&self, command: &str) -> Result<PrivateKey<N>> {
-        dotenvy::from_path(self.dir()?.join(".env"))
-            .map_err(|_| CliError::failed_to_get_private_key_from_env(command))?;
+    pub fn dotenv_private_key<N: Network>(&self) -> Result<PrivateKey<N>> {
+        dotenvy::from_path(self.dir()?.join(".env")).map_err(|_| CliError::failed_to_get_private_key_from_env())?;
         // Load the private key from the environment.
-        let private_key =
-            dotenvy::var("PRIVATE_KEY").map_err(|_| CliError::failed_to_get_private_key_from_env(command))?;
+        let private_key = dotenvy::var("PRIVATE_KEY").map_err(|_| CliError::failed_to_get_private_key_from_env())?;
         // Parse the private key.
         Ok(PrivateKey::<N>::from_str(&private_key)?)
     }
 
     /// Returns the endpoint from the .env file specified in the directory.
-    pub fn dotenv_endpoint(&self, command: &str) -> Result<String> {
-        dotenvy::from_path(self.dir()?.join(".env")).map_err(|_| CliError::failed_to_get_endpoint_from_env(command))?;
+    pub fn dotenv_endpoint(&self) -> Result<String> {
+        dotenvy::from_path(self.dir()?.join(".env")).map_err(|_| CliError::failed_to_get_endpoint_from_env())?;
         // Load the endpoint from the environment.
-        Ok(dotenvy::var("ENDPOINT").map_err(|_| CliError::failed_to_get_endpoint_from_env(command))?)
+        Ok(dotenvy::var("ENDPOINT").map_err(|_| CliError::failed_to_get_endpoint_from_env())?)
     }
 
     /// Returns the network from the .env file specified in the directory.
-    pub fn dotenv_network(&self, command: &str) -> Result<String> {
-        dotenvy::from_path(self.dir()?.join(".env")).map_err(|_| CliError::failed_to_get_network_from_env(command))?;
+    pub fn dotenv_network(&self) -> Result<String> {
+        dotenvy::from_path(self.dir()?.join(".env")).map_err(|_| CliError::failed_to_get_network_from_env())?;
         // Load the network from the environment.
-        Ok(dotenvy::var("NETWORK").map_err(|_| CliError::failed_to_get_network_from_env(command))?)
+        Ok(dotenvy::var("NETWORK").map_err(|_| CliError::failed_to_get_network_from_env())?)
     }
 
     /// Returns the endpoint to interact with the network.
     /// If the `--endpoint` options is not provided, it will default to the one in the `.env` file.
-    pub fn get_endpoint(&self, endpoint: &Option<String>, command: &str) -> Result<String> {
+    pub fn get_endpoint(&self, endpoint: &Option<String>) -> Result<String> {
         match endpoint {
             Some(endpoint) => Ok(endpoint.clone()),
-            None => Ok(self.dotenv_endpoint(command)?),
+            None => Ok(self.dotenv_endpoint()?),
         }
     }
 
     /// Returns the network name.
     /// If the `--network` options is not provided, it will default to the one in the `.env` file.
-    pub fn get_network(&self, network: &Option<String>, command: &str) -> Result<String> {
+    pub fn get_network(&self, network: &Option<String>) -> Result<String> {
         match network {
             Some(network) => Ok(network.clone()),
-            None => Ok(self.dotenv_network(command)?),
+            None => Ok(self.dotenv_network()?),
         }
     }
 
     /// Returns the private key.
     /// If the `--private-key` options is not provided, it will default to the one in the `.env` file.
-    pub fn get_private_key<N: Network>(&self, private_key: &Option<String>, command: &str) -> Result<PrivateKey<N>> {
+    pub fn get_private_key<N: Network>(&self, private_key: &Option<String>) -> Result<PrivateKey<N>> {
         match private_key {
             Some(private_key) => Ok(PrivateKey::<N>::from_str(private_key)?),
-            None => self.dotenv_private_key(command),
+            None => self.dotenv_private_key(),
         }
     }
 }

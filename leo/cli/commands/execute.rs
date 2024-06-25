@@ -27,7 +27,7 @@ use crate::cli::query::QueryCommands;
 use dialoguer::{theme::ColorfulTheme, Confirm};
 use leo_retriever::NetworkName;
 use snarkvm::{
-    circuit::{Aleo, AleoTestnetV0, AleoV0},
+    circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
     cli::LOCALE,
     ledger::Transaction::Execute as ExecuteTransaction,
     package::Package as SnarkVMPackage,
@@ -87,12 +87,12 @@ impl Command for Execute {
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(context.get_network(&self.compiler_options.network, "deploy")?)?;
-        let endpoint = context.get_endpoint(&self.compiler_options.endpoint, "deploy")?;
+        let network = NetworkName::try_from(context.get_network(&self.compiler_options.network)?)?;
+        let endpoint = context.get_endpoint(&self.compiler_options.endpoint)?;
         match network {
             NetworkName::MainnetV0 => handle_execute::<AleoV0>(self, context, network, &endpoint),
             NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context, network, &endpoint),
-            NetworkName::CanaryV0 => handle_execute::<AleoV0>(self, context, network, &endpoint),
+            NetworkName::CanaryV0 => handle_execute::<AleoCanaryV0>(self, context, network, &endpoint),
         }
     }
 }
@@ -221,14 +221,18 @@ fn handle_execute<A: Aleo>(
                     "Do you want to submit execution of function `{}` on program `{program_name}.aleo` to network {} via endpoint {} using address {}?",
                     &command.name, network, endpoint, address
                 );
-                let confirmation = Confirm::with_theme(&ColorfulTheme::default())
-                    .with_prompt(prompt)
-                    .default(false)
-                    .interact()
-                    .unwrap();
-                if !confirmation {
-                    println!("✅ Successfully aborted the execution transaction for '{}'\n", program_name.bold());
-                    return Ok(());
+                // Ask the user for confirmation of the transaction.
+                let confirmation =
+                    Confirm::with_theme(&ColorfulTheme::default()).with_prompt(prompt).default(false).interact();
+
+                // Check if the user confirmed the transaction.
+                if let Ok(confirmation) = confirmation {
+                    if !confirmation {
+                        println!("✅ Successfully aborted the execution transaction for '{}'\n", program_name.bold());
+                        return Ok(());
+                    }
+                } else {
+                    return Err(CliError::confirmation_failed().into());
                 }
             }
             println!("✅ Created execution transaction for '{}'\n", program_id.to_string().bold());
@@ -250,7 +254,10 @@ fn handle_execute<A: Aleo>(
     // Load the package.
     let package = SnarkVMPackage::open(&path)?;
     // Convert the inputs.
-    let inputs = inputs.iter().map(|input| Value::from_str(input).unwrap()).collect::<Vec<Value<A::Network>>>();
+    let inputs = inputs
+        .iter()
+        .map(|input| Value::from_str(input).map_err(PackageError::snarkvm_error).unwrap())
+        .collect::<Vec<Value<A::Network>>>();
     // Execute the request.
     let (response, execution, metrics) = package
         .execute::<A, _>(endpoint.to_string(), &private_key, Identifier::try_from(command.name.clone())?, &inputs, rng)
@@ -332,11 +339,7 @@ fn load_program_from_network<N: Network>(
         endpoint: Some(endpoint.to_string()),
         network: Some(network.to_string()),
         command: QueryCommands::Program {
-            command: crate::cli::commands::query::Program {
-                name: program_id.to_string(),
-                mappings: false,
-                mapping_value: None,
-            },
+            command: query::Program { name: program_id.to_string(), mappings: false, mapping_value: None },
         },
     }
     .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
@@ -377,5 +380,5 @@ fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, f
     ];
     let mut out = Vec::new();
     text_tables::render(&mut out, data).unwrap();
-    println!("{}", ::std::str::from_utf8(&out).unwrap());
+    println!("{}", std::str::from_utf8(&out).unwrap());
 }

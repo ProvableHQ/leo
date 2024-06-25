@@ -267,23 +267,23 @@ create_messages!(
 
     @backtraced
     failed_to_get_endpoint_from_env {
-        args: (command: impl Display),
+        args: (),
         msg: "Failed to get an endpoint.".to_string(),
-        help: Some(format!("Either make sure you have a `.env` file in current project directory with an `ENDPOINT` variable set, or set the `--endpoint` flag when invoking the CLI command.\n Example: `ENDPOINT=https://api.explorer.aleo.org/v1` or `leo {command} --endpoint \"https://api.explorer.aleo.org/v1\"`.")),
+        help: Some("Either make sure you have a `.env` file in current project directory with an `ENDPOINT` variable set, or set the `--endpoint` flag when invoking the CLI command.\n Example: `ENDPOINT=https://api.explorer.aleo.org/v1` or `leo build --endpoint \"https://api.explorer.aleo.org/v1\"`.".to_string()),
     }
 
     @backtraced
     failed_to_get_private_key_from_env {
-        args: (command: impl Display),
+        args: (),
         msg: "Failed to get a private key.".to_string(),
-        help: Some(format!("Either make sure you have a `.env` file in current project directory with a `PRIVATE_KEY` variable set, or set the `--private-key` flag when invoking the CLI command.\n Example: `PRIVATE_KEY=0x1234...` or `leo {command} --private-key \"APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH\"`.")),
+        help: Some("Either make sure you have a `.env` file in current project directory with a `PRIVATE_KEY` variable set, or set the `--private-key` flag when invoking the CLI command.\n Example: `PRIVATE_KEY=0x1234...` or `leo deploy --private-key \"APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH\"`.".to_string()),
     }
 
     @backtraced
     failed_to_get_network_from_env {
-        args: (command: impl Display),
+        args: (),
         msg: "Failed to get a network.".to_string(),
-        help: Some(format!("Either make sure you have a `.env` file in current project directory with a `NETWORK` variable set, or set the `--network` flag when invoking the CLI command.\n Example: `NETWORK=testnet` or `leo {command} --network testnet`.")),
+        help: Some("Either make sure you have a `.env` file in current project directory with a `NETWORK` variable set, or set the `--network` flag when invoking the CLI command.\n Example: `NETWORK=testnet` or `leo build --network testnet`.".to_string()),
     }
 
     @backtraced
@@ -299,4 +299,12 @@ create_messages!(
         msg: format!("Program `{program}` exceeds the variable limit {limit} for deployment on network {network}."),
         help: Some("Reduce the number of variables in the program by reducing the number of instructions in transition functions.".to_string()),
     }
+
+    @backtraced
+    confirmation_failed {
+        args: (),
+        msg: "Failed to confirm transaction".to_string(),
+        help: None,
+    }
+
 );

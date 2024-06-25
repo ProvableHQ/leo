@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use snarkvm::prelude::{MainnetV0, TestnetV0};
+use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
 mod block;
 use block::Block;
@@ -69,12 +69,12 @@ impl Command for Query {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(context.get_network(&self.network, "query")?)?;
-        let endpoint = context.get_endpoint(&self.endpoint, "query")?;
+        let network = NetworkName::try_from(context.get_network(&self.network)?)?;
+        let endpoint = context.get_endpoint(&self.endpoint)?;
         match network {
             NetworkName::MainnetV0 => handle_query::<MainnetV0>(self, context, &network.to_string(), &endpoint),
             NetworkName::TestnetV0 => handle_query::<TestnetV0>(self, context, &network.to_string(), &endpoint),
-            NetworkName::CanaryV0 => handle_query::<MainnetV0>(self, context, &network.to_string(), &endpoint),
+            NetworkName::CanaryV0 => handle_query::<CanaryV0>(self, context, &network.to_string(), &endpoint),
         }
     }
 }

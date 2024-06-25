@@ -19,12 +19,13 @@ use aleo_std::StorageMode;
 use dialoguer::{theme::ColorfulTheme, Confirm};
 use leo_retriever::NetworkName;
 use snarkvm::{
-    circuit::{Aleo, AleoTestnetV0, AleoV0},
+    circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
     ledger::query::Query as SnarkVMQuery,
     package::Package as SnarkVMPackage,
     prelude::{
         deployment_cost,
         store::{helpers::memory::ConsensusMemory, ConsensusStore},
+        CanaryV0,
         MainnetV0,
         ProgramOwner,
         TestnetV0,
@@ -70,12 +71,12 @@ impl Command for Deploy {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(context.get_network(&self.options.network, "deploy")?)?;
-        let endpoint = context.get_endpoint(&self.options.endpoint, "deploy")?;
+        let network = NetworkName::try_from(context.get_network(&self.options.network)?)?;
+        let endpoint = context.get_endpoint(&self.options.endpoint)?;
         match network {
             NetworkName::MainnetV0 => handle_deploy::<AleoV0, MainnetV0>(&self, context, network, &endpoint),
             NetworkName::TestnetV0 => handle_deploy::<AleoTestnetV0, TestnetV0>(&self, context, network, &endpoint),
-            NetworkName::CanaryV0 => handle_deploy::<AleoV0, MainnetV0>(&self, context, network, &endpoint),
+            NetworkName::CanaryV0 => handle_deploy::<AleoCanaryV0, CanaryV0>(&self, context, network, &endpoint),
         }
     }
 }
@@ -91,7 +92,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
     let project_name = context.open_manifest::<N>()?.program_id().to_string();
 
     // Get the private key.
-    let private_key = context.get_private_key(&command.fee_options.private_key, "deploy")?;
+    let private_key = context.get_private_key(&command.fee_options.private_key)?;
     let address = Address::try_from(&private_key)?;
 
     // Specify the query
@@ -192,14 +193,17 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
                     "Do you want to submit deployment of program `{name}.aleo` to network {} via endpoint {} using address {}?",
                     network, endpoint, address
                 );
-                let confirmation = Confirm::with_theme(&ColorfulTheme::default())
-                    .with_prompt(prompt)
-                    .default(false)
-                    .interact()
-                    .unwrap();
-                if !confirmation {
-                    println!("✅ Successfully aborted the execution transaction for '{}'\n", name.bold());
-                    return Ok(());
+                let confirmation =
+                    Confirm::with_theme(&ColorfulTheme::default()).with_prompt(prompt).default(false).interact();
+
+                // Check if the user confirmed the transaction.
+                if let Ok(confirmation) = confirmation {
+                    if !confirmation {
+                        println!("✅ Successfully aborted the execution transaction for '{}'\n", name.bold());
+                        return Ok(());
+                    }
+                } else {
+                    return Err(CliError::confirmation_failed().into());
                 }
             }
             println!("✅ Created deployment transaction for '{}'\n", name.bold());
