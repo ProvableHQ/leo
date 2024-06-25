@@ -306,5 +306,11 @@ create_messages!(
         msg: "Failed to confirm transaction".to_string(),
         help: None,
     }
-
+    
+    @backtraced
+    invalid_balance {
+        args: (account: impl Display),
+        msg: format!("Invalid public balance for account: {account}"),
+        help: Some("Make sure the account has enough balance to pay for the deployment.".to_string()),
+    }
 );

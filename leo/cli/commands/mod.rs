@@ -261,8 +261,12 @@ fn check_balance<N: Network>(
     .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
     // Remove the last 3 characters since they represent the `u64` suffix.
     public_balance.truncate(public_balance.len() - 3);
-    // This unwrap is safe as the Query will error if it cannot retrieve a public balance, and if it returns a balance that will be a u64.
-    let balance = public_balance.parse::<u64>().unwrap();
+    // Make sure the balance is valid.
+    let balance = if let Ok(credits) = public_balance.parse::<u64>() {
+        credits
+    } else {
+        return Err(CliError::invalid_balance(address).into());
+    };
     // Compare balance.
     if balance < total_cost {
         Err(PackageError::insufficient_balance(address, public_balance, total_cost).into())
