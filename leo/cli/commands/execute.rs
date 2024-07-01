@@ -67,6 +67,8 @@ pub struct Execute {
     compiler_options: BuildOptions,
     #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
     file: Option<String>,
+    #[clap(long, help = "Disables building of the project before execution.", default_value = "false")]
+    pub(crate) no_build: bool,
 }
 
 impl Command for Execute {
@@ -79,7 +81,7 @@ impl Command for Execute {
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         // No need to build if we are executing an external program.
-        if self.program.is_some() {
+        if self.program.is_some() || self.no_build {
             return Ok(());
         }
         (Build { options: self.compiler_options.clone() }).execute(context)
@@ -148,7 +150,7 @@ fn handle_execute<A: Aleo>(
         // Get the program name.
         let program_name = match (command.program.clone(), command.local) {
             (Some(name), true) => {
-                let local = context.open_manifest::<A::Network>()?.program_id().to_string();
+                let local = context.open_manifest::<A::Network>()?.program_id().name().to_string();
                 // Throw error if local name doesn't match the specified name.
                 if name == local {
                     local
@@ -157,7 +159,7 @@ fn handle_execute<A: Aleo>(
                 }
             }
             (Some(name), false) => name.clone(),
-            (None, true) => context.open_manifest::<A::Network>()?.program_id().to_string(),
+            (None, true) => context.open_manifest::<A::Network>()?.program_id().name().to_string(),
             (None, false) => return Err(PackageError::missing_on_chain_program_name().into()),
         };
 
