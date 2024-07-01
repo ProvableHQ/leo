@@ -422,7 +422,7 @@ create_messages!(
     @backtraced
     snarkvm_error {
         args: (error: impl Display),
-        msg: format!("{error}"),
+        msg: format!("[snarkVM Error] {error}"),
         help: None,
     }
 
