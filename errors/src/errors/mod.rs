@@ -109,7 +109,7 @@ impl LeoError {
             FlattenError(error) => error.error_code(),
             UtilError(error) => error.error_code(),
             LastErrorCode(_) => unreachable!(),
-            Anyhow(_) => unimplemented!(), // todo: implement error codes for snarkvm errors.
+            Anyhow(_) => "SnarkVM Error".to_string(), // todo: implement error codes for snarkvm errors.
         }
     }
 
@@ -128,7 +128,7 @@ impl LeoError {
             FlattenError(error) => error.exit_code(),
             UtilError(error) => error.exit_code(),
             LastErrorCode(code) => *code,
-            Anyhow(_) => unimplemented!(), // todo: implement exit codes for snarkvm errors.
+            Anyhow(_) => 11000, // todo: implement exit codes for snarkvm errors.
         }
     }
 }

@@ -133,14 +133,10 @@ pub trait Command {
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug)]
 pub struct BuildOptions {
-    #[clap(
-        long,
-        help = "Endpoint to retrieve network state from.",
-        default_value = "https://api.explorer.aleo.org/v1"
-    )]
-    pub endpoint: String,
-    #[clap(long, help = "Network to broadcast to. Defaults to mainnet.", default_value = "mainnet")]
-    pub(crate) network: String,
+    #[clap(long, help = "Endpoint to retrieve network state from. Overrides setting in `.env`.")]
+    pub endpoint: Option<String>,
+    #[clap(long, help = "Network to broadcast to. Overrides setting in `.env`.")]
+    pub(crate) network: Option<String>,
     #[clap(long, help = "Does not recursively compile dependencies.")]
     pub non_recursive: bool,
     #[clap(long, help = "Enables offline mode.")]
@@ -182,8 +178,8 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            endpoint: "http://api.explorer.aleo.org/v1".to_string(),
-            network: "mainnet".to_string(),
+            endpoint: None,
+            network: None,
             non_recursive: false,
             offline: false,
             enable_symbol_table_spans: false,
@@ -210,6 +206,8 @@ impl Default for BuildOptions {
 /// Used by Execute and Deploy commands.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct FeeOptions {
+    #[clap(short, long, help = "Don't ask for confirmation.", default_value = "false")]
+    pub(crate) yes: bool,
     #[clap(short, long, help = "Performs a dry-run of transaction generation")]
     pub(crate) dry_run: bool,
     #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
@@ -250,8 +248,8 @@ fn check_balance<N: Network>(
     let address = Address::<N>::try_from(ViewKey::try_from(private_key)?)?;
     // Query the public balance of the address on the `account` mapping from `credits.aleo`.
     let mut public_balance = Query {
-        endpoint: endpoint.to_string(),
-        network: network.to_string(),
+        endpoint: Some(endpoint.to_string()),
+        network: Some(network.to_string()),
         command: QueryCommands::Program {
             command: crate::cli::commands::query::Program {
                 name: "credits".to_string(),
@@ -263,17 +261,24 @@ fn check_balance<N: Network>(
     .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
     // Remove the last 3 characters since they represent the `u64` suffix.
     public_balance.truncate(public_balance.len() - 3);
+    // Make sure the balance is valid.
+    let balance = if let Ok(credits) = public_balance.parse::<u64>() {
+        credits
+    } else {
+        return Err(CliError::invalid_balance(address).into());
+    };
     // Compare balance.
-    if public_balance.parse::<u64>().unwrap() < total_cost {
+    if balance < total_cost {
         Err(PackageError::insufficient_balance(address, public_balance, total_cost).into())
     } else {
+        println!("Your current public balance is {} credits.\n", balance as f64 / 1_000_000.0);
         Ok(())
     }
 }
 
 /// Determine if the transaction should be broadcast or displayed to user.
 fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, operation: &String) -> Result<()> {
-    println!("Broadcasting transaction to {}...", endpoint.clone());
+    println!("Broadcasting transaction to {}...\n", endpoint.clone());
     // Get the transaction id.
     let transaction_id = transaction.id();
 
@@ -287,20 +292,20 @@ fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, 
             match transaction {
                 Transaction::Deploy(..) => {
                     println!(
-                        "⌛ Deployment {transaction_id} ('{}') has been broadcast to {}.",
+                        "⌛ Deployment {transaction_id} ('{}') has been broadcast to {}.\n",
                         operation.bold(),
                         endpoint
                     )
                 }
                 Transaction::Execute(..) => {
                     println!(
-                        "⌛ Execution {transaction_id} ('{}') has been broadcast to {}.",
+                        "⌛ Execution {transaction_id} ('{}') has been broadcast to {}.\n",
                         operation.bold(),
                         endpoint
                     )
                 }
                 Transaction::Fee(..) => {
-                    println!("❌ Failed to broadcast fee '{}' to the {}.", operation.bold(), endpoint)
+                    println!("❌ Failed to broadcast fee '{}' to the {}.\n", operation.bold(), endpoint)
                 }
             }
             Ok(())

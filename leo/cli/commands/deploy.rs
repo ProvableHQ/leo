@@ -16,23 +16,23 @@
 
 use super::*;
 use aleo_std::StorageMode;
+use dialoguer::{theme::ColorfulTheme, Confirm};
 use leo_retriever::NetworkName;
 use snarkvm::{
-    circuit::{Aleo, AleoTestnetV0, AleoV0},
-    cli::helpers::dotenv_private_key,
+    circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
     ledger::query::Query as SnarkVMQuery,
     package::Package as SnarkVMPackage,
     prelude::{
         deployment_cost,
         store::{helpers::memory::ConsensusMemory, ConsensusStore},
+        CanaryV0,
         MainnetV0,
-        PrivateKey,
         ProgramOwner,
         TestnetV0,
         VM,
     },
 };
-use std::{path::PathBuf, str::FromStr};
+use std::path::PathBuf;
 use text_tables;
 
 /// Deploys an Aleo program.
@@ -71,10 +71,12 @@ impl Command for Deploy {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(self.options.network.as_str())?;
+        let network = NetworkName::try_from(context.get_network(&self.options.network)?)?;
+        let endpoint = context.get_endpoint(&self.options.endpoint)?;
         match network {
-            NetworkName::MainnetV0 => handle_deploy::<AleoV0, MainnetV0>(&self, context),
-            NetworkName::TestnetV0 => handle_deploy::<AleoTestnetV0, TestnetV0>(&self, context),
+            NetworkName::MainnetV0 => handle_deploy::<AleoV0, MainnetV0>(&self, context, network, &endpoint),
+            NetworkName::TestnetV0 => handle_deploy::<AleoTestnetV0, TestnetV0>(&self, context, network, &endpoint),
+            NetworkName::CanaryV0 => handle_deploy::<AleoCanaryV0, CanaryV0>(&self, context, network, &endpoint),
         }
     }
 }
@@ -83,20 +85,18 @@ impl Command for Deploy {
 fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
     command: &Deploy,
     context: Context,
+    network: NetworkName,
+    endpoint: &str,
 ) -> Result<<Deploy as Command>::Output> {
     // Get the program name.
     let project_name = context.open_manifest::<N>()?.program_id().to_string();
 
     // Get the private key.
-    let private_key = match &command.fee_options.private_key {
-        Some(key) => PrivateKey::from_str(key)?,
-        None => PrivateKey::from_str(
-            &dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string(),
-        )?,
-    };
+    let private_key = context.get_private_key(&command.fee_options.private_key)?;
+    let address = Address::try_from(&private_key)?;
 
     // Specify the query
-    let query = SnarkVMQuery::from(&command.options.endpoint);
+    let query = SnarkVMQuery::from(endpoint);
 
     let mut all_paths: Vec<(String, PathBuf)> = Vec::new();
 
@@ -120,6 +120,15 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 
         // Generate the deployment
         let deployment = package.deploy::<A>(None)?;
+
+        // Check if the number of variables and constraints are within the limits.
+        if deployment.num_combined_variables()? > N::MAX_DEPLOYMENT_VARIABLES {
+            return Err(CliError::variable_limit_exceeded(name, N::MAX_DEPLOYMENT_VARIABLES, network).into());
+        }
+        if deployment.num_combined_constraints()? > N::MAX_DEPLOYMENT_CONSTRAINTS {
+            return Err(CliError::constraint_limit_exceeded(name, N::MAX_DEPLOYMENT_CONSTRAINTS, network).into());
+        }
+
         let deployment_id = deployment.to_deployment_id()?;
 
         let store = ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?;
@@ -139,7 +148,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             synthesis_cost as f64 / 1_000_000.0,
             namespace_cost as f64 / 1_000_000.0,
             command.fee_options.priority_fee as f64 / 1_000_000.0,
-        );
+        )?;
 
         // Initialize an RNG.
         let rng = &mut rand::thread_rng();
@@ -160,13 +169,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             }
             None => {
                 // Make sure the user has enough public balance to pay for the deployment.
-                check_balance(
-                    &private_key,
-                    &command.options.endpoint,
-                    &command.options.network,
-                    context.clone(),
-                    total_cost,
-                )?;
+                check_balance(&private_key, endpoint, &network.to_string(), context.clone(), total_cost)?;
                 let fee_authorization = vm.authorize_fee_public(
                     &private_key,
                     total_cost,
@@ -185,18 +188,32 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 
         // Determine if the transaction should be broadcast, stored, or displayed to the user.
         if !command.fee_options.dry_run {
-            println!("✅ Created deployment transaction for '{}'", name.bold());
-            handle_broadcast(
-                &format!("{}/{}/transaction/broadcast", command.options.endpoint, command.options.network),
-                transaction,
-                name,
-            )?;
+            if !command.fee_options.yes {
+                let prompt = format!(
+                    "Do you want to submit deployment of program `{name}.aleo` to network {} via endpoint {} using address {}?",
+                    network, endpoint, address
+                );
+                let confirmation =
+                    Confirm::with_theme(&ColorfulTheme::default()).with_prompt(prompt).default(false).interact();
+
+                // Check if the user confirmed the transaction.
+                if let Ok(confirmation) = confirmation {
+                    if !confirmation {
+                        println!("✅ Successfully aborted the execution transaction for '{}'\n", name.bold());
+                        return Ok(());
+                    }
+                } else {
+                    return Err(CliError::confirmation_failed().into());
+                }
+            }
+            println!("✅ Created deployment transaction for '{}'\n", name.bold());
+            handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), transaction, name)?;
             // Wait between successive deployments to prevent out of order deployments.
             if index < all_paths.len() - 1 {
                 std::thread::sleep(std::time::Duration::from_secs(command.wait));
             }
         } else {
-            println!("✅ Successful dry run deployment for '{}'", name.bold());
+            println!("✅ Successful dry run deployment for '{}'\n", name.bold());
         }
     }
 
@@ -211,8 +228,8 @@ fn deploy_cost_breakdown(
     synthesis_cost: f64,
     namespace_cost: f64,
     priority_fee: f64,
-) {
-    println!("Base deployment cost for '{}' is {} credits.", name.bold(), total_cost);
+) -> Result<()> {
+    println!("\nBase deployment cost for '{}' is {} credits.\n", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
         [name, "Cost (credits)"],
@@ -223,6 +240,7 @@ fn deploy_cost_breakdown(
         ["Total", &format!("{:.6}", total_cost)],
     ];
     let mut out = Vec::new();
-    text_tables::render(&mut out, data).unwrap();
-    println!("{}", ::std::str::from_utf8(&out).unwrap());
+    text_tables::render(&mut out, data).map_err(CliError::table_render_failed)?;
+    println!("{}", ::std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
+    Ok(())
 }

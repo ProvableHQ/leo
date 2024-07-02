@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use snarkvm::prelude::{MainnetV0, TestnetV0};
+use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
 use leo_retriever::NetworkName;
 
@@ -26,6 +26,13 @@ pub struct New {
     pub(crate) name: String,
     #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
     pub(crate) network: String,
+    #[clap(
+        short = 'e',
+        long,
+        help = "Endpoint to retrieve network state from.",
+        default_value = "https://api.explorer.aleo.org/v1"
+    )]
+    pub(crate) endpoint: String,
 }
 
 impl Command for New {
@@ -53,8 +60,9 @@ impl Command for New {
 
         // Initialize the package.
         match network {
-            NetworkName::MainnetV0 => Package::initialize::<MainnetV0>(&self.name, &package_path),
-            NetworkName::TestnetV0 => Package::initialize::<TestnetV0>(&self.name, &package_path),
+            NetworkName::MainnetV0 => Package::initialize::<MainnetV0>(&self.name, &package_path, self.endpoint),
+            NetworkName::TestnetV0 => Package::initialize::<TestnetV0>(&self.name, &package_path, self.endpoint),
+            NetworkName::CanaryV0 => Package::initialize::<CanaryV0>(&self.name, &package_path, self.endpoint),
         }?;
 
         Ok(())

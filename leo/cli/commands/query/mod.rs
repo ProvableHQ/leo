@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use snarkvm::prelude::{MainnetV0, TestnetV0};
+use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
 mod block;
 use block::Block;
@@ -47,16 +47,10 @@ use leo_retriever::{fetch_from_network, verify_valid_program, NetworkName};
 ///  Query live data from the Aleo network.
 #[derive(Parser, Debug)]
 pub struct Query {
-    #[clap(
-        short,
-        long,
-        global = true,
-        help = "Endpoint to retrieve network state from. Defaults to https://api.explorer.aleo.org/v1.",
-        default_value = "https://api.explorer.aleo.org/v1"
-    )]
-    pub endpoint: String,
-    #[clap(short, long, global = true, help = "Network to use. Defaults to mainnet.", default_value = "mainnet")]
-    pub(crate) network: String,
+    #[clap(short, long, global = true, help = "Endpoint to retrieve network state from. Defaults to entry in `.env`.")]
+    pub endpoint: Option<String>,
+    #[clap(short, long, global = true, help = "Network to use. Defaults to entry in `.env`.")]
+    pub(crate) network: Option<String>,
     #[clap(subcommand)]
     pub command: QueryCommands,
 }
@@ -75,16 +69,23 @@ impl Command for Query {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(self.network.as_str())?;
+        let network = NetworkName::try_from(context.get_network(&self.network)?)?;
+        let endpoint = context.get_endpoint(&self.endpoint)?;
         match network {
-            NetworkName::MainnetV0 => handle_query::<MainnetV0>(self, context),
-            NetworkName::TestnetV0 => handle_query::<TestnetV0>(self, context),
+            NetworkName::MainnetV0 => handle_query::<MainnetV0>(self, context, &network.to_string(), &endpoint),
+            NetworkName::TestnetV0 => handle_query::<TestnetV0>(self, context, &network.to_string(), &endpoint),
+            NetworkName::CanaryV0 => handle_query::<CanaryV0>(self, context, &network.to_string(), &endpoint),
         }
     }
 }
 
 // A helper function to handle the `query` command.
-fn handle_query<N: Network>(query: Query, context: Context) -> Result<<Query as Command>::Output> {
+fn handle_query<N: Network>(
+    query: Query,
+    context: Context,
+    network: &str,
+    endpoint: &str,
+) -> Result<<Query as Command>::Output> {
     let recursive = context.recursive;
     let (program, output) = match query.command {
         QueryCommands::Block { command } => (None, command.apply(context, ())?),
@@ -98,7 +99,7 @@ fn handle_query<N: Network>(query: Query, context: Context) -> Result<<Query as 
         QueryCommands::Stateroot { command } => (None, command.apply(context, ())?),
         QueryCommands::Committee { command } => (None, command.apply(context, ())?),
         QueryCommands::Mempool { command } => {
-            if query.endpoint == "https://api.explorer.aleo.org/v1" {
+            if endpoint == "https://api.explorer.aleo.org/v1" {
                 tracing::warn!(
                     "⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                 );
@@ -106,7 +107,7 @@ fn handle_query<N: Network>(query: Query, context: Context) -> Result<<Query as 
             (None, command.apply(context, ())?)
         }
         QueryCommands::Peers { command } => {
-            if query.endpoint == "https://api.explorer.aleo.org/v1" {
+            if endpoint == "https://api.explorer.aleo.org/v1" {
                 tracing::warn!(
                     "⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                 );
@@ -116,7 +117,7 @@ fn handle_query<N: Network>(query: Query, context: Context) -> Result<<Query as 
     };
 
     // Make GET request to retrieve on-chain state.
-    let url = format!("{}/{}/{output}", query.endpoint, query.network);
+    let url = format!("{}/{}/{output}", endpoint, network);
     let result = fetch_from_network(&url)?;
     if !recursive {
         tracing::info!("✅ Successfully retrieved data from '{url}'.\n");

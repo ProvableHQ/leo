@@ -40,6 +40,7 @@ echo "
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://localhost:3030
 " > .env
 
 # Have the first bidder place a bid of 10.
@@ -62,6 +63,7 @@ leo run place_bid aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9p
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
+ENDPOINT=https://localhost:3030
 " > .env
 
 # Have the second bidder place a bid of 90.
@@ -84,6 +86,7 @@ leo run place_bid aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp2GUmKbVsuc1NSj28pa1WTQuZaK5f1DQJAT6vPcHyWokG
+ENDPOINT=https://localhost:3030
 " > .env
 
 # Have the auctioneer select the winning bid.
@@ -141,6 +144,7 @@ leo run finish "{
 echo "
 NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=https://localhost:3030
 " > .env
 
 

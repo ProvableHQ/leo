@@ -26,7 +26,7 @@ use crossterm::ExecutableCommand;
 use leo_retriever::NetworkName;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
-use snarkvm::prelude::{MainnetV0, Network, TestnetV0};
+use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
 use std::{
     io::{self, Read, Write},
     path::PathBuf,
@@ -49,6 +49,13 @@ pub enum Account {
         discreet: bool,
         #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
         network: String,
+        #[clap(
+            short = 'e',
+            long,
+            help = "Endpoint to retrieve network state from.",
+            default_value = "https://api.explorer.aleo.org/v1"
+        )]
+        endpoint: String,
     },
     /// Derive an Aleo account from a private key.
     Import {
@@ -62,6 +69,13 @@ pub enum Account {
         discreet: bool,
         #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
         network: String,
+        #[clap(
+            short = 'e',
+            long,
+            help = "Endpoint to retrieve network state from.",
+            default_value = "https://api.explorer.aleo.org/v1"
+        )]
+        endpoint: String,
     },
     /// Sign a message using your Aleo private key.
     Sign {
@@ -118,20 +132,22 @@ impl Command for Account {
         Self: Sized,
     {
         match self {
-            Account::New { seed, write, discreet, network } => {
+            Account::New { seed, write, discreet, network, endpoint } => {
                 // Parse the network.
                 let network = NetworkName::try_from(network.as_str())?;
                 match network {
-                    NetworkName::MainnetV0 => generate_new_account::<MainnetV0>(seed, write, discreet, &ctx),
-                    NetworkName::TestnetV0 => generate_new_account::<TestnetV0>(seed, write, discreet, &ctx),
+                    NetworkName::MainnetV0 => generate_new_account::<MainnetV0>(seed, write, discreet, &ctx, endpoint),
+                    NetworkName::TestnetV0 => generate_new_account::<TestnetV0>(seed, write, discreet, &ctx, endpoint),
+                    NetworkName::CanaryV0 => generate_new_account::<CanaryV0>(seed, write, discreet, &ctx, endpoint),
                 }?
             }
-            Account::Import { private_key, write, discreet, network } => {
+            Account::Import { private_key, write, discreet, network, endpoint } => {
                 // Parse the network.
                 let network = NetworkName::try_from(network.as_str())?;
                 match network {
-                    NetworkName::MainnetV0 => import_account::<MainnetV0>(private_key, write, discreet, &ctx),
-                    NetworkName::TestnetV0 => import_account::<TestnetV0>(private_key, write, discreet, &ctx),
+                    NetworkName::MainnetV0 => import_account::<MainnetV0>(private_key, write, discreet, &ctx, endpoint),
+                    NetworkName::TestnetV0 => import_account::<TestnetV0>(private_key, write, discreet, &ctx, endpoint),
+                    NetworkName::CanaryV0 => import_account::<CanaryV0>(private_key, write, discreet, &ctx, endpoint),
                 }?
             }
             Self::Sign { message, seed, raw, private_key, private_key_file, network } => {
@@ -144,6 +160,9 @@ impl Command for Account {
                     NetworkName::TestnetV0 => {
                         sign_message::<TestnetV0>(message, seed, raw, private_key, private_key_file)
                     }
+                    NetworkName::CanaryV0 => {
+                        sign_message::<MainnetV0>(message, seed, raw, private_key, private_key_file)
+                    }
                 }?;
                 println!("{result}")
             }
@@ -153,6 +172,7 @@ impl Command for Account {
                 let result = match network {
                     NetworkName::MainnetV0 => verify_message::<MainnetV0>(address, signature, message, raw),
                     NetworkName::TestnetV0 => verify_message::<TestnetV0>(address, signature, message, raw),
+                    NetworkName::CanaryV0 => verify_message::<CanaryV0>(address, signature, message, raw),
                 }?;
                 println!("{result}")
             }
@@ -164,7 +184,13 @@ impl Command for Account {
 // Helper functions
 
 // Generate a new account.
-fn generate_new_account<N: Network>(seed: Option<u64>, write: bool, discreet: bool, ctx: &Context) -> Result<()> {
+fn generate_new_account<N: Network>(
+    seed: Option<u64>,
+    write: bool,
+    discreet: bool,
+    ctx: &Context,
+    endpoint: String,
+) -> Result<()> {
     // Sample a new Aleo account.
     let private_key = match seed {
         // Recover the field element deterministically.
@@ -179,13 +205,19 @@ fn generate_new_account<N: Network>(seed: Option<u64>, write: bool, discreet: bo
 
     // Save key data to .env file.
     if write {
-        write_to_env_file(private_key, ctx)?;
+        write_to_env_file(private_key, ctx, endpoint)?;
     }
     Ok(())
 }
 
 // Import an account.
-fn import_account<N: Network>(private_key: Option<String>, write: bool, discreet: bool, ctx: &Context) -> Result<()> {
+fn import_account<N: Network>(
+    private_key: Option<String>,
+    write: bool,
+    discreet: bool,
+    ctx: &Context,
+    endpoint: String,
+) -> Result<()> {
     let priv_key = match discreet {
         true => {
             let private_key_input = rpassword::prompt_password("Please enter your private key: ").unwrap();
@@ -207,7 +239,7 @@ fn import_account<N: Network>(private_key: Option<String>, write: bool, discreet
 
     // Save key data to .env file.
     if write {
-        write_to_env_file::<N>(priv_key, ctx)?;
+        write_to_env_file::<N>(priv_key, ctx, endpoint)?;
     }
 
     Ok(())
@@ -323,9 +355,9 @@ pub(crate) fn verify_message<N: Network>(
 }
 
 // Write the network and private key to the .env file in project directory.
-fn write_to_env_file<N: Network>(private_key: PrivateKey<N>, ctx: &Context) -> Result<()> {
+fn write_to_env_file<N: Network>(private_key: PrivateKey<N>, ctx: &Context, endpoint: String) -> Result<()> {
     let program_dir = ctx.dir()?;
-    Env::<N>::from(private_key).write_to(&program_dir)?;
+    Env::<N>::new(Some(private_key), endpoint)?.write_to(&program_dir)?;
     tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());
     Ok(())
 }

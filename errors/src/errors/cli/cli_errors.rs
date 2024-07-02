@@ -264,4 +264,60 @@ create_messages!(
         msg: format!("{error}"),
         help: None,
     }
+
+    @backtraced
+    failed_to_get_endpoint_from_env {
+        args: (),
+        msg: "Failed to get an endpoint.".to_string(),
+        help: Some("Either make sure you have a `.env` file in current project directory with an `ENDPOINT` variable set, or set the `--endpoint` flag when invoking the CLI command.\n Example: `ENDPOINT=https://api.explorer.aleo.org/v1` or `leo build --endpoint \"https://api.explorer.aleo.org/v1\"`.".to_string()),
+    }
+
+    @backtraced
+    failed_to_get_private_key_from_env {
+        args: (),
+        msg: "Failed to get a private key.".to_string(),
+        help: Some("Either make sure you have a `.env` file in current project directory with a `PRIVATE_KEY` variable set, or set the `--private-key` flag when invoking the CLI command.\n Example: `PRIVATE_KEY=0x1234...` or `leo deploy --private-key \"APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH\"`.".to_string()),
+    }
+
+    @backtraced
+    failed_to_get_network_from_env {
+        args: (),
+        msg: "Failed to get a network.".to_string(),
+        help: Some("Either make sure you have a `.env` file in current project directory with a `NETWORK` variable set, or set the `--network` flag when invoking the CLI command.\n Example: `NETWORK=testnet` or `leo build --network testnet`.".to_string()),
+    }
+
+    @backtraced
+    constraint_limit_exceeded {
+        args: (program: impl Display, limit: u64, network: impl Display),
+        msg: format!("Program `{program}` exceeds the constraint limit {limit} for deployment on network {network}."),
+        help: Some("Reduce the number of constraints in the program by reducing the number of instructions in transition functions.".to_string()),
+    }
+
+    @backtraced
+    variable_limit_exceeded {
+        args: (program: impl Display, limit: u64, network: impl Display),
+        msg: format!("Program `{program}` exceeds the variable limit {limit} for deployment on network {network}."),
+        help: Some("Reduce the number of variables in the program by reducing the number of instructions in transition functions.".to_string()),
+    }
+
+    @backtraced
+    confirmation_failed {
+        args: (),
+        msg: "Failed to confirm transaction".to_string(),
+        help: None,
+    }
+
+    @backtraced
+    invalid_balance {
+        args: (account: impl Display),
+        msg: format!("Invalid public balance for account: {account}"),
+        help: Some("Make sure the account has enough balance to pay for the deployment.".to_string()),
+    }
+
+    @backtraced
+    table_render_failed {
+        args: (error: impl Display),
+        msg: format!("Failed to render table.\nError: {error}"),
+        help: None,
+    }
 );

@@ -46,7 +46,7 @@ members = [
 [workspace.dependencies.snarkvm]
 #version = "0.16.19"
 git = "https://github.com/AleoNet/snarkVM.git"
-rev = "fddd8b9"
+rev = "d170a9f"
 
 [lib]
 path = "leo/lib.rs"
@@ -61,6 +61,7 @@ ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 
 [dependencies]
+dialoguer = "0.11.0"
 num-format = "0.4.4"
 text-tables = "0.3.1"
 ureq = "2.9.7"

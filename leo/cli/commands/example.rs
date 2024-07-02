@@ -25,6 +25,13 @@ pub struct Example {
     pub(crate) name: String,
     #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
     pub(crate) network: String,
+    #[clap(
+        short = 'e',
+        long,
+        help = "Endpoint to retrieve network state from.",
+        default_value = "https://api.explorer.aleo.org/v1"
+    )]
+    pub(crate) endpoint: String,
 }
 
 impl Command for Example {
@@ -33,7 +40,8 @@ impl Command for Example {
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         // Run leo new <name> --network <network>
-        (New { name: self.name.clone(), network: self.network.clone() }).execute(context)
+        (New { name: self.name.clone(), network: self.network.clone(), endpoint: self.endpoint.clone() })
+            .execute(context)
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output>

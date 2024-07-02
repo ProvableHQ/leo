@@ -30,17 +30,21 @@ pub static ENV_FILENAME: &str = ".env";
 pub struct Env<N: Network> {
     #[serde(bound(deserialize = ""))]
     private_key: PrivateKey<N>,
+    endpoint: String,
 }
 
 impl<N: Network> Env<N> {
-    pub fn new() -> Result<Self> {
+    pub fn new(private_key: Option<PrivateKey<N>>, endpoint: String) -> Result<Self> {
         // Initialize an RNG.
         let rng = &mut rand::thread_rng();
 
         // Generate a development private key.
-        let private_key = PrivateKey::<N>::new(rng)?;
+        let private_key = match private_key {
+            Some(private_key) => private_key,
+            None => PrivateKey::<N>::new(rng)?,
+        };
 
-        Ok(Self { private_key })
+        Ok(Self { private_key, endpoint })
     }
 
     pub fn exists_at(path: &Path) -> bool {
@@ -63,12 +67,6 @@ impl<N: Network> Env<N> {
     }
 }
 
-impl<N: Network> From<PrivateKey<N>> for Env<N> {
-    fn from(private_key: PrivateKey<N>) -> Self {
-        Self { private_key }
-    }
-}
-
 impl<N: Network> ToString for Env<N> {
     fn to_string(&self) -> String {
         // Get the network name.
@@ -78,6 +76,6 @@ impl<N: Network> ToString for Env<N> {
             _ => unimplemented!("Unsupported network"),
         };
         // Return the formatted string.
-        format!("NETWORK={network}\nPRIVATE_KEY={}\n", self.private_key)
+        format!("NETWORK={network}\nPRIVATE_KEY={}\nENDPOINT={}\n", self.private_key, self.endpoint)
     }
 }
