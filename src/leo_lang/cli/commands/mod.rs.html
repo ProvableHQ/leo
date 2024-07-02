@@ -334,6 +334,11 @@
 <a href="#334" id="334">334</a>
 <a href="#335" id="335">335</a>
 <a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -469,14 +474,10 @@
 /// require Build command output as their input.
 </span><span class="attr">#[derive(Parser, Clone, Debug)]
 </span><span class="kw">pub struct </span>BuildOptions {
-    <span class="attr">#[clap(
-        long,
-        help = <span class="string">"Endpoint to retrieve network state from."</span>,
-        default_value = <span class="string">"https://api.explorer.aleo.org/v1"
-    </span>)]
-    </span><span class="kw">pub </span>endpoint: String,
-    <span class="attr">#[clap(long, help = <span class="string">"Network to broadcast to. Defaults to mainnet."</span>, default_value = <span class="string">"mainnet"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) network: String,
+    <span class="attr">#[clap(long, help = <span class="string">"Endpoint to retrieve network state from. Overrides setting in `.env`."</span>)]
+    </span><span class="kw">pub </span>endpoint: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="attr">#[clap(long, help = <span class="string">"Network to broadcast to. Overrides setting in `.env`."</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) network: <span class="prelude-ty">Option</span>&lt;String&gt;,
     <span class="attr">#[clap(long, help = <span class="string">"Does not recursively compile dependencies."</span>)]
     </span><span class="kw">pub </span>non_recursive: bool,
     <span class="attr">#[clap(long, help = <span class="string">"Enables offline mode."</span>)]
@@ -518,8 +519,8 @@
 <span class="kw">impl </span>Default <span class="kw">for </span>BuildOptions {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            endpoint: <span class="string">"http://api.explorer.aleo.org/v1"</span>.to_string(),
-            network: <span class="string">"mainnet"</span>.to_string(),
+            endpoint: <span class="prelude-val">None</span>,
+            network: <span class="prelude-val">None</span>,
             non_recursive: <span class="bool-val">false</span>,
             offline: <span class="bool-val">false</span>,
             enable_symbol_table_spans: <span class="bool-val">false</span>,
@@ -546,6 +547,8 @@
 /// Used by Execute and Deploy commands.
 </span><span class="attr">#[derive(Parser, Clone, Debug, Default)]
 </span><span class="kw">pub struct </span>FeeOptions {
+    <span class="attr">#[clap(short, long, help = <span class="string">"Don't ask for confirmation."</span>, default_value = <span class="string">"false"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) yes: bool,
     <span class="attr">#[clap(short, long, help = <span class="string">"Performs a dry-run of transaction generation"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) dry_run: bool,
     <span class="attr">#[clap(long, help = <span class="string">"Priority fee in microcredits. Defaults to 0."</span>, default_value = <span class="string">"0"</span>)]
@@ -586,8 +589,8 @@
     </span><span class="kw">let </span>address = Address::&lt;N&gt;::try_from(ViewKey::try_from(private_key)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
     <span class="comment">// Query the public balance of the address on the `account` mapping from `credits.aleo`.
     </span><span class="kw">let </span><span class="kw-2">mut </span>public_balance = Query {
-        endpoint: endpoint.to_string(),
-        network: network.to_string(),
+        endpoint: <span class="prelude-val">Some</span>(endpoint.to_string()),
+        network: <span class="prelude-val">Some</span>(network.to_string()),
         command: QueryCommands::Program {
             command: <span class="kw">crate</span>::cli::commands::query::Program {
                 name: <span class="string">"credits"</span>.to_string(),
@@ -599,17 +602,24 @@
     .execute(Context::new(context.path.clone(), context.home.clone(), <span class="bool-val">true</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
     <span class="comment">// Remove the last 3 characters since they represent the `u64` suffix.
     </span>public_balance.truncate(public_balance.len() - <span class="number">3</span>);
+    <span class="comment">// Make sure the balance is valid.
+    </span><span class="kw">let </span>balance = <span class="kw">if let </span><span class="prelude-val">Ok</span>(credits) = public_balance.parse::&lt;u64&gt;() {
+        credits
+    } <span class="kw">else </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::invalid_balance(address).into());
+    };
     <span class="comment">// Compare balance.
-    </span><span class="kw">if </span>public_balance.parse::&lt;u64&gt;().unwrap() &lt; total_cost {
+    </span><span class="kw">if </span>balance &lt; total_cost {
         <span class="prelude-val">Err</span>(PackageError::insufficient_balance(address, public_balance, total_cost).into())
     } <span class="kw">else </span>{
+        <span class="macro">println!</span>(<span class="string">"Your current public balance is {} credits.\n"</span>, balance <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="doccomment">/// Determine if the transaction should be broadcast or displayed to user.
 </span><span class="kw">fn </span>handle_broadcast&lt;N: Network&gt;(endpoint: <span class="kw-2">&amp;</span>String, transaction: Transaction&lt;N&gt;, operation: <span class="kw-2">&amp;</span>String) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="macro">println!</span>(<span class="string">"Broadcasting transaction to {}..."</span>, endpoint.clone());
+    <span class="macro">println!</span>(<span class="string">"Broadcasting transaction to {}...\n"</span>, endpoint.clone());
     <span class="comment">// Get the transaction id.
     </span><span class="kw">let </span>transaction_id = transaction.id();
 
@@ -623,20 +633,20 @@
             <span class="kw">match </span>transaction {
                 Transaction::Deploy(..) =&gt; {
                     <span class="macro">println!</span>(
-                        <span class="string">"⌛ Deployment {transaction_id} ('{}') has been broadcast to {}."</span>,
+                        <span class="string">"⌛ Deployment {transaction_id} ('{}') has been broadcast to {}.\n"</span>,
                         operation.bold(),
                         endpoint
                     )
                 }
                 Transaction::Execute(..) =&gt; {
                     <span class="macro">println!</span>(
-                        <span class="string">"⌛ Execution {transaction_id} ('{}') has been broadcast to {}."</span>,
+                        <span class="string">"⌛ Execution {transaction_id} ('{}') has been broadcast to {}.\n"</span>,
                         operation.bold(),
                         endpoint
                     )
                 }
                 Transaction::Fee(..) =&gt; {
-                    <span class="macro">println!</span>(<span class="string">"❌ Failed to broadcast fee '{}' to the {}."</span>, operation.bold(), endpoint)
+                    <span class="macro">println!</span>(<span class="string">"❌ Failed to broadcast fee '{}' to the {}.\n"</span>, operation.bold(), endpoint)
                 }
             }
             <span class="prelude-val">Ok</span>(())

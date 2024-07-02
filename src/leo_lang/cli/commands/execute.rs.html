@@ -375,6 +375,29 @@
 <a href="#375" id="375">375</a>
 <a href="#376" id="376">376</a>
 <a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -401,9 +424,10 @@
 <span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span><span class="kw">crate</span>::cli::query::QueryCommands;
+<span class="kw">use </span>dialoguer::{theme::ColorfulTheme, Confirm};
 <span class="kw">use </span>leo_retriever::NetworkName;
 <span class="kw">use </span>snarkvm::{
-    circuit::{Aleo, AleoTestnetV0, AleoV0},
+    circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
     cli::LOCALE,
     ledger::Transaction::Execute <span class="kw">as </span>ExecuteTransaction,
     package::Package <span class="kw">as </span>SnarkVMPackage,
@@ -443,6 +467,8 @@
     </span>compiler_options: BuildOptions,
     <span class="attr">#[arg(short, long, help = <span class="string">"The inputs to the program, from a file. Overrides the INPUTS argument."</span>)]
     </span>file: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="attr">#[clap(long, help = <span class="string">"Disables building of the project before execution."</span>, default_value = <span class="string">"false"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) no_build: bool,
 }
 
 <span class="kw">impl </span>Command <span class="kw">for </span>Execute {
@@ -455,7 +481,7 @@
 
     <span class="kw">fn </span>prelude(<span class="kw-2">&amp;</span><span class="self">self</span>, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Input&gt; {
         <span class="comment">// No need to build if we are executing an external program.
-        </span><span class="kw">if </span><span class="self">self</span>.program.is_some() {
+        </span><span class="kw">if </span><span class="self">self</span>.program.is_some() || <span class="self">self</span>.no_build {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
         (Build { options: <span class="self">self</span>.compiler_options.clone() }).execute(context)
@@ -463,16 +489,23 @@
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, _input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="comment">// Parse the network.
-        </span><span class="kw">let </span>network = NetworkName::try_from(<span class="self">self</span>.compiler_options.network.as_str())<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>network = NetworkName::try_from(context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.compiler_options.network)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>endpoint = context.get_endpoint(<span class="kw-2">&amp;</span><span class="self">self</span>.compiler_options.endpoint)<span class="question-mark">?</span>;
         <span class="kw">match </span>network {
-            NetworkName::MainnetV0 =&gt; handle_execute::&lt;AleoV0&gt;(<span class="self">self</span>, context),
-            NetworkName::TestnetV0 =&gt; handle_execute::&lt;AleoTestnetV0&gt;(<span class="self">self</span>, context),
+            NetworkName::MainnetV0 =&gt; handle_execute::&lt;AleoV0&gt;(<span class="self">self</span>, context, network, <span class="kw-2">&amp;</span>endpoint),
+            NetworkName::TestnetV0 =&gt; handle_execute::&lt;AleoTestnetV0&gt;(<span class="self">self</span>, context, network, <span class="kw-2">&amp;</span>endpoint),
+            NetworkName::CanaryV0 =&gt; handle_execute::&lt;AleoCanaryV0&gt;(<span class="self">self</span>, context, network, <span class="kw-2">&amp;</span>endpoint),
         }
     }
 }
 
 <span class="comment">// A helper function to handle the `execute` command.
-</span><span class="kw">fn </span>handle_execute&lt;A: Aleo&gt;(command: Execute, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Execute <span class="kw">as </span>Command&gt;::Output&gt; {
+</span><span class="kw">fn </span>handle_execute&lt;A: Aleo&gt;(
+    command: Execute,
+    context: Context,
+    network: NetworkName,
+    endpoint: <span class="kw-2">&amp;</span>str,
+) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Execute <span class="kw">as </span>Command&gt;::Output&gt; {
     <span class="comment">// If input values are provided, then run the program with those inputs.
     // Otherwise, use the input file.
     </span><span class="kw">let </span><span class="kw-2">mut </span>inputs = command.inputs.clone();
@@ -510,13 +543,14 @@
             <span class="kw-2">&amp;</span>dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)<span class="question-mark">?</span>.to_string(),
         )<span class="question-mark">?</span>,
     };
+    <span class="kw">let </span>address = Address::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
 
     <span class="comment">// If the `broadcast` flag is set, then broadcast the transaction.
     </span><span class="kw">if </span>command.broadcast {
         <span class="comment">// Get the program name.
         </span><span class="kw">let </span>program_name = <span class="kw">match </span>(command.program.clone(), command.local) {
             (<span class="prelude-val">Some</span>(name), <span class="bool-val">true</span>) =&gt; {
-                <span class="kw">let </span>local = context.open_manifest::&lt;A::Network&gt;()<span class="question-mark">?</span>.program_id().to_string();
+                <span class="kw">let </span>local = context.open_manifest::&lt;A::Network&gt;()<span class="question-mark">?</span>.program_id().name().to_string();
                 <span class="comment">// Throw error if local name doesn't match the specified name.
                 </span><span class="kw">if </span>name == local {
                     local
@@ -525,13 +559,12 @@
                 }
             }
             (<span class="prelude-val">Some</span>(name), <span class="bool-val">false</span>) =&gt; name.clone(),
-            (<span class="prelude-val">None</span>, <span class="bool-val">true</span>) =&gt; context.open_manifest::&lt;A::Network&gt;()<span class="question-mark">?</span>.program_id().to_string(),
+            (<span class="prelude-val">None</span>, <span class="bool-val">true</span>) =&gt; context.open_manifest::&lt;A::Network&gt;()<span class="question-mark">?</span>.program_id().name().to_string(),
             (<span class="prelude-val">None</span>, <span class="bool-val">false</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::missing_on_chain_program_name().into()),
         };
 
         <span class="comment">// Specify the query
-        </span><span class="kw">let </span>query =
-            SnarkVMQuery::&lt;A::Network, BlockMemory&lt;A::Network&gt;&gt;::from(command.compiler_options.endpoint.clone());
+        </span><span class="kw">let </span>query = SnarkVMQuery::&lt;A::Network, BlockMemory&lt;A::Network&gt;&gt;::from(endpoint);
 
         <span class="comment">// Initialize the storage.
         </span><span class="kw">let </span>store = ConsensusStore::&lt;A::Network, ConsensusMemory&lt;A::Network&gt;&gt;::open(StorageMode::Production)<span class="question-mark">?</span>;
@@ -541,8 +574,7 @@
 
         <span class="comment">// Load the main program, and all of its imports.
         </span><span class="kw">let </span>program_id = <span class="kw-2">&amp;</span>ProgramID::&lt;A::Network&gt;::from_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, program_name))<span class="question-mark">?</span>;
-        <span class="comment">// TODO: X
-        </span>load_program_from_network(<span class="kw-2">&amp;</span>command, context.clone(), <span class="kw-2">&amp;mut </span>vm.process().write(), program_id)<span class="question-mark">?</span>;
+        load_program_from_network(context.clone(), <span class="kw-2">&amp;mut </span>vm.process().write(), program_id, network, endpoint)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>fee_record = <span class="kw">if let </span><span class="prelude-val">Some</span>(record) = command.fee_options.record {
             <span class="prelude-val">Some</span>(parse_record(<span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>record)<span class="question-mark">?</span>)
@@ -553,7 +585,7 @@
         <span class="comment">// Create a new transaction.
         </span><span class="kw">let </span>transaction = vm.execute(
             <span class="kw-2">&amp;</span>private_key,
-            (program_id, command.name),
+            (program_id, command.name.clone()),
             inputs.iter(),
             fee_record.clone(),
             command.fee_options.priority_fee,
@@ -577,32 +609,38 @@
             storage_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
             finalize_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
             command.fee_options.priority_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-        );
+        )<span class="question-mark">?</span>;
 
         <span class="comment">// Check if the public balance is sufficient.
         </span><span class="kw">if </span>fee_record.is_none() {
-            check_balance::&lt;A::Network&gt;(
-                <span class="kw-2">&amp;</span>private_key,
-                <span class="kw-2">&amp;</span>command.compiler_options.endpoint,
-                <span class="kw-2">&amp;</span>command.compiler_options.network,
-                context,
-                total_cost,
-            )<span class="question-mark">?</span>;
+            check_balance::&lt;A::Network&gt;(<span class="kw-2">&amp;</span>private_key, endpoint, <span class="kw-2">&amp;</span>network.to_string(), context, total_cost)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// Broadcast the execution transaction.
         </span><span class="kw">if </span>!command.fee_options.dry_run {
-            <span class="macro">println!</span>(<span class="string">"✅ Created execution transaction for '{}'"</span>, program_id.to_string().bold());
-            handle_broadcast(
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">"{}/{}/transaction/broadcast"</span>,
-                    command.compiler_options.endpoint, command.compiler_options.network
-                ),
-                transaction,
-                <span class="kw-2">&amp;</span>program_name,
-            )<span class="question-mark">?</span>;
+            <span class="kw">if </span>!command.fee_options.yes {
+                <span class="kw">let </span>prompt = <span class="macro">format!</span>(
+                    <span class="string">"Do you want to submit execution of function `{}` on program `{program_name}.aleo` to network {} via endpoint {} using address {}?"</span>,
+                    <span class="kw-2">&amp;</span>command.name, network, endpoint, address
+                );
+                <span class="comment">// Ask the user for confirmation of the transaction.
+                </span><span class="kw">let </span>confirmation =
+                    Confirm::with_theme(<span class="kw-2">&amp;</span>ColorfulTheme::default()).with_prompt(prompt).default(<span class="bool-val">false</span>).interact();
+
+                <span class="comment">// Check if the user confirmed the transaction.
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(confirmation) = confirmation {
+                    <span class="kw">if </span>!confirmation {
+                        <span class="macro">println!</span>(<span class="string">"✅ Successfully aborted the execution transaction for '{}'\n"</span>, program_name.bold());
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+                    }
+                } <span class="kw">else </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::confirmation_failed().into());
+                }
+            }
+            <span class="macro">println!</span>(<span class="string">"✅ Created execution transaction for '{}'\n"</span>, program_id.to_string().bold());
+            handle_broadcast(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, endpoint, network), transaction, <span class="kw-2">&amp;</span>program_name)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
-            <span class="macro">println!</span>(<span class="string">"✅ Successful dry run execution for '{}'"</span>, program_id.to_string().bold());
+            <span class="macro">println!</span>(<span class="string">"✅ Successful dry run execution for '{}'\n"</span>, program_id.to_string().bold());
         }
 
         <span class="kw">return </span><span class="prelude-val">Ok</span>(());
@@ -618,14 +656,18 @@
     // Load the package.
     </span><span class="kw">let </span>package = SnarkVMPackage::open(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
     <span class="comment">// Convert the inputs.
-    </span><span class="kw">let </span>inputs = inputs.iter().map(|input| Value::from_str(input).unwrap()).collect::&lt;Vec&lt;Value&lt;A::Network&gt;&gt;&gt;();
+    </span><span class="kw">let </span><span class="kw-2">mut </span>parsed_inputs: Vec&lt;Value&lt;A::Network&gt;&gt; = Vec::new();
+    <span class="kw">for </span>input <span class="kw">in </span>inputs.iter() {
+        <span class="kw">let </span>value = Value::from_str(input)<span class="question-mark">?</span>;
+        parsed_inputs.push(value);
+    }
     <span class="comment">// Execute the request.
     </span><span class="kw">let </span>(response, execution, metrics) = package
         .execute::&lt;A, <span class="kw">_</span>&gt;(
-            command.compiler_options.endpoint.clone(),
+            endpoint.to_string(),
             <span class="kw-2">&amp;</span>private_key,
             Identifier::try_from(command.name.clone())<span class="question-mark">?</span>,
-            <span class="kw-2">&amp;</span>inputs,
+            <span class="kw-2">&amp;</span>parsed_inputs,
             rng,
         )
         .map_err(PackageError::execution_error)<span class="question-mark">?</span>;
@@ -695,25 +737,22 @@
 
 <span class="doccomment">/// A helper function to recursively load the program and all of its imports into the process. Lifted from snarkOS.
 </span><span class="kw">fn </span>load_program_from_network&lt;N: Network&gt;(
-    command: <span class="kw-2">&amp;</span>Execute,
     context: Context,
     process: <span class="kw-2">&amp;mut </span>Process&lt;N&gt;,
     program_id: <span class="kw-2">&amp;</span>ProgramID&lt;N&gt;,
+    network: NetworkName,
+    endpoint: <span class="kw-2">&amp;</span>str,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="comment">// Fetch the program.
     </span><span class="kw">let </span>program_src = Query {
-        endpoint: command.compiler_options.endpoint.clone(),
-        network: command.compiler_options.network.clone(),
+        endpoint: <span class="prelude-val">Some</span>(endpoint.to_string()),
+        network: <span class="prelude-val">Some</span>(network.to_string()),
         command: QueryCommands::Program {
-            command: <span class="kw">crate</span>::cli::commands::query::Program {
-                name: program_id.to_string(),
-                mappings: <span class="bool-val">false</span>,
-                mapping_value: <span class="prelude-val">None</span>,
-            },
+            command: query::Program { name: program_id.to_string(), mappings: <span class="bool-val">false</span>, mapping_value: <span class="prelude-val">None </span>},
         },
     }
     .execute(Context::new(context.path.clone(), context.home.clone(), <span class="bool-val">true</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-    <span class="kw">let </span>program = SnarkVMProgram::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>program_src).unwrap();
+    <span class="kw">let </span>program = SnarkVMProgram::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>program_src)<span class="question-mark">?</span>;
 
     <span class="comment">// Return early if the program is already loaded.
     </span><span class="kw">if </span>process.contains_program(program.id()) {
@@ -725,7 +764,7 @@
         <span class="comment">// Add the imports to the process if does not exist yet.
         </span><span class="kw">if </span>!process.contains_program(import_program_id) {
             <span class="comment">// Recursively load the program and its imports.
-            </span>load_program_from_network(command, context.clone(), process, import_program_id)<span class="question-mark">?</span>;
+            </span>load_program_from_network(context.clone(), process, import_program_id, network, endpoint)<span class="question-mark">?</span>;
         }
     }
 
@@ -738,8 +777,14 @@
 }
 
 <span class="comment">// A helper function to display a cost breakdown of the execution.
-</span><span class="kw">fn </span>execution_cost_breakdown(name: <span class="kw-2">&amp;</span>String, total_cost: f64, storage_cost: f64, finalize_cost: f64, priority_fee: f64) {
-    <span class="macro">println!</span>(<span class="string">"Base execution cost for '{}' is {} credits."</span>, name.bold(), total_cost);
+</span><span class="kw">fn </span>execution_cost_breakdown(
+    name: <span class="kw-2">&amp;</span>String,
+    total_cost: f64,
+    storage_cost: f64,
+    finalize_cost: f64,
+    priority_fee: f64,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="macro">println!</span>(<span class="string">"\nBase execution cost for '{}' is {} credits.\n"</span>, name.bold(), total_cost);
     <span class="comment">// Display the cost breakdown in a table.
     </span><span class="kw">let </span>data = [
         [name, <span class="string">"Cost (credits)"</span>],
@@ -749,7 +794,8 @@
         [<span class="string">"Total"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, total_cost)],
     ];
     <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
-    text_tables::render(<span class="kw-2">&amp;mut </span>out, data).unwrap();
-    <span class="macro">println!</span>(<span class="string">"{}"</span>, ::std::str::from_utf8(<span class="kw-2">&amp;</span>out).unwrap());
+    text_tables::render(<span class="kw-2">&amp;mut </span>out, data).map_err(CliError::table_render_failed)<span class="question-mark">?</span>;
+    <span class="macro">println!</span>(<span class="string">"{}"</span>, std::str::from_utf8(<span class="kw-2">&amp;</span>out).map_err(CliError::table_render_failed)<span class="question-mark">?</span>);
+    <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div></section></main></body></html>

@@ -270,7 +270,7 @@
             FlattenError(error) =&gt; error.error_code(),
             UtilError(error) =&gt; error.error_code(),
             LastErrorCode(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-            Anyhow(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(), <span class="comment">// todo: implement error codes for snarkvm errors.
+            Anyhow(<span class="kw">_</span>) =&gt; <span class="string">"SnarkVM Error"</span>.to_string(), <span class="comment">// todo: implement error codes for snarkvm errors.
         </span>}
     }
 
@@ -289,7 +289,7 @@
             FlattenError(error) =&gt; error.exit_code(),
             UtilError(error) =&gt; error.exit_code(),
             LastErrorCode(code) =&gt; <span class="kw-2">*</span>code,
-            Anyhow(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(), <span class="comment">// todo: implement exit codes for snarkvm errors.
+            Anyhow(<span class="kw">_</span>) =&gt; <span class="number">11000</span>, <span class="comment">// todo: implement exit codes for snarkvm errors.
         </span>}
     }
 }

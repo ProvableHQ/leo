@@ -194,6 +194,13 @@
 <a href="#194" id="194">194</a>
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -388,6 +395,13 @@
         args: (field: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Invalid field: {field}."</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"Field element must be numerical string with optional \"field\" suffix."</span>.to_string()),
+    }
+
+    @backtraced
+    invalid_bound {
+        args: (bound: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid bound: {bound}."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Bound must be a valid u32."</span>.to_string()),
     }
 );
 </code></pre></div></section></main></body></html>

@@ -218,6 +218,13 @@
 <a href="#218" id="218">218</a>
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -249,6 +256,7 @@
 };
 
 <span class="kw">use </span>indexmap::IndexMap;
+<span class="kw">use </span>snarkvm::prelude::CanaryV0;
 <span class="kw">use </span>std::{
     io::Write,
     path::{Path, PathBuf},
@@ -313,10 +321,11 @@
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="comment">// Parse the network.
-        </span><span class="kw">let </span>network = NetworkName::try_from(<span class="self">self</span>.options.network.as_str())<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>network = NetworkName::try_from(context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.options.network)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
         <span class="kw">match </span>network {
             NetworkName::MainnetV0 =&gt; handle_build::&lt;MainnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context),
             NetworkName::TestnetV0 =&gt; handle_build::&lt;TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context),
+            NetworkName::CanaryV0 =&gt; handle_build::&lt;CanaryV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context),
         }
     }
 }
@@ -343,8 +352,13 @@
 
     <span class="comment">// Retrieve all local dependencies in post order
     </span><span class="kw">let </span>main_sym = Symbol::intern(<span class="kw-2">&amp;</span>program_id.name().to_string());
-    <span class="kw">let </span><span class="kw-2">mut </span>retriever = Retriever::&lt;N&gt;::new(main_sym, <span class="kw-2">&amp;</span>package_path, <span class="kw-2">&amp;</span>home_path, command.options.endpoint.clone())
-        .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>retriever = Retriever::&lt;N&gt;::new(
+        main_sym,
+        <span class="kw-2">&amp;</span>package_path,
+        <span class="kw-2">&amp;</span>home_path,
+        context.get_endpoint(<span class="kw-2">&amp;</span>command.options.endpoint)<span class="question-mark">?</span>.to_string(),
+    )
+    .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>local_dependencies =
         retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
 

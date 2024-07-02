@@ -91,6 +91,9 @@
 <a href="#91" id="91">91</a>
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -162,8 +165,11 @@
             </span>is_valid_numerical_input(<span class="kw-2">&amp;</span>range[<span class="number">0</span>])<span class="question-mark">?</span>;
             is_valid_numerical_input(<span class="kw-2">&amp;</span>range[<span class="number">1</span>])<span class="question-mark">?</span>;
 
+            <span class="comment">// Parse the range values.
+            </span><span class="kw">let </span>end = <span class="kw-2">&amp;</span>range[<span class="number">1</span>].parse::&lt;u32&gt;().map_err(|<span class="kw">_</span>| UtilError::invalid_bound(<span class="kw-2">&amp;</span>range[<span class="number">1</span>]))<span class="question-mark">?</span>;
+            <span class="kw">let </span>start = <span class="kw-2">&amp;</span>range[<span class="number">0</span>].parse::&lt;u32&gt;().map_err(|<span class="kw">_</span>| UtilError::invalid_bound(<span class="kw-2">&amp;</span>range[<span class="number">0</span>]))<span class="question-mark">?</span>;
             <span class="comment">// Make sure the range is not too large.
-            </span><span class="kw">if </span>range[<span class="number">1</span>].parse::&lt;u32&gt;().unwrap() - range[<span class="number">0</span>].parse::&lt;u32&gt;().unwrap() &gt; <span class="number">50 </span>{
+            </span><span class="kw">if </span>end - start &gt; <span class="number">50 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(UtilError::invalid_range().into());
             }
             <span class="macro">format!</span>(<span class="string">"blocks?start={}&amp;end={}"</span>, range[<span class="number">0</span>], range[<span class="number">1</span>])

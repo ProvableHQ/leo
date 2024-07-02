@@ -114,6 +114,7 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -135,7 +136,7 @@
 <span class="kw">use </span>leo_retriever::NetworkName;
 <span class="kw">use </span>snarkvm::{
     cli::Run <span class="kw">as </span>SnarkVMRun,
-    prelude::{MainnetV0, Network, Parser <span class="kw">as </span>SnarkVMParser, TestnetV0},
+    prelude::{CanaryV0, MainnetV0, Network, Parser <span class="kw">as </span>SnarkVMParser, TestnetV0},
 };
 
 <span class="doccomment">/// Build, Prove and Run Leo program with inputs
@@ -168,10 +169,11 @@
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="comment">// Parse the network.
-        </span><span class="kw">let </span>network = NetworkName::try_from(<span class="self">self</span>.compiler_options.network.as_str())<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>network = NetworkName::try_from(context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.compiler_options.network)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
         <span class="kw">match </span>network {
             NetworkName::MainnetV0 =&gt; handle_run::&lt;MainnetV0&gt;(<span class="self">self</span>, context),
             NetworkName::TestnetV0 =&gt; handle_run::&lt;TestnetV0&gt;(<span class="self">self</span>, context),
+            NetworkName::CanaryV0 =&gt; handle_run::&lt;CanaryV0&gt;(<span class="self">self</span>, context),
         }
     }
 }

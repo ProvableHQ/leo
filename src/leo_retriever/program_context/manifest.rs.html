@@ -182,7 +182,7 @@
     <span class="kw">pub fn </span>read_from_dir(path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PackageError&gt; {
         <span class="comment">// Read the manifest file.
         </span><span class="kw">let </span>contents = std::fs::read_to_string(path.join(<span class="string">"program.json"</span>))
-            .map_err(|err| PackageError::failed_to_read_file(path.to_str().unwrap(), err))<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| PackageError::failed_to_load_package(path.to_str().unwrap()))<span class="question-mark">?</span>;
         <span class="comment">// Deserialize the manifest.
         </span>serde_json::from_str(<span class="kw-2">&amp;</span>contents)
             .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))

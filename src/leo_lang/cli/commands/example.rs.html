@@ -138,6 +138,14 @@
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
 <a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -165,6 +173,13 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) name: String,
     <span class="attr">#[clap(short = <span class="string">'n'</span>, long, help = <span class="string">"Name of the network to use"</span>, default_value = <span class="string">"mainnet"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) network: String,
+    <span class="attr">#[clap(
+        short = <span class="string">'e'</span>,
+        long,
+        help = <span class="string">"Endpoint to retrieve network state from."</span>,
+        default_value = <span class="string">"https://api.explorer.aleo.org/v1"
+    </span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) endpoint: String,
 }
 
 <span class="kw">impl </span>Command <span class="kw">for </span>Example {
@@ -173,7 +188,8 @@
 
     <span class="kw">fn </span>prelude(<span class="kw-2">&amp;</span><span class="self">self</span>, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Input&gt; {
         <span class="comment">// Run leo new &lt;name&gt; --network &lt;network&gt;
-        </span>(New { name: <span class="self">self</span>.name.clone(), network: <span class="self">self</span>.network.clone() }).execute(context)
+        </span>(New { name: <span class="self">self</span>.name.clone(), network: <span class="self">self</span>.network.clone(), endpoint: <span class="self">self</span>.endpoint.clone() })
+            .execute(context)
     }
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt;

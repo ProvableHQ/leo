@@ -265,6 +265,62 @@
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -529,6 +585,62 @@
     broadcast_error {
         args: (error: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"{error}"</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    failed_to_get_endpoint_from_env {
+        args: (),
+        msg: <span class="string">"Failed to get an endpoint."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Either make sure you have a `.env` file in current project directory with an `ENDPOINT` variable set, or set the `--endpoint` flag when invoking the CLI command.\n Example: `ENDPOINT=https://api.explorer.aleo.org/v1` or `leo build --endpoint \"https://api.explorer.aleo.org/v1\"`."</span>.to_string()),
+    }
+
+    @backtraced
+    failed_to_get_private_key_from_env {
+        args: (),
+        msg: <span class="string">"Failed to get a private key."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Either make sure you have a `.env` file in current project directory with a `PRIVATE_KEY` variable set, or set the `--private-key` flag when invoking the CLI command.\n Example: `PRIVATE_KEY=0x1234...` or `leo deploy --private-key \"APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH\"`."</span>.to_string()),
+    }
+
+    @backtraced
+    failed_to_get_network_from_env {
+        args: (),
+        msg: <span class="string">"Failed to get a network."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Either make sure you have a `.env` file in current project directory with a `NETWORK` variable set, or set the `--network` flag when invoking the CLI command.\n Example: `NETWORK=testnet` or `leo build --network testnet`."</span>.to_string()),
+    }
+
+    @backtraced
+    constraint_limit_exceeded {
+        args: (program: <span class="kw">impl </span>Display, limit: u64, network: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Program `{program}` exceeds the constraint limit {limit} for deployment on network {network}."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Reduce the number of constraints in the program by reducing the number of instructions in transition functions."</span>.to_string()),
+    }
+
+    @backtraced
+    variable_limit_exceeded {
+        args: (program: <span class="kw">impl </span>Display, limit: u64, network: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Program `{program}` exceeds the variable limit {limit} for deployment on network {network}."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Reduce the number of variables in the program by reducing the number of instructions in transition functions."</span>.to_string()),
+    }
+
+    @backtraced
+    confirmation_failed {
+        args: (),
+        msg: <span class="string">"Failed to confirm transaction"</span>.to_string(),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    invalid_balance {
+        args: (account: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid public balance for account: {account}"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Make sure the account has enough balance to pay for the deployment."</span>.to_string()),
+    }
+
+    @backtraced
+    table_render_failed {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to render table.\nError: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

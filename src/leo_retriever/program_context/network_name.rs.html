@@ -57,6 +57,26 @@
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -75,7 +95,7 @@
 
 </span><span class="kw">use </span>leo_errors::{CliError, LeoError};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
-<span class="kw">use </span>snarkvm::prelude::{MainnetV0, Network, TestnetV0};
+<span class="kw">use </span>snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
 <span class="kw">use </span>std::fmt;
 
 <span class="comment">// Retrievable networks for an external program
@@ -85,6 +105,8 @@
     </span>TestnetV0,
     <span class="attr">#[serde(rename = <span class="string">"mainnet"</span>)]
     </span>MainnetV0,
+    <span class="attr">#[serde(rename = <span class="string">"canary"</span>)]
+    </span>CanaryV0,
 }
 
 <span class="kw">impl </span>NetworkName {
@@ -92,6 +114,7 @@
         <span class="kw">match </span><span class="self">self </span>{
             NetworkName::TestnetV0 =&gt; TestnetV0::ID,
             NetworkName::MainnetV0 =&gt; MainnetV0::ID,
+            NetworkName::CanaryV0 =&gt; CanaryV0::ID,
         }
     }
 }
@@ -103,7 +126,23 @@
         <span class="kw">match </span>network {
             <span class="string">"testnet" </span>=&gt; <span class="prelude-val">Ok</span>(NetworkName::TestnetV0),
             <span class="string">"mainnet" </span>=&gt; <span class="prelude-val">Ok</span>(NetworkName::MainnetV0),
+            <span class="string">"canary" </span>=&gt; <span class="prelude-val">Ok</span>(NetworkName::CanaryV0),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(LeoError::CliError(CliError::invalid_network_name(network))),
+        }
+    }
+}
+<span class="kw">impl </span>TryFrom&lt;String&gt; <span class="kw">for </span>NetworkName {
+    <span class="kw">type </span>Error = LeoError;
+
+    <span class="kw">fn </span>try_from(network: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, LeoError&gt; {
+        <span class="kw">if </span>network == <span class="string">"testnet" </span>{
+            <span class="prelude-val">Ok</span>(NetworkName::TestnetV0)
+        } <span class="kw">else if </span>network == <span class="string">"mainnet" </span>{
+            <span class="prelude-val">Ok</span>(NetworkName::MainnetV0)
+        } <span class="kw">else if </span>network == <span class="string">"canary" </span>{
+            <span class="prelude-val">Ok</span>(NetworkName::CanaryV0)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(LeoError::CliError(CliError::invalid_network_name(<span class="kw-2">&amp;</span>network)))
         }
     }
 }
@@ -113,6 +152,7 @@
         <span class="kw">match </span><span class="self">self </span>{
             NetworkName::TestnetV0 =&gt; <span class="macro">write!</span>(f, <span class="string">"testnet"</span>),
             NetworkName::MainnetV0 =&gt; <span class="macro">write!</span>(f, <span class="string">"mainnet"</span>),
+            NetworkName::CanaryV0 =&gt; <span class="macro">write!</span>(f, <span class="string">"canary"</span>),
         }
     }
 }

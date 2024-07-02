@@ -226,6 +226,24 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -244,23 +262,23 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>aleo_std::StorageMode;
+<span class="kw">use </span>dialoguer::{theme::ColorfulTheme, Confirm};
 <span class="kw">use </span>leo_retriever::NetworkName;
 <span class="kw">use </span>snarkvm::{
-    circuit::{Aleo, AleoTestnetV0, AleoV0},
-    cli::helpers::dotenv_private_key,
+    circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
     ledger::query::Query <span class="kw">as </span>SnarkVMQuery,
     package::Package <span class="kw">as </span>SnarkVMPackage,
     prelude::{
         deployment_cost,
         store::{helpers::memory::ConsensusMemory, ConsensusStore},
+        CanaryV0,
         MainnetV0,
-        PrivateKey,
         ProgramOwner,
         TestnetV0,
         VM,
     },
 };
-<span class="kw">use </span>std::{path::PathBuf, str::FromStr};
+<span class="kw">use </span>std::path::PathBuf;
 <span class="kw">use </span>text_tables;
 
 <span class="doccomment">/// Deploys an Aleo program.
@@ -299,10 +317,12 @@
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="comment">// Parse the network.
-        </span><span class="kw">let </span>network = NetworkName::try_from(<span class="self">self</span>.options.network.as_str())<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>network = NetworkName::try_from(context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.options.network)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>endpoint = context.get_endpoint(<span class="kw-2">&amp;</span><span class="self">self</span>.options.endpoint)<span class="question-mark">?</span>;
         <span class="kw">match </span>network {
-            NetworkName::MainnetV0 =&gt; handle_deploy::&lt;AleoV0, MainnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context),
-            NetworkName::TestnetV0 =&gt; handle_deploy::&lt;AleoTestnetV0, TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context),
+            NetworkName::MainnetV0 =&gt; handle_deploy::&lt;AleoV0, MainnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, <span class="kw-2">&amp;</span>endpoint),
+            NetworkName::TestnetV0 =&gt; handle_deploy::&lt;AleoTestnetV0, TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, <span class="kw-2">&amp;</span>endpoint),
+            NetworkName::CanaryV0 =&gt; handle_deploy::&lt;AleoCanaryV0, CanaryV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, <span class="kw-2">&amp;</span>endpoint),
         }
     }
 }
@@ -311,20 +331,18 @@
 </span><span class="kw">fn </span>handle_deploy&lt;A: Aleo&lt;Network = N, BaseField = N::Field&gt;, N: Network&gt;(
     command: <span class="kw-2">&amp;</span>Deploy,
     context: Context,
+    network: NetworkName,
+    endpoint: <span class="kw-2">&amp;</span>str,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Deploy <span class="kw">as </span>Command&gt;::Output&gt; {
     <span class="comment">// Get the program name.
     </span><span class="kw">let </span>project_name = context.open_manifest::&lt;N&gt;()<span class="question-mark">?</span>.program_id().to_string();
 
     <span class="comment">// Get the private key.
-    </span><span class="kw">let </span>private_key = <span class="kw">match </span><span class="kw-2">&amp;</span>command.fee_options.private_key {
-        <span class="prelude-val">Some</span>(key) =&gt; PrivateKey::from_str(key)<span class="question-mark">?</span>,
-        <span class="prelude-val">None </span>=&gt; PrivateKey::from_str(
-            <span class="kw-2">&amp;</span>dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)<span class="question-mark">?</span>.to_string(),
-        )<span class="question-mark">?</span>,
-    };
+    </span><span class="kw">let </span>private_key = context.get_private_key(<span class="kw-2">&amp;</span>command.fee_options.private_key)<span class="question-mark">?</span>;
+    <span class="kw">let </span>address = Address::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
 
     <span class="comment">// Specify the query
-    </span><span class="kw">let </span>query = SnarkVMQuery::from(<span class="kw-2">&amp;</span>command.options.endpoint);
+    </span><span class="kw">let </span>query = SnarkVMQuery::from(endpoint);
 
     <span class="kw">let </span><span class="kw-2">mut </span>all_paths: Vec&lt;(String, PathBuf)&gt; = Vec::new();
 
@@ -348,6 +366,15 @@
 
         <span class="comment">// Generate the deployment
         </span><span class="kw">let </span>deployment = package.deploy::&lt;A&gt;(<span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+
+        <span class="comment">// Check if the number of variables and constraints are within the limits.
+        </span><span class="kw">if </span>deployment.num_combined_variables()<span class="question-mark">? </span>&gt; N::MAX_DEPLOYMENT_VARIABLES {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::variable_limit_exceeded(name, N::MAX_DEPLOYMENT_VARIABLES, network).into());
+        }
+        <span class="kw">if </span>deployment.num_combined_constraints()<span class="question-mark">? </span>&gt; N::MAX_DEPLOYMENT_CONSTRAINTS {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::constraint_limit_exceeded(name, N::MAX_DEPLOYMENT_CONSTRAINTS, network).into());
+        }
+
         <span class="kw">let </span>deployment_id = deployment.to_deployment_id()<span class="question-mark">?</span>;
 
         <span class="kw">let </span>store = ConsensusStore::&lt;N, ConsensusMemory&lt;N&gt;&gt;::open(StorageMode::Production)<span class="question-mark">?</span>;
@@ -367,7 +394,7 @@
             synthesis_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
             namespace_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
             command.fee_options.priority_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-        );
+        )<span class="question-mark">?</span>;
 
         <span class="comment">// Initialize an RNG.
         </span><span class="kw">let </span>rng = <span class="kw-2">&amp;mut </span>rand::thread_rng();
@@ -388,13 +415,7 @@
             </span>}
             <span class="prelude-val">None </span>=&gt; {
                 <span class="comment">// Make sure the user has enough public balance to pay for the deployment.
-                </span>check_balance(
-                    <span class="kw-2">&amp;</span>private_key,
-                    <span class="kw-2">&amp;</span>command.options.endpoint,
-                    <span class="kw-2">&amp;</span>command.options.network,
-                    context.clone(),
-                    total_cost,
-                )<span class="question-mark">?</span>;
+                </span>check_balance(<span class="kw-2">&amp;</span>private_key, endpoint, <span class="kw-2">&amp;</span>network.to_string(), context.clone(), total_cost)<span class="question-mark">?</span>;
                 <span class="kw">let </span>fee_authorization = vm.authorize_fee_public(
                     <span class="kw-2">&amp;</span>private_key,
                     total_cost,
@@ -413,18 +434,32 @@
 
         <span class="comment">// Determine if the transaction should be broadcast, stored, or displayed to the user.
         </span><span class="kw">if </span>!command.fee_options.dry_run {
-            <span class="macro">println!</span>(<span class="string">"✅ Created deployment transaction for '{}'"</span>, name.bold());
-            handle_broadcast(
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, command.options.endpoint, command.options.network),
-                transaction,
-                name,
-            )<span class="question-mark">?</span>;
+            <span class="kw">if </span>!command.fee_options.yes {
+                <span class="kw">let </span>prompt = <span class="macro">format!</span>(
+                    <span class="string">"Do you want to submit deployment of program `{name}.aleo` to network {} via endpoint {} using address {}?"</span>,
+                    network, endpoint, address
+                );
+                <span class="kw">let </span>confirmation =
+                    Confirm::with_theme(<span class="kw-2">&amp;</span>ColorfulTheme::default()).with_prompt(prompt).default(<span class="bool-val">false</span>).interact();
+
+                <span class="comment">// Check if the user confirmed the transaction.
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(confirmation) = confirmation {
+                    <span class="kw">if </span>!confirmation {
+                        <span class="macro">println!</span>(<span class="string">"✅ Successfully aborted the execution transaction for '{}'\n"</span>, name.bold());
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+                    }
+                } <span class="kw">else </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::confirmation_failed().into());
+                }
+            }
+            <span class="macro">println!</span>(<span class="string">"✅ Created deployment transaction for '{}'\n"</span>, name.bold());
+            handle_broadcast(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, endpoint, network), transaction, name)<span class="question-mark">?</span>;
             <span class="comment">// Wait between successive deployments to prevent out of order deployments.
             </span><span class="kw">if </span>index &lt; all_paths.len() - <span class="number">1 </span>{
                 std::thread::sleep(std::time::Duration::from_secs(command.wait));
             }
         } <span class="kw">else </span>{
-            <span class="macro">println!</span>(<span class="string">"✅ Successful dry run deployment for '{}'"</span>, name.bold());
+            <span class="macro">println!</span>(<span class="string">"✅ Successful dry run deployment for '{}'\n"</span>, name.bold());
         }
     }
 
@@ -439,8 +474,8 @@
     synthesis_cost: f64,
     namespace_cost: f64,
     priority_fee: f64,
-) {
-    <span class="macro">println!</span>(<span class="string">"Base deployment cost for '{}' is {} credits."</span>, name.bold(), total_cost);
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="macro">println!</span>(<span class="string">"\nBase deployment cost for '{}' is {} credits.\n"</span>, name.bold(), total_cost);
     <span class="comment">// Display the cost breakdown in a table.
     </span><span class="kw">let </span>data = [
         [name, <span class="string">"Cost (credits)"</span>],
@@ -451,7 +486,8 @@
         [<span class="string">"Total"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, total_cost)],
     ];
     <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
-    text_tables::render(<span class="kw-2">&amp;mut </span>out, data).unwrap();
-    <span class="macro">println!</span>(<span class="string">"{}"</span>, ::std::str::from_utf8(<span class="kw-2">&amp;</span>out).unwrap());
+    text_tables::render(<span class="kw-2">&amp;mut </span>out, data).map_err(CliError::table_render_failed)<span class="question-mark">?</span>;
+    <span class="macro">println!</span>(<span class="string">"{}"</span>, ::std::str::from_utf8(<span class="kw-2">&amp;</span>out).map_err(CliError::table_render_failed)<span class="question-mark">?</span>);
+    <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div></section></main></body></html>
