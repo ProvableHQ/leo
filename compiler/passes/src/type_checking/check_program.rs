@@ -225,10 +225,10 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
 
     fn visit_function(&mut self, function: &'a Function) {
         // Check that the function's annotations are valid.
-        // Note that Leo does not natively support any specific annotations.
         for annotation in function.annotations.iter() {
-            // TODO: Change to compiler warning.
-            self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
+            if annotation.name().is_none() {
+                self.emit_warning(TypeCheckerWarning::unknown_annotation(annotation, annotation.span))
+            }
         }
 
         // Set type checker variables for function variant details.
