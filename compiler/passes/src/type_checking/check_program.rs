@@ -154,10 +154,8 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
             check_has_field(sym::owner, Type::Address);
         }
         // For structs, check that there is at least one member.
-        else {
-            if input.members.is_empty() {
-                self.emit_err(TypeCheckerError::empty_struct(input.span()));
-            }
+        else if input.members.is_empty() {
+            self.emit_err(TypeCheckerError::empty_struct(input.span()));
         }
 
         if !(input.is_record && self.scope_state.is_stub) {
