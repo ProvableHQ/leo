@@ -879,4 +879,11 @@ create_messages!(
         msg: format!("The async function `{name}` does not exist."),
         help: Some(format!("Ensure that `{name}` is defined as an async function in the current program.")),
     }
+
+    @formatted
+    empty_struct {
+        args: (),
+        msg: "A struct must have at least one member.".to_string(),
+        help: None,
+    }
 );
