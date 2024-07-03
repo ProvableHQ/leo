@@ -314,19 +314,14 @@ impl<N: Network> ParserContext<'_, N> {
     fn parse_annotation(&mut self) -> Result<Annotation> {
         // Parse the `@` symbol and identifier.
         let start = self.expect(&Token::At)?;
-        let identifier = match self.token.token {
-            Token::Program => {
-                Identifier { name: sym::program, span: self.expect(&Token::Program)?, id: self.node_builder.next_id() }
-            }
-            _ => self.expect_identifier()?,
-        };
+        let identifier = self.expect_identifier()?;
         let span = start + identifier.span;
 
         // TODO: Verify that this check is sound.
         // Check that there is no whitespace in between the `@` symbol and identifier.
         match identifier.span.hi.0 - start.lo.0 > 1 + identifier.name.to_string().len() as u32 {
             true => Err(ParserError::space_in_annotation(span).into()),
-            false => Ok(Annotation { identifier, span, id: self.node_builder.next_id() }),
+            false => Ok(Annotation { name: identifier.name, span, id: identifier.id }),
         }
     }
 

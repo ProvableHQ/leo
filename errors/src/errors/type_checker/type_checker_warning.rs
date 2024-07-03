@@ -51,4 +51,11 @@ create_messages!(
         msg: format!("The type checker has exceeded the max depth of nested conditional blocks: {max}."),
         help: Some("Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.".to_string()),
     }
+    
+    @formatted
+    unknown_annotation {
+        args: (annotation: impl Display),
+        msg: format!("Unknown annotation: `{annotation}`."),
+        help: None,
+    }
 );

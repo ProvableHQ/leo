@@ -269,14 +269,6 @@ create_messages!(
         help: Some("Remove the code in the loop body that always returns.".to_string()),
     }
 
-    // TODO: Consider emitting a warning instead of an error.
-    @formatted
-    unknown_annotation {
-        args: (annotation: impl Display),
-        msg: format!("Unknown annotation: `{annotation}`."),
-        help: None,
-    }
-
     @formatted
     regular_function_inputs_cannot_have_modes {
         args: (),
