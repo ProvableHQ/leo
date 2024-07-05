@@ -136,7 +136,7 @@ impl<N: Network> ParserContext<'_, N> {
                 Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline => {
                     let (id, function) = self.parse_function()?;
 
-                    // Partition into transitions and functions so that don't have to sort later.
+                    // Partition into transitions and functions so that we don't have to sort later.
                     if function.variant.is_transition() {
                         transitions.push((id, function));
                     } else {
@@ -146,13 +146,16 @@ impl<N: Network> ParserContext<'_, N> {
                 Token::RightCurly => break,
                 _ => {
                     return Err(Self::unexpected_item(&self.token, &[
+                        Token::Const,
                         Token::Struct,
                         Token::Record,
                         Token::Mapping,
                         Token::At,
+                        Token::Async,
                         Token::Function,
                         Token::Transition,
                         Token::Inline,
+                        Token::RightCurly,
                     ])
                     .into());
                 }
