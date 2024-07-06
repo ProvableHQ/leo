@@ -154,8 +154,15 @@ impl Token {
     //     }
     // }
 
-    /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
-    /// An integer can be eaten if its bytes are at the front of the given `input` string.
+    /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten.
+    /// An integer can be eaten if its characters are at the front of the given `input` string.
+    /// If there is no input, this function returns an error.
+    /// If there is input but no integer, this function returns the tuple consisting of
+    /// length 0 and a dummy integer token that contains an empty string.
+    /// However, this function is always called when the next character is a digit.
+    /// This function eats a sequence of one or more digits and underscores
+    /// (starting from a digit, as explained above, given when it is called),
+    /// which corresponds to a numeral in the ABNF grammar.
     fn eat_integer(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Token)> {
         if input.peek().is_none() {
             return Err(ParserError::lexer_empty_input().into());
@@ -178,7 +185,7 @@ impl Token {
     }
 
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns an error.
-    /// The next token can be eaten if the bytes at the front of the given `input` string can be scanned into a token.
+    /// The next token can be eaten if the characters at the front of the given `input` string can be scanned into a token.
     pub(crate) fn eat(input: &str) -> Result<(usize, Token)> {
         if input.is_empty() {
             return Err(ParserError::lexer_empty_input().into());
@@ -221,13 +228,13 @@ impl Token {
         // See the example with the different combinations for Mul, MulAssign, Pow, PowAssign below.
         let match_four = |
             input: &mut Peekable<_>,
-            first_token, // Mul '*'
-            second_char, // '='
-            second_token, // MulAssign '*='
-            third_char, // '*'
-            third_token, // Pow '**'
-            fourth_char, // '='
-            fourth_token // PowAssign '**='
+            first_token, // e.e. Mul '*'
+            second_char, // e.g. '='
+            second_token, // e.g. MulAssign '*='
+            third_char, // e.g. '*'
+            third_token, // e.g. Pow '**'
+            fourth_char, // e.g. '='
+            fourth_token // e.g. PowAssign '**='
         | {
             input.next();
             Ok(if input.next_if_eq(&second_char).is_some() {
@@ -252,7 +259,7 @@ impl Token {
                 // Find end string quotation mark.
                 // Instead of checking each `char` and pushing, we can avoid reallocations.
                 // This works because the code 34 of double quote cannot appear as a byte
-                // in middle of a multi-byte UTF-8 encoding of a character,
+                // in the middle of a multi-byte UTF-8 encoding of a character,
                 // because those bytes all have the high bit set to 1;
                 // in UTF-8, the byte 34 can only appear as the single-byte encoding of double quote.
                 let rest = &input_str[1..];
@@ -306,7 +313,7 @@ impl Token {
                 if input.next_if_eq(&'/').is_some() {
                     // Find the end of the comment line.
                     // This works because the code 10 of line feed cannot appear as a byte
-                    // in middle of a multi-byte UTF-8 encoding of a character,
+                    // in the middle of a multi-byte UTF-8 encoding of a character,
                     // because those bytes all have the high bit set to 1;
                     // in UTF-8, the byte 10 can only appear as the single-byte encoding of line feed.
                     let comment = match input_str.as_bytes().iter().position(|c| *c == b'\n') {
@@ -416,8 +423,8 @@ impl Token {
                     "record" => Token::Record,
                     "return" => Token::Return,
                     "scalar" => Token::Scalar,
-                    "signature" => Token::Signature,
                     "self" => Token::SelfLower,
+                    "signature" => Token::Signature,
                     "string" => Token::String,
                     "struct" => Token::Struct,
                     "transition" => Token::Transition,

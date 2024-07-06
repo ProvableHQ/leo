@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The parser to convert Leo code text into an [`Program`] AST type.
+//! The parser to convert Leo code text into a [`Program`] AST type.
 //!
-//! This module contains the [`parse()`] method which calls the underlying [`tokenize()`]
-//! method to create a new program ast.
+//! This module contains the [`parse()`] function which calls the underlying [`tokenize()`]
+//! method to create a new program AST.
 
 use crate::{tokenizer::*, Token};
 

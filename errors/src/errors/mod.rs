@@ -60,16 +60,16 @@ pub enum LeoError {
     /// Represents an AST Error in a Leo Error.
     #[error(transparent)]
     AstError(#[from] AstError),
-    /// Represents an CLI Error in a Leo Error.
+    /// Represents a CLI Error in a Leo Error.
     #[error(transparent)]
     CliError(#[from] CliError),
-    /// Represents an Compiler Error in a Leo Error.
+    /// Represents a Compiler Error in a Leo Error.
     #[error(transparent)]
     CompilerError(#[from] CompilerError),
-    /// Represents an Package Error in a Leo Error.
+    /// Represents a Package Error in a Leo Error.
     #[error(transparent)]
     PackageError(#[from] PackageError),
-    /// Represents an Parser Error in a Leo Error.
+    /// Represents a Parser Error in a Leo Error.
     #[error(transparent)]
     ParserError(#[from] ParserError),
     /// Represents a Type Checker Error in a Leo Error.
@@ -85,7 +85,7 @@ pub enum LeoError {
     /// not re-displaying an error.
     #[error("")]
     LastErrorCode(i32),
-    /// Represents a Utils Error in a Leo Error
+    /// Represents a Utils Error in a Leo Error.
     #[error(transparent)]
     UtilError(#[from] UtilError),
     /// Anyhow errors.
@@ -133,14 +133,14 @@ impl LeoError {
     }
 }
 
-/// The LeoWarning type that contains all sub error types.
-/// This allows a unified error type throughout the Leo crates.
+/// The LeoWarning type that contains all sub warning types.
+/// This allows a unified warning type throughout the Leo crates.
 #[derive(Debug, Error)]
 pub enum LeoWarning {
-    /// Represents an Parser Error in a Leo Error.
+    /// Represents an Parser Warning in a Leo Warning.
     #[error(transparent)]
     ParserWarning(#[from] ParserWarning),
-    /// Represents a Type Checker Error in a Leo Error.
+    /// Represents a Type Checker Warning in a Leo Warning.
     #[error(transparent)]
     TypeCheckerWarning(#[from] TypeCheckerWarning),
 }

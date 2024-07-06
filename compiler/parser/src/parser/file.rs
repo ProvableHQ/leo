@@ -75,11 +75,12 @@ impl<N: Network> ParserContext<'_, N> {
         // Parse `foo`.
         let import_name = self.expect_identifier()?;
 
-        // Parse `.aleo`.
+        // Parse `.`.
         self.expect(&Token::Dot)?;
 
+        // Parse network, which currently must be `aleo`.
         if !self.eat(&Token::Aleo) {
-            // Throw error for non-aleo files.
+            // Throw error for non-aleo networks.
             return Err(ParserError::invalid_network(self.token.span).into());
         }
 
@@ -100,10 +101,10 @@ impl<N: Network> ParserContext<'_, N> {
         // Set the program name in the context.
         self.program_name = Some(name.name);
 
-        // Parse the program network.
+        // Parse the `.`.
         self.expect(&Token::Dot)?;
 
-        // Otherwise throw parser error
+        // Parse the program network, which must be `aleo`, otherwise throw parser error.
         self.expect(&Token::Aleo).map_err(|_| ParserError::invalid_network(self.token.span))?;
 
         // Construct the program id.
