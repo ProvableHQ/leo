@@ -393,6 +393,7 @@
 <a href="#393" id="393">393</a>
 <a href="#394" id="394">394</a>
 <a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -470,11 +471,12 @@
         <span class="comment">// Parse `foo`.
         </span><span class="kw">let </span>import_name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
-        <span class="comment">// Parse `.aleo`.
+        <span class="comment">// Parse `.`.
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Dot)<span class="question-mark">?</span>;
 
-        <span class="kw">if </span>!<span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Aleo) {
-            <span class="comment">// Throw error for non-aleo files.
+        <span class="comment">// Parse network, which currently must be `aleo`.
+        </span><span class="kw">if </span>!<span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Aleo) {
+            <span class="comment">// Throw error for non-aleo networks.
             </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_network(<span class="self">self</span>.token.span).into());
         }
 
@@ -495,10 +497,10 @@
         <span class="comment">// Set the program name in the context.
         </span><span class="self">self</span>.program_name = <span class="prelude-val">Some</span>(name.name);
 
-        <span class="comment">// Parse the program network.
+        <span class="comment">// Parse the `.`.
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Dot)<span class="question-mark">?</span>;
 
-        <span class="comment">// Otherwise throw parser error
+        <span class="comment">// Parse the program network, which must be `aleo`, otherwise throw parser error.
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Aleo).map_err(|<span class="kw">_</span>| ParserError::invalid_network(<span class="self">self</span>.token.span))<span class="question-mark">?</span>;
 
         <span class="comment">// Construct the program id.

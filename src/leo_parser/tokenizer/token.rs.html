@@ -420,6 +420,10 @@
 <a href="#420" id="420">420</a>
 <a href="#421" id="421">421</a>
 <a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -451,22 +455,26 @@
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>Token {
     <span class="comment">// Comments
-    </span>CommentLine(String),
-    CommentBlock(String),
+    </span>CommentLine(String),  <span class="comment">// the string includes the starting '//' and the ending line feed
+    </span>CommentBlock(String), <span class="comment">// the string includes the starting '/*' and the ending '*/'
 
-    <span class="comment">// Whitespace (we do not distinguish among different kinds here)
+    // Whitespace (we do not distinguish among different kinds here)
     </span>WhiteSpace,
 
     <span class="comment">// Literals (= atomic literals and numerals in the ABNF grammar)
-    // The string in Integer(String) consists of digits optionally followed by a type
-    // The string in AddressLit(String) has the form `aleo1...`
+    // The string in Integer(String) consists of digits
+    // The string in AddressLit(String) has the form `aleo1...`.
     </span>True,
     False,
-    Integer(String), <span class="comment">// = numeric literal or numeral in the ABNF grammar
+    Integer(String), <span class="comment">// = numeral (including tuple index) in the ABNF grammar
     </span>AddressLit(String),
     StaticString(String),
+    <span class="comment">// The numeric literals in the ABNF grammar, which consist of numerals followed by types,
+    // are represented not as single tokens here,
+    // but as two separate tokens (one for the numeral and one for the type),
+    // enforcing, during parsing, the absence of whitespace or comments between those two tokens.
 
-    <span class="comment">// Identifiers
+    // Identifiers
     </span>Identifier(Symbol),
 
     <span class="comment">// Symbols

@@ -462,6 +462,13 @@
 <a href="#462" id="462">462</a>
 <a href="#463" id="463">463</a>
 <a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -618,8 +625,15 @@
     //     }
     // }
 
-    </span><span class="doccomment">/// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
-    /// An integer can be eaten if its bytes are at the front of the given `input` string.
+    </span><span class="doccomment">/// Returns a tuple: [(integer length, integer token)] if an integer can be eaten.
+    /// An integer can be eaten if its characters are at the front of the given `input` string.
+    /// If there is no input, this function returns an error.
+    /// If there is input but no integer, this function returns the tuple consisting of
+    /// length 0 and a dummy integer token that contains an empty string.
+    /// However, this function is always called when the next character is a digit.
+    /// This function eats a sequence of one or more digits and underscores
+    /// (starting from a digit, as explained above, given when it is called),
+    /// which corresponds to a numeral in the ABNF grammar.
     </span><span class="kw">fn </span>eat_integer(input: <span class="kw-2">&amp;mut </span>Peekable&lt;<span class="kw">impl </span>Iterator&lt;Item = char&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, Token)&gt; {
         <span class="kw">if </span>input.peek().is_none() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::lexer_empty_input().into());
@@ -642,7 +656,7 @@
     }
 
     <span class="doccomment">/// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns an error.
-    /// The next token can be eaten if the bytes at the front of the given `input` string can be scanned into a token.
+    /// The next token can be eaten if the characters at the front of the given `input` string can be scanned into a token.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>eat(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, Token)&gt; {
         <span class="kw">if </span>input.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::lexer_empty_input().into());
@@ -685,13 +699,13 @@
         // See the example with the different combinations for Mul, MulAssign, Pow, PowAssign below.
         </span><span class="kw">let </span>match_four = |
             input: <span class="kw-2">&amp;mut </span>Peekable&lt;<span class="kw">_</span>&gt;,
-            first_token, <span class="comment">// Mul '*'
-            </span>second_char, <span class="comment">// '='
-            </span>second_token, <span class="comment">// MulAssign '*='
-            </span>third_char, <span class="comment">// '*'
-            </span>third_token, <span class="comment">// Pow '**'
-            </span>fourth_char, <span class="comment">// '='
-            </span>fourth_token <span class="comment">// PowAssign '**='
+            first_token, <span class="comment">// e.e. Mul '*'
+            </span>second_char, <span class="comment">// e.g. '='
+            </span>second_token, <span class="comment">// e.g. MulAssign '*='
+            </span>third_char, <span class="comment">// e.g. '*'
+            </span>third_token, <span class="comment">// e.g. Pow '**'
+            </span>fourth_char, <span class="comment">// e.g. '='
+            </span>fourth_token <span class="comment">// e.g. PowAssign '**='
         </span>| {
             input.next();
             <span class="prelude-val">Ok</span>(<span class="kw">if </span>input.next_if_eq(<span class="kw-2">&amp;</span>second_char).is_some() {
@@ -716,7 +730,7 @@
                 <span class="comment">// Find end string quotation mark.
                 // Instead of checking each `char` and pushing, we can avoid reallocations.
                 // This works because the code 34 of double quote cannot appear as a byte
-                // in middle of a multi-byte UTF-8 encoding of a character,
+                // in the middle of a multi-byte UTF-8 encoding of a character,
                 // because those bytes all have the high bit set to 1;
                 // in UTF-8, the byte 34 can only appear as the single-byte encoding of double quote.
                 </span><span class="kw">let </span>rest = <span class="kw-2">&amp;</span>input_str[<span class="number">1</span>..];
@@ -770,7 +784,7 @@
                 <span class="kw">if </span>input.next_if_eq(<span class="kw-2">&amp;</span><span class="string">'/'</span>).is_some() {
                     <span class="comment">// Find the end of the comment line.
                     // This works because the code 10 of line feed cannot appear as a byte
-                    // in middle of a multi-byte UTF-8 encoding of a character,
+                    // in the middle of a multi-byte UTF-8 encoding of a character,
                     // because those bytes all have the high bit set to 1;
                     // in UTF-8, the byte 10 can only appear as the single-byte encoding of line feed.
                     </span><span class="kw">let </span>comment = <span class="kw">match </span>input_str.as_bytes().iter().position(|c| <span class="kw-2">*</span>c == <span class="string">b'\n'</span>) {
@@ -880,8 +894,8 @@
                     <span class="string">"record" </span>=&gt; Token::Record,
                     <span class="string">"return" </span>=&gt; Token::Return,
                     <span class="string">"scalar" </span>=&gt; Token::Scalar,
-                    <span class="string">"signature" </span>=&gt; Token::Signature,
                     <span class="string">"self" </span>=&gt; Token::SelfLower,
+                    <span class="string">"signature" </span>=&gt; Token::Signature,
                     <span class="string">"string" </span>=&gt; Token::String,
                     <span class="string">"struct" </span>=&gt; Token::Struct,
                     <span class="string">"transition" </span>=&gt; Token::Transition,

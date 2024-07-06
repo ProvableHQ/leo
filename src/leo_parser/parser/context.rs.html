@@ -299,7 +299,7 @@
     <span class="doccomment">/// The previous token, i.e., if `p.tokens = ['3', *, '4']`,
     /// then after two `p.bump()`s, we'll have `p.token = '*'` and `p.prev_token = '3'`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) prev_token: SpannedToken,
-    <span class="doccomment">/// true if parsing an expression for if and loop statements -- means struct inits are not legal
+    <span class="doccomment">/// True if parsing an expression for if and loop statements -- means struct inits are not legal.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) disallow_struct_construction: bool,
     <span class="doccomment">/// The name of the program being parsed.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) program_name: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
@@ -355,7 +355,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.token.token == tok
     }
 
-    <span class="doccomment">/// Checks whether the current token is a `Token::Int(_)`.
+    <span class="doccomment">/// Checks whether the current token is a `Token::Integer(_)`.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>check_int(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, Token::Integer(<span class="kw">_</span>))
     }
@@ -402,7 +402,7 @@
         Identifier { name, span, id: <span class="self">self</span>.node_builder.next_id() }
     }
 
-    <span class="doccomment">/// Eats the next token if its an identifier and returns it.
+    <span class="doccomment">/// Eats the next token if it is an identifier and returns it.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>eat_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Identifier&gt; {
         <span class="kw">if let </span>Token::Identifier(name) = <span class="self">self</span>.token.token {
             <span class="self">self</span>.bump();

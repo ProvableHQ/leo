@@ -221,16 +221,16 @@
     <span class="doccomment">/// Represents an AST Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>AstError(<span class="attr">#[from] </span>AstError),
-    <span class="doccomment">/// Represents an CLI Error in a Leo Error.
+    <span class="doccomment">/// Represents a CLI Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>CliError(<span class="attr">#[from] </span>CliError),
-    <span class="doccomment">/// Represents an Compiler Error in a Leo Error.
+    <span class="doccomment">/// Represents a Compiler Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>CompilerError(<span class="attr">#[from] </span>CompilerError),
-    <span class="doccomment">/// Represents an Package Error in a Leo Error.
+    <span class="doccomment">/// Represents a Package Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>PackageError(<span class="attr">#[from] </span>PackageError),
-    <span class="doccomment">/// Represents an Parser Error in a Leo Error.
+    <span class="doccomment">/// Represents a Parser Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>ParserError(<span class="attr">#[from] </span>ParserError),
     <span class="doccomment">/// Represents a Type Checker Error in a Leo Error.
@@ -246,7 +246,7 @@
     /// not re-displaying an error.
     </span><span class="attr">#[error(<span class="string">""</span>)]
     </span>LastErrorCode(i32),
-    <span class="doccomment">/// Represents a Utils Error in a Leo Error
+    <span class="doccomment">/// Represents a Utils Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>UtilError(<span class="attr">#[from] </span>UtilError),
     <span class="doccomment">/// Anyhow errors.
@@ -294,14 +294,14 @@
     }
 }
 
-<span class="doccomment">/// The LeoWarning type that contains all sub error types.
-/// This allows a unified error type throughout the Leo crates.
+<span class="doccomment">/// The LeoWarning type that contains all sub warning types.
+/// This allows a unified warning type throughout the Leo crates.
 </span><span class="attr">#[derive(Debug, Error)]
 </span><span class="kw">pub enum </span>LeoWarning {
-    <span class="doccomment">/// Represents an Parser Error in a Leo Error.
+    <span class="doccomment">/// Represents an Parser Warning in a Leo Warning.
     </span><span class="attr">#[error(transparent)]
     </span>ParserWarning(<span class="attr">#[from] </span>ParserWarning),
-    <span class="doccomment">/// Represents a Type Checker Error in a Leo Error.
+    <span class="doccomment">/// Represents a Type Checker Warning in a Leo Warning.
     </span><span class="attr">#[error(transparent)]
     </span>TypeCheckerWarning(<span class="attr">#[from] </span>TypeCheckerWarning),
 }
