@@ -394,6 +394,9 @@
 <a href="#394" id="394">394</a>
 <a href="#395" id="395">395</a>
 <a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -533,7 +536,7 @@
                 Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline =&gt; {
                     <span class="kw">let </span>(id, function) = <span class="self">self</span>.parse_function()<span class="question-mark">?</span>;
 
-                    <span class="comment">// Partition into transitions and functions so that don't have to sort later.
+                    <span class="comment">// Partition into transitions and functions so that we don't have to sort later.
                     </span><span class="kw">if </span>function.variant.is_transition() {
                         transitions.push((id, function));
                     } <span class="kw">else </span>{
@@ -543,13 +546,16 @@
                 Token::RightCurly =&gt; <span class="kw">break</span>,
                 <span class="kw">_ </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">Self</span>::unexpected_item(<span class="kw-2">&amp;</span><span class="self">self</span>.token, <span class="kw-2">&amp;</span>[
+                        Token::Const,
                         Token::Struct,
                         Token::Record,
                         Token::Mapping,
                         Token::At,
+                        Token::Async,
                         Token::Function,
                         Token::Transition,
                         Token::Inline,
+                        Token::RightCurly,
                     ])
                     .into());
                 }
