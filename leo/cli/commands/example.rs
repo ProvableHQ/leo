@@ -23,7 +23,7 @@ use std::fs;
 pub struct Example {
     #[clap(name = "NAME", help = "The example to initialize.")]
     pub(crate) name: String,
-    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
+    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
     pub(crate) network: String,
     #[clap(
         short = 'e',

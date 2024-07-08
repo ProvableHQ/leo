@@ -39,8 +39,8 @@ struct Opt {
     #[clap(short, long)]
     print_stdout: bool,
 
-    /// The network to use. Defaults to mainnet.
-    #[clap(long, default_value = "mainnet")]
+    /// The network to use. Defaults to testnet.
+    #[clap(long, default_value = "testnet")]
     pub(crate) network: String,
 }
 
