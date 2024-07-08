@@ -78,7 +78,7 @@ workspace = true
 version = "1.10.5"
 
 [dev-dependencies.serde]
-version = "1.0.203"
+version = "1.0.204"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]
