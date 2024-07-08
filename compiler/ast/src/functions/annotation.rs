@@ -49,6 +49,11 @@ impl Annotation {
             _ => None,
         }
     }
+    
+    /// Checks if the annotation is a test.
+    pub fn is_test(&self) -> bool {
+        self.name() == Some(AnnotationName::IntegrationTest) || self.name() == Some(AnnotationName::UnitTest)
+    }
 }
 
 simple_node_impl!(Annotation);

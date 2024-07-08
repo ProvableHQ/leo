@@ -26,7 +26,12 @@ impl ProgramReconstructor for DeadCodeEliminator<'_> {
         self.is_async = input.variant.is_async_function();
 
         // Traverse the function body.
-        let block = self.reconstruct_block(input.block).0;
+        let block = if input.annotations.iter().any(|annotation| annotation.is_test()) {
+            // Don't eliminate dead code in test functions, since they are not in SSA form.
+            input.block
+        } else {
+            self.reconstruct_block(input.block).0
+        };
 
         Function {
             annotations: input.annotations,

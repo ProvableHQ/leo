@@ -97,7 +97,7 @@ impl<'a> CodeGenerator<'a> {
                 .functions
                 .iter()
                 .map(|(_, function)| {
-                    if function.variant != Variant::AsyncFunction {
+                    if function.variant != Variant::AsyncFunction && function.annotations.iter().all(|annotation| !annotation.is_test()) {
                         let mut function_string = self.visit_function(function);
 
                         // Attach the associated finalize to async transitions.
