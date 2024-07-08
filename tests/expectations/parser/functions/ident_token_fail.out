@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected 'struct', 'record', 'mapping', '@', 'function', 'transition', 'inline' -- found '1'\n    --> test:4:5\n     |\n   4 |     1 main() {}}\n     |     ^"
+  - "Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', '}' -- found '1'\n    --> test:4:5\n     |\n   4 |     1 main() {}}\n     |     ^"
