@@ -32,7 +32,7 @@ pub use self::traits::*;
 
 // Right now for cleanliness of calling error functions we say each argument implements one of the follow types rather than giving a specific type.
 // This allows us to just pass many types rather doing conversions cleaning up the code.
-// The args can be made cleaneronce https://github.com/rust-lang/rust/issues/41517 or https://github.com/rust-lang/rust/issues/63063 hits stable.
+// The args can be made cleaner once https://github.com/rust-lang/rust/issues/41517 or https://github.com/rust-lang/rust/issues/63063 hits stable.
 // Either of why would allows to generate a type alias for these trait implementing types.
 // pub(crate) type DisplayArg = impl std::fmt::Display;
 // pub(crate) type DebugArg = impl std::fmt::Debug;

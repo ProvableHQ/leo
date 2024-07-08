@@ -29,20 +29,24 @@ use leo_span::{sym, Symbol};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Token {
     // Comments
-    CommentLine(String),
-    CommentBlock(String),
+    CommentLine(String),  // the string includes the starting '//' and the ending line feed
+    CommentBlock(String), // the string includes the starting '/*' and the ending '*/'
 
     // Whitespace (we do not distinguish among different kinds here)
     WhiteSpace,
 
     // Literals (= atomic literals and numerals in the ABNF grammar)
-    // The string in Integer(String) consists of digits optionally followed by a type
-    // The string in AddressLit(String) has the form `aleo1...`
+    // The string in Integer(String) consists of digits
+    // The string in AddressLit(String) has the form `aleo1...`.
     True,
     False,
-    Integer(String), // = numeric literal or numeral in the ABNF grammar
+    Integer(String), // = numeral (including tuple index) in the ABNF grammar
     AddressLit(String),
     StaticString(String),
+    // The numeric literals in the ABNF grammar, which consist of numerals followed by types,
+    // are represented not as single tokens here,
+    // but as two separate tokens (one for the numeral and one for the type),
+    // enforcing, during parsing, the absence of whitespace or comments between those two tokens.
 
     // Identifiers
     Identifier(Symbol),

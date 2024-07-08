@@ -19,7 +19,7 @@ use super::*;
 use leo_retriever::NetworkName;
 use snarkvm::{
     cli::Run as SnarkVMRun,
-    prelude::{MainnetV0, Network, Parser as SnarkVMParser, TestnetV0},
+    prelude::{CanaryV0, MainnetV0, Network, Parser as SnarkVMParser, TestnetV0},
 };
 
 /// Build, Prove and Run Leo program with inputs
@@ -52,10 +52,11 @@ impl Command for Run {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(self.compiler_options.network.as_str())?;
+        let network = NetworkName::try_from(context.get_network(&self.compiler_options.network)?)?;
         match network {
             NetworkName::MainnetV0 => handle_run::<MainnetV0>(self, context),
             NetworkName::TestnetV0 => handle_run::<TestnetV0>(self, context),
+            NetworkName::CanaryV0 => handle_run::<CanaryV0>(self, context),
         }
     }
 }

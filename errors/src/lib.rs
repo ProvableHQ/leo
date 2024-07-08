@@ -21,7 +21,7 @@
 #[macro_use]
 extern crate thiserror;
 
-/// Contains the common functionalities for defining errors..
+/// Contains the common functionalities for defining errors.
 #[macro_use]
 pub mod common;
 pub use self::common::*;
@@ -29,6 +29,6 @@ pub use self::common::*;
 /// Contains traits and types for channels through which errors go.
 pub mod emitter;
 
-/// Contains the errors and warnings for the Leo lang.
+/// Contains the errors and warnings for the Leo language.
 pub mod errors;
 pub use self::errors::*;

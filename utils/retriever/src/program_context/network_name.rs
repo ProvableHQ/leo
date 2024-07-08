@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_errors::{CliError, LeoError};
-use snarkvm::prelude::{MainnetV0, Network, TestnetV0};
+use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,6 +27,8 @@ pub enum NetworkName {
     TestnetV0,
     #[serde(rename = "mainnet")]
     MainnetV0,
+    #[serde(rename = "canary")]
+    CanaryV0,
 }
 
 impl NetworkName {
@@ -34,6 +36,7 @@ impl NetworkName {
         match self {
             NetworkName::TestnetV0 => TestnetV0::ID,
             NetworkName::MainnetV0 => MainnetV0::ID,
+            NetworkName::CanaryV0 => CanaryV0::ID,
         }
     }
 }
@@ -45,7 +48,23 @@ impl TryFrom<&str> for NetworkName {
         match network {
             "testnet" => Ok(NetworkName::TestnetV0),
             "mainnet" => Ok(NetworkName::MainnetV0),
+            "canary" => Ok(NetworkName::CanaryV0),
             _ => Err(LeoError::CliError(CliError::invalid_network_name(network))),
+        }
+    }
+}
+impl TryFrom<String> for NetworkName {
+    type Error = LeoError;
+
+    fn try_from(network: String) -> Result<Self, LeoError> {
+        if network == "testnet" {
+            Ok(NetworkName::TestnetV0)
+        } else if network == "mainnet" {
+            Ok(NetworkName::MainnetV0)
+        } else if network == "canary" {
+            Ok(NetworkName::CanaryV0)
+        } else {
+            Err(LeoError::CliError(CliError::invalid_network_name(&network)))
         }
     }
 }
@@ -55,6 +74,7 @@ impl fmt::Display for NetworkName {
         match self {
             NetworkName::TestnetV0 => write!(f, "testnet"),
             NetworkName::MainnetV0 => write!(f, "mainnet"),
+            NetworkName::CanaryV0 => write!(f, "canary"),
         }
     }
 }

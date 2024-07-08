@@ -39,7 +39,7 @@ pub(crate) struct ParserContext<'a, N: Network> {
     /// The previous token, i.e., if `p.tokens = ['3', *, '4']`,
     /// then after two `p.bump()`s, we'll have `p.token = '*'` and `p.prev_token = '3'`.
     pub(crate) prev_token: SpannedToken,
-    /// true if parsing an expression for if and loop statements -- means struct inits are not legal
+    /// True if parsing an expression for if and loop statements -- means struct inits are not legal.
     pub(crate) disallow_struct_construction: bool,
     /// The name of the program being parsed.
     pub(crate) program_name: Option<Symbol>,
@@ -95,7 +95,7 @@ impl<'a, N: Network> ParserContext<'a, N> {
         &self.token.token == tok
     }
 
-    /// Checks whether the current token is a `Token::Int(_)`.
+    /// Checks whether the current token is a `Token::Integer(_)`.
     pub(super) fn check_int(&self) -> bool {
         matches!(&self.token.token, Token::Integer(_))
     }
@@ -142,7 +142,7 @@ impl<'a, N: Network> ParserContext<'a, N> {
         Identifier { name, span, id: self.node_builder.next_id() }
     }
 
-    /// Eats the next token if its an identifier and returns it.
+    /// Eats the next token if it is an identifier and returns it.
     pub(super) fn eat_identifier(&mut self) -> Option<Identifier> {
         if let Token::Identifier(name) = self.token.token {
             self.bump();

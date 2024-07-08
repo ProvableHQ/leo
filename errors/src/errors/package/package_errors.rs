@@ -418,4 +418,18 @@ create_messages!(
         msg: format!("❌ Execution error: {error}"),
         help: Some("Make sure that you are using the right `--network` options.".to_string()),
     }
+
+    @backtraced
+    snarkvm_error {
+        args: (error: impl Display),
+        msg: format!("[snarkVM Error] {error}"),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_load_package {
+        args: (path: impl Display),
+        msg: format!("Failed to load leo project at path {path}"),
+        help: Some("Make sure that the path is correct and that the project exists.".to_string()),
+    }
 );

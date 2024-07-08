@@ -24,9 +24,10 @@ use snarkvm::{
 use std::collections::HashMap;
 
 use crate::cli::query::QueryCommands;
+use dialoguer::{theme::ColorfulTheme, Confirm};
 use leo_retriever::NetworkName;
 use snarkvm::{
-    circuit::{Aleo, AleoTestnetV0, AleoV0},
+    circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
     cli::LOCALE,
     ledger::Transaction::Execute as ExecuteTransaction,
     package::Package as SnarkVMPackage,
@@ -66,6 +67,8 @@ pub struct Execute {
     compiler_options: BuildOptions,
     #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
     file: Option<String>,
+    #[clap(long, help = "Disables building of the project before execution.", default_value = "false")]
+    pub(crate) no_build: bool,
 }
 
 impl Command for Execute {
@@ -78,7 +81,7 @@ impl Command for Execute {
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         // No need to build if we are executing an external program.
-        if self.program.is_some() {
+        if self.program.is_some() || self.no_build {
             return Ok(());
         }
         (Build { options: self.compiler_options.clone() }).execute(context)
@@ -86,16 +89,23 @@ impl Command for Execute {
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(self.compiler_options.network.as_str())?;
+        let network = NetworkName::try_from(context.get_network(&self.compiler_options.network)?)?;
+        let endpoint = context.get_endpoint(&self.compiler_options.endpoint)?;
         match network {
-            NetworkName::MainnetV0 => handle_execute::<AleoV0>(self, context),
-            NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context),
+            NetworkName::MainnetV0 => handle_execute::<AleoV0>(self, context, network, &endpoint),
+            NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context, network, &endpoint),
+            NetworkName::CanaryV0 => handle_execute::<AleoCanaryV0>(self, context, network, &endpoint),
         }
     }
 }
 
 // A helper function to handle the `execute` command.
-fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execute as Command>::Output> {
+fn handle_execute<A: Aleo>(
+    command: Execute,
+    context: Context,
+    network: NetworkName,
+    endpoint: &str,
+) -> Result<<Execute as Command>::Output> {
     // If input values are provided, then run the program with those inputs.
     // Otherwise, use the input file.
     let mut inputs = command.inputs.clone();
@@ -133,13 +143,14 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
             &dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string(),
         )?,
     };
+    let address = Address::try_from(&private_key)?;
 
     // If the `broadcast` flag is set, then broadcast the transaction.
     if command.broadcast {
         // Get the program name.
         let program_name = match (command.program.clone(), command.local) {
             (Some(name), true) => {
-                let local = context.open_manifest::<A::Network>()?.program_id().to_string();
+                let local = context.open_manifest::<A::Network>()?.program_id().name().to_string();
                 // Throw error if local name doesn't match the specified name.
                 if name == local {
                     local
@@ -148,13 +159,12 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
                 }
             }
             (Some(name), false) => name.clone(),
-            (None, true) => context.open_manifest::<A::Network>()?.program_id().to_string(),
+            (None, true) => context.open_manifest::<A::Network>()?.program_id().name().to_string(),
             (None, false) => return Err(PackageError::missing_on_chain_program_name().into()),
         };
 
         // Specify the query
-        let query =
-            SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(command.compiler_options.endpoint.clone());
+        let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(endpoint);
 
         // Initialize the storage.
         let store = ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?;
@@ -164,8 +174,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
 
         // Load the main program, and all of its imports.
         let program_id = &ProgramID::<A::Network>::from_str(&format!("{}.aleo", program_name))?;
-        // TODO: X
-        load_program_from_network(&command, context.clone(), &mut vm.process().write(), program_id)?;
+        load_program_from_network(context.clone(), &mut vm.process().write(), program_id, network, endpoint)?;
 
         let fee_record = if let Some(record) = command.fee_options.record {
             Some(parse_record(&private_key, &record)?)
@@ -176,7 +185,7 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
         // Create a new transaction.
         let transaction = vm.execute(
             &private_key,
-            (program_id, command.name),
+            (program_id, command.name.clone()),
             inputs.iter(),
             fee_record.clone(),
             command.fee_options.priority_fee,
@@ -200,32 +209,38 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
             storage_cost as f64 / 1_000_000.0,
             finalize_cost as f64 / 1_000_000.0,
             command.fee_options.priority_fee as f64 / 1_000_000.0,
-        );
+        )?;
 
         // Check if the public balance is sufficient.
         if fee_record.is_none() {
-            check_balance::<A::Network>(
-                &private_key,
-                &command.compiler_options.endpoint,
-                &command.compiler_options.network,
-                context,
-                total_cost,
-            )?;
+            check_balance::<A::Network>(&private_key, endpoint, &network.to_string(), context, total_cost)?;
         }
 
         // Broadcast the execution transaction.
         if !command.fee_options.dry_run {
-            println!("✅ Created execution transaction for '{}'", program_id.to_string().bold());
-            handle_broadcast(
-                &format!(
-                    "{}/{}/transaction/broadcast",
-                    command.compiler_options.endpoint, command.compiler_options.network
-                ),
-                transaction,
-                &program_name,
-            )?;
+            if !command.fee_options.yes {
+                let prompt = format!(
+                    "Do you want to submit execution of function `{}` on program `{program_name}.aleo` to network {} via endpoint {} using address {}?",
+                    &command.name, network, endpoint, address
+                );
+                // Ask the user for confirmation of the transaction.
+                let confirmation =
+                    Confirm::with_theme(&ColorfulTheme::default()).with_prompt(prompt).default(false).interact();
+
+                // Check if the user confirmed the transaction.
+                if let Ok(confirmation) = confirmation {
+                    if !confirmation {
+                        println!("✅ Successfully aborted the execution transaction for '{}'\n", program_name.bold());
+                        return Ok(());
+                    }
+                } else {
+                    return Err(CliError::confirmation_failed().into());
+                }
+            }
+            println!("✅ Created execution transaction for '{}'\n", program_id.to_string().bold());
+            handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), transaction, &program_name)?;
         } else {
-            println!("✅ Successful dry run execution for '{}'", program_id.to_string().bold());
+            println!("✅ Successful dry run execution for '{}'\n", program_id.to_string().bold());
         }
 
         return Ok(());
@@ -241,14 +256,18 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
     // Load the package.
     let package = SnarkVMPackage::open(&path)?;
     // Convert the inputs.
-    let inputs = inputs.iter().map(|input| Value::from_str(input).unwrap()).collect::<Vec<Value<A::Network>>>();
+    let mut parsed_inputs: Vec<Value<A::Network>> = Vec::new();
+    for input in inputs.iter() {
+        let value = Value::from_str(input)?;
+        parsed_inputs.push(value);
+    }
     // Execute the request.
     let (response, execution, metrics) = package
         .execute::<A, _>(
-            command.compiler_options.endpoint.clone(),
+            endpoint.to_string(),
             &private_key,
             Identifier::try_from(command.name.clone())?,
-            &inputs,
+            &parsed_inputs,
             rng,
         )
         .map_err(PackageError::execution_error)?;
@@ -318,25 +337,22 @@ fn handle_execute<A: Aleo>(command: Execute, context: Context) -> Result<<Execut
 
 /// A helper function to recursively load the program and all of its imports into the process. Lifted from snarkOS.
 fn load_program_from_network<N: Network>(
-    command: &Execute,
     context: Context,
     process: &mut Process<N>,
     program_id: &ProgramID<N>,
+    network: NetworkName,
+    endpoint: &str,
 ) -> Result<()> {
     // Fetch the program.
     let program_src = Query {
-        endpoint: command.compiler_options.endpoint.clone(),
-        network: command.compiler_options.network.clone(),
+        endpoint: Some(endpoint.to_string()),
+        network: Some(network.to_string()),
         command: QueryCommands::Program {
-            command: crate::cli::commands::query::Program {
-                name: program_id.to_string(),
-                mappings: false,
-                mapping_value: None,
-            },
+            command: query::Program { name: program_id.to_string(), mappings: false, mapping_value: None },
         },
     }
     .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
-    let program = SnarkVMProgram::<N>::from_str(&program_src).unwrap();
+    let program = SnarkVMProgram::<N>::from_str(&program_src)?;
 
     // Return early if the program is already loaded.
     if process.contains_program(program.id()) {
@@ -348,7 +364,7 @@ fn load_program_from_network<N: Network>(
         // Add the imports to the process if does not exist yet.
         if !process.contains_program(import_program_id) {
             // Recursively load the program and its imports.
-            load_program_from_network(command, context.clone(), process, import_program_id)?;
+            load_program_from_network(context.clone(), process, import_program_id, network, endpoint)?;
         }
     }
 
@@ -361,8 +377,14 @@ fn load_program_from_network<N: Network>(
 }
 
 // A helper function to display a cost breakdown of the execution.
-fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, finalize_cost: f64, priority_fee: f64) {
-    println!("Base execution cost for '{}' is {} credits.", name.bold(), total_cost);
+fn execution_cost_breakdown(
+    name: &String,
+    total_cost: f64,
+    storage_cost: f64,
+    finalize_cost: f64,
+    priority_fee: f64,
+) -> Result<()> {
+    println!("\nBase execution cost for '{}' is {} credits.\n", name.bold(), total_cost);
     // Display the cost breakdown in a table.
     let data = [
         [name, "Cost (credits)"],
@@ -372,6 +394,7 @@ fn execution_cost_breakdown(name: &String, total_cost: f64, storage_cost: f64, f
         ["Total", &format!("{:.6}", total_cost)],
     ];
     let mut out = Vec::new();
-    text_tables::render(&mut out, data).unwrap();
-    println!("{}", ::std::str::from_utf8(&out).unwrap());
+    text_tables::render(&mut out, data).map_err(CliError::table_render_failed)?;
+    println!("{}", std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
+    Ok(())
 }
