@@ -24,7 +24,7 @@ use leo_retriever::NetworkName;
 pub struct New {
     #[clap(name = "NAME", help = "Set package name")]
     pub(crate) name: String,
-    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
+    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
     pub(crate) network: String,
     #[clap(
         short = 'e',

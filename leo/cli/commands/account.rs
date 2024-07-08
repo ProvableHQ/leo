@@ -47,7 +47,7 @@ pub enum Account {
         /// Print sensitive information (such as private key) discreetly to an alternate screen
         #[clap(long)]
         discreet: bool,
-        #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
+        #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
         network: String,
         #[clap(
             short = 'e',
@@ -67,7 +67,7 @@ pub enum Account {
         /// Print sensitive information (such as private key) discreetly to an alternate screen
         #[clap(long)]
         discreet: bool,
-        #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
+        #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
         network: String,
         #[clap(
             short = 'e',
@@ -94,7 +94,7 @@ pub enum Account {
         /// When enabled, parses the message as bytes instead of Aleo literals
         #[clap(short = 'r', long)]
         raw: bool,
-        #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
+        #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
         network: String,
     },
     /// Verify a message from an Aleo address.
@@ -111,7 +111,7 @@ pub enum Account {
         /// When enabled, parses the message as bytes instead of Aleo literals
         #[clap(short = 'r', long)]
         raw: bool,
-        #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
+        #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
         network: String,
     },
 }

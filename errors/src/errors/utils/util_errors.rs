@@ -114,7 +114,7 @@ create_messages!(
     missing_network_error {
         args: (dependency: impl Display),
         msg: format!("Dependency {dependency} is missing a network specification"),
-        help: Some("Add a network specification to the dependency in the `program.json` file. Example: `network: \"mainnet\"`".to_string()),
+        help: Some("Add a network specification to the dependency in the `program.json` file. Example: `network: \"testnet\"`".to_string()),
     }
 
     @formatted

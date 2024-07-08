@@ -8,18 +8,18 @@ fi
 
 # The private key and address of Alice.
 # Swap these into .env, when running transactions as the first bidder.
-# NETWORK=mainnet
+# NETWORK=testnet
 # PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
 
 # The private key and address of Bob.
 # Swap these into program.json, when running transactions as the second bidder.
-# NETWORK=mainnet
+# NETWORK=testnet
 # PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
 
 
 # Swap in the private key of Alice.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
 ENDPOINT=https://localhost:3030
 " > .env
@@ -54,7 +54,7 @@ leo run mint_public aleo13ssze66adjjkt795z9u5wpq8h6kn0y2657726h4h3e3wfnez4vqsm30
 
 # Swap in the private key of Bob.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
 ENDPOINT=https://localhost:3030
 " > .env
@@ -89,7 +89,7 @@ leo run mint_private aleo17vy26rpdhqx4598y5gp7nvaa9rk7tnvl6ufhvvf4calsrrqdaqyshd
 
 # Swap in the private key of Alice.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
 ENDPOINT=https://localhost:3030
 " > .env
@@ -124,7 +124,7 @@ leo run transfer_public aleo17vy26rpdhqx4598y5gp7nvaa9rk7tnvl6ufhvvf4calsrrqdaqy
 
 # Swap in the private key of Bob.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
 ENDPOINT=https://localhost:3030
 " > .env
@@ -163,7 +163,7 @@ leo run transfer_private "{
 
 # Swap in the private key of Alice.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
 ENDPOINT=https://localhost:3030
 " > .env
@@ -199,7 +199,7 @@ leo run transfer_public_to_private aleo17vy26rpdhqx4598y5gp7nvaa9rk7tnvl6ufhvvf4
 
 # Swap in the private key of Bob.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
 ENDPOINT=https://localhost:3030
 " > .env
@@ -241,7 +241,7 @@ leo run transfer_private_to_public "{
 # Swap in the private key of Alice.
 # This is done to ensure that program.json is the same after every execution of ./run.sh.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
 ENDPOINT=https://localhost:3030
 " > .env
