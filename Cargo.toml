@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "1.12.0"
+version = "2.0.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
 homepage = "https://aleo.org"
@@ -44,7 +44,6 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-#version = "0.16.19"
 git = "https://github.com/AleoNet/snarkVM.git"
 rev = "d170a9f"
 
@@ -68,31 +67,31 @@ ureq = "2.10.0"
 
 [dependencies.leo-ast]
 path = "./compiler/ast"
-version = "=1.12.0"
+version = "2.0.0"
 
 [dependencies.leo-compiler]
 path = "./compiler/compiler"
-version = "=1.12.0"
+version = "2.0.0"
 
 [dependencies.leo-errors]
 path = "./errors"
-version = "=1.12.0"
+version = "2.0.0"
 
 [dependencies.leo-package]
 path = "./leo/package"
-version = "=1.12.0"
+version = "2.0.0"
 
 [dependencies.leo-parser]
 path = "./compiler/parser"
-version = "=1.12.0"
+version = "2.0.0"
 
 [dependencies.leo-span]
 path = "./compiler/span"
-version = "=1.12.0"
+version = "2.0.0"
 
 [dependencies.leo-retriever]
 path = "./utils/retriever"
-version = "1.12.0"
+version = "2.0.0"
 
 [dependencies.aleo-std]
 version = "0.1.24"
