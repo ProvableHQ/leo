@@ -69,4 +69,4 @@ version = "3.10.1"
 version = "0.8.14"
 
 [dependencies.ureq]
-version = "2.9"
+version = "2.10"
