@@ -92,21 +92,6 @@ Now to check the version of leo, in your terminal, run:
 leo --version
 ```
 
-### 📦 Download using Cargo
-
-You can also install Leo directly from [crates.io](https://crates.io/crates/leo) using `cargo`:
-
-```bash
-cargo install leo-lang
-```
-Now to use leo, in your terminal, run:
-```bash
-leo
-```
-
-
-
-
 ## 🚀 Quick Start
 
 Use the Leo CLI to create a new project
