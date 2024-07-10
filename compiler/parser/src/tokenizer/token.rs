@@ -102,9 +102,17 @@ pub enum Token {
     Arrow,
     BigArrow,
     Underscore,
-    At,
+    At, // @ is not a symbol token in the ABNF grammar (see explanation about annotations below)
     // There is no symbol for `)group` here (unlike the ABNF grammar),
     // because we handle that differently in the lexer.
+
+    // The ABNF grammar has annotations as tokens,
+    // defined as @ immediately followed by an identifier.
+    // Here instead we regard the @ sign alone as a token (see `At` above),
+    // and we lex it separately from the identifier that is supposed to follow it in an annotation.
+    // When parsing annotations, we check that there is no whitespace or comments
+    // between the @ and the identifier, thus eventually complying to the ABNF grammar.
+    // See the parse_annotation function.
 
     // Type keywords
     Address,
