@@ -201,7 +201,7 @@ impl<'a, N: Network> ParserContext<'a, N> {
     }
 
     /// Parses a list of `T`s using `inner`
-    /// The opening and closing delimiters are `bra` and `ket`,
+    /// The opening and closing delimiters are specified in `delimiter`,
     /// and elements in the list are optionally separated by `sep`.
     /// When `(list, true)` is returned, `sep` was a terminator.
     pub(super) fn parse_list<T>(
