@@ -383,6 +383,7 @@ impl<N: Network> ParserContext<'_, N> {
             Token::LeftCurly => (false, self.parse_block()?),
             Token::Semicolon => {
                 let semicolon = self.expect(&Token::Semicolon)?;
+                // TODO: make a distinction between empty block and no block (i.e. semicolon)
                 (true, Block { statements: Vec::new(), span: semicolon, id: self.node_builder.next_id() })
             }
             _ => self.unexpected("block or semicolon")?,
