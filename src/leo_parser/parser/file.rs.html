@@ -726,7 +726,7 @@
         <span class="kw">let </span>span = start + identifier.span;
 
         <span class="comment">// TODO: Verify that this check is sound.
-        // Check that there is no whitespace in between the `@` symbol and identifier.
+        // Check that there is no whitespace or comments in between the `@` symbol and identifier.
         </span><span class="kw">match </span>identifier.span.hi.<span class="number">0 </span>- start.lo.<span class="number">0 </span>&gt; <span class="number">1 </span>+ identifier.name.to_string().len() <span class="kw">as </span>u32 {
             <span class="bool-val">true </span>=&gt; <span class="prelude-val">Err</span>(ParserError::space_in_annotation(span).into()),
             <span class="bool-val">false </span>=&gt; <span class="prelude-val">Ok</span>(Annotation { identifier, span, id: <span class="self">self</span>.node_builder.next_id() }),
