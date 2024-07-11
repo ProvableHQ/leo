@@ -172,8 +172,13 @@ fn handle_execute<A: Aleo>(
         // Initialize the VM.
         let vm = VM::from(store)?;
 
+        // Remove the `.aleo` extension from the program name, if it exists.
+        let program_name = match program_name.strip_suffix(".aleo") {
+            Some(name) => name.to_string(),
+            None => program_name,
+        };
         // Load the main program, and all of its imports.
-        let program_id = &ProgramID::<A::Network>::from_str(&format!("{}.aleo", program_name))?;
+        let program_id = &ProgramID::<A::Network>::from_str(&format!("{program_name}.aleo"))?;
         load_program_from_network(context.clone(), &mut vm.process().write(), program_id, network, endpoint)?;
 
         let fee_record = if let Some(record) = command.fee_options.record {
