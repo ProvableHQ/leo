@@ -397,6 +397,8 @@
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -695,7 +697,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns a [`Input`] AST node if the next tokens represent a function output.
+    <span class="doccomment">/// Returns an [`Input`] AST node if the next tokens represent a function input.
     </span><span class="kw">fn </span>parse_input(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;functions::Input&gt; {
         <span class="kw">let </span>mode = <span class="self">self</span>.parse_mode()<span class="question-mark">?</span>;
         <span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
@@ -706,7 +708,7 @@
         <span class="prelude-val">Ok</span>(functions::Input { identifier: name, mode, type_, span: name.span, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
-    <span class="doccomment">/// Returns a [`Output`] AST node if the next tokens represent a function output.
+    <span class="doccomment">/// Returns an [`Output`] AST node if the next tokens represent a function output.
     </span><span class="kw">fn </span>parse_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Output&gt; {
         <span class="kw">let </span>mode = <span class="self">self</span>.parse_mode()<span class="question-mark">?</span>;
         <span class="kw">let </span>(type_, span) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
@@ -776,12 +778,14 @@
             }
         };
 
-        <span class="comment">// Parse the function body. Allow empty blocks. `fn foo(a:u8);`
+        <span class="comment">// Parse the function body, which must be a block,
+        // but we also allow no body and a semicolon instead (e.g. `fn foo(a:u8);`).
         </span><span class="kw">let </span>(_has_empty_block, block) = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.token.token {
             Token::LeftCurly =&gt; (<span class="bool-val">false</span>, <span class="self">self</span>.parse_block()<span class="question-mark">?</span>),
             Token::Semicolon =&gt; {
                 <span class="kw">let </span>semicolon = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
-                (<span class="bool-val">true</span>, Block { statements: Vec::new(), span: semicolon, id: <span class="self">self</span>.node_builder.next_id() })
+                <span class="comment">// TODO: make a distinction between empty block and no block (i.e. semicolon)
+                </span>(<span class="bool-val">true</span>, Block { statements: Vec::new(), span: semicolon, id: <span class="self">self</span>.node_builder.next_id() })
             }
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.unexpected(<span class="string">"block or semicolon"</span>)<span class="question-mark">?</span>,
         };
