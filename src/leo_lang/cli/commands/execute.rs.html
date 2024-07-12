@@ -398,6 +398,11 @@
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
 <a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -572,8 +577,13 @@
         <span class="comment">// Initialize the VM.
         </span><span class="kw">let </span>vm = VM::from(store)<span class="question-mark">?</span>;
 
+        <span class="comment">// Remove the `.aleo` extension from the program name, if it exists.
+        </span><span class="kw">let </span>program_name = <span class="kw">match </span>program_name.strip_suffix(<span class="string">".aleo"</span>) {
+            <span class="prelude-val">Some</span>(name) =&gt; name.to_string(),
+            <span class="prelude-val">None </span>=&gt; program_name,
+        };
         <span class="comment">// Load the main program, and all of its imports.
-        </span><span class="kw">let </span>program_id = <span class="kw-2">&amp;</span>ProgramID::&lt;A::Network&gt;::from_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, program_name))<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>program_id = <span class="kw-2">&amp;</span>ProgramID::&lt;A::Network&gt;::from_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{program_name}.aleo"</span>))<span class="question-mark">?</span>;
         load_program_from_network(context.clone(), <span class="kw-2">&amp;mut </span>vm.process().write(), program_id, network, endpoint)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>fee_record = <span class="kw">if let </span><span class="prelude-val">Some</span>(record) = command.fee_options.record {
