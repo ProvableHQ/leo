@@ -296,7 +296,7 @@ impl<N: Network> ParserContext<'_, N> {
         }
     }
 
-    /// Returns a [`Input`] AST node if the next tokens represent a function output.
+    /// Returns an [`Input`] AST node if the next tokens represent a function input.
     fn parse_input(&mut self) -> Result<functions::Input> {
         let mode = self.parse_mode()?;
         let name = self.expect_identifier()?;
@@ -307,7 +307,7 @@ impl<N: Network> ParserContext<'_, N> {
         Ok(functions::Input { identifier: name, mode, type_, span: name.span, id: self.node_builder.next_id() })
     }
 
-    /// Returns a [`Output`] AST node if the next tokens represent a function output.
+    /// Returns an [`Output`] AST node if the next tokens represent a function output.
     fn parse_output(&mut self) -> Result<Output> {
         let mode = self.parse_mode()?;
         let (type_, span) = self.parse_type()?;
@@ -377,11 +377,13 @@ impl<N: Network> ParserContext<'_, N> {
             }
         };
 
-        // Parse the function body. Allow empty blocks. `fn foo(a:u8);`
+        // Parse the function body, which must be a block,
+        // but we also allow no body and a semicolon instead (e.g. `fn foo(a:u8);`).
         let (_has_empty_block, block) = match &self.token.token {
             Token::LeftCurly => (false, self.parse_block()?),
             Token::Semicolon => {
                 let semicolon = self.expect(&Token::Semicolon)?;
+                // TODO: make a distinction between empty block and no block (i.e. semicolon)
                 (true, Block { statements: Vec::new(), span: semicolon, id: self.node_builder.next_id() })
             }
             _ => self.unexpected("block or semicolon")?,
