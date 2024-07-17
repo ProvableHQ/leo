@@ -142,7 +142,7 @@ features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
 version = "0.41.0"
-features = [ "archive-zip" ]
+features = [ "archive-zip", "compression-zip-deflate" ]
 
 [dependencies.serde]
 version = "1.0"
