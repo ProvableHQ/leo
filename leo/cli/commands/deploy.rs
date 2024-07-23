@@ -190,7 +190,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         if !command.fee_options.dry_run {
             if !command.fee_options.yes {
                 let prompt = format!(
-                    "Do you want to submit deployment of program `{name}.aleo` to network {} via endpoint {} using address {}?",
+                    "Do you want to submit deployment of program `{name}` to network {} via endpoint {} using address {}?",
                     network, endpoint, address
                 );
                 let confirmation =
