@@ -436,7 +436,7 @@
         </span><span class="kw">if </span>!command.fee_options.dry_run {
             <span class="kw">if </span>!command.fee_options.yes {
                 <span class="kw">let </span>prompt = <span class="macro">format!</span>(
-                    <span class="string">"Do you want to submit deployment of program `{name}.aleo` to network {} via endpoint {} using address {}?"</span>,
+                    <span class="string">"Do you want to submit deployment of program `{name}` to network {} via endpoint {} using address {}?"</span>,
                     network, endpoint, address
                 );
                 <span class="kw">let </span>confirmation =
