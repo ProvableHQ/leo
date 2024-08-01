@@ -172,7 +172,7 @@ version = "0.3.18"
 features = [ "fmt" ]
 
 [dependencies.crossterm]
-version = "0.27.0"
+version = "0.28.0"
 
 [dependencies.rpassword]
 version = "7.3.1"
