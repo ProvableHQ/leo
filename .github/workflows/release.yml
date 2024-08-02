@@ -38,14 +38,14 @@ jobs:
           mkdir tempdir
           mv target/release/leo tempdir
           cd tempdir
-          zip -0 -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip leo
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip leo
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: 'v2.0.0'
           files: |
             leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip
         env:
@@ -80,14 +80,14 @@ jobs:
           cp target/x86_64-unknown-linux-musl/release/leo tempdir
           strip tempdir/leo
           cd tempdir
-          zip -0 -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip leo
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip leo
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: 'v2.0.0'
           files: |
             leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip
         env:
@@ -122,14 +122,14 @@ jobs:
           mkdir tempdir
           mv target/release/leo tempdir
           cd tempdir
-          zip -0 -r leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip leo
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip leo
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: 'v2.0.0'
           files: |
             leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip
         env:
@@ -172,7 +172,7 @@ jobs:
           mkdir tempdir
           mv target/aarch64-apple-darwin/release/leo tempdir
           cd tempdir
-          zip -0 -r leo.zip leo
+          zip -r leo.zip leo
           cp leo.zip leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip .
@@ -180,8 +180,8 @@ jobs:
 
       - name: Release macos m1 version
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: 'v2.0.0'
           files: |
             leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip
         env:
@@ -189,8 +189,8 @@ jobs:
 
       - name: Release leo.zip
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: 'v2.0.0'
           files: |
             leo.zip
         env:
@@ -231,12 +231,12 @@ jobs:
 
       - name: Zip
         run: |
-          Compress-Archive target/release/leo.exe leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-msvc.zip -CompressionLevel NoCompression 
+          Compress-Archive target/release/leo.exe leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-msvc.zip 
 
       - name: Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: 'v2.0.0'
           files: |
             leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-msvc.zip
         env:
