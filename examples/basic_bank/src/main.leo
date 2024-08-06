@@ -8,7 +8,7 @@ program basic_bank.aleo {
     }
 
     // An on-chain mapping, storing the amount of tokens owned by each account
-    // The account is stored as a to preserve user privacy.
+    // The account is stored as a hash to preserve user privacy.
     mapping balances: field => u64;
 
     // Returns a new Token.
