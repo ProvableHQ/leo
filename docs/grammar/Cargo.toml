@@ -1,6 +1,6 @@
 [package]
 name = "leo-abnf"
-version = "2.0.0"
+version = "2.1.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "ABNF to Markdown converter for the Leo programming language"
 homepage = "https://aleo.org"
