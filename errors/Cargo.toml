@@ -41,7 +41,7 @@ version = "2.2.0"
 version = "0.12.5"
 
 [dependencies.serde]
-version = "1.0.204"
+version = "1.0.205"
 features = [ "derive", "rc" ]
 
 [dependencies.thiserror]
