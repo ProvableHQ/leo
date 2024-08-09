@@ -181,7 +181,7 @@ ureq = "2.10.0"
 version = "0.12.1"
 
 [dev-dependencies.assert_cmd]
-version = "2.0.15"
+version = "2.0.16"
 
 [dev-dependencies.rusty-hook]
 version = "0.11.2"
