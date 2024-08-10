@@ -148,15 +148,9 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                             } else {
                                 // Lookup type of tuple index.
                                 let actual = tuple.elements().get(index).expect("failed to get tuple index").clone();
+                                // Emit error for mismatched types.
                                 if let Some(expected) = expected {
-                                    // Emit error for mismatched types.
-                                    if !actual.eq_flat(expected) {
-                                        self.emit_err(TypeCheckerError::type_should_be(
-                                            &actual,
-                                            expected,
-                                            access.span(),
-                                        ))
-                                    }
+                                    self.check_eq_types(&Some(actual.clone()), &Some(expected.clone()), access.span());
                                 }
 
                                 // Return type of tuple index.

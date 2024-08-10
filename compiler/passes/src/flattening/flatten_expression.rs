@@ -84,7 +84,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                 };
 
                 // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                assert!(first_type.eq_flat_relax_composite(&second_type));
+                assert!(first_type.eq_flat_relaxed(&second_type));
 
                 match &first_type {
                     Type::Array(first_type) => self.ternary_array(first_type, &input.condition, &first, &second),

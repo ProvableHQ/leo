@@ -143,7 +143,7 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
                 |need, expected_ty: Type| match input.members.iter().find_map(|Member { identifier, type_, .. }| {
                     (identifier.name == need).then_some((identifier, type_))
                 }) {
-                    Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
+                    Some((_, actual_ty)) if expected_ty.eq_flat_relaxed(actual_ty) => {} // All good, found + right type!
                     Some((field, _)) => {
                         self.emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()));
                     }

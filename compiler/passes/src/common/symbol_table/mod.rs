@@ -119,7 +119,7 @@ impl SymbolTable {
             return false;
         }
         for (member1, member2) in new.members.iter().zip(old.members.iter()) {
-            if member1.name() != member2.name() || !member1.type_.eq_flat_relax_composite(&member2.type_) {
+            if member1.name() != member2.name() || !member1.type_.eq_flat_relaxed(&member2.type_) {
                 return false;
             }
         }
