@@ -29,5 +29,5 @@ version = "0.2.1"
 version = "1.0.1"
 
 [dependencies.serde]
-version = "1.0.204"
+version = "1.0.206"
 features = [ "derive", "rc" ]
