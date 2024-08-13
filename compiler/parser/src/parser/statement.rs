@@ -31,9 +31,9 @@ const ASSIGN_TOKENS: &[Token] = &[
     Token::AndAssign,
     Token::BitAndAssign,
     Token::BitOrAssign,
+    Token::BitXorAssign,
     Token::ShrAssign,
     Token::ShlAssign,
-    Token::BitXorAssign,
 ];
 
 impl<N: Network> ParserContext<'_, N> {
@@ -52,7 +52,7 @@ impl<N: Network> ParserContext<'_, N> {
         }
     }
 
-    /// Returns a [`AssertStatement`] AST node if the next tokens represent an assertion statement.
+    /// Returns an [`AssertStatement`] AST node if the next tokens represent an assertion statement.
     fn parse_assert_statement(&mut self) -> Result<Statement> {
         // Check which variant of the assert statement is being used.
         // Note that `parse_assert_statement` is called only if the next token is an assertion token.
@@ -85,7 +85,7 @@ impl<N: Network> ParserContext<'_, N> {
         Ok(Statement::Assert(AssertStatement { variant, span, id: self.node_builder.next_id() }))
     }
 
-    /// Returns a [`AssignStatement`] AST node if the next tokens represent a assign, otherwise expects an expression statement.
+    /// Returns an [`AssignStatement`] AST node if the next tokens represent an assignment, otherwise expects an expression statement.
     fn parse_assign_statement(&mut self) -> Result<Statement> {
         let place = self.parse_expression()?;
 
