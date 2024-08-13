@@ -113,9 +113,11 @@ impl Type {
     ///
     /// Returns `true` if the self `Type` is equal to the other `Type` in all aspects besides composite program of origin.
     ///
+    /// In the case of futures, it also makes sure that if both are not explicit, they are equal.
+    ///
     /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
     ///
-    pub fn eq_flat_relax_composite(&self, other: &Self) -> bool {
+    pub fn eq_flat_relaxed(&self, other: &Self) -> bool {
         match (self, other) {
             (Type::Address, Type::Address)
             | (Type::Boolean, Type::Boolean)
@@ -126,18 +128,18 @@ impl Type {
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) => true,
             (Type::Array(left), Type::Array(right)) => {
-                left.element_type().eq_flat_relax_composite(right.element_type()) && left.length() == right.length()
+                left.element_type().eq_flat_relaxed(right.element_type()) && left.length() == right.length()
             }
             (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) => {
-                left.key.eq_flat_relax_composite(&right.key) && left.value.eq_flat(&right.value)
+                left.key.eq_flat_relaxed(&right.key) && left.value.eq_flat_relaxed(&right.value)
             }
             (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
                 .elements()
                 .iter()
                 .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| left_type.eq_flat_relax_composite(right_type)),
+                .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
             (Type::Composite(left), Type::Composite(right)) => left.id.name == right.id.name,
             // Don't type check when type hasn't been explicitly defined.
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
@@ -145,7 +147,7 @@ impl Type {
                 .inputs()
                 .iter()
                 .zip_eq(right.inputs().iter())
-                .all(|(left_type, right_type)| left_type.eq_flat_relax_composite(right_type)),
+                .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
             _ => false,
         }
     }

@@ -174,7 +174,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
     /// Emits an error if the two given types are not equal.
     pub(crate) fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if !Type::eq_flat_relax_composite(t1, t2) => {
+            (Some(t1), Some(t2)) if !Type::eq_flat_relaxed(t1, t2) => {
                 // If both types are futures, print them out.
                 if let (Type::Future(f1), Type::Future(f2)) = (t1, t2) {
                     println!("Future 1: {:?}", f1);
