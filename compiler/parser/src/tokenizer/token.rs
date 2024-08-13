@@ -18,7 +18,6 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-use crate::tokenizer::Token::{Aleo, Network};
 use leo_span::{sym, Symbol};
 
 /// Represents all valid Leo syntax tokens.
