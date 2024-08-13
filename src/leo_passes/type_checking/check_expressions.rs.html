@@ -1062,12 +1062,6 @@
 <a href="#1062" id="1062">1062</a>
 <a href="#1063" id="1063">1063</a>
 <a href="#1064" id="1064">1064</a>
-<a href="#1065" id="1065">1065</a>
-<a href="#1066" id="1066">1066</a>
-<a href="#1067" id="1067">1067</a>
-<a href="#1068" id="1068">1068</a>
-<a href="#1069" id="1069">1069</a>
-<a href="#1070" id="1070">1070</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1218,15 +1212,9 @@
                             } <span class="kw">else </span>{
                                 <span class="comment">// Lookup type of tuple index.
                                 </span><span class="kw">let </span>actual = tuple.elements().get(index).expect(<span class="string">"failed to get tuple index"</span>).clone();
-                                <span class="kw">if let </span><span class="prelude-val">Some</span>(expected) = expected {
-                                    <span class="comment">// Emit error for mismatched types.
-                                    </span><span class="kw">if </span>!actual.eq_flat(expected) {
-                                        <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(
-                                            <span class="kw-2">&amp;</span>actual,
-                                            expected,
-                                            access.span(),
-                                        ))
-                                    }
+                                <span class="comment">// Emit error for mismatched types.
+                                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(expected) = expected {
+                                    <span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(actual.clone()), <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.clone()), access.span());
                                 }
 
                                 <span class="comment">// Return type of tuple index.

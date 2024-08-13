@@ -557,7 +557,7 @@
                 |need, expected_ty: Type| <span class="kw">match </span>input.members.iter().find_map(|Member { identifier, type_, .. }| {
                     (identifier.name == need).then_some((identifier, type_))
                 }) {
-                    <span class="prelude-val">Some</span>((<span class="kw">_</span>, actual_ty)) <span class="kw">if </span>expected_ty.eq_flat(actual_ty) =&gt; {} <span class="comment">// All good, found + right type!
+                    <span class="prelude-val">Some</span>((<span class="kw">_</span>, actual_ty)) <span class="kw">if </span>expected_ty.eq_flat_relaxed(actual_ty) =&gt; {} <span class="comment">// All good, found + right type!
                     </span><span class="prelude-val">Some</span>((field, <span class="kw">_</span>)) =&gt; {
                         <span class="self">self</span>.emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()));
                     }

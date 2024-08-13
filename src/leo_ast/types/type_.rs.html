@@ -199,6 +199,8 @@
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
 <a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -314,9 +316,11 @@
     <span class="doccomment">///
     /// Returns `true` if the self `Type` is equal to the other `Type` in all aspects besides composite program of origin.
     ///
+    /// In the case of futures, it also makes sure that if both are not explicit, they are equal.
+    ///
     /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
     ///
-    </span><span class="kw">pub fn </span>eq_flat_relax_composite(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>eq_flat_relaxed(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="kw">match </span>(<span class="self">self</span>, other) {
             (Type::Address, Type::Address)
             | (Type::Boolean, Type::Boolean)
@@ -327,18 +331,18 @@
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) =&gt; <span class="bool-val">true</span>,
             (Type::Array(left), Type::Array(right)) =&gt; {
-                left.element_type().eq_flat_relax_composite(right.element_type()) &amp;&amp; left.length() == right.length()
+                left.element_type().eq_flat_relaxed(right.element_type()) &amp;&amp; left.length() == right.length()
             }
             (Type::Identifier(left), Type::Identifier(right)) =&gt; left.matches(right),
             (Type::Integer(left), Type::Integer(right)) =&gt; left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) =&gt; {
-                left.key.eq_flat_relax_composite(<span class="kw-2">&amp;</span>right.key) &amp;&amp; left.value.eq_flat(<span class="kw-2">&amp;</span>right.value)
+                left.key.eq_flat_relaxed(<span class="kw-2">&amp;</span>right.key) &amp;&amp; left.value.eq_flat_relaxed(<span class="kw-2">&amp;</span>right.value)
             }
             (Type::Tuple(left), Type::Tuple(right)) <span class="kw">if </span>left.length() == right.length() =&gt; left
                 .elements()
                 .iter()
                 .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| left_type.eq_flat_relax_composite(right_type)),
+                .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
             (Type::Composite(left), Type::Composite(right)) =&gt; left.id.name == right.id.name,
             <span class="comment">// Don't type check when type hasn't been explicitly defined.
             </span>(Type::Future(left), Type::Future(right)) <span class="kw">if </span>!left.is_explicit || !right.is_explicit =&gt; <span class="bool-val">true</span>,
@@ -346,7 +350,7 @@
                 .inputs()
                 .iter()
                 .zip_eq(right.inputs().iter())
-                .all(|(left_type, right_type)| left_type.eq_flat_relax_composite(right_type)),
+                .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }

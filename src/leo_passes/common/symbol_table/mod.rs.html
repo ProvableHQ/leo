@@ -441,7 +441,7 @@
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
         <span class="kw">for </span>(member1, member2) <span class="kw">in </span>new.members.iter().zip(old.members.iter()) {
-            <span class="kw">if </span>member1.name() != member2.name() || !member1.type_.eq_flat_relax_composite(<span class="kw-2">&amp;</span>member2.type_) {
+            <span class="kw">if </span>member1.name() != member2.name() || !member1.type_.eq_flat_relaxed(<span class="kw-2">&amp;</span>member2.type_) {
                 <span class="kw">return </span><span class="bool-val">false</span>;
             }
         }

@@ -214,7 +214,7 @@
                 };
 
                 <span class="comment">// Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                </span><span class="macro">assert!</span>(first_type.eq_flat_relax_composite(<span class="kw-2">&amp;</span>second_type));
+                </span><span class="macro">assert!</span>(first_type.eq_flat_relaxed(<span class="kw-2">&amp;</span>second_type));
 
                 <span class="kw">match </span><span class="kw-2">&amp;</span>first_type {
                     Type::Array(first_type) =&gt; <span class="self">self</span>.ternary_array(first_type, <span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>first, <span class="kw-2">&amp;</span>second),
