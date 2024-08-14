@@ -400,14 +400,14 @@ impl<N: Network> ParserContext<'_, N> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// static access expression.
     fn parse_associated_access_expression(&mut self, module_name: Expression) -> Result<Expression> {
-        // Parse struct name expression into struct type.
+        // Ensure that the preceding expression is an identifier (a named type).
         let variant = if let Expression::Identifier(ident) = module_name {
             ident
         } else {
             return Err(ParserError::invalid_associated_access(&module_name, module_name.span()).into());
         };
 
-        // Parse the struct member name (can be variable or function name).
+        // Parse the constant or function name.
         let member_name = self.expect_identifier()?;
 
         // Check if there are arguments.
@@ -415,7 +415,7 @@ impl<N: Network> ParserContext<'_, N> {
             // Parse the arguments
             let (args, _, end) = self.parse_expr_tuple()?;
 
-            // Return the struct function.
+            // Return the associated function.
             AccessExpression::AssociatedFunction(AssociatedFunction {
                 span: module_name.span() + end,
                 variant,
@@ -424,7 +424,7 @@ impl<N: Network> ParserContext<'_, N> {
                 id: self.node_builder.next_id(),
             })
         } else {
-            // Return the struct constant.
+            // Return the associated constant.
             AccessExpression::AssociatedConstant(AssociatedConstant {
                 span: module_name.span() + member_name.span(),
                 ty: Type::Identifier(variant),
@@ -439,7 +439,12 @@ impl<N: Network> ParserContext<'_, N> {
         self.parse_paren_comma_list(|p| p.parse_expression().map(Some))
     }
 
-    // Parses an external function call `credits.aleo/transfer()` or locator `token.aleo/accounts`.
+    /// Parses an external function call `credits.aleo/transfer()` or locator `token.aleo/accounts`.
+    ///
+    /// In the ABNF grammar,
+    /// an external function call is one of the two kinds of free function calls,
+    /// namely the one that uses a locator to designate the function;
+    /// a locator is a kind of primary expression.
     fn parse_external_resource(&mut self, expr: Expression, network_span: Span) -> Result<Expression> {
         // Parse `/`.
         self.expect(&Token::Div)?;
@@ -447,7 +452,7 @@ impl<N: Network> ParserContext<'_, N> {
         // Parse name.
         let name = self.expect_identifier()?;
 
-        // Parse the parent program identifier.
+        // Ensure the preceding expression is a (program) identifier.
         let program: Identifier = match expr {
             Expression::Identifier(identifier) => identifier,
             _ => unreachable!("Function called must be preceded by a program identifier."),
@@ -485,13 +490,17 @@ impl<N: Network> ParserContext<'_, N> {
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent an
-    /// array access, struct member access, function call, or static function call expression.
+    /// array access, struct member access, tuple access, or method call expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_primary_expression`].
+    /// Note that, as mentioned in [`parse_primary_expression`],
+    /// this function also completes the parsing of some primary expressions
+    /// (as defined in the ABNF grammar),
+    /// which [`parse_primary_expression`] only starts to parse.
     fn parse_postfix_expression(&mut self) -> Result<Expression> {
-        // We don't directly parse named-type's and Identifier's here as
-        // the ABNF states. Rather the primary expression already
-        // handle those. The ABNF is more specific for language reasons.
+        // We don't directly parse named types and identifiers in associated constants and functions
+        // here as the ABNF states. Rather, those named types and identifiers are parsed
+        // as primary expressions, and combined to form associated constants and functions here.
         let mut expr = self.parse_primary_expression()?;
         loop {
             if self.eat(&Token::Dot) {
@@ -553,7 +562,7 @@ impl<N: Network> ParserContext<'_, N> {
                     }
                 }
             } else if self.eat(&Token::DoubleColon) {
-                // Eat a core struct constant or core struct function call.
+                // Eat a core associated constant or core associated function call.
                 expr = self.parse_associated_access_expression(expr)?;
             } else if self.eat(&Token::LeftSquare) {
                 // Eat an array access.
@@ -581,7 +590,7 @@ impl<N: Network> ParserContext<'_, N> {
                     id: self.node_builder.next_id(),
                 });
             }
-            // Check if next token is a dot to see if we are calling recursive method.
+            // Stop parsing the postfix expression unless a dot or square bracket follows.
             if !(self.check(&Token::Dot) || self.check(&Token::LeftSquare)) {
                 break;
             }
@@ -589,8 +598,9 @@ impl<N: Network> ParserContext<'_, N> {
         Ok(expr)
     }
 
-    /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// tuple initialization expression or an affine group literal.
+    /// Returns an [`Expression`] AST node if the next tokens represent
+    /// a parenthesized expression or a unit expression
+    /// or a tuple initialization expression or an affine group literal.
     fn parse_tuple_expression(&mut self) -> Result<Expression> {
         if let Some(gt) = self.eat_group_partial().transpose()? {
             return Ok(Expression::Literal(Literal::Group(Box::new(GroupLiteral::Tuple(gt)))));
@@ -643,14 +653,14 @@ impl<N: Network> ParserContext<'_, N> {
         Some(gc)
     }
 
-    /// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
-    /// or [None] if the next token is not a [`GroupCoordinate`].
+    /// Attempts to parse an affine group literal, if present.
+    /// If absent, returns [None].
     fn eat_group_partial(&mut self) -> Option<Result<GroupTuple>> {
         assert!(self.check(&Token::LeftParen)); // `(`.
 
-        // Peek at first gc.
+        // Peek at first group coordinate.
         let start_span = &self.token.span;
-        let mut dist = 1; // 0th is `(` so 1st is first gc's start.
+        let mut dist = 1; // 0th is `(` so 1st is first group coordinate's start.
         let first_gc = self.peek_group_coordinate(&mut dist)?;
 
         let check_ahead = |d, token: &_| self.look_ahead(d, |t| (&t.token == token).then_some(t.span));
@@ -659,7 +669,7 @@ impl<N: Network> ParserContext<'_, N> {
         check_ahead(dist, &Token::Comma)?;
         dist += 1; // Standing at `,` so advance one for next gc's start.
 
-        // Peek at second gc.
+        // Peek at second group coordinate.
         let second_gc = self.peek_group_coordinate(&mut dist)?;
 
         // Peek at `)`.
@@ -678,6 +688,7 @@ impl<N: Network> ParserContext<'_, N> {
             self.bump();
         }
 
+        // Ensure that the ending `)` and `group` are treated as one token `)group` as in the ABNF grammar:
         if let Err(e) = assert_no_whitespace(right_paren_span, end_span, &format!("({},{})", gt.x, gt.y), "group") {
             return Some(Err(e));
         }
@@ -716,10 +727,19 @@ impl<N: Network> ParserContext<'_, N> {
     }
 
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
-    /// - Literals: field, group, unsigned integer, signed integer, boolean, address
-    /// - Aggregate types: array, tuple
+    /// - Literals: field, group, unsigned integer, signed integer, boolean, address, string
+    /// - Aggregate type constructors: array, tuple, structs
     /// - Identifiers: variables, keywords
-    /// - self
+    ///
+    /// This function only parses some of the primary expressions defined in the ABNF grammar;
+    /// for the others, it parses their initial parts,
+    /// leaving it to the [self.parse_postfix_expression] function to complete the parsing.
+    /// For example, of the primary expression `u8::c`, this function only parses the `u8` part,
+    /// leaving it to [self.parse_postfix_expression] to parse the `::c` part.
+    /// So technically the expression returned by this function may not quite be
+    /// an expression as defined in the ABNF grammar,
+    /// but it is only a temporary expression that is combined into a larger one
+    /// by [self.parse_postfix_expression], yielding an actual expression according to the grammar.
     ///
     /// Returns an expression error if the token cannot be matched.
     fn parse_primary_expression(&mut self) -> Result<Expression> {

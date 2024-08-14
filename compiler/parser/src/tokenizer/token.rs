@@ -46,7 +46,8 @@ pub enum Token {
     // The numeric literals in the ABNF grammar, which consist of numerals followed by types,
     // are represented not as single tokens here,
     // but as two separate tokens (one for the numeral and one for the type),
-    // enforcing, during parsing, the absence of whitespace or comments between those two tokens.
+    // enforcing, during parsing, the absence of whitespace or comments between those two tokens
+    // (see the parse_primary_expression function).
 
     // Identifiers
     Identifier(Symbol),
@@ -104,7 +105,7 @@ pub enum Token {
     Underscore,
     At, // @ is not a symbol token in the ABNF grammar (see explanation about annotations below)
     // There is no symbol for `)group` here (unlike the ABNF grammar),
-    // because we handle that differently in the lexer.
+    // because we handle that differently in the parser: see the eat_group_partial function.
 
     // The ABNF grammar has annotations as tokens,
     // defined as @ immediately followed by an identifier.
@@ -136,6 +137,7 @@ pub enum Token {
     U128,
 
     // Other keywords
+    Aleo,
     As,
     Assert,
     AssertEq,
@@ -156,6 +158,7 @@ pub enum Token {
     Inline,
     Let,
     Mapping,
+    Network,
     Private,
     Program,
     Public,
@@ -164,10 +167,8 @@ pub enum Token {
     Transition,
 
     // Meta tokens
-    Aleo,
-    Eof,
-    Leo,
-    Network,
+    Eof, // used to signal end-of-file, not an actual token of the language
+    Leo, // only used for error messages, not an actual keyword
 }
 
 /// Represents all valid Leo keyword tokens.
@@ -376,6 +377,7 @@ impl fmt::Display for Token {
             U64 => write!(f, "u64"),
             U128 => write!(f, "u128"),
 
+            Aleo => write!(f, "aleo"),
             As => write!(f, "as"),
             Assert => write!(f, "assert"),
             AssertEq => write!(f, "assert_eq"),
@@ -396,6 +398,7 @@ impl fmt::Display for Token {
             Inline => write!(f, "inline"),
             Let => write!(f, "let"),
             Mapping => write!(f, "mapping"),
+            Network => write!(f, "network"),
             Private => write!(f, "private"),
             Program => write!(f, "program"),
             Public => write!(f, "public"),
@@ -403,10 +406,8 @@ impl fmt::Display for Token {
             SelfLower => write!(f, "self"),
             Transition => write!(f, "transition"),
 
-            Aleo => write!(f, "aleo"),
             Eof => write!(f, "<eof>"),
             Leo => write!(f, "leo"),
-            Network => write!(f, "network"),
         }
     }
 }

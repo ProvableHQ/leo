@@ -59,6 +59,9 @@ impl<N: Network> ParserContext<'_, N> {
 
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a primitive type.
     /// Also returns the span of the parsed token.
+    ///
+    /// These correspond to what the ABNF grammar calls 'named primitive types';
+    /// the 'primitive types' according to the ABNF grammar include also the unit type.
     pub fn parse_primitive_type(&mut self) -> Result<(Type, Span)> {
         let span = self.expect_any(TYPE_TOKENS)?;
         Ok((
@@ -138,7 +141,7 @@ impl<N: Network> ParserContext<'_, N> {
                 // Expect the sequence `<`, `Fn`.
                 self.expect(&Token::Lt)?;
                 self.expect(&Token::Fn)?;
-                // Parse the parenthesis list of function arguments.
+                // Parse the parenthesized list of function arguments.
                 let (types, _, full_span) = self.parse_paren_comma_list(|p| p.parse_type().map(Some))?;
                 // Expect the closing `>`.
                 self.expect(&Token::Gt)?;
