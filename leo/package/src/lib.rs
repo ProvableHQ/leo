@@ -44,19 +44,13 @@ pub(crate) fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>
             parse_file_paths(directory, file_paths)?;
             continue;
         } else {
-            // Verify that the file has the Leo file extension
-            let file_extension = file_path
-                .extension()
-                .ok_or_else(|| PackageError::failed_to_get_leo_file_extension(file_path.as_os_str().to_owned()))?;
-            if file_extension != LEO_FILE_EXTENSION.trim_start_matches('.') {
-                return Err(PackageError::invalid_leo_file_extension(
-                    file_path.as_os_str().to_owned(),
-                    file_extension.to_owned(),
-                )
-                .into());
+            // If the extension doesn't match, we simply skip this file
+            // If there's no extension, we also skip this file
+            if let Some(file_extension) = file_path.extension() {
+                if file_extension == LEO_FILE_EXTENSION.trim_start_matches('.') {
+                    file_paths.push(file_path);
+                }
             }
-
-            file_paths.push(file_path);
         }
     }
 
