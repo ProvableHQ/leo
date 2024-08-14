@@ -154,6 +154,9 @@
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -215,6 +218,9 @@
 
     <span class="doccomment">/// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a primitive type.
     /// Also returns the span of the parsed token.
+    ///
+    /// These correspond to what the ABNF grammar calls 'named primitive types';
+    /// the 'primitive types' according to the ABNF grammar include also the unit type.
     </span><span class="kw">pub fn </span>parse_primitive_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Type, Span)&gt; {
         <span class="kw">let </span>span = <span class="self">self</span>.expect_any(TYPE_TOKENS)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>((
@@ -294,7 +300,7 @@
                 <span class="comment">// Expect the sequence `&lt;`, `Fn`.
                 </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Lt)<span class="question-mark">?</span>;
                 <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Fn)<span class="question-mark">?</span>;
-                <span class="comment">// Parse the parenthesis list of function arguments.
+                <span class="comment">// Parse the parenthesized list of function arguments.
                 </span><span class="kw">let </span>(types, <span class="kw">_</span>, full_span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_type().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
                 <span class="comment">// Expect the closing `&gt;`.
                 </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Gt)<span class="question-mark">?</span>;

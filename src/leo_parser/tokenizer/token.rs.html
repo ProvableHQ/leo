@@ -432,6 +432,7 @@
 <a href="#432" id="432">432</a>
 <a href="#433" id="433">433</a>
 <a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -480,7 +481,8 @@
     <span class="comment">// The numeric literals in the ABNF grammar, which consist of numerals followed by types,
     // are represented not as single tokens here,
     // but as two separate tokens (one for the numeral and one for the type),
-    // enforcing, during parsing, the absence of whitespace or comments between those two tokens.
+    // enforcing, during parsing, the absence of whitespace or comments between those two tokens
+    // (see the parse_primary_expression function).
 
     // Identifiers
     </span>Identifier(Symbol),
@@ -538,7 +540,7 @@
     Underscore,
     At, <span class="comment">// @ is not a symbol token in the ABNF grammar (see explanation about annotations below)
     // There is no symbol for `)group` here (unlike the ABNF grammar),
-    // because we handle that differently in the lexer.
+    // because we handle that differently in the parser: see the eat_group_partial function.
 
     // The ABNF grammar has annotations as tokens,
     // defined as @ immediately followed by an identifier.
@@ -570,7 +572,8 @@
     U128,
 
     <span class="comment">// Other keywords
-    </span>As,
+    </span>Aleo,
+    As,
     Assert,
     AssertEq,
     AssertNeq,
@@ -590,6 +593,7 @@
     Inline,
     Let,
     Mapping,
+    Network,
     Private,
     Program,
     Public,
@@ -598,11 +602,9 @@
     Transition,
 
     <span class="comment">// Meta tokens
-    </span>Aleo,
-    Eof,
-    Leo,
-    Network,
-}
+    </span>Eof, <span class="comment">// used to signal end-of-file, not an actual token of the language
+    </span>Leo, <span class="comment">// only used for error messages, not an actual keyword
+</span>}
 
 <span class="doccomment">/// Represents all valid Leo keyword tokens.
 /// This also includes the boolean literals `true` and `false`,
@@ -810,6 +812,7 @@
             U64 =&gt; <span class="macro">write!</span>(f, <span class="string">"u64"</span>),
             U128 =&gt; <span class="macro">write!</span>(f, <span class="string">"u128"</span>),
 
+            Aleo =&gt; <span class="macro">write!</span>(f, <span class="string">"aleo"</span>),
             As =&gt; <span class="macro">write!</span>(f, <span class="string">"as"</span>),
             Assert =&gt; <span class="macro">write!</span>(f, <span class="string">"assert"</span>),
             AssertEq =&gt; <span class="macro">write!</span>(f, <span class="string">"assert_eq"</span>),
@@ -830,6 +833,7 @@
             Inline =&gt; <span class="macro">write!</span>(f, <span class="string">"inline"</span>),
             Let =&gt; <span class="macro">write!</span>(f, <span class="string">"let"</span>),
             Mapping =&gt; <span class="macro">write!</span>(f, <span class="string">"mapping"</span>),
+            Network =&gt; <span class="macro">write!</span>(f, <span class="string">"network"</span>),
             Private =&gt; <span class="macro">write!</span>(f, <span class="string">"private"</span>),
             Program =&gt; <span class="macro">write!</span>(f, <span class="string">"program"</span>),
             Public =&gt; <span class="macro">write!</span>(f, <span class="string">"public"</span>),
@@ -837,10 +841,8 @@
             SelfLower =&gt; <span class="macro">write!</span>(f, <span class="string">"self"</span>),
             Transition =&gt; <span class="macro">write!</span>(f, <span class="string">"transition"</span>),
 
-            Aleo =&gt; <span class="macro">write!</span>(f, <span class="string">"aleo"</span>),
             Eof =&gt; <span class="macro">write!</span>(f, <span class="string">"&lt;eof&gt;"</span>),
             Leo =&gt; <span class="macro">write!</span>(f, <span class="string">"leo"</span>),
-            Network =&gt; <span class="macro">write!</span>(f, <span class="string">"network"</span>),
         }
     }
 }

@@ -375,9 +375,9 @@
     Token::AndAssign,
     Token::BitAndAssign,
     Token::BitOrAssign,
+    Token::BitXorAssign,
     Token::ShrAssign,
     Token::ShlAssign,
-    Token::BitXorAssign,
 ];
 
 <span class="kw">impl</span>&lt;N: Network&gt; ParserContext&lt;<span class="lifetime">'_</span>, N&gt; {
@@ -396,7 +396,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns a [`AssertStatement`] AST node if the next tokens represent an assertion statement.
+    <span class="doccomment">/// Returns an [`AssertStatement`] AST node if the next tokens represent an assertion statement.
     </span><span class="kw">fn </span>parse_assert_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         <span class="comment">// Check which variant of the assert statement is being used.
         // Note that `parse_assert_statement` is called only if the next token is an assertion token.
@@ -429,7 +429,7 @@
         </span><span class="prelude-val">Ok</span>(Statement::Assert(AssertStatement { variant, span, id: <span class="self">self</span>.node_builder.next_id() }))
     }
 
-    <span class="doccomment">/// Returns a [`AssignStatement`] AST node if the next tokens represent a assign, otherwise expects an expression statement.
+    <span class="doccomment">/// Returns an [`AssignStatement`] AST node if the next tokens represent an assignment, otherwise expects an expression statement.
     </span><span class="kw">fn </span>parse_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         <span class="kw">let </span>place = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
 

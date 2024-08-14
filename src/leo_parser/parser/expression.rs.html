@@ -819,6 +819,26 @@
 <a href="#819" id="819">819</a>
 <a href="#820" id="820">820</a>
 <a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1221,14 +1241,14 @@
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
     /// static access expression.
     </span><span class="kw">fn </span>parse_associated_access_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, module_name: Expression) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
-        <span class="comment">// Parse struct name expression into struct type.
+        <span class="comment">// Ensure that the preceding expression is an identifier (a named type).
         </span><span class="kw">let </span>variant = <span class="kw">if let </span>Expression::Identifier(ident) = module_name {
             ident
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_associated_access(<span class="kw-2">&amp;</span>module_name, module_name.span()).into());
         };
 
-        <span class="comment">// Parse the struct member name (can be variable or function name).
+        <span class="comment">// Parse the constant or function name.
         </span><span class="kw">let </span>member_name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
         <span class="comment">// Check if there are arguments.
@@ -1236,7 +1256,7 @@
             <span class="comment">// Parse the arguments
             </span><span class="kw">let </span>(args, <span class="kw">_</span>, end) = <span class="self">self</span>.parse_expr_tuple()<span class="question-mark">?</span>;
 
-            <span class="comment">// Return the struct function.
+            <span class="comment">// Return the associated function.
             </span>AccessExpression::AssociatedFunction(AssociatedFunction {
                 span: module_name.span() + end,
                 variant,
@@ -1245,7 +1265,7 @@
                 id: <span class="self">self</span>.node_builder.next_id(),
             })
         } <span class="kw">else </span>{
-            <span class="comment">// Return the struct constant.
+            <span class="comment">// Return the associated constant.
             </span>AccessExpression::AssociatedConstant(AssociatedConstant {
                 span: module_name.span() + member_name.span(),
                 ty: Type::Identifier(variant),
@@ -1260,7 +1280,12 @@
         <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))
     }
 
-    <span class="comment">// Parses an external function call `credits.aleo/transfer()` or locator `token.aleo/accounts`.
+    <span class="doccomment">/// Parses an external function call `credits.aleo/transfer()` or locator `token.aleo/accounts`.
+    ///
+    /// In the ABNF grammar,
+    /// an external function call is one of the two kinds of free function calls,
+    /// namely the one that uses a locator to designate the function;
+    /// a locator is a kind of primary expression.
     </span><span class="kw">fn </span>parse_external_resource(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression, network_span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
         <span class="comment">// Parse `/`.
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Div)<span class="question-mark">?</span>;
@@ -1268,7 +1293,7 @@
         <span class="comment">// Parse name.
         </span><span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
-        <span class="comment">// Parse the parent program identifier.
+        <span class="comment">// Ensure the preceding expression is a (program) identifier.
         </span><span class="kw">let </span>program: Identifier = <span class="kw">match </span>expr {
             Expression::Identifier(identifier) =&gt; identifier,
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Function called must be preceded by a program identifier."</span>),
@@ -1306,13 +1331,17 @@
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent an
-    /// array access, struct member access, function call, or static function call expression.
+    /// array access, struct member access, tuple access, or method call expression.
     ///
     /// Otherwise, tries to parse the next token using [`parse_primary_expression`].
+    /// Note that, as mentioned in [`parse_primary_expression`],
+    /// this function also completes the parsing of some primary expressions
+    /// (as defined in the ABNF grammar),
+    /// which [`parse_primary_expression`] only starts to parse.
     </span><span class="kw">fn </span>parse_postfix_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
-        <span class="comment">// We don't directly parse named-type's and Identifier's here as
-        // the ABNF states. Rather the primary expression already
-        // handle those. The ABNF is more specific for language reasons.
+        <span class="comment">// We don't directly parse named types and identifiers in associated constants and functions
+        // here as the ABNF states. Rather, those named types and identifiers are parsed
+        // as primary expressions, and combined to form associated constants and functions here.
         </span><span class="kw">let </span><span class="kw-2">mut </span>expr = <span class="self">self</span>.parse_primary_expression()<span class="question-mark">?</span>;
         <span class="kw">loop </span>{
             <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot) {
@@ -1374,7 +1403,7 @@
                     }
                 }
             } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::DoubleColon) {
-                <span class="comment">// Eat a core struct constant or core struct function call.
+                <span class="comment">// Eat a core associated constant or core associated function call.
                 </span>expr = <span class="self">self</span>.parse_associated_access_expression(expr)<span class="question-mark">?</span>;
             } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::LeftSquare) {
                 <span class="comment">// Eat an array access.
@@ -1402,7 +1431,7 @@
                     id: <span class="self">self</span>.node_builder.next_id(),
                 });
             }
-            <span class="comment">// Check if next token is a dot to see if we are calling recursive method.
+            <span class="comment">// Stop parsing the postfix expression unless a dot or square bracket follows.
             </span><span class="kw">if </span>!(<span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::Dot) || <span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftSquare)) {
                 <span class="kw">break</span>;
             }
@@ -1410,8 +1439,9 @@
         <span class="prelude-val">Ok</span>(expr)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
-    /// tuple initialization expression or an affine group literal.
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent
+    /// a parenthesized expression or a unit expression
+    /// or a tuple initialization expression or an affine group literal.
     </span><span class="kw">fn </span>parse_tuple_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(gt) = <span class="self">self</span>.eat_group_partial().transpose()<span class="question-mark">? </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(Expression::Literal(Literal::Group(Box::new(GroupLiteral::Tuple(gt)))));
@@ -1464,14 +1494,14 @@
         <span class="prelude-val">Some</span>(gc)
     }
 
-    <span class="doccomment">/// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
-    /// or [None] if the next token is not a [`GroupCoordinate`].
+    <span class="doccomment">/// Attempts to parse an affine group literal, if present.
+    /// If absent, returns [None].
     </span><span class="kw">fn </span>eat_group_partial(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;GroupTuple&gt;&gt; {
         <span class="macro">assert!</span>(<span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftParen)); <span class="comment">// `(`.
 
-        // Peek at first gc.
+        // Peek at first group coordinate.
         </span><span class="kw">let </span>start_span = <span class="kw-2">&amp;</span><span class="self">self</span>.token.span;
-        <span class="kw">let </span><span class="kw-2">mut </span>dist = <span class="number">1</span>; <span class="comment">// 0th is `(` so 1st is first gc's start.
+        <span class="kw">let </span><span class="kw-2">mut </span>dist = <span class="number">1</span>; <span class="comment">// 0th is `(` so 1st is first group coordinate's start.
         </span><span class="kw">let </span>first_gc = <span class="self">self</span>.peek_group_coordinate(<span class="kw-2">&amp;mut </span>dist)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>check_ahead = |d, token: <span class="kw-2">&amp;</span><span class="kw">_</span>| <span class="self">self</span>.look_ahead(d, |t| (<span class="kw-2">&amp;</span>t.token == token).then_some(t.span));
@@ -1480,7 +1510,7 @@
         </span>check_ahead(dist, <span class="kw-2">&amp;</span>Token::Comma)<span class="question-mark">?</span>;
         dist += <span class="number">1</span>; <span class="comment">// Standing at `,` so advance one for next gc's start.
 
-        // Peek at second gc.
+        // Peek at second group coordinate.
         </span><span class="kw">let </span>second_gc = <span class="self">self</span>.peek_group_coordinate(<span class="kw-2">&amp;mut </span>dist)<span class="question-mark">?</span>;
 
         <span class="comment">// Peek at `)`.
@@ -1499,7 +1529,8 @@
             <span class="self">self</span>.bump();
         }
 
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = assert_no_whitespace(right_paren_span, end_span, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"({},{})"</span>, gt.x, gt.y), <span class="string">"group"</span>) {
+        <span class="comment">// Ensure that the ending `)` and `group` are treated as one token `)group` as in the ABNF grammar:
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = assert_no_whitespace(right_paren_span, end_span, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"({},{})"</span>, gt.x, gt.y), <span class="string">"group"</span>) {
             <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e));
         }
 
@@ -1537,10 +1568,19 @@
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next token is a primary expression:
-    /// - Literals: field, group, unsigned integer, signed integer, boolean, address
-    /// - Aggregate types: array, tuple
+    /// - Literals: field, group, unsigned integer, signed integer, boolean, address, string
+    /// - Aggregate type constructors: array, tuple, structs
     /// - Identifiers: variables, keywords
-    /// - self
+    ///
+    /// This function only parses some of the primary expressions defined in the ABNF grammar;
+    /// for the others, it parses their initial parts,
+    /// leaving it to the [self.parse_postfix_expression] function to complete the parsing.
+    /// For example, of the primary expression `u8::c`, this function only parses the `u8` part,
+    /// leaving it to [self.parse_postfix_expression] to parse the `::c` part.
+    /// So technically the expression returned by this function may not quite be
+    /// an expression as defined in the ABNF grammar,
+    /// but it is only a temporary expression that is combined into a larger one
+    /// by [self.parse_postfix_expression], yielding an actual expression according to the grammar.
     ///
     /// Returns an expression error if the token cannot be matched.
     </span><span class="kw">fn </span>parse_primary_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
