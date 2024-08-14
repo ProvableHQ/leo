@@ -88,9 +88,6 @@ pub enum Account {
         /// Message (Aleo value) to sign
         #[clap(short = 'm', long)]
         message: String,
-        /// Seed the RNG with a numeric value
-        #[clap(short = 's', long)]
-        seed: Option<u64>,
         /// When enabled, parses the message as bytes instead of Aleo literals
         #[clap(short = 'r', long)]
         raw: bool,
@@ -150,19 +147,13 @@ impl Command for Account {
                     NetworkName::CanaryV0 => import_account::<CanaryV0>(private_key, write, discreet, &ctx, endpoint),
                 }?
             }
-            Self::Sign { message, seed, raw, private_key, private_key_file, network } => {
+            Self::Sign { message, raw, private_key, private_key_file, network } => {
                 // Parse the network.
                 let network = NetworkName::try_from(network.as_str())?;
                 let result = match network {
-                    NetworkName::MainnetV0 => {
-                        sign_message::<MainnetV0>(message, seed, raw, private_key, private_key_file)
-                    }
-                    NetworkName::TestnetV0 => {
-                        sign_message::<TestnetV0>(message, seed, raw, private_key, private_key_file)
-                    }
-                    NetworkName::CanaryV0 => {
-                        sign_message::<MainnetV0>(message, seed, raw, private_key, private_key_file)
-                    }
+                    NetworkName::MainnetV0 => sign_message::<MainnetV0>(message, raw, private_key, private_key_file),
+                    NetworkName::TestnetV0 => sign_message::<TestnetV0>(message, raw, private_key, private_key_file),
+                    NetworkName::CanaryV0 => sign_message::<MainnetV0>(message, raw, private_key, private_key_file),
                 }?;
                 println!("{result}")
             }
@@ -271,7 +262,6 @@ fn print_keys<N: Network>(private_key: PrivateKey<N>, discreet: bool) -> Result<
 // Sign a message with an Aleo private key
 pub(crate) fn sign_message<N: Network>(
     message: String,
-    seed: Option<u64>,
     raw: bool,
     private_key: Option<String>,
     private_key_file: Option<String>,
@@ -301,13 +291,8 @@ pub(crate) fn sign_message<N: Network>(
             Err(CliError::cli_invalid_input("cannot specify both the '--private-key' and '--private-key-file' flags"))?
         }
     };
-    // Recover the seed.
-    let mut rng = match seed {
-        // Recover the field element deterministically.
-        Some(seed) => ChaChaRng::seed_from_u64(seed),
-        // Sample a random field element.
-        None => ChaChaRng::from_entropy(),
-    };
+    // Sample a random field element.
+    let mut rng = ChaChaRng::from_entropy();
 
     // Sign the message
     let signature = if raw {
@@ -393,41 +378,21 @@ mod tests {
     fn test_signature_raw() {
         let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".to_string();
         let message = "Hello, world!".to_string();
-        assert!(sign_message::<CurrentNetwork>(message, None, true, Some(key), None).is_ok());
+        assert!(sign_message::<CurrentNetwork>(message, true, Some(key), None).is_ok());
     }
 
     #[test]
     fn test_signature() {
         let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".to_string();
         let message = "5field".to_string();
-        assert!(sign_message::<CurrentNetwork>(message, None, false, Some(key), None).is_ok());
+        assert!(sign_message::<CurrentNetwork>(message, false, Some(key), None).is_ok());
     }
 
     #[test]
     fn test_signature_fail() {
         let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".to_string();
         let message = "not a literal value".to_string();
-        assert!(sign_message::<CurrentNetwork>(message, None, false, Some(key), None).is_err());
-    }
-
-    #[test]
-    fn test_seeded_signature_raw() {
-        let seed = Some(38868010450269069);
-        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".to_string();
-        let message = "Hello, world!".to_string();
-        let expected = "sign175pmqldmkqw2nwp7wz7tfmpyqdnvzaq06mh8t2g22frsmrdtuvpf843p0wzazg27rwrjft8863vwn5a5cqgr97ldw69cyq53l0zlwqhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkevd26g";
-        let actual = sign_message::<CurrentNetwork>(message, seed, true, Some(key), None).unwrap();
-        assert_eq!(expected, actual);
-    }
-
-    #[test]
-    fn test_seeded_signature() {
-        let seed = Some(38868010450269069);
-        let key = "APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p".to_string();
-        let message = "5field".to_string();
-        let expected = "sign1ad29myqy8gv6xve2r6tuly39m63l2mpfpyvqkwdl2umxqek6q5qxmy63zmhjx75x90sqxq69u5ntzp25kp59e0hp4hj8l8085sg7vqlesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk7v46re";
-        let actual = sign_message::<CurrentNetwork>(message, seed, false, Some(key), None).unwrap();
-        assert_eq!(expected, actual);
+        assert!(sign_message::<CurrentNetwork>(message, false, Some(key), None).is_err());
     }
 
     #[test]
