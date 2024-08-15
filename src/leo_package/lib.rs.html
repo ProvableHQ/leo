@@ -56,12 +56,6 @@
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -108,19 +102,13 @@
             parse_file_paths(directory, file_paths)<span class="question-mark">?</span>;
             <span class="kw">continue</span>;
         } <span class="kw">else </span>{
-            <span class="comment">// Verify that the file has the Leo file extension
-            </span><span class="kw">let </span>file_extension = file_path
-                .extension()
-                .ok_or_else(|| PackageError::failed_to_get_leo_file_extension(file_path.as_os_str().to_owned()))<span class="question-mark">?</span>;
-            <span class="kw">if </span>file_extension != LEO_FILE_EXTENSION.trim_start_matches(<span class="string">'.'</span>) {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::invalid_leo_file_extension(
-                    file_path.as_os_str().to_owned(),
-                    file_extension.to_owned(),
-                )
-                .into());
+            <span class="comment">// If the extension doesn't match, we simply skip this file
+            // If there's no extension, we also skip this file
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(file_extension) = file_path.extension() {
+                <span class="kw">if </span>file_extension == LEO_FILE_EXTENSION.trim_start_matches(<span class="string">'.'</span>) {
+                    file_paths.push(file_path);
+                }
             }
-
-            file_paths.push(file_path);
         }
     }
 
