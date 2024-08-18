@@ -184,7 +184,7 @@ impl fmt::Display for Type {
         match *self {
             Type::Address => write!(f, "address"),
             Type::Array(ref array_type) => write!(f, "{array_type}"),
-            Type::Boolean => write!(f, "bool"),
+            Type::Boolean => write!(f, "boolean"),
             Type::Field => write!(f, "field"),
             Type::Future(ref future_type) => write!(f, "{future_type}"),
             Type::Group => write!(f, "group"),
