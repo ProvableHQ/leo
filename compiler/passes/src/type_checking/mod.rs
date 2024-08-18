@@ -40,8 +40,62 @@ impl<'a, N: Network> Pass for TypeChecker<'a, N> {
     type Output = Result<(SymbolTable, StructGraph, CallGraph)>;
 
     fn do_pass((ast, handler, st, tt, max_depth, await_checking): Self::Input) -> Self::Output {
+        // get program name without consuming AST
+        let program_name = &ast
+            .ast
+            .program_scopes
+            .keys()
+            .next()
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| "Unknown program".to_string());
+
         let mut visitor = TypeChecker::<N>::new(st, tt, handler, max_depth, await_checking);
         visitor.visit_program(ast.as_repr());
+
+        // color codes for terminal
+        const RED: &str = "\x1b[31m";
+        const YELLOW: &str = "\x1b[33m";
+        const RESET: &str = "\x1b[0m";
+
+        // get error and warning counts from handler
+        let inner = handler.inner.borrow();
+        let err_count = inner.err_count;
+        let warn_count = inner.warn_count;
+
+        // if there is at least one error or warning, add two empty lines before report
+        if err_count + warn_count > 0 {
+            println!("\n");
+        }
+
+        // show warning counts
+        if warn_count > 0 {
+            println!(
+                "{}warning{}: {}.leo  generated {} warning{}",
+                YELLOW,
+                RESET,
+                program_name,
+                warn_count,
+                if warn_count > 1 { "s" } else { "" }
+            );
+        }
+
+        //show error counts, if warnings emitted include them as well.
+        if err_count > 0 {
+            let error_message = format!(
+                "{}error{}: could not compile {}.leo due to {} previous error{}",
+                RED,
+                RESET,
+                program_name,
+                err_count,
+                if err_count > 1 { "s" } else { "" }
+            );
+            if warn_count > 0 {
+                println!("{}; {} warning{} emitted", error_message, warn_count, if warn_count > 1 { "s" } else { "" });
+            } else {
+                println!("{}", error_message);
+            }
+        }
+
         handler.last_err().map_err(|e| *e)?;
 
         // Remove unused structs from the struct graph.

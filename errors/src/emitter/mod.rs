@@ -136,11 +136,11 @@ impl Emitter for BufferEmitter {
 
 /// Contains the actual data for `Handler`.
 /// Modelled this way to afford an API using interior mutability.
-struct HandlerInner {
+pub struct HandlerInner {
     /// Number of errors emitted thus far.
-    err_count: usize,
+    pub err_count: usize,
     /// Number of warnings emitted thus far.
-    warn_count: usize,
+    pub warn_count: usize,
     /// The sink through which errors will be emitted.
     emitter: Box<dyn Emitter>,
 }
@@ -168,7 +168,7 @@ impl HandlerInner {
 pub struct Handler {
     /// The inner handler.
     /// `RefCell` is used here to avoid `&mut` all over the compiler.
-    inner: RefCell<HandlerInner>,
+    pub inner: RefCell<HandlerInner>,
 }
 
 impl Default for Handler {
