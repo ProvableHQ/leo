@@ -70,7 +70,7 @@ impl<'a, N: Network> Pass for TypeChecker<'a, N> {
         // show warning counts
         if warn_count > 0 {
             println!(
-                "{}warning{}: {}.leo  generated {} warning{}",
+                "{}warning{}: {}.leo generated {} warning{}",
                 YELLOW,
                 RESET,
                 program_name,
