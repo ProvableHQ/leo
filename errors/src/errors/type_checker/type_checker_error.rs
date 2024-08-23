@@ -208,7 +208,7 @@ create_messages!(
     invalid_struct_variable {
         args: (variable: impl Display, struct_: impl Display),
         msg: format!(
-            "Variable {variable} is not a member of struct {struct_}."
+            "Variable {variable} is not a member of {struct_}."
         ),
         help: None,
     }
