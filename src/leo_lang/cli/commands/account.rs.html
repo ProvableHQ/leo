@@ -445,41 +445,6 @@
 <a href="#445" id="445">445</a>
 <a href="#446" id="446">446</a>
 <a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
-<a href="#454" id="454">454</a>
-<a href="#455" id="455">455</a>
-<a href="#456" id="456">456</a>
-<a href="#457" id="457">457</a>
-<a href="#458" id="458">458</a>
-<a href="#459" id="459">459</a>
-<a href="#460" id="460">460</a>
-<a href="#461" id="461">461</a>
-<a href="#462" id="462">462</a>
-<a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-<a href="#465" id="465">465</a>
-<a href="#466" id="466">466</a>
-<a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
-<a href="#482" id="482">482</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -570,9 +535,6 @@
         <span class="doccomment">/// Message (Aleo value) to sign
         </span><span class="attr">#[clap(short = <span class="string">'m'</span>, long)]
         </span>message: String,
-        <span class="doccomment">/// Seed the RNG with a numeric value
-        </span><span class="attr">#[clap(short = <span class="string">'s'</span>, long)]
-        </span>seed: <span class="prelude-ty">Option</span>&lt;u64&gt;,
         <span class="doccomment">/// When enabled, parses the message as bytes instead of Aleo literals
         </span><span class="attr">#[clap(short = <span class="string">'r'</span>, long)]
         </span>raw: bool,
@@ -632,19 +594,13 @@
                     NetworkName::CanaryV0 =&gt; import_account::&lt;CanaryV0&gt;(private_key, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint),
                 }<span class="question-mark">?
             </span>}
-            <span class="self">Self</span>::Sign { message, seed, raw, private_key, private_key_file, network } =&gt; {
+            <span class="self">Self</span>::Sign { message, raw, private_key, private_key_file, network } =&gt; {
                 <span class="comment">// Parse the network.
                 </span><span class="kw">let </span>network = NetworkName::try_from(network.as_str())<span class="question-mark">?</span>;
                 <span class="kw">let </span>result = <span class="kw">match </span>network {
-                    NetworkName::MainnetV0 =&gt; {
-                        sign_message::&lt;MainnetV0&gt;(message, seed, raw, private_key, private_key_file)
-                    }
-                    NetworkName::TestnetV0 =&gt; {
-                        sign_message::&lt;TestnetV0&gt;(message, seed, raw, private_key, private_key_file)
-                    }
-                    NetworkName::CanaryV0 =&gt; {
-                        sign_message::&lt;MainnetV0&gt;(message, seed, raw, private_key, private_key_file)
-                    }
+                    NetworkName::MainnetV0 =&gt; sign_message::&lt;MainnetV0&gt;(message, raw, private_key, private_key_file),
+                    NetworkName::TestnetV0 =&gt; sign_message::&lt;TestnetV0&gt;(message, raw, private_key, private_key_file),
+                    NetworkName::CanaryV0 =&gt; sign_message::&lt;MainnetV0&gt;(message, raw, private_key, private_key_file),
                 }<span class="question-mark">?</span>;
                 <span class="macro">println!</span>(<span class="string">"{result}"</span>)
             }
@@ -753,7 +709,6 @@
 <span class="comment">// Sign a message with an Aleo private key
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sign_message&lt;N: Network&gt;(
     message: String,
-    seed: <span class="prelude-ty">Option</span>&lt;u64&gt;,
     raw: bool,
     private_key: <span class="prelude-ty">Option</span>&lt;String&gt;,
     private_key_file: <span class="prelude-ty">Option</span>&lt;String&gt;,
@@ -783,13 +738,8 @@
             <span class="prelude-val">Err</span>(CliError::cli_invalid_input(<span class="string">"cannot specify both the '--private-key' and '--private-key-file' flags"</span>))<span class="question-mark">?
         </span>}
     };
-    <span class="comment">// Recover the seed.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="kw">match </span>seed {
-        <span class="comment">// Recover the field element deterministically.
-        </span><span class="prelude-val">Some</span>(seed) =&gt; ChaChaRng::seed_from_u64(seed),
-        <span class="comment">// Sample a random field element.
-        </span><span class="prelude-val">None </span>=&gt; ChaChaRng::from_entropy(),
-    };
+    <span class="comment">// Sample a random field element.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>rng = ChaChaRng::from_entropy();
 
     <span class="comment">// Sign the message
     </span><span class="kw">let </span>signature = <span class="kw">if </span>raw {
@@ -875,41 +825,21 @@
     </span><span class="kw">fn </span>test_signature_raw() {
         <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"Hello, world!"</span>.to_string();
-        <span class="macro">assert!</span>(sign_message::&lt;CurrentNetwork&gt;(message, <span class="prelude-val">None</span>, <span class="bool-val">true</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).is_ok());
+        <span class="macro">assert!</span>(sign_message::&lt;CurrentNetwork&gt;(message, <span class="bool-val">true</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_signature() {
         <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"5field"</span>.to_string();
-        <span class="macro">assert!</span>(sign_message::&lt;CurrentNetwork&gt;(message, <span class="prelude-val">None</span>, <span class="bool-val">false</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).is_ok());
+        <span class="macro">assert!</span>(sign_message::&lt;CurrentNetwork&gt;(message, <span class="bool-val">false</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_signature_fail() {
         <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.to_string();
         <span class="kw">let </span>message = <span class="string">"not a literal value"</span>.to_string();
-        <span class="macro">assert!</span>(sign_message::&lt;CurrentNetwork&gt;(message, <span class="prelude-val">None</span>, <span class="bool-val">false</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).is_err());
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_seeded_signature_raw() {
-        <span class="kw">let </span>seed = <span class="prelude-val">Some</span>(<span class="number">38868010450269069</span>);
-        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.to_string();
-        <span class="kw">let </span>message = <span class="string">"Hello, world!"</span>.to_string();
-        <span class="kw">let </span>expected = <span class="string">"sign175pmqldmkqw2nwp7wz7tfmpyqdnvzaq06mh8t2g22frsmrdtuvpf843p0wzazg27rwrjft8863vwn5a5cqgr97ldw69cyq53l0zlwqhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkevd26g"</span>;
-        <span class="kw">let </span>actual = sign_message::&lt;CurrentNetwork&gt;(message, seed, <span class="bool-val">true</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).unwrap();
-        <span class="macro">assert_eq!</span>(expected, actual);
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_seeded_signature() {
-        <span class="kw">let </span>seed = <span class="prelude-val">Some</span>(<span class="number">38868010450269069</span>);
-        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.to_string();
-        <span class="kw">let </span>message = <span class="string">"5field"</span>.to_string();
-        <span class="kw">let </span>expected = <span class="string">"sign1ad29myqy8gv6xve2r6tuly39m63l2mpfpyvqkwdl2umxqek6q5qxmy63zmhjx75x90sqxq69u5ntzp25kp59e0hp4hj8l8085sg7vqlesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk7v46re"</span>;
-        <span class="kw">let </span>actual = sign_message::&lt;CurrentNetwork&gt;(message, seed, <span class="bool-val">false</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).unwrap();
-        <span class="macro">assert_eq!</span>(expected, actual);
+        <span class="macro">assert!</span>(sign_message::&lt;CurrentNetwork&gt;(message, <span class="bool-val">false</span>, <span class="prelude-val">Some</span>(key), <span class="prelude-val">None</span>).is_err());
     }
 
     <span class="attr">#[test]
