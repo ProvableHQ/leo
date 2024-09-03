@@ -244,6 +244,17 @@
 <a href="#244" id="244">244</a>
 <a href="#245" id="245">245</a>
 <a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -264,6 +275,7 @@
 <span class="kw">use </span>aleo_std::StorageMode;
 <span class="kw">use </span>dialoguer::{theme::ColorfulTheme, Confirm};
 <span class="kw">use </span>leo_retriever::NetworkName;
+<span class="kw">use </span>num_format::{Locale, ToFormattedString};
 <span class="kw">use </span>snarkvm::{
     circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
     ledger::query::Query <span class="kw">as </span>SnarkVMQuery,
@@ -367,13 +379,23 @@
         <span class="comment">// Generate the deployment
         </span><span class="kw">let </span>deployment = package.deploy::&lt;A&gt;(<span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
+        <span class="kw">let </span>variables = deployment.num_combined_variables()<span class="question-mark">?</span>;
+        <span class="kw">let </span>constraints = deployment.num_combined_constraints()<span class="question-mark">?</span>;
+
         <span class="comment">// Check if the number of variables and constraints are within the limits.
-        </span><span class="kw">if </span>deployment.num_combined_variables()<span class="question-mark">? </span>&gt; N::MAX_DEPLOYMENT_VARIABLES {
+        </span><span class="kw">if </span>variables &gt; N::MAX_DEPLOYMENT_VARIABLES {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::variable_limit_exceeded(name, N::MAX_DEPLOYMENT_VARIABLES, network).into());
         }
-        <span class="kw">if </span>deployment.num_combined_constraints()<span class="question-mark">? </span>&gt; N::MAX_DEPLOYMENT_CONSTRAINTS {
+        <span class="kw">if </span>constraints &gt; N::MAX_DEPLOYMENT_CONSTRAINTS {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::constraint_limit_exceeded(name, N::MAX_DEPLOYMENT_CONSTRAINTS, network).into());
         }
+
+        <span class="comment">// Print deployment summary
+        </span><span class="macro">println!</span>(
+            <span class="string">"📊 Deployment Summary:\n      Total Variables:   {:&gt;10}\n      Total Constraints: {:&gt;10}"</span>,
+            variables.to_formatted_string(<span class="kw-2">&amp;</span>Locale::en),
+            constraints.to_formatted_string(<span class="kw-2">&amp;</span>Locale::en)
+        );
 
         <span class="kw">let </span>deployment_id = deployment.to_deployment_id()<span class="question-mark">?</span>;
 
