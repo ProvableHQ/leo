@@ -18,6 +18,7 @@ use super::*;
 use aleo_std::StorageMode;
 use dialoguer::{theme::ColorfulTheme, Confirm};
 use leo_retriever::NetworkName;
+use num_format::{Locale, ToFormattedString};
 use snarkvm::{
     circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
     ledger::query::Query as SnarkVMQuery,
@@ -121,13 +122,23 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         // Generate the deployment
         let deployment = package.deploy::<A>(None)?;
 
+        let variables = deployment.num_combined_variables()?;
+        let constraints = deployment.num_combined_constraints()?;
+
         // Check if the number of variables and constraints are within the limits.
-        if deployment.num_combined_variables()? > N::MAX_DEPLOYMENT_VARIABLES {
+        if variables > N::MAX_DEPLOYMENT_VARIABLES {
             return Err(CliError::variable_limit_exceeded(name, N::MAX_DEPLOYMENT_VARIABLES, network).into());
         }
-        if deployment.num_combined_constraints()? > N::MAX_DEPLOYMENT_CONSTRAINTS {
+        if constraints > N::MAX_DEPLOYMENT_CONSTRAINTS {
             return Err(CliError::constraint_limit_exceeded(name, N::MAX_DEPLOYMENT_CONSTRAINTS, network).into());
         }
+
+        // Print deployment summary
+        println!(
+            "📊 Deployment Summary:\n      Total Variables:   {:>10}\n      Total Constraints: {:>10}",
+            variables.to_formatted_string(&Locale::en),
+            constraints.to_formatted_string(&Locale::en)
+        );
 
         let deployment_id = deployment.to_deployment_id()?;
 
