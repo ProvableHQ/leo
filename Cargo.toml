@@ -45,7 +45,7 @@ members = [
 
 [workspace.dependencies.snarkvm]
 git = "https://github.com/AleoNet/snarkVM.git"
-rev = "be171ce"
+rev = "02994a1"
 
 [lib]
 path = "leo/lib.rs"
