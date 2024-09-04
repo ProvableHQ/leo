@@ -1633,6 +1633,7 @@ dependencies = [
  "leo-ast",
  "leo-compiler",
  "leo-errors",
+ "leo-linter",
  "leo-package",
  "leo-parser",
  "leo-retriever",
@@ -1658,6 +1659,10 @@ dependencies = [
  "ureq",
  "walkdir",
 ]
+
+[[package]]
+name = "leo-linter"
+version = "2.1.0"
 
 [[package]]
 name = "leo-package"
