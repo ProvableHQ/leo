@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(Parser, Debug)]
-#[clap(name = "leo", author = "The Aleo Team <hello@aleo.org>", version)]
+#[clap(name = "leo", author = "The Leo Team <leo@provable.com>", version)]
 pub struct CLI {
     #[clap(short, global = true, help = "Print additional information for debugging")]
     debug: bool,
