@@ -61,7 +61,7 @@ version = "1.0"
 features = [ "preserve_order" ]
 
 [dev-dependencies.serde_yaml]
-version = "0.8"
+version = "0.9"
 
 [features]
 default = [ ]
