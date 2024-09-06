@@ -137,7 +137,7 @@ default-features = false
 version = "0.6.4"
 
 [dependencies.reqwest]
-version = "0.12.5"
+version = "0.12.7"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
