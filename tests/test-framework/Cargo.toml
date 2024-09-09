@@ -27,7 +27,7 @@ path = "../../errors"
 version = "2.2.0"
 
 [dependencies.backtrace]
-version = "0.3.73"
+version = "0.3.74"
 
 [dependencies.indexmap]
 version = "1.9"
