@@ -269,7 +269,7 @@ create_messages!(
     failed_to_get_endpoint_from_env {
         args: (),
         msg: "Failed to get an endpoint.".to_string(),
-        help: Some("Either make sure you have a `.env` file in current project directory with an `ENDPOINT` variable set, or set the `--endpoint` flag when invoking the CLI command.\n Example: `ENDPOINT=https://api.explorer.aleo.org/v1` or `leo build --endpoint \"https://api.explorer.aleo.org/v1\"`.".to_string()),
+        help: Some("Either make sure you have a `.env` file in current project directory with an `ENDPOINT` variable set, or set the `--endpoint` flag when invoking the CLI command.\n Example: `ENDPOINT=https://api.explorer.provable.com/v1` or `leo build --endpoint \"https://api.explorer.provable.com/v1\"`.".to_string()),
     }
 
     @backtraced
