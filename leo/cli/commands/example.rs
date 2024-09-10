@@ -29,7 +29,7 @@ pub struct Example {
         short = 'e',
         long,
         help = "Endpoint to retrieve network state from.",
-        default_value = "https://api.explorer.aleo.org/v1"
+        default_value = "https://api.explorer.provable.com/v1"
     )]
     pub(crate) endpoint: String,
 }

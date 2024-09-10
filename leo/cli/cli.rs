@@ -315,7 +315,7 @@ mod test_helpers {
     use std::path::Path;
 
     const NETWORK: &str = "mainnet";
-    const ENDPOINT: &str = "https://api.explorer.aleo.org/v1";
+    const ENDPOINT: &str = "https://api.explorer.provable.com/v1";
 
     pub(crate) fn sample_nested_package(temp_dir: &Path) {
         let name = "nested";
