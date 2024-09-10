@@ -15,13 +15,50 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::cli::{commands::*, context::*, helpers::*};
-use clap::Parser;
+use clap::{Command as ClapCommand, Parser};
 use leo_errors::Result;
-use std::{path::PathBuf, process::exit};
+use self_update::version::bump_is_greater;
+use std::{path::PathBuf, process::exit, sync::OnceLock};
+
+static VERSION_UPDATE_VERSION_STRING: OnceLock<String> = OnceLock::new();
+static HELP_UPDATE_VERSION_STRING: OnceLock<String> = OnceLock::new();
+
+fn get_help() -> &'static str {
+    HELP_UPDATE_VERSION_STRING.get_or_init(|| {
+        let current_version = env!("CARGO_PKG_VERSION");
+        let mut help_output = String::new();
+
+        if let Ok(Some(latest_version)) = updater::Updater::read_latest_version() {
+            if let Ok(true) = bump_is_greater(current_version, &latest_version) {
+                if let Ok(Some(update_message)) = updater::Updater::get_cli_string() {
+                    help_output.push_str(&update_message);
+                    help_output.push('\n');
+                }
+            }
+        }
+        help_output
+    })
+}
+
+fn get_version() -> &'static str {
+    VERSION_UPDATE_VERSION_STRING.get_or_init(|| {
+        let current_version = env!("CARGO_PKG_VERSION");
+        let mut version_output = format!("{} \n", current_version);
+
+        if let Ok(Some(latest_version)) = updater::Updater::read_latest_version() {
+            if let Ok(true) = bump_is_greater(current_version, &latest_version) {
+                if let Ok(Some(update_message)) = updater::Updater::get_cli_string() {
+                    version_output.push_str(&update_message);
+                }
+            }
+        }
+        version_output
+    })
+}
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(Parser, Debug)]
-#[clap(name = "leo", author = "The Leo Team <leo@provable.com>", version)]
+#[clap(name = "leo", author = "The Leo Team <leo@provable.com>",  version = get_version(),  before_help = get_help())]
 pub struct CLI {
     #[clap(short, global = true, help = "Print additional information for debugging")]
     debug: bool,
@@ -124,6 +161,11 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         })?;
     }
 
+    //  Check for updates. If not forced, it checks once per day.
+    if let Ok(true) = updater::Updater::check_for_updates(false) {
+        let _ = updater::Updater::print_cli();
+    }
+
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
     let context = handle_error(Context::new(cli.path, cli.home, false));
@@ -143,6 +185,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Update { command } => command.try_execute(context),
     }
 }
+
 #[cfg(test)]
 mod tests {
     use crate::cli::{

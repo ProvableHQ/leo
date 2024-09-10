@@ -19,15 +19,26 @@ use leo_errors::{CliError, Result};
 use std::fmt::Write as _;
 
 use colored::Colorize;
+use dirs;
 use self_update::{backends::github, version::bump_is_greater, Status};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
 pub struct Updater;
 
 // TODO Add logic for users to easily select release versions.
 impl Updater {
     const LEO_BIN_NAME: &'static str = "leo";
+    const LEO_LAST_CHECK_FILE: &'static str = "leo_last_update_check";
     const LEO_REPO_NAME: &'static str = "leo";
     const LEO_REPO_OWNER: &'static str = "AleoHQ";
+    //  const LEO_UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60); // 24 hours
+    const LEO_UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(5);
+    // 24 hours
+    const LEO_VERSION_FILE: &'static str = "leo_latest_version";
 
     /// Show all available releases for `leo`.
     pub fn show_available_releases() -> Result<String> {
@@ -85,15 +96,115 @@ impl Updater {
         }
     }
 
-    /// Display the CLI message, if the Leo configuration allows.
-    pub fn print_cli() {
-        // If the auto update configuration is off, notify the user to update leo.
-        if let Ok(latest_version) = Self::update_available() {
-            let mut message = "🟢 A new version is available! Run".bold().green().to_string();
-            message += &" `leo update` ".bold().white();
-            message += &format!("to update to v{latest_version}.").bold().green();
-
-            tracing::info!("\n{}\n", message);
+    /// Read the latest version from the version file.
+    pub fn read_latest_version() -> Result<Option<String>, CliError> {
+        let version_file_path = Self::get_version_file_path()?;
+        match fs::read_to_string(version_file_path) {
+            Ok(version) => Ok(Some(version.trim().to_string())),
+            Err(_) => Ok(None),
         }
+    }
+
+    /// Generate the CLI message if a new version is available.
+    pub fn get_cli_string() -> Result<Option<String>, CliError> {
+        if let Some(latest_version) = Self::read_latest_version()? {
+            let colorized_message = format!(
+                "\n🟢 {} {} {}",
+                "A new version is available! Run".bold().green(),
+                "`leo update`".bold().white(),
+                format!("to update to v{}.", latest_version).bold().green()
+            );
+            Ok(Some(colorized_message))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// Display the CLI message if a new version is available.
+    pub fn print_cli() -> Result<(), CliError> {
+        if let Some(message) = Self::get_cli_string()? {
+            println!("{}", message);
+        }
+        Ok(())
+    }
+
+    /// Check for updates, respecting the update interval. (Currently once per day.)
+    /// If a new version is found, write it to a cache file and alert in every call.
+    pub fn check_for_updates(force: bool) -> Result<bool, CliError> {
+        // Get the cache directory and relevant file paths.
+        let cache_dir = Self::get_cache_dir()?;
+        let last_check_file = cache_dir.join(Self::LEO_LAST_CHECK_FILE);
+        let version_file = Self::get_version_file_path()?;
+
+        // Determine if we should check for updates.
+        let should_check = force || Self::should_check_for_updates(&last_check_file)?;
+
+        if should_check {
+            match Self::update_available() {
+                Ok(latest_version) => {
+                    // A new version is available
+                    Self::update_check_files(&cache_dir, &last_check_file, &version_file, &latest_version)?;
+                    Ok(true)
+                }
+                Err(_) => {
+                    // No new version available or error occurred
+                    // We'll treat both cases as "no update" for simplicity
+                    Self::update_check_files(&cache_dir, &last_check_file, &version_file, env!("CARGO_PKG_VERSION"))?;
+                    Ok(false)
+                }
+            }
+        } else {
+            // We're not checking for updates, so just return whether we have a stored version
+            Ok(version_file.exists())
+        }
+    }
+
+    fn update_check_files(
+        cache_dir: &Path,
+        last_check_file: &Path,
+        version_file: &Path,
+        latest_version: &str,
+    ) -> Result<(), CliError> {
+        fs::create_dir_all(cache_dir).map_err(CliError::cli_io_error)?;
+
+        let current_time = Self::get_current_time()?;
+
+        fs::write(last_check_file, &current_time.to_string()).map_err(CliError::cli_io_error)?;
+        fs::write(version_file, latest_version).map_err(CliError::cli_io_error)?;
+
+        Ok(())
+    }
+
+    fn should_check_for_updates(last_check_file: &Path) -> Result<bool, CliError> {
+        match fs::read_to_string(last_check_file) {
+            Ok(contents) => {
+                let last_check = contents
+                    .parse::<u64>()
+                    .map_err(|e| CliError::cli_runtime_error(format!("Failed to parse last check time: {}", e)))?;
+                let current_time = Self::get_current_time()?;
+
+                Ok(current_time.saturating_sub(last_check) > Self::LEO_UPDATE_CHECK_INTERVAL.as_secs())
+            }
+            Err(_) => Ok(true),
+        }
+    }
+
+    fn get_current_time() -> Result<u64, CliError> {
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_err(|e| CliError::cli_runtime_error(format!("System time error: {}", e)))
+            .map(|duration| duration.as_secs())
+    }
+
+    /// Get the path to the file storing the latest version information.
+    fn get_version_file_path() -> Result<PathBuf, CliError> {
+        Self::get_cache_dir().map(|dir| dir.join(Self::LEO_VERSION_FILE))
+    }
+
+    /// Get the cache directory for Leo.
+    fn get_cache_dir() -> Result<PathBuf, CliError> {
+        dirs::cache_dir()
+            .ok_or_else(|| CliError::cli_runtime_error("Failed to get cache directory".to_string()))
+            .map(|dir| dir.join("leo"))
     }
 }
