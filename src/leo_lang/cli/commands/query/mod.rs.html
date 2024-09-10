@@ -271,7 +271,7 @@
         QueryCommands::Stateroot { command } =&gt; (<span class="prelude-val">None</span>, command.apply(context, ())<span class="question-mark">?</span>),
         QueryCommands::Committee { command } =&gt; (<span class="prelude-val">None</span>, command.apply(context, ())<span class="question-mark">?</span>),
         QueryCommands::Mempool { command } =&gt; {
-            <span class="kw">if </span>endpoint == <span class="string">"https://api.explorer.aleo.org/v1" </span>{
+            <span class="kw">if </span>endpoint == <span class="string">"https://api.explorer.provable.com/v1" </span>{
                 <span class="macro">tracing::warn!</span>(
                     <span class="string">"⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                 </span>);
@@ -279,7 +279,7 @@
             (<span class="prelude-val">None</span>, command.apply(context, ())<span class="question-mark">?</span>)
         }
         QueryCommands::Peers { command } =&gt; {
-            <span class="kw">if </span>endpoint == <span class="string">"https://api.explorer.aleo.org/v1" </span>{
+            <span class="kw">if </span>endpoint == <span class="string">"https://api.explorer.provable.com/v1" </span>{
                 <span class="macro">tracing::warn!</span>(
                     <span class="string">"⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                 </span>);
