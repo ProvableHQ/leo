@@ -18,7 +18,6 @@ use leo_lang::cli::*;
 use leo_span::symbol::create_session_if_not_set_then;
 
 use clap::Parser;
-use std::env;
 
 fn set_panic_hook() {
     #[cfg(not(debug_assertions))]
