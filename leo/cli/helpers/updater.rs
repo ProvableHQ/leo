@@ -153,8 +153,17 @@ impl Updater {
                 }
             }
         } else {
-            // We're not checking for updates, so just return whether we have a stored version
-            Ok(version_file.exists())
+            if version_file.exists() {
+                if let Ok(stored_version) = fs::read_to_string(&version_file) {
+                    let current_version = env!("CARGO_PKG_VERSION");
+                    Ok(bump_is_greater(current_version, &stored_version.trim()).map_err(CliError::self_update_error)?)
+                } else {
+                    // If we can't read the file, assume no update is available
+                    Ok(false)
+                }
+            } else {
+                Ok(false)
+            }
         }
     }
 
