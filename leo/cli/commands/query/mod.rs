@@ -99,7 +99,7 @@ fn handle_query<N: Network>(
         QueryCommands::Stateroot { command } => (None, command.apply(context, ())?),
         QueryCommands::Committee { command } => (None, command.apply(context, ())?),
         QueryCommands::Mempool { command } => {
-            if endpoint == "https://api.explorer.aleo.org/v1" {
+            if endpoint == "https://api.explorer.provable.com/v1" {
                 tracing::warn!(
                     "⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                 );
@@ -107,7 +107,7 @@ fn handle_query<N: Network>(
             (None, command.apply(context, ())?)
         }
         QueryCommands::Peers { command } => {
-            if endpoint == "https://api.explorer.aleo.org/v1" {
+            if endpoint == "https://api.explorer.provable.com/v1" {
                 tracing::warn!(
                     "⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                 );

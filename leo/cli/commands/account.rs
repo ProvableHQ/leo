@@ -53,7 +53,7 @@ pub enum Account {
             short = 'e',
             long,
             help = "Endpoint to retrieve network state from.",
-            default_value = "https://api.explorer.aleo.org/v1"
+            default_value = "https://api.explorer.provable.com/v1"
         )]
         endpoint: String,
     },
@@ -73,7 +73,7 @@ pub enum Account {
             short = 'e',
             long,
             help = "Endpoint to retrieve network state from.",
-            default_value = "https://api.explorer.aleo.org/v1"
+            default_value = "https://api.explorer.provable.com/v1"
         )]
         endpoint: String,
     },
