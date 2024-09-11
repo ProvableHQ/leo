@@ -152,18 +152,16 @@ impl Updater {
                     Ok(false)
                 }
             }
-        } else {
-            if version_file.exists() {
-                if let Ok(stored_version) = fs::read_to_string(&version_file) {
-                    let current_version = env!("CARGO_PKG_VERSION");
-                    Ok(bump_is_greater(current_version, &stored_version.trim()).map_err(CliError::self_update_error)?)
-                } else {
-                    // If we can't read the file, assume no update is available
-                    Ok(false)
-                }
+        } else if version_file.exists() {
+            if let Ok(stored_version) = fs::read_to_string(&version_file) {
+                let current_version = env!("CARGO_PKG_VERSION");
+                Ok(bump_is_greater(current_version, stored_version.trim()).map_err(CliError::self_update_error)?)
             } else {
+                // If we can't read the file, assume no update is available
                 Ok(false)
             }
+        } else {
+            Ok(false)
         }
     }
 
@@ -184,7 +182,7 @@ impl Updater {
         let current_time = Self::get_current_time()?;
 
         // Write the current time to the last check file.
-        fs::write(last_check_file, &current_time.to_string()).map_err(CliError::cli_io_error)?;
+        fs::write(last_check_file, current_time.to_string()).map_err(CliError::cli_io_error)?;
 
         // Write the latest version to the version file.
         fs::write(version_file, latest_version).map_err(CliError::cli_io_error)?;
