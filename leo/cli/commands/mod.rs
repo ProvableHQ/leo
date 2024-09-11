@@ -125,7 +125,7 @@ pub struct BuildOptions {
     #[clap(
         long,
         help = "Endpoint to retrieve on-chain dependencies from.",
-        default_value = "http://api.explorer.aleo.org/v1"
+        default_value = "http://api.explorer.provable.com/v1"
     )]
     pub endpoint: String,
     #[clap(long, help = "Does not recursively compile dependencies.")]

@@ -22,7 +22,7 @@ use super::*;
 pub struct Deploy {
     #[clap(long, help = "Custom priority fee in microcredits", default_value = "1000000")]
     pub(crate) priority_fee: String,
-    #[clap(long, help = "Custom query endpoint", default_value = "http://api.explorer.aleo.org/v1")]
+    #[clap(long, help = "Custom query endpoint", default_value = "http://api.explorer.provable.com/v1")]
     pub(crate) endpoint: String,
     #[clap(long, help = "Custom network", default_value = "testnet3")]
     pub(crate) network: String,
