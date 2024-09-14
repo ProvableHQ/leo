@@ -282,40 +282,47 @@ fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, 
     // Get the transaction id.
     let transaction_id = transaction.id();
 
-    // Send the deployment request to the local development node.
-    return match ureq::post(endpoint).send_json(&transaction) {
-        Ok(id) => {
+    // Send the deployment request to the endpoint.
+    let response = ureq::post(endpoint)
+        .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")
+        .send_json(&transaction)
+        .map_err(|err| CliError::broadcast_error(err.to_string()))?;
+    match response.status() {
+        200 => {
             // Remove the quotes from the response.
             let _response_string =
-                id.into_string().map_err(CliError::string_parse_error)?.trim_matches('\"').to_string();
-
+                response.into_string().map_err(CliError::string_parse_error)?.trim_matches('\"').to_string();
             match transaction {
                 Transaction::Deploy(..) => {
                     println!(
                         "⌛ Deployment {transaction_id} ('{}') has been broadcast to {}.\n",
                         operation.bold(),
                         endpoint
-                    )
+                    );
                 }
                 Transaction::Execute(..) => {
                     println!(
                         "⌛ Execution {transaction_id} ('{}') has been broadcast to {}.\n",
                         operation.bold(),
                         endpoint
-                    )
+                    );
                 }
                 Transaction::Fee(..) => {
-                    println!("❌ Failed to broadcast fee '{}' to the {}.\n", operation.bold(), endpoint)
+                    println!("❌ Failed to broadcast fee '{}' to the {}.\n", operation.bold(), endpoint);
                 }
             }
             Ok(())
         }
-        Err(error) => {
-            let error_message = match error {
-                ureq::Error::Status(code, response) => {
-                    format!("(status code {code}: {:?})", response.into_string().map_err(CliError::string_parse_error)?)
-                }
-                ureq::Error::Transport(err) => format!("({err})"),
+        301 => {
+            let msg =
+                "⚠️ The endpoint has been permanently moved. Try using `https://api.explorer.provable.com/v1` instead.";
+            Err(CliError::broadcast_error(msg).into())
+        }
+        _ => {
+            let code = response.status();
+            let error_message = match response.into_string() {
+                Ok(response) => format!("(status code {code}: {:?})", response),
+                Err(err) => format!("({err})"),
             };
 
             let msg = match transaction {
@@ -337,5 +344,5 @@ fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, 
 
             Err(CliError::broadcast_error(msg).into())
         }
-    };
+    }
 }

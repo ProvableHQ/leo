@@ -200,4 +200,11 @@ create_messages!(
         msg: format!("Invalid bound: {bound}."),
         help: Some("Bound must be a valid u32.".to_string()),
     }
+
+    @backtraced
+    endpoint_moved_error {
+        args: (),
+        msg: format!("The endpoint has been permanently moved to a different location."),
+        help: Some("Try using `https://api.explorer.provable.com/v1` instead.".to_string()),
+    }
 );

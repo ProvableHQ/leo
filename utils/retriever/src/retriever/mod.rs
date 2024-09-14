@@ -522,10 +522,10 @@ pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
         .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
-    if response.status() == 200 {
-        Ok(response.into_string().unwrap().replace("\\n", "\n").replace('\"', ""))
-    } else {
-        Err(UtilError::network_error(url, response.status(), Default::default()))
+    match response.status() {
+        200 => Ok(response.into_string().unwrap().replace("\\n", "\n").replace('\"', "")),
+        301 => Err(UtilError::endpoint_moved_error()),
+        _ => Err(UtilError::network_error(url, response.status(), Default::default())),
     }
 }
 
