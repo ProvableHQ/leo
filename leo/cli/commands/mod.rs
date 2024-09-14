@@ -283,7 +283,10 @@ fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, 
     let transaction_id = transaction.id();
 
     // Send the deployment request to the endpoint.
-    let response = ureq::post(endpoint)
+    let response = ureq::AgentBuilder::new()
+        .redirects(0)
+        .build()
+        .post(endpoint)
         .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")
         .send_json(&transaction)
         .map_err(|err| CliError::broadcast_error(err.to_string()))?;
