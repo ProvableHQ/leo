@@ -203,8 +203,8 @@ create_messages!(
 
     @backtraced
     endpoint_moved_error {
-        args: (),
-        msg: format!("The endpoint has been permanently moved to a different location."),
-        help: Some("Try using `https://api.explorer.provable.com/v1` instead.".to_string()),
+        args: (endpoint: impl Display),
+        msg: format!("The endpoint `{endpoint}` has been permanently moved."),
+        help: Some("Try using `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag.".to_string()),
     }
 );

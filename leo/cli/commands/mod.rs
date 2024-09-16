@@ -317,8 +317,9 @@ fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, 
             Ok(())
         }
         301 => {
-            let msg =
-                "⚠️ The endpoint has been permanently moved. Try using `https://api.explorer.provable.com/v1` instead.";
+            let msg = format!(
+                "⚠️ The endpoint `{endpoint}` has been permanently moved. Try using `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag."
+            );
             Err(CliError::broadcast_error(msg).into())
         }
         _ => {

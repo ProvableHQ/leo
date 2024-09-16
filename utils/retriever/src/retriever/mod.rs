@@ -528,7 +528,7 @@ pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
     match response.status() {
         200 => Ok(response.into_string().unwrap().replace("\\n", "\n").replace('\"', "")),
-        301 => Err(UtilError::endpoint_moved_error()),
+        301 => Err(UtilError::endpoint_moved_error(url)),
         _ => Err(UtilError::network_error(url, response.status(), Default::default())),
     }
 }
