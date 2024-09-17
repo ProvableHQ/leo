@@ -339,6 +339,17 @@
 <a href="#339" id="339">339</a>
 <a href="#340" id="340">340</a>
 <a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -623,40 +634,51 @@
     <span class="comment">// Get the transaction id.
     </span><span class="kw">let </span>transaction_id = transaction.id();
 
-    <span class="comment">// Send the deployment request to the local development node.
-    </span><span class="kw">return match </span>ureq::post(endpoint).send_json(<span class="kw-2">&amp;</span>transaction) {
-        <span class="prelude-val">Ok</span>(id) =&gt; {
+    <span class="comment">// Send the deployment request to the endpoint.
+    </span><span class="kw">let </span>response = ureq::AgentBuilder::new()
+        .redirects(<span class="number">0</span>)
+        .build()
+        .post(endpoint)
+        .set(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"X-Aleo-Leo-{}"</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>)), <span class="string">"true"</span>)
+        .send_json(<span class="kw-2">&amp;</span>transaction)
+        .map_err(|err| CliError::broadcast_error(err.to_string()))<span class="question-mark">?</span>;
+    <span class="kw">match </span>response.status() {
+        <span class="number">200 </span>=&gt; {
             <span class="comment">// Remove the quotes from the response.
             </span><span class="kw">let </span>_response_string =
-                id.into_string().map_err(CliError::string_parse_error)<span class="question-mark">?</span>.trim_matches(<span class="string">'\"'</span>).to_string();
-
+                response.into_string().map_err(CliError::string_parse_error)<span class="question-mark">?</span>.trim_matches(<span class="string">'\"'</span>).to_string();
             <span class="kw">match </span>transaction {
                 Transaction::Deploy(..) =&gt; {
                     <span class="macro">println!</span>(
                         <span class="string">"⌛ Deployment {transaction_id} ('{}') has been broadcast to {}.\n"</span>,
                         operation.bold(),
                         endpoint
-                    )
+                    );
                 }
                 Transaction::Execute(..) =&gt; {
                     <span class="macro">println!</span>(
                         <span class="string">"⌛ Execution {transaction_id} ('{}') has been broadcast to {}.\n"</span>,
                         operation.bold(),
                         endpoint
-                    )
+                    );
                 }
                 Transaction::Fee(..) =&gt; {
-                    <span class="macro">println!</span>(<span class="string">"❌ Failed to broadcast fee '{}' to the {}.\n"</span>, operation.bold(), endpoint)
+                    <span class="macro">println!</span>(<span class="string">"❌ Failed to broadcast fee '{}' to the {}.\n"</span>, operation.bold(), endpoint);
                 }
             }
             <span class="prelude-val">Ok</span>(())
         }
-        <span class="prelude-val">Err</span>(error) =&gt; {
-            <span class="kw">let </span>error_message = <span class="kw">match </span>error {
-                ureq::Error::Status(code, response) =&gt; {
-                    <span class="macro">format!</span>(<span class="string">"(status code {code}: {:?})"</span>, response.into_string().map_err(CliError::string_parse_error)<span class="question-mark">?</span>)
-                }
-                ureq::Error::Transport(err) =&gt; <span class="macro">format!</span>(<span class="string">"({err})"</span>),
+        <span class="number">301 </span>=&gt; {
+            <span class="kw">let </span>msg = <span class="macro">format!</span>(
+                <span class="string">"⚠️ The endpoint `{endpoint}` has been permanently moved. Try using `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag."
+            </span>);
+            <span class="prelude-val">Err</span>(CliError::broadcast_error(msg).into())
+        }
+        <span class="kw">_ </span>=&gt; {
+            <span class="kw">let </span>code = response.status();
+            <span class="kw">let </span>error_message = <span class="kw">match </span>response.into_string() {
+                <span class="prelude-val">Ok</span>(response) =&gt; <span class="macro">format!</span>(<span class="string">"(status code {code}: {:?})"</span>, response),
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">format!</span>(<span class="string">"({err})"</span>),
             };
 
             <span class="kw">let </span>msg = <span class="kw">match </span>transaction {
@@ -678,6 +700,6 @@
 
             <span class="prelude-val">Err</span>(CliError::broadcast_error(msg).into())
         }
-    };
+    }
 }
 </code></pre></div></section></main></body></html>

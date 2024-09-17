@@ -201,6 +201,13 @@
 <a href="#201" id="201">201</a>
 <a href="#202" id="202">202</a>
 <a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -402,6 +409,13 @@
         args: (bound: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Invalid bound: {bound}."</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"Bound must be a valid u32."</span>.to_string()),
+    }
+
+    @backtraced
+    endpoint_moved_error {
+        args: (endpoint: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"The endpoint `{endpoint}` has been permanently moved."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Try using `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag."</span>.to_string()),
     }
 );
 </code></pre></div></section></main></body></html>

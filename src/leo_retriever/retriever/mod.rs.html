@@ -536,6 +536,10 @@
 <a href="#536" id="536">536</a>
 <a href="#537" id="537">537</a>
 <a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -571,6 +575,7 @@
     path::{Path, PathBuf},
     str::FromStr,
 };
+<span class="kw">use </span>ureq::AgentBuilder;
 
 <span class="comment">// Retriever is responsible for retrieving external programs
 </span><span class="kw">pub struct </span>Retriever&lt;N: Network&gt; {
@@ -1056,14 +1061,17 @@
 
 <span class="comment">// Fetch the given endpoint url and return the sanitized response.
 </span><span class="kw">pub fn </span>fetch_from_network(url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String, UtilError&gt; {
-    <span class="kw">let </span>response = ureq::get(url)
+    <span class="kw">let </span>response = AgentBuilder::new()
+        .redirects(<span class="number">0</span>)
+        .build()
+        .get(url)
         .set(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"X-Aleo-Leo-{}"</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>)), <span class="string">"true"</span>)
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))<span class="question-mark">?</span>;
-    <span class="kw">if </span>response.status() == <span class="number">200 </span>{
-        <span class="prelude-val">Ok</span>(response.into_string().unwrap().replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>).replace(<span class="string">'\"'</span>, <span class="string">""</span>))
-    } <span class="kw">else </span>{
-        <span class="prelude-val">Err</span>(UtilError::network_error(url, response.status(), Default::default()))
+    <span class="kw">match </span>response.status() {
+        <span class="number">200 </span>=&gt; <span class="prelude-val">Ok</span>(response.into_string().unwrap().replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>).replace(<span class="string">'\"'</span>, <span class="string">""</span>)),
+        <span class="number">301 </span>=&gt; <span class="prelude-val">Err</span>(UtilError::endpoint_moved_error(url)),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(UtilError::network_error(url, response.status(), Default::default())),
     }
 }
 
