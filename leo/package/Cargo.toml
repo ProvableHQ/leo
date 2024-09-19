@@ -1,6 +1,6 @@
 [package]
 name = "leo-package"
-version = "2.2.0"
+version = "2.3.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Package parser for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -20,11 +20,11 @@ rust-version = "1.69"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-retriever]
 path = "../../utils/retriever"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.snarkvm]
 workspace = true

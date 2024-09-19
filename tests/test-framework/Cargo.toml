@@ -1,6 +1,6 @@
 [package]
 name = "leo-test-framework"
-version = "2.2.0"
+version = "2.3.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The testing framework for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -24,7 +24,7 @@ harness = false
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.backtrace]
 version = "0.3.74"

@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "2.2.0"
+version = "2.3.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The Leo programming language"
 homepage = "https://leo-lang.org"
@@ -66,31 +66,31 @@ ureq = "2.10.1"
 
 [dependencies.leo-ast]
 path = "./compiler/ast"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-compiler]
 path = "./compiler/compiler"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-errors]
 path = "./errors"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-package]
 path = "./leo/package"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-parser]
 path = "./compiler/parser"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-span]
 path = "./compiler/span"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-retriever]
 path = "./utils/retriever"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.aleo-std]
 version = "0.1.24"

@@ -1,6 +1,6 @@
 [package]
 name = "leo-ast"
-version = "2.2.0"
+version = "2.3.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Abstract syntax tree (AST) for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -23,11 +23,11 @@ workspace = true
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-span]
 path = "../span"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.indexmap]
 version = "1.9"

@@ -1,6 +1,6 @@
 [package]
 name = "leo-retriever"
-version = "2.2.0"
+version = "2.3.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "A retriever for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -22,23 +22,23 @@ rust-version = "1.69"
 workspace = true
 
 [dependencies.leo-ast]
-version = "2.2.0"
+version = "2.3.0"
 path = "../../compiler/ast"
 
 [dependencies.leo-disassembler]
-version = "2.2.0"
+version = "2.3.0"
 path = "../disassembler"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-passes]
-version = "2.2.0"
+version = "2.3.0"
 path = "../../compiler/passes"
 
 [dependencies.leo-span]
-version = "2.2.0"
+version = "2.3.0"
 path = "../../compiler/span"
 
 [dependencies.aleo-std]

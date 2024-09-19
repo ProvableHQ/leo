@@ -1,6 +1,6 @@
 [package]
 name = "leo-compiler"
-version = "2.2.0"
+version = "2.3.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Compiler for Leo programming language"
 homepage = "https://leo-lang.org"
@@ -20,23 +20,23 @@ rust-version = "1.69"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-passes]
 path = "../passes"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-parser]
 path = "../parser"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.leo-span]
 path = "../span"
-version = "2.2.0"
+version = "2.3.0"
 
 [dependencies.sha2]
 version = "0.10"
