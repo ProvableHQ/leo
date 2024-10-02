@@ -24,7 +24,7 @@ use snarkvm::{
 use std::collections::HashMap;
 
 use crate::cli::query::QueryCommands;
-use dialoguer::{theme::ColorfulTheme, Confirm};
+use dialoguer::{Confirm, theme::ColorfulTheme};
 use leo_retriever::NetworkName;
 use snarkvm::{
     circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
@@ -32,19 +32,19 @@ use snarkvm::{
     ledger::Transaction::Execute as ExecuteTransaction,
     package::Package as SnarkVMPackage,
     prelude::{
-        execution_cost,
-        query::Query as SnarkVMQuery,
-        store::{
-            helpers::memory::{BlockMemory, ConsensusMemory},
-            ConsensusStore,
-        },
         Identifier,
         Locator,
         Process,
         Program as SnarkVMProgram,
         ProgramID,
-        Value,
         VM,
+        Value,
+        execution_cost,
+        query::Query as SnarkVMQuery,
+        store::{
+            ConsensusStore,
+            helpers::memory::{BlockMemory, ConsensusMemory},
+        },
     },
 };
 

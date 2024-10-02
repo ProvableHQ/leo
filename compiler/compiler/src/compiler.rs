@@ -22,10 +22,10 @@ use crate::CompilerOptions;
 
 pub use leo_ast::Ast;
 use leo_ast::{NodeBuilder, Program, Stub};
-use leo_errors::{emitter::Handler, CompilerError, Result};
+use leo_errors::{CompilerError, Result, emitter::Handler};
 pub use leo_passes::SymbolTable;
 use leo_passes::*;
-use leo_span::{source_map::FileName, symbol::with_session_globals, Symbol};
+use leo_span::{Symbol, source_map::FileName, symbol::with_session_globals};
 
 use snarkvm::prelude::Network;
 

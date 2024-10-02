@@ -55,9 +55,9 @@ pub use update::Update;
 
 use super::*;
 use crate::cli::helpers::context::*;
-use leo_errors::{emitter::Handler, CliError, PackageError, Result};
+use leo_errors::{CliError, PackageError, Result, emitter::Handler};
 use leo_package::{build::*, outputs::OutputsDirectory, package::*};
-use snarkvm::prelude::{block::Transaction, Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey};
+use snarkvm::prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey, block::Transaction};
 
 use clap::Parser;
 use colored::Colorize;

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{simple_node_impl, Identifier, Node, NodeID};
+use crate::{Identifier, Node, NodeID, simple_node_impl};
 
 use leo_span::Span;
 

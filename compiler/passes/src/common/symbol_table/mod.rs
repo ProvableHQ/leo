@@ -23,7 +23,7 @@ pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function, Location};
+use leo_ast::{Composite, Function, Location, normalize_json_value, remove_key_from_json};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -273,7 +273,7 @@ impl SymbolTable {
 mod tests {
     use super::*;
     use leo_ast::{Identifier, Type, Variant};
-    use leo_span::{symbol::create_session_if_not_set_then, Symbol};
+    use leo_span::{Symbol, symbol::create_session_if_not_set_then};
     #[test]
     fn serialization_test() {
         create_session_if_not_set_then(|_| {

@@ -32,12 +32,12 @@ use leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
 use leo_span::Symbol;
 
 use crate::{
-    constant_propagation_table::ConstantPropagationTable,
     Clusivity,
     LoopBound,
     RangeIterator,
     SymbolTable,
     TypeTable,
+    constant_propagation_table::ConstantPropagationTable,
 };
 
 pub struct Unroller<'a> {

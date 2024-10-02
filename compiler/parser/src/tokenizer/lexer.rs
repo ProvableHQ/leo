@@ -21,7 +21,7 @@ use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
-    iter::{from_fn, Peekable},
+    iter::{Peekable, from_fn},
 };
 
 /// Eat an identifier, that is, a string matching '[a-zA-Z][a-zA-Z\d_]*', if any.

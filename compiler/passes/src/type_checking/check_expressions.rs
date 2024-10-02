@@ -17,8 +17,8 @@
 use crate::{TypeChecker, VariableSymbol};
 
 use leo_ast::*;
-use leo_errors::{emitter::Handler, TypeCheckerError};
-use leo_span::{sym, Span, Symbol};
+use leo_errors::{TypeCheckerError, emitter::Handler};
+use leo_span::{Span, Symbol, sym};
 
 use snarkvm::console::network::Network;
 

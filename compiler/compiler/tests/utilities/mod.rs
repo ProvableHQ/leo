@@ -22,13 +22,13 @@ pub use output::*;
 
 use leo_compiler::{BuildOptions, Compiler, CompilerOptions};
 use leo_errors::{
-    emitter::{Buffer, Emitter, Handler},
     LeoError,
     LeoWarning,
+    emitter::{Buffer, Emitter, Handler},
 };
 use leo_package::root::env::Env;
 use leo_span::source_map::FileName;
-use leo_test_framework::{test::TestConfig, Test};
+use leo_test_framework::{Test, test::TestConfig};
 
 use snarkvm::prelude::*;
 

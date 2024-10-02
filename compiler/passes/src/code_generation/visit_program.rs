@@ -17,7 +17,7 @@
 use crate::CodeGenerator;
 
 use leo_ast::{Composite, Function, Location, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
-use leo_span::{sym, Symbol};
+use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
 use itertools::Itertools;

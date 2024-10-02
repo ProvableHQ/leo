@@ -16,6 +16,9 @@
 
 mod utilities;
 use utilities::{
+    BufferEmitter,
+    CompileOutput,
+    CurrentNetwork,
     compile_and_process,
     get_build_options,
     get_cwd_option,
@@ -23,19 +26,16 @@ use utilities::{
     hash_content,
     hash_symbol_tables,
     parse_program,
-    BufferEmitter,
-    CompileOutput,
-    CurrentNetwork,
 };
 
 use leo_compiler::{CompilerOptions, OutputOptions};
 use leo_disassembler::disassemble_from_str;
-use leo_errors::{emitter::Handler, LeoError};
+use leo_errors::{LeoError, emitter::Handler};
 use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
-    runner::{Namespace, ParseType, Runner},
-    Test,
     PROGRAM_DELIMITER,
+    Test,
+    runner::{Namespace, ParseType, Runner},
 };
 
 use snarkvm::console::prelude::*;

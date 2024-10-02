@@ -31,7 +31,7 @@ use crate::{
     Type,
     Variant,
 };
-use leo_span::{sym, Span, Symbol};
+use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};

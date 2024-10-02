@@ -20,7 +20,7 @@ fi
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 # Have the bank issue 100 tokens to the user.
@@ -71,7 +71,7 @@ leo run issue aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t 10
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 # Have the user deposit 50 tokens into the bank.
@@ -166,7 +166,7 @@ echo "
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 # Have the bank withdraw all of the user's tokens with compound interest over 15 periods at 12.34%.

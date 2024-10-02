@@ -15,17 +15,17 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
     CallGraph,
     StructGraph,
     SymbolTable,
     TypeTable,
     VariableSymbol,
     VariableType,
+    type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
 };
 
 use leo_ast::*;
-use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
+use leo_errors::{TypeCheckerError, TypeCheckerWarning, emitter::Handler};
 use leo_span::{Span, Symbol};
 
 use snarkvm::console::network::Network;

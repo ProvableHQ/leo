@@ -18,16 +18,16 @@ use leo_errors::Result;
 use leo_span::{Span, Symbol};
 use snarkvm::console::program::Identifier as IdentifierCore;
 
-use crate::{simple_node_impl, Node, NodeID};
+use crate::{Node, NodeID, simple_node_impl};
 use serde::{
-    de::{
-        Visitor,
-        {self},
-    },
     Deserialize,
     Deserializer,
     Serialize,
     Serializer,
+    de::{
+        Visitor,
+        {self},
+    },
 };
 use snarkvm::prelude::Network;
 use std::{

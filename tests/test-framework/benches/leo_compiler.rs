@@ -22,7 +22,7 @@ use leo_errors::emitter::{Emitter, Handler};
 use leo_span::{source_map::FileName, symbol::SESSION_GLOBALS};
 use leo_test_framework::get_benches;
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use std::{
     path::PathBuf,
     time::{Duration, Instant},

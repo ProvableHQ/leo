@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{access::*, Node, NodeID};
+use crate::{Node, NodeID, access::*};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};

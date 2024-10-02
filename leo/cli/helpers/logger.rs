@@ -20,9 +20,9 @@ use colored::Colorize;
 use std::{fmt, sync::Once};
 use tracing::{event::Event, subscriber::Subscriber};
 use tracing_subscriber::{
-    fmt::{format::*, time::*, FmtContext, FormattedFields},
-    registry::LookupSpan,
     FmtSubscriber,
+    fmt::{FmtContext, FormattedFields, format::*, time::*},
+    registry::LookupSpan,
 };
 
 static START: Once = Once::new();

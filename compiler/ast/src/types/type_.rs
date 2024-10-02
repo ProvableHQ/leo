@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{common, ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, TupleType};
+use crate::{ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, TupleType, common};
 
 use itertools::Itertools;
 use leo_span::Symbol;

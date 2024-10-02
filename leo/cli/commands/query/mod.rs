@@ -42,7 +42,7 @@ mod utils;
 use utils::*;
 
 use leo_errors::UtilError;
-use leo_retriever::{fetch_from_network, verify_valid_program, NetworkName};
+use leo_retriever::{NetworkName, fetch_from_network, verify_valid_program};
 
 ///  Query live data from the Aleo network.
 #[derive(Parser, Debug)]
