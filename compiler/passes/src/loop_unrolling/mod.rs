@@ -29,7 +29,7 @@ pub mod unroll_statement;
 use crate::{Pass, SymbolTable, TypeTable};
 
 use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
-use leo_errors::{emitter::Handler, Result};
+use leo_errors::{Result, emitter::Handler};
 
 impl<'a> Pass for Unroller<'a> {
     type Input = (Ast, &'a Handler, &'a NodeBuilder, SymbolTable, &'a TypeTable);

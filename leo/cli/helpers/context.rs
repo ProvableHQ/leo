@@ -16,7 +16,7 @@
 
 use aleo_std;
 use leo_errors::{CliError, PackageError, Result};
-use leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
+use leo_package::build::{BUILD_DIRECTORY_NAME, BuildDirectory};
 use leo_retriever::LockFileEntry;
 
 use snarkvm::file::Manifest;

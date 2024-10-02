@@ -19,7 +19,7 @@ use leo_ast::{Expression::Literal, Type::Integer, *};
 use leo_errors::loop_unroller::LoopUnrollerError;
 use leo_span::{Span, Symbol};
 
-use crate::{unroller::Unroller, VariableSymbol, VariableType};
+use crate::{VariableSymbol, VariableType, unroller::Unroller};
 
 impl StatementReconstructor for Unroller<'_> {
     fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {

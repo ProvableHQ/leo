@@ -19,11 +19,11 @@
 //! This module contains the [`parse()`] function which calls the underlying [`tokenize()`]
 //! method to create a new program AST.
 
-use crate::{tokenizer::*, Token};
+use crate::{Token, tokenizer::*};
 
 use leo_ast::*;
-use leo_errors::{emitter::Handler, Result};
-use leo_span::{span::BytePos, Span};
+use leo_errors::{Result, emitter::Handler};
+use leo_span::{Span, span::BytePos};
 
 use snarkvm::prelude::Network;
 

@@ -42,7 +42,7 @@
 #![forbid(unsafe_code)]
 
 use abnf::types::{Node, Rule};
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use std::collections::{HashMap, HashSet};
 
 /// Processor's scope. Used when code block or definition starts or ends.

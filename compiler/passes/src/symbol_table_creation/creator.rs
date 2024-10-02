@@ -16,7 +16,7 @@
 
 use indexmap::IndexSet;
 use leo_ast::*;
-use leo_errors::{emitter::Handler, AstError, LeoError};
+use leo_errors::{AstError, LeoError, emitter::Handler};
 use leo_span::Symbol;
 
 use crate::{SymbolTable, VariableSymbol, VariableType};

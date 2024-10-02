@@ -20,7 +20,7 @@ pub use creator::*;
 use crate::{Pass, SymbolTable};
 
 use leo_ast::{Ast, ProgramVisitor};
-use leo_errors::{emitter::Handler, Result};
+use leo_errors::{Result, emitter::Handler};
 
 impl<'a> Pass for SymbolTableCreator<'a> {
     type Input = (&'a Ast, &'a Handler);

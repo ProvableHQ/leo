@@ -18,7 +18,7 @@
 #![recursion_limit = "256"]
 
 pub mod symbol;
-pub use symbol::{sym, Symbol};
+pub use symbol::{Symbol, sym};
 
 pub mod span;
 pub use span::Span;

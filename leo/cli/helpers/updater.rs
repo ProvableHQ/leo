@@ -19,7 +19,7 @@ use leo_errors::{CliError, Result};
 use std::fmt::Write as _;
 
 use colored::Colorize;
-use self_update::{backends::github, version::bump_is_greater, Status};
+use self_update::{Status, backends::github, version::bump_is_greater};
 
 pub struct Updater;
 

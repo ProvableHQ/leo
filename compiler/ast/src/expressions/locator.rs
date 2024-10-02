@@ -16,7 +16,7 @@
 
 use leo_span::{Span, Symbol};
 
-use crate::{simple_node_impl, Node, NodeID, ProgramId};
+use crate::{Node, NodeID, ProgramId, simple_node_impl};
 use serde::{Deserialize, Serialize};
 use std::{fmt, hash::Hash};
 

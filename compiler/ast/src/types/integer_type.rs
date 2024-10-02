@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_span::{sym, Symbol};
+use leo_span::{Symbol, sym};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

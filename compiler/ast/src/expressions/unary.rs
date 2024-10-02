@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_span::{sym, Symbol};
+use leo_span::{Symbol, sym};
 
 /// A unary operator for a unary expression.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -16,7 +16,7 @@
 
 use super::*;
 use aleo_std::StorageMode;
-use dialoguer::{theme::ColorfulTheme, Confirm};
+use dialoguer::{Confirm, theme::ColorfulTheme};
 use leo_retriever::NetworkName;
 use num_format::{Locale, ToFormattedString};
 use snarkvm::{
@@ -24,13 +24,13 @@ use snarkvm::{
     ledger::query::Query as SnarkVMQuery,
     package::Package as SnarkVMPackage,
     prelude::{
-        deployment_cost,
-        store::{helpers::memory::ConsensusMemory, ConsensusStore},
         CanaryV0,
         MainnetV0,
         ProgramOwner,
         TestnetV0,
         VM,
+        deployment_cost,
+        store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
 use std::path::PathBuf;

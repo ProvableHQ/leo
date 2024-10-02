@@ -18,7 +18,7 @@ use crate::Identifier;
 
 use core::fmt;
 use leo_span::Symbol;
-use serde::{de, de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de, de::Visitor};
 use snarkvm::{console::program::ProgramID, prelude::Network};
 use std::collections::BTreeMap;
 

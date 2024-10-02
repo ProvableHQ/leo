@@ -32,7 +32,7 @@ pub mod parser;
 pub use parser::*;
 
 use leo_ast::{Ast, NodeBuilder};
-use leo_errors::{emitter::Handler, Result};
+use leo_errors::{Result, emitter::Handler};
 
 use snarkvm::prelude::Network;
 

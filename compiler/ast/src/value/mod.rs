@@ -16,7 +16,7 @@
 
 use crate::{GroupLiteral, Identifier, IntegerType, Literal, NodeID, Type};
 
-use leo_errors::{type_name, FlattenError, LeoError, Result};
+use leo_errors::{FlattenError, LeoError, Result, type_name};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;

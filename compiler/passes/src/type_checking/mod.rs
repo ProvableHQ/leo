@@ -31,7 +31,7 @@ pub use checker::*;
 use crate::{CallGraph, Pass, StructGraph, SymbolTable, TypeTable};
 
 use leo_ast::{Ast, ProgramVisitor};
-use leo_errors::{emitter::Handler, Result};
+use leo_errors::{Result, emitter::Handler};
 
 use snarkvm::prelude::Network;
 

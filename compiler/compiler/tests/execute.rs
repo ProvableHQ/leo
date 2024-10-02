@@ -16,6 +16,10 @@
 
 mod utilities;
 use utilities::{
+    BufferEmitter,
+    CompileOutput,
+    CurrentNetwork,
+    ExecuteOutput,
     buffer_if_err,
     compile_and_process,
     get_build_options,
@@ -24,20 +28,16 @@ use utilities::{
     hash_content,
     hash_symbol_tables,
     parse_program,
-    BufferEmitter,
-    CompileOutput,
-    CurrentNetwork,
-    ExecuteOutput,
 };
 
 use leo_compiler::{CompilerOptions, OutputOptions};
 use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
+    PROGRAM_DELIMITER,
+    Test,
     runner::{Namespace, ParseType, Runner},
     test::TestExpectationMode,
-    Test,
-    PROGRAM_DELIMITER,
 };
 
 use aleo_std_storage::StorageMode;
@@ -51,7 +51,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use snarkvm::{
-    prelude::store::{helpers::memory::ConsensusMemory, ConsensusStore},
+    prelude::store::{ConsensusStore, helpers::memory::ConsensusMemory},
     synthesizer::program::ProgramCore,
 };
 use std::{fs, panic::AssertUnwindSafe, path::Path, rc::Rc};

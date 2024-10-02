@@ -41,7 +41,7 @@ use leo_ast::{
     UnaryExpression,
     UnitExpression,
 };
-use leo_span::{sym, Symbol};
+use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
 

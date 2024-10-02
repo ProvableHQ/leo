@@ -29,7 +29,7 @@ use leo_ast::{
     StatementConsumer,
     StructConsumer,
 };
-use leo_span::{sym, Symbol};
+use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
 

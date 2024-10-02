@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{tokenizer, ParserContext, SpannedToken};
+use crate::{ParserContext, SpannedToken, tokenizer};
 
 use leo_ast::{NodeBuilder, NodeID, Statement};
-use leo_errors::{emitter::Handler, LeoError};
+use leo_errors::{LeoError, emitter::Handler};
 use leo_span::{
-    source_map::FileName,
-    symbol::{create_session_if_not_set_then, SessionGlobals},
     Span,
+    source_map::FileName,
+    symbol::{SessionGlobals, create_session_if_not_set_then},
 };
 use leo_test_framework::{
-    runner::{Namespace, ParseType, Runner},
     Test,
+    runner::{Namespace, ParseType, Runner},
 };
 use serde::Serialize;
 use serde_yaml::Value;

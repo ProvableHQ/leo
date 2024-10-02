@@ -16,7 +16,7 @@
 
 use crate::{Backtraced, INDENT};
 
-use leo_span::{source_map::SpanLocation, symbol::with_session_globals, Span};
+use leo_span::{Span, source_map::SpanLocation, symbol::with_session_globals};
 
 use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};

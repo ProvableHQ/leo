@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{groups::GroupCoordinate, NodeID};
+use crate::{NodeID, groups::GroupCoordinate};
 
 use leo_span::Span;
 

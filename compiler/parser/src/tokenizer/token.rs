@@ -18,7 +18,7 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-use leo_span::{sym, Symbol};
+use leo_span::{Symbol, sym};
 
 /// Represents all valid Leo syntax tokens.
 ///

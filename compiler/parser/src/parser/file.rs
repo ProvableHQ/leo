@@ -398,4 +398,4 @@ impl<N: Network> ParserContext<'_, N> {
     }
 }
 
-use leo_span::{sym, Symbol};
+use leo_span::{Symbol, sym};

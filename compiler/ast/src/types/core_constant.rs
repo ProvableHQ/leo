@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Type;
-use leo_span::{sym, Symbol};
+use leo_span::{Symbol, sym};
 
 /// A core constant that maps directly to an AVM bytecode constant.
 #[derive(Clone, PartialEq, Eq)]

@@ -146,9 +146,9 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use crate::cli::{
-        cli::{test_helpers, Commands},
-        run_with_args,
         CLI,
+        cli::{Commands, test_helpers},
+        run_with_args,
     };
     use leo_span::symbol::create_session_if_not_set_then;
     use serial_test::serial;
@@ -310,7 +310,7 @@ mod tests {
 
 #[cfg(test)]
 mod test_helpers {
-    use crate::cli::{cli::Commands, run_with_args, Add, New, CLI};
+    use crate::cli::{Add, CLI, New, cli::Commands, run_with_args};
     use leo_span::symbol::create_session_if_not_set_then;
     use std::path::Path;
 
