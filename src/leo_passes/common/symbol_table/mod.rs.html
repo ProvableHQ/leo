@@ -345,7 +345,7 @@
 
 <span class="kw">use </span>std::cell::RefCell;
 
-<span class="kw">use </span>leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function, Location};
+<span class="kw">use </span>leo_ast::{Composite, Function, Location, normalize_json_value, remove_key_from_json};
 <span class="kw">use </span>leo_errors::{AstError, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
@@ -595,7 +595,7 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>leo_ast::{Identifier, Type, Variant};
-    <span class="kw">use </span>leo_span::{symbol::create_session_if_not_set_then, Symbol};
+    <span class="kw">use </span>leo_span::{Symbol, symbol::create_session_if_not_set_then};
     <span class="attr">#[test]
     </span><span class="kw">fn </span>serialization_test() {
         create_session_if_not_set_then(|<span class="kw">_</span>| {

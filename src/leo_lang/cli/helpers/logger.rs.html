@@ -253,9 +253,9 @@
 <span class="kw">use </span>std::{fmt, sync::Once};
 <span class="kw">use </span>tracing::{event::Event, subscriber::Subscriber};
 <span class="kw">use </span>tracing_subscriber::{
-    fmt::{format::<span class="kw-2">*</span>, time::<span class="kw-2">*</span>, FmtContext, FormattedFields},
-    registry::LookupSpan,
     FmtSubscriber,
+    fmt::{FmtContext, FormattedFields, format::<span class="kw-2">*</span>, time::<span class="kw-2">*</span>},
+    registry::LookupSpan,
 };
 
 <span class="kw">static </span>START: Once = Once::new();

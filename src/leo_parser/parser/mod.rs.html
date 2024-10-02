@@ -70,11 +70,11 @@
 //! This module contains the [`parse()`] function which calls the underlying [`tokenize()`]
 //! method to create a new program AST.
 
-</span><span class="kw">use crate</span>::{tokenizer::<span class="kw-2">*</span>, Token};
+</span><span class="kw">use crate</span>::{Token, tokenizer::<span class="kw-2">*</span>};
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_errors::{emitter::Handler, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>leo_span::{span::BytePos, Span};
+<span class="kw">use </span>leo_errors::{<span class="prelude-ty">Result</span>, emitter::Handler};
+<span class="kw">use </span>leo_span::{Span, span::BytePos};
 
 <span class="kw">use </span>snarkvm::prelude::Network;
 

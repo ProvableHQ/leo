@@ -492,7 +492,7 @@
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::{
     fmt,
-    iter::{from_fn, Peekable},
+    iter::{Peekable, from_fn},
 };
 
 <span class="doccomment">/// Eat an identifier, that is, a string matching '[a-zA-Z][a-zA-Z\d_]*', if any.

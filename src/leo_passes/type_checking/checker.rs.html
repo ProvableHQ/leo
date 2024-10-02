@@ -1398,17 +1398,17 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use crate</span>::{
-    type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
     CallGraph,
     StructGraph,
     SymbolTable,
     TypeTable,
     VariableSymbol,
     VariableType,
+    type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
 };
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
+<span class="kw">use </span>leo_errors::{TypeCheckerError, TypeCheckerWarning, emitter::Handler};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
 <span class="kw">use </span>snarkvm::console::network::Network;

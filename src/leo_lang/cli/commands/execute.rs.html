@@ -429,7 +429,7 @@
 <span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span><span class="kw">crate</span>::cli::query::QueryCommands;
-<span class="kw">use </span>dialoguer::{theme::ColorfulTheme, Confirm};
+<span class="kw">use </span>dialoguer::{Confirm, theme::ColorfulTheme};
 <span class="kw">use </span>leo_retriever::NetworkName;
 <span class="kw">use </span>snarkvm::{
     circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
@@ -437,19 +437,19 @@
     ledger::Transaction::Execute <span class="kw">as </span>ExecuteTransaction,
     package::Package <span class="kw">as </span>SnarkVMPackage,
     prelude::{
-        execution_cost,
-        query::Query <span class="kw">as </span>SnarkVMQuery,
-        store::{
-            helpers::memory::{BlockMemory, ConsensusMemory},
-            ConsensusStore,
-        },
         Identifier,
         Locator,
         Process,
         Program <span class="kw">as </span>SnarkVMProgram,
         ProgramID,
-        Value,
         VM,
+        Value,
+        execution_cost,
+        query::Query <span class="kw">as </span>SnarkVMQuery,
+        store::{
+            ConsensusStore,
+            helpers::memory::{BlockMemory, ConsensusMemory},
+        },
     },
 };
 

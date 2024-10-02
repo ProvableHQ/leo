@@ -1060,9 +1060,9 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">crate</span>::cli::{
-        cli::{test_helpers, Commands},
-        run_with_args,
         CLI,
+        cli::{Commands, test_helpers},
+        run_with_args,
     };
     <span class="kw">use </span>leo_span::symbol::create_session_if_not_set_then;
     <span class="kw">use </span>serial_test::serial;
@@ -1224,7 +1224,7 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test_helpers {
-    <span class="kw">use </span><span class="kw">crate</span>::cli::{cli::Commands, run_with_args, Add, New, CLI};
+    <span class="kw">use </span><span class="kw">crate</span>::cli::{Add, CLI, New, cli::Commands, run_with_args};
     <span class="kw">use </span>leo_span::symbol::create_session_if_not_set_then;
     <span class="kw">use </span>std::path::Path;
 

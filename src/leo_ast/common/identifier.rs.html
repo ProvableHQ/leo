@@ -179,16 +179,16 @@
 <span class="kw">use </span>leo_span::{Span, Symbol};
 <span class="kw">use </span>snarkvm::console::program::Identifier <span class="kw">as </span>IdentifierCore;
 
-<span class="kw">use crate</span>::{simple_node_impl, Node, NodeID};
+<span class="kw">use crate</span>::{Node, NodeID, simple_node_impl};
 <span class="kw">use </span>serde::{
-    de::{
-        Visitor,
-        {<span class="self">self</span>},
-    },
     Deserialize,
     Deserializer,
     Serialize,
     Serializer,
+    de::{
+        Visitor,
+        {<span class="self">self</span>},
+    },
 };
 <span class="kw">use </span>snarkvm::prelude::Network;
 <span class="kw">use </span>std::{

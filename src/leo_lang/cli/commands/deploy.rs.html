@@ -273,7 +273,7 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>aleo_std::StorageMode;
-<span class="kw">use </span>dialoguer::{theme::ColorfulTheme, Confirm};
+<span class="kw">use </span>dialoguer::{Confirm, theme::ColorfulTheme};
 <span class="kw">use </span>leo_retriever::NetworkName;
 <span class="kw">use </span>num_format::{Locale, ToFormattedString};
 <span class="kw">use </span>snarkvm::{
@@ -281,13 +281,13 @@
     ledger::query::Query <span class="kw">as </span>SnarkVMQuery,
     package::Package <span class="kw">as </span>SnarkVMPackage,
     prelude::{
-        deployment_cost,
-        store::{helpers::memory::ConsensusMemory, ConsensusStore},
         CanaryV0,
         MainnetV0,
         ProgramOwner,
         TestnetV0,
         VM,
+        deployment_cost,
+        store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
 <span class="kw">use </span>std::path::PathBuf;

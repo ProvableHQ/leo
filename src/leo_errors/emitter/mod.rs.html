@@ -558,7 +558,7 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::ParserError;
-    <span class="kw">use </span>leo_span::{symbol::create_session_if_not_set_then, Span};
+    <span class="kw">use </span>leo_span::{Span, symbol::create_session_if_not_set_then};
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>fresh_no_errors() {

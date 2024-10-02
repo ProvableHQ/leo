@@ -408,10 +408,10 @@
 
 <span class="kw">pub use </span>leo_ast::Ast;
 <span class="kw">use </span>leo_ast::{NodeBuilder, Program, Stub};
-<span class="kw">use </span>leo_errors::{emitter::Handler, CompilerError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_errors::{CompilerError, <span class="prelude-ty">Result</span>, emitter::Handler};
 <span class="kw">pub use </span>leo_passes::SymbolTable;
 <span class="kw">use </span>leo_passes::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_span::{source_map::FileName, symbol::with_session_globals, Symbol};
+<span class="kw">use </span>leo_span::{Symbol, source_map::FileName, symbol::with_session_globals};
 
 <span class="kw">use </span>snarkvm::prelude::Network;
 

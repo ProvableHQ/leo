@@ -407,9 +407,9 @@
 
 <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::cli::helpers::context::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_errors::{emitter::Handler, CliError, PackageError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_errors::{CliError, PackageError, <span class="prelude-ty">Result</span>, emitter::Handler};
 <span class="kw">use </span>leo_package::{build::<span class="kw-2">*</span>, outputs::OutputsDirectory, package::<span class="kw-2">*</span>};
-<span class="kw">use </span>snarkvm::prelude::{block::Transaction, Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey};
+<span class="kw">use </span>snarkvm::prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey, block::Transaction};
 
 <span class="kw">use </span>clap::Parser;
 <span class="kw">use </span>colored::Colorize;
