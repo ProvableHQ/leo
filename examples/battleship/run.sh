@@ -19,7 +19,7 @@ echo "
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 echo "✅ Successfully initialized Player 1."
@@ -70,7 +70,7 @@ echo "
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 leo run initialize_board 31u64 2207646875648u64 224u64 9042383626829824u64 aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t || exit
@@ -119,7 +119,7 @@ echo "
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 leo run play '{
@@ -155,7 +155,7 @@ echo "
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 leo run play '{
@@ -191,7 +191,7 @@ echo "
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 leo run play '{
@@ -227,7 +227,7 @@ echo "
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 leo run play '{
@@ -256,5 +256,5 @@ echo "
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
