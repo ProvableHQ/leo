@@ -334,7 +334,7 @@
                     <span class="kw">let </span>def = def.trim();
 
                     <span class="comment">// try to find rule matching definition or fail
-                    </span><span class="kw">let </span>rule = <span class="self">self</span>.rules.get(<span class="kw-2">&amp;</span>def.to_string()).cloned().unwrap();
+                    </span><span class="kw">let </span>rule = <span class="self">self</span>.rules.get(def).cloned().unwrap();
 
                     <span class="self">self</span>.enter_scope(Scope::Definition(rule));
                 }

@@ -64,9 +64,6 @@
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -97,10 +94,7 @@
         <span class="comment">// Check if the file is a .leo file.
         </span><span class="kw">let </span>is_leo_file = path.extension().filter(|s| <span class="kw-2">*</span>s == <span class="string">"leo"</span>).is_some();
         <span class="comment">// Read the test filter from the environment.
-        </span><span class="kw">let </span>filter = <span class="kw">match </span>std::env::var(<span class="string">"TEST_FILTER"</span>) {
-            <span class="prelude-val">Ok</span>(filter) =&gt; filter,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; String::new(),
-        };
+        </span><span class="kw">let </span>filter = std::env::var(<span class="string">"TEST_FILTER"</span>).unwrap_or_default();
         <span class="comment">// Check if the path contains the filter.
         </span><span class="kw">let </span>satisfies_filter = filter.is_empty() || path.to_string_lossy().contains(<span class="kw-2">&amp;</span>filter);
         <span class="comment">// If the file is a .leo file and satisfies the filter, return the path and the file contents.

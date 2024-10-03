@@ -2562,7 +2562,7 @@
         }
 
         <span class="comment">// Type check the function's parameters.
-        </span>function.input.iter().enumerate().for_each(|(_index, input_var)| {
+        </span>function.input.iter().for_each(|input_var| {
             <span class="comment">// Check that the type of input parameter is defined.
             </span><span class="self">self</span>.assert_type_is_valid(input_var.type_(), input_var.span());
             <span class="comment">// Check that the type of the input parameter is not a tuple.
