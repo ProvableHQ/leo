@@ -22,7 +22,7 @@ use snarkvm::console::account::PrivateKey;
 use snarkvm::prelude::{MainnetV0, Network, TestnetV0};
 
 use serde::Deserialize;
-use std::{borrow::Cow, fs::File, io::Write, path::Path};
+use std::{borrow::Cow, fmt, fs::File, io::Write, path::Path};
 
 pub static ENV_FILENAME: &str = ".env";
 
@@ -67,15 +67,15 @@ impl<N: Network> Env<N> {
     }
 }
 
-impl<N: Network> ToString for Env<N> {
-    fn to_string(&self) -> String {
+impl<N: Network> fmt::Display for Env<N> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Get the network name.
         let network = match N::ID {
             MainnetV0::ID => NetworkName::MainnetV0,
             TestnetV0::ID => NetworkName::TestnetV0,
             _ => unimplemented!("Unsupported network"),
         };
-        // Return the formatted string.
-        format!("NETWORK={network}\nPRIVATE_KEY={}\nENDPOINT={}\n", self.private_key, self.endpoint)
+        // Write the formatted string.
+        write!(f, "NETWORK={network}\nPRIVATE_KEY={}\nENDPOINT={}\n", self.private_key, self.endpoint)
     }
 }

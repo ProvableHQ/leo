@@ -113,7 +113,7 @@ impl<'a> Processor<'a> {
                     let def = def.trim();
 
                     // try to find rule matching definition or fail
-                    let rule = self.rules.get(&def.to_string()).cloned().unwrap();
+                    let rule = self.rules.get(def).cloned().unwrap();
 
                     self.enter_scope(Scope::Definition(rule));
                 }
