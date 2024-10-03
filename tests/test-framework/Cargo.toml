@@ -51,7 +51,7 @@ version = "0.8"
 version = "2.5"
 
 [dependencies.regex]
-version = "1.10"
+version = "1.11"
 
 [dev-dependencies.leo-compiler]
 path = "../../compiler/compiler"
