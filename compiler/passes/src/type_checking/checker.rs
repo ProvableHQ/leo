@@ -1239,6 +1239,9 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                     self.handler.emit_err(err);
                 }
             }
+
+            // Add the input to the type table.
+            self.type_table.insert(input_var.identifier().id(), input_var.type_().clone());
         });
 
         // Type check the function's return type.
