@@ -18,7 +18,7 @@
 
 use core::ops::{Add, Sub};
 use serde::{Deserialize, Serialize};
-use std::{fmt, usize};
+use std::fmt;
 
 use crate::symbol::with_session_globals;
 

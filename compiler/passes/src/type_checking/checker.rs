@@ -1179,7 +1179,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         }
 
         // Type check the function's parameters.
-        function.input.iter().enumerate().for_each(|(_index, input_var)| {
+        function.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is defined.
             self.assert_type_is_valid(input_var.type_(), input_var.span());
             // Check that the type of the input parameter is not a tuple.

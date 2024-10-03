@@ -40,35 +40,6 @@ pub struct Format<F = Full, T = SystemTime> {
 }
 
 impl<F, T> Format<F, T> {
-    /// Use the full JSON format.
-    ///
-    /// The full format includes fields from all entered spans.
-    ///
-    /// # Example Output
-    ///
-    /// ```ignore,json
-    /// {"timestamp":"Feb 20 11:28:15.096","level":"INFO","target":"mycrate","fields":{"message":"some message", "key": "value"}}
-    /// ```
-    ///
-    /// # Options
-    ///
-    /// - [`Format::flatten_event`] can be used to enable flattening event fields into the root
-    /// object.
-    ///
-    /// [`Format::flatten_event`]: #method.flatten_event
-    #[cfg(feature = "json")]
-    pub fn json(self) -> Format<Json, T> {
-        Format {
-            format: Json::default(),
-            timer: self.timer,
-            ansi: self.ansi,
-            display_target: self.display_target,
-            display_level: self.display_level,
-            display_thread_id: self.display_thread_id,
-            display_thread_name: self.display_thread_name,
-        }
-    }
-
     /// Use the given [`timer`] for log message timestamps.
     ///
     /// See [`time`] for the provided timer implementations.
