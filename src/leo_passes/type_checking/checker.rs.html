@@ -1381,6 +1381,9 @@
 <a href="#1381" id="1381">1381</a>
 <a href="#1382" id="1382">1382</a>
 <a href="#1383" id="1383">1383</a>
+<a href="#1384" id="1384">1384</a>
+<a href="#1385" id="1385">1385</a>
+<a href="#1386" id="1386">1386</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -2622,6 +2625,9 @@
                     <span class="self">self</span>.handler.emit_err(err);
                 }
             }
+
+            <span class="comment">// Add the input to the type table.
+            </span><span class="self">self</span>.type_table.insert(input_var.identifier().id(), input_var.type_().clone());
         });
 
         <span class="comment">// Type check the function's return type.
