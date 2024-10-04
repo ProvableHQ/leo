@@ -27,8 +27,8 @@ program relay.aleo {
     mapping users: address => bool;
 
     record message {
-        owner: address;
-        data: u8;
+        owner: address,
+        data: u8,
     }
 
     async transition send(addr: address, val: u8) -> (message, Future) {

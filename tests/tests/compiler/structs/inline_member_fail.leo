@@ -5,7 +5,7 @@ expectation: Fail
 
 program test.aleo {    
     struct Foo {
-        x: u8;
+        x: u8,
     }
     
     function main() {

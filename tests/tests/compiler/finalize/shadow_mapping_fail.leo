@@ -21,6 +21,6 @@ program test.aleo {
     }
     
     struct bar {
-        a: u64;
+        a: u64,
     }
 }

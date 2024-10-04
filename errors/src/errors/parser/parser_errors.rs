@@ -73,6 +73,7 @@ create_messages!(
     }
 
     /// For when the parser encountered a mix of commas and semi-colons in struct member variables.
+    // TODO unused
     @formatted
     mixed_commas_and_semicolons {
         args: (),
@@ -339,6 +340,14 @@ create_messages!(
     cannot_define_external_record {
         args: (),
         msg: format!("Cannot create an external record. Records can only be created in the program that they are defined in."),
+        help: None,
+    }
+
+    /// For when the parser encountered a member declaration not followed by a comma.
+    @formatted
+    comma_expected_after_member {
+        args: (),
+        msg: "Each member declaration in a struct or record must be followed by a comma (except the last).",
         help: None,
     }
 );

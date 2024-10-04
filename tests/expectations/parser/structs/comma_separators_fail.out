@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370041]: Each member declaration in a struct or record must be followed by a comma (except the last).\n    --> test:5:9\n     |\n   5 |         y: u8\n     |         ^"
