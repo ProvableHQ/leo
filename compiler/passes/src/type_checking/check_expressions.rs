@@ -23,7 +23,6 @@ use leo_span::{Span, Symbol, sym};
 use snarkvm::console::network::Network;
 
 use itertools::Itertools;
-use std::str::FromStr;
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
     match (t1, t2) {
@@ -883,9 +882,9 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
     }
 
     fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
-        fn parse_integer_literal<I: FromStr>(handler: &Handler, raw_string: &str, span: Span, type_string: &str) {
+        fn parse_integer_literal<I: FromStrRadix>(handler: &Handler, raw_string: &str, span: Span, type_string: &str) {
             let string = raw_string.replace('_', "");
-            if string.parse::<I>().is_err() {
+            if I::from_str_by_radix(&string).is_err() {
                 handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
             }
         }

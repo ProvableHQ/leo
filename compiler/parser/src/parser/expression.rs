@@ -758,6 +758,17 @@ impl<N: Network> ParserContext<'_, N> {
                 let full_span = span + suffix_span;
                 let assert_no_whitespace = |x| assert_no_whitespace(span, suffix_span, &value, x);
                 match self.eat_any(INT_TYPES).then_some(&self.prev_token.token) {
+                    // Hex, octal, binary literal on a noninteger is an error.
+                    Some(Token::Field) | Some(Token::Group) | Some(Token::Scalar)
+                        if value.starts_with("0x")
+                            || value.starts_with("0o")
+                            || value.starts_with("0b")
+                            || value.starts_with("-0x")
+                            || value.starts_with("-0o")
+                            || value.starts_with("-0b") =>
+                    {
+                        return Err(ParserError::hexbin_literal_nonintegers(span).into());
+                    }
                     // Literal followed by `field`, e.g., `42field`.
                     Some(Token::Field) => {
                         assert_no_whitespace("field")?;

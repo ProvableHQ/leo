@@ -160,25 +160,42 @@ impl Token {
     /// If there is input but no integer, this function returns the tuple consisting of
     /// length 0 and a dummy integer token that contains an empty string.
     /// However, this function is always called when the next character is a digit.
-    /// This function eats a sequence of one or more digits and underscores
-    /// (starting from a digit, as explained above, given when it is called),
+    /// This function eats a sequence representing a decimal numeral, a hex
+    /// numeral (beginning with `0x`), an octal numeral (beginning with '0o'),
+    /// or a binary numeral (beginning with `0b`), optionally including underscores,
     /// which corresponds to a numeral in the ABNF grammar.
     fn eat_integer(input: &mut Peekable<impl Iterator<Item = char>>) -> Result<(usize, Token)> {
         if input.peek().is_none() {
             return Err(ParserError::lexer_empty_input().into());
         }
 
+        if !input.peek().unwrap().is_ascii_digit() {
+            return Ok((0, Token::Integer("".into())));
+        }
+
         let mut int = String::new();
 
-        // Note that it is still impossible to have a number that starts with an `_` because eat_integer is only called when the first character is a digit.
-        while let Some(c) = input.next_if(|c| c.is_ascii_digit() || *c == '_') {
-            if c == '0' && matches!(input.peek(), Some('x')) {
-                int.push(c);
-                int.push(input.next().unwrap());
-                return Err(ParserError::lexer_hex_number_provided(int).into());
-            }
+        let first = input.next().unwrap();
+        int.push(first);
+        if first == '0' && (input.peek() == Some(&'x') || input.peek() == Some(&'o') || input.peek() == Some(&'b')) {
+            int.push(input.next().unwrap());
+        }
 
-            int.push(c);
+        // Allow only uppercase hex digits, so as not to interfere with parsing the `field` suffix.
+        int.extend(input.take_while(|&c| c.is_ascii_digit() || c == '_' || c.is_ascii_uppercase()));
+
+        let (s, radix) = if let Some(s) = int.strip_prefix("0x") {
+            (s, 16)
+        } else if let Some(s) = int.strip_prefix("0o") {
+            (s, 8)
+        } else if let Some(s) = int.strip_prefix("0b") {
+            (s, 2)
+        } else {
+            (int.as_str(), 10)
+        };
+
+        if let Some(c) = s.chars().find(|&c| c != '_' && !c.is_digit(radix)) {
+            return Err(ParserError::wrong_digit_for_radix(c, radix, int).into());
         }
 
         Ok((int.len(), Token::Integer(int)))

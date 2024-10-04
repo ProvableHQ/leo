@@ -53,6 +53,6 @@ outputs:
   - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '&'\n    --> test:1:5\n     |\n   1 | x.0_&\n     |     ^"
   - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'return'\n    --> test:1:5\n     |\n   1 | x.0_return\n     |     ^^^^^^"
   - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'self'\n    --> test:1:5\n     |\n   1 | x.0_self\n     |     ^^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'Self'\n    --> test:1:5\n     |\n   1 | x.0_Self\n     |     ^^^^"
+  - "Error [EPAR0370043]: Digit S invalid in radix 10 (token 0_S)."
   - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'true'\n    --> test:1:5\n     |\n   1 | x.0_true\n     |     ^^^^"
   - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'false'\n    --> test:1:5\n     |\n   1 | x.0_false\n     |     ^^^^^"

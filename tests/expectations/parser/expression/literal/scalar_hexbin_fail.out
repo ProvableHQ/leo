@@ -1,0 +1,6 @@
+---
+namespace: ParseExpression
+expectation: Fail
+outputs:
+  - "Error [EPAR0370042]: Hex, octal, and binary literals may only be used for integer types.\n    --> test:1:1\n     |\n   1 | 0xAAscalar\n     | ^^^^"
+  - "Error [EPAR0370042]: Hex, octal, and binary literals may only be used for integer types.\n    --> test:1:1\n     |\n   1 | 0b10scalar\n     | ^^^^"

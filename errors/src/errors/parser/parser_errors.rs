@@ -177,6 +177,7 @@ create_messages!(
     }
 
     /// When a hex number is provided.
+    // TODO This error is unused. Remove it in a future version.
     @backtraced
     lexer_hex_number_provided {
         args: (input: impl Display),
@@ -348,6 +349,20 @@ create_messages!(
     comma_expected_after_member {
         args: (),
         msg: "Each member declaration in a struct or record must be followed by a comma (except the last).",
+        help: None,
+    }
+
+    @formatted
+    hexbin_literal_nonintegers {
+        args: (),
+        msg: format!("Hex, octal, and binary literals may only be used for integer types."),
+        help: None,
+    }
+
+    @backtraced
+    wrong_digit_for_radix {
+        args: (digit: char, radix: u32, token: String),
+        msg: format!("Digit {digit} invalid in radix {radix} (token {token})."),
         help: None,
     }
 );

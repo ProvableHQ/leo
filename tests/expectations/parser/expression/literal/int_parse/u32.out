@@ -842,3 +842,59 @@ outputs:
             lo: 0
             hi: 12
         - 0
+  - Literal:
+      Integer:
+        - U32
+        - "0x12"
+        - span:
+            lo: 0
+            hi: 7
+        - 0
+  - Literal:
+      Integer:
+        - U32
+        - "0xAA"
+        - span:
+            lo: 0
+            hi: 7
+        - 0
+  - Literal:
+      Integer:
+        - U32
+        - "0xAABB"
+        - span:
+            lo: 0
+            hi: 9
+        - 0
+  - Literal:
+      Integer:
+        - U32
+        - "0x12345AABB"
+        - span:
+            lo: 0
+            hi: 14
+        - 0
+  - Literal:
+      Integer:
+        - U32
+        - "0b101010000"
+        - span:
+            lo: 0
+            hi: 14
+        - 0
+  - Literal:
+      Integer:
+        - U32
+        - "0o12345"
+        - span:
+            lo: 0
+            hi: 10
+        - 0
+  - Literal:
+      Integer:
+        - U32
+        - "0o10077"
+        - span:
+            lo: 0
+            hi: 10
+        - 0
