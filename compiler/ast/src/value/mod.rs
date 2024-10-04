@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{GroupLiteral, Identifier, IntegerType, Literal, NodeID, Type};
+use crate::{FromStrRadix as _, GroupLiteral, Identifier, IntegerType, Literal, NodeID, Type};
 
 use leo_errors::{FlattenError, LeoError, Result, type_name};
 use leo_span::{Span, Symbol};
@@ -874,16 +874,16 @@ impl TryFrom<&Literal> for Value {
             Literal::Integer(integer_type, raw_string, span, _) => {
                 let string = raw_string.replace('_', "");
                 match integer_type {
-                    IntegerType::U8 => Self::U8(string.parse()?, *span),
-                    IntegerType::U16 => Self::U16(string.parse()?, *span),
-                    IntegerType::U32 => Self::U32(string.parse()?, *span),
-                    IntegerType::U64 => Self::U64(string.parse()?, *span),
-                    IntegerType::U128 => Self::U128(string.parse()?, *span),
-                    IntegerType::I8 => Self::I8(string.parse()?, *span),
-                    IntegerType::I16 => Self::I16(string.parse()?, *span),
-                    IntegerType::I32 => Self::I32(string.parse()?, *span),
-                    IntegerType::I64 => Self::I64(string.parse()?, *span),
-                    IntegerType::I128 => Self::I128(string.parse()?, *span),
+                    IntegerType::U8 => Self::U8(u8::from_str_by_radix(&string)?, *span),
+                    IntegerType::U16 => Self::U16(u16::from_str_by_radix(&string)?, *span),
+                    IntegerType::U32 => Self::U32(u32::from_str_by_radix(&string)?, *span),
+                    IntegerType::U64 => Self::U64(u64::from_str_by_radix(&string)?, *span),
+                    IntegerType::U128 => Self::U128(u128::from_str_by_radix(&string)?, *span),
+                    IntegerType::I8 => Self::I8(i8::from_str_by_radix(&string)?, *span),
+                    IntegerType::I16 => Self::I16(i16::from_str_by_radix(&string)?, *span),
+                    IntegerType::I32 => Self::I32(i32::from_str_by_radix(&string)?, *span),
+                    IntegerType::I64 => Self::I64(i64::from_str_by_radix(&string)?, *span),
+                    IntegerType::I128 => Self::I128(i128::from_str_by_radix(&string)?, *span),
                 }
             }
         })

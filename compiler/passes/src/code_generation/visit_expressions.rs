@@ -82,7 +82,9 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_value(&mut self, input: &'a Literal) -> (String, String) {
-        (format!("{input}"), String::new())
+        // AVM can only parse decimal numbers.
+        let decimal_input = input.display_decimal();
+        (format!("{decimal_input}"), String::new())
     }
 
     fn visit_locator(&mut self, input: &'a LocatorExpression) -> (String, String) {

@@ -104,3 +104,96 @@ impl Node for Literal {
         }
     }
 }
+
+struct DisplayDecimal<'a>(&'a Literal);
+
+impl Literal {
+    /// For displaying a literal as decimal, regardless of the radix in which it was parsed.
+    ///
+    /// In particular this is useful for outputting .aleo files.
+    pub fn display_decimal(&self) -> impl '_ + fmt::Display {
+        DisplayDecimal(self)
+    }
+}
+
+impl fmt::Display for DisplayDecimal<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self.0 {
+            Literal::Address(address, _, _) => write!(f, "{address}"),
+            Literal::Boolean(boolean, _, _) => write!(f, "{boolean}"),
+            Literal::Field(field, _, _) => write!(f, "{field}field"),
+            Literal::Group(group) => write!(f, "{group}group"),
+            Literal::Integer(type_, value, _, _) => {
+                if !value.starts_with("0x")
+                    && !value.starts_with("-0x")
+                    && !value.starts_with("0b")
+                    && !value.starts_with("-0b")
+                    && !value.starts_with("0o")
+                    && !value.starts_with("-0o")
+                {
+                    // It's already decimal.
+                    return write!(f, "{value}{type_}");
+                }
+                let string = value.replace('_', "");
+                if value.starts_with('-') {
+                    let v = i128::from_str_by_radix(&string).expect("Failed to parse integer?");
+                    write!(f, "{v}{type_}")
+                } else {
+                    let v = u128::from_str_by_radix(&string).expect("Failed to parse integer?");
+                    write!(f, "{v}{type_}")
+                }
+            }
+            Literal::Scalar(scalar, _, _) => write!(f, "{scalar}scalar"),
+            Literal::String(string, _, _) => write!(f, "\"{string}\""),
+        }
+    }
+}
+
+/// This trait allows to parse integer literals of any type generically.
+///
+/// The literal may optionally start with a `-` and/or `0x` or `0o` or 0b`.
+pub trait FromStrRadix: Sized {
+    fn from_str_by_radix(src: &str) -> Result<Self, std::num::ParseIntError>;
+}
+
+macro_rules! implement_from_str_radix {
+    ($($ty:ident)*) => {
+        $(
+            impl FromStrRadix for $ty {
+                fn from_str_by_radix(src: &str) -> Result<Self, std::num::ParseIntError> {
+                    if let Some(stripped) = src.strip_prefix("0x") {
+                        Self::from_str_radix(stripped, 16)
+                    } else if let Some(stripped) = src.strip_prefix("0o") {
+                        Self::from_str_radix(stripped, 8)
+                    } else if let Some(stripped) = src.strip_prefix("0b") {
+                        Self::from_str_radix(stripped, 2)
+                    } else if let Some(stripped) = src.strip_prefix("-0x") {
+                        // We have to remove the 0x prefix and put back in a - to use
+                        // std's parsing. Alternatively we could jump through
+                        // a few hoops to avoid allocating.
+                        let mut s = String::new();
+                        s.push('-');
+                        s.push_str(stripped);
+                        Self::from_str_radix(&s, 16)
+                    } else if let Some(stripped) = src.strip_prefix("-0o") {
+                        // Ditto.
+                        let mut s = String::new();
+                        s.push('-');
+                        s.push_str(stripped);
+                        Self::from_str_radix(&s, 8)
+                    } else if let Some(stripped) = src.strip_prefix("-0b") {
+                        // Ditto.
+                        let mut s = String::new();
+                        s.push('-');
+                        s.push_str(stripped);
+                        Self::from_str_radix(&s, 2)
+                    } else {
+                        Self::from_str_radix(src, 10)
+                    }
+                }
+            }
+        )*
+    };
+}
+
+implement_from_str_radix! { u8 u16 u32 u64 u128 i8 i16 i32 i64 i128 }

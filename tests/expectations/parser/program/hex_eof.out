@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370018]: A hex number `0x..` was provided but hex is not allowed."
+  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:4:29\n     |\n   4 |     function main() { let a = 0x}\n     |                             ^"
