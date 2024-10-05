@@ -269,7 +269,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         if struct_definition.is_record {
             // Add the `owner` field.
             // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
-            reordered_members.push(member_map.remove(&sym::owner).unwrap());
+            reordered_members.push(member_map.shift_remove(&sym::owner).unwrap());
         }
 
         // For each member of the struct definition, push the corresponding member of the init expression.
@@ -278,7 +278,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             if !(struct_definition.is_record && matches!(member.identifier.name, sym::owner)) {
                 // Lookup and push the member of the init expression.
                 // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
-                reordered_members.push(member_map.remove(&member.identifier.name).unwrap());
+                reordered_members.push(member_map.shift_remove(&member.identifier.name).unwrap());
             }
         }
 

@@ -181,7 +181,7 @@ impl<N: Network> Retriever<N> {
         match dependency_graph.post_order() {
             Ok(mut order) => {
                 // Remove the main program
-                order.remove(&self.name);
+                order.shift_remove(&self.name);
 
                 // Cache order
                 contexts

@@ -860,7 +860,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
             if matches!(var.type_, Type::Future(_)) && matches!(expected, Some(Type::Future(_))) {
                 if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.is_call {
                     // Consume future.
-                    match self.scope_state.futures.remove(&input.name) {
+                    match self.scope_state.futures.shift_remove(&input.name) {
                         Some(future) => {
                             self.scope_state.call_location = Some(future.clone());
                             return Some(var.type_.clone());

@@ -43,8 +43,73 @@ members = [
   "utils/retriever"
 ]
 
+[workspace.dependencies.leo-ast]
+path = "./compiler/ast"
+version = "2.3.0"
+
+[workspace.dependencies.leo-compiler]
+path = "./compiler/compiler"
+version = "2.3.0"
+
+[workspace.dependencies.leo-disassembler]
+path = "./utils/disassembler"
+version = "2.3.0"
+
+[workspace.dependencies.leo-errors]
+path = "./errors"
+version = "2.3.0"
+
+[workspace.dependencies.leo-package]
+path = "./leo/package"
+version = "2.3.0"
+
+[workspace.dependencies.leo-parser]
+path = "./compiler/parser"
+version = "2.3.0"
+
+[workspace.dependencies.leo-passes]
+path = "./compiler/passes"
+version = "2.3.0"
+
+[workspace.dependencies.leo-span]
+path = "./compiler/span"
+version = "2.3.0"
+
+[workspace.dependencies.leo-retriever]
+path = "./utils/retriever"
+version = "2.3.0"
+
+[workspace.dependencies.aleo-std]
+version = "0.1.24"
+default-features = false
+
+[workspace.dependencies.indexmap]
+version = "2.6"
+features = [ "serde" ]
+
+[workspace.dependencies.itertools]
+version = "0.13.0"
+
+[workspace.dependencies.rand]
+version = "0.8"
+default-features = false
+
+[workspace.dependencies.regex]
+version = "1.11.0"
+
 [workspace.dependencies.snarkvm]
 version = "1.0.0"
+
+[workspace.dependencies.serde]
+version = "1.0.210"
+features = [ "derive", "rc" ]
+
+[workspace.dependencies.serde_json]
+version = "1.0"
+features = [ "preserve_order" ]
+
+[workspace.dependencies.tracing]
+version = "0.1"
 
 [lib]
 path = "leo/lib.rs"
@@ -65,36 +130,28 @@ text-tables = "0.3.1"
 ureq = "2.10.1"
 
 [dependencies.leo-ast]
-path = "./compiler/ast"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-compiler]
-path = "./compiler/compiler"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-errors]
-path = "./errors"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-package]
-path = "./leo/package"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-parser]
-path = "./compiler/parser"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-span]
-path = "./compiler/span"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-retriever]
-path = "./utils/retriever"
-version = "2.3.0"
+workspace = true
 
 [dependencies.aleo-std]
-version = "0.1.24"
-default-features = false
+workspace = true
 
 [dependencies.backtrace]
 version = "0.3.74"
@@ -109,46 +166,28 @@ version = "0.6.1"
 [dependencies.colored]
 version = "2.0"
 
-[dependencies.console]
-version = "0.15.8"
-
-[dependencies.dirs]
-version = "5.0.0"
-
 [dependencies.dotenvy]
 version = "0.15.7"
 
 [dependencies.indexmap]
-version = "1.9"
-features = [ "serde" ]
-
-[dependencies.lazy_static]
-version = "1.5.0"
+workspace = true
 
 [dependencies.rand]
-version = "0.8"
+workspace = true
 
 [dependencies.rand_chacha]
 version = "0.3.0"
 default-features = false
-
-[dependencies.rand_core]
-version = "0.6.4"
-
-[dependencies.reqwest]
-version = "0.12.8"
-features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
 version = "0.41.0"
 features = [ "archive-zip", "compression-zip-deflate" ]
 
 [dependencies.serde]
-version = "1.0"
-features = [ "derive" ]
+workspace = true
 
 [dependencies.serde_json]
-version = "1.0"
+workspace = true
 
 [dependencies.serial_test]
 version = "3.1.1"
@@ -178,9 +217,6 @@ version = "7.3.1"
 
 [target."cfg(windows)".dependencies.ansi_term]
 version = "0.12.1"
-
-[dev-dependencies.assert_cmd]
-version = "2.0.16"
 
 [dev-dependencies.rusty-hook]
 version = "0.11.2"

@@ -19,16 +19,13 @@ edition = "2021"
 rust-version = "1.69"
 
 [dependencies.leo-ast]
-path = "../ast"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-errors]
-path = "../../errors"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-span]
-path = "../span"
-version = "2.3.0"
+workspace = true
 
 [dependencies.snarkvm]
 workspace = true
@@ -38,27 +35,19 @@ version = "4.5"
 features = [ "derive" ]
 
 [dependencies.indexmap]
-version = "1.9"
-
-[dependencies.lazy_static]
-version = "1.5.0"
+workspace = true
 
 [dependencies.serde]
-version = "1.0"
-features = [ "derive" ]
-
-[dependencies.smallvec]
-version = "1.13"
+workspace = true
 
 [dependencies.tracing]
-version = "0.1"
+workspace = true
 
 [dev-dependencies.leo-test-framework]
 path = "../../tests/test-framework"
 
 [dev-dependencies.serde_json]
-version = "1.0"
-features = [ "preserve_order" ]
+workspace = true
 
 [dev-dependencies.serde_yaml]
 version = "0.8"

@@ -159,7 +159,7 @@ impl SymbolTable {
 
     /// Removes a variable from the symbol table.
     pub fn remove_variable_from_current_scope(&mut self, location: Location) {
-        self.variables.remove(&location);
+        self.variables.shift_remove(&location);
     }
 
     /// Creates a new scope for the block and stores it in the symbol table.

@@ -19,24 +19,19 @@ edition = "2021"
 rust-version = "1.69"
 
 [dependencies.leo-ast]
-path = "../ast"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-errors]
-path = "../../errors"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-passes]
-path = "../passes"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-parser]
-path = "../parser"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-span]
-path = "../span"
-version = "2.3.0"
+workspace = true
 
 [dependencies.sha2]
 version = "0.10"
@@ -45,8 +40,7 @@ version = "0.10"
 workspace = true
 
 [dependencies.indexmap]
-version = "1.9"
-features = [ ]
+workspace = true
 
 [dev-dependencies.leo-disassembler]
 path = "../../utils/disassembler"
@@ -64,22 +58,14 @@ path = "../../tests/test-framework"
 version = "0.1.7"
 default-features = false
 
-[dev-dependencies.dotenvy]
-version = "0.15.7"
-
-[dev-dependencies.rand]
-version = "0.8"
-default-features = false
-
 [dev-dependencies.snarkvm]
 workspace = true
 
 [dev-dependencies.regex]
-version = "1.11.0"
+workspace = true
 
 [dev-dependencies.serde]
-version = "1.0.210"
-features = [ "derive" ]
+workspace = true
 
 [dev-dependencies.serde_yaml]
 version = "0.8.25"

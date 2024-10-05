@@ -47,7 +47,7 @@ impl AwaitChecker {
         }
 
         // Remove from static list.
-        self.static_to_await.remove(&id.name);
+        self.static_to_await.shift_remove(&id.name);
     }
 
     /// Initialize futures.
