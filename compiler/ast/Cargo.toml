@@ -22,31 +22,22 @@ rust-version = "1.69"
 workspace = true
 
 [dependencies.leo-errors]
-path = "../../errors"
-version = "2.3.0"
+workspace = true
 
 [dependencies.leo-span]
-path = "../span"
-version = "2.3.0"
+workspace = true
 
 [dependencies.indexmap]
-version = "1.9"
-features = [ "serde-1" ]
+workspace = true
 
 [dependencies.itertools]
-version = "0.13.0"
+workspace = true
 
 [dependencies.serde]
-version = "1.0"
-features = [ "derive", "rc" ]
+workspace = true
 
 [dependencies.serde_json]
-version = "1.0"
-features = [ "preserve_order" ]
-
-[dependencies.smallvec]
-version = "1.13.1"
-features = [ "serde" ]
+workspace = true
 
 [dev-dependencies.criterion]
 version = "0.5"

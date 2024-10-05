@@ -51,7 +51,7 @@ impl<N: Node> TreeNode<N> {
 
     /// Removes an element from the current node.
     pub fn remove_element(&mut self, element: &N) {
-        if !self.elements.remove(element) {
+        if !self.elements.shift_remove(element) {
             self.counter += 1;
         }
     }

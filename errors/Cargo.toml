@@ -19,8 +19,7 @@ edition = "2021"
 rust-version = "1.69"
 
 [dependencies.leo-span]
-path = "../compiler/span"
-version = "2.3.0"
+workspace = true
 
 [dependencies.anyhow]
 version = "1.0"
@@ -41,8 +40,7 @@ version = "2.2.0"
 version = "0.12.8"
 
 [dependencies.serde]
-version = "1.0.210"
-features = [ "derive", "rc" ]
+workspace = true
 
 [dependencies.thiserror]
 version = "1.0.64"

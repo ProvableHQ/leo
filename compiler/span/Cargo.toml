@@ -19,8 +19,7 @@ edition = "2021"
 rust-version = "1.69"
 
 [dependencies.indexmap]
-version = "1.9"
-features = [ "serde" ]
+workspace = true
 
 [dependencies.fxhash]
 version = "0.2.1"
@@ -29,5 +28,4 @@ version = "0.2.1"
 version = "1.0.1"
 
 [dependencies.serde]
-version = "1.0.210"
-features = [ "derive", "rc" ]
+workspace = true
