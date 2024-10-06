@@ -14,38 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The parser to convert Leo code text into an [`AST`] type.
+//! The parser to convert Leo code text into a [`Program`] AST type.
 //!
-//! This module contains the [`parse_ast()`] method which calls the underlying [`parse()`]
-//! method to create a new program ast.
+//! This module contains the [`parse()`] function which calls the underlying [`tokenize()`]
+//! method to create a new program AST.
 
-#![forbid(unsafe_code)]
-#![allow(clippy::vec_init_then_push)]
-#![doc = include_str!("../README.md")]
+use crate::cst::*;
 
-pub(crate) mod tokenizer;
-use leo_span::span::BytePos;
-pub use tokenizer::KEYWORD_TOKENS;
-pub(crate) use tokenizer::*;
-
-pub mod parser;
-pub use parser::*;
-
-pub mod cst;
-use leo_ast::{Ast, NodeBuilder};
-use leo_errors::{Result, emitter::Handler};
-
+use leo_errors::{emitter::Handler, Result};
+use leo_span::{span::BytePos, Span};
+use leo_ast::cst::*;
 use snarkvm::prelude::Network;
+use indexmap::IndexMap;
+use std::unreachable;
 
-#[cfg(test)]
-mod test;
+mod context;
+pub(super) use context::ParserContext;
 
-/// Creates a new AST from a given file path and source code text.
-pub fn parse_ast<N: Network>(
+mod expression;
+mod file;
+mod statement;
+pub(super) mod type_;
+
+/// Creates a new program from a given file path and source code text.
+pub fn parse_<N: Network>(
     handler: &Handler,
     node_builder: &NodeBuilder,
     source: &str,
     start_pos: BytePos,
-) -> Result<Ast> {
-    Ok(Ast::new(parse::<N>(handler, node_builder, source, start_pos)?))
+) -> Result<Program> {
+    let mut tokens = ParserContext::<N>::new(handler, node_builder, crate::cst::tokenize(source, start_pos)?);
+
+    tokens.parse_program()
 }

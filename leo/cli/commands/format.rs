@@ -15,10 +15,24 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use std::{
+    fs,
+    path::Path ,
+};
+use leo_span::symbol::create_session_if_not_set_then;
+use leo_errors::emitter::Handler;
+use leo_ast::NodeBuilder;
+use snarkvm::prelude::TestnetV0;
+use std::fmt::Write;
 
 /// Clean outputs folder command
 #[derive(Parser, Debug)]
-pub struct Format {}
+pub struct Format {
+    #[clap(name = "Input", help = "Input file name")]
+    pub(crate) input: String,
+    #[clap(name = "Output", help = "Output file name")]
+    pub(crate) output: String,
+}
 
 impl Command for Format {
     type Input = ();
@@ -32,7 +46,30 @@ impl Command for Format {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
-        todo!()
+    fn apply(self, _: Context, _: Self::Input) -> Result<()> {
+        let input_str = self.input.as_str();
+        let output_str = self.output.as_str();
+        let input_path = Path::new(&input_str);
+        let output_path = Path::new(&output_str);
+        // Parses the Leo file constructing an ast which is then serialized.
+        let serialized_leo_tree = create_session_if_not_set_then(|s| {
+            let code = s.source_map.load_file(input_path).expect("failed to open file");
+            Handler::with(|h| {
+                let node_builder = NodeBuilder::default();
+                let cst = leo_parser::cst::parse::<TestnetV0>(h, &node_builder, &code.src, code.start_pos)?;
+                let mut output = String::new();
+                write!(output, "{}", cst.cst).unwrap();
+                Ok(output)
+            })
+            .map_err(|b| b.to_string())
+        });
+        match serialized_leo_tree {
+            Ok(tree) => {
+                fs::write(Path::new(output_path), tree).expect("failed to write output");
+            },
+            Err(e) => eprintln!("Error: {}", e),
+        };
+        
+        Ok(())
     }
 }
