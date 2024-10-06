@@ -1666,6 +1666,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-linter"
+version = "2.1.0"
+
+[[package]]
 name = "leo-package"
 version = "2.3.0"
 dependencies = [

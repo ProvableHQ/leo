@@ -39,7 +39,7 @@ pub struct CLI {
     pub home: Option<PathBuf>,
 }
 
-///Leo compiler and package manager
+///The Leo CLI commands
 #[derive(Parser, Debug)]
 enum Commands {
     #[clap(about = "Create a new Aleo account, sign and verify messages")]
@@ -47,7 +47,7 @@ enum Commands {
         #[clap(subcommand)]
         command: Account,
     },
-    #[clap(about = "Create a new Leo package in a new directory")]
+    #[clap(about = "Create a new Leo project in a new directory")]
     New {
         #[clap(flatten)]
         command: New,
@@ -56,6 +56,11 @@ enum Commands {
     Example {
         #[clap(flatten)]
         command: Example,
+    },
+    #[clap(about = "Format the current Leo project", name = "fmt")]
+    Format {
+        #[clap(flatten)]
+        command: Format,
     },
     #[clap(about = "Run a program with input variables")]
     Run {
@@ -77,17 +82,17 @@ enum Commands {
         #[clap(flatten)]
         command: Query,
     },
-    #[clap(about = "Compile the current package as a program")]
+    #[clap(about = "Compile the current project")]
     Build {
         #[clap(flatten)]
         command: Build,
     },
-    #[clap(about = "Add a new on-chain or local dependency to the current package.")]
+    #[clap(about = "Add a new on-chain or local dependency to the current project.")]
     Add {
         #[clap(flatten)]
         command: Add,
     },
-    #[clap(about = "Remove a dependency from the current package.")]
+    #[clap(about = "Remove a dependency from the current project.")]
     Remove {
         #[clap(flatten)]
         command: Remove,
@@ -137,6 +142,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
         Commands::Example { command } => command.try_execute(context),
+        Commands::Format { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
         Commands::Remove { command } => command.try_execute(context),

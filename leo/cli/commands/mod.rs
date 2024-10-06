@@ -35,6 +35,9 @@ pub use example::Example;
 pub mod execute;
 pub use execute::Execute;
 
+pub mod format;
+pub use format::Format;
+
 pub mod query;
 pub use query::Query;
 

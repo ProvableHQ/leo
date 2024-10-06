@@ -21,7 +21,6 @@
 
 #![forbid(unsafe_code)]
 #![allow(clippy::vec_init_then_push)]
-#![doc = include_str!("../README.md")]
 
 pub(crate) mod tokenizer;
 use leo_span::span::BytePos;
@@ -30,22 +29,25 @@ pub(crate) use tokenizer::*;
 
 pub mod parser;
 pub use parser::*;
+/* 
+pub mod cst_parser;
+pub use cst_parser::*;
 
-pub mod cst;
-use leo_ast::{Ast, NodeBuilder};
-use leo_errors::{Result, emitter::Handler};
+pub mod cst_tokenizer;
+pub use cst_tokenizer::*;
+*/
+use leo_ast::cst::Cst;
+use leo_ast::NodeBuilder;
+use leo_errors::{emitter::Handler, Result};
 
 use snarkvm::prelude::Network;
 
-#[cfg(test)]
-mod test;
-
-/// Creates a new AST from a given file path and source code text.
-pub fn parse_ast<N: Network>(
+/// Creates a new CST from a given file path and source code text.
+pub fn parse<N: Network>(
     handler: &Handler,
     node_builder: &NodeBuilder,
     source: &str,
     start_pos: BytePos,
-) -> Result<Ast> {
-    Ok(Ast::new(parse::<N>(handler, node_builder, source, start_pos)?))
+) -> Result<Cst> {
+    Ok(Cst::new(parse_::<N>(handler, node_builder, source, start_pos)?))
 }

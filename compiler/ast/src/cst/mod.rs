@@ -22,29 +22,12 @@
 
 #![allow(ambiguous_glob_reexports)]
 
-pub mod access;
-pub use self::access::*;
-
 pub mod r#struct;
 pub use self::r#struct::*;
 
-pub mod common;
-pub use self::common::*;
-
-pub mod expressions;
-pub use self::expressions::*;
-
-pub mod functions;
-pub use self::functions::*;
-
-pub mod groups;
-pub use self::groups::*;
 
 pub mod mapping;
 pub use self::mapping::*;
-
-pub mod passes;
-pub use self::passes::*;
 
 pub mod program;
 pub use self::program::*;
@@ -52,19 +35,9 @@ pub use self::program::*;
 pub mod statement;
 pub use self::statement::*;
 
-pub mod types;
-pub use self::types::*;
+pub mod functions;
+pub use self::functions::*;
 
-pub mod value;
-
-pub mod stub;
-pub use self::stub::*;
-
-pub mod cst;
-
-pub use self::value::*;
-
-pub use common::node::*;
 
 use leo_errors::{AstError, Result};
 
@@ -72,29 +45,29 @@ use leo_errors::{AstError, Result};
 ///
 /// The [`Ast`] type represents a Leo program as a series of recursive data types.
 /// These data types form a tree that begins from a [`Program`] type root.
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct Ast {
-    pub ast: Program,
+#[derive(Clone, Debug, Default)]
+pub struct Cst {
+    pub cst: Program,
 }
 
-impl Ast {
+impl Cst {
     /// Creates a new AST from a given program tree.
     pub fn new(program: Program) -> Self {
-        Self { ast: program }
+        Self { cst: program }
     }
 
     /// Returns a reference to the inner program AST representation.
     pub fn as_repr(&self) -> &Program {
-        &self.ast
+        &self.cst
     }
 
     pub fn into_repr(self) -> Program {
-        self.ast
+        self.cst
     }
 
     /// Serializes the ast into a JSON string.
     pub fn to_json_string(&self) -> Result<String> {
-        Ok(serde_json::to_string_pretty(&self.ast).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
+        Ok(serde_json::to_string_pretty(&self.cst).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
     }
 
     // Converts the ast into a JSON value.
@@ -102,7 +75,7 @@ impl Ast {
     // since we modify JSON values leaving them unable to be converted
     // back into Programs.
     pub fn to_json_value(&self) -> Result<serde_json::Value> {
-        Ok(serde_json::to_value(&self.ast).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
+        Ok(serde_json::to_value(&self.cst).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
     }
 
     /// Serializes the ast into a JSON file.
@@ -110,7 +83,7 @@ impl Ast {
         path.push(file_name);
         let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
         let writer = std::io::BufWriter::new(file);
-        Ok(serde_json::to_writer_pretty(writer, &self.ast)
+        Ok(serde_json::to_writer_pretty(writer, &self.cst)
             .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
     }
 
@@ -137,8 +110,8 @@ impl Ast {
 
     /// Deserializes the JSON string into a ast.
     pub fn from_json_string(json: &str) -> Result<Self> {
-        let ast: Program = serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_ast(&e))?;
-        Ok(Self { ast })
+        let cst: Program = serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_ast(&e))?;
+        Ok(Self { cst })
     }
 
     /// Deserializes the JSON string into a ast from a file.
@@ -148,11 +121,12 @@ impl Ast {
     }
 }
 
-impl AsRef<Program> for Ast {
+impl AsRef<Program> for Cst {
     fn as_ref(&self) -> &Program {
-        &self.ast
+        &self.cst
     }
 }
+
 
 /// Helper function to recursively filter keys from AST JSON
 pub fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Value {

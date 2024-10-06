@@ -1,0 +1,20 @@
+[package]
+name = "leo-linter"
+version = "2.1.0"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "A linter for the Leo programming language"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "compilers", "cryptography", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2021"
+rust-version = "1.69"
+
