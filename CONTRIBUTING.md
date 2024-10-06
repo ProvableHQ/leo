@@ -6,7 +6,7 @@ Thank you for your interest in contributing to Leo! Below you can find some guid
 
 Please follow the instructions below when filing pull requests:
 
-- Ensure that your branch is forked from the current [mainnet](https://github.com/AleoHQ/leo/tree/mainnet) branch.
+- Ensure that your branch is forked from the current [mainnet](https://github.com/ProvableHQ/leo/tree/mainnet) branch.
 - Fill out the provided markdown template for the feature or proposal. Be sure to link the pull request to any issues by using keywords. Example: "closes #130".
 - Run `cargo fmt` before you commit; we use the `nightly` version of `rustfmt` to format the code, so you'll need to have the `nightly` toolchain installed on your machine; there's a [git hook](https://git-scm.com/docs/githooks) that ensures proper formatting before any commits can be made, and [`.rustfmt.toml`](https://github.com/AleoHQ/Leo/blob/mainnet/.rustfmt.toml) specifies some of the formatting conventions.
 - Run `cargo clippy` to ensure that popular correctness and performance pitfalls are avoided.

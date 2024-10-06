@@ -1,10 +1,10 @@
 [package]
 name = "leo-lang"
-version = "2.1.0"
-authors = [ "The Aleo Team <hello@aleo.org>" ]
+version = "2.3.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The Leo programming language"
-homepage = "https://aleo.org"
-repository = "https://github.com/AleoHQ/leo"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
 keywords = [
   "aleo",
   "cryptography",
@@ -45,8 +45,7 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-git = "https://github.com/AleoNet/snarkVM.git"
-rev = "be171ce"
+version = "1.0.0"
 
 [lib]
 path = "leo/lib.rs"
@@ -68,42 +67,38 @@ ureq = "2.10.1"
 
 [dependencies.leo-ast]
 path = "./compiler/ast"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-compiler]
 path = "./compiler/compiler"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-errors]
 path = "./errors"
-version = "2.1.0"
-
-[dependencies.leo-linter]
-path = "./utils/linter"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-package]
 path = "./leo/package"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-parser]
 path = "./compiler/parser"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-span]
 path = "./compiler/span"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-retriever]
 path = "./utils/retriever"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.aleo-std]
 version = "0.1.24"
 default-features = false
 
 [dependencies.backtrace]
-version = "0.3.73"
+version = "0.3.74"
 
 [dependencies.clap]
 version = "4.5"
@@ -142,7 +137,7 @@ default-features = false
 version = "0.6.4"
 
 [dependencies.reqwest]
-version = "0.12.5"
+version = "0.12.8"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]

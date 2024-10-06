@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use crate::{Dependency, Location, LockFileEntry, Manifest, NetworkName, ProgramC
 use leo_ast::Stub;
 use leo_disassembler::disassemble_from_str;
 use leo_errors::UtilError;
-use leo_passes::{common::DiGraph, DiGraphError};
+use leo_passes::{DiGraphError, common::DiGraph};
 use leo_span::Symbol;
 
 use snarkvm::prelude::{Network, Program};
@@ -33,6 +33,7 @@ use std::{
     path::{Path, PathBuf},
     str::FromStr,
 };
+use ureq::AgentBuilder;
 
 // Retriever is responsible for retrieving external programs
 pub struct Retriever<N: Network> {
@@ -518,14 +519,17 @@ fn retrieve_from_network<N: Network>(
 
 // Fetch the given endpoint url and return the sanitized response.
 pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
-    let response = ureq::get(url)
+    let response = AgentBuilder::new()
+        .redirects(0)
+        .build()
+        .get(url)
         .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
-    if response.status() == 200 {
-        Ok(response.into_string().unwrap().replace("\\n", "\n").replace('\"', ""))
-    } else {
-        Err(UtilError::network_error(url, response.status(), Default::default()))
+    match response.status() {
+        200 => Ok(response.into_string().unwrap().replace("\\n", "\n").replace('\"', "")),
+        301 => Err(UtilError::endpoint_moved_error(url)),
+        _ => Err(UtilError::network_error(url, response.status(), Default::default())),
     }
 }
 

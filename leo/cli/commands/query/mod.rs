@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -42,7 +42,7 @@ mod utils;
 use utils::*;
 
 use leo_errors::UtilError;
-use leo_retriever::{fetch_from_network, verify_valid_program, NetworkName};
+use leo_retriever::{NetworkName, fetch_from_network, verify_valid_program};
 
 ///  Query live data from the Aleo network.
 #[derive(Parser, Debug)]
@@ -99,7 +99,7 @@ fn handle_query<N: Network>(
         QueryCommands::Stateroot { command } => (None, command.apply(context, ())?),
         QueryCommands::Committee { command } => (None, command.apply(context, ())?),
         QueryCommands::Mempool { command } => {
-            if endpoint == "https://api.explorer.aleo.org/v1" {
+            if endpoint == "https://api.explorer.provable.com/v1" {
                 tracing::warn!(
                     "⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                 );
@@ -107,7 +107,7 @@ fn handle_query<N: Network>(
             (None, command.apply(context, ())?)
         }
         QueryCommands::Peers { command } => {
-            if endpoint == "https://api.explorer.aleo.org/v1" {
+            if endpoint == "https://api.explorer.provable.com/v1" {
                 tracing::warn!(
                     "⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                 );

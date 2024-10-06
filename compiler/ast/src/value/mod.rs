@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use crate::{GroupLiteral, Identifier, IntegerType, Literal, NodeID, Type};
 
-use leo_errors::{type_name, FlattenError, LeoError, Result};
+use leo_errors::{FlattenError, LeoError, Result, type_name};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;

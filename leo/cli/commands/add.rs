@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@ use std::path::PathBuf;
 
 /// Add a new on-chain or local dependency to the current package.
 #[derive(Parser, Debug)]
-#[clap(name = "leo", author = "The Aleo Team <hello@aleo.org>", version)]
+#[clap(name = "leo", author = "The Leo Team <leo@provable.com>", version)]
 pub struct Add {
     #[clap(name = "NAME", help = "The dependency name. Ex: `credits.aleo` or `credits`.")]
     pub(crate) name: String,

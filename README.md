@@ -8,7 +8,7 @@
     <a href="https://circleci.com/gh/AleoHQ/leo"><img src="https://circleci.com/gh/AleoHQ/leo.svg?style=svg&circle-token=00960191919c40be0774e00ce8f7fa1fcaa20c00"></a>
     <a href="https://codecov.io/gh/AleoHQ/leo"><img src="https://codecov.io/gh/AleoHQ/leo/branch/mainnet/graph/badge.svg?token=S6MWO60SYL"/></a>
     <a href="https://discord.gg/aleo"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
-    <a href="https://github.com/AleoHQ/leo/blob/mainnet/CONTRIBUTORS.md"><img src="https://img.shields.io/badge/contributors-393-ee8449"/></a>
+    <a href="https://github.com/ProvableHQ/leo/blob/mainnet/CONTRIBUTORS.md"><img src="https://img.shields.io/badge/contributors-393-ee8449"/></a>
      <a href="https://twitter.com/AleoHQ"><img src="https://img.shields.io/twitter/follow/AleoHQ?style=social"/></a>
 </p>
 <div id="top"></div>
@@ -40,7 +40,7 @@ integrate private applications into your stack. Leo compiles to circuits making 
 The syntax of Leo is influenced by traditional programming languages like JavaScript, Scala, and Rust, with a strong emphasis on readability and ease-of-use.
 Leo offers developers with tools to sanity check circuits including unit tests, integration tests, and console functions.
 
-Leo is one part of a greater ecosystem for building private applications on [Aleo](https://aleo.org/). 
+Leo is one part of a greater ecosystem for building private applications on [Aleo](https://leo-lang.org/). 
 The language is currently in an alpha stage and is subject to breaking changes.
 
 ## ⚙️️ Build Guide 
@@ -68,7 +68,7 @@ We recommend installing Leo by building from the source code as follows:
 
 ```bash
 # Download the source code
-git clone https://github.com/AleoHQ/leo
+git clone https://github.com/ProvableHQ/leo
 cd leo
 
 # Install 'leo'
@@ -114,7 +114,7 @@ Congratulations! You've just run your first Leo program.
 ## 🧰 Troubleshooting
 If you are having trouble installing and using Leo, please check out our [guide](docs/troubleshooting.md).
 
-If the issue still persists, please [open an issue](https://github.com/AleoHQ/leo/issues/new/choose).
+If the issue still persists, please [open an issue](https://github.com/ProvableHQ/leo/issues/new/choose).
 
 ## 📖 Documentation
 

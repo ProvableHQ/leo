@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,17 +15,17 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
     CallGraph,
     StructGraph,
     SymbolTable,
     TypeTable,
     VariableSymbol,
     VariableType,
+    type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
 };
 
 use leo_ast::*;
-use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
+use leo_errors::{TypeCheckerError, TypeCheckerWarning, emitter::Handler};
 use leo_span::{Span, Symbol};
 
 use snarkvm::console::network::Network;
@@ -1179,7 +1179,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         }
 
         // Type check the function's parameters.
-        function.input.iter().enumerate().for_each(|(_index, input_var)| {
+        function.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is defined.
             self.assert_type_is_valid(input_var.type_(), input_var.span());
             // Check that the type of the input parameter is not a tuple.
@@ -1239,6 +1239,9 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                     self.handler.emit_err(err);
                 }
             }
+
+            // Add the input to the type table.
+            self.type_table.insert(input_var.identifier().id(), input_var.type_().clone());
         });
 
         // Type check the function's return type.

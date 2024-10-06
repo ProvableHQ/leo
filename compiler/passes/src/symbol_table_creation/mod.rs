@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@ pub use creator::*;
 use crate::{Pass, SymbolTable};
 
 use leo_ast::{Ast, ProgramVisitor};
-use leo_errors::{emitter::Handler, Result};
+use leo_errors::{Result, emitter::Handler};
 
 impl<'a> Pass for SymbolTableCreator<'a> {
     type Input = (&'a Ast, &'a Handler);

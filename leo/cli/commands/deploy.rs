@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use super::*;
 use aleo_std::StorageMode;
-use dialoguer::{theme::ColorfulTheme, Confirm};
+use dialoguer::{Confirm, theme::ColorfulTheme};
 use leo_retriever::NetworkName;
 use num_format::{Locale, ToFormattedString};
 use snarkvm::{
@@ -24,13 +24,13 @@ use snarkvm::{
     ledger::query::Query as SnarkVMQuery,
     package::Package as SnarkVMPackage,
     prelude::{
-        deployment_cost,
-        store::{helpers::memory::ConsensusMemory, ConsensusStore},
         CanaryV0,
         MainnetV0,
         ProgramOwner,
         TestnetV0,
         VM,
+        deployment_cost,
+        store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
 use std::path::PathBuf;

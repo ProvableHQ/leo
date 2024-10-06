@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@ pub use program_context::*;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use leo_span::{symbol::create_session_if_not_set_then, Symbol};
+    use leo_span::{Symbol, symbol::create_session_if_not_set_then};
 
     use aleo_std::aleo_dir;
 

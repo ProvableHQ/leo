@@ -1,10 +1,10 @@
 [package]
 name = "leo-errors"
-version = "2.1.0"
-authors = [ "The Aleo Team <hello@aleo.org>" ]
+version = "2.3.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Errors for the Leo programming language"
-homepage = "https://aleo.org"
-repository = "https://github.com/AleoHQ/leo"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
 keywords = [
   "aleo",
   "cryptography",
@@ -20,13 +20,13 @@ rust-version = "1.69"
 
 [dependencies.leo-span]
 path = "../compiler/span"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.anyhow]
 version = "1.0"
 
 [dependencies.backtrace]
-version = "0.3.73"
+version = "0.3.74"
 
 [dependencies.colored]
 version = "2.0.4"
@@ -38,11 +38,11 @@ version = "0.6.1"
 version = "2.2.0"
 
 [dependencies.reqwest]
-version = "0.12.5"
+version = "0.12.8"
 
 [dependencies.serde]
-version = "1.0.209"
+version = "1.0.210"
 features = [ "derive", "rc" ]
 
 [dependencies.thiserror]
-version = "1.0.63"
+version = "1.0.64"

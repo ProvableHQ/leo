@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ use leo_errors::emitter::{Emitter, Handler};
 use leo_span::{source_map::FileName, symbol::SESSION_GLOBALS};
 use leo_test_framework::get_benches;
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use std::{
     path::PathBuf,
     time::{Duration, Instant},

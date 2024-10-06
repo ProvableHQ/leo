@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@ use crate::Identifier;
 
 use core::fmt;
 use leo_span::Symbol;
-use serde::{de, de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de, de::Visitor};
 use snarkvm::{console::program::ProgramID, prelude::Network};
 use std::collections::BTreeMap;
 

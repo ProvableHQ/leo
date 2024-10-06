@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -28,10 +28,7 @@ pub fn find_tests(path: &Path) -> impl Iterator<Item = (PathBuf, String)> {
         // Check if the file is a .leo file.
         let is_leo_file = path.extension().filter(|s| *s == "leo").is_some();
         // Read the test filter from the environment.
-        let filter = match std::env::var("TEST_FILTER") {
-            Ok(filter) => filter,
-            Err(_) => String::new(),
-        };
+        let filter = std::env::var("TEST_FILTER").unwrap_or_default();
         // Check if the path contains the filter.
         let satisfies_filter = filter.is_empty() || path.to_string_lossy().contains(&filter);
         // If the file is a .leo file and satisfies the filter, return the path and the file contents.

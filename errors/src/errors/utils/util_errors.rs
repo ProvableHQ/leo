@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -199,5 +199,12 @@ create_messages!(
         args: (bound: impl Display),
         msg: format!("Invalid bound: {bound}."),
         help: Some("Bound must be a valid u32.".to_string()),
+    }
+
+    @backtraced
+    endpoint_moved_error {
+        args: (endpoint: impl Display),
+        msg: format!("The endpoint `{endpoint}` has been permanently moved."),
+        help: Some("Try using `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag.".to_string()),
     }
 );

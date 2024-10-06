@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -19,11 +19,11 @@
 //! This module contains the [`parse()`] function which calls the underlying [`tokenize()`]
 //! method to create a new program AST.
 
-use crate::{tokenizer::*, Token};
+use crate::{Token, tokenizer::*};
 
 use leo_ast::*;
-use leo_errors::{emitter::Handler, Result};
-use leo_span::{span::BytePos, Span};
+use leo_errors::{Result, emitter::Handler};
+use leo_span::{Span, span::BytePos};
 
 use snarkvm::prelude::Network;
 

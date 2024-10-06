@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -18,16 +18,16 @@ use leo_errors::Result;
 use leo_span::{Span, Symbol};
 use snarkvm::console::program::Identifier as IdentifierCore;
 
-use crate::{simple_node_impl, Node, NodeID};
+use crate::{Node, NodeID, simple_node_impl};
 use serde::{
-    de::{
-        Visitor,
-        {self},
-    },
     Deserialize,
     Deserializer,
     Serialize,
     Serializer,
+    de::{
+        Visitor,
+        {self},
+    },
 };
 use snarkvm::prelude::Network;
 use std::{

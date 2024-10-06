@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(Parser, Debug)]
-#[clap(name = "leo", author = "The Aleo Team <hello@aleo.org>", version)]
+#[clap(name = "leo", author = "The Leo Team <leo@provable.com>", version)]
 pub struct CLI {
     #[clap(short, global = true, help = "Print additional information for debugging")]
     debug: bool,
@@ -152,9 +152,9 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use crate::cli::{
-        cli::{test_helpers, Commands},
-        run_with_args,
         CLI,
+        cli::{Commands, test_helpers},
+        run_with_args,
     };
     use leo_span::symbol::create_session_if_not_set_then;
     use serial_test::serial;
@@ -316,12 +316,12 @@ mod tests {
 
 #[cfg(test)]
 mod test_helpers {
-    use crate::cli::{cli::Commands, run_with_args, Add, New, CLI};
+    use crate::cli::{Add, CLI, New, cli::Commands, run_with_args};
     use leo_span::symbol::create_session_if_not_set_then;
     use std::path::Path;
 
     const NETWORK: &str = "mainnet";
-    const ENDPOINT: &str = "https://api.explorer.aleo.org/v1";
+    const ENDPOINT: &str = "https://api.explorer.provable.com/v1";
 
     pub(crate) fn sample_nested_package(temp_dir: &Path) {
         let name = "nested";

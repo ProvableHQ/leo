@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -259,7 +259,7 @@ impl Handler {
 mod tests {
     use super::*;
     use crate::ParserError;
-    use leo_span::{symbol::create_session_if_not_set_then, Span};
+    use leo_span::{Span, symbol::create_session_if_not_set_then};
 
     #[test]
     fn fresh_no_errors() {

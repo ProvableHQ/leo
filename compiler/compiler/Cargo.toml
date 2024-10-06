@@ -1,10 +1,10 @@
 [package]
 name = "leo-compiler"
-version = "2.1.0"
-authors = [ "The Aleo Team <hello@aleo.org>" ]
+version = "2.3.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Compiler for Leo programming language"
-homepage = "https://aleo.org"
-repository = "https://github.com/AleoHQ/leo"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
 keywords = [
   "aleo",
   "cryptography",
@@ -20,23 +20,23 @@ rust-version = "1.69"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-passes]
 path = "../passes"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-parser]
 path = "../parser"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-span]
 path = "../span"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.sha2]
 version = "0.10"
@@ -75,17 +75,17 @@ default-features = false
 workspace = true
 
 [dev-dependencies.regex]
-version = "1.10.6"
+version = "1.11.0"
 
 [dev-dependencies.serde]
-version = "1.0.209"
+version = "1.0.210"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]
 version = "0.8.25"
 
 [dev-dependencies.tempfile]
-version = "3.12"
+version = "3.13"
 
 [features]
 default = [ ]

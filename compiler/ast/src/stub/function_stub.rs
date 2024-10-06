@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ use crate::{
     Type,
     Variant,
 };
-use leo_span::{sym, Span, Symbol};
+use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};

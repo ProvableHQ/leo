@@ -1,10 +1,10 @@
 [package]
 name = "leo-abnf"
-version = "2.1.0"
-authors = [ "The Aleo Team <hello@aleo.org>" ]
+version = "2.3.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
 description = "ABNF to Markdown converter for the Leo programming language"
-homepage = "https://aleo.org"
-repository = "https://github.com/AleoHQ/leo"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
 keywords = [
   "aleo",
   "cryptography",

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ fn set_panic_hook() {
             eprintln!("error: internal compiler error: unexpected panic\n");
             eprintln!("note: the compiler unexpectedly panicked. this is a bug.\n");
             eprintln!(
-                "note: we would appreciate a bug report: https://github.com/AleoHQ/leo/issues/new?labels=bug,panic&template=bug.md&title=[Bug]\n"
+                "note: we would appreciate a bug report: https://github.com/ProvableHQ/leo/issues/new?labels=bug,panic&template=bug.md&title=[Bug]\n"
             );
             eprintln!(
                 "note: {} {} running on {} {}\n",

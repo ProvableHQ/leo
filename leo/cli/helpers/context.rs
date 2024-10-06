@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use aleo_std;
 use leo_errors::{CliError, PackageError, Result};
-use leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
+use leo_package::build::{BUILD_DIRECTORY_NAME, BuildDirectory};
 use leo_retriever::LockFileEntry;
 
 use snarkvm::file::Manifest;

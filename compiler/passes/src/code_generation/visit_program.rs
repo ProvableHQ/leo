@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 use crate::CodeGenerator;
 
 use leo_ast::{Composite, Function, Location, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
-use leo_span::{sym, Symbol};
+use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
 use itertools::Itertools;

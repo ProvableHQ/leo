@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use leo_span::{Span, Symbol};
 
-use crate::{simple_node_impl, Node, NodeID, ProgramId};
+use crate::{Node, NodeID, ProgramId, simple_node_impl};
 use serde::{Deserialize, Serialize};
 use std::{fmt, hash::Hash};
 

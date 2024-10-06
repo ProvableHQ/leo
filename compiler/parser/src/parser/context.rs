@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{tokenizer::*, Token};
+use crate::{Token, tokenizer::*};
 
 use leo_ast::*;
-use leo_errors::{emitter::Handler, ParserError, ParserWarning, Result};
+use leo_errors::{ParserError, ParserWarning, Result, emitter::Handler};
 use leo_span::{Span, Symbol};
 
 use snarkvm::prelude::Network;

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -22,13 +22,13 @@ pub use output::*;
 
 use leo_compiler::{BuildOptions, Compiler, CompilerOptions};
 use leo_errors::{
-    emitter::{Buffer, Emitter, Handler},
     LeoError,
     LeoWarning,
+    emitter::{Buffer, Emitter, Handler},
 };
 use leo_package::root::env::Env;
 use leo_span::source_map::FileName;
-use leo_test_framework::{test::TestConfig, Test};
+use leo_test_framework::{Test, test::TestConfig};
 
 use snarkvm::prelude::*;
 

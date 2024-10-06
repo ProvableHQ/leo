@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ pub struct New {
         short = 'e',
         long,
         help = "Endpoint to retrieve network state from.",
-        default_value = "https://api.explorer.aleo.org/v1"
+        default_value = "https://api.explorer.provable.com/v1"
     )]
     pub(crate) endpoint: String,
 }

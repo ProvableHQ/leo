@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use indexmap::IndexSet;
 use leo_ast::*;
-use leo_errors::{emitter::Handler, AstError, LeoError};
+use leo_errors::{AstError, LeoError, emitter::Handler};
 use leo_span::Symbol;
 
 use crate::{SymbolTable, VariableSymbol, VariableType};

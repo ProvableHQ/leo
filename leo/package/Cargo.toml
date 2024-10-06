@@ -1,10 +1,10 @@
 [package]
 name = "leo-package"
-version = "2.1.0"
-authors = [ "The Aleo Team <hello@aleo.org>" ]
+version = "2.3.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Package parser for the Leo programming language"
-homepage = "https://aleo.org"
-repository = "https://github.com/AleoHQ/leo"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
 keywords = [
   "aleo",
   "cryptography",
@@ -20,11 +20,11 @@ rust-version = "1.69"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.leo-retriever]
 path = "../../utils/retriever"
-version = "2.1.0"
+version = "2.3.0"
 
 [dependencies.snarkvm]
 workspace = true

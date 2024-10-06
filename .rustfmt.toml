@@ -13,4 +13,4 @@ imports_layout = "HorizontalVertical"
 imports_granularity = "Crate"
 overflow_delimited_expr = true
 reorder_impl_items = true
-version = "Two"
+style_edition = "2024"

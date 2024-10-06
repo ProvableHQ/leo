@@ -20,7 +20,7 @@ fi
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 # Publicly mint 100 tokens for Alice.
@@ -55,7 +55,7 @@ leo run mint_public aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 # Privately mint 100 tokens for Bob.
@@ -90,7 +90,7 @@ leo run mint_private aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 # Publicly transfer 10 tokens from Alice to Bob.
@@ -125,7 +125,7 @@ leo run transfer_public aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5p
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 # Privately transfer 20 tokens from Bob to Alice.
@@ -164,7 +164,7 @@ leo run transfer_private "{
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 # Convert 30 public tokens from Alice into 30 private tokens for Bob.
@@ -200,7 +200,7 @@ leo run transfer_public_to_private aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0x
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env
 
 # Convert 40 private tokens from Bob into 40 public tokens for Alice.
@@ -242,5 +242,5 @@ leo run transfer_private_to_public "{
 echo "
 NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
-ENDPOINT=https://localhost:3030
+ENDPOINT=http://localhost:3030
 " > .env

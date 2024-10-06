@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Aleo Systems Inc.
+// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 
 use core::ops::{Add, Sub};
 use serde::{Deserialize, Serialize};
-use std::{fmt, usize};
+use std::fmt;
 
 use crate::symbol::with_session_globals;
 

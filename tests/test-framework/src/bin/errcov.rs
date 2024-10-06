@@ -1,4 +1,4 @@
-// // Copyright (C) 2019-2023 Aleo Systems Inc.
+// // Copyright (C) 2019-2024 Aleo Systems Inc.
 // // This file is part of the Leo library.
 
 // // The Leo library is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@
 // use clap::{clap::AppSettings, Parser};
 
 // #[derive(Parser)]
-// #[clap(name = "error-coverage", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
+// #[clap(name = "error-coverage", author = "The Leo Team <leo@provable.com>", setting = AppSettings::ColoredHelp)]
 // struct Opt {
 //     #[clap(
 //         short,
