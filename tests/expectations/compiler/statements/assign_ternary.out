@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372003]: Expected type `boolean` but type `u32` was found\n    --> compiler-test:5:30\n     |\n   5 |         let x: bool = true ? x: true;\n     |                              ^\nError [EAST0372009]: variable `x` shadowed by\n    --> compiler-test:5:13\n     |\n   5 |         let x: bool = true ? x: true;\n     |             ^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"
+  - "Error [ETYC0372003]: Expected type `bool` but type `u32` was found\n    --> compiler-test:5:30\n     |\n   5 |         let x: bool = true ? x: true;\n     |                              ^\nError [EAST0372009]: variable `x` shadowed by\n    --> compiler-test:5:13\n     |\n   5 |         let x: bool = true ? x: true;\n     |             ^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"

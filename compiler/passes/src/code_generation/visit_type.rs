@@ -22,7 +22,6 @@ impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_type(input: &Type) -> String {
         match input {
             Type::Address
-            | Type::Boolean
             | Type::Field
             | Type::Group
             | Type::Scalar
@@ -32,6 +31,10 @@ impl<'a> CodeGenerator<'a> {
             | Type::Composite(..)
             | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
+            Type::Boolean => {
+                // Leo calls this just `bool`, which isn't what we need.
+                "boolean".into()
+            }
             Type::Array(array_type) => {
                 format!("[{}; {}u32]", Self::visit_type(array_type.element_type()), array_type.length())
             }

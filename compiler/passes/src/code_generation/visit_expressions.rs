@@ -148,8 +148,10 @@ impl<'a> CodeGenerator<'a> {
         // Increment the register counter.
         self.next_register += 1;
 
-        let cast_instruction =
-            format!("    cast {expression_operand} into {destination_register} as {};\n", input.type_);
+        let cast_instruction = format!(
+            "    cast {expression_operand} into {destination_register} as {};\n",
+            Self::visit_type(&input.type_)
+        );
 
         // Concatenate the instructions.
         instructions.push_str(&cast_instruction);
