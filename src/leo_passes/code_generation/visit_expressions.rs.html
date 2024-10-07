@@ -613,6 +613,8 @@
 <a href="#613" id="613">613</a>
 <a href="#614" id="614">614</a>
 <a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -763,8 +765,10 @@
         <span class="comment">// Increment the register counter.
         </span><span class="self">self</span>.next_register += <span class="number">1</span>;
 
-        <span class="kw">let </span>cast_instruction =
-            <span class="macro">format!</span>(<span class="string">"    cast {expression_operand} into {destination_register} as {};\n"</span>, input.type_);
+        <span class="kw">let </span>cast_instruction = <span class="macro">format!</span>(
+            <span class="string">"    cast {expression_operand} into {destination_register} as {};\n"</span>,
+            <span class="self">Self</span>::visit_type(<span class="kw-2">&amp;</span>input.type_)
+        );
 
         <span class="comment">// Concatenate the instructions.
         </span>instructions.push_str(<span class="kw-2">&amp;</span>cast_instruction);

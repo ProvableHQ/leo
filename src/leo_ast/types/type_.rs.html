@@ -387,7 +387,7 @@
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             Type::Address =&gt; <span class="macro">write!</span>(f, <span class="string">"address"</span>),
             Type::Array(<span class="kw-2">ref </span>array_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{array_type}"</span>),
-            Type::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">"boolean"</span>),
+            Type::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">"bool"</span>),
             Type::Field =&gt; <span class="macro">write!</span>(f, <span class="string">"field"</span>),
             Type::Future(<span class="kw-2">ref </span>future_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{future_type}"</span>),
             Type::Group =&gt; <span class="macro">write!</span>(f, <span class="string">"group"</span>),

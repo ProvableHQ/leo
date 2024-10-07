@@ -70,6 +70,9 @@
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -94,7 +97,6 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_type(input: <span class="kw-2">&amp;</span>Type) -&gt; String {
         <span class="kw">match </span>input {
             Type::Address
-            | Type::Boolean
             | Type::Field
             | Type::Group
             | Type::Scalar
@@ -104,6 +106,10 @@
             | Type::Composite(..)
             | Type::Identifier(..)
             | Type::Integer(..) =&gt; <span class="macro">format!</span>(<span class="string">"{input}"</span>),
+            Type::Boolean =&gt; {
+                <span class="comment">// Leo calls this just `bool`, which isn't what we need.
+                </span><span class="string">"boolean"</span>.into()
+            }
             Type::Array(array_type) =&gt; {
                 <span class="macro">format!</span>(<span class="string">"[{}; {}u32]"</span>, <span class="self">Self</span>::visit_type(array_type.element_type()), array_type.length())
             }
