@@ -53,12 +53,13 @@ jobs:
       - image: cimg/rust:1.76
     resource_class: xlarge
     steps:
-      - checkout:
-          submodules: true
-          submodule_recursive: true
+      - checkout
       - install_rust_nightly
       - setup_environment:
           cache_key: leo-fmt-cache
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
       - run:
           name: Check style
           no_output_timeout: 35m
@@ -71,11 +72,12 @@ jobs:
       - image: cimg/rust:1.76
     resource_class: xlarge
     steps:
-      - checkout:
-          submodules: true
-          submodule_recursive: true
+      - checkout
       - setup_environment:
           cache_key: leo-clippy-cache
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
       - run:
           name: Clippy
           no_output_timeout: 35m
@@ -90,11 +92,12 @@ jobs:
       - image: cimg/rust:1.76
     resource_class: xlarge
     steps:
-      - checkout:
-          submodules: true
-          submodule_recursive: true
+      - checkout
       - setup_environment:
           cache_key: leo-executable-cache
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
       - run:
           name: Build and install Leo
           no_output_timeout: 30m
