@@ -53,7 +53,9 @@ jobs:
       - image: cimg/rust:1.76
     resource_class: xlarge
     steps:
-      - checkout
+      - checkout:
+          submodules: true
+          submodule_recursive: true
       - install_rust_nightly
       - setup_environment:
           cache_key: leo-fmt-cache
@@ -69,7 +71,9 @@ jobs:
       - image: cimg/rust:1.76
     resource_class: xlarge
     steps:
-      - checkout
+      - checkout:
+          submodules: true
+          submodule_recursive: true
       - setup_environment:
           cache_key: leo-clippy-cache
       - run:
@@ -86,7 +90,9 @@ jobs:
       - image: cimg/rust:1.76
     resource_class: xlarge
     steps:
-      - checkout
+      - checkout:
+          submodules: true
+          submodule_recursive: true
       - setup_environment:
           cache_key: leo-executable-cache
       - run:
