@@ -14,9 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Flattener;
+use crate::{Flattener, ReturnGuard};
 
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, Statement, StatementReconstructor};
+use leo_ast::{
+    Expression,
+    Function,
+    ProgramReconstructor,
+    ProgramScope,
+    ReturnStatement,
+    Statement,
+    StatementReconstructor,
+};
 
 impl ProgramReconstructor for Flattener<'_> {
     /// Flattens a program scope.
@@ -47,11 +55,19 @@ impl ProgramReconstructor for Flattener<'_> {
         // Flatten the function body.
         let mut block = self.reconstruct_block(function.block).0;
 
-        // Get all of the guards and return expression.
-        let returns = self.clear_early_returns();
-
         // Fold the return statements into the block.
-        self.fold_returns(&mut block, returns);
+        let returns = std::mem::take(&mut self.returns);
+        let expression_returns: Vec<(Option<Expression>, ReturnStatement)> = returns
+            .into_iter()
+            .map(|(guard, statement)| match guard {
+                ReturnGuard::None => (None, statement),
+                ReturnGuard::Unconstructed(plain) | ReturnGuard::Constructed { plain, .. } => {
+                    (Some(Expression::Identifier(plain)), statement)
+                }
+            })
+            .collect();
+
+        self.fold_returns(&mut block, expression_returns);
 
         Function {
             annotations: function.annotations,
