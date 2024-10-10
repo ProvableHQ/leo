@@ -180,23 +180,11 @@ impl<N: Network> ParserContext<'_, N> {
     fn parse_struct_members(&mut self) -> Result<(Vec<Member>, Span)> {
         let mut members = Vec::new();
 
-        let (mut semi_colons, mut commas) = (false, false);
-
         while !self.check(&Token::RightCurly) {
             let variable = self.parse_member_variable_declaration()?;
 
-            if self.eat(&Token::Semicolon) {
-                if commas {
-                    self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
-                }
-                semi_colons = true;
-            }
-
-            if self.eat(&Token::Comma) {
-                if semi_colons {
-                    self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
-                }
-                commas = true;
+            if !self.check(&Token::RightCurly) && !self.eat(&Token::Comma) {
+                self.emit_err(ParserError::comma_expected_after_member(self.token.span));
             }
 
             members.push(variable);

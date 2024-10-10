@@ -5,7 +5,7 @@ expectation: Pass
 
 program test.aleo {    
     struct Foo {
-        a: u8;
+        a: u8,
     }
     
     record Token {

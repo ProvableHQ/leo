@@ -11,7 +11,7 @@ program test.aleo {
         decimals: u8,
         circulating_supply: u64,
         total_supply: u64,
-        testers: u64
+        testers: u64,
         admin: address,
     }
 

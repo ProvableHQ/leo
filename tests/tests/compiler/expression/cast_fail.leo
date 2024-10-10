@@ -8,7 +8,7 @@ program test.aleo {
     mapping balances: field => field;
 
     struct Foo {
-        data: field;
+        data: field,
     }
 
     async transition main(a: field) -> Future {
