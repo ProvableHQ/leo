@@ -342,6 +342,15 @@
 <a href="#342" id="342">342</a>
 <a href="#343" id="343">343</a>
 <a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -417,6 +426,7 @@
     }
 
     <span class="doccomment">/// For when the parser encountered a mix of commas and semi-colons in struct member variables.
+    </span><span class="comment">// TODO unused
     </span>@formatted
     mixed_commas_and_semicolons {
         args: (),
@@ -683,6 +693,14 @@
     cannot_define_external_record {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"Cannot create an external record. Records can only be created in the program that they are defined in."</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// For when the parser encountered a member declaration not followed by a comma.
+    </span>@formatted
+    comma_expected_after_member {
+        args: (),
+        msg: <span class="string">"Each member declaration in a struct or record must be followed by a comma (except the last)."</span>,
         help: <span class="prelude-val">None</span>,
     }
 );
