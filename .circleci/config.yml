@@ -58,6 +58,9 @@ jobs:
       - setup_environment:
           cache_key: leo-fmt-cache
       - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - run:
           name: Check style
           no_output_timeout: 35m
           command: cargo +nightly fmt --all -- --check
@@ -72,6 +75,9 @@ jobs:
       - checkout
       - setup_environment:
           cache_key: leo-clippy-cache
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
       - run:
           name: Clippy
           no_output_timeout: 35m
@@ -89,6 +95,9 @@ jobs:
       - checkout
       - setup_environment:
           cache_key: leo-executable-cache
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
       - run:
           name: Build and install Leo
           no_output_timeout: 30m

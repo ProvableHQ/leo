@@ -67,8 +67,8 @@ We recommend installing Rust using [rustup](https://www.rustup.rs/). You can ins
 We recommend installing Leo by building from the source code as follows:
 
 ```bash
-# Download the source code
-git clone https://github.com/ProvableHQ/leo
+# Download the source code and initialize the submodules
+git clone --recurse-submodules https://github.com/ProvableHQ/leo
 cd leo
 
 # Install 'leo'
