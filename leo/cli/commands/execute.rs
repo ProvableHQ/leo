@@ -26,8 +26,10 @@ use std::collections::HashMap;
 use crate::cli::query::QueryCommands;
 use dialoguer::{Confirm, theme::ColorfulTheme};
 use leo_retriever::NetworkName;
+#[cfg(not(feature = "only_testnet"))]
+use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
-    circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
+    circuit::{Aleo, AleoTestnetV0},
     cli::LOCALE,
     ledger::Transaction::Execute as ExecuteTransaction,
     package::Package as SnarkVMPackage,
@@ -92,9 +94,19 @@ impl Command for Execute {
         let network = NetworkName::try_from(context.get_network(&self.compiler_options.network)?)?;
         let endpoint = context.get_endpoint(&self.compiler_options.endpoint)?;
         match network {
-            NetworkName::MainnetV0 => handle_execute::<AleoV0>(self, context, network, &endpoint),
             NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context, network, &endpoint),
-            NetworkName::CanaryV0 => handle_execute::<AleoCanaryV0>(self, context, network, &endpoint),
+            NetworkName::MainnetV0 => {
+                #[cfg(feature = "only_testnet")]
+                panic!("Mainnet chosen with only_testnet feature");
+                #[cfg(not(feature = "only_testnet"))]
+                return handle_execute::<AleoV0>(self, context, network, &endpoint);
+            }
+            NetworkName::CanaryV0 => {
+                #[cfg(feature = "only_testnet")]
+                panic!("Canary chosen with only_testnet feature");
+                #[cfg(not(feature = "only_testnet"))]
+                return handle_execute::<AleoCanaryV0>(self, context, network, &endpoint);
+            }
         }
     }
 }

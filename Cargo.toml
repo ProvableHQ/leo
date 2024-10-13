@@ -122,6 +122,7 @@ path = "leo/cli/main.rs"
 default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
+only_testnet = [ ]
 
 [dependencies]
 dialoguer = "0.11.0"
