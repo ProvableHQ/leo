@@ -1,18 +1,49 @@
----
 namespace: Compile
 expectation: Pass
 outputs:
-  - - compile:
-        - initial_symbol_table: e62c1b7c10399ecc5c160520319218d96b599b5cfd37add3032a8455552c7892
-          type_checked_symbol_table: 6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb
-          unrolled_symbol_table: 6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb
-          initial_ast: 2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023
-          unrolled_ast: 2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023
-          ssa_ast: 5b011875455c2efbb3c222c91b40f049ca074e3b21685e27bfff6ecf50359ecf
-          flattened_ast: fb3c25714b87e8bcd5226eac3475c33910673b00612ebe1a92f392badd89b351
-          destructured_ast: 0a9ddab7802cb678e0cda1fb4ba49b84e5d63488390ee48b212efbdc248681a8
-          inlined_ast: 0a9ddab7802cb678e0cda1fb4ba49b84e5d63488390ee48b212efbdc248681a8
-          dce_ast: 0a9ddab7802cb678e0cda1fb4ba49b84e5d63488390ee48b212efbdc248681a8
-          bytecode: ae52309998de7e291d82e92418fdbf583b182ce12e710e844550132d8743380e
-          errors: ""
-          warnings: ""
+- - compile:
+    - initial_symbol_table: e62c1b7c10399ecc5c160520319218d96b599b5cfd37add3032a8455552c7892
+      type_checked_symbol_table: 6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb
+      unrolled_symbol_table: 6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb
+      initial_ast: 2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023
+      unrolled_ast: 2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023
+      ssa_ast: 5b011875455c2efbb3c222c91b40f049ca074e3b21685e27bfff6ecf50359ecf
+      flattened_ast: fb3c25714b87e8bcd5226eac3475c33910673b00612ebe1a92f392badd89b351
+      destructured_ast: 0a9ddab7802cb678e0cda1fb4ba49b84e5d63488390ee48b212efbdc248681a8
+      inlined_ast: 0a9ddab7802cb678e0cda1fb4ba49b84e5d63488390ee48b212efbdc248681a8
+      dce_ast: 0a9ddab7802cb678e0cda1fb4ba49b84e5d63488390ee48b212efbdc248681a8
+      bytecode: |
+        program test.aleo;
+
+        record Bid:
+            owner as address.private;
+            bidder as address.private;
+            amount as u64.private;
+            is_winner as boolean.private;
+
+        function place_bid:
+            input r0 as address.private;
+            input r1 as u64.private;
+            assert.eq self.caller r0;
+            cast aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh r0 r1 false into r2 as Bid.record;
+            output r2 as Bid.record;
+
+        function resolve:
+            input r0 as Bid.record;
+            input r1 as Bid.record;
+            assert.eq self.caller aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh;
+            gte r0.amount r1.amount into r2;
+            ternary r2 r0.owner r1.owner into r3;
+            ternary r2 r0.bidder r1.bidder into r4;
+            ternary r2 r0.amount r1.amount into r5;
+            ternary r2 r0.is_winner r1.is_winner into r6;
+            cast r3 r4 r5 r6 into r7 as Bid.record;
+            output r7 as Bid.record;
+
+        function finish:
+            input r0 as Bid.record;
+            assert.eq self.caller aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh;
+            cast r0.bidder r0.bidder r0.amount true into r1 as Bid.record;
+            output r1 as Bid.record;
+      errors: ''
+      warnings: ''

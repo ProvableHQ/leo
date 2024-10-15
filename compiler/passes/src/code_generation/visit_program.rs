@@ -20,8 +20,9 @@ use leo_ast::{Composite, Function, Location, Mapping, Member, Mode, Program, Pro
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
-use itertools::Itertools;
 use std::fmt::Write as _;
+
+const EXPECT_STR: &str = "Failed to write code";
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_program(&mut self, input: &'a Program) -> String {
@@ -30,7 +31,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Print out the dependencies of the program. Already arranged in post order by Retriever module.
         input.stubs.iter().for_each(|(program_name, _)| {
-            program_string.push_str(&format!("import {}.aleo;\n", program_name));
+            writeln!(program_string, "import {}.aleo;", program_name).expect(EXPECT_STR);
         });
 
         // Retrieve the program scope.
@@ -40,11 +41,7 @@ impl<'a> CodeGenerator<'a> {
         self.program_id = Some(program_scope.program_id);
 
         // Print the program id.
-        writeln!(program_string, "program {};", program_scope.program_id)
-            .expect("Failed to write program id to string.");
-
-        // Newline separator.
-        program_string.push('\n');
+        writeln!(program_string, "program {};", program_scope.program_id).expect(EXPECT_STR);
 
         // Get the post-order ordering of the composite data types.
         // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
@@ -68,70 +65,50 @@ impl<'a> CodeGenerator<'a> {
             .collect();
 
         // Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
-        program_string.push_str(
-            &order
-                .into_iter()
-                .map(|name| {
-                    match structs_map.get(&name) {
-                        // If the struct is found, it is a struct or external record.
-                        Some(struct_) => self.visit_struct_or_record(struct_),
-                        // If the struct is not found, it is an imported record.
-                        None => String::new(),
-                    }
-                })
-                .join("\n"),
-        );
-
-        // Newline separator.
-        program_string.push('\n');
+        for name in order.into_iter() {
+            if let Some(struct_) = structs_map.get(&name) {
+                program_string.push_str(&self.visit_struct_or_record(struct_));
+            }
+        }
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
-        program_string
-            .push_str(&program_scope.mappings.iter().map(|(_, mapping)| self.visit_mapping(mapping)).join("\n"));
+        for (_symbol, mapping) in program_scope.mappings.iter() {
+            program_string.push_str(&self.visit_mapping(mapping));
+        }
 
         // Visit each function in the program scope and produce an Aleo function.
         // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
         // In other words, a callee function precedes its caller function in the program scope.
-        program_string.push_str(
-            &program_scope
-                .functions
-                .iter()
-                .map(|(_, function)| {
-                    if function.variant != Variant::AsyncFunction {
-                        let mut function_string = self.visit_function(function);
+        for (_symbol, function) in program_scope.functions.iter() {
+            // program_string.push_str(&program_scope.functions.iter().map(|(_, function)| {
+            if function.variant != Variant::AsyncFunction {
+                let mut function_string = self.visit_function(function);
 
-                        // Attach the associated finalize to async transitions.
-                        if function.variant == Variant::AsyncTransition {
-                            // Set state variables.
-                            self.finalize_caller = Some(function.identifier.name);
-                            // Generate code for the associated finalize function.
-                            let finalize = &self
-                                .symbol_table
-                                .lookup_fn_symbol(Location::new(
-                                    Some(self.program_id.unwrap().name.name),
-                                    function.identifier.name,
-                                ))
-                                .unwrap()
-                                .clone()
-                                .finalize
-                                .unwrap()
-                                .name;
-                            // Write the finalize string.
-                            function_string.push_str(&format!(
-                                "{}\n",
-                                &self.visit_function(
-                                    &program_scope.functions.iter().find(|(name, _f)| name == finalize).unwrap().1
-                                )
-                            ));
-                        }
+                // Attach the associated finalize to async transitions.
+                if function.variant == Variant::AsyncTransition {
+                    // Set state variables.
+                    self.finalize_caller = Some(function.identifier.name);
+                    // Generate code for the associated finalize function.
+                    let finalize = &self
+                        .symbol_table
+                        .lookup_fn_symbol(Location::new(
+                            Some(self.program_id.unwrap().name.name),
+                            function.identifier.name,
+                        ))
+                        .unwrap()
+                        .clone()
+                        .finalize
+                        .unwrap()
+                        .name;
+                    // Write the finalize string.
+                    function_string.push_str(&self.visit_function(
+                        &program_scope.functions.iter().find(|(name, _f)| name == finalize).unwrap().1,
+                    ));
+                }
 
-                        function_string
-                    } else {
-                        String::new()
-                    }
-                })
-                .join("\n"),
-        );
+                program_string.push_str(&function_string);
+            }
+        }
 
         program_string
     }
@@ -144,12 +121,11 @@ impl<'a> CodeGenerator<'a> {
         // Add private symbol to composite types.
         self.composite_mapping.insert(&struct_.identifier.name, (false, String::from("private"))); // todo: private by default here.
 
-        let mut output_string = format!("struct {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
+        let mut output_string = format!("\nstruct {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in struct_.members.iter() {
-            writeln!(output_string, "    {} as {};", var.identifier, Self::visit_type(&var.type_),)
-                .expect("failed to write to string");
+            writeln!(output_string, "    {} as {};", var.identifier, Self::visit_type(&var.type_),).expect(EXPECT_STR);
         }
 
         output_string
@@ -157,9 +133,9 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_record(&mut self, record: &'a Composite) -> String {
         // Add record symbol to composite types.
-        let mut output_string = String::from("record");
-        self.composite_mapping.insert(&record.identifier.name, (true, output_string.clone()));
-        writeln!(output_string, " {}:", record.identifier).expect("failed to write to string"); // todo: check if this is safe from name conflicts.
+        self.composite_mapping.insert(&record.identifier.name, (true, "record".into()));
+
+        let mut output_string = format!("\nrecord {}:\n", record.identifier); // todo: check if this is safe from name conflicts.
 
         let mut members = Vec::with_capacity(record.members.len());
         let mut member_map: IndexMap<Symbol, Member> =
@@ -185,7 +161,7 @@ impl<'a> CodeGenerator<'a> {
                 var.identifier,
                 Self::visit_type(&var.type_)
             )
-            .expect("failed to write to string");
+            .expect(EXPECT_STR);
         }
 
         output_string
@@ -210,7 +186,7 @@ impl<'a> CodeGenerator<'a> {
             Variant::Transition | Variant::AsyncTransition => format!("\nfunction {}:\n", function.identifier),
             Variant::Function => format!("\nclosure {}:\n", function.identifier),
             Variant::AsyncFunction => format!("\nfinalize {}:\n", self.finalize_caller.unwrap()),
-            Variant::Inline => return String::from("\n"),
+            Variant::Inline => return String::new(),
         };
 
         // Construct and append the input declarations of the function.
@@ -241,8 +217,7 @@ impl<'a> CodeGenerator<'a> {
                 }
             };
 
-            writeln!(function_string, "    input {register_string} as {type_string};",)
-                .expect("failed to write to string");
+            writeln!(function_string, "    input {register_string} as {type_string};",).expect(EXPECT_STR);
         }
 
         //  Construct and append the function body.
@@ -275,10 +250,10 @@ impl<'a> CodeGenerator<'a> {
         };
 
         // Create the key string, e.g. `    key as address.public`.
-        mapping_string.push_str(&format!("\tkey as {};\n", create_type(&mapping.key_type)));
+        writeln!(mapping_string, "    key as {};", create_type(&mapping.key_type)).expect(EXPECT_STR);
 
         // Create the value string, e.g. `    value as address.public`.
-        mapping_string.push_str(&format!("\tvalue as {};\n", create_type(&mapping.value_type)));
+        writeln!(mapping_string, "    value as {};", create_type(&mapping.value_type)).expect(EXPECT_STR);
 
         // Add the mapping to the variable mapping.
         self.global_mapping.insert(&mapping.identifier.name, mapping.identifier.to_string());

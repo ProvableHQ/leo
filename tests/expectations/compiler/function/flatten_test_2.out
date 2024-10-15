@@ -1,32 +1,48 @@
----
 namespace: Compile
 expectation: Pass
 outputs:
-  - - compile:
-        - initial_symbol_table: 9e57e65210ef32910c6d8f0fe0400f29ad320300aab89f780458722694f6f862
-          type_checked_symbol_table: fdd69bb74cee526091393b6a1983534172224b2b571a881d4376f251b7cf7b4e
-          unrolled_symbol_table: fdd69bb74cee526091393b6a1983534172224b2b571a881d4376f251b7cf7b4e
-          initial_ast: 47182c12d4f7003819d71a9e7e352077b302b73e11037a316f0a141fbe4b9b12
-          unrolled_ast: 47182c12d4f7003819d71a9e7e352077b302b73e11037a316f0a141fbe4b9b12
-          ssa_ast: 245399f8485816f9687ebe4a758067ee86c38c65772e11c7e952e3efba46c45c
-          flattened_ast: 2232619159d67acd8b4e9f3702f7e3cf22e8ff1a0fa273266e44b364d6c6368c
-          destructured_ast: 2b267276db454bc936d77e9ca33e71552526f9385cc0425ed4a95d0841678f36
-          inlined_ast: 2b267276db454bc936d77e9ca33e71552526f9385cc0425ed4a95d0841678f36
-          dce_ast: 5ef71433c86b9239f85c149cc4788e60ce2274ba3829c5d8c5d1789e2fc76655
-          bytecode: 34ea2316698e1b32c9a8cecafbc7ec613d38e33d39bc50b517a10f255e9c8a03
-          errors: ""
-          warnings: ""
-    - compile:
-        - initial_symbol_table: 2645407f9ede04b353e82835d65996cf912fd1e8634a61f461d457a92305b9ce
-          type_checked_symbol_table: 4e9ce7072216712da8f565266c66371443d6761ea10f891042d97b457145b669
-          unrolled_symbol_table: 4e9ce7072216712da8f565266c66371443d6761ea10f891042d97b457145b669
-          initial_ast: ae96cef2402ff3fac80cc3363313fbdff221e2bfbf5ce30655bc1985be92210b
-          unrolled_ast: ae96cef2402ff3fac80cc3363313fbdff221e2bfbf5ce30655bc1985be92210b
-          ssa_ast: 70025d49470fabc8804bb98b54ae1d0d0d5d5943fc9d3e6e76b708f346aef7c1
-          flattened_ast: 395bdc5addd81eae1ea0d91de9ac45eb986d54ffb06c15e6952db4c7520934ea
-          destructured_ast: 91305422c1b671fe401d055c75726616c6990af52acd323f8a9a867043c46e8b
-          inlined_ast: 91305422c1b671fe401d055c75726616c6990af52acd323f8a9a867043c46e8b
-          dce_ast: 91305422c1b671fe401d055c75726616c6990af52acd323f8a9a867043c46e8b
-          bytecode: b42d3c958c08364d974824a28437565b32bce03a6dc86c38a03cfe741cac6995
-          errors: ""
-          warnings: ""
+- - compile:
+    - initial_symbol_table: 9e57e65210ef32910c6d8f0fe0400f29ad320300aab89f780458722694f6f862
+      type_checked_symbol_table: fdd69bb74cee526091393b6a1983534172224b2b571a881d4376f251b7cf7b4e
+      unrolled_symbol_table: fdd69bb74cee526091393b6a1983534172224b2b571a881d4376f251b7cf7b4e
+      initial_ast: 47182c12d4f7003819d71a9e7e352077b302b73e11037a316f0a141fbe4b9b12
+      unrolled_ast: 47182c12d4f7003819d71a9e7e352077b302b73e11037a316f0a141fbe4b9b12
+      ssa_ast: 245399f8485816f9687ebe4a758067ee86c38c65772e11c7e952e3efba46c45c
+      flattened_ast: 2232619159d67acd8b4e9f3702f7e3cf22e8ff1a0fa273266e44b364d6c6368c
+      destructured_ast: 2b267276db454bc936d77e9ca33e71552526f9385cc0425ed4a95d0841678f36
+      inlined_ast: 2b267276db454bc936d77e9ca33e71552526f9385cc0425ed4a95d0841678f36
+      dce_ast: 5ef71433c86b9239f85c149cc4788e60ce2274ba3829c5d8c5d1789e2fc76655
+      bytecode: |
+        program test.aleo;
+
+        struct TokenInfo:
+            id as u64;
+
+        function add_new_liquidity_token_2:
+      errors: ''
+      warnings: ''
+  - compile:
+    - initial_symbol_table: 2645407f9ede04b353e82835d65996cf912fd1e8634a61f461d457a92305b9ce
+      type_checked_symbol_table: 4e9ce7072216712da8f565266c66371443d6761ea10f891042d97b457145b669
+      unrolled_symbol_table: 4e9ce7072216712da8f565266c66371443d6761ea10f891042d97b457145b669
+      initial_ast: ae96cef2402ff3fac80cc3363313fbdff221e2bfbf5ce30655bc1985be92210b
+      unrolled_ast: ae96cef2402ff3fac80cc3363313fbdff221e2bfbf5ce30655bc1985be92210b
+      ssa_ast: 70025d49470fabc8804bb98b54ae1d0d0d5d5943fc9d3e6e76b708f346aef7c1
+      flattened_ast: 395bdc5addd81eae1ea0d91de9ac45eb986d54ffb06c15e6952db4c7520934ea
+      destructured_ast: 91305422c1b671fe401d055c75726616c6990af52acd323f8a9a867043c46e8b
+      inlined_ast: 91305422c1b671fe401d055c75726616c6990af52acd323f8a9a867043c46e8b
+      dce_ast: 91305422c1b671fe401d055c75726616c6990af52acd323f8a9a867043c46e8b
+      bytecode: |
+        program test.aleo;
+
+        struct TokenInfo:
+            id as u64;
+
+        function add_new_liquidity_token_2:
+            cast 0u64 into r0 as TokenInfo;
+            is.eq r0.id 0u64 into r1;
+            cast 10u64 into r2 as TokenInfo;
+            ternary r1 r2.id r0.id into r3;
+            cast r3 into r4 as TokenInfo;
+      errors: ''
+      warnings: ''

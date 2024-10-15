@@ -236,17 +236,17 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         // Run each test case for each function.
         for case in all_cases {
             let case = case.as_mapping().unwrap();
-            let program_name = case.get(&Value::from("program")).expect("expected program name").as_str().unwrap();
-            let function_name = case.get(&Value::from("function")).expect("expected function name").as_str().unwrap();
+            let program_name = case.get(Value::from("program")).expect("expected program name").as_str().unwrap();
+            let function_name = case.get(Value::from("function")).expect("expected function name").as_str().unwrap();
             let inputs: Vec<_> = case
-                .get(&Value::from("input"))
+                .get(Value::from("input"))
                 .unwrap()
                 .as_sequence()
                 .unwrap()
                 .iter()
                 .map(|input| console::program::Value::<CurrentNetwork>::from_str(input.as_str().unwrap()).unwrap())
                 .collect();
-            let private_key = match case.get(&Value::from("private_key")) {
+            let private_key = match case.get(Value::from("private_key")) {
                 Some(private_key) => {
                     PrivateKey::from_str(private_key.as_str().expect("expected string for private key"))
                         .expect("unable to parse private key")
