@@ -21,22 +21,21 @@ use leo_package::package::Package;
 
 /// Query program source code and live mapping values.
 #[derive(Parser, Debug)]
-pub struct Program {
+pub struct LeoProgram {
     #[clap(name = "NAME", help = "The name of the program to fetch")]
     pub(crate) name: String,
     #[arg(
-        short,
         long,
         help = "Get all mappings defined in the program",
         default_value = "false",
         conflicts_with = "mapping_value"
     )]
     pub(crate) mappings: bool,
-    #[arg(short, long, help = "Get the value corresponding to the specified mapping and key.", number_of_values = 2, value_names = &["MAPPING", "KEY"], conflicts_with = "mappings")]
+    #[arg(long, help = "Get the value corresponding to the specified mapping and key.", number_of_values = 2, value_names = &["MAPPING", "KEY"], conflicts_with = "mappings")]
     pub(crate) mapping_value: Option<Vec<String>>,
 }
 
-impl Command for Program {
+impl Command for LeoProgram {
     type Input = ();
     type Output = String;
 

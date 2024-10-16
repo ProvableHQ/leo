@@ -75,12 +75,12 @@ impl From<BuildOptions> for CompilerOptions {
 
 /// Compile and build program command.
 #[derive(Parser, Debug)]
-pub struct Build {
+pub struct LeoBuild {
     #[clap(flatten)]
     pub(crate) options: BuildOptions,
 }
 
-impl Command for Build {
+impl Command for LeoBuild {
     type Input = ();
     type Output = ();
 
@@ -104,7 +104,7 @@ impl Command for Build {
 }
 
 // A helper function to handle the build command.
-fn handle_build<N: Network>(command: &Build, context: Context) -> Result<<Build as Command>::Output> {
+fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Command>::Output> {
     // Get the package path.
     let package_path = context.dir()?;
     let home_path = context.home()?;

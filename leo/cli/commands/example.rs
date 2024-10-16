@@ -35,12 +35,12 @@ pub struct Example {
 }
 
 impl Command for Example {
-    type Input = <New as Command>::Output;
+    type Input = <LeoNew as Command>::Output;
     type Output = ();
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         // Run leo new <name> --network <network>
-        (New { name: self.name.clone(), network: self.network.clone(), endpoint: self.endpoint.clone() })
+        (LeoNew { name: self.name.clone(), network: self.network.clone(), endpoint: self.endpoint.clone() })
             .execute(context)
     }
 

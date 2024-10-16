@@ -24,7 +24,7 @@ use snarkvm::{
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
-pub struct Run {
+pub struct LeoRun {
     #[clap(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     pub(crate) name: String,
 
@@ -38,8 +38,8 @@ pub struct Run {
     pub(crate) compiler_options: BuildOptions,
 }
 
-impl Command for Run {
-    type Input = <Build as Command>::Output;
+impl Command for LeoRun {
+    type Input = <LeoBuild as Command>::Output;
     type Output = ();
 
     fn log_span(&self) -> Span {
@@ -47,7 +47,7 @@ impl Command for Run {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        (Build { options: self.compiler_options.clone() }).execute(context)
+        (LeoBuild { options: self.compiler_options.clone() }).execute(context)
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
@@ -62,7 +62,7 @@ impl Command for Run {
 }
 
 // A helper function to handle the run command.
-fn handle_run<N: Network>(command: Run, context: Context) -> Result<<Run as Command>::Output> {
+fn handle_run<N: Network>(command: LeoRun, context: Context) -> Result<<LeoRun as Command>::Output> {
     let mut inputs = command.inputs;
 
     // Compose the `run` command.

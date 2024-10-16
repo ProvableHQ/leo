@@ -21,9 +21,8 @@ use clap::Parser;
 
 // Query transactions and transmissions from the memory pool.
 #[derive(Parser, Debug)]
-pub struct Mempool {
+pub struct LeoMempool {
     #[arg(
-        short,
         long,
         help = "Get the memory pool transactions",
         default_value = "false",
@@ -32,7 +31,6 @@ pub struct Mempool {
     )]
     pub(crate) transactions: bool,
     #[arg(
-        short,
         long,
         help = "Get the memory pool transmissions",
         default_value = "false",
@@ -42,7 +40,7 @@ pub struct Mempool {
     pub(crate) transmissions: bool,
 }
 
-impl Command for Mempool {
+impl Command for LeoMempool {
     type Input = ();
     type Output = String;
 

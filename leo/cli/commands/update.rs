@@ -19,7 +19,7 @@ use crate::cli::helpers::updater::Updater;
 
 /// Update Leo to the latest version
 #[derive(Debug, Parser)]
-pub struct Update {
+pub struct LeoUpdate {
     /// Lists all available versions of Leo
     #[clap(short = 'l', long)]
     list: bool,
@@ -28,7 +28,7 @@ pub struct Update {
     quiet: bool,
 }
 
-impl Command for Update {
+impl Command for LeoUpdate {
     type Input = ();
     type Output = ();
 

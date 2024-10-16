@@ -20,9 +20,9 @@ use clap::Parser;
 
 /// Query the committee.
 #[derive(Parser, Debug)]
-pub struct Committee {}
+pub struct LeoCommittee {}
 
-impl Command for Committee {
+impl Command for LeoCommittee {
     type Input = ();
     type Output = String;
 

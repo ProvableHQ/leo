@@ -20,20 +20,20 @@ use clap::Parser;
 
 /// Query transaction information.
 #[derive(Parser, Debug)]
-pub struct Transaction {
-    #[clap(name = "ID", help = "The id of the transaction to fetch", required_unless_present_any = &["from_program", "from_transition", "from_io", "range"])]
+pub struct LeoTransaction {
+    #[clap(name = "ID", help = "The id of the transaction to fetch", required_unless_present_any = &["from_program", "from_transition", "from_io"])]
     pub(crate) id: Option<String>,
     #[arg(short, long, help = "Get the transaction only if it has been confirmed", default_value = "false", conflicts_with_all(["from_io", "from_transition", "from_program"]))]
     pub(crate) confirmed: bool,
-    #[arg(value_name = "INPUT_OR_OUTPUT_ID", short, long, help = "Get the transition id that an input or output id occurred in", conflicts_with_all(["from_program", "from_transition", "confirmed", "id"]))]
+    #[arg(value_name = "INPUT_OR_OUTPUT_ID", long, help = "Get the transition id that an input or output id occurred in", conflicts_with_all(["from_program", "from_transition", "confirmed"]))]
     pub(crate) from_io: Option<String>,
-    #[arg(value_name = "TRANSITION_ID", short, long, help = "Get the id of the transaction containing the specified transition", conflicts_with_all(["from_io", "from_program", "confirmed", "id"]))]
+    #[arg(value_name = "TRANSITION_ID", long, help = "Get the id of the transaction containing the specified transition", conflicts_with_all(["from_io", "from_program", "confirmed"]))]
     pub(crate) from_transition: Option<String>,
-    #[arg(value_name = "PROGRAM", short, long, help = "Get the id of the transaction id that the specified program was deployed in", conflicts_with_all(["from_io", "from_transition", "confirmed", "id"]))]
+    #[arg(value_name = "PROGRAM", long, help = "Get the id of the transaction id that the specified program was deployed in", conflicts_with_all(["from_io", "from_transition", "confirmed"]))]
     pub(crate) from_program: Option<String>,
 }
 
-impl Command for Transaction {
+impl Command for LeoTransaction {
     type Input = ();
     type Output = String;
 

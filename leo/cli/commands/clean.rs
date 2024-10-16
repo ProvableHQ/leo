@@ -18,9 +18,9 @@ use super::*;
 
 /// Clean outputs folder command
 #[derive(Parser, Debug)]
-pub struct Clean {}
+pub struct LeoClean {}
 
-impl Command for Clean {
+impl Command for LeoClean {
     type Input = ();
     type Output = ();
 

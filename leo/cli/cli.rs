@@ -50,7 +50,7 @@ enum Commands {
     #[clap(about = "Create a new Leo package in a new directory")]
     New {
         #[clap(flatten)]
-        command: New,
+        command: LeoNew,
     },
     #[clap(about = "Create a new Leo example package in a new directory")]
     Example {
@@ -60,12 +60,12 @@ enum Commands {
     #[clap(about = "Run a program with input variables")]
     Run {
         #[clap(flatten)]
-        command: Run,
+        command: LeoRun,
     },
     #[clap(about = "Execute a program with input variables")]
     Execute {
         #[clap(flatten)]
-        command: Execute,
+        command: LeoExecute,
     },
     #[clap(about = "Deploy a program")]
     Deploy {
@@ -75,32 +75,32 @@ enum Commands {
     #[clap(about = "Query live data from the Aleo network")]
     Query {
         #[clap(flatten)]
-        command: Query,
+        command: LeoQuery,
     },
     #[clap(about = "Compile the current package as a program")]
     Build {
         #[clap(flatten)]
-        command: Build,
+        command: LeoBuild,
     },
     #[clap(about = "Add a new on-chain or local dependency to the current package.")]
     Add {
         #[clap(flatten)]
-        command: Add,
+        command: LeoAdd,
     },
     #[clap(about = "Remove a dependency from the current package.")]
     Remove {
         #[clap(flatten)]
-        command: Remove,
+        command: LeoRemove,
     },
     #[clap(about = "Clean the output directory")]
     Clean {
         #[clap(flatten)]
-        command: Clean,
+        command: LeoClean,
     },
     #[clap(about = "Update the Leo CLI")]
     Update {
         #[clap(flatten)]
-        command: Update,
+        command: LeoUpdate,
     },
 }
 
@@ -169,7 +169,7 @@ mod tests {
             debug: false,
             quiet: false,
             command: Commands::Run {
-                command: crate::cli::commands::Run {
+                command: crate::cli::commands::LeoRun {
                     name: "example".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     file: None,
@@ -211,7 +211,7 @@ mod tests {
             debug: false,
             quiet: false,
             command: Commands::Run {
-                command: crate::cli::commands::Run {
+                command: crate::cli::commands::LeoRun {
                     name: "double_wrapper_mint".to_string(),
                     inputs: vec![
                         "aleo13tngrq7506zwdxj0cxjtvp28pk937jejhne0rt4zp0z370uezuysjz2prs".to_string(),
@@ -254,7 +254,7 @@ mod tests {
             debug: false,
             quiet: false,
             command: Commands::Run {
-                command: crate::cli::commands::Run {
+                command: crate::cli::commands::LeoRun {
                     name: "inner_1_main".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     compiler_options: Default::default(),
@@ -291,7 +291,7 @@ mod tests {
             debug: false,
             quiet: false,
             command: Commands::Run {
-                command: crate::cli::commands::Run {
+                command: crate::cli::commands::LeoRun {
                     name: "main".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     compiler_options: Default::default(),
@@ -310,7 +310,7 @@ mod tests {
 
 #[cfg(test)]
 mod test_helpers {
-    use crate::cli::{Add, CLI, New, cli::Commands, run_with_args};
+    use crate::cli::{CLI, LeoAdd, LeoNew, cli::Commands, run_with_args};
     use leo_span::symbol::create_session_if_not_set_then;
     use std::path::Path;
 
@@ -331,7 +331,11 @@ mod test_helpers {
             debug: false,
             quiet: false,
             command: Commands::New {
-                command: New { name: name.to_string(), network: NETWORK.to_string(), endpoint: ENDPOINT.to_string() },
+                command: LeoNew {
+                    name: name.to_string(),
+                    network: NETWORK.to_string(),
+                    endpoint: ENDPOINT.to_string(),
+                },
             },
             path: Some(project_directory.clone()),
             home: None,
@@ -397,7 +401,7 @@ function external_nested_function:
             debug: false,
             quiet: false,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: "nested_example_layer_0".to_string(),
                     local: None,
                     network: NETWORK.to_string(),
@@ -434,7 +438,7 @@ function external_nested_function:
             debug: false,
             quiet: false,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: "grandparent".to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -448,7 +452,7 @@ function external_nested_function:
             debug: false,
             quiet: false,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: "parent".to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -462,7 +466,7 @@ function external_nested_function:
             debug: false,
             quiet: false,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: "child".to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -509,7 +513,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: "parent".to_string(),
                     local: Some(parent_directory.clone()),
                     network: NETWORK.to_string(),
@@ -524,7 +528,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
                     network: NETWORK.to_string(),
@@ -539,7 +543,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
                     network: NETWORK.to_string(),
@@ -583,7 +587,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: "outer".to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -597,7 +601,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: "inner_1".to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -611,7 +615,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: "inner_2".to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -681,7 +685,7 @@ program outer.aleo {
             debug: false,
             quiet: false,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
                     network: NETWORK.to_string(),
@@ -696,7 +700,7 @@ program outer.aleo {
             debug: false,
             quiet: false,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
                     network: NETWORK.to_string(),
@@ -739,7 +743,7 @@ program outer.aleo {
             debug: false,
             quiet: false,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: "outer_2".to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -753,7 +757,7 @@ program outer.aleo {
             debug: false,
             quiet: false,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: "inner_1".to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -767,7 +771,7 @@ program outer.aleo {
             debug: false,
             quiet: false,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: "inner_2".to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -868,7 +872,7 @@ program outer_2.aleo {
             debug: false,
             quiet: false,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
                     network: NETWORK.to_string(),
@@ -883,7 +887,7 @@ program outer_2.aleo {
             debug: false,
             quiet: false,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
                     network: NETWORK.to_string(),

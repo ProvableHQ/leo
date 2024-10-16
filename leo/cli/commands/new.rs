@@ -21,7 +21,7 @@ use leo_retriever::NetworkName;
 
 /// Create new Leo project
 #[derive(Parser, Debug)]
-pub struct New {
+pub struct LeoNew {
     #[clap(name = "NAME", help = "Set package name")]
     pub(crate) name: String,
     #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
@@ -35,7 +35,7 @@ pub struct New {
     pub(crate) endpoint: String,
 }
 
-impl Command for New {
+impl Command for LeoNew {
     type Input = ();
     type Output = ();
 

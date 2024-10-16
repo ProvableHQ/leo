@@ -15,16 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod add;
-pub use add::Add;
+pub use add::LeoAdd;
 
 pub mod account;
 pub use account::Account;
 
 pub mod build;
-pub use build::Build;
+pub use build::LeoBuild;
 
 pub mod clean;
-pub use clean::Clean;
+pub use clean::LeoClean;
 
 pub mod deploy;
 pub use deploy::Deploy;
@@ -33,25 +33,25 @@ pub mod example;
 pub use example::Example;
 
 pub mod execute;
-pub use execute::Execute;
+pub use execute::LeoExecute;
 
 pub mod query;
-pub use query::Query;
+pub use query::LeoQuery;
 
 pub mod new;
-pub use new::New;
+pub use new::LeoNew;
 
 // pub mod node;
 // pub use node::Node;
 
 pub mod remove;
-pub use remove::Remove;
+pub use remove::LeoRemove;
 
 pub mod run;
-pub use run::Run;
+pub use run::LeoRun;
 
 pub mod update;
-pub use update::Update;
+pub use update::LeoUpdate;
 
 use super::*;
 use crate::cli::helpers::context::*;
@@ -247,11 +247,11 @@ fn check_balance<N: Network>(
     // Derive the account address.
     let address = Address::<N>::try_from(ViewKey::try_from(private_key)?)?;
     // Query the public balance of the address on the `account` mapping from `credits.aleo`.
-    let mut public_balance = Query {
+    let mut public_balance = LeoQuery {
         endpoint: Some(endpoint.to_string()),
         network: Some(network.to_string()),
         command: QueryCommands::Program {
-            command: crate::cli::commands::query::Program {
+            command: crate::cli::commands::query::LeoProgram {
                 name: "credits".to_string(),
                 mappings: false,
                 mapping_value: Some(vec!["account".to_string(), address.to_string()]),
