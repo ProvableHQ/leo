@@ -26,7 +26,9 @@ use crossterm::ExecutableCommand;
 use leo_retriever::NetworkName;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
-use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
+#[cfg(not(feature = "only_testnet"))]
+use snarkvm::prelude::{CanaryV0, MainnetV0};
+use snarkvm::prelude::{Network, TestnetV0};
 use std::{
     io::{self, Read, Write},
     path::PathBuf,
@@ -133,27 +135,57 @@ impl Command for Account {
                 // Parse the network.
                 let network = NetworkName::try_from(network.as_str())?;
                 match network {
-                    NetworkName::MainnetV0 => generate_new_account::<MainnetV0>(seed, write, discreet, &ctx, endpoint),
                     NetworkName::TestnetV0 => generate_new_account::<TestnetV0>(seed, write, discreet, &ctx, endpoint),
-                    NetworkName::CanaryV0 => generate_new_account::<CanaryV0>(seed, write, discreet, &ctx, endpoint),
+                    NetworkName::MainnetV0 => {
+                        #[cfg(feature = "only_testnet")]
+                        panic!("Mainnet chosen with only_testnet feature");
+                        #[cfg(not(feature = "only_testnet"))]
+                        generate_new_account::<MainnetV0>(seed, write, discreet, &ctx, endpoint)
+                    }
+                    NetworkName::CanaryV0 => {
+                        #[cfg(feature = "only_testnet")]
+                        panic!("Canary chosen with only_testnet feature");
+                        #[cfg(not(feature = "only_testnet"))]
+                        generate_new_account::<CanaryV0>(seed, write, discreet, &ctx, endpoint)
+                    }
                 }?
             }
             Account::Import { private_key, write, discreet, network, endpoint } => {
                 // Parse the network.
                 let network = NetworkName::try_from(network.as_str())?;
                 match network {
-                    NetworkName::MainnetV0 => import_account::<MainnetV0>(private_key, write, discreet, &ctx, endpoint),
                     NetworkName::TestnetV0 => import_account::<TestnetV0>(private_key, write, discreet, &ctx, endpoint),
-                    NetworkName::CanaryV0 => import_account::<CanaryV0>(private_key, write, discreet, &ctx, endpoint),
+                    NetworkName::MainnetV0 => {
+                        #[cfg(feature = "only_testnet")]
+                        panic!("Mainnet chosen with only_testnet feature");
+                        #[cfg(not(feature = "only_testnet"))]
+                        import_account::<MainnetV0>(private_key, write, discreet, &ctx, endpoint)
+                    }
+                    NetworkName::CanaryV0 => {
+                        #[cfg(feature = "only_testnet")]
+                        panic!("Canary chosen with only_testnet feature");
+                        #[cfg(not(feature = "only_testnet"))]
+                        import_account::<CanaryV0>(private_key, write, discreet, &ctx, endpoint)
+                    }
                 }?
             }
             Self::Sign { message, raw, private_key, private_key_file, network } => {
                 // Parse the network.
                 let network = NetworkName::try_from(network.as_str())?;
                 let result = match network {
-                    NetworkName::MainnetV0 => sign_message::<MainnetV0>(message, raw, private_key, private_key_file),
                     NetworkName::TestnetV0 => sign_message::<TestnetV0>(message, raw, private_key, private_key_file),
-                    NetworkName::CanaryV0 => sign_message::<MainnetV0>(message, raw, private_key, private_key_file),
+                    NetworkName::MainnetV0 => {
+                        #[cfg(feature = "only_testnet")]
+                        panic!("Mainnet chosen with only_testnet feature");
+                        #[cfg(not(feature = "only_testnet"))]
+                        sign_message::<MainnetV0>(message, raw, private_key, private_key_file)
+                    }
+                    NetworkName::CanaryV0 => {
+                        #[cfg(feature = "only_testnet")]
+                        panic!("Canary chosen with only_testnet feature");
+                        #[cfg(not(feature = "only_testnet"))]
+                        sign_message::<CanaryV0>(message, raw, private_key, private_key_file)
+                    }
                 }?;
                 println!("{result}")
             }
@@ -161,9 +193,19 @@ impl Command for Account {
                 // Parse the network.
                 let network = NetworkName::try_from(network.as_str())?;
                 let result = match network {
-                    NetworkName::MainnetV0 => verify_message::<MainnetV0>(address, signature, message, raw),
                     NetworkName::TestnetV0 => verify_message::<TestnetV0>(address, signature, message, raw),
-                    NetworkName::CanaryV0 => verify_message::<CanaryV0>(address, signature, message, raw),
+                    NetworkName::MainnetV0 => {
+                        #[cfg(feature = "only_testnet")]
+                        panic!("Mainnet chosen with only_testnet feature");
+                        #[cfg(not(feature = "only_testnet"))]
+                        verify_message::<MainnetV0>(address, signature, message, raw)
+                    }
+                    NetworkName::CanaryV0 => {
+                        #[cfg(feature = "only_testnet")]
+                        panic!("Canary chosen with only_testnet feature");
+                        #[cfg(not(feature = "only_testnet"))]
+                        verify_message::<CanaryV0>(address, signature, message, raw)
+                    }
                 }?;
                 println!("{result}")
             }
