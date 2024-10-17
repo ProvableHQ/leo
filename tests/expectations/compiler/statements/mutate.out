@@ -1,18 +1,28 @@
----
 namespace: Compile
 expectation: Pass
 outputs:
-  - - compile:
-        - initial_symbol_table: fbff18c8e518cc59798797648b6845d8968c59a71c7f87af586f9defffdd546d
-          type_checked_symbol_table: a3be54023f98304a5cc208259f2287f70181c602ec496bc36df8e16ada051de8
-          unrolled_symbol_table: a3be54023f98304a5cc208259f2287f70181c602ec496bc36df8e16ada051de8
-          initial_ast: b6b526e4450475b5f337242783f48a4dd7342a4b5c9639b23d490bfd96a63a1a
-          unrolled_ast: b6b526e4450475b5f337242783f48a4dd7342a4b5c9639b23d490bfd96a63a1a
-          ssa_ast: 23fb955e50de14a4131b2db621a24d05ac52d5ac7af341e7dde5d24479203cda
-          flattened_ast: e932b4af62dcca32a7f420cafce3df42c5366b0d96a7fd501fc528a905d0fa3f
-          destructured_ast: 389f29bac77cc4aae64fd33627a9694c5f0c56f5c5c51aad967cc4a376d120a8
-          inlined_ast: 389f29bac77cc4aae64fd33627a9694c5f0c56f5c5c51aad967cc4a376d120a8
-          dce_ast: b6623307c590c4343468d7444d86aeb2a00d91c38f5d9dc035c863e77ce55f19
-          bytecode: 4f4c5c377fed78feede8ee754c9f838f449f8d00cf771b2bb65884e876f90b7e
-          errors: ""
-          warnings: ""
+- - compile:
+    - initial_symbol_table: fbff18c8e518cc59798797648b6845d8968c59a71c7f87af586f9defffdd546d
+      type_checked_symbol_table: a3be54023f98304a5cc208259f2287f70181c602ec496bc36df8e16ada051de8
+      unrolled_symbol_table: a3be54023f98304a5cc208259f2287f70181c602ec496bc36df8e16ada051de8
+      initial_ast: b6b526e4450475b5f337242783f48a4dd7342a4b5c9639b23d490bfd96a63a1a
+      unrolled_ast: b6b526e4450475b5f337242783f48a4dd7342a4b5c9639b23d490bfd96a63a1a
+      ssa_ast: 23fb955e50de14a4131b2db621a24d05ac52d5ac7af341e7dde5d24479203cda
+      flattened_ast: e932b4af62dcca32a7f420cafce3df42c5366b0d96a7fd501fc528a905d0fa3f
+      destructured_ast: 389f29bac77cc4aae64fd33627a9694c5f0c56f5c5c51aad967cc4a376d120a8
+      inlined_ast: 389f29bac77cc4aae64fd33627a9694c5f0c56f5c5c51aad967cc4a376d120a8
+      dce_ast: b6623307c590c4343468d7444d86aeb2a00d91c38f5d9dc035c863e77ce55f19
+      bytecode: |
+        program test.aleo;
+
+        function main:
+            input r0 as u32.private;
+            is.eq r0 3u32 into r1;
+            ternary r1 1u32 0u32 into r2;
+            is.eq r0 3u32 into r3;
+            is.eq r2 1u32 into r4;
+            is.eq r2 0u32 into r5;
+            ternary r3 r4 r5 into r6;
+            output r6 as boolean.private;
+      errors: ''
+      warnings: ''

@@ -1,5 +1,4 @@
----
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Program length exceeds N::MAX_PROGRAM_SIZE."
+- Program length exceeds N::MAX_PROGRAM_SIZE.

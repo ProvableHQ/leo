@@ -1,18 +1,146 @@
----
 namespace: Compile
 expectation: Pass
 outputs:
-  - - compile:
-        - initial_symbol_table: 31996f72ace053dcaa3beb2ec60de78fcade8e4047cf92897dfd244f210987f7
-          type_checked_symbol_table: 64be9ee1773f9450cf04c18cbf377102aab7c0aba277e7c036c770ab8614b5f0
-          unrolled_symbol_table: 64be9ee1773f9450cf04c18cbf377102aab7c0aba277e7c036c770ab8614b5f0
-          initial_ast: dab4c349df7b581a19b258e289107e94355ce3d848801372999cacc807ddeb7b
-          unrolled_ast: dab4c349df7b581a19b258e289107e94355ce3d848801372999cacc807ddeb7b
-          ssa_ast: 01a69ccd470b48c3d60c9928922b5c2ed2f0fe0405ab3d0ce95ea64d80155027
-          flattened_ast: ec2b075dc39d494b448c04fd5bbd19e8a7503cfea823da12ee33464d8e67d0a1
-          destructured_ast: 28d0ece5659e9c3d8dae3bc9f5e2181730dd52d4d00575553fb62879c2252c4c
-          inlined_ast: 28d0ece5659e9c3d8dae3bc9f5e2181730dd52d4d00575553fb62879c2252c4c
-          dce_ast: 28d0ece5659e9c3d8dae3bc9f5e2181730dd52d4d00575553fb62879c2252c4c
-          bytecode: 510d9a029bd4900c2278ae7b0d1a7a595b0bd6bae6e362e7bf3ca900ef8bdc8d
-          errors: ""
-          warnings: ""
+- - compile:
+    - initial_symbol_table: 31996f72ace053dcaa3beb2ec60de78fcade8e4047cf92897dfd244f210987f7
+      type_checked_symbol_table: 64be9ee1773f9450cf04c18cbf377102aab7c0aba277e7c036c770ab8614b5f0
+      unrolled_symbol_table: 64be9ee1773f9450cf04c18cbf377102aab7c0aba277e7c036c770ab8614b5f0
+      initial_ast: dab4c349df7b581a19b258e289107e94355ce3d848801372999cacc807ddeb7b
+      unrolled_ast: dab4c349df7b581a19b258e289107e94355ce3d848801372999cacc807ddeb7b
+      ssa_ast: 01a69ccd470b48c3d60c9928922b5c2ed2f0fe0405ab3d0ce95ea64d80155027
+      flattened_ast: ec2b075dc39d494b448c04fd5bbd19e8a7503cfea823da12ee33464d8e67d0a1
+      destructured_ast: 28d0ece5659e9c3d8dae3bc9f5e2181730dd52d4d00575553fb62879c2252c4c
+      inlined_ast: 28d0ece5659e9c3d8dae3bc9f5e2181730dd52d4d00575553fb62879c2252c4c
+      dce_ast: 28d0ece5659e9c3d8dae3bc9f5e2181730dd52d4d00575553fb62879c2252c4c
+      bytecode: |
+        program test.aleo;
+
+        mapping one:
+            key as field.public;
+            value as field.public;
+
+        mapping two:
+            key as field.public;
+            value as field.public;
+
+        mapping three:
+            key as field.public;
+            value as field.public;
+
+        mapping four:
+            key as field.public;
+            value as field.public;
+
+        mapping five:
+            key as field.public;
+            value as field.public;
+
+        mapping six:
+            key as field.public;
+            value as field.public;
+
+        mapping seven:
+            key as field.public;
+            value as field.public;
+
+        mapping eight:
+            key as field.public;
+            value as field.public;
+
+        mapping nine:
+            key as field.public;
+            value as field.public;
+
+        mapping ten:
+            key as field.public;
+            value as field.public;
+
+        mapping eleven:
+            key as field.public;
+            value as field.public;
+
+        mapping twelve:
+            key as field.public;
+            value as field.public;
+
+        mapping thirteen:
+            key as field.public;
+            value as field.public;
+
+        mapping fourteen:
+            key as field.public;
+            value as field.public;
+
+        mapping fifteen:
+            key as field.public;
+            value as field.public;
+
+        mapping sixteen:
+            key as field.public;
+            value as field.public;
+
+        mapping seventeen:
+            key as field.public;
+            value as field.public;
+
+        mapping eighteen:
+            key as field.public;
+            value as field.public;
+
+        mapping nineteen:
+            key as field.public;
+            value as field.public;
+
+        mapping twenty:
+            key as field.public;
+            value as field.public;
+
+        mapping twentyone:
+            key as field.public;
+            value as field.public;
+
+        mapping twentytwo:
+            key as field.public;
+            value as field.public;
+
+        mapping twentythree:
+            key as field.public;
+            value as field.public;
+
+        mapping twentyfour:
+            key as field.public;
+            value as field.public;
+
+        mapping twentyfive:
+            key as field.public;
+            value as field.public;
+
+        mapping twentysix:
+            key as field.public;
+            value as field.public;
+
+        mapping twentyseven:
+            key as field.public;
+            value as field.public;
+
+        mapping twentyeight:
+            key as field.public;
+            value as field.public;
+
+        mapping twentynine:
+            key as field.public;
+            value as field.public;
+
+        mapping thirty:
+            key as field.public;
+            value as field.public;
+
+        mapping thirtyone:
+            key as field.public;
+            value as field.public;
+
+        function foo:
+            add 1u8 1u8 into r0;
+            output r0 as u8.private;
+      errors: ''
+      warnings: ''

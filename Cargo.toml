@@ -108,6 +108,9 @@ features = [ "derive", "rc" ]
 version = "1.0"
 features = [ "preserve_order" ]
 
+[workspace.dependencies.serde_yaml]
+version = "0.9"
+
 [workspace.dependencies.tracing]
 version = "0.1"
 

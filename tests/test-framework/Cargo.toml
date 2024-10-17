@@ -43,7 +43,7 @@ workspace = true
 workspace = true
 
 [dependencies.serde_yaml]
-version = "0.8"
+workspace = true
 
 [dependencies.walkdir]
 version = "2.5"

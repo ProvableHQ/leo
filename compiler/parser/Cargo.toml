@@ -50,7 +50,7 @@ path = "../../tests/test-framework"
 workspace = true
 
 [dev-dependencies.serde_yaml]
-version = "0.8"
+workspace = true
 
 [features]
 default = [ ]
