@@ -52,7 +52,7 @@ use snarkvm::{
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
-pub struct Execute {
+pub struct LeoExecute {
     #[clap(name = "NAME", help = "The name of the function to execute.", default_value = "main")]
     name: String,
     #[clap(name = "INPUTS", help = "The inputs to the program.")]
@@ -73,8 +73,8 @@ pub struct Execute {
     pub(crate) no_build: bool,
 }
 
-impl Command for Execute {
-    type Input = <Build as Command>::Output;
+impl Command for LeoExecute {
+    type Input = <LeoBuild as Command>::Output;
     type Output = ();
 
     fn log_span(&self) -> Span {
@@ -86,7 +86,7 @@ impl Command for Execute {
         if self.program.is_some() || self.no_build {
             return Ok(());
         }
-        (Build { options: self.compiler_options.clone() }).execute(context)
+        (LeoBuild { options: self.compiler_options.clone() }).execute(context)
     }
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
@@ -113,11 +113,11 @@ impl Command for Execute {
 
 // A helper function to handle the `execute` command.
 fn handle_execute<A: Aleo>(
-    command: Execute,
+    command: LeoExecute,
     context: Context,
     network: NetworkName,
     endpoint: &str,
-) -> Result<<Execute as Command>::Output> {
+) -> Result<<LeoExecute as Command>::Output> {
     // If input values are provided, then run the program with those inputs.
     // Otherwise, use the input file.
     let mut inputs = command.inputs.clone();
@@ -361,11 +361,11 @@ fn load_program_from_network<N: Network>(
     endpoint: &str,
 ) -> Result<()> {
     // Fetch the program.
-    let program_src = Query {
+    let program_src = LeoQuery {
         endpoint: Some(endpoint.to_string()),
         network: Some(network.to_string()),
         command: QueryCommands::Program {
-            command: query::Program { name: program_id.to_string(), mappings: false, mapping_value: None },
+            command: query::LeoProgram { name: program_id.to_string(), mappings: false, mapping_value: None },
         },
     }
     .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;

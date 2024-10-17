@@ -18,25 +18,25 @@ use super::*;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
 mod block;
-use block::Block;
+use block::LeoBlock;
 
 pub mod program;
-pub use program::Program;
+pub use program::LeoProgram;
 
 mod state_root;
 use state_root::StateRoot;
 
 mod committee;
-use committee::Committee;
+use committee::LeoCommittee;
 
 mod mempool;
-use mempool::Mempool;
+use mempool::LeoMempool;
 
 mod peers;
-use peers::Peers;
+use peers::LeoPeers;
 
 mod transaction;
-use transaction::Transaction;
+use transaction::LeoTransaction;
 
 mod utils;
 use utils::*;
@@ -46,7 +46,7 @@ use leo_retriever::{NetworkName, fetch_from_network, verify_valid_program};
 
 ///  Query live data from the Aleo network.
 #[derive(Parser, Debug)]
-pub struct Query {
+pub struct LeoQuery {
     #[clap(short, long, global = true, help = "Endpoint to retrieve network state from. Defaults to entry in `.env`.")]
     pub endpoint: Option<String>,
     #[clap(short, long, global = true, help = "Network to use. Defaults to entry in `.env`.")]
@@ -55,7 +55,7 @@ pub struct Query {
     pub command: QueryCommands,
 }
 
-impl Command for Query {
+impl Command for LeoQuery {
     type Input = ();
     type Output = String;
 
@@ -81,11 +81,11 @@ impl Command for Query {
 
 // A helper function to handle the `query` command.
 fn handle_query<N: Network>(
-    query: Query,
+    query: LeoQuery,
     context: Context,
     network: &str,
     endpoint: &str,
-) -> Result<<Query as Command>::Output> {
+) -> Result<<LeoQuery as Command>::Output> {
     let recursive = context.recursive;
     let (program, output) = match query.command {
         QueryCommands::Block { command } => (None, command.apply(context, ())?),
@@ -137,17 +137,17 @@ pub enum QueryCommands {
     #[clap(about = "Query block information")]
     Block {
         #[clap(flatten)]
-        command: Block,
+        command: LeoBlock,
     },
     #[clap(about = "Query transaction information")]
     Transaction {
         #[clap(flatten)]
-        command: Transaction,
+        command: LeoTransaction,
     },
     #[clap(about = "Query program source code and live mapping values")]
     Program {
         #[clap(flatten)]
-        command: Program,
+        command: LeoProgram,
     },
     #[clap(about = "Query the latest stateroot")]
     Stateroot {
@@ -157,16 +157,16 @@ pub enum QueryCommands {
     #[clap(about = "Query the current committee")]
     Committee {
         #[clap(flatten)]
-        command: Committee,
+        command: LeoCommittee,
     },
     #[clap(about = "Query transactions and transmissions from the memory pool")]
     Mempool {
         #[clap(flatten)]
-        command: Mempool,
+        command: LeoMempool,
     },
     #[clap(about = "Query peer information")]
     Peers {
         #[clap(flatten)]
-        command: Peers,
+        command: LeoPeers,
     },
 }

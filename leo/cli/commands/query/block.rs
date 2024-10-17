@@ -21,14 +21,14 @@ use clap::Parser;
 
 // Query on-chain information related to blocks.
 #[derive(Parser, Debug)]
-pub struct Block {
+pub struct LeoBlock {
     #[clap(help = "Fetch a block by specifying its height or hash", required_unless_present_any = &["latest", "latest_hash", "latest_height", "range"])]
     pub(crate) id: Option<String>,
     #[arg(short, long, help = "Get the latest block", default_value = "false", conflicts_with_all(["latest_hash", "latest_height", "range", "transactions", "to_height"]))]
     pub(crate) latest: bool,
-    #[arg(short, long, help = "Get the latest block hash", default_value = "false", conflicts_with_all(["latest", "latest_height", "range", "transactions", "to_height"]))]
+    #[arg(long, help = "Get the latest block hash", default_value = "false", conflicts_with_all(["latest", "latest_height", "range", "transactions", "to_height"]))]
     pub(crate) latest_hash: bool,
-    #[arg(short, long, help = "Get the latest block height", default_value = "false", conflicts_with_all(["latest", "latest_hash", "range", "transactions", "to_height"]))]
+    #[arg(long, help = "Get the latest block height", default_value = "false", conflicts_with_all(["latest", "latest_hash", "range", "transactions", "to_height"]))]
     pub(crate) latest_height: bool,
     #[arg(short, long, help = "Get up to 50 consecutive blocks", number_of_values = 2, value_names = &["START_HEIGHT", "END_HEIGHT"], conflicts_with_all(["latest", "latest_hash", "latest_height", "transactions", "to_height"]))]
     pub(crate) range: Option<Vec<String>>,
@@ -40,11 +40,11 @@ pub struct Block {
         default_value = "false"
     )]
     pub(crate) transactions: bool,
-    #[arg(short, long, help = "Lookup the block height corresponding to a hash value", default_value = "false")]
+    #[arg(long, help = "Lookup the block height corresponding to a hash value", default_value = "false")]
     pub(crate) to_height: bool,
 }
 
-impl Command for Block {
+impl Command for LeoBlock {
     type Input = ();
     type Output = String;
 

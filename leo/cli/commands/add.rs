@@ -21,7 +21,7 @@ use std::path::PathBuf;
 /// Add a new on-chain or local dependency to the current package.
 #[derive(Parser, Debug)]
 #[clap(name = "leo", author = "The Leo Team <leo@provable.com>", version)]
-pub struct Add {
+pub struct LeoAdd {
     #[clap(name = "NAME", help = "The dependency name. Ex: `credits.aleo` or `credits`.")]
     pub(crate) name: String,
 
@@ -35,7 +35,7 @@ pub struct Add {
     pub(crate) clear: bool,
 }
 
-impl Command for Add {
+impl Command for LeoAdd {
     type Input = ();
     type Output = ();
 

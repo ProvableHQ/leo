@@ -68,7 +68,7 @@ impl Command for Deploy {
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         if !self.no_build {
-            (Build { options: self.options.clone() }).execute(context)?;
+            (LeoBuild { options: self.options.clone() }).execute(context)?;
         }
         Ok(())
     }

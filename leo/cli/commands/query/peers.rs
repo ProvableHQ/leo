@@ -21,7 +21,7 @@ use clap::Parser;
 
 // Query information about network peers.
 #[derive(Parser, Debug)]
-pub struct Peers {
+pub struct LeoPeers {
     #[arg(short, long, help = "Get all peer metrics", default_value = "false", conflicts_with("count"))]
     pub(crate) metrics: bool,
     #[arg(
@@ -34,7 +34,7 @@ pub struct Peers {
     pub(crate) count: bool,
 }
 
-impl Command for Peers {
+impl Command for LeoPeers {
     type Input = ();
     type Output = String;
 

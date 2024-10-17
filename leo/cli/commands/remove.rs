@@ -20,7 +20,7 @@ use leo_retriever::{Dependency, Manifest};
 /// Remove a dependency from the current package.
 #[derive(Parser, Debug)]
 #[clap(name = "leo", author = "The Leo Team <leo@provable.com>", version)]
-pub struct Remove {
+pub struct LeoRemove {
     #[clap(
         name = "NAME",
         help = "The dependency name. Ex: `credits.aleo` or `credits`.",
@@ -32,7 +32,7 @@ pub struct Remove {
     pub(crate) all: bool,
 }
 
-impl Command for Remove {
+impl Command for LeoRemove {
     type Input = ();
     type Output = ();
 
