@@ -263,11 +263,6 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
         self.check_function_signature(function);
 
         if self.scope_state.variant == Some(Variant::AsyncFunction) {
-            // Async functions cannot have empty blocks
-            if function.block.statements.is_empty() {
-                self.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(function.block.span));
-            }
-
             // Initialize the list of input futures. Each one must be awaited before the end of the function.
             self.await_checker.set_futures(
                 function
@@ -278,6 +273,10 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
                     })
                     .collect(),
             );
+        }
+
+        if function.variant == Variant::Function && function.input.is_empty() {
+            self.emit_err(TypeCheckerError::empty_function_arglist(function.span));
         }
 
         self.visit_block(&function.block);

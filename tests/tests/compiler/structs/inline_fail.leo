@@ -8,7 +8,7 @@ program test.aleo {
         x: u32,
     }
     
-    function main() {
+    function main(zz: bool) {
         // no member y in Foo
         let a: Foo = Foo { y: 0u32 };
     }

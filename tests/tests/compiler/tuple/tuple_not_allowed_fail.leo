@@ -4,7 +4,7 @@ expectation = "Fail"
 */
 
 program test.aleo {    
-    function main() -> u8 {
+    function main(zz: bool) -> u8 {
         return 1u8;
     }
     
@@ -12,11 +12,11 @@ program test.aleo {
         return (1u8, 2u16);
     }
     
-    function bar() -> (u8, (u16, u32)) {
+    function bar(zz: bool) -> (u8, (u16, u32)) {
         return (1u8, (2u16, 3u32));
     }
     
-    function baz() -> u8 {
+    function baz(zz: bool) -> u8 {
         for i: (u8, u16) in 0u8..2u8 {}
         return 0u8;
     }

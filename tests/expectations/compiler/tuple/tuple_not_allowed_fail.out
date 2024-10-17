@@ -12,10 +12,10 @@ Error [ETYC0372051]: A function cannot take in a tuple as input.
    8 |     function foo(a: (u8, u16)) -> (u8, u16) {
      |                  ^
 Error [ETYC0372049]: A tuple type cannot contain a tuple.
-    --> compiler-test:12:28
+    --> compiler-test:12:36
      |
-  12 |     function bar() -> (u8, (u16, u32)) {
-     |                            ^^^^^^^^^^
+  12 |     function bar(zz: bool) -> (u8, (u16, u32)) {
+     |                                    ^^^^^^^^^^
 Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
     --> compiler-test:13:22
      |

@@ -4,7 +4,7 @@ expectation = "Fail"
 */
 
 program test.aleo {    
-    function main() {
+    function main(x: bool) {
         let a: u32 = 4294967296u32;
     }
 }

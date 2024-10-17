@@ -13,6 +13,6 @@ program test.aleo {
         amount: u64,
     }
     
-    function main() -> bool {
+    function main(zz: bool) -> bool {
         return true;
     }}

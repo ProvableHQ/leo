@@ -222,6 +222,14 @@ impl<'a> CodeGenerator<'a> {
 
         //  Construct and append the function body.
         let block_string = self.visit_block(&function.block);
+        if matches!(self.variant.unwrap(), Variant::Function | Variant::AsyncFunction)
+            && block_string.lines().all(|line| line.starts_with("    output "))
+        {
+            // There are no real instructions, which is invalid in Aleo, so
+            // add a dummy instruction.
+            function_string.push_str("    assert.eq true true;\n");
+        }
+
         function_string.push_str(&block_string);
 
         function_string
