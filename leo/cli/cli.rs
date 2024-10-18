@@ -55,7 +55,7 @@ enum Commands {
     #[clap(about = "Create a new Leo example package in a new directory")]
     Example {
         #[clap(flatten)]
-        command: Example,
+        command: LeoExample,
     },
     #[clap(about = "Run a program with input variables")]
     Run {
