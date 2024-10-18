@@ -34,6 +34,12 @@ jobs:
         with:
           submodules: true
 
+      # Sets up an upterm session for the user which triggered the workflow for manual debugging
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-actor: true
+
       - name: Install sccache Ubuntu
         if: matrix.os == 'ubuntu-latest'
         env:
@@ -114,6 +120,12 @@ jobs:
         with:
           submodules: true
 
+      # Sets up an upterm session for the user which triggered the workflow for manual debugging
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-actor: true
+
       - name: Install sccache
         run: |
           brew install sccache
@@ -171,6 +183,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+
+      # Sets up an upterm session for the user which triggered the workflow for manual debugging
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-actor: true
 
       - name: Install Rust Stable
         uses: actions-rs/toolchain@v1
