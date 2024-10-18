@@ -39,6 +39,7 @@ jobs:
         uses: lhotari/action-upterm@v1
         with:
           limit-access-to-actor: true
+          wait-timeout-minutes: 60
 
       - name: Install sccache Ubuntu
         if: matrix.os == 'ubuntu-latest'
@@ -125,6 +126,7 @@ jobs:
         uses: lhotari/action-upterm@v1
         with:
           limit-access-to-actor: true
+          wait-timeout-minutes: 60
 
       - name: Install sccache
         run: |
@@ -189,6 +191,7 @@ jobs:
         uses: lhotari/action-upterm@v1
         with:
           limit-access-to-actor: true
+          wait-timeout-minutes: 60
 
       - name: Install Rust Stable
         uses: actions-rs/toolchain@v1
