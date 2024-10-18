@@ -49,6 +49,50 @@ use leo_ast::{
 };
 use leo_span::Symbol;
 
+/// An expression representing a conditional to reach the current
+/// point in the AST.
+#[derive(Clone, Copy)]
+pub enum Guard {
+    /// An Unconstructed guard is one representing a single conditional
+    /// on the stack of conditions.
+    Unconstructed(Identifier),
+
+    /// A Constructed guard is one which as been `And`ed with all previous
+    /// conditions on the stack.
+    ///
+    /// We cache this so that we don't have to evaluate the same chain
+    /// of conditions repeatedly.
+    Constructed(Identifier),
+}
+
+#[derive(Clone, Copy)]
+pub enum ReturnGuard {
+    /// There were no conditionals on the path to this return statement.
+    None,
+
+    /// There was a chain of conditionals on the path to this return statement,
+    /// and they are true iff this Identifier is true.
+    Unconstructed(Identifier),
+
+    /// There was a chain of conditionals on the path to this return statement.`
+    Constructed {
+        /// True iff the conditionals on the path to this return statement are true.
+        plain: Identifier,
+
+        /// True iff any of the guards to return statements so far encountered
+        /// are true. We cache this to guard asserts against early returns.
+        any_return: Identifier,
+    },
+}
+
+impl Guard {
+    fn identifier(self) -> Identifier {
+        match self {
+            Guard::Constructed(id) | Guard::Unconstructed(id) => id,
+        }
+    }
+}
+
 pub struct Flattener<'a> {
     /// The symbol table associated with the program.
     pub(crate) symbol_table: &'a SymbolTable,
@@ -58,13 +102,16 @@ pub struct Flattener<'a> {
     pub(crate) node_builder: &'a NodeBuilder,
     /// A struct used to construct (unique) assignment statements.
     pub(crate) assigner: &'a Assigner,
+
     /// A stack of condition `Expression`s visited up to the current point in the AST.
-    pub(crate) condition_stack: Vec<Expression>,
+    pub(crate) condition_stack: Vec<Guard>,
+
     /// A list containing tuples of guards and expressions associated `ReturnStatement`s.
     /// A guard is an expression that evaluates to true on the execution path of the `ReturnStatement`.
     /// Note that returns are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one return in a basic block.
-    pub(crate) returns: Vec<(Option<Expression>, ReturnStatement)>,
+    pub(crate) returns: Vec<(ReturnGuard, ReturnStatement)>,
+
     /// The program name.
     pub(crate) program: Option<Symbol>,
     /// Whether the function is an async function.
@@ -90,35 +137,146 @@ impl<'a> Flattener<'a> {
         }
     }
 
-    /// Clears the state associated with `ReturnStatements`, returning the ones that were previously stored.
-    pub(crate) fn clear_early_returns(&mut self) -> Vec<(Option<Expression>, ReturnStatement)> {
-        core::mem::take(&mut self.returns)
+    /// Construct an early return guard.
+    ///
+    /// That is, an Identifier assigned to a boolean that is true iff some early return was taken.
+    pub(crate) fn construct_early_return_guard(&mut self) -> Option<(Identifier, Vec<Statement>)> {
+        if self.returns.is_empty() {
+            return None;
+        }
+
+        if self.returns.iter().any(|g| matches!(g.0, ReturnGuard::None)) {
+            // There was a return with no conditions, so we should simple return True.
+            let place = Identifier {
+                name: self.assigner.unique_symbol("true", "$"),
+                span: Default::default(),
+                id: self.node_builder.next_id(),
+            };
+            let statement = self.simple_assign_statement(
+                place,
+                Expression::Literal(Literal::Boolean(true, Default::default(), self.node_builder.next_id())),
+            );
+            return Some((place, vec![statement]));
+        }
+
+        // All guards up to a certain point in the stack should be constructed.
+        // Find the first unconstructed one.
+        let start_i = (0..self.returns.len())
+            .rev()
+            .take_while(|&i| matches!(self.returns[i].0, ReturnGuard::Unconstructed(_)))
+            .last()
+            .unwrap_or(self.returns.len());
+
+        let mut statements = Vec::with_capacity(self.returns.len() - start_i);
+
+        for i in start_i..self.returns.len() {
+            let ReturnGuard::Unconstructed(identifier) = self.returns[i].0 else {
+                unreachable!("We assured above that all guards after the index are Unconstructed.");
+            };
+            if i == 0 {
+                self.returns[i].0 = ReturnGuard::Constructed { plain: identifier, any_return: identifier };
+                continue;
+            }
+
+            let ReturnGuard::Constructed { any_return: previous_identifier, .. } = self.returns[i - 1].0 else {
+                unreachable!("We're always at an index where previous guards were Constructed.");
+            };
+
+            let identifier_expression = Expression::Identifier(identifier);
+            let previous_expression = Expression::Identifier(previous_identifier);
+
+            // Construct an Or of the two expressions.
+            let binary = Expression::Binary(BinaryExpression {
+                op: BinaryOperation::Or,
+                left: Box::new(previous_expression),
+                right: Box::new(identifier_expression),
+                span: Default::default(),
+                id: {
+                    let id = self.node_builder.next_id();
+                    self.type_table.insert(id, Type::Boolean);
+                    id
+                },
+            });
+
+            // Assign that Or to a new Identifier.
+            let place = Identifier {
+                name: self.assigner.unique_symbol("guard", "$"),
+                span: Default::default(),
+                id: self.node_builder.next_id(),
+            };
+            statements.push(self.simple_assign_statement(place, binary));
+
+            // Make that assigned Identifier the constructed guard.
+            self.returns[i].0 = ReturnGuard::Constructed { plain: identifier, any_return: place };
+        }
+
+        let ReturnGuard::Constructed { any_return, .. } = self.returns.last().unwrap().0 else {
+            unreachable!("Above we made all guards Constructed.");
+        };
+
+        Some((any_return, statements))
     }
 
-    /// Constructs a guard from the current state of the condition stack.
-    pub(crate) fn construct_guard(&mut self) -> Option<Expression> {
-        match self.condition_stack.is_empty() {
-            true => None,
-            false => {
-                let (first, rest) = self.condition_stack.split_first().unwrap();
-                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
-                    // Construct the binary expression.
-                    Expression::Binary(BinaryExpression {
-                        op: BinaryOperation::And,
-                        left: Box::new(acc),
-                        right: Box::new(condition),
-                        span: Default::default(),
-                        id: {
-                            // Create a new node ID for the binary expression.
-                            let id = self.node_builder.next_id();
-                            // Set the type of the node ID.
-                            self.type_table.insert(id, Type::Boolean);
-                            id
-                        },
-                    })
-                }))
-            }
+    /// Construct a guard from the current state of the condition stack.
+    ///
+    /// That is, a boolean expression which is true iff we've followed the branches
+    /// that led to the current point in the Leo code.
+    pub(crate) fn construct_guard(&mut self) -> Option<(Identifier, Vec<Statement>)> {
+        if self.condition_stack.is_empty() {
+            return None;
         }
+
+        // All guards up to a certain point in the stack should be constructed.
+        // Find the first unconstructed one. Start the search at the end so we
+        // don't repeatedly traverse the whole stack with repeated calls to this
+        // function.
+        let start_i = (0..self.condition_stack.len())
+            .rev()
+            .take_while(|&i| matches!(self.condition_stack[i], Guard::Unconstructed(_)))
+            .last()
+            .unwrap_or(self.condition_stack.len());
+
+        let mut statements = Vec::with_capacity(self.condition_stack.len() - start_i);
+
+        for i in start_i..self.condition_stack.len() {
+            let identifier = self.condition_stack[i].identifier();
+            if i == 0 {
+                self.condition_stack[0] = Guard::Constructed(identifier);
+                continue;
+            }
+
+            let previous = self.condition_stack[i - 1].identifier();
+            let identifier_expression = Expression::Identifier(identifier);
+            let previous_expression = Expression::Identifier(previous);
+
+            // Construct an And of the two expressions.
+            let binary = Expression::Binary(BinaryExpression {
+                op: BinaryOperation::And,
+                left: Box::new(previous_expression),
+                right: Box::new(identifier_expression),
+                span: Default::default(),
+                id: {
+                    // Create a new node ID for the binary expression.
+                    let id = self.node_builder.next_id();
+                    // Set the type of the node ID.
+                    self.type_table.insert(id, Type::Boolean);
+                    id
+                },
+            });
+
+            // Assign that And to a new Identifier.
+            let place = Identifier {
+                name: self.assigner.unique_symbol("guard", "$"),
+                span: Default::default(),
+                id: self.node_builder.next_id(),
+            };
+            statements.push(self.simple_assign_statement(place, binary));
+
+            // Make that assigned Identifier the constructed guard.
+            self.condition_stack[i] = Guard::Constructed(place);
+        }
+
+        Some((self.condition_stack.last().unwrap().identifier(), statements))
     }
 
     /// Fold guards and expressions into a single expression.
