@@ -30,7 +30,7 @@ pub mod deploy;
 pub use deploy::Deploy;
 
 pub mod example;
-pub use example::Example;
+pub use example::LeoExample;
 
 pub mod execute;
 pub use execute::LeoExecute;
@@ -208,7 +208,7 @@ impl Default for BuildOptions {
 pub struct FeeOptions {
     #[clap(short, long, help = "Don't ask for confirmation.", default_value = "false")]
     pub(crate) yes: bool,
-    #[clap(short, long, help = "Performs a dry-run of transaction generation")]
+    #[clap(long, help = "Performs a dry-run of transaction generation")]
     pub(crate) dry_run: bool,
     #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
     pub(crate) priority_fee: u64,

@@ -20,7 +20,7 @@ use std::fs;
 
 /// Initialize a new Leo example.
 #[derive(Parser, Debug)]
-pub struct Example {
+pub struct LeoExample {
     #[clap(name = "NAME", help = "The example to initialize.")]
     pub(crate) name: String,
     #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
@@ -34,7 +34,7 @@ pub struct Example {
     pub(crate) endpoint: String,
 }
 
-impl Command for Example {
+impl Command for LeoExample {
     type Input = <LeoNew as Command>::Output;
     type Output = ();
 
