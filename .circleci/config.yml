@@ -79,6 +79,7 @@ jobs:
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
                 cargo generate-lockfile
             }
+            git submodule update --init --recursive
             cargo test --all --locked
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
