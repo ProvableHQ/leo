@@ -3,161 +3,129 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "31996f72ace053dcaa3beb2ec60de78fcade8e4047cf92897dfd244f210987f7", type_checked_symbol_table = "64be9ee1773f9450cf04c18cbf377102aab7c0aba277e7c036c770ab8614b5f0", unrolled_symbol_table = "64be9ee1773f9450cf04c18cbf377102aab7c0aba277e7c036c770ab8614b5f0", initial_ast = "dab4c349df7b581a19b258e289107e94355ce3d848801372999cacc807ddeb7b", unrolled_ast = "dab4c349df7b581a19b258e289107e94355ce3d848801372999cacc807ddeb7b", ssa_ast = "01a69ccd470b48c3d60c9928922b5c2ed2f0fe0405ab3d0ce95ea64d80155027", flattened_ast = "ec2b075dc39d494b448c04fd5bbd19e8a7503cfea823da12ee33464d8e67d0a1", destructured_ast = "28d0ece5659e9c3d8dae3bc9f5e2181730dd52d4d00575553fb62879c2252c4c", inlined_ast = "28d0ece5659e9c3d8dae3bc9f5e2181730dd52d4d00575553fb62879c2252c4c", dce_ast = "28d0ece5659e9c3d8dae3bc9f5e2181730dd52d4d00575553fb62879c2252c4c", bytecode = """
 program test.aleo;
 
-
-
 mapping one:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping two:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping three:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping four:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping five:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping six:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping seven:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping eight:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping nine:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping ten:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping eleven:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twelve:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping thirteen:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping fourteen:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping fifteen:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping sixteen:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping seventeen:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping eighteen:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping nineteen:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twenty:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twentyone:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twentytwo:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twentythree:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twentyfour:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twentyfive:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twentysix:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twentyseven:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twentyeight:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping twentynine:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping thirty:
-\tkey as field.public;
-\tvalue as field.public;
-
+    key as field.public;
+    value as field.public;
 
 mapping thirtyone:
-\tkey as field.public;
-\tvalue as field.public;
+    key as field.public;
+    value as field.public;
 
 function foo:
     add 1u8 1u8 into r0;

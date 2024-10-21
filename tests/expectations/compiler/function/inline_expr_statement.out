@@ -4,22 +4,10 @@ outputs = [[
     { compile = [{ initial_symbol_table = "3c7d293c37250980a5585057e47928a31e3436cd32119581540bf51f5728c388", type_checked_symbol_table = "091fb907ad9e6f299261d8d3b0d7eea3e1fe7b3d264462067710ef685b2270e1", unrolled_symbol_table = "091fb907ad9e6f299261d8d3b0d7eea3e1fe7b3d264462067710ef685b2270e1", initial_ast = "320a1254fe4e5e65832dcfac7cfce31f8e2d20330ee5d8db5dcb64db96b04e44", unrolled_ast = "320a1254fe4e5e65832dcfac7cfce31f8e2d20330ee5d8db5dcb64db96b04e44", ssa_ast = "8d254079e14cc38ec69727d94a05ef669becda48a4201d236c0342dd2ba0a3f4", flattened_ast = "8a66d1d4efdac63e56a023f6741662a55d93481dcb0465eeafe876642f373cfd", destructured_ast = "e2694d1e1b256ebff10109dbb78e7f2da7fbcc9abc1c9996ace63bba5567035c", inlined_ast = "c089d74e6e09f64fe710904fbd61bffc92bcd7bd20379c404a724963dbe06401", dce_ast = "d890c7170e9541f4e7244473dea35ce26477cddd2c46ff9135a759848d948a6f", bytecode = """
 program test.aleo;
 
-
-
-
-
-
-
 function some_function:
 """, errors = "", warnings = "" }] },
     { compile = [{ initial_symbol_table = "d5bf3f05f5a0afc811a2238929940629213ae93d47a62c90227f0c413c717544", type_checked_symbol_table = "79511fe231f3462aabe4261e9a2f22aa91c54351f576656f9b6bf64b5d467495", unrolled_symbol_table = "79511fe231f3462aabe4261e9a2f22aa91c54351f576656f9b6bf64b5d467495", initial_ast = "c5160a46e1db93ff65609f2995f5a7c02537c60fc41ee5286939515a93ec5860", unrolled_ast = "c5160a46e1db93ff65609f2995f5a7c02537c60fc41ee5286939515a93ec5860", ssa_ast = "f47fd6ab0deb01d222b7b7bd3852ecffb6506a4acdbb3c45eefe44503cec2fcb", flattened_ast = "ec138eb7d296236a666ee95a2da4ff5f379c76c12e76e9e2483e1b2d431e3c3f", destructured_ast = "69ad728f2fcb556dfa10941bd582f6e6c3fcd8169052916af5aec4bb41f03305", inlined_ast = "09985facfd23d038614e4b5eabe6e400b47321c1a8e3f5ec2f27144c2cad76c1", dce_ast = "09985facfd23d038614e4b5eabe6e400b47321c1a8e3f5ec2f27144c2cad76c1", bytecode = """
 program test.aleo;
-
-
-
-
-
-
 
 function some_function:
     mul 0u32 0u32 into r0;

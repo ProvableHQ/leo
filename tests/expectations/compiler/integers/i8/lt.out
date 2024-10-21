@@ -3,8 +3,6 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "4743c62690fbc67bca8d59e9bb6c787eb3bb6bd0c0ac687147ef041745a3bf63", type_checked_symbol_table = "42bcece297a0308cbfcc07e26e6a48f50b68d25ded7d1ad6cd185288b799e4df", unrolled_symbol_table = "42bcece297a0308cbfcc07e26e6a48f50b68d25ded7d1ad6cd185288b799e4df", initial_ast = "1b46f9c0d678800f33e2acc95375dc446b755331f7555b30441bb4b0645b665c", unrolled_ast = "1b46f9c0d678800f33e2acc95375dc446b755331f7555b30441bb4b0645b665c", ssa_ast = "cc78951f929dbe123f88df4269f4049cf49419496328805b7f3cccacbeebd406", flattened_ast = "863a0585973d5e6536cb97dd3b11e8662b11318e148115ab9483eb088ee11cda", destructured_ast = "df9db2518c47cf08ca5798db0c6dbe3b4fea29e13d70156f52e9aff73d52e134", inlined_ast = "df9db2518c47cf08ca5798db0c6dbe3b4fea29e13d70156f52e9aff73d52e134", dce_ast = "df9db2518c47cf08ca5798db0c6dbe3b4fea29e13d70156f52e9aff73d52e134", bytecode = """
 program test.aleo;
 
-
-
 function main:
     input r0 as i8.private;
     input r1 as i8.private;

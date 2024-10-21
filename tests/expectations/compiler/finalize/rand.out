@@ -3,9 +3,6 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "d874d22f303fe4b2e65fd277875664376ae7ea5b4de7238763167dcd76d3eea0", type_checked_symbol_table = "15abdab3195aaaa9a990e7a8497775ad9e36da3cc859b2ffc62aac92ca3cd13e", unrolled_symbol_table = "15abdab3195aaaa9a990e7a8497775ad9e36da3cc859b2ffc62aac92ca3cd13e", initial_ast = "0ec754998930beb6457105c5b9bb1242f4790fe50b003b5a66e9673f157a64fd", unrolled_ast = "0ec754998930beb6457105c5b9bb1242f4790fe50b003b5a66e9673f157a64fd", ssa_ast = "a489cfe29e84bfff687b5f66c4932bca41610f95655f0006b8fae8da8e4d4d1c", flattened_ast = "5ee9e69c74b25405fcf7a081bb852c9b14b0198b9bdfdb90bcb3f91e08cb533a", destructured_ast = "aea5a7a6b14232ca2daf7a528c334910ea1bc0bb7340336974ea91087245f4a8", inlined_ast = "9e0008ac06800cd2c94f5a9efa70ee30c680be63433ffce8eb6d5f38f973125e", dce_ast = "c39cbe44958b3f2d1988eded5aa8e222d34f9a1e76dc8fa123c800722f32183f", bytecode = """
 program test.aleo;
 
-
-
-
 function foo:
     async foo into r0;
     output r0 as test.aleo/foo.future;
@@ -13,5 +10,4 @@ function foo:
 finalize foo:
     rand.chacha into r0 as boolean;
     assert.eq r0 true;
-
 """, errors = "", warnings = "" }] }]]

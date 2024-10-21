@@ -3,8 +3,6 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "4930d5ca5b6c44137f57c6ddc50932d0c4e524c2b650fbafab3b5a7b5a9c39cf", type_checked_symbol_table = "474939085f77956d9a6476e4369bb466de16f7c1213be4b965f04d5c64c9d8c5", unrolled_symbol_table = "474939085f77956d9a6476e4369bb466de16f7c1213be4b965f04d5c64c9d8c5", initial_ast = "3c699a01b9f29a9b1afabe9a37cf579b7d697c57e7163654775d88e3b0b8c01b", unrolled_ast = "3c699a01b9f29a9b1afabe9a37cf579b7d697c57e7163654775d88e3b0b8c01b", ssa_ast = "3c699a01b9f29a9b1afabe9a37cf579b7d697c57e7163654775d88e3b0b8c01b", flattened_ast = "0ed487b1b36a28dda3c1cd7c9be5fafed2c42823926a6d57ee4b4807e52a378c", destructured_ast = "807e7645ccf0e04bc099fdde2d0ec03da10fcd4dd0f85f69da61a1b1c23f41f2", inlined_ast = "807e7645ccf0e04bc099fdde2d0ec03da10fcd4dd0f85f69da61a1b1c23f41f2", dce_ast = "807e7645ccf0e04bc099fdde2d0ec03da10fcd4dd0f85f69da61a1b1c23f41f2", bytecode = """
 program test.aleo;
 
-
-
 function foo:
     input r0 as u8.private;
     input r1 as u8.private;

@@ -7,7 +7,6 @@ struct Foo:
     a as u16;
     b as u16;
 
-
 function main:
     input r0 as i8.private;
     input r1 as i16.private;

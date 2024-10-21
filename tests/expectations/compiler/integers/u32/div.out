@@ -3,8 +3,6 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "b058cf2f1048b8bd7cc7ffa2dc8876f46d575fac7dc84845d89cabc9548c88bc", type_checked_symbol_table = "a8e159126d8006dbee94a18fe8858a1690e64ef2f4752b36dd2d37e0186b7431", unrolled_symbol_table = "a8e159126d8006dbee94a18fe8858a1690e64ef2f4752b36dd2d37e0186b7431", initial_ast = "65d384f0f33c5c4344f399c8ba23cad871efd72936b112355337117c0af3e770", unrolled_ast = "65d384f0f33c5c4344f399c8ba23cad871efd72936b112355337117c0af3e770", ssa_ast = "0305f133a3d385bb7a0774ef8f44c7b5c9af689867edb48b71ca47e5d9183586", flattened_ast = "63ff783ca61e7da81364b19836be624887de9bb526685d8e54975424d6ee4b60", destructured_ast = "874fd959ed6b6d70be35ef420e7e3c264d0f1170f1b209c6a31d837f6329a89a", inlined_ast = "874fd959ed6b6d70be35ef420e7e3c264d0f1170f1b209c6a31d837f6329a89a", dce_ast = "874fd959ed6b6d70be35ef420e7e3c264d0f1170f1b209c6a31d837f6329a89a", bytecode = """
 program test.aleo;
 
-
-
 function main:
     input r0 as u32.private;
     input r1 as u32.private;

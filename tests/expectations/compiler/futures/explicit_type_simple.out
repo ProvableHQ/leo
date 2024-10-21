@@ -4,12 +4,9 @@ outputs = [[{ compile = [
     { initial_symbol_table = "8b522d0a39eb531a3b44e1689486e9421bf3511b734ea1866490af667391a494", type_checked_symbol_table = "5518f6156fadf886a27d01ab9f04e7d5ba6ad744eb57eae50591cfeb7ac3e245", unrolled_symbol_table = "5518f6156fadf886a27d01ab9f04e7d5ba6ad744eb57eae50591cfeb7ac3e245", initial_ast = "2bfe467a04d427a79a28ef4029ccebdb3cb0eddf0b37e6b33dbdbe2063aa67bc", unrolled_ast = "2bfe467a04d427a79a28ef4029ccebdb3cb0eddf0b37e6b33dbdbe2063aa67bc", ssa_ast = "658fe90229b11769bc01e033f7833960f756b09e082ea0542b270acb4c1ee71b", flattened_ast = "6e131dfaa409eaec17bd67acc1b1ac4611fdb5deb1686f70f8bc34327ab10648", destructured_ast = "dc160ce86c6b05e46449a72e5ed1d1b9e932693d28f430940442fd5df2354143", inlined_ast = "43a6c945bdcf715ee62ef3eb62df9fa922c2f9f848c8989438514a05d4fd2101", dce_ast = "43a6c945bdcf715ee62ef3eb62df9fa922c2f9f848c8989438514a05d4fd2101", bytecode = """
 program test.aleo;
 
-
-
 mapping foo:
-\tkey as u32.public;
-\tvalue as u32.public;
-
+    key as u32.public;
+    value as u32.public;
 
 function main_inner:
     input r0 as u32.public;
@@ -22,14 +19,10 @@ function main_inner:
 finalize main_inner:
     input r0 as u32.public;
     set 1u32 into foo[r0];
-
 """, errors = "", warnings = "" },
     { initial_symbol_table = "ad49aec92f87f1e65648a7ae10d5bfb563f50bb397a933a9852c979b4ed5e3f3", type_checked_symbol_table = "7a05bbb86250bee3f69eee0c1f46f9d506dcb57c74358c26d158bde771b29bd7", unrolled_symbol_table = "7a05bbb86250bee3f69eee0c1f46f9d506dcb57c74358c26d158bde771b29bd7", initial_ast = "f4b27c45b21e659b2b730a167dbbf8a309b19e71beded7108cb7267b06177417", unrolled_ast = "bdd7c6800831eebcb6a09cb05acd5be0ad83730e1d210eb4d9b4d6b968d0b326", ssa_ast = "e4441d4a0d42e1061d4481bce0113ebd8a6f258dc9e877adc5e52029d3f04991", flattened_ast = "82cca8f1537803acde719f029a4ac265e0c1c53fa6e8cd4e4e2800a4d840c871", destructured_ast = "aee30ce903740d4f39c7f88aae66ed0bca4affce5b51988699cc9167ff946494", inlined_ast = "f4292c099047c4d8e3c0fbdaf7f32a1273a3eb68c4a11b0eccff59bd7c804247", dce_ast = "406a8d3de9427c696512e49e8f7ab27d48616754516e535152dc13c15a3e1ee0", bytecode = """
 import test.aleo;
 program basic.aleo;
-
-
-
 
 function main:
     input r0 as u32.public;
@@ -46,6 +39,5 @@ finalize main:
     input r2 as test.aleo/main_inner.future;
     await r2;
     assert.eq r0 r1;
-
 """, errors = "", warnings = "" },
 ] }]]

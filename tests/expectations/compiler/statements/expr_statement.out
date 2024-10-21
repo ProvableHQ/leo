@@ -3,13 +3,10 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "230456a912e68c6bf7bc61830676d9977f6aee13e2ae69546b077d939c547002", type_checked_symbol_table = "72c1cdf55cba381c3beb41099f7b8e32a7f0ec9bfb91f05182d8fff3e478c4f1", unrolled_symbol_table = "72c1cdf55cba381c3beb41099f7b8e32a7f0ec9bfb91f05182d8fff3e478c4f1", initial_ast = "eaa9f399bc9592a47c43d90c07ee8813e6a11327a31c9c4a4019ddf49bfd31c2", unrolled_ast = "eaa9f399bc9592a47c43d90c07ee8813e6a11327a31c9c4a4019ddf49bfd31c2", ssa_ast = "98648a4077c879caa3646f9610036e6843e9940a61af40705985ddc8da2325df", flattened_ast = "db92a5e180f9ae7502df883de11b44aea7c08e8fee517d1cfa7bdda51777fbbf", destructured_ast = "bedc21928bb999a9644ee94c09ff6b44ae4cc46296b31b2a3e67d448ed272fec", inlined_ast = "fe589fd7800068d9e3452a51b48e0af5462c39bfecbf670290ee8880f52a4b05", dce_ast = "fe589fd7800068d9e3452a51b48e0af5462c39bfecbf670290ee8880f52a4b05", bytecode = """
 program test.aleo;
 
-
-
 closure foo:
     input r0 as u8;
     input r1 as u8;
     assert.eq r0 r1;
-
 
 function main:
     input r0 as u8.private;

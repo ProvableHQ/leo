@@ -24,7 +24,6 @@ record Boo:
     owner as address.private;
     val as u32.private;
 
-
 function create:
     cast 1u32 2u32 into r0 as Two;
     cast 3u32 4u32 into r1 as Two;
@@ -64,7 +63,6 @@ struct Bar:
 struct Foo:
     bar as [Bar; 1u32];
 
-
 struct Woo:
     a as u32;
     b as u32;
@@ -74,12 +72,10 @@ record BooHoo:
     val as u32.private;
     woo as Woo.private;
 
-
 function create_wrapper:
     call child.aleo/create into r0 r1;
     output r0 as Foo.private;
     output r1 as child.aleo/Boo.record;
-
 
 function create_another_wrapper:
     call child.aleo/create into r0 r1;
@@ -112,18 +108,14 @@ struct Bar:
 struct Foo:
     bar as [Bar; 1u32];
 
-
 struct Woo:
     a as u32;
     b as u32;
-
-
 
 function main:
     input r0 as u32.private;
     add 1u32 r0 into r1;
     output r1 as u32.private;
-
 
 function omega_wrapper:
     call parent.aleo/create_another_wrapper into r0 r1 r2 r3;

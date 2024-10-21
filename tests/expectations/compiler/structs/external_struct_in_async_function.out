@@ -8,8 +8,6 @@ struct TestStruct:
     data0 as u128;
     data1 as u128;
 
-
-
 function init:
     cast 0u128 1u128 into r0 as TestStruct;
     async init r0 into r1;
@@ -18,7 +16,6 @@ function init:
 finalize init:
     input r0 as TestStruct.public;
     assert.eq 0u32 0u32;
-
 """, errors = "", warnings = "" },
     { initial_symbol_table = "c9f26fb8c18222d0819c01087efc4aae88ea8944dec03710d94c38c24e0d077a", type_checked_symbol_table = "ed3db1e139955da3a7df17d8abdf36ddcabf05e2cb0cc6af012cce4a4fc67fae", unrolled_symbol_table = "ed3db1e139955da3a7df17d8abdf36ddcabf05e2cb0cc6af012cce4a4fc67fae", initial_ast = "b1348090a951e00cbf76c62d734fa808bfceea5b4169aa6da15a08ff185cbc50", unrolled_ast = "f1c461c8b0f677d0954ff6d29ab29abb648b57c7c141ddaf116a28d837e2b546", ssa_ast = "39e50a1b965cf6d4c19750d75edd4b1a8f8c02c04bbcb361f4fa70cebdc39574", flattened_ast = "a5a1c8def04670f3c5177946811bd27dcae5b045fce181e5e3307d9964686341", destructured_ast = "97153aa38aad12f2695c1e457270bd678add4d96f01f78660a9be0ab8cd409bf", inlined_ast = "97153aa38aad12f2695c1e457270bd678add4d96f01f78660a9be0ab8cd409bf", dce_ast = "97153aa38aad12f2695c1e457270bd678add4d96f01f78660a9be0ab8cd409bf", bytecode = """
 import parent.aleo;
@@ -27,7 +24,6 @@ program child.aleo;
 struct TestStruct:
     data0 as u128;
     data1 as u128;
-
 
 function main:
     output 1u32 as u32.private;

@@ -7,15 +7,12 @@ program child.aleo;
 record child_rec:
     owner as address.private;
 
-
 function main:
     input r0 as child_rec.record;
 """, errors = "", warnings = "" },
     { initial_symbol_table = "b5a798a81b37a96d61bce196fbe0f86bd73d66869e638eb56f53b47016add539", type_checked_symbol_table = "7b6cf777b20c4a7877425c13379ea3aab6660ab65f8b285a561a464a3aaa2018", unrolled_symbol_table = "7b6cf777b20c4a7877425c13379ea3aab6660ab65f8b285a561a464a3aaa2018", initial_ast = "3035438b326eef0eacc00dbe4829c09021b73a037709aa7c2a22860e5dd9a26a", unrolled_ast = "b3b45e5d3481e68154563fdc64f460e69fd00395eccb5a319eb5e81ca7f7d3c9", ssa_ast = "b3b45e5d3481e68154563fdc64f460e69fd00395eccb5a319eb5e81ca7f7d3c9", flattened_ast = "2311a42d662fc48ae0063d65e32035c349f709e2f7428b50f388ec6d2a3dbcaa", destructured_ast = "f793f932d3d092553d17307793c58592b869e5926000d798ec85d82ecc6d178e", inlined_ast = "f793f932d3d092553d17307793c58592b869e5926000d798ec85d82ecc6d178e", dce_ast = "f793f932d3d092553d17307793c58592b869e5926000d798ec85d82ecc6d178e", bytecode = """
 import child.aleo;
 program inter.aleo;
-
-
 
 function use_child:
     input r0 as child.aleo/child_rec.record;
@@ -24,8 +21,6 @@ function use_child:
 import child.aleo;
 import inter.aleo;
 program parent.aleo;
-
-
 
 function main:
 """, errors = "", warnings = "" },

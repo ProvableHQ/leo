@@ -13,14 +13,12 @@ struct Board:
     r2 as Row;
     r3 as Row;
 
-
 function new:
     cast 0u8 0u8 0u8 into r0 as Row;
     cast 0u8 0u8 0u8 into r1 as Row;
     cast 0u8 0u8 0u8 into r2 as Row;
     cast r0 r1 r2 into r3 as Board;
     output r3 as Board.private;
-
 
 closure check_for_win:
     input r0 as Board;
@@ -73,7 +71,6 @@ closure check_for_win:
     and r45 r46 into r47;
     or r42 r47 into r48;
     output r48 as boolean;
-
 
 function make_move:
     input r0 as u8.private;

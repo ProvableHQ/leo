@@ -8,11 +8,9 @@ record yeets:
     owner as address.private;
     val as u32.private;
 
-
 mapping Yo:
-\tkey as u32.public;
-\tvalue as u32.public;
-
+    key as u32.public;
+    value as u32.public;
 
 function main_dep:
     input r0 as u32.private;
@@ -25,18 +23,14 @@ finalize main_dep:
     input r0 as u32.public;
     input r1 as u32.public;
     set r1 into Yo[r0];
-
 """, errors = "", warnings = "" },
     { initial_symbol_table = "837e6e9f7a93af9d92cb90208d54a4e55693939bccddf588c94102805a600ec2", type_checked_symbol_table = "c33e10eabb14d2d0dc8a7ffd7370dcda4d0467b46dc00d9a526c0cf7fc373906", unrolled_symbol_table = "c33e10eabb14d2d0dc8a7ffd7370dcda4d0467b46dc00d9a526c0cf7fc373906", initial_ast = "64089bd9ecc0ab9ce224328c7ba9b2ece577f585b2417b48eb0883ec8cec304c", unrolled_ast = "450bb73f7249477591a716a45cbd0fbb332d98a8765b2804ca919488cbc7e1bf", ssa_ast = "d445e67098ada41b7ada11f69a07acf107d1b8e6ab052e7bb3e8d1b6530c4371", flattened_ast = "b3e5d4d940f433b770b6acdd85c2a5f1de7327617f71783b75108c2a515c12a1", destructured_ast = "36361778b1d97dcde52548c1e082ad7382dbe6e6be4fd6be1fdc73bb213d0016", inlined_ast = "b358e9fa7f234ae1154b48cbd83c3e2029c1a83c5298470035729f78537e03a6", dce_ast = "4d6d5c792f8d7a9d83e0c1bee6efcf24470e92fd4746aa7a9d0afabc93ec8a19", bytecode = """
 import test_dep.aleo;
 program test.aleo;
 
-
-
 mapping ayo:
-\tkey as u32.public;
-\tvalue as u32.public;
-
+    key as u32.public;
+    value as u32.public;
 
 function main:
     input r0 as u32.private;
@@ -70,7 +64,6 @@ finalize main:
     position end_otherwise_0_3;
     add r0[0u32] r1[0u32] into r5;
     set r5 into ayo[1u32];
-
 """, errors = "", warnings = """
 Warning [WTYC0372000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
     --> compiler-test:17:5
@@ -98,9 +91,6 @@ import test_dep.aleo;
 import test.aleo;
 program wrapper.aleo;
 
-
-
-
 function main:
     input r0 as u32.public;
     input r1 as u32.private;
@@ -118,16 +108,12 @@ finalize main:
     await r0;
     await r1;
     await r2;
-
 """, errors = "", warnings = "" },
     { initial_symbol_table = "04a3a0ccbf4ed061d19da4e624725caff0e64ac838498cbd09df865f4f9044f2", type_checked_symbol_table = "69550e476553614e01dd39df0b3a8f682556cdf76982503af0e6a77d4916e027", unrolled_symbol_table = "69550e476553614e01dd39df0b3a8f682556cdf76982503af0e6a77d4916e027", initial_ast = "bf4f5dac2e3cac6f6c8b117a93b7bc9a4b9d31f66b3b0d946866da23003e6a69", unrolled_ast = "a1786c230d46f3b207f118aaaaea373cd1d9935aa7e63b99e403a8faf36df2fe", ssa_ast = "82581ca24afcd79d3e3c1346009981d4a9d3d227afc0540707b6c315ecdce107", flattened_ast = "2ff2d69c6199a5c70a8ffb96d8dc0529f6f1fbf631a1f690169d2d9162e91689", destructured_ast = "8da4c7c91fabf5edb6768e616f223e574b3415c848321f66ad9e587b76259210", inlined_ast = "a740025e070d37bd22f264e37dfd6802eb9e1b10c12c928a08acd14fbe9043d6", dce_ast = "e127a5223a49f123398009b927e96ebb44f266df7271feb7b1ff5f7f748e6ff5", bytecode = """
 import test_dep.aleo;
 import test.aleo;
 import wrapper.aleo;
 program big_wrapper.aleo;
-
-
-
 
 function main:
     input r0 as u32.public;
@@ -140,6 +126,5 @@ function main:
 finalize main:
     input r0 as wrapper.aleo/main.future;
     await r0;
-
 """, errors = "", warnings = "" },
 ] }]]

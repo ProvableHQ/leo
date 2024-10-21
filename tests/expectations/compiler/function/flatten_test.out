@@ -13,7 +13,6 @@ struct Board:
     r2 as Row;
     r3 as Row;
 
-
 closure win:
     input r0 as Board;
     input r1 as u8;
@@ -65,7 +64,6 @@ closure win:
     and r45 r46 into r47;
     or r42 r47 into r48;
     output r48 as boolean;
-
 
 function main:
     input r0 as u8.public;

@@ -7,7 +7,6 @@ program test.aleo;
 struct TokenInfo:
     id as u64;
 
-
 function add_new_liquidity_token_2:
 """, errors = "", warnings = "" }] },
     { compile = [{ initial_symbol_table = "2645407f9ede04b353e82835d65996cf912fd1e8634a61f461d457a92305b9ce", type_checked_symbol_table = "4e9ce7072216712da8f565266c66371443d6761ea10f891042d97b457145b669", unrolled_symbol_table = "4e9ce7072216712da8f565266c66371443d6761ea10f891042d97b457145b669", initial_ast = "ae96cef2402ff3fac80cc3363313fbdff221e2bfbf5ce30655bc1985be92210b", unrolled_ast = "ae96cef2402ff3fac80cc3363313fbdff221e2bfbf5ce30655bc1985be92210b", ssa_ast = "70025d49470fabc8804bb98b54ae1d0d0d5d5943fc9d3e6e76b708f346aef7c1", flattened_ast = "806c948265ae74e02fa0130bf2f66a572c0327341a6d990031fa5afee46a4182", destructured_ast = "2863f3ca7be0e5bbfd5754c2e091dc6481bce1473d91b5bff1256ebb63e48f55", inlined_ast = "2863f3ca7be0e5bbfd5754c2e091dc6481bce1473d91b5bff1256ebb63e48f55", dce_ast = "2863f3ca7be0e5bbfd5754c2e091dc6481bce1473d91b5bff1256ebb63e48f55", bytecode = """
@@ -15,7 +14,6 @@ program test.aleo;
 
 struct TokenInfo:
     id as u64;
-
 
 function add_new_liquidity_token_2:
     cast 0u64 into r0 as TokenInfo;

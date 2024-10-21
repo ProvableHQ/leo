@@ -10,7 +10,6 @@ record Token:
     owner as address.private;
     amount as u64.private;
 
-
 function main:
     input r0 as boolean.private;
     input r1 as Foo.private;

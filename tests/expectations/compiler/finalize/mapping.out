@@ -13,20 +13,17 @@ struct Bar:
 struct Baz:
     a as u128;
 
-
 mapping balances:
-\tkey as address.public;
-\tvalue as u128.public;
-
+    key as address.public;
+    value as u128.public;
 
 mapping tokens:
-\tkey as address.public;
-\tvalue as Token.public;
-
+    key as address.public;
+    value as Token.public;
 
 mapping foo:
-\tkey as Bar.public;
-\tvalue as Baz.public;
+    key as Bar.public;
+    value as Baz.public;
 
 function matches:
     input r0 as address.private;
