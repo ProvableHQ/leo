@@ -63,14 +63,29 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
-      - run: curl -o rustup https://sh.rustup.rs
-      - run: bash rustup -y
-      - run: rm ~/.gitconfig
-      - run: ~/.cargo/bin/cargo test --all --locked
+      - run:
+          name: "Install Rust and run test"
+          command: |
+            $ProgressPreference = "SilentlyContinue"
+            # Remove the circleci installed rustc.
+            choco uninstall rust
+            # Install rust with rustup.
+            Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\rustup-init.exe"
+            & C:\rustup-init.exe -y --default-toolchain "stable-x86_64-pc-windows-msvc" --no-modify-path --profile minimal
+            $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
+            # Verify the installation.
+            cargo --version --verbose
+            rustc --version | Out-File -FilePath "rust-version"
+            if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
+                cargo generate-lockfile
+            }
+            cargo test --all --locked
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
-            - ~/.cargo
+            - C:\Users\circleci\.cargo\registry
+            - C:\Users\circleci\.cargo\git
+            - target
 
   check-style:
     docker:
