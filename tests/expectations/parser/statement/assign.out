@@ -1,48 +1,66 @@
----
-namespace: ParseStatement
-expectation: Pass
-outputs:
-  - Assign:
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      value:
-        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":8}\"}"
-      span:
-        lo: 0
-        hi: 8
-      id: 3
-  - Assign:
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      value:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-          op: Add
-          span:
-            lo: 4
-            hi: 7
-          id: 3
-      span:
-        lo: 0
-        hi: 7
-      id: 5
-  - Assign:
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      value:
-        Call:
-          function:
-            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-          arguments: []
-          program: ~
-          span:
-            lo: 4
-            hi: 7
-          id: 2
-      span:
-        lo: 0
-        hi: 7
-      id: 4
+namespace = "ParseStatement"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Assign]
+id = 3
+
+[outputs.Assign.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Assign.value]
+Identifier = '{"id":"1","name":"expr","span":"{\"lo\":4,\"hi\":8}"}'
+
+[outputs.Assign.span]
+lo = 0
+hi = 8
+
+[[outputs]]
+
+[outputs.Assign]
+id = 5
+
+[outputs.Assign.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Assign.value.Binary]
+op = "Add"
+id = 3
+
+[outputs.Assign.value.Binary.left]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Assign.value.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":6,\"hi\":7}"}'
+
+[outputs.Assign.value.Binary.span]
+lo = 4
+hi = 7
+
+[outputs.Assign.span]
+lo = 0
+hi = 7
+
+[[outputs]]
+
+[outputs.Assign]
+id = 4
+
+[outputs.Assign.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Assign.value.Call]
+arguments = []
+id = 2
+
+[outputs.Assign.value.Call.function]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Assign.value.Call.span]
+lo = 4
+hi = 7
+
+[outputs.Assign.span]
+lo = 0
+hi = 7

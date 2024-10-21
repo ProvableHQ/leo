@@ -1,5 +1,8 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> compiler-test:10:22\n     |\n  10 |         let myGlobal = 42field;\n     |                      ^"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370005]: expected : -- found '='
+    --> compiler-test:10:22
+     |
+  10 |         let myGlobal = 42field;
+     |                      ^"""]

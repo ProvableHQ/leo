@@ -1,5 +1,8 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'const'\n    --> test:4:31\n     |\n   4 |     function x(x: u32, public const y: i32) {\n     |                               ^^^^^"
+namespace = "Parse"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370009]: unexpected string: expected 'identifier', found 'const'
+    --> test:4:31
+     |
+   4 |     function x(x: u32, public const y: i32) {
+     |                               ^^^^^"""]

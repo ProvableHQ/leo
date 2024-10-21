@@ -1,469 +1,531 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Literal:
-      Group:
-        Tuple:
-          x: SignHigh
-          y: Inferred
-          span:
-            lo: 0
-            hi: 11
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: Inferred
-          y: SignLow
-          span:
-            lo: 0
-            hi: 11
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: SignHigh
-          y: SignLow
-          span:
-            lo: 0
-            hi: 11
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: SignLow
-          y: SignHigh
-          span:
-            lo: 0
-            hi: 11
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: SignHigh
-          y: SignHigh
-          span:
-            lo: 0
-            hi: 11
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: SignLow
-          y: SignLow
-          span:
-            lo: 0
-            hi: 11
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: Inferred
-          y: Inferred
-          span:
-            lo: 0
-            hi: 11
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y:
-            Number:
-              - "-456"
-              - span:
-                  lo: 6
-                  hi: 9
-          span:
-            lo: 0
-            hi: 15
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "-123"
-              - span:
-                  lo: 2
-                  hi: 5
-          y:
-            Number:
-              - "456"
-              - span:
-                  lo: 6
-                  hi: 9
-          span:
-            lo: 0
-            hi: 15
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "-123"
-              - span:
-                  lo: 2
-                  hi: 5
-          y:
-            Number:
-              - "456"
-              - span:
-                  lo: 6
-                  hi: 9
-          span:
-            lo: 0
-            hi: 15
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y: Inferred
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y: SignLow
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y: SignLow
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y: SignHigh
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y: SignHigh
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y: SignLow
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y: Inferred
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: SignHigh
-          y:
-            Number:
-              - "345"
-              - span:
-                  lo: 4
-                  hi: 7
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: Inferred
-          y:
-            Number:
-              - "345"
-              - span:
-                  lo: 4
-                  hi: 7
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: SignHigh
-          y:
-            Number:
-              - "345"
-              - span:
-                  lo: 4
-                  hi: 7
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: SignLow
-          y:
-            Number:
-              - "345"
-              - span:
-                  lo: 4
-                  hi: 7
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: SignHigh
-          y:
-            Number:
-              - "345"
-              - span:
-                  lo: 4
-                  hi: 7
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: SignLow
-          y:
-            Number:
-              - "345"
-              - span:
-                  lo: 4
-                  hi: 7
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x: Inferred
-          y:
-            Number:
-              - "345"
-              - span:
-                  lo: 4
-                  hi: 7
-          span:
-            lo: 0
-            hi: 13
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y:
-            Number:
-              - "456"
-              - span:
-                  lo: 6
-                  hi: 9
-          span:
-            lo: 0
-            hi: 15
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y:
-            Number:
-              - "456"
-              - span:
-                  lo: 6
-                  hi: 9
-          span:
-            lo: 0
-            hi: 15
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y:
-            Number:
-              - "456"
-              - span:
-                  lo: 6
-                  hi: 9
-          span:
-            lo: 0
-            hi: 15
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y:
-            Number:
-              - "456"
-              - span:
-                  lo: 6
-                  hi: 9
-          span:
-            lo: 0
-            hi: 15
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y:
-            Number:
-              - "456"
-              - span:
-                  lo: 6
-                  hi: 9
-          span:
-            lo: 0
-            hi: 15
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y:
-            Number:
-              - "456"
-              - span:
-                  lo: 6
-                  hi: 9
-          span:
-            lo: 0
-            hi: 15
-          id: 0
-  - Literal:
-      Group:
-        Tuple:
-          x:
-            Number:
-              - "123"
-              - span:
-                  lo: 1
-                  hi: 4
-          y:
-            Number:
-              - "456"
-              - span:
-                  lo: 6
-                  hi: 9
-          span:
-            lo: 0
-            hi: 15
-          id: 0
-  - Literal:
-      Group:
-        Single:
-          - "1"
-          - span:
-              lo: 0
-              hi: 6
-          - 0
-  - Literal:
-      Group:
-        Single:
-          - "-1"
-          - span:
-              lo: 0
-              hi: 7
-          - 0
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "SignHigh"
+y = "Inferred"
+id = 0
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 11
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "Inferred"
+y = "SignLow"
+id = 0
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 11
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "SignHigh"
+y = "SignLow"
+id = 0
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 11
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "SignLow"
+y = "SignHigh"
+id = 0
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 11
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "SignHigh"
+y = "SignHigh"
+id = 0
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 11
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "SignLow"
+y = "SignLow"
+id = 0
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 11
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "Inferred"
+y = "Inferred"
+id = 0
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 11
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "-456",
+    { span = { lo = 6, hi = 9 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "-123",
+    { span = { lo = 2, hi = 5 } },
+]
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "456",
+    { span = { lo = 6, hi = 9 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "-123",
+    { span = { lo = 2, hi = 5 } },
+]
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "456",
+    { span = { lo = 6, hi = 9 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+y = "Inferred"
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+y = "SignLow"
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+y = "SignLow"
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+y = "SignHigh"
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+y = "SignHigh"
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+y = "SignLow"
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+y = "Inferred"
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "SignHigh"
+id = 0
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "345",
+    { span = { lo = 4, hi = 7 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "Inferred"
+id = 0
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "345",
+    { span = { lo = 4, hi = 7 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "SignHigh"
+id = 0
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "345",
+    { span = { lo = 4, hi = 7 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "SignLow"
+id = 0
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "345",
+    { span = { lo = 4, hi = 7 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "SignHigh"
+id = 0
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "345",
+    { span = { lo = 4, hi = 7 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "SignLow"
+id = 0
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "345",
+    { span = { lo = 4, hi = 7 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+x = "Inferred"
+id = 0
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "345",
+    { span = { lo = 4, hi = 7 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "456",
+    { span = { lo = 6, hi = 9 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "456",
+    { span = { lo = 6, hi = 9 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "456",
+    { span = { lo = 6, hi = 9 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "456",
+    { span = { lo = 6, hi = 9 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "456",
+    { span = { lo = 6, hi = 9 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "456",
+    { span = { lo = 6, hi = 9 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Literal.Group.Tuple]
+id = 0
+
+[outputs.Literal.Group.Tuple.x]
+Number = [
+    "123",
+    { span = { lo = 1, hi = 4 } },
+]
+
+[outputs.Literal.Group.Tuple.y]
+Number = [
+    "456",
+    { span = { lo = 6, hi = 9 } },
+]
+
+[outputs.Literal.Group.Tuple.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Literal.Group]
+Single = [
+    "1",
+    { span = { lo = 0, hi = 6 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal.Group]
+Single = [
+    "-1",
+    { span = { lo = 0, hi = 7 } },
+    0,
+]

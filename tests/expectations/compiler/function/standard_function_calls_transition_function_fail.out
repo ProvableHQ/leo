@@ -1,5 +1,14 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:6:19\n     |\n   6 |            return adder(a, b);\n     |                   ^^^^^^^^^^^\nError [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:8:20\n     |\n   8 |             return subber(a, b);\n     |                    ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:6:19
+     |
+   6 |            return adder(a, b);
+     |                   ^^^^^^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:8:20
+     |
+   8 |             return subber(a, b);
+     |                    ^^^^^^^^^^^^
+"""]

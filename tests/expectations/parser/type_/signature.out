@@ -1,250 +1,73 @@
----
-namespace: Parse
-expectation: Pass
-outputs:
-  - imports: {}
-    stubs: {}
-    program_scopes:
-      test:
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
-        consts: []
-        structs: []
-        mappings: []
-        functions:
-          - - baz
-            - annotations: []
-              variant: Transition
-              identifier: "{\"id\":\"2\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":37,\\\"hi\\\":40}\"}"
-              input:
-                - identifier: "{\"id\":\"3\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
-                  mode: None
-                  type_: Signature
-                  span:
-                    lo: 41
-                    hi: 42
-                  id: 4
-                - identifier: "{\"id\":\"5\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":55,\\\"hi\\\":56}\"}"
-                  mode: None
-                  type_: Address
-                  span:
-                    lo: 55
-                    hi: 56
-                  id: 6
-                - identifier: "{\"id\":\"7\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":67,\\\"hi\\\":68}\"}"
-                  mode: None
-                  type_:
-                    Composite:
-                      id: "{\"id\":\"8\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":70,\\\"hi\\\":75}\"}"
-                      program: test
-                  span:
-                    lo: 67
-                    hi: 68
-                  id: 9
-              output: []
-              output_type: Unit
-              block:
-                statements:
-                  - Definition:
-                      declaration_type: Let
-                      place:
-                        Identifier: "{\"id\":\"10\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":91,\\\"hi\\\":92}\"}"
-                      type_: Boolean
-                      value:
-                        Access:
-                          AssociatedFunction:
-                            variant: "{\"id\":\"11\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":101,\\\"hi\\\":110}\"}"
-                            name: "{\"id\":\"12\",\"name\":\"verify\",\"span\":\"{\\\"lo\\\":112,\\\"hi\\\":118}\"}"
-                            arguments:
-                              - Identifier: "{\"id\":\"13\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":119,\\\"hi\\\":120}\"}"
-                              - Identifier: "{\"id\":\"14\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":122,\\\"hi\\\":123}\"}"
-                              - Identifier: "{\"id\":\"15\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":125,\\\"hi\\\":126}\"}"
-                            span:
-                              lo: 101
-                              hi: 127
-                            id: 16
-                      span:
-                        lo: 87
-                        hi: 127
-                      id: 17
-                  - Definition:
-                      declaration_type: Let
-                      place:
-                        Identifier: "{\"id\":\"18\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":141,\\\"hi\\\":142}\"}"
-                      type_: Boolean
-                      value:
-                        Access:
-                          AssociatedFunction:
-                            variant: "{\"id\":\"23\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":0}\"}"
-                            name: "{\"id\":\"20\",\"name\":\"verify\",\"span\":\"{\\\"lo\\\":153,\\\"hi\\\":159}\"}"
-                            arguments:
-                              - Identifier: "{\"id\":\"19\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":151,\\\"hi\\\":152}\"}"
-                              - Identifier: "{\"id\":\"21\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":160,\\\"hi\\\":161}\"}"
-                              - Identifier: "{\"id\":\"22\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":163,\\\"hi\\\":164}\"}"
-                            span:
-                              lo: 151
-                              hi: 165
-                            id: 24
-                      span:
-                        lo: 137
-                        hi: 165
-                      id: 25
-                  - Assert:
-                      variant:
-                        AssertEq:
-                          - Identifier: "{\"id\":\"26\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":185,\\\"hi\\\":186}\"}"
-                          - Identifier: "{\"id\":\"27\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":188,\\\"hi\\\":189}\"}"
-                      span:
-                        lo: 175
-                        hi: 184
-                      id: 28
-                span:
-                  lo: 77
-                  hi: 197
-                id: 29
-              span:
-                lo: 26
-                hi: 197
-              id: 30
-          - - bar
-            - annotations: []
-              variant: Transition
-              identifier: "{\"id\":\"31\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":214,\\\"hi\\\":217}\"}"
-              input:
-                - identifier: "{\"id\":\"32\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":218,\\\"hi\\\":219}\"}"
-                  mode: None
-                  type_:
-                    Integer: U8
-                  span:
-                    lo: 218
-                    hi: 219
-                  id: 33
-              output:
-                - mode: None
-                  type_:
-                    Integer: U8
-                  span:
-                    lo: 228
-                    hi: 230
-                  id: 34
-              output_type:
-                Integer: U8
-              block:
-                statements:
-                  - Definition:
-                      declaration_type: Let
-                      place:
-                        Identifier: "{\"id\":\"35\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":245,\\\"hi\\\":254}\"}"
-                      type_:
-                        Integer: U8
-                      value:
-                        Binary:
-                          left:
-                            Literal:
-                              Integer:
-                                - U8
-                                - "1"
-                                - span:
-                                    lo: 261
-                                    hi: 264
-                                - 36
-                          right:
-                            Identifier: "{\"id\":\"37\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":267,\\\"hi\\\":268}\"}"
-                          op: Add
-                          span:
-                            lo: 261
-                            hi: 268
-                          id: 38
-                      span:
-                        lo: 241
-                        hi: 268
-                      id: 39
-                  - Return:
-                      expression:
-                        Identifier: "{\"id\":\"40\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":285,\\\"hi\\\":294}\"}"
-                      span:
-                        lo: 278
-                        hi: 295
-                      id: 41
-                span:
-                  lo: 231
-                  hi: 301
-                id: 42
-              span:
-                lo: 203
-                hi: 301
-              id: 43
-          - - bax
-            - annotations: []
-              variant: Transition
-              identifier: "{\"id\":\"44\",\"name\":\"bax\",\"span\":\"{\\\"lo\\\":317,\\\"hi\\\":320}\"}"
-              input:
-                - identifier: "{\"id\":\"45\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":321,\\\"hi\\\":322}\"}"
-                  mode: None
-                  type_: Signature
-                  span:
-                    lo: 321
-                    hi: 322
-                  id: 46
-                - identifier: "{\"id\":\"47\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":335,\\\"hi\\\":336}\"}"
-                  mode: None
-                  type_: Address
-                  span:
-                    lo: 335
-                    hi: 336
-                  id: 48
-                - identifier: "{\"id\":\"49\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":347,\\\"hi\\\":348}\"}"
-                  mode: None
-                  type_:
-                    Composite:
-                      id: "{\"id\":\"50\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":350,\\\"hi\\\":355}\"}"
-                      program: test
-                  span:
-                    lo: 347
-                    hi: 348
-                  id: 51
-              output: []
-              output_type: Unit
-              block:
-                statements:
-                  - Definition:
-                      declaration_type: Let
-                      place:
-                        Identifier: "{\"id\":\"52\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":370,\\\"hi\\\":371}\"}"
-                      type_: Boolean
-                      value:
-                        Access:
-                          AssociatedFunction:
-                            variant: "{\"id\":\"53\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":380,\\\"hi\\\":389}\"}"
-                            name: "{\"id\":\"54\",\"name\":\"sign\",\"span\":\"{\\\"lo\\\":391,\\\"hi\\\":395}\"}"
-                            arguments:
-                              - Identifier: "{\"id\":\"55\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":396,\\\"hi\\\":397}\"}"
-                              - Identifier: "{\"id\":\"56\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":399,\\\"hi\\\":400}\"}"
-                              - Identifier: "{\"id\":\"57\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":402,\\\"hi\\\":403}\"}"
-                            span:
-                              lo: 380
-                              hi: 404
-                            id: 58
-                      span:
-                        lo: 366
-                        hi: 404
-                      id: 59
-                  - Assert:
-                      variant:
-                        AssertEq:
-                          - Identifier: "{\"id\":\"60\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":423,\\\"hi\\\":424}\"}"
-                          - Identifier: "{\"id\":\"61\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":426,\\\"hi\\\":427}\"}"
-                      span:
-                        lo: 413
-                        hi: 422
-                      id: 62
-                span:
-                  lo: 357
-                  hi: 434
-                id: 63
-              span:
-                lo: 306
-                hi: 434
-              id: 64
-        span:
-          lo: 2
-          hi: 436
+namespace = "Parse"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.imports]
+
+[outputs.stubs]
+
+[outputs.program_scopes.test]
+program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
+consts = []
+structs = []
+mappings = []
+functions = [
+    [
+    "baz",
+    { annotations = [], variant = "Transition", identifier = '{"id":"2","name":"baz","span":"{\"lo\":37,\"hi\":40}"}', output = [], output_type = "Unit", id = 30, input = [
+    { identifier = '{"id":"3","name":"s","span":"{\"lo\":41,\"hi\":42}"}', mode = "None", type_ = "Signature", id = 4, span = { lo = 41, hi = 42 } },
+    { identifier = '{"id":"5","name":"a","span":"{\"lo\":55,\"hi\":56}"}', mode = "None", type_ = "Address", id = 6, span = { lo = 55, hi = 56 } },
+    { identifier = '{"id":"7","name":"v","span":"{\"lo\":67,\"hi\":68}"}', mode = "None", id = 9, type_ = { Composite = { id = '{"id":"8","name":"value","span":"{\"lo\":70,\"hi\":75}"}', program = "test" } }, span = { lo = 67, hi = 68 } },
+], block = { id = 29, statements = [
+    { Definition = { declaration_type = "Let", type_ = "Boolean", id = 17, place = { Identifier = '{"id":"10","name":"a","span":"{\"lo\":91,\"hi\":92}"}' }, value = { Access = { AssociatedFunction = { variant = '{"id":"11","name":"signature","span":"{\"lo\":101,\"hi\":110}"}', name = '{"id":"12","name":"verify","span":"{\"lo\":112,\"hi\":118}"}', id = 16, arguments = [
+    { Identifier = '{"id":"13","name":"s","span":"{\"lo\":119,\"hi\":120}"}' },
+    { Identifier = '{"id":"14","name":"a","span":"{\"lo\":122,\"hi\":123}"}' },
+    { Identifier = '{"id":"15","name":"v","span":"{\"lo\":125,\"hi\":126}"}' },
+], span = { lo = 101, hi = 127 } } } }, span = { lo = 87, hi = 127 } } },
+    { Definition = { declaration_type = "Let", type_ = "Boolean", id = 25, place = { Identifier = '{"id":"18","name":"b","span":"{\"lo\":141,\"hi\":142}"}' }, value = { Access = { AssociatedFunction = { variant = '{"id":"23","name":"signature","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"20","name":"verify","span":"{\"lo\":153,\"hi\":159}"}', id = 24, arguments = [
+    { Identifier = '{"id":"19","name":"s","span":"{\"lo\":151,\"hi\":152}"}' },
+    { Identifier = '{"id":"21","name":"a","span":"{\"lo\":160,\"hi\":161}"}' },
+    { Identifier = '{"id":"22","name":"v","span":"{\"lo\":163,\"hi\":164}"}' },
+], span = { lo = 151, hi = 165 } } } }, span = { lo = 137, hi = 165 } } },
+    { Assert = { id = 28, variant = { AssertEq = [
+    { Identifier = '{"id":"26","name":"a","span":"{\"lo\":185,\"hi\":186}"}' },
+    { Identifier = '{"id":"27","name":"b","span":"{\"lo\":188,\"hi\":189}"}' },
+] }, span = { lo = 175, hi = 184 } } },
+], span = { lo = 77, hi = 197 } }, span = { lo = 26, hi = 197 } },
+],
+    [
+    "bar",
+    { annotations = [], variant = "Transition", identifier = '{"id":"31","name":"bar","span":"{\"lo\":214,\"hi\":217}"}', id = 43, input = [{ identifier = '{"id":"32","name":"x","span":"{\"lo\":218,\"hi\":219}"}', mode = "None", id = 33, type_ = { Integer = "U8" }, span = { lo = 218, hi = 219 } }], output = [{ mode = "None", id = 34, type_ = { Integer = "U8" }, span = { lo = 228, hi = 230 } }], output_type = { Integer = "U8" }, block = { id = 42, statements = [
+    { Definition = { declaration_type = "Let", id = 39, place = { Identifier = '{"id":"35","name":"signature","span":"{\"lo\":245,\"hi\":254}"}' }, type_ = { Integer = "U8" }, value = { Binary = { op = "Add", id = 38, left = { Literal = { Integer = [
+    "U8",
+    "1",
+    { span = { lo = 261, hi = 264 } },
+    36,
+] } }, right = { Identifier = '{"id":"37","name":"x","span":"{\"lo\":267,\"hi\":268}"}' }, span = { lo = 261, hi = 268 } } }, span = { lo = 241, hi = 268 } } },
+    { Return = { id = 41, expression = { Identifier = '{"id":"40","name":"signature","span":"{\"lo\":285,\"hi\":294}"}' }, span = { lo = 278, hi = 295 } } },
+], span = { lo = 231, hi = 301 } }, span = { lo = 203, hi = 301 } },
+],
+    [
+    "bax",
+    { annotations = [], variant = "Transition", identifier = '{"id":"44","name":"bax","span":"{\"lo\":317,\"hi\":320}"}', output = [], output_type = "Unit", id = 64, input = [
+    { identifier = '{"id":"45","name":"s","span":"{\"lo\":321,\"hi\":322}"}', mode = "None", type_ = "Signature", id = 46, span = { lo = 321, hi = 322 } },
+    { identifier = '{"id":"47","name":"a","span":"{\"lo\":335,\"hi\":336}"}', mode = "None", type_ = "Address", id = 48, span = { lo = 335, hi = 336 } },
+    { identifier = '{"id":"49","name":"v","span":"{\"lo\":347,\"hi\":348}"}', mode = "None", id = 51, type_ = { Composite = { id = '{"id":"50","name":"value","span":"{\"lo\":350,\"hi\":355}"}', program = "test" } }, span = { lo = 347, hi = 348 } },
+], block = { id = 63, statements = [
+    { Definition = { declaration_type = "Let", type_ = "Boolean", id = 59, place = { Identifier = '{"id":"52","name":"a","span":"{\"lo\":370,\"hi\":371}"}' }, value = { Access = { AssociatedFunction = { variant = '{"id":"53","name":"signature","span":"{\"lo\":380,\"hi\":389}"}', name = '{"id":"54","name":"sign","span":"{\"lo\":391,\"hi\":395}"}', id = 58, arguments = [
+    { Identifier = '{"id":"55","name":"s","span":"{\"lo\":396,\"hi\":397}"}' },
+    { Identifier = '{"id":"56","name":"a","span":"{\"lo\":399,\"hi\":400}"}' },
+    { Identifier = '{"id":"57","name":"v","span":"{\"lo\":402,\"hi\":403}"}' },
+], span = { lo = 380, hi = 404 } } } }, span = { lo = 366, hi = 404 } } },
+    { Assert = { id = 62, variant = { AssertEq = [
+    { Identifier = '{"id":"60","name":"a","span":"{\"lo\":423,\"hi\":424}"}' },
+    { Identifier = '{"id":"61","name":"b","span":"{\"lo\":426,\"hi\":427}"}' },
+] }, span = { lo = 413, hi = 422 } } },
+], span = { lo = 357, hi = 434 } }, span = { lo = 306, hi = 434 } },
+],
+]
+
+[outputs.program_scopes.test.span]
+lo = 2
+hi = 436

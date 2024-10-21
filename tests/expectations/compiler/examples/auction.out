@@ -1,18 +1,3 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: e62c1b7c10399ecc5c160520319218d96b599b5cfd37add3032a8455552c7892
-          type_checked_symbol_table: 6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb
-          unrolled_symbol_table: 6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb
-          initial_ast: 2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023
-          unrolled_ast: 2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023
-          ssa_ast: 5b011875455c2efbb3c222c91b40f049ca074e3b21685e27bfff6ecf50359ecf
-          flattened_ast: 71235c2f490ba2f1d7cabccec771d68078a8313fa2ecbdb3a17e88410132bde4
-          destructured_ast: 236729b9a950bec2251d0ea55cc078f41437cdbd16beb05fa2910fbe6f671182
-          inlined_ast: 236729b9a950bec2251d0ea55cc078f41437cdbd16beb05fa2910fbe6f671182
-          dce_ast: 7477da18c60adbb27b8213fae81aea20b3a4efaf8e42369c468eb8cc1c8b5932
-          bytecode: ae52309998de7e291d82e92418fdbf583b182ce12e710e844550132d8743380e
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "e62c1b7c10399ecc5c160520319218d96b599b5cfd37add3032a8455552c7892", type_checked_symbol_table = "6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb", unrolled_symbol_table = "6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb", initial_ast = "2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023", unrolled_ast = "2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023", ssa_ast = "5b011875455c2efbb3c222c91b40f049ca074e3b21685e27bfff6ecf50359ecf", flattened_ast = "71235c2f490ba2f1d7cabccec771d68078a8313fa2ecbdb3a17e88410132bde4", destructured_ast = "236729b9a950bec2251d0ea55cc078f41437cdbd16beb05fa2910fbe6f671182", inlined_ast = "236729b9a950bec2251d0ea55cc078f41437cdbd16beb05fa2910fbe6f671182", dce_ast = "7477da18c60adbb27b8213fae81aea20b3a4efaf8e42369c468eb8cc1c8b5932", bytecode = "ae52309998de7e291d82e92418fdbf583b182ce12e710e844550132d8743380e", errors = "", warnings = "" }] }]]

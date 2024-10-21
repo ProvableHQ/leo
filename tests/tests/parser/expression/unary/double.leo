@@ -1,6 +1,6 @@
 /*
-namespace: ParseExpression
-expectation: Pass
+namespace = "ParseExpression"
+expectation = "Pass"
 */
 
 x.double()

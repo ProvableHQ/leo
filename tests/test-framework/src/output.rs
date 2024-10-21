@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::test::TestExpectationMode;
-use serde_yaml::Value;
+use toml::Value;
 
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct TestExpectation {

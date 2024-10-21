@@ -1,20 +1,24 @@
----
-namespace: ParseStatement
-expectation: Pass
-outputs:
-  - Expression:
-      expression:
-        Call:
-          function:
-            Identifier: "{\"id\":\"0\",\"name\":\"finalize\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":8}\"}"
-          arguments:
-            - Identifier: "{\"id\":\"1\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":12}\"}"
-          program: ~
-          span:
-            lo: 0
-            hi: 13
-          id: 2
-      span:
-        lo: 0
-        hi: 14
-      id: 3
+namespace = "ParseStatement"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Expression]
+id = 3
+
+[outputs.Expression.expression.Call]
+id = 2
+
+[[outputs.Expression.expression.Call.arguments]]
+Identifier = '{"id":"1","name":"foo","span":"{\"lo\":9,\"hi\":12}"}'
+
+[outputs.Expression.expression.Call.function]
+Identifier = '{"id":"0","name":"finalize","span":"{\"lo\":0,\"hi\":8}"}'
+
+[outputs.Expression.expression.Call.span]
+lo = 0
+hi = 13
+
+[outputs.Expression.span]
+lo = 0
+hi = 14

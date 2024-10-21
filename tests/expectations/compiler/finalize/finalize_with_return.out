@@ -1,5 +1,23 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372106]: An async function is not allowed to return a value.\n    --> compiler-test:11:5\n     |\n  11 |     async function finalize_mint_public (public receiver: address, public amount: u64) -> u64 {\n  12 |         Mapping::set(account, receiver, amount);\n  13 |         return amount;\n  14 |     }\n     |     ^\n     |\n     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.\nError [ETYC0372106]: An async function is not allowed to return a value.\n    --> compiler-test:18:7\n     |\n  18 |     } async function finalize_public_adder(a: u8, b: u8) -> public u8 {\n  19 |         return a + b;\n  20 |     }\n     |      ^\n     |\n     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372106]: An async function is not allowed to return a value.
+    --> compiler-test:11:5
+     |
+  11 |     async function finalize_mint_public (public receiver: address, public amount: u64) -> u64 {
+  12 |         Mapping::set(account, receiver, amount);
+  13 |         return amount;
+  14 |     }
+     |     ^
+     |
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
+Error [ETYC0372106]: An async function is not allowed to return a value.
+    --> compiler-test:18:7
+     |
+  18 |     } async function finalize_public_adder(a: u8, b: u8) -> public u8 {
+  19 |         return a + b;
+  20 |     }
+     |      ^
+     |
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
+"""]

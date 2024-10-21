@@ -1,5 +1,34 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372007]: Expected one type from `signature`, but got `address`\n    --> compiler-test:11:45\n     |\n  11 |         let first: bool = signature::verify(a, s, v);\n     |                                             ^\nError [ETYC0372007]: Expected one type from `address`, but got `signature`\n    --> compiler-test:11:48\n     |\n  11 |         let first: bool = signature::verify(a, s, v);\n     |                                                ^\nError [ETYC0372007]: Expected one type from `address`, but got `u8`\n    --> compiler-test:12:37\n     |\n  12 |         let second: bool = s.verify(1u8, v);\n     |                                     ^^^\nError [ETYC0372007]: Expected one type from `signature`, but got `address`\n    --> compiler-test:17:45\n     |\n  17 |         let first: bool = signature::verify(a, v, s);\n     |                                             ^\nError [ETYC0372007]: Expected one type from `address`, but got `foo`\n    --> compiler-test:17:48\n     |\n  17 |         let first: bool = signature::verify(a, v, s);\n     |                                                ^\nError [ETYC0372007]: Expected one type from `address`, but got `foo`\n    --> compiler-test:18:37\n     |\n  18 |         let second: bool = s.verify(v, a);\n     |                                     ^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372007]: Expected one type from `signature`, but got `address`
+    --> compiler-test:11:45
+     |
+  11 |         let first: bool = signature::verify(a, s, v);
+     |                                             ^
+Error [ETYC0372007]: Expected one type from `address`, but got `signature`
+    --> compiler-test:11:48
+     |
+  11 |         let first: bool = signature::verify(a, s, v);
+     |                                                ^
+Error [ETYC0372007]: Expected one type from `address`, but got `u8`
+    --> compiler-test:12:37
+     |
+  12 |         let second: bool = s.verify(1u8, v);
+     |                                     ^^^
+Error [ETYC0372007]: Expected one type from `signature`, but got `address`
+    --> compiler-test:17:45
+     |
+  17 |         let first: bool = signature::verify(a, v, s);
+     |                                             ^
+Error [ETYC0372007]: Expected one type from `address`, but got `foo`
+    --> compiler-test:17:48
+     |
+  17 |         let first: bool = signature::verify(a, v, s);
+     |                                                ^
+Error [ETYC0372007]: Expected one type from `address`, but got `foo`
+    --> compiler-test:18:37
+     |
+  18 |         let second: bool = s.verify(v, a);
+     |                                     ^
+"""]

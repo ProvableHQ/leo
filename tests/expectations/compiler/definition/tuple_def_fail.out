@@ -1,5 +1,16 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372054]: Tuples on the left-hand side of a `DefinitionStatement` can only contain identifiers.\n    --> compiler-test:5:14\n     |\n   5 |         let (1u8+1u8,1u8+1u8): (u8,u8) = (1u8,2u8);\n     |              ^^^^^^^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {\n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372054]: Tuples on the left-hand side of a `DefinitionStatement` can only contain identifiers.
+    --> compiler-test:5:14
+     |
+   5 |         let (1u8+1u8,1u8+1u8): (u8,u8) = (1u8,2u8);
+     |              ^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {
+     | ^^^^^^^^^^^^
+"""]

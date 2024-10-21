@@ -1,168 +1,228 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Unary:
-      receiver:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      op: AbsWrapped
-      span:
-        lo: 0
-        hi: 15
-      id: 2
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Unary:
-              receiver:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-              op: AbsWrapped
-              span:
-                lo: 0
-                hi: 15
-              id: 2
-          op: AbsWrapped
-          span:
-            lo: 0
-            hi: 29
-          id: 4
-      op: AbsWrapped
-      span:
-        lo: 0
-        hi: 43
-      id: 6
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: AbsWrapped
-          span:
-            lo: 1
-            hi: 16
-          id: 2
-      op: Negate
-      span:
-        lo: 0
-        hi: 16
-      id: 3
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Negate
-          span:
-            lo: 1
-            hi: 3
-          id: 1
-      op: AbsWrapped
-      span:
-        lo: 1
-        hi: 18
-      id: 3
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: AbsWrapped
-          span:
-            lo: 2
-            hi: 17
-          id: 2
-      op: Negate
-      span:
-        lo: 0
-        hi: 17
-      id: 3
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Unary:
-              receiver:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: AbsWrapped
-              span:
-                lo: 2
-                hi: 17
-              id: 2
-          op: Negate
-          span:
-            lo: 1
-            hi: 17
-          id: 3
-      op: AbsWrapped
-      span:
-        lo: 1
-        hi: 32
-      id: 5
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          op: AbsWrapped
-          span:
-            lo: 1
-            hi: 16
-          id: 2
-      op: Not
-      span:
-        lo: 0
-        hi: 16
-      id: 3
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
-          span:
-            lo: 1
-            hi: 3
-          id: 1
-      op: AbsWrapped
-      span:
-        lo: 1
-        hi: 18
-      id: 3
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: AbsWrapped
-          span:
-            lo: 2
-            hi: 17
-          id: 2
-      op: Not
-      span:
-        lo: 0
-        hi: 17
-      id: 3
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Unary:
-              receiver:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              op: AbsWrapped
-              span:
-                lo: 2
-                hi: 17
-              id: 2
-          op: Not
-          span:
-            lo: 1
-            hi: 17
-          id: 3
-      op: AbsWrapped
-      span:
-        lo: 1
-        hi: 32
-      id: 5
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Unary]
+op = "AbsWrapped"
+id = 2
+
+[outputs.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Unary.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Unary]
+op = "AbsWrapped"
+id = 6
+
+[outputs.Unary.receiver.Unary]
+op = "AbsWrapped"
+id = 4
+
+[outputs.Unary.receiver.Unary.receiver.Unary]
+op = "AbsWrapped"
+id = 2
+
+[outputs.Unary.receiver.Unary.receiver.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Unary.receiver.Unary.receiver.Unary.span]
+lo = 0
+hi = 15
+
+[outputs.Unary.receiver.Unary.span]
+lo = 0
+hi = 29
+
+[outputs.Unary.span]
+lo = 0
+hi = 43
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Negate"
+id = 3
+
+[outputs.Unary.receiver.Unary]
+op = "AbsWrapped"
+id = 2
+
+[outputs.Unary.receiver.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Unary.receiver.Unary.span]
+lo = 1
+hi = 16
+
+[outputs.Unary.span]
+lo = 0
+hi = 16
+
+[[outputs]]
+
+[outputs.Unary]
+op = "AbsWrapped"
+id = 3
+
+[outputs.Unary.receiver.Unary]
+op = "Negate"
+id = 1
+
+[outputs.Unary.receiver.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Unary.span]
+lo = 1
+hi = 3
+
+[outputs.Unary.span]
+lo = 1
+hi = 18
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Negate"
+id = 3
+
+[outputs.Unary.receiver.Unary]
+op = "AbsWrapped"
+id = 2
+
+[outputs.Unary.receiver.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Unary.span]
+lo = 2
+hi = 17
+
+[outputs.Unary.span]
+lo = 0
+hi = 17
+
+[[outputs]]
+
+[outputs.Unary]
+op = "AbsWrapped"
+id = 5
+
+[outputs.Unary.receiver.Unary]
+op = "Negate"
+id = 3
+
+[outputs.Unary.receiver.Unary.receiver.Unary]
+op = "AbsWrapped"
+id = 2
+
+[outputs.Unary.receiver.Unary.receiver.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Unary.receiver.Unary.span]
+lo = 2
+hi = 17
+
+[outputs.Unary.receiver.Unary.span]
+lo = 1
+hi = 17
+
+[outputs.Unary.span]
+lo = 1
+hi = 32
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 3
+
+[outputs.Unary.receiver.Unary]
+op = "AbsWrapped"
+id = 2
+
+[outputs.Unary.receiver.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Unary.receiver.Unary.span]
+lo = 1
+hi = 16
+
+[outputs.Unary.span]
+lo = 0
+hi = 16
+
+[[outputs]]
+
+[outputs.Unary]
+op = "AbsWrapped"
+id = 3
+
+[outputs.Unary.receiver.Unary]
+op = "Not"
+id = 1
+
+[outputs.Unary.receiver.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Unary.span]
+lo = 1
+hi = 3
+
+[outputs.Unary.span]
+lo = 1
+hi = 18
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 3
+
+[outputs.Unary.receiver.Unary]
+op = "AbsWrapped"
+id = 2
+
+[outputs.Unary.receiver.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Unary.span]
+lo = 2
+hi = 17
+
+[outputs.Unary.span]
+lo = 0
+hi = 17
+
+[[outputs]]
+
+[outputs.Unary]
+op = "AbsWrapped"
+id = 5
+
+[outputs.Unary.receiver.Unary]
+op = "Not"
+id = 3
+
+[outputs.Unary.receiver.Unary.receiver.Unary]
+op = "AbsWrapped"
+id = 2
+
+[outputs.Unary.receiver.Unary.receiver.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Unary.receiver.Unary.span]
+lo = 2
+hi = 17
+
+[outputs.Unary.receiver.Unary.span]
+lo = 1
+hi = 17
+
+[outputs.Unary.span]
+lo = 1
+hi = 32

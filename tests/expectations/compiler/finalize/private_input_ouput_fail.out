@@ -1,5 +1,8 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'\n    --> compiler-test:5:9\n     |\n   5 |         async finalize_foo(a);\n     |         ^^^^^"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'
+    --> compiler-test:5:9
+     |
+   5 |         async finalize_foo(a);
+     |         ^^^^^"""]

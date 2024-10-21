@@ -1,6 +1,6 @@
 /*
-namespace: Parse
-expectation: Pass
+namespace = "Parse"
+expectation = "Pass"
 */
 import hello.aleo;
 program test.aleo {

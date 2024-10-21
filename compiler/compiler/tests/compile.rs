@@ -43,9 +43,9 @@ use snarkvm::console::prelude::*;
 use indexmap::IndexMap;
 use leo_span::Symbol;
 use regex::Regex;
-use serde_yaml::Value;
 use snarkvm::{prelude::Process, synthesizer::program::ProgramCore};
 use std::{fs, path::Path, rc::Rc};
+use toml::Value;
 
 struct CompileNamespace;
 
@@ -180,7 +180,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         let compile_outputs = CompileOutputs { compile };
         all_outputs.push(compile_outputs);
     }
-    Ok(serde_yaml::to_value(all_outputs).expect("serialization failed"))
+    Ok(Value::try_from(all_outputs).expect("serialization failed"))
 }
 
 struct TestRunner;

@@ -1,6 +1,6 @@
 /*
-namespace: Serialize
-expectation: Pass
+namespace = "Serialize"
+expectation = "Pass"
 */
 
 program test.aleo {

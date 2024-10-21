@@ -1,5 +1,42 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372106]: An async function is not allowed to return a value.\n    --> compiler-test:10:5\n     |\n  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {\n  11 |         Mapping::set(account, receiver, amount);\n  12 |     }\n     |     ^\n     |\n     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.\nError [ETYC0372032]: An input to an async function must be public.\n    --> compiler-test:10:76\n     |\n  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {\n     |                                                                            ^^^^^^\n     |\n     = Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.\nError [ETYC0372038]: A returned value cannot be a constant.\n    --> compiler-test:10:101\n     |\n  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {\n     |                                                                                                     ^^^\nError [ETYC0372036]: Function must return a value.\n    --> compiler-test:10:5\n     |\n  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {\n  11 |         Mapping::set(account, receiver, amount);\n  12 |     }\n     |     ^\nError [ETYC0372106]: An async function is not allowed to return a value.\n    --> compiler-test:18:5\n     |\n  18 |     async function finalize_mint_public2(public receiver: address, amount: u64) -> u64 {\n  19 |         Mapping::set(account, receiver, amount);\n  20 |         return amount + amount;\n  21 |     }\n     |     ^\n     |\n     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372106]: An async function is not allowed to return a value.
+    --> compiler-test:10:5
+     |
+  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+  11 |         Mapping::set(account, receiver, amount);
+  12 |     }
+     |     ^
+     |
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
+Error [ETYC0372032]: An input to an async function must be public.
+    --> compiler-test:10:76
+     |
+  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+     |                                                                            ^^^^^^
+     |
+     = Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.
+Error [ETYC0372038]: A returned value cannot be a constant.
+    --> compiler-test:10:101
+     |
+  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+     |                                                                                                     ^^^
+Error [ETYC0372036]: Function must return a value.
+    --> compiler-test:10:5
+     |
+  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+  11 |         Mapping::set(account, receiver, amount);
+  12 |     }
+     |     ^
+Error [ETYC0372106]: An async function is not allowed to return a value.
+    --> compiler-test:18:5
+     |
+  18 |     async function finalize_mint_public2(public receiver: address, amount: u64) -> u64 {
+  19 |         Mapping::set(account, receiver, amount);
+  20 |         return amount + amount;
+  21 |     }
+     |     ^
+     |
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
+"""]

@@ -1,6 +1,6 @@
 /*
-namespace: Compile
-expectation: Pass
+namespace = "Compile"
+expectation = "Pass"
 */
 
 // This test intends to make sure the assertion

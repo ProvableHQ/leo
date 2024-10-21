@@ -1,6 +1,6 @@
 /*
-namespace: Compile
-expectation: Pass
+namespace = "Compile"
+expectation = "Pass"
 */
 
 program basic_bank.aleo {

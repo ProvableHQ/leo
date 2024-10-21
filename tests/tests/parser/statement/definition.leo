@@ -1,6 +1,6 @@
 /*
-namespace: ParseStatement
-expectation: Pass
+namespace = "ParseStatement"
+expectation = "Pass"
 */
 
 let x: u8 = expr;

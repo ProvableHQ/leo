@@ -1,5 +1,5 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370013]: Expected a closed string but found `}\n`."
+namespace = "Parse"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370013]: Expected a closed string but found `}
+`."""]

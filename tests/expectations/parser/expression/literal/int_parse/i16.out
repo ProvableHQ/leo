@@ -1,900 +1,1122 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Literal:
-      Integer:
-        - I16
-        - "123"
-        - span:
-            lo: 0
-            hi: 6
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "123"
-        - span:
-            lo: 0
-            hi: 6
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "456"
-        - span:
-            lo: 0
-            hi: 6
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
-        - span:
-            lo: 0
-            hi: 83
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802"
-        - span:
-            lo: 0
-            hi: 403
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "340130024"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "158951116"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "155529659"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "642023166"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "228481736"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "469712960"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "929437719"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "721072814"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "363254789"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "906732565"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "288246391"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "724940549"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "487101620"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "261373583"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "891163927"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "743967544"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "8372586"
-        - span:
-            lo: 0
-            hi: 10
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "461793278"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "806307045"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "122764546"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "356336181"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "158370903"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "774460877"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "557174131"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "492401267"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "893445620"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "957757048"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "721540649"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "390746493"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "211251725"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "938266114"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "156985870"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "703831126"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "729964155"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "988151305"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "320872435"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "719287167"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "152289486"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "740067975"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "728627816"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "385008978"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "553967635"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "71980713"
-        - span:
-            lo: 0
-            hi: 11
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "519444716"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "116499965"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "717422268"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "18966279"
-        - span:
-            lo: 0
-            hi: 11
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "22458638"
-        - span:
-            lo: 0
-            hi: 11
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "857282620"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "920675898"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "762235516"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "469018377"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "199986521"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "536679358"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "591399452"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "83083158"
-        - span:
-            lo: 0
-            hi: 11
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "599449051"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "445442318"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "585486590"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "209278800"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "873568117"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "664470940"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "465262783"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "605652874"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "376803940"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "965247040"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "598474509"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "845119918"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "648159133"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "669051032"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "800600261"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "434689764"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "520060080"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "804659385"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "537828058"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "716600292"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "387020273"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "199375617"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "680337189"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "818479931"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "893693281"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "87377802"
-        - span:
-            lo: 0
-            hi: 11
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "84699261"
-        - span:
-            lo: 0
-            hi: 11
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "292826090"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "569171405"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "387436237"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "150682190"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "888770419"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "824696431"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "765659803"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "270163693"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "427940240"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "504997332"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "337808338"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "907200008"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "757177889"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "696697188"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "41376051"
-        - span:
-            lo: 0
-            hi: 11
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "496293518"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "251218820"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "0x12"
-        - span:
-            lo: 0
-            hi: 7
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "0xAA"
-        - span:
-            lo: 0
-            hi: 7
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "0xAABB"
-        - span:
-            lo: 0
-            hi: 9
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "0x12345AABB"
-        - span:
-            lo: 0
-            hi: 14
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "0b101010000"
-        - span:
-            lo: 0
-            hi: 14
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "0o12345"
-        - span:
-            lo: 0
-            hi: 10
-        - 0
-  - Literal:
-      Integer:
-        - I16
-        - "0o10077"
-        - span:
-            lo: 0
-            hi: 10
-        - 0
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "123",
+    { span = { lo = 0, hi = 6 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "123",
+    { span = { lo = 0, hi = 6 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "456",
+    { span = { lo = 0, hi = 6 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "87377802873778028737780287377802873778028737780287377802873778028737780287377802",
+    { span = { lo = 0, hi = 83 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802",
+    { span = { lo = 0, hi = 403 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "340130024",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "158951116",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "155529659",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "642023166",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "228481736",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "469712960",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "929437719",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "721072814",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "363254789",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "906732565",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "288246391",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "724940549",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "487101620",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "261373583",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "891163927",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "743967544",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "8372586",
+    { span = { lo = 0, hi = 10 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "461793278",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "806307045",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "122764546",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "356336181",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "158370903",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "774460877",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "557174131",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "492401267",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "893445620",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "957757048",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "721540649",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "390746493",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "211251725",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "938266114",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "156985870",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "703831126",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "729964155",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "988151305",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "320872435",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "719287167",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "152289486",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "740067975",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "728627816",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "385008978",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "553967635",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "71980713",
+    { span = { lo = 0, hi = 11 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "519444716",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "116499965",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "717422268",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "18966279",
+    { span = { lo = 0, hi = 11 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "22458638",
+    { span = { lo = 0, hi = 11 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "857282620",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "920675898",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "762235516",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "469018377",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "199986521",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "536679358",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "591399452",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "83083158",
+    { span = { lo = 0, hi = 11 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "599449051",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "445442318",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "585486590",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "209278800",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "873568117",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "664470940",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "465262783",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "605652874",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "376803940",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "965247040",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "598474509",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "845119918",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "648159133",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "669051032",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "800600261",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "434689764",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "520060080",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "804659385",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "537828058",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "716600292",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "387020273",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "199375617",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "680337189",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "818479931",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "893693281",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "87377802",
+    { span = { lo = 0, hi = 11 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "84699261",
+    { span = { lo = 0, hi = 11 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "292826090",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "569171405",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "387436237",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "150682190",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "888770419",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "824696431",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "765659803",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "270163693",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "427940240",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "504997332",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "337808338",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "907200008",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "757177889",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "696697188",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "41376051",
+    { span = { lo = 0, hi = 11 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "496293518",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "251218820",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "0x12",
+    { span = { lo = 0, hi = 7 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "0xAA",
+    { span = { lo = 0, hi = 7 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "0xAABB",
+    { span = { lo = 0, hi = 9 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "0x12345AABB",
+    { span = { lo = 0, hi = 14 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "0b101010000",
+    { span = { lo = 0, hi = 14 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "0o12345",
+    { span = { lo = 0, hi = 10 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "I16",
+    "0o10077",
+    { span = { lo = 0, hi = 10 } },
+    0,
+]

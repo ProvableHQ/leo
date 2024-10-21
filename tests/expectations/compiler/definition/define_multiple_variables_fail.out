@@ -1,5 +1,26 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372072]: Expected a tuple with 2 elements, found one with 3 elements\n    --> compiler-test:5:13\n     |\n   5 |         let (a,b,c): (u8,u8) = (2u8,3u8);\n     |             ^^^^^^^\nError [ETYC0372072]: Expected a tuple with 3 elements, found one with 2 elements\n    --> compiler-test:6:13\n     |\n   6 |         let (d,e): (u8,u8,u8) = (1u8,2u8,3u8);\n     |             ^^^^^\nError [ETYC0372003]: Expected type `(u8,u8,u8)` but type `u8` was found\n    --> compiler-test:7:36\n     |\n   7 |         let (g,h,i): (u8,u8,u8) = (1u8);\n     |                                    ^^^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {\n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372072]: Expected a tuple with 2 elements, found one with 3 elements
+    --> compiler-test:5:13
+     |
+   5 |         let (a,b,c): (u8,u8) = (2u8,3u8);
+     |             ^^^^^^^
+Error [ETYC0372072]: Expected a tuple with 3 elements, found one with 2 elements
+    --> compiler-test:6:13
+     |
+   6 |         let (d,e): (u8,u8,u8) = (1u8,2u8,3u8);
+     |             ^^^^^
+Error [ETYC0372003]: Expected type `(u8,u8,u8)` but type `u8` was found
+    --> compiler-test:7:36
+     |
+   7 |         let (g,h,i): (u8,u8,u8) = (1u8);
+     |                                    ^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {
+     | ^^^^^^^^^^^^
+"""]

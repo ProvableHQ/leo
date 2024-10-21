@@ -1,8 +1,8 @@
 /*
-namespace: Compile
-expectation: Fail
-configs:
-    - dce_enabled : false
+namespace = "Compile"
+expectation = "Fail"
+[[configs]]
+dce_enabled = false
 */
 
 program test.aleo {

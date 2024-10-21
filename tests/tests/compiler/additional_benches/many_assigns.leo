@@ -1,6 +1,6 @@
 /*
-namespace: Bench
-expectation: Skip
+namespace = "Bench"
+expectation = "Skip"
 */
 
 program test.aleo {    

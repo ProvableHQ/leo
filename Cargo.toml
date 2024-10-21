@@ -108,6 +108,10 @@ features = [ "derive", "rc" ]
 version = "1.0"
 features = [ "preserve_order" ]
 
+[workspace.dependencies.toml]
+version = "0.8"
+features = [ "preserve_order" ]
+
 [workspace.dependencies.tracing]
 version = "0.1"
 
@@ -202,7 +206,7 @@ features = [ "circuit", "console" ]
 version = "0.9.1"
 
 [dependencies.toml]
-version = "0.8"
+workspace = true
 
 [dependencies.tracing]
 version = "0.1"

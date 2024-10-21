@@ -28,8 +28,8 @@ use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
 };
 use serde::Serialize;
-use serde_yaml::Value;
 use tokenizer::Token;
+use toml::Value;
 
 type CurrentNetwork = snarkvm::prelude::MainnetV0;
 
@@ -87,8 +87,8 @@ fn all_are_comments(tokens: &[SpannedToken]) -> bool {
     tokens.iter().all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
 }
 
-fn yaml_or_fail<T: Serialize>(value: T) -> Value {
-    serde_yaml::to_value(value).expect("serialization failed")
+fn toml_or_fail<T: Serialize>(value: T) -> Value {
+    Value::try_from(value).expect("serialization failed")
 }
 
 struct ParseExpressionNamespace;
@@ -102,9 +102,9 @@ impl Namespace for ParseExpressionNamespace {
         create_session_if_not_set_then(|s| {
             let tokenizer = tokenize(test, s)?;
             if all_are_comments(&tokenizer) {
-                return Ok(yaml_or_fail(""));
+                return Ok(toml_or_fail(""));
             }
-            with_handler(tokenizer, |p| p.parse_expression()).map(yaml_or_fail)
+            with_handler(tokenizer, |p| p.parse_expression()).map(toml_or_fail)
         })
     }
 }
@@ -120,9 +120,9 @@ impl Namespace for ParseStatementNamespace {
         create_session_if_not_set_then(|s| {
             let tokenizer = tokenize(test, s)?;
             if all_are_comments(&tokenizer) {
-                return Ok(yaml_or_fail(Statement::dummy(Span::default(), NodeID::default())));
+                return Ok(toml_or_fail(Statement::dummy(Span::default(), NodeID::default())));
             }
-            with_handler(tokenizer, |p| p.parse_statement()).map(yaml_or_fail)
+            with_handler(tokenizer, |p| p.parse_statement()).map(toml_or_fail)
         })
     }
 }
@@ -135,7 +135,7 @@ impl Namespace for ParseNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|s| with_handler(tokenize(test, s)?, |p| p.parse_program()).map(yaml_or_fail))
+        create_session_if_not_set_then(|s| with_handler(tokenize(test, s)?, |p| p.parse_program()).map(toml_or_fail))
     }
 }
 
@@ -199,7 +199,7 @@ impl Namespace for SerializeNamespace {
             remove_key_from_json(&mut json, "span");
             json = normalize_json_value(json);
 
-            Ok(serde_json::from_value::<serde_yaml::Value>(json).expect("failed serialization"))
+            Ok(serde_json::from_value::<toml::Value>(json).expect("failed serialization"))
         })
     }
 }

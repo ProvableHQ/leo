@@ -1,5 +1,9 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EAST0372007]: struct `Foo` shadowed by\n    --> compiler-test:8:5\n     |\n   8 |     function Foo() {}\n     |     ^^^^^^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EAST0372007]: struct `Foo` shadowed by
+    --> compiler-test:8:5
+     |
+   8 |     function Foo() {}
+     |     ^^^^^^^^^^^^^^^^^
+"""]

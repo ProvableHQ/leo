@@ -1,5 +1,8 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:5:15\n     |\n   5 |         let x = 1u8;\n     |               ^"
+namespace = "Parse"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370005]: expected : -- found '='
+    --> test:5:15
+     |
+   5 |         let x = 1u8;
+     |               ^"""]

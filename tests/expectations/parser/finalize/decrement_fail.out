@@ -1,7 +1,28 @@
----
-namespace: ParseStatement
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected ] -- found ','\n    --> test:1:14\n     |\n   1 | decrement[foo, bar, baz];\n     |              ^"
-  - "Error [EPAR0370005]: expected ; -- found '<eof>'\n    --> test:1:15\n     |\n   1 | decrement(floo)\n     |               ^Warning [WPAR0370001]: The keyword `decrement` is deprecated.\n    --> test:1:1\n     |\n   1 | decrement(floo)\n     | ^^^^^^^^^^^^^^^\n     |\n     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings."
-  - "Error [EPAR0370005]: expected ; -- found 'foo'\n    --> test:1:11\n     |\n   1 | decrement foo[bar] by baz;\n     |           ^^^"
+namespace = "ParseStatement"
+expectation = "Fail"
+outputs = [
+    """
+Error [EPAR0370005]: expected ] -- found ','
+    --> test:1:14
+     |
+   1 | decrement[foo, bar, baz];
+     |              ^""",
+    """
+Error [EPAR0370005]: expected ; -- found '<eof>'
+    --> test:1:15
+     |
+   1 | decrement(floo)
+     |               ^Warning [WPAR0370001]: The keyword `decrement` is deprecated.
+    --> test:1:1
+     |
+   1 | decrement(floo)
+     | ^^^^^^^^^^^^^^^
+     |
+     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings.""",
+    """
+Error [EPAR0370005]: expected ; -- found 'foo'
+    --> test:1:11
+     |
+   1 | decrement foo[bar] by baz;
+     |           ^^^""",
+]

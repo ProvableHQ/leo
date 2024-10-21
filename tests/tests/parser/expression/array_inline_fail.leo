@@ -1,6 +1,6 @@
 /*
-namespace: ParseExpression
-expectation: Fail
+namespace = "ParseExpression"
+expectation = "Fail"
 */
 
 [,]

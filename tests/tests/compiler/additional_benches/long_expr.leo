@@ -1,6 +1,6 @@
 /*
-namespace: Bench
-expectation: Pass
+namespace = "Bench"
+expectation = "Pass"
 */
 
 program test.aleo {    

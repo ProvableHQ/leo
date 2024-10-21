@@ -1,5 +1,16 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372112]: A struct must have at least one member.\n    --> compiler-test:4:5\n     |\n   4 |     struct Bar {}\n     |     ^^^^^^^^^^^^^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {\n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372112]: A struct must have at least one member.
+    --> compiler-test:4:5
+     |
+   4 |     struct Bar {}
+     |     ^^^^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {
+     | ^^^^^^^^^^^^
+"""]

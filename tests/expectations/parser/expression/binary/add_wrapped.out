@@ -1,274 +1,368 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-              op: AddWrapped
-              span:
-                lo: 2
-                hi: 18
-              id: 3
-          op: Negate
-          span:
-            lo: 1
-            hi: 18
-          id: 4
-      op: Not
-      span:
-        lo: 0
-        hi: 18
-      id: 5
-  - Binary:
-      left:
-        Binary:
-          left:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
-              op: AddWrapped
-              span:
-                lo: 0
-                hi: 16
-              id: 3
-          right:
-            Identifier: "{\"id\":\"5\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":29,\\\"hi\\\":30}\"}"
-          op: AddWrapped
-          span:
-            lo: 0
-            hi: 31
-          id: 6
-      right:
-        Identifier: "{\"id\":\"8\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":44,\\\"hi\\\":45}\"}"
-      op: AddWrapped
-      span:
-        lo: 0
-        hi: 46
-      id: 9
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          op: AddWrapped
-          span:
-            lo: 1
-            hi: 17
-          id: 3
-      op: Negate
-      span:
-        lo: 0
-        hi: 17
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Negate
-          span:
-            lo: 1
-            hi: 3
-          id: 1
-      right:
-        Identifier: "{\"id\":\"3\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-      op: AddWrapped
-      span:
-        lo: 1
-        hi: 19
-      id: 4
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-          op: AddWrapped
-          span:
-            lo: 2
-            hi: 18
-          id: 3
-      op: Negate
-      span:
-        lo: 0
-        hi: 18
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-              op: AddWrapped
-              span:
-                lo: 2
-                hi: 18
-              id: 3
-          op: Negate
-          span:
-            lo: 1
-            hi: 18
-          id: 4
-      right:
-        Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
-      op: AddWrapped
-      span:
-        lo: 1
-        hi: 34
-      id: 7
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          op: AddWrapped
-          span:
-            lo: 1
-            hi: 17
-          id: 3
-      op: Not
-      span:
-        lo: 0
-        hi: 17
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
-          span:
-            lo: 1
-            hi: 3
-          id: 1
-      right:
-        Identifier: "{\"id\":\"3\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-      op: AddWrapped
-      span:
-        lo: 1
-        hi: 19
-      id: 4
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-          op: AddWrapped
-          span:
-            lo: 2
-            hi: 18
-          id: 3
-      op: Not
-      span:
-        lo: 0
-        hi: 18
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-              op: AddWrapped
-              span:
-                lo: 2
-                hi: 18
-              id: 3
-          op: Not
-          span:
-            lo: 1
-            hi: 18
-          id: 4
-      right:
-        Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
-      op: AddWrapped
-      span:
-        lo: 1
-        hi: 34
-      id: 7
-  - Binary:
-      left:
-        Binary:
-          left:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-              op: AddWrapped
-              span:
-                lo: 1
-                hi: 17
-              id: 3
-          right:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"4\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
-              right:
-                Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":34,\\\"hi\\\":35}\"}"
-              op: AddWrapped
-              span:
-                lo: 20
-                hi: 36
-              id: 7
-          op: Add
-          span:
-            lo: 1
-            hi: 36
-          id: 8
-      right:
-        Binary:
-          left:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"10\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":51}\"}"
-              right:
-                Identifier: "{\"id\":\"12\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":64,\\\"hi\\\":65}\"}"
-              op: AddWrapped
-              span:
-                lo: 50
-                hi: 66
-              id: 13
-          right:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"14\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":69,\\\"hi\\\":70}\"}"
-              right:
-                Identifier: "{\"id\":\"16\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":83,\\\"hi\\\":84}\"}"
-              op: AddWrapped
-              span:
-                lo: 69
-                hi: 85
-              id: 17
-          op: Add
-          span:
-            lo: 50
-            hi: 85
-          id: 18
-      op: AddWrapped
-      span:
-        lo: 1
-        hi: 86
-      id: 19
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 5
+
+[outputs.Unary.receiver.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Unary.receiver.Unary.receiver.Binary]
+op = "AddWrapped"
+id = 3
+
+[outputs.Unary.receiver.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":16,\"hi\":17}"}'
+
+[outputs.Unary.receiver.Unary.receiver.Binary.span]
+lo = 2
+hi = 18
+
+[outputs.Unary.receiver.Unary.span]
+lo = 1
+hi = 18
+
+[outputs.Unary.span]
+lo = 0
+hi = 18
+
+[[outputs]]
+
+[outputs.Binary]
+op = "AddWrapped"
+id = 9
+
+[outputs.Binary.left.Binary]
+op = "AddWrapped"
+id = 6
+
+[outputs.Binary.left.Binary.left.Binary]
+op = "AddWrapped"
+id = 3
+
+[outputs.Binary.left.Binary.left.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Binary.left.Binary.left.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":14,\"hi\":15}"}'
+
+[outputs.Binary.left.Binary.left.Binary.span]
+lo = 0
+hi = 16
+
+[outputs.Binary.left.Binary.right]
+Identifier = '{"id":"5","name":"y","span":"{\"lo\":29,\"hi\":30}"}'
+
+[outputs.Binary.left.Binary.span]
+lo = 0
+hi = 31
+
+[outputs.Binary.right]
+Identifier = '{"id":"8","name":"y","span":"{\"lo\":44,\"hi\":45}"}'
+
+[outputs.Binary.span]
+lo = 0
+hi = 46
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "AddWrapped"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":15,\"hi\":16}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 1
+hi = 17
+
+[outputs.Unary.span]
+lo = 0
+hi = 17
+
+[[outputs]]
+
+[outputs.Binary]
+op = "AddWrapped"
+id = 4
+
+[outputs.Binary.left.Unary]
+op = "Negate"
+id = 1
+
+[outputs.Binary.left.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 3
+
+[outputs.Binary.right]
+Identifier = '{"id":"3","name":"y","span":"{\"lo\":17,\"hi\":18}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 19
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "AddWrapped"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":16,\"hi\":17}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 2
+hi = 18
+
+[outputs.Unary.span]
+lo = 0
+hi = 18
+
+[[outputs]]
+
+[outputs.Binary]
+op = "AddWrapped"
+id = 7
+
+[outputs.Binary.left.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Binary.left.Unary.receiver.Binary]
+op = "AddWrapped"
+id = 3
+
+[outputs.Binary.left.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":16,\"hi\":17}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.span]
+lo = 2
+hi = 18
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 18
+
+[outputs.Binary.right]
+Identifier = '{"id":"6","name":"y","span":"{\"lo\":32,\"hi\":33}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 34
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "AddWrapped"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":15,\"hi\":16}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 1
+hi = 17
+
+[outputs.Unary.span]
+lo = 0
+hi = 17
+
+[[outputs]]
+
+[outputs.Binary]
+op = "AddWrapped"
+id = 4
+
+[outputs.Binary.left.Unary]
+op = "Not"
+id = 1
+
+[outputs.Binary.left.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 3
+
+[outputs.Binary.right]
+Identifier = '{"id":"3","name":"y","span":"{\"lo\":17,\"hi\":18}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 19
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "AddWrapped"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":16,\"hi\":17}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 2
+hi = 18
+
+[outputs.Unary.span]
+lo = 0
+hi = 18
+
+[[outputs]]
+
+[outputs.Binary]
+op = "AddWrapped"
+id = 7
+
+[outputs.Binary.left.Unary]
+op = "Not"
+id = 4
+
+[outputs.Binary.left.Unary.receiver.Binary]
+op = "AddWrapped"
+id = 3
+
+[outputs.Binary.left.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":16,\"hi\":17}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.span]
+lo = 2
+hi = 18
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 18
+
+[outputs.Binary.right]
+Identifier = '{"id":"6","name":"y","span":"{\"lo\":32,\"hi\":33}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 34
+
+[[outputs]]
+
+[outputs.Binary]
+op = "AddWrapped"
+id = 19
+
+[outputs.Binary.left.Binary]
+op = "Add"
+id = 8
+
+[outputs.Binary.left.Binary.left.Binary]
+op = "AddWrapped"
+id = 3
+
+[outputs.Binary.left.Binary.left.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Binary.left.Binary.left.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":15,\"hi\":16}"}'
+
+[outputs.Binary.left.Binary.left.Binary.span]
+lo = 1
+hi = 17
+
+[outputs.Binary.left.Binary.right.Binary]
+op = "AddWrapped"
+id = 7
+
+[outputs.Binary.left.Binary.right.Binary.left]
+Identifier = '{"id":"4","name":"x","span":"{\"lo\":20,\"hi\":21}"}'
+
+[outputs.Binary.left.Binary.right.Binary.right]
+Identifier = '{"id":"6","name":"y","span":"{\"lo\":34,\"hi\":35}"}'
+
+[outputs.Binary.left.Binary.right.Binary.span]
+lo = 20
+hi = 36
+
+[outputs.Binary.left.Binary.span]
+lo = 1
+hi = 36
+
+[outputs.Binary.right.Binary]
+op = "Add"
+id = 18
+
+[outputs.Binary.right.Binary.left.Binary]
+op = "AddWrapped"
+id = 13
+
+[outputs.Binary.right.Binary.left.Binary.left]
+Identifier = '{"id":"10","name":"x","span":"{\"lo\":50,\"hi\":51}"}'
+
+[outputs.Binary.right.Binary.left.Binary.right]
+Identifier = '{"id":"12","name":"y","span":"{\"lo\":64,\"hi\":65}"}'
+
+[outputs.Binary.right.Binary.left.Binary.span]
+lo = 50
+hi = 66
+
+[outputs.Binary.right.Binary.right.Binary]
+op = "AddWrapped"
+id = 17
+
+[outputs.Binary.right.Binary.right.Binary.left]
+Identifier = '{"id":"14","name":"x","span":"{\"lo\":69,\"hi\":70}"}'
+
+[outputs.Binary.right.Binary.right.Binary.right]
+Identifier = '{"id":"16","name":"y","span":"{\"lo\":83,\"hi\":84}"}'
+
+[outputs.Binary.right.Binary.right.Binary.span]
+lo = 69
+hi = 85
+
+[outputs.Binary.right.Binary.span]
+lo = 50
+hi = 85
+
+[outputs.Binary.span]
+lo = 1
+hi = 86

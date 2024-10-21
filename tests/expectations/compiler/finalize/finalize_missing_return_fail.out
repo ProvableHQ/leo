@@ -1,5 +1,20 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372106]: An async function is not allowed to return a value.\n    --> compiler-test:11:5\n     |\n  11 |     async function fin_mint(public receiver: address, public amount: u64) -> u64 {\n  12 |         Mapping::set(account, receiver, amount);\n  13 |     }\n     |     ^\n     |\n     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.\nError [ETYC0372036]: Function must return a value.\n    --> compiler-test:11:5\n     |\n  11 |     async function fin_mint(public receiver: address, public amount: u64) -> u64 {\n  12 |         Mapping::set(account, receiver, amount);\n  13 |     }\n     |     ^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372106]: An async function is not allowed to return a value.
+    --> compiler-test:11:5
+     |
+  11 |     async function fin_mint(public receiver: address, public amount: u64) -> u64 {
+  12 |         Mapping::set(account, receiver, amount);
+  13 |     }
+     |     ^
+     |
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
+Error [ETYC0372036]: Function must return a value.
+    --> compiler-test:11:5
+     |
+  11 |     async function fin_mint(public receiver: address, public amount: u64) -> u64 {
+  12 |         Mapping::set(account, receiver, amount);
+  13 |     }
+     |     ^
+"""]

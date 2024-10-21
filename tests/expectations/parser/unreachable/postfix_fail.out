@@ -1,24 +1,124 @@
----
-namespace: ParseStatement
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a;;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a.;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a,;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a[;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a];\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a{;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a};\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a);\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a:;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a?;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a=;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a==;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a!;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a!=;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a>;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a>=;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a<;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a<=;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a>;\n     |       ^"
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | let x = a..;\n     |       ^"
+namespace = "ParseStatement"
+expectation = "Fail"
+outputs = [
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a;;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a.;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a,;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a[;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a];
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a{;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a};
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a);
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a:;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a?;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a=;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a==;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a!;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a!=;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a>;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a>=;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a<;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a<=;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a>;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | let x = a..;
+     |       ^""",
+]

@@ -1,5 +1,9 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 33 elements\n    --> compiler-test:4:20\n     |\n   4 |     transition foo(a: [bool; 33]) -> bool {\n     |                    ^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 33 elements
+    --> compiler-test:4:20
+     |
+   4 |     transition foo(a: [bool; 33]) -> bool {
+     |                    ^
+"""]

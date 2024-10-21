@@ -1,32 +1,38 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Literal:
-      Address:
-        - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9
-        - span:
-            lo: 0
-            hi: 63
-        - 0
-  - Literal:
-      Address:
-        - hello.aleo
-        - span:
-            lo: 0
-            hi: 5
-        - 1
-  - Literal:
-      Address:
-        - fooooo.aleo
-        - span:
-            lo: 0
-            hi: 6
-        - 1
-  - Literal:
-      Address:
-        - bar.aleo
-        - span:
-            lo: 0
-            hi: 3
-        - 1
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Literal]
+Address = [
+    "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9",
+    { span = { lo = 0, hi = 63 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Address = [
+    "hello.aleo",
+    { span = { lo = 0, hi = 5 } },
+    1,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Address = [
+    "fooooo.aleo",
+    { span = { lo = 0, hi = 6 } },
+    1,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Address = [
+    "bar.aleo",
+    { span = { lo = 0, hi = 3 } },
+    1,
+]

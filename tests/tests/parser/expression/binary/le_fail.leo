@@ -1,6 +1,6 @@
 /*
-namespace: ParseExpression
-expectation: Fail
+namespace = "ParseExpression"
+expectation = "Fail"
 */
 
 1u8 <= 2u8 <= 3u8

@@ -1,5 +1,78 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372067]: This operation can only be used in an async function block.\n    --> compiler-test:8:9\n     |\n   8 |         Mapping::set(values, 0u8, 1u8);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372034]: `Mapping::set` must be inside an async function block.\n    --> compiler-test:8:9\n     |\n   8 |         Mapping::set(values, 0u8, 1u8);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372067]: This operation can only be used in an async function block.\n    --> compiler-test:9:9\n     |\n   9 |         Mapping::get_or_use(account, self.caller, 1u64);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372034]: `Mapping::get_or` must be inside an async function block.\n    --> compiler-test:9:9\n     |\n   9 |         Mapping::get_or_use(account, self.caller, 1u64);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372067]: This operation can only be used in an async function block.\n    --> compiler-test:10:9\n     |\n  10 |         Mapping::get(values, 1u8);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372034]: `Mapping::get` must be inside an async function block.\n    --> compiler-test:10:9\n     |\n  10 |         Mapping::get(values, 1u8);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372067]: This operation can only be used in an async function block.\n    --> compiler-test:14:9\n     |\n  14 |         Mapping::set(values, 0u8, 1u8);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372034]: `Mapping::set` must be inside an async function block.\n    --> compiler-test:14:9\n     |\n  14 |         Mapping::set(values, 0u8, 1u8);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372067]: This operation can only be used in an async function block.\n    --> compiler-test:15:9\n     |\n  15 |         Mapping::get_or_use(account, self.caller, 1u64);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372034]: `Mapping::get_or` must be inside an async function block.\n    --> compiler-test:15:9\n     |\n  15 |         Mapping::get_or_use(account, self.caller, 1u64);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372067]: This operation can only be used in an async function block.\n    --> compiler-test:16:9\n     |\n  16 |         Mapping::get(values, 0u8);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372034]: `Mapping::get` must be inside an async function block.\n    --> compiler-test:16:9\n     |\n  16 |         Mapping::get(values, 0u8);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {\n     | ^^^^^^^^^^^^\nWarning [WTYC0372002]: The async function `finalize_finalize_no_params` is never called by an async transition.\n    --> compiler-test:19:5\n     |\n  19 |     async function finalize_finalize_no_params() {\n  20 |         foo();\n  21 |         bar();\n  22 |     }\n     |     ^"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372067]: This operation can only be used in an async function block.
+    --> compiler-test:8:9
+     |
+   8 |         Mapping::set(values, 0u8, 1u8);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::set` must be inside an async function block.
+    --> compiler-test:8:9
+     |
+   8 |         Mapping::set(values, 0u8, 1u8);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in an async function block.
+    --> compiler-test:9:9
+     |
+   9 |         Mapping::get_or_use(account, self.caller, 1u64);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::get_or` must be inside an async function block.
+    --> compiler-test:9:9
+     |
+   9 |         Mapping::get_or_use(account, self.caller, 1u64);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in an async function block.
+    --> compiler-test:10:9
+     |
+  10 |         Mapping::get(values, 1u8);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::get` must be inside an async function block.
+    --> compiler-test:10:9
+     |
+  10 |         Mapping::get(values, 1u8);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in an async function block.
+    --> compiler-test:14:9
+     |
+  14 |         Mapping::set(values, 0u8, 1u8);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::set` must be inside an async function block.
+    --> compiler-test:14:9
+     |
+  14 |         Mapping::set(values, 0u8, 1u8);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in an async function block.
+    --> compiler-test:15:9
+     |
+  15 |         Mapping::get_or_use(account, self.caller, 1u64);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::get_or` must be inside an async function block.
+    --> compiler-test:15:9
+     |
+  15 |         Mapping::get_or_use(account, self.caller, 1u64);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in an async function block.
+    --> compiler-test:16:9
+     |
+  16 |         Mapping::get(values, 0u8);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::get` must be inside an async function block.
+    --> compiler-test:16:9
+     |
+  16 |         Mapping::get(values, 0u8);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {
+     | ^^^^^^^^^^^^
+Warning [WTYC0372002]: The async function `finalize_finalize_no_params` is never called by an async transition.
+    --> compiler-test:19:5
+     |
+  19 |     async function finalize_finalize_no_params() {
+  20 |         foo();
+  21 |         bar();
+  22 |     }
+     |     ^"""]

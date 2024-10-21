@@ -1,58 +1,37 @@
----
-namespace: Parse
-expectation: Pass
-outputs:
-  - imports:
-      hello:
-        - imports: {}
-          stubs: {}
-          program_scopes: {}
-        - lo: 1
-          hi: 19
-    stubs: {}
-    program_scopes:
-      test:
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"2\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
-        consts: []
-        structs: []
-        mappings: []
-        functions:
-          - - main
-            - annotations: []
-              variant: Function
-              identifier: "{\"id\":\"3\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":53,\\\"hi\\\":57}\"}"
-              input: []
-              output: []
-              output_type: Unit
-              block:
-                statements:
-                  - Definition:
-                      declaration_type: Let
-                      place:
-                        Identifier: "{\"id\":\"4\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":74,\\\"hi\\\":75}\"}"
-                      type_:
-                        Integer: U8
-                      value:
-                        Literal:
-                          Integer:
-                            - U8
-                            - "1"
-                            - span:
-                                lo: 81
-                                hi: 84
-                            - 5
-                      span:
-                        lo: 70
-                        hi: 84
-                      id: 6
-                span:
-                  lo: 60
-                  hi: 91
-                id: 7
-              span:
-                lo: 44
-                hi: 91
-              id: 8
-        span:
-          lo: 20
-          hi: 93
+namespace = "Parse"
+expectation = "Pass"
+
+[[outputs]]
+
+[[outputs.imports.hello]]
+
+[outputs.imports.hello.imports]
+
+[outputs.imports.hello.stubs]
+
+[outputs.imports.hello.program_scopes]
+
+[[outputs.imports.hello]]
+lo = 1
+hi = 19
+
+[outputs.stubs]
+
+[outputs.program_scopes.test]
+program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"2\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
+consts = []
+structs = []
+mappings = []
+functions = [[
+    "main",
+    { annotations = [], variant = "Function", identifier = '{"id":"3","name":"main","span":"{\"lo\":53,\"hi\":57}"}', input = [], output = [], output_type = "Unit", id = 8, block = { id = 7, statements = [{ Definition = { declaration_type = "Let", id = 6, place = { Identifier = '{"id":"4","name":"x","span":"{\"lo\":74,\"hi\":75}"}' }, type_ = { Integer = "U8" }, value = { Literal = { Integer = [
+    "U8",
+    "1",
+    { span = { lo = 81, hi = 84 } },
+    5,
+] } }, span = { lo = 70, hi = 84 } } }], span = { lo = 60, hi = 91 } }, span = { lo = 44, hi = 91 } },
+]]
+
+[outputs.program_scopes.test.span]
+lo = 20
+hi = 93
