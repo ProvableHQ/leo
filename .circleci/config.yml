@@ -1,4 +1,25 @@
 version: 2.1
+
+parameters:
+  small:
+    type: string
+    default: small
+  medium:
+    type: string
+    default: medium
+  large:
+    type: string
+    default: large
+  xlarge:
+    type: string
+    default: xlarge
+  twoxlarge:
+    type: string
+    default: 2xlarge
+
+orbs:
+  windows: circleci/windows@5.0
+
 commands:
   setup_environment:
     description: "Setup environment"
@@ -48,6 +69,31 @@ commands:
       - run: rustup toolchain install nightly-x86_64-unknown-linux-gnu
 
 jobs:
+  test:
+    parameters:
+      platform:
+        type: executor
+      resource_class:
+        type: string
+        default: medium  # Default value if not specified
+    executor: << parameters.platform >>
+    resource_class: << parameters.resource_class >>
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+            - cargo-v1-{{ arch }}
+      - run: curl -o rustup https://sh.rustup.rs
+      - run: bash rustup -y
+      - run: rm ~/.gitconfig
+      - run: ~/.cargo/bin/cargo test --all --locked
+      - save_cache:
+          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo
+
   check-style:
     docker:
       - image: cimg/rust:1.76
@@ -166,6 +212,12 @@ workflows:
   version: 2
   main-workflow:
     jobs:
+      - test:
+          name: test-<< matrix.platform >>
+          matrix:
+            platform:
+              - executor: win/default
+                resource_class: << parameters.medium >>
       - check-style
       - clippy
       - leo-executable
