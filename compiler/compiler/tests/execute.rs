@@ -25,7 +25,6 @@ use utilities::{
     get_build_options,
     get_cwd_option,
     hash_asts,
-    hash_content,
     hash_symbol_tables,
     parse_program,
 };
@@ -213,7 +212,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 destructured_ast,
                 inlined_ast,
                 dce_ast,
-                bytecode: hash_content(&bytecode),
+                bytecode,
                 errors: buf.0.take().to_string(),
                 warnings: buf.1.take().to_string(),
             };

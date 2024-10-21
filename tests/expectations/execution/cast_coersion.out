@@ -1,6 +1,28 @@
 namespace = "Execute"
 expectation = "Pass"
-outputs = [[{ compile = [{ initial_symbol_table = "736ef33d4ea34eb43862ee271decb4587901ab41e91e4f8e41b8f99d1f8b557c", type_checked_symbol_table = "1c73cb243b5146909a9fbd64fb8862bd15578904deaa7ce579d713e635bd0719", unrolled_symbol_table = "1c73cb243b5146909a9fbd64fb8862bd15578904deaa7ce579d713e635bd0719", initial_ast = "409d57cef21ca167d937cf70c1d7c116bc900e502831b395698e9d3f13ae0961", unrolled_ast = "409d57cef21ca167d937cf70c1d7c116bc900e502831b395698e9d3f13ae0961", ssa_ast = "7f12fbc88f56e33590cbb790827e4ec6a04fa9be41e6c1f2bf48515e430d9dc5", flattened_ast = "8e2378df83a8f59228993ec32ae9fbe19318052a3ced6b451b6f720ca6171257", destructured_ast = "8bc445642f52d44cedf36737681f945b99b647953026bb44a836eac1c3cd5d69", inlined_ast = "8bc445642f52d44cedf36737681f945b99b647953026bb44a836eac1c3cd5d69", dce_ast = "2a0e5585007503ef568572b188bae1212a4839548f624b022aafca1ce8e2cf24", bytecode = "675912267b82b91bd854fa2ef169b85c74ecaac6b73a157d7e99818e256b53b1", errors = "", warnings = "" }], execute = [
+outputs = [[{ compile = [{ initial_symbol_table = "736ef33d4ea34eb43862ee271decb4587901ab41e91e4f8e41b8f99d1f8b557c", type_checked_symbol_table = "1c73cb243b5146909a9fbd64fb8862bd15578904deaa7ce579d713e635bd0719", unrolled_symbol_table = "1c73cb243b5146909a9fbd64fb8862bd15578904deaa7ce579d713e635bd0719", initial_ast = "409d57cef21ca167d937cf70c1d7c116bc900e502831b395698e9d3f13ae0961", unrolled_ast = "409d57cef21ca167d937cf70c1d7c116bc900e502831b395698e9d3f13ae0961", ssa_ast = "7f12fbc88f56e33590cbb790827e4ec6a04fa9be41e6c1f2bf48515e430d9dc5", flattened_ast = "8e2378df83a8f59228993ec32ae9fbe19318052a3ced6b451b6f720ca6171257", destructured_ast = "8bc445642f52d44cedf36737681f945b99b647953026bb44a836eac1c3cd5d69", inlined_ast = "8bc445642f52d44cedf36737681f945b99b647953026bb44a836eac1c3cd5d69", dce_ast = "2a0e5585007503ef568572b188bae1212a4839548f624b022aafca1ce8e2cf24", bytecode = """
+program test.aleo;
+
+struct foo:
+    data as field;
+
+
+function main:
+    input r0 as boolean.private;
+    input r1 as group.private;
+    input r2 as address.private;
+    cast r1 into r3 as field;
+    cast r3 into r4 as foo;
+    cast 1field into r5 as foo;
+    cast r2 into r6 as field;
+    cast r6 into r7 as foo;
+    ternary r0 r4.data r4.data into r8;
+    cast r8 into r9 as foo;
+    ternary r0 r5.data r7.data into r10;
+    cast r10 into r11 as foo;
+    output r9 as foo.private;
+    output r11 as foo.private;
+""", errors = "", warnings = "" }], execute = [
     { verified = true, status = "accepted", errors = "", warnings = "", execution = { global_state_root = "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu", proof = "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqyt4zzckxnnhmmnhjkgd89s2rzvj3twtld6sutzyngp2zt806e8ppqeng4ncxrztaqkdunmfqd7e5qqyphrfleuraudqzcyuxf8acjvm2t4ctdd8eqq0rhjrcq9s5hmnzuk977q64mg8lynee7hrf5lm7a2qypanafzdqyhlp92v4y9fp8xw0r9dasz4c0kfs55vgu7fq5cmjdrl7gt0rf7n2a38hnq847jzwqn5qtcpcshsjk2dg2guq457ch69suupz7pjuv8pnu9msq2ycmf4jp4zaklepqg5pg9nw2x90nukyn8qcq80639h742a53eljcwwsakj0cdg7gjcp3unzdcmd82yql46kucd2pa6qg0vjh4fdka6c2s69nh6pgqaypmzhvpjgpxx69r53zqzywj9m038h9g9hahsdcny7p85c40a2r03x2k97d522d4eadv4ez4vz8sxtv9q47ypelecj606k86aakk37axfeycl6ntc33n3x69qcjs3x9frxdhtf0x4vql0gphuhmasl42q0tvw9lmnac6mlmmxn0awl8nd38gz6way833pdv4lrng3znp9yzw32h7j0hg9asmtkv66zkagk3pvqzwzmq5e3yv3vag7gk0j3g86twz6pear8n7cns50xft9m578fueq483dnwm4k2t0hnlld62mk5udcqyq6xat893r73vh3hqv583lck0lk8524rvm8fdzfy347rxt7yr5zjmwcwtgev05r6tna752xqwy3gxceal39et2pdkafvlzj5yrdewqmjkf29mt4wqwevp8v4wq7qpa2wmp8dfqp6p5w9p67uc300pvrgqa7nwyz57rcfmv9q2c655pap3a2s034l3e24w0usjaqtg2kl4a3sxmk6scruwlpetes8aqgqsstk6cqhhxqun0dat7nacynvm0836sc9046xtl2srhkm8g07tu4uaeungljgqz3kzlf5d382llmedvya2c9jpe5vl7u825d70qe4ntawxm7p7xcprlauh2xnhpzvtj9uwjz26zasafxehjr6hz92847w7938edzdqf95yn6lrte6f3mur58rmehrptws8u4typ5wnl202uel2qz820xg5ju2jtuad0pzue6r6h8fw62syl5ksncn4tpe0nt4y8jtz5tlaakzvalcen4dn2f29y33d70htdq0qvqqqqqqqqqqppyuhyzdzsczx2slcgjtlau0gkpnuzmcdvmq2y69e28h9k0fehrjc8m8y49rksysscaaxnav4qpnqqqp35klxztq9p9sw82cmqn9vcdrk20m33fdq52y9hqm4pgfgvw7emxj520wfjhyhnlpru7lts8u9rvpqy0dgv62fj7lcmc4mey05e5wekfrhk8frqejq8mnffyd2wt3esds3rej37cc08wzpmyzzcuvy2hmc370czsx3z6gks08lu805x0m0ruzcn40f3lzxjf8h8gtedsmcppzsqqq09wlp9", transitions = [{ id = "au19ru855myk4t0aw9tawe5ftq2kdmm4nuu7d4waynh5emvl5lyu59q40pw0c", program = "test.aleo", function = "main", tpk = "7835567325899127550325463306228588669553911215612671657187814910151824399315group", tcm = "4346953566447634214157280385182045626270093194427104596054934347800656899000field", scm = "976314679729564700856316609545716173163081344239778489091042818470177990760field", inputs = [
     { type = "private", id = "6553328887630693918140800407584311566408184361951185023715750666420867125941field", value = "ciphertext1qyqrl26w4vwmsf5p6708na5w3ww6jkq2du0pqjmfz55t5adux5kfjpchujf78" },
     { type = "private", id = "6949753692437523787678502261587020559735106657718800640882220306538353449741field", value = "ciphertext1qgqy8wgk3rxhjd7dm26p68w22ympfhjxf35h4vywsg8krwtfp82vxp83uraceaudrnf43xp0xs9z4kdjgj6e83w4zguuthypdqx3ujl9qgzmfqag" },
