@@ -1,22 +1,5 @@
 version: 2.1
 
-parameters:
-  small:
-    type: string
-    default: small
-  medium:
-    type: string
-    default: medium
-  large:
-    type: string
-    default: large
-  xlarge:
-    type: string
-    default: xlarge
-  twoxlarge:
-    type: string
-    default: 2xlarge
-
 orbs:
   windows: circleci/windows@5.0
 
@@ -69,15 +52,10 @@ commands:
       - run: rustup toolchain install nightly-x86_64-unknown-linux-gnu
 
 jobs:
-  test:
-    parameters:
-      platform:
-        type: executor
-      resource_class:
-        type: string
-        default: medium  # Default value if not specified
-    executor: << parameters.platform >>
-    resource_class: << parameters.resource_class >>
+  test-windows:
+    executor:
+      name: windows/default
+      size: xlarge
     steps:
       - checkout
       - restore_cache:
@@ -212,13 +190,7 @@ workflows:
   version: 2
   main-workflow:
     jobs:
-      - test:
-          name: test-<< matrix.platform >>
-          matrix:
-            platform:
-              - executor: win/default
-                resource_class: << parameters.medium >>
-      - check-style
+      - test-windows
       - clippy
       - leo-executable
       - leo-new:
