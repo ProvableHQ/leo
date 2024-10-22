@@ -251,7 +251,7 @@ incremental = true
 opt-level = 2
 lto = "off"
 incremental = true
-debug = true
+debug = false
 debug-assertions = true
 
 [profile.ci]

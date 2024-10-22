@@ -1,12 +1,75 @@
 version: 2.1
 
+# Notes
+# - `sccache` was removed because it doesn't actually provide much benefit in CI. Lots of cache misses.
+# - https://github.com/Swatinem/rust-cache?tab=readme-ov-file#cache-details provides guidance on which directories to cache.
+# - Incremental builds should be disabled in CI, since they don't provide much benefit.
+
 environment:
   RUST_VERSION: "1.77.1" # Ensure that this matches the `rust-version` in `Cargo.toml`.
 
 orbs:
   windows: circleci/windows@5.0
 
+executors:
+  macos-executor:
+    macos:
+      xcode: "16.0.0"  # Use appropriate Xcode version
+    resource_class: xlarge
+
+  linux-executor:
+    docker:
+      - image: "cimg/rust:1.77.1"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
+
+
 commands:
+  install-rust-and-sccache:
+    description: "Install Rust and sccache (Linux/macOS)"
+    steps:
+      - run:
+          name: Install Rust and sccache (Linux/macOS)
+          command: |
+            rustup toolchain install $RUST_VERSION --profile minimal
+            rustup default $RUST_VERSION
+            cargo --version --verbose
+            rustc --version
+            if [ ! -f "Cargo.lock" ]; then
+              cargo generate-lockfile
+            fi
+            git submodule update --init --recursive
+
+  install-rust-and-sccache-windows:
+    description: "Install Rust and sccache (Windows)"
+    steps:
+      - run:
+          name: Install Rust and sccache (Windows)
+          command: |
+            $ProgressPreference = "SilentlyContinue"
+            choco uninstall rust
+            Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\rustup-init.exe"
+            & C:\rustup-init.exe -y --default-toolchain "$Env:RUST_VERSION-x86_64-pc-windows-msvc" --no-modify-path --profile minimal
+            $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
+            cargo --version --verbose
+            rustc --version | Out-File -FilePath "rust-version"
+            if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
+                cargo generate-lockfile
+            }
+            git submodule update --init --recursive
+
+  build-and-test:
+    description: "Build and run tests"
+    steps:
+      - run:
+          name: Build
+          no_output_timeout: 30m
+          command: |
+            cargo test --no-run --all --locked --profile ci
+      - run:
+          name: Run tests
+          no_output_timeout: 30m
+          command: |
+            cargo test --all --locked --profile ci
+
   setup_environment:
     description: "Setup environment"
     parameters:
@@ -23,9 +86,9 @@ commands:
             export WORK_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
             export SCCACHE_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
             mkdir -p "$CIRCLE_WORKING_DIRECTORY/.bin"
-            wget https://github.com/mozilla/sccache/releases/download/0.2.13/sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz
-            tar -C "$CIRCLE_WORKING_DIRECTORY/.bin" -xvf sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz
-            mv $CIRCLE_WORKING_DIRECTORY/.bin/sccache-0.2.13-x86_64-unknown-linux-musl/sccache $CIRCLE_WORKING_DIRECTORY/.bin/sccache
+            wget https://github.com/mozilla/sccache/releases/download/0.8.2/sccache-0.8.2-x86_64-unknown-linux-musl.tar.gz
+            tar -C "$CIRCLE_WORKING_DIRECTORY/.bin" -xvf sccache-0.8.2-x86_64-unknown-linux-musl.tar.gz
+            mv $CIRCLE_WORKING_DIRECTORY/.bin/sccache-0.8.2-x86_64-unknown-linux-musl/sccache $CIRCLE_WORKING_DIRECTORY/.bin/sccache
             export PATH="$PATH:$CIRCLE_WORKING_DIRECTORY/.bin"
             export RUSTC_WRAPPER="sccache"
             rm -rf "$CIRCLE_WORKING_DIRECTORY/.cargo/registry"
@@ -62,69 +125,41 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-      - run:
-          name: "Install Rust and sccache"
-          command: |
-            $ProgressPreference = "SilentlyContinue"
-            # Remove the circleci installed rustc.
-            choco uninstall rust
-            
-            # Install scoop.
-            iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
-            
-            # Install rust with rustup.
-            Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\rustup-init.exe"
-            & C:\rustup-init.exe -y --default-toolchain "1.77.0-x86_64-pc-windows-msvc" --no-modify-path --profile minimal
-            $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
-            
-            # Verify the installation.
-            cargo --version --verbose
-            rustc --version | Out-File -FilePath "rust-version"
-
-            # Install sccache
-            scoop install sccache
-            
-            # Set the `SCCACHE_DIR` environment variable to a directory that will be cached.
-            $Env:SCCACHE_DIR = "C:\Users\circleci\.cache\sccache"
-            # Create the directory if it doesn't exist.
-            if (!(Test-Path $Env:SCCACHE_DIR -PathType Container)) {
-                New-Item -Path $Env:SCCACHE_DIR -ItemType Directory
-            }
-
-            # Verify sccache installation
-            sccache --version
-            sccache --show-stats
-
-            if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
-                cargo generate-lockfile
-            }
-            git submodule update --init --recursive
-      - run:
-          name: "Build"
-          no_output_timeout: 30m
-          command: |
-            $ProgressPreference = "SilentlyContinue"
-            cargo test --no-run --all --locked --profile ci
-      - run:
-          name: "Run tests"
-          no_output_timeout: 30m
-          command: |
-            $ProgressPreference = "SilentlyContinue"
-            cargo test --all --locked --profile ci
-      - run:
-          name: "Show cache stats"
-          no_output_timeout: 30m
-          command: |
-            $ProgressPreference = "SilentlyContinue"
-            sccache --show-stats
+          keys: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+      - install-rust-and-sccache-windows
+      - build-and-test
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
-            - C:\Users\circleci\.cache\sccache
-            - C:\Users\circleci\.cargo\registry
-            - C:\Users\circleci\.cargo\git
+            - C:\Users\circleci\.cargo
+            - target
+
+  test-macos:
+    executor: macos-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+      - install-rust-and-sccache
+      - build-and-test
+      - save_cache:
+          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo
+            - target
+
+  test-ubuntu:
+    executor: linux-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+      - install-rust-and-sccache
+      - build-and-test
+      - save_cache:
+          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo
             - target
 
   check-style:
@@ -246,6 +281,8 @@ workflows:
   main-workflow:
     jobs:
       - test-windows
+      - test-macos
+      - test-ubuntu
       - check-style
       - clippy
       - leo-executable

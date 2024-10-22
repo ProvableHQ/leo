@@ -163,25 +163,7 @@ jobs:
       - name: Stop sccache server
         run: sccache --stop-server || true
 
-  test-package-windows:
-    name: Test Package Windows
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: true
 
-      - name: Install Rust Stable
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - name: Test
-        run: |
-          cargo test --all
 
   test-docs: 
     name: Test Docs
