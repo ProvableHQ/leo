@@ -73,8 +73,7 @@ jobs:
             choco uninstall rust
             
             # Install scoop.
-            Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-            Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+            iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
             
             # Install rust with rustup.
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\rustup-init.exe"
@@ -87,6 +86,13 @@ jobs:
 
             # Install sccache
             scoop install sccache
+            
+            # Set the `SCCACHE_DIR` environment variable to a directory that will be cached.
+            $Env:SCCACHE_DIR = "C:\Users\circleci\.cache\sccache"
+            # Create the directory if it doesn't exist.
+            if (!(Test-Path $Env:SCCACHE_DIR -PathType Container)) {
+                New-Item -Path $Env:SCCACHE_DIR -ItemType Directory
+            }
 
             # Verify sccache installation
             sccache --version
