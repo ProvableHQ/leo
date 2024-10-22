@@ -31,8 +31,8 @@ commands:
           command: |
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             . "$HOME/.cargo/env"
-            rustup toolchain install $RUST_VERSION --profile minimal
-            rustup default $RUST_VERSION
+            rustup install $RUST_VERSION 
+            rustup override set $RUST_VERSION
             cargo --version --verbose
             rustc --version
             if [ ! -f "Cargo.lock" ]; then
@@ -48,8 +48,8 @@ commands:
           command: |
             $ProgressPreference = "SilentlyContinue"
             choco uninstall rust
-            Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\rustup-init.exe"
-            Start-Process .\rustup-init.exe -ArgumentList '-y' -Wait
+            Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
+            Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
             rustup install $Env:RUST_VERSION
             rustup default $Env:RUST_VERSION
