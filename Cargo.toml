@@ -249,7 +249,7 @@ incremental = true
 
 [profile.test]
 opt-level = 2
-lto = "off"
+lto = "thin"
 incremental = true
 debug = true
 debug-assertions = true
