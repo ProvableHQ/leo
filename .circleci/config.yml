@@ -65,6 +65,7 @@ jobs:
             - cargo-v1-{{ arch }}
       - run:
           name: "Install Rust and run all tests"
+          no_output_timeout: 30m
           command: |
             $ProgressPreference = "SilentlyContinue"
             # Remove the circleci installed rustc.
