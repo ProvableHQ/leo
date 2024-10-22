@@ -1,141 +1,40 @@
----
-namespace: Parse
-expectation: Pass
-outputs:
-  - imports: {}
-    stubs: {}
-    program_scopes:
-      test:
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
-        consts: []
-        structs: []
-        mappings: []
-        functions:
-          - - mint
-            - annotations: []
-              variant: Transition
-              identifier: "{\"id\":\"12\",\"name\":\"mint\",\"span\":\"{\\\"lo\\\":101,\\\"hi\\\":105}\"}"
-              input: []
-              output:
-                - mode: None
-                  type_:
-                    Integer: U8
-                  span:
-                    lo: 111
-                    hi: 113
-                  id: 13
-              output_type:
-                Integer: U8
-              block:
-                statements: []
-                span:
-                  lo: 114
-                  hi: 116
-                id: 14
-              span:
-                lo: 90
-                hi: 116
-              id: 15
-          - - foo
-            - annotations:
-                - identifier: "{\"id\":\"2\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":31,\\\"hi\\\":34}\"}"
-                  span:
-                    lo: 30
-                    hi: 34
-                  id: 3
-                - identifier: "{\"id\":\"4\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":40,\\\"hi\\\":43}\"}"
-                  span:
-                    lo: 39
-                    hi: 43
-                  id: 5
-                - identifier: "{\"id\":\"6\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":49,\\\"hi\\\":52}\"}"
-                  span:
-                    lo: 48
-                    hi: 52
-                  id: 7
-              variant: Function
-              identifier: "{\"id\":\"8\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":66,\\\"hi\\\":69}\"}"
-              input: []
-              output:
-                - mode: None
-                  type_:
-                    Integer: U8
-                  span:
-                    lo: 75
-                    hi: 77
-                  id: 9
-              output_type:
-                Integer: U8
-              block:
-                statements: []
-                span:
-                  lo: 78
-                  hi: 80
-                id: 10
-              span:
-                lo: 57
-                hi: 80
-              id: 11
-          - - test
-            - annotations:
-                - identifier: "{\"id\":\"16\",\"name\":\"test\",\"span\":\"{\\\"lo\\\":127,\\\"hi\\\":131}\"}"
-                  span:
-                    lo: 126
-                    hi: 131
-                  id: 17
-              variant: Function
-              identifier: "{\"id\":\"18\",\"name\":\"test\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}"
-              input: []
-              output:
-                - mode: None
-                  type_:
-                    Integer: U8
-                  span:
-                    lo: 155
-                    hi: 157
-                  id: 19
-              output_type:
-                Integer: U8
-              block:
-                statements: []
-                span:
-                  lo: 158
-                  hi: 160
-                id: 20
-              span:
-                lo: 136
-                hi: 160
-              id: 21
-          - - foo
-            - annotations:
-                - identifier: "{\"id\":\"22\",\"name\":\"program\",\"span\":\"{\\\"lo\\\":171,\\\"hi\\\":178}\"}"
-                  span:
-                    lo: 170
-                    hi: 178
-                  id: 23
-              variant: Function
-              identifier: "{\"id\":\"24\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":192,\\\"hi\\\":195}\"}"
-              input: []
-              output:
-                - mode: None
-                  type_:
-                    Integer: U8
-                  span:
-                    lo: 201
-                    hi: 203
-                  id: 25
-              output_type:
-                Integer: U8
-              block:
-                statements: []
-                span:
-                  lo: 204
-                  hi: 206
-                id: 26
-              span:
-                lo: 183
-                hi: 206
-              id: 27
-        span:
-          lo: 2
-          hi: 208
+namespace = "Parse"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.imports]
+
+[outputs.stubs]
+
+[outputs.program_scopes.test]
+program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
+consts = []
+structs = []
+mappings = []
+functions = [
+    [
+    "mint",
+    { annotations = [], variant = "Transition", identifier = '{"id":"12","name":"mint","span":"{\"lo\":101,\"hi\":105}"}', input = [], id = 15, output = [{ mode = "None", id = 13, type_ = { Integer = "U8" }, span = { lo = 111, hi = 113 } }], output_type = { Integer = "U8" }, block = { statements = [], id = 14, span = { lo = 114, hi = 116 } }, span = { lo = 90, hi = 116 } },
+],
+    [
+    "foo",
+    { variant = "Function", identifier = '{"id":"8","name":"foo","span":"{\"lo\":66,\"hi\":69}"}', input = [], id = 11, annotations = [
+    { identifier = '{"id":"2","name":"foo","span":"{\"lo\":31,\"hi\":34}"}', id = 3, span = { lo = 30, hi = 34 } },
+    { identifier = '{"id":"4","name":"bar","span":"{\"lo\":40,\"hi\":43}"}', id = 5, span = { lo = 39, hi = 43 } },
+    { identifier = '{"id":"6","name":"baz","span":"{\"lo\":49,\"hi\":52}"}', id = 7, span = { lo = 48, hi = 52 } },
+], output = [{ mode = "None", id = 9, type_ = { Integer = "U8" }, span = { lo = 75, hi = 77 } }], output_type = { Integer = "U8" }, block = { statements = [], id = 10, span = { lo = 78, hi = 80 } }, span = { lo = 57, hi = 80 } },
+],
+    [
+    "test",
+    { variant = "Function", identifier = '{"id":"18","name":"test","span":"{\"lo\":145,\"hi\":149}"}', input = [], id = 21, annotations = [{ identifier = '{"id":"16","name":"test","span":"{\"lo\":127,\"hi\":131}"}', id = 17, span = { lo = 126, hi = 131 } }], output = [{ mode = "None", id = 19, type_ = { Integer = "U8" }, span = { lo = 155, hi = 157 } }], output_type = { Integer = "U8" }, block = { statements = [], id = 20, span = { lo = 158, hi = 160 } }, span = { lo = 136, hi = 160 } },
+],
+    [
+    "foo",
+    { variant = "Function", identifier = '{"id":"24","name":"foo","span":"{\"lo\":192,\"hi\":195}"}', input = [], id = 27, annotations = [{ identifier = '{"id":"22","name":"program","span":"{\"lo\":171,\"hi\":178}"}', id = 23, span = { lo = 170, hi = 178 } }], output = [{ mode = "None", id = 25, type_ = { Integer = "U8" }, span = { lo = 201, hi = 203 } }], output_type = { Integer = "U8" }, block = { statements = [], id = 26, span = { lo = 204, hi = 206 } }, span = { lo = 183, hi = 206 } },
+],
+]
+
+[outputs.program_scopes.test.span]
+lo = 2
+hi = 208

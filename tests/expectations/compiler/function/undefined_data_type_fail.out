@@ -1,5 +1,37 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372017]: The type `Board` is not found in the current scope.\n    --> compiler-test:4:35\n     |\n   4 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {\n     |                                   ^\n     |\n     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`\nError [ETYC0372017]: The type `Board` is not found in the current scope.\n    --> compiler-test:4:35\n     |\n   4 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {\n     |                                   ^\n     |\n     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`\nError [ETYC0372017]: The type `u128bool` is not found in the current scope.\n    --> compiler-test:4:55\n     |\n   4 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {\n     |                                                       ^^^^^^^^\n     |\n     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`\nError [ETYC0372005]: Unknown variable `test`\n    --> compiler-test:5:16\n     |\n   5 |         return test;\n     |                ^^^^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {\n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372017]: The type `Board` is not found in the current scope.
+    --> compiler-test:4:35
+     |
+   4 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {
+     |                                   ^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `Board` is not found in the current scope.
+    --> compiler-test:4:35
+     |
+   4 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {
+     |                                   ^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `u128bool` is not found in the current scope.
+    --> compiler-test:4:55
+     |
+   4 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {
+     |                                                       ^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372005]: Unknown variable `test`
+    --> compiler-test:5:16
+     |
+   5 |         return test;
+     |                ^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {
+     | ^^^^^^^^^^^^
+"""]

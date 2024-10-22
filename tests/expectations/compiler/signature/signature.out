@@ -1,18 +1,35 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 70a3be0d7dcfa274581f374e661b48f26ed51cb4532c9566e0de9d76eb8c1cb9
-          type_checked_symbol_table: 0a541ea8d67a3cab711d7ec8cb1cf264c1ec58c5a08d43efb9970b38b37f2260
-          unrolled_symbol_table: 0a541ea8d67a3cab711d7ec8cb1cf264c1ec58c5a08d43efb9970b38b37f2260
-          initial_ast: eaba8c7e44dacd5223292622bdb6d6f372dea1d9d113f091fbcfc8b61ca96039
-          unrolled_ast: eaba8c7e44dacd5223292622bdb6d6f372dea1d9d113f091fbcfc8b61ca96039
-          ssa_ast: 1d8578ea33d84f2462b0d59ed44801a07f335a64596b919926e921943324f821
-          flattened_ast: e557a38874f1309f1096546ebfb13100af7770ca3c43bdf1d6b473e7ea0d803b
-          destructured_ast: 5b538c9ed88a40b1edd4637f54285fdd57c6ff958eadcba54df999d8ead20f3d
-          inlined_ast: 5b538c9ed88a40b1edd4637f54285fdd57c6ff958eadcba54df999d8ead20f3d
-          dce_ast: 2949f1e4a4122944d8290090c64803da4b01a906ae80f638bfc1ec476c532c9b
-          bytecode: 9a042a6076c83bb376f10443261e56704956030b03df62da5d5f4742ac10c74d
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "70a3be0d7dcfa274581f374e661b48f26ed51cb4532c9566e0de9d76eb8c1cb9", type_checked_symbol_table = "0a541ea8d67a3cab711d7ec8cb1cf264c1ec58c5a08d43efb9970b38b37f2260", unrolled_symbol_table = "0a541ea8d67a3cab711d7ec8cb1cf264c1ec58c5a08d43efb9970b38b37f2260", initial_ast = "eaba8c7e44dacd5223292622bdb6d6f372dea1d9d113f091fbcfc8b61ca96039", unrolled_ast = "eaba8c7e44dacd5223292622bdb6d6f372dea1d9d113f091fbcfc8b61ca96039", ssa_ast = "1d8578ea33d84f2462b0d59ed44801a07f335a64596b919926e921943324f821", flattened_ast = "e557a38874f1309f1096546ebfb13100af7770ca3c43bdf1d6b473e7ea0d803b", destructured_ast = "5b538c9ed88a40b1edd4637f54285fdd57c6ff958eadcba54df999d8ead20f3d", inlined_ast = "5b538c9ed88a40b1edd4637f54285fdd57c6ff958eadcba54df999d8ead20f3d", dce_ast = "2949f1e4a4122944d8290090c64803da4b01a906ae80f638bfc1ec476c532c9b", bytecode = """
+program test.aleo;
+
+struct foo:
+    a as u8;
+    b as scalar;
+
+
+function verify_field:
+    input r0 as signature.private;
+    input r1 as address.private;
+    input r2 as field.private;
+    sign.verify r0 r1 r2 into r3;
+    sign.verify r0 r1 r2 into r4;
+    assert.eq r3 r4;
+
+
+function verify_foo:
+    input r0 as signature.private;
+    input r1 as address.private;
+    input r2 as foo.private;
+    sign.verify r0 r1 r2 into r3;
+    sign.verify r0 r1 r2 into r4;
+    assert.eq r3 r4;
+
+
+function literal_ops_on_signature:
+    input r0 as boolean.private;
+    input r1 as signature.private;
+    input r2 as signature.private;
+    ternary r0 r1 r2 into r3;
+    output r3 as signature.private;
+""", errors = "", warnings = "" }] }]]

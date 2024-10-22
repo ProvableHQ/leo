@@ -1,5 +1,8 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected ; -- found '}'\n    --> compiler-test:17:5\n     |\n  17 |     }}\n     |     ^"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370005]: expected ; -- found '}'
+    --> compiler-test:17:5
+     |
+  17 |     }}
+     |     ^"""]

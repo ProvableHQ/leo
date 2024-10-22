@@ -15,8 +15,8 @@ incorrect) Leo code. What makes Leo file a test is a block comment at the top of
 
 ```
 /*
-namespace: Parse
-expectation: Pass
+namespace = "Parse"
+expectation = "Pass"
 */
 
 struct X {
@@ -25,7 +25,7 @@ struct X {
 }
 ```
 
-This comment contains YAML structure with set of mandatory and optional fields.
+This comment is a TOML document with some mandatory and optional fields.
 
 ## Test Expectations
 
@@ -43,17 +43,7 @@ generated instead. A PR should contain changes to expectations as well as to tes
 
 ## Test Configuration
 
-Here is the list of all possible configuration options for compiler and parser tests.
-
-### namespace
-
-```yaml
-- Mandatory: yes
-- Namespace: all
-- Values: ...
-```
-
-Several values are supported, but they vary depending on the directory you are in.
+There are several different values for the `namespace` test option.
 
 Parser Directory namespaces:
 

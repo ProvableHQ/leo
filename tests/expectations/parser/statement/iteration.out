@@ -1,168 +1,192 @@
----
-namespace: ParseStatement
-expectation: Pass
-outputs:
-  - Iteration:
-      variable: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: U8
-      start:
-        Literal:
-          Integer:
-            - U8
-            - "0"
-            - span:
-                lo: 13
-                hi: 16
-            - 1
-      stop:
-        Literal:
-          Integer:
-            - U8
-            - "7"
-            - span:
-                lo: 18
-                hi: 21
-            - 2
-      inclusive: false
-      block:
-        statements: []
-        span:
-          lo: 22
-          hi: 24
-        id: 3
-      span:
-        lo: 0
-        hi: 24
-      id: 4
-  - Iteration:
-      variable: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: I64
-      start:
-        Literal:
-          Integer:
-            - I64
-            - "0"
-            - span:
-                lo: 14
-                hi: 18
-            - 1
-      stop:
-        Literal:
-          Integer:
-            - I64
-            - "7"
-            - span:
-                lo: 20
-                hi: 24
-            - 2
-      inclusive: false
-      block:
-        statements:
-          - Return:
-              expression:
-                Literal:
-                  Integer:
-                    - U8
-                    - "1"
-                    - span:
-                        lo: 34
-                        hi: 37
-                    - 3
-              span:
-                lo: 27
-                hi: 38
-              id: 4
-        span:
-          lo: 25
-          hi: 40
-        id: 5
-      span:
-        lo: 0
-        hi: 40
-      id: 6
-  - Iteration:
-      variable: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: Field
-      start:
-        Literal:
-          Field:
-            - "0"
-            - span:
-                lo: 16
-                hi: 22
-            - 1
-      stop:
-        Literal:
-          Integer:
-            - U8
-            - "99"
-            - span:
-                lo: 24
-                hi: 28
-            - 2
-      inclusive: false
-      block:
-        statements:
-          - Return:
-              expression:
-                Literal:
-                  Integer:
-                    - U8
-                    - "1"
-                    - span:
-                        lo: 38
-                        hi: 41
-                    - 3
-              span:
-                lo: 31
-                hi: 42
-              id: 4
-        span:
-          lo: 29
-          hi: 44
-        id: 5
-      span:
-        lo: 0
-        hi: 44
-      id: 6
-  - Iteration:
-      variable: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: Boolean
-      start:
-        Literal:
-          Integer:
-            - U8
-            - "0"
-            - span:
-                lo: 15
-                hi: 18
-            - 1
-      stop:
-        Identifier: "{\"id\":\"2\",\"name\":\"Self\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":24}\"}"
-      inclusive: false
-      block:
-        statements:
-          - Return:
-              expression:
-                Literal:
-                  Integer:
-                    - U8
-                    - "1"
-                    - span:
-                        lo: 34
-                        hi: 37
-                    - 3
-              span:
-                lo: 27
-                hi: 38
-              id: 4
-        span:
-          lo: 25
-          hi: 40
-        id: 5
-      span:
-        lo: 0
-        hi: 40
-      id: 6
+namespace = "ParseStatement"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Iteration]
+variable = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+inclusive = false
+id = 4
+
+[outputs.Iteration.type_]
+Integer = "U8"
+
+[outputs.Iteration.start.Literal]
+Integer = [
+    "U8",
+    "0",
+    { span = { lo = 13, hi = 16 } },
+    1,
+]
+
+[outputs.Iteration.stop.Literal]
+Integer = [
+    "U8",
+    "7",
+    { span = { lo = 18, hi = 21 } },
+    2,
+]
+
+[outputs.Iteration.block]
+statements = []
+id = 3
+
+[outputs.Iteration.block.span]
+lo = 22
+hi = 24
+
+[outputs.Iteration.span]
+lo = 0
+hi = 24
+
+[[outputs]]
+
+[outputs.Iteration]
+variable = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+inclusive = false
+id = 6
+
+[outputs.Iteration.type_]
+Integer = "I64"
+
+[outputs.Iteration.start.Literal]
+Integer = [
+    "I64",
+    "0",
+    { span = { lo = 14, hi = 18 } },
+    1,
+]
+
+[outputs.Iteration.stop.Literal]
+Integer = [
+    "I64",
+    "7",
+    { span = { lo = 20, hi = 24 } },
+    2,
+]
+
+[outputs.Iteration.block]
+id = 5
+
+[[outputs.Iteration.block.statements]]
+
+[outputs.Iteration.block.statements.Return]
+id = 4
+
+[outputs.Iteration.block.statements.Return.expression.Literal]
+Integer = [
+    "U8",
+    "1",
+    { span = { lo = 34, hi = 37 } },
+    3,
+]
+
+[outputs.Iteration.block.statements.Return.span]
+lo = 27
+hi = 38
+
+[outputs.Iteration.block.span]
+lo = 25
+hi = 40
+
+[outputs.Iteration.span]
+lo = 0
+hi = 40
+
+[[outputs]]
+
+[outputs.Iteration]
+variable = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+type_ = "Field"
+inclusive = false
+id = 6
+
+[outputs.Iteration.start.Literal]
+Field = [
+    "0",
+    { span = { lo = 16, hi = 22 } },
+    1,
+]
+
+[outputs.Iteration.stop.Literal]
+Integer = [
+    "U8",
+    "99",
+    { span = { lo = 24, hi = 28 } },
+    2,
+]
+
+[outputs.Iteration.block]
+id = 5
+
+[[outputs.Iteration.block.statements]]
+
+[outputs.Iteration.block.statements.Return]
+id = 4
+
+[outputs.Iteration.block.statements.Return.expression.Literal]
+Integer = [
+    "U8",
+    "1",
+    { span = { lo = 38, hi = 41 } },
+    3,
+]
+
+[outputs.Iteration.block.statements.Return.span]
+lo = 31
+hi = 42
+
+[outputs.Iteration.block.span]
+lo = 29
+hi = 44
+
+[outputs.Iteration.span]
+lo = 0
+hi = 44
+
+[[outputs]]
+
+[outputs.Iteration]
+variable = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+type_ = "Boolean"
+inclusive = false
+id = 6
+
+[outputs.Iteration.start.Literal]
+Integer = [
+    "U8",
+    "0",
+    { span = { lo = 15, hi = 18 } },
+    1,
+]
+
+[outputs.Iteration.stop]
+Identifier = '{"id":"2","name":"Self","span":"{\"lo\":20,\"hi\":24}"}'
+
+[outputs.Iteration.block]
+id = 5
+
+[[outputs.Iteration.block.statements]]
+
+[outputs.Iteration.block.statements.Return]
+id = 4
+
+[outputs.Iteration.block.statements.Return.expression.Literal]
+Integer = [
+    "U8",
+    "1",
+    { span = { lo = 34, hi = 37 } },
+    3,
+]
+
+[outputs.Iteration.block.statements.Return.span]
+lo = 27
+hi = 38
+
+[outputs.Iteration.block.span]
+lo = 25
+hi = 40
+
+[outputs.Iteration.span]
+lo = 0
+hi = 40

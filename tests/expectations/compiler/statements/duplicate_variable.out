@@ -1,5 +1,16 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EAST0372009]: variable `x` shadowed by\n    --> compiler-test:6:12\n     |\n   6 |       \tlet x: bool = true;\n     |            ^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EAST0372009]: variable `x` shadowed by
+    --> compiler-test:6:12
+     |
+   6 |       \tlet x: bool = true;
+     |            ^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {    
+     | ^^^^^^^^^^^^
+"""]

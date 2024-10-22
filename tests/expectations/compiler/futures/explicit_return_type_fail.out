@@ -1,5 +1,27 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372106]: An async function is not allowed to return a value.\n    --> compiler-test:10:5\n     |\n  10 |     async function finalize() -> Future {\n  11 |         Mapping::set(foo, 1u32, 1u32);\n  12 |     }\n     |     ^\n     |\n     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.\nError [ETYC0372110]: A `transition` cannot return a future.\n    --> compiler-test:10:34\n     |\n  10 |     async function finalize() -> Future {\n     |                                  ^^^^^^\n     |\n     = Use an `async transition` instead.\nError [ETYC0372036]: Function must return a value.\n    --> compiler-test:10:5\n     |\n  10 |     async function finalize() -> Future {\n  11 |         Mapping::set(foo, 1u32, 1u32);\n  12 |     }\n     |     ^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372106]: An async function is not allowed to return a value.
+    --> compiler-test:10:5
+     |
+  10 |     async function finalize() -> Future {
+  11 |         Mapping::set(foo, 1u32, 1u32);
+  12 |     }
+     |     ^
+     |
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
+Error [ETYC0372110]: A `transition` cannot return a future.
+    --> compiler-test:10:34
+     |
+  10 |     async function finalize() -> Future {
+     |                                  ^^^^^^
+     |
+     = Use an `async transition` instead.
+Error [ETYC0372036]: Function must return a value.
+    --> compiler-test:10:5
+     |
+  10 |     async function finalize() -> Future {
+  11 |         Mapping::set(foo, 1u32, 1u32);
+  12 |     }
+     |     ^
+"""]

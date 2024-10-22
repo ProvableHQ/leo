@@ -1,5 +1,21 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372007]: Expected one type from `address, bool, field, group, struct, integer, scalar, struct`, but got `u128`\n    --> compiler-test:5:50\n     |\n   5 |         let a: group = Pedersen64::hash_to_field(1u128); // Pedersen64 hash_to_field returns a field type\n     |                                                  ^^^^^\nError [ETYC0372003]: Expected type `group` but type `field` was found\n    --> compiler-test:5:24\n     |\n   5 |         let a: group = Pedersen64::hash_to_field(1u128); // Pedersen64 hash_to_field returns a field type\n     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372007]: Expected one type from `address, bool, field, group, struct, integer, scalar, struct`, but got `u128`
+    --> compiler-test:5:50
+     |
+   5 |         let a: group = Pedersen64::hash_to_field(1u128); // Pedersen64 hash_to_field returns a field type
+     |                                                  ^^^^^
+Error [ETYC0372003]: Expected type `group` but type `field` was found
+    --> compiler-test:5:24
+     |
+   5 |         let a: group = Pedersen64::hash_to_field(1u128); // Pedersen64 hash_to_field returns a field type
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {    
+     | ^^^^^^^^^^^^
+"""]

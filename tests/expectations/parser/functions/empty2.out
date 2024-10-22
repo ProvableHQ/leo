@@ -1,41 +1,22 @@
----
-namespace: Parse
-expectation: Pass
-outputs:
-  - imports: {}
-    stubs: {}
-    program_scopes:
-      test:
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
-        consts: []
-        structs: []
-        mappings: []
-        functions:
-          - - x
-            - annotations: []
-              variant: Function
-              identifier: "{\"id\":\"2\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
-              input: []
-              output:
-                - mode: None
-                  type_:
-                    Integer: U8
-                  span:
-                    lo: 46
-                    hi: 48
-                  id: 3
-              output_type:
-                Integer: U8
-              block:
-                statements: []
-                span:
-                  lo: 49
-                  hi: 51
-                id: 4
-              span:
-                lo: 30
-                hi: 51
-              id: 5
-        span:
-          lo: 2
-          hi: 52
+namespace = "Parse"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.imports]
+
+[outputs.stubs]
+
+[outputs.program_scopes.test]
+program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
+consts = []
+structs = []
+mappings = []
+functions = [[
+    "x",
+    { annotations = [], variant = "Function", identifier = '{"id":"2","name":"x","span":"{\"lo\":39,\"hi\":40}"}', input = [], id = 5, output = [{ mode = "None", id = 3, type_ = { Integer = "U8" }, span = { lo = 46, hi = 48 } }], output_type = { Integer = "U8" }, block = { statements = [], id = 4, span = { lo = 49, hi = 51 } }, span = { lo = 30, hi = 51 } },
+]]
+
+[outputs.program_scopes.test.span]
+lo = 2
+hi = 52

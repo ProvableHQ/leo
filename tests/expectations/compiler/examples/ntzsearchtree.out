@@ -1,18 +1,213 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 6d4128f767004e76e8281fa6a257c0513c8d8c48c96ae759718aff96a782502b
-          type_checked_symbol_table: ca8fdc648a235b01466e0aa6306ce0d663bc2caf3bacdace0653048f8ec65b38
-          unrolled_symbol_table: ca8fdc648a235b01466e0aa6306ce0d663bc2caf3bacdace0653048f8ec65b38
-          initial_ast: 22e5ae5968afbbe73a278a85fbbe7839c91f8a6ae8b2a2ebc47b0f7c27b7b32c
-          unrolled_ast: 22e5ae5968afbbe73a278a85fbbe7839c91f8a6ae8b2a2ebc47b0f7c27b7b32c
-          ssa_ast: 1d4d764ebef58dd5f4ffa0fec746dc14ac6511394399d099ef901774cb23e687
-          flattened_ast: 22bf54b3fd741c5d4c7c41f0f029e3c5e3fe476dcb7a69b7f96e891a94cd7ab8
-          destructured_ast: c8340275d74390e77c3fc70512a9cafaa704b2a9a05d3163e8617bc601e50026
-          inlined_ast: c8340275d74390e77c3fc70512a9cafaa704b2a9a05d3163e8617bc601e50026
-          dce_ast: 6afbd919c00857be865c40edd9079d02dd02d7051f568bfe45d1baccfc4b4bf7
-          bytecode: 0f55fff9989f92de241c4d91c5ac9c347b96c89b9615fb7e570b1b0d0021d5c1
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "6d4128f767004e76e8281fa6a257c0513c8d8c48c96ae759718aff96a782502b", type_checked_symbol_table = "ca8fdc648a235b01466e0aa6306ce0d663bc2caf3bacdace0653048f8ec65b38", unrolled_symbol_table = "ca8fdc648a235b01466e0aa6306ce0d663bc2caf3bacdace0653048f8ec65b38", initial_ast = "22e5ae5968afbbe73a278a85fbbe7839c91f8a6ae8b2a2ebc47b0f7c27b7b32c", unrolled_ast = "22e5ae5968afbbe73a278a85fbbe7839c91f8a6ae8b2a2ebc47b0f7c27b7b32c", ssa_ast = "1d4d764ebef58dd5f4ffa0fec746dc14ac6511394399d099ef901774cb23e687", flattened_ast = "22bf54b3fd741c5d4c7c41f0f029e3c5e3fe476dcb7a69b7f96e891a94cd7ab8", destructured_ast = "c8340275d74390e77c3fc70512a9cafaa704b2a9a05d3163e8617bc601e50026", inlined_ast = "c8340275d74390e77c3fc70512a9cafaa704b2a9a05d3163e8617bc601e50026", dce_ast = "6afbd919c00857be865c40edd9079d02dd02d7051f568bfe45d1baccfc4b4bf7", bytecode = """
+program test.aleo;
+
+
+
+function main:
+    input r0 as u32.public;
+    and r0 65535u32 into r1;
+    is.neq r1 0u32 into r2;
+    and r0 255u32 into r3;
+    is.neq r3 0u32 into r4;
+    and r0 15u32 into r5;
+    is.neq r5 0u32 into r6;
+    and r0 3u32 into r7;
+    is.neq r7 0u32 into r8;
+    and r0 1u32 into r9;
+    is.neq r9 0u32 into r10;
+    and r2 r4 into r11;
+    and r11 r6 into r12;
+    and r12 r8 into r13;
+    and r13 r10 into r14;
+    not r10 into r15;
+    and r13 r15 into r16;
+    not r8 into r17;
+    and r0 4u32 into r18;
+    is.neq r18 0u32 into r19;
+    and r12 r17 into r20;
+    and r20 r19 into r21;
+    not r19 into r22;
+    and r20 r22 into r23;
+    not r6 into r24;
+    and r0 48u32 into r25;
+    is.neq r25 0u32 into r26;
+    and r0 16u32 into r27;
+    is.neq r27 0u32 into r28;
+    and r11 r24 into r29;
+    and r29 r26 into r30;
+    and r30 r28 into r31;
+    not r28 into r32;
+    and r30 r32 into r33;
+    not r26 into r34;
+    and r0 64u32 into r35;
+    is.neq r35 0u32 into r36;
+    and r29 r34 into r37;
+    and r37 r36 into r38;
+    not r36 into r39;
+    and r37 r39 into r40;
+    not r4 into r41;
+    and r0 3840u32 into r42;
+    is.neq r42 0u32 into r43;
+    and r0 768u32 into r44;
+    is.neq r44 0u32 into r45;
+    and r0 256u32 into r46;
+    is.neq r46 0u32 into r47;
+    and r2 r41 into r48;
+    and r48 r43 into r49;
+    and r49 r45 into r50;
+    and r50 r47 into r51;
+    not r47 into r52;
+    and r50 r52 into r53;
+    not r45 into r54;
+    and r0 1024u32 into r55;
+    is.neq r55 0u32 into r56;
+    and r49 r54 into r57;
+    and r57 r56 into r58;
+    not r56 into r59;
+    and r57 r59 into r60;
+    not r43 into r61;
+    and r0 12288u32 into r62;
+    is.neq r62 0u32 into r63;
+    and r0 4096u32 into r64;
+    is.neq r64 0u32 into r65;
+    and r48 r61 into r66;
+    and r66 r63 into r67;
+    and r67 r65 into r68;
+    not r65 into r69;
+    and r67 r69 into r70;
+    not r63 into r71;
+    and r0 16384u32 into r72;
+    is.neq r72 0u32 into r73;
+    and r66 r71 into r74;
+    and r74 r73 into r75;
+    not r73 into r76;
+    and r74 r76 into r77;
+    not r2 into r78;
+    mul 255u32 65536u32 into r79;
+    and r0 r79 into r80;
+    is.neq r80 0u32 into r81;
+    mul 15u32 65536u32 into r82;
+    and r0 r82 into r83;
+    is.neq r83 0u32 into r84;
+    mul 3u32 65536u32 into r85;
+    and r0 r85 into r86;
+    is.neq r86 0u32 into r87;
+    mul 1u32 65536u32 into r88;
+    and r0 r88 into r89;
+    is.neq r89 0u32 into r90;
+    and r78 r81 into r91;
+    and r91 r84 into r92;
+    and r92 r87 into r93;
+    and r93 r90 into r94;
+    not r90 into r95;
+    and r93 r95 into r96;
+    not r87 into r97;
+    mul 4u32 65536u32 into r98;
+    and r0 r98 into r99;
+    is.neq r99 0u32 into r100;
+    and r92 r97 into r101;
+    and r101 r100 into r102;
+    not r100 into r103;
+    and r101 r103 into r104;
+    not r84 into r105;
+    mul 48u32 65536u32 into r106;
+    and r0 r106 into r107;
+    is.neq r107 0u32 into r108;
+    mul 16u32 65536u32 into r109;
+    and r0 r109 into r110;
+    is.neq r110 0u32 into r111;
+    and r91 r105 into r112;
+    and r112 r108 into r113;
+    and r113 r111 into r114;
+    not r111 into r115;
+    and r113 r115 into r116;
+    not r108 into r117;
+    mul 64u32 65536u32 into r118;
+    and r0 r118 into r119;
+    is.neq r119 0u32 into r120;
+    and r112 r117 into r121;
+    and r121 r120 into r122;
+    not r120 into r123;
+    and r121 r123 into r124;
+    not r81 into r125;
+    mul 3840u32 65536u32 into r126;
+    and r0 r126 into r127;
+    is.neq r127 0u32 into r128;
+    mul 768u32 65536u32 into r129;
+    and r0 r129 into r130;
+    is.neq r130 0u32 into r131;
+    mul 256u32 65536u32 into r132;
+    and r0 r132 into r133;
+    is.neq r133 0u32 into r134;
+    and r78 r125 into r135;
+    and r135 r128 into r136;
+    and r136 r131 into r137;
+    and r137 r134 into r138;
+    not r134 into r139;
+    and r137 r139 into r140;
+    not r131 into r141;
+    mul 1024u32 65536u32 into r142;
+    and r0 r142 into r143;
+    is.neq r143 0u32 into r144;
+    and r136 r141 into r145;
+    and r145 r144 into r146;
+    not r144 into r147;
+    and r145 r147 into r148;
+    not r128 into r149;
+    mul 12288u32 65536u32 into r150;
+    and r0 r150 into r151;
+    is.neq r151 0u32 into r152;
+    mul 4096u32 65536u32 into r153;
+    and r0 r153 into r154;
+    is.neq r154 0u32 into r155;
+    and r135 r149 into r156;
+    and r156 r152 into r157;
+    and r157 r155 into r158;
+    not r155 into r159;
+    and r157 r159 into r160;
+    not r152 into r161;
+    mul 16384u32 65536u32 into r162;
+    and r0 r162 into r163;
+    is.neq r163 0u32 into r164;
+    and r156 r161 into r165;
+    and r165 r164 into r166;
+    not r164 into r167;
+    is.neq r0 0u32 into r168;
+    and r165 r167 into r169;
+    and r169 r168 into r170;
+    ternary r170 31u8 32u8 into r171;
+    ternary r166 30u8 r171 into r172;
+    ternary r160 29u8 r172 into r173;
+    ternary r158 28u8 r173 into r174;
+    ternary r148 27u8 r174 into r175;
+    ternary r146 26u8 r175 into r176;
+    ternary r140 25u8 r176 into r177;
+    ternary r138 24u8 r177 into r178;
+    ternary r124 23u8 r178 into r179;
+    ternary r122 22u8 r179 into r180;
+    ternary r116 21u8 r180 into r181;
+    ternary r114 20u8 r181 into r182;
+    ternary r104 19u8 r182 into r183;
+    ternary r102 18u8 r183 into r184;
+    ternary r96 17u8 r184 into r185;
+    ternary r94 16u8 r185 into r186;
+    ternary r77 15u8 r186 into r187;
+    ternary r75 14u8 r187 into r188;
+    ternary r70 13u8 r188 into r189;
+    ternary r68 12u8 r189 into r190;
+    ternary r60 11u8 r190 into r191;
+    ternary r58 10u8 r191 into r192;
+    ternary r53 9u8 r192 into r193;
+    ternary r51 8u8 r193 into r194;
+    ternary r40 7u8 r194 into r195;
+    ternary r38 6u8 r195 into r196;
+    ternary r33 5u8 r196 into r197;
+    ternary r31 4u8 r197 into r198;
+    ternary r23 3u8 r198 into r199;
+    ternary r21 2u8 r199 into r200;
+    ternary r16 1u8 r200 into r201;
+    ternary r14 0u8 r201 into r202;
+    output r202 as u8.private;
+""", errors = "", warnings = "" }] }]]

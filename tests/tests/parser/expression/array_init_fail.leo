@@ -1,7 +1,7 @@
 
 /*
-namespace: ParseExpression
-expectation: Fail
+namespace = "ParseExpression"
+expectation = "Fail"
 */
 
 [...0u8; 1]

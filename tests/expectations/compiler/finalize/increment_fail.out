@@ -1,5 +1,15 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372005]: Unknown function `increment`\n    --> compiler-test:11:9\n     |\n  11 |         increment(amounts, addr, amount);\n     |         ^^^^^^^^^\nWarning [WPAR0370001]: The keyword `increment` is deprecated.\n    --> compiler-test:11:9\n     |\n  11 |         increment(amounts, addr, amount);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n     |\n     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings."
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372005]: Unknown function `increment`
+    --> compiler-test:11:9
+     |
+  11 |         increment(amounts, addr, amount);
+     |         ^^^^^^^^^
+Warning [WPAR0370001]: The keyword `increment` is deprecated.
+    --> compiler-test:11:9
+     |
+  11 |         increment(amounts, addr, amount);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings."""]

@@ -1,102 +1,137 @@
----
-namespace: ParseStatement
-expectation: Pass
-outputs:
-  - Block:
-      statements: []
-      span:
-        lo: 0
-        hi: 2
-      id: 0
-  - Block:
-      statements:
-        - Return:
-            expression:
-              Literal:
-                Integer:
-                  - U8
-                  - "0"
-                  - span:
-                      lo: 9
-                      hi: 12
-                  - 0
-            span:
-              lo: 2
-              hi: 13
-            id: 1
-      span:
-        lo: 0
-        hi: 15
-      id: 2
-  - Block:
-      statements:
-        - Block:
-            statements: []
-            span:
-              lo: 1
-              hi: 3
-            id: 0
-      span:
-        lo: 0
-        hi: 4
-      id: 1
-  - Block:
-      statements:
-        - Block:
-            statements:
-              - Return:
-                  expression:
-                    Literal:
-                      Integer:
-                        - U8
-                        - "0"
-                        - span:
-                            lo: 11
-                            hi: 14
-                        - 0
-                  span:
-                    lo: 4
-                    hi: 15
-                  id: 1
-            span:
-              lo: 2
-              hi: 17
-            id: 2
-      span:
-        lo: 0
-        hi: 19
-      id: 3
-  - Block:
-      statements:
-        - Conditional:
-            condition:
-              Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-            then:
-              statements:
-                - Return:
-                    expression:
-                      Literal:
-                        Integer:
-                          - U8
-                          - "0"
-                          - span:
-                              lo: 16
-                              hi: 19
-                          - 1
-                    span:
-                      lo: 9
-                      hi: 20
-                    id: 2
-              span:
-                lo: 7
-                hi: 22
-              id: 3
-            otherwise: ~
-            span:
-              lo: 2
-              hi: 22
-            id: 4
-      span:
-        lo: 0
-        hi: 24
-      id: 5
+namespace = "ParseStatement"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Block]
+statements = []
+id = 0
+
+[outputs.Block.span]
+lo = 0
+hi = 2
+
+[[outputs]]
+
+[outputs.Block]
+id = 2
+
+[[outputs.Block.statements]]
+
+[outputs.Block.statements.Return]
+id = 1
+
+[outputs.Block.statements.Return.expression.Literal]
+Integer = [
+    "U8",
+    "0",
+    { span = { lo = 9, hi = 12 } },
+    0,
+]
+
+[outputs.Block.statements.Return.span]
+lo = 2
+hi = 13
+
+[outputs.Block.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Block]
+id = 1
+
+[[outputs.Block.statements]]
+
+[outputs.Block.statements.Block]
+statements = []
+id = 0
+
+[outputs.Block.statements.Block.span]
+lo = 1
+hi = 3
+
+[outputs.Block.span]
+lo = 0
+hi = 4
+
+[[outputs]]
+
+[outputs.Block]
+id = 3
+
+[[outputs.Block.statements]]
+
+[outputs.Block.statements.Block]
+id = 2
+
+[[outputs.Block.statements.Block.statements]]
+
+[outputs.Block.statements.Block.statements.Return]
+id = 1
+
+[outputs.Block.statements.Block.statements.Return.expression.Literal]
+Integer = [
+    "U8",
+    "0",
+    { span = { lo = 11, hi = 14 } },
+    0,
+]
+
+[outputs.Block.statements.Block.statements.Return.span]
+lo = 4
+hi = 15
+
+[outputs.Block.statements.Block.span]
+lo = 2
+hi = 17
+
+[outputs.Block.span]
+lo = 0
+hi = 19
+
+[[outputs]]
+
+[outputs.Block]
+id = 5
+
+[[outputs.Block.statements]]
+
+[outputs.Block.statements.Conditional]
+id = 4
+
+[outputs.Block.statements.Conditional.condition]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":5,\"hi\":6}"}'
+
+[outputs.Block.statements.Conditional.then]
+id = 3
+
+[[outputs.Block.statements.Conditional.then.statements]]
+
+[outputs.Block.statements.Conditional.then.statements.Return]
+id = 2
+
+[outputs.Block.statements.Conditional.then.statements.Return.expression.Literal]
+Integer = [
+    "U8",
+    "0",
+    { span = { lo = 16, hi = 19 } },
+    1,
+]
+
+[outputs.Block.statements.Conditional.then.statements.Return.span]
+lo = 9
+hi = 20
+
+[outputs.Block.statements.Conditional.then.span]
+lo = 7
+hi = 22
+
+[outputs.Block.statements.Conditional.span]
+lo = 2
+hi = 22
+
+[outputs.Block.span]
+lo = 0
+hi = 24

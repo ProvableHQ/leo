@@ -1,5 +1,29 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372055]: The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements.\n    --> compiler-test:6:9\n     |\n   6 |         let b: () = ();\n     |         ^^^^^^^^^^^^^^\nError [ETYC0372056]: Unit expressions can only be used in return statements.\n    --> compiler-test:6:21\n     |\n   6 |         let b: () = ();\n     |                     ^^\nError [ETYC0372055]: The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements.\n    --> compiler-test:11:9\n     |\n  11 |         let b: () = bar();\n     |         ^^^^^^^^^^^^^^^^^\nError [ETYC0372043]: Cannot call a local transition function from a transition function.\n    --> compiler-test:11:21\n     |\n  11 |         let b: () = bar();\n     |                     ^^^^^\nError [ETYC0372006]: Call expected `1` args, but got `0`\n    --> compiler-test:11:21\n     |\n  11 |         let b: () = bar();\n     |                     ^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372055]: The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements.
+    --> compiler-test:6:9
+     |
+   6 |         let b: () = ();
+     |         ^^^^^^^^^^^^^^
+Error [ETYC0372056]: Unit expressions can only be used in return statements.
+    --> compiler-test:6:21
+     |
+   6 |         let b: () = ();
+     |                     ^^
+Error [ETYC0372055]: The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements.
+    --> compiler-test:11:9
+     |
+  11 |         let b: () = bar();
+     |         ^^^^^^^^^^^^^^^^^
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:11:21
+     |
+  11 |         let b: () = bar();
+     |                     ^^^^^
+Error [ETYC0372006]: Call expected `1` args, but got `0`
+    --> compiler-test:11:21
+     |
+  11 |         let b: () = bar();
+     |                     ^^^^^
+"""]

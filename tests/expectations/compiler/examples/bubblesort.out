@@ -1,18 +1,109 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 86005cad24ea94a26f04e7899c160ea7ad8f4ebd1e66a17b5c3c07d584fd4e20
-          type_checked_symbol_table: 1369f084c26ee96ae4e7b24f1b1a30e1474e25c854d15a0f80a00dada642c9a4
-          unrolled_symbol_table: 1369f084c26ee96ae4e7b24f1b1a30e1474e25c854d15a0f80a00dada642c9a4
-          initial_ast: 842ee5a0eccd43fb573d43ebc4e48954fccfdc53654b4b668ada246b2bec547c
-          unrolled_ast: 842ee5a0eccd43fb573d43ebc4e48954fccfdc53654b4b668ada246b2bec547c
-          ssa_ast: 6fb2f6a9338c3803b53aebe423e1af4fc412b3b26544a697162aa7224c367b1a
-          flattened_ast: 81de1e35492ac630873b36da8e2e79ca97dea43075d2012a40d6e955a136a372
-          destructured_ast: 96b7297c2564ed6f1cefcd66495d77b1ad8d59522050832058014169abe0ec35
-          inlined_ast: 96b7297c2564ed6f1cefcd66495d77b1ad8d59522050832058014169abe0ec35
-          dce_ast: 55779acb30ca29bcc70005552ff91b6a71361fbe942b97c0cc6e97de16ff3833
-          bytecode: 5adbf2387ed6209b64c8248741f74929f524771803ef803d5d9f9f8fb0d66ee7
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "86005cad24ea94a26f04e7899c160ea7ad8f4ebd1e66a17b5c3c07d584fd4e20", type_checked_symbol_table = "1369f084c26ee96ae4e7b24f1b1a30e1474e25c854d15a0f80a00dada642c9a4", unrolled_symbol_table = "1369f084c26ee96ae4e7b24f1b1a30e1474e25c854d15a0f80a00dada642c9a4", initial_ast = "842ee5a0eccd43fb573d43ebc4e48954fccfdc53654b4b668ada246b2bec547c", unrolled_ast = "842ee5a0eccd43fb573d43ebc4e48954fccfdc53654b4b668ada246b2bec547c", ssa_ast = "6fb2f6a9338c3803b53aebe423e1af4fc412b3b26544a697162aa7224c367b1a", flattened_ast = "81de1e35492ac630873b36da8e2e79ca97dea43075d2012a40d6e955a136a372", destructured_ast = "96b7297c2564ed6f1cefcd66495d77b1ad8d59522050832058014169abe0ec35", inlined_ast = "96b7297c2564ed6f1cefcd66495d77b1ad8d59522050832058014169abe0ec35", dce_ast = "55779acb30ca29bcc70005552ff91b6a71361fbe942b97c0cc6e97de16ff3833", bytecode = """
+program test.aleo;
+
+
+
+function bubble_sort:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    input r3 as u32.private;
+    input r4 as u32.private;
+    input r5 as u32.private;
+    input r6 as u32.private;
+    input r7 as u32.private;
+    lt r1 r0 into r8;
+    ternary r8 r1 r0 into r9;
+    ternary r8 r0 r1 into r10;
+    lt r2 r10 into r11;
+    ternary r11 r2 r10 into r12;
+    ternary r11 r10 r2 into r13;
+    lt r3 r13 into r14;
+    ternary r14 r3 r13 into r15;
+    ternary r14 r13 r3 into r16;
+    lt r4 r16 into r17;
+    ternary r17 r4 r16 into r18;
+    ternary r17 r16 r4 into r19;
+    lt r5 r19 into r20;
+    ternary r20 r5 r19 into r21;
+    ternary r20 r19 r5 into r22;
+    lt r6 r22 into r23;
+    ternary r23 r6 r22 into r24;
+    ternary r23 r22 r6 into r25;
+    lt r7 r25 into r26;
+    ternary r26 r7 r25 into r27;
+    ternary r26 r25 r7 into r28;
+    lt r12 r9 into r29;
+    ternary r29 r12 r9 into r30;
+    ternary r29 r9 r12 into r31;
+    lt r15 r31 into r32;
+    ternary r32 r15 r31 into r33;
+    ternary r32 r31 r15 into r34;
+    lt r18 r34 into r35;
+    ternary r35 r18 r34 into r36;
+    ternary r35 r34 r18 into r37;
+    lt r21 r37 into r38;
+    ternary r38 r21 r37 into r39;
+    ternary r38 r37 r21 into r40;
+    lt r24 r40 into r41;
+    ternary r41 r24 r40 into r42;
+    ternary r41 r40 r24 into r43;
+    lt r27 r43 into r44;
+    ternary r44 r27 r43 into r45;
+    ternary r44 r43 r27 into r46;
+    lt r33 r30 into r47;
+    ternary r47 r33 r30 into r48;
+    ternary r47 r30 r33 into r49;
+    lt r36 r49 into r50;
+    ternary r50 r36 r49 into r51;
+    ternary r50 r49 r36 into r52;
+    lt r39 r52 into r53;
+    ternary r53 r39 r52 into r54;
+    ternary r53 r52 r39 into r55;
+    lt r42 r55 into r56;
+    ternary r56 r42 r55 into r57;
+    ternary r56 r55 r42 into r58;
+    lt r45 r58 into r59;
+    ternary r59 r45 r58 into r60;
+    ternary r59 r58 r45 into r61;
+    lt r51 r48 into r62;
+    ternary r62 r51 r48 into r63;
+    ternary r62 r48 r51 into r64;
+    lt r54 r64 into r65;
+    ternary r65 r54 r64 into r66;
+    ternary r65 r64 r54 into r67;
+    lt r57 r67 into r68;
+    ternary r68 r57 r67 into r69;
+    ternary r68 r67 r57 into r70;
+    lt r60 r70 into r71;
+    ternary r71 r60 r70 into r72;
+    ternary r71 r70 r60 into r73;
+    lt r66 r63 into r74;
+    ternary r74 r66 r63 into r75;
+    ternary r74 r63 r66 into r76;
+    lt r69 r76 into r77;
+    ternary r77 r69 r76 into r78;
+    ternary r77 r76 r69 into r79;
+    lt r72 r79 into r80;
+    ternary r80 r72 r79 into r81;
+    ternary r80 r79 r72 into r82;
+    lt r78 r75 into r83;
+    ternary r83 r78 r75 into r84;
+    ternary r83 r75 r78 into r85;
+    lt r81 r85 into r86;
+    ternary r86 r81 r85 into r87;
+    ternary r86 r85 r81 into r88;
+    lt r87 r84 into r89;
+    ternary r89 r87 r84 into r90;
+    ternary r89 r84 r87 into r91;
+    output r90 as u32.private;
+    output r91 as u32.private;
+    output r88 as u32.private;
+    output r82 as u32.private;
+    output r73 as u32.private;
+    output r61 as u32.private;
+    output r46 as u32.private;
+    output r28 as u32.private;
+""", errors = "", warnings = "" }] }]]

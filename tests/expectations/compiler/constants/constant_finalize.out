@@ -1,18 +1,33 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 83e7e0873dd72e3da1df2a1a82b891a510ec0016f0e37208c42daca6ecc114d9
-          type_checked_symbol_table: 9cff521828b8695385727d732d8cbc0d877b6158f29582d8fe6716f43fc52dc9
-          unrolled_symbol_table: 9ba51c3ab1f4d8c42d09214355c9b7f0a7ba785e037e2bfb0c536e29afc1a469
-          initial_ast: be00d02ab3c3b889fc1842c26280c35c1d2811e8ad97dfe9aae939cb6e17528d
-          unrolled_ast: 492de3b239329a520383e6f09fc9988dedfecd6709006127af2d32f233a1c76e
-          ssa_ast: 88f0d788cc578eb9255c096157fa8d3e801ba656314f39459a3413de844a52fe
-          flattened_ast: 5e2bd3e32ab5add74daaf4f7d0287d4f987d3ea34a87c953ffc1a3207511e8f6
-          destructured_ast: d49494485feecc89a2dc13fe39e0a904d17e79630f6dd2bc61c03a8fae22967a
-          inlined_ast: 4e916f4e4287ff120cf4c99ab5c6c652e44bc083f1a994d8b9e7118fc3b6c26c
-          dce_ast: 4e916f4e4287ff120cf4c99ab5c6c652e44bc083f1a994d8b9e7118fc3b6c26c
-          bytecode: 1f274ff221668a27f086b94c9485486b9d5fe1374384f9092bb3198632da3b91
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "83e7e0873dd72e3da1df2a1a82b891a510ec0016f0e37208c42daca6ecc114d9", type_checked_symbol_table = "9cff521828b8695385727d732d8cbc0d877b6158f29582d8fe6716f43fc52dc9", unrolled_symbol_table = "9ba51c3ab1f4d8c42d09214355c9b7f0a7ba785e037e2bfb0c536e29afc1a469", initial_ast = "be00d02ab3c3b889fc1842c26280c35c1d2811e8ad97dfe9aae939cb6e17528d", unrolled_ast = "492de3b239329a520383e6f09fc9988dedfecd6709006127af2d32f233a1c76e", ssa_ast = "88f0d788cc578eb9255c096157fa8d3e801ba656314f39459a3413de844a52fe", flattened_ast = "5e2bd3e32ab5add74daaf4f7d0287d4f987d3ea34a87c953ffc1a3207511e8f6", destructured_ast = "d49494485feecc89a2dc13fe39e0a904d17e79630f6dd2bc61c03a8fae22967a", inlined_ast = "4e916f4e4287ff120cf4c99ab5c6c652e44bc083f1a994d8b9e7118fc3b6c26c", dce_ast = "4e916f4e4287ff120cf4c99ab5c6c652e44bc083f1a994d8b9e7118fc3b6c26c", bytecode = """
+program test.aleo;
+
+
+
+mapping account:
+\tkey as address.public;
+\tvalue as u64.public;
+
+
+mapping values:
+\tkey as u8.public;
+\tvalue as u8.public;
+
+
+function finalize_self_caller:
+    async finalize_self_caller self.caller into r0;
+    output r0 as test.aleo/finalize_self_caller.future;
+
+finalize finalize_self_caller:
+    input r0 as address.public;
+    get.or_use values[0u8] 0u8 into r1;
+    add r1 3u8 into r2;
+    add r2 1u8 into r3;
+    add r3 1u8 into r4;
+    set r4 into values[0u8];
+    get.or_use account[r0] 0u64 into r5;
+    add r5 1u64 into r6;
+    set r6 into account[r0];
+
+""", errors = "", warnings = "" }] }]]

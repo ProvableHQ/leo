@@ -1,378 +1,478 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Binary:
-      left:
-        Literal:
-          Integer:
-            - U8
-            - "1"
-            - span:
-                lo: 0
-                hi: 3
-            - 0
-      right:
-        Literal:
-          Integer:
-            - U8
-            - "1"
-            - span:
-                lo: 6
-                hi: 9
-            - 1
-      op: Lt
-      span:
-        lo: 0
-        hi: 9
-      id: 2
-  - Binary:
-      left:
-        Literal:
-          Integer:
-            - U8
-            - "2"
-            - span:
-                lo: 0
-                hi: 3
-            - 0
-      right:
-        Literal:
-          Integer:
-            - U8
-            - "3"
-            - span:
-                lo: 4
-                hi: 7
-            - 1
-      op: Lt
-      span:
-        lo: 0
-        hi: 7
-      id: 2
-  - Binary:
-      left:
-        Binary:
-          left:
-            Literal:
-              Integer:
-                - U8
-                - "1"
-                - span:
-                    lo: 0
-                    hi: 3
-                - 0
-          right:
-            Literal:
-              Integer:
-                - U8
-                - "2"
-                - span:
-                    lo: 6
-                    hi: 9
-                - 1
-          op: Add
-          span:
-            lo: 0
-            hi: 9
-          id: 2
-      right:
-        Binary:
-          left:
-            Literal:
-              Integer:
-                - U8
-                - "3"
-                - span:
-                    lo: 12
-                    hi: 15
-                - 3
-          right:
-            Literal:
-              Integer:
-                - U8
-                - "4"
-                - span:
-                    lo: 18
-                    hi: 21
-                - 4
-          op: Add
-          span:
-            lo: 12
-            hi: 21
-          id: 5
-      op: Lt
-      span:
-        lo: 0
-        hi: 21
-      id: 6
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Lt
-              span:
-                lo: 2
-                hi: 9
-              id: 3
-          op: Negate
-          span:
-            lo: 1
-            hi: 9
-          id: 4
-      op: Not
-      span:
-        lo: 0
-        hi: 9
-      id: 5
-  - Binary:
-      left:
-        Binary:
-          left:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-              op: Lt
-              span:
-                lo: 0
-                hi: 7
-              id: 3
-          right:
-            Identifier: "{\"id\":\"5\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-          op: Lt
-          span:
-            lo: 0
-            hi: 13
-          id: 6
-      right:
-        Identifier: "{\"id\":\"8\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
-      op: Lt
-      span:
-        lo: 0
-        hi: 19
-      id: 9
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-          op: Lt
-          span:
-            lo: 1
-            hi: 8
-          id: 3
-      op: Negate
-      span:
-        lo: 0
-        hi: 8
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Negate
-          span:
-            lo: 1
-            hi: 3
-          id: 1
-      right:
-        Identifier: "{\"id\":\"3\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-      op: Lt
-      span:
-        lo: 1
-        hi: 10
-      id: 4
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: Lt
-          span:
-            lo: 2
-            hi: 9
-          id: 3
-      op: Negate
-      span:
-        lo: 0
-        hi: 9
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Lt
-              span:
-                lo: 2
-                hi: 9
-              id: 3
-          op: Negate
-          span:
-            lo: 1
-            hi: 9
-          id: 4
-      right:
-        Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
-      op: Lt
-      span:
-        lo: 1
-        hi: 16
-      id: 7
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-          op: Lt
-          span:
-            lo: 1
-            hi: 8
-          id: 3
-      op: Not
-      span:
-        lo: 0
-        hi: 8
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
-          span:
-            lo: 1
-            hi: 3
-          id: 1
-      right:
-        Identifier: "{\"id\":\"3\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-      op: Lt
-      span:
-        lo: 1
-        hi: 10
-      id: 4
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: Lt
-          span:
-            lo: 2
-            hi: 9
-          id: 3
-      op: Not
-      span:
-        lo: 0
-        hi: 9
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: Lt
-              span:
-                lo: 2
-                hi: 9
-              id: 3
-          op: Not
-          span:
-            lo: 1
-            hi: 9
-          id: 4
-      right:
-        Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
-      op: Lt
-      span:
-        lo: 1
-        hi: 16
-      id: 7
-  - Binary:
-      left:
-        Binary:
-          left:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-              op: Lt
-              span:
-                lo: 1
-                hi: 8
-              id: 3
-          right:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"4\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
-              right:
-                Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-              op: Lt
-              span:
-                lo: 11
-                hi: 18
-              id: 7
-          op: Lt
-          span:
-            lo: 1
-            hi: 18
-          id: 8
-      right:
-        Binary:
-          left:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"10\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
-              right:
-                Identifier: "{\"id\":\"12\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
-              op: Lt
-              span:
-                lo: 23
-                hi: 30
-              id: 13
-          right:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"14\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":34}\"}"
-              right:
-                Identifier: "{\"id\":\"16\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":39}\"}"
-              op: Lt
-              span:
-                lo: 33
-                hi: 40
-              id: 17
-          op: Lt
-          span:
-            lo: 23
-            hi: 40
-          id: 18
-      op: Lt
-      span:
-        lo: 1
-        hi: 41
-      id: 19
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Binary]
+op = "Lt"
+id = 2
+
+[outputs.Binary.left.Literal]
+Integer = [
+    "U8",
+    "1",
+    { span = { lo = 0, hi = 3 } },
+    0,
+]
+
+[outputs.Binary.right.Literal]
+Integer = [
+    "U8",
+    "1",
+    { span = { lo = 6, hi = 9 } },
+    1,
+]
+
+[outputs.Binary.span]
+lo = 0
+hi = 9
+
+[[outputs]]
+
+[outputs.Binary]
+op = "Lt"
+id = 2
+
+[outputs.Binary.left.Literal]
+Integer = [
+    "U8",
+    "2",
+    { span = { lo = 0, hi = 3 } },
+    0,
+]
+
+[outputs.Binary.right.Literal]
+Integer = [
+    "U8",
+    "3",
+    { span = { lo = 4, hi = 7 } },
+    1,
+]
+
+[outputs.Binary.span]
+lo = 0
+hi = 7
+
+[[outputs]]
+
+[outputs.Binary]
+op = "Lt"
+id = 6
+
+[outputs.Binary.left.Binary]
+op = "Add"
+id = 2
+
+[outputs.Binary.left.Binary.left.Literal]
+Integer = [
+    "U8",
+    "1",
+    { span = { lo = 0, hi = 3 } },
+    0,
+]
+
+[outputs.Binary.left.Binary.right.Literal]
+Integer = [
+    "U8",
+    "2",
+    { span = { lo = 6, hi = 9 } },
+    1,
+]
+
+[outputs.Binary.left.Binary.span]
+lo = 0
+hi = 9
+
+[outputs.Binary.right.Binary]
+op = "Add"
+id = 5
+
+[outputs.Binary.right.Binary.left.Literal]
+Integer = [
+    "U8",
+    "3",
+    { span = { lo = 12, hi = 15 } },
+    3,
+]
+
+[outputs.Binary.right.Binary.right.Literal]
+Integer = [
+    "U8",
+    "4",
+    { span = { lo = 18, hi = 21 } },
+    4,
+]
+
+[outputs.Binary.right.Binary.span]
+lo = 12
+hi = 21
+
+[outputs.Binary.span]
+lo = 0
+hi = 21
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 5
+
+[outputs.Unary.receiver.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Unary.receiver.Unary.receiver.Binary]
+op = "Lt"
+id = 3
+
+[outputs.Unary.receiver.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":7,\"hi\":8}"}'
+
+[outputs.Unary.receiver.Unary.receiver.Binary.span]
+lo = 2
+hi = 9
+
+[outputs.Unary.receiver.Unary.span]
+lo = 1
+hi = 9
+
+[outputs.Unary.span]
+lo = 0
+hi = 9
+
+[[outputs]]
+
+[outputs.Binary]
+op = "Lt"
+id = 9
+
+[outputs.Binary.left.Binary]
+op = "Lt"
+id = 6
+
+[outputs.Binary.left.Binary.left.Binary]
+op = "Lt"
+id = 3
+
+[outputs.Binary.left.Binary.left.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Binary.left.Binary.left.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":5,\"hi\":6}"}'
+
+[outputs.Binary.left.Binary.left.Binary.span]
+lo = 0
+hi = 7
+
+[outputs.Binary.left.Binary.right]
+Identifier = '{"id":"5","name":"y","span":"{\"lo\":11,\"hi\":12}"}'
+
+[outputs.Binary.left.Binary.span]
+lo = 0
+hi = 13
+
+[outputs.Binary.right]
+Identifier = '{"id":"8","name":"y","span":"{\"lo\":17,\"hi\":18}"}'
+
+[outputs.Binary.span]
+lo = 0
+hi = 19
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "Lt"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":6,\"hi\":7}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 1
+hi = 8
+
+[outputs.Unary.span]
+lo = 0
+hi = 8
+
+[[outputs]]
+
+[outputs.Binary]
+op = "Lt"
+id = 4
+
+[outputs.Binary.left.Unary]
+op = "Negate"
+id = 1
+
+[outputs.Binary.left.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 3
+
+[outputs.Binary.right]
+Identifier = '{"id":"3","name":"y","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 10
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "Lt"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":7,\"hi\":8}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 2
+hi = 9
+
+[outputs.Unary.span]
+lo = 0
+hi = 9
+
+[[outputs]]
+
+[outputs.Binary]
+op = "Lt"
+id = 7
+
+[outputs.Binary.left.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Binary.left.Unary.receiver.Binary]
+op = "Lt"
+id = 3
+
+[outputs.Binary.left.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":7,\"hi\":8}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.span]
+lo = 2
+hi = 9
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 9
+
+[outputs.Binary.right]
+Identifier = '{"id":"6","name":"y","span":"{\"lo\":14,\"hi\":15}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 16
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "Lt"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":6,\"hi\":7}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 1
+hi = 8
+
+[outputs.Unary.span]
+lo = 0
+hi = 8
+
+[[outputs]]
+
+[outputs.Binary]
+op = "Lt"
+id = 4
+
+[outputs.Binary.left.Unary]
+op = "Not"
+id = 1
+
+[outputs.Binary.left.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 3
+
+[outputs.Binary.right]
+Identifier = '{"id":"3","name":"y","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 10
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "Lt"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":7,\"hi\":8}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 2
+hi = 9
+
+[outputs.Unary.span]
+lo = 0
+hi = 9
+
+[[outputs]]
+
+[outputs.Binary]
+op = "Lt"
+id = 7
+
+[outputs.Binary.left.Unary]
+op = "Not"
+id = 4
+
+[outputs.Binary.left.Unary.receiver.Binary]
+op = "Lt"
+id = 3
+
+[outputs.Binary.left.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":7,\"hi\":8}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.span]
+lo = 2
+hi = 9
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 9
+
+[outputs.Binary.right]
+Identifier = '{"id":"6","name":"y","span":"{\"lo\":14,\"hi\":15}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 16
+
+[[outputs]]
+
+[outputs.Binary]
+op = "Lt"
+id = 19
+
+[outputs.Binary.left.Binary]
+op = "Lt"
+id = 8
+
+[outputs.Binary.left.Binary.left.Binary]
+op = "Lt"
+id = 3
+
+[outputs.Binary.left.Binary.left.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Binary.left.Binary.left.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":6,\"hi\":7}"}'
+
+[outputs.Binary.left.Binary.left.Binary.span]
+lo = 1
+hi = 8
+
+[outputs.Binary.left.Binary.right.Binary]
+op = "Lt"
+id = 7
+
+[outputs.Binary.left.Binary.right.Binary.left]
+Identifier = '{"id":"4","name":"x","span":"{\"lo\":11,\"hi\":12}"}'
+
+[outputs.Binary.left.Binary.right.Binary.right]
+Identifier = '{"id":"6","name":"y","span":"{\"lo\":16,\"hi\":17}"}'
+
+[outputs.Binary.left.Binary.right.Binary.span]
+lo = 11
+hi = 18
+
+[outputs.Binary.left.Binary.span]
+lo = 1
+hi = 18
+
+[outputs.Binary.right.Binary]
+op = "Lt"
+id = 18
+
+[outputs.Binary.right.Binary.left.Binary]
+op = "Lt"
+id = 13
+
+[outputs.Binary.right.Binary.left.Binary.left]
+Identifier = '{"id":"10","name":"x","span":"{\"lo\":23,\"hi\":24}"}'
+
+[outputs.Binary.right.Binary.left.Binary.right]
+Identifier = '{"id":"12","name":"y","span":"{\"lo\":28,\"hi\":29}"}'
+
+[outputs.Binary.right.Binary.left.Binary.span]
+lo = 23
+hi = 30
+
+[outputs.Binary.right.Binary.right.Binary]
+op = "Lt"
+id = 17
+
+[outputs.Binary.right.Binary.right.Binary.left]
+Identifier = '{"id":"14","name":"x","span":"{\"lo\":33,\"hi\":34}"}'
+
+[outputs.Binary.right.Binary.right.Binary.right]
+Identifier = '{"id":"16","name":"y","span":"{\"lo\":38,\"hi\":39}"}'
+
+[outputs.Binary.right.Binary.right.Binary.span]
+lo = 33
+hi = 40
+
+[outputs.Binary.right.Binary.span]
+lo = 23
+hi = 40
+
+[outputs.Binary.span]
+lo = 1
+hi = 41

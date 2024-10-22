@@ -1,18 +1,50 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 56c4eea018bad5b00fa3584917fe6327a28220606b7ef3392dd4f52510eb836d
-          type_checked_symbol_table: a53c4315ffbe58449d9ef772a8fab06c43082a1d24d3eb4240fd8c3be3ac0ad1
-          unrolled_symbol_table: a53c4315ffbe58449d9ef772a8fab06c43082a1d24d3eb4240fd8c3be3ac0ad1
-          initial_ast: 31d6210343f8a439e9a731aa2b344a0a35bb4828fcbfb5b7f3d3c532aa0d49e0
-          unrolled_ast: 31d6210343f8a439e9a731aa2b344a0a35bb4828fcbfb5b7f3d3c532aa0d49e0
-          ssa_ast: ed0d528c739439b087da26d083d1a1c6705e5e9b020f6dbb6d1510929df3079f
-          flattened_ast: 853653a2db1cb618cf7fe214cc90ff1ee6f952dbc6e945b6b3c4b34ca07e906d
-          destructured_ast: 0fa73a1e802c55fe76758295dbeb0e4a9340fd95c14b05b033fd9aec1a039fed
-          inlined_ast: 17df43530f88543010218898759c3459f380370012717bebaec75f9a27d40130
-          dce_ast: 17df43530f88543010218898759c3459f380370012717bebaec75f9a27d40130
-          bytecode: ed6b317a872c3d7083d96539a0f0601af2dcc1a6d198d897edf7f6d4db26e47a
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "56c4eea018bad5b00fa3584917fe6327a28220606b7ef3392dd4f52510eb836d", type_checked_symbol_table = "a53c4315ffbe58449d9ef772a8fab06c43082a1d24d3eb4240fd8c3be3ac0ad1", unrolled_symbol_table = "a53c4315ffbe58449d9ef772a8fab06c43082a1d24d3eb4240fd8c3be3ac0ad1", initial_ast = "31d6210343f8a439e9a731aa2b344a0a35bb4828fcbfb5b7f3d3c532aa0d49e0", unrolled_ast = "31d6210343f8a439e9a731aa2b344a0a35bb4828fcbfb5b7f3d3c532aa0d49e0", ssa_ast = "ed0d528c739439b087da26d083d1a1c6705e5e9b020f6dbb6d1510929df3079f", flattened_ast = "853653a2db1cb618cf7fe214cc90ff1ee6f952dbc6e945b6b3c4b34ca07e906d", destructured_ast = "0fa73a1e802c55fe76758295dbeb0e4a9340fd95c14b05b033fd9aec1a039fed", inlined_ast = "17df43530f88543010218898759c3459f380370012717bebaec75f9a27d40130", dce_ast = "17df43530f88543010218898759c3459f380370012717bebaec75f9a27d40130", bytecode = """
+program test.aleo;
+
+struct TokenInfo:
+    id as u64;
+
+
+mapping token_name_to_info:
+\tkey as field.public;
+\tvalue as TokenInfo.public;
+
+
+function add_new_liquidity_token:
+    async add_new_liquidity_token into r0;
+    output r0 as test.aleo/add_new_liquidity_token.future;
+
+finalize add_new_liquidity_token:
+    branch.eq false false to end_then_0_0;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    branch.eq false false to end_then_0_2;
+    branch.eq true false to end_then_1_4;
+    branch.eq true true to end_otherwise_1_5;
+    position end_then_1_4;
+    position end_otherwise_1_5;
+    cast 0u64 into r0 as TokenInfo;
+    set r0 into token_name_to_info[0field];
+    branch.eq true true to end_otherwise_0_3;
+    position end_then_0_2;
+    position end_otherwise_0_3;
+
+
+
+
+function add_new_liquidity_token_2:
+    async add_new_liquidity_token_2 into r0;
+    output r0 as test.aleo/add_new_liquidity_token_2.future;
+
+finalize add_new_liquidity_token_2:
+    cast 0u64 into r0 as TokenInfo;
+    get.or_use token_name_to_info[0field] r0 into r1;
+    is.eq r1.id 0u64 into r2;
+    cast 10u64 into r3 as TokenInfo;
+    ternary r2 r3.id r1.id into r4;
+    cast r4 into r5 as TokenInfo;
+
+""", errors = "", warnings = "" }] }]]

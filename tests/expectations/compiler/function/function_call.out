@@ -1,18 +1,30 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 35c97567764961ff6fbc23d98b890dd313f80812135de16382028f687c32cf2e
-          type_checked_symbol_table: 2e2d79605b8d612b84bef68fbfc07f6a4594cf55b9addeaa197547f1d696de55
-          unrolled_symbol_table: 2e2d79605b8d612b84bef68fbfc07f6a4594cf55b9addeaa197547f1d696de55
-          initial_ast: 8b68fd0f18e8fc74db391751baaa281e3b62ab56208b7d910040d10fb775261a
-          unrolled_ast: 8b68fd0f18e8fc74db391751baaa281e3b62ab56208b7d910040d10fb775261a
-          ssa_ast: 4d36ab9d484d0d7eaec140ff70e1b43f9484a067dc3b5717e0719e78c46754f2
-          flattened_ast: 139763ddf1d58bcdb053e62bd22a37f0f25cf40ac6b728d914f0473d4f094816
-          destructured_ast: d66c8b8e8698cead559c3cc52b21a42d70be448b2caee0413dd1ce88fa3bcefd
-          inlined_ast: 89aec80f6e01ba7e7dab7f6ff988fd5205c6932a65d4f57cc164a5df7ac38468
-          dce_ast: 8fa786c76867752aa1d7da290907cd6cb6ebc0b2eaf1c7f271aa9eb16ba187d8
-          bytecode: ce0dbf69a657e1fbc866ccc8c4a1cb4f8080a561d1ba4bafca831cee80a3ef81
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "35c97567764961ff6fbc23d98b890dd313f80812135de16382028f687c32cf2e", type_checked_symbol_table = "2e2d79605b8d612b84bef68fbfc07f6a4594cf55b9addeaa197547f1d696de55", unrolled_symbol_table = "2e2d79605b8d612b84bef68fbfc07f6a4594cf55b9addeaa197547f1d696de55", initial_ast = "8b68fd0f18e8fc74db391751baaa281e3b62ab56208b7d910040d10fb775261a", unrolled_ast = "8b68fd0f18e8fc74db391751baaa281e3b62ab56208b7d910040d10fb775261a", ssa_ast = "4d36ab9d484d0d7eaec140ff70e1b43f9484a067dc3b5717e0719e78c46754f2", flattened_ast = "139763ddf1d58bcdb053e62bd22a37f0f25cf40ac6b728d914f0473d4f094816", destructured_ast = "d66c8b8e8698cead559c3cc52b21a42d70be448b2caee0413dd1ce88fa3bcefd", inlined_ast = "89aec80f6e01ba7e7dab7f6ff988fd5205c6932a65d4f57cc164a5df7ac38468", dce_ast = "8fa786c76867752aa1d7da290907cd6cb6ebc0b2eaf1c7f271aa9eb16ba187d8", bytecode = """
+program test.aleo;
+
+
+
+closure adder:
+    input r0 as u32;
+    input r1 as u32;
+    add r0 r1 into r2;
+    output r2 as u32;
+
+
+closure subber:
+    input r0 as u32;
+    input r1 as u32;
+    sub r0 r1 into r2;
+    output r2 as u32;
+
+
+function main:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as boolean.private;
+    call adder r0 r1 into r3;
+    call subber r0 r1 into r4;
+    ternary r2 r3 r4 into r5;
+    output r5 as u32.private;
+""", errors = "", warnings = "" }] }]]

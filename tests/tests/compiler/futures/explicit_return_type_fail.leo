@@ -1,6 +1,6 @@
 /*
-namespace: Compile
-expectation: Fail
+namespace = "Compile"
+expectation = "Fail"
 */
 program test.aleo {
     mapping foo: u32 => u32;

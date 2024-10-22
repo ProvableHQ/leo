@@ -1,6 +1,6 @@
 /*
-namespace: ParseStatement
-expectation: Fail
+namespace = "ParseStatement"
+expectation = "Fail"
 */
 
 increment[foo, bar, baz];

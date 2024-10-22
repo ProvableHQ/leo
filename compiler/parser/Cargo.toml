@@ -49,8 +49,8 @@ path = "../../tests/test-framework"
 [dev-dependencies.serde_json]
 workspace = true
 
-[dev-dependencies.serde_yaml]
-version = "0.8"
+[dev-dependencies.toml]
+workspace = true
 
 [features]
 default = [ ]

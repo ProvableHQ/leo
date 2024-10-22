@@ -1,5 +1,31 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372005]: Unknown variable `x`\n    --> compiler-test:5:18\n     |\n   5 |     \tlet b: u8 = x*z;\n     |                  ^\nError [ETYC0372005]: Unknown variable `z`\n    --> compiler-test:5:20\n     |\n   5 |     \tlet b: u8 = x*z;\n     |                    ^\nError [ETYC0372004]: Could not determine the type of `x`\n    --> compiler-test:5:18\n     |\n   5 |     \tlet b: u8 = x*z;\n     |                  ^\nError [ETYC0372004]: Could not determine the type of `z`\n    --> compiler-test:5:20\n     |\n   5 |     \tlet b: u8 = x*z;\n     |                    ^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372005]: Unknown variable `x`
+    --> compiler-test:5:18
+     |
+   5 |     \tlet b: u8 = x*z;
+     |                  ^
+Error [ETYC0372005]: Unknown variable `z`
+    --> compiler-test:5:20
+     |
+   5 |     \tlet b: u8 = x*z;
+     |                    ^
+Error [ETYC0372004]: Could not determine the type of `x`
+    --> compiler-test:5:18
+     |
+   5 |     \tlet b: u8 = x*z;
+     |                  ^
+Error [ETYC0372004]: Could not determine the type of `z`
+    --> compiler-test:5:20
+     |
+   5 |     \tlet b: u8 = x*z;
+     |                    ^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {    
+     | ^^^^^^^^^^^^
+"""]

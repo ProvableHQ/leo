@@ -1,5 +1,21 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372056]: Unit expressions can only be used in return statements.\n    --> compiler-test:5:29\n     |\n   5 |         let bar: [(); 2] = [(), ()];\n     |                             ^^\nError [ETYC0372056]: Unit expressions can only be used in return statements.\n    --> compiler-test:5:33\n     |\n   5 |         let bar: [(); 2] = [(), ()];\n     |                                 ^^\nError [ETYC0372036]: Function must return a value.\n    --> compiler-test:4:5\n     |\n   4 |     transition foo() -> bool {\n   5 |         let bar: [(); 2] = [(), ()];\n   6 |     }\n     |     ^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372056]: Unit expressions can only be used in return statements.
+    --> compiler-test:5:29
+     |
+   5 |         let bar: [(); 2] = [(), ()];
+     |                             ^^
+Error [ETYC0372056]: Unit expressions can only be used in return statements.
+    --> compiler-test:5:33
+     |
+   5 |         let bar: [(); 2] = [(), ()];
+     |                                 ^^
+Error [ETYC0372036]: Function must return a value.
+    --> compiler-test:4:5
+     |
+   4 |     transition foo() -> bool {
+   5 |         let bar: [(); 2] = [(), ()];
+   6 |     }
+     |     ^
+"""]

@@ -1,10 +1,10 @@
 /*
-namespace: Execute
-expectation: Pass
-cases:
-  - program: four_program.aleo
-    function: a
-    input: []
+namespace = "Execute"
+expectation = "Pass"
+[[cases]]
+program = "four_program.aleo"
+function = "a"
+input = []
 */
 
 // This test checks that the finalization order is correct.

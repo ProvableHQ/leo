@@ -1,6 +1,6 @@
 /*
-namespace: Input
-expectation: Fail
+namespace = "Input"
+expectation = "Fail"
 */
 
 main

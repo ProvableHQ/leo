@@ -1,6 +1,6 @@
 /*
-namespace: ParseStatement
-expectation: Pass
+namespace = "ParseStatement"
+expectation = "Pass"
 
 # These ones do not hit the unreachable as they are treated as valid idents rather than postfix.
 */

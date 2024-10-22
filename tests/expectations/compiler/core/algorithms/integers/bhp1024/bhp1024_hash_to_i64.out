@@ -1,18 +1,22 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 09015171da9cd92d49fd25eee135cae84b128f540bd8573d1f40ce47bbcb7db5
-          type_checked_symbol_table: c5096dd6d8aabe6fe5380fa2cf7fb74232ba23e16bccce3b00fca030cb822923
-          unrolled_symbol_table: c5096dd6d8aabe6fe5380fa2cf7fb74232ba23e16bccce3b00fca030cb822923
-          initial_ast: ef6a8b12ab9a2990728744af5eed85e7488f25e22611778f05633be09dc639d0
-          unrolled_ast: ef6a8b12ab9a2990728744af5eed85e7488f25e22611778f05633be09dc639d0
-          ssa_ast: 6b57a9b84a5ba37ca589290b095883c39c40fff348600456f4531b130506a4d3
-          flattened_ast: 1d390bcff74a7da50935a7c3d8e9bc9348902ea22e481fb7634f46cbc6e3077a
-          destructured_ast: 43ff018ba2b76a0532fd7e1c2753552ac40822b9654c55e0daf588e65f41fbfa
-          inlined_ast: 43ff018ba2b76a0532fd7e1c2753552ac40822b9654c55e0daf588e65f41fbfa
-          dce_ast: 498731da2308c28a6d1fb4a8f10757664918b05bc0a85a2987a93ab2573a83b4
-          bytecode: 0f39fde0b1e15ee4f8db0c84a7a280cdeac852cdca4959a14a61776aa661ced5
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "09015171da9cd92d49fd25eee135cae84b128f540bd8573d1f40ce47bbcb7db5", type_checked_symbol_table = "c5096dd6d8aabe6fe5380fa2cf7fb74232ba23e16bccce3b00fca030cb822923", unrolled_symbol_table = "c5096dd6d8aabe6fe5380fa2cf7fb74232ba23e16bccce3b00fca030cb822923", initial_ast = "ef6a8b12ab9a2990728744af5eed85e7488f25e22611778f05633be09dc639d0", unrolled_ast = "ef6a8b12ab9a2990728744af5eed85e7488f25e22611778f05633be09dc639d0", ssa_ast = "6b57a9b84a5ba37ca589290b095883c39c40fff348600456f4531b130506a4d3", flattened_ast = "1d390bcff74a7da50935a7c3d8e9bc9348902ea22e481fb7634f46cbc6e3077a", destructured_ast = "43ff018ba2b76a0532fd7e1c2753552ac40822b9654c55e0daf588e65f41fbfa", inlined_ast = "43ff018ba2b76a0532fd7e1c2753552ac40822b9654c55e0daf588e65f41fbfa", dce_ast = "498731da2308c28a6d1fb4a8f10757664918b05bc0a85a2987a93ab2573a83b4", bytecode = """
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.bhp1024 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i64;
+    output r8 as i64.private;
+""", errors = "", warnings = "" }] }]]

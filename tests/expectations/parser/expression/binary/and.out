@@ -1,355 +1,455 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Binary:
-      left:
-        Literal:
-          Boolean:
-            - true
-            - span:
-                lo: 0
-                hi: 4
-            - 0
-      right:
-        Literal:
-          Boolean:
-            - false
-            - span:
-                lo: 8
-                hi: 13
-            - 1
-      op: And
-      span:
-        lo: 0
-        hi: 13
-      id: 2
-  - Binary:
-      left:
-        Literal:
-          Boolean:
-            - false
-            - span:
-                lo: 0
-                hi: 5
-            - 0
-      right:
-        Literal:
-          Boolean:
-            - true
-            - span:
-                lo: 7
-                hi: 11
-            - 1
-      op: And
-      span:
-        lo: 0
-        hi: 11
-      id: 2
-  - Binary:
-      left:
-        Binary:
-          left:
-            Literal:
-              Boolean:
-                - true
-                - span:
-                    lo: 0
-                    hi: 4
-                - 0
-          right:
-            Literal:
-              Boolean:
-                - false
-                - span:
-                    lo: 6
-                    hi: 11
-                - 1
-          op: And
-          span:
-            lo: 0
-            hi: 11
-          id: 2
-      right:
-        Literal:
-          Boolean:
-            - true
-            - span:
-                lo: 13
-                hi: 17
-            - 3
-      op: And
-      span:
-        lo: 0
-        hi: 17
-      id: 4
-  - Unary:
-      receiver:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-              op: BitwiseAnd
-              span:
-                lo: 2
-                hi: 10
-              id: 3
-          op: Negate
-          span:
-            lo: 1
-            hi: 10
-          id: 4
-      op: Not
-      span:
-        lo: 0
-        hi: 10
-      id: 5
-  - Binary:
-      left:
-        Binary:
-          left:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
-              op: BitwiseAnd
-              span:
-                lo: 0
-                hi: 8
-              id: 3
-          right:
-            Identifier: "{\"id\":\"5\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          op: BitwiseAnd
-          span:
-            lo: 0
-            hi: 15
-          id: 6
-      right:
-        Identifier: "{\"id\":\"8\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
-      op: BitwiseAnd
-      span:
-        lo: 0
-        hi: 22
-      id: 9
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: BitwiseAnd
-          span:
-            lo: 1
-            hi: 9
-          id: 3
-      op: Negate
-      span:
-        lo: 0
-        hi: 9
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Negate
-          span:
-            lo: 1
-            hi: 3
-          id: 1
-      right:
-        Identifier: "{\"id\":\"3\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
-      op: BitwiseAnd
-      span:
-        lo: 1
-        hi: 11
-      id: 4
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-          op: BitwiseAnd
-          span:
-            lo: 2
-            hi: 10
-          id: 3
-      op: Negate
-      span:
-        lo: 0
-        hi: 10
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-              op: BitwiseAnd
-              span:
-                lo: 2
-                hi: 10
-              id: 3
-          op: Negate
-          span:
-            lo: 1
-            hi: 10
-          id: 4
-      right:
-        Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-      op: BitwiseAnd
-      span:
-        lo: 1
-        hi: 18
-      id: 7
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-          op: BitwiseAnd
-          span:
-            lo: 1
-            hi: 9
-          id: 3
-      op: Not
-      span:
-        lo: 0
-        hi: 9
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          op: Not
-          span:
-            lo: 1
-            hi: 3
-          id: 1
-      right:
-        Identifier: "{\"id\":\"3\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
-      op: BitwiseAnd
-      span:
-        lo: 1
-        hi: 11
-      id: 4
-  - Unary:
-      receiver:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-          op: BitwiseAnd
-          span:
-            lo: 2
-            hi: 10
-          id: 3
-      op: Not
-      span:
-        lo: 0
-        hi: 10
-      id: 4
-  - Binary:
-      left:
-        Unary:
-          receiver:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-              op: BitwiseAnd
-              span:
-                lo: 2
-                hi: 10
-              id: 3
-          op: Not
-          span:
-            lo: 1
-            hi: 10
-          id: 4
-      right:
-        Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-      op: BitwiseAnd
-      span:
-        lo: 1
-        hi: 18
-      id: 7
-  - Binary:
-      left:
-        Binary:
-          left:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
-              right:
-                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
-              op: BitwiseAnd
-              span:
-                lo: 1
-                hi: 9
-              id: 3
-          right:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"4\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-              right:
-                Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
-              op: BitwiseAnd
-              span:
-                lo: 12
-                hi: 20
-              id: 7
-          op: Add
-          span:
-            lo: 1
-            hi: 20
-          id: 8
-      right:
-        Binary:
-          left:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"10\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":27}\"}"
-              right:
-                Identifier: "{\"id\":\"12\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
-              op: BitwiseAnd
-              span:
-                lo: 26
-                hi: 34
-              id: 13
-          right:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"14\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":37,\\\"hi\\\":38}\"}"
-              right:
-                Identifier: "{\"id\":\"16\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":44}\"}"
-              op: BitwiseAnd
-              span:
-                lo: 37
-                hi: 45
-              id: 17
-          op: Add
-          span:
-            lo: 26
-            hi: 45
-          id: 18
-      op: BitwiseAnd
-      span:
-        lo: 1
-        hi: 46
-      id: 19
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Binary]
+op = "And"
+id = 2
+
+[outputs.Binary.left.Literal]
+Boolean = [
+    true,
+    { span = { lo = 0, hi = 4 } },
+    0,
+]
+
+[outputs.Binary.right.Literal]
+Boolean = [
+    false,
+    { span = { lo = 8, hi = 13 } },
+    1,
+]
+
+[outputs.Binary.span]
+lo = 0
+hi = 13
+
+[[outputs]]
+
+[outputs.Binary]
+op = "And"
+id = 2
+
+[outputs.Binary.left.Literal]
+Boolean = [
+    false,
+    { span = { lo = 0, hi = 5 } },
+    0,
+]
+
+[outputs.Binary.right.Literal]
+Boolean = [
+    true,
+    { span = { lo = 7, hi = 11 } },
+    1,
+]
+
+[outputs.Binary.span]
+lo = 0
+hi = 11
+
+[[outputs]]
+
+[outputs.Binary]
+op = "And"
+id = 4
+
+[outputs.Binary.left.Binary]
+op = "And"
+id = 2
+
+[outputs.Binary.left.Binary.left.Literal]
+Boolean = [
+    true,
+    { span = { lo = 0, hi = 4 } },
+    0,
+]
+
+[outputs.Binary.left.Binary.right.Literal]
+Boolean = [
+    false,
+    { span = { lo = 6, hi = 11 } },
+    1,
+]
+
+[outputs.Binary.left.Binary.span]
+lo = 0
+hi = 11
+
+[outputs.Binary.right.Literal]
+Boolean = [
+    true,
+    { span = { lo = 13, hi = 17 } },
+    3,
+]
+
+[outputs.Binary.span]
+lo = 0
+hi = 17
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 5
+
+[outputs.Unary.receiver.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Unary.receiver.Unary.receiver.Binary]
+op = "BitwiseAnd"
+id = 3
+
+[outputs.Unary.receiver.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Unary.receiver.Unary.receiver.Binary.span]
+lo = 2
+hi = 10
+
+[outputs.Unary.receiver.Unary.span]
+lo = 1
+hi = 10
+
+[outputs.Unary.span]
+lo = 0
+hi = 10
+
+[[outputs]]
+
+[outputs.Binary]
+op = "BitwiseAnd"
+id = 9
+
+[outputs.Binary.left.Binary]
+op = "BitwiseAnd"
+id = 6
+
+[outputs.Binary.left.Binary.left.Binary]
+op = "BitwiseAnd"
+id = 3
+
+[outputs.Binary.left.Binary.left.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Binary.left.Binary.left.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":6,\"hi\":7}"}'
+
+[outputs.Binary.left.Binary.left.Binary.span]
+lo = 0
+hi = 8
+
+[outputs.Binary.left.Binary.right]
+Identifier = '{"id":"5","name":"y","span":"{\"lo\":13,\"hi\":14}"}'
+
+[outputs.Binary.left.Binary.span]
+lo = 0
+hi = 15
+
+[outputs.Binary.right]
+Identifier = '{"id":"8","name":"y","span":"{\"lo\":20,\"hi\":21}"}'
+
+[outputs.Binary.span]
+lo = 0
+hi = 22
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "BitwiseAnd"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":7,\"hi\":8}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 1
+hi = 9
+
+[outputs.Unary.span]
+lo = 0
+hi = 9
+
+[[outputs]]
+
+[outputs.Binary]
+op = "BitwiseAnd"
+id = 4
+
+[outputs.Binary.left.Unary]
+op = "Negate"
+id = 1
+
+[outputs.Binary.left.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 3
+
+[outputs.Binary.right]
+Identifier = '{"id":"3","name":"y","span":"{\"lo\":9,\"hi\":10}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 11
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "BitwiseAnd"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 2
+hi = 10
+
+[outputs.Unary.span]
+lo = 0
+hi = 10
+
+[[outputs]]
+
+[outputs.Binary]
+op = "BitwiseAnd"
+id = 7
+
+[outputs.Binary.left.Unary]
+op = "Negate"
+id = 4
+
+[outputs.Binary.left.Unary.receiver.Binary]
+op = "BitwiseAnd"
+id = 3
+
+[outputs.Binary.left.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.span]
+lo = 2
+hi = 10
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 10
+
+[outputs.Binary.right]
+Identifier = '{"id":"6","name":"y","span":"{\"lo\":16,\"hi\":17}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 18
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "BitwiseAnd"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":7,\"hi\":8}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 1
+hi = 9
+
+[outputs.Unary.span]
+lo = 0
+hi = 9
+
+[[outputs]]
+
+[outputs.Binary]
+op = "BitwiseAnd"
+id = 4
+
+[outputs.Binary.left.Unary]
+op = "Not"
+id = 1
+
+[outputs.Binary.left.Unary.receiver]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 3
+
+[outputs.Binary.right]
+Identifier = '{"id":"3","name":"y","span":"{\"lo\":9,\"hi\":10}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 11
+
+[[outputs]]
+
+[outputs.Unary]
+op = "Not"
+id = 4
+
+[outputs.Unary.receiver.Binary]
+op = "BitwiseAnd"
+id = 3
+
+[outputs.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Unary.receiver.Binary.span]
+lo = 2
+hi = 10
+
+[outputs.Unary.span]
+lo = 0
+hi = 10
+
+[[outputs]]
+
+[outputs.Binary]
+op = "BitwiseAnd"
+id = 7
+
+[outputs.Binary.left.Unary]
+op = "Not"
+id = 4
+
+[outputs.Binary.left.Unary.receiver.Binary]
+op = "BitwiseAnd"
+id = 3
+
+[outputs.Binary.left.Unary.receiver.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Binary.left.Unary.receiver.Binary.span]
+lo = 2
+hi = 10
+
+[outputs.Binary.left.Unary.span]
+lo = 1
+hi = 10
+
+[outputs.Binary.right]
+Identifier = '{"id":"6","name":"y","span":"{\"lo\":16,\"hi\":17}"}'
+
+[outputs.Binary.span]
+lo = 1
+hi = 18
+
+[[outputs]]
+
+[outputs.Binary]
+op = "BitwiseAnd"
+id = 19
+
+[outputs.Binary.left.Binary]
+op = "Add"
+id = 8
+
+[outputs.Binary.left.Binary.left.Binary]
+op = "BitwiseAnd"
+id = 3
+
+[outputs.Binary.left.Binary.left.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":1,\"hi\":2}"}'
+
+[outputs.Binary.left.Binary.left.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":7,\"hi\":8}"}'
+
+[outputs.Binary.left.Binary.left.Binary.span]
+lo = 1
+hi = 9
+
+[outputs.Binary.left.Binary.right.Binary]
+op = "BitwiseAnd"
+id = 7
+
+[outputs.Binary.left.Binary.right.Binary.left]
+Identifier = '{"id":"4","name":"x","span":"{\"lo\":12,\"hi\":13}"}'
+
+[outputs.Binary.left.Binary.right.Binary.right]
+Identifier = '{"id":"6","name":"y","span":"{\"lo\":18,\"hi\":19}"}'
+
+[outputs.Binary.left.Binary.right.Binary.span]
+lo = 12
+hi = 20
+
+[outputs.Binary.left.Binary.span]
+lo = 1
+hi = 20
+
+[outputs.Binary.right.Binary]
+op = "Add"
+id = 18
+
+[outputs.Binary.right.Binary.left.Binary]
+op = "BitwiseAnd"
+id = 13
+
+[outputs.Binary.right.Binary.left.Binary.left]
+Identifier = '{"id":"10","name":"x","span":"{\"lo\":26,\"hi\":27}"}'
+
+[outputs.Binary.right.Binary.left.Binary.right]
+Identifier = '{"id":"12","name":"y","span":"{\"lo\":32,\"hi\":33}"}'
+
+[outputs.Binary.right.Binary.left.Binary.span]
+lo = 26
+hi = 34
+
+[outputs.Binary.right.Binary.right.Binary]
+op = "BitwiseAnd"
+id = 17
+
+[outputs.Binary.right.Binary.right.Binary.left]
+Identifier = '{"id":"14","name":"x","span":"{\"lo\":37,\"hi\":38}"}'
+
+[outputs.Binary.right.Binary.right.Binary.right]
+Identifier = '{"id":"16","name":"y","span":"{\"lo\":43,\"hi\":44}"}'
+
+[outputs.Binary.right.Binary.right.Binary.span]
+lo = 37
+hi = 45
+
+[outputs.Binary.right.Binary.span]
+lo = 26
+hi = 45
+
+[outputs.Binary.span]
+lo = 1
+hi = 46

@@ -1,44 +1,32 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: b59a64e702cf908299e322a302bbff0b310c263353e4e2d40ac9c2cf55014e35
-          type_checked_symbol_table: 0de9af52dc5b3b905b76c91bfeecc8f18ec3888395e81acf47f377599a044a23
-          unrolled_symbol_table: 0de9af52dc5b3b905b76c91bfeecc8f18ec3888395e81acf47f377599a044a23
-          initial_ast: 0603c5de85d72aff1b82ae064e9f056a5a12f4a3c9a43b7110245f71ab184179
-          unrolled_ast: 0603c5de85d72aff1b82ae064e9f056a5a12f4a3c9a43b7110245f71ab184179
-          ssa_ast: 0603c5de85d72aff1b82ae064e9f056a5a12f4a3c9a43b7110245f71ab184179
-          flattened_ast: b8253c762a2456d82dd47c27018cac6d44083a9eaafafcd60e1b83f8b0d16aa1
-          destructured_ast: 900c4b9018194c85f2ca523cb559f9f597265d3a23d410a757017cd803fbffb1
-          inlined_ast: 900c4b9018194c85f2ca523cb559f9f597265d3a23d410a757017cd803fbffb1
-          dce_ast: 900c4b9018194c85f2ca523cb559f9f597265d3a23d410a757017cd803fbffb1
-          bytecode: 40ad5099cd6e309d5adbba30460c340377d555868e7a90c087c440f195339d16
-          errors: ""
-          warnings: ""
-        - initial_symbol_table: b5a798a81b37a96d61bce196fbe0f86bd73d66869e638eb56f53b47016add539
-          type_checked_symbol_table: 7b6cf777b20c4a7877425c13379ea3aab6660ab65f8b285a561a464a3aaa2018
-          unrolled_symbol_table: 7b6cf777b20c4a7877425c13379ea3aab6660ab65f8b285a561a464a3aaa2018
-          initial_ast: 3035438b326eef0eacc00dbe4829c09021b73a037709aa7c2a22860e5dd9a26a
-          unrolled_ast: b3b45e5d3481e68154563fdc64f460e69fd00395eccb5a319eb5e81ca7f7d3c9
-          ssa_ast: b3b45e5d3481e68154563fdc64f460e69fd00395eccb5a319eb5e81ca7f7d3c9
-          flattened_ast: 2311a42d662fc48ae0063d65e32035c349f709e2f7428b50f388ec6d2a3dbcaa
-          destructured_ast: f793f932d3d092553d17307793c58592b869e5926000d798ec85d82ecc6d178e
-          inlined_ast: f793f932d3d092553d17307793c58592b869e5926000d798ec85d82ecc6d178e
-          dce_ast: f793f932d3d092553d17307793c58592b869e5926000d798ec85d82ecc6d178e
-          bytecode: 083986d9c9e5b956838b3c35367b3a7c4dbf4eb5ab13e44de0d129e320089abe
-          errors: ""
-          warnings: ""
-        - initial_symbol_table: 5b2736f499ffabe8a999fe80a7c8fa5eae6cf56b7b0ef4fe211a1cea4631061e
-          type_checked_symbol_table: b2d7ffbf87933dd4f2b4929b31bbdadaeff8663344393e0cfeff2845387159bd
-          unrolled_symbol_table: b2d7ffbf87933dd4f2b4929b31bbdadaeff8663344393e0cfeff2845387159bd
-          initial_ast: a3ac974e10d37be232ec426fe64976ac2e2701d160d8777f4c92e177cf8e3140
-          unrolled_ast: e8f62eeaa66db3f359e2965887d4412a182248577aeecbe721e520df7cc8f262
-          ssa_ast: e8f62eeaa66db3f359e2965887d4412a182248577aeecbe721e520df7cc8f262
-          flattened_ast: 992fc3e592c2877917c17d95cda4c49941da939bbc09a8fcd2356f09fcc64dec
-          destructured_ast: 2a62e891e972abf4d485b73acc2fd39eb970af5cb42590d16b7275f6a7eb5f8c
-          inlined_ast: 2a62e891e972abf4d485b73acc2fd39eb970af5cb42590d16b7275f6a7eb5f8c
-          dce_ast: 2a62e891e972abf4d485b73acc2fd39eb970af5cb42590d16b7275f6a7eb5f8c
-          bytecode: 1643ea06597a6d4bdffb84b9802843e24ac3772d64604b69e46cead51127b653
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [
+    { initial_symbol_table = "b59a64e702cf908299e322a302bbff0b310c263353e4e2d40ac9c2cf55014e35", type_checked_symbol_table = "0de9af52dc5b3b905b76c91bfeecc8f18ec3888395e81acf47f377599a044a23", unrolled_symbol_table = "0de9af52dc5b3b905b76c91bfeecc8f18ec3888395e81acf47f377599a044a23", initial_ast = "0603c5de85d72aff1b82ae064e9f056a5a12f4a3c9a43b7110245f71ab184179", unrolled_ast = "0603c5de85d72aff1b82ae064e9f056a5a12f4a3c9a43b7110245f71ab184179", ssa_ast = "0603c5de85d72aff1b82ae064e9f056a5a12f4a3c9a43b7110245f71ab184179", flattened_ast = "b8253c762a2456d82dd47c27018cac6d44083a9eaafafcd60e1b83f8b0d16aa1", destructured_ast = "900c4b9018194c85f2ca523cb559f9f597265d3a23d410a757017cd803fbffb1", inlined_ast = "900c4b9018194c85f2ca523cb559f9f597265d3a23d410a757017cd803fbffb1", dce_ast = "900c4b9018194c85f2ca523cb559f9f597265d3a23d410a757017cd803fbffb1", bytecode = """
+program child.aleo;
+
+record child_rec:
+    owner as address.private;
+
+
+function main:
+    input r0 as child_rec.record;
+""", errors = "", warnings = "" },
+    { initial_symbol_table = "b5a798a81b37a96d61bce196fbe0f86bd73d66869e638eb56f53b47016add539", type_checked_symbol_table = "7b6cf777b20c4a7877425c13379ea3aab6660ab65f8b285a561a464a3aaa2018", unrolled_symbol_table = "7b6cf777b20c4a7877425c13379ea3aab6660ab65f8b285a561a464a3aaa2018", initial_ast = "3035438b326eef0eacc00dbe4829c09021b73a037709aa7c2a22860e5dd9a26a", unrolled_ast = "b3b45e5d3481e68154563fdc64f460e69fd00395eccb5a319eb5e81ca7f7d3c9", ssa_ast = "b3b45e5d3481e68154563fdc64f460e69fd00395eccb5a319eb5e81ca7f7d3c9", flattened_ast = "2311a42d662fc48ae0063d65e32035c349f709e2f7428b50f388ec6d2a3dbcaa", destructured_ast = "f793f932d3d092553d17307793c58592b869e5926000d798ec85d82ecc6d178e", inlined_ast = "f793f932d3d092553d17307793c58592b869e5926000d798ec85d82ecc6d178e", dce_ast = "f793f932d3d092553d17307793c58592b869e5926000d798ec85d82ecc6d178e", bytecode = """
+import child.aleo;
+program inter.aleo;
+
+
+
+function use_child:
+    input r0 as child.aleo/child_rec.record;
+""", errors = "", warnings = "" },
+    { initial_symbol_table = "5b2736f499ffabe8a999fe80a7c8fa5eae6cf56b7b0ef4fe211a1cea4631061e", type_checked_symbol_table = "b2d7ffbf87933dd4f2b4929b31bbdadaeff8663344393e0cfeff2845387159bd", unrolled_symbol_table = "b2d7ffbf87933dd4f2b4929b31bbdadaeff8663344393e0cfeff2845387159bd", initial_ast = "a3ac974e10d37be232ec426fe64976ac2e2701d160d8777f4c92e177cf8e3140", unrolled_ast = "e8f62eeaa66db3f359e2965887d4412a182248577aeecbe721e520df7cc8f262", ssa_ast = "e8f62eeaa66db3f359e2965887d4412a182248577aeecbe721e520df7cc8f262", flattened_ast = "992fc3e592c2877917c17d95cda4c49941da939bbc09a8fcd2356f09fcc64dec", destructured_ast = "2a62e891e972abf4d485b73acc2fd39eb970af5cb42590d16b7275f6a7eb5f8c", inlined_ast = "2a62e891e972abf4d485b73acc2fd39eb970af5cb42590d16b7275f6a7eb5f8c", dce_ast = "2a62e891e972abf4d485b73acc2fd39eb970af5cb42590d16b7275f6a7eb5f8c", bytecode = """
+import child.aleo;
+import inter.aleo;
+program parent.aleo;
+
+
+
+function main:
+""", errors = "", warnings = "" },
+] }]]

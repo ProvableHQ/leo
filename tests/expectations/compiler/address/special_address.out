@@ -1,18 +1,18 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 9093a20a62879f03d6a7a4dc24b051778d2c543d1df6a59af8c423d047ec2e13
-          type_checked_symbol_table: 639ed2aefe557daf6c3433d645bec25030a82e3296f26ac46961f451d2bb28ae
-          unrolled_symbol_table: 639ed2aefe557daf6c3433d645bec25030a82e3296f26ac46961f451d2bb28ae
-          initial_ast: da0a545e9de3b8cdec100132e7d9886d08b7e69217d129229e8a86489199ec21
-          unrolled_ast: da0a545e9de3b8cdec100132e7d9886d08b7e69217d129229e8a86489199ec21
-          ssa_ast: f76c8e4b70096ec05a1583648b295127d0a60d8b9973a1d5c7dff53782282c1d
-          flattened_ast: d743a19b1faa6b66b90bd8496249cc5b94e9ba8260ad7ce95da721b68e59c3a9
-          destructured_ast: d36731bec3ce6fd1c46b5660340e8e396fb874b0c3d3f6ae407e5f55aeb07aa4
-          inlined_ast: d36731bec3ce6fd1c46b5660340e8e396fb874b0c3d3f6ae407e5f55aeb07aa4
-          dce_ast: d36731bec3ce6fd1c46b5660340e8e396fb874b0c3d3f6ae407e5f55aeb07aa4
-          bytecode: d9e6c28f9e5527abe9cdb07b9d35375901446415f5d645b0363597200ee45be7
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "9093a20a62879f03d6a7a4dc24b051778d2c543d1df6a59af8c423d047ec2e13", type_checked_symbol_table = "639ed2aefe557daf6c3433d645bec25030a82e3296f26ac46961f451d2bb28ae", unrolled_symbol_table = "639ed2aefe557daf6c3433d645bec25030a82e3296f26ac46961f451d2bb28ae", initial_ast = "da0a545e9de3b8cdec100132e7d9886d08b7e69217d129229e8a86489199ec21", unrolled_ast = "da0a545e9de3b8cdec100132e7d9886d08b7e69217d129229e8a86489199ec21", ssa_ast = "f76c8e4b70096ec05a1583648b295127d0a60d8b9973a1d5c7dff53782282c1d", flattened_ast = "d743a19b1faa6b66b90bd8496249cc5b94e9ba8260ad7ce95da721b68e59c3a9", destructured_ast = "d36731bec3ce6fd1c46b5660340e8e396fb874b0c3d3f6ae407e5f55aeb07aa4", inlined_ast = "d36731bec3ce6fd1c46b5660340e8e396fb874b0c3d3f6ae407e5f55aeb07aa4", dce_ast = "d36731bec3ce6fd1c46b5660340e8e396fb874b0c3d3f6ae407e5f55aeb07aa4", bytecode = """
+program test.aleo;
+
+
+
+mapping Yo:
+\tkey as address.public;
+\tvalue as u32.public;
+
+function main:
+    input r0 as address.private;
+    assert.eq r0 self.caller;
+    assert.eq r0 test.aleo;
+    assert.eq r0 hello.aleo;
+    output foo.aleo as address.private;
+""", errors = "", warnings = "" }] }]]

@@ -1,31 +1,45 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: e19a77f482bf38e20c7ecd69838dadb5e778a6a95c1de2eb56bddc42121b8940
-          type_checked_symbol_table: 33b1b5c2459bfa8d5c5b4b740965f4d59e09990037934364b94f1cb2e6316c2f
-          unrolled_symbol_table: 33b1b5c2459bfa8d5c5b4b740965f4d59e09990037934364b94f1cb2e6316c2f
-          initial_ast: 65074d34d89168f67b8db62c7b091b8c02e93aeda11f79c218c3761e270f8c09
-          unrolled_ast: 65074d34d89168f67b8db62c7b091b8c02e93aeda11f79c218c3761e270f8c09
-          ssa_ast: 3b05d816fbca67dce63e2f851a77f8ffa65930e3eb094c01647f05d251305632
-          flattened_ast: 6fa4c0335842d7ba9412438bbf35dcd75843107f14a25ebeb16b8a150bee11b7
-          destructured_ast: f21d1fc10d1ebd9a86273f17a20bd1cd1247c1ce1456f9ad252cb7c4f5bb10bb
-          inlined_ast: 3cb6765aec323b35119157dd2e3264aead6820169d79b182c256f499af1ff5a8
-          dce_ast: 3cb6765aec323b35119157dd2e3264aead6820169d79b182c256f499af1ff5a8
-          bytecode: 5650e018cca64d11f7a2eb88b57ed2f9fcc81a2b56856f983f660d34421dd82e
-          errors: ""
-          warnings: ""
-        - initial_symbol_table: fd67d75af194fb6d6fee5a2b15b4b51ae5511e5d0546c6c6f83063611a168123
-          type_checked_symbol_table: 031e9fc89b17624e259bb154ca42385665d2cf4349bf1579347a2d2487305a1b
-          unrolled_symbol_table: 031e9fc89b17624e259bb154ca42385665d2cf4349bf1579347a2d2487305a1b
-          initial_ast: fc9f1985c1e0441e9423e67cfd4cb8252178ccc236dfabae17187c5a5cc98ebe
-          unrolled_ast: c6fdd37447ee674a058e7fe314096c0df8cf0c02f307ff499e0f08b76cdc6709
-          ssa_ast: d26ea69b3993a2a3c4b2660a27706c51383f9b01357d27adf6275a5dfffe6e9d
-          flattened_ast: 5741efe1907a4da96fbad021b725a22e8c3365fa61b2413b06743c3ed01cda35
-          destructured_ast: 496bea9fd498c2d4ac9d93dd143beb403e13fdf59fc2ff842d8ff932883feda1
-          inlined_ast: 7c87cc964f8225fd91c634c8683ee0b09aaa301cb29ab85cadc4e4aea65253ba
-          dce_ast: 7c87cc964f8225fd91c634c8683ee0b09aaa301cb29ab85cadc4e4aea65253ba
-          bytecode: a3cec0fb931bb7be4c60ea116dec933b1587fc50f37efdd9a0816628889a2f68
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [
+    { initial_symbol_table = "e19a77f482bf38e20c7ecd69838dadb5e778a6a95c1de2eb56bddc42121b8940", type_checked_symbol_table = "33b1b5c2459bfa8d5c5b4b740965f4d59e09990037934364b94f1cb2e6316c2f", unrolled_symbol_table = "33b1b5c2459bfa8d5c5b4b740965f4d59e09990037934364b94f1cb2e6316c2f", initial_ast = "65074d34d89168f67b8db62c7b091b8c02e93aeda11f79c218c3761e270f8c09", unrolled_ast = "65074d34d89168f67b8db62c7b091b8c02e93aeda11f79c218c3761e270f8c09", ssa_ast = "3b05d816fbca67dce63e2f851a77f8ffa65930e3eb094c01647f05d251305632", flattened_ast = "6fa4c0335842d7ba9412438bbf35dcd75843107f14a25ebeb16b8a150bee11b7", destructured_ast = "f21d1fc10d1ebd9a86273f17a20bd1cd1247c1ce1456f9ad252cb7c4f5bb10bb", inlined_ast = "3cb6765aec323b35119157dd2e3264aead6820169d79b182c256f499af1ff5a8", dce_ast = "3cb6765aec323b35119157dd2e3264aead6820169d79b182c256f499af1ff5a8", bytecode = """
+program credits.aleo;
+
+record credits:
+    owner as address.private;
+    amount as u64.private;
+
+
+
+function transfer_private_to_public:
+    input r0 as credits.record;
+    input r1 as address.private;
+    input r2 as u64.private;
+    async transfer_private_to_public into r3;
+    output r0 as credits.record;
+    output r3 as credits.aleo/transfer_private_to_public.future;
+
+finalize transfer_private_to_public:
+    assert.eq 1u8 1u8;
+
+""", errors = "", warnings = "" },
+    { initial_symbol_table = "fd67d75af194fb6d6fee5a2b15b4b51ae5511e5d0546c6c6f83063611a168123", type_checked_symbol_table = "031e9fc89b17624e259bb154ca42385665d2cf4349bf1579347a2d2487305a1b", unrolled_symbol_table = "031e9fc89b17624e259bb154ca42385665d2cf4349bf1579347a2d2487305a1b", initial_ast = "fc9f1985c1e0441e9423e67cfd4cb8252178ccc236dfabae17187c5a5cc98ebe", unrolled_ast = "c6fdd37447ee674a058e7fe314096c0df8cf0c02f307ff499e0f08b76cdc6709", ssa_ast = "d26ea69b3993a2a3c4b2660a27706c51383f9b01357d27adf6275a5dfffe6e9d", flattened_ast = "5741efe1907a4da96fbad021b725a22e8c3365fa61b2413b06743c3ed01cda35", destructured_ast = "496bea9fd498c2d4ac9d93dd143beb403e13fdf59fc2ff842d8ff932883feda1", inlined_ast = "7c87cc964f8225fd91c634c8683ee0b09aaa301cb29ab85cadc4e4aea65253ba", dce_ast = "7c87cc964f8225fd91c634c8683ee0b09aaa301cb29ab85cadc4e4aea65253ba", bytecode = """
+import credits.aleo;
+program test_credits.aleo;
+
+
+
+
+function send_credits:
+    input r0 as credits.aleo/credits.record;
+    input r1 as u64.private;
+    call credits.aleo/transfer_private_to_public r0 test_credits.aleo r1 into r2 r3;
+    async send_credits r3 into r4;
+    output r2 as credits.aleo/credits.record;
+    output r4 as test_credits.aleo/send_credits.future;
+
+finalize send_credits:
+    input r0 as credits.aleo/transfer_private_to_public.future;
+    await r0;
+
+""", errors = "", warnings = "" },
+] }]]

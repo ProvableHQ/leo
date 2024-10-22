@@ -25,7 +25,6 @@ use utilities::{
     get_build_options,
     get_cwd_option,
     hash_asts,
-    hash_content,
     hash_symbol_tables,
     parse_program,
 };
@@ -49,12 +48,12 @@ use leo_errors::LeoError;
 use leo_span::Symbol;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use serde_yaml::Value;
 use snarkvm::{
     prelude::store::{ConsensusStore, helpers::memory::ConsensusMemory},
     synthesizer::program::ProgramCore,
 };
 use std::{fs, panic::AssertUnwindSafe, path::Path, rc::Rc};
+use toml::Value;
 
 // TODO: Evaluate namespace.
 struct ExecuteNamespace;
@@ -89,8 +88,8 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
     let cwd = get_cwd_option(&test);
 
     // Initialize an rng.
-    let rng = &mut match test.config.extra.get("seed").map(|seed| seed.as_u64()) {
-        Some(Some(seed)) => TestRng::from_seed(seed),
+    let rng = &mut match test.config.extra.get("seed").map(|seed| seed.as_integer()) {
+        Some(Some(seed)) => TestRng::from_seed(seed as u64),
         _ => TestRng::from_seed(1234567890),
     };
 
@@ -213,7 +212,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 destructured_ast,
                 inlined_ast,
                 dce_ast,
-                bytecode: hash_content(&bytecode),
+                bytecode,
                 errors: buf.0.take().to_string(),
                 warnings: buf.1.take().to_string(),
             };
@@ -222,31 +221,26 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         }
 
         // Extract the cases from the test config.
-        let all_cases = test
-            .config
-            .extra
-            .get("cases")
-            .expect("An `Execute` config must have a `cases` field.")
-            .as_sequence()
-            .unwrap();
+        let all_cases =
+            test.config.extra.get("cases").expect("An `Execute` config must have a `cases` field.").as_array().unwrap();
 
         // Initialize storage for the execution outputs.
         let mut execute = Vec::with_capacity(all_cases.len());
 
         // Run each test case for each function.
         for case in all_cases {
-            let case = case.as_mapping().unwrap();
-            let program_name = case.get(&Value::from("program")).expect("expected program name").as_str().unwrap();
-            let function_name = case.get(&Value::from("function")).expect("expected function name").as_str().unwrap();
+            let case = case.as_table().unwrap();
+            let program_name = case.get("program").expect("expected program name").as_str().unwrap();
+            let function_name = case.get("function").expect("expected function name").as_str().unwrap();
             let inputs: Vec<_> = case
-                .get(&Value::from("input"))
+                .get("input")
                 .unwrap()
-                .as_sequence()
+                .as_array()
                 .unwrap()
                 .iter()
                 .map(|input| console::program::Value::<CurrentNetwork>::from_str(input.as_str().unwrap()).unwrap())
                 .collect();
-            let private_key = match case.get(&Value::from("private_key")) {
+            let private_key = match case.get("private_key") {
                 Some(private_key) => {
                     PrivateKey::from_str(private_key.as_str().expect("expected string for private key"))
                         .expect("unable to parse private key")
@@ -325,7 +319,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         let combined_output = CompileAndExecuteOutputs { compile, execute };
         outputs.push(combined_output);
     }
-    Ok(serde_yaml::to_value(outputs).expect("serialization failed"))
+    Ok(Value::try_from(outputs).expect("serialization failed"))
 }
 
 struct TestRunner;

@@ -1,57 +1,158 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: c3d0ea026b5d60b48e857637a67489b89de75466d257974347c164546b9b9660
-          type_checked_symbol_table: ae06cab6240fce0da07873fbf8159dc2acade6e666375b1c52dc586a98a0f8a3
-          unrolled_symbol_table: ae06cab6240fce0da07873fbf8159dc2acade6e666375b1c52dc586a98a0f8a3
-          initial_ast: 6e3dc0ac11741965498701cb2b5ebb68eecb1e932b9f6d84aca33350b91f6e2d
-          unrolled_ast: 6e3dc0ac11741965498701cb2b5ebb68eecb1e932b9f6d84aca33350b91f6e2d
-          ssa_ast: d898f89ce1fbcd93694c06446e31d5ab52ace6fd966c7dd35e082dead74440c7
-          flattened_ast: 3f8304d2444d4e4132549ae4b530997040c0978d09fc8986bf67a3eba1538e99
-          destructured_ast: 55c36655c56d82657c07cd352bc12762b12f41a00ca7e8cbf039a4d4d8d6e264
-          inlined_ast: b7dda92d9f46b0646ce43f38625e29da41f0273f87990fc0e153cfe61e992523
-          dce_ast: 638d72b2d6010f5a2a7d699fb69b1a056faae9a878b3c37f2b34e8f41fad5176
-          bytecode: d207ac4b2d723295d2e715b2ea29f26bf8adcddbe41b4d5a036b69998a0ecfd6
-          errors: ""
-          warnings: ""
-        - initial_symbol_table: 1a537ce4873945cd8969e08fd2440d3d9dbf4175306e7a60a18f59305958366e
-          type_checked_symbol_table: 3c670b67da9da6028e642d487a1382f3de1b554c8c0d51fc531b71e36b5cdef5
-          unrolled_symbol_table: 3c670b67da9da6028e642d487a1382f3de1b554c8c0d51fc531b71e36b5cdef5
-          initial_ast: bcfa98eafaf355e7313773fa4340b88d2530e3d2b279252fc1117327de42d77a
-          unrolled_ast: 01a9f5e11f5749b408619a513bf7f9eececfd83f9f87c883fcd8db53440babab
-          ssa_ast: b6da9c41019a2af6cd137e29fe7b5041cc13a45d574b920101a69f7093c58980
-          flattened_ast: 7bddc7f16b5ef5baef1fc50ac2f45767844d05fc0de797d267c77306bc586dc5
-          destructured_ast: df2c950dd52d4094ef1f2d364aa6dd57020f7ca431ead915353c2c33482ee05d
-          inlined_ast: 7dd0bb6eee84d038c01e43a8c7fdfd38ec3cbb269bf4990078a49e5202fe177e
-          dce_ast: 4378a2b09abc850959d98704efb7ec28bd6ad7962cc4ec761e26e57400cec8a0
-          bytecode: 10ad760ad5a7c1882aca46c034e78125cc5cb06a57163ca694a3cb568be4fff9
-          errors: ""
-          warnings: "Warning [WTYC0372000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.\n    --> compiler-test:17:5\n     |\n  17 |     async function finalize_main(f: Future, f2: Future, a: u32) {\n  18 |         // f.await();\n  19 |         if a == 1u32 {\n  20 |             Future::await(f);\n  21 |             f2.await();\n  22 |         }\n  23 | \n  24 |         if a == 2u32 {\n  25 |             //f2.await();\n  26 |             Mapping::set(ayo, 1u32, 1u32);\n  27 |         }\n  28 | \n  29 |         let total: u32 = f.0 + f2.0;\n  30 |         Mapping::set(ayo, 1u32, total);\n  31 |     }\n     |     ^\n     |\n     = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag."
-        - initial_symbol_table: 04f7d3a44d791763aec79b596224c653e682ab928bc0cba71a1cd6282198e885
-          type_checked_symbol_table: d9d3363d1049a924bbae356d0f90ac3c9bfca7f6ae5ba51ad915d66e9d0b9a1e
-          unrolled_symbol_table: d9d3363d1049a924bbae356d0f90ac3c9bfca7f6ae5ba51ad915d66e9d0b9a1e
-          initial_ast: 856e56d95eaf14f6e9241001763546b7d982402ac87521e2ec3b7ea476764692
-          unrolled_ast: 75b69748ca1e534c95cf084164773d471f51537b50b2d517dc4be26dddb06e1b
-          ssa_ast: 6d38bf225e9cf5af37b9d6c595c2973ec31a32d227ca65cb590d27400d442780
-          flattened_ast: 65fb4138701cad86a5fcd7e024645e833aeb6e88b3ea2a3a6b69269fd1d77620
-          destructured_ast: 85a81c23da7e97b057ddf4ef71f375781e1dfcb90d656d694a5aa0f0c176b497
-          inlined_ast: a1b2367575e170a79ace2ac7ff071bc3c770476b37ee149310c3b2cfe67b1c7f
-          dce_ast: f46fa7963b327b9c75c9f7a7569e350d7f62c21964cb5df140cd2186c2043697
-          bytecode: 7a2fd5581e13d3b66f1fad269ba868cf6d272929b84cea2dc1cb6a0af22867c2
-          errors: ""
-          warnings: ""
-        - initial_symbol_table: 11c1000ce2f1774ad382af12ba51e8b55d5a98ee0da67cb8620e686c1fcaebb1
-          type_checked_symbol_table: 9f27eb3f177ceb81d9b14cc85c07b7198eb67d0ee806c04cbbff1cfb18b997ab
-          unrolled_symbol_table: 9f27eb3f177ceb81d9b14cc85c07b7198eb67d0ee806c04cbbff1cfb18b997ab
-          initial_ast: 575e251f07e552c917ab36bc9877b13dd1638651c4023ade20701dd2a5fe27ff
-          unrolled_ast: 2a4969ad315e900b5a3f1eecd4e6508dc6946fb5f6c3861ee793961ce6bcc203
-          ssa_ast: 4a00e3d36cdd4ff4be1fc6a389aaf17cfb02b6c54fa84276fb5be66b8a78b124
-          flattened_ast: 885c5f8145aa1a82e5fe41abbabae12cbd15eb014b333b246c6c5401b5b6bfea
-          destructured_ast: f3b5b961a498f9befec85b69b3012145a6e97774d37a8c8e354ec4e5eeb64f84
-          inlined_ast: 2bf37fc499b3eca18c8227e61f69f730d36e755d7879dde13bb9161936bafbfc
-          dce_ast: 390391c2098cf6a910eeec98fc92fdea31303a84a1d6fd6673c8dbd9d20180de
-          bytecode: 388c60022d4ad4fac382a685cc997c84d142f4e1357eb7c00e3efb545f5f70e5
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [
+    { initial_symbol_table = "c3d0ea026b5d60b48e857637a67489b89de75466d257974347c164546b9b9660", type_checked_symbol_table = "ae06cab6240fce0da07873fbf8159dc2acade6e666375b1c52dc586a98a0f8a3", unrolled_symbol_table = "ae06cab6240fce0da07873fbf8159dc2acade6e666375b1c52dc586a98a0f8a3", initial_ast = "6e3dc0ac11741965498701cb2b5ebb68eecb1e932b9f6d84aca33350b91f6e2d", unrolled_ast = "6e3dc0ac11741965498701cb2b5ebb68eecb1e932b9f6d84aca33350b91f6e2d", ssa_ast = "d898f89ce1fbcd93694c06446e31d5ab52ace6fd966c7dd35e082dead74440c7", flattened_ast = "3f8304d2444d4e4132549ae4b530997040c0978d09fc8986bf67a3eba1538e99", destructured_ast = "55c36655c56d82657c07cd352bc12762b12f41a00ca7e8cbf039a4d4d8d6e264", inlined_ast = "b7dda92d9f46b0646ce43f38625e29da41f0273f87990fc0e153cfe61e992523", dce_ast = "638d72b2d6010f5a2a7d699fb69b1a056faae9a878b3c37f2b34e8f41fad5176", bytecode = """
+program test_dep.aleo;
+
+record yeets:
+    owner as address.private;
+    val as u32.private;
+
+
+mapping Yo:
+\tkey as u32.public;
+\tvalue as u32.public;
+
+
+function main_dep:
+    input r0 as u32.private;
+    async main_dep r0 1u32 into r1;
+    cast self.caller 1u32 into r2 as yeets.record;
+    output r2 as yeets.record;
+    output r1 as test_dep.aleo/main_dep.future;
+
+finalize main_dep:
+    input r0 as u32.public;
+    input r1 as u32.public;
+    set r1 into Yo[r0];
+
+
+
+
+function main_dep_2:
+    input r0 as u32.private;
+    async main_dep_2 into r1;
+    cast self.caller 1u32 into r2 as yeets.record;
+    output r2 as yeets.record;
+    output r1 as test_dep.aleo/main_dep_2.future;
+
+finalize main_dep_2:
+    set 1u32 into Yo[1u32];
+
+""", errors = "", warnings = "" },
+    { initial_symbol_table = "1a537ce4873945cd8969e08fd2440d3d9dbf4175306e7a60a18f59305958366e", type_checked_symbol_table = "3c670b67da9da6028e642d487a1382f3de1b554c8c0d51fc531b71e36b5cdef5", unrolled_symbol_table = "3c670b67da9da6028e642d487a1382f3de1b554c8c0d51fc531b71e36b5cdef5", initial_ast = "bcfa98eafaf355e7313773fa4340b88d2530e3d2b279252fc1117327de42d77a", unrolled_ast = "01a9f5e11f5749b408619a513bf7f9eececfd83f9f87c883fcd8db53440babab", ssa_ast = "b6da9c41019a2af6cd137e29fe7b5041cc13a45d574b920101a69f7093c58980", flattened_ast = "7bddc7f16b5ef5baef1fc50ac2f45767844d05fc0de797d267c77306bc586dc5", destructured_ast = "df2c950dd52d4094ef1f2d364aa6dd57020f7ca431ead915353c2c33482ee05d", inlined_ast = "7dd0bb6eee84d038c01e43a8c7fdfd38ec3cbb269bf4990078a49e5202fe177e", dce_ast = "4378a2b09abc850959d98704efb7ec28bd6ad7962cc4ec761e26e57400cec8a0", bytecode = """
+import test_dep.aleo;
+program test.aleo;
+
+
+
+mapping ayo:
+\tkey as u32.public;
+\tvalue as u32.public;
+
+
+function main:
+    input r0 as u32.private;
+    call test_dep.aleo/main_dep 10u32 into r1 r2;
+    call test_dep.aleo/main_dep 1u32 into r3 r4;
+    async main r2 r4 1u32 into r5;
+    add r2[0u32] r4[0u32] into r6;
+    add r6 1u32 into r7;
+    add r7 r2[0u32] into r8;
+    mul r2[0u32] 2u32 into r9;
+    add r8 r9 into r10;
+    output r10 as u32.private;
+    output r5 as test.aleo/main.future;
+
+finalize main:
+    input r0 as test_dep.aleo/main_dep.future;
+    input r1 as test_dep.aleo/main_dep.future;
+    input r2 as u32.public;
+    is.eq r2 1u32 into r3;
+    branch.eq r3 false to end_then_0_0;
+    await r0;
+    await r1;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    is.eq r2 2u32 into r4;
+    branch.eq r4 false to end_then_0_2;
+    set 1u32 into ayo[1u32];
+    branch.eq true true to end_otherwise_0_3;
+    position end_then_0_2;
+    position end_otherwise_0_3;
+    add r0[0u32] r1[0u32] into r5;
+    set r5 into ayo[1u32];
+
+""", errors = "", warnings = """
+Warning [WTYC0372000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
+    --> compiler-test:17:5
+     |
+  17 |     async function finalize_main(f: Future, f2: Future, a: u32) {
+  18 |         // f.await();
+  19 |         if a == 1u32 {
+  20 |             Future::await(f);
+  21 |             f2.await();
+  22 |         }
+  23 | 
+  24 |         if a == 2u32 {
+  25 |             //f2.await();
+  26 |             Mapping::set(ayo, 1u32, 1u32);
+  27 |         }
+  28 | 
+  29 |         let total: u32 = f.0 + f2.0;
+  30 |         Mapping::set(ayo, 1u32, total);
+  31 |     }
+     |     ^
+     |
+     = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.""" },
+    { initial_symbol_table = "04f7d3a44d791763aec79b596224c653e682ab928bc0cba71a1cd6282198e885", type_checked_symbol_table = "d9d3363d1049a924bbae356d0f90ac3c9bfca7f6ae5ba51ad915d66e9d0b9a1e", unrolled_symbol_table = "d9d3363d1049a924bbae356d0f90ac3c9bfca7f6ae5ba51ad915d66e9d0b9a1e", initial_ast = "856e56d95eaf14f6e9241001763546b7d982402ac87521e2ec3b7ea476764692", unrolled_ast = "75b69748ca1e534c95cf084164773d471f51537b50b2d517dc4be26dddb06e1b", ssa_ast = "6d38bf225e9cf5af37b9d6c595c2973ec31a32d227ca65cb590d27400d442780", flattened_ast = "65fb4138701cad86a5fcd7e024645e833aeb6e88b3ea2a3a6b69269fd1d77620", destructured_ast = "85a81c23da7e97b057ddf4ef71f375781e1dfcb90d656d694a5aa0f0c176b497", inlined_ast = "a1b2367575e170a79ace2ac7ff071bc3c770476b37ee149310c3b2cfe67b1c7f", dce_ast = "f46fa7963b327b9c75c9f7a7569e350d7f62c21964cb5df140cd2186c2043697", bytecode = """
+import test_dep.aleo;
+import test.aleo;
+program wrapper.aleo;
+
+
+
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    call test.aleo/main 1u32 into r2 r3;
+    call test.aleo/main 1u32 into r4 r5;
+    call test.aleo/main 1u32 into r6 r7;
+    async main r3 r5 r7 into r8;
+    output r2 as u32.private;
+    output r8 as wrapper.aleo/main.future;
+
+finalize main:
+    input r0 as test.aleo/main.future;
+    input r1 as test.aleo/main.future;
+    input r2 as test.aleo/main.future;
+    await r0;
+    await r1;
+    await r2;
+
+""", errors = "", warnings = "" },
+    { initial_symbol_table = "11c1000ce2f1774ad382af12ba51e8b55d5a98ee0da67cb8620e686c1fcaebb1", type_checked_symbol_table = "9f27eb3f177ceb81d9b14cc85c07b7198eb67d0ee806c04cbbff1cfb18b997ab", unrolled_symbol_table = "9f27eb3f177ceb81d9b14cc85c07b7198eb67d0ee806c04cbbff1cfb18b997ab", initial_ast = "575e251f07e552c917ab36bc9877b13dd1638651c4023ade20701dd2a5fe27ff", unrolled_ast = "2a4969ad315e900b5a3f1eecd4e6508dc6946fb5f6c3861ee793961ce6bcc203", ssa_ast = "4a00e3d36cdd4ff4be1fc6a389aaf17cfb02b6c54fa84276fb5be66b8a78b124", flattened_ast = "885c5f8145aa1a82e5fe41abbabae12cbd15eb014b333b246c6c5401b5b6bfea", destructured_ast = "f3b5b961a498f9befec85b69b3012145a6e97774d37a8c8e354ec4e5eeb64f84", inlined_ast = "2bf37fc499b3eca18c8227e61f69f730d36e755d7879dde13bb9161936bafbfc", dce_ast = "390391c2098cf6a910eeec98fc92fdea31303a84a1d6fd6673c8dbd9d20180de", bytecode = """
+import test_dep.aleo;
+import test.aleo;
+import wrapper.aleo;
+program big_wrapper.aleo;
+
+
+
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    call wrapper.aleo/main 10u32 10u32 into r2 r3;
+    async main r3 into r4;
+    output r4[0u32][0u32][0u32][0u32] as u32.private;
+    output r4 as big_wrapper.aleo/main.future;
+
+finalize main:
+    input r0 as wrapper.aleo/main.future;
+    await r0;
+
+""", errors = "", warnings = "" },
+] }]]

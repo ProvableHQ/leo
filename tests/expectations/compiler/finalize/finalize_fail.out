@@ -1,5 +1,32 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EAST0372006]: function `finalize_no_params` shadowed by\n    --> compiler-test:27:5\n     |\n  27 |     async function finalize_no_params() {\n  28 |         increment(values, 0u8, 1u8);\n  29 |         increment(account, self.caller, 1u64);\n  30 |     }\n     |     ^\nWarning [WPAR0370001]: The keyword `increment` is deprecated.\n    --> compiler-test:12:9\n     |\n  12 |         increment(account, receiver, amount);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n     |\n     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings.\nWarning [WPAR0370001]: The keyword `increment` is deprecated.\n    --> compiler-test:28:9\n     |\n  28 |         increment(values, 0u8, 1u8);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n     |\n     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings.\nWarning [WPAR0370001]: The keyword `increment` is deprecated.\n    --> compiler-test:29:9\n     |\n  29 |         increment(account, self.caller, 1u64);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n     |\n     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings."
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EAST0372006]: function `finalize_no_params` shadowed by
+    --> compiler-test:27:5
+     |
+  27 |     async function finalize_no_params() {
+  28 |         increment(values, 0u8, 1u8);
+  29 |         increment(account, self.caller, 1u64);
+  30 |     }
+     |     ^
+Warning [WPAR0370001]: The keyword `increment` is deprecated.
+    --> compiler-test:12:9
+     |
+  12 |         increment(account, receiver, amount);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings.
+Warning [WPAR0370001]: The keyword `increment` is deprecated.
+    --> compiler-test:28:9
+     |
+  28 |         increment(values, 0u8, 1u8);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings.
+Warning [WPAR0370001]: The keyword `increment` is deprecated.
+    --> compiler-test:29:9
+     |
+  29 |         increment(account, self.caller, 1u64);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings."""]

@@ -1,18 +1,39 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: e62c1b7c10399ecc5c160520319218d96b599b5cfd37add3032a8455552c7892
-          type_checked_symbol_table: 6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb
-          unrolled_symbol_table: 6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb
-          initial_ast: 2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023
-          unrolled_ast: 2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023
-          ssa_ast: 5b011875455c2efbb3c222c91b40f049ca074e3b21685e27bfff6ecf50359ecf
-          flattened_ast: 71235c2f490ba2f1d7cabccec771d68078a8313fa2ecbdb3a17e88410132bde4
-          destructured_ast: 236729b9a950bec2251d0ea55cc078f41437cdbd16beb05fa2910fbe6f671182
-          inlined_ast: 236729b9a950bec2251d0ea55cc078f41437cdbd16beb05fa2910fbe6f671182
-          dce_ast: 7477da18c60adbb27b8213fae81aea20b3a4efaf8e42369c468eb8cc1c8b5932
-          bytecode: ae52309998de7e291d82e92418fdbf583b182ce12e710e844550132d8743380e
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "e62c1b7c10399ecc5c160520319218d96b599b5cfd37add3032a8455552c7892", type_checked_symbol_table = "6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb", unrolled_symbol_table = "6b8247d514ab06d72b92f94ada2a29c109fdb033decdc417a95ba371a2323fcb", initial_ast = "2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023", unrolled_ast = "2939c07bf811d0a110e3f4d41ce08332be4a6938213330fcda20502369155023", ssa_ast = "5b011875455c2efbb3c222c91b40f049ca074e3b21685e27bfff6ecf50359ecf", flattened_ast = "71235c2f490ba2f1d7cabccec771d68078a8313fa2ecbdb3a17e88410132bde4", destructured_ast = "236729b9a950bec2251d0ea55cc078f41437cdbd16beb05fa2910fbe6f671182", inlined_ast = "236729b9a950bec2251d0ea55cc078f41437cdbd16beb05fa2910fbe6f671182", dce_ast = "7477da18c60adbb27b8213fae81aea20b3a4efaf8e42369c468eb8cc1c8b5932", bytecode = """
+program test.aleo;
+
+record Bid:
+    owner as address.private;
+    bidder as address.private;
+    amount as u64.private;
+    is_winner as boolean.private;
+
+
+function place_bid:
+    input r0 as address.private;
+    input r1 as u64.private;
+    assert.eq self.caller r0;
+    cast aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh r0 r1 false into r2 as Bid.record;
+    output r2 as Bid.record;
+
+
+function resolve:
+    input r0 as Bid.record;
+    input r1 as Bid.record;
+    assert.eq self.caller aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh;
+    gte r0.amount r1.amount into r2;
+    ternary r2 r0.owner r1.owner into r3;
+    ternary r2 r0.bidder r1.bidder into r4;
+    ternary r2 r0.amount r1.amount into r5;
+    ternary r2 r0.is_winner r1.is_winner into r6;
+    cast r3 r4 r5 r6 into r7 as Bid.record;
+    output r7 as Bid.record;
+
+
+function finish:
+    input r0 as Bid.record;
+    assert.eq self.caller aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh;
+    cast r0.bidder r0.bidder r0.amount true into r1 as Bid.record;
+    output r1 as Bid.record;
+""", errors = "", warnings = "" }] }]]

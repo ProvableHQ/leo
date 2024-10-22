@@ -1,5 +1,55 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372043]: Cannot call a local transition function from a transition function.\n    --> compiler-test:23:16\n     |\n  23 |         return six(n);\n     |                ^^^^^^\nError [ETYC0372043]: Cannot call a local transition function from a transition function.\n    --> compiler-test:27:16\n     |\n  27 |         return seven(n) + eight(n);\n     |                ^^^^^^^^\nError [ETYC0372043]: Cannot call a local transition function from a transition function.\n    --> compiler-test:27:27\n     |\n  27 |         return seven(n) + eight(n);\n     |                           ^^^^^^^^\nError [ETYC0372043]: Cannot call a local transition function from a transition function.\n    --> compiler-test:31:16\n     |\n  31 |         return five(n);\n     |                ^^^^^^^\nError [ETYC0372043]: Cannot call a local transition function from a transition function.\n    --> compiler-test:35:16\n     |\n  35 |         return five(n);\n     |                ^^^^^^^\nError [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:7:16\n     |\n   7 |         return two(n);\n     |                ^^^^^^\nError [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:11:16\n     |\n  11 |         return three(n) + four(n);\n     |                ^^^^^^^^\nError [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:11:27\n     |\n  11 |         return three(n) + four(n);\n     |                           ^^^^^^^\nError [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:15:16\n     |\n  15 |         return one(n);\n     |                ^^^^^^\nError [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:19:16\n     |\n  19 |         return one(n);\n     |                ^^^^^^\nError [ETYC0372059]: Cyclic dependency between functions: `five` --> `six` --> `seven` --> `five`\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:23:16
+     |
+  23 |         return six(n);
+     |                ^^^^^^
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:27:16
+     |
+  27 |         return seven(n) + eight(n);
+     |                ^^^^^^^^
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:27:27
+     |
+  27 |         return seven(n) + eight(n);
+     |                           ^^^^^^^^
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:31:16
+     |
+  31 |         return five(n);
+     |                ^^^^^^^
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:35:16
+     |
+  35 |         return five(n);
+     |                ^^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:7:16
+     |
+   7 |         return two(n);
+     |                ^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:11:16
+     |
+  11 |         return three(n) + four(n);
+     |                ^^^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:11:27
+     |
+  11 |         return three(n) + four(n);
+     |                           ^^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:15:16
+     |
+  15 |         return one(n);
+     |                ^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:19:16
+     |
+  19 |         return one(n);
+     |                ^^^^^^
+Error [ETYC0372059]: Cyclic dependency between functions: `five` --> `six` --> `seven` --> `five`
+"""]

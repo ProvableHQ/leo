@@ -1,18 +1,35 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: bc9d048929ff94bda88c39a484c09cb42ff7d864a0565ce0a2529f77c76f0bc1
-          type_checked_symbol_table: 52e5122f749ac108f5c53b481886ab92185918e770714b01c42f339e5f489712
-          unrolled_symbol_table: 52e5122f749ac108f5c53b481886ab92185918e770714b01c42f339e5f489712
-          initial_ast: 6b1148feeddff414c9f68c99246cd506dbe9195701805ad86a48fa3a14baba66
-          unrolled_ast: 6b1148feeddff414c9f68c99246cd506dbe9195701805ad86a48fa3a14baba66
-          ssa_ast: 3e375cbca9880dc515ec9f6d8d74597a3ae47412876a0e227ef175f0eafed9c1
-          flattened_ast: 46bc0a697fdd71c1f11d77f2316741634c5356009c89d4a9148f954c845e1618
-          destructured_ast: a8e012d38d183720d972ff0be2b6ca37673db3d4b19e2c5dda0edb0626ec2496
-          inlined_ast: a8e012d38d183720d972ff0be2b6ca37673db3d4b19e2c5dda0edb0626ec2496
-          dce_ast: a8e012d38d183720d972ff0be2b6ca37673db3d4b19e2c5dda0edb0626ec2496
-          bytecode: 312c25062c283bf27a955dc0d7035c166da12e5e40eb55b9e6572af8750e0474
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "bc9d048929ff94bda88c39a484c09cb42ff7d864a0565ce0a2529f77c76f0bc1", type_checked_symbol_table = "52e5122f749ac108f5c53b481886ab92185918e770714b01c42f339e5f489712", unrolled_symbol_table = "52e5122f749ac108f5c53b481886ab92185918e770714b01c42f339e5f489712", initial_ast = "6b1148feeddff414c9f68c99246cd506dbe9195701805ad86a48fa3a14baba66", unrolled_ast = "6b1148feeddff414c9f68c99246cd506dbe9195701805ad86a48fa3a14baba66", ssa_ast = "3e375cbca9880dc515ec9f6d8d74597a3ae47412876a0e227ef175f0eafed9c1", flattened_ast = "46bc0a697fdd71c1f11d77f2316741634c5356009c89d4a9148f954c845e1618", destructured_ast = "a8e012d38d183720d972ff0be2b6ca37673db3d4b19e2c5dda0edb0626ec2496", inlined_ast = "a8e012d38d183720d972ff0be2b6ca37673db3d4b19e2c5dda0edb0626ec2496", dce_ast = "a8e012d38d183720d972ff0be2b6ca37673db3d4b19e2c5dda0edb0626ec2496", bytecode = """
+program test.aleo;
+
+struct Token:
+    Owner as address;
+    balance as u128;
+
+struct Bar:
+    a as u128;
+
+struct Baz:
+    a as u128;
+
+
+mapping balances:
+\tkey as address.public;
+\tvalue as u128.public;
+
+
+mapping tokens:
+\tkey as address.public;
+\tvalue as Token.public;
+
+
+mapping foo:
+\tkey as Bar.public;
+\tvalue as Baz.public;
+
+function matches:
+    input r0 as address.private;
+    is.eq self.caller r0 into r1;
+    output r1 as boolean.private;
+""", errors = "", warnings = "" }] }]]

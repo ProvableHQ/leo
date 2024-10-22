@@ -1,39 +1,28 @@
----
-namespace: Parse
-expectation: Pass
-outputs:
-  - imports: {}
-    stubs: {}
-    program_scopes:
-      test:
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
-        consts: []
-        structs: []
-        mappings:
-          - - balances
-            - identifier: "{\"id\":\"2\",\"name\":\"balances\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":46}\"}"
-              key_type: Address
-              value_type:
-                Integer: U128
-              span:
-                lo: 30
-                hi: 64
-              id: 3
-          - - foo
-            - identifier: "{\"id\":\"4\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":82,\\\"hi\\\":85}\"}"
-              key_type:
-                Composite:
-                  id: "{\"id\":\"5\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":87,\\\"hi\\\":90}\"}"
-                  program: test
-              value_type:
-                Composite:
-                  id: "{\"id\":\"6\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":94,\\\"hi\\\":97}\"}"
-                  program: test
-              span:
-                lo: 74
-                hi: 98
-              id: 7
-        functions: []
-        span:
-          lo: 2
-          hi: 100
+namespace = "Parse"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.imports]
+
+[outputs.stubs]
+
+[outputs.program_scopes.test]
+program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
+consts = []
+structs = []
+mappings = [
+    [
+    "balances",
+    { identifier = '{"id":"2","name":"balances","span":"{\"lo\":38,\"hi\":46}"}', key_type = "Address", id = 3, value_type = { Integer = "U128" }, span = { lo = 30, hi = 64 } },
+],
+    [
+    "foo",
+    { identifier = '{"id":"4","name":"foo","span":"{\"lo\":82,\"hi\":85}"}', id = 7, key_type = { Composite = { id = '{"id":"5","name":"bar","span":"{\"lo\":87,\"hi\":90}"}', program = "test" } }, value_type = { Composite = { id = '{"id":"6","name":"baz","span":"{\"lo\":94,\"hi\":97}"}', program = "test" } }, span = { lo = 74, hi = 98 } },
+],
+]
+functions = []
+
+[outputs.program_scopes.test.span]
+lo = 2
+hi = 100

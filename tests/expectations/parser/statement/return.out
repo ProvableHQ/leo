@@ -1,25 +1,31 @@
----
-namespace: ParseStatement
-expectation: Pass
-outputs:
-  - Return:
-      expression:
-        Identifier: "{\"id\":\"0\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":11}\"}"
-      span:
-        lo: 0
-        hi: 12
-      id: 1
-  - Return:
-      expression:
-        Literal:
-          Integer:
-            - U8
-            - "5"
-            - span:
-                lo: 7
-                hi: 10
-            - 0
-      span:
-        lo: 0
-        hi: 11
-      id: 1
+namespace = "ParseStatement"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Return]
+id = 1
+
+[outputs.Return.expression]
+Identifier = '{"id":"0","name":"expr","span":"{\"lo\":7,\"hi\":11}"}'
+
+[outputs.Return.span]
+lo = 0
+hi = 12
+
+[[outputs]]
+
+[outputs.Return]
+id = 1
+
+[outputs.Return.expression.Literal]
+Integer = [
+    "U8",
+    "5",
+    { span = { lo = 7, hi = 10 } },
+    0,
+]
+
+[outputs.Return.span]
+lo = 0
+hi = 11

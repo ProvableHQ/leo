@@ -86,11 +86,11 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
         Some(configs) => {
             // Parse the sequence of compiler configurations.
             configs
-                .as_sequence()
+                .as_array()
                 .unwrap()
                 .iter()
                 .map(|config| {
-                    let config = config.as_mapping().expect("Expected the compiler configuration to be a mapping.");
+                    let config = config.as_table().expect("Expected the compiler configuration to be a mapping.");
                     assert_eq!(
                         config.len(),
                         1,
@@ -98,7 +98,7 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
                     );
                     BuildOptions {
                         dce_enabled: config
-                            .get(&serde_yaml::Value::String("dce_enabled".to_string()))
+                            .get("dce_enabled")
                             .expect("Expected key `dce_enabled`")
                             .as_bool()
                             .expect("Expected value to be a boolean."),

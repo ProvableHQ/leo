@@ -1,18 +1,28 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 3d9997e6053158f7417078040b0e807686d33f9b95d33cf1c074bd9562e8d9f2
-          type_checked_symbol_table: ccfc94a41a9005689f8763b06abded5b70aff55cd5de737dcc4ba7b22f3d0eb1
-          unrolled_symbol_table: ccfc94a41a9005689f8763b06abded5b70aff55cd5de737dcc4ba7b22f3d0eb1
-          initial_ast: df1e83ca957224f18177bbb58afb309635ce7bafa88805bece080784aa59ad0b
-          unrolled_ast: dacb4f3c7a6a20250a488a034d9580439bae339b72752813b4339ff686c1ac89
-          ssa_ast: dc71372b5e7bec8375e0cc8e1f1cf02f2cc1412c7c1dfa18efeb7a4b212fb544
-          flattened_ast: 2e581db5670414963a26c9d11b581255053883e94ef6ad2ce4d7c961789c274d
-          destructured_ast: 0bb95d70f3d82f2d4bcbab48ae15539e4da50eedf57f931ef6fbf5eefdf13757
-          inlined_ast: 0bb95d70f3d82f2d4bcbab48ae15539e4da50eedf57f931ef6fbf5eefdf13757
-          dce_ast: 0bb95d70f3d82f2d4bcbab48ae15539e4da50eedf57f931ef6fbf5eefdf13757
-          bytecode: 6ea0a455c7cc5f2bd868d5780a7735c599fb95c99157997d156dce175d6c6e94
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "3d9997e6053158f7417078040b0e807686d33f9b95d33cf1c074bd9562e8d9f2", type_checked_symbol_table = "ccfc94a41a9005689f8763b06abded5b70aff55cd5de737dcc4ba7b22f3d0eb1", unrolled_symbol_table = "ccfc94a41a9005689f8763b06abded5b70aff55cd5de737dcc4ba7b22f3d0eb1", initial_ast = "df1e83ca957224f18177bbb58afb309635ce7bafa88805bece080784aa59ad0b", unrolled_ast = "dacb4f3c7a6a20250a488a034d9580439bae339b72752813b4339ff686c1ac89", ssa_ast = "dc71372b5e7bec8375e0cc8e1f1cf02f2cc1412c7c1dfa18efeb7a4b212fb544", flattened_ast = "2e581db5670414963a26c9d11b581255053883e94ef6ad2ce4d7c961789c274d", destructured_ast = "0bb95d70f3d82f2d4bcbab48ae15539e4da50eedf57f931ef6fbf5eefdf13757", inlined_ast = "0bb95d70f3d82f2d4bcbab48ae15539e4da50eedf57f931ef6fbf5eefdf13757", dce_ast = "0bb95d70f3d82f2d4bcbab48ae15539e4da50eedf57f931ef6fbf5eefdf13757", bytecode = """
+program test.aleo;
+
+record move:
+    owner as address.private;
+    incoming_fire_coordinate as u64.private;
+    player_1 as address.private;
+    player_2 as address.private;
+    prev_hit_or_miss as u64.private;
+
+
+function create_move:
+    input r0 as move.record;
+    input r1 as u64.private;
+    input r2 as u64.private;
+    is.eq r0.player_1 r0.owner into r3;
+    ternary r3 r0.player_2 r0.player_1 into r4;
+    cast r4 r1 r0.player_2 r0.player_1 r2 into r5 as move.record;
+    output r5 as move.record;
+
+
+function start_game:
+    input r0 as address.private;
+    cast r0 0u64 self.caller r0 0u64 into r1 as move.record;
+    output r1 as move.record;
+""", errors = "", warnings = "" }] }]]

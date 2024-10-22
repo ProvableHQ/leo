@@ -1,18 +1,17 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 7b7370a95949739bbb1b6fa3139ba90670c42d68eac051eaabfe4aa759775481
-          type_checked_symbol_table: c0de0856800efab5e0591eda8ac78e3bfe858a9205d46401a07a0c91077767a9
-          unrolled_symbol_table: c0de0856800efab5e0591eda8ac78e3bfe858a9205d46401a07a0c91077767a9
-          initial_ast: 655e847661250ba3937f6419a9d920797a794cad63feb65196bec00d658234fe
-          unrolled_ast: 655e847661250ba3937f6419a9d920797a794cad63feb65196bec00d658234fe
-          ssa_ast: 5e28e91d5318baefa8d55e6817659de0c72416b7fdb8ef77df5e4e3a5703b8d1
-          flattened_ast: 03ae9b01404a08345cc315de9d11190899294a8b7970fffa9296a0d2f6e5e11f
-          destructured_ast: 056366508d4a248cd4ed6fb04a69efbb07f6f79ffc889f872afd5e1279785e96
-          inlined_ast: 056366508d4a248cd4ed6fb04a69efbb07f6f79ffc889f872afd5e1279785e96
-          dce_ast: 056366508d4a248cd4ed6fb04a69efbb07f6f79ffc889f872afd5e1279785e96
-          bytecode: cdfda5c02b9b486f79d17a9edef9df16a4fa359ae21e048bbf6c5a22bdf9b38e
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "7b7370a95949739bbb1b6fa3139ba90670c42d68eac051eaabfe4aa759775481", type_checked_symbol_table = "c0de0856800efab5e0591eda8ac78e3bfe858a9205d46401a07a0c91077767a9", unrolled_symbol_table = "c0de0856800efab5e0591eda8ac78e3bfe858a9205d46401a07a0c91077767a9", initial_ast = "655e847661250ba3937f6419a9d920797a794cad63feb65196bec00d658234fe", unrolled_ast = "655e847661250ba3937f6419a9d920797a794cad63feb65196bec00d658234fe", ssa_ast = "5e28e91d5318baefa8d55e6817659de0c72416b7fdb8ef77df5e4e3a5703b8d1", flattened_ast = "03ae9b01404a08345cc315de9d11190899294a8b7970fffa9296a0d2f6e5e11f", destructured_ast = "056366508d4a248cd4ed6fb04a69efbb07f6f79ffc889f872afd5e1279785e96", inlined_ast = "056366508d4a248cd4ed6fb04a69efbb07f6f79ffc889f872afd5e1279785e96", dce_ast = "056366508d4a248cd4ed6fb04a69efbb07f6f79ffc889f872afd5e1279785e96", bytecode = """
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u64.private;
+    gates as u64.private;
+
+
+function main:
+    input r0 as u64.private;
+    input r1 as u64.private;
+    cast self.caller r0 r1 into r2 as Token.record;
+    output r2 as Token.record;
+""", errors = "", warnings = "" }] }]]

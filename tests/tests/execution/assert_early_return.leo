@@ -1,22 +1,26 @@
 /*
-namespace: Execute
-expectation: Pass
-cases:
-    - program: test.aleo
-      function: main
-      input: ["1u32"]
-    - program: test.aleo
-      function: main
-      input: ["2u32"]
-    - program: test.aleo
-      function: main
-      input: ["3u32"]
-    - program: test.aleo
-      function: main
-      input: ["4u32"]
-    - program: test.aleo
-      function: main
-      input: ["5u32"]
+namespace = "Execute"
+expectation = "Pass"
+[[cases]]
+program = "test.aleo"
+function = "main"
+input = ["1u32"]
+[[cases]]
+program = "test.aleo"
+function = "main"
+input = ["2u32"]
+[[cases]]
+program = "test.aleo"
+function = "main"
+input = ["3u32"]
+[[cases]]
+program = "test.aleo"
+function = "main"
+input = ["4u32"]
+[[cases]]
+program = "test.aleo"
+function = "main"
+input = ["5u32"]
 */
 
 // The intent is to test that the assertion

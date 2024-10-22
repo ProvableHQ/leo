@@ -1,5 +1,9 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372005]: Unknown variable `users`\n    --> compiler-test:11:35\n     |\n  11 |         let a:bool = Mapping::get(relay.aleo/users, addr);\n     |                                   ^^^^^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372005]: Unknown variable `users`
+    --> compiler-test:11:35
+     |
+  11 |         let a:bool = Mapping::get(relay.aleo/users, addr);
+     |                                   ^^^^^^^^^^^^^^^^
+"""]

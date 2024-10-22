@@ -1,5 +1,8 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> compiler-test:10:17\n     |\n  10 |         let err = a.y;\n     |                 ^"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370005]: expected : -- found '='
+    --> compiler-test:10:17
+     |
+  10 |         let err = a.y;
+     |                 ^"""]

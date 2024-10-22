@@ -1,18 +1,64 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 37bc119985fc346d7ac604986beb19629f6016e99ae5be8f8282f5755bdd6e43
-          type_checked_symbol_table: d46a714294f78dce6339bd6480e1ee888ec57ab92a28a4b2e949647161e49a73
-          unrolled_symbol_table: d46a714294f78dce6339bd6480e1ee888ec57ab92a28a4b2e949647161e49a73
-          initial_ast: bceb61ae75b47e92e83ce5e6836b22b68854858bb24207c476e77f6580b20c4b
-          unrolled_ast: bceb61ae75b47e92e83ce5e6836b22b68854858bb24207c476e77f6580b20c4b
-          ssa_ast: 695acd5239878bc6336d3628999bde308ea9e07b6cb45e61fd5586e72cd6faaa
-          flattened_ast: a60a773110079c62010c5e2a82dd0c4d9ecc02e050c78e32effc3bf7307f7de0
-          destructured_ast: a2d873b02a1ae206b71dd77ab3e2452fb3fe7e204778e42baec415d0ce9b85cd
-          inlined_ast: e2939aaa893ac951eee3011e2ba14a75bc107a7d629ab17b665247844cf668cb
-          dce_ast: 5834dad1067cd1a345142ff7cb8f7d82c6eba50adf97971c3168b148d3e1c70b
-          bytecode: be43f1b20093160fdfc6c5f85fbbe6c3693a41505738d4d0db70b1fcf2243a4f
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "37bc119985fc346d7ac604986beb19629f6016e99ae5be8f8282f5755bdd6e43", type_checked_symbol_table = "d46a714294f78dce6339bd6480e1ee888ec57ab92a28a4b2e949647161e49a73", unrolled_symbol_table = "d46a714294f78dce6339bd6480e1ee888ec57ab92a28a4b2e949647161e49a73", initial_ast = "bceb61ae75b47e92e83ce5e6836b22b68854858bb24207c476e77f6580b20c4b", unrolled_ast = "bceb61ae75b47e92e83ce5e6836b22b68854858bb24207c476e77f6580b20c4b", ssa_ast = "695acd5239878bc6336d3628999bde308ea9e07b6cb45e61fd5586e72cd6faaa", flattened_ast = "a60a773110079c62010c5e2a82dd0c4d9ecc02e050c78e32effc3bf7307f7de0", destructured_ast = "a2d873b02a1ae206b71dd77ab3e2452fb3fe7e204778e42baec415d0ce9b85cd", inlined_ast = "e2939aaa893ac951eee3011e2ba14a75bc107a7d629ab17b665247844cf668cb", dce_ast = "5834dad1067cd1a345142ff7cb8f7d82c6eba50adf97971c3168b148d3e1c70b", bytecode = """
+program test.aleo;
+
+struct Data:
+    data as [u8; 2u32];
+
+
+closure foo:
+    input r0 as u8;
+    input r1 as u8;
+    cast  r0 r1 into r2 as [u8; 2u32];
+    cast r2 into r3 as Data;
+    cast  r1 r0 into r4 as [u8; 2u32];
+    cast r4 into r5 as Data;
+    is.eq r0 r1 into r6;
+    cast  r3 r5 into r7 as [Data; 2u32];
+    mul 2u8 r3.data[0u32] into r8;
+    mul 4u8 r5.data[1u32] into r9;
+    cast  r8 r9 into r10 as [u8; 2u32];
+    cast r10 into r11 as Data;
+    cast  r5 r11 into r12 as [Data; 2u32];
+    ternary r6 r7[0u32].data[0u32] r12[0u32].data[0u32] into r13;
+    ternary r6 r7[0u32].data[1u32] r12[0u32].data[1u32] into r14;
+    cast  r13 r14 into r15 as [u8; 2u32];
+    cast r15 into r16 as Data;
+    ternary r6 r7[1u32].data[0u32] r12[1u32].data[0u32] into r17;
+    ternary r6 r7[1u32].data[1u32] r12[1u32].data[1u32] into r18;
+    cast  r17 r18 into r19 as [u8; 2u32];
+    cast r19 into r20 as Data;
+    cast  r16 r20 into r21 as [Data; 2u32];
+    output r21 as [Data; 2u32];
+
+
+function bar:
+    input r0 as boolean.private;
+    input r1 as boolean.private;
+    input r2 as u8.private;
+    input r3 as u8.private;
+    call foo r2 r3 into r4;
+    call foo r4[0u32].data[0u32] r4[1u32].data[1u32] into r5;
+    call foo r4[1u32].data[0u32] r4[0u32].data[1u32] into r6;
+    call foo r4[0u32].data[1u32] r4[1u32].data[0u32] into r7;
+    ternary r1 r6[0u32].data[0u32] r7[0u32].data[0u32] into r8;
+    ternary r1 r6[0u32].data[1u32] r7[0u32].data[1u32] into r9;
+    cast  r8 r9 into r10 as [u8; 2u32];
+    cast r10 into r11 as Data;
+    ternary r1 r6[1u32].data[0u32] r7[1u32].data[0u32] into r12;
+    ternary r1 r6[1u32].data[1u32] r7[1u32].data[1u32] into r13;
+    cast  r12 r13 into r14 as [u8; 2u32];
+    cast r14 into r15 as Data;
+    cast  r11 r15 into r16 as [Data; 2u32];
+    ternary r0 r5[0u32].data[0u32] r16[0u32].data[0u32] into r17;
+    ternary r0 r5[0u32].data[1u32] r16[0u32].data[1u32] into r18;
+    cast  r17 r18 into r19 as [u8; 2u32];
+    cast r19 into r20 as Data;
+    ternary r0 r5[1u32].data[0u32] r16[1u32].data[0u32] into r21;
+    ternary r0 r5[1u32].data[1u32] r16[1u32].data[1u32] into r22;
+    cast  r21 r22 into r23 as [u8; 2u32];
+    cast r23 into r24 as Data;
+    cast  r20 r24 into r25 as [Data; 2u32];
+    output r25 as [Data; 2u32].private;
+""", errors = "", warnings = "" }] }]]

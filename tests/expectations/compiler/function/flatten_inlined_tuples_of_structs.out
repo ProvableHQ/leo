@@ -1,18 +1,87 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: c138455fffa3721dbe11d7de65dd88130421ec4f07524779ff45ee87d01715d6
-          type_checked_symbol_table: ead044ce635fb4af279cc26d4a8947b27e584ea3c606191e391392fbcc67e39a
-          unrolled_symbol_table: ead044ce635fb4af279cc26d4a8947b27e584ea3c606191e391392fbcc67e39a
-          initial_ast: 4eaffbe5275c9202a13ecd96325d64711dd28510408da03cb69305b957cc0e88
-          unrolled_ast: 4eaffbe5275c9202a13ecd96325d64711dd28510408da03cb69305b957cc0e88
-          ssa_ast: d9500a5e75ac40d45f1cb1ca6e625f9a1dee7e46f3071016f52d5290af49ab70
-          flattened_ast: 72ecc5ed171c827877906534005f04450bb636efea54c08507026e6b15857862
-          destructured_ast: aed326f6c20b340137dd91f2303705c2c71d7b34140967a74ba3508e612c3399
-          inlined_ast: db6efe2d8c097043958fb85b644a36a6f888adc58772596ef6656087075fa8bd
-          dce_ast: 850d749160d2a12943ad2e94d47a83b1475bbc224830ab74f4ec598cc6f826d4
-          bytecode: fffe093215f68fcc292f2c7b67e847897cd0334cdbf4a410f288d7957541a1d3
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "c138455fffa3721dbe11d7de65dd88130421ec4f07524779ff45ee87d01715d6", type_checked_symbol_table = "ead044ce635fb4af279cc26d4a8947b27e584ea3c606191e391392fbcc67e39a", unrolled_symbol_table = "ead044ce635fb4af279cc26d4a8947b27e584ea3c606191e391392fbcc67e39a", initial_ast = "4eaffbe5275c9202a13ecd96325d64711dd28510408da03cb69305b957cc0e88", unrolled_ast = "4eaffbe5275c9202a13ecd96325d64711dd28510408da03cb69305b957cc0e88", ssa_ast = "d9500a5e75ac40d45f1cb1ca6e625f9a1dee7e46f3071016f52d5290af49ab70", flattened_ast = "72ecc5ed171c827877906534005f04450bb636efea54c08507026e6b15857862", destructured_ast = "aed326f6c20b340137dd91f2303705c2c71d7b34140967a74ba3508e612c3399", inlined_ast = "db6efe2d8c097043958fb85b644a36a6f888adc58772596ef6656087075fa8bd", dce_ast = "850d749160d2a12943ad2e94d47a83b1475bbc224830ab74f4ec598cc6f826d4", bytecode = """
+program test.aleo;
+
+struct Extra:
+    c as u8;
+
+struct Data:
+    a as u8;
+    b as u8;
+    c as Extra;
+
+
+
+
+function bar:
+    input r0 as boolean.private;
+    input r1 as boolean.private;
+    input r2 as u8.private;
+    input r3 as u8.private;
+    cast r2 into r4 as Extra;
+    cast r2 r3 r4 into r5 as Data;
+    is.eq r2 r3 into r6;
+    add r2 r3 into r7;
+    sub r2 r3 into r8;
+    ternary r6 r2 r7 into r9;
+    ternary r6 r3 r8 into r10;
+    ternary r6 r5.a r5.a into r11;
+    ternary r6 r5.b r5.b into r12;
+    ternary r6 r5.c.c r5.c.c into r13;
+    cast r13 into r14 as Extra;
+    cast r11 r12 r14 into r15 as Data;
+    cast r9 into r16 as Extra;
+    cast r9 r15.c.c r16 into r17 as Data;
+    is.eq r9 r15.c.c into r18;
+    add r9 r15.c.c into r19;
+    sub r9 r15.c.c into r20;
+    ternary r18 r9 r19 into r21;
+    ternary r18 r15.c.c r20 into r22;
+    ternary r18 r17.a r17.a into r23;
+    ternary r18 r17.b r17.b into r24;
+    ternary r18 r17.c.c r17.c.c into r25;
+    cast r25 into r26 as Extra;
+    cast r23 r24 r26 into r27 as Data;
+    cast r10 into r28 as Extra;
+    cast r10 r15.b r28 into r29 as Data;
+    is.eq r10 r15.b into r30;
+    add r10 r15.b into r31;
+    sub r10 r15.b into r32;
+    ternary r30 r10 r31 into r33;
+    ternary r30 r15.b r32 into r34;
+    ternary r30 r29.a r29.a into r35;
+    ternary r30 r29.b r29.b into r36;
+    ternary r30 r29.c.c r29.c.c into r37;
+    cast r37 into r38 as Extra;
+    cast r35 r36 r38 into r39 as Data;
+    cast r15.a into r40 as Extra;
+    cast r15.a r10 r40 into r41 as Data;
+    is.eq r15.a r10 into r42;
+    add r15.a r10 into r43;
+    sub r15.a r10 into r44;
+    ternary r42 r15.a r43 into r45;
+    ternary r42 r10 r44 into r46;
+    ternary r42 r41.a r41.a into r47;
+    ternary r42 r41.b r41.b into r48;
+    ternary r42 r41.c.c r41.c.c into r49;
+    cast r49 into r50 as Extra;
+    cast r47 r48 r50 into r51 as Data;
+    ternary r1 r33 r45 into r52;
+    ternary r1 r34 r46 into r53;
+    ternary r1 r39.a r51.a into r54;
+    ternary r1 r39.b r51.b into r55;
+    ternary r1 r39.c.c r51.c.c into r56;
+    cast r56 into r57 as Extra;
+    cast r54 r55 r57 into r58 as Data;
+    ternary r0 r21 r52 into r59;
+    ternary r0 r22 r53 into r60;
+    ternary r0 r27.a r58.a into r61;
+    ternary r0 r27.b r58.b into r62;
+    ternary r0 r27.c.c r58.c.c into r63;
+    cast r63 into r64 as Extra;
+    cast r61 r62 r64 into r65 as Data;
+    output r59 as u8.private;
+    output r60 as u8.private;
+    output r65 as Data.private;
+""", errors = "", warnings = "" }] }]]

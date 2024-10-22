@@ -1,18 +1,99 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 11fbbf3ad2d03fafd4f7db39a5bfb0ea4b5302bdc422b26a4afa904887e8ea6b
-          type_checked_symbol_table: fa1e31bf4b774f6039b03cbe5bc38eaf1bf9a85306ccbdef1f3a9b2976957018
-          unrolled_symbol_table: fa1e31bf4b774f6039b03cbe5bc38eaf1bf9a85306ccbdef1f3a9b2976957018
-          initial_ast: ed086619c9f0f5ad64417fcc17a6847fa22d1fa95b89f3ec58302928fd83b54c
-          unrolled_ast: b1faf12359c2995083c2f483742076cd6b0c8c60bb90e95143b04d44a3c006bd
-          ssa_ast: 8a035bb369caeebb7b6b582f32aaa06b5bfddbf702c8e234fa927d7bb3557946
-          flattened_ast: 8cac8ffb570a503f38a5c980d08e985b5d8d299b5e6e38ceb5d21923ba21eae0
-          destructured_ast: 29a979bc9640fbefdb0f05a3974a8d6fb917acea2c4deed82b09aa524c12dd91
-          inlined_ast: dcde5e49f60622fba629dd82b6ad39841230a4030793756066ea2d8093df6814
-          dce_ast: dcde5e49f60622fba629dd82b6ad39841230a4030793756066ea2d8093df6814
-          bytecode: f5310d38dba01e579d5ec8cd7b3513997275d26de14c49ee3894d175a58c7aa5
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "11fbbf3ad2d03fafd4f7db39a5bfb0ea4b5302bdc422b26a4afa904887e8ea6b", type_checked_symbol_table = "fa1e31bf4b774f6039b03cbe5bc38eaf1bf9a85306ccbdef1f3a9b2976957018", unrolled_symbol_table = "fa1e31bf4b774f6039b03cbe5bc38eaf1bf9a85306ccbdef1f3a9b2976957018", initial_ast = "ed086619c9f0f5ad64417fcc17a6847fa22d1fa95b89f3ec58302928fd83b54c", unrolled_ast = "b1faf12359c2995083c2f483742076cd6b0c8c60bb90e95143b04d44a3c006bd", ssa_ast = "8a035bb369caeebb7b6b582f32aaa06b5bfddbf702c8e234fa927d7bb3557946", flattened_ast = "8cac8ffb570a503f38a5c980d08e985b5d8d299b5e6e38ceb5d21923ba21eae0", destructured_ast = "29a979bc9640fbefdb0f05a3974a8d6fb917acea2c4deed82b09aa524c12dd91", inlined_ast = "dcde5e49f60622fba629dd82b6ad39841230a4030793756066ea2d8093df6814", dce_ast = "dcde5e49f60622fba629dd82b6ad39841230a4030793756066ea2d8093df6814", bytecode = """
+program vote.aleo;
+
+struct ProposalInfo:
+    title as field;
+    content as field;
+    proposer as address;
+
+record Proposal:
+    owner as address.private;
+    id as field.private;
+    info as ProposalInfo.private;
+
+record Ticket:
+    owner as address.private;
+    pid as field.private;
+
+
+mapping proposals:
+\tkey as field.public;
+\tvalue as ProposalInfo.public;
+
+
+mapping tickets:
+\tkey as field.public;
+\tvalue as u64.public;
+
+
+mapping agree_votes:
+\tkey as field.public;
+\tvalue as u64.public;
+
+
+mapping disagree_votes:
+\tkey as field.public;
+\tvalue as u64.public;
+
+
+function propose:
+    input r0 as ProposalInfo.public;
+    assert.eq self.caller r0.proposer;
+    hash.bhp256 r0.title into r1 as field;
+    cast self.caller r1 r0 into r2 as Proposal.record;
+    async propose r1 into r3;
+    output r2 as Proposal.record;
+    output r3 as vote.aleo/propose.future;
+
+finalize propose:
+    input r0 as field.public;
+    set 0u64 into tickets[r0];
+
+
+
+
+function new_ticket:
+    input r0 as field.public;
+    input r1 as address.public;
+    cast r1 r0 into r2 as Ticket.record;
+    async new_ticket r0 into r3;
+    output r2 as Ticket.record;
+    output r3 as vote.aleo/new_ticket.future;
+
+finalize new_ticket:
+    input r0 as field.public;
+    get.or_use tickets[r0] 0u64 into r1;
+    add r1 1u64 into r2;
+    set r2 into tickets[r0];
+
+
+
+
+function agree:
+    input r0 as Ticket.record;
+    async agree r0.pid into r1;
+    output r1 as vote.aleo/agree.future;
+
+finalize agree:
+    input r0 as field.public;
+    get.or_use agree_votes[r0] 0u64 into r1;
+    add r1 1u64 into r2;
+    set r2 into agree_votes[r0];
+
+
+
+
+function disagree:
+    input r0 as Ticket.record;
+    async disagree r0.pid into r1;
+    output r1 as vote.aleo/disagree.future;
+
+finalize disagree:
+    input r0 as field.public;
+    get.or_use disagree_votes[r0] 0u64 into r1;
+    add r1 1u64 into r2;
+    set r2 into disagree_votes[r0];
+
+""", errors = "", warnings = "" }] }]]

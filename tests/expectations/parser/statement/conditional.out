@@ -1,169 +1,217 @@
----
-namespace: ParseStatement
-expectation: Pass
-outputs:
-  - Conditional:
-      condition:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
-      then:
-        statements:
-          - Return:
-              expression:
-                Literal:
-                  Integer:
-                    - U8
-                    - "0"
-                    - span:
-                        lo: 14
-                        hi: 17
-                    - 1
-              span:
-                lo: 7
-                hi: 18
-              id: 2
-        span:
-          lo: 5
-          hi: 20
-        id: 3
-      otherwise: ~
-      span:
-        lo: 0
-        hi: 20
-      id: 4
-  - Conditional:
-      condition:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      then:
-        statements:
-          - Return:
-              expression:
-                Literal:
-                  Integer:
-                    - U8
-                    - "0"
-                    - span:
-                        lo: 16
-                        hi: 19
-                    - 1
-              span:
-                lo: 9
-                hi: 20
-              id: 2
-        span:
-          lo: 7
-          hi: 22
-        id: 3
-      otherwise: ~
-      span:
-        lo: 0
-        hi: 22
-      id: 4
-  - Conditional:
-      condition:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      then:
-        statements: []
-        span:
-          lo: 7
-          hi: 9
-        id: 1
-      otherwise:
-        Block:
-          statements: []
-          span:
-            lo: 15
-            hi: 17
-          id: 2
-      span:
-        lo: 0
-        hi: 17
-      id: 3
-  - Conditional:
-      condition:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
-          right:
-            Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-          op: Add
-          span:
-            lo: 3
-            hi: 6
-          id: 2
-      then:
-        statements: []
-        span:
-          lo: 7
-          hi: 9
-        id: 3
-      otherwise:
-        Conditional:
-          condition:
-            Binary:
-              left:
-                Identifier: "{\"id\":\"4\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
-              right:
-                Identifier: "{\"id\":\"5\",\"name\":\"z\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
-              op: Add
-              span:
-                lo: 18
-                hi: 21
-              id: 6
-          then:
-            statements: []
-            span:
-              lo: 22
-              hi: 24
-            id: 7
-          otherwise:
-            Block:
-              statements: []
-              span:
-                lo: 30
-                hi: 32
-              id: 8
-          span:
-            lo: 15
-            hi: 32
-          id: 9
-      span:
-        lo: 0
-        hi: 32
-      id: 10
-  - Conditional:
-      condition:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
-          right:
-            Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-          op: Add
-          span:
-            lo: 3
-            hi: 6
-          id: 2
-      then:
-        statements:
-          - Return:
-              expression:
-                Literal:
-                  Integer:
-                    - U8
-                    - "0"
-                    - span:
-                        lo: 16
-                        hi: 19
-                    - 3
-              span:
-                lo: 9
-                hi: 20
-              id: 4
-        span:
-          lo: 7
-          hi: 22
-        id: 5
-      otherwise: ~
-      span:
-        lo: 0
-        hi: 22
-      id: 6
+namespace = "ParseStatement"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Conditional]
+id = 4
+
+[outputs.Conditional.condition]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":3,\"hi\":4}"}'
+
+[outputs.Conditional.then]
+id = 3
+
+[[outputs.Conditional.then.statements]]
+
+[outputs.Conditional.then.statements.Return]
+id = 2
+
+[outputs.Conditional.then.statements.Return.expression.Literal]
+Integer = [
+    "U8",
+    "0",
+    { span = { lo = 14, hi = 17 } },
+    1,
+]
+
+[outputs.Conditional.then.statements.Return.span]
+lo = 7
+hi = 18
+
+[outputs.Conditional.then.span]
+lo = 5
+hi = 20
+
+[outputs.Conditional.span]
+lo = 0
+hi = 20
+
+[[outputs]]
+
+[outputs.Conditional]
+id = 4
+
+[outputs.Conditional.condition]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Conditional.then]
+id = 3
+
+[[outputs.Conditional.then.statements]]
+
+[outputs.Conditional.then.statements.Return]
+id = 2
+
+[outputs.Conditional.then.statements.Return.expression.Literal]
+Integer = [
+    "U8",
+    "0",
+    { span = { lo = 16, hi = 19 } },
+    1,
+]
+
+[outputs.Conditional.then.statements.Return.span]
+lo = 9
+hi = 20
+
+[outputs.Conditional.then.span]
+lo = 7
+hi = 22
+
+[outputs.Conditional.span]
+lo = 0
+hi = 22
+
+[[outputs]]
+
+[outputs.Conditional]
+id = 3
+
+[outputs.Conditional.condition]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Conditional.then]
+statements = []
+id = 1
+
+[outputs.Conditional.then.span]
+lo = 7
+hi = 9
+
+[outputs.Conditional.otherwise.Block]
+statements = []
+id = 2
+
+[outputs.Conditional.otherwise.Block.span]
+lo = 15
+hi = 17
+
+[outputs.Conditional.span]
+lo = 0
+hi = 17
+
+[[outputs]]
+
+[outputs.Conditional]
+id = 10
+
+[outputs.Conditional.condition.Binary]
+op = "Add"
+id = 2
+
+[outputs.Conditional.condition.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":3,\"hi\":4}"}'
+
+[outputs.Conditional.condition.Binary.right]
+Identifier = '{"id":"1","name":"y","span":"{\"lo\":5,\"hi\":6}"}'
+
+[outputs.Conditional.condition.Binary.span]
+lo = 3
+hi = 6
+
+[outputs.Conditional.then]
+statements = []
+id = 3
+
+[outputs.Conditional.then.span]
+lo = 7
+hi = 9
+
+[outputs.Conditional.otherwise.Conditional]
+id = 9
+
+[outputs.Conditional.otherwise.Conditional.condition.Binary]
+op = "Add"
+id = 6
+
+[outputs.Conditional.otherwise.Conditional.condition.Binary.left]
+Identifier = '{"id":"4","name":"x","span":"{\"lo\":18,\"hi\":19}"}'
+
+[outputs.Conditional.otherwise.Conditional.condition.Binary.right]
+Identifier = '{"id":"5","name":"z","span":"{\"lo\":20,\"hi\":21}"}'
+
+[outputs.Conditional.otherwise.Conditional.condition.Binary.span]
+lo = 18
+hi = 21
+
+[outputs.Conditional.otherwise.Conditional.then]
+statements = []
+id = 7
+
+[outputs.Conditional.otherwise.Conditional.then.span]
+lo = 22
+hi = 24
+
+[outputs.Conditional.otherwise.Conditional.otherwise.Block]
+statements = []
+id = 8
+
+[outputs.Conditional.otherwise.Conditional.otherwise.Block.span]
+lo = 30
+hi = 32
+
+[outputs.Conditional.otherwise.Conditional.span]
+lo = 15
+hi = 32
+
+[outputs.Conditional.span]
+lo = 0
+hi = 32
+
+[[outputs]]
+
+[outputs.Conditional]
+id = 6
+
+[outputs.Conditional.condition.Binary]
+op = "Add"
+id = 2
+
+[outputs.Conditional.condition.Binary.left]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":3,\"hi\":4}"}'
+
+[outputs.Conditional.condition.Binary.right]
+Identifier = '{"id":"1","name":"y","span":"{\"lo\":5,\"hi\":6}"}'
+
+[outputs.Conditional.condition.Binary.span]
+lo = 3
+hi = 6
+
+[outputs.Conditional.then]
+id = 5
+
+[[outputs.Conditional.then.statements]]
+
+[outputs.Conditional.then.statements.Return]
+id = 4
+
+[outputs.Conditional.then.statements.Return.expression.Literal]
+Integer = [
+    "U8",
+    "0",
+    { span = { lo = 16, hi = 19 } },
+    3,
+]
+
+[outputs.Conditional.then.statements.Return.span]
+lo = 9
+hi = 20
+
+[outputs.Conditional.then.span]
+lo = 7
+hi = 22
+
+[outputs.Conditional.span]
+lo = 0
+hi = 22

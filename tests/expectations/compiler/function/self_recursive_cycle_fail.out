@@ -1,5 +1,25 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372043]: Cannot call a local transition function from a transition function.\n    --> compiler-test:16:20\n     |\n  16 |             return foo(n - 1u8) + foo(n - 2u8);\n     |                    ^^^^^^^^^^^^\nError [ETYC0372043]: Cannot call a local transition function from a transition function.\n    --> compiler-test:16:35\n     |\n  16 |             return foo(n - 1u8) + foo(n - 2u8);\n     |                                   ^^^^^^^^^^^^\nError [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:8:20\n     |\n   8 |             return fib(n - 1u8) + fib(n - 2u8);\n     |                    ^^^^^^^^^^^^\nError [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:8:35\n     |\n   8 |             return fib(n - 1u8) + fib(n - 2u8);\n     |                                   ^^^^^^^^^^^^\nError [ETYC0372059]: Cyclic dependency between functions: `foo` --> `foo`\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:16:20
+     |
+  16 |             return foo(n - 1u8) + foo(n - 2u8);
+     |                    ^^^^^^^^^^^^
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:16:35
+     |
+  16 |             return foo(n - 1u8) + foo(n - 2u8);
+     |                                   ^^^^^^^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:8:20
+     |
+   8 |             return fib(n - 1u8) + fib(n - 2u8);
+     |                    ^^^^^^^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:8:35
+     |
+   8 |             return fib(n - 1u8) + fib(n - 2u8);
+     |                                   ^^^^^^^^^^^^
+Error [ETYC0372059]: Cyclic dependency between functions: `foo` --> `foo`
+"""]

@@ -1,5 +1,51 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:5:23\n     |\n   5 |         let b: bool = a == 1u8;\n     |                       ^^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:6:23\n     |\n   6 |         let c: bool = a != 1u8;\n     |                       ^^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:7:23\n     |\n   7 |         let d: bool = a > 1u8;\n     |                       ^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:8:23\n     |\n   8 |         let e: bool = a < 1u8;\n     |                       ^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:9:23\n     |\n   9 |         let f: bool = a >= 1u8;\n     |                       ^^^^^^^^\nError [ETYC0372003]: Expected type `u8` but type `i8` was found\n    --> compiler-test:10:23\n     |\n  10 |         let g: bool = a <= 1u8;\n     |                       ^^^^^^^^\nError [ETYC0372003]: Expected type `i8` but type `u8` was found\n    --> compiler-test:11:26\n     |\n  11 |         let h: u32 = a * 1u8;\n     |                          ^^^\nError [ETYC0372003]: Expected type `i8` but type `u32` was found\n    --> compiler-test:11:22\n     |\n  11 |         let h: u32 = a * 1u8;\n     |                      ^^^^^^^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+    --> compiler-test:5:23
+     |
+   5 |         let b: bool = a == 1u8;
+     |                       ^^^^^^^^
+Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+    --> compiler-test:6:23
+     |
+   6 |         let c: bool = a != 1u8;
+     |                       ^^^^^^^^
+Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+    --> compiler-test:7:23
+     |
+   7 |         let d: bool = a > 1u8;
+     |                       ^^^^^^^
+Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+    --> compiler-test:8:23
+     |
+   8 |         let e: bool = a < 1u8;
+     |                       ^^^^^^^
+Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+    --> compiler-test:9:23
+     |
+   9 |         let f: bool = a >= 1u8;
+     |                       ^^^^^^^^
+Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+    --> compiler-test:10:23
+     |
+  10 |         let g: bool = a <= 1u8;
+     |                       ^^^^^^^^
+Error [ETYC0372003]: Expected type `i8` but type `u8` was found
+    --> compiler-test:11:26
+     |
+  11 |         let h: u32 = a * 1u8;
+     |                          ^^^
+Error [ETYC0372003]: Expected type `i8` but type `u32` was found
+    --> compiler-test:11:22
+     |
+  11 |         let h: u32 = a * 1u8;
+     |                      ^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {    
+     | ^^^^^^^^^^^^
+"""]

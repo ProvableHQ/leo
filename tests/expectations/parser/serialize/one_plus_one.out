@@ -1,47 +1,26 @@
----
-namespace: Serialize
-expectation: Pass
-outputs:
-  - imports: {}
-    stubs: {}
-    program_scopes:
-      test:
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
-        consts: []
-        structs: []
-        mappings: []
-        functions:
-          - - main
-            - annotations: []
-              variant: Function
-              identifier: "{\"id\":\"2\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":39}\"}"
-              input: []
-              output:
-                - mode: None
-                  type_:
-                    Integer: U8
-                  id: 3
-              output_type:
-                Integer: U8
-              block:
-                statements:
-                  - Return:
-                      expression:
-                        Binary:
-                          left:
-                            Literal:
-                              Integer:
-                                - U8
-                                - "1"
-                                - 4
-                          right:
-                            Literal:
-                              Integer:
-                                - U8
-                                - "1"
-                                - 5
-                          op: Add
-                          id: 6
-                      id: 7
-                id: 8
-              id: 9
+namespace = "Serialize"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.imports]
+
+[outputs.stubs]
+
+[outputs.program_scopes.test]
+program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
+consts = []
+structs = []
+mappings = []
+functions = [[
+    "main",
+    { annotations = [], variant = "Function", identifier = '{"id":"2","name":"main","span":"{\"lo\":35,\"hi\":39}"}', input = [], id = 9, output = [{ mode = "None", id = 3, type_ = { Integer = "U8" } }], output_type = { Integer = "U8" }, block = { id = 8, statements = [{ Return = { id = 7, expression = { Binary = { op = "Add", id = 6, left = { Literal = { Integer = [
+    "U8",
+    "1",
+    4,
+] } }, right = { Literal = { Integer = [
+    "U8",
+    "1",
+    5,
+] } } } } } }] } },
+]]

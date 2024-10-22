@@ -1,6 +1,6 @@
 /*
-namespace: Parse
-expectation: Pass
+namespace = "Parse"
+expectation = "Pass"
 */
 
 program test.aleo {    

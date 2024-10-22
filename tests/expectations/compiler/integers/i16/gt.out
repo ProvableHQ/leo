@@ -1,18 +1,15 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 5df2ffe594181b9cc0903c90708400e008e6b311701d2436476b779ba61c1d23
-          type_checked_symbol_table: 458c03a73ef827a1e9430685e8ffd7bce7606cce8e984d1eb5d4ed7a0510850d
-          unrolled_symbol_table: 458c03a73ef827a1e9430685e8ffd7bce7606cce8e984d1eb5d4ed7a0510850d
-          initial_ast: a3d6d06d64f87e9100c2c29ff404d80f18fa35227f989ebfebaf6bd565539d8d
-          unrolled_ast: a3d6d06d64f87e9100c2c29ff404d80f18fa35227f989ebfebaf6bd565539d8d
-          ssa_ast: d343b1ed12fde8c888e41213991b6eed7814058f702efd82af14144ef7c48e44
-          flattened_ast: 708abf5b9aced79c5f41ee88114ea5b11895cd0335c979853ecb7ba1c2878ca4
-          destructured_ast: 65f104dc0166e5e037a71ca5039369c87a383af76bb07e24a77aafabe41aac5c
-          inlined_ast: 65f104dc0166e5e037a71ca5039369c87a383af76bb07e24a77aafabe41aac5c
-          dce_ast: 65f104dc0166e5e037a71ca5039369c87a383af76bb07e24a77aafabe41aac5c
-          bytecode: 8195766fd4b565e30f6f4e088c57977e5a558d68847e0a61fe2b8de79bd2590d
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "5df2ffe594181b9cc0903c90708400e008e6b311701d2436476b779ba61c1d23", type_checked_symbol_table = "458c03a73ef827a1e9430685e8ffd7bce7606cce8e984d1eb5d4ed7a0510850d", unrolled_symbol_table = "458c03a73ef827a1e9430685e8ffd7bce7606cce8e984d1eb5d4ed7a0510850d", initial_ast = "a3d6d06d64f87e9100c2c29ff404d80f18fa35227f989ebfebaf6bd565539d8d", unrolled_ast = "a3d6d06d64f87e9100c2c29ff404d80f18fa35227f989ebfebaf6bd565539d8d", ssa_ast = "d343b1ed12fde8c888e41213991b6eed7814058f702efd82af14144ef7c48e44", flattened_ast = "708abf5b9aced79c5f41ee88114ea5b11895cd0335c979853ecb7ba1c2878ca4", destructured_ast = "65f104dc0166e5e037a71ca5039369c87a383af76bb07e24a77aafabe41aac5c", inlined_ast = "65f104dc0166e5e037a71ca5039369c87a383af76bb07e24a77aafabe41aac5c", dce_ast = "65f104dc0166e5e037a71ca5039369c87a383af76bb07e24a77aafabe41aac5c", bytecode = """
+program test.aleo;
+
+
+
+function main:
+    input r0 as i16.private;
+    input r1 as i16.private;
+    input r2 as boolean.private;
+    gt r0 r1 into r3;
+    is.eq r3 r2 into r4;
+    output r4 as boolean.private;
+""", errors = "", warnings = "" }] }]]

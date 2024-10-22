@@ -1,18 +1,196 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: 6aff4711eab46a594713d623b8a8952afa6539c74151c9ea47a37edc6f4a638c
-          type_checked_symbol_table: b2fe6010b96888233278ce75a7d0fdf2e3e1a534e838be8b5989627735590b0c
-          unrolled_symbol_table: b2fe6010b96888233278ce75a7d0fdf2e3e1a534e838be8b5989627735590b0c
-          initial_ast: 71f305a9a0f1cb9a7e7288f8d1e8e33dc60c563c8a79292bba93cbc47a22deab
-          unrolled_ast: 71f305a9a0f1cb9a7e7288f8d1e8e33dc60c563c8a79292bba93cbc47a22deab
-          ssa_ast: 386e22834051ea8712aaaf890074feecbb9f77bc00b1d527719ad6a65ec90bc8
-          flattened_ast: 2f3463ad9abfa67b2850103cee6e20b757afe556ea4230bcc424e7990a8aa517
-          destructured_ast: fb144b2514b8a77b50cbb23d991275f3befef4f4d94ca5418610940065a7e6c5
-          inlined_ast: 91b896e11b7410d19a7aa69a7008d9da0cd5aa7d8e668d9219b35ee0a0b852d5
-          dce_ast: b589f303efc5197399adef4ad347a7ac617b14c35e414a93c15e5ba38edf923e
-          bytecode: 771afcbeaa3c6794c5d5b7ae06db1c787a6c78d2b3f0c5ff7e514993ea68aac0
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "6aff4711eab46a594713d623b8a8952afa6539c74151c9ea47a37edc6f4a638c", type_checked_symbol_table = "b2fe6010b96888233278ce75a7d0fdf2e3e1a534e838be8b5989627735590b0c", unrolled_symbol_table = "b2fe6010b96888233278ce75a7d0fdf2e3e1a534e838be8b5989627735590b0c", initial_ast = "71f305a9a0f1cb9a7e7288f8d1e8e33dc60c563c8a79292bba93cbc47a22deab", unrolled_ast = "71f305a9a0f1cb9a7e7288f8d1e8e33dc60c563c8a79292bba93cbc47a22deab", ssa_ast = "386e22834051ea8712aaaf890074feecbb9f77bc00b1d527719ad6a65ec90bc8", flattened_ast = "2f3463ad9abfa67b2850103cee6e20b757afe556ea4230bcc424e7990a8aa517", destructured_ast = "fb144b2514b8a77b50cbb23d991275f3befef4f4d94ca5418610940065a7e6c5", inlined_ast = "91b896e11b7410d19a7aa69a7008d9da0cd5aa7d8e668d9219b35ee0a0b852d5", dce_ast = "b589f303efc5197399adef4ad347a7ac617b14c35e414a93c15e5ba38edf923e", bytecode = """
+program test.aleo;
+
+struct Row:
+    c1 as u8;
+    c2 as u8;
+    c3 as u8;
+
+struct Board:
+    r1 as Row;
+    r2 as Row;
+    r3 as Row;
+
+
+function new:
+    cast 0u8 0u8 0u8 into r0 as Row;
+    cast 0u8 0u8 0u8 into r1 as Row;
+    cast 0u8 0u8 0u8 into r2 as Row;
+    cast r0 r1 r2 into r3 as Board;
+    output r3 as Board.private;
+
+
+closure check_for_win:
+    input r0 as Board;
+    input r1 as u8;
+    is.eq r0.r1.c1 r1 into r2;
+    is.eq r0.r1.c2 r1 into r3;
+    and r2 r3 into r4;
+    is.eq r0.r1.c3 r1 into r5;
+    and r4 r5 into r6;
+    is.eq r0.r2.c1 r1 into r7;
+    is.eq r0.r2.c2 r1 into r8;
+    and r7 r8 into r9;
+    is.eq r0.r2.c3 r1 into r10;
+    and r9 r10 into r11;
+    or r6 r11 into r12;
+    is.eq r0.r3.c1 r1 into r13;
+    is.eq r0.r3.c3 r1 into r14;
+    and r13 r14 into r15;
+    is.eq r0.r3.c3 r1 into r16;
+    and r15 r16 into r17;
+    or r12 r17 into r18;
+    is.eq r0.r1.c1 r1 into r19;
+    is.eq r0.r2.c1 r1 into r20;
+    and r19 r20 into r21;
+    is.eq r0.r3.c1 r1 into r22;
+    and r21 r22 into r23;
+    or r18 r23 into r24;
+    is.eq r0.r1.c2 r1 into r25;
+    is.eq r0.r2.c3 r1 into r26;
+    and r25 r26 into r27;
+    is.eq r0.r3.c2 r1 into r28;
+    and r27 r28 into r29;
+    or r24 r29 into r30;
+    is.eq r0.r1.c3 r1 into r31;
+    is.eq r0.r2.c3 r1 into r32;
+    and r31 r32 into r33;
+    is.eq r0.r3.c3 r1 into r34;
+    and r33 r34 into r35;
+    or r30 r35 into r36;
+    is.eq r0.r1.c1 r1 into r37;
+    is.eq r0.r2.c2 r1 into r38;
+    and r37 r38 into r39;
+    is.eq r0.r3.c3 r1 into r40;
+    and r39 r40 into r41;
+    or r36 r41 into r42;
+    is.eq r0.r1.c3 r1 into r43;
+    is.eq r0.r2.c2 r1 into r44;
+    and r43 r44 into r45;
+    is.eq r0.r3.c1 r1 into r46;
+    and r45 r46 into r47;
+    or r42 r47 into r48;
+    output r48 as boolean;
+
+
+function make_move:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    input r2 as u8.private;
+    input r3 as Board.private;
+    is.eq r0 1u8 into r4;
+    is.eq r0 2u8 into r5;
+    or r4 r5 into r6;
+    assert.eq r6 true;
+    lte 1u8 r1 into r7;
+    lte r1 3u8 into r8;
+    and r7 r8 into r9;
+    assert.eq r9 true;
+    lte 1u8 r2 into r10;
+    lte r2 3u8 into r11;
+    and r10 r11 into r12;
+    assert.eq r12 true;
+    is.eq r1 1u8 into r13;
+    is.eq r2 1u8 into r14;
+    and r13 r14 into r15;
+    is.eq r3.r1.c1 0u8 into r16;
+    and r15 r16 into r17;
+    is.eq r1 1u8 into r18;
+    is.eq r2 2u8 into r19;
+    and r18 r19 into r20;
+    is.eq r3.r1.c2 0u8 into r21;
+    and r20 r21 into r22;
+    is.eq r1 1u8 into r23;
+    is.eq r2 3u8 into r24;
+    and r23 r24 into r25;
+    is.eq r3.r1.c3 0u8 into r26;
+    and r25 r26 into r27;
+    is.eq r1 2u8 into r28;
+    is.eq r2 1u8 into r29;
+    and r28 r29 into r30;
+    is.eq r3.r2.c1 0u8 into r31;
+    and r30 r31 into r32;
+    is.eq r1 2u8 into r33;
+    is.eq r2 2u8 into r34;
+    and r33 r34 into r35;
+    is.eq r3.r2.c2 0u8 into r36;
+    and r35 r36 into r37;
+    is.eq r1 2u8 into r38;
+    is.eq r2 3u8 into r39;
+    and r38 r39 into r40;
+    is.eq r3.r2.c3 0u8 into r41;
+    and r40 r41 into r42;
+    is.eq r1 3u8 into r43;
+    is.eq r2 1u8 into r44;
+    and r43 r44 into r45;
+    is.eq r3.r3.c1 0u8 into r46;
+    and r45 r46 into r47;
+    ternary r47 r0 r3.r3.c1 into r48;
+    ternary r42 r0 r3.r2.c3 into r49;
+    ternary r42 r3.r3.c1 r48 into r50;
+    ternary r37 r0 r3.r2.c2 into r51;
+    ternary r37 r3.r2.c3 r49 into r52;
+    ternary r37 r3.r3.c1 r50 into r53;
+    ternary r32 r0 r3.r2.c1 into r54;
+    ternary r32 r3.r2.c2 r51 into r55;
+    ternary r32 r3.r2.c3 r52 into r56;
+    ternary r32 r3.r3.c1 r53 into r57;
+    ternary r27 r0 r3.r1.c3 into r58;
+    ternary r27 r3.r2.c1 r54 into r59;
+    ternary r27 r3.r2.c2 r55 into r60;
+    ternary r27 r3.r2.c3 r56 into r61;
+    ternary r27 r3.r3.c1 r57 into r62;
+    ternary r22 r0 r3.r1.c2 into r63;
+    ternary r22 r3.r1.c3 r58 into r64;
+    ternary r22 r3.r2.c1 r59 into r65;
+    ternary r22 r3.r2.c2 r60 into r66;
+    ternary r22 r3.r2.c3 r61 into r67;
+    ternary r22 r3.r3.c1 r62 into r68;
+    ternary r17 r0 r3.r1.c1 into r69;
+    ternary r17 r3.r1.c2 r63 into r70;
+    ternary r17 r3.r1.c3 r64 into r71;
+    ternary r17 r3.r2.c1 r65 into r72;
+    ternary r17 r3.r2.c2 r66 into r73;
+    ternary r17 r3.r2.c3 r67 into r74;
+    ternary r17 r3.r3.c1 r68 into r75;
+    cast r69 r70 r71 into r76 as Row;
+    cast r72 r73 r74 into r77 as Row;
+    cast r75 r73 r74 into r78 as Row;
+    cast r76 r77 r78 into r79 as Board;
+    call check_for_win r79 1u8 into r80;
+    not r80 into r81;
+    call check_for_win r79 2u8 into r82;
+    and r81 r82 into r83;
+    ternary r83 r79.r1.c1 r79.r1.c1 into r84;
+    ternary r83 r79.r1.c2 r79.r1.c2 into r85;
+    ternary r83 r79.r1.c3 r79.r1.c3 into r86;
+    cast r84 r85 r86 into r87 as Row;
+    ternary r83 r79.r2.c1 r79.r2.c1 into r88;
+    ternary r83 r79.r2.c2 r79.r2.c2 into r89;
+    ternary r83 r79.r2.c3 r79.r2.c3 into r90;
+    cast r88 r89 r90 into r91 as Row;
+    ternary r83 r79.r3.c1 r79.r3.c1 into r92;
+    ternary r83 r79.r3.c2 r79.r3.c2 into r93;
+    ternary r83 r79.r3.c3 r79.r3.c3 into r94;
+    cast r92 r93 r94 into r95 as Row;
+    cast r87 r91 r95 into r96 as Board;
+    ternary r83 2u8 0u8 into r97;
+    ternary r80 r79.r1.c1 r96.r1.c1 into r98;
+    ternary r80 r79.r1.c2 r96.r1.c2 into r99;
+    ternary r80 r79.r1.c3 r96.r1.c3 into r100;
+    cast r98 r99 r100 into r101 as Row;
+    ternary r80 r79.r2.c1 r96.r2.c1 into r102;
+    ternary r80 r79.r2.c2 r96.r2.c2 into r103;
+    ternary r80 r79.r2.c3 r96.r2.c3 into r104;
+    cast r102 r103 r104 into r105 as Row;
+    ternary r80 r79.r3.c1 r96.r3.c1 into r106;
+    ternary r80 r79.r3.c2 r96.r3.c2 into r107;
+    ternary r80 r79.r3.c3 r96.r3.c3 into r108;
+    cast r106 r107 r108 into r109 as Row;
+    cast r101 r105 r109 into r110 as Board;
+    ternary r80 1u8 r97 into r111;
+    output r110 as Board.private;
+    output r111 as u8.private;
+""", errors = "", warnings = "" }] }]]

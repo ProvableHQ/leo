@@ -1,315 +1,436 @@
----
-namespace: ParseStatement
-expectation: Pass
-outputs:
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: U8
-      value:
-        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
-      span:
-        lo: 0
-        hi: 16
-      id: 2
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: U16
-      value:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          op: Add
-          span:
-            lo: 13
-            hi: 16
-          id: 3
-      span:
-        lo: 0
-        hi: 16
-      id: 4
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: U8
-      value:
-        Call:
-          function:
-            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          arguments: []
-          program: ~
-          span:
-            lo: 12
-            hi: 15
-          id: 2
-      span:
-        lo: 0
-        hi: 15
-      id: 3
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: String
-      value:
-        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":20}\"}"
-      span:
-        lo: 0
-        hi: 20
-      id: 2
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: I8
-      value:
-        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
-      span:
-        lo: 0
-        hi: 16
-      id: 2
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: I16
-      value:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          op: Add
-          span:
-            lo: 13
-            hi: 16
-          id: 3
-      span:
-        lo: 0
-        hi: 16
-      id: 4
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: I8
-      value:
-        Call:
-          function:
-            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          arguments: []
-          program: ~
-          span:
-            lo: 12
-            hi: 15
-          id: 2
-      span:
-        lo: 0
-        hi: 15
-      id: 3
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: String
-      value:
-        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":20}\"}"
-      span:
-        lo: 0
-        hi: 20
-      id: 2
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Composite:
-          id: "{\"id\":\"1\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":14}\"}"
-          program: ~
-      value:
-        Call:
-          function:
-            Identifier: "{\"id\":\"3\",\"name\":\"mint_private\",\"span\":\"{\\\"lo\\\":30,\\\"hi\\\":42}\"}"
-          arguments:
-            - Literal:
-                Integer:
-                  - U64
-                  - "100"
-                  - span:
-                      lo: 43
-                      hi: 49
-                  - 4
-          program: credits
-          span:
-            lo: 17
-            hi: 50
-          id: 5
-      span:
-        lo: 0
-        hi: 50
-      id: 6
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Composite:
-          id: "{\"id\":\"2\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":27}\"}"
-          program: credits
-      value:
-        Call:
-          function:
-            Identifier: "{\"id\":\"4\",\"name\":\"mint_private\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":55}\"}"
-          arguments:
-            - Literal:
-                Integer:
-                  - U64
-                  - "100"
-                  - span:
-                      lo: 56
-                      hi: 62
-                  - 5
-          program: credits
-          span:
-            lo: 30
-            hi: 63
-          id: 6
-      span:
-        lo: 0
-        hi: 63
-      id: 7
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: U32
-      value:
-        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"
-      span:
-        lo: 0
-        hi: 17
-      id: 2
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: U32
-      value:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          op: Add
-          span:
-            lo: 13
-            hi: 16
-          id: 3
-      span:
-        lo: 0
-        hi: 16
-      id: 4
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: U32
-      value:
-        Call:
-          function:
-            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          arguments: []
-          program: ~
-          span:
-            lo: 13
-            hi: 16
-          id: 2
-      span:
-        lo: 0
-        hi: 16
-      id: 3
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: U32
-      value:
-        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"
-      span:
-        lo: 0
-        hi: 17
-      id: 2
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: U32
-      value:
-        Binary:
-          left:
-            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          right:
-            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
-          op: Add
-          span:
-            lo: 13
-            hi: 16
-          id: 3
-      span:
-        lo: 0
-        hi: 16
-      id: 4
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_:
-        Integer: U32
-      value:
-        Call:
-          function:
-            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
-          arguments: []
-          program: ~
-          span:
-            lo: 13
-            hi: 16
-          id: 2
-      span:
-        lo: 0
-        hi: 16
-      id: 3
-  - Definition:
-      declaration_type: Let
-      place:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      type_: Address
-      value:
-        Literal:
-          Address:
-            - aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx
-            - span:
-                lo: 17
-                hi: 80
-            - 1
-      span:
-        lo: 0
-        hi: 80
-      id: 2
+namespace = "ParseStatement"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 2
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "U8"
+
+[outputs.Definition.value]
+Identifier = '{"id":"1","name":"expr","span":"{\"lo\":12,\"hi\":16}"}'
+
+[outputs.Definition.span]
+lo = 0
+hi = 16
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 4
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "U16"
+
+[outputs.Definition.value.Binary]
+op = "Add"
+id = 3
+
+[outputs.Definition.value.Binary.left]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":13,\"hi\":14}"}'
+
+[outputs.Definition.value.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":15,\"hi\":16}"}'
+
+[outputs.Definition.value.Binary.span]
+lo = 13
+hi = 16
+
+[outputs.Definition.span]
+lo = 0
+hi = 16
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 3
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "U8"
+
+[outputs.Definition.value.Call]
+arguments = []
+id = 2
+
+[outputs.Definition.value.Call.function]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":12,\"hi\":13}"}'
+
+[outputs.Definition.value.Call.span]
+lo = 12
+hi = 15
+
+[outputs.Definition.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+type_ = "String"
+id = 2
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.value]
+Identifier = '{"id":"1","name":"expr","span":"{\"lo\":16,\"hi\":20}"}'
+
+[outputs.Definition.span]
+lo = 0
+hi = 20
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 2
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "I8"
+
+[outputs.Definition.value]
+Identifier = '{"id":"1","name":"expr","span":"{\"lo\":12,\"hi\":16}"}'
+
+[outputs.Definition.span]
+lo = 0
+hi = 16
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 4
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "I16"
+
+[outputs.Definition.value.Binary]
+op = "Add"
+id = 3
+
+[outputs.Definition.value.Binary.left]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":13,\"hi\":14}"}'
+
+[outputs.Definition.value.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":15,\"hi\":16}"}'
+
+[outputs.Definition.value.Binary.span]
+lo = 13
+hi = 16
+
+[outputs.Definition.span]
+lo = 0
+hi = 16
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 3
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "I8"
+
+[outputs.Definition.value.Call]
+arguments = []
+id = 2
+
+[outputs.Definition.value.Call.function]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":12,\"hi\":13}"}'
+
+[outputs.Definition.value.Call.span]
+lo = 12
+hi = 15
+
+[outputs.Definition.span]
+lo = 0
+hi = 15
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+type_ = "String"
+id = 2
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.value]
+Identifier = '{"id":"1","name":"expr","span":"{\"lo\":16,\"hi\":20}"}'
+
+[outputs.Definition.span]
+lo = 0
+hi = 20
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 6
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_.Composite]
+id = '{"id":"1","name":"credits","span":"{\"lo\":7,\"hi\":14}"}'
+
+[outputs.Definition.value.Call]
+program = "credits"
+id = 5
+
+[[outputs.Definition.value.Call.arguments]]
+
+[outputs.Definition.value.Call.arguments.Literal]
+Integer = [
+    "U64",
+    "100",
+    { span = { lo = 43, hi = 49 } },
+    4,
+]
+
+[outputs.Definition.value.Call.function]
+Identifier = '{"id":"3","name":"mint_private","span":"{\"lo\":30,\"hi\":42}"}'
+
+[outputs.Definition.value.Call.span]
+lo = 17
+hi = 50
+
+[outputs.Definition.span]
+lo = 0
+hi = 50
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 7
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_.Composite]
+id = '{"id":"2","name":"credits","span":"{\"lo\":20,\"hi\":27}"}'
+program = "credits"
+
+[outputs.Definition.value.Call]
+program = "credits"
+id = 6
+
+[[outputs.Definition.value.Call.arguments]]
+
+[outputs.Definition.value.Call.arguments.Literal]
+Integer = [
+    "U64",
+    "100",
+    { span = { lo = 56, hi = 62 } },
+    5,
+]
+
+[outputs.Definition.value.Call.function]
+Identifier = '{"id":"4","name":"mint_private","span":"{\"lo\":43,\"hi\":55}"}'
+
+[outputs.Definition.value.Call.span]
+lo = 30
+hi = 63
+
+[outputs.Definition.span]
+lo = 0
+hi = 63
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 2
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "U32"
+
+[outputs.Definition.value]
+Identifier = '{"id":"1","name":"expr","span":"{\"lo\":13,\"hi\":17}"}'
+
+[outputs.Definition.span]
+lo = 0
+hi = 17
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 4
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "U32"
+
+[outputs.Definition.value.Binary]
+op = "Add"
+id = 3
+
+[outputs.Definition.value.Binary.left]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":13,\"hi\":14}"}'
+
+[outputs.Definition.value.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":15,\"hi\":16}"}'
+
+[outputs.Definition.value.Binary.span]
+lo = 13
+hi = 16
+
+[outputs.Definition.span]
+lo = 0
+hi = 16
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 3
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "U32"
+
+[outputs.Definition.value.Call]
+arguments = []
+id = 2
+
+[outputs.Definition.value.Call.function]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":13,\"hi\":14}"}'
+
+[outputs.Definition.value.Call.span]
+lo = 13
+hi = 16
+
+[outputs.Definition.span]
+lo = 0
+hi = 16
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 2
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "U32"
+
+[outputs.Definition.value]
+Identifier = '{"id":"1","name":"expr","span":"{\"lo\":13,\"hi\":17}"}'
+
+[outputs.Definition.span]
+lo = 0
+hi = 17
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 4
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "U32"
+
+[outputs.Definition.value.Binary]
+op = "Add"
+id = 3
+
+[outputs.Definition.value.Binary.left]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":13,\"hi\":14}"}'
+
+[outputs.Definition.value.Binary.right]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":15,\"hi\":16}"}'
+
+[outputs.Definition.value.Binary.span]
+lo = 13
+hi = 16
+
+[outputs.Definition.span]
+lo = 0
+hi = 16
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+id = 3
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.type_]
+Integer = "U32"
+
+[outputs.Definition.value.Call]
+arguments = []
+id = 2
+
+[outputs.Definition.value.Call.function]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":13,\"hi\":14}"}'
+
+[outputs.Definition.value.Call.span]
+lo = 13
+hi = 16
+
+[outputs.Definition.span]
+lo = 0
+hi = 16
+
+[[outputs]]
+
+[outputs.Definition]
+declaration_type = "Let"
+type_ = "Address"
+id = 2
+
+[outputs.Definition.place]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Definition.value.Literal]
+Address = [
+    "aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx",
+    { span = { lo = 17, hi = 80 } },
+    1,
+]
+
+[outputs.Definition.span]
+lo = 0
+hi = 80

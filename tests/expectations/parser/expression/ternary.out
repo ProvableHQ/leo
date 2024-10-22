@@ -1,57 +1,82 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Ternary:
-      condition:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      if_true:
-        Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      if_false:
-        Identifier: "{\"id\":\"2\",\"name\":\"z\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-      span:
-        lo: 0
-        hi: 9
-      id: 3
-  - Ternary:
-      condition:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      if_true:
-        Ternary:
-          condition:
-            Identifier: "{\"id\":\"1\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-          if_true:
-            Identifier: "{\"id\":\"2\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-          if_false:
-            Identifier: "{\"id\":\"3\",\"name\":\"c\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          span:
-            lo: 4
-            hi: 13
-          id: 4
-      if_false:
-        Identifier: "{\"id\":\"5\",\"name\":\"z\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-      span:
-        lo: 0
-        hi: 17
-      id: 6
-  - Ternary:
-      condition:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      if_true:
-        Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
-      if_false:
-        Ternary:
-          condition:
-            Identifier: "{\"id\":\"2\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-          if_true:
-            Identifier: "{\"id\":\"3\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
-          if_false:
-            Identifier: "{\"id\":\"4\",\"name\":\"c\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
-          span:
-            lo: 8
-            hi: 17
-          id: 5
-      span:
-        lo: 0
-        hi: 17
-      id: 6
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Ternary]
+id = 3
+
+[outputs.Ternary.condition]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Ternary.if_true]
+Identifier = '{"id":"1","name":"y","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Ternary.if_false]
+Identifier = '{"id":"2","name":"z","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Ternary.span]
+lo = 0
+hi = 9
+
+[[outputs]]
+
+[outputs.Ternary]
+id = 6
+
+[outputs.Ternary.condition]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Ternary.if_true.Ternary]
+id = 4
+
+[outputs.Ternary.if_true.Ternary.condition]
+Identifier = '{"id":"1","name":"a","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Ternary.if_true.Ternary.if_true]
+Identifier = '{"id":"2","name":"b","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Ternary.if_true.Ternary.if_false]
+Identifier = '{"id":"3","name":"c","span":"{\"lo\":12,\"hi\":13}"}'
+
+[outputs.Ternary.if_true.Ternary.span]
+lo = 4
+hi = 13
+
+[outputs.Ternary.if_false]
+Identifier = '{"id":"5","name":"z","span":"{\"lo\":16,\"hi\":17}"}'
+
+[outputs.Ternary.span]
+lo = 0
+hi = 17
+
+[[outputs]]
+
+[outputs.Ternary]
+id = 6
+
+[outputs.Ternary.condition]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Ternary.if_true]
+Identifier = '{"id":"1","name":"y","span":"{\"lo\":4,\"hi\":5}"}'
+
+[outputs.Ternary.if_false.Ternary]
+id = 5
+
+[outputs.Ternary.if_false.Ternary.condition]
+Identifier = '{"id":"2","name":"a","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Ternary.if_false.Ternary.if_true]
+Identifier = '{"id":"3","name":"b","span":"{\"lo\":12,\"hi\":13}"}'
+
+[outputs.Ternary.if_false.Ternary.if_false]
+Identifier = '{"id":"4","name":"c","span":"{\"lo\":16,\"hi\":17}"}'
+
+[outputs.Ternary.if_false.Ternary.span]
+lo = 8
+hi = 17
+
+[outputs.Ternary.span]
+lo = 0
+hi = 17

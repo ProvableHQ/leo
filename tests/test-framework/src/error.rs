@@ -16,7 +16,7 @@
 
 use std::fmt;
 
-use serde_yaml::Value;
+use toml::Value;
 
 use crate::test::TestExpectationMode;
 
@@ -50,8 +50,8 @@ impl fmt::Display for TestError {
                     "test #{}: {}expected\n{}\ngot\n{}",
                     index + 1,
                     format_test(test),
-                    serde_yaml::to_string(&expected).expect("serialization failed"),
-                    serde_yaml::to_string(&output).expect("serialization failed")
+                    toml::to_string(&expected).expect("serialization failed"),
+                    toml::to_string(&output).expect("serialization failed")
                 )
             }
             TestError::PassedAndShouldntHave { test, index } => {
@@ -101,13 +101,13 @@ pub fn emit_errors(
         }
         (Ok(Err(err)), TestExpectationMode::Fail) => {
             let expected_output: Option<String> =
-                expected_output.map(|x| serde_yaml::from_value(x).expect("test expectation deserialize failed"));
-            if let Some(expected_output) = expected_output.as_deref() {
-                if err != expected_output {
+                expected_output.map(|x| if let Value::String(s) = x { s } else { panic!("output should be string") });
+            if let Some(expected_output) = expected_output {
+                if err != &expected_output {
                     // invalid output
                     return Some(TestError::UnexpectedError {
                         test: test.to_string(),
-                        expected: expected_output.to_string(),
+                        expected: expected_output,
                         output: err.to_string(),
                         index: test_index,
                     });

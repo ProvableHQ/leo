@@ -1,5 +1,8 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370029]: A tuple type must have at least two elements.\n    --> compiler-test:7:16\n     |\n   7 |         let c: (u8) = (a);\n     |                ^^^^"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370029]: A tuple type must have at least two elements.
+    --> compiler-test:7:16
+     |
+   7 |         let c: (u8) = (a);
+     |                ^^^^"""]

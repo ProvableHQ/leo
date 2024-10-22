@@ -1,5 +1,8 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', '}' -- found 'mappin'\n    --> test:4:5\n     |\n   4 |     mappin balances: address => u128;\n     |     ^^^^^^"
+namespace = "Parse"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', '}' -- found 'mappin'
+    --> test:4:5
+     |
+   4 |     mappin balances: address => u128;
+     |     ^^^^^^"""]

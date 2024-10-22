@@ -1,55 +1,82 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Call:
-      function:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      arguments: []
-      program: ~
-      span:
-        lo: 0
-        hi: 3
-      id: 1
-  - Call:
-      function:
-        Identifier: "{\"id\":\"0\",\"name\":\"X\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      arguments: []
-      program: ~
-      span:
-        lo: 0
-        hi: 3
-      id: 1
-  - Call:
-      function:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      arguments:
-        - Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-      program: ~
-      span:
-        lo: 0
-        hi: 4
-      id: 2
-  - Call:
-      function:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      arguments:
-        - Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-        - Identifier: "{\"id\":\"2\",\"name\":\"z\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-      program: ~
-      span:
-        lo: 0
-        hi: 7
-      id: 3
-  - Call:
-      function:
-        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
-      arguments:
-        - Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-        - Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-        - Identifier: "{\"id\":\"3\",\"name\":\"z\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-      program: ~
-      span:
-        lo: 0
-        hi: 10
-      id: 4
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Call]
+arguments = []
+id = 1
+
+[outputs.Call.function]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Call.span]
+lo = 0
+hi = 3
+
+[[outputs]]
+
+[outputs.Call]
+arguments = []
+id = 1
+
+[outputs.Call.function]
+Identifier = '{"id":"0","name":"X","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Call.span]
+lo = 0
+hi = 3
+
+[[outputs]]
+
+[outputs.Call]
+id = 2
+
+[[outputs.Call.arguments]]
+Identifier = '{"id":"1","name":"y","span":"{\"lo\":2,\"hi\":3}"}'
+
+[outputs.Call.function]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Call.span]
+lo = 0
+hi = 4
+
+[[outputs]]
+
+[outputs.Call]
+id = 3
+
+[[outputs.Call.arguments]]
+Identifier = '{"id":"1","name":"y","span":"{\"lo\":2,\"hi\":3}"}'
+
+[[outputs.Call.arguments]]
+Identifier = '{"id":"2","name":"z","span":"{\"lo\":5,\"hi\":6}"}'
+
+[outputs.Call.function]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Call.span]
+lo = 0
+hi = 7
+
+[[outputs]]
+
+[outputs.Call]
+id = 4
+
+[[outputs.Call.arguments]]
+Identifier = '{"id":"1","name":"x","span":"{\"lo\":2,\"hi\":3}"}'
+
+[[outputs.Call.arguments]]
+Identifier = '{"id":"2","name":"y","span":"{\"lo\":5,\"hi\":6}"}'
+
+[[outputs.Call.arguments]]
+Identifier = '{"id":"3","name":"z","span":"{\"lo\":8,\"hi\":9}"}'
+
+[outputs.Call.function]
+Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
+
+[outputs.Call.span]
+lo = 0
+hi = 10

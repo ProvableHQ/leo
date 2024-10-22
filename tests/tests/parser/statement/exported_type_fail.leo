@@ -1,6 +1,6 @@
 /*
-namespace: ParseStatement
-expectation: Fail
+namespace = "ParseStatement"
+expectation = "Fail"
 */
 
 return credits.aleo/credits { owner: arg1, amount: arg2};

@@ -1,18 +1,32 @@
----
-namespace: Compile
-expectation: Pass
-outputs:
-  - - compile:
-        - initial_symbol_table: de199bdd9ae2c78e94fa54ed8e8baf87c9537e41de5026ab0d14f53b83aacdb0
-          type_checked_symbol_table: eb4dd79e5f9dc3a1743543cf2115709402096e611f33fa03ea993cdef8bc2ca7
-          unrolled_symbol_table: eb4dd79e5f9dc3a1743543cf2115709402096e611f33fa03ea993cdef8bc2ca7
-          initial_ast: 73d93c0436d1f4d002aa332cd43a87a01b55b42159d6495575306c25046267c4
-          unrolled_ast: 73d93c0436d1f4d002aa332cd43a87a01b55b42159d6495575306c25046267c4
-          ssa_ast: acd509aa91092052b0da10bf0cdf5f735abf19cd6eb36c8fa81bc76e81e9ae22
-          flattened_ast: d3658d88011d718cf081dc6bba7ae8af03fee2fa087304c5d8380a45df7906e6
-          destructured_ast: 999d48666be8894ce006e9852315718a7f83cc950becbf190482fc18b9997dac
-          inlined_ast: 57d9676f2703db440cf5ed4100030689db993c8e84b445111844e8be24970960
-          dce_ast: 57d9676f2703db440cf5ed4100030689db993c8e84b445111844e8be24970960
-          bytecode: 5052b2b09a1510935d9fd84a968f73f9a57ba0a545d909951a4452b68e065ea4
-          errors: ""
-          warnings: ""
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "de199bdd9ae2c78e94fa54ed8e8baf87c9537e41de5026ab0d14f53b83aacdb0", type_checked_symbol_table = "eb4dd79e5f9dc3a1743543cf2115709402096e611f33fa03ea993cdef8bc2ca7", unrolled_symbol_table = "eb4dd79e5f9dc3a1743543cf2115709402096e611f33fa03ea993cdef8bc2ca7", initial_ast = "73d93c0436d1f4d002aa332cd43a87a01b55b42159d6495575306c25046267c4", unrolled_ast = "73d93c0436d1f4d002aa332cd43a87a01b55b42159d6495575306c25046267c4", ssa_ast = "acd509aa91092052b0da10bf0cdf5f735abf19cd6eb36c8fa81bc76e81e9ae22", flattened_ast = "d3658d88011d718cf081dc6bba7ae8af03fee2fa087304c5d8380a45df7906e6", destructured_ast = "999d48666be8894ce006e9852315718a7f83cc950becbf190482fc18b9997dac", inlined_ast = "57d9676f2703db440cf5ed4100030689db993c8e84b445111844e8be24970960", dce_ast = "57d9676f2703db440cf5ed4100030689db993c8e84b445111844e8be24970960", bytecode = """
+program lottery.aleo;
+
+record Ticket:
+    owner as address.private;
+
+
+mapping num_winners:
+\tkey as u8.public;
+\tvalue as u8.public;
+
+
+function play:
+    cast self.caller into r0 as Ticket.record;
+    async play into r1;
+    output r0 as Ticket.record;
+    output r1 as lottery.aleo/play.future;
+
+finalize play:
+    lte block.height 1000u32 into r0;
+    assert.eq r0 true;
+    rand.chacha into r1 as boolean;
+    assert.eq r1 true;
+    get.or_use num_winners[0u8] 0u8 into r2;
+    lt r2 5u8 into r3;
+    assert.eq r3 true;
+    add r2 1u8 into r4;
+    set r4 into num_winners[0u8];
+
+""", errors = "", warnings = "" }] }]]

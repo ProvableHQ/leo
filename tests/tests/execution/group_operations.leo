@@ -1,13 +1,14 @@
 /*
-namespace: Execute
-expectation: Pass
-cases:
-    - program: test.aleo
-      function: main
-      input: ["0group"]
-    - program: test.aleo
-      function: main
-      input: ["2group"]
+namespace = "Execute"
+expectation = "Pass"
+[[cases]]
+program = "test.aleo"
+function = "main"
+input = ["0group"]
+[[cases]]
+program = "test.aleo"
+function = "main"
+input = ["2group"]
 */
 
 program test.aleo {

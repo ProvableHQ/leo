@@ -1,6 +1,6 @@
 /*
-namespace: Compile
-expectation: Fail
+namespace = "Compile"
+expectation = "Fail"
 */
 function main(character: char) -> char {
     console.log("{}", character);
