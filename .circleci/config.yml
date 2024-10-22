@@ -29,6 +29,7 @@ commands:
       - run:
           name: Install Rust
           command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
             rustup toolchain install $RUST_VERSION --profile minimal
             rustup default $RUST_VERSION
             cargo --version --verbose
@@ -86,7 +87,7 @@ commands:
             export WORK_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
             export SCCACHE_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
             mkdir -p "$CIRCLE_WORKING_DIRECTORY/.bin"
-            wget https://github.com/mozilla/sccache/releases/download/0.8.2/sccache-dist-v0.8.2-x86_64-unknown-linux-musl.tar.gz
+            wget https://github.com/mozilla/sccache/releases/download/v0.8.2/sccache-dist-v0.8.2-x86_64-unknown-linux-musl.tar.gz
             tar -C "$CIRCLE_WORKING_DIRECTORY/.bin" -xvf sccache-dist-v0.8.2-x86_64-unknown-linux-musl.tar.gz
             mv $CIRCLE_WORKING_DIRECTORY/.bin/sccache-dist-v0.8.2-x86_64-unknown-linux-musl/sccache $CIRCLE_WORKING_DIRECTORY/.bin/sccache
             export PATH="$PATH:$CIRCLE_WORKING_DIRECTORY/.bin"
