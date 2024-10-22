@@ -29,7 +29,7 @@ commands:
       - run:
           name: Install Rust
           command: |
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s --y
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             rustup toolchain install $RUST_VERSION --profile minimal
             rustup default $RUST_VERSION
             cargo --version --verbose
@@ -48,8 +48,10 @@ commands:
             $ProgressPreference = "SilentlyContinue"
             choco uninstall rust
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\rustup-init.exe"
-            & C:\rustup-init.exe -y --default-toolchain "${Env:RUST_VERSION}-x86_64-pc-windows-msvc" --no-modify-path --profile minimal
+            Start-Process .\rustup-init.exe -ArgumentList '-y' -Wait
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
+            rustup install $Env:RUST_VERSION
+            rustup default $Env:RUST_VERSION
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
