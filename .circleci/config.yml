@@ -65,8 +65,7 @@ jobs:
           keys:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
       - run:
-          name: "Install Rust, sccache, and run all tests"
-          no_output_timeout: 30m
+          name: "Install Rust and sccache"
           command: |
             $ProgressPreference = "SilentlyContinue"
             # Remove the circleci installed rustc.
@@ -102,9 +101,23 @@ jobs:
                 cargo generate-lockfile
             }
             git submodule update --init --recursive
+      - run:
+          name: "Build"
+          no_output_timeout: 30m
+          command: |
+            $ProgressPreference = "SilentlyContinue"
+            cargo test --no-run --all --locked --profile ci
+      - run:
+          name: "Run tests"
+          no_output_timeout: 30m
+          command: |
+            $ProgressPreference = "SilentlyContinue"
             cargo test --all --locked --profile ci
-
-            # Print sccache stats after tests
+      - run:
+          name: "Show cache stats"
+          no_output_timeout: 30m
+          command: |
+            $ProgressPreference = "SilentlyContinue"
             sccache --show-stats
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
