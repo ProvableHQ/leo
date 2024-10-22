@@ -5,8 +5,10 @@ version: 2.1
 # - https://github.com/Swatinem/rust-cache?tab=readme-ov-file#cache-details provides guidance on which directories to cache.
 # - Incremental builds should be disabled in CI, since they don't provide much benefit.
 
+# Ensure that this matches the `rust-version` in `Cargo.toml`.
+# If this is changed, propogate the changes to all places in this file, including the `install-rust` command.
 environment:
-  RUST_VERSION: "1.82.0" # Ensure that this matches the `rust-version` in `Cargo.toml`.
+  RUST_VERSION: "1.82.0"
 
 orbs:
   windows: circleci/windows@5.0
@@ -27,16 +29,12 @@ commands:
     description: "Install Rust (Linux/macOS)"
     steps:
       - run:
-          name: Debug Rust version
-          command: |
-            echo "Rust version is: ${RUST_VERSION}"
-      - run:
           name: Install Rust
           command: |
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             source "$HOME/.cargo/env"
-            rustup install ${RUST_VERSION} 
-            rustup override set ${RUST_VERSION}
+            rustup install 1.82.0
+            rustup override set 1.82.0
             cargo --version --verbose
             rustc --version
             if [ ! -f "Cargo.lock" ]; then
@@ -55,8 +53,8 @@ commands:
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
             Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
-            rustup install $Env:RUST_VERSION
-            rustup default $Env:RUST_VERSION
+            rustup install 1.82.0
+            rustup default 1.82.0
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
