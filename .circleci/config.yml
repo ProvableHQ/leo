@@ -23,11 +23,11 @@ executors:
 
 
 commands:
-  install-rust-and-sccache:
-    description: "Install Rust and sccache (Linux/macOS)"
+  install-rust:
+    description: "Install Rust (Linux/macOS)"
     steps:
       - run:
-          name: Install Rust and sccache (Linux/macOS)
+          name: Install Rust
           command: |
             rustup toolchain install $RUST_VERSION --profile minimal
             rustup default $RUST_VERSION
@@ -38,8 +38,8 @@ commands:
             fi
             git submodule update --init --recursive
 
-  install-rust-and-sccache-windows:
-    description: "Install Rust and sccache (Windows)"
+  install-rust-windows:
+    description: "Install Rust (Windows)"
     steps:
       - run:
           name: Install Rust and sccache (Windows)
@@ -47,7 +47,7 @@ commands:
             $ProgressPreference = "SilentlyContinue"
             choco uninstall rust
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\rustup-init.exe"
-            & C:\rustup-init.exe -y --default-toolchain "$Env:RUST_VERSION-x86_64-pc-windows-msvc" --no-modify-path --profile minimal
+            & C:\rustup-init.exe -y --default-toolchain "${Env:RUST_VERSION}-x86_64-pc-windows-msvc" --no-modify-path --profile minimal
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
@@ -86,9 +86,9 @@ commands:
             export WORK_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
             export SCCACHE_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
             mkdir -p "$CIRCLE_WORKING_DIRECTORY/.bin"
-            wget https://github.com/mozilla/sccache/releases/download/0.8.2/sccache-0.8.2-x86_64-unknown-linux-musl.tar.gz
-            tar -C "$CIRCLE_WORKING_DIRECTORY/.bin" -xvf sccache-0.8.2-x86_64-unknown-linux-musl.tar.gz
-            mv $CIRCLE_WORKING_DIRECTORY/.bin/sccache-0.8.2-x86_64-unknown-linux-musl/sccache $CIRCLE_WORKING_DIRECTORY/.bin/sccache
+            wget https://github.com/mozilla/sccache/releases/download/0.8.2/sccache-dist-v0.8.2-x86_64-unknown-linux-musl.tar.gz
+            tar -C "$CIRCLE_WORKING_DIRECTORY/.bin" -xvf sccache-dist-v0.8.2-x86_64-unknown-linux-musl.tar.gz
+            mv $CIRCLE_WORKING_DIRECTORY/.bin/sccache-dist-v0.8.2-x86_64-unknown-linux-musl/sccache $CIRCLE_WORKING_DIRECTORY/.bin/sccache
             export PATH="$PATH:$CIRCLE_WORKING_DIRECTORY/.bin"
             export RUSTC_WRAPPER="sccache"
             rm -rf "$CIRCLE_WORKING_DIRECTORY/.cargo/registry"
@@ -125,8 +125,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-      - install-rust-and-sccache-windows
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+      - install-rust-windows
       - build-and-test
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
@@ -139,8 +140,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-      - install-rust-and-sccache
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+      - install-rust
       - build-and-test
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
@@ -153,8 +155,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-      - install-rust-and-sccache
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+      - install-rust
       - build-and-test
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
