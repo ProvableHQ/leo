@@ -1,5 +1,8 @@
 version: 2.1
 
+environment:
+  RUST_VERSION: "1.77.1" # Ensure that this matches the `rust-version` in `Cargo.toml`.
+
 orbs:
   windows: circleci/windows@5.0
 
@@ -61,8 +64,6 @@ jobs:
       - restore_cache:
           keys:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
-            - cargo-v1-{{ arch }}
       - run:
           name: "Install Rust, sccache, and run all tests"
           no_output_timeout: 30m
@@ -70,20 +71,22 @@ jobs:
             $ProgressPreference = "SilentlyContinue"
             # Remove the circleci installed rustc.
             choco uninstall rust
+            
+            # Install scoop.
+            Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+            Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+            
             # Install rust with rustup.
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\rustup-init.exe"
-            & C:\rustup-init.exe -y --default-toolchain "stable-x86_64-pc-windows-msvc" --no-modify-path --profile minimal
+            & C:\rustup-init.exe -y --default-toolchain "1.77.0-x86_64-pc-windows-msvc" --no-modify-path --profile minimal
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
+            
             # Verify the installation.
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
 
             # Install sccache
-            Invoke-WebRequest -Uri "https://github.com/mozilla/sccache/releases/download/v0.4.0/sccache-v0.4.0-x86_64-pc-windows-msvc.zip" -OutFile "C:\sccache.zip"
-            Expand-Archive -Path "C:\sccache.zip" -DestinationPath "C:\sccache"
-            $Env:PATH += ";C:\sccache"
-            # Set up sccache as the Rust compiler wrapper
-            $Env:RUSTC_WRAPPER = "C:\sccache\sccache.exe"
+            scoop install sccache
 
             # Verify sccache installation
             sccache --version
@@ -100,6 +103,7 @@ jobs:
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
+            - C:\Users\circleci\.cache\sccache
             - C:\Users\circleci\.cargo\registry
             - C:\Users\circleci\.cargo\git
             - target
