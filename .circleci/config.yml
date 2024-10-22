@@ -75,12 +75,12 @@ commands:
           name: Build
           no_output_timeout: 30m
           command: |
-            cargo test --no-run --all --locked --profile ci --verbose
+            cargo test --no-run --all --locked --profile ci --features only_testnet --verbose
       - run:
           name: Run tests
           no_output_timeout: 30m
           command: |
-            cargo test --all --locked --profile ci --verbose
+            cargo test --all --locked --profile ci --features only_testnet --verbose
 
   setup_environment:
     description: "Setup environment"
