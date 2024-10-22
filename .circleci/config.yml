@@ -30,9 +30,9 @@ commands:
           name: Install Rust
           command: |
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            . "$HOME/.cargo/env"
-            rustup install $RUST_VERSION 
-            rustup override set $RUST_VERSION
+            source "$HOME/.cargo/env"
+            rustup install ${RUST_VERSION} 
+            rustup override set ${RUST_VERSION}
             cargo --version --verbose
             rustc --version
             if [ ! -f "Cargo.lock" ]; then
