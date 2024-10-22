@@ -29,7 +29,7 @@ commands:
       - run:
           name: Install Rust
           command: |
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s --y
             rustup toolchain install $RUST_VERSION --profile minimal
             rustup default $RUST_VERSION
             cargo --version --verbose
