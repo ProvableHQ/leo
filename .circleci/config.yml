@@ -89,7 +89,7 @@ commands:
             mkdir -p "$CIRCLE_WORKING_DIRECTORY/.bin"
             wget https://github.com/mozilla/sccache/releases/download/v0.8.2/sccache-dist-v0.8.2-x86_64-unknown-linux-musl.tar.gz
             tar -C "$CIRCLE_WORKING_DIRECTORY/.bin" -xvf sccache-dist-v0.8.2-x86_64-unknown-linux-musl.tar.gz
-            mv $CIRCLE_WORKING_DIRECTORY/.bin/sccache-dist-v0.8.2-x86_64-unknown-linux-musl/sccache $CIRCLE_WORKING_DIRECTORY/.bin/sccache
+            mv $CIRCLE_WORKING_DIRECTORY/.bin/sccache-dist-v0.8.2-x86_64-unknown-linux-musl/sccache-dist $CIRCLE_WORKING_DIRECTORY/.bin/sccache
             export PATH="$PATH:$CIRCLE_WORKING_DIRECTORY/.bin"
             export RUSTC_WRAPPER="sccache"
             rm -rf "$CIRCLE_WORKING_DIRECTORY/.cargo/registry"
