@@ -22,6 +22,7 @@ executors:
   linux-executor:
     docker:
       - image: "cimg/rust:1.82.0"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
+    resource_class: xlarge
 
 
 commands:
