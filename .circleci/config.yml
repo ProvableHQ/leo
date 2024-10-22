@@ -27,6 +27,10 @@ commands:
     description: "Install Rust (Linux/macOS)"
     steps:
       - run:
+          name: Debug Rust version
+          command: |
+            echo "Rust version is: ${RUST_VERSION}"
+      - run:
           name: Install Rust
           command: |
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
