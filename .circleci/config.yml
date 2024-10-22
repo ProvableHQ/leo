@@ -64,7 +64,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - run:
-          name: "Install Rust and run test"
+          name: "Install Rust and run all tests"
           command: |
             $ProgressPreference = "SilentlyContinue"
             # Remove the circleci installed rustc.
