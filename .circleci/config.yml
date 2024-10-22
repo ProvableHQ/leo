@@ -64,7 +64,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - run:
-          name: "Install Rust and run all tests"
+          name: "Install Rust, sccache, and run all tests"
           no_output_timeout: 30m
           command: |
             $ProgressPreference = "SilentlyContinue"
@@ -77,11 +77,26 @@ jobs:
             # Verify the installation.
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
+
+            # Install sccache
+            Invoke-WebRequest -Uri "https://github.com/mozilla/sccache/releases/download/v0.4.0/sccache-v0.4.0-x86_64-pc-windows-msvc.zip" -OutFile "C:\sccache.zip"
+            Expand-Archive -Path "C:\sccache.zip" -DestinationPath "C:\sccache"
+            $Env:PATH += ";C:\sccache"
+            # Set up sccache as the Rust compiler wrapper
+            $Env:RUSTC_WRAPPER = "C:\sccache\sccache.exe"
+
+            # Verify sccache installation
+            sccache --version
+            sccache --show-stats
+
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
                 cargo generate-lockfile
             }
             git submodule update --init --recursive
-            cargo test --all --locked
+            cargo test --all --locked --profile ci
+
+            # Print sccache stats after tests
+            sccache --show-stats
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
