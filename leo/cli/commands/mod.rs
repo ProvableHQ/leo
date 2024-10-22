@@ -35,6 +35,9 @@ pub use example::LeoExample;
 pub mod execute;
 pub use execute::LeoExecute;
 
+pub mod format;
+pub use format::Format;
+
 pub mod query;
 pub use query::LeoQuery;
 
