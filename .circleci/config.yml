@@ -6,7 +6,7 @@ version: 2.1
 # - Incremental builds should be disabled in CI, since they don't provide much benefit.
 
 environment:
-  RUST_VERSION: "1.77.1" # Ensure that this matches the `rust-version` in `Cargo.toml`.
+  RUST_VERSION: "1.82.0" # Ensure that this matches the `rust-version` in `Cargo.toml`.
 
 orbs:
   windows: circleci/windows@5.0
@@ -15,11 +15,11 @@ executors:
   macos-executor:
     macos:
       xcode: "16.0.0"  # Use appropriate Xcode version
-    resource_class: xlarge
+    resource_class: m2pro.large
 
   linux-executor:
     docker:
-      - image: "cimg/rust:1.77.1"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
+      - image: "cimg/rust:1.82.0"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
 
 
 commands:
@@ -164,7 +164,7 @@ jobs:
 
   check-style:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - checkout
@@ -183,7 +183,7 @@ jobs:
 
   clippy:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - checkout
@@ -203,7 +203,7 @@ jobs:
 
   leo-executable:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - checkout
@@ -225,7 +225,7 @@ jobs:
 
   leo-new:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -238,7 +238,7 @@ jobs:
 
   leo-clean:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -251,7 +251,7 @@ jobs:
 
   leo-example:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -264,7 +264,7 @@ jobs:
 
   test-examples:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - attach_workspace:
