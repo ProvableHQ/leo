@@ -207,6 +207,7 @@ workflows:
   main-workflow:
     jobs:
       - test-windows
+      - check-style
       - clippy
       - leo-executable
       - leo-new:
