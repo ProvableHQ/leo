@@ -36,6 +36,23 @@ pub enum TestError {
     MissingTestConfig,
 }
 
+/// Make a user-readable string representing this Value.
+///
+/// TOML only supports tables as the top level type,
+/// so we handle arrays on our own.
+fn toml_to_string(x: &Value) -> String {
+    if let Some(array) = x.as_array() {
+        let mut s = String::new();
+        for value in array.iter() {
+            s.push_str(&toml::to_string(value).expect("serialization failed"));
+            s.push('\n');
+        }
+        s
+    } else {
+        toml::to_string(x).expect("serialization failed")
+    }
+}
+
 impl fmt::Display for TestError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let format_test =
@@ -50,8 +67,8 @@ impl fmt::Display for TestError {
                     "test #{}: {}expected\n{}\ngot\n{}",
                     index + 1,
                     format_test(test),
-                    toml::to_string(&expected).expect("serialization failed"),
-                    toml::to_string(&output).expect("serialization failed")
+                    toml_to_string(expected),
+                    toml_to_string(output),
                 )
             }
             TestError::PassedAndShouldntHave { test, index } => {
