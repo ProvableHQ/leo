@@ -1,9 +1,0 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
-Error [ETYC0372037]: An async function call block cannot be empty.
-    --> compiler-test:9:80
-     |
-   9 |     async function finalize_mint(public receiver: address, public amount: u64) {}
-     |                                                                                ^^
-"""]

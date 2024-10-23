@@ -4,7 +4,7 @@ expectation = "Fail"
 */
 
 program test.aleo {    
-    function main() {
+    function main(zz: bool) {
         let a: Foo = Foo { };
     }
 }

@@ -73,7 +73,7 @@ create_messages!(
     }
 
     /// For when the parser encountered a mix of commas and semi-colons in struct member variables.
-    // TODO unused
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     mixed_commas_and_semicolons {
         args: (),

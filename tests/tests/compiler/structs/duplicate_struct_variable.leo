@@ -9,7 +9,7 @@ program test.aleo {
         x: u32,
     }
     
-    function main() -> bool {
+    function main(zz: bool) -> bool {
         return true;
     }
 }
