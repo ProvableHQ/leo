@@ -284,6 +284,7 @@ impl<'a> Cursor<'a> {
             signer,
             block_height,
             really_async,
+<<<<<<< HEAD
             program: None,
         }
     }
@@ -296,6 +297,11 @@ impl<'a> Cursor<'a> {
         self.contexts.current_program().or(self.program)
     }
 
+=======
+        }
+    }
+
+>>>>>>> dd68615d86 (Interpreter.)
     pub fn increment_step(&mut self) {
         let Some(Frame { step, .. }) = self.frames.last_mut() else {
             panic!("frame expected");

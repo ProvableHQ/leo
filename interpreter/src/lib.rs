@@ -68,7 +68,11 @@ You can set a breakpoint with
 When executing Aleo VM code, you can print the value of a register like this:
 #print 2
 
+<<<<<<< HEAD
 Some of the commands may be run with one letter abbreviations, such as #i.
+=======
+You may also use one letter abbreviations for these commands, such as #i.
+>>>>>>> dd68615d86 (Interpreter.)
 
 Note that this interpreter is not line oriented as in many common debuggers;
 rather it is oriented around expressions and statements.
@@ -87,6 +91,7 @@ If there are futures available to be executed, they will be listed by
 numerical index, and you may run them using `#future` (or `#f`); for instance
 #future 0
 
+<<<<<<< HEAD
 The interpreter begins in a global context, not in any Leo program. You can set
 the current program with
 
@@ -102,6 +107,8 @@ REPL. In this case, you may use the command
 Which will restore to the last saved state of the interpreter. Any time you
 enter Leo code at the prompt, interpreter state is saved.
 
+=======
+>>>>>>> dd68615d86 (Interpreter.)
 Input history is available - use the up and down arrow keys.
 ";
 

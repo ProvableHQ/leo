@@ -63,7 +63,7 @@ version = "2.4.0"
 
 [workspace.dependencies.leo-interpreter]
 path = "./interpreter"
-version = "2.3.0"
+version = "2.4.0"
 
 [workspace.dependencies.leo-package]
 path = "./leo/package"
