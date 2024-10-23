@@ -38,6 +38,7 @@ members = [
   "compiler/span",
   "docs/grammar",
   "errors",
+  "interpreter",
   "leo/package",
   "tests/test-framework",
   "utils/disassembler",
@@ -59,6 +60,10 @@ version = "2.4.0"
 [workspace.dependencies.leo-errors]
 path = "./errors"
 version = "2.4.0"
+
+[workspace.dependencies.leo-interpreter]
+path = "./interpreter"
+version = "2.3.0"
 
 [workspace.dependencies.leo-package]
 path = "./leo/package"
@@ -84,6 +89,9 @@ version = "2.4.0"
 version = "0.1.24"
 default-features = false
 
+[workspace.dependencies.colored]
+version = "2.0"
+
 [workspace.dependencies.indexmap]
 version = "2.6"
 features = [ "serde" ]
@@ -93,6 +101,10 @@ version = "0.13.0"
 
 [workspace.dependencies.rand]
 version = "0.8"
+default-features = false
+
+[workspace.dependencies.rand_chacha]
+version = "0.3.0"
 default-features = false
 
 [workspace.dependencies.regex]
@@ -108,6 +120,9 @@ features = [ "derive", "rc" ]
 [workspace.dependencies.serde_json]
 version = "1.0"
 features = [ "preserve_order" ]
+
+[workspace.dependencies.tempfile]
+version = "3.13"
 
 [workspace.dependencies.toml]
 version = "0.8"
@@ -135,85 +150,87 @@ num-format = "0.4.4"
 text-tables = "0.3.1"
 ureq = "2.10.1"
 
-  [dependencies.leo-ast]
-  workspace = true
+[dependencies.leo-ast]
+workspace = true
 
-  [dependencies.leo-compiler]
-  workspace = true
+[dependencies.leo-compiler]
+workspace = true
 
-  [dependencies.leo-errors]
-  workspace = true
+[dependencies.leo-errors]
+workspace = true
 
-  [dependencies.leo-package]
-  workspace = true
+[dependencies.leo-interpreter]
+workspace = true
 
-  [dependencies.leo-span]
-  workspace = true
+[dependencies.leo-package]
+workspace = true
 
-  [dependencies.leo-retriever]
-  workspace = true
+[dependencies.leo-span]
+workspace = true
 
-  [dependencies.aleo-std]
-  workspace = true
+[dependencies.leo-retriever]
+workspace = true
 
-  [dependencies.backtrace]
-  version = "0.3.74"
+[dependencies.aleo-std]
+workspace = true
 
-  [dependencies.clap]
-  version = "4.5"
-  features = [ "derive", "env", "color", "unstable-styles" ]
+[dependencies.backtrace]
+version = "0.3.74"
 
-  [dependencies.colored]
-  version = "2.0"
+[dependencies.clap]
+version = "4.5"
+features = [ "derive", "env", "color", "unstable-styles" ]
 
-  [dependencies.dotenvy]
-  version = "0.15.7"
+[dependencies.colored]
+workspace = true
 
-  [dependencies.indexmap]
-  workspace = true
+[dependencies.dotenvy]
+version = "0.15.7"
 
-  [dependencies.rand]
-  workspace = true
+[dependencies.indexmap]
+workspace = true
 
-  [dependencies.rand_chacha]
-  version = "0.3.0"
-  default-features = false
+[dependencies.rand]
+workspace = true
 
-  [dependencies.self_update]
-  version = "0.41.0"
-  features = [ "archive-zip", "compression-zip-deflate" ]
+[dependencies.rand_chacha]
+workspace = true
 
-  [dependencies.serde]
-  workspace = true
+[dependencies.self_update]
+version = "0.41.0"
+features = [ "archive-zip", "compression-zip-deflate" ]
 
-  [dependencies.serde_json]
-  workspace = true
+[dependencies.serde]
+workspace = true
 
-  [dependencies.serial_test]
-  version = "3.1.1"
+[dependencies.serde_json]
+workspace = true
 
-  [dependencies.snarkvm]
-  workspace = true
-  features = [ "circuit", "console" ]
+[dependencies.serial_test]
+version = "3.1.1"
 
-  [dependencies.sys-info]
-  version = "0.9.1"
+[dependencies.snarkvm]
+workspace = true
+features = [ "circuit", "console" ]
 
-  [dependencies.toml]
-  workspace = true
+[dependencies.sys-info]
+version = "0.9.1"
 
-  [dependencies.tracing]
-  version = "0.1"
+[dependencies.toml]
+workspace = true
 
-  [dependencies.tracing-subscriber]
-  version = "0.3.18"
-  features = [ "fmt" ]
+[dependencies.tracing]
+version = "0.1"
 
-  [dependencies.crossterm]
-  version = "0.28.1"
+[dependencies.tracing-subscriber]
+version = "0.3.18"
+features = [ "fmt" ]
 
-  [dependencies.rpassword]
-  version = "7.3.1"
+[dependencies.crossterm]
+version = "0.28.1"
+
+[dependencies.rpassword]
+version = "7.3.1"
 
 [target."cfg(windows)".dependencies.ansi_term]
 version = "0.12.1"

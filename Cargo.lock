@@ -1562,6 +1562,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-interpreter"
+version = "2.3.1"
+dependencies = [
+ "colored",
+ "dialoguer",
+ "indexmap 2.6.0",
+ "leo-ast",
+ "leo-errors",
+ "leo-package",
+ "leo-parser",
+ "leo-passes",
+ "leo-span",
+ "leo-test-framework",
+ "rand",
+ "rand_chacha",
+ "serial_test",
+ "snarkvm",
+ "snarkvm-circuit",
+ "snarkvm-synthesizer-program",
+ "tempfile",
+ "toml 0.8.19",
+]
+
+[[package]]
 name = "leo-lang"
 version = "2.4.0"
 dependencies = [
@@ -1577,6 +1601,7 @@ dependencies = [
  "leo-ast",
  "leo-compiler",
  "leo-errors",
+ "leo-interpreter",
  "leo-package",
  "leo-retriever",
  "leo-span",
