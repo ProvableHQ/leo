@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
+    TEST_PRIVATE_KEY,
     root::{Env, Gitignore},
     source::{MainFile, SourceDirectory},
 };
@@ -148,11 +149,7 @@ impl Package {
 
         // Create the .env file.
         // Include the private key of validator 0 for ease of use with local devnets, as it will automatically be seeded with funds.
-        Env::<N>::new(
-            Some(PrivateKey::<N>::from_str("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")?),
-            endpoint,
-        )?
-        .write_to(&path)?;
+        Env::<N>::new(Some(PrivateKey::<N>::from_str(TEST_PRIVATE_KEY)?), endpoint)?.write_to(&path)?;
 
         // Create a manifest.
         let manifest = Manifest::default(package_name);

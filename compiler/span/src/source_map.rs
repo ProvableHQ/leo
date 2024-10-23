@@ -83,7 +83,7 @@ impl SourceMap {
     }
 
     /// Find the source file containing `pos`.
-    fn find_source_file(&self, pos: BytePos) -> Option<Rc<SourceFile>> {
+    pub fn find_source_file(&self, pos: BytePos) -> Option<Rc<SourceFile>> {
         Some(self.inner.borrow().source_files[self.find_source_file_index(pos)?].clone())
     }
 

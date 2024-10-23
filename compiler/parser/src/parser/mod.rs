@@ -22,7 +22,7 @@
 use crate::{Token, tokenizer::*};
 
 use leo_ast::*;
-use leo_errors::{Result, emitter::Handler};
+use leo_errors::{ParserError, Result, emitter::Handler};
 use leo_span::{Span, span::BytePos};
 
 use snarkvm::prelude::Network;
@@ -48,4 +48,36 @@ pub fn parse<N: Network>(
     let mut tokens = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
 
     tokens.parse_program()
+}
+
+pub fn parse_expression<N: Network>(
+    handler: &Handler,
+    node_builder: &NodeBuilder,
+    source: &str,
+    start_pos: BytePos,
+) -> Result<Expression> {
+    let mut context = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
+
+    let expression = context.parse_expression()?;
+    if context.token.token == Token::Eof {
+        Ok(expression)
+    } else {
+        Err(ParserError::unexpected(context.token.token, Token::Eof, context.token.span).into())
+    }
+}
+
+pub fn parse_statement<N: Network>(
+    handler: &Handler,
+    node_builder: &NodeBuilder,
+    source: &str,
+    start_pos: BytePos,
+) -> Result<Statement> {
+    let mut context = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
+
+    let statement = context.parse_statement()?;
+    if context.token.token == Token::Eof {
+        Ok(statement)
+    } else {
+        Err(ParserError::unexpected(context.token.token, Token::Eof, context.token.span).into())
+    }
 }
