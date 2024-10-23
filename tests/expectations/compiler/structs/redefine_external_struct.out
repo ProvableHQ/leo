@@ -20,7 +20,6 @@ struct Bar:
 struct Foo:
     bar as [Bar; 1u32];
 
-
 function create:
     cast 1u32 2u32 into r0 as Two;
     cast 3u32 4u32 into r1 as Two;
@@ -57,7 +56,6 @@ struct Bar:
 
 struct Foo:
     bar as [Bar; 1u32];
-
 
 function create_wrapper:
     call child.aleo/create into r0;

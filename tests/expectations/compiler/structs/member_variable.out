@@ -6,7 +6,6 @@ program test.aleo;
 struct Foo:
     x as u32;
 
-
 function main:
     input r0 as boolean.private;
     cast 1u32 into r1 as Foo;

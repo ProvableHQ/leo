@@ -3,8 +3,6 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "5c8eeb1dd1d925fcdaecdea92ba33ee89bf509985db403cac215247ed7d92df3", type_checked_symbol_table = "47b59a2169757b68d3be76ac7e5c58934ab1b8af794ad3b590491f1911abd83e", unrolled_symbol_table = "47b59a2169757b68d3be76ac7e5c58934ab1b8af794ad3b590491f1911abd83e", initial_ast = "956c53f2f289c16531167b5f0afc4368d5e2cf0964dfec7889a182620913a592", unrolled_ast = "956c53f2f289c16531167b5f0afc4368d5e2cf0964dfec7889a182620913a592", ssa_ast = "f36f9c462f2a1d2320879740b3d63eb5aea3e51371fa3531a1dfa560d18c9509", flattened_ast = "62e6a5732976a694b36b54674c5df40be9c342a57978cc747dd30572985d1f7b", destructured_ast = "24a79b8884f2daa534fc0aceb7fe5e48cd2700dc40b1ae4ec5dd91c140dd55da", inlined_ast = "24a79b8884f2daa534fc0aceb7fe5e48cd2700dc40b1ae4ec5dd91c140dd55da", dce_ast = "bd1b89b6865ff3f3c4fca13a17988ae9435547ebd36785f0fe6e1b793e6e81ef", bytecode = """
 program test.aleo;
 
-
-
 function main:
     input r0 as boolean.private;
     is.eq r0 true into r1;

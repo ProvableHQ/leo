@@ -3,17 +3,13 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "59fe602c0d7bc9ba582e57bd00ca4df0cf521ac4237f1822aab93672d25595a0", type_checked_symbol_table = "9bc8d3261b8e16e3378c7dcf64f776a70ebb85a8f0e4ed89bc91febcf4a5d64c", unrolled_symbol_table = "9bc8d3261b8e16e3378c7dcf64f776a70ebb85a8f0e4ed89bc91febcf4a5d64c", initial_ast = "fac4817f93bb7040ea2c073a4aa94babc29d0bec61198d17fe7fb0e4e7ea9ded", unrolled_ast = "fac4817f93bb7040ea2c073a4aa94babc29d0bec61198d17fe7fb0e4e7ea9ded", ssa_ast = "be2f3f263ca2b58754bbd8a7addcaa1052b03ceaef3d98d69612ddf4661ab0e0", flattened_ast = "4756c0d180b5eeb11e93fdc18a693652d2f867db82bd3637128a7e8b7d4e2e96", destructured_ast = "e31c11310cb123d8209b8040105e9cea8d332a8c1641f2422b69f561202a5796", inlined_ast = "aa37165752ea0677d59741347d0185d40ba9e03a1c220692915c63ca72ecc63e", dce_ast = "aa37165752ea0677d59741347d0185d40ba9e03a1c220692915c63ca72ecc63e", bytecode = """
 program test.aleo;
 
-
-
 mapping account:
-\tkey as address.public;
-\tvalue as u64.public;
-
+    key as address.public;
+    value as u64.public;
 
 mapping values:
-\tkey as u8.public;
-\tvalue as u8.public;
-
+    key as u8.public;
+    value as u8.public;
 
 function mint_public:
     input r0 as address.public;
@@ -28,9 +24,6 @@ finalize mint_public:
     add r2 r1 into r3;
     set r3 into account[r0];
 
-
-
-
 function finalize_self_caller:
     async finalize_self_caller self.caller into r0;
     output r0 as test.aleo/finalize_self_caller.future;
@@ -43,5 +36,4 @@ finalize finalize_self_caller:
     get.or_use account[r0] 0u64 into r3;
     add r3 1u64 into r4;
     set r4 into account[r0];
-
 """, errors = "", warnings = "" }] }]]

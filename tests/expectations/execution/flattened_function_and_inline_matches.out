@@ -11,9 +11,6 @@ struct Data:
     b as u8;
     c as Extra;
 
-
-
-
 function bar:
     input r0 as boolean.private;
     input r1 as boolean.private;
@@ -95,7 +92,6 @@ function bar:
     output r70 as u8.private;
     output r75 as Data.private;
 
-
 closure floo:
     input r0 as u8;
     input r1 as u8;
@@ -117,7 +113,6 @@ closure floo:
     output r10 as u8;
     output r11 as u8;
     output r16 as Data;
-
 
 function blar:
     input r0 as boolean.private;

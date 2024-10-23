@@ -3,12 +3,9 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "60f7bdd11192425cfc45192bcc1b539e7b05551236a1a490fba4f79823cc50e1", type_checked_symbol_table = "652f161821c10c6528014b80c2dbc000f141f6e410ce96f093b5e5be5834d8de", unrolled_symbol_table = "652f161821c10c6528014b80c2dbc000f141f6e410ce96f093b5e5be5834d8de", initial_ast = "577b00e2287a194222a242de6c7c56c9c761ea97ad6ba126114fca212f74c9b8", unrolled_ast = "577b00e2287a194222a242de6c7c56c9c761ea97ad6ba126114fca212f74c9b8", ssa_ast = "33f828dbd1a0c3aedc5990cc8df882dca958f230575425068a95823d59483c2e", flattened_ast = "6251f84c9ed5cebf8ddf61ec6d1aeea44c4bf615581fb275f9ee881cd75b47f5", destructured_ast = "ca58c119a4ac73966ded5a2ec8f59cc4f6722e622010bbd2837602ba588404da", inlined_ast = "ccb442edf03d8af70e78a8ebba312ad0966218244d3b55e2fc1298ccc888a936", dce_ast = "ccb442edf03d8af70e78a8ebba312ad0966218244d3b55e2fc1298ccc888a936", bytecode = """
 program test.aleo;
 
-
-
 mapping amounts:
-\tkey as address.public;
-\tvalue as u128.public;
-
+    key as address.public;
+    value as u128.public;
 
 function decrease_self:
     input r0 as u128.private;
@@ -21,5 +18,4 @@ finalize decrease_self:
     get.or_use amounts[r0] 0u128 into r2;
     sub r2 r1 into r3;
     set r3 into amounts[r0];
-
 """, errors = "", warnings = "" }] }]]

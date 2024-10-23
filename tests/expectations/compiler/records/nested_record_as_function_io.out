@@ -8,7 +8,6 @@ record X:
     owner as address.private;
     val as u32.private;
 
-
 function mint2:
     input r0 as u32.private;
     cast self.signer r0 into r1 as X.record;
@@ -18,12 +17,9 @@ function mint2:
 import program_a.aleo;
 program program_b.aleo;
 
-
-
 function foobar:
     input r0 as program_a.aleo/X.record;
     output r0.val as u32.private;
-
 
 function boofar:
     input r0 as program_a.aleo/X.record;
@@ -33,8 +29,6 @@ function boofar:
 import program_a.aleo;
 import program_b.aleo;
 program program_c.aleo;
-
-
 
 function main:
     assert.eq 1u32 1u32;

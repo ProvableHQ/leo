@@ -6,7 +6,6 @@ program test.aleo;
 struct foo:
     data as field;
 
-
 function main:
     input r0 as boolean.private;
     input r1 as group.private;

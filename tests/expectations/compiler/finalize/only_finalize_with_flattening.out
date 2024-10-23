@@ -6,11 +6,9 @@ program test.aleo;
 struct TokenInfo:
     id as u64;
 
-
 mapping token_name_to_info:
-\tkey as field.public;
-\tvalue as TokenInfo.public;
-
+    key as field.public;
+    value as TokenInfo.public;
 
 function add_new_liquidity_token:
     async add_new_liquidity_token into r0;
@@ -32,9 +30,6 @@ finalize add_new_liquidity_token:
     position end_then_0_2;
     position end_otherwise_0_3;
 
-
-
-
 function add_new_liquidity_token_2:
     async add_new_liquidity_token_2 into r0;
     output r0 as test.aleo/add_new_liquidity_token_2.future;
@@ -46,5 +41,4 @@ finalize add_new_liquidity_token_2:
     cast 10u64 into r3 as TokenInfo;
     ternary r2 r3.id r1.id into r4;
     cast r4 into r5 as TokenInfo;
-
 """, errors = "", warnings = "" }] }]]

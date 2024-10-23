@@ -10,7 +10,6 @@ record move:
     player_2 as address.private;
     prev_hit_or_miss as u64.private;
 
-
 function create_move:
     input r0 as move.record;
     input r1 as u64.private;
@@ -19,7 +18,6 @@ function create_move:
     ternary r3 r0.player_2 r0.player_1 into r4;
     cast r4 r1 r0.player_2 r0.player_1 r2 into r5 as move.record;
     output r5 as move.record;
-
 
 function start_game:
     input r0 as address.private;

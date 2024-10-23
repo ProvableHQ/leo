@@ -3,19 +3,15 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "84549d4c1be93b50aac1ea548f47a06dd027838a52b4e646ddc1f9378906ca30", type_checked_symbol_table = "0a4e359e496976381acad0d496b0e91c184fc71ac97ee062c95d793489cfac74", unrolled_symbol_table = "0a4e359e496976381acad0d496b0e91c184fc71ac97ee062c95d793489cfac74", initial_ast = "cd67a4bd4c22784098cf8ecc4e8079479062df17e8da5d75d5efc029337c76bf", unrolled_ast = "cd67a4bd4c22784098cf8ecc4e8079479062df17e8da5d75d5efc029337c76bf", ssa_ast = "50d96b3454dd9deb16aa306d308ffd7dd1d4ceb4b3e247516934c60f4c362a65", flattened_ast = "08b9e3d394cedad85a405dbbba19dc56637d141ee85392df8520e0fb08e2ce9b", destructured_ast = "eef3c63a267e76c98694279ed57e3fec725c02fe84766da8d194ae6f29ed32b7", inlined_ast = "b305b98efdaaa0fa8b5abbe0460b26ab1258c30f6dd66a459c235b1b945db62a", dce_ast = "b305b98efdaaa0fa8b5abbe0460b26ab1258c30f6dd66a459c235b1b945db62a", bytecode = """
 program test.aleo;
 
-
-
 closure bar:
     input r0 as u8;
     mul r0 r0 into r1;
     output r1 as u8;
 
-
 closure baz:
     input r0 as u8;
     add r0 r0 into r1;
     output r1 as u8;
-
 
 function foo:
     input r0 as u8.private;

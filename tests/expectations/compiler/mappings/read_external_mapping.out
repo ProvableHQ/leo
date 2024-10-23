@@ -4,12 +4,9 @@ outputs = [[{ compile = [
     { initial_symbol_table = "bb82e4231a0fb50294a05c94943d9fcdb45f636c32365684d2d329b895b55955", type_checked_symbol_table = "ec996a9a76525329051b42462f7bfee41738e276636cf34c9a0661d70e7b733c", unrolled_symbol_table = "ec996a9a76525329051b42462f7bfee41738e276636cf34c9a0661d70e7b733c", initial_ast = "f2aaf1996d382c7333a733e4be37ea93c27a3ec58960af996b9f8645ebd27dcf", unrolled_ast = "f2aaf1996d382c7333a733e4be37ea93c27a3ec58960af996b9f8645ebd27dcf", ssa_ast = "16bbfc985f7b340af00f48be7c87cce9fa9deec2517f8e1e51d0a9b90a54fd52", flattened_ast = "327b3263d448da3866ca22b11e845307bea00b77a5854b3c498b3dab8ce31fd2", destructured_ast = "7b13016d5303ea0ba1a9808c08ae7ffa7bd9433cc1c92bd981407291fca91e5d", inlined_ast = "c45092530d55cad8153a244b85c022808dd2b11d4125d2d7f8ac7c83028fd9cd", dce_ast = "c45092530d55cad8153a244b85c022808dd2b11d4125d2d7f8ac7c83028fd9cd", bytecode = """
 program registry.aleo;
 
-
-
 mapping users:
-\tkey as address.public;
-\tvalue as boolean.public;
-
+    key as address.public;
+    value as boolean.public;
 
 function register:
     async register self.caller into r0;
@@ -19,9 +16,6 @@ finalize register:
     input r0 as address.public;
     set true into users[r0];
 
-
-
-
 function unregister:
     async unregister self.caller into r0;
     output r0 as registry.aleo/unregister.future;
@@ -29,7 +23,6 @@ function unregister:
 finalize unregister:
     input r0 as address.public;
     set false into users[r0];
-
 """, errors = "", warnings = "" },
     { initial_symbol_table = "23d4f67793776c110bfd4cc47d98dedde4495edb453c82f6b06718a8cdbc7f6d", type_checked_symbol_table = "f8c6d89c3ff7316d9a2e391c1a0d6c7f3f4ab2f45109b0dbd58b6ff424d854dd", unrolled_symbol_table = "f8c6d89c3ff7316d9a2e391c1a0d6c7f3f4ab2f45109b0dbd58b6ff424d854dd", initial_ast = "9cc519cc416b2f54ecf753c541196b337f359d42616e4f38b8d9a5a86746de41", unrolled_ast = "4f5beff4969ba9db8b429435d2a6a6133eed2e8718564073fefa76ed4db76381", ssa_ast = "012d0c07475a7e03d3898338aa2a91b56d77032978437b17c9337a5001ae5249", flattened_ast = "e391d1d2c6731ec8961afe91d8fa94fb9edb091b892ddecfa48ce3f5a6febe8e", destructured_ast = "26f202a3d6a24f0af49542d0f2c29c635314073b2d52ede163d3ab5e5bcc86fa", inlined_ast = "72e4121a823f91aeeb5b8433f03f07943d174353d55f58a3aae111bc1bab0798", dce_ast = "72e4121a823f91aeeb5b8433f03f07943d174353d55f58a3aae111bc1bab0798", bytecode = """
 import registry.aleo;
@@ -39,11 +32,9 @@ record message:
     owner as address.private;
     data as u8.private;
 
-
 mapping users:
-\tkey as address.public;
-\tvalue as boolean.public;
-
+    key as address.public;
+    value as boolean.public;
 
 function send:
     input r0 as address.private;
@@ -58,9 +49,6 @@ finalize send:
     get registry.aleo/users[r0] into r1;
     assert.eq r1 true;
 
-
-
-
 function send_without_check:
     input r0 as address.private;
     input r1 as u8.private;
@@ -73,6 +61,5 @@ finalize send_without_check:
     input r0 as address.public;
     get.or_use registry.aleo/users[r0] true into r1;
     assert.eq r1 true;
-
 """, errors = "", warnings = "" },
 ] }]]

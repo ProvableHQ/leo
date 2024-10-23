@@ -7,7 +7,6 @@ record Token:
     owner as address.private;
     amount as u64.private;
 
-
 function mint_token:
     input r0 as address.private;
     input r1 as u64.private;
@@ -20,7 +19,6 @@ function mint_token:
     ternary r4 r5.amount r6.amount into r8;
     cast r7 r8 into r9 as Token.record;
     output r9 as Token.record;
-
 
 function mint_token2:
     input r0 as address.private;

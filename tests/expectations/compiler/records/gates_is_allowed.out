@@ -8,7 +8,6 @@ record Token:
     amount as u64.private;
     gates as u64.private;
 
-
 function main:
     input r0 as u64.private;
     input r1 as u64.private;

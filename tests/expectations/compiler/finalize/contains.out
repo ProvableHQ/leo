@@ -3,12 +3,9 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "15158cf85896dafc3e0c9cb94aa57345abb8a8f312e24e64e90139add6bb8e27", type_checked_symbol_table = "35f03792a077e2b869e29a912f5da8bf42fc5bfefde8e743d488b3fe950c326a", unrolled_symbol_table = "35f03792a077e2b869e29a912f5da8bf42fc5bfefde8e743d488b3fe950c326a", initial_ast = "d2a45f9028d65426da3469e96d2861dc5211b6c38b32f712ee8836b21cfae53d", unrolled_ast = "d2a45f9028d65426da3469e96d2861dc5211b6c38b32f712ee8836b21cfae53d", ssa_ast = "9ee712560853cd8d5056baf9ca70a530cc87a4f222f14f1404cb3530acc5c301", flattened_ast = "40f24787942caba5124252a80625ecaf74e7948eb88206ba75f0a510015bec61", destructured_ast = "b34a0fbb7379b6b434082a0475fb1c44621bb69c9e5f3ca6717676cb9d84211c", inlined_ast = "9a6ba60bca68e60866f188fd3580fa388aeb1ce0032c013205b0e02b32bd250e", dce_ast = "9a6ba60bca68e60866f188fd3580fa388aeb1ce0032c013205b0e02b32bd250e", bytecode = """
 program test.aleo;
 
-
-
 mapping balances:
-\tkey as address.public;
-\tvalue as u32.public;
-
+    key as address.public;
+    value as u32.public;
 
 function foo:
     async foo self.caller into r0;
@@ -19,5 +16,4 @@ finalize foo:
     contains balances[r0] into r1;
     not r1 into r2;
     assert.eq r2 true;
-
 """, errors = "", warnings = "" }] }]]

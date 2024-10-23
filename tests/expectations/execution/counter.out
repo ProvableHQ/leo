@@ -3,12 +3,9 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "ae28dea8208d31b498caf1c490ae89eb7056b194f3e35a90dea9ad87895d65d2", type_checked_symbol_table = "37cfeb2a87c005d3348d6a67685f6243886663b0c54a7c3b0a60c9c9e7316be6", unrolled_symbol_table = "1e3c1f6215a5fd621bc62e76d428a89dbeebe6c188555a36f68f70987da78dea", initial_ast = "19721e772e221eb97e37f1c93467922f709e85ce513f52509ada17ee6d772f43", unrolled_ast = "9d6a97290f777830354c88a540cefbf102082a3e0c68cc8973515f4304509347", ssa_ast = "b25c2fed543056a8d3210f3c547a3e59b0fcf3889d03226c9c262ef96003577b", flattened_ast = "d30829dc6d894b5b770bd49f41056cd441c93b56d618babb87ab998b34859aed", destructured_ast = "b8e7938837dfc3472dce7a958a04ff50a94e484ae2105ee1921256787a01ed26", inlined_ast = "87a498de52d504e6d37f5227a57d7ae0128a354a333f5b30106230735665293c", dce_ast = "87a498de52d504e6d37f5227a57d7ae0128a354a333f5b30106230735665293c", bytecode = """
 program test.aleo;
 
-
-
 mapping counter:
-\tkey as address.public;
-\tvalue as u64.public;
-
+    key as address.public;
+    value as u64.public;
 
 function dubble:
     async dubble self.caller into r0;
@@ -24,9 +21,6 @@ finalize dubble:
     get counter[r0] into r5;
     add r5 0___1u64 into r6;
     set r6 into counter[r0];
-
-
-
 
 function unsafe_increment:
     async unsafe_increment self.caller into r0;
@@ -46,7 +40,6 @@ finalize unsafe_increment:
     add r9 1u64 into r10;
     add r10 0__1u64 into r11;
     set r11 into counter[r0];
-
 """, errors = "", warnings = "" }], execute = [
     { verified = false, status = "aborted", errors = "", warnings = "", execution = { global_state_root = "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu", proof = "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqp5lf5rvda34lj66ey06fy5v5y8dmqmd0nxx0ywzjw7kkf3r0qwz90vmk4uvmpmrccdzj4w8tm2lypqxvfqlmmzxxpkc473c9s87y080gtjfrtnceqdy0jfp6l2lxqgun7hcy9wgcwh856ug2ca4qqfenfsqw3snk3ayvn258s6944p6wxya8j996t872pr5vdcuxdxn8yfs4ujz3quwu35udud6fk7hcqznves7qwjwsrgxcxdfhs80jj2hr5jmgjgul3fdmtms8t65jdage57wlzsfzel9e48vpz8sau496j70yu3qcpk7qgmtr68hl9kqy94fp3w34e6zz4azqfnrjz82u98g63mrr6pa3ef34w8n3kyr45sz0l8cmxsekqq9t5j9jy9lksw0wnn58k7jyfud0l983tqt4emr7sd5u3chpc9at76y43cnjx99l24uktv70m9962sx9lxc5a9hv7eh5fqjgwvflff5yl6zzwrmz5edutqxqr9gvfc3vjvvtdpuh46xqx3lv0sj3pjjvcnqf5drdynn37xr0xdq94ef0t333c0f7n8kdg9u57gkytq3cgu94zx86grwrr7wqljza86cqrx6jk6uqgq9qxf3gm8y9g54ntk7mg9e6ff6fcj83fupqvptjdknygrfpczrsjwnjeteyadpn47znzfvg29s5qea80wdg7vcu08hlwurcqx3ha2u3dre4gsq9y3jfv5w2hqfltf58esahpu6kjkcwj324uzuh5d5wjt38zptld6cvzxgtewrjusdc3cz789uhare62vqu4cv24ryzdln0ssldz7lgs5glgrzvfqzt6km5tzp4vem6srwtn93xjwahqjmv0zq88mfwl22960yv0ufgl83dudy9s27svht4uvnk54uhgap8wuwdqnhra6mzt0ndcd05py3egzvrfj4qt5unuz44zz4a8tsdtd0rkk4y6v4lksaekp23al67rh9ttut9xysxw3jxqsxw50w70h68d2px4stssw4w5p2dupljmf9wn0qhqpav85qeeaudmxxrsdf546fuu8my3ewnrszaamf9gjeveqtmk6perrsljzqxhw5daqqsgnc79g7m7gzzryslqy57j33j2xsz55jzqahm7grss3m56jhxwy82v5v5pk7sdxdcawql8cg5um4z0jj0dkzkumxht57czqvqqqqqqqqqqpg2wesjekvvp8rvnvh9529sjgfrdu2x74qej909vk352qf7uneaay38rwpcwet7hgs5k5davn0wvqqqtzwacjvnl2e006ufve83hm4s4rzupv5y6ymhhy6h6z26kuz6pgd3duj3a5nkk6urhtjxy8lf3zpgqqy7xr6vam98hfqft3uxcm90yedkaf3n5npy2jkd032qlzvyzezvqcl3acm0azpu75ran0gs6vj9v9xs6h0mkkny6hphyu724gs7nqz02fflmuq993fyfmsd5zyegnwzfqqqq4h5zpp", transitions = [{ id = "au1xe9ss45s52a7s6pa806dwgkdaazn7vs3zvspwhpuqn0rfymz7g8qnt9f6l", program = "test.aleo", function = "dubble", inputs = [], tpk = "5335156928382662463417682951586372143768154017026570642038100848385013470524group", tcm = "4767822739789057211554348258725193428142828427072824810197371556604343646664field", scm = "2701033919833853562637728369527609701654193986187336931878103571063109198360field", outputs = [{ type = "future", id = "4946982913093244233049959804312122789186741969911776114977991679216808685109field", value = """
 {

@@ -11,7 +11,6 @@ struct Data:
     b as u8;
     c as Extra;
 
-
 closure foo:
     input r0 as u8;
     input r1 as u8;
@@ -30,7 +29,6 @@ closure foo:
     output r7 as u8;
     output r8 as u8;
     output r13 as Data;
-
 
 function bar:
     input r0 as boolean.private;

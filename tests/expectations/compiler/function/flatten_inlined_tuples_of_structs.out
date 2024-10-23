@@ -11,9 +11,6 @@ struct Data:
     b as u8;
     c as Extra;
 
-
-
-
 function bar:
     input r0 as boolean.private;
     input r1 as boolean.private;

@@ -3,8 +3,6 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "b930b577ec6de5c912f2f527aca1c3e2ce43e1f6aa9c35289024f706013abd14", type_checked_symbol_table = "6753971f2ece5d78c158cd346873e57c33479609dcb2c7d9e0132ad87ab21d0e", unrolled_symbol_table = "6753971f2ece5d78c158cd346873e57c33479609dcb2c7d9e0132ad87ab21d0e", initial_ast = "776475d60a0722c4fc736391d9bac011ad55dc4c55373775641ab22b3dc62b02", unrolled_ast = "776475d60a0722c4fc736391d9bac011ad55dc4c55373775641ab22b3dc62b02", ssa_ast = "1e73d636efe1a323fee9e8160abcf25ffae1272bcdb5423a0faf8902cf8c1e71", flattened_ast = "f896de25ea535a63fcf3f58695b6c9d16fa7370e3301f17ec6eaa0bd839f716e", destructured_ast = "b49a889ba314836db2ef9604dca88d72bfaed753ed03650858f48ad25e05130a", inlined_ast = "5ec704aab884c69f03f4fe424402e8988c3f40e068b5ab4f6af059f537867687", dce_ast = "26a36139ea44188311968fbd4f832fb711b7f902834c812f79b4a013b8d874b9", bytecode = """
 program test.aleo;
 
-
-
 closure deBruijnTableLookup:
     input r0 as u32;
     is.eq r0 0u32 into r1;
@@ -164,7 +162,6 @@ closure deBruijnTableLookup:
     ternary r4 1u8 r154 into r155;
     ternary r1 0u8 r155 into r156;
     output r156 as u8;
-
 
 function main:
     input r0 as u32.public;

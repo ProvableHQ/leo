@@ -3,8 +3,6 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "9ed8ddc414de14aa10e3f0d862d9f101ce8a472451241caacc3b4a4c967c8223", type_checked_symbol_table = "38fb35075c02084a5f99b0eaa67882db5023baa113a64083fdaacacee53113d2", unrolled_symbol_table = "525ecb80847f768aed5ceca6d41ef082bea32cb88296e5fc70dfda9918c7dc03", initial_ast = "86a0d996309dda9eb9d5d8d1dd58275a442e24a4296e7761207f85ebc97b1ba1", unrolled_ast = "7cd8c0c472ab06fcbdf994754d6aa6007aca23c2427dccfb3fdb0173c4bc95d8", ssa_ast = "9a7fef0e85d398f0d68b96db691007849eef4927d6f7f3873a7e8a581a927294", flattened_ast = "3db995c5d3741a2ca2b3231c6e7f0f1d9ae3cbfe843790b260835705a94f14f3", destructured_ast = "917db53bdfa8bbecb8349f40a5dd9c4bfb549bb6cd4aec4a4c5fe7618f298cee", inlined_ast = "917db53bdfa8bbecb8349f40a5dd9c4bfb549bb6cd4aec4a4c5fe7618f298cee", dce_ast = "77e67cbbd94cf794f3e0a5254d94d9288533727f23c33882d43bbbbc74b513e0", bytecode = """
 program test.aleo;
 
-
-
 function fixed_iteration_interest:
     input r0 as u32.private;
     input r1 as u32.public;
@@ -39,7 +37,6 @@ function fixed_iteration_interest:
     div r29 100u32 into r30;
     add r28 r30 into r31;
     output r31 as u32.private;
-
 
 function bounded_iteration_interest:
     input r0 as u32.private;

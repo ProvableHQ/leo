@@ -8,8 +8,6 @@ record credits:
     owner as address.private;
     amount as u64.private;
 
-
-
 function transfer_private_to_public:
     input r0 as credits.record;
     input r1 as address.private;
@@ -20,14 +18,10 @@ function transfer_private_to_public:
 
 finalize transfer_private_to_public:
     assert.eq 1u8 1u8;
-
 """, errors = "", warnings = "" },
     { initial_symbol_table = "fd67d75af194fb6d6fee5a2b15b4b51ae5511e5d0546c6c6f83063611a168123", type_checked_symbol_table = "031e9fc89b17624e259bb154ca42385665d2cf4349bf1579347a2d2487305a1b", unrolled_symbol_table = "031e9fc89b17624e259bb154ca42385665d2cf4349bf1579347a2d2487305a1b", initial_ast = "fc9f1985c1e0441e9423e67cfd4cb8252178ccc236dfabae17187c5a5cc98ebe", unrolled_ast = "c6fdd37447ee674a058e7fe314096c0df8cf0c02f307ff499e0f08b76cdc6709", ssa_ast = "d26ea69b3993a2a3c4b2660a27706c51383f9b01357d27adf6275a5dfffe6e9d", flattened_ast = "5741efe1907a4da96fbad021b725a22e8c3365fa61b2413b06743c3ed01cda35", destructured_ast = "496bea9fd498c2d4ac9d93dd143beb403e13fdf59fc2ff842d8ff932883feda1", inlined_ast = "7c87cc964f8225fd91c634c8683ee0b09aaa301cb29ab85cadc4e4aea65253ba", dce_ast = "7c87cc964f8225fd91c634c8683ee0b09aaa301cb29ab85cadc4e4aea65253ba", bytecode = """
 import credits.aleo;
 program test_credits.aleo;
-
-
-
 
 function send_credits:
     input r0 as credits.aleo/credits.record;
@@ -40,6 +34,5 @@ function send_credits:
 finalize send_credits:
     input r0 as credits.aleo/transfer_private_to_public.future;
     await r0;
-
 """, errors = "", warnings = "" },
 ] }]]

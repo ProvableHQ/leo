@@ -8,7 +8,6 @@ record A:
     owner as address.private;
     val as u32.private;
 
-
 function mint:
     input r0 as address.private;
     input r1 as u32.private;
@@ -19,11 +18,9 @@ function mint:
 import child.aleo;
 program parent.aleo;
 
-
 record B:
     owner as address.private;
     val as u32.private;
-
 
 function wrapper_mint:
     input r0 as address.private;
@@ -38,12 +35,9 @@ import child.aleo;
 import parent.aleo;
 program grandparent.aleo;
 
-
-
 record C:
     owner as address.private;
     val as u32.private;
-
 
 function double_wrapper_mint:
     input r0 as address.private;

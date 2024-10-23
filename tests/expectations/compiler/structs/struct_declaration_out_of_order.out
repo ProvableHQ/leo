@@ -33,7 +33,6 @@ struct F:
     b as B;
     g as G;
 
-
 function foo:
     input r0 as F.private;
     add r0.b.a.data r0.b.d.c.data into r1;

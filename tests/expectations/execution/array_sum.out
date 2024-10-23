@@ -3,15 +3,12 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "217daa5389911907f053713ca920c21f995c320126353162563e080807e1ccf4", type_checked_symbol_table = "4d6f1f781bed1c3cd702a76481bb5a45b7b2592fa4b248a494ec46bde4a0569a", unrolled_symbol_table = "ad8fbdc3c2a496a9da0e1f84a22d2659921381b1900c7361a4658e7f3eaaa344", initial_ast = "55b89c0a219d048aa18bdd9daabb476975ccc90a470bae25c22cbad29cf85725", unrolled_ast = "6b9db187fa8194a6df04963467ad0a88dbb6a43abfadabef4e434845eff36336", ssa_ast = "8f09921e9df332dfd3898785d6fb65a1e540b6083548f23e7b8ff2fecba77055", flattened_ast = "a49903007fdf7ce6862704a7fed251751a88ac821013f686b5fff72ac8f01cc5", destructured_ast = "c7ba27f49e6f31d04bb5762f352e542756c20d6e16759d9e37446215f5b4f766", inlined_ast = "c7ba27f49e6f31d04bb5762f352e542756c20d6e16759d9e37446215f5b4f766", dce_ast = "c7ba27f49e6f31d04bb5762f352e542756c20d6e16759d9e37446215f5b4f766", bytecode = """
 program test.aleo;
 
-
-
 function sum_manually:
     input r0 as [u64; 4u32].private;
     add r0[0u32] r0[1u32] into r1;
     add r1 r0[2u32] into r2;
     add r2 r0[3u32] into r3;
     output r3 as u64.private;
-
 
 function sum_with_loop:
     input r0 as [u64; 4u32].private;

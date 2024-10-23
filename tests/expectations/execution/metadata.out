@@ -3,9 +3,6 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "10998586280d1ca360372389b512bc2af12c88a4bcfd4f7e2c99756ddf1b04e8", type_checked_symbol_table = "2f5f1d4b4e58e58f307e1b920c43c5289eefe1a677246067a85c1b0b6a04a767", unrolled_symbol_table = "2f5f1d4b4e58e58f307e1b920c43c5289eefe1a677246067a85c1b0b6a04a767", initial_ast = "2046f4b2df6c90aed76613afc85d1784a8e293bd203efedd32bb416715982d63", unrolled_ast = "2046f4b2df6c90aed76613afc85d1784a8e293bd203efedd32bb416715982d63", ssa_ast = "a90f345a4a71399b2e61dddfa5c5ec22826bba09fb1828cbb68708b84f17c472", flattened_ast = "537d17595b4dea625a8e46cf3b28307963ba74f75bff3b028d8162463c5fc280", destructured_ast = "2994c3f5f24c6b2b6e7d9804511b5c90fff8f3f2f048ef0ddbe7a9809aef219b", inlined_ast = "1e50eaf77ff3f385d9355f5df95656230dcf2517cca5ba414c804083e867dcd6", dce_ast = "1e50eaf77ff3f385d9355f5df95656230dcf2517cca5ba414c804083e867dcd6", bytecode = """
 program metadata.aleo;
 
-
-
-
 function is_block_height:
     input r0 as u32.private;
     async is_block_height r0 into r1;
@@ -15,9 +12,6 @@ finalize is_block_height:
     input r0 as u32.public;
     assert.eq r0 block.height;
 
-
-
-
 function is_network_id:
     input r0 as u16.private;
     async is_network_id r0 into r1;
@@ -26,7 +20,6 @@ function is_network_id:
 finalize is_network_id:
     input r0 as u16.public;
     assert.eq r0 network.id;
-
 """, errors = "", warnings = "" }], execute = [
     { verified = true, status = "accepted", errors = "", warnings = "", execution = { global_state_root = "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu", proof = "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqwnt9kc7w5mlsy92749ly00s3d8aje529f6qrun8ra8utk7dse49ezfwj8erxuclwetdthkz20z9uqqylhezq3dmrqm3cm4tawnuznt5gc2fv8psgvswzavf79my3t8ahzhj9x5epa9k6s9vznyh8mp4qsnqg8n8aza9sfw3kryelnz8k0p7sx375kzu754wlhy3k5rdq3vz0gnxs0dh0pcz5nchj72ug77suxnxqe20ln5arx2lrvykq6ela5tfzajjew2jmr2e2nfjzafrt3alsplf2llm62deuq02xa4406r5heqhvpp30p46fjt7u7xc3mhv6j65l5cdnmuxzu9d9ngewapqs3d4ad9jpq42ltsmdt9gtv8utv9hqywe4gp9jw4dsapm4nlmeu02hhn6tj44065j5k6l3lrjksmhfletr6kvu92usrlgqdwvhnv87g36afl7hcsrwepsc8nlepqngw2q4r3kpyq20avfgrnft528axwr7e9jjr66dmt63ylatjvh65rc69uqz3nkvemqtqlzescl08dx3xjy36a5u7x89vh5vjkvkpfz5edep3av8f2p37f7d9vjnq3zfrn3p85zx7gjyqg7qyqrqh5hg70a7klgy5eq0vrth7pz7e7g8t57pkju5k9z6xwexvg4uz2svry0mk7latuz3z6ynyc9cprfmcjkjwmezs4vl7w3kk4hlhumkzm2v3jvzqahx2m9e86p557c8pjtudkgd499geem5jf5u9qxuz5mcpdvegqm43x4dn6uyrdzjmzz6mgcadv0y0gced4dh20t757kgms6u45ma5kezmc6ghf9n538arp076gjrkp9y7lggntqr2v8aqvpuyw7szd0f9d8hrlsyff6re23xpp288aeadrh8lwqdjkpgwhdv95vn8araf5t8tgrtm22w8r7turzcqtyllzl8s9cfeczzst6ec4narg7da76fcq5neycd6slgx68g63yyv6g63ae9m7ztepxvxw4852aadryfy49zemrzhqquypkaehrf66qwwjhf3gwnm5aamtv79v4zeps0xf5urc5cw8xlaltapg0pm54kjplc3udlz587zkd82qzj7vlzljeup57t4hggmafzf303yx8l3ypvq25cvm4jfympct84an2f7q53pqymcgzgxwln29ga909uhv2c6nss0qvqqqqqqqqqqq4ydt9dssx08jcecc7lpc8x4npzm45nzx4gjeepzltl42xqtu6ljaegs3vmkyp9gmcxejarwucjysyq9gjdqfq9ugcxqc2dlwxzhgw6ltxctn0gva6m6hz9a5lm8la0fm2nctmj3kksdal53ktu3wffgmfypq9sp749hfxy8wvdnsagqs4w3hxr83qkpdacm92er3htljzqz4yzss8valjgymcql5xm5uqxwuar3549jrkl577ww5mxvxarkcs97jpulpht09q6w4axjxj254ezzahy4sqqq7sy9wf", transitions = [{ id = "au1mdg84h5sf70jd3jcz5ly6v7d2d65jthy2c9mp00ftsd7d7wasq9sywmyl4", program = "metadata.aleo", function = "is_block_height", tpk = "4174266389141840694112770464623549736508472115786023137592436699114609405528group", tcm = "8338099097402671626408038034858578087638496090147697571937791628404909729345field", scm = "1980270338266624580494901677581519840423416572710948745278059423752506827747field", inputs = [{ type = "private", id = "6254483773873152836214079053344956162296914127394184523955489854019104782235field", value = "ciphertext1qyqg8xn2lx3ukujrthuh67jazc3h5v96hhc7zacwef08y7a9lpu92pq3dsj78" }], outputs = [{ type = "future", id = "3584812567307540139221803946418691936915110293757497103263084678323624798088field", value = """
 {

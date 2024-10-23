@@ -3,8 +3,6 @@ expectation = "Pass"
 outputs = [[{ compile = [{ initial_symbol_table = "13f721ce9f26cc63129064ed106144e5ad4798d2483335974dcef63c2b047875", type_checked_symbol_table = "c40f806dfd918dc4bd47359f2d5d83e7fa46d45fc22cca84828f936b676822f8", unrolled_symbol_table = "c40f806dfd918dc4bd47359f2d5d83e7fa46d45fc22cca84828f936b676822f8", initial_ast = "68afe9dc106303803b7ee3084a8a406d755d9d18d473b3830c5d39d7c520ea4e", unrolled_ast = "68afe9dc106303803b7ee3084a8a406d755d9d18d473b3830c5d39d7c520ea4e", ssa_ast = "257ba6437ede6d72fa4a30ec158432088d3dc94b957bf1a2ac9fd4346d49bbda", flattened_ast = "ea3470c8284c0e5e5f92b0ef5504e90d97b596c4722b89fcb7267d6305026f66", destructured_ast = "24ed7701ff5bc8daea7ced809e21c6bb7b90ec497e4fac6fcfecb61acd868836", inlined_ast = "24ed7701ff5bc8daea7ced809e21c6bb7b90ec497e4fac6fcfecb61acd868836", dce_ast = "24ed7701ff5bc8daea7ced809e21c6bb7b90ec497e4fac6fcfecb61acd868836", bytecode = """
 program test.aleo;
 
-
-
 function main:
     input r0 as scalar.private;
     mul r0 0group into r1;
