@@ -101,7 +101,7 @@ version = "1.11.0"
 version = "1.0.0"
 
 [workspace.dependencies.serde]
-version = "1.0.211"
+version = "1.0.213"
 features = [ "derive", "rc" ]
 
 [workspace.dependencies.serde_json]
