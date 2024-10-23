@@ -31,12 +31,12 @@ pub struct TestConfig {
     pub namespace: String,
     pub expectation: TestExpectationMode,
     #[serde(flatten)]
-    pub extra: BTreeMap<String, serde_yaml::Value>,
+    pub extra: BTreeMap<String, toml::Value>,
 }
 
 pub fn extract_test_config(source: &str) -> Option<TestConfig> {
     let first_comment_start = source.find("/*")?;
     let end_first_comment = source[first_comment_start + 2..].find("*/")?;
     let comment_inner = &source[first_comment_start + 2..first_comment_start + 2 + end_first_comment];
-    Some(serde_yaml::from_str(comment_inner).expect("invalid test configuration"))
+    Some(toml::from_str(comment_inner).expect("invalid test configuration"))
 }

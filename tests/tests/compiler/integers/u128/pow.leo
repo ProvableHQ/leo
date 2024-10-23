@@ -1,6 +1,6 @@
 /*
-namespace: Compile
-expectation: Pass
+namespace = "Compile"
+expectation = "Pass"
 
 # The exponent must be u8, u16, or u32
 */

@@ -102,11 +102,15 @@ version = "1.11.0"
 version = "1.0.0"
 
 [workspace.dependencies.serde]
-version = "1.0.210"
+version = "1.0.213"
 features = [ "derive", "rc" ]
 
 [workspace.dependencies.serde_json]
 version = "1.0"
+features = [ "preserve_order" ]
+
+[workspace.dependencies.toml]
+version = "0.8"
 features = [ "preserve_order" ]
 
 [workspace.dependencies.tracing]
@@ -197,7 +201,7 @@ features = [ "circuit", "console" ]
 version = "0.9.1"
 
 [dependencies.toml]
-version = "0.8"
+workspace = true
 
 [dependencies.tracing]
 version = "0.1"

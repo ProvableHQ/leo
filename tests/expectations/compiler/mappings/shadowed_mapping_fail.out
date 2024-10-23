@@ -1,5 +1,9 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EAST0372009]: variable `one` shadowed by\n    --> compiler-test:6:5\n     |\n   6 |     mapping one: field => field;\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EAST0372009]: variable `one` shadowed by
+    --> compiler-test:6:5
+     |
+   6 |     mapping one: field => field;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""]

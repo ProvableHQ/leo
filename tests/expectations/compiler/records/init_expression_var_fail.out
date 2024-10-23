@@ -1,5 +1,34 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372057]: Only `transition` functions can have a record as input or output.\n    --> compiler-test:11:44\n     |\n  11 |     function mint(r0: address, r1: u64) -> Token {\n     |                                            ^^^^^\nError [ETYC0372057]: Only `transition` functions can have a record as input or output.\n    --> compiler-test:11:44\n     |\n  11 |     function mint(r0: address, r1: u64) -> Token {\n     |                                            ^^^^^\nError [ETYC0372013]: Struct initialization expression for `Token` is missing member `owner`.\n    --> compiler-test:12:16\n     |\n  12 |         return Token {\n  13 |             sender: r0, // This variable should be named `owner`.\n  14 |             amount: r1,\n  15 |         };\n     |          ^^^^^^\nError [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:20:24\n     |\n  20 |         let t: Token = mint(x, c);\n     |                        ^^^^^^^^^^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
+    --> compiler-test:11:44
+     |
+  11 |     function mint(r0: address, r1: u64) -> Token {
+     |                                            ^^^^^
+Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
+    --> compiler-test:11:44
+     |
+  11 |     function mint(r0: address, r1: u64) -> Token {
+     |                                            ^^^^^
+Error [ETYC0372013]: Struct initialization expression for `Token` is missing member `owner`.
+    --> compiler-test:12:16
+     |
+  12 |         return Token {
+  13 |             sender: r0, // This variable should be named `owner`.
+  14 |             amount: r1,
+  15 |         };
+     |          ^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:20:24
+     |
+  20 |         let t: Token = mint(x, c);
+     |                        ^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {    
+     | ^^^^^^^^^^^^
+"""]

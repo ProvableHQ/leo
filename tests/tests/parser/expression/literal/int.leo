@@ -1,6 +1,6 @@
 /*
-namespace: Token
-expectation: Pass
+namespace = "Token"
+expectation = "Pass"
 */
 
 123abc123

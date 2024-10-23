@@ -1,7 +1,7 @@
 
 /*
-namespace: Compile
-expectation: Fail
+namespace = "Compile"
+expectation = "Fail"
 */
 
 

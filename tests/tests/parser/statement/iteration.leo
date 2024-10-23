@@ -1,6 +1,6 @@
 /*
-namespace: ParseStatement
-expectation: Pass
+namespace = "ParseStatement"
+expectation = "Pass"
 */
 
 for x: u8 in 0u8..7u8 {}

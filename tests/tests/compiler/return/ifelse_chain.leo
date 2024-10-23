@@ -1,6 +1,6 @@
 /*
-namespace: Compile
-expectation: Pass
+namespace = "Compile"
+expectation = "Pass"
 */
 
 // The intent is to test that the amount of code generated

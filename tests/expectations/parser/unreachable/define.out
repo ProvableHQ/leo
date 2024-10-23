@@ -1,49 +1,276 @@
----
-namespace: ParseStatement
-expectation: Fail
-outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ';'\n    --> test:1:1\n     |\n   1 | ; x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '.'\n    --> test:1:1\n     |\n   1 | . x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'import'\n    --> test:1:1\n     |\n   1 | import x = 10u8;\n     | ^^^^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ','\n    --> test:1:1\n     |\n   1 | , x = 10u8;\n     | ^"
-  - "Error [EPAR0370005]: expected ] -- found '='\n    --> test:1:5\n     |\n   1 | [ x = 10u8;\n     |     ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ']'\n    --> test:1:1\n     |\n   1 | ] x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'\n    --> test:1:11\n     |\n   1 | { x = 10u8;\n     |           ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '}'\n    --> test:1:1\n     |\n   1 | } x = 10u8;\n     | ^"
-  - "Error [EPAR0370005]: expected ) -- found '='\n    --> test:1:5\n     |\n   1 | ( x = 10u8;\n     |     ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ')'\n    --> test:1:1\n     |\n   1 | ) x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ':'\n    --> test:1:1\n     |\n   1 | : x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '::'\n    --> test:1:1\n     |\n   1 | :: x = 10u8;\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '?'\n    --> test:1:1\n     |\n   1 | ? x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '_'\n    --> test:1:1\n     |\n   1 | _ x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '='\n    --> test:1:1\n     |\n   1 | = x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '=='\n    --> test:1:1\n     |\n   1 | == x = 10u8;\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '!='\n    --> test:1:1\n     |\n   1 | != x = 10u8;\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '>'\n    --> test:1:1\n     |\n   1 | > x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '>='\n    --> test:1:1\n     |\n   1 | >= x = 10u8;\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '<'\n    --> test:1:1\n     |\n   1 | < x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '<='\n    --> test:1:1\n     |\n   1 | <= x = 10u8;\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '>'\n    --> test:1:1\n     |\n   1 | > x = 10u8;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '..'\n    --> test:1:1\n     |\n   1 | .. x = 10u8;\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'as'\n    --> test:1:1\n     |\n   1 | as x = 10u8;\n     | ^^"
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console x = 10u8;\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | for x = 10u8;\n     |       ^"
-  - "Error [EPAR0370005]: expected { -- found '='\n    --> test:1:6\n     |\n   1 | if x = 10u8;\n     |      ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'else'\n    --> test:1:1\n     |\n   1 | else x = 10u8;\n     | ^^^^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:4\n     |\n   1 | i8 x = 10u8;\n     |    ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:5\n     |\n   1 | i16 x = 10u8;\n     |     ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:5\n     |\n   1 | i32 x = 10u8;\n     |     ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:5\n     |\n   1 | i64 x = 10u8;\n     |     ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:6\n     |\n   1 | i128 x = 10u8;\n     |      ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:4\n     |\n   1 | u8 x = 10u8;\n     |    ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:5\n     |\n   1 | u16 x = 10u8;\n     |     ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:5\n     |\n   1 | u32 x = 10u8;\n     |     ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:5\n     |\n   1 | u64 x = 10u8;\n     |     ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:6\n     |\n   1 | u128 x = 10u8;\n     |      ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '&'\n    --> test:1:1\n     |\n   1 | & x = 10u8;\n     | ^"
-  - "Error [EPAR0370005]: expected ; -- found '='\n    --> test:1:10\n     |\n   1 | return x = 10u8;\n     |          ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:6\n     |\n   1 | self x = 10u8;\n     |      ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:6\n     |\n   1 | Self x = 10u8;\n     |      ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:6\n     |\n   1 | true x = 10u8;\n     |      ^"
-  - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:7\n     |\n   1 | false x = 10u8;\n     |       ^"
-  - "Error [EPAR0370017]: Could not parse the implicit value: 0.\n    --> test:1:1\n     |\n   1 | 0 x = 10u8;\n     | ^"
+namespace = "ParseStatement"
+expectation = "Fail"
+outputs = [
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found ';'
+    --> test:1:1
+     |
+   1 | ; x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '.'
+    --> test:1:1
+     |
+   1 | . x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'import'
+    --> test:1:1
+     |
+   1 | import x = 10u8;
+     | ^^^^^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found ','
+    --> test:1:1
+     |
+   1 | , x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370005]: expected ] -- found '='
+    --> test:1:5
+     |
+   1 | [ x = 10u8;
+     |     ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found ']'
+    --> test:1:1
+     |
+   1 | ] x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
+    --> test:1:11
+     |
+   1 | { x = 10u8;
+     |           ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '}'
+    --> test:1:1
+     |
+   1 | } x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370005]: expected ) -- found '='
+    --> test:1:5
+     |
+   1 | ( x = 10u8;
+     |     ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found ')'
+    --> test:1:1
+     |
+   1 | ) x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found ':'
+    --> test:1:1
+     |
+   1 | : x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '::'
+    --> test:1:1
+     |
+   1 | :: x = 10u8;
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '?'
+    --> test:1:1
+     |
+   1 | ? x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '_'
+    --> test:1:1
+     |
+   1 | _ x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '='
+    --> test:1:1
+     |
+   1 | = x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '=='
+    --> test:1:1
+     |
+   1 | == x = 10u8;
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '!='
+    --> test:1:1
+     |
+   1 | != x = 10u8;
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '>'
+    --> test:1:1
+     |
+   1 | > x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '>='
+    --> test:1:1
+     |
+   1 | >= x = 10u8;
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<'
+    --> test:1:1
+     |
+   1 | < x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<='
+    --> test:1:1
+     |
+   1 | <= x = 10u8;
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '>'
+    --> test:1:1
+     |
+   1 | > x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '..'
+    --> test:1:1
+     |
+   1 | .. x = 10u8;
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'as'
+    --> test:1:1
+     |
+   1 | as x = 10u8;
+     | ^^""",
+    """
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console x = 10u8;
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.""",
+    """
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:7
+     |
+   1 | for x = 10u8;
+     |       ^""",
+    """
+Error [EPAR0370005]: expected { -- found '='
+    --> test:1:6
+     |
+   1 | if x = 10u8;
+     |      ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'else'
+    --> test:1:1
+     |
+   1 | else x = 10u8;
+     | ^^^^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:4
+     |
+   1 | i8 x = 10u8;
+     |    ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:5
+     |
+   1 | i16 x = 10u8;
+     |     ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:5
+     |
+   1 | i32 x = 10u8;
+     |     ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:5
+     |
+   1 | i64 x = 10u8;
+     |     ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:6
+     |
+   1 | i128 x = 10u8;
+     |      ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:4
+     |
+   1 | u8 x = 10u8;
+     |    ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:5
+     |
+   1 | u16 x = 10u8;
+     |     ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:5
+     |
+   1 | u32 x = 10u8;
+     |     ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:5
+     |
+   1 | u64 x = 10u8;
+     |     ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:6
+     |
+   1 | u128 x = 10u8;
+     |      ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '&'
+    --> test:1:1
+     |
+   1 | & x = 10u8;
+     | ^""",
+    """
+Error [EPAR0370005]: expected ; -- found '='
+    --> test:1:10
+     |
+   1 | return x = 10u8;
+     |          ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:6
+     |
+   1 | self x = 10u8;
+     |      ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:6
+     |
+   1 | Self x = 10u8;
+     |      ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:6
+     |
+   1 | true x = 10u8;
+     |      ^""",
+    """
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test:1:7
+     |
+   1 | false x = 10u8;
+     |       ^""",
+    """
+Error [EPAR0370017]: Could not parse the implicit value: 0.
+    --> test:1:1
+     |
+   1 | 0 x = 10u8;
+     | ^""",
+]

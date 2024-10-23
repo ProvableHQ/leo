@@ -1,5 +1,14 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EAST0372008]: record `Token` shadowed by\n    --> compiler-test:8:5\n     |\n   8 |     record Token {\n   9 |         owner: address,\n  10 |         amount: u64,\n  11 |         arg1: u64,\n  12 |         arg2: u64,\n  13 |     }\n     |     ^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EAST0372008]: record `Token` shadowed by
+    --> compiler-test:8:5
+     |
+   8 |     record Token {
+   9 |         owner: address,
+  10 |         amount: u64,
+  11 |         arg1: u64,
+  12 |         arg2: u64,
+  13 |     }
+     |     ^
+"""]

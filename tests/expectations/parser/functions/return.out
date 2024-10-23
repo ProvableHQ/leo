@@ -1,55 +1,27 @@
----
-namespace: Parse
-expectation: Pass
-outputs:
-  - imports: {}
-    stubs: {}
-    program_scopes:
-      test:
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
-        consts: []
-        structs: []
-        mappings: []
-        functions:
-          - - x
-            - annotations: []
-              variant: Function
-              identifier: "{\"id\":\"2\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
-              input: []
-              output:
-                - mode: None
-                  type_:
-                    Integer: U32
-                  span:
-                    lo: 46
-                    hi: 49
-                  id: 3
-              output_type:
-                Integer: U32
-              block:
-                statements:
-                  - Return:
-                      expression:
-                        Literal:
-                          Integer:
-                            - U8
-                            - "0"
-                            - span:
-                                lo: 67
-                                hi: 70
-                            - 4
-                      span:
-                        lo: 60
-                        hi: 71
-                      id: 5
-                span:
-                  lo: 50
-                  hi: 77
-                id: 6
-              span:
-                lo: 30
-                hi: 77
-              id: 7
-        span:
-          lo: 2
-          hi: 78
+namespace = "Parse"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.imports]
+
+[outputs.stubs]
+
+[outputs.program_scopes.test]
+program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
+consts = []
+structs = []
+mappings = []
+functions = [[
+    "x",
+    { annotations = [], variant = "Function", identifier = '{"id":"2","name":"x","span":"{\"lo\":39,\"hi\":40}"}', input = [], id = 7, output = [{ mode = "None", id = 3, type_ = { Integer = "U32" }, span = { lo = 46, hi = 49 } }], output_type = { Integer = "U32" }, block = { id = 6, statements = [{ Return = { id = 5, expression = { Literal = { Integer = [
+    "U8",
+    "0",
+    { span = { lo = 67, hi = 70 } },
+    4,
+] } }, span = { lo = 60, hi = 71 } } }], span = { lo = 50, hi = 77 } }, span = { lo = 30, hi = 77 } },
+]]
+
+[outputs.program_scopes.test.span]
+lo = 2
+hi = 78

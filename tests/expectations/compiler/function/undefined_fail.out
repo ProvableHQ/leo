@@ -1,5 +1,16 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372005]: Unknown function `my_function`\n    --> compiler-test:5:9\n     |\n   5 |         my_function();\n     |         ^^^^^^^^^^^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372005]: Unknown function `my_function`
+    --> compiler-test:5:9
+     |
+   5 |         my_function();
+     |         ^^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {    
+     | ^^^^^^^^^^^^
+"""]

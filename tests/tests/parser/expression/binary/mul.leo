@@ -1,6 +1,6 @@
 /*
-namespace: ParseExpression
-expectation: Pass
+namespace = "ParseExpression"
+expectation = "Pass"
 */
 
 1u8 * 1u8

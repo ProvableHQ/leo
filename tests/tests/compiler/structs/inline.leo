@@ -1,13 +1,6 @@
 /*
-namespace: Compile
-expectation: Pass
-inputs:
- - inline.in: |
-    [main]
-    x: u32 = 100;
-
-    [registers]
-    r0: u32 = 0;
+namespace = "Compile"
+expectation = "Pass"
 */
 
 program test.aleo {    

@@ -37,4 +37,4 @@ version = "0.6.1"
 version = "2.2.0"
 
 [dependencies.thiserror]
-version = "1.0.64"
+version = "1.0.65"

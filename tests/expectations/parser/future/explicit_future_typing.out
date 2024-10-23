@@ -1,302 +1,105 @@
----
-namespace: Parse
-expectation: Pass
-outputs:
-  - imports: {}
-    stubs: {}
-    program_scopes:
-      test:
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
-        consts: []
-        structs: []
-        mappings: []
-        functions:
-          - - main
-            - annotations: []
-              variant: AsyncTransition
-              identifier: "{\"id\":\"2\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":42,\\\"hi\\\":46}\"}"
-              input: []
-              output:
-                - mode: None
-                  type_:
-                    Future:
-                      inputs:
-                        - Integer: U32
-                        - Integer: U32
-                        - Future:
-                            inputs: []
-                            location: ~
-                            is_explicit: true
-                        - Future:
-                            inputs:
-                              - Integer: U32
-                              - Future:
-                                  inputs:
-                                    - Integer: U32
-                                    - Integer: U32
-                                  location: ~
-                                  is_explicit: true
-                            location: ~
-                            is_explicit: true
-                      location: ~
-                      is_explicit: true
-                  span:
-                    lo: 52
-                    hi: 124
-                  id: 3
-              output_type:
-                Future:
-                  inputs:
-                    - Integer: U32
-                    - Integer: U32
-                    - Future:
-                        inputs: []
-                        location: ~
-                        is_explicit: true
-                    - Future:
-                        inputs:
-                          - Integer: U32
-                          - Future:
-                              inputs:
-                                - Integer: U32
-                                - Integer: U32
-                              location: ~
-                              is_explicit: true
-                        location: ~
-                        is_explicit: true
-                  location: ~
-                  is_explicit: true
-              block:
-                statements:
-                  - Definition:
-                      declaration_type: Let
-                      place:
-                        Identifier: "{\"id\":\"4\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":140,\\\"hi\\\":142}\"}"
-                      type_:
-                        Future:
-                          inputs: []
-                          location: ~
-                          is_explicit: true
-                      value:
-                        Call:
-                          function:
-                            Identifier: "{\"id\":\"6\",\"name\":\"add\",\"span\":\"{\\\"lo\\\":168,\\\"hi\\\":171}\"}"
-                          arguments: []
-                          program: bye
-                          span:
-                            lo: 159
-                            hi: 173
-                          id: 7
-                      span:
-                        lo: 136
-                        hi: 173
-                      id: 8
-                  - Definition:
-                      declaration_type: Let
-                      place:
-                        Identifier: "{\"id\":\"9\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":187,\\\"hi\\\":189}\"}"
-                      type_:
-                        Future:
-                          inputs:
-                            - Integer: U32
-                            - Future:
-                                inputs:
-                                  - Integer: U32
-                                  - Integer: U32
-                                location: ~
-                                is_explicit: true
-                          location: ~
-                          is_explicit: true
-                      value:
-                        Call:
-                          function:
-                            Identifier: "{\"id\":\"11\",\"name\":\"nested_fn\",\"span\":\"{\\\"lo\\\":242,\\\"hi\\\":251}\"}"
-                          arguments: []
-                          program: hello
-                          span:
-                            lo: 231
-                            hi: 253
-                          id: 12
-                      span:
-                        lo: 183
-                        hi: 253
-                      id: 13
-                  - Definition:
-                      declaration_type: Let
-                      place:
-                        Identifier: "{\"id\":\"14\",\"name\":\"f2\",\"span\":\"{\\\"lo\\\":267,\\\"hi\\\":269}\"}"
-                      type_:
-                        Future:
-                          inputs:
-                            - Integer: U32
-                            - Integer: U32
-                            - Future:
-                                inputs: []
-                                location: ~
-                                is_explicit: true
-                            - Future:
-                                inputs:
-                                  - Integer: U32
-                                  - Future:
-                                      inputs:
-                                        - Integer: U32
-                                        - Integer: U32
-                                      location: ~
-                                      is_explicit: true
-                                location: ~
-                                is_explicit: true
-                          location: ~
-                          is_explicit: true
-                      value:
-                        Call:
-                          function:
-                            Identifier: "{\"id\":\"15\",\"name\":\"finalize_main\",\"span\":\"{\\\"lo\\\":347,\\\"hi\\\":360}\"}"
-                          arguments:
-                            - Literal:
-                                Integer:
-                                  - U32
-                                  - "1"
-                                  - span:
-                                      lo: 361
-                                      hi: 365
-                                  - 16
-                            - Literal:
-                                Integer:
-                                  - U32
-                                  - "1"
-                                  - span:
-                                      lo: 367
-                                      hi: 371
-                                  - 17
-                            - Identifier: "{\"id\":\"18\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":373,\\\"hi\\\":375}\"}"
-                            - Identifier: "{\"id\":\"19\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":377,\\\"hi\\\":379}\"}"
-                          program: test
-                          span:
-                            lo: 347
-                            hi: 380
-                          id: 20
-                      span:
-                        lo: 263
-                        hi: 380
-                      id: 21
-                  - Return:
-                      expression:
-                        Identifier: "{\"id\":\"22\",\"name\":\"f2\",\"span\":\"{\\\"lo\\\":397,\\\"hi\\\":399}\"}"
-                      span:
-                        lo: 390
-                        hi: 400
-                      id: 23
-                span:
-                  lo: 126
-                  hi: 406
-                id: 24
-              span:
-                lo: 25
-                hi: 406
-              id: 25
-          - - finalize_main
-            - annotations: []
-              variant: AsyncFunction
-              identifier: "{\"id\":\"26\",\"name\":\"finalize_main\",\"span\":\"{\\\"lo\\\":426,\\\"hi\\\":439}\"}"
-              input:
-                - identifier: "{\"id\":\"27\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":440,\\\"hi\\\":441}\"}"
-                  mode: None
-                  type_:
-                    Integer: U32
-                  span:
-                    lo: 440
-                    hi: 441
-                  id: 28
-                - identifier: "{\"id\":\"29\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":448,\\\"hi\\\":449}\"}"
-                  mode: None
-                  type_:
-                    Integer: U32
-                  span:
-                    lo: 448
-                    hi: 449
-                  id: 30
-                - identifier: "{\"id\":\"31\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":456,\\\"hi\\\":458}\"}"
-                  mode: None
-                  type_:
-                    Future:
-                      inputs: []
-                      location: ~
-                      is_explicit: true
-                  span:
-                    lo: 456
-                    hi: 458
-                  id: 32
-                - identifier: "{\"id\":\"33\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":474,\\\"hi\\\":476}\"}"
-                  mode: None
-                  type_:
-                    Future:
-                      inputs:
-                        - Integer: U32
-                        - Future:
-                            inputs:
-                              - Integer: U32
-                              - Integer: U32
-                            location: ~
-                            is_explicit: true
-                      location: ~
-                      is_explicit: true
-                  span:
-                    lo: 474
-                    hi: 476
-                  id: 34
-              output: []
-              output_type: Unit
-              block:
-                statements:
-                  - Expression:
-                      expression:
-                        Access:
-                          AssociatedFunction:
-                            variant: "{\"id\":\"37\",\"name\":\"Future\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":0}\"}"
-                            name: "{\"id\":\"36\",\"name\":\"await\",\"span\":\"{\\\"lo\\\":530,\\\"hi\\\":535}\"}"
-                            arguments:
-                              - Identifier: "{\"id\":\"35\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":527,\\\"hi\\\":529}\"}"
-                            span:
-                              lo: 527
-                              hi: 537
-                            id: 38
-                      span:
-                        lo: 527
-                        hi: 538
-                      id: 39
-                  - Expression:
-                      expression:
-                        Access:
-                          AssociatedFunction:
-                            variant: "{\"id\":\"42\",\"name\":\"Future\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":0}\"}"
-                            name: "{\"id\":\"41\",\"name\":\"await\",\"span\":\"{\\\"lo\\\":550,\\\"hi\\\":555}\"}"
-                            arguments:
-                              - Identifier: "{\"id\":\"40\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":547,\\\"hi\\\":549}\"}"
-                            span:
-                              lo: 547
-                              hi: 557
-                            id: 43
-                      span:
-                        lo: 547
-                        hi: 558
-                      id: 44
-                  - Assert:
-                      variant:
-                        AssertEq:
-                          - Identifier: "{\"id\":\"45\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":577,\\\"hi\\\":578}\"}"
-                          - Identifier: "{\"id\":\"46\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":579,\\\"hi\\\":580}\"}"
-                      span:
-                        lo: 567
-                        hi: 576
-                      id: 47
-                span:
-                  lo: 517
-                  hi: 588
-                id: 48
-              span:
-                lo: 411
-                hi: 588
-              id: 49
-        span:
-          lo: 1
-          hi: 590
+namespace = "Parse"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.imports]
+
+[outputs.stubs]
+
+[outputs.program_scopes.test]
+program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
+consts = []
+structs = []
+mappings = []
+functions = [
+    [
+    "main",
+    { annotations = [], variant = "AsyncTransition", identifier = '{"id":"2","name":"main","span":"{\"lo\":42,\"hi\":46}"}', input = [], id = 25, output = [{ mode = "None", id = 3, type_ = { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Integer = "U32" },
+    { Future = { inputs = [], is_explicit = true } },
+    { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Integer = "U32" },
+] } },
+] } },
+] } }, span = { lo = 52, hi = 124 } }], output_type = { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Integer = "U32" },
+    { Future = { inputs = [], is_explicit = true } },
+    { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Integer = "U32" },
+] } },
+] } },
+] } }, block = { id = 24, statements = [
+    { Definition = { declaration_type = "Let", id = 8, place = { Identifier = '{"id":"4","name":"f0","span":"{\"lo\":140,\"hi\":142}"}' }, type_ = { Future = { inputs = [], is_explicit = true } }, value = { Call = { arguments = [], program = "bye", id = 7, function = { Identifier = '{"id":"6","name":"add","span":"{\"lo\":168,\"hi\":171}"}' }, span = { lo = 159, hi = 173 } } }, span = { lo = 136, hi = 173 } } },
+    { Definition = { declaration_type = "Let", id = 13, place = { Identifier = '{"id":"9","name":"f1","span":"{\"lo\":187,\"hi\":189}"}' }, type_ = { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Integer = "U32" },
+] } },
+] } }, value = { Call = { arguments = [], program = "hello", id = 12, function = { Identifier = '{"id":"11","name":"nested_fn","span":"{\"lo\":242,\"hi\":251}"}' }, span = { lo = 231, hi = 253 } } }, span = { lo = 183, hi = 253 } } },
+    { Definition = { declaration_type = "Let", id = 21, place = { Identifier = '{"id":"14","name":"f2","span":"{\"lo\":267,\"hi\":269}"}' }, type_ = { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Integer = "U32" },
+    { Future = { inputs = [], is_explicit = true } },
+    { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Integer = "U32" },
+] } },
+] } },
+] } }, value = { Call = { program = "test", id = 20, arguments = [
+    { Literal = { Integer = [
+    "U32",
+    "1",
+    { span = { lo = 361, hi = 365 } },
+    16,
+] } },
+    { Literal = { Integer = [
+    "U32",
+    "1",
+    { span = { lo = 367, hi = 371 } },
+    17,
+] } },
+    { Identifier = '{"id":"18","name":"f0","span":"{\"lo\":373,\"hi\":375}"}' },
+    { Identifier = '{"id":"19","name":"f1","span":"{\"lo\":377,\"hi\":379}"}' },
+], function = { Identifier = '{"id":"15","name":"finalize_main","span":"{\"lo\":347,\"hi\":360}"}' }, span = { lo = 347, hi = 380 } } }, span = { lo = 263, hi = 380 } } },
+    { Return = { id = 23, expression = { Identifier = '{"id":"22","name":"f2","span":"{\"lo\":397,\"hi\":399}"}' }, span = { lo = 390, hi = 400 } } },
+], span = { lo = 126, hi = 406 } }, span = { lo = 25, hi = 406 } },
+],
+    [
+    "finalize_main",
+    { annotations = [], variant = "AsyncFunction", identifier = '{"id":"26","name":"finalize_main","span":"{\"lo\":426,\"hi\":439}"}', output = [], output_type = "Unit", id = 49, input = [
+    { identifier = '{"id":"27","name":"a","span":"{\"lo\":440,\"hi\":441}"}', mode = "None", id = 28, type_ = { Integer = "U32" }, span = { lo = 440, hi = 441 } },
+    { identifier = '{"id":"29","name":"b","span":"{\"lo\":448,\"hi\":449}"}', mode = "None", id = 30, type_ = { Integer = "U32" }, span = { lo = 448, hi = 449 } },
+    { identifier = '{"id":"31","name":"f0","span":"{\"lo\":456,\"hi\":458}"}', mode = "None", id = 32, type_ = { Future = { inputs = [], is_explicit = true } }, span = { lo = 456, hi = 458 } },
+    { identifier = '{"id":"33","name":"f1","span":"{\"lo\":474,\"hi\":476}"}', mode = "None", id = 34, type_ = { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Future = { is_explicit = true, inputs = [
+    { Integer = "U32" },
+    { Integer = "U32" },
+] } },
+] } }, span = { lo = 474, hi = 476 } },
+], block = { id = 48, statements = [
+    { Expression = { id = 39, expression = { Access = { AssociatedFunction = { variant = '{"id":"37","name":"Future","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"36","name":"await","span":"{\"lo\":530,\"hi\":535}"}', id = 38, arguments = [{ Identifier = '{"id":"35","name":"f0","span":"{\"lo\":527,\"hi\":529}"}' }], span = { lo = 527, hi = 537 } } } }, span = { lo = 527, hi = 538 } } },
+    { Expression = { id = 44, expression = { Access = { AssociatedFunction = { variant = '{"id":"42","name":"Future","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"41","name":"await","span":"{\"lo\":550,\"hi\":555}"}', id = 43, arguments = [{ Identifier = '{"id":"40","name":"f1","span":"{\"lo\":547,\"hi\":549}"}' }], span = { lo = 547, hi = 557 } } } }, span = { lo = 547, hi = 558 } } },
+    { Assert = { id = 47, variant = { AssertEq = [
+    { Identifier = '{"id":"45","name":"a","span":"{\"lo\":577,\"hi\":578}"}' },
+    { Identifier = '{"id":"46","name":"b","span":"{\"lo\":579,\"hi\":580}"}' },
+] }, span = { lo = 567, hi = 576 } } },
+], span = { lo = 517, hi = 588 } }, span = { lo = 411, hi = 588 } },
+],
+]
+
+[outputs.program_scopes.test.span]
+lo = 1
+hi = 590

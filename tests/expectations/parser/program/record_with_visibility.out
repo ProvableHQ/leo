@@ -1,32 +1,22 @@
----
-namespace: Parse
-expectation: Pass
-outputs:
-  - imports: {}
-    stubs: {}
-    program_scopes:
-      test:
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
-        consts: []
-        structs:
-          - - token
-            - identifier: "{\"id\":\"2\",\"name\":\"token\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":38}\"}"
-              members:
-                - mode: Private
-                  identifier: "{\"id\":\"3\",\"name\":\"owner\",\"span\":\"{\\\"lo\\\":57,\\\"hi\\\":62}\"}"
-                  type_: Address
-                  span:
-                    lo: 57
-                    hi: 71
-                  id: 4
-              external: test
-              is_record: true
-              span:
-                lo: 26
-                hi: 78
-              id: 5
-        mappings: []
-        functions: []
-        span:
-          lo: 2
-          hi: 80
+namespace = "Parse"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.imports]
+
+[outputs.stubs]
+
+[outputs.program_scopes.test]
+program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
+consts = []
+structs = [[
+    "token",
+    { identifier = '{"id":"2","name":"token","span":"{\"lo\":33,\"hi\":38}"}', external = "test", is_record = true, id = 5, members = [{ mode = "Private", identifier = '{"id":"3","name":"owner","span":"{\"lo\":57,\"hi\":62}"}', type_ = "Address", id = 4, span = { lo = 57, hi = 71 } }], span = { lo = 26, hi = 78 } },
+]]
+mappings = []
+functions = []
+
+[outputs.program_scopes.test.span]
+lo = 2
+hi = 80

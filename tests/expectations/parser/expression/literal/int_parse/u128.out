@@ -1,900 +1,1122 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Literal:
-      Integer:
-        - U128
-        - "123"
-        - span:
-            lo: 0
-            hi: 7
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "123"
-        - span:
-            lo: 0
-            hi: 7
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "456"
-        - span:
-            lo: 0
-            hi: 7
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
-        - span:
-            lo: 0
-            hi: 84
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802"
-        - span:
-            lo: 0
-            hi: 404
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "340130024"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "158951116"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "155529659"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "642023166"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "228481736"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "469712960"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "929437719"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "721072814"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "363254789"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "906732565"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "288246391"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "724940549"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "487101620"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "261373583"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "891163927"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "743967544"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "8372586"
-        - span:
-            lo: 0
-            hi: 11
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "461793278"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "806307045"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "122764546"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "356336181"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "158370903"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "774460877"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "557174131"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "492401267"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "893445620"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "957757048"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "721540649"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "390746493"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "211251725"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "938266114"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "156985870"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "703831126"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "729964155"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "988151305"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "320872435"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "719287167"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "152289486"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "740067975"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "728627816"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "385008978"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "553967635"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "71980713"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "519444716"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "116499965"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "717422268"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "18966279"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "22458638"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "857282620"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "920675898"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "762235516"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "469018377"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "199986521"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "536679358"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "591399452"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "83083158"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "599449051"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "445442318"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "585486590"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "209278800"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "873568117"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "664470940"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "465262783"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "605652874"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "376803940"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "965247040"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "598474509"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "845119918"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "648159133"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "669051032"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "800600261"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "434689764"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "520060080"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "804659385"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "537828058"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "716600292"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "387020273"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "199375617"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "680337189"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "818479931"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "893693281"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "87377802"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "84699261"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "292826090"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "569171405"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "387436237"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "150682190"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "888770419"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "824696431"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "765659803"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "270163693"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "427940240"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "504997332"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "337808338"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "907200008"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "757177889"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "696697188"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "41376051"
-        - span:
-            lo: 0
-            hi: 12
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "496293518"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "251218820"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "0x12"
-        - span:
-            lo: 0
-            hi: 8
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "0xAA"
-        - span:
-            lo: 0
-            hi: 8
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "0xAABB"
-        - span:
-            lo: 0
-            hi: 10
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "0x12345AABB"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "0b101010000"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "0o12345"
-        - span:
-            lo: 0
-            hi: 11
-        - 0
-  - Literal:
-      Integer:
-        - U128
-        - "0o10077"
-        - span:
-            lo: 0
-            hi: 11
-        - 0
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "123",
+    { span = { lo = 0, hi = 7 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "123",
+    { span = { lo = 0, hi = 7 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "456",
+    { span = { lo = 0, hi = 7 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "87377802873778028737780287377802873778028737780287377802873778028737780287377802",
+    { span = { lo = 0, hi = 84 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802",
+    { span = { lo = 0, hi = 404 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "340130024",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "158951116",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "155529659",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "642023166",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "228481736",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "469712960",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "929437719",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "721072814",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "363254789",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "906732565",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "288246391",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "724940549",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "487101620",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "261373583",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "891163927",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "743967544",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "8372586",
+    { span = { lo = 0, hi = 11 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "461793278",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "806307045",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "122764546",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "356336181",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "158370903",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "774460877",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "557174131",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "492401267",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "893445620",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "957757048",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "721540649",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "390746493",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "211251725",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "938266114",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "156985870",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "703831126",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "729964155",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "988151305",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "320872435",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "719287167",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "152289486",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "740067975",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "728627816",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "385008978",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "553967635",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "71980713",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "519444716",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "116499965",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "717422268",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "18966279",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "22458638",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "857282620",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "920675898",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "762235516",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "469018377",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "199986521",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "536679358",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "591399452",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "83083158",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "599449051",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "445442318",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "585486590",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "209278800",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "873568117",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "664470940",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "465262783",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "605652874",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "376803940",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "965247040",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "598474509",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "845119918",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "648159133",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "669051032",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "800600261",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "434689764",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "520060080",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "804659385",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "537828058",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "716600292",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "387020273",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "199375617",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "680337189",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "818479931",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "893693281",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "87377802",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "84699261",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "292826090",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "569171405",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "387436237",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "150682190",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "888770419",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "824696431",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "765659803",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "270163693",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "427940240",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "504997332",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "337808338",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "907200008",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "757177889",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "696697188",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "41376051",
+    { span = { lo = 0, hi = 12 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "496293518",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "251218820",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "0x12",
+    { span = { lo = 0, hi = 8 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "0xAA",
+    { span = { lo = 0, hi = 8 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "0xAABB",
+    { span = { lo = 0, hi = 10 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "0x12345AABB",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "0b101010000",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "0o12345",
+    { span = { lo = 0, hi = 11 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Integer = [
+    "U128",
+    "0o10077",
+    { span = { lo = 0, hi = 11 } },
+    0,
+]

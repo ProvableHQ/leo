@@ -1,739 +1,947 @@
----
-namespace: ParseExpression
-expectation: Pass
-outputs:
-  - Literal:
-      Scalar:
-        - "123"
-        - span:
-            lo: 0
-            hi: 9
-        - 0
-  - Literal:
-      Scalar:
-        - "123"
-        - span:
-            lo: 0
-            hi: 9
-        - 0
-  - Literal:
-      Scalar:
-        - "456"
-        - span:
-            lo: 0
-            hi: 9
-        - 0
-  - Literal:
-      Scalar:
-        - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
-        - span:
-            lo: 0
-            hi: 86
-        - 0
-  - Literal:
-      Scalar:
-        - "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802"
-        - span:
-            lo: 0
-            hi: 406
-        - 0
-  - Literal:
-      Scalar:
-        - "340130024"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "158951116"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "155529659"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "642023166"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "228481736"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "469712960"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "929437719"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "721072814"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "363254789"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "906732565"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "288246391"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "724940549"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "487101620"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "261373583"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "891163927"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "743967544"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "8372586"
-        - span:
-            lo: 0
-            hi: 13
-        - 0
-  - Literal:
-      Scalar:
-        - "461793278"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "806307045"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "122764546"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "356336181"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "158370903"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "774460877"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "557174131"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "492401267"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "893445620"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "957757048"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "721540649"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "390746493"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "211251725"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "938266114"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "156985870"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "703831126"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "729964155"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "988151305"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "320872435"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "719287167"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "152289486"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "740067975"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "728627816"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "385008978"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "553967635"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "71980713"
-        - span:
-            lo: 0
-            hi: 14
-        - 0
-  - Literal:
-      Scalar:
-        - "519444716"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "116499965"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "717422268"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "18966279"
-        - span:
-            lo: 0
-            hi: 14
-        - 0
-  - Literal:
-      Scalar:
-        - "22458638"
-        - span:
-            lo: 0
-            hi: 14
-        - 0
-  - Literal:
-      Scalar:
-        - "857282620"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "920675898"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "762235516"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "469018377"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "199986521"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "536679358"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "591399452"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "83083158"
-        - span:
-            lo: 0
-            hi: 14
-        - 0
-  - Literal:
-      Scalar:
-        - "599449051"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "445442318"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "585486590"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "209278800"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "873568117"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "664470940"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "465262783"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "605652874"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "376803940"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "965247040"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "598474509"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "845119918"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "648159133"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "669051032"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "800600261"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "434689764"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "520060080"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "804659385"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "537828058"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "716600292"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "387020273"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "199375617"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "680337189"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "818479931"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "893693281"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "87377802"
-        - span:
-            lo: 0
-            hi: 14
-        - 0
-  - Literal:
-      Scalar:
-        - "84699261"
-        - span:
-            lo: 0
-            hi: 14
-        - 0
-  - Literal:
-      Scalar:
-        - "292826090"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "569171405"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "387436237"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "150682190"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "888770419"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "824696431"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "765659803"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "270163693"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "427940240"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "504997332"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "337808338"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "907200008"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "757177889"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "696697188"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "41376051"
-        - span:
-            lo: 0
-            hi: 14
-        - 0
-  - Literal:
-      Scalar:
-        - "496293518"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
-  - Literal:
-      Scalar:
-        - "251218820"
-        - span:
-            lo: 0
-            hi: 15
-        - 0
+namespace = "ParseExpression"
+expectation = "Pass"
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "123",
+    { span = { lo = 0, hi = 9 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "123",
+    { span = { lo = 0, hi = 9 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "456",
+    { span = { lo = 0, hi = 9 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "87377802873778028737780287377802873778028737780287377802873778028737780287377802",
+    { span = { lo = 0, hi = 86 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802",
+    { span = { lo = 0, hi = 406 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "340130024",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "158951116",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "155529659",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "642023166",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "228481736",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "469712960",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "929437719",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "721072814",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "363254789",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "906732565",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "288246391",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "724940549",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "487101620",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "261373583",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "891163927",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "743967544",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "8372586",
+    { span = { lo = 0, hi = 13 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "461793278",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "806307045",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "122764546",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "356336181",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "158370903",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "774460877",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "557174131",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "492401267",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "893445620",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "957757048",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "721540649",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "390746493",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "211251725",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "938266114",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "156985870",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "703831126",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "729964155",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "988151305",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "320872435",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "719287167",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "152289486",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "740067975",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "728627816",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "385008978",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "553967635",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "71980713",
+    { span = { lo = 0, hi = 14 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "519444716",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "116499965",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "717422268",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "18966279",
+    { span = { lo = 0, hi = 14 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "22458638",
+    { span = { lo = 0, hi = 14 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "857282620",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "920675898",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "762235516",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "469018377",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "199986521",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "536679358",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "591399452",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "83083158",
+    { span = { lo = 0, hi = 14 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "599449051",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "445442318",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "585486590",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "209278800",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "873568117",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "664470940",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "465262783",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "605652874",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "376803940",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "965247040",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "598474509",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "845119918",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "648159133",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "669051032",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "800600261",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "434689764",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "520060080",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "804659385",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "537828058",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "716600292",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "387020273",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "199375617",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "680337189",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "818479931",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "893693281",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "87377802",
+    { span = { lo = 0, hi = 14 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "84699261",
+    { span = { lo = 0, hi = 14 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "292826090",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "569171405",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "387436237",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "150682190",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "888770419",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "824696431",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "765659803",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "270163693",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "427940240",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "504997332",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "337808338",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "907200008",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "757177889",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "696697188",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "41376051",
+    { span = { lo = 0, hi = 14 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "496293518",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]
+
+[[outputs]]
+
+[outputs.Literal]
+Scalar = [
+    "251218820",
+    { span = { lo = 0, hi = 15 } },
+    0,
+]

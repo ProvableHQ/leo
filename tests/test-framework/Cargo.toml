@@ -39,8 +39,11 @@ features = [ "derive" ]
 [dependencies.serde]
 workspace = true
 
-[dependencies.serde_yaml]
-version = "0.8"
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.toml]
+workspace = true
 
 [dependencies.walkdir]
 version = "2.5"

@@ -1,6 +1,6 @@
 /*
-namespace: Token
-expectation: Fail
+namespace = "Token"
+expectation = "Fail"
 */
 
 '\'

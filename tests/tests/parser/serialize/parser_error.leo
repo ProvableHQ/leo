@@ -1,6 +1,6 @@
 /*
-namespace: Serialize
-expectation: Fail
+namespace = "Serialize"
+expectation = "Fail"
 */
 
 invalid

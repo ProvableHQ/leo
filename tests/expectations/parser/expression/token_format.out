@@ -1,74 +1,352 @@
----
-namespace: ParseExpression
-expectation: Fail
-outputs:
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `'h'`.\n"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '@'\n    --> test:1:1\n     |\n   1 | @test\n     | ^"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '&&'\n    --> test:1:1\n     |\n   1 | &&\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '||'\n    --> test:1:1\n     |\n   1 | ||\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '=='\n    --> test:1:1\n     |\n   1 | ==\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '!='\n    --> test:1:1\n     |\n   1 | !=\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '<'\n    --> test:1:1\n     |\n   1 | <\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '<='\n    --> test:1:1\n     |\n   1 | <=\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '>'\n    --> test:1:1\n     |\n   1 | >\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '>='\n    --> test:1:1\n     |\n   1 | >=\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '+'\n    --> test:1:1\n     |\n   1 | +\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'\n    --> test:1:1\n     |\n   1 | -\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '*'\n    --> test:1:1\n     |\n   1 | *\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '**'\n    --> test:1:1\n     |\n   1 | **\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '/'\n    --> test:1:1\n     |\n   1 | /\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '='\n    --> test:1:1\n     |\n   1 | =\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '+='\n    --> test:1:1\n     |\n   1 | +=\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '-='\n    --> test:1:1\n     |\n   1 | -=\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '*='\n    --> test:1:1\n     |\n   1 | *=\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '/='\n    --> test:1:1\n     |\n   1 | /=\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '**='\n    --> test:1:1\n     |\n   1 | **=\n     | ^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'\n    --> test:1:1\n     |\n   1 | (\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ')'\n    --> test:1:1\n     |\n   1 | )\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'\n    --> test:1:1\n     |\n   1 | [\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ']'\n    --> test:1:1\n     |\n   1 | ]\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '{'\n    --> test:1:1\n     |\n   1 | {\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '}'\n    --> test:1:1\n     |\n   1 | }\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ','\n    --> test:1:1\n     |\n   1 | ,\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '.'\n    --> test:1:1\n     |\n   1 | .\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '..'\n    --> test:1:1\n     |\n   1 | ..\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '..'\n    --> test:1:1\n     |\n   1 | ...\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ';'\n    --> test:1:1\n     |\n   1 | ;\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ':'\n    --> test:1:1\n     |\n   1 | :\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '<eof>'\n    --> test:1:2\n     |\n   1 | h::\n     |  ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '?'\n    --> test:1:1\n     |\n   1 | ?\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '->'\n    --> test:1:1\n     |\n   1 | ->\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '_'\n    --> test:1:1\n     |\n   1 | _\n     | ^"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'console'\n    --> test:1:1\n     |\n   1 | console\n     | ^^^^^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'\n    --> test:1:1\n     |\n   1 | constant\n     | ^^^^^^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'else'\n    --> test:1:1\n     |\n   1 | else\n     | ^^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'for'\n    --> test:1:1\n     |\n   1 | for\n     | ^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'function'\n    --> test:1:1\n     |\n   1 | function\n     | ^^^^^^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'\n    --> test:1:1\n     |\n   1 | if\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'in'\n    --> test:1:1\n     |\n   1 | in\n     | ^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'let'\n    --> test:1:1\n     |\n   1 | let\n     | ^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '&'\n    --> test:1:1\n     |\n   1 | &\n     | ^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'return'\n    --> test:1:1\n     |\n   1 | return\n     | ^^^^^^"
+namespace = "ParseExpression"
+expectation = "Fail"
+outputs = [
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `'h'`.
+""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '@'
+    --> test:1:1
+     |
+   1 | @test
+     | ^""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '&&'
+    --> test:1:1
+     |
+   1 | &&
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '||'
+    --> test:1:1
+     |
+   1 | ||
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '=='
+    --> test:1:1
+     |
+   1 | ==
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '!='
+    --> test:1:1
+     |
+   1 | !=
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<'
+    --> test:1:1
+     |
+   1 | <
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<='
+    --> test:1:1
+     |
+   1 | <=
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '>'
+    --> test:1:1
+     |
+   1 | >
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '>='
+    --> test:1:1
+     |
+   1 | >=
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '+'
+    --> test:1:1
+     |
+   1 | +
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
+    --> test:1:1
+     |
+   1 | -
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '*'
+    --> test:1:1
+     |
+   1 | *
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '**'
+    --> test:1:1
+     |
+   1 | **
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '/'
+    --> test:1:1
+     |
+   1 | /
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '='
+    --> test:1:1
+     |
+   1 | =
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '+='
+    --> test:1:1
+     |
+   1 | +=
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '-='
+    --> test:1:1
+     |
+   1 | -=
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '*='
+    --> test:1:1
+     |
+   1 | *=
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '/='
+    --> test:1:1
+     |
+   1 | /=
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '**='
+    --> test:1:1
+     |
+   1 | **=
+     | ^^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
+    --> test:1:1
+     |
+   1 | (
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found ')'
+    --> test:1:1
+     |
+   1 | )
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
+    --> test:1:1
+     |
+   1 | [
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found ']'
+    --> test:1:1
+     |
+   1 | ]
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '{'
+    --> test:1:1
+     |
+   1 | {
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '}'
+    --> test:1:1
+     |
+   1 | }
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found ','
+    --> test:1:1
+     |
+   1 | ,
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '.'
+    --> test:1:1
+     |
+   1 | .
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '..'
+    --> test:1:1
+     |
+   1 | ..
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '..'
+    --> test:1:1
+     |
+   1 | ...
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found ';'
+    --> test:1:1
+     |
+   1 | ;
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found ':'
+    --> test:1:1
+     |
+   1 | :
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'identifier', found '<eof>'
+    --> test:1:2
+     |
+   1 | h::
+     |  ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '?'
+    --> test:1:1
+     |
+   1 | ?
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '->'
+    --> test:1:1
+     |
+   1 | ->
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '_'
+    --> test:1:1
+     |
+   1 | _
+     | ^""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370016]: Could not lex the following content: `~`.
+""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'console'
+    --> test:1:1
+     |
+   1 | console
+     | ^^^^^^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test:1:1
+     |
+   1 | constant
+     | ^^^^^^^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'else'
+    --> test:1:1
+     |
+   1 | else
+     | ^^^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'for'
+    --> test:1:1
+     |
+   1 | for
+     | ^^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'function'
+    --> test:1:1
+     |
+   1 | function
+     | ^^^^^^^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
+    --> test:1:1
+     |
+   1 | if
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'in'
+    --> test:1:1
+     |
+   1 | in
+     | ^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'let'
+    --> test:1:1
+     |
+   1 | let
+     | ^^^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found '&'
+    --> test:1:1
+     |
+   1 | &
+     | ^""",
+    """
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'return'
+    --> test:1:1
+     |
+   1 | return
+     | ^^^^^^""",
+]

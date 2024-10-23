@@ -1,5 +1,8 @@
----
-namespace: ParseStatement
-expectation: Fail
-outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'\n    --> test:1:1\n     |\n   1 | async finalize(foo);\n     | ^^^^^"
+namespace = "ParseStatement"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'
+    --> test:1:1
+     |
+   1 | async finalize(foo);
+     | ^^^^^"""]

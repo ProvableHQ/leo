@@ -1,6 +1,6 @@
 /*
-namespace: Parse
-expectation: Fail
+namespace = "Parse"
+expectation = "Fail"
 */
 
 stub credits.aleo {

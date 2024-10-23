@@ -1,5 +1,31 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372057]: Only `transition` functions can have a record as input or output.\n    --> compiler-test:9:18\n     |\n   9 |     function foo(a: credits) -> u8 {\n     |                  ^\nError [ETYC0372057]: Only `transition` functions can have a record as input or output.\n    --> compiler-test:9:18\n     |\n   9 |     function foo(a: credits) -> u8 {\n     |                  ^\nError [ETYC0372057]: Only `transition` functions can have a record as input or output.\n    --> compiler-test:13:41\n     |\n  13 |     function boo(a: address, b: u64) -> credits {\n     |                                         ^^^^^^^\nError [ETYC0372057]: Only `transition` functions can have a record as input or output.\n    --> compiler-test:13:41\n     |\n  13 |     function boo(a: address, b: u64) -> credits {\n     |                                         ^^^^^^^\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {\n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
+    --> compiler-test:9:18
+     |
+   9 |     function foo(a: credits) -> u8 {
+     |                  ^
+Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
+    --> compiler-test:9:18
+     |
+   9 |     function foo(a: credits) -> u8 {
+     |                  ^
+Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
+    --> compiler-test:13:41
+     |
+  13 |     function boo(a: address, b: u64) -> credits {
+     |                                         ^^^^^^^
+Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
+    --> compiler-test:13:41
+     |
+  13 |     function boo(a: address, b: u64) -> credits {
+     |                                         ^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {
+     | ^^^^^^^^^^^^
+"""]

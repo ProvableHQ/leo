@@ -1,5 +1,19 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372045]: Strings are not yet supported.\n    --> compiler-test:6:9\n     |\n   6 |         let str:string = \"a a a\";\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372045]: Strings are not yet supported.\n    --> compiler-test:6:26\n     |\n   6 |         let str:string = \"a a a\";\n     |                          ^^^^^^^\nError [ETYC0372045]: Strings are not yet supported.\n    --> compiler-test:7:19\n     |\n   7 |         if(str == \"b b  b\") {\n     |                   ^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ['''
+Error [ETYC0372045]: Strings are not yet supported.
+    --> compiler-test:6:9
+     |
+   6 |         let str:string = "a a a";
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372045]: Strings are not yet supported.
+    --> compiler-test:6:26
+     |
+   6 |         let str:string = "a a a";
+     |                          ^^^^^^^
+Error [ETYC0372045]: Strings are not yet supported.
+    --> compiler-test:7:19
+     |
+   7 |         if(str == "b b  b") {
+     |                   ^^^^^^^^
+''']

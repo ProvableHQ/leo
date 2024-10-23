@@ -1,5 +1,14 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372043]: Cannot call a local transition function from a transition function.\n    --> compiler-test:6:19\n     |\n   6 |            return adder(a, b);\n     |                   ^^^^^^^^^^^\nError [ETYC0372043]: Cannot call a local transition function from a transition function.\n    --> compiler-test:8:20\n     |\n   8 |             return subber(a, b);\n     |                    ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:6:19
+     |
+   6 |            return adder(a, b);
+     |                   ^^^^^^^^^^^
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:8:20
+     |
+   8 |             return subber(a, b);
+     |                    ^^^^^^^^^^^^
+"""]

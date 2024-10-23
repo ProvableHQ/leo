@@ -1,16 +1,93 @@
----
-namespace: ParseStatement
-expectation: Fail
-outputs:
-  - "Error [EPAR0370020]: Unicode bidi override code point encountered."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.log(1);\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.test();\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.error(\"{}\", x);\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.error(\"{}{}\", x, y);\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.error(\"x\");\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.assert(true);\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.assert_eq(1u32, 2u32);\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.assert_neq(true, false);\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.log(\"{}\", x);\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.log(\"{}{}\", x, y);\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
-  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console.log(\"x\");\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
+namespace = "ParseStatement"
+expectation = "Fail"
+outputs = [
+    "Error [EPAR0370020]: Unicode bidi override code point encountered.",
+    """
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.log(1);
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.""",
+    """
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.test();
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.""",
+    '''
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.error("{}", x);
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.''',
+    '''
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.error("{}{}", x, y);
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.''',
+    '''
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.error("x");
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.''',
+    """
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.assert(true);
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.""",
+    """
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.assert_eq(1u32, 2u32);
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.""",
+    """
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.assert_neq(true, false);
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.""",
+    '''
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.log("{}", x);
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.''',
+    '''
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.log("{}{}", x, y);
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.''',
+    '''
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> test:1:1
+     |
+   1 | console.log("x");
+     | ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.''',
+]

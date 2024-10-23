@@ -1,5 +1,8 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '('\n    --> test:4:15\n     |\n   4 |     transition(a: u8) -> public (u8, u8) {\n     |               ^"
+namespace = "Parse"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
+    --> test:4:15
+     |
+   4 |     transition(a: u8) -> public (u8, u8) {
+     |               ^"""]

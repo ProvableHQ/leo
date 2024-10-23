@@ -1,5 +1,11 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EAST0372006]: function `foo` shadowed by\n    --> compiler-test:7:5\n     |\n   7 |     transition foo(a: u8) -> constant u8 {\n   8 |         return a + a;\n   9 |     }\n     |     ^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [EAST0372006]: function `foo` shadowed by
+    --> compiler-test:7:5
+     |
+   7 |     transition foo(a: u8) -> constant u8 {
+   8 |         return a + a;
+   9 |     }
+     |     ^
+"""]

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use serde_yaml::Value;
 use std::{
     any::Any,
     panic::{self, RefUnwindSafe, UnwindSafe},
@@ -22,6 +21,7 @@ use std::{
     sync::{Arc, Mutex},
     thread,
 };
+use toml::Value;
 
 use crate::{error::*, fetch::find_tests, output::TestExpectation, test::*};
 
@@ -175,7 +175,7 @@ impl TestCases {
                 (expectation_path, None)
             } else {
                 let raw = std::fs::read_to_string(&expectation_path).expect("failed to read expectations file");
-                (expectation_path, Some(serde_yaml::from_str(&raw).expect("invalid yaml in expectations file")))
+                (expectation_path, Some(toml::from_str(&raw).expect("invalid toml in expectations file")))
             }
         } else {
             (expectation_path, None)
@@ -236,7 +236,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
                     output
                         .unwrap()
                         .as_ref()
-                        .map(|x| serde_yaml::to_value(x).expect("serialization failed"))
+                        .map(|x| Value::try_from(x).expect("serialization failed"))
                         .unwrap_or_else(|e| Value::String(e.clone())),
                 );
             }
@@ -276,7 +276,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             std::fs::create_dir_all(path.parent().unwrap()).expect("failed to make test expectation parent directory");
             std::fs::write(
                 &path,
-                serde_yaml::to_string(&new_expectation).expect("failed to serialize expectation yaml"),
+                toml::to_string_pretty(&new_expectation).expect("failed to serialize expectation toml"),
             )
             .expect("failed to write expectation file");
         }

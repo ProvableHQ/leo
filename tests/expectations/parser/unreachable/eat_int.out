@@ -1,58 +1,323 @@
----
-namespace: ParseStatement
-expectation: Fail
-outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '-'\n    --> test:1:3\n     |\n   1 | x.-12\n     |   ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found ';'\n    --> test:1:5\n     |\n   1 | x.0_;\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found ';'\n    --> test:1:6\n     |\n   1 | x.0_0;\n     |      ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found ';'\n    --> test:1:5\n     |\n   1 | x.01;\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '.'\n    --> test:1:5\n     |\n   1 | x.0_.\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'import'\n    --> test:1:5\n     |\n   1 | x.0_import\n     |     ^^^^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found ','\n    --> test:1:5\n     |\n   1 | x.0_,\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '*'\n    --> test:1:5\n     |\n   1 | x.0_*\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '+'\n    --> test:1:5\n     |\n   1 | x.0_+\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '-'\n    --> test:1:5\n     |\n   1 | x.0_-\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '/'\n    --> test:1:5\n     |\n   1 | x.0_/\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '['\n    --> test:1:5\n     |\n   1 | x.0_[\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found ']'\n    --> test:1:5\n     |\n   1 | x.0_]\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '{'\n    --> test:1:5\n     |\n   1 | x.0_{\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '}'\n    --> test:1:5\n     |\n   1 | x.0_}\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '('\n    --> test:1:5\n     |\n   1 | x.0_(\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found ')'\n    --> test:1:5\n     |\n   1 | x.0_)\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found ':'\n    --> test:1:5\n     |\n   1 | x.0_:\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '::'\n    --> test:1:5\n     |\n   1 | x.0_::\n     |     ^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '?'\n    --> test:1:5\n     |\n   1 | x.0_?\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '<eof>'\n    --> test:1:3\n     |\n   1 | x.0__\n     |   ^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '='\n    --> test:1:5\n     |\n   1 | x.0_=\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '=='\n    --> test:1:5\n     |\n   1 | x.0_==\n     |     ^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '!'\n    --> test:1:5\n     |\n   1 | x.0_!\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '!='\n    --> test:1:5\n     |\n   1 | x.0_!=\n     |     ^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '>'\n    --> test:1:5\n     |\n   1 | x.0_>\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '>='\n    --> test:1:5\n     |\n   1 | x.0_>=\n     |     ^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '<'\n    --> test:1:5\n     |\n   1 | x.0_<\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '<='\n    --> test:1:5\n     |\n   1 | x.0_<=\n     |     ^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '>'\n    --> test:1:5\n     |\n   1 | x.0_>\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '..'\n    --> test:1:5\n     |\n   1 | x.0_..\n     |     ^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'as'\n    --> test:1:5\n     |\n   1 | x.0_as\n     |     ^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'console'\n    --> test:1:5\n     |\n   1 | x.0_console\n     |     ^^^^^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'const'\n    --> test:1:5\n     |\n   1 | x.0_const\n     |     ^^^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'let'\n    --> test:1:5\n     |\n   1 | x.0_let\n     |     ^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'for'\n    --> test:1:5\n     |\n   1 | x.0_for\n     |     ^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'if'\n    --> test:1:5\n     |\n   1 | x.0_if\n     |     ^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'else'\n    --> test:1:5\n     |\n   1 | x.0_else\n     |     ^^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i8'\n    --> test:1:5\n     |\n   1 | x.0_i8\n     |     ^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i16'\n    --> test:1:5\n     |\n   1 | x.0_i16\n     |     ^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i32'\n    --> test:1:5\n     |\n   1 | x.0_i32\n     |     ^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i64'\n    --> test:1:5\n     |\n   1 | x.0_i64\n     |     ^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i128'\n    --> test:1:5\n     |\n   1 | x.0_i128\n     |     ^^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u8'\n    --> test:1:5\n     |\n   1 | x.0_u8\n     |     ^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u16'\n    --> test:1:5\n     |\n   1 | x.0_u16\n     |     ^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u32'\n    --> test:1:5\n     |\n   1 | x.0_u32\n     |     ^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u64'\n    --> test:1:5\n     |\n   1 | x.0_u64\n     |     ^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u128'\n    --> test:1:5\n     |\n   1 | x.0_u128\n     |     ^^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found '&'\n    --> test:1:5\n     |\n   1 | x.0_&\n     |     ^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'return'\n    --> test:1:5\n     |\n   1 | x.0_return\n     |     ^^^^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'self'\n    --> test:1:5\n     |\n   1 | x.0_self\n     |     ^^^^"
-  - "Error [EPAR0370043]: Digit S invalid in radix 10 (token 0_S)."
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'true'\n    --> test:1:5\n     |\n   1 | x.0_true\n     |     ^^^^"
-  - "Error [EPAR0370033]: expected no underscores or leading zeros -- found 'false'\n    --> test:1:5\n     |\n   1 | x.0_false\n     |     ^^^^^"
+namespace = "ParseStatement"
+expectation = "Fail"
+outputs = [
+    """
+Error [EPAR0370009]: unexpected string: expected 'identifier', found '-'
+    --> test:1:3
+     |
+   1 | x.-12
+     |   ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found ';'
+    --> test:1:5
+     |
+   1 | x.0_;
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found ';'
+    --> test:1:6
+     |
+   1 | x.0_0;
+     |      ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found ';'
+    --> test:1:5
+     |
+   1 | x.01;
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '.'
+    --> test:1:5
+     |
+   1 | x.0_.
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'import'
+    --> test:1:5
+     |
+   1 | x.0_import
+     |     ^^^^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found ','
+    --> test:1:5
+     |
+   1 | x.0_,
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '*'
+    --> test:1:5
+     |
+   1 | x.0_*
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '+'
+    --> test:1:5
+     |
+   1 | x.0_+
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '-'
+    --> test:1:5
+     |
+   1 | x.0_-
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '/'
+    --> test:1:5
+     |
+   1 | x.0_/
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '['
+    --> test:1:5
+     |
+   1 | x.0_[
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found ']'
+    --> test:1:5
+     |
+   1 | x.0_]
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '{'
+    --> test:1:5
+     |
+   1 | x.0_{
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '}'
+    --> test:1:5
+     |
+   1 | x.0_}
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '('
+    --> test:1:5
+     |
+   1 | x.0_(
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found ')'
+    --> test:1:5
+     |
+   1 | x.0_)
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found ':'
+    --> test:1:5
+     |
+   1 | x.0_:
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '::'
+    --> test:1:5
+     |
+   1 | x.0_::
+     |     ^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '?'
+    --> test:1:5
+     |
+   1 | x.0_?
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '<eof>'
+    --> test:1:3
+     |
+   1 | x.0__
+     |   ^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '='
+    --> test:1:5
+     |
+   1 | x.0_=
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '=='
+    --> test:1:5
+     |
+   1 | x.0_==
+     |     ^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '!'
+    --> test:1:5
+     |
+   1 | x.0_!
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '!='
+    --> test:1:5
+     |
+   1 | x.0_!=
+     |     ^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '>'
+    --> test:1:5
+     |
+   1 | x.0_>
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '>='
+    --> test:1:5
+     |
+   1 | x.0_>=
+     |     ^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '<'
+    --> test:1:5
+     |
+   1 | x.0_<
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '<='
+    --> test:1:5
+     |
+   1 | x.0_<=
+     |     ^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '>'
+    --> test:1:5
+     |
+   1 | x.0_>
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '..'
+    --> test:1:5
+     |
+   1 | x.0_..
+     |     ^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'as'
+    --> test:1:5
+     |
+   1 | x.0_as
+     |     ^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'console'
+    --> test:1:5
+     |
+   1 | x.0_console
+     |     ^^^^^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'const'
+    --> test:1:5
+     |
+   1 | x.0_const
+     |     ^^^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'let'
+    --> test:1:5
+     |
+   1 | x.0_let
+     |     ^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'for'
+    --> test:1:5
+     |
+   1 | x.0_for
+     |     ^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'if'
+    --> test:1:5
+     |
+   1 | x.0_if
+     |     ^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'else'
+    --> test:1:5
+     |
+   1 | x.0_else
+     |     ^^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i8'
+    --> test:1:5
+     |
+   1 | x.0_i8
+     |     ^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i16'
+    --> test:1:5
+     |
+   1 | x.0_i16
+     |     ^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i32'
+    --> test:1:5
+     |
+   1 | x.0_i32
+     |     ^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i64'
+    --> test:1:5
+     |
+   1 | x.0_i64
+     |     ^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i128'
+    --> test:1:5
+     |
+   1 | x.0_i128
+     |     ^^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u8'
+    --> test:1:5
+     |
+   1 | x.0_u8
+     |     ^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u16'
+    --> test:1:5
+     |
+   1 | x.0_u16
+     |     ^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u32'
+    --> test:1:5
+     |
+   1 | x.0_u32
+     |     ^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u64'
+    --> test:1:5
+     |
+   1 | x.0_u64
+     |     ^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u128'
+    --> test:1:5
+     |
+   1 | x.0_u128
+     |     ^^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found '&'
+    --> test:1:5
+     |
+   1 | x.0_&
+     |     ^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'return'
+    --> test:1:5
+     |
+   1 | x.0_return
+     |     ^^^^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'self'
+    --> test:1:5
+     |
+   1 | x.0_self
+     |     ^^^^""",
+    "Error [EPAR0370043]: Digit S invalid in radix 10 (token 0_S).",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'true'
+    --> test:1:5
+     |
+   1 | x.0_true
+     |     ^^^^""",
+    """
+Error [EPAR0370033]: expected no underscores or leading zeros -- found 'false'
+    --> test:1:5
+     |
+   1 | x.0_false
+     |     ^^^^^""",
+]

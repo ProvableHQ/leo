@@ -1,5 +1,18 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [ETYC0372030]: A struct or record cannot contain another record.\n    --> compiler-test:11:9\n     |\n  11 |         foo: Foo,\n     |         ^^^\n     |\n     = Remove the record `Foo` from `Token`.\nError [ETYC0372083]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372030]: A struct or record cannot contain another record.
+    --> compiler-test:11:9
+     |
+  11 |         foo: Foo,
+     |         ^^^
+     |
+     = Remove the record `Foo` from `Token`.
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | 
+   3 | program test.aleo {    
+     | ^^^^^^^^^^^^
+"""]

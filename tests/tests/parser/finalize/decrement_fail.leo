@@ -1,6 +1,6 @@
 /*
-namespace: ParseStatement
-expectation: Fail
+namespace = "ParseStatement"
+expectation = "Fail"
 */
 
 decrement[foo, bar, baz];

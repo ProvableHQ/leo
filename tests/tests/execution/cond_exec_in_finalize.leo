@@ -1,16 +1,18 @@
 /*
-namespace: Execute
-expectation: Pass
-cases:
-  - program: cond_exec_in_finalize.aleo
-    function: a
-    input: ["1u64", "0u64"]
-  - program: cond_exec_in_finalize.aleo
-    function: a
-    input: ["1u64", "1u64"]
-  - program: cond_exec_in_finalize.aleo
-    function: a
-    input: ["1u64", "2u64"]
+namespace = "Execute"
+expectation = "Pass"
+[[cases]]
+program = "cond_exec_in_finalize.aleo"
+function = "a"
+input = ["1u64", "0u64"]
+[[cases]]
+program = "cond_exec_in_finalize.aleo"
+function = "a"
+input = ["1u64", "1u64"]
+[[cases]]
+program = "cond_exec_in_finalize.aleo"
+function = "a"
+input = ["1u64", "2u64"]
 */
 
 

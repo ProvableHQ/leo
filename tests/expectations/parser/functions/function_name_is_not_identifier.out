@@ -1,5 +1,8 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected an identifier -- found '100u8'\n    --> test:5:16\n     |\n   5 |         return 100u8(0u8);\n     |                ^^^^^"
+namespace = "Parse"
+expectation = "Fail"
+outputs = ["""
+Error [EPAR0370005]: expected an identifier -- found '100u8'
+    --> test:5:16
+     |
+   5 |         return 100u8(0u8);
+     |                ^^^^^"""]
