@@ -144,9 +144,6 @@ workspace = true
 [dependencies.leo-package]
 workspace = true
 
-[dependencies.leo-parser]
-workspace = true
-
 [dependencies.leo-span]
 workspace = true
 
@@ -162,9 +159,6 @@ version = "0.3.74"
 [dependencies.clap]
 version = "4.5"
 features = [ "derive", "env", "color", "unstable-styles" ]
-
-[dependencies.color-backtrace]
-version = "0.6.1"
 
 [dependencies.colored]
 version = "2.0"
@@ -252,7 +246,7 @@ incremental = true
 opt-level = 2
 lto = "off"
 incremental = true
-debug = false
+debug = true
 debug-assertions = true
 
 [profile.ci]

@@ -39,17 +39,11 @@ features = [ "derive" ]
 [dependencies.serde]
 workspace = true
 
-[dependencies.serde_json]
-workspace = true
-
 [dependencies.serde_yaml]
 version = "0.8"
 
 [dependencies.walkdir]
 version = "2.5"
-
-[dependencies.regex]
-workspace = true
 
 [dev-dependencies.leo-compiler]
 path = "../../compiler/compiler"
