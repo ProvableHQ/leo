@@ -9,6 +9,11 @@ version: 2.1
 # Ensure that this matches the `rust-version` in `Cargo.toml`.
 # If this is changed, propogate the changes to all places in this file, including the `install-rust` command.
 
+# TODO:
+#  - The cache size can accumulate as the dependencies get upgraded. Ideally you want some pruning before the cache gets persisted.
+#    See swatinem/rust-cache for a sensible approach. Unfortunately, we'd have to build this for CircleCI.
+#  - Rust v1.83.0 is coming with some sensible cargo rebuild improvements. We should upgrade to that when it's released.
+
 
 environment:
   CARGO_INCREMENTAL: 0
@@ -139,6 +144,8 @@ jobs:
       - restore_cache:
           keys:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+            - cargo-v1-{{ arch }}
       - install-rust-windows
       - build-and-test
       - save_cache:
@@ -154,6 +161,8 @@ jobs:
       - restore_cache:
           keys:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+            - cargo-v1-{{ arch }}
       - install-rust
       - build-and-test
       - save_cache:
@@ -169,6 +178,8 @@ jobs:
       - restore_cache:
           keys:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+            - cargo-v1-{{ arch }}
       - install-rust
       - build-and-test
       - save_cache:
