@@ -155,18 +155,28 @@ impl<'a, N: Network> Compiler<'a, N> {
 
     /// Runs the type checker pass.
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        let (symbol_table, struct_graph, call_graph) = TypeChecker::<N>::do_pass((
+        let type_check_result = TypeChecker::<N>::do_pass((
             &self.ast,
             self.handler,
             symbol_table,
             &self.type_table,
             self.compiler_options.build.conditional_block_max_depth,
             self.compiler_options.build.disable_conditional_branch_type_checking,
-        ))?;
-        if self.compiler_options.output.type_checked_symbol_table {
-            self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
+        ));
+
+        // Always report errors and warnings, regardless of the result,
+        // because even in the Ok case, there might still be warnings.
+        self.report_errors_and_warnings();
+
+        match type_check_result {
+            Ok((symbol_table, struct_graph, call_graph)) => {
+                if self.compiler_options.output.type_checked_symbol_table {
+                    self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
+                }
+                Ok((symbol_table, struct_graph, call_graph))
+            }
+            Err(e) => Err(e),
         }
-        Ok((symbol_table, struct_graph, call_graph))
     }
 
     /// Runs the loop unrolling pass.
@@ -314,6 +324,63 @@ impl<'a, N: Network> Compiler<'a, N> {
         // Run code generation.
         let bytecode = self.code_generation_pass(&symbol_table, &struct_graph, &call_graph)?;
         Ok(bytecode)
+    }
+
+    /// Reports any errors and warnings found during type checking.
+    fn report_errors_and_warnings(&self) {
+        // Retrieve error and warning counts.
+        let inner = self.handler.inner.borrow();
+        let err_count = inner.err_count;
+        let warn_count = inner.warn_count;
+
+        // Color codes for terminal.
+        const RED: &str = "\x1b[31m";
+        const YELLOW: &str = "\x1b[33m";
+        const RESET: &str = "\x1b[0m";
+
+        // Get program name.
+        let program_name = &self
+            .ast
+            .ast
+            .program_scopes
+            .keys()
+            .next()
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| "Unknown program".to_string());
+
+        // Adds two empty lines before the report if there are any errors or warnings.
+        if err_count + warn_count > 0 {
+            println!("\n");
+        }
+
+        // Show warning counts.
+        if warn_count > 0 {
+            println!(
+                "{}warning{}: {}.leo generated {} warning{}",
+                YELLOW,
+                RESET,
+                program_name,
+                warn_count,
+                if warn_count > 1 { "s" } else { "" }
+            );
+        }
+
+        // Show error counts, if warnings emitted include them as well.
+        if err_count > 0 {
+            let error_message = format!(
+                "{}error{}: could not compile {}.leo due to {} previous error{}",
+                RED,
+                RESET,
+                program_name,
+                err_count,
+                if err_count > 1 { "s" } else { "" }
+            );
+            if warn_count > 0 {
+                println!("{}; {} warning{} emitted", error_message, warn_count, if warn_count > 1 { "s" } else { "" });
+            } else {
+                println!("{}", error_message);
+            }
+        }
     }
 
     /// Writes the AST to a JSON file.
