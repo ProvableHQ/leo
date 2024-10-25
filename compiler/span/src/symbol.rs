@@ -203,6 +203,8 @@ symbols! {
     to_y_coordinate,
     verify,
     Await: "await",
+    Leo,
+    print,
 
     // types
     address,

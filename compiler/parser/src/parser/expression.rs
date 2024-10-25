@@ -367,6 +367,20 @@ impl<N: Network> ParserContext<'_, N> {
                 span,
                 id: self.node_builder.next_id(),
             })))
+        } else if let (1, Some(CoreFunction::LeoPrint)) =
+            (args.len(), CoreFunction::from_symbols(sym::Leo, method.name))
+        {
+            Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                variant: Identifier::new(sym::Leo, self.node_builder.next_id()),
+                name: method,
+                arguments: {
+                    let mut arguments = vec![receiver];
+                    arguments.extend(args);
+                    arguments
+                },
+                span,
+                id: self.node_builder.next_id(),
+            })))
         } else {
             // Attempt to parse the method call as a mapping operation.
             match (args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {

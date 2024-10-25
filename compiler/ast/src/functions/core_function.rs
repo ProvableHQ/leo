@@ -289,6 +289,8 @@ pub enum CoreFunction {
 
     SignatureVerify,
     FutureAwait,
+
+    LeoPrint,
 }
 
 impl CoreFunction {
@@ -566,6 +568,8 @@ impl CoreFunction {
 
             (sym::signature, sym::verify) => Self::SignatureVerify,
             (sym::Future, sym::Await) => Self::FutureAwait,
+
+            (sym::Leo, sym::print) => Self::LeoPrint,
             _ => return None,
         })
     }
@@ -844,6 +848,8 @@ impl CoreFunction {
 
             Self::SignatureVerify => 3,
             Self::FutureAwait => 1,
+
+            Self::LeoPrint => 1,
         }
     }
 
@@ -1101,7 +1107,8 @@ impl CoreFunction {
             | CoreFunction::SHA3_512HashToScalar
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
-            | CoreFunction::SignatureVerify => false,
+            | CoreFunction::SignatureVerify
+            | CoreFunction::LeoPrint => false,
         }
     }
 }

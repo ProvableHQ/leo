@@ -1029,6 +1029,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 Some(Type::Boolean)
             }
             CoreFunction::FutureAwait => Some(Type::Unit),
+            CoreFunction::LeoPrint => Some(Type::Unit),
         }
     }
 

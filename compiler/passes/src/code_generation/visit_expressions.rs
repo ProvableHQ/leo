@@ -485,6 +485,13 @@ impl<'a> CodeGenerator<'a> {
                 writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
                 (String::new(), instruction)
             }
+            sym::Leo => {
+                // The only `Leo` function is `print`.
+                let mut instruction = "    print".to_string();
+                // Write the argument.
+                writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
+                (String::new(), instruction)
+            }
             _ => {
                 unreachable!("All core functions should be known at this phase of compilation")
             }
