@@ -98,7 +98,10 @@ default-features = false
 version = "1.11.0"
 
 [workspace.dependencies.snarkvm]
-version = "1.0.0"
+#version = "1.0.0"
+git = "https://github.com/ProvableHQ/snarkVM"
+#branch = "mainnet-leo"
+rev = "419ea51"
 
 [workspace.dependencies.serde]
 version = "1.0.213"
