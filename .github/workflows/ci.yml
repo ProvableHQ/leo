@@ -12,14 +12,13 @@ env:
 
 jobs:
   test-docs:
-    name: Test Docs
+    name: Test Docs and Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: true
-          ref: mainnet
 
       - name: Install Rust Stable
         uses: actions-rs/toolchain@v1
@@ -30,6 +29,9 @@ jobs:
 
       - name: Set up rust-cache
         uses: Swatinem/rust-cache@v2
+
+      - name: Build Release
+        run: cargo build --release
 
       - name: Build Cargo Docs
         env:
@@ -63,7 +65,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all
+          args: --all --locked --profile ci --features only_testnet --verbose
         env:
           CARGO_INCREMENTAL: "0"
 
