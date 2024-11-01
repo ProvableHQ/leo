@@ -188,7 +188,7 @@ jobs:
           paths:
             - ~/.cargo
             - target
-            -
+
 # TODO: Move code-coverage to CircleCI
 #  code-coverage:
 #    executor: linux-executor
