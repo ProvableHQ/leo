@@ -9,7 +9,7 @@ program test.aleo {
         owner: bool,
     }
     
-    function main() -> bool {
+    function main(x: field) -> bool {
         return true;
     }
 }

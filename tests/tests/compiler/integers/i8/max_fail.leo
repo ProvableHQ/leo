@@ -4,6 +4,6 @@ expectation = "Fail"
 */
 
 program test.aleo {    
-    function main() {
+    function main(x: bool) {
         let a: i8 = 128i8;
     }}

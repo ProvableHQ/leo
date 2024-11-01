@@ -340,6 +340,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     finalize_block_must_not_be_empty {
         args: (),
@@ -884,6 +885,13 @@ create_messages!(
     empty_struct {
         args: (),
         msg: "A struct must have at least one member.".to_string(),
+        help: None,
+    }
+
+    @formatted
+    empty_function_arglist {
+        args: (),
+        msg: format!("Cannot define a function with no parameters."),
         help: None,
     }
 );

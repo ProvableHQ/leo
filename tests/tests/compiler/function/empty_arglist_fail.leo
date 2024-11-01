@@ -4,9 +4,7 @@ expectation = "Fail"
 */
 
 program test.aleo {
-    struct Bar {}
-
-    function main(zz: bool) -> bool {
-        return true;
+    function x() -> u8 {
+        return 0u8;
     }
 }
