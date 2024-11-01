@@ -11,7 +11,7 @@ env:
   RUST_BACKTRACE: 0
 
 jobs:
-  test-docs:
+  test-docs-and-build:
     name: Test Docs and Build
     runs-on: ubuntu-latest
     steps:
