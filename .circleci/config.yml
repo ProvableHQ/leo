@@ -51,7 +51,7 @@ commands:
             if [ ! -f "Cargo.lock" ]; then
               cargo generate-lockfile
             fi
-            git submodule update --init --recursive
+            
 
   install-rust-windows:
     description: "Install Rust (Windows)"
@@ -71,7 +71,6 @@ commands:
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
                 cargo generate-lockfile
             }
-            git submodule update --init --recursive
 
   build-and-test:
     description: "Build and run tests"
@@ -148,6 +147,9 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust-windows
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
       - build-and-test
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
@@ -165,6 +167,9 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
       - build-and-test
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
@@ -181,6 +186,9 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
+      - run:
+            name: Update Submodules
+            command: git submodule update --init --recursive
       - build-and-test
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
@@ -218,10 +226,10 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
+      - install_rust_nightly
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive
-      - install_rust_nightly
       - run:
           name: Check style
           no_output_timeout: 35m
