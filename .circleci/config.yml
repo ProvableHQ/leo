@@ -190,7 +190,7 @@ jobs:
             - ~/.cargo
             - target
 
-  clippy-style-docs:
+  check-style-clippy-docs:
     docker:
       - image: cimg/rust:1.82
     resource_class: large
@@ -216,17 +216,17 @@ jobs:
             cargo clippy --workspace --all-targets --all-features -- -D warnings
       - run:
           name: Build Cargo Docs
-          env:
-            RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
-            RUSTC_BOOTSTRAP: "1"
           command: |
             cargo doc --no-deps --document-private-items --workspace
             rm -rf ./tests
+          environment:
+            RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
+            RUSTC_BOOTSTRAP: "1"
       - save_cache:
-        key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-        paths:
-          - ~/.cargo
-          - target
+          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo
+            - target
 
   leo-executable:
     docker:
@@ -310,8 +310,7 @@ workflows:
       - test-windows
       - test-macos
       - test-ubuntu
-      - check-style
-      - clippy
+      - check-style-clippy-docs
       - leo-executable
       - leo-new:
           requires:
