@@ -222,6 +222,7 @@ jobs:
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive
+      - install-rust
       - run:
           name: Check style
           no_output_timeout: 35m
