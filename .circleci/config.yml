@@ -190,15 +190,17 @@ jobs:
             - ~/.cargo
             - target
 
-  check-style:
+  clippy-style-docs:
     docker:
       - image: cimg/rust:1.82
-    resource_class: xlarge
+    resource_class: large
     steps:
       - checkout
-      - install_rust_nightly
-      - setup_environment:
-          cache_key: leo-fmt-cache
+      - restore_cache:
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+            - cargo-v1-{{ arch }}
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive
@@ -206,28 +208,25 @@ jobs:
           name: Check style
           no_output_timeout: 35m
           command: cargo +nightly fmt --all -- --check
-      - clear_environment:
-          cache_key: leo-fmt-cache
-
-  clippy:
-    docker:
-      - image: cimg/rust:1.82
-    resource_class: xlarge
-    steps:
-      - checkout
-      - setup_environment:
-          cache_key: leo-clippy-cache
-      - run:
-          name: Update Submodules
-          command: git submodule update --init --recursive
       - run:
           name: Clippy
           no_output_timeout: 35m
           command: |
             cargo clippy --workspace --all-targets -- -D warnings
             cargo clippy --workspace --all-targets --all-features -- -D warnings
-      - clear_environment:
-          cache_key: leo-clippy-cache
+      - run:
+          name: Build Cargo Docs
+          env:
+            RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
+            RUSTC_BOOTSTRAP: "1"
+          command: |
+            cargo doc --no-deps --document-private-items --workspace
+            rm -rf ./tests
+      - save_cache:
+        key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+        paths:
+          - ~/.cargo
+          - target
 
   leo-executable:
     docker:

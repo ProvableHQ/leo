@@ -11,36 +11,6 @@ env:
   RUST_BACKTRACE: 0
 
 jobs:
-  test-docs-and-build:
-    name: Test Docs and Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - name: Install Rust Stable
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - name: Set up rust-cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Build Release
-        run: cargo build --locked --release
-
-      - name: Build Cargo Docs
-        env:
-          RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
-          RUSTC_BOOTSTRAP: "1"
-        run: |
-          cargo doc --no-deps --document-private-items --workspace
-          rm -rf ./tests
-
   codecov:
     name: Code Coverage
     runs-on: ubuntu-latest
