@@ -35,7 +35,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --locked --profile ci --features only_testnet
+          args: --all --locked --profile ci
         env:
           CARGO_INCREMENTAL: "0"
 

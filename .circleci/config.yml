@@ -20,9 +20,9 @@ environment:
   CARGO_INCREMENTAL: 0
   RUSTFLAGS: "-D warnings"
 
-
 orbs:
   windows: circleci/windows@5.0
+  codecov: codecov/codecov@1.0.2
 
 executors:
   macos-executor:
@@ -34,7 +34,6 @@ executors:
     docker:
       - image: "cimg/rust:1.82.0"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
     resource_class: xlarge
-
 
 commands:
   install-rust:
@@ -173,7 +172,7 @@ jobs:
             - ~/.cargo
             - target
 
-  test-ubuntu:
+  test-linux:
     executor: linux-executor
     steps:
       - checkout
@@ -189,10 +188,29 @@ jobs:
           paths:
             - ~/.cargo
             - target
+            -
+# TODO: Move code-coverage to CircleCI
+#  code-coverage:
+#    executor: linux-executor
+#    steps:
+#      - checkout
+#      - restore_cache:
+#          keys:
+#            - codecov-cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+#            - codecov-cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+#            - codecov-cargo-v1-{{ arch }}
+#      - install-rust
+#      - build-and-test
+#      - codecov/upload:
+#            file: { { coverage_report_filepath } }
+#      - save_cache:
+#          key: codecov-cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+#          paths:
+#            - ~/.cargo
+#            - target
 
   check-style-clippy-docs:
-    docker:
-      - image: cimg/rust:1.82
+    executor: linux-executor
     resource_class: large
     steps:
       - checkout
@@ -309,7 +327,7 @@ workflows:
     jobs:
       - test-windows
       - test-macos
-      - test-ubuntu
+      - test-linux
       - check-style-clippy-docs
       - leo-executable
       - leo-new:
