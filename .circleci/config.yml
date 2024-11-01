@@ -181,7 +181,6 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
-      - install-rust
       - build-and-test
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
@@ -222,7 +221,7 @@ jobs:
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive
-      - install-rust
+      - install_rust_nightly
       - run:
           name: Check style
           no_output_timeout: 35m
