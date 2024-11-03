@@ -1120,9 +1120,9 @@ dependencies = [
 
 [[package]]
 name = "h2"
-version = "0.4.5"
+version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa82e28a107a8cc405f0839610bdc9b15f1e25ec7d696aa5cf173edbcb1486ab"
+checksum = "524e8ac6999421f49a846c2d4411f337e53497d8ec55d67753beffa43c5d9205"
 dependencies = [
  "atomic-waker",
  "bytes",
@@ -1288,7 +1288,7 @@ dependencies = [
  "bytes",
  "futures-channel",
  "futures-util",
- "h2 0.4.5",
+ "h2 0.4.6",
  "http 1.1.0",
  "http-body 1.0.0",
  "httparse",
@@ -1301,9 +1301,9 @@ dependencies = [
 
 [[package]]
 name = "hyper-rustls"
-version = "0.27.2"
+version = "0.27.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ee4be2c948921a1a5320b629c4193916ed787a7f7f293fd3f7f5a6c9de74155"
+checksum = "08afdbb5c31130e3034af566421053ab03787c640246a446327f550d11bcb333"
 dependencies = [
  "futures-util",
  "http 1.1.0",
@@ -1529,6 +1529,7 @@ dependencies = [
  "leo-test-framework",
  "regex",
  "serde",
+ "serial_test",
  "sha2",
  "snarkvm",
  "tempfile",
@@ -1568,7 +1569,6 @@ dependencies = [
  "ansi_term",
  "backtrace",
  "clap",
- "color-backtrace",
  "colored",
  "crossterm",
  "dialoguer",
@@ -1578,7 +1578,6 @@ dependencies = [
  "leo-compiler",
  "leo-errors",
  "leo-package",
- "leo-parser",
  "leo-retriever",
  "leo-span",
  "num-format",
@@ -1627,7 +1626,6 @@ dependencies = [
  "serde_json",
  "snarkvm",
  "toml 0.8.19",
- "tracing",
 ]
 
 [[package]]
@@ -1638,7 +1636,6 @@ dependencies = [
  "itertools 0.13.0",
  "leo-ast",
  "leo-errors",
- "leo-parser",
  "leo-span",
  "num-traits",
  "serde",
@@ -1687,7 +1684,6 @@ dependencies = [
  "leo-compiler",
  "leo-errors",
  "leo-span",
- "regex",
  "serde",
  "serde_json",
  "snarkvm",
@@ -2327,7 +2323,7 @@ dependencies = [
  "futures-channel",
  "futures-core",
  "futures-util",
- "h2 0.4.5",
+ "h2 0.4.6",
  "http 1.1.0",
  "http-body 1.0.0",
  "http-body-util",

@@ -14,20 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod utilities;
-use utilities::{
-    BufferEmitter,
-    CompileOutput,
-    CurrentNetwork,
-    ExecuteOutput,
-    buffer_if_err,
-    compile_and_process,
-    get_build_options,
-    get_cwd_option,
-    hash_asts,
-    hash_symbol_tables,
-    parse_program,
-};
+use super::*;
 
 use leo_compiler::{CompilerOptions, OutputOptions};
 use leo_errors::emitter::Handler;
@@ -322,18 +309,13 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
     Ok(Value::try_from(outputs).expect("serialization failed"))
 }
 
-struct TestRunner;
+pub struct ExecuteTestRunner;
 
-impl Runner for TestRunner {
+impl Runner for ExecuteTestRunner {
     fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>> {
         Some(match name {
             "Execute" => Box::new(ExecuteNamespace),
             _ => return None,
         })
     }
-}
-
-#[test]
-pub fn execution_tests() {
-    leo_test_framework::run_tests(&TestRunner, "execution");
 }

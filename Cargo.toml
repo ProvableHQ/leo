@@ -27,6 +27,7 @@ include = [
 ]
 license = "GPL-3.0"
 edition = "2021"
+rust-version = "1.82.0" # Be sure to update CI and the ./rust-toolchain file.
 
 [workspace]
 members = [
@@ -147,9 +148,6 @@ workspace = true
 [dependencies.leo-package]
 workspace = true
 
-[dependencies.leo-parser]
-workspace = true
-
 [dependencies.leo-span]
 workspace = true
 
@@ -165,9 +163,6 @@ version = "0.3.74"
 [dependencies.clap]
 version = "4.5"
 features = [ "derive", "env", "color", "unstable-styles" ]
-
-[dependencies.color-backtrace]
-version = "0.6.1"
 
 [dependencies.colored]
 version = "2.0"
@@ -257,3 +252,8 @@ lto = "off"
 incremental = true
 debug = true
 debug-assertions = true
+
+[profile.ci]
+inherits = "test"
+incremental = false
+debug = false

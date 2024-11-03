@@ -1,46 +1,91 @@
 version: 2.1
-commands:
-  setup_environment:
-    description: "Setup environment"
-    parameters:
-      cache_key:
-        type: string
-        default: leo-stable-linux-cache
-    steps:
-      - run: set -e
-      - setup_remote_docker
-      - run:
-          name: Prepare environment and install dependencies
-          command: |
-            export SCCACHE_CACHE_SIZE=200M
-            export WORK_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
-            export SCCACHE_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
-            mkdir -p "$CIRCLE_WORKING_DIRECTORY/.bin"
-            wget https://github.com/mozilla/sccache/releases/download/0.2.13/sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz
-            tar -C "$CIRCLE_WORKING_DIRECTORY/.bin" -xvf sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz
-            mv $CIRCLE_WORKING_DIRECTORY/.bin/sccache-0.2.13-x86_64-unknown-linux-musl/sccache $CIRCLE_WORKING_DIRECTORY/.bin/sccache
-            export PATH="$PATH:$CIRCLE_WORKING_DIRECTORY/.bin"
-            export RUSTC_WRAPPER="sccache"
-            rm -rf "$CIRCLE_WORKING_DIRECTORY/.cargo/registry"
-            sudo apt-get update && sudo apt-get install -y clang llvm-dev llvm pkg-config xz-utils make libssl-dev libssl-dev
-      - restore_cache:
-          keys:
-            - << parameters.cache_key >>
 
-  clear_environment:
-    description: "Clear environment"
-    parameters:
-      cache_key:
-        type: string
-        default: leo-stable-linux-cache
+# Notes
+# - `sccache` was removed because it doesn't actually provide much benefit in CI. Lots of cache misses.
+# - https://github.com/Swatinem/rust-cache?tab=readme-ov-file#cache-details provides guidance on which directories to cache.
+# - Incremental builds should be disabled in CI, since they don't provide much benefit.
+# - Enabling `--only_testnet` feature flag to reduce the amount of time spent building leo-lang, since it's not needed for the test suite.
+
+# Rust Version: 1.82.0
+# Ensure that this matches the `rust-version` in `Cargo.toml`.
+# If this is changed, propogate the changes to all places in this file, including the `install-rust` command.
+
+# TODO:
+#  - The cache size can accumulate as the dependencies get upgraded. Ideally you want some pruning before the cache gets persisted.
+#    See swatinem/rust-cache for a sensible approach. Unfortunately, we'd have to build this for CircleCI.
+#  - Rust v1.83.0 is coming with some sensible cargo rebuild improvements. We should upgrade to that when it's released.
+
+
+environment:
+  CARGO_INCREMENTAL: 0
+  RUSTFLAGS: "-D warnings"
+
+orbs:
+  windows: circleci/windows@5.0
+  codecov: codecov/codecov@1.0.2
+
+executors:
+  macos-executor:
+    macos:
+      xcode: "16.0.0"  # Use appropriate Xcode version
+    resource_class: m2pro.large
+
+  linux-executor:
+    docker:
+      - image: "cimg/rust:1.82.0"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
+    resource_class: xlarge
+
+commands:
+  install-rust:
+    description: "Install Rust (Linux/macOS)"
     steps:
-      - run: (sccache -s||true)
-      - run: set +e
-      - save_cache:
-          key: << parameters.cache_key >>
-          paths:
-            - .cache/sccache
-            - .cargo
+      - run:
+          name: Install Rust
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            source "$HOME/.cargo/env"
+            rustup install 1.82.0
+            rustup override set 1.82.0
+            cargo --version --verbose
+            rustc --version
+            if [ ! -f "Cargo.lock" ]; then
+              cargo generate-lockfile
+            fi
+            
+
+  install-rust-windows:
+    description: "Install Rust (Windows)"
+    steps:
+      - run:
+          name: Install Rust (Windows)
+          command: |
+            $ProgressPreference = "SilentlyContinue"
+            choco uninstall rust
+            Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
+            Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
+            $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
+            rustup install 1.82.0
+            rustup default 1.82.0
+            cargo --version --verbose
+            rustc --version | Out-File -FilePath "rust-version"
+            if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
+                cargo generate-lockfile
+            }
+
+  build-and-test:
+    description: "Build and run tests"
+    steps:
+      - run:
+          name: Build
+          no_output_timeout: 30m
+          command: |
+            cargo test --no-run --all --locked --profile ci --features only_testnet
+      - run:
+          name: Run tests
+          no_output_timeout: 30m
+          # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
+          command: |
+            cargo test --all --locked --profile ci --features only_testnet --verbose
 
   install_rust_nightly:
     description: "Install Rust nightly toolchain"
@@ -48,15 +93,98 @@ commands:
       - run: rustup toolchain install nightly-x86_64-unknown-linux-gnu
 
 jobs:
-  check-style:
-    docker:
-      - image: cimg/rust:1.76
-    resource_class: xlarge
+  test-windows:
+    executor:
+      name: windows/default
+      size: xlarge
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+            - cargo-v1-{{ arch }}
+      - install-rust-windows
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - build-and-test
+      - save_cache:
+          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - C:\Users\circleci\.cargo
+            - target
+
+  test-macos:
+    executor: macos-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+            - cargo-v1-{{ arch }}
+      - install-rust
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - build-and-test
+      - save_cache:
+          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo
+            - target
+
+  test-linux:
+    executor: linux-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+            - cargo-v1-{{ arch }}
+      - run:
+            name: Update Submodules
+            command: git submodule update --init --recursive
+      - build-and-test
+      - save_cache:
+          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo
+            - target
+
+# TODO: Move code-coverage to CircleCI
+#  code-coverage:
+#    executor: linux-executor
+#    steps:
+#      - checkout
+#      - restore_cache:
+#          keys:
+#            - codecov-cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+#            - codecov-cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+#            - codecov-cargo-v1-{{ arch }}
+#      - install-rust
+#      - build-and-test
+#      - codecov/upload:
+#            file: { { coverage_report_filepath } }
+#      - save_cache:
+#          key: codecov-cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+#          paths:
+#            - ~/.cargo
+#            - target
+
+  check-style-clippy-docs:
+    executor: linux-executor
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+            - cargo-v1-{{ arch }}
       - install_rust_nightly
-      - setup_environment:
-          cache_key: leo-fmt-cache
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive
@@ -64,37 +192,36 @@ jobs:
           name: Check style
           no_output_timeout: 35m
           command: cargo +nightly fmt --all -- --check
-      - clear_environment:
-          cache_key: leo-fmt-cache
-
-  clippy:
-    docker:
-      - image: cimg/rust:1.76
-    resource_class: xlarge
-    steps:
-      - checkout
-      - setup_environment:
-          cache_key: leo-clippy-cache
-      - run:
-          name: Update Submodules
-          command: git submodule update --init --recursive
       - run:
           name: Clippy
           no_output_timeout: 35m
           command: |
             cargo clippy --workspace --all-targets -- -D warnings
             cargo clippy --workspace --all-targets --all-features -- -D warnings
-      - clear_environment:
-          cache_key: leo-clippy-cache
+      - run:
+          name: Build Cargo Docs
+          command: |
+            cargo doc --no-deps --document-private-items --workspace
+            rm -rf ./tests
+          environment:
+            RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
+            RUSTC_BOOTSTRAP: "1"
+      - save_cache:
+          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo
+            - target
 
   leo-executable:
-    docker:
-      - image: cimg/rust:1.76
+    executor: linux-executor
     resource_class: xlarge
     steps:
       - checkout
-      - setup_environment:
-          cache_key: leo-executable-cache
+      - restore_cache:
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+            - cargo-v1-{{ arch }}
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive
@@ -106,12 +233,15 @@ jobs:
           root: ~/
           paths:
             - project/
-      - clear_environment:
-          cache_key: leo-executable-cache
+      - save_cache:
+          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo
+            - target
 
   leo-new:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -124,7 +254,7 @@ jobs:
 
   leo-clean:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -137,7 +267,7 @@ jobs:
 
   leo-example:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -150,7 +280,7 @@ jobs:
 
   test-examples:
     docker:
-      - image: cimg/rust:1.76
+      - image: cimg/rust:1.82
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -166,8 +296,10 @@ workflows:
   version: 2
   main-workflow:
     jobs:
-      - check-style
-      - clippy
+      - test-windows
+      - test-macos
+      - test-linux
+      - check-style-clippy-docs
       - leo-executable
       - leo-new:
           requires:

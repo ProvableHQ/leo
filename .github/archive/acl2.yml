@@ -1,3 +1,4 @@
+# This workflow is no longer in use as we have paused the ACL2 work on the Leo repo.
 name: Leo-ACL2
 on: workflow_dispatch
 env:

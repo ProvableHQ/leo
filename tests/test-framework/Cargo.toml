@@ -48,9 +48,6 @@ workspace = true
 [dependencies.walkdir]
 version = "2.5"
 
-[dependencies.regex]
-workspace = true
-
 [dev-dependencies.leo-compiler]
 path = "../../compiler/compiler"
 

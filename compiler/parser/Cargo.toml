@@ -40,9 +40,6 @@ workspace = true
 [dependencies.serde]
 workspace = true
 
-[dependencies.tracing]
-workspace = true
-
 [dev-dependencies.leo-test-framework]
 path = "../../tests/test-framework"
 

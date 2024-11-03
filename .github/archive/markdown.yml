@@ -1,3 +1,4 @@
+# This workflow is no longer in use as we do not have any Mermaid diagrams in the Leo repo.
 name: Markdown Compiler
 
 on:
