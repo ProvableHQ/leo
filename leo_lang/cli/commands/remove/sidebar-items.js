@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Remove"]};
+window.SIDEBAR_ITEMS = {"struct":["LeoRemove"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["QueryCommands"],"mod":["program"],"struct":["Program","Query"]};
+window.SIDEBAR_ITEMS = {"enum":["QueryCommands"],"mod":["program"],"struct":["LeoProgram","LeoQuery"]};

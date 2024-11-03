@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Flattener"]};
+window.SIDEBAR_ITEMS = {"enum":["Guard","ReturnGuard"],"struct":["Flattener"]};

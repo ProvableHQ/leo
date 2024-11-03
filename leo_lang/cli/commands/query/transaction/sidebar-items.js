@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Transaction"]};
+window.SIDEBAR_ITEMS = {"struct":["LeoTransaction"]};

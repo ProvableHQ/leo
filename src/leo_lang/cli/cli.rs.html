@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/cli.rs`."><title>cli.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/cli.rs`."><title>cli.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -912,6 +912,10 @@
 <a href="#912" id="912">912</a>
 <a href="#913" id="913">913</a>
 <a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -964,22 +968,22 @@
     <span class="attr">#[clap(about = <span class="string">"Create a new Leo package in a new directory"</span>)]
     </span>New {
         <span class="attr">#[clap(flatten)]
-        </span>command: New,
+        </span>command: LeoNew,
     },
     <span class="attr">#[clap(about = <span class="string">"Create a new Leo example package in a new directory"</span>)]
     </span>Example {
         <span class="attr">#[clap(flatten)]
-        </span>command: Example,
+        </span>command: LeoExample,
     },
     <span class="attr">#[clap(about = <span class="string">"Run a program with input variables"</span>)]
     </span>Run {
         <span class="attr">#[clap(flatten)]
-        </span>command: Run,
+        </span>command: LeoRun,
     },
     <span class="attr">#[clap(about = <span class="string">"Execute a program with input variables"</span>)]
     </span>Execute {
         <span class="attr">#[clap(flatten)]
-        </span>command: Execute,
+        </span>command: LeoExecute,
     },
     <span class="attr">#[clap(about = <span class="string">"Deploy a program"</span>)]
     </span>Deploy {
@@ -989,32 +993,32 @@
     <span class="attr">#[clap(about = <span class="string">"Query live data from the Aleo network"</span>)]
     </span>Query {
         <span class="attr">#[clap(flatten)]
-        </span>command: Query,
+        </span>command: LeoQuery,
     },
     <span class="attr">#[clap(about = <span class="string">"Compile the current package as a program"</span>)]
     </span>Build {
         <span class="attr">#[clap(flatten)]
-        </span>command: Build,
+        </span>command: LeoBuild,
     },
     <span class="attr">#[clap(about = <span class="string">"Add a new on-chain or local dependency to the current package."</span>)]
     </span>Add {
         <span class="attr">#[clap(flatten)]
-        </span>command: Add,
+        </span>command: LeoAdd,
     },
     <span class="attr">#[clap(about = <span class="string">"Remove a dependency from the current package."</span>)]
     </span>Remove {
         <span class="attr">#[clap(flatten)]
-        </span>command: Remove,
+        </span>command: LeoRemove,
     },
     <span class="attr">#[clap(about = <span class="string">"Clean the output directory"</span>)]
     </span>Clean {
         <span class="attr">#[clap(flatten)]
-        </span>command: Clean,
+        </span>command: LeoClean,
     },
     <span class="attr">#[clap(about = <span class="string">"Update the Leo CLI"</span>)]
     </span>Update {
         <span class="attr">#[clap(flatten)]
-        </span>command: Update,
+        </span>command: LeoUpdate,
     },
 }
 
@@ -1083,7 +1087,7 @@
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Run {
-                command: <span class="kw">crate</span>::cli::commands::Run {
+                command: <span class="kw">crate</span>::cli::commands::LeoRun {
                     name: <span class="string">"example"</span>.to_string(),
                     inputs: <span class="macro">vec!</span>[<span class="string">"1u32"</span>.to_string(), <span class="string">"2u32"</span>.to_string()],
                     file: <span class="prelude-val">None</span>,
@@ -1125,7 +1129,7 @@
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Run {
-                command: <span class="kw">crate</span>::cli::commands::Run {
+                command: <span class="kw">crate</span>::cli::commands::LeoRun {
                     name: <span class="string">"double_wrapper_mint"</span>.to_string(),
                     inputs: <span class="macro">vec!</span>[
                         <span class="string">"aleo13tngrq7506zwdxj0cxjtvp28pk937jejhne0rt4zp0z370uezuysjz2prs"</span>.to_string(),
@@ -1168,7 +1172,7 @@
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Run {
-                command: <span class="kw">crate</span>::cli::commands::Run {
+                command: <span class="kw">crate</span>::cli::commands::LeoRun {
                     name: <span class="string">"inner_1_main"</span>.to_string(),
                     inputs: <span class="macro">vec!</span>[<span class="string">"1u32"</span>.to_string(), <span class="string">"2u32"</span>.to_string()],
                     compiler_options: Default::default(),
@@ -1205,7 +1209,7 @@
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Run {
-                command: <span class="kw">crate</span>::cli::commands::Run {
+                command: <span class="kw">crate</span>::cli::commands::LeoRun {
                     name: <span class="string">"main"</span>.to_string(),
                     inputs: <span class="macro">vec!</span>[<span class="string">"1u32"</span>.to_string(), <span class="string">"2u32"</span>.to_string()],
                     compiler_options: Default::default(),
@@ -1224,7 +1228,7 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test_helpers {
-    <span class="kw">use </span><span class="kw">crate</span>::cli::{Add, CLI, New, cli::Commands, run_with_args};
+    <span class="kw">use </span><span class="kw">crate</span>::cli::{CLI, LeoAdd, LeoNew, cli::Commands, run_with_args};
     <span class="kw">use </span>leo_span::symbol::create_session_if_not_set_then;
     <span class="kw">use </span>std::path::Path;
 
@@ -1245,7 +1249,11 @@
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::New {
-                command: New { name: name.to_string(), network: NETWORK.to_string(), endpoint: ENDPOINT.to_string() },
+                command: LeoNew {
+                    name: name.to_string(),
+                    network: NETWORK.to_string(),
+                    endpoint: ENDPOINT.to_string(),
+                },
             },
             path: <span class="prelude-val">Some</span>(project_directory.clone()),
             home: <span class="prelude-val">None</span>,
@@ -1311,7 +1319,7 @@ function external_nested_function:
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: <span class="string">"nested_example_layer_0"</span>.to_string(),
                     local: <span class="prelude-val">None</span>,
                     network: NETWORK.to_string(),
@@ -1348,7 +1356,7 @@ function external_nested_function:
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: <span class="string">"grandparent"</span>.to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -1362,7 +1370,7 @@ function external_nested_function:
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: <span class="string">"parent"</span>.to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -1376,7 +1384,7 @@ function external_nested_function:
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: <span class="string">"child"</span>.to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -1423,7 +1431,7 @@ program child.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: <span class="string">"parent"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(parent_directory.clone()),
                     network: NETWORK.to_string(),
@@ -1438,7 +1446,7 @@ program child.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: <span class="string">"child"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(child_directory.clone()),
                     network: NETWORK.to_string(),
@@ -1453,7 +1461,7 @@ program child.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: <span class="string">"child"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(child_directory.clone()),
                     network: NETWORK.to_string(),
@@ -1497,7 +1505,7 @@ program child.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: <span class="string">"outer"</span>.to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -1511,7 +1519,7 @@ program child.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: <span class="string">"inner_1"</span>.to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -1525,7 +1533,7 @@ program child.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: <span class="string">"inner_2"</span>.to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -1595,7 +1603,7 @@ program outer.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: <span class="string">"inner_1"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(inner_1_directory.clone()),
                     network: NETWORK.to_string(),
@@ -1610,7 +1618,7 @@ program outer.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: <span class="string">"inner_2"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(inner_2_directory.clone()),
                     network: NETWORK.to_string(),
@@ -1653,7 +1661,7 @@ program outer.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: <span class="string">"outer_2"</span>.to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -1667,7 +1675,7 @@ program outer.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: <span class="string">"inner_1"</span>.to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -1681,7 +1689,7 @@ program outer.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::New {
-                command: New {
+                command: LeoNew {
                     name: <span class="string">"inner_2"</span>.to_string(),
                     network: NETWORK.to_string(),
                     endpoint: ENDPOINT.to_string(),
@@ -1782,7 +1790,7 @@ program outer_2.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: <span class="string">"inner_1"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(inner_1_directory.clone()),
                     network: NETWORK.to_string(),
@@ -1797,7 +1805,7 @@ program outer_2.aleo {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
-                command: Add {
+                command: LeoAdd {
                     name: <span class="string">"inner_2"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(inner_2_directory.clone()),
                     network: NETWORK.to_string(),

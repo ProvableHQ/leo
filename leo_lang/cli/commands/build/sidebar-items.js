@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["compile_leo_file","handle_build"],"struct":["Build"]};
+window.SIDEBAR_ITEMS = {"fn":["compile_leo_file","handle_build"],"struct":["LeoBuild"]};

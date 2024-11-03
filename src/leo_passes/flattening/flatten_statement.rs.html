@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/flattening/flatten_statement.rs`."><title>flatten_statement.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/flattening/flatten_statement.rs`."><title>flatten_statement.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -314,6 +314,54 @@
 <a href="#314" id="314">314</a>
 <a href="#315" id="315">315</a>
 <a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -330,7 +378,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::Flattener;
+</span><span class="kw">use crate</span>::{Flattener, Guard, ReturnGuard};
 
 <span class="kw">use </span>leo_ast::{
     AssertStatement,
@@ -344,6 +392,7 @@
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
+    Identifier,
     IterationStatement,
     Node,
     ReturnStatement,
@@ -409,77 +458,98 @@
             },
         };
 
-        <span class="comment">// Add the appropriate guards.
-        </span><span class="kw">match </span><span class="self">self</span>.construct_guard() {
-            <span class="comment">// If the condition stack is empty, we can return the flattened assert statement.
-            </span><span class="prelude-val">None </span>=&gt; (Statement::Assert(assert), statements),
-            <span class="comment">// Otherwise, we need to join the guard with the expression in the flattened assert statement.
-            // Note given the guard and the expression, we construct the logical formula `guard =&gt; expression`,
-            // which is equivalent to `!guard || expression`.
-            </span><span class="prelude-val">Some</span>(guard) =&gt; (
-                Statement::Assert(AssertStatement {
-                    span: input.span,
-                    id: input.id,
-                    variant: AssertVariant::Assert(Expression::Binary(BinaryExpression {
-                        op: BinaryOperation::Or,
-                        span: Default::default(),
-                        id: {
-                            <span class="comment">// Create a new node ID for the binary expression.
-                            </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
-                            <span class="comment">// Update the type table with the type of the binary expression.
-                            </span><span class="self">self</span>.type_table.insert(id, Type::Boolean);
-                            id
-                        },
-                        <span class="comment">// Take the logical negation of the guard.
-                        </span>left: Box::new(Expression::Unary(UnaryExpression {
-                            op: UnaryOperation::Not,
-                            receiver: Box::new(guard),
-                            span: Default::default(),
-                            id: {
-                                <span class="comment">// Create a new node ID for the unary expression.
-                                </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
-                                <span class="comment">// Update the type table with the type of the unary expression.
-                                </span><span class="self">self</span>.type_table.insert(id, Type::Boolean);
-                                id
-                            },
-                        })),
-                        right: Box::new(<span class="kw">match </span>assert.variant {
-                            <span class="comment">// If the assert statement is an `assert`, use the expression as is.
-                            </span>AssertVariant::Assert(expression) =&gt; expression,
-                            <span class="comment">// If the assert statement is an `assert_eq`, construct a new equality expression.
-                            </span>AssertVariant::AssertEq(left, right) =&gt; Expression::Binary(BinaryExpression {
-                                left: Box::new(left),
-                                op: BinaryOperation::Eq,
-                                right: Box::new(right),
-                                span: Default::default(),
-                                id: {
-                                    <span class="comment">// Create a new node ID for the unary expression.
-                                    </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
-                                    <span class="comment">// Update the type table with the type of the unary expression.
-                                    </span><span class="self">self</span>.type_table.insert(id, Type::Boolean);
-                                    id
-                                },
-                            }),
-                            <span class="comment">// If the assert statement is an `assert_ne`, construct a new inequality expression.
-                            </span>AssertVariant::AssertNeq(left, right) =&gt; Expression::Binary(BinaryExpression {
-                                left: Box::new(left),
-                                op: BinaryOperation::Neq,
-                                right: Box::new(right),
-                                span: Default::default(),
-                                id: {
-                                    <span class="comment">// Create a new node ID for the unary expression.
-                                    </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
-                                    <span class="comment">// Update the type table with the type of the unary expression.
-                                    </span><span class="self">self</span>.type_table.insert(id, Type::Boolean);
-                                    id
-                                },
-                            }),
-                        }),
-                    })),
-                }),
-                statements,
-            ),
+        <span class="kw">let </span><span class="kw-2">mut </span>guards: Vec&lt;Expression&gt; = Vec::new();
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((guard, guard_statements)) = <span class="self">self</span>.construct_guard() {
+            statements.extend(guard_statements);
+
+            <span class="comment">// The not_guard is true if we didn't follow the condition chain
+            // that led to this assertion.
+            </span><span class="kw">let </span>not_guard = Expression::Unary(UnaryExpression {
+                op: UnaryOperation::Not,
+                receiver: Box::new(Expression::Identifier(guard)),
+                span: Default::default(),
+                id: {
+                    <span class="comment">// Create a new node ID for the unary expression.
+                    </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
+                    <span class="comment">// Update the type table with the type of the unary expression.
+                    </span><span class="self">self</span>.type_table.insert(id, Type::Boolean);
+                    id
+                },
+            });
+            <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(not_guard);
+            statements.push(statement);
+            guards.push(Expression::Identifier(identifier));
         }
+
+        <span class="comment">// We also need to guard against early returns.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((guard, guard_statements)) = <span class="self">self</span>.construct_early_return_guard() {
+            guards.push(Expression::Identifier(guard));
+            statements.extend(guard_statements);
+        }
+
+        <span class="kw">if </span>guards.is_empty() {
+            <span class="kw">return </span>(Statement::Assert(assert), statements);
+        }
+
+        <span class="kw">let </span>is_eq = <span class="macro">matches!</span>(assert.variant, AssertVariant::AssertEq(..));
+
+        <span class="comment">// We need to `or` the asserted expression with the guards,
+        // so extract an appropriate expression.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>expression = <span class="kw">match </span>assert.variant {
+            <span class="comment">// If the assert statement is an `assert`, use the expression as is.
+            </span>AssertVariant::Assert(expression) =&gt; expression,
+
+            <span class="comment">// For `assert_eq` or `assert_neq`, construct a new expression.
+            </span>AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) =&gt; {
+                <span class="kw">let </span>binary = Expression::Binary(BinaryExpression {
+                    left: Box::new(left),
+                    op: <span class="kw">if </span>is_eq { BinaryOperation::Eq } <span class="kw">else </span>{ BinaryOperation::Neq },
+                    right: Box::new(right),
+                    span: Default::default(),
+                    id: {
+                        <span class="comment">// Create a new node ID.
+                        </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
+                        <span class="comment">// Update the type table.
+                        </span><span class="self">self</span>.type_table.insert(id, Type::Boolean);
+                        id
+                    },
+                });
+                <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(binary);
+                statements.push(statement);
+                Expression::Identifier(identifier)
+            }
+        };
+
+        <span class="comment">// The assertion will be that the original assert statement is true or one of the guards is true
+        // (ie, we either didn't follow the condition chain that led to this assert, or else we took an
+        // early return).
+        </span><span class="kw">for </span>guard <span class="kw">in </span>guards.into_iter() {
+            <span class="kw">let </span>binary = Expression::Binary(BinaryExpression {
+                op: BinaryOperation::Or,
+                span: Default::default(),
+                id: {
+                    <span class="comment">// Create a new node ID.
+                    </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
+                    <span class="comment">// Update the type table.
+                    </span><span class="self">self</span>.type_table.insert(id, Type::Boolean);
+                    id
+                },
+                left: Box::new(expression),
+                right: Box::new(guard),
+            });
+            <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(binary);
+            statements.push(statement);
+            expression = Expression::Identifier(identifier);
+        }
+
+        <span class="kw">let </span>assert_statement = Statement::Assert(AssertStatement {
+            span: input.span,
+            id: input.id,
+            variant: AssertVariant::Assert(expression),
+        });
+
+        (assert_statement, statements)
     }
 
     <span class="doccomment">/// Flattens an assign statement, if necessary.
@@ -566,8 +636,21 @@
             );
         }
 
+        <span class="comment">// Assign the condition to a variable, as it may be used multiple times.
+        </span><span class="kw">let </span>place = Identifier {
+            name: <span class="self">self</span>.assigner.unique_symbol(<span class="string">"condition"</span>, <span class="string">"$"</span>),
+            span: Default::default(),
+            id: {
+                <span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
+                <span class="self">self</span>.type_table.insert(id, Type::Boolean);
+                id
+            },
+        };
+
+        statements.push(<span class="self">self</span>.simple_assign_statement(place, conditional.condition.clone()));
+
         <span class="comment">// Add condition to the condition stack.
-        </span><span class="self">self</span>.condition_stack.push(conditional.condition.clone());
+        </span><span class="self">self</span>.condition_stack.push(Guard::Unconstructed(place));
 
         <span class="comment">// Reconstruct the then-block and accumulate it constituent statements.
         </span>statements.extend(<span class="self">self</span>.reconstruct_block(conditional.then).<span class="number">0</span>.statements);
@@ -577,13 +660,24 @@
 
         <span class="comment">// Consume the otherwise-block and flatten its constituent statements into the current block.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(statement) = conditional.otherwise {
-            <span class="comment">// Add the negated condition to the condition stack.
-            </span><span class="self">self</span>.condition_stack.push(Expression::Unary(UnaryExpression {
+            <span class="comment">// Apply Not to the condition, assign it, and put it on the condition stack.
+            </span><span class="kw">let </span>not_condition = Expression::Unary(UnaryExpression {
                 op: UnaryOperation::Not,
                 receiver: Box::new(conditional.condition.clone()),
                 span: conditional.condition.span(),
                 id: conditional.condition.id(),
-            }));
+            });
+            <span class="kw">let </span>not_place = Identifier {
+                name: <span class="self">self</span>.assigner.unique_symbol(<span class="string">"condition"</span>, <span class="string">"$"</span>),
+                span: Default::default(),
+                id: {
+                    <span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
+                    <span class="self">self</span>.type_table.insert(id, Type::Boolean);
+                    id
+                },
+            };
+            statements.push(<span class="self">self</span>.simple_assign_statement(not_place, not_condition));
+            <span class="self">self</span>.condition_stack.push(Guard::Unconstructed(not_place));
 
             <span class="comment">// Reconstruct the otherwise-block and accumulate it constituent statements.
             </span><span class="kw">match </span><span class="kw-2">*</span>statement {
@@ -618,16 +712,18 @@
             <span class="kw">return </span>(Statement::Return(input), Default::default());
         }
         <span class="comment">// Construct the associated guard.
-        </span><span class="kw">let </span>guard = <span class="self">self</span>.construct_guard();
+        </span><span class="kw">let </span>(guard_identifier, statements) = <span class="self">self</span>.construct_guard().unzip();
+
+        <span class="kw">let </span>return_guard = guard_identifier.map_or(ReturnGuard::None, ReturnGuard::Unconstructed);
 
         <span class="kw">match </span>input.expression {
             Expression::Unit(<span class="kw">_</span>) | Expression::Identifier(<span class="kw">_</span>) | Expression::Access(<span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.returns.push((guard, input))
+                <span class="self">self</span>.returns.push((return_guard, input))
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"SSA guarantees that the expression is always an identifier or unit expression."</span>),
         };
 
-        (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), Default::default())
+        (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements.unwrap_or_default())
     }
 }
 </code></pre></div></section></main></body></html>

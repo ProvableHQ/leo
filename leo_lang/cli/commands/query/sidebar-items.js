@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["QueryCommands"],"fn":["handle_query"],"mod":["block","committee","mempool","peers","program","state_root","transaction","utils"],"struct":["Query"]};
+window.SIDEBAR_ITEMS = {"enum":["QueryCommands"],"fn":["handle_query"],"mod":["block","committee","mempool","peers","program","state_root","transaction","utils"],"struct":["LeoQuery"]};

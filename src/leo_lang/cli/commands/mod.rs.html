@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/commands/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/commands/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -367,43 +367,43 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">pub mod </span>add;
-<span class="kw">pub use </span>add::Add;
+<span class="kw">pub use </span>add::LeoAdd;
 
 <span class="kw">pub mod </span>account;
 <span class="kw">pub use </span>account::Account;
 
 <span class="kw">pub mod </span>build;
-<span class="kw">pub use </span>build::Build;
+<span class="kw">pub use </span>build::LeoBuild;
 
 <span class="kw">pub mod </span>clean;
-<span class="kw">pub use </span>clean::Clean;
+<span class="kw">pub use </span>clean::LeoClean;
 
 <span class="kw">pub mod </span>deploy;
 <span class="kw">pub use </span>deploy::Deploy;
 
 <span class="kw">pub mod </span>example;
-<span class="kw">pub use </span>example::Example;
+<span class="kw">pub use </span>example::LeoExample;
 
 <span class="kw">pub mod </span>execute;
-<span class="kw">pub use </span>execute::Execute;
+<span class="kw">pub use </span>execute::LeoExecute;
 
 <span class="kw">pub mod </span>query;
-<span class="kw">pub use </span>query::Query;
+<span class="kw">pub use </span>query::LeoQuery;
 
 <span class="kw">pub mod </span>new;
-<span class="kw">pub use </span>new::New;
+<span class="kw">pub use </span>new::LeoNew;
 
 <span class="comment">// pub mod node;
 // pub use node::Node;
 
 </span><span class="kw">pub mod </span>remove;
-<span class="kw">pub use </span>remove::Remove;
+<span class="kw">pub use </span>remove::LeoRemove;
 
 <span class="kw">pub mod </span>run;
-<span class="kw">pub use </span>run::Run;
+<span class="kw">pub use </span>run::LeoRun;
 
 <span class="kw">pub mod </span>update;
-<span class="kw">pub use </span>update::Update;
+<span class="kw">pub use </span>update::LeoUpdate;
 
 <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::cli::helpers::context::<span class="kw-2">*</span>;
@@ -493,9 +493,9 @@
     </span><span class="kw">pub </span>non_recursive: bool,
     <span class="attr">#[clap(long, help = <span class="string">"Enables offline mode."</span>)]
     </span><span class="kw">pub </span>offline: bool,
-    <span class="attr">#[clap(long, help = <span class="string">"Enable spans in AST snapshots."</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">"Enable spans in symbol table snapshots."</span>)]
     </span><span class="kw">pub </span>enable_symbol_table_spans: bool,
-    <span class="attr">#[clap(long, help = <span class="string">"Enables dead code elimination in the compiler."</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">"Writes the symbol table after the symbol table pass."</span>)]
     </span><span class="kw">pub </span>enable_initial_symbol_table_snapshot: bool,
     <span class="attr">#[clap(long, help = <span class="string">"Writes symbol table snapshot of the type checked symbol table."</span>)]
     </span><span class="kw">pub </span>enable_type_checked_symbol_table_snapshot: bool,
@@ -503,7 +503,7 @@
     </span><span class="kw">pub </span>enable_unrolled_symbol_table_snapshot: bool,
     <span class="attr">#[clap(long, help = <span class="string">"Enable spans in AST snapshots."</span>)]
     </span><span class="kw">pub </span>enable_ast_spans: bool,
-    <span class="attr">#[clap(long, help = <span class="string">"Enable spans in symbol table snapshots."</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">"Enables dead code elimination in the compiler."</span>)]
     </span><span class="kw">pub </span>enable_dce: bool,
     <span class="attr">#[clap(long, help = <span class="string">"Writes all AST snapshots for the different compiler phases."</span>)]
     </span><span class="kw">pub </span>enable_all_ast_snapshots: bool,
@@ -560,7 +560,7 @@
 </span><span class="kw">pub struct </span>FeeOptions {
     <span class="attr">#[clap(short, long, help = <span class="string">"Don't ask for confirmation."</span>, default_value = <span class="string">"false"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) yes: bool,
-    <span class="attr">#[clap(short, long, help = <span class="string">"Performs a dry-run of transaction generation"</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">"Performs a dry-run of transaction generation"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) dry_run: bool,
     <span class="attr">#[clap(long, help = <span class="string">"Priority fee in microcredits. Defaults to 0."</span>, default_value = <span class="string">"0"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) priority_fee: u64,
@@ -599,11 +599,11 @@
     <span class="comment">// Derive the account address.
     </span><span class="kw">let </span>address = Address::&lt;N&gt;::try_from(ViewKey::try_from(private_key)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
     <span class="comment">// Query the public balance of the address on the `account` mapping from `credits.aleo`.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>public_balance = Query {
+    </span><span class="kw">let </span><span class="kw-2">mut </span>public_balance = LeoQuery {
         endpoint: <span class="prelude-val">Some</span>(endpoint.to_string()),
         network: <span class="prelude-val">Some</span>(network.to_string()),
         command: QueryCommands::Program {
-            command: <span class="kw">crate</span>::cli::commands::query::Program {
+            command: <span class="kw">crate</span>::cli::commands::query::LeoProgram {
                 name: <span class="string">"credits"</span>.to_string(),
                 mappings: <span class="bool-val">false</span>,
                 mapping_value: <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[<span class="string">"account"</span>.to_string(), address.to_string()]),

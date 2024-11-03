@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["handle_run"],"struct":["Run"]};
+window.SIDEBAR_ITEMS = {"fn":["handle_run"],"struct":["LeoRun"]};

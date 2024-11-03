@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/commands/account.rs`."><title>account.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-c5d6553a23f1e5a6.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.81.0 (eeb90cda1 2024-09-04)" data-channel="1.81.0" data-search-js="search-d234aafac6c221dd.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-d2fab2bf619172d3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/commands/account.rs`."><title>account.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -445,6 +445,48 @@
 <a href="#445" id="445">445</a>
 <a href="#446" id="446">446</a>
 <a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -473,7 +515,9 @@
 <span class="kw">use </span>leo_retriever::NetworkName;
 <span class="kw">use </span>rand::SeedableRng;
 <span class="kw">use </span>rand_chacha::ChaChaRng;
-<span class="kw">use </span>snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
+<span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+</span><span class="kw">use </span>snarkvm::prelude::{CanaryV0, MainnetV0};
+<span class="kw">use </span>snarkvm::prelude::{Network, TestnetV0};
 <span class="kw">use </span>std::{
     io::{<span class="self">self</span>, Read, Write},
     path::PathBuf,
@@ -580,27 +624,57 @@
                 <span class="comment">// Parse the network.
                 </span><span class="kw">let </span>network = NetworkName::try_from(network.as_str())<span class="question-mark">?</span>;
                 <span class="kw">match </span>network {
-                    NetworkName::MainnetV0 =&gt; generate_new_account::&lt;MainnetV0&gt;(seed, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint),
                     NetworkName::TestnetV0 =&gt; generate_new_account::&lt;TestnetV0&gt;(seed, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint),
-                    NetworkName::CanaryV0 =&gt; generate_new_account::&lt;CanaryV0&gt;(seed, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint),
+                    NetworkName::MainnetV0 =&gt; {
+                        <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
+                        </span><span class="macro">panic!</span>(<span class="string">"Mainnet chosen with only_testnet feature"</span>);
+                        <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+                        </span>generate_new_account::&lt;MainnetV0&gt;(seed, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint)
+                    }
+                    NetworkName::CanaryV0 =&gt; {
+                        <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
+                        </span><span class="macro">panic!</span>(<span class="string">"Canary chosen with only_testnet feature"</span>);
+                        <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+                        </span>generate_new_account::&lt;CanaryV0&gt;(seed, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint)
+                    }
                 }<span class="question-mark">?
             </span>}
             Account::Import { private_key, write, discreet, network, endpoint } =&gt; {
                 <span class="comment">// Parse the network.
                 </span><span class="kw">let </span>network = NetworkName::try_from(network.as_str())<span class="question-mark">?</span>;
                 <span class="kw">match </span>network {
-                    NetworkName::MainnetV0 =&gt; import_account::&lt;MainnetV0&gt;(private_key, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint),
                     NetworkName::TestnetV0 =&gt; import_account::&lt;TestnetV0&gt;(private_key, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint),
-                    NetworkName::CanaryV0 =&gt; import_account::&lt;CanaryV0&gt;(private_key, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint),
+                    NetworkName::MainnetV0 =&gt; {
+                        <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
+                        </span><span class="macro">panic!</span>(<span class="string">"Mainnet chosen with only_testnet feature"</span>);
+                        <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+                        </span>import_account::&lt;MainnetV0&gt;(private_key, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint)
+                    }
+                    NetworkName::CanaryV0 =&gt; {
+                        <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
+                        </span><span class="macro">panic!</span>(<span class="string">"Canary chosen with only_testnet feature"</span>);
+                        <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+                        </span>import_account::&lt;CanaryV0&gt;(private_key, write, discreet, <span class="kw-2">&amp;</span>ctx, endpoint)
+                    }
                 }<span class="question-mark">?
             </span>}
             <span class="self">Self</span>::Sign { message, raw, private_key, private_key_file, network } =&gt; {
                 <span class="comment">// Parse the network.
                 </span><span class="kw">let </span>network = NetworkName::try_from(network.as_str())<span class="question-mark">?</span>;
                 <span class="kw">let </span>result = <span class="kw">match </span>network {
-                    NetworkName::MainnetV0 =&gt; sign_message::&lt;MainnetV0&gt;(message, raw, private_key, private_key_file),
                     NetworkName::TestnetV0 =&gt; sign_message::&lt;TestnetV0&gt;(message, raw, private_key, private_key_file),
-                    NetworkName::CanaryV0 =&gt; sign_message::&lt;MainnetV0&gt;(message, raw, private_key, private_key_file),
+                    NetworkName::MainnetV0 =&gt; {
+                        <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
+                        </span><span class="macro">panic!</span>(<span class="string">"Mainnet chosen with only_testnet feature"</span>);
+                        <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+                        </span>sign_message::&lt;MainnetV0&gt;(message, raw, private_key, private_key_file)
+                    }
+                    NetworkName::CanaryV0 =&gt; {
+                        <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
+                        </span><span class="macro">panic!</span>(<span class="string">"Canary chosen with only_testnet feature"</span>);
+                        <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+                        </span>sign_message::&lt;CanaryV0&gt;(message, raw, private_key, private_key_file)
+                    }
                 }<span class="question-mark">?</span>;
                 <span class="macro">println!</span>(<span class="string">"{result}"</span>)
             }
@@ -608,9 +682,19 @@
                 <span class="comment">// Parse the network.
                 </span><span class="kw">let </span>network = NetworkName::try_from(network.as_str())<span class="question-mark">?</span>;
                 <span class="kw">let </span>result = <span class="kw">match </span>network {
-                    NetworkName::MainnetV0 =&gt; verify_message::&lt;MainnetV0&gt;(address, signature, message, raw),
                     NetworkName::TestnetV0 =&gt; verify_message::&lt;TestnetV0&gt;(address, signature, message, raw),
-                    NetworkName::CanaryV0 =&gt; verify_message::&lt;CanaryV0&gt;(address, signature, message, raw),
+                    NetworkName::MainnetV0 =&gt; {
+                        <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
+                        </span><span class="macro">panic!</span>(<span class="string">"Mainnet chosen with only_testnet feature"</span>);
+                        <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+                        </span>verify_message::&lt;MainnetV0&gt;(address, signature, message, raw)
+                    }
+                    NetworkName::CanaryV0 =&gt; {
+                        <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
+                        </span><span class="macro">panic!</span>(<span class="string">"Canary chosen with only_testnet feature"</span>);
+                        <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+                        </span>verify_message::&lt;CanaryV0&gt;(address, signature, message, raw)
+                    }
                 }<span class="question-mark">?</span>;
                 <span class="macro">println!</span>(<span class="string">"{result}"</span>)
             }

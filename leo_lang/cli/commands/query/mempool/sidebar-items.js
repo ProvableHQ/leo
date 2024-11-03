@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Mempool"]};
+window.SIDEBAR_ITEMS = {"struct":["LeoMempool"]};

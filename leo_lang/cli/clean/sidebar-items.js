@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Clean"]};
+window.SIDEBAR_ITEMS = {"struct":["LeoClean"]};
