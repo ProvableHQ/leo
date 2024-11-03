@@ -4,7 +4,7 @@ outputs = ["""
 Error [ETYC0372110]: A `transition` cannot return a future.
     --> compiler-test:5:35
      |
-   5 |   transition a(a: u64, b: u64) -> Future {
+   5 |   transition f(a: u64, b: u64) -> Future {
      |                                   ^^^^^^
      |
      = Use an `async transition` instead.

@@ -1159,6 +1159,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                         // Insert to symbol table
                         if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                             Location::new(None, t1.identifier().name),
+                            self.scope_state.program_name,
                             VariableSymbol {
                                 type_: t2.clone(),
                                 span: t1.identifier.span(),
@@ -1230,6 +1231,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             if !matches!(&input_var.type_(), &Type::Future(_)) {
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                     Location::new(None, input_var.identifier().name),
+                    self.scope_state.program_name,
                     VariableSymbol {
                         type_: input_var.type_().clone(),
                         span: input_var.identifier().span(),
@@ -1359,13 +1361,11 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             type_
         };
         // Insert the variable into the symbol table.
-        if let Err(err) =
-            self.symbol_table.borrow_mut().insert_variable(Location::new(None, name.name), VariableSymbol {
-                type_: ty,
-                span,
-                declaration: VariableType::Mut,
-            })
-        {
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+            Location::new(None, name.name),
+            self.scope_state.program_name,
+            VariableSymbol { type_: ty, span, declaration: VariableType::Mut },
+        ) {
             self.handler.emit_err(err);
         }
     }
