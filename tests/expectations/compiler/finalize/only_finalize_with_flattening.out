@@ -1,6 +1,6 @@
 namespace = "Compile"
 expectation = "Pass"
-outputs = [[{ compile = [{ initial_symbol_table = "56c4eea018bad5b00fa3584917fe6327a28220606b7ef3392dd4f52510eb836d", type_checked_symbol_table = "a53c4315ffbe58449d9ef772a8fab06c43082a1d24d3eb4240fd8c3be3ac0ad1", unrolled_symbol_table = "a53c4315ffbe58449d9ef772a8fab06c43082a1d24d3eb4240fd8c3be3ac0ad1", initial_ast = "31d6210343f8a439e9a731aa2b344a0a35bb4828fcbfb5b7f3d3c532aa0d49e0", unrolled_ast = "31d6210343f8a439e9a731aa2b344a0a35bb4828fcbfb5b7f3d3c532aa0d49e0", ssa_ast = "ed0d528c739439b087da26d083d1a1c6705e5e9b020f6dbb6d1510929df3079f", flattened_ast = "853653a2db1cb618cf7fe214cc90ff1ee6f952dbc6e945b6b3c4b34ca07e906d", destructured_ast = "0fa73a1e802c55fe76758295dbeb0e4a9340fd95c14b05b033fd9aec1a039fed", inlined_ast = "17df43530f88543010218898759c3459f380370012717bebaec75f9a27d40130", dce_ast = "17df43530f88543010218898759c3459f380370012717bebaec75f9a27d40130", bytecode = """
+outputs = [[{ compile = [{ initial_symbol_table = "83233a4d6b86c488fed94d68788771c6d66e8db5d8cc19e944b83ce37957dc38", type_checked_symbol_table = "15213e27a07d404c060fba06a8846df7bf56af827ac8fce15f373c9257615522", unrolled_symbol_table = "15213e27a07d404c060fba06a8846df7bf56af827ac8fce15f373c9257615522", initial_ast = "044081cc738c05a86903cfb285e4b2994e436bba8663f87f11ee6b6e16fd6bca", unrolled_ast = "044081cc738c05a86903cfb285e4b2994e436bba8663f87f11ee6b6e16fd6bca", ssa_ast = "134737377e2e27801bd823e7d90d56b99021e8d09cbac924ac73881ef1c5e47f", flattened_ast = "e3c07d14b70ed9bd4f02aeb3b1adac0b797298b5abf4ec4fbab6c476f0cbe11c", destructured_ast = "c6975e528196ae4b38d166b1ffe7a192cf0fa438d4b61f066b0f1c10928a857a", inlined_ast = "03f567618b1eb4e8ac17544dba2c6cfe122aa84a9fa592ea79c459f851acc461", dce_ast = "03f567618b1eb4e8ac17544dba2c6cfe122aa84a9fa592ea79c459f851acc461", bytecode = """
 program test.aleo;
 
 struct TokenInfo:
@@ -10,11 +10,11 @@ mapping token_name_to_info:
     key as field.public;
     value as TokenInfo.public;
 
-function add_new_liquidity_token:
-    async add_new_liquidity_token into r0;
-    output r0 as test.aleo/add_new_liquidity_token.future;
+function add_new_token:
+    async add_new_token into r0;
+    output r0 as test.aleo/add_new_token.future;
 
-finalize add_new_liquidity_token:
+finalize add_new_token:
     branch.eq false false to end_then_0_0;
     branch.eq true true to end_otherwise_0_1;
     position end_then_0_0;
@@ -30,11 +30,11 @@ finalize add_new_liquidity_token:
     position end_then_0_2;
     position end_otherwise_0_3;
 
-function add_new_liquidity_token_2:
-    async add_new_liquidity_token_2 into r0;
-    output r0 as test.aleo/add_new_liquidity_token_2.future;
+function add_new_token_2:
+    async add_new_token_2 into r0;
+    output r0 as test.aleo/add_new_token_2.future;
 
-finalize add_new_liquidity_token_2:
+finalize add_new_token_2:
     cast 0u64 into r0 as TokenInfo;
     get.or_use token_name_to_info[0field] r0 into r1;
     is.eq r1.id 0u64 into r2;

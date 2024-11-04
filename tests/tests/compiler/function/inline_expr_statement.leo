@@ -13,14 +13,14 @@ program test.aleo {
         return 0u32;
     }
 
-    inline another_function_that_returns_a_value(a: u32) -> u32 {
+    inline another_f_that_returns_a_value(a: u32) -> u32 {
         return a * a;
     }
 
     transition some_function() {
         function_that_returns_a_value();
         let a: u32 = function_that_returns_a_value();
-        another_function_that_returns_a_value(a);
-        let b: u32 = another_function_that_returns_a_value(a);
+        another_f_that_returns_a_value(a);
+        let b: u32 = another_f_that_returns_a_value(a);
     }
 }

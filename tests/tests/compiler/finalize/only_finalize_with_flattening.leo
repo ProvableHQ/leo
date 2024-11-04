@@ -12,10 +12,10 @@ program test.aleo {
     mapping token_name_to_info: field => TokenInfo;
 
 
-    async transition add_new_liquidity_token () -> Future {
-        return finalize_add_new_liquidity_token();
+    async transition add_new_token () -> Future {
+        return finalize_add_new_token();
     }
-    async function finalize_add_new_liquidity_token() -> () {
+    async function finalize_add_new_token() -> () {
         if (false) {
             return;
         }
@@ -33,12 +33,12 @@ program test.aleo {
         }
     }
 
-    async transition add_new_liquidity_token_2 () -> Future {
-        return finalize_add_new_liquidity_token_2();
+    async transition add_new_token_2 () -> Future {
+        return finalize_add_new_token_2();
     }
 
 
-    async function finalize_add_new_liquidity_token_2() {
+    async function finalize_add_new_token_2() {
         let try_get_token: TokenInfo = Mapping::get_or_use(
             token_name_to_info,
             0field,

@@ -18,9 +18,9 @@ use crate::{Token, tokenizer::*};
 
 use leo_ast::*;
 use leo_errors::{ParserError, ParserWarning, Result, emitter::Handler};
-use leo_span::{Span, Symbol};
+use leo_span::{Span, Symbol, symbol::with_session_globals};
 
-use snarkvm::prelude::Network;
+use snarkvm::prelude::{Field, Network};
 
 use std::{fmt::Display, marker::PhantomData, mem};
 
@@ -146,7 +146,9 @@ impl<'a, N: Network> ParserContext<'a, N> {
     pub(super) fn eat_identifier(&mut self) -> Option<Identifier> {
         if let Token::Identifier(name) = self.token.token {
             self.bump();
-            return Some(self.mk_ident_prev(name));
+            let identifier = self.mk_ident_prev(name);
+            self.check_identifier(&identifier);
+            return Some(identifier);
         }
         None
     }
@@ -256,5 +258,19 @@ impl<'a, N: Network> ParserContext<'a, N> {
     /// Returns true if the current token is `(`.
     pub(super) fn peek_is_left_par(&self) -> bool {
         matches!(self.token.token, Token::LeftParen)
+    }
+
+    /// Error on identifiers that are longer than SnarkVM allows.
+    pub(crate) fn check_identifier(&self, identifier: &Identifier) {
+        let field_capacity_bytes: usize = Field::<N>::SIZE_IN_DATA_BITS / 8;
+        let len = with_session_globals(|sg| identifier.name.as_str(sg, |s| s.len()));
+        if len > field_capacity_bytes {
+            self.emit_err(ParserError::identifier_too_long(
+                identifier.name,
+                len,
+                field_capacity_bytes,
+                identifier.span,
+            ));
+        }
     }
 }
