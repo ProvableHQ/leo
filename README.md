@@ -10,6 +10,7 @@
     <a href="https://discord.gg/aleo"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
     <a href="https://github.com/ProvableHQ/leo/blob/mainnet/CONTRIBUTORS.md"><img src="https://img.shields.io/badge/contributors-393-ee8449"/></a>
      <a href="https://twitter.com/AleoHQ"><img src="https://img.shields.io/twitter/follow/AleoHQ?style=social"/></a>
+     <a href="https://gurubase.io/g/leo"><img src="https://img.shields.io/badge/Gurubase-Ask%20Leo%20Guru-006BFF"/></a>
 </p>
 <div id="top"></div>
 Leo is a functional, statically-typed programming language built for writing private applications.
