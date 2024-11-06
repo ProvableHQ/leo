@@ -287,7 +287,7 @@ fn handle_broadcast<N: Network>(endpoint: &String, transaction: Transaction<N>, 
         .redirects(0)
         .build()
         .post(endpoint)
-        .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")
+        .set("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .send_json(&transaction)
         .map_err(|err| CliError::broadcast_error(err.to_string()))?;
     match response.status() {
