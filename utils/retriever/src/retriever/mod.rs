@@ -523,7 +523,7 @@ pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
         .redirects(0)
         .build()
         .get(url)
-        .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")
+        .set("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
     match response.status() {
