@@ -2545,6 +2545,7 @@
                         <span class="comment">// Insert to symbol table
                         </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
                             Location::new(<span class="prelude-val">None</span>, t1.identifier().name),
+                            <span class="self">self</span>.scope_state.program_name,
                             VariableSymbol {
                                 type_: t2.clone(),
                                 span: t1.identifier.span(),
@@ -2616,6 +2617,7 @@
             </span><span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input_var.type_(), <span class="kw-2">&amp;</span>Type::Future(<span class="kw">_</span>)) {
                 <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
                     Location::new(<span class="prelude-val">None</span>, input_var.identifier().name),
+                    <span class="self">self</span>.scope_state.program_name,
                     VariableSymbol {
                         type_: input_var.type_().clone(),
                         span: input_var.identifier().span(),
@@ -2745,13 +2747,11 @@
             type_
         };
         <span class="comment">// Insert the variable into the symbol table.
-        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-            <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(Location::new(<span class="prelude-val">None</span>, name.name), VariableSymbol {
-                type_: ty,
-                span,
-                declaration: VariableType::Mut,
-            })
-        {
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
+            Location::new(<span class="prelude-val">None</span>, name.name),
+            <span class="self">self</span>.scope_state.program_name,
+            VariableSymbol { type_: ty, span, declaration: VariableType::Mut },
+        ) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }

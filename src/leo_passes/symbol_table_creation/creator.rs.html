@@ -214,7 +214,7 @@
         };
         <span class="comment">// Add the variable associated with the mapping to the symbol table.
         </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-            <span class="self">self</span>.symbol_table.insert_variable(Location::new(program, input.identifier.name), VariableSymbol {
+            <span class="self">self</span>.symbol_table.insert_variable(Location::new(program, input.identifier.name), <span class="prelude-val">None</span>, VariableSymbol {
                 type_: Type::Mapping(MappingType {
                     key: Box::new(input.key_type.clone()),
                     value: Box::new(input.value_type.clone()),

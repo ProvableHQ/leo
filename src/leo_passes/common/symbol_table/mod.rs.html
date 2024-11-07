@@ -320,6 +320,33 @@
 <a href="#320" id="320">320</a>
 <a href="#321" id="321">321</a>
 <a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -378,7 +405,24 @@
 <span class="kw">impl </span>SymbolTable {
     <span class="doccomment">/// Recursively checks if the symbol table contains an entry for the given symbol.
     /// Leo does not allow any variable shadowing or overlap between different symbols.
-    </span><span class="kw">pub fn </span>check_shadowing(<span class="kw-2">&amp;</span><span class="self">self</span>, location: <span class="kw-2">&amp;</span>Location, is_struct: bool, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub fn </span>check_shadowing(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        location: <span class="kw-2">&amp;</span>Location,
+        program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
+        is_struct: bool,
+        span: Span,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.check_shadowing_impl(location, is_struct, span)<span class="question-mark">?</span>;
+        <span class="comment">// Even if the current item is not scoped by program, we want a collision
+        // if there are program-scoped items with the same name, so check that too.
+        </span><span class="kw">if </span>program.is_some() &amp;&amp; location.program.is_none() {
+            <span class="kw">let </span>location2 = Location::new(program, location.name);
+            <span class="self">self</span>.check_shadowing_impl(<span class="kw-2">&amp;</span>location2, is_struct, span)<span class="question-mark">?</span>;
+        }
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">fn </span>check_shadowing_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, location: <span class="kw-2">&amp;</span>Location, is_struct: bool, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span><span class="self">self</span>.functions.contains_key(location) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(AstError::shadowed_function(location.name, span).into());
         } <span class="kw">else if </span><span class="self">self</span>.structs.get(location).is_some() &amp;&amp; !(location.program.is_none() &amp;&amp; is_struct) {
@@ -390,7 +434,11 @@
         } <span class="kw">else if </span><span class="self">self</span>.variables.contains_key(location) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(AstError::shadowed_variable(location.name, span).into());
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_ref() { parent.check_shadowing(location, is_struct, span) } <span class="kw">else </span>{ <span class="prelude-val">Ok</span>(()) }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_ref() {
+            parent.check_shadowing_impl(location, is_struct, span)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(())
+        }
     }
 
     <span class="doccomment">/// Returns the current scope index.
@@ -404,7 +452,7 @@
     <span class="doccomment">/// Inserts a function into the symbol table.
     </span><span class="kw">pub fn </span>insert_fn(<span class="kw-2">&amp;mut </span><span class="self">self</span>, location: Location, insert: <span class="kw-2">&amp;</span>Function) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>id = <span class="self">self</span>.scope_index();
-        <span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, <span class="bool-val">false</span>, insert.span)<span class="question-mark">?</span>;
+        <span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, <span class="prelude-val">None</span>, <span class="bool-val">false</span>, insert.span)<span class="question-mark">?</span>;
         <span class="self">self</span>.functions.insert(location, <span class="self">Self</span>::new_function_symbol(id, insert));
         <span class="self">self</span>.scopes.push(Default::default());
         <span class="prelude-val">Ok</span>(())
@@ -413,7 +461,7 @@
     <span class="doccomment">/// Inserts a struct into the symbol table.
     </span><span class="kw">pub fn </span>insert_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, location: Location, insert: <span class="kw-2">&amp;</span>Composite) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="comment">// Check shadowing.
-        </span><span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, !insert.is_record, insert.span)<span class="question-mark">?</span>;
+        </span><span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, <span class="prelude-val">None</span>, !insert.is_record, insert.span)<span class="question-mark">?</span>;
 
         <span class="kw">if </span>insert.is_record {
             <span class="comment">// Insert the record into the symbol table.
@@ -461,8 +509,13 @@
     }
 
     <span class="doccomment">/// Inserts a variable into the symbol table.
-    </span><span class="kw">pub fn </span>insert_variable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, location: Location, insert: VariableSymbol) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, <span class="bool-val">false</span>, insert.span)<span class="question-mark">?</span>;
+    </span><span class="kw">pub fn </span>insert_variable(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        location: Location,
+        program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
+        insert: VariableSymbol,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, program, <span class="bool-val">false</span>, insert.span)<span class="question-mark">?</span>;
         <span class="self">self</span>.variables.insert(location, insert);
         <span class="prelude-val">Ok</span>(())
     }
@@ -616,6 +669,7 @@
             symbol_table
                 .insert_variable(
                     Location::new(<span class="prelude-val">Some</span>(Symbol::intern(<span class="string">"credits"</span>)), Symbol::intern(<span class="string">"accounts"</span>)),
+                    <span class="prelude-val">None</span>,
                     VariableSymbol { type_: Type::Address, span: Default::default(), declaration: VariableType::Const },
                 )
                 .unwrap();
@@ -630,7 +684,7 @@
                 })
                 .unwrap();
             symbol_table
-                .insert_variable(Location::new(<span class="prelude-val">None</span>, Symbol::intern(<span class="string">"foo"</span>)), VariableSymbol {
+                .insert_variable(Location::new(<span class="prelude-val">None</span>, Symbol::intern(<span class="string">"foo"</span>)), <span class="prelude-val">None</span>, VariableSymbol {
                     type_: Type::Address,
                     span: Default::default(),
                     declaration: VariableType::Const,
