@@ -258,6 +258,22 @@
 <a href="#258" id="258">258</a>
 <a href="#259" id="259">259</a>
 <a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -278,9 +294,9 @@
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::{ParserError, ParserWarning, <span class="prelude-ty">Result</span>, emitter::Handler};
-<span class="kw">use </span>leo_span::{Span, Symbol};
+<span class="kw">use </span>leo_span::{Span, Symbol, symbol::with_session_globals};
 
-<span class="kw">use </span>snarkvm::prelude::Network;
+<span class="kw">use </span>snarkvm::prelude::{Field, Network};
 
 <span class="kw">use </span>std::{fmt::Display, marker::PhantomData, mem};
 
@@ -406,7 +422,9 @@
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>eat_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Identifier&gt; {
         <span class="kw">if let </span>Token::Identifier(name) = <span class="self">self</span>.token.token {
             <span class="self">self</span>.bump();
-            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.mk_ident_prev(name));
+            <span class="kw">let </span>identifier = <span class="self">self</span>.mk_ident_prev(name);
+            <span class="self">self</span>.check_identifier(<span class="kw-2">&amp;</span>identifier);
+            <span class="kw">return </span><span class="prelude-val">Some</span>(identifier);
         }
         <span class="prelude-val">None
     </span>}
@@ -516,6 +534,20 @@
     <span class="doccomment">/// Returns true if the current token is `(`.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>peek_is_left_par(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>.token.token, Token::LeftParen)
+    }
+
+    <span class="doccomment">/// Error on identifiers that are longer than SnarkVM allows.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_identifier(<span class="kw-2">&amp;</span><span class="self">self</span>, identifier: <span class="kw-2">&amp;</span>Identifier) {
+        <span class="kw">let </span>field_capacity_bytes: usize = Field::&lt;N&gt;::SIZE_IN_DATA_BITS / <span class="number">8</span>;
+        <span class="kw">let </span>len = with_session_globals(|sg| identifier.name.as_str(sg, |s| s.len()));
+        <span class="kw">if </span>len &gt; field_capacity_bytes {
+            <span class="self">self</span>.emit_err(ParserError::identifier_too_long(
+                identifier.name,
+                len,
+                field_capacity_bytes,
+                identifier.span,
+            ));
+        }
     }
 }
 </code></pre></div></section></main></body></html>
