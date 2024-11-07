@@ -56,7 +56,24 @@ pub struct SymbolTable {
 impl SymbolTable {
     /// Recursively checks if the symbol table contains an entry for the given symbol.
     /// Leo does not allow any variable shadowing or overlap between different symbols.
-    pub fn check_shadowing(&self, location: &Location, is_struct: bool, span: Span) -> Result<()> {
+    pub fn check_shadowing(
+        &self,
+        location: &Location,
+        program: Option<Symbol>,
+        is_struct: bool,
+        span: Span,
+    ) -> Result<()> {
+        self.check_shadowing_impl(location, is_struct, span)?;
+        // Even if the current item is not scoped by program, we want a collision
+        // if there are program-scoped items with the same name, so check that too.
+        if program.is_some() && location.program.is_none() {
+            let location2 = Location::new(program, location.name);
+            self.check_shadowing_impl(&location2, is_struct, span)?;
+        }
+        Ok(())
+    }
+
+    fn check_shadowing_impl(&self, location: &Location, is_struct: bool, span: Span) -> Result<()> {
         if self.functions.contains_key(location) {
             return Err(AstError::shadowed_function(location.name, span).into());
         } else if self.structs.get(location).is_some() && !(location.program.is_none() && is_struct) {
@@ -68,7 +85,11 @@ impl SymbolTable {
         } else if self.variables.contains_key(location) {
             return Err(AstError::shadowed_variable(location.name, span).into());
         }
-        if let Some(parent) = self.parent.as_ref() { parent.check_shadowing(location, is_struct, span) } else { Ok(()) }
+        if let Some(parent) = self.parent.as_ref() {
+            parent.check_shadowing_impl(location, is_struct, span)
+        } else {
+            Ok(())
+        }
     }
 
     /// Returns the current scope index.
@@ -82,7 +103,7 @@ impl SymbolTable {
     /// Inserts a function into the symbol table.
     pub fn insert_fn(&mut self, location: Location, insert: &Function) -> Result<()> {
         let id = self.scope_index();
-        self.check_shadowing(&location, false, insert.span)?;
+        self.check_shadowing(&location, None, false, insert.span)?;
         self.functions.insert(location, Self::new_function_symbol(id, insert));
         self.scopes.push(Default::default());
         Ok(())
@@ -91,7 +112,7 @@ impl SymbolTable {
     /// Inserts a struct into the symbol table.
     pub fn insert_struct(&mut self, location: Location, insert: &Composite) -> Result<()> {
         // Check shadowing.
-        self.check_shadowing(&location, !insert.is_record, insert.span)?;
+        self.check_shadowing(&location, None, !insert.is_record, insert.span)?;
 
         if insert.is_record {
             // Insert the record into the symbol table.
@@ -139,8 +160,13 @@ impl SymbolTable {
     }
 
     /// Inserts a variable into the symbol table.
-    pub fn insert_variable(&mut self, location: Location, insert: VariableSymbol) -> Result<()> {
-        self.check_shadowing(&location, false, insert.span)?;
+    pub fn insert_variable(
+        &mut self,
+        location: Location,
+        program: Option<Symbol>,
+        insert: VariableSymbol,
+    ) -> Result<()> {
+        self.check_shadowing(&location, program, false, insert.span)?;
         self.variables.insert(location, insert);
         Ok(())
     }
@@ -294,6 +320,7 @@ mod tests {
             symbol_table
                 .insert_variable(
                     Location::new(Some(Symbol::intern("credits")), Symbol::intern("accounts")),
+                    None,
                     VariableSymbol { type_: Type::Address, span: Default::default(), declaration: VariableType::Const },
                 )
                 .unwrap();
@@ -308,7 +335,7 @@ mod tests {
                 })
                 .unwrap();
             symbol_table
-                .insert_variable(Location::new(None, Symbol::intern("foo")), VariableSymbol {
+                .insert_variable(Location::new(None, Symbol::intern("foo")), None, VariableSymbol {
                     type_: Type::Address,
                     span: Default::default(),
                     declaration: VariableType::Const,

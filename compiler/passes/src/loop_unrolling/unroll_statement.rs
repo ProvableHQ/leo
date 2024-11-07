@@ -77,13 +77,11 @@ impl StatementReconstructor for Unroller<'_> {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // Helper function to add  variables to symbol table
         let insert_variable = |symbol: Symbol, type_: Type, span: Span| {
-            if let Err(err) =
-                self.symbol_table.borrow_mut().insert_variable(Location::new(None, symbol), VariableSymbol {
-                    type_,
-                    span,
-                    declaration: VariableType::Mut,
-                })
-            {
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                Location::new(None, symbol),
+                self.current_program,
+                VariableSymbol { type_, span, declaration: VariableType::Mut },
+            ) {
                 self.handler.emit_err(err);
             }
         };

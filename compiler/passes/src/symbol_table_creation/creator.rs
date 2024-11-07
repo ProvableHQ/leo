@@ -85,7 +85,7 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         };
         // Add the variable associated with the mapping to the symbol table.
         if let Err(err) =
-            self.symbol_table.insert_variable(Location::new(program, input.identifier.name), VariableSymbol {
+            self.symbol_table.insert_variable(Location::new(program, input.identifier.name), None, VariableSymbol {
                 type_: Type::Mapping(MappingType {
                     key: Box::new(input.key_type.clone()),
                     value: Box::new(input.value_type.clone()),

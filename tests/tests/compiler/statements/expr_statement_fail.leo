@@ -9,7 +9,7 @@ program test.aleo {
         a: u8,
     }
 
-    transition foo(flag: bool, a: u8, b: u8, foo: Foo, i: i8) -> u8 {
+    transition foo2(flag: bool, a: u8, b: u8, foo: Foo, i: i8) -> u8 {
         a + b;
         flag ? a : b;
         foo.a;

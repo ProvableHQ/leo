@@ -5,7 +5,7 @@ expectation = "Fail"
 
 program test.aleo {
 
-  transition a(a: u64, b: u64) -> Future {
+  transition f(a: u64, b: u64) -> Future {
     return finish(a, b);
   }
 

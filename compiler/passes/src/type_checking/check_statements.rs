@@ -224,13 +224,11 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
         // Add constants to symbol table so that any references to them in later statements will pass TC
-        if let Err(err) =
-            self.symbol_table.borrow_mut().insert_variable(Location::new(None, input.place.name), VariableSymbol {
-                type_: input.type_.clone(),
-                span: input.place.span,
-                declaration: VariableType::Const,
-            })
-        {
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+            Location::new(None, input.place.name),
+            self.scope_state.program_name,
+            VariableSymbol { type_: input.type_.clone(), span: input.place.span, declaration: VariableType::Const },
+        ) {
             self.handler.emit_err(err);
         }
     }
@@ -322,13 +320,11 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         let scope_index = self.create_child_scope();
 
         // Add the loop variable to the scope of the loop body.
-        if let Err(err) =
-            self.symbol_table.borrow_mut().insert_variable(Location::new(None, input.variable.name), VariableSymbol {
-                type_: input.type_.clone(),
-                span: input.span(),
-                declaration: VariableType::Const,
-            })
-        {
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+            Location::new(None, input.variable.name),
+            self.scope_state.program_name,
+            VariableSymbol { type_: input.type_.clone(), span: input.span(), declaration: VariableType::Const },
+        ) {
             self.handler.emit_err(err);
         }
 
