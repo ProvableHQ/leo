@@ -365,4 +365,11 @@ create_messages!(
         msg: format!("Digit {digit} invalid in radix {radix} (token {token})."),
         help: None,
     }
+
+    @formatted
+    identifier_too_long {
+        args: (ident: impl Display, length: usize, max_length: usize),
+        msg: format!("Identifier {ident} is too long ({length} bytes; maximum is {max_length})"),
+        help: None,
+    }
 );

@@ -1,0 +1,30 @@
+/*
+namespace = "Parse"
+expectation = "Fail"
+*/
+
+program test.aleo {    
+    transition main() -> bool {
+        return true;
+    }
+
+    // These identifiers are 31 characters long and should be fine.
+    struct S012345678901234567890123456789 {
+        m012345678901234567890123456789: u8,
+    }
+
+    function x012345678901234567890123456789(y012345678901234567890123456789: u8) -> u8 {
+        let z012345678901234567890123456789: u8 = 1u8;
+        return z012345678901234567890123456789 + y012345678901234567890123456789;
+    }
+
+    // These identifiers are 32 characters long and should fail.
+    struct S012345678901234567890123456789q {
+        m012345678901234567890123456789q: u8,
+    }
+
+    function x012345678901234567890123456789q(y012345678901234567890123456789q: u8) -> u8 {
+        let z012345678901234567890123456789q: u8 = 1u8;
+        return z012345678901234567890123456789q + y012345678901234567890123456789q;
+    }
+}

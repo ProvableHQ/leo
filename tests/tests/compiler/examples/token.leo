@@ -42,10 +42,10 @@ program token.aleo {
     /* Transfer */
     async transition transfer_public(public receiver: address, public amount: u64) -> Future {
         // Transfer the tokens publicly, by invoking the computation on-chain.
-        return finalize_transfer_public(self.caller, receiver, amount);
+        return finalize_tr_public(self.caller, receiver, amount);
     }
 
-    async function finalize_transfer_public(sender: address, receiver: address, amount: u64) {
+    async function finalize_tr_public(sender: address, receiver: address, amount: u64) {
         // Decrements `account[sender]` by `amount`.
         // If `account[sender]` does not exist, it will be created.
         // If `account[sender] - amount` underflows, `transfer_public` is reverted.
@@ -97,10 +97,10 @@ program token.aleo {
 
         // Output the sender's change record.
         // Increment the token amount publicly for the token receiver.
-        return (remaining, finalize_transfer_private_to_public(receiver, amount));
+        return (remaining, finalize_tr_private_to_public(receiver, amount));
     }
 
-    async function finalize_transfer_private_to_public(receiver: address, amount: u64) {
+    async function finalize_tr_private_to_public(receiver: address, amount: u64) {
         // Increments `account[receiver]` by `amount`.
         // If `account[receiver]` does not exist, it will be created.
         // If `account[receiver] + amount` overflows, `transfer_private_to_public` is reverted.
@@ -119,10 +119,10 @@ program token.aleo {
 
         // Output the receiver's record.
         // Decrement the token amount of the caller publicly.
-        return (transferred, finalize_transfer_public_to_private(self.caller, amount));
+        return (transferred, finalize_tr_public_to_private(self.caller, amount));
     }
 
-    async function finalize_transfer_public_to_private(public sender: address, public amount: u64) {
+    async function finalize_tr_public_to_private(public sender: address, public amount: u64) {
         // Decrements `account[sender]` by `amount`.
         // If `account[sender]` does not exist, it will be created.
         // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.
@@ -131,4 +131,5 @@ program token.aleo {
     }
 
 }
+
 

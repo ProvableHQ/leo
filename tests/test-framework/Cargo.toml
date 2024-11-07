@@ -16,7 +16,7 @@ categories = [ "compilers", "cryptography", "web-programming" ]
 include = [ "Cargo.toml", "src", "benches", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
-rust-version = "1.69"
+rust-version = "1.82.0"
 
 [[bench]]
 name = "leo_compiler"
