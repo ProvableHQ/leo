@@ -639,7 +639,7 @@
         .redirects(<span class="number">0</span>)
         .build()
         .post(endpoint)
-        .set(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"X-Aleo-Leo-{}"</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>)), <span class="string">"true"</span>)
+        .set(<span class="string">"X-Leo-Version"</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>))
         .send_json(<span class="kw-2">&amp;</span>transaction)
         .map_err(|err| CliError::broadcast_error(err.to_string()))<span class="question-mark">?</span>;
     <span class="kw">match </span>response.status() {
