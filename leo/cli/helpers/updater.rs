@@ -16,12 +16,12 @@
 
 use leo_errors::{CliError, Result};
 
-use std::fmt::Write as _;
+use aleo_std;
 
 use colored::Colorize;
-use dirs;
-use self_update::{backends::github, version::bump_is_greater, Status};
+use self_update::{Status, backends::github, version::bump_is_greater};
 use std::{
+    fmt::Write as _,
     fs,
     path::{Path, PathBuf},
     time::{Duration, SystemTime, UNIX_EPOCH},
@@ -97,7 +97,7 @@ impl Updater {
 
     /// Read the latest version from the version file.
     pub fn read_latest_version() -> Result<Option<String>, CliError> {
-        let version_file_path = Self::get_version_file_path()?;
+        let version_file_path = Self::get_version_file_path();
         match fs::read_to_string(version_file_path) {
             Ok(version) => Ok(Some(version.trim().to_string())),
             Err(_) => Ok(None),
@@ -131,9 +131,9 @@ impl Updater {
     /// If a new version is found, write it to a cache file and alert in every call.
     pub fn check_for_updates(force: bool) -> Result<bool, CliError> {
         // Get the cache directory and relevant file paths.
-        let cache_dir = Self::get_cache_dir()?;
+        let cache_dir = Self::get_cache_dir();
         let last_check_file = cache_dir.join(Self::LEO_CACHE_LAST_CHECK_FILE);
-        let version_file = Self::get_version_file_path()?;
+        let version_file = Self::get_version_file_path();
 
         // Determine if we should check for updates.
         let should_check = force || Self::should_check_for_updates(&last_check_file)?;
@@ -222,14 +222,12 @@ impl Updater {
     }
 
     /// Get the path to the file storing the latest version information.
-    fn get_version_file_path() -> Result<PathBuf, CliError> {
-        Self::get_cache_dir().map(|dir| dir.join(Self::LEO_CACHE_VERSION_FILE))
+    fn get_version_file_path() -> PathBuf {
+        Self::get_cache_dir().join(Self::LEO_CACHE_VERSION_FILE)
     }
 
     /// Get the cache directory for Leo.
-    fn get_cache_dir() -> Result<PathBuf, CliError> {
-        dirs::cache_dir()
-            .ok_or_else(|| CliError::cli_runtime_error("Failed to get cache directory".to_string()))
-            .map(|dir| dir.join("leo"))
+    fn get_cache_dir() -> PathBuf {
+        aleo_std::aleo_dir().join("leo")
     }
 }
