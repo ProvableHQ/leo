@@ -124,9 +124,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                             self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
                             return Some(Type::Unit);
                         }
-                        self.assert_future_await(&access.arguments.first(), input.span());
                     }
-
                     return return_type;
                 } else {
                     self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));

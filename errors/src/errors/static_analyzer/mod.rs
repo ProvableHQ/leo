@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// This module contains the Import error definitions.
-pub mod import_errors;
-pub use self::import_errors::*;
+/// This module contains the static analysis error definitions.
+pub mod static_analyzer_error;
+pub use self::static_analyzer_error::*;
+
+pub mod static_analyzer_warning;
+pub use self::static_analyzer_warning::*;

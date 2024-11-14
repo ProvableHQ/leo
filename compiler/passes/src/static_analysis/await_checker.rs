@@ -17,7 +17,7 @@
 use crate::ConditionalTreeNode;
 use indexmap::IndexSet;
 use leo_ast::Identifier;
-use leo_errors::TypeCheckerWarning;
+use leo_errors::StaticAnalyzerWarning;
 use leo_span::{Span, Symbol};
 
 // TODO: Could optimize by removing duplicate paths (if set of futures is the same).
@@ -65,14 +65,14 @@ impl AwaitChecker {
         &mut self,
         is_finalize: bool,
         input: Span,
-    ) -> Result<Vec<ConditionalTreeNode>, TypeCheckerWarning> {
+    ) -> Result<Vec<ConditionalTreeNode>, StaticAnalyzerWarning> {
         if is_finalize && self.enabled {
             let mut current_nodes = Vec::new();
             // Extend all paths by one node to represent the upcoming `then` branch.
             for node in self.to_await.iter() {
                 // Error if exceed maximum depth.
                 if node.depth > self.max_depth {
-                    return Err(TypeCheckerWarning::max_conditional_block_depth_exceeded(self.max_depth, input));
+                    return Err(StaticAnalyzerWarning::max_conditional_block_depth_exceeded(self.max_depth, input));
                 }
                 // Extend current path.
                 current_nodes.push(node.clone().create_child());

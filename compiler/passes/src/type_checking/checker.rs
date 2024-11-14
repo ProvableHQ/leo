@@ -21,7 +21,7 @@ use crate::{
     TypeTable,
     VariableSymbol,
     VariableType,
-    type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
+    type_checking::scope_state::ScopeState,
 };
 
 use leo_ast::*;
@@ -47,8 +47,6 @@ pub struct TypeChecker<'a, N: Network> {
     pub(crate) handler: &'a Handler,
     /// The state of the current scope being traversed.
     pub(crate) scope_state: ScopeState,
-    /// Struct to store the state relevant to checking all futures are awaited.
-    pub(crate) await_checker: AwaitChecker,
     /// Mapping from async function name to the inferred input types.
     pub(crate) async_function_input_types: IndexMap<Location, Vec<Type>>,
     /// The set of used composites.
@@ -103,13 +101,7 @@ const MAGNITUDE_TYPES: [Type; 3] =
 
 impl<'a, N: Network> TypeChecker<'a, N> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(
-        symbol_table: SymbolTable,
-        type_table: &'a TypeTable,
-        handler: &'a Handler,
-        max_depth: usize,
-        disabled: bool,
-    ) -> Self {
+    pub fn new(symbol_table: SymbolTable, type_table: &'a TypeTable, handler: &'a Handler) -> Self {
         let struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
         let function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
 
@@ -121,7 +113,6 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             call_graph: CallGraph::new(function_names),
             handler,
             scope_state: ScopeState::new(),
-            await_checker: AwaitChecker::new(max_depth, !disabled),
             async_function_input_types: IndexMap::new(),
             used_structs: IndexSet::new(),
             phantom: Default::default(),
@@ -1306,31 +1297,6 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             self.used_structs.insert(s.identifier.name);
         }
         struct_
-    }
-
-    /// Type checks the awaiting of a future.
-    pub(crate) fn assert_future_await(&mut self, future: &Option<&Expression>, span: Span) {
-        // Make sure that it is an identifier expression.
-        let future_variable = match future {
-            Some(Expression::Identifier(name)) => name,
-            _ => {
-                return self.emit_err(TypeCheckerError::invalid_await_call(span));
-            }
-        };
-
-        // Make sure that the future is defined.
-        match self.symbol_table.borrow().lookup_variable(Location::new(None, future_variable.name)) {
-            Some(var) => {
-                if !matches!(&var.type_, &Type::Future(_)) {
-                    self.emit_err(TypeCheckerError::expected_future(future_variable.name, future_variable.span()));
-                }
-                // Mark the future as consumed.
-                self.await_checker.remove(future_variable);
-            }
-            None => {
-                self.emit_err(TypeCheckerError::expected_future(future_variable.name, future_variable.span()));
-            }
-        }
     }
 
     /// Inserts variable to symbol table.
