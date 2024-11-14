@@ -52,4 +52,11 @@ create_messages!(
         msg: format!("Expected a future, but found `{type_}`"),
         help: Some("Only futures can be awaited.".to_string()),
     }
+
+    @formatted
+    async_transition_call_with_future_argument {
+        args: (function_name: impl Display),
+        msg: format!("The call to {function_name} will result in failed executions on-chain."),
+        help: Some("There is a subtle error that occurs if an async transition call follows a non-async transition call, and the async call returns a `Future` that itself takes a `Future` as an input. See See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.".to_string()),
+    }
 );

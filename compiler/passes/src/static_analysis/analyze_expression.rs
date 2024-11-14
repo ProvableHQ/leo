@@ -47,7 +47,12 @@ impl<'a, N: Network> ExpressionVisitor<'a> for StaticAnalyzer<'a, N> {
         match &*input.function {
             // Note that the parser guarantees that `input.function` is always an identifier.
             Expression::Identifier(ident) => {
-                todo!()
+                // If the function call is an external async transition, then for all async calls that follow a non-async call,
+                // we must check that the async call is not an async function that takes a future as an argument.
+                if self.variant == Some(Variant::AsyncTransition) && input.program.is_some() {
+                    // Note that this unwrap is safe since we check that `input.program` is `Some` above.
+                    self.assert_simple_async_transition_call(input.program.unwrap(), ident.name, input.span());
+                }
             }
             _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
         }

@@ -44,7 +44,7 @@ impl AwaitChecker {
         // Can assume in finalize block.
         let is_not_first = if self.enabled {
             // Remove from dynamic list.
-            self.to_await.iter_mut().fold(false, |is_not_first, node| node.remove_element(&id.name))
+            self.to_await.iter_mut().fold(false, |is_not_first, node| is_not_first || node.remove_element(&id.name))
         } else {
             false
         };
