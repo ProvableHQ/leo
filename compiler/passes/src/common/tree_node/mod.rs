@@ -61,9 +61,9 @@ impl<N: Node> TreeNode<N> {
         // Remove the element from the node.
         if !self.elements.shift_remove(element) {
             self.counter += 1;
-            return false;
+            false
         } else {
-            return is_not_first;
+            is_not_first
         }
     }
 }
