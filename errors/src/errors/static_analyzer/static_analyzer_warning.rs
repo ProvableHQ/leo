@@ -44,4 +44,11 @@ create_messages!(
         msg: format!("The type checker has exceeded the max depth of nested conditional blocks: {max}."),
         help: Some("Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.".to_string()),
     }
+
+    @formatted
+    future_not_awaited_in_order {
+        args: (future_name: impl Display),
+        msg: format!("The future `{}` is not awaited in order.", future_name),
+        help: Some("While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.".to_string()),
+    }
 );

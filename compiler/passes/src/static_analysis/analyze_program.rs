@@ -105,7 +105,7 @@ impl<'a, N: Network> ProgramVisitor<'a> for StaticAnalyzer<'a, N> {
                     ));
                 }
 
-                // Throw warning if some futures are awaited more than once in some paths.
+                // Throw warning if not all futures are awaited in some paths.
                 if num_paths_unawaited > 0 {
                     self.emit_warning(StaticAnalyzerWarning::some_paths_do_not_await_all_futures(
                         self.await_checker.to_await.len(),
@@ -114,7 +114,7 @@ impl<'a, N: Network> ProgramVisitor<'a> for StaticAnalyzer<'a, N> {
                     ));
                 }
 
-                // Throw warning if not all futures are awaited in some paths.
+                // Throw warning if some futures are awaited more than once in some paths.
                 if num_paths_duplicate_awaited > 0 {
                     self.emit_warning(StaticAnalyzerWarning::some_paths_contain_duplicate_future_awaits(
                         self.await_checker.to_await.len(),

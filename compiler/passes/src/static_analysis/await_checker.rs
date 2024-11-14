@@ -39,15 +39,20 @@ impl AwaitChecker {
     }
 
     /// Remove from list.
-    pub fn remove(&mut self, id: &Identifier) {
+    /// Returns `true` if there was a path where the future was not awaited in the order of the input list.
+    pub fn remove(&mut self, id: &Identifier) -> bool {
         // Can assume in finalize block.
-        if self.enabled {
+        let is_not_first = if self.enabled {
             // Remove from dynamic list.
-            self.to_await.iter_mut().for_each(|node| node.remove_element(&id.name));
-        }
+            self.to_await.iter_mut().fold(false, |is_not_first, node| node.remove_element(&id.name))
+        } else {
+            false
+        };
 
         // Remove from static list.
         self.static_to_await.shift_remove(&id.name);
+
+        is_not_first
     }
 
     /// Initialize futures.

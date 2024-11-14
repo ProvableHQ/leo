@@ -129,7 +129,13 @@ impl<'a, N: Network> StaticAnalyzer<'a, N> {
                     self.emit_err(StaticAnalyzerError::expected_future(future_variable.name, future_variable.span()));
                 }
                 // Mark the future as consumed.
-                self.await_checker.remove(future_variable);
+                // If the call returns false, it means that a future was not awaited in the order of the input list, emit a warning.
+                if !self.await_checker.remove(future_variable) {
+                    self.emit_warning(StaticAnalyzerWarning::future_not_awaited_in_order(
+                        future_variable.name,
+                        future_variable.span(),
+                    ));
+                }
             }
             None => {
                 self.emit_err(StaticAnalyzerError::expected_future(future_variable.name, future_variable.span()));
