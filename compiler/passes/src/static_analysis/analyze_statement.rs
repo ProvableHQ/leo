@@ -15,12 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{ConditionalTreeNode};
+use crate::ConditionalTreeNode;
 
-use leo_ast::{
-    *,
-};
-
+use leo_ast::*;
 
 impl<'a, N: Network> StatementVisitor<'a> for StaticAnalyzer<'a, N> {
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {

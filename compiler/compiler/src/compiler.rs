@@ -168,7 +168,7 @@ impl<'a, N: Network> Compiler<'a, N> {
         StaticAnalyzer::<N>::do_pass((
             &self.ast,
             self.handler,
-            &symbol_table,
+            symbol_table,
             &self.type_table,
             self.compiler_options.build.conditional_block_max_depth,
             self.compiler_options.build.disable_conditional_branch_type_checking,

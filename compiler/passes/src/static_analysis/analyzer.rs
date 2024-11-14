@@ -14,11 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    SymbolTable,
-    TypeTable,
-    static_analysis::await_checker::AwaitChecker,
-};
+use crate::{SymbolTable, TypeTable, static_analysis::await_checker::AwaitChecker};
 
 use leo_ast::*;
 use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning, emitter::Handler};
@@ -26,7 +22,7 @@ use leo_span::{Span, Symbol};
 
 use snarkvm::console::network::Network;
 
-use std::{marker::PhantomData};
+use std::marker::PhantomData;
 
 pub struct StaticAnalyzer<'a, N: Network> {
     /// The symbol table for the program.
@@ -114,36 +110,34 @@ impl<'a, N: Network> StaticAnalyzer<'a, N> {
     /// Assert that an async call is a "simple" one.
     /// Simple is defined as an async transition function which does not return a `Future` that itself takes a `Future` as an argument.
     pub(crate) fn assert_simple_async_transition_call(&self, program: Symbol, function_name: Symbol, span: Span) {
-        // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
-        // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table_creation` alive for the entire block and will be very memory inefficient!
-        if let Some(function) = self.symbol_table.lookup_fn_symbol(Location::new(Some(program), function_name))
-        {
-            // Check that the function is an async function.
-            if function.variant != Variant::AsyncFunction {
-                return;
+        // Look up the function.
+        let function = match self.symbol_table.lookup_fn_symbol(Location::new(Some(program), function_name)) {
+            Some(function) => function,
+            None => {
+                unreachable!("Type checking guarantees that this function exists.");
             }
-
-            // A helper function to check if a `Future` type takes a `Future` as an argument.
-            let check_future = |future_type: &FutureType| {
-                if future_type.inputs.iter().any(|input| matches!(input, Type::Future(_))) {
-                    self.emit_err(StaticAnalyzerError::async_transition_call_with_future_argument(function_name, span));
-                }
-            };
-
-            // Check the output type of the function.
-            match &function.output_type {
-                Type::Future(future_type) => check_future(&future_type),
-                Type::Tuple(tuple_type) => {
-                    for element in tuple_type.elements() {
-                        if let Type::Future(future_type) = element {
-                            check_future(&future_type);
-                        }
-                    }
-                }
-                _ => (), // Do nothing.
+        };
+        // If it is not an async transition, return.
+        if function.variant != Variant::AsyncTransition {
+            return;
+        }
+        // Otherwise, get the location of the finalize block.
+        let location = match &function.finalize {
+            Some(location) => location.clone(),
+            None => {
+                unreachable!("Typechecking guarantees that all async transitions have an associated `finalize` field.");
             }
-        } else {
-            unreachable!("Type checking guarantees that this function exists.")
+        };
+        // Look up the async function.
+        let async_function = match self.symbol_table.lookup_fn_symbol(location) {
+            Some(function) => function,
+            None => {
+                unreachable!("Type checking guarantees that this function exists.");
+            }
+        };
+        // If the async function takes a future as an argument, emit an error.
+        if !async_function.future_inputs.is_empty() {
+            self.emit_err(StaticAnalyzerError::async_transition_call_with_future_argument(function_name, span));
         }
     }
 }

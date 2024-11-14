@@ -14,13 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{StaticAnalyzer};
+use crate::StaticAnalyzer;
 
 use leo_ast::{Type, *};
 use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
 
 use snarkvm::console::network::Network;
-
 
 impl<'a, N: Network> ProgramVisitor<'a> for StaticAnalyzer<'a, N> {
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
