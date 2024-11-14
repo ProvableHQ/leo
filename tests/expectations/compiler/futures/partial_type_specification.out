@@ -75,7 +75,7 @@ finalize main:
     add r0[0u32] r1[0u32] into r5;
     set r5 into ayo[1u32];
 """, errors = "", warnings = """
-Warning [WTYC0372000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
+Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
     --> compiler-test:17:5
      |
   17 |     async function finalize_main(f: Future, f2: Future, a: u32) {

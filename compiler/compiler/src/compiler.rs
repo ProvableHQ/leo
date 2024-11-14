@@ -164,16 +164,15 @@ impl<'a, N: Network> Compiler<'a, N> {
     }
 
     /// Runs the static analysis pass.
-    pub fn static_analysis_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
-        let symbol_table = StaticAnalyzer::<N>::do_pass((
+    pub fn static_analysis_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
+        StaticAnalyzer::<N>::do_pass((
             &self.ast,
             self.handler,
-            symbol_table,
+            &symbol_table,
             &self.type_table,
             self.compiler_options.build.conditional_block_max_depth,
             self.compiler_options.build.disable_conditional_branch_type_checking,
-        ))?;
-        Ok(symbol_table)
+        ))
     }
 
     /// Runs the loop unrolling pass.
@@ -295,7 +294,7 @@ impl<'a, N: Network> Compiler<'a, N> {
 
         let (st, struct_graph, call_graph) = self.type_checker_pass(st)?;
 
-        let st = self.static_analysis_pass(st)?;
+        self.static_analysis_pass(&st)?;
 
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;

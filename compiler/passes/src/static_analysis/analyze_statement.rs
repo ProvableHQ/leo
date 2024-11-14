@@ -15,28 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{ConditionalTreeNode, TypeChecker, VariableSymbol, VariableType};
+use crate::{ConditionalTreeNode};
 
 use leo_ast::{
-    Type::{Future, Tuple},
     *,
 };
-use leo_errors::StaticAnalyzerError;
 
-use itertools::Itertools;
 
 impl<'a, N: Network> StatementVisitor<'a> for StaticAnalyzer<'a, N> {
-    fn visit_block(&mut self, input: &'a Block) {
-        // Enter the block scope.
-        let scope_index = self.current_scope_index();
-        let previous_scope_index = self.enter_scope(scope_index);
-
-        input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
-
-        // Exit the block scope.
-        self.exit_scope(previous_scope_index);
-    }
-
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
         self.visit_expression(&input.condition, &Default::default());
 

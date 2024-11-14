@@ -14,15 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{StaticAnalyzer, VariableSymbol};
+use crate::{StaticAnalyzer};
 
 use leo_ast::*;
-use leo_errors::{StaticAnalyzerError, emitter::Handler};
-use leo_span::{Span, Symbol, sym};
 
 use snarkvm::console::network::Network;
 
-use itertools::Itertools;
 
 impl<'a, N: Network> ExpressionVisitor<'a> for StaticAnalyzer<'a, N> {
     type AdditionalInput = ();
@@ -49,9 +46,13 @@ impl<'a, N: Network> ExpressionVisitor<'a> for StaticAnalyzer<'a, N> {
             Expression::Identifier(ident) => {
                 // If the function call is an external async transition, then for all async calls that follow a non-async call,
                 // we must check that the async call is not an async function that takes a future as an argument.
-                if self.variant == Some(Variant::AsyncTransition) && input.program.is_some() {
+                if self.non_async_external_call_seen && self.variant == Some(Variant::AsyncTransition) && input.program.is_some() {
                     // Note that this unwrap is safe since we check that `input.program` is `Some` above.
                     self.assert_simple_async_transition_call(input.program.unwrap(), ident.name, input.span());
+                }
+                // Otherwise if the variant is a non-async external call, update the flag.
+                else if self.variant == Some(Variant::Transition) {
+                    self.non_async_external_call_seen = true;
                 }
             }
             _ => unreachable!("Parsing guarantees that a function name is always an identifier."),

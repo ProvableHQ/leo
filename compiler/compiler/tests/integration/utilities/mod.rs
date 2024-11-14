@@ -265,7 +265,7 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a, CurrentNetwork>) -> 
 
     let (st, struct_graph, call_graph) = parsed.type_checker_pass(st)?;
 
-    let st = parsed.static_analysis_pass(st)?;
+    parsed.static_analysis_pass(&st)?;
 
     CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);
 

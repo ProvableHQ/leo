@@ -14,15 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DiGraphError, StaticAnalyzer, TypeChecker};
+use crate::{StaticAnalyzer};
 
 use leo_ast::{Type, *};
 use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
-use leo_span::sym;
 
 use snarkvm::console::network::Network;
 
-use std::collections::HashSet;
 
 impl<'a, N: Network> ProgramVisitor<'a> for StaticAnalyzer<'a, N> {
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
@@ -36,21 +34,11 @@ impl<'a, N: Network> ProgramVisitor<'a> for StaticAnalyzer<'a, N> {
     }
 
     fn visit_function(&mut self, function: &'a Function) {
-        // Lookup function metadata in the symbol table.
-        // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index = self
-            .symbol_table
-            .borrow()
-            .lookup_fn_symbol(Location::new(self.current_program, function.identifier.name))
-            .unwrap()
-            .id;
-
-        // Enter the function's scope.
-        let previous_function_index = self.enter_scope(function_index);
-        let previous_scope_index = self.enter_scope(self.scope_index);
-
         // Set the function name and variant.
         self.variant = Some(function.variant);
+
+        // Set `non_async_external_call_seen` to false.
+        self.non_async_external_call_seen = false;
 
         // If the function is an async function, initialize the await checker.
         if self.variant == Some(Variant::AsyncFunction) {
@@ -67,10 +55,6 @@ impl<'a, N: Network> ProgramVisitor<'a> for StaticAnalyzer<'a, N> {
         }
 
         self.visit_block(&function.block);
-
-        // Exit the function's scope.
-        self.exit_scope(previous_scope_index);
-        self.exit_scope(previous_function_index);
 
         // Check that all futures were awaited exactly once.
         if self.variant == Some(Variant::AsyncFunction) {

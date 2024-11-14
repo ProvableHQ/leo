@@ -48,7 +48,7 @@ create_messages!(
     @formatted
     future_not_awaited_in_order {
         args: (future_name: impl Display),
-        msg: format!("The future `{}` is not awaited in order.", future_name),
+        msg: format!("The future `{}` is not awaited in the order in which they were passed in to the `async` function.", future_name),
         help: Some("While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.".to_string()),
     }
 );

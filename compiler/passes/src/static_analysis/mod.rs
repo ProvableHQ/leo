@@ -25,7 +25,7 @@ pub mod analyze_statement;
 pub mod analyzer;
 pub use analyzer::*;
 
-use crate::{CallGraph, Pass, StructGraph, SymbolTable, TypeTable};
+use crate::{Pass, SymbolTable, TypeTable};
 
 use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{Result, emitter::Handler};
@@ -33,14 +33,12 @@ use leo_errors::{Result, emitter::Handler};
 use snarkvm::prelude::Network;
 
 impl<'a, N: Network> Pass for StaticAnalyzer<'a, N> {
-    type Input = (&'a Ast, &'a Handler, SymbolTable, &'a TypeTable, usize, bool);
-    type Output = Result<SymbolTable>;
+    type Input = (&'a Ast, &'a Handler, &'a SymbolTable, &'a TypeTable, usize, bool);
+    type Output = Result<()>;
 
     fn do_pass((ast, handler, st, tt, max_depth, await_checking): Self::Input) -> Self::Output {
         let mut visitor = StaticAnalyzer::<N>::new(st, tt, handler, max_depth, await_checking);
         visitor.visit_program(ast.as_repr());
-        // TODO: Print the warnings.
-        handler.last_err().map_err(|e| *e)?;
-        Ok(visitor.symbol_table.take())
+        handler.last_err().map_err(|e| *e)
     }
 }

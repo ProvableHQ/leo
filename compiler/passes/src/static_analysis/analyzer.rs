@@ -15,12 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CallGraph,
-    StructGraph,
     SymbolTable,
     TypeTable,
-    VariableSymbol,
-    VariableType,
     static_analysis::await_checker::AwaitChecker,
 };
 
@@ -30,15 +26,11 @@ use leo_span::{Span, Symbol};
 
 use snarkvm::console::network::Network;
 
-use indexmap::{IndexMap, IndexSet};
-use itertools::Itertools;
-use std::{cell::RefCell, marker::PhantomData};
+use std::{marker::PhantomData};
 
 pub struct StaticAnalyzer<'a, N: Network> {
     /// The symbol table for the program.
-    // Note that this pass does not use the symbol table in a meaningful way.
-    // However, this may be useful in future static analysis passes.
-    pub(crate) symbol_table: RefCell<SymbolTable>,
+    pub(crate) symbol_table: &'a SymbolTable,
     /// The type table for the program.
     // Note that this pass does not use the type table in a meaningful way.
     // However, this may be useful in future static analysis passes.
@@ -47,12 +39,12 @@ pub struct StaticAnalyzer<'a, N: Network> {
     pub(crate) handler: &'a Handler,
     /// Struct to store the state relevant to checking all futures are awaited.
     pub(crate) await_checker: AwaitChecker,
-    /// The index of the current scope.
-    pub(crate) scope_index: usize,
     /// The current program name.
     pub(crate) current_program: Option<Symbol>,
     /// The variant of the function that we are currently traversing.
     pub(crate) variant: Option<Variant>,
+    /// Whether or not a non-async external call has been seen in this function.
+    pub(crate) non_async_external_call_seen: bool,
     // Allows the type checker to be generic over the network.
     phantom: PhantomData<N>,
 }
@@ -60,46 +52,22 @@ pub struct StaticAnalyzer<'a, N: Network> {
 impl<'a, N: Network> StaticAnalyzer<'a, N> {
     /// Returns a new static analyzer given a symbol table and error handler.
     pub fn new(
-        symbol_table: SymbolTable,
-        type_table: &'a TypeTable,
+        symbol_table: &'a SymbolTable,
+        _type_table: &'a TypeTable,
         handler: &'a Handler,
         max_depth: usize,
         disabled: bool,
     ) -> Self {
         Self {
-            symbol_table: RefCell::new(symbol_table),
-            type_table,
+            symbol_table,
+            type_table: _type_table,
             handler,
             await_checker: AwaitChecker::new(max_depth, !disabled),
-            scope_index: 0,
             current_program: None,
             variant: None,
+            non_async_external_call_seen: false,
             phantom: Default::default(),
         }
-    }
-
-    /// Returns the index of the current scope.
-    /// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.
-    pub(crate) fn current_scope_index(&mut self) -> usize {
-        self.scope_index
-    }
-
-    /// Enters a child scope.
-    pub(crate) fn enter_scope(&mut self, index: usize) -> usize {
-        let previous_symbol_table = std::mem::take(&mut self.symbol_table);
-        self.symbol_table.swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
-
-        core::mem::replace(&mut self.scope_index, 0)
-    }
-
-    /// Exits the current block scope.
-    pub(crate) fn exit_scope(&mut self, index: usize) {
-        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.lookup_scope_by_index(index).unwrap());
-        self.symbol_table = RefCell::new(prev_st);
-
-        self.scope_index = index + 1;
     }
 
     /// Emits a type checker error.
@@ -123,14 +91,14 @@ impl<'a, N: Network> StaticAnalyzer<'a, N> {
         };
 
         // Make sure that the future is defined.
-        match self.symbol_table.borrow().lookup_variable(Location::new(None, future_variable.name)) {
-            Some(var) => {
-                if !matches!(&var.type_, &Type::Future(_)) {
+        match self.type_table.get(&future_variable.id) {
+            Some(type_) => {
+                if !matches!(type_, Type::Future(_)) {
                     self.emit_err(StaticAnalyzerError::expected_future(future_variable.name, future_variable.span()));
                 }
                 // Mark the future as consumed.
-                // If the call returns false, it means that a future was not awaited in the order of the input list, emit a warning.
-                if !self.await_checker.remove(future_variable) {
+                // If the call returns true, it means that a future was not awaited in the order of the input list, emit a warning.
+                if self.await_checker.remove(future_variable) {
                     self.emit_warning(StaticAnalyzerWarning::future_not_awaited_in_order(
                         future_variable.name,
                         future_variable.span(),
@@ -148,7 +116,8 @@ impl<'a, N: Network> StaticAnalyzer<'a, N> {
     pub(crate) fn assert_simple_async_transition_call(&self, program: Symbol, function_name: Symbol, span: Span) {
         // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
         // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table_creation` alive for the entire block and will be very memory inefficient!
-        if let Some(function) = self.symbol_table.borrow().lookup_fn_symbol(Location::new(Some(program), function_name)) {
+        if let Some(function) = self.symbol_table.lookup_fn_symbol(Location::new(Some(program), function_name))
+        {
             // Check that the function is an async function.
             if function.variant != Variant::AsyncFunction {
                 return;
@@ -171,7 +140,7 @@ impl<'a, N: Network> StaticAnalyzer<'a, N> {
                         }
                     }
                 }
-                _ => () // Do nothing.
+                _ => (), // Do nothing.
             }
         } else {
             unreachable!("Type checking guarantees that this function exists.")
