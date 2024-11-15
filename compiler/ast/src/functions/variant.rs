@@ -29,6 +29,7 @@ pub enum Variant {
     Transition,
     AsyncTransition,
     AsyncFunction,
+    Interpret,
 }
 
 impl Variant {

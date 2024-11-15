@@ -53,6 +53,8 @@ pub struct TypeChecker<'a, N: Network> {
     pub(crate) async_function_input_types: IndexMap<Location, Vec<Type>>,
     /// The set of used composites.
     pub(crate) used_structs: IndexSet<Symbol>,
+    /// Are we compiling tests?
+    pub(crate) is_test: bool,
     // Allows the type checker to be generic over the network.
     phantom: PhantomData<N>,
 }
@@ -109,6 +111,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         handler: &'a Handler,
         max_depth: usize,
         disabled: bool,
+        is_test: bool,
     ) -> Self {
         let struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
         let function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
@@ -124,6 +127,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             await_checker: AwaitChecker::new(max_depth, !disabled),
             async_function_input_types: IndexMap::new(),
             used_structs: IndexSet::new(),
+            is_test,
             phantom: Default::default(),
         }
     }
@@ -1375,7 +1379,9 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         // Check that the function context matches.
         if self.scope_state.variant == Some(Variant::AsyncFunction) && !finalize_op {
             self.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span))
-        } else if self.scope_state.variant != Some(Variant::AsyncFunction) && finalize_op {
+        } else if finalize_op
+            && !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Interpret))
+        {
             self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
         }
     }

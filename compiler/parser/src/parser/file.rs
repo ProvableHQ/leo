@@ -134,7 +134,7 @@ impl<N: Network> ParserContext<'_, N> {
                     let (id, mapping) = self.parse_mapping()?;
                     mappings.push((id, mapping));
                 }
-                Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline => {
+                Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline | Token::Interpret => {
                     let (id, function) = self.parse_function()?;
 
                     // Partition into transitions and functions so that we don't have to sort later.
@@ -334,8 +334,9 @@ impl<N: Network> ParserContext<'_, N> {
         // Parse a potential async signifier.
         let (is_async, start_async) =
             if self.token.token == Token::Async { (true, self.expect(&Token::Async)?) } else { (false, Span::dummy()) };
-        // Parse `<variant> IDENT`, where `<variant>` is `function`, `transition`, or `inline`.
+        // Parse `<variant> IDENT`, where `<variant>` is `function`, `transition`, `inline`, or `interpret`.
         let (variant, start) = match self.token.token.clone() {
+            Token::Interpret => (Variant::Interpret, self.expect(&Token::Interpret)?),
             Token::Inline => (Variant::Inline, self.expect(&Token::Inline)?),
             Token::Function => {
                 (if is_async { Variant::AsyncFunction } else { Variant::Function }, self.expect(&Token::Function)?)
@@ -344,7 +345,7 @@ impl<N: Network> ParserContext<'_, N> {
                 if is_async { Variant::AsyncTransition } else { Variant::Transition },
                 self.expect(&Token::Transition)?,
             ),
-            _ => self.unexpected("'function', 'transition', or 'inline'")?,
+            _ => self.unexpected("'function', 'transition', 'inline', or 'interpret'")?,
         };
         let name = self.expect_identifier()?;
 

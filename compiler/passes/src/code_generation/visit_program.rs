@@ -186,7 +186,7 @@ impl<'a> CodeGenerator<'a> {
             Variant::Transition | Variant::AsyncTransition => format!("\nfunction {}:\n", function.identifier),
             Variant::Function => format!("\nclosure {}:\n", function.identifier),
             Variant::AsyncFunction => format!("\nfinalize {}:\n", self.finalize_caller.unwrap()),
-            Variant::Inline => return String::new(),
+            Variant::Inline | Variant::Interpret => return String::new(),
         };
 
         // Construct and append the input declarations of the function.

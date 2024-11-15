@@ -96,7 +96,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                 // Check core struct name and function.
                 if let Some(core_instruction) = self.get_core_function_call(&access.variant, &access.name) {
                     // Check that operation is not restricted to finalize blocks.
-                    if self.scope_state.variant != Some(Variant::AsyncFunction)
+                    if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Interpret))
                         && core_instruction.is_finalize_command()
                     {
                         self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));

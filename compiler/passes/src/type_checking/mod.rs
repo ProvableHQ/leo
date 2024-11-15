@@ -36,11 +36,11 @@ use leo_errors::{Result, emitter::Handler};
 use snarkvm::prelude::Network;
 
 impl<'a, N: Network> Pass for TypeChecker<'a, N> {
-    type Input = (&'a Ast, &'a Handler, SymbolTable, &'a TypeTable, usize, bool);
+    type Input = (&'a Ast, &'a Handler, SymbolTable, &'a TypeTable, usize, bool, bool);
     type Output = Result<(SymbolTable, StructGraph, CallGraph)>;
 
-    fn do_pass((ast, handler, st, tt, max_depth, await_checking): Self::Input) -> Self::Output {
-        let mut visitor = TypeChecker::<N>::new(st, tt, handler, max_depth, await_checking);
+    fn do_pass((ast, handler, st, tt, max_depth, await_checking, is_test): Self::Input) -> Self::Output {
+        let mut visitor = TypeChecker::<N>::new(st, tt, handler, max_depth, await_checking, is_test);
         visitor.visit_program(ast.as_repr());
         handler.last_err().map_err(|e| *e)?;
 
