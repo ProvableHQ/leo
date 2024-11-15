@@ -916,6 +916,12 @@
 <a href="#916" id="916">916</a>
 <a href="#917" id="917">917</a>
 <a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1042,6 +1048,11 @@
         })<span class="question-mark">?</span>;
     }
 
+    <span class="comment">//  Check for updates. If not forced, it checks once per day.
+    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) = updater::Updater::check_for_updates(<span class="bool-val">false</span>) {
+        <span class="kw">let _ </span>= updater::Updater::print_cli();
+    }
+
     <span class="comment">// Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
     </span><span class="kw">let </span>context = handle_error(Context::new(cli.path, cli.home, <span class="bool-val">false</span>));
@@ -1061,6 +1072,7 @@
         Commands::Update { command } =&gt; command.try_execute(context),
     }
 }
+
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">crate</span>::cli::{
