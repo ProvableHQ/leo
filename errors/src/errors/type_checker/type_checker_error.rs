@@ -894,4 +894,11 @@ create_messages!(
         msg: format!("Cannot define a function with no parameters."),
         help: None,
     }
+
+    @formatted
+    interpret_outside_test {
+        args: (),
+        msg: "Cannot define an `interpret` function outside of tests.".to_string(),
+        help: None,
+    }
 );

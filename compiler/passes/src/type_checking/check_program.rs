@@ -229,10 +229,18 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
 
     fn visit_function(&mut self, function: &'a Function) {
         // Check that the function's annotations are valid.
-        // Note that Leo does not natively support any specific annotations.
+        let valid_annotations = [sym::should_fail, sym::native_test, sym::interpreted_test];
         for annotation in function.annotations.iter() {
-            // TODO: Change to compiler warning.
-            self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
+            // All Leo annotations currently apply only to test code.
+            if !self.is_test || !valid_annotations.contains(&annotation.identifier.name) {
+                // TODO: Change to compiler warning.
+                self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span));
+            }
+        }
+
+        // `interpret` can only be used for tests.
+        if !self.is_test && function.variant == Variant::Interpret {
+            self.emit_err(TypeCheckerError::interpret_outside_test(function.span));
         }
 
         // Set type checker variables for function variant details.

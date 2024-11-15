@@ -431,6 +431,7 @@ impl Token {
                     "import" => Token::Import,
                     "in" => Token::In,
                     "inline" => Token::Inline,
+                    "interpret" => Token::Interpret,
                     "let" => Token::Let,
                     "leo" => Token::Leo,
                     "mapping" => Token::Mapping,
