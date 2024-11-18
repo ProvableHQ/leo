@@ -64,7 +64,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
     let build_options = get_build_options(&test.config);
 
     // Initialize a `Process`. This should always succeed.
-    let process = Process::<CurrentNetwork>::load().unwrap();
+    let process = Process::<CurrentNetwork>::load_testing_only().unwrap();
 
     let mut all_outputs = Vec::with_capacity(build_options.len());
 

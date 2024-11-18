@@ -99,7 +99,9 @@ default-features = false
 version = "1.11.1"
 
 [workspace.dependencies.snarkvm]
-version = "1.0.0"
+#version = "1.0.0"
+git = "https://github.com/AleoNet/snarkVM.git"
+rev = "714e9c3"
 
 [workspace.dependencies.serde]
 version = "1.0.214"
