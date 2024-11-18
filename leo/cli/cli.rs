@@ -97,6 +97,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoClean,
     },
+    #[clap(about = "Execute native, interpreted, and end-to-end tests.")]
+    Test {
+        #[clap(flatten)]
+        command: LeoTest,
+    },
     #[clap(about = "Update the Leo CLI")]
     Update {
         #[clap(flatten)]
@@ -140,6 +145,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
         Commands::Remove { command } => command.try_execute(context),
+        Commands::Test { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
     }
 }

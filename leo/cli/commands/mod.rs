@@ -50,22 +50,29 @@ pub use remove::LeoRemove;
 pub mod run;
 pub use run::LeoRun;
 
+pub mod test;
+pub use test::LeoTest;
+
 pub mod update;
 pub use update::LeoUpdate;
 
 use super::*;
-use crate::cli::helpers::context::*;
+use crate::cli::{helpers::context::*, query::QueryCommands};
+
 use leo_errors::{CliError, PackageError, Result, emitter::Handler};
 use leo_package::{build::*, outputs::OutputsDirectory, package::*};
-use snarkvm::prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey, block::Transaction};
+use leo_retriever::NetworkName;
+
+use snarkvm::{
+    circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
+    console::network::Network,
+    prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey, block::Transaction},
+};
 
 use clap::Parser;
 use colored::Colorize;
 use std::str::FromStr;
 use tracing::span::Span;
-
-use crate::cli::query::QueryCommands;
-use snarkvm::console::network::Network;
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {
