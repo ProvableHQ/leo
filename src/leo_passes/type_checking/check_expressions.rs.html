@@ -1057,10 +1057,6 @@
 <a href="#1057" id="1057">1057</a>
 <a href="#1058" id="1058">1058</a>
 <a href="#1059" id="1059">1059</a>
-<a href="#1060" id="1060">1060</a>
-<a href="#1061" id="1061">1061</a>
-<a href="#1062" id="1062">1062</a>
-<a href="#1063" id="1063">1063</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1182,14 +1178,10 @@
                     }
 
                     <span class="comment">// Await futures here so that can use the argument variable names to lookup.
-                    </span><span class="kw">if </span>core_instruction == CoreFunction::FutureAwait {
-                        <span class="kw">if </span>access.arguments.len() != <span class="number">1 </span>{
-                            <span class="self">self</span>.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
-                            <span class="kw">return </span><span class="prelude-val">Some</span>(Type::Unit);
-                        }
-                        <span class="self">self</span>.assert_future_await(<span class="kw-2">&amp;</span>access.arguments.first(), input.span());
+                    </span><span class="kw">if </span>core_instruction == CoreFunction::FutureAwait &amp;&amp; access.arguments.len() != <span class="number">1 </span>{
+                        <span class="self">self</span>.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(Type::Unit);
                     }
-
                     <span class="kw">return </span>return_type;
                 } <span class="kw">else </span>{
                     <span class="self">self</span>.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));

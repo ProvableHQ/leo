@@ -52,6 +52,7 @@
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -92,7 +93,8 @@
         help: <span class="prelude-val">Some</span>(<span class="string">"Look at the times `.await()` is called, and try to reduce redundancies. Remove this warning by including the `--disable-conditional-branch-type-checking` flag."</span>.to_string()),
     }
 
-    @formatted
+    <span class="comment">// TODO: This warning is deprecated, remove it in the future.
+    </span>@formatted
     async_function_is_never_called_by_transition_function {
         args: (name: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"The async function `{name}` is never called by an async transition."</span>),

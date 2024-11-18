@@ -435,23 +435,6 @@
 <a href="#435" id="435">435</a>
 <a href="#436" id="436">436</a>
 <a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
-<a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
-<a href="#454" id="454">454</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -469,7 +452,7 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
-<span class="kw">use crate</span>::{ConditionalTreeNode, TypeChecker, VariableSymbol, VariableType};
+<span class="kw">use crate</span>::{TypeChecker, VariableSymbol, VariableType};
 
 <span class="kw">use </span>leo_ast::{
     Type::{Future, Tuple},
@@ -587,25 +570,11 @@
         <span class="comment">// Set the `is_conditional` flag.
         </span><span class="kw">let </span>previous_is_conditional = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.scope_state.is_conditional, <span class="bool-val">true</span>);
 
-        <span class="comment">// Create scope for checking awaits in `then` branch of conditional.
-        </span><span class="kw">let </span>current_bst_nodes: Vec&lt;ConditionalTreeNode&gt; = <span class="kw">match </span><span class="self">self
-            </span>.await_checker
-            .create_then_scope(<span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction), input.span)
-        {
-            <span class="prelude-val">Ok</span>(nodes) =&gt; nodes,
-            <span class="prelude-val">Err</span>(warn) =&gt; <span class="kw">return </span><span class="self">self</span>.emit_warning(warn),
-        };
-
         <span class="comment">// Visit block.
         </span><span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.then);
 
         <span class="comment">// Store the `has_return` flag for the then-block.
         </span>then_block_has_return = <span class="self">self</span>.scope_state.has_return;
-
-        <span class="comment">// Exit scope for checking awaits in `then` branch of conditional.
-        </span><span class="kw">let </span>saved_paths = <span class="self">self
-            </span>.await_checker
-            .exit_then_scope(<span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction), current_bst_nodes);
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(otherwise) = <span class="kw-2">&amp;</span>input.otherwise {
             <span class="comment">// Set the `has_return` flag for the otherwise-block.
@@ -623,9 +592,6 @@
             <span class="comment">// Store the `has_return` flag for the otherwise-block.
             </span>otherwise_block_has_return = <span class="self">self</span>.scope_state.has_return;
         }
-
-        <span class="comment">// Update the set of all possible BST paths.
-        </span><span class="self">self</span>.await_checker.exit_statement_scope(<span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction), saved_paths);
 
         <span class="comment">// Restore the previous `has_return` flag.
         </span><span class="self">self</span>.scope_state.has_return = previous_has_return || (then_block_has_return &amp;&amp; otherwise_block_has_return);

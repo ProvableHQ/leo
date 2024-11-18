@@ -127,6 +127,31 @@
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -243,10 +268,35 @@
     }
 
     <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FunctionStub) {
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-            <span class="self">self</span>.symbol_table.insert_fn(Location::new(<span class="self">self</span>.program_name, input.name()), <span class="kw-2">&amp;</span>Function::from(input.clone()))
-        {
+        <span class="comment">// Construct the location for the function.
+        </span><span class="kw">let </span>location = Location::new(<span class="self">self</span>.program_name, input.name());
+        <span class="comment">// Initalize the function symbol.
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_fn(location.clone(), <span class="kw-2">&amp;</span>Function::from(input.clone())) {
             <span class="self">self</span>.handler.emit_err(err);
+        }
+        <span class="comment">// If the `FunctionStub` is an async transition, attach the finalize logic to the function.
+        </span><span class="kw">if </span><span class="macro">matches!</span>(input.variant, Variant::AsyncTransition) {
+            <span class="comment">// This matches the logic in the disassembler.
+            </span><span class="kw">let </span>name = Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"finalize/{}"</span>, input.name()));
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.attach_finalize(location, Location::new(<span class="self">self</span>.program_name, name)) {
+                <span class="self">self</span>.handler.emit_err(err);
+            }
+        }
+        <span class="comment">// Otherwise is the `FunctionStub` is an async function, attach the future inputs.
+        </span><span class="kw">else if </span><span class="macro">matches!</span>(input.variant, Variant::AsyncFunction) {
+            <span class="kw">let </span>future_inputs = input
+                .input
+                .iter()
+                .filter_map(|input| <span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
+                    Type::Future(future_type) =&gt; future_type.location.clone(),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+                })
+                .collect();
+            <span class="comment">// Note that this unwrap is safe, because `self.program_name` is set before traversing the AST.
+            </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_futures(<span class="self">self</span>.program_name.unwrap(), input.name(), future_inputs)
+            {
+                <span class="self">self</span>.handler.emit_err(err);
+            }
         }
     }
 

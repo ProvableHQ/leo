@@ -895,6 +895,10 @@
 <a href="#895" id="895">895</a>
 <a href="#896" id="896">896</a>
 <a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1639,14 +1643,16 @@
         help: <span class="prelude-val">Some</span>(<span class="string">" Future arguments must be addressed by their index. Ex: `f.1.3`."</span>.to_string()),
     }
 
-    @formatted
+    <span class="comment">// TODO: This error is deprecated. Remove.
+    </span>@formatted
     no_path_awaits_all_futures_exactly_once {
         args: (num_total_paths: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Futures must be awaited exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all futures are awaited exactly once."</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` to await a future. Remove duplicate future await redundancies, and add future awaits for un-awaited futures."</span>.to_string()),
     }
 
-    @formatted
+    <span class="comment">// TODO: This error is deprecated. Remove.
+    </span>@formatted
     future_awaits_missing {
         args: (unawaited: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"The following futures were never awaited: {unawaited}"</span>),
@@ -1660,7 +1666,8 @@
         help: <span class="prelude-val">Some</span>(<span class="string">"Futures can only be defined as the result of async calls."</span>.to_string()),
     }
 
-    @formatted
+    <span class="comment">// TODO: This error is deprecated. Remove.
+    </span>@formatted
     invalid_await_call {
         args: (),
         msg: <span class="string">"Not a valid await call."</span>.to_string(),
@@ -1674,7 +1681,8 @@
         help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future."</span>.to_string()),
     }
 
-    @formatted
+    <span class="comment">// TODO: This error is deprecated. Remove.
+    </span>@formatted
     expected_future {
         args: (type_: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Expected a future, but found `{type_}`"</span>),

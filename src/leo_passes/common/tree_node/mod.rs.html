@@ -56,6 +56,17 @@
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -108,9 +119,20 @@
     }
 
     <span class="doccomment">/// Removes an element from the current node.
-    </span><span class="kw">pub fn </span>remove_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>, element: <span class="kw-2">&amp;</span>N) {
-        <span class="kw">if </span>!<span class="self">self</span>.elements.shift_remove(element) {
+    /// If the element does not exist, increment an internal counter which later used to generate an error that the user attempted to await a future twice.
+    /// Returns `true` if the element was removed but not the first one in the node.
+    </span><span class="kw">pub fn </span>remove_element(<span class="kw-2">&amp;mut </span><span class="self">self</span>, element: <span class="kw-2">&amp;</span>N) -&gt; bool {
+        <span class="comment">// Check if the element is the first one in the node.
+        </span><span class="kw">let </span>is_not_first = <span class="kw">match </span><span class="self">self</span>.elements.first() {
+            <span class="prelude-val">Some</span>(first) =&gt; first != element,
+            <span class="prelude-val">None </span>=&gt; <span class="bool-val">false</span>,
+        };
+        <span class="comment">// Remove the element from the node.
+        </span><span class="kw">if </span>!<span class="self">self</span>.elements.shift_remove(element) {
             <span class="self">self</span>.counter += <span class="number">1</span>;
+            <span class="bool-val">false
+        </span>} <span class="kw">else </span>{
+            is_not_first
         }
     }
 }

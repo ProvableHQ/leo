@@ -159,6 +159,19 @@
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
 <a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -206,6 +219,10 @@
 </span><span class="kw">pub mod </span>parser;
 <span class="kw">pub use </span><span class="self">self</span>::parser::<span class="kw-2">*</span>;
 
+<span class="doccomment">/// Contains the Static Analyzer error definitions.
+</span><span class="kw">pub mod </span>static_analyzer;
+<span class="kw">pub use </span><span class="self">self</span>::static_analyzer::<span class="kw-2">*</span>;
+
 <span class="doccomment">/// Contains the Type Checker error definitions.
 </span><span class="kw">pub mod </span>type_checker;
 <span class="kw">pub use </span><span class="self">self</span>::type_checker::<span class="kw-2">*</span>;
@@ -233,6 +250,9 @@
     <span class="doccomment">/// Represents a Parser Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>ParserError(<span class="attr">#[from] </span>ParserError),
+    <span class="doccomment">/// Represents a Static Analyzer Error in a Leo Error.
+    </span><span class="attr">#[error(transparent)]
+    </span>StaticAnalyzerError(<span class="attr">#[from] </span>StaticAnalyzerError),
     <span class="doccomment">/// Represents a Type Checker Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>TypeCheckerError(<span class="attr">#[from] </span>TypeCheckerError),
@@ -265,6 +285,7 @@
             CliError(error) =&gt; error.error_code(),
             ParserError(error) =&gt; error.error_code(),
             PackageError(error) =&gt; error.error_code(),
+            StaticAnalyzerError(error) =&gt; error.error_code(),
             TypeCheckerError(error) =&gt; error.error_code(),
             LoopUnrollerError(error) =&gt; error.error_code(),
             FlattenError(error) =&gt; error.error_code(),
@@ -284,6 +305,7 @@
             CliError(error) =&gt; error.exit_code(),
             ParserError(error) =&gt; error.exit_code(),
             PackageError(error) =&gt; error.exit_code(),
+            StaticAnalyzerError(error) =&gt; error.exit_code(),
             TypeCheckerError(error) =&gt; error.exit_code(),
             LoopUnrollerError(error) =&gt; error.exit_code(),
             FlattenError(error) =&gt; error.exit_code(),
@@ -301,6 +323,9 @@
     <span class="doccomment">/// Represents an Parser Warning in a Leo Warning.
     </span><span class="attr">#[error(transparent)]
     </span>ParserWarning(<span class="attr">#[from] </span>ParserWarning),
+    <span class="doccomment">/// Represents a Static Analyzer Warning in a Leo Warning.
+    </span><span class="attr">#[error(transparent)]
+    </span>StaticAnalyzerWarning(<span class="attr">#[from] </span>StaticAnalyzerWarning),
     <span class="doccomment">/// Represents a Type Checker Warning in a Leo Warning.
     </span><span class="attr">#[error(transparent)]
     </span>TypeCheckerWarning(<span class="attr">#[from] </span>TypeCheckerWarning),
@@ -314,6 +339,7 @@
         <span class="kw">match </span><span class="self">self </span>{
             ParserWarning(warning) =&gt; warning.warning_code(),
             TypeCheckerWarning(warning) =&gt; warning.warning_code(),
+            StaticAnalyzerWarning(warning) =&gt; warning.warning_code(),
         }
     }
 }

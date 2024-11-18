@@ -384,6 +384,15 @@
 <a href="#384" id="384">384</a>
 <a href="#385" id="385">385</a>
 <a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -541,18 +550,24 @@
 
     <span class="doccomment">/// Runs the type checker pass.
     </span><span class="kw">pub fn </span>type_checker_pass(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, symbol_table: SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, StructGraph, CallGraph)&gt; {
-        <span class="kw">let </span>(symbol_table, struct_graph, call_graph) = TypeChecker::&lt;N&gt;::do_pass((
+        <span class="kw">let </span>(symbol_table, struct_graph, call_graph) =
+            TypeChecker::&lt;N&gt;::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler, symbol_table, <span class="kw-2">&amp;</span><span class="self">self</span>.type_table))<span class="question-mark">?</span>;
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.type_checked_symbol_table {
+            <span class="self">self</span>.write_symbol_table_to_json(<span class="string">"type_checked_symbol_table.json"</span>, <span class="kw-2">&amp;</span>symbol_table)<span class="question-mark">?</span>;
+        }
+        <span class="prelude-val">Ok</span>((symbol_table, struct_graph, call_graph))
+    }
+
+    <span class="doccomment">/// Runs the static analysis pass.
+    </span><span class="kw">pub fn </span>static_analysis_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;</span>SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        StaticAnalyzer::&lt;N&gt;::do_pass((
             <span class="kw-2">&amp;</span><span class="self">self</span>.ast,
             <span class="self">self</span>.handler,
             symbol_table,
             <span class="kw-2">&amp;</span><span class="self">self</span>.type_table,
             <span class="self">self</span>.compiler_options.build.conditional_block_max_depth,
             <span class="self">self</span>.compiler_options.build.disable_conditional_branch_type_checking,
-        ))<span class="question-mark">?</span>;
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.type_checked_symbol_table {
-            <span class="self">self</span>.write_symbol_table_to_json(<span class="string">"type_checked_symbol_table.json"</span>, <span class="kw-2">&amp;</span>symbol_table)<span class="question-mark">?</span>;
-        }
-        <span class="prelude-val">Ok</span>((symbol_table, struct_graph, call_graph))
+        ))
     }
 
     <span class="doccomment">/// Runs the loop unrolling pass.
@@ -671,7 +686,10 @@
     <span class="doccomment">/// Runs the compiler stages.
     </span><span class="kw">pub fn </span>compiler_stages(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, StructGraph, CallGraph)&gt; {
         <span class="kw">let </span>st = <span class="self">self</span>.symbol_table_pass()<span class="question-mark">?</span>;
+
         <span class="kw">let </span>(st, struct_graph, call_graph) = <span class="self">self</span>.type_checker_pass(st)<span class="question-mark">?</span>;
+
+        <span class="self">self</span>.static_analysis_pass(<span class="kw-2">&amp;</span>st)<span class="question-mark">?</span>;
 
         <span class="comment">// TODO: Make this pass optional.
         </span><span class="kw">let </span>st = <span class="self">self</span>.loop_unrolling_pass(st)<span class="question-mark">?</span>;

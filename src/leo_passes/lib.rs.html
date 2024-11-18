@@ -49,6 +49,9 @@
 <a href="#49" id="49">49</a>
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
+<a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -68,7 +71,10 @@
 </span><span class="attr">#![forbid(unsafe_code)]
 #![doc = <span class="macro">include_str!</span>(<span class="string">"../README.md"</span>)]
 
-</span><span class="kw">pub mod </span>code_generation;
+</span><span class="kw">pub mod </span>static_analysis;
+<span class="kw">pub use </span>static_analysis::<span class="kw-2">*</span>;
+
+<span class="kw">pub mod </span>code_generation;
 <span class="kw">pub use </span>code_generation::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>common;
