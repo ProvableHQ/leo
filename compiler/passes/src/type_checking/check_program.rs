@@ -17,7 +17,7 @@
 use crate::{DiGraphError, TypeChecker};
 
 use leo_ast::{Type, *};
-use leo_errors::{TypeCheckerError, TypeCheckerWarning};
+use leo_errors::TypeCheckerError;
 use leo_span::sym;
 
 use snarkvm::console::network::Network;
@@ -262,19 +262,6 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
         // Query helper function to type check function parameters and outputs.
         self.check_function_signature(function);
 
-        if self.scope_state.variant == Some(Variant::AsyncFunction) {
-            // Initialize the list of input futures. Each one must be awaited before the end of the function.
-            self.await_checker.set_futures(
-                function
-                    .input
-                    .iter()
-                    .filter_map(|input| {
-                        if let Type::Future(_) = input.type_.clone() { Some(input.identifier.name) } else { None }
-                    })
-                    .collect(),
-            );
-        }
-
         if function.variant == Variant::Function && function.input.is_empty() {
             self.emit_err(TypeCheckerError::empty_function_arglist(function.span));
         }
@@ -295,59 +282,6 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
         // Make sure that async transitions call finalize.
         if self.scope_state.variant == Some(Variant::AsyncTransition) && !self.scope_state.has_called_finalize {
             self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
-        }
-
-        // Check that all futures were awaited exactly once.
-        if self.scope_state.variant == Some(Variant::AsyncFunction) {
-            // Throw error if not all futures awaits even appear once.
-            if !self.await_checker.static_to_await.is_empty() {
-                self.emit_err(TypeCheckerError::future_awaits_missing(
-                    self.await_checker
-                        .static_to_await
-                        .clone()
-                        .iter()
-                        .map(|f| f.to_string())
-                        .collect::<Vec<String>>()
-                        .join(", "),
-                    function.span(),
-                ));
-            } else if self.await_checker.enabled && !self.await_checker.to_await.is_empty() {
-                // Tally up number of paths that are unawaited and number of paths that are awaited more than once.
-                let (num_paths_unawaited, num_paths_duplicate_awaited, num_perfect) =
-                    self.await_checker.to_await.iter().fold((0, 0, 0), |(unawaited, duplicate, perfect), path| {
-                        (
-                            unawaited + if !path.elements.is_empty() { 1 } else { 0 },
-                            duplicate + if path.counter > 0 { 1 } else { 0 },
-                            perfect + if path.counter > 0 || !path.elements.is_empty() { 0 } else { 1 },
-                        )
-                    });
-
-                // Throw error if there does not exist a path in which all futures are awaited exactly once.
-                if num_perfect == 0 {
-                    self.emit_err(TypeCheckerError::no_path_awaits_all_futures_exactly_once(
-                        self.await_checker.to_await.len(),
-                        function.span(),
-                    ));
-                }
-
-                // Throw warning if some futures are awaited more than once in some paths.
-                if num_paths_unawaited > 0 {
-                    self.emit_warning(TypeCheckerWarning::some_paths_do_not_await_all_futures(
-                        self.await_checker.to_await.len(),
-                        num_paths_unawaited,
-                        function.span(),
-                    ));
-                }
-
-                // Throw warning if not all futures are awaited in some paths.
-                if num_paths_duplicate_awaited > 0 {
-                    self.emit_warning(TypeCheckerWarning::some_paths_contain_duplicate_future_awaits(
-                        self.await_checker.to_await.len(),
-                        num_paths_duplicate_awaited,
-                        function.span(),
-                    ));
-                }
-            }
         }
     }
 

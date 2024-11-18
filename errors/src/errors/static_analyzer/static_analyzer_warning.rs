@@ -19,10 +19,10 @@ use crate::create_messages;
 use std::fmt::Display;
 
 create_messages!(
-    /// ParserWarning enum that represents all the warnings for the `leo-parser` crate.
-    TypeCheckerWarning,
-    code_mask: 2000i32,
-    code_prefix: "TYC",
+    /// ParserWarning enum that represents all the warnings for static analysis
+    StaticAnalyzerWarning,
+    code_mask: 4000i32,
+    code_prefix: "SAZ",
 
     @formatted
     some_paths_do_not_await_all_futures {
@@ -38,18 +38,17 @@ create_messages!(
         help: Some("Look at the times `.await()` is called, and try to reduce redundancies. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
     }
 
-    // TODO: This warning is deprecated, remove it in the future.
-    @formatted
-    async_function_is_never_called_by_transition_function {
-        args: (name: impl Display),
-        msg: format!("The async function `{name}` is never called by an async transition."),
-        help: None,
-    }
-
     @formatted
     max_conditional_block_depth_exceeded {
         args: (max: impl Display),
         msg: format!("The type checker has exceeded the max depth of nested conditional blocks: {max}."),
         help: Some("Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.".to_string()),
+    }
+
+    @formatted
+    future_not_awaited_in_order {
+        args: (future_name: impl Display),
+        msg: format!("The future `{}` is not awaited in the order in which they were passed in to the `async` function.", future_name),
+        help: Some("While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.".to_string()),
     }
 );

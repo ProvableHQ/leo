@@ -34,7 +34,7 @@ function main_dep_2:
 finalize main_dep_2:
     set 1u32 into Yo[1u32];
 """, errors = "", warnings = "" },
-    { initial_symbol_table = "1a537ce4873945cd8969e08fd2440d3d9dbf4175306e7a60a18f59305958366e", type_checked_symbol_table = "3c670b67da9da6028e642d487a1382f3de1b554c8c0d51fc531b71e36b5cdef5", unrolled_symbol_table = "3c670b67da9da6028e642d487a1382f3de1b554c8c0d51fc531b71e36b5cdef5", initial_ast = "bcfa98eafaf355e7313773fa4340b88d2530e3d2b279252fc1117327de42d77a", unrolled_ast = "01a9f5e11f5749b408619a513bf7f9eececfd83f9f87c883fcd8db53440babab", ssa_ast = "b6da9c41019a2af6cd137e29fe7b5041cc13a45d574b920101a69f7093c58980", flattened_ast = "7bddc7f16b5ef5baef1fc50ac2f45767844d05fc0de797d267c77306bc586dc5", destructured_ast = "df2c950dd52d4094ef1f2d364aa6dd57020f7ca431ead915353c2c33482ee05d", inlined_ast = "7dd0bb6eee84d038c01e43a8c7fdfd38ec3cbb269bf4990078a49e5202fe177e", dce_ast = "4378a2b09abc850959d98704efb7ec28bd6ad7962cc4ec761e26e57400cec8a0", bytecode = """
+    { initial_symbol_table = "1efe1fca5533564cb10347a951f503433d841d861e7eae035d3a86912ac5e475", type_checked_symbol_table = "5c2b623a5f1f09b4bd46ab77d25c40a1966d596f6cc41f7c4d93f883094ad185", unrolled_symbol_table = "5c2b623a5f1f09b4bd46ab77d25c40a1966d596f6cc41f7c4d93f883094ad185", initial_ast = "bcfa98eafaf355e7313773fa4340b88d2530e3d2b279252fc1117327de42d77a", unrolled_ast = "01a9f5e11f5749b408619a513bf7f9eececfd83f9f87c883fcd8db53440babab", ssa_ast = "b6da9c41019a2af6cd137e29fe7b5041cc13a45d574b920101a69f7093c58980", flattened_ast = "7bddc7f16b5ef5baef1fc50ac2f45767844d05fc0de797d267c77306bc586dc5", destructured_ast = "df2c950dd52d4094ef1f2d364aa6dd57020f7ca431ead915353c2c33482ee05d", inlined_ast = "7dd0bb6eee84d038c01e43a8c7fdfd38ec3cbb269bf4990078a49e5202fe177e", dce_ast = "4378a2b09abc850959d98704efb7ec28bd6ad7962cc4ec761e26e57400cec8a0", bytecode = """
 import test_dep.aleo;
 program test.aleo;
 
@@ -75,7 +75,7 @@ finalize main:
     add r0[0u32] r1[0u32] into r5;
     set r5 into ayo[1u32];
 """, errors = "", warnings = """
-Warning [WTYC0372000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
+Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
     --> compiler-test:17:5
      |
   17 |     async function finalize_main(f: Future, f2: Future, a: u32) {
@@ -96,7 +96,7 @@ Warning [WTYC0372000]: Not all paths through the function await all futures. 2/4
      |     ^
      |
      = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.""" },
-    { initial_symbol_table = "04f7d3a44d791763aec79b596224c653e682ab928bc0cba71a1cd6282198e885", type_checked_symbol_table = "d9d3363d1049a924bbae356d0f90ac3c9bfca7f6ae5ba51ad915d66e9d0b9a1e", unrolled_symbol_table = "d9d3363d1049a924bbae356d0f90ac3c9bfca7f6ae5ba51ad915d66e9d0b9a1e", initial_ast = "856e56d95eaf14f6e9241001763546b7d982402ac87521e2ec3b7ea476764692", unrolled_ast = "75b69748ca1e534c95cf084164773d471f51537b50b2d517dc4be26dddb06e1b", ssa_ast = "6d38bf225e9cf5af37b9d6c595c2973ec31a32d227ca65cb590d27400d442780", flattened_ast = "65fb4138701cad86a5fcd7e024645e833aeb6e88b3ea2a3a6b69269fd1d77620", destructured_ast = "85a81c23da7e97b057ddf4ef71f375781e1dfcb90d656d694a5aa0f0c176b497", inlined_ast = "a1b2367575e170a79ace2ac7ff071bc3c770476b37ee149310c3b2cfe67b1c7f", dce_ast = "f46fa7963b327b9c75c9f7a7569e350d7f62c21964cb5df140cd2186c2043697", bytecode = """
+    { initial_symbol_table = "cd14d130e4f9b9b92f731cb8caee6237ae4477573ea636af8775e5e02966390e", type_checked_symbol_table = "387eabcc94db2a5021555b90e0dddcb7373aa3344fe7bbc86087f32f0893fa35", unrolled_symbol_table = "387eabcc94db2a5021555b90e0dddcb7373aa3344fe7bbc86087f32f0893fa35", initial_ast = "856e56d95eaf14f6e9241001763546b7d982402ac87521e2ec3b7ea476764692", unrolled_ast = "75b69748ca1e534c95cf084164773d471f51537b50b2d517dc4be26dddb06e1b", ssa_ast = "6d38bf225e9cf5af37b9d6c595c2973ec31a32d227ca65cb590d27400d442780", flattened_ast = "65fb4138701cad86a5fcd7e024645e833aeb6e88b3ea2a3a6b69269fd1d77620", destructured_ast = "85a81c23da7e97b057ddf4ef71f375781e1dfcb90d656d694a5aa0f0c176b497", inlined_ast = "a1b2367575e170a79ace2ac7ff071bc3c770476b37ee149310c3b2cfe67b1c7f", dce_ast = "f46fa7963b327b9c75c9f7a7569e350d7f62c21964cb5df140cd2186c2043697", bytecode = """
 import test_dep.aleo;
 import test.aleo;
 program wrapper.aleo;
@@ -119,7 +119,7 @@ finalize main:
     await r1;
     await r2;
 """, errors = "", warnings = "" },
-    { initial_symbol_table = "11c1000ce2f1774ad382af12ba51e8b55d5a98ee0da67cb8620e686c1fcaebb1", type_checked_symbol_table = "9f27eb3f177ceb81d9b14cc85c07b7198eb67d0ee806c04cbbff1cfb18b997ab", unrolled_symbol_table = "9f27eb3f177ceb81d9b14cc85c07b7198eb67d0ee806c04cbbff1cfb18b997ab", initial_ast = "575e251f07e552c917ab36bc9877b13dd1638651c4023ade20701dd2a5fe27ff", unrolled_ast = "2a4969ad315e900b5a3f1eecd4e6508dc6946fb5f6c3861ee793961ce6bcc203", ssa_ast = "4a00e3d36cdd4ff4be1fc6a389aaf17cfb02b6c54fa84276fb5be66b8a78b124", flattened_ast = "885c5f8145aa1a82e5fe41abbabae12cbd15eb014b333b246c6c5401b5b6bfea", destructured_ast = "f3b5b961a498f9befec85b69b3012145a6e97774d37a8c8e354ec4e5eeb64f84", inlined_ast = "2bf37fc499b3eca18c8227e61f69f730d36e755d7879dde13bb9161936bafbfc", dce_ast = "390391c2098cf6a910eeec98fc92fdea31303a84a1d6fd6673c8dbd9d20180de", bytecode = """
+    { initial_symbol_table = "29aefa9acac4488265303e8b3bd52a434ae4824211df7919f6b63cfe6e1ec51f", type_checked_symbol_table = "1d1a8312d73125086e436d6463fd554fbc3aa622a2e28efc8622ddf0adfb473f", unrolled_symbol_table = "1d1a8312d73125086e436d6463fd554fbc3aa622a2e28efc8622ddf0adfb473f", initial_ast = "575e251f07e552c917ab36bc9877b13dd1638651c4023ade20701dd2a5fe27ff", unrolled_ast = "2a4969ad315e900b5a3f1eecd4e6508dc6946fb5f6c3861ee793961ce6bcc203", ssa_ast = "4a00e3d36cdd4ff4be1fc6a389aaf17cfb02b6c54fa84276fb5be66b8a78b124", flattened_ast = "885c5f8145aa1a82e5fe41abbabae12cbd15eb014b333b246c6c5401b5b6bfea", destructured_ast = "f3b5b961a498f9befec85b69b3012145a6e97774d37a8c8e354ec4e5eeb64f84", inlined_ast = "2bf37fc499b3eca18c8227e61f69f730d36e755d7879dde13bb9161936bafbfc", dce_ast = "390391c2098cf6a910eeec98fc92fdea31303a84a1d6fd6673c8dbd9d20180de", bytecode = """
 import test_dep.aleo;
 import test.aleo;
 import wrapper.aleo;

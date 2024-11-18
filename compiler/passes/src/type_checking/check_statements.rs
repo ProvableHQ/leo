@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{ConditionalTreeNode, TypeChecker, VariableSymbol, VariableType};
+use crate::{TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::{
     Type::{Future, Tuple},
@@ -133,25 +133,11 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         // Set the `is_conditional` flag.
         let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
 
-        // Create scope for checking awaits in `then` branch of conditional.
-        let current_bst_nodes: Vec<ConditionalTreeNode> = match self
-            .await_checker
-            .create_then_scope(self.scope_state.variant == Some(Variant::AsyncFunction), input.span)
-        {
-            Ok(nodes) => nodes,
-            Err(warn) => return self.emit_warning(warn),
-        };
-
         // Visit block.
         self.visit_block(&input.then);
 
         // Store the `has_return` flag for the then-block.
         then_block_has_return = self.scope_state.has_return;
-
-        // Exit scope for checking awaits in `then` branch of conditional.
-        let saved_paths = self
-            .await_checker
-            .exit_then_scope(self.scope_state.variant == Some(Variant::AsyncFunction), current_bst_nodes);
 
         if let Some(otherwise) = &input.otherwise {
             // Set the `has_return` flag for the otherwise-block.
@@ -169,9 +155,6 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
             // Store the `has_return` flag for the otherwise-block.
             otherwise_block_has_return = self.scope_state.has_return;
         }
-
-        // Update the set of all possible BST paths.
-        self.await_checker.exit_statement_scope(self.scope_state.variant == Some(Variant::AsyncFunction), saved_paths);
 
         // Restore the previous `has_return` flag.
         self.scope_state.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);

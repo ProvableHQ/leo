@@ -119,14 +119,10 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                     }
 
                     // Await futures here so that can use the argument variable names to lookup.
-                    if core_instruction == CoreFunction::FutureAwait {
-                        if access.arguments.len() != 1 {
-                            self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
-                            return Some(Type::Unit);
-                        }
-                        self.assert_future_await(&access.arguments.first(), input.span());
+                    if core_instruction == CoreFunction::FutureAwait && access.arguments.len() != 1 {
+                        self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
+                        return Some(Type::Unit);
                     }
-
                     return return_type;
                 } else {
                     self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));

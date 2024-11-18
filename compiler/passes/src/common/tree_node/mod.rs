@@ -50,9 +50,20 @@ impl<N: Node> TreeNode<N> {
     }
 
     /// Removes an element from the current node.
-    pub fn remove_element(&mut self, element: &N) {
+    /// If the element does not exist, increment an internal counter which later used to generate an error that the user attempted to await a future twice.
+    /// Returns `true` if the element was removed but not the first one in the node.
+    pub fn remove_element(&mut self, element: &N) -> bool {
+        // Check if the element is the first one in the node.
+        let is_not_first = match self.elements.first() {
+            Some(first) => first != element,
+            None => false,
+        };
+        // Remove the element from the node.
         if !self.elements.shift_remove(element) {
             self.counter += 1;
+            false
+        } else {
+            is_not_first
         }
     }
 }

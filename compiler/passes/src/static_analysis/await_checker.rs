@@ -17,7 +17,7 @@
 use crate::ConditionalTreeNode;
 use indexmap::IndexSet;
 use leo_ast::Identifier;
-use leo_errors::TypeCheckerWarning;
+use leo_errors::StaticAnalyzerWarning;
 use leo_span::{Span, Symbol};
 
 // TODO: Could optimize by removing duplicate paths (if set of futures is the same).
@@ -39,15 +39,20 @@ impl AwaitChecker {
     }
 
     /// Remove from list.
-    pub fn remove(&mut self, id: &Identifier) {
+    /// Returns `true` if there was a path where the future was not awaited in the order of the input list.
+    pub fn remove(&mut self, id: &Identifier) -> bool {
         // Can assume in finalize block.
-        if self.enabled {
+        let is_not_first = if self.enabled {
             // Remove from dynamic list.
-            self.to_await.iter_mut().for_each(|node| node.remove_element(&id.name));
-        }
+            self.to_await.iter_mut().any(|node| node.remove_element(&id.name))
+        } else {
+            false
+        };
 
         // Remove from static list.
         self.static_to_await.shift_remove(&id.name);
+
+        is_not_first
     }
 
     /// Initialize futures.
@@ -65,14 +70,14 @@ impl AwaitChecker {
         &mut self,
         is_finalize: bool,
         input: Span,
-    ) -> Result<Vec<ConditionalTreeNode>, TypeCheckerWarning> {
+    ) -> Result<Vec<ConditionalTreeNode>, StaticAnalyzerWarning> {
         if is_finalize && self.enabled {
             let mut current_nodes = Vec::new();
             // Extend all paths by one node to represent the upcoming `then` branch.
             for node in self.to_await.iter() {
                 // Error if exceed maximum depth.
                 if node.depth > self.max_depth {
-                    return Err(TypeCheckerWarning::max_conditional_block_depth_exceeded(self.max_depth, input));
+                    return Err(StaticAnalyzerWarning::max_conditional_block_depth_exceeded(self.max_depth, input));
                 }
                 // Extend current path.
                 current_nodes.push(node.clone().create_child());
