@@ -71,8 +71,24 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
         }
     }
 
-    // Re-run upon any changes to the workspace.
-    println!("cargo:rerun-if-changed=.");
+    // Watch the directories that contain Rust source files
+    println!("cargo:rerun-if-changed=compiler");
+    println!("cargo:rerun-if-changed=errors");
+    println!("cargo:rerun-if-changed=leo");
+    println!("cargo:rerun-if-changed=tests/test-framework");
+    println!("cargo:rerun-if-changed=utils");
+
+    // Watch the build script itself
+    println!("cargo:rerun-if-changed=build.rs");
+
+    // Watch the license header file
+    println!("cargo:rerun-if-changed=.resources/license_header");
+
+    // Watch the Cargo.toml file
+    println!("cargo:rerun-if-changed=Cargo.toml");
+
+    // Watch the Cargo.lock file
+    println!("cargo:rerun-if-changed=Cargo.lock");
 }
 
 // The build script; it currently only checks the licenses.

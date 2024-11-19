@@ -42,15 +42,20 @@ commands:
       - run:
           name: Install Rust
           command: |
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            source "$HOME/.cargo/env"
-            rustup install 1.82.0
-            rustup override set 1.82.0
-            cargo --version --verbose
-            rustc --version
+            # If Rust is not installed on the machine, install it
+            if ! command -v rustc &> /dev/null; then
+              curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+              source "$HOME/.cargo/env"
+              rustup install 1.82.0
+              rustup override set 1.82.0
+              cargo --version --verbose
+              rustc --version
+            fi
             if [ ! -f "Cargo.lock" ]; then
               cargo generate-lockfile
             fi
+            cargo install cargo-mtime
+            
             
 
   install-rust-windows:
@@ -71,6 +76,7 @@ commands:
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
                 cargo generate-lockfile
             }
+            cargo install cargo-mtime
 
   build-and-test:
     description: "Build and run tests"
@@ -79,12 +85,14 @@ commands:
           name: Build
           no_output_timeout: 30m
           command: |
+            cargo-mtime . ~/.cache/mtimes/project.db
             cargo test --no-run --all --locked --profile ci --features only_testnet
       - run:
           name: Run tests
           no_output_timeout: 30m
           # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
           command: |
+            cargo-mtime . ~/.cache/mtimes/project.db
             cargo test --all --locked --profile ci --features only_testnet --verbose
 
   install_rust_nightly:
@@ -144,6 +152,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
+      - install-rust
       - run:
             name: Update Submodules
             command: git submodule update --init --recursive
