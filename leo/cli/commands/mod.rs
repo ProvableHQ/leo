@@ -180,6 +180,8 @@ pub struct BuildOptions {
     pub conditional_block_max_depth: usize,
     #[clap(long, help = "Disable type checking of nested conditional branches in finalize scope.")]
     pub disable_conditional_branch_type_checking: bool,
+    #[clap(long, help = "Build the test programs as well.", default_value = "false")]
+    pub build_tests: bool,
 }
 
 impl Default for BuildOptions {
@@ -205,6 +207,7 @@ impl Default for BuildOptions {
             enable_dce_ast_snapshot: false,
             conditional_block_max_depth: 10,
             disable_conditional_branch_type_checking: false,
+            build_tests: false,
         }
     }
 }

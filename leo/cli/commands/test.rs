@@ -48,7 +48,10 @@ impl Command for LeoTest {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        (LeoBuild { options: self.compiler_options.clone() }).execute(context)
+        // Set `build_tests` to `true` to ensure that the tests are built.
+        let mut options = self.compiler_options.clone();
+        options.build_tests = true;
+        (LeoBuild { options }).execute(context)
     }
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {

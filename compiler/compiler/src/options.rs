@@ -60,4 +60,6 @@ pub struct OutputOptions {
     pub inlined_ast: bool,
     /// If enabled writes the AST after dead code elimination.
     pub dce_ast: bool,
+    /// If enabled builds all test programs.
+    pub build_tests: bool,
 }

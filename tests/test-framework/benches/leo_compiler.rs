@@ -109,6 +109,7 @@ fn new_compiler(handler: &Handler) -> Compiler<'_, CurrentNetwork> {
                 destructured_ast: false,
                 inlined_ast: false,
                 dce_ast: false,
+                build_tests: false,
             },
         }),
         IndexMap::new(),

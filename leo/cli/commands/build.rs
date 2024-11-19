@@ -57,6 +57,7 @@ impl From<BuildOptions> for CompilerOptions {
                 destructured_ast: options.enable_destructured_ast_snapshot,
                 inlined_ast: options.enable_inlined_ast_snapshot,
                 dce_ast: options.enable_dce_ast_snapshot,
+                build_tests: options.build_tests,
             },
         };
         if options.enable_all_ast_snapshots {
