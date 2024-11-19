@@ -54,7 +54,7 @@ pub struct TypeChecker<'a, N: Network> {
     /// The set of used composites.
     pub(crate) used_structs: IndexSet<Symbol>,
     /// Are we compiling tests?
-    pub(crate) is_test: bool,
+    pub(crate) build_tests: bool,
     // Allows the type checker to be generic over the network.
     phantom: PhantomData<N>,
 }
@@ -127,7 +127,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             await_checker: AwaitChecker::new(max_depth, !disabled),
             async_function_input_types: IndexMap::new(),
             used_structs: IndexSet::new(),
-            is_test,
+            build_tests: is_test,
             phantom: Default::default(),
         }
     }

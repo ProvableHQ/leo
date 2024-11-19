@@ -162,7 +162,7 @@ impl<'a, N: Network> Compiler<'a, N> {
             &self.type_table,
             self.compiler_options.build.conditional_block_max_depth,
             self.compiler_options.build.disable_conditional_branch_type_checking,
-            false, // is_test
+            self.compiler_options.output.build_tests,
         ))?;
         if self.compiler_options.output.type_checked_symbol_table {
             self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
