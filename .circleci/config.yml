@@ -36,22 +36,26 @@ executors:
     resource_class: xlarge
 
 commands:
-  install-rust:
+  install-rust-macos:
     description: "Install Rust (Linux/macOS)"
     steps:
       - run:
           name: Install Rust
           command: |
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            source "$HOME/.cargo/env"
-            rustup install 1.82.0
-            rustup override set 1.82.0
-            cargo --version --verbose
-            rustc --version
+            # If Rust is not installed on the machine, install it
+            if ! command -v rustc &> /dev/null; then
+              curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+              source "$HOME/.cargo/env"
+              rustup install 1.82.0
+              rustup override set 1.82.0
+              cargo --version --verbose
+              rustc --version
+            fi
             if [ ! -f "Cargo.lock" ]; then
               cargo generate-lockfile
             fi
             cargo install cargo-mtime
+            
             
 
   install-rust-windows:
@@ -148,6 +152,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
+      - install-rust
       - run:
             name: Update Submodules
             command: git submodule update --init --recursive
