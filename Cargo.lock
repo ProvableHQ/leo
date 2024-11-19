@@ -1581,6 +1581,7 @@ dependencies = [
  "leo-retriever",
  "leo-span",
  "num-format",
+ "num_cpus",
  "rand",
  "rand_chacha",
  "rpassword",

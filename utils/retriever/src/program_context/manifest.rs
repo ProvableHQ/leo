@@ -22,11 +22,18 @@ use std::path::Path;
 // Struct representation of program's `program.json` specification
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Manifest {
-    program: String,
-    version: String,
-    description: String,
-    license: String,
-    dependencies: Option<Vec<Dependency>>,
+    /// The name of the program
+    pub program: String,
+    /// The version of the program.
+    pub version: String,
+    /// The description of the program.
+    pub description: String,
+    /// The license of the program.
+    pub license: String,
+    /// The dependencies of the program.
+    pub dependencies: Option<Vec<Dependency>>,
+    /// The dev dependencies of the program. These dependencies are only available during testing.
+    pub dev_dependencies: Option<Vec<Dependency>>,
 }
 
 impl Manifest {
@@ -36,6 +43,7 @@ impl Manifest {
         description: &str,
         license: &str,
         dependencies: Option<Vec<Dependency>>,
+        dev_dependencies: Option<Vec<Dependency>>,
     ) -> Self {
         Self {
             program: program.to_owned(),
@@ -43,6 +51,7 @@ impl Manifest {
             description: description.to_owned(),
             license: license.to_owned(),
             dependencies,
+            dev_dependencies,
         }
     }
 
@@ -53,6 +62,7 @@ impl Manifest {
             description: "".to_owned(),
             license: "MIT".to_owned(),
             dependencies: None,
+            dev_dependencies: None,
         }
     }
 
@@ -74,6 +84,10 @@ impl Manifest {
 
     pub fn dependencies(&self) -> &Option<Vec<Dependency>> {
         &self.dependencies
+    }
+
+    pub fn dev_dependencies(&self) -> &Option<Vec<Dependency>> {
+        &self.dev_dependencies
     }
 
     pub fn write_to_dir(&self, path: &Path) -> Result<(), PackageError> {

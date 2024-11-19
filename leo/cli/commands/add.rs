@@ -28,11 +28,11 @@ pub struct LeoAdd {
     #[clap(short = 'l', long, help = "Path to local dependency")]
     pub(crate) local: Option<PathBuf>,
 
+    #[clap(short = 'd', long, help = "Whether the dependency is a dev dependency", default_value = "false")]
+    pub(crate) dev: bool,
+
     #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
     pub(crate) network: String,
-
-    #[clap(short = 'c', long, help = "Clear all previous dependencies.", default_value = "false")]
-    pub(crate) clear: bool,
 }
 
 impl Command for LeoAdd {
@@ -66,65 +66,64 @@ impl Command for LeoAdd {
             name => return Err(PackageError::invalid_file_name_dependency(name).into()),
         };
 
-        // Add dependency section to manifest if it doesn't exist.
-        let mut dependencies = match (self.clear, manifest.dependencies()) {
-            (false, Some(ref dependencies)) => dependencies
-                .iter()
-                .filter_map(|dependency| {
-                    // Overwrite old dependencies of the same name.
-                    if dependency.name() == &name {
-                        let msg = match (dependency.path(), dependency.network()) {
-                            (Some(local_path), _) => {
-                                format!("local dependency at path `{}`", local_path.to_str().unwrap().replace('\"', ""))
-                            }
-                            (_, Some(network)) => {
-                                format!("network dependency from `{}`", network)
-                            }
-                            _ => "git dependency".to_string(),
-                        };
-                        tracing::warn!("⚠️  Program `{name}` already exists as a {msg}. Overwriting.");
-                        None
-                    } else if self.local.is_some() && &self.local == dependency.path() {
-                        // Overwrite old dependencies at the same local path.
-                        tracing::warn!(
-                            "⚠️  Path `{}` already exists as the location for local dependency `{}`. Overwriting.",
-                            self.local.clone().unwrap().to_str().unwrap().replace('\"', ""),
-                            dependency.name()
-                        );
-                        None
-                    } else {
-                        Some(dependency.clone())
-                    }
-                })
-                .collect(),
-            _ => Vec::new(),
-        };
+        // Destructure the manifest.
+        let Manifest { program, version, description, license, dependencies, dev_dependencies } = manifest;
 
-        // Add new dependency to the manifest.
-        dependencies.push(match self.local {
-            Some(local_path) => {
-                tracing::info!(
-                    "✅ Added local dependency to program `{name}` at path `{}`.",
-                    local_path.to_str().unwrap().replace('\"', "")
-                );
-                Dependency::new(name, Location::Local, None, Some(local_path))
-            }
-            None => {
-                tracing::info!("✅ Added network dependency to program `{name}` from network `{}`.", self.network);
-                Dependency::new(name, Location::Network, Some(NetworkName::try_from(self.network.as_str())?), None)
-            }
-        });
+        // Add the dependency to the appropriate section.
+        let (dependencies, dev_dependencies) = if self.dev {
+            (dependencies, add_dependency(dev_dependencies, name, self.local, self.network)?)
+        } else {
+            (add_dependency(dependencies, name, self.local, self.network)?, dev_dependencies)
+        };
 
         // Update the manifest file.
         let new_manifest = Manifest::new(
-            manifest.program(),
-            manifest.version(),
-            manifest.description(),
-            manifest.license(),
-            Some(dependencies),
+            program.as_str(),
+            version.as_str(),
+            description.as_str(),
+            license.as_str(),
+            dependencies,
+            dev_dependencies,
         );
         new_manifest.write_to_dir(&path)?;
 
         Ok(())
     }
+}
+
+// A helper function to add a dependency to either the `dependencies` or `dev_dependencies` section of the manifest.
+fn add_dependency(
+    dependencies: Option<Vec<Dependency>>,
+    name: String,
+    location: Option<PathBuf>,
+    network: String,
+) -> Result<Option<Vec<Dependency>>> {
+    // Check if the dependency already exists, returning the original list if it does.
+    let mut dependencies = if let Some(dependencies) = dependencies {
+        if dependencies.iter().any(|dependency| dependency.name() == &name) {
+            tracing::warn!(
+                "⚠️  Program `{name}` already exists as a dependency. If you wish to update it, explicitly remove it using `leo remove` and add it again."
+            );
+            return Ok(Some(dependencies));
+        }
+        dependencies
+    } else {
+        Vec::new()
+    };
+    // Add the new dependency to the list.
+    dependencies.push(match location {
+        Some(local_path) => {
+            tracing::info!(
+                "✅ Added local dependency to program `{name}` at path `{}`.",
+                local_path.to_str().unwrap().replace('\"', "")
+            );
+            Dependency::new(name, Location::Local, None, Some(local_path))
+        }
+        None => {
+            tracing::info!("✅ Added network dependency to program `{name}` from network `{network}`.");
+            Dependency::new(name, Location::Network, Some(NetworkName::try_from(network.as_str())?), None)
+        }
+    });
+    // Return the updated list of dependencies.
+    Ok(Some(dependencies))
 }

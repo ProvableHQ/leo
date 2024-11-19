@@ -28,6 +28,9 @@ pub struct LeoRemove {
     )]
     pub(crate) name: Option<String>,
 
+    #[clap(short = 'd', long, help = "Whether the dependency is a dev dependency", default_value = "false")]
+    pub(crate) dev: bool,
+
     #[clap(long, help = "Clear all previous dependencies.", default_value = "false")]
     pub(crate) all: bool,
 }
@@ -54,58 +57,49 @@ impl Command for LeoRemove {
         let manifest: Manifest = serde_json::from_str(&program_data)
             .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))?;
 
-        let dependencies: Vec<Dependency> = if !self.all {
-            // Note that this unwrap is safe since `name` is required if `all` is `false`.
-            let name: String = self.name.unwrap().clone();
+        // Destructure the manifest.
+        let Manifest { program, version, description, license, dependencies, dev_dependencies } = manifest;
 
-            let mut found_match = false;
-            let dep = match manifest.dependencies() {
-                Some(ref dependencies) => dependencies
-                    .iter()
-                    .filter_map(|dependency| {
-                        if dependency.name() == &name {
-                            found_match = true;
-                            let msg = match (dependency.path(), dependency.network()) {
-                                (Some(local_path), _) => format!(
-                                    "local dependency to `{}` from path `{}`",
-                                    name,
-                                    local_path.to_str().unwrap().replace('\"', "")
-                                ),
-                                (_, Some(network)) => {
-                                    format!("network dependency to `{}` from network `{}`", name, network)
-                                }
-                                _ => format!("git dependency to `{name}`"),
-                            };
-                            tracing::warn!("✅ Successfully removed the {msg}.");
-                            None
-                        } else {
-                            Some(dependency.clone())
-                        }
-                    })
-                    .collect(),
-                _ => Vec::new(),
-            };
-
-            // Throw error if no match is found.
-            if !found_match {
-                return Err(PackageError::dependency_not_found(name).into());
-            }
-
-            dep
+        // Add the dependency to the appropriate section.
+        let (dependencies, dev_dependencies) = if self.all {
+            if self.dev { (Some(Vec::new()), dev_dependencies) } else { (dependencies, Some(Vec::new())) }
         } else {
-            Vec::new()
+            // Note that this unwrap is safe since `name` is required if `all` is `false`.
+            let name = self.name.unwrap();
+            if self.dev {
+                (dependencies, remove_dependency(dev_dependencies, name)?)
+            } else {
+                (remove_dependency(dependencies, name)?, dev_dependencies)
+            }
         };
 
         // Update the manifest file.
         let new_manifest = Manifest::new(
-            manifest.program(),
-            manifest.version(),
-            manifest.description(),
-            manifest.license(),
-            Some(dependencies),
+            program.as_str(),
+            version.as_str(),
+            description.as_str(),
+            license.as_str(),
+            dependencies,
+            dev_dependencies,
         );
         new_manifest.write_to_dir(&path)?;
 
         Ok(())
+    }
+}
+
+// A helper function to remove a dependency from either the `dependencies` or `dev_dependencies` section of the manifest.
+fn remove_dependency(dependencies: Option<Vec<Dependency>>, name: String) -> Result<Option<Vec<Dependency>>> {
+    // Remove the dependency from the list, returning an error if it was not found.
+    match dependencies {
+        None => Err(PackageError::dependency_not_found(name).into()),
+        Some(mut dependencies) => {
+            if let Some(index) = dependencies.iter().position(|dep| dep.name() == &name) {
+                dependencies.remove(index);
+                Ok(Some(dependencies))
+            } else {
+                Err(PackageError::dependency_not_found(name).into())
+            }
+        }
     }
 }

@@ -74,5 +74,10 @@ impl Command for LeoTest {
 
 // A helper function to handle the `test` command.
 fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest as Command>::Output> {
-    todo!()
+    // Select the number of jobs, defaulting to the number of CPUs.
+    // If the number exceeds the number of CPUs, it is clamped to the number of CPUs.
+    let num_cpus = num_cpus::get();
+    let jobs = command.jobs.unwrap_or(num_cpus).min(num_cpus);
+
+    Ok(())
 }

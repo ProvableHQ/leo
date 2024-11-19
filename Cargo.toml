@@ -173,6 +173,9 @@ version = "0.15.7"
 [dependencies.indexmap]
 workspace = true
 
+[dependencies.num_cpus]
+version = "1.16.0"
+
 [dependencies.rand]
 workspace = true
 

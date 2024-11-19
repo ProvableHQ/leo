@@ -410,8 +410,8 @@ function external_nested_function:
                 command: LeoAdd {
                     name: "nested_example_layer_0".to_string(),
                     local: None,
+                    dev: false,
                     network: NETWORK.to_string(),
-                    clear: false,
                 },
             },
             path: Some(project_directory.clone()),
@@ -522,8 +522,8 @@ program child.aleo {
                 command: LeoAdd {
                     name: "parent".to_string(),
                     local: Some(parent_directory.clone()),
+                    dev: false,
                     network: NETWORK.to_string(),
-                    clear: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
@@ -537,8 +537,8 @@ program child.aleo {
                 command: LeoAdd {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
+                    dev: false,
                     network: NETWORK.to_string(),
-                    clear: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
@@ -552,8 +552,8 @@ program child.aleo {
                 command: LeoAdd {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
+                    dev: false,
                     network: NETWORK.to_string(),
-                    clear: false,
                 },
             },
             path: Some(parent_directory.clone()),
@@ -694,8 +694,8 @@ program outer.aleo {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
+                    dev: false,
                     network: NETWORK.to_string(),
-                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -709,8 +709,8 @@ program outer.aleo {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
+                    dev: false,
                     network: NETWORK.to_string(),
-                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -881,8 +881,8 @@ program outer_2.aleo {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
+                    dev: false,
                     network: NETWORK.to_string(),
-                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -896,8 +896,8 @@ program outer_2.aleo {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
+                    dev: false,
                     network: NETWORK.to_string(),
-                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
