@@ -51,6 +51,7 @@ commands:
             if [ ! -f "Cargo.lock" ]; then
               cargo generate-lockfile
             fi
+            cargo install cargo-mtime
             
 
   install-rust-windows:
@@ -71,6 +72,7 @@ commands:
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
                 cargo generate-lockfile
             }
+            cargo install cargo-mtime
 
   build-and-test:
     description: "Build and run tests"
@@ -79,12 +81,14 @@ commands:
           name: Build
           no_output_timeout: 30m
           command: |
+            cargo-mtime-memoize . ~/.cache/mtimes/project.db
             cargo test --no-run --all --locked --profile ci --features only_testnet
       - run:
           name: Run tests
           no_output_timeout: 30m
           # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
           command: |
+            cargo-mtime-memoize . ~/.cache/mtimes/project.db
             cargo test --all --locked --profile ci --features only_testnet --verbose
 
   install_rust_nightly:
