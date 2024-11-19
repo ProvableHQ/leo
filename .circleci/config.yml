@@ -36,7 +36,7 @@ executors:
     resource_class: xlarge
 
 commands:
-  install-rust-macos:
+  install-rust:
     description: "Install Rust (Linux/macOS)"
     steps:
       - run:
