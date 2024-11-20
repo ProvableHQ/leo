@@ -184,6 +184,76 @@ jobs:
             leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  macos_m1:
+    name: macOS M1
+    runs-on: macos-latest
+    steps:
+      - name: Xcode Select
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Checkout Specific Tag
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.tag }}
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          profile: minimal
+          target: aarch64-apple-darwin
+          components: rustfmt
+
+      - name: Verify Cargo.lock Exists
+        run: |
+          if [ ! -f Cargo.lock ]; then
+            echo "Error: Cargo.lock file is missing. Aborting build."
+            exit 1
+          fi
+
+      - name: Build Leo
+        run: |
+          SDKROOT=$(xcrun --sdk macosx --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun --sdk macosx --show-sdk-platform-version) \
+          cargo build --package leo-lang --release --locked --target=aarch64-apple-darwin --features noconfig
+          strip target/aarch64-apple-darwin/release/leo
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      - id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Zip Artifact
+        run: |
+          mkdir tempdir
+          mv target/aarch64-apple-darwin/release/leo tempdir
+          cd tempdir
+          zip -r leo.zip leo
+          cp leo.zip leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip
+          cd ..
+          mv tempdir/leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip .
+          mv tempdir/leo.zip .
+
+      - name: Release macOS M1 Version
+        uses: softprops/action-gh-release@v1
+        if: ${{ github.event.inputs.release_flag == 'true' }}
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          files: |
+            leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip
+
+      - name: Release Universal Version
+        uses: softprops/action-gh-release@v1
+        if: ${{ github.event.inputs.release_flag == 'true' }}
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          files: |
+            leo.zip
+
 
   windows:
     name: Windows
