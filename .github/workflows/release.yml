@@ -4,6 +4,10 @@ on:
     tags:
       - 'v*.*.*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to run CI on'
+        required: true
 
 env:
   RUST_BACKTRACE: 0
