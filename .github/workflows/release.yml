@@ -68,16 +68,16 @@ jobs:
 
       - name: Build
         run: |
-          docker pull clux/muslrust:stable
+          docker pull clux/muslrust:x86_64
           docker run \
             -v ${{ github.workspace }}:/volume \
             -v cargo-cache:/root/.cargo/registry \
             --rm \
-            -t clux/muslrust:stable \
+            -t clux/muslrust:x86_64 \
             bash -c "
+              rustup install stable &&
+              rustup default stable &&
               rustup target add x86_64-unknown-linux-musl &&
-              rustup override set x86_64-unknown-linux-musl &&
-              rustup toolchain list &&
               cargo build --target x86_64-unknown-linux-musl --package leo-lang --release --features noconfig
             "
 
