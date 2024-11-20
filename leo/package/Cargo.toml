@@ -1,6 +1,6 @@
 [package]
 name = "leo-package"
-version = "2.3.0"
+version = "2.3.1"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Package parser for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -31,7 +31,7 @@ workspace = true
 workspace = true
 
 [dependencies.serde]
-workspace= true
+workspace = true
 
 [dependencies.tracing]
 workspace = true

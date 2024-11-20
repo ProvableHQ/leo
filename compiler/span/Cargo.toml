@@ -1,6 +1,6 @@
 [package]
 name = "leo-span"
-version = "2.3.0"
+version = "2.3.1"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Span handling for the Leo programming language"
 homepage = "https://leo-lang.org"
