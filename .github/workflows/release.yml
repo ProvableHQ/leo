@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Optional tag to build'
-        required: false
+        description: 'Tag to build'
+        required: true
 
 env:
   RUST_BACKTRACE: 0
@@ -65,6 +65,7 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
+          ref: ${{ inputs.tag }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -104,18 +105,12 @@ jobs:
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip .
 
-      - name: Set tag ref
-        run: echo "TAG_REF=refs/tags/${{ github.event.inputs.tag }}" >> $GITHUB_ENV
-
-      - name: Debug GitHub Context
-        run: |
-          echo "GITHUB_REF=${{ github.ref }}"
-          echo "GITHUB_REF_TYPE=${{ github.ref_type }}"
 
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(env.TAG_REF, 'refs/tags/')
+        if: startsWith(inputs.tag, 'v')
         with:
+          tag_name: ${{ inputs.tag }}
           files: |
             leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip
         env:
