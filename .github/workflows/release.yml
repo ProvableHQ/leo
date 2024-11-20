@@ -68,12 +68,12 @@ jobs:
 
       - name: Build
         run: |
-          docker pull clux/muslrust:x86_64
+          docker pull clux/muslrust:stable
           docker run \
             -v ${{ github.workspace }}:/volume \
             -v cargo-cache:/root/.cargo/registry \
             --rm \
-            -t clux/muslrust:x86_64 \
+            -t clux/muslrust:stable \
             bash -c "
               rustup install stable &&
               rustup default stable &&
