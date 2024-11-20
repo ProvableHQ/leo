@@ -69,7 +69,7 @@ jobs:
       - name: Build
         run: |
           docker pull clux/muslrust:stable
-          docker run -v cargo-cache:/root/.cargo/registry -v $PWD:/volume --rm -t clux/muslrust:stable rustup target add x86_64-unknown-linux-musl && cargo build --target x86_64-unknown-linux-musl --package leo-lang --release --features noconfig && ldd target/x86_64-unknown-linux-musl/release/leo
+          docker run -v cargo-cache:/root/.cargo/registry -v $PWD:/volume --rm -t clux/muslrust:stable rustup target add x86_64-unknown-linux-musl && rustup override set x86_64-unknown-linux-musl && cargo build --target x86_64-unknown-linux-musl --package leo-lang --release --features noconfig && ldd target/x86_64-unknown-linux-musl/release/leo
       - id: get_version
         uses: battila7/get-version-action@v2
 
