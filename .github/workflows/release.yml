@@ -184,6 +184,7 @@ jobs:
             leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   macos_m1:
     name: macOS M1
     runs-on: macos-latest
@@ -208,14 +209,6 @@ jobs:
           target: aarch64-apple-darwin
           components: rustfmt
 
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v1
-        with:
-          version: "11" # Specify the LLVM/Clang version you need
-          directory: ${{ runner.temp }}/llvm
-
-      - name: Set LIBCLANG_PATH
-        run: echo "LIBCLANG_PATH=${{ runner.temp }}/llvm/lib" >> $GITHUB_ENV
 
       - name: Verify Cargo.lock Exists
         run: |
@@ -280,6 +273,15 @@ jobs:
         with:
           toolchain: stable
           components: rustfmt
+
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "11" # Specify the LLVM/Clang version you need
+          directory: ${{ runner.temp }}/llvm
+
+      - name: Set LIBCLANG_PATH
+        run: echo "LIBCLANG_PATH=${{ runner.temp }}/llvm/lib" >> $GITHUB_ENV
 
       - name: Verify Cargo.lock Exists
         run: |
