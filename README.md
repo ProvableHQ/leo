@@ -21,7 +21,6 @@ Leo is a functional, statically-typed programming language built for writing pri
     * [🦀 Install Rust](#-install-rust)
     * [🐙 Build from Source Code](#-build-from-source-code)
     * [🦁 Update from Leo](#-update-from-leo)
-    * [📦 Download using Cargo](#-download-using-cargo)
 * [🚀 Quick Start](#-quick-start)
 * [🧰 Troubleshooting](#-troubleshooting)
 * [📖 Documentation](#-documentation)
