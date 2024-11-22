@@ -20,9 +20,6 @@ pub use retriever::*;
 pub mod program_context;
 pub use program_context::*;
 
-pub mod query;
-pub use query::*;
-
 #[cfg(test)]
 mod tests {
     use super::*;
