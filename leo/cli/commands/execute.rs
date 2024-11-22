@@ -41,8 +41,9 @@ use snarkvm::{
         ProgramID,
         VM,
         Value,
-        execution_cost,
-        query::Query as SnarkVMQuery,
+        execution_cost_v1,
+        execution_cost_v2,
+        query::{Query as SnarkVMQuery, QueryTrait},
         store::{
             ConsensusStore,
             helpers::memory::{BlockMemory, ConsensusMemory},
@@ -206,14 +207,26 @@ fn handle_execute<A: Aleo>(
             inputs.iter(),
             fee_record.clone(),
             command.fee_options.priority_fee,
-            Some(query),
+            Some(query.clone()),
             rng,
         )?;
 
         // Check the transaction cost.
         let (mut total_cost, (storage_cost, finalize_cost)) = if let ExecuteTransaction(_, execution, _) = &transaction
         {
-            execution_cost(&vm.process().read(), execution)?
+            match query.current_block_height() {
+                Ok(height) => {
+                    if height >= A::Network::CONSENSUS_V2_HEIGHT {
+                        execution_cost_v2(&vm.process().read(), execution)?
+                    } else {
+                        execution_cost_v1(&vm.process().read(), execution)?
+                    }
+                }
+                Err(e) => {
+                    println!("Failed to get current block height - {e}. Using v1 execution cost.");
+                    execution_cost_v1(&vm.process().read(), execution)?
+                }
+            }
         } else {
             panic!("All transactions should be of type Execute.")
         };
