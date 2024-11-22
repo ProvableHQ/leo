@@ -1648,14 +1648,12 @@ name = "leo-retriever"
 version = "2.3.1"
 dependencies = [
  "aleo-std",
- "async-trait",
  "indexmap 2.6.0",
  "leo-ast",
  "leo-disassembler",
  "leo-errors",
  "leo-passes",
  "leo-span",
- "reqwest 0.12.9",
  "serde",
  "serde_json",
  "serial_test",

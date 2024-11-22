@@ -48,12 +48,6 @@ workspace = true
 [dependencies.serde_json]
 workspace = true
 
-[dependencies.async-trait]
-version = "0.1.83"
-
-[dependencies.reqwest]
-version = "0.12.9"
-
 [dependencies.serial_test]
 version = "3.1.1"
 
