@@ -1,13 +1,15 @@
 name: Leo Release
+
 on:
-  push:
-    tags:
-      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to build'
+        description: "The release tag (e.g., v1.0.0)."
         required: true
+      release_flag:
+        description: "Set to true to upload the release, false to skip."
+        required: false
+        default: "false"
 
 env:
   RUST_BACKTRACE: 0
@@ -17,29 +19,36 @@ jobs:
     name: Ubuntu
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Specific Tag
         uses: actions/checkout@v2
         with:
-          submodules: true
+          ref: ${{ github.event.inputs.tag }}
+          fetch-depth: 0
+          submodules: recursive
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
           toolchain: stable
-          override: true
           components: rustfmt
+
+      - name: Verify Cargo.lock Exists
+        run: |
+          if [ ! -f Cargo.lock ]; then
+            echo "Error: Cargo.lock file is missing. Aborting build."
+            exit 1
+          fi
 
       - name: Build Leo
         run: |
-          cargo build --package leo-lang --release --features noconfig && strip target/release/leo
+          cargo build --package leo-lang --release --locked --features noconfig && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
       - id: get_version
         uses: battila7/get-version-action@v2
 
-      - name: Zip
+      - name: Zip Artifact
         run: |
           mkdir tempdir
           mv target/release/leo tempdir
@@ -50,8 +59,9 @@ jobs:
 
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: ${{ github.event.inputs.release_flag == 'true' }}
         with:
+          tag_name: ${{ github.event.inputs.tag }}
           files: |
             leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip
         env:
@@ -61,11 +71,12 @@ jobs:
     name: Linux musl
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Specific Tag
+        uses: actions/checkout@v2
         with:
-          submodules: true
+          ref: ${{ github.event.inputs.tag }}
           fetch-depth: 0
-          ref: ${{ inputs.tag }}
+          submodules: recursive
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -73,6 +84,13 @@ jobs:
           toolchain: stable
           components: rustfmt
           target: x86_64-unknown-linux-musl
+
+      - name: Verify Cargo.lock Exists
+        run: |
+          if [ ! -f Cargo.lock ]; then
+            echo "Error: Cargo.lock file is missing. Aborting build."
+            exit 1
+          fi
 
       - name: Build
         run: |
@@ -86,7 +104,7 @@ jobs:
               rustup install stable &&
               rustup default stable &&
               rustup target add x86_64-unknown-linux-musl &&
-              cargo build --target x86_64-unknown-linux-musl --package leo-lang --release --features noconfig
+              cargo build --target x86_64-unknown-linux-musl --package leo-lang --release --locked --features noconfig
             "
 
       - name: Check Binary
@@ -95,7 +113,7 @@ jobs:
       - id: get_version
         uses: battila7/get-version-action@v2
 
-      - name: Zip
+      - name: Zip Artifact
         run: |
           mkdir tempdir
           cp target/x86_64-unknown-linux-musl/release/leo tempdir
@@ -105,12 +123,11 @@ jobs:
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip .
 
-
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(inputs.tag, 'v')
+        if: ${{ github.event.inputs.release_flag == 'true' }}
         with:
-          tag_name: ${{ inputs.tag }}
+          tag_name: ${{ github.event.inputs.tag }}
           files: |
             leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip
         env:
@@ -120,29 +137,36 @@ jobs:
     name: macOS
     runs-on: macos-13
     steps:
-      - name: Checkout
+      - name: Checkout Specific Tag
         uses: actions/checkout@v2
         with:
-          submodules: true
+          ref: ${{ github.event.inputs.tag }}
+          fetch-depth: 0
+          submodules: recursive
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
           toolchain: stable
-          override: true
           components: rustfmt
+
+      - name: Verify Cargo.lock Exists
+        run: |
+          if [ ! -f Cargo.lock ]; then
+            echo "Error: Cargo.lock file is missing. Aborting build."
+            exit 1
+          fi
 
       - name: Build Leo
         run: |
-          cargo build --package leo-lang --release && strip target/release/leo
+          cargo build --package leo-lang --release --locked && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
       - id: get_version
         uses: battila7/get-version-action@v2
 
-      - name: Zip
+      - name: Zip Artifact
         run: |
           mkdir tempdir
           mv target/release/leo tempdir
@@ -153,8 +177,9 @@ jobs:
 
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: ${{ github.event.inputs.release_flag == 'true' }}
         with:
+          tag_name: ${{ github.event.inputs.tag }}
           files: |
             leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip
         env:
@@ -169,32 +194,42 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Checkout
+      - name: Checkout Specific Tag
         uses: actions/checkout@v2
         with:
-          submodules: true
+          ref: ${{ github.event.inputs.tag }}
+          fetch-depth: 0
+          submodules: recursive
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: stable
           profile: minimal
           target: aarch64-apple-darwin
-          toolchain: stable
-          override: true
           components: rustfmt
+
+
+      - name: Verify Cargo.lock Exists
+        run: |
+          if [ ! -f Cargo.lock ]; then
+            echo "Error: Cargo.lock file is missing. Aborting build."
+            exit 1
+          fi
 
       - name: Build Leo
         run: |
-          SDKROOT=$(xcrun -sdk macosx --show-sdk-path) \
-          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version) \
-          cargo build -p leo-lang --release --target=aarch64-apple-darwin --features noconfig && strip target/aarch64-apple-darwin/release/leo
+          SDKROOT=$(xcrun --sdk macosx --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun --sdk macosx --show-sdk-platform-version) \
+          cargo build --package leo-lang --release --locked --target=aarch64-apple-darwin --features noconfig
+          strip target/aarch64-apple-darwin/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
       - id: get_version
         uses: battila7/get-version-action@v2
 
-      - name: Zip
+      - name: Zip Artifact
         run: |
           mkdir tempdir
           mv target/aarch64-apple-darwin/release/leo tempdir
@@ -205,67 +240,74 @@ jobs:
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip .
           mv tempdir/leo.zip .
 
-      - name: Release macos m1 version
+      - name: Release macOS M1 Version
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: ${{ github.event.inputs.release_flag == 'true' }}
         with:
+          tag_name: ${{ github.event.inputs.tag }}
           files: |
             leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release leo.zip
+      - name: Release Universal Version
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: ${{ github.event.inputs.release_flag == 'true' }}
         with:
+          tag_name: ${{ github.event.inputs.tag }}
           files: |
             leo.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   windows:
     name: Windows
     runs-on: windows-latest
     steps:
-      - name: Checkout
+      - name: Checkout Specific Tag
         uses: actions/checkout@v2
         with:
-          submodules: true
+          ref: ${{ github.event.inputs.tag }}
+          fetch-depth: 0
+          submodules: recursive
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
           toolchain: stable
-          override: true
           components: rustfmt
 
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v1
         with:
-          version: "11"
+          version: "11" # Specify the LLVM/Clang version you need
           directory: ${{ runner.temp }}/llvm
 
       - name: Set LIBCLANG_PATH
-        run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
+        run: echo "LIBCLANG_PATH=${{ runner.temp }}/llvm/lib" >> $GITHUB_ENV
+
+      - name: Verify Cargo.lock Exists
+        run: |
+          if [ ! -f Cargo.lock ]; then
+            echo "Error: Cargo.lock file is missing. Aborting build."
+            exit 1
+          fi
 
       - name: Build Leo
         run: |
-          cargo build --package leo-lang --release --features noconfig
+          cargo build --package leo-lang --release --locked --features noconfig
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
       - id: get_version
         uses: battila7/get-version-action@v2
 
-      - name: Zip
+      - name: Zip Artifact
         run: |
           Compress-Archive target/release/leo.exe leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-msvc.zip 
 
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: ${{ github.event.inputs.release_flag == 'true' }}
         with:
+          tag_name: ${{ github.event.inputs.tag }}
           files: |
             leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-msvc.zip
         env:
