@@ -80,6 +80,20 @@ commands:
                 cargo generate-lockfile
             }
             cargo install cargo-mtime
+      - run:
+          name: Set Up Cargo Configuration
+          shell: powershell.exe -ExecutionPolicy Bypass
+          command: |
+            $CargoDir = "$env:USERPROFILE\.cargo"
+            if (-not (Test-Path -Path $CargoDir)) {
+              New-Item -ItemType Directory -Path $CargoDir | Out-Null
+            }
+            $ConfigPath = Join-Path $CargoDir "config.toml"
+            $ConfigLines = @(
+              '[net]'
+              'git-fetch-with-cli = true'
+            )
+            Set-Content -Path $ConfigPath -Value $ConfigLines -Encoding UTF8
 
   build-and-test:
     description: "Build and run tests"
