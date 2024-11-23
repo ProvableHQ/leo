@@ -58,7 +58,7 @@ impl<N: Network> ParserContext<'_, N> {
         Ok(Program { imports, stubs: IndexMap::new(), program_scopes })
     }
 
-    fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
+    pub(super) fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
         ParserError::unexpected(
             &token.token,
             expected.iter().map(|x| format!("'{x}'")).collect::<Vec<_>>().join(", "),
@@ -324,7 +324,7 @@ impl<N: Network> ParserContext<'_, N> {
 
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
-    fn parse_function(&mut self) -> Result<(Symbol, Function)> {
+    pub(super) fn parse_function(&mut self) -> Result<(Symbol, Function)> {
         // TODO: Handle dangling annotations.
         // Parse annotations, if they exist.
         let mut annotations = Vec::new();

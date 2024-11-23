@@ -36,6 +36,7 @@ pub(super) use context::ParserContext;
 mod expression;
 mod file;
 mod statement;
+mod test;
 pub(super) mod type_;
 
 /// Creates a new program from a given file path and source code text.
