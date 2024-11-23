@@ -24,6 +24,7 @@ pub mod outputs;
 pub mod package;
 pub mod root;
 pub mod source;
+pub mod tst;
 
 use leo_errors::{PackageError, Result};
 

@@ -432,4 +432,11 @@ create_messages!(
         msg: format!("Failed to load leo project at path {path}"),
         help: Some("Make sure that the path is correct and that the project exists.".to_string()),
     }
+
+    @backtraced
+    failed_to_create_test_directory {
+        args: (error: impl ErrorArg),
+        msg: format!("Failed to create test directory {error}."),
+        help: None,
+    }
 );

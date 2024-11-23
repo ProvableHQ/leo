@@ -17,9 +17,11 @@
 use crate::{
     root::{Env, Gitignore},
     source::{MainFile, SourceDirectory},
+    tst::TestDirectory,
 };
 use leo_errors::{PackageError, Result};
 
+use crate::tst::DefaultTestFile;
 use leo_retriever::{Manifest, NetworkName};
 use serde::Deserialize;
 use snarkvm::prelude::{Network, PrivateKey};
@@ -173,6 +175,12 @@ impl Package {
             )
             .into());
         }
+
+        // Create the test directory.
+        TestDirectory::create(&path)?;
+
+        // Create the default test file.
+        DefaultTestFile::write_to(&path)?;
 
         Ok(())
     }
