@@ -254,3 +254,16 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
 
     fn visit_struct_stub(&mut self, _input: &'a Composite) {}
 }
+
+/// The `Visitor` for a `Test`
+pub trait TestVisitor<'a>: ProgramVisitor<'a> {
+    fn visit_test(&mut self, input: &'a Test) {
+        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
+
+        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
+
+        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
+
+        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
+    }
+}

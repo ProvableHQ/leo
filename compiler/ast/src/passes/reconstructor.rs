@@ -443,9 +443,6 @@ pub trait ProgramReconstructor: StatementReconstructor {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         ProgramScope {
             program_id: input.program_id,
-            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
-            mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
-            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             consts: input
                 .consts
                 .into_iter()
@@ -454,6 +451,9 @@ pub trait ProgramReconstructor: StatementReconstructor {
                     _ => unreachable!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
+            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             span: input.span,
         }
     }
@@ -486,5 +486,24 @@ pub trait ProgramReconstructor: StatementReconstructor {
 
     fn reconstruct_mapping(&mut self, input: Mapping) -> Mapping {
         input
+    }
+}
+
+/// The `Reconstructor` for a `Test`
+pub trait TestReconstructor: ProgramReconstructor {
+    fn reconstruct_test(&mut self, input: Test) -> Test {
+        Test {
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => unreachable!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            mappings: input.mappings.into_iter().map(|(i, m)| (i, self.reconstruct_mapping(m))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+        }
     }
 }

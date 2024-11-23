@@ -153,3 +153,10 @@ pub trait ProgramConsumer {
     type Output;
     fn consume_program(&mut self, input: Program) -> Self::Output;
 }
+
+/// A `Consumer` for a `Test`
+pub trait TestConsumer {
+    type Output;
+
+    fn consume_test(&mut self, input: Test) -> Self::Output;
+}
