@@ -29,9 +29,6 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.82.0" # Be sure to update CI and the ./rust-toolchain file.
 
-[net]
-git-fetch-with-cli = true
-
 [workspace]
 members = [
   "compiler/ast",

@@ -73,6 +73,9 @@ commands:
             rustup default 1.82.0
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
+            mkdir -p ~/.cargo
+            echo '[net]' > ~/.cargo/config.toml
+            echo 'git-fetch-with-cli = true' >> ~/.cargo/config.toml
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
                 cargo generate-lockfile
             }
