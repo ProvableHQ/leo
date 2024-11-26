@@ -28,6 +28,8 @@ use leo_ast::{
     ProgramScopeConsumer,
     StatementConsumer,
     StructConsumer,
+    Test,
+    TestConsumer,
 };
 use leo_span::{Symbol, sym};
 
@@ -109,6 +111,19 @@ impl ProgramScopeConsumer for StaticSingleAssigner<'_> {
     }
 }
 
+impl TestConsumer for StaticSingleAssigner<'_> {
+    type Output = Test;
+
+    fn consume_test(&mut self, input: Test) -> Self::Output {
+        Test {
+            structs: input.structs.into_iter().map(|(i, s)| (i, self.consume_struct(s))).collect(),
+            mappings: input.mappings,
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
+            consts: input.consts,
+        }
+    }
+}
+
 impl ProgramConsumer for StaticSingleAssigner<'_> {
     type Output = Program;
 
@@ -125,6 +140,7 @@ impl ProgramConsumer for StaticSingleAssigner<'_> {
                 .into_iter()
                 .map(|(name, scope)| (name, self.consume_program_scope(scope)))
                 .collect(),
+            tests: input.tests.into_iter().map(|(name, test)| (name, self.consume_test(test))).collect(),
         }
     }
 }

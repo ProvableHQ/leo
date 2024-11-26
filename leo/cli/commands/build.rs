@@ -29,13 +29,13 @@ use snarkvm::{
 };
 
 use indexmap::IndexMap;
+use leo_package::tst::TestDirectory;
 use snarkvm::prelude::CanaryV0;
 use std::{
     io::Write,
     path::{Path, PathBuf},
     str::FromStr,
 };
-use leo_package::tst::TestDirectory;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -196,15 +196,8 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
     // If the `build_tests` flag is set, compile the tests.
     if command.options.build_tests {
         // Compile the tests.
-        compile_tests(
-            &package_path,
-            &program_id,
-            &handler,
-            command.options.clone(),
-            main_stubs.clone(),
-        )?;
+        compile_tests(&package_path, &program_id, &handler, command.options.clone(), main_stubs.clone())?;
     }
-
     Ok(())
 }
 
@@ -253,18 +246,41 @@ fn compile_leo_file<N: Network>(
 #[allow(clippy::too_many_arguments)]
 fn compile_tests<N: Network>(
     package_path: &Path,
-    program_id: &ProgramID<N>,
     handler: &Handler,
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
 ) -> Result<()> {
     // Get the files in `/tests` directory.
-    let test_dir = TestDirectory::files(package_path)?;
+    let test_files = TestDirectory::files(package_path)?;
 
-    for test_file in test_dir {
+    // Create a subdirectory for the tests.
+    let build_dir = BuildDirectory::open(package_path)?;
+    let test_dir = build_dir.join("tests");
+    std::fs::create_dir_all(&test_dir)
+        .map_err(|e| CliError::general_cli_error(format!("Failed to create `build/tests` directory: {e}")))?;
+
+    for test_file in test_files {
         // Compile the test file.
+        let compiler = Compiler::<N>::new(
+            program_name.clone(),
+            handler,
+            file_path.clone(),
+            outputs.to_path_buf(),
+            Some(options.into()),
+            stubs.clone(),
+        );
 
+        let test_programs = compiler.compile_tests()?;
+
+        // Write the test programs to the test directory.
+        for (test_name, test_program) in test_programs {
+            let mut test_file_path = test_dir.clone();
+            test_file_path.push(format!("{}.aleo.test", test_name));
+            std::fs::File::create(&test_file_path)
+                .map_err(|e| CliError::general_cli_error(format!("Failed to create test file: {e}")))?
+                .write_all(test_program.as_bytes())
+                .map_err(|e| CliError::general_cli_error(format!("Failed to write test program: {e}")))?;
+        }
     }
     Ok(())
 }
-

@@ -320,4 +320,18 @@ create_messages!(
         msg: format!("Failed to render table.\nError: {error}"),
         help: None,
     }
+
+    @backtraced
+    general_cli_error {
+        args: (error: impl Display),
+        msg: format!("{error}"),
+        help: None,
+    }
+
+    @backtraced
+    general_cli_error_with_help {
+        args: (error: impl Display, help: impl Display),
+        msg: format!("{error}"),
+        help: Some(format!("{help}")),
+    }
 );

@@ -161,14 +161,7 @@ pub fn new_compiler(
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
-    Compiler::new(
-        program_name,
-        handler,
-        main_file_path,
-        output_dir,
-        compiler_options,
-        import_stubs,
-    )
+    Compiler::new(program_name, handler, main_file_path, output_dir, compiler_options, import_stubs)
 }
 
 pub fn parse_program<'a>(

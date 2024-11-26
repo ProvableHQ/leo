@@ -296,9 +296,8 @@ impl<N: Network> Retriever<N> {
         if !compiled_path.exists() {
             return Err(UtilError::build_file_does_not_exist(compiled_path.to_str().unwrap(), Default::default()));
         }
-        let mut file = File::open(compiled_path).unwrap_or_else(|_| {
-            panic!("Failed to open file {}", cur_context.compiled_file_path().to_str().unwrap())
-        });
+        let mut file = File::open(compiled_path)
+            .unwrap_or_else(|_| panic!("Failed to open file {}", cur_context.compiled_file_path().to_str().unwrap()));
         let mut content = String::new();
         file.read_to_string(&mut content).map_err(|err| {
             UtilError::util_file_io_error(
