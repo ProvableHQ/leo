@@ -44,8 +44,6 @@ pub struct Compiler<'a, N: Network> {
     output_directory: PathBuf,
     /// The program name,
     pub program_name: String,
-    /// The network name,
-    pub network: String,
     /// The AST for the program.
     pub ast: Ast,
     /// Options configuring compilation.
@@ -66,7 +64,6 @@ impl<'a, N: Network> Compiler<'a, N> {
     /// Returns a new Leo compiler.
     pub fn new(
         program_name: String,
-        network: String,
         handler: &'a Handler,
         main_file_path: PathBuf,
         output_directory: PathBuf,
@@ -81,7 +78,6 @@ impl<'a, N: Network> Compiler<'a, N> {
             main_file_path,
             output_directory,
             program_name,
-            network,
             ast: Ast::new(Program::default()),
             compiler_options: compiler_options.unwrap_or_default(),
             node_builder,
@@ -113,20 +109,6 @@ impl<'a, N: Network> Compiler<'a, N> {
 
         // Use the parser to construct the abstract syntax tree (ast).
         self.ast = leo_parser::parse_ast::<N>(self.handler, &self.node_builder, &prg_sf.src, prg_sf.start_pos)?;
-
-        // If the program is imported, then check that the name of its program scope matches the file name.
-        // Note that parsing enforces that there is exactly one program scope in a file.
-        // TODO: Clean up check.
-        let program_scope = self.ast.ast.program_scopes.values().next().unwrap();
-        let program_scope_name = format!("{}", program_scope.program_id.name);
-        if program_scope_name != self.program_name {
-            return Err(CompilerError::program_scope_name_does_not_match(
-                program_scope_name,
-                self.program_name.clone(),
-                program_scope.program_id.name.span,
-            )
-            .into());
-        }
 
         if self.compiler_options.output.initial_ast {
             self.write_ast_to_json("initial_ast.json")?;

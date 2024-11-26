@@ -26,11 +26,11 @@ use snarkvm::{
 use std::str::FromStr;
 
 pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
-    program: ProgramCore<N, Instruction, Command>,
+    program: &ProgramCore<N, Instruction, Command>,
 ) -> Stub {
     let program_id = ProgramId::from(program.id());
     Stub {
-        imports: program.imports().into_iter().map(|(id, _)| ProgramId::from(id)).collect(),
+        imports: program.imports().iter().map(|(id, _)| ProgramId::from(id)).collect(),
         stub_id: program_id,
         consts: Vec::new(),
         structs: [
@@ -48,7 +48,7 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
         .concat(),
         mappings: program
             .mappings()
-            .into_iter()
+            .iter()
             .map(|(id, m)| (Identifier::from(id).name, Mapping::from_snarkvm(m)))
             .collect(),
         functions: [
@@ -88,7 +88,7 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
 
 pub fn disassemble_from_str<N: Network>(name: &str, program: &str) -> Result<Stub, UtilError> {
     match Program::<N>::from_str(program) {
-        Ok(p) => Ok(disassemble(p)),
+        Ok(p) => Ok(disassemble(&p)),
         Err(_) => Err(UtilError::snarkvm_parsing_error(name, Default::default())),
     }
 }

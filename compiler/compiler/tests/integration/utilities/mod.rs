@@ -163,7 +163,6 @@ pub fn new_compiler(
 
     Compiler::new(
         program_name,
-        String::from("aleo"),
         handler,
         main_file_path,
         output_dir,

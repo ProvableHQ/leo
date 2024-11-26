@@ -1576,6 +1576,7 @@ dependencies = [
  "indexmap 2.6.0",
  "leo-ast",
  "leo-compiler",
+ "leo-disassembler",
  "leo-errors",
  "leo-package",
  "leo-retriever",

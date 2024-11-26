@@ -291,40 +291,34 @@ impl<N: Network> Retriever<N> {
     // Creates the stub of the program, caches it, and writes the local `leo.lock` file
     pub fn process_local(&mut self, name: Symbol, recursive: bool) -> Result<(), UtilError> {
         let cur_context = self.contexts.get_mut(&name).unwrap();
-        // Don't need to disassemble the main file
-        if name != self.name {
-            // Disassemble the program
-            let compiled_path = cur_context.compiled_file_path();
-            if !compiled_path.exists() {
-                return Err(UtilError::build_file_does_not_exist(compiled_path.to_str().unwrap(), Default::default()));
-            }
-            let mut file = File::open(compiled_path).unwrap_or_else(|_| {
-                panic!("Failed to open file {}", cur_context.compiled_file_path().to_str().unwrap())
-            });
-            let mut content = String::new();
-            file.read_to_string(&mut content).map_err(|err| {
-                UtilError::util_file_io_error(
-                    format!("Could not read {}", cur_context.compiled_file_path().to_str().unwrap()),
-                    err,
-                    Default::default(),
-                )
-            })?;
+        // Disassemble the program
+        let compiled_path = cur_context.compiled_file_path();
+        if !compiled_path.exists() {
+            return Err(UtilError::build_file_does_not_exist(compiled_path.to_str().unwrap(), Default::default()));
+        }
+        let mut file = File::open(compiled_path).unwrap_or_else(|_| {
+            panic!("Failed to open file {}", cur_context.compiled_file_path().to_str().unwrap())
+        });
+        let mut content = String::new();
+        file.read_to_string(&mut content).map_err(|err| {
+            UtilError::util_file_io_error(
+                format!("Could not read {}", cur_context.compiled_file_path().to_str().unwrap()),
+                err,
+                Default::default(),
+            )
+        })?;
 
-            // Cache the disassembled stub
-            let stub: Stub = disassemble_from_str::<N>(&name.to_string(), &content)?;
-            if cur_context.add_stub(stub.clone()) {
-                Err(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))?;
-            }
+        // Cache the disassembled stub
+        let stub: Stub = disassemble_from_str::<N>(&name.to_string(), &content)?;
+        if cur_context.add_stub(stub.clone()) {
+            Err(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))?;
+        }
 
-            // Cache the hash
-            cur_context.add_checksum();
+        // Cache the hash
+        cur_context.add_checksum();
 
-            // Only write lock file when recursive building
-            if recursive {
-                self.write_lock_file(&name)?;
-            }
-        } else {
-            // Write lock file
+        // Only write lock file when recursive building or when building the top-level program.
+        if recursive || name == self.name {
             self.write_lock_file(&name)?;
         }
 

@@ -35,6 +35,7 @@ use std::{
     path::{Path, PathBuf},
     str::FromStr,
 };
+use leo_package::tst::TestDirectory;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -142,11 +143,18 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
     // Recursive build will recursively compile all local dependencies. Can disable to save compile time.
     let recursive_build = !command.options.non_recursive;
 
+    // Store all stubs for the main program.
+    let mut main_stubs = Default::default();
+
     // Loop through all local dependencies and compile them in order
     for dependency in local_dependencies.into_iter() {
         if recursive_build || dependency == main_sym {
             // Get path to the local project
             let (local_path, stubs) = retriever.prepare_local(dependency)?;
+            // If the dependency is the main program, store the stubs for later use.
+            if dependency == main_sym {
+                main_stubs = stubs.clone();
+            }
 
             // Create the outputs directory.
             let local_outputs_directory = OutputsDirectory::create(&local_path)?;
@@ -180,7 +188,22 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
     }
 
     // `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
-    Package::<N>::open(&build_directory).map_err(CliError::failed_to_execute_build)?;
+    let package = Package::<N>::open(&build_directory).map_err(CliError::failed_to_execute_build)?;
+
+    // Add the main program as a stub.
+    main_stubs.insert(main_sym, leo_disassembler::disassemble(package.program()));
+
+    // If the `build_tests` flag is set, compile the tests.
+    if command.options.build_tests {
+        // Compile the tests.
+        compile_tests(
+            &package_path,
+            &program_id,
+            &handler,
+            command.options.clone(),
+            main_stubs.clone(),
+        )?;
+    }
 
     Ok(())
 }
@@ -206,7 +229,6 @@ fn compile_leo_file<N: Network>(
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::<N>::new(
         program_name.clone(),
-        program_id.network().to_string(),
         handler,
         file_path.clone(),
         outputs.to_path_buf(),
@@ -226,3 +248,23 @@ fn compile_leo_file<N: Network>(
     tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
     Ok(())
 }
+
+/// Compiles test files in the `tests/` directory.
+#[allow(clippy::too_many_arguments)]
+fn compile_tests<N: Network>(
+    package_path: &Path,
+    program_id: &ProgramID<N>,
+    handler: &Handler,
+    options: BuildOptions,
+    stubs: IndexMap<Symbol, Stub>,
+) -> Result<()> {
+    // Get the files in `/tests` directory.
+    let test_dir = TestDirectory::files(package_path)?;
+
+    for test_file in test_dir {
+        // Compile the test file.
+
+    }
+    Ok(())
+}
+

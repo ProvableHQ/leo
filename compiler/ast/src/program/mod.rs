@@ -38,6 +38,8 @@ pub struct Program {
     pub stubs: IndexMap<Symbol, Stub>,
     /// A map from program names to program scopes.
     pub program_scopes: IndexMap<Symbol, ProgramScope>,
+    /// The program tests.
+    pub tests: Vec<Test>,
 }
 
 impl fmt::Display for Program {

@@ -142,6 +142,9 @@ workspace = true
 [dependencies.leo-compiler]
 workspace = true
 
+[dependencies.leo-disassembler]
+workspace = true
+
 [dependencies.leo-errors]
 workspace = true
 

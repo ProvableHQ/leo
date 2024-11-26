@@ -86,7 +86,6 @@ struct Sample {
 fn new_compiler(handler: &Handler) -> Compiler<'_, CurrentNetwork> {
     Compiler::new(
         String::from("test"),
-        String::from("aleo"),
         handler,
         PathBuf::from(String::new()),
         PathBuf::from(String::new()),
