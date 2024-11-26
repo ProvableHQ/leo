@@ -5,7 +5,7 @@ Error [ETYC0372017]: The type `Foo` is not found in the current scope.
     --> compiler-test:4:28
      |
    4 |     transition main(a: u8, foo: Foo) -> u8 {
-     |                            ^^^
+     |                            ^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `Foo` is not found in the current scope.

@@ -19,7 +19,7 @@ functions = [
 ],
     [
     "main",
-    { annotations = [], variant = "Function", identifier = '{"id":"9","name":"main","span":"{\"lo\":92,\"hi\":96}"}', output_type = "Boolean", id = 19, input = [{ identifier = '{"id":"10","name":"y","span":"{\"lo\":97,\"hi\":98}"}', mode = "None", type_ = "Boolean", id = 11, span = { lo = 97, hi = 98 } }], output = [{ mode = "None", type_ = "Boolean", id = 12, span = { lo = 109, hi = 113 } }], block = { id = 18, statements = [
+    { annotations = [], variant = "Function", identifier = '{"id":"9","name":"main","span":"{\"lo\":92,\"hi\":96}"}', output_type = "Boolean", id = 19, input = [{ identifier = '{"id":"10","name":"y","span":"{\"lo\":97,\"hi\":98}"}', mode = "None", type_ = "Boolean", id = 11, span = { lo = 97, hi = 104 } }], output = [{ mode = "None", type_ = "Boolean", id = 12, span = { lo = 109, hi = 113 } }], block = { id = 18, statements = [
     { Expression = { id = 15, expression = { Call = { arguments = [], program = "test", id = 14, function = { Identifier = '{"id":"13","name":"inf","span":"{\"lo\":124,\"hi\":127}"}' }, span = { lo = 124, hi = 129 } } }, span = { lo = 124, hi = 130 } } },
     { Return = { id = 17, expression = { Identifier = '{"id":"16","name":"y","span":"{\"lo\":146,\"hi\":147}"}' }, span = { lo = 139, hi = 148 } } },
 ], span = { lo = 114, hi = 154 } }, span = { lo = 83, hi = 154 } },

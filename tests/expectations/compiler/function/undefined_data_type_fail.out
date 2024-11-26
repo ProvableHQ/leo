@@ -5,14 +5,14 @@ Error [ETYC0372017]: The type `Board` is not found in the current scope.
     --> compiler-test:4:35
      |
    4 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {
-     |                                   ^
+     |                                   ^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `Board` is not found in the current scope.
     --> compiler-test:4:35
      |
    4 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {
-     |                                   ^
+     |                                   ^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `u128bool` is not found in the current scope.

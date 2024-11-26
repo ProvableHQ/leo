@@ -14,7 +14,7 @@ structs = []
 mappings = []
 functions = [[
     "main",
-    { annotations = [], variant = "Function", identifier = '{"id":"2","name":"main","span":"{\"lo\":34,\"hi\":38}"}', output = [], output_type = "Unit", id = 13, input = [{ identifier = '{"id":"3","name":"a","span":"{\"lo\":39,\"hi\":40}"}', mode = "None", type_ = "Address", id = 4, span = { lo = 39, hi = 40 } }], block = { id = 12, statements = [
+    { annotations = [], variant = "Function", identifier = '{"id":"2","name":"main","span":"{\"lo\":34,\"hi\":38}"}', output = [], output_type = "Unit", id = 13, input = [{ identifier = '{"id":"3","name":"a","span":"{\"lo\":39,\"hi\":40}"}', mode = "None", type_ = "Address", id = 4, span = { lo = 39, hi = 49 } }], block = { id = 12, statements = [
     { Assert = { id = 9, variant = { AssertEq = [
     { Access = { Member = { name = '{"id":"6","name":"id","span":"{\"lo\":79,\"hi\":81}"}', id = 7, inner = { Identifier = '{"id":"5","name":"network","span":"{\"lo\":71,\"hi\":78}"}' }, span = { lo = 71, hi = 81 } } } },
     { Literal = { Integer = [

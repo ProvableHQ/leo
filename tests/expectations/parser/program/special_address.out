@@ -17,7 +17,7 @@ mappings = [[
 ]]
 functions = [[
     "main",
-    { annotations = [], variant = "Transition", identifier = '{"id":"4","name":"main","span":"{\"lo\":70,\"hi\":74}"}', output = [], output_type = "Unit", id = 24, input = [{ identifier = '{"id":"5","name":"a","span":"{\"lo\":75,\"hi\":76}"}', mode = "None", type_ = "Address", id = 6, span = { lo = 75, hi = 76 } }], block = { id = 23, statements = [
+    { annotations = [], variant = "Transition", identifier = '{"id":"4","name":"main","span":"{\"lo\":70,\"hi\":74}"}', output = [], output_type = "Unit", id = 24, input = [{ identifier = '{"id":"5","name":"a","span":"{\"lo\":75,\"hi\":76}"}', mode = "None", type_ = "Address", id = 6, span = { lo = 75, hi = 85 } }], block = { id = 23, statements = [
     { Assert = { id = 11, variant = { AssertEq = [
     { Identifier = '{"id":"7","name":"a","span":"{\"lo\":107,\"hi\":108}"}' },
     { Access = { Member = { name = '{"id":"9","name":"caller","span":"{\"lo\":115,\"hi\":121}"}', id = 10, inner = { Identifier = '{"id":"8","name":"self","span":"{\"lo\":110,\"hi\":114}"}' }, span = { lo = 110, hi = 121 } } } },

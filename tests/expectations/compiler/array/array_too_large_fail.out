@@ -5,5 +5,5 @@ Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 
     --> compiler-test:4:20
      |
    4 |     transition foo(a: [bool; 33]) -> bool {
-     |                    ^
+     |                    ^^^^^^^^^^^^^
 """]

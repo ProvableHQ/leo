@@ -1220,8 +1220,13 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 }
             }
 
-            // Add function inputs to the symbol table. Futures have already been added.
-            if !matches!(&input_var.type_(), &Type::Future(_)) {
+            if matches!(&input_var.type_(), Type::Future(_)) {
+                // Future parameters may only appear in async functions.
+                if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction)) {
+                    self.emit_err(TypeCheckerError::no_future_parameters(input_var.span()));
+                }
+            } else {
+                // Add function inputs to the symbol table. Futures have already been added.
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                     Location::new(None, input_var.identifier().name),
                     self.scope_state.program_name,

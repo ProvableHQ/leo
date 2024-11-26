@@ -5,5 +5,5 @@ Error [ETYC0372079]: An array cannot have a record as an element type
     --> compiler-test:9:20
      |
    9 |     transition foo(a: [bar; 8]) -> u8 {
-     |                    ^
+     |                    ^^^^^^^^^^^
 """]
