@@ -18,7 +18,6 @@ use crate::parse_file_paths;
 
 use leo_errors::{PackageError, Result};
 
-use crate::source::MAIN_FILENAME;
 use std::{
     borrow::Cow,
     fs,

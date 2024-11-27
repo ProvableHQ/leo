@@ -87,9 +87,9 @@ fn new_compiler(handler: &Handler) -> Compiler<'_, CurrentNetwork> {
     Compiler::new(
         String::from("test"),
         handler,
+        vec![],
         PathBuf::from(String::new()),
-        PathBuf::from(String::new()),
-        Some(CompilerOptions {
+        CompilerOptions {
             build: BuildOptions {
                 dce_enabled: true,
                 conditional_block_max_depth: 10,
@@ -110,7 +110,7 @@ fn new_compiler(handler: &Handler) -> Compiler<'_, CurrentNetwork> {
                 dce_ast: false,
                 build_tests: false,
             },
-        }),
+        },
         IndexMap::new(),
     )
 }
@@ -166,7 +166,8 @@ impl Sample {
     ) {
         self.bencher(c, mode, |mut compiler| {
             let (input, name) = self.data();
-            compiler.parse_program_from_string(input, name).expect("Failed to parse program");
+            compiler.reset(vec![(name, input.to_string())]);
+            compiler.parse().expect("Failed to parse program");
             logic(compiler)
         });
     }
@@ -174,8 +175,9 @@ impl Sample {
     fn bench_parse(&self, c: &mut Criterion) {
         self.bencher(c, "parse", |mut compiler| {
             let (input, name) = self.data();
+            compiler.reset(vec![(name, input.to_string())]);
             let start = Instant::now();
-            let out = compiler.parse_program_from_string(input, name);
+            let out = compiler.parse();
             let time = start.elapsed();
             out.expect("Failed to parse program");
             time
@@ -318,8 +320,9 @@ impl Sample {
     fn bench_full(&self, c: &mut Criterion) {
         self.bencher(c, "full", |mut compiler| {
             let (input, name) = self.data();
+            compiler.reset(vec![(name, input.to_string())]);
             let start = Instant::now();
-            compiler.parse_program_from_string(input, name).expect("Failed to parse program");
+            compiler.parse().expect("Failed to parse program");
             let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
             let (symbol_table, struct_graph, call_graph) =
                 compiler.type_checker_pass(symbol_table).expect("failed to run type check pass");

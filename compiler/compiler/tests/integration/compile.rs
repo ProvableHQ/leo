@@ -112,12 +112,11 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 handler,
                 program_string,
                 cwd.clone(),
-                Some(compiler_options.clone()),
+                compiler_options.clone(),
                 import_stubs.clone(),
             ))?;
 
             // Compile the program to bytecode.
-            let program_name = parsed.program_name.to_string();
             let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
             // Parse the bytecode as an Aleo program.
@@ -130,17 +129,17 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
             // Add the bytecode to the import stubs.
             let stub = handler.extend_if_error(
-                disassemble_from_str::<CurrentNetwork>(&program_name, &bytecode).map_err(|err| err.into()),
+                disassemble_from_str::<CurrentNetwork>(program_name, &bytecode).map_err(|err| err.into()),
             )?;
-            import_stubs.insert(Symbol::intern(&program_name), stub);
+            import_stubs.insert(Symbol::intern(program_name), stub);
 
             // Hash the ast files.
             let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) =
-                hash_asts(&program_name);
+                hash_asts(program_name);
 
             // Hash the symbol tables.
             let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) =
-                hash_symbol_tables(&program_name);
+                hash_symbol_tables(program_name);
 
             // Clean up the output directory.
             if fs::read_dir("/tmp/output").is_ok() {

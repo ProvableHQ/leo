@@ -17,9 +17,9 @@
 //! A Leo test consists of struct, record, function, transition, and mapping definitions.
 //! Anything that can be defined within a program scope can be defined in a test.
 
-use crate::{Composite, ConstDeclaration, Function, Mapping, ProgramId, Stub};
+use crate::{Composite, ConstDeclaration, Function, Mapping};
 
-use leo_span::{Span, Symbol};
+use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

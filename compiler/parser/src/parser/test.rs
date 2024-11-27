@@ -16,7 +16,8 @@
 
 use super::*;
 
-use leo_errors::{ParserError, Result};
+use leo_errors::Result;
+use leo_span::Symbol;
 
 impl<N: Network> ParserContext<'_, N> {
     /// Parses a test file.
@@ -65,5 +66,3 @@ impl<N: Network> ParserContext<'_, N> {
         Ok(Test { consts, functions, structs, mappings })
     }
 }
-
-use leo_span::{Symbol, sym};

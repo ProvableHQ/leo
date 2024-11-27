@@ -30,6 +30,7 @@ use snarkvm::{
 
 use indexmap::IndexMap;
 use leo_package::tst::TestDirectory;
+use leo_span::source_map::FileName;
 use snarkvm::prelude::CanaryV0;
 use std::{
     io::Write,
@@ -168,19 +169,16 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
             // Check the source files.
             SourceDirectory::check_files(&local_source_files)?;
 
-            // Compile all .leo files into .aleo files.
-            for file_path in local_source_files {
-                compile_leo_file(
-                    file_path,
-                    &ProgramID::<N>::try_from(format!("{}.aleo", dependency))
-                        .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
-                    &local_outputs_directory,
-                    &local_build_directory,
-                    &handler,
-                    command.options.clone(),
-                    stubs.clone(),
-                )?;
-            }
+            // Compile the sources.
+            compile_leo_files::<N>(
+                dependency.to_string(),
+                local_source_files,
+                &local_outputs_directory,
+                &local_build_directory,
+                &handler,
+                command.options.clone(),
+                stubs.clone(),
+            )?;
         }
 
         // Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
@@ -196,38 +194,37 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
     // If the `build_tests` flag is set, compile the tests.
     if command.options.build_tests {
         // Compile the tests.
-        compile_tests(&package_path, &program_id, &handler, command.options.clone(), main_stubs.clone())?;
+        compile_tests::<N>(main_sym.to_string(), &package_path, &handler, command.options.clone(), main_stubs.clone())?;
     }
     Ok(())
 }
 
-/// Compiles a Leo file in the `src/` directory.
+/// Compiles Leo files in the `src/` directory.
 #[allow(clippy::too_many_arguments)]
-fn compile_leo_file<N: Network>(
-    file_path: PathBuf,
-    program_id: &ProgramID<N>,
+fn compile_leo_files<N: Network>(
+    name: String,
+    local_source_files: Vec<PathBuf>,
     outputs: &Path,
     build: &Path,
     handler: &Handler,
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
 ) -> Result<()> {
-    // Construct program name from the program_id found in `package.json`.
-    let program_name = program_id.name().to_string();
+    // Read the files and collect it into sources.
+    let mut sources = Vec::with_capacity(local_source_files.len());
+    for file_path in local_source_files.iter() {
+        let file_content = std::fs::read_to_string(file_path.clone()).map_err(|e| {
+            CliError::general_cli_error(format!("Failed to read source file '{:?}': {e}", file_path.as_path()))
+        })?; // Read the file content.
+        sources.push((FileName::Real(file_path.clone()), file_content));
+    }
 
     // Create the path to the Aleo file.
     let mut aleo_file_path = build.to_path_buf();
-    aleo_file_path.push(format!("main.{}", program_id.network()));
+    aleo_file_path.push("main.aleo");
 
     // Create a new instance of the Leo compiler.
-    let mut compiler = Compiler::<N>::new(
-        program_name.clone(),
-        handler,
-        file_path.clone(),
-        outputs.to_path_buf(),
-        Some(options.into()),
-        stubs,
-    );
+    let mut compiler = Compiler::<N>::new(name.clone(), handler, sources, outputs.to_path_buf(), options.into(), stubs);
 
     // Compile the Leo program into Aleo instructions.
     let instructions = compiler.compile()?;
@@ -238,13 +235,14 @@ fn compile_leo_file<N: Network>(
         .write_all(instructions.as_bytes())
         .map_err(CliError::failed_to_load_instructions)?;
 
-    tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
+    tracing::info!("✅ Compiled sources for '{name}'");
     Ok(())
 }
 
 /// Compiles test files in the `tests/` directory.
 #[allow(clippy::too_many_arguments)]
 fn compile_tests<N: Network>(
+    name: String,
     package_path: &Path,
     handler: &Handler,
     options: BuildOptions,
@@ -253,34 +251,45 @@ fn compile_tests<N: Network>(
     // Get the files in `/tests` directory.
     let test_files = TestDirectory::files(package_path)?;
 
-    // Create a subdirectory for the tests.
-    let build_dir = BuildDirectory::open(package_path)?;
-    let test_dir = build_dir.join("tests");
-    std::fs::create_dir_all(&test_dir)
-        .map_err(|e| CliError::general_cli_error(format!("Failed to create `build/tests` directory: {e}")))?;
+    // Construct the compiler.
+    let mut compiler = Compiler::<N>::new(
+        "tests".to_string(),
+        handler,
+        vec![],
+        PathBuf::from("build/tests"),
+        options.into(),
+        stubs.clone(),
+    );
 
-    for test_file in test_files {
+    // Read and compile the test files individually.
+    for file_path in test_files {
+        // Read the test file.
+        let file_content = std::fs::read_to_string(&file_path).map_err(|e| {
+            CliError::general_cli_error(format!(
+                "Failed to read test file '{:?}': {e}",
+                file_path.clone().into_os_string()
+            ))
+        })?;
+
+        // Reset the compiler with the test file content.
+        compiler.reset(vec![(FileName::Real(file_path.clone()), file_content)]);
+
         // Compile the test file.
-        let compiler = Compiler::<N>::new(
-            program_name.clone(),
-            handler,
-            file_path.clone(),
-            outputs.to_path_buf(),
-            Some(options.into()),
-            stubs.clone(),
-        );
+        let output = compiler.compile_tests()?;
 
-        let test_programs = compiler.compile_tests()?;
+        // Create a subdirectory for the test.
+        let build_dir = BuildDirectory::open(package_path)?;
+        let test_dir = build_dir.join("tests");
+        std::fs::create_dir_all(&test_dir)
+            .map_err(|e| CliError::general_cli_error(format!("Failed to create `build/tests` directory: {e}")))?;
 
-        // Write the test programs to the test directory.
-        for (test_name, test_program) in test_programs {
-            let mut test_file_path = test_dir.clone();
-            test_file_path.push(format!("{}.aleo.test", test_name));
-            std::fs::File::create(&test_file_path)
-                .map_err(|e| CliError::general_cli_error(format!("Failed to create test file: {e}")))?
-                .write_all(test_program.as_bytes())
-                .map_err(|e| CliError::general_cli_error(format!("Failed to write test program: {e}")))?;
-        }
+        // Write the outputs.
+        let test_file_name = file_path.file_name().unwrap().to_str().unwrap();
+        let test_file_path = test_dir.join(test_file_name);
+        std::fs::write(&test_file_path, output).map_err(|e| {
+            CliError::general_cli_error(format!("Failed to write test file '{:?}': {e}", test_file_path))
+        })?;
     }
+    tracing::info!("✅ Compiled tests for '{name}'");
     Ok(())
 }

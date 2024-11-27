@@ -152,35 +152,30 @@ pub fn setup_build_directory(
 }
 
 pub fn new_compiler(
-    program_name: String,
+    name: String,
     handler: &Handler,
-    main_file_path: PathBuf,
-    compiler_options: Option<CompilerOptions>,
+    sources: Vec<(FileName, String)>,
+    compiler_options: CompilerOptions,
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Compiler<'_, CurrentNetwork> {
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
-    Compiler::new(program_name, handler, main_file_path, output_dir, compiler_options, import_stubs)
+    Compiler::new(name, handler, sources, output_dir, compiler_options, import_stubs)
 }
 
 pub fn parse_program<'a>(
-    program_name: String,
+    name: String,
     handler: &'a Handler,
     program_string: &str,
     cwd: Option<PathBuf>,
-    compiler_options: Option<CompilerOptions>,
+    compiler_options: CompilerOptions,
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<Compiler<'a, CurrentNetwork>, LeoError> {
-    let mut compiler = new_compiler(
-        program_name,
-        handler,
-        cwd.clone().unwrap_or_else(|| "compiler-test".into()),
-        compiler_options,
-        import_stubs,
-    );
-    let name = cwd.map_or_else(|| FileName::Custom("compiler-test".into()), FileName::Real);
-    compiler.parse_program_from_string(program_string, name)?;
+    let file_name = cwd.map_or_else(|| FileName::Custom("compiler-test".into()), FileName::Real);
+    let mut compiler =
+        new_compiler(name, handler, vec![(file_name, program_string.into())], compiler_options, import_stubs);
+    compiler.parse()?;
 
     CheckUniqueNodeIds::new().visit_program(&compiler.ast.ast);
 

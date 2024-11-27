@@ -73,6 +73,7 @@ use leo_errors::{AstError, Result};
 ///
 /// The [`Ast`] type represents a Leo program as a series of recursive data types.
 /// These data types form a tree that begins from a [`Program`] type root.
+// TODO: Clean up by removing the `Ast` type and renaming the exiting `Program` type to `Ast`.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Ast {
     pub ast: Program,
@@ -82,6 +83,16 @@ impl Ast {
     /// Creates a new AST from a given program tree.
     pub fn new(program: Program) -> Self {
         Self { ast: program }
+    }
+
+    /// Combines the two ASTs into a single AST.
+    /// The ASTs are combined by extending the components of the first AST with the components of the second AST.
+    pub fn combine(&mut self, other: Self) {
+        let Program { imports, stubs, program_scopes, tests } = other.ast;
+        self.ast.imports.extend(imports);
+        self.ast.stubs.extend(stubs);
+        self.ast.program_scopes.extend(program_scopes);
+        self.ast.tests.extend(tests);
     }
 
     /// Returns a reference to the inner program AST representation.

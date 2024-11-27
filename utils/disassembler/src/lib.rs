@@ -109,7 +109,7 @@ mod tests {
             let program = Program::<CurrentNetwork>::credits();
             match program {
                 Ok(p) => {
-                    let disassembled = disassemble(p);
+                    let disassembled = disassemble(&p);
                     println!("{}", disassembled);
                 }
                 Err(e) => {

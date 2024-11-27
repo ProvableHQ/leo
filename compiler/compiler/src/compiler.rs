@@ -30,20 +30,19 @@ use leo_span::{Symbol, source_map::FileName, symbol::with_session_globals};
 use snarkvm::prelude::Network;
 
 use indexmap::{IndexMap, IndexSet};
-use sha2::{Digest, Sha256};
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
 /// The primary entry point of the Leo compiler.
 #[derive(Clone)]
 pub struct Compiler<'a, N: Network> {
+    /// A name used to identify the instance of the compiler.
+    pub name: String,
     /// The handler is used for error and warning emissions.
     handler: &'a Handler,
-    /// The path to the main leo file.
-    main_file_path: PathBuf,
+    /// The source files and their content.
+    sources: Vec<(FileName, String)>,
     /// The path to where the compiler outputs all generated files.
     output_directory: PathBuf,
-    /// The program name,
-    pub program_name: String,
     /// The AST for the program.
     pub ast: Ast,
     /// Options configuring compilation.
@@ -63,23 +62,23 @@ pub struct Compiler<'a, N: Network> {
 impl<'a, N: Network> Compiler<'a, N> {
     /// Returns a new Leo compiler.
     pub fn new(
-        program_name: String,
+        name: String,
         handler: &'a Handler,
-        main_file_path: PathBuf,
+        sources: Vec<(FileName, String)>,
         output_directory: PathBuf,
-        compiler_options: Option<CompilerOptions>,
+        compiler_options: CompilerOptions,
         import_stubs: IndexMap<Symbol, Stub>,
     ) -> Self {
         let node_builder = NodeBuilder::default();
         let assigner = Assigner::default();
         let type_table = TypeTable::default();
         Self {
+            name,
             handler,
-            main_file_path,
+            sources,
             output_directory,
-            program_name,
             ast: Ast::new(Program::default()),
-            compiler_options: compiler_options.unwrap_or_default(),
+            compiler_options,
             node_builder,
             assigner,
             import_stubs,
@@ -88,42 +87,50 @@ impl<'a, N: Network> Compiler<'a, N> {
         }
     }
 
-    /// Returns a SHA256 checksum of the program file.
-    pub fn checksum(&self) -> Result<String> {
-        // Read in the main file as string
-        let unparsed_file = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
+    // TODO: Rethink build caching.
+    // /// Returns a SHA256 checksum of the program file.
+    // pub fn checksum(&self) -> Result<String> {
+    //     // Read in the main file as string
+    //     let unparsed_file = fs::read_to_string(&self.main_file_path)
+    //         .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
+    //
+    //     // Hash the file contents
+    //     let mut hasher = Sha256::new();
+    //     hasher.update(unparsed_file.as_bytes());
+    //     let hash = hasher.finalize();
+    //
+    //     Ok(format!("{hash:x}"))
+    // }
 
-        // Hash the file contents
-        let mut hasher = Sha256::new();
-        hasher.update(unparsed_file.as_bytes());
-        let hash = hasher.finalize();
-
-        Ok(format!("{hash:x}"))
+    /// Reset the compiler with new sources.
+    pub fn reset(&mut self, sources: Vec<(FileName, String)>) {
+        // Reset the sources and AST.
+        self.sources = sources;
+        self.ast = Ast::new(Program::default());
+        // Reset the internal state.
+        self.node_builder = NodeBuilder::default();
+        self.assigner = Assigner::default();
+        self.type_table = TypeTable::default();
     }
 
-    /// Parses and stores a program file content from a string, constructs a syntax tree, and generates a program.
-    pub fn parse_program_from_string(&mut self, program_string: &str, name: FileName) -> Result<()> {
-        // Register the source (`program_string`) in the source map.
-        let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
-
-        // Use the parser to construct the abstract syntax tree (ast).
-        self.ast = leo_parser::parse_ast::<N>(self.handler, &self.node_builder, &prg_sf.src, prg_sf.start_pos)?;
-
+    /// Parses and stores the source information, constructs the AST, and optionally outputs it.
+    pub fn parse(&mut self) -> Result<()> {
+        // Initialize the AST.
+        let mut ast = Ast::default();
+        // Parse the sources.
+        for (name, program_string) in &self.sources {
+            // Register the source (`program_string`) in the source map.
+            let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name.clone()));
+            // Use the parser to construct the abstract syntax tree (ast).
+            ast.combine(leo_parser::parse_ast::<N>(self.handler, &self.node_builder, &prg_sf.src, prg_sf.start_pos)?);
+        }
+        // Store the AST.
+        self.ast = ast;
+        // Write the AST to a JSON file.
         if self.compiler_options.output.initial_ast {
             self.write_ast_to_json("initial_ast.json")?;
         }
-
         Ok(())
-    }
-
-    /// Parses and stores the main program file, constructs a syntax tree, and generates a program.
-    pub fn parse_program(&mut self) -> Result<()> {
-        // Load the program file.
-        let program_string = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| CompilerError::file_read_error(&self.main_file_path, e))?;
-
-        self.parse_program_from_string(&program_string, FileName::Real(self.main_file_path.clone()))
     }
 
     /// Runs the symbol table pass.
@@ -289,7 +296,20 @@ impl<'a, N: Network> Compiler<'a, N> {
     /// Returns a compiled Leo program.
     pub fn compile(&mut self) -> Result<String> {
         // Parse the program.
-        self.parse_program()?;
+        self.parse()?;
+        // Copy the dependencies specified in `program.json` into the AST.
+        self.add_import_stubs()?;
+        // Run the intermediate compiler stages.
+        let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
+        // Run code generation.
+        let bytecode = self.code_generation_pass(&symbol_table, &struct_graph, &call_graph)?;
+        Ok(bytecode)
+    }
+
+    /// Returns the compiled Leo tests.
+    pub fn compile_tests(&mut self) -> Result<String> {
+        // Parse the program.
+        self.parse()?;
         // Copy the dependencies specified in `program.json` into the AST.
         self.add_import_stubs()?;
         // Run the intermediate compiler stages.
@@ -303,11 +323,11 @@ impl<'a, N: Network> Compiler<'a, N> {
     fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
         // Remove `Span`s if they are not enabled.
         if self.compiler_options.output.ast_spans_enabled {
-            self.ast.to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
+            self.ast.to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.name))?;
         } else {
             self.ast.to_json_file_without_keys(
                 self.output_directory.clone(),
-                &format!("{}.{file_suffix}", self.program_name),
+                &format!("{}.{file_suffix}", self.name),
                 &["_span", "span"],
             )?;
         }
@@ -318,12 +338,11 @@ impl<'a, N: Network> Compiler<'a, N> {
     fn write_symbol_table_to_json(&self, file_suffix: &str, symbol_table: &SymbolTable) -> Result<()> {
         // Remove `Span`s if they are not enabled.
         if self.compiler_options.output.symbol_table_spans_enabled {
-            symbol_table
-                .to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
+            symbol_table.to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.name))?;
         } else {
             symbol_table.to_json_file_without_keys(
                 self.output_directory.clone(),
-                &format!("{}.{file_suffix}", self.program_name),
+                &format!("{}.{file_suffix}", self.name),
                 &["_span", "span"],
             )?;
         }
@@ -349,7 +368,6 @@ impl<'a, N: Network> Compiler<'a, N> {
                     }
                 } else {
                     return Err(CompilerError::imported_program_not_found(
-                        self.program_name.clone(),
                         *program_name,
                         self.ast.ast.imports[program_name].1,
                     )
