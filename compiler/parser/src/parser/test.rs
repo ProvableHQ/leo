@@ -21,7 +21,7 @@ use leo_span::Symbol;
 
 impl<N: Network> ParserContext<'_, N> {
     /// Parses a test file.
-    fn parse_test(&mut self) -> Result<Test> {
+    pub fn parse_test(&mut self) -> Result<Test> {
         // Initialize storage for the components of the test file
         let mut consts: Vec<(Symbol, ConstDeclaration)> = Vec::new();
         let mut functions = Vec::new();

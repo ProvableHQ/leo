@@ -224,7 +224,7 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
         input.imports.values().for_each(|import| self.visit_import(&import.0));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
-        input.tests.values().for_each(|test| self.visit_test(test));
+        input.tests.iter().for_each(|test| self.visit_test(test));
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {

@@ -140,7 +140,7 @@ impl ProgramConsumer for StaticSingleAssigner<'_> {
                 .into_iter()
                 .map(|(name, scope)| (name, self.consume_program_scope(scope)))
                 .collect(),
-            tests: input.tests.into_iter().map(|(name, test)| (name, self.consume_test(test))).collect(),
+            tests: input.tests.into_iter().map(|test| self.consume_test(test)).collect(),
         }
     }
 }

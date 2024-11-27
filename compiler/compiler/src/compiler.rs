@@ -133,6 +133,31 @@ impl<'a, N: Network> Compiler<'a, N> {
         Ok(())
     }
 
+    /// Parses and stores the test source , constructs the AST, and optionally outputs it.
+    pub fn parse_test(&mut self) -> Result<()> {
+        // Initialize the AST.
+        let mut ast = Ast::default();
+        // Parse the sources.
+        for (name, program_string) in &self.sources {
+            // Register the source (`program_string`) in the source map.
+            let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name.clone()));
+            // Use the parser to construct the abstract syntax tree (ast).
+            ast.combine(leo_parser::parse_test_ast::<N>(
+                self.handler,
+                &self.node_builder,
+                &prg_sf.src,
+                prg_sf.start_pos,
+            )?);
+        }
+        // Store the AST.
+        self.ast = ast;
+        // Write the AST to a JSON file.
+        if self.compiler_options.output.initial_ast {
+            self.write_ast_to_json("initial_ast.json")?;
+        }
+        Ok(())
+    }
+
     /// Runs the symbol table pass.
     pub fn symbol_table_pass(&self) -> Result<SymbolTable> {
         let symbol_table = SymbolTableCreator::do_pass((&self.ast, self.handler))?;
@@ -293,6 +318,168 @@ impl<'a, N: Network> Compiler<'a, N> {
         Ok((st, struct_graph, call_graph))
     }
 
+    /// Runs the test symbol table pass.
+    pub fn test_symbol_table_pass(&self) -> Result<SymbolTable> {
+        let symbol_table = SymbolTableCreator::do_pass((&self.ast, self.handler))?;
+        if self.compiler_options.output.initial_symbol_table {
+            self.write_symbol_table_to_json("initial_symbol_table.json", &symbol_table)?;
+        }
+        Ok(symbol_table)
+    }
+
+    /// Runs the test type checker pass.
+    pub fn test_type_checker_pass(
+        &'a self,
+        symbol_table: SymbolTable,
+    ) -> Result<(SymbolTable, StructGraph, CallGraph)> {
+        let (symbol_table, struct_graph, call_graph) = TypeChecker::<N>::do_pass((
+            &self.ast,
+            self.handler,
+            symbol_table,
+            &self.type_table,
+            self.compiler_options.build.conditional_block_max_depth,
+            self.compiler_options.build.disable_conditional_branch_type_checking,
+            self.compiler_options.output.build_tests,
+        ))?;
+        if self.compiler_options.output.type_checked_symbol_table {
+            self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
+        }
+        Ok((symbol_table, struct_graph, call_graph))
+    }
+
+    /// Runs the test loop unrolling pass.
+    pub fn test_loop_unrolling_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
+        let (ast, symbol_table) = Unroller::do_pass((
+            std::mem::take(&mut self.ast),
+            self.handler,
+            &self.node_builder,
+            symbol_table,
+            &self.type_table,
+        ))?;
+        self.ast = ast;
+
+        if self.compiler_options.output.unrolled_ast {
+            self.write_ast_to_json("unrolled_ast.json")?;
+        }
+
+        if self.compiler_options.output.unrolled_symbol_table {
+            self.write_symbol_table_to_json("unrolled_symbol_table.json", &symbol_table)?;
+        }
+
+        Ok(symbol_table)
+    }
+
+    /// Runs the test static single assignment pass.
+    pub fn test_static_single_assignment_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
+        self.ast = StaticSingleAssigner::do_pass((
+            std::mem::take(&mut self.ast),
+            &self.node_builder,
+            &self.assigner,
+            symbol_table,
+            &self.type_table,
+        ))?;
+
+        if self.compiler_options.output.ssa_ast {
+            self.write_ast_to_json("ssa_ast.json")?;
+        }
+
+        Ok(())
+    }
+
+    /// Runs the test flattening pass.
+    pub fn test_flattening_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
+        self.ast = Flattener::do_pass((
+            std::mem::take(&mut self.ast),
+            symbol_table,
+            &self.type_table,
+            &self.node_builder,
+            &self.assigner,
+        ))?;
+
+        if self.compiler_options.output.flattened_ast {
+            self.write_ast_to_json("flattened_ast.json")?;
+        }
+
+        Ok(())
+    }
+
+    /// Runs the test destructuring pass.
+    pub fn test_destructuring_pass(&mut self) -> Result<()> {
+        self.ast = Destructurer::do_pass((
+            std::mem::take(&mut self.ast),
+            &self.type_table,
+            &self.node_builder,
+            &self.assigner,
+        ))?;
+
+        if self.compiler_options.output.destructured_ast {
+            self.write_ast_to_json("destructured_ast.json")?;
+        }
+
+        Ok(())
+    }
+
+    /// Runs the test function inlining pass.
+    pub fn test_function_inlining_pass(&mut self, call_graph: &CallGraph) -> Result<()> {
+        let ast = FunctionInliner::do_pass((
+            std::mem::take(&mut self.ast),
+            &self.node_builder,
+            call_graph,
+            &self.assigner,
+            &self.type_table,
+        ))?;
+        self.ast = ast;
+
+        if self.compiler_options.output.inlined_ast {
+            self.write_ast_to_json("inlined_ast.json")?;
+        }
+
+        Ok(())
+    }
+
+    /// Runs the test dead code elimination pass.
+    pub fn test_dead_code_elimination_pass(&mut self) -> Result<()> {
+        if self.compiler_options.build.dce_enabled {
+            self.ast = DeadCodeEliminator::do_pass((std::mem::take(&mut self.ast), &self.node_builder))?;
+        }
+
+        if self.compiler_options.output.dce_ast {
+            self.write_ast_to_json("dce_ast.json")?;
+        }
+
+        Ok(())
+    }
+
+    /// Runs the test code generation pass.
+    pub fn test_code_generation_pass(
+        &mut self,
+        symbol_table: &SymbolTable,
+        struct_graph: &StructGraph,
+        call_graph: &CallGraph,
+    ) -> Result<String> {
+        CodeGenerator::do_pass((&self.ast, symbol_table, &self.type_table, struct_graph, call_graph, &self.ast.ast))
+    }
+
+    /// Runs the test compiler stages.
+    pub fn test_compiler_stages(&mut self) -> Result<(SymbolTable, StructGraph, CallGraph)> {
+        let st = self.test_symbol_table_pass()?;
+        let (st, struct_graph, call_graph) = self.test_type_checker_pass(st)?;
+
+        let st = self.test_loop_unrolling_pass(st)?;
+
+        self.test_static_single_assignment_pass(&st)?;
+
+        self.test_flattening_pass(&st)?;
+
+        self.test_destructuring_pass()?;
+
+        self.test_function_inlining_pass(&call_graph)?;
+
+        self.test_dead_code_elimination_pass()?;
+
+        Ok((st, struct_graph, call_graph))
+    }
+
     /// Returns a compiled Leo program.
     pub fn compile(&mut self) -> Result<String> {
         // Parse the program.
@@ -309,13 +496,13 @@ impl<'a, N: Network> Compiler<'a, N> {
     /// Returns the compiled Leo tests.
     pub fn compile_tests(&mut self) -> Result<String> {
         // Parse the program.
-        self.parse()?;
+        self.parse_test()?;
         // Copy the dependencies specified in `program.json` into the AST.
         self.add_import_stubs()?;
         // Run the intermediate compiler stages.
-        let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
+        let (symbol_table, struct_graph, call_graph) = self.test_compiler_stages()?;
         // Run code generation.
-        let bytecode = self.code_generation_pass(&symbol_table, &struct_graph, &call_graph)?;
+        let bytecode = self.test_code_generation_pass(&symbol_table, &struct_graph, &call_graph)?;
         Ok(bytecode)
     }
 

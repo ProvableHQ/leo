@@ -50,3 +50,15 @@ pub fn parse<N: Network>(
 
     tokens.parse_program()
 }
+
+/// Creates a new test from a given file path and source code text.
+pub fn parse_test<N: Network>(
+    handler: &Handler,
+    node_builder: &NodeBuilder,
+    source: &str,
+    start_pos: BytePos,
+) -> Result<Test> {
+    let mut tokens = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
+
+    tokens.parse_test()
+}

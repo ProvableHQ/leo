@@ -31,7 +31,7 @@ pub(crate) use tokenizer::*;
 pub mod parser;
 pub use parser::*;
 
-use leo_ast::{Ast, NodeBuilder};
+use leo_ast::{Ast, NodeBuilder, Test};
 use leo_errors::{Result, emitter::Handler};
 
 use snarkvm::prelude::Network;
@@ -47,4 +47,17 @@ pub fn parse_ast<N: Network>(
     start_pos: BytePos,
 ) -> Result<Ast> {
     Ok(Ast::new(parse::<N>(handler, node_builder, source, start_pos)?))
+}
+
+/// Creates a new test AST from a given file path and source code text.
+pub fn parse_test_ast<N: Network>(
+    handler: &Handler,
+    node_builder: &NodeBuilder,
+    source: &str,
+    start_pos: BytePos,
+) -> Result<Ast> {
+    let test = parse_test::<N>(handler, node_builder, source, start_pos)?;
+    let mut program = leo_ast::Program::default();
+    program.tests.push(test);
+    Ok(Ast::new(program))
 }

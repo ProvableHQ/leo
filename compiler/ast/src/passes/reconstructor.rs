@@ -425,7 +425,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .into_iter()
                 .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
                 .collect(),
-            tests: input.tests.into_iter().map(|(id, test)| (id, self.reconstruct_test(test))).collect(),
+            tests: input.tests.into_iter().map(|test| self.reconstruct_test(test)).collect(),
         }
     }
 
