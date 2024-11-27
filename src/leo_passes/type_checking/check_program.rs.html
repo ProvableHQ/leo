@@ -345,6 +345,14 @@
 <a href="#345" id="345">345</a>
 <a href="#346" id="346">346</a>
 <a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -513,7 +521,13 @@
                         <span class="kw">if </span>input.is_record { <span class="string">"record" </span>} <span class="kw">else </span>{ <span class="string">"struct" </span>},
                         identifier.span,
                     ));
+                } <span class="kw">else if </span><span class="macro">matches!</span>(type_, Type::Future(..)) {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::composite_data_type_cannot_contain_future(
+                        <span class="kw">if </span>input.is_record { <span class="string">"record" </span>} <span class="kw">else </span>{ <span class="string">"struct" </span>},
+                        identifier.span,
+                    ));
                 }
+
                 <span class="comment">// Ensure that there are no record members.
                 </span><span class="self">self</span>.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
                 <span class="comment">// If the member is a struct, add it to the struct dependency graph.
@@ -541,8 +555,9 @@
     <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Mapping) {
         <span class="comment">// Check that a mapping's key type is valid.
         </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.key_type, input.span);
-        <span class="comment">// Check that a mapping's key type is not a tuple, record, or mapping.
+        <span class="comment">// Check that a mapping's key type is not a future, tuple, record, or mapping.
         </span><span class="kw">match </span>input.key_type.clone() {
+            Type::Future(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"future"</span>, input.span)),
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"tuple"</span>, input.span)),
             Type::Composite(struct_type) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.lookup_struct(struct_type.program, struct_type.id.name) {
@@ -558,8 +573,9 @@
 
         <span class="comment">// Check that a mapping's value type is valid.
         </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.value_type, input.span);
-        <span class="comment">// Check that a mapping's value type is not a tuple, record or mapping.
+        <span class="comment">// Check that a mapping's value type is not a future, tuple, record or mapping.
         </span><span class="kw">match </span>input.value_type.clone() {
+            Type::Future(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"future"</span>, input.span)),
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"tuple"</span>, input.span)),
             Type::Composite(struct_type) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.lookup_struct(struct_type.program, struct_type.id.name) {

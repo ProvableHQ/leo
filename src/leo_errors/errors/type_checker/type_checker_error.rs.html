@@ -899,6 +899,20 @@
 <a href="#899" id="899">899</a>
 <a href="#900" id="900">900</a>
 <a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1797,6 +1811,20 @@
     empty_function_arglist {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"Cannot define a function with no parameters."</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    composite_data_type_cannot_contain_future {
+        args: (data_type: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"A {data_type} cannot contain a future."</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    array_element_cannot_be_future {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">"An array cannot have a future as an element type."</span>),
         help: <span class="prelude-val">None</span>,
     }
 );
