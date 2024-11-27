@@ -166,7 +166,13 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
                         if input.is_record { "record" } else { "struct" },
                         identifier.span,
                     ));
+                } else if matches!(type_, Type::Future(..)) {
+                    self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_future(
+                        if input.is_record { "record" } else { "struct" },
+                        identifier.span,
+                    ));
                 }
+
                 // Ensure that there are no record members.
                 self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
                 // If the member is a struct, add it to the struct dependency graph.
@@ -194,8 +200,9 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
     fn visit_mapping(&mut self, input: &'a Mapping) {
         // Check that a mapping's key type is valid.
         self.assert_type_is_valid(&input.key_type, input.span);
-        // Check that a mapping's key type is not a tuple, record, or mapping.
+        // Check that a mapping's key type is not a future, tuple, record, or mapping.
         match input.key_type.clone() {
+            Type::Future(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "future", input.span)),
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
             Type::Composite(struct_type) => {
                 if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
@@ -211,8 +218,9 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
 
         // Check that a mapping's value type is valid.
         self.assert_type_is_valid(&input.value_type, input.span);
-        // Check that a mapping's value type is not a tuple, record or mapping.
+        // Check that a mapping's value type is not a future, tuple, record or mapping.
         match input.value_type.clone() {
+            Type::Future(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "future", input.span)),
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
             Type::Composite(struct_type) => {
                 if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {

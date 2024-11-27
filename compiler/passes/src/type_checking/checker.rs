@@ -1087,6 +1087,8 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 }
                 // Check that the array element type is valid.
                 match array_type.element_type() {
+                    // Array elements cannot be futures.
+                    Type::Future(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_future(span)),
                     // Array elements cannot be tuples.
                     Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
                     // Array elements cannot be records.

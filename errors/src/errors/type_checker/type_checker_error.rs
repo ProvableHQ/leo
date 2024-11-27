@@ -898,4 +898,18 @@ create_messages!(
         msg: format!("Cannot define a function with no parameters."),
         help: None,
     }
+
+    @formatted
+    composite_data_type_cannot_contain_future {
+        args: (data_type: impl Display),
+        msg: format!("A {data_type} cannot contain a future."),
+        help: None,
+    }
+
+    @formatted
+    array_element_cannot_be_future {
+        args: (),
+        msg: format!("An array cannot have a future as an element type."),
+        help: None,
+    }
 );
