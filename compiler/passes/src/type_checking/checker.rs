@@ -1225,10 +1225,16 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction)) {
                     self.emit_err(TypeCheckerError::no_future_parameters(input_var.span()));
                 }
-            } else {
-                // Add function inputs to the symbol table. Futures have already been added.
+            }
+
+            let location = Location::new(None, input_var.identifier().name);
+            if !matches!(&input_var.type_(), Type::Future(_))
+                || self.symbol_table.borrow().lookup_variable_in_current_scope(location.clone()).is_none()
+            {
+                // Add function inputs to the symbol table. If inference happened properly above, futures were already added.
+                // But if a future was not added, add it now so as not to give confusing error messages.
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                    Location::new(None, input_var.identifier().name),
+                    location.clone(),
                     self.scope_state.program_name,
                     VariableSymbol {
                         type_: input_var.type_().clone(),
