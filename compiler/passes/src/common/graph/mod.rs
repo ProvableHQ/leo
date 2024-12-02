@@ -121,7 +121,7 @@ impl<N: Node> DiGraph<N> {
     // Detects if there is a cycle in the graph starting from the given node, via a recursive depth-first search.
     // If there is no cycle, returns `None`.
     // If there is a cycle, returns the node that was most recently discovered.
-    // Nodes are added to to `finished` in post-order order.
+    // Nodes are added to `finished` in post-order order.
     fn contains_cycle_from(&self, node: N, discovered: &mut IndexSet<N>, finished: &mut IndexSet<N>) -> Option<N> {
         // Add the node to the set of discovered nodes.
         discovered.insert(node);

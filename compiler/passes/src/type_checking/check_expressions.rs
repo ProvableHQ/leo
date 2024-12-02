@@ -667,7 +667,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                     self.scope_state.is_call = true;
                     let (mut input_futures, mut inferred_finalize_inputs) = (Vec::new(), Vec::new());
                     for (expected, argument) in func.input.iter().zip(input.arguments.iter()) {
-                        // Get the type of the expression. If the type is not known, do not attempt to attempt any futher inference.
+                        // Get the type of the expression. If the type is not known, do not attempt to attempt any further inference.
                         let ty = self.visit_expression(argument, &Some(expected.type_().clone()))?;
                         // Extract information about futures that are being consumed.
                         if func.variant == Variant::AsyncFunction && matches!(expected.type_(), Type::Future(_)) {
