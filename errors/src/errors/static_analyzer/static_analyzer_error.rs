@@ -59,4 +59,11 @@ create_messages!(
         msg: format!("The call to {function_name} will result in failed executions on-chain."),
         help: Some("There is a subtle error that occurs if an async transition call follows a non-async transition call, and the async call returns a `Future` that itself takes a `Future` as an input. See See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.".to_string()),
     }
+
+    @formatted
+    misplaced_future {
+        args: (),
+        msg: "A future may not be used in this way".to_string(),
+        help: Some("Futures should be created, assigned to a variable, and consumed without being moved or reassigned.".to_string()),
+    }
 );
