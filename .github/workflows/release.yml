@@ -285,10 +285,10 @@ jobs:
 
       - name: Verify Cargo.lock Exists
         run: |
-          if [ ! -f Cargo.lock ]; then
-            echo "Error: Cargo.lock file is missing. Aborting build."
+          if (!(Test-Path "Cargo.lock")) {
+            Write-Host "Error: Cargo.lock file is missing. Aborting build."
             exit 1
-          fi
+          }
 
       - name: Build Leo
         run: |
