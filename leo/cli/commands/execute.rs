@@ -41,7 +41,7 @@ use snarkvm::{
         ProgramID,
         VM,
         Value,
-        execution_cost,
+        execution_cost_v1,
         query::Query as SnarkVMQuery,
         store::{
             ConsensusStore,
@@ -213,7 +213,8 @@ fn handle_execute<A: Aleo>(
         // Check the transaction cost.
         let (mut total_cost, (storage_cost, finalize_cost)) = if let ExecuteTransaction(_, execution, _) = &transaction
         {
-            execution_cost(&vm.process().read(), execution)?
+            // TODO: Update to V2 after block migration.
+            execution_cost_v1(&vm.process().read(), execution)?
         } else {
             panic!("All transactions should be of type Execute.")
         };
