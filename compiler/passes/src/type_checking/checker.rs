@@ -1020,6 +1020,16 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 Some(Type::Boolean)
             }
             CoreFunction::FutureAwait => Some(Type::Unit),
+            CoreFunction::CheatCodePrintMapping => {
+                // Check that the argument is a mapping.
+                let _ = self.assert_mapping_type(&arguments[0].0, arguments[0].1);
+                Some(Type::Unit)
+            }
+            CoreFunction::CheatCodeSetBlockHeight => {
+                // Assert that the argument is a u32.
+                self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::U32), arguments[0].1);
+                Some(Type::Unit)
+            }
         }
     }
 

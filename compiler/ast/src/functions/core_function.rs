@@ -289,6 +289,9 @@ pub enum CoreFunction {
 
     SignatureVerify,
     FutureAwait,
+
+    CheatCodePrintMapping,
+    CheatCodeSetBlockHeight,
 }
 
 impl CoreFunction {
@@ -566,6 +569,9 @@ impl CoreFunction {
 
             (sym::signature, sym::verify) => Self::SignatureVerify,
             (sym::Future, sym::Await) => Self::FutureAwait,
+
+            (sym::CheatCode, sym::print_mapping) => Self::CheatCodePrintMapping,
+            (sym::CheatCode, sym::set_block_height) => Self::CheatCodeSetBlockHeight,
             _ => return None,
         })
     }
@@ -844,6 +850,9 @@ impl CoreFunction {
 
             Self::SignatureVerify => 3,
             Self::FutureAwait => 1,
+
+            Self::CheatCodePrintMapping => 1,
+            Self::CheatCodeSetBlockHeight => 1,
         }
     }
 
@@ -870,7 +879,9 @@ impl CoreFunction {
             | CoreFunction::ChaChaRandScalar
             | CoreFunction::MappingSet
             | CoreFunction::MappingRemove
-            | CoreFunction::MappingContains => true,
+            | CoreFunction::MappingContains
+            | CoreFunction::CheatCodePrintMapping
+            | CoreFunction::CheatCodeSetBlockHeight => true,
             CoreFunction::BHP256CommitToAddress
             | CoreFunction::BHP256CommitToField
             | CoreFunction::BHP256CommitToGroup

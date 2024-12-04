@@ -367,6 +367,10 @@ impl<'a> Cursor<'a> {
         }
     }
 
+    fn set_block_height(&mut self, block_height: u32) {
+        self.block_height = block_height;
+    }
+
     /// Execute the whole step of the current Element.
     ///
     /// That is, perform a step, and then finish all statements and expressions that have been pushed,
@@ -715,6 +719,9 @@ impl<'a> Cursor<'a> {
                     CoreFunction::MappingGetOrUse | CoreFunction::MappingSet => {
                         push!()(&function.arguments[2]);
                         push!()(&function.arguments[1]);
+                    }
+                    CoreFunction::CheatCodePrintMapping => {
+                        // Do nothing, as we don't need to evaluate the mapping.
                     }
                     _ => function.arguments.iter().rev().for_each(push!()),
                 }
@@ -2162,6 +2169,35 @@ impl<'a> Cursor<'a> {
                         user_initiated: false,
                     });
                 }
+                Value::Unit
+            }
+            CoreFunction::CheatCodePrintMapping => {
+                let (program, name) = match &arguments[0] {
+                    Expression::Identifier(id) => (None, id.name),
+                    Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                    _ => tc_fail!(),
+                };
+                if let Some(mapping) = self.lookup_mapping(program, name) {
+                    // TODO: What is the appropriate way to print this to the console.
+                    // Print the name of the mapping.
+                    println!(
+                        "Mapping: {}",
+                        if let Some(program) = program { format!("{}/{}", program, name) } else { name.to_string() }
+                    );
+                    // Print the contents of the mapping.
+                    for (key, value) in mapping {
+                        println!("  {:?} -> {:?}", key, value);
+                    }
+                } else {
+                    tc_fail!();
+                }
+                Value::Unit
+            }
+            CoreFunction::CheatCodeSetBlockHeight => {
+                let Value::U32(height) = self.pop_value()? else {
+                    tc_fail!();
+                };
+                self.set_block_height(height);
                 Value::Unit
             }
         };
