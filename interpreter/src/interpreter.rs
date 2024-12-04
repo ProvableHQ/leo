@@ -27,6 +27,7 @@ pub struct Interpreter {
     handler: Handler,
     node_builder: NodeBuilder,
     breakpoints: Vec<Breakpoint>,
+    pub watchpoints: Vec<Watchpoint>,
     filename_to_program: HashMap<PathBuf, String>,
     parsed_inputs: u32,
 }
@@ -38,9 +39,16 @@ pub struct Breakpoint {
 }
 
 #[derive(Clone, Debug)]
+pub struct Watchpoint {
+    pub code: String,
+    pub last_result: Option<String>,
+}
+
+#[derive(Clone, Debug)]
 pub enum InterpreterAction {
     LeoInterpretInto(String),
     LeoInterpretOver(String),
+    Watch(String),
     RunFuture(usize),
     Breakpoint(Breakpoint),
     PrintRegister(u64),
@@ -166,6 +174,7 @@ impl Interpreter {
             node_builder,
             actions: Vec::new(),
             breakpoints: Vec::new(),
+            watchpoints: Vec::new(),
             filename_to_program,
             parsed_inputs: 0,
         })
@@ -252,6 +261,11 @@ impl Interpreter {
                 StepResult { finished: false, value: None }
             }
 
+            Watch(code) => {
+                self.watchpoints.push(Watchpoint { code: code.clone(), last_result: None });
+                StepResult { finished: false, value: None }
+            }
+
             PrintRegister(register_index) => {
                 let Some(Frame { element: Element::AleoExecution { registers, .. }, .. }) = self.cursor.frames.last()
                 else {
@@ -273,6 +287,20 @@ impl Interpreter {
                         }
                     }
                     self.cursor.step()?;
+                    let mut should_end = false;
+                    for i in 0..self.watchpoints.len() {
+                        let code = self.watchpoints[i].code.clone();
+                        if let Some(ret) = self.action(LeoInterpretOver(code))? {
+                            let new_value = Some(ret.to_string());
+                            if self.watchpoints[i].last_result != new_value {
+                                should_end = true;
+                                self.watchpoints[i].last_result = new_value;
+                            }
+                        }
+                    }
+                    if should_end {
+                        return Ok(None);
+                    }
                 }
                 StepResult { finished: false, value: None }
             }

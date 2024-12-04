@@ -118,8 +118,17 @@ pub fn interpret(
         } else if let Some(v) = interpreter.view_current() {
             println!("{}:\n{v}", "Prepared to evaluate".bold());
         }
+
         for (i, future) in interpreter.cursor.futures.iter().enumerate() {
             println!("{i}: {future}");
+        }
+
+        for (i, watchpoint) in interpreter.watchpoints.iter().enumerate() {
+            println!(
+                "{i:>4}: {:>50} = {}",
+                watchpoint.code,
+                watchpoint.last_result.as_ref().map(|s| s.as_str()).unwrap_or("")
+            );
         }
 
         let user_input: String = dialoguer::Input::with_theme(&dialoguer::theme::ColorfulTheme::default())
@@ -168,6 +177,8 @@ pub fn interpret(
                         println!("failed to parse register number {trimmed}");
                         continue;
                     }
+                } else if let Some(rest) = s.strip_prefix("#watchpoint ").or(s.strip_prefix("# w")) {
+                    InterpreterAction::Watch(rest.trim().to_string())
                 } else {
                     InterpreterAction::LeoInterpretOver(s.trim().into())
                 }
