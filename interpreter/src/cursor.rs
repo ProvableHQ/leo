@@ -2109,7 +2109,14 @@ impl<'a> Cursor<'a> {
                 let Value::Future(future) = self.pop_value()? else {
                     tc_fail!();
                 };
-                self.contexts.add_future(future);
+                for async_execution in future.0 {
+                    self.values.extend(async_execution.arguments.into_iter());
+                    self.frames.push(Frame {
+                        step: 0,
+                        element: Element::DelayedCall(async_execution.function),
+                        user_initiated: false,
+                    });
+                }
                 Value::Unit
             }
         };
