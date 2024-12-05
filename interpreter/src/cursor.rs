@@ -468,7 +468,7 @@ impl<'a> Cursor<'a> {
                         let x = self.pop_value()?;
                         let y = self.pop_value()?;
                         let b =
-                            if matches!(assert.variant, AssertVariant::AssertEq(..)) { x.eq(&y) } else { x.neq(&y) };
+                            if matches!(assert.variant, AssertVariant::AssertEq(..)) { x.eq(&y)? } else { x.neq(&y)? };
                         if !b {
                             halt!(assert.span(), "assert failure");
                         }
@@ -563,7 +563,7 @@ impl<'a> Cursor<'a> {
                 // Currently there actually isn't a syntax in Leo for inclusive ranges.
                 let stop = self.pop_value()?;
                 let start = self.pop_value()?;
-                if start.eq(&stop) {
+                if start.eq(&stop)? {
                     true
                 } else {
                     let new_start = start.inc_wrapping();
@@ -645,7 +645,7 @@ impl<'a> Cursor<'a> {
                     Value::I32(x) => x.try_into().expect_tc(span)?,
                     Value::I64(x) => x.try_into().expect_tc(span)?,
                     Value::I128(x) => x.try_into().expect_tc(span)?,
-                    _ => tc_fail!(),
+                    _ => halt!(expression.span(), "invalid array index {index}"),
                 };
                 let Value::Array(vec_array) = array else { tc_fail!() };
                 Some(vec_array.get(index_usize).expect_tc(span)?.clone())
@@ -655,7 +655,7 @@ impl<'a> Cursor<'a> {
                     tc_fail!();
                 };
                 let Some(core_constant) = CoreConstant::from_symbols(type_ident.name, constant.name.name) else {
-                    tc_fail!();
+                    halt!(constant.span(), "Unknown constant {constant}");
                 };
                 match core_constant {
                     CoreConstant::GroupGenerator => Some(Value::generator()),
@@ -697,7 +697,7 @@ impl<'a> Cursor<'a> {
             },
             Expression::Access(AccessExpression::AssociatedFunction(function)) if step == 0 => {
                 let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
-                    tc_fail!();
+                    halt!(function.span(), "Unkown core function {function}");
                 };
 
                 // We want to push expressions for each of the arguments... except for mappings,
@@ -716,7 +716,7 @@ impl<'a> Cursor<'a> {
             }
             Expression::Access(AccessExpression::AssociatedFunction(function)) if step == 1 => {
                 let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
-                    tc_fail!();
+                    halt!(function.span(), "Unkown core function {function}");
                 };
 
                 let span = function.span();
@@ -732,7 +732,7 @@ impl<'a> Cursor<'a> {
             }
             Expression::Access(AccessExpression::AssociatedFunction(function)) if step == 2 => {
                 let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
-                    tc_fail!();
+                    halt!(function.span(), "Unkown core function {function}");
                 };
                 assert!(core_function == CoreFunction::FutureAwait);
                 Some(Value::Unit)
@@ -860,7 +860,7 @@ impl<'a> Cursor<'a> {
                 match condition {
                     Value::Bool(true) => push!()(&*ternary.if_true),
                     Value::Bool(false) => push!()(&*ternary.if_false),
-                    _ => tc_fail!(),
+                    _ => halt!(ternary.span(), "Invalid type for ternary expression {ternary}"),
                 }
                 None
             }
@@ -2129,8 +2129,9 @@ impl<'a> Cursor<'a> {
             }
             CoreFunction::SignatureVerify => todo!(),
             CoreFunction::FutureAwait => {
-                let Value::Future(future) = self.pop_value()? else {
-                    tc_fail!();
+                let value = self.pop_value()?;
+                let Value::Future(future) = value else {
+                    halt!(span, "Invalid value for await: {value}");
                 };
                 for async_execution in future.0 {
                     self.values.extend(async_execution.arguments.into_iter());
@@ -2175,7 +2176,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 (Value::Group(x), Value::Group(y)) => Some(Value::Group(x + y)),
                 (Value::Field(x), Value::Field(y)) => Some(Value::Field(x + y)),
                 (Value::Scalar(x), Value::Scalar(y)) => Some(Value::Scalar(x + y)),
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "add overflow");
             };
@@ -2192,11 +2193,11 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_add(y)),
             (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_add(y)),
             (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_add(y)),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         BinaryOperation::And => match (lhs, rhs) {
             (Value::Bool(x), Value::Bool(y)) => Value::Bool(x && y),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         BinaryOperation::BitwiseAnd => match (lhs, rhs) {
             (Value::Bool(x), Value::Bool(y)) => Value::Bool(x & y),
@@ -2210,7 +2211,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             (Value::I32(x), Value::I32(y)) => Value::I32(x & y),
             (Value::I64(x), Value::I64(y)) => Value::I64(x & y),
             (Value::I128(x), Value::I128(y)) => Value::I128(x & y),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         BinaryOperation::Div => {
             let Some(value) = (match (lhs, rhs) {
@@ -2225,7 +2226,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 (Value::I64(x), Value::I64(y)) => x.checked_div(y).map(Value::I64),
                 (Value::I128(x), Value::I128(y)) => x.checked_div(y).map(Value::I128),
                 (Value::Field(x), Value::Field(y)) => y.inverse().map(|y| Value::Field(x * y)).ok(),
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "div overflow");
             };
@@ -2252,13 +2253,13 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_div(y)),
             (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_div(y)),
             (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_div(y)),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
-        BinaryOperation::Eq => Value::Bool(lhs.eq(&rhs)),
-        BinaryOperation::Gte => Value::Bool(lhs.gte(&rhs)),
-        BinaryOperation::Gt => Value::Bool(lhs.gt(&rhs)),
-        BinaryOperation::Lte => Value::Bool(lhs.lte(&rhs)),
-        BinaryOperation::Lt => Value::Bool(lhs.lt(&rhs)),
+        BinaryOperation::Eq => Value::Bool(lhs.eq(&rhs)?),
+        BinaryOperation::Gte => Value::Bool(lhs.gte(&rhs)?),
+        BinaryOperation::Gt => Value::Bool(lhs.gt(&rhs)?),
+        BinaryOperation::Lte => Value::Bool(lhs.lte(&rhs)?),
+        BinaryOperation::Lt => Value::Bool(lhs.lt(&rhs)?),
         BinaryOperation::Mod => {
             let Some(value) = (match (lhs, rhs) {
                 (Value::U8(x), Value::U8(y)) => x.checked_rem(y).map(Value::U8),
@@ -2271,7 +2272,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 (Value::I32(x), Value::I32(y)) => x.checked_rem(y).map(Value::I32),
                 (Value::I64(x), Value::I64(y)) => x.checked_rem(y).map(Value::I64),
                 (Value::I128(x), Value::I128(y)) => x.checked_rem(y).map(Value::I128),
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "mod overflow");
             };
@@ -2292,7 +2293,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 (Value::Field(x), Value::Field(y)) => Some(Value::Field(x * y)),
                 (Value::Group(x), Value::Scalar(y)) => Some(Value::Group(x * y)),
                 (Value::Scalar(x), Value::Group(y)) => Some(Value::Group(x * y)),
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "mul overflow");
             };
@@ -2310,21 +2311,21 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_mul(y)),
             (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_mul(y)),
             (Value::Field(_), Value::Field(_)) => todo!(),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
 
         BinaryOperation::Nand => match (lhs, rhs) {
             (Value::Bool(x), Value::Bool(y)) => Value::Bool(!(x & y)),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
-        BinaryOperation::Neq => Value::Bool(lhs.neq(&rhs)),
+        BinaryOperation::Neq => Value::Bool(lhs.neq(&rhs)?),
         BinaryOperation::Nor => match (lhs, rhs) {
             (Value::Bool(x), Value::Bool(y)) => Value::Bool(!(x | y)),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         BinaryOperation::Or => match (lhs, rhs) {
             (Value::Bool(x), Value::Bool(y)) => Value::Bool(x | y),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         BinaryOperation::BitwiseOr => match (lhs, rhs) {
             (Value::Bool(x), Value::Bool(y)) => Value::Bool(x | y),
@@ -2338,7 +2339,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             (Value::I32(x), Value::I32(y)) => Value::I32(x | y),
             (Value::I64(x), Value::I64(y)) => Value::I64(x | y),
             (Value::I128(x), Value::I128(y)) => Value::I128(x | y),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         BinaryOperation::Pow => {
             if let (Value::Field(x), Value::Field(y)) = (&lhs, &rhs) {
@@ -2362,7 +2363,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                     Value::I32(x) => x.checked_pow(rhs).map(Value::I32),
                     Value::I64(x) => x.checked_pow(rhs).map(Value::I64),
                     Value::I128(x) => x.checked_pow(rhs).map(Value::I128),
-                    _ => tc_fail!(),
+                    _ => halt!(span, "Type error"),
                 }) else {
                     halt!(span, "pow overflow");
                 };
@@ -2374,7 +2375,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 Value::U8(y) => y.into(),
                 Value::U16(y) => y.into(),
                 Value::U32(y) => y,
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             };
 
             match lhs {
@@ -2388,7 +2389,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 Value::I32(x) => Value::I32(x.wrapping_pow(rhs)),
                 Value::I64(x) => Value::I64(x.wrapping_pow(rhs)),
                 Value::I128(x) => Value::I128(x.wrapping_pow(rhs)),
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             }
         }
         BinaryOperation::Rem => {
@@ -2403,7 +2404,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 (Value::I32(x), Value::I32(y)) => x.checked_rem(y).map(Value::I32),
                 (Value::I64(x), Value::I64(y)) => x.checked_rem(y).map(Value::I64),
                 (Value::I128(x), Value::I128(y)) => x.checked_rem(y).map(Value::I128),
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "rem error");
             };
@@ -2430,14 +2431,14 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_rem(y)),
             (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_rem(y)),
             (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_rem(y)),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         BinaryOperation::Shl => {
             let rhs: u32 = match rhs {
                 Value::U8(y) => y.into(),
                 Value::U16(y) => y.into(),
                 Value::U32(y) => y,
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             };
             match lhs {
                 Value::U8(_) | Value::I8(_) if rhs >= 8 => halt!(span, "shl overflow"),
@@ -2451,7 +2452,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             // Aleo's shl halts if set bits are shifted out.
             let shifted = lhs.simple_shl(rhs);
             let reshifted = shifted.simple_shr(rhs);
-            if lhs.eq(&reshifted) {
+            if lhs.eq(&reshifted)? {
                 shifted
             } else {
                 halt!(span, "shl overflow");
@@ -2463,7 +2464,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 Value::U8(y) => y.into(),
                 Value::U16(y) => y.into(),
                 Value::U32(y) => y,
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             };
             match lhs {
                 Value::U8(x) => Value::U8(x.wrapping_shl(rhs)),
@@ -2476,7 +2477,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 Value::I32(x) => Value::I32(x.wrapping_shl(rhs)),
                 Value::I64(x) => Value::I64(x.wrapping_shl(rhs)),
                 Value::I128(x) => Value::I128(x.wrapping_shl(rhs)),
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             }
         }
 
@@ -2485,7 +2486,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 Value::U8(y) => y.into(),
                 Value::U16(y) => y.into(),
                 Value::U32(y) => y,
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             };
 
             match lhs {
@@ -2505,7 +2506,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 Value::U8(y) => y.into(),
                 Value::U16(y) => y.into(),
                 Value::U32(y) => y,
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             };
 
             match lhs {
@@ -2519,7 +2520,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 Value::I32(x) => Value::I32(x.wrapping_shr(rhs)),
                 Value::I64(x) => Value::I64(x.wrapping_shr(rhs)),
                 Value::I128(x) => Value::I128(x.wrapping_shr(rhs)),
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             }
         }
 
@@ -2537,7 +2538,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 (Value::I128(x), Value::I128(y)) => x.checked_sub(y).map(Value::I128),
                 (Value::Group(x), Value::Group(y)) => Some(Value::Group(x - y)),
                 (Value::Field(x), Value::Field(y)) => Some(Value::Field(x - y)),
-                _ => tc_fail!(),
+                _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "sub overflow");
             };
@@ -2555,7 +2556,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_sub(y)),
             (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_sub(y)),
             (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_sub(y)),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
 
         BinaryOperation::Xor => match (lhs, rhs) {
@@ -2570,7 +2571,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             (Value::I32(x), Value::I32(y)) => Value::I32(x ^ y),
             (Value::I64(x), Value::I64(y)) => Value::I64(x ^ y),
             (Value::I128(x), Value::I128(y)) => Value::I128(x ^ y),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
     };
     Ok(value)
@@ -2615,7 +2616,7 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: Value) -> Result<Va
                     Value::I128(x.abs())
                 }
             }
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         UnaryOperation::AbsWrapped => match value {
             Value::I8(x) => Value::I8(x.unsigned_abs() as i8),
@@ -2623,12 +2624,12 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: Value) -> Result<Va
             Value::I32(x) => Value::I32(x.unsigned_abs() as i32),
             Value::I64(x) => Value::I64(x.unsigned_abs() as i64),
             Value::I128(x) => Value::I128(x.unsigned_abs() as i128),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         UnaryOperation::Double => match value {
             Value::Field(x) => Value::Field(x.double()),
             Value::Group(x) => Value::Group(x.double()),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         UnaryOperation::Inverse => match value {
             Value::Field(x) => {
@@ -2637,7 +2638,7 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: Value) -> Result<Va
                 };
                 Value::Field(y)
             }
-            _ => tc_fail!(),
+            _ => halt!(span, "Can only invert fields"),
         },
         UnaryOperation::Negate => match value {
             Value::I8(x) => match x.checked_neg() {
@@ -2662,7 +2663,7 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: Value) -> Result<Va
             },
             Value::Group(x) => Value::Group(-x),
             Value::Field(x) => Value::Field(-x),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         UnaryOperation::Not => match value {
             Value::Bool(x) => Value::Bool(!x),
@@ -2676,11 +2677,11 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: Value) -> Result<Va
             Value::I32(x) => Value::I32(!x),
             Value::I64(x) => Value::I64(!x),
             Value::I128(x) => Value::I128(!x),
-            _ => tc_fail!(),
+            _ => halt!(span, "Type error"),
         },
         UnaryOperation::Square => match value {
             Value::Field(x) => Value::Field(x.square()),
-            _ => tc_fail!(),
+            _ => halt!(span, "Can only square fields"),
         },
         UnaryOperation::SquareRoot => match value {
             Value::Field(x) => {
@@ -2689,7 +2690,7 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: Value) -> Result<Va
                 };
                 Value::Field(y)
             }
-            _ => tc_fail!(),
+            _ => halt!(span, "Can only apply square_root to fields"),
         },
         UnaryOperation::ToXCoordinate => match value {
             Value::Group(x) => Value::Field(x.to_x_coordinate()),

@@ -246,17 +246,17 @@ impl Value {
             .collect()
     }
 
-    pub fn gte(&self, rhs: &Self) -> bool {
-        !rhs.gt(self)
+    pub fn gte(&self, rhs: &Self) -> Result<bool> {
+        rhs.gt(self).map(|v| !v)
     }
 
-    pub fn lte(&self, rhs: &Self) -> bool {
-        !rhs.lt(self)
+    pub fn lte(&self, rhs: &Self) -> Result<bool> {
+        rhs.lt(self).map(|v| !v)
     }
 
-    pub fn lt(&self, rhs: &Self) -> bool {
+    pub fn lt(&self, rhs: &Self) -> Result<bool> {
         use Value::*;
-        match (self, rhs) {
+        Ok(match (self, rhs) {
             (U8(x), U8(y)) => x < y,
             (U16(x), U16(y)) => x < y,
             (U32(x), U32(y)) => x < y,
@@ -268,13 +268,13 @@ impl Value {
             (I64(x), I64(y)) => x < y,
             (I128(x), I128(y)) => x < y,
             (Field(x), Field(y)) => x < y,
-            _ => tc_fail!(),
-        }
+            (a, b) => halt_no_span!("Type failure: {a} < {b}"),
+        })
     }
 
-    pub fn gt(&self, rhs: &Self) -> bool {
+    pub fn gt(&self, rhs: &Self) -> Result<bool> {
         use Value::*;
-        match (self, rhs) {
+        Ok(match (self, rhs) {
             (U8(x), U8(y)) => x > y,
             (U16(x), U16(y)) => x > y,
             (U32(x), U32(y)) => x > y,
@@ -286,12 +286,12 @@ impl Value {
             (I64(x), I64(y)) => x > y,
             (I128(x), I128(y)) => x > y,
             (Field(x), Field(y)) => x > y,
-            _ => tc_fail!(),
-        }
+            (a, b) => halt_no_span!("Type failure: {a} > {b}"),
+        })
     }
 
-    pub fn neq(&self, rhs: &Self) -> bool {
-        !self.eq(rhs)
+    pub fn neq(&self, rhs: &Self) -> Result<bool> {
+        self.eq(rhs).map(|v| !v)
     }
 
     /// Are the values equal, according to SnarkVM?
@@ -299,9 +299,9 @@ impl Value {
     /// We use this rather than the Eq trait so we can
     /// fail when comparing values of different types,
     /// rather than just returning false.
-    pub fn eq(&self, rhs: &Self) -> bool {
+    pub fn eq(&self, rhs: &Self) -> Result<bool> {
         use Value::*;
-        match (self, rhs) {
+        Ok(match (self, rhs) {
             (Unit, Unit) => true,
             (Bool(x), Bool(y)) => x == y,
             (U8(x), U8(y)) => x == y,
@@ -316,9 +316,21 @@ impl Value {
             (I128(x), I128(y)) => x == y,
             (Field(x), Field(y)) => x == y,
             (Group(x), Group(y)) => x == y,
-            (Array(x), Array(y)) => x.len() == y.len() && x.iter().zip(y.iter()).all(|(lhs, rhs)| lhs.eq(rhs)),
-            _ => tc_fail!(),
-        }
+            (Array(x), Array(y)) => {
+                if x.len() != y.len() {
+                    return Ok(false);
+                }
+                for (lhs, rhs) in x.iter().zip(y.iter()) {
+                    match lhs.eq(rhs) {
+                        Ok(true) => {}
+                        Ok(false) => return Ok(false),
+                        Err(e) => return Err(e),
+                    }
+                }
+                true
+            }
+            (a, b) => halt_no_span!("Type failure: {a} == {b}"),
+        })
     }
 
     pub fn inc_wrapping(&self) -> Self {
