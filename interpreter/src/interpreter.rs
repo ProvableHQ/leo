@@ -363,47 +363,55 @@ impl Interpreter {
         })
     }
 
-    pub fn view_current_in_context(&self) -> Option<impl Display> {
+    pub fn view_current_in_context(&self) -> Option<(impl Display, usize, usize)> {
         if let Some(Frame { element: Element::AleoExecution { context, instruction_index, .. }, .. }) =
             self.cursor.frames.last()
         {
             // For Aleo VM code, there are no spans; just print out the code without referring to the source code.
 
-            fn write_all<I: Display>(items: impl Iterator<Item = I>, instruction_index: usize) -> String {
-                let mut result = String::new();
+            fn write_all<I: Display>(
+                items: impl Iterator<Item = I>,
+                instruction_index: usize,
+                result: &mut String,
+                start: &mut usize,
+                stop: &mut usize,
+            ) {
                 for (i, item) in items.enumerate() {
                     if i == instruction_index {
-                        let temp = format!("    {item}").red();
-                        writeln!(&mut result, "{temp}").expect("write");
-                    } else {
-                        writeln!(&mut result, "    {item}").expect("write");
+                        *start = result.len();
+                    }
+                    writeln!(result, "    {item}").expect("write shouldn't fail");
+                    if i == instruction_index {
+                        *stop = result.len();
                     }
                 }
-                result
             }
 
-            let (heading, inputs, instructions, outputs) = match context {
-                AleoContext::Closure(closure) => (
-                    format!("closure {}\n", closure.name()),
-                    write_all(closure.inputs().iter(), usize::MAX),
-                    write_all(closure.instructions().iter(), *instruction_index),
-                    write_all(closure.outputs().iter(), usize::MAX),
-                ),
-                AleoContext::Function(function) => (
-                    format!("function {}\n", function.name()),
-                    write_all(function.inputs().iter(), usize::MAX),
-                    write_all(function.instructions().iter(), *instruction_index),
-                    write_all(function.outputs().iter(), usize::MAX),
-                ),
-                AleoContext::Finalize(finalize) => (
-                    format!("finalize {}\n", finalize.name()),
-                    write_all(finalize.inputs().iter(), usize::MAX),
-                    write_all(finalize.commands().iter(), *instruction_index),
-                    "".to_string(),
-                ),
-            };
+            let mut result = String::new();
+            let mut start: usize = 0usize;
+            let mut stop: usize = 0usize;
 
-            Some(format!("{heading}{inputs}{instructions}{outputs}"))
+            match context {
+                AleoContext::Closure(closure) => {
+                    writeln!(&mut result, "closure {}", closure.name()).expect("write shouldn't fail");
+                    write_all(closure.inputs().iter(), usize::MAX, &mut result, &mut 0usize, &mut 0usize);
+                    write_all(closure.instructions().iter(), *instruction_index, &mut result, &mut start, &mut stop);
+                    write_all(closure.outputs().iter(), usize::MAX, &mut result, &mut 0usize, &mut 0usize);
+                }
+                AleoContext::Function(function) => {
+                    writeln!(&mut result, "function {}", function.name()).expect("write shouldn't fail");
+                    write_all(function.inputs().iter(), usize::MAX, &mut result, &mut 0usize, &mut 0usize);
+                    write_all(function.instructions().iter(), *instruction_index, &mut result, &mut start, &mut stop);
+                    write_all(function.outputs().iter(), usize::MAX, &mut result, &mut 0usize, &mut 0usize);
+                }
+                AleoContext::Finalize(finalize) => {
+                    writeln!(&mut result, "finalize {}", finalize.name()).expect("write shouldn't fail");
+                    write_all(finalize.inputs().iter(), usize::MAX, &mut result, &mut 0usize, &mut 0usize);
+                    write_all(finalize.commands().iter(), *instruction_index, &mut result, &mut start, &mut stop);
+                }
+            }
+
+            Some((result, start, stop))
         } else {
             // For Leo code, we use spans to print the original source code.
             let span = self.current_span()?;
@@ -414,12 +422,13 @@ impl Interpreter {
                 let source_file = s.source_map.find_source_file(span.lo)?;
                 let first_span = Span::new(source_file.start_pos, span.lo);
                 let last_span = Span::new(span.hi, source_file.end_pos);
-                Some(format!(
-                    "{}{}{}",
-                    s.source_map.contents_of_span(first_span)?,
-                    s.source_map.contents_of_span(span)?.red(),
-                    s.source_map.contents_of_span(last_span)?,
-                ))
+                let mut result = String::new();
+                result.push_str(&s.source_map.contents_of_span(first_span)?);
+                let start = result.len();
+                result.push_str(&s.source_map.contents_of_span(span)?);
+                let stop = result.len();
+                result.push_str(&s.source_map.contents_of_span(last_span)?);
+                Some((result, start, stop))
             })
         }
     }

@@ -20,7 +20,6 @@ use leo_span::{Span, source_map::FileName, symbol::with_session_globals};
 
 use snarkvm::prelude::{Program, TestnetV0};
 
-use colored::*;
 use std::{
     collections::HashMap,
     fmt::{Display, Write as _},
@@ -44,6 +43,11 @@ mod cursor_aleo;
 
 mod value;
 use value::*;
+
+mod ui;
+use ui::Ui as _;
+
+mod dialoguer_input;
 
 const INTRO: &str = "This is the Leo Interpreter. Try the command `#help`.";
 
@@ -121,38 +125,58 @@ pub fn interpret(
     block_height: u32,
 ) -> Result<()> {
     let mut interpreter = Interpreter::new(leo_filenames.iter(), aleo_filenames.iter(), signer, block_height)?;
-    println!("{}", INTRO);
 
-    let mut history = dialoguer::BasicHistory::new();
+    let mut user_interface = dialoguer_input::DialoguerUi::new();
+
+    let mut code = String::new();
+    let mut futures = Vec::new();
+    let mut watchpoints = Vec::new();
+    let mut message = INTRO.to_string();
+    let mut result = String::new();
+
     loop {
-        if let Some(v) = interpreter.view_current_in_context() {
-            println!("{}:\n{v}", "Prepared to evaluate".bold());
-        } else if let Some(v) = interpreter.view_current() {
-            println!("{}:\n{v}", "Prepared to evaluate".bold());
-        }
+        code.clear();
+        futures.clear();
+        watchpoints.clear();
 
-        for (i, future) in interpreter.cursor.futures.iter().enumerate() {
-            println!("{i:>4}: {future}");
-        }
+        let (code, highlight) = if let Some((code, lo, hi)) = interpreter.view_current_in_context() {
+            (code.to_string(), Some((lo, hi)))
+        } else if let Some(v) = interpreter.view_current() {
+            (v.to_string(), None)
+        } else {
+            ("".to_string(), None)
+        };
+
+        futures.extend(interpreter.cursor.futures.iter().map(|f| f.to_string()));
 
         interpreter.update_watchpoints()?;
 
-        for (i, watchpoint) in interpreter.watchpoints.iter().enumerate() {
-            println!("{i:>4}: {:>20} = {}", watchpoint.code, watchpoint.last_result.as_deref().unwrap_or(""));
-        }
+        watchpoints.extend(interpreter.watchpoints.iter().map(|watchpoint| {
+            format!("{:>20} = {}", watchpoint.code, if let Some(s) = &watchpoint.last_result { &*s } else { "?" })
+        }));
 
-        let user_input: String = dialoguer::Input::with_theme(&dialoguer::theme::ColorfulTheme::default())
-            .with_prompt("Command?")
-            .history_with(&mut history)
-            .interact_text()
-            .unwrap();
+        let user_data = ui::UserData {
+            code: &code,
+            highlight,
+            message: &message,
+            futures: &futures,
+            watchpoints: &watchpoints,
+            result: if result.is_empty() { None } else { Some(&result) },
+        };
+
+        user_interface.display_user_data(&user_data);
+
+        message.clear();
+        result.clear();
+
+        let user_input = user_interface.receive_user_input();
 
         let (command, rest) = tokenize_user_input(&user_input);
 
         let action = match (command, rest) {
             ("", "") => continue,
             ("#h" | "#help", "") => {
-                println!("{}", HELP);
+                message = HELP.to_string();
                 continue;
             }
             ("#i" | "#into", "") => InterpreterAction::Into,
@@ -164,24 +188,24 @@ pub fn interpret(
             ("#f" | "#future", rest) => {
                 if let Ok(num) = rest.trim().parse::<usize>() {
                     if num >= interpreter.cursor.futures.len() {
-                        println!("No such future");
+                        message = "No such future.".to_string();
                         continue;
                     }
                     InterpreterAction::RunFuture(num)
                 } else {
-                    println!("Failed to parse future.");
+                    message = "Failed to parse future.".to_string();
                     continue;
                 }
             }
             ("#restore", "") => {
                 if !interpreter.restore_cursor() {
-                    println!("No saved state to restore.");
+                    message = "No saved state to restore".to_string();
                 }
                 continue;
             }
             ("#b" | "#break", rest) => {
                 let Some(breakpoint) = parse_breakpoint(rest) else {
-                    println!("Failed to parse breakpoint");
+                    message = "Failed to parse breakpoint".to_string();
                     continue;
                 };
                 InterpreterAction::Breakpoint(breakpoint)
@@ -191,7 +215,7 @@ pub fn interpret(
                 if let Ok(num) = without_r.parse::<u64>() {
                     InterpreterAction::PrintRegister(num)
                 } else {
-                    println!("Failed to parse register number {rest}");
+                    message = "Failed to parse register number".to_string();
                     continue;
                 }
             }
@@ -202,7 +226,7 @@ pub fn interpret(
             }
             ("", rest) => InterpreterAction::LeoInterpretOver(rest.to_string()),
             _ => {
-                println!("Failed to parse command {user_input}");
+                message = "Failed to parse command".to_string();
                 continue;
             }
         };
@@ -213,10 +237,12 @@ pub fn interpret(
 
         match interpreter.action(action) {
             Ok(Some(value)) => {
-                println!("{}: {}\n", "Result".bold(), format!("{value}").bright_cyan());
+                result = value.to_string();
             }
             Ok(None) => {}
-            Err(LeoError::InterpreterHalt(interpreter_halt)) => println!("Halted: {interpreter_halt}"),
+            Err(LeoError::InterpreterHalt(interpreter_halt)) => {
+                message = format!("Halted: {interpreter_halt}");
+            }
             Err(e) => return Err(e),
         }
     }

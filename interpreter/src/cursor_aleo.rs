@@ -289,7 +289,7 @@ impl Cursor<'_> {
             AssertEq(assert_eq) => {
                 let operand0 = self.operand_value(&assert_eq.operands()[0]);
                 let operand1 = self.operand_value(&assert_eq.operands()[1]);
-                if operand0.neq(&operand1) {
+                if operand0.neq(&operand1)? {
                     halt_no_span!("assertion failure: {operand0} != {operand1}");
                 }
                 self.increment_instruction_index();
@@ -298,7 +298,7 @@ impl Cursor<'_> {
             AssertNeq(assert_neq) => {
                 let operand0 = self.operand_value(&assert_neq.operands()[0]);
                 let operand1 = self.operand_value(&assert_neq.operands()[1]);
-                if operand0.eq(&operand1) {
+                if operand0.eq(&operand1)? {
                     halt_no_span!("assertion failure: {operand0} != {operand1}");
                 }
                 self.increment_instruction_index();
@@ -897,7 +897,7 @@ impl Cursor<'_> {
             BranchEq(branch_eq) => {
                 let first = self.operand_value(branch_eq.first());
                 let second = self.operand_value(branch_eq.second());
-                if first.eq(&second) {
+                if first.eq(&second)? {
                     self.branch(branch_eq.position());
                 } else {
                     self.increment_instruction_index();
@@ -907,7 +907,7 @@ impl Cursor<'_> {
             BranchNeq(branch_neq) => {
                 let first = self.operand_value(branch_neq.first());
                 let second = self.operand_value(branch_neq.second());
-                if first.neq(&second) {
+                if first.neq(&second)? {
                     self.branch(branch_neq.position());
                 } else {
                     self.increment_instruction_index();
