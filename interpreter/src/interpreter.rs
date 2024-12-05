@@ -28,6 +28,7 @@ pub struct Interpreter {
     node_builder: NodeBuilder,
     breakpoints: Vec<Breakpoint>,
     pub watchpoints: Vec<Watchpoint>,
+    saved_cursors: Vec<Cursor<'static>>,
     filename_to_program: HashMap<PathBuf, String>,
     parsed_inputs: u32,
 }
@@ -175,9 +176,24 @@ impl Interpreter {
             actions: Vec::new(),
             breakpoints: Vec::new(),
             watchpoints: Vec::new(),
+            saved_cursors: Vec::new(),
             filename_to_program,
             parsed_inputs: 0,
         })
+    }
+
+    pub fn save_cursor(&mut self) {
+        self.saved_cursors.push(self.cursor.clone());
+    }
+
+    /// Returns false if there was no saved cursor to restore.
+    pub fn restore_cursor(&mut self) -> bool {
+        if let Some(old_cursor) = self.saved_cursors.pop() {
+            self.cursor = old_cursor;
+            true
+        } else {
+            false
+        }
     }
 
     fn get_aleo_program(path: &Path) -> Result<Program<TestnetV0>> {

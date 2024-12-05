@@ -90,6 +90,14 @@ the current program with
 
 This allows you to refer to structs and other items in the indicated program.
 
+The interpreter may enter an invalid state, often due to Leo code entered at the
+REPL. In this case, you may use the command
+
+#restore
+
+Which will restore to the last saved state of the interpreter. Any time you
+enter Leo code at the prompt, interpreter state is saved.
+
 Input history is available - use the up and down arrow keys.
 ";
 
@@ -161,9 +169,15 @@ pub fn interpret(
                     }
                     InterpreterAction::RunFuture(num)
                 } else {
-                    println!("Failed to parse future");
+                    println!("Failed to parse future.");
                     continue;
                 }
+            }
+            ("#restore", "") => {
+                if !interpreter.restore_cursor() {
+                    println!("No saved state to restore.");
+                }
+                continue;
             }
             ("#b" | "#break", rest) => {
                 let Some(breakpoint) = parse_breakpoint(rest) else {
@@ -192,6 +206,10 @@ pub fn interpret(
                 continue;
             }
         };
+
+        if matches!(action, InterpreterAction::LeoInterpretInto(..) | InterpreterAction::LeoInterpretOver(..)) {
+            interpreter.save_cursor();
+        }
 
         match interpreter.action(action) {
             Ok(Some(value)) => {
