@@ -139,51 +139,53 @@ pub fn interpret(
             .interact_text()
             .unwrap();
 
-        let action = match user_input.trim() {
-            "" => continue,
-            "#h" | "#help" => {
+        let (command, rest) = tokenize_user_input(&user_input);
+
+        let action = match (command, rest) {
+            ("", "") => continue,
+            ("#h" | "#help", "") => {
                 println!("{}", HELP);
                 continue;
             }
-            "#i" | "#into" => InterpreterAction::Into,
-            "#s" | "#step" => InterpreterAction::Step,
-            "#o" | "#over" => InterpreterAction::Over,
-            "#r" | "#run" => InterpreterAction::Run,
-            "#q" | "#quit" => return Ok(()),
-            s => {
-                if let Some(rest) = s.strip_prefix("#future ").or(s.strip_prefix("#f ")) {
-                    if let Ok(num) = rest.trim().parse::<usize>() {
-                        if num >= interpreter.cursor.futures.len() {
-                            println!("No such future");
-                            continue;
-                        }
-                        InterpreterAction::RunFuture(num)
-                    } else {
-                        println!("Failed to parse future");
+            ("#i" | "#into", "") => InterpreterAction::Into,
+            ("#i" | "#into", rest) => InterpreterAction::LeoInterpretInto(rest.into()),
+            ("#s" | "#step", "") => InterpreterAction::Step,
+            ("#o" | "#over", "") => InterpreterAction::Over,
+            ("#r" | "#run", "") => InterpreterAction::Run,
+            ("#q" | "#quit", "") => return Ok(()),
+            ("#f" | "#future", rest) => {
+                if let Ok(num) = rest.trim().parse::<usize>() {
+                    if num >= interpreter.cursor.futures.len() {
+                        println!("No such future");
                         continue;
                     }
-                } else if let Some(rest) = s.strip_prefix("#break ").or(s.strip_prefix("#b ")) {
-                    let Some(breakpoint) = parse_breakpoint(rest) else {
-                        println!("Failed to parse breakpoint");
-                        continue;
-                    };
-                    InterpreterAction::Breakpoint(breakpoint)
-                } else if let Some(rest) = s.strip_prefix("#into ").or(s.strip_prefix("#i ")) {
-                    InterpreterAction::LeoInterpretInto(rest.trim().into())
-                } else if let Some(rest) = s.strip_prefix("#print ").or(s.strip_prefix("#p ")) {
-                    let trimmed = rest.trim();
-                    let without_r = trimmed.strip_prefix("r").unwrap_or(trimmed);
-                    if let Ok(num) = without_r.parse::<u64>() {
-                        InterpreterAction::PrintRegister(num)
-                    } else {
-                        println!("Failed to parse register number {trimmed}");
-                        continue;
-                    }
-                } else if let Some(rest) = s.strip_prefix("#watchpoint ").or(s.strip_prefix("#w ")) {
-                    InterpreterAction::Watch(rest.trim().to_string())
+                    InterpreterAction::RunFuture(num)
                 } else {
-                    InterpreterAction::LeoInterpretOver(s.trim().into())
+                    println!("Failed to parse future");
+                    continue;
                 }
+            }
+            ("#b" | "#break", rest) => {
+                let Some(breakpoint) = parse_breakpoint(rest) else {
+                    println!("Failed to parse breakpoint");
+                    continue;
+                };
+                InterpreterAction::Breakpoint(breakpoint)
+            }
+            ("#p" | "#print", rest) => {
+                let without_r = rest.strip_prefix("r").unwrap_or(rest);
+                if let Ok(num) = without_r.parse::<u64>() {
+                    InterpreterAction::PrintRegister(num)
+                } else {
+                    println!("Failed to parse register number {rest}");
+                    continue;
+                }
+            }
+            ("#w" | "#watch", rest) => InterpreterAction::Watch(rest.to_string()),
+            ("", rest) => InterpreterAction::LeoInterpretOver(rest.to_string()),
+            _ => {
+                println!("Failed to parse command {user_input}");
+                continue;
             }
         };
 
@@ -200,5 +202,14 @@ pub fn interpret(
 
 fn tokenize_user_input(input: &str) -> (&str, &str) {
     let input = input.trim();
-    todo!()
+
+    if !input.starts_with("#") {
+        return ("", input);
+    }
+
+    let Some((first, rest)) = input.split_once(' ') else {
+        return (input, "");
+    };
+
+    (first.trim(), rest.trim())
 }
