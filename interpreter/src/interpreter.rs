@@ -186,6 +186,22 @@ impl Interpreter {
         Ok(program)
     }
 
+    /// Returns true if any watchpoints changed.
+    pub fn update_watchpoints(&mut self) -> Result<bool> {
+        let mut changed = false;
+        for i in 0..self.watchpoints.len() {
+            let code = self.watchpoints[i].code.clone();
+            if let Some(ret) = self.action(InterpreterAction::LeoInterpretOver(code))? {
+                let new_value = Some(ret.to_string());
+                if self.watchpoints[i].last_result != new_value {
+                    changed = true;
+                    self.watchpoints[i].last_result = new_value;
+                }
+            }
+        }
+        Ok(changed)
+    }
+
     pub fn action(&mut self, act: InterpreterAction) -> Result<Option<Value>> {
         use InterpreterAction::*;
 
@@ -287,18 +303,7 @@ impl Interpreter {
                         }
                     }
                     self.cursor.step()?;
-                    let mut should_end = false;
-                    for i in 0..self.watchpoints.len() {
-                        let code = self.watchpoints[i].code.clone();
-                        if let Some(ret) = self.action(LeoInterpretOver(code))? {
-                            let new_value = Some(ret.to_string());
-                            if self.watchpoints[i].last_result != new_value {
-                                should_end = true;
-                                self.watchpoints[i].last_result = new_value;
-                            }
-                        }
-                    }
-                    if should_end {
+                    if self.update_watchpoints()? {
                         return Ok(None);
                     }
                 }

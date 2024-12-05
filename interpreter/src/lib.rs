@@ -120,12 +120,14 @@ pub fn interpret(
         }
 
         for (i, future) in interpreter.cursor.futures.iter().enumerate() {
-            println!("{i}: {future}");
+            println!("{i:>4}: {future}");
         }
+
+        interpreter.update_watchpoints()?;
 
         for (i, watchpoint) in interpreter.watchpoints.iter().enumerate() {
             println!(
-                "{i:>4}: {:>50} = {}",
+                "{i:>4}: {:>20} = {}",
                 watchpoint.code,
                 watchpoint.last_result.as_ref().map(|s| s.as_str()).unwrap_or("")
             );
@@ -174,10 +176,10 @@ pub fn interpret(
                     if let Ok(num) = without_r.parse::<u64>() {
                         InterpreterAction::PrintRegister(num)
                     } else {
-                        println!("failed to parse register number {trimmed}");
+                        println!("Failed to parse register number {trimmed}");
                         continue;
                     }
-                } else if let Some(rest) = s.strip_prefix("#watchpoint ").or(s.strip_prefix("# w")) {
+                } else if let Some(rest) = s.strip_prefix("#watchpoint ").or(s.strip_prefix("#w ")) {
                     InterpreterAction::Watch(rest.trim().to_string())
                 } else {
                     InterpreterAction::LeoInterpretOver(s.trim().into())
@@ -194,4 +196,9 @@ pub fn interpret(
             Err(e) => return Err(e),
         }
     }
+}
+
+fn tokenize_user_input(input: &str) -> (&str, &str) {
+    let input = input.trim();
+    todo!()
 }
