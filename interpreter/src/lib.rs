@@ -96,11 +96,8 @@ Input history is available - use the up and down arrow keys.
 fn parse_breakpoint(s: &str) -> Option<Breakpoint> {
     let strings: Vec<&str> = s.split_whitespace().collect();
     if strings.len() == 2 {
-        let mut program = strings[0].to_string();
-        if program.ends_with(".aleo") {
-            program.truncate(program.len() - 5);
-        }
         if let Ok(line) = strings[1].parse::<usize>() {
+            let program = strings[0].strip_suffix(".aleo").unwrap_or(strings[0]).to_string();
             return Some(Breakpoint { program, line });
         }
     }
@@ -133,11 +130,7 @@ pub fn interpret(
         interpreter.update_watchpoints()?;
 
         for (i, watchpoint) in interpreter.watchpoints.iter().enumerate() {
-            println!(
-                "{i:>4}: {:>20} = {}",
-                watchpoint.code,
-                watchpoint.last_result.as_ref().map(|s| s.as_str()).unwrap_or("")
-            );
+            println!("{i:>4}: {:>20} = {}", watchpoint.code, watchpoint.last_result.as_deref().unwrap_or(""));
         }
 
         let user_input: String = dialoguer::Input::with_theme(&dialoguer::theme::ColorfulTheme::default())
