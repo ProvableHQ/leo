@@ -721,9 +721,21 @@ impl<'a> Cursor<'a> {
 
                 let span = function.span();
 
-                let value = self.evaluate_core_function(core_function, &function.arguments, span)?;
+                let value = self.evaluate_core_function(core_function.clone(), &function.arguments, span)?;
 
-                Some(value)
+                if let CoreFunction::FutureAwait = core_function {
+                    // For an await, we have one extra step - first we must evaluate the delayed call.
+                    None
+                } else {
+                    Some(value)
+                }
+            }
+            Expression::Access(AccessExpression::AssociatedFunction(function)) if step == 2 => {
+                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+                    tc_fail!();
+                };
+                assert!(core_function == CoreFunction::FutureAwait);
+                Some(Value::Unit)
             }
             Expression::Array(array) if step == 0 => {
                 array.elements.iter().rev().for_each(push!());
@@ -871,7 +883,7 @@ impl<'a> Cursor<'a> {
                 Some(evaluate_unary(unary.span, unary.op, value)?)
             }
             Expression::Unit(_) if step == 0 => Some(Value::Unit),
-            _ => unreachable!(),
+            x => unreachable!("Unexpected expression {x}"),
         } {
             assert_eq!(self.frames.len(), len);
             self.frames.pop();
