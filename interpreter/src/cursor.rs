@@ -737,6 +737,21 @@ impl<'a> Cursor<'a> {
                 assert!(core_function == CoreFunction::FutureAwait);
                 Some(Value::Unit)
             }
+            Expression::Access(AccessExpression::Tuple(tuple_access)) if step == 0 => {
+                push!()(&*tuple_access.tuple);
+                None
+            }
+            Expression::Access(AccessExpression::Tuple(tuple_access)) if step == 1 => {
+                let Some(value) = self.values.pop() else { tc_fail!() };
+                let Value::Tuple(tuple) = value else {
+                    halt!(tuple_access.span(), "Type error");
+                };
+                if let Some(result) = tuple.get(tuple_access.index.value()) {
+                    Some(result.clone())
+                } else {
+                    halt!(tuple_access.span(), "Tuple index out of range");
+                }
+            }
             Expression::Array(array) if step == 0 => {
                 array.elements.iter().rev().for_each(push!());
                 None
