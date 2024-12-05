@@ -189,14 +189,22 @@ impl Interpreter {
     /// Returns true if any watchpoints changed.
     pub fn update_watchpoints(&mut self) -> Result<bool> {
         let mut changed = false;
+        let safe_cursor = self.cursor.clone();
+
         for i in 0..self.watchpoints.len() {
             let code = self.watchpoints[i].code.clone();
-            if let Some(ret) = self.action(InterpreterAction::LeoInterpretOver(code))? {
-                let new_value = Some(ret.to_string());
-                if self.watchpoints[i].last_result != new_value {
-                    changed = true;
-                    self.watchpoints[i].last_result = new_value;
+            let new_value = match self.action(InterpreterAction::LeoInterpretOver(code)) {
+                Ok(None) => None,
+                Ok(Some(ret)) => Some(ret.to_string()),
+                Err(LeoError::InterpreterHalt(halt)) => {
+                    self.cursor = safe_cursor.clone();
+                    Some(halt.to_string())
                 }
+                Err(e) => return Err(e),
+            };
+            if self.watchpoints[i].last_result != new_value {
+                changed = true;
+                self.watchpoints[i].last_result = new_value;
             }
         }
         Ok(changed)

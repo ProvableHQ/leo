@@ -263,6 +263,8 @@ pub struct Cursor<'a> {
     pub block_height: u32,
 
     pub really_async: bool,
+
+    pub program: Option<Symbol>,
 }
 
 impl<'a> Cursor<'a> {
@@ -282,7 +284,16 @@ impl<'a> Cursor<'a> {
             signer,
             block_height,
             really_async,
+            program: None,
         }
+    }
+
+    pub fn set_program(&mut self, program: &str) {
+        self.program = Some(Symbol::intern(program));
+    }
+
+    pub fn current_program(&self) -> Option<Symbol> {
+        self.contexts.current_program().or(self.program)
     }
 
     pub fn increment_step(&mut self) {
@@ -741,9 +752,9 @@ impl<'a> Cursor<'a> {
                 let len = self.values.len();
                 let (program, name) = match &*call.function {
                     Expression::Identifier(id) => {
-                        let program = call.program.unwrap_or_else(|| {
-                            self.contexts.current_program().expect("there should be a current program")
-                        });
+                        let program = call
+                            .program
+                            .unwrap_or_else(|| self.current_program().expect("there should be a current program"));
                         (program, id.name)
                     }
                     Expression::Locator(locator) => (locator.program.name.name, locator.name),
@@ -818,7 +829,7 @@ impl<'a> Cursor<'a> {
                 }
 
                 // And now put them into an IndexMap in the correct order.
-                let program = self.contexts.current_program().expect("there should be a current program");
+                let program = self.current_program().expect("there should be a current program");
                 let id = GlobalId { program, name: struct_.name.name };
                 let struct_type = self.structs.get(&id).expect_tc(struct_.span())?;
                 let contents = struct_type

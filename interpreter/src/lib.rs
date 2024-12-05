@@ -64,7 +64,7 @@ You can set a breakpoint with
 When executing Aleo VM code, you can print the value of a register like this:
 #print 2
 
-You may also use one letter abbreviations for these commands, such as #i.
+Some of the commands may be run with one letter abbreviations, such as #i.
 
 Note that this interpreter is not line oriented as in many common debuggers;
 rather it is oriented around expressions and statements.
@@ -82,6 +82,13 @@ Note that statements (like the assignment above) must end with a semicolon.
 If there are futures available to be executed, they will be listed by
 numerical index, and you may run them using `#future` (or `#f`); for instance
 #future 0
+
+The interpreter begins in a global context, not in any Leo program. You can set
+the current program with
+
+#set_program program_name
+
+This allows you to refer to structs and other items in the indicated program.
 
 Input history is available - use the up and down arrow keys.
 ";
@@ -182,6 +189,10 @@ pub fn interpret(
                 }
             }
             ("#w" | "#watch", rest) => InterpreterAction::Watch(rest.to_string()),
+            ("#set_program", rest) => {
+                interpreter.cursor.set_program(rest);
+                continue;
+            }
             ("", rest) => InterpreterAction::LeoInterpretOver(rest.to_string()),
             _ => {
                 println!("Failed to parse command {user_input}");
