@@ -2186,7 +2186,7 @@ impl<'a> Cursor<'a> {
                     );
                     // Print the contents of the mapping.
                     for (key, value) in mapping {
-                        println!("  {:?} -> {:?}", key, value);
+                        println!("  {} -> {}", key, value);
                     }
                 } else {
                     tc_fail!();

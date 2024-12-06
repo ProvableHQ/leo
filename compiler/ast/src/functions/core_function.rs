@@ -879,9 +879,7 @@ impl CoreFunction {
             | CoreFunction::ChaChaRandScalar
             | CoreFunction::MappingSet
             | CoreFunction::MappingRemove
-            | CoreFunction::MappingContains
-            | CoreFunction::CheatCodePrintMapping
-            | CoreFunction::CheatCodeSetBlockHeight => true,
+            | CoreFunction::MappingContains => true,
             CoreFunction::BHP256CommitToAddress
             | CoreFunction::BHP256CommitToField
             | CoreFunction::BHP256CommitToGroup
@@ -1112,7 +1110,9 @@ impl CoreFunction {
             | CoreFunction::SHA3_512HashToScalar
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
-            | CoreFunction::SignatureVerify => false,
+            | CoreFunction::SignatureVerify
+            | CoreFunction::CheatCodePrintMapping
+            | CoreFunction::CheatCodeSetBlockHeight => false,
         }
     }
 }
