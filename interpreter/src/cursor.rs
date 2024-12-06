@@ -336,14 +336,14 @@ impl<'a> Cursor<'a> {
     }
 
     pub fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<Value, Value>> {
-        let Some(program) = program.or(self.contexts.last().map(|c| c.program)) else {
+        let Some(program) = program.or_else(|| self.current_program()) else {
             panic!("no program for mapping lookup");
         };
         self.mappings.get(&GlobalId { program, name })
     }
 
     pub fn lookup_mapping_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut HashMap<Value, Value>> {
-        let Some(program) = program.or(self.contexts.last().map(|c| c.program)) else {
+        let Some(program) = program.or_else(|| self.current_program()) else {
             panic!("no program for mapping lookup");
         };
         self.mappings.get_mut(&GlobalId { program, name })
