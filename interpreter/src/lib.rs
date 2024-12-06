@@ -152,7 +152,7 @@ pub fn interpret(
         interpreter.update_watchpoints()?;
 
         watchpoints.extend(interpreter.watchpoints.iter().map(|watchpoint| {
-            format!("{:>20} = {}", watchpoint.code, if let Some(s) = &watchpoint.last_result { &*s } else { "?" })
+            format!("{:>20} = {}", watchpoint.code, if let Some(s) = &watchpoint.last_result { &**s } else { "?" })
         }));
 
         let user_data = ui::UserData {
