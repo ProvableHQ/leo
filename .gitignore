@@ -1,5 +1,6 @@
 **/target
 /tmp/
+/temp/
 **.idea/
 *.DS_Store
 .vscode
