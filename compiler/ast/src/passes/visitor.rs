@@ -224,7 +224,6 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
         input.imports.values().for_each(|import| self.visit_import(&import.0));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
-        input.tests.iter().for_each(|test| self.visit_test(test));
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
@@ -251,11 +250,4 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     fn visit_function_stub(&mut self, _input: &'a FunctionStub) {}
 
     fn visit_struct_stub(&mut self, _input: &'a Composite) {}
-
-    fn visit_test(&mut self, input: &'a Test) {
-        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
-        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
-        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
-    }
 }

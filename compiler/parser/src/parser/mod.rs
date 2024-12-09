@@ -36,7 +36,6 @@ pub(super) use context::ParserContext;
 mod expression;
 mod file;
 mod statement;
-mod test;
 pub(super) mod type_;
 
 /// Creates a new program from a given file path and source code text.
@@ -49,16 +48,4 @@ pub fn parse<N: Network>(
     let mut tokens = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
 
     tokens.parse_program()
-}
-
-/// Creates a new test from a given file path and source code text.
-pub fn parse_test<N: Network>(
-    handler: &Handler,
-    node_builder: &NodeBuilder,
-    source: &str,
-    start_pos: BytePos,
-) -> Result<Test> {
-    let mut tokens = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
-
-    tokens.parse_test()
 }

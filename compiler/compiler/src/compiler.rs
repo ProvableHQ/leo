@@ -133,31 +133,6 @@ impl<'a, N: Network> Compiler<'a, N> {
         Ok(())
     }
 
-    /// Parses and stores the test source , constructs the AST, and optionally outputs it.
-    pub fn parse_test(&mut self) -> Result<()> {
-        // Initialize the AST.
-        let mut ast = Ast::default();
-        // Parse the sources.
-        for (name, program_string) in &self.sources {
-            // Register the source (`program_string`) in the source map.
-            let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name.clone()));
-            // Use the parser to construct the abstract syntax tree (ast).
-            ast.combine(leo_parser::parse_test_ast::<N>(
-                self.handler,
-                &self.node_builder,
-                &prg_sf.src,
-                prg_sf.start_pos,
-            )?);
-        }
-        // Store the AST.
-        self.ast = ast;
-        // Write the AST to a JSON file.
-        if self.compiler_options.output.initial_ast {
-            self.write_ast_to_json("initial_ast.json")?;
-        }
-        Ok(())
-    }
-
     /// Runs the symbol table pass.
     pub fn symbol_table_pass(&self) -> Result<SymbolTable> {
         let symbol_table = SymbolTableCreator::do_pass((&self.ast, self.handler))?;
@@ -496,7 +471,7 @@ impl<'a, N: Network> Compiler<'a, N> {
     /// Returns the compiled Leo tests.
     pub fn compile_tests(&mut self) -> Result<String> {
         // Parse the program.
-        self.parse_test()?;
+        self.parse()?;
         // Copy the dependencies specified in `program.json` into the AST.
         self.add_import_stubs()?;
         // Run the intermediate compiler stages.

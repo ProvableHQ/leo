@@ -55,7 +55,7 @@ impl<N: Network> ParserContext<'_, N> {
             return Err(ParserError::missing_program_scope(self.token.span).into());
         }
 
-        Ok(Program { imports, stubs: IndexMap::new(), program_scopes, tests: Vec::new() })
+        Ok(Program { imports, stubs: IndexMap::new(), program_scopes })
     }
 
     pub(super) fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {

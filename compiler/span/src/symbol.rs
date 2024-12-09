@@ -233,7 +233,7 @@ symbols! {
 
     // annotations
     should_fail,
-    native_test,
+    compiled_test,
     interpreted_test,
 
     // general keywords

@@ -52,9 +52,6 @@ pub use self::program::*;
 pub mod statement;
 pub use self::statement::*;
 
-pub mod tst;
-pub use self::tst::*;
-
 pub mod types;
 pub use self::types::*;
 
@@ -88,11 +85,10 @@ impl Ast {
     /// Combines the two ASTs into a single AST.
     /// The ASTs are combined by extending the components of the first AST with the components of the second AST.
     pub fn combine(&mut self, other: Self) {
-        let Program { imports, stubs, program_scopes, tests } = other.ast;
+        let Program { imports, stubs, program_scopes } = other.ast;
         self.ast.imports.extend(imports);
         self.ast.stubs.extend(stubs);
         self.ast.program_scopes.extend(program_scopes);
-        self.ast.tests.extend(tests);
     }
 
     /// Returns a reference to the inner program AST representation.

@@ -24,7 +24,7 @@ pub use program_scope::*;
 
 use leo_span::{Span, Symbol};
 
-use crate::{Stub, Test};
+use crate::Stub;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -38,9 +38,6 @@ pub struct Program {
     pub stubs: IndexMap<Symbol, Stub>,
     /// A map from program names to program scopes.
     pub program_scopes: IndexMap<Symbol, ProgramScope>,
-    /// A map from test file names to test defintions.
-    // TODO: This is a temporary way to store tests in the AST, without requiring an overhaul of the compiler.
-    pub tests: Vec<Test>,
 }
 
 impl fmt::Display for Program {
@@ -63,6 +60,6 @@ impl fmt::Display for Program {
 impl Default for Program {
     /// Constructs an empty program node.
     fn default() -> Self {
-        Self { imports: IndexMap::new(), stubs: IndexMap::new(), program_scopes: IndexMap::new(), tests: Vec::new() }
+        Self { imports: IndexMap::new(), stubs: IndexMap::new(), program_scopes: IndexMap::new() }
     }
 }
