@@ -224,16 +224,21 @@ fn handle_execute<A: Aleo>(
             }
             // Otherwise, default to the one provided in `fee_options`.
             else {
-                println!(
-                    "Failed to get the latest block height. Defaulting to V{}.",
-                    command.fee_options.consensus_version
-                );
-                match command.fee_options.consensus_version {
-                    1 => execution_cost_v1(&vm.process().read(), execution)?,
-                    2 => execution_cost_v2(&vm.process().read(), execution)?,
-                    version => {
+                // Get the consensus version from the command.
+                let version = match command.fee_options.consensus_version {
+                    Some(1) => 1,
+                    None | Some(2) => 2,
+                    Some(version) => {
                         panic!("Invalid consensus version: {version}. Please specify a valid version.")
                     }
+                };
+                // Print a warning message.
+                println!("Failed to get the latest block height. Defaulting to V{version}.",);
+                // Use the provided version.
+                match version {
+                    1 => execution_cost_v1(&vm.process().read(), execution)?,
+                    2 => execution_cost_v2(&vm.process().read(), execution)?,
+                    _ => unreachable!(),
                 }
             }
         } else {

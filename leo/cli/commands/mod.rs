@@ -220,8 +220,8 @@ pub struct FeeOptions {
         long
     )]
     record: Option<String>,
-    #[clap(long, help = "Consensus version to use for the transaction.", default_value = "2")]
-    pub(crate) consensus_version: u8,
+    #[clap(long, help = "Consensus version to use for the transaction.")]
+    pub(crate) consensus_version: Option<u8>,
 }
 
 /// Parses the record string. If the string is a ciphertext, then attempt to decrypt it. Lifted from snarkOS.
