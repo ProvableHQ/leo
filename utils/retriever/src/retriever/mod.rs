@@ -409,10 +409,15 @@ fn retrieve_local(name: &String, path: &PathBuf) -> Result<Vec<Dependency>, Util
         ))?;
     }
 
-    let dependencies = match program_data.dependencies() {
+    let mut dependencies = match program_data.dependencies() {
         Some(deps) => deps.clone(),
         None => Vec::new(),
     };
+
+    // Add the dev dependencies, if they exist.
+    if let Some(deps) = program_data.dev_dependencies() {
+        dependencies.extend(deps.clone())
+    }
 
     Ok(dependencies)
 }

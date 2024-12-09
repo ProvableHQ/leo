@@ -193,6 +193,7 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
 
     // If the `build_tests` flag is set, compile the tests.
     if command.options.build_tests {
+        println!("main_stubs: {:?}", main_stubs);
         // Compile the tests.
         compile_tests::<N>(main_sym.to_string(), &package_path, &handler, command.options.clone(), main_stubs.clone())?;
     }
