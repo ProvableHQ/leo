@@ -220,6 +220,8 @@ pub struct FeeOptions {
         long
     )]
     record: Option<String>,
+    #[clap(long, help = "Consensus version to use for the transaction.", default_value = "2")]
+    pub(crate) consensus_version: u8,
 }
 
 /// Parses the record string. If the string is a ciphertext, then attempt to decrypt it. Lifted from snarkOS.
@@ -241,7 +243,7 @@ fn check_balance<N: Network>(
     private_key: &PrivateKey<N>,
     endpoint: &str,
     network: &str,
-    context: Context,
+    context: &Context,
     total_cost: u64,
 ) -> Result<()> {
     // Derive the account address.
@@ -251,7 +253,7 @@ fn check_balance<N: Network>(
         endpoint: Some(endpoint.to_string()),
         network: Some(network.to_string()),
         command: QueryCommands::Program {
-            command: crate::cli::commands::query::LeoProgram {
+            command: query::LeoProgram {
                 name: "credits".to_string(),
                 mappings: false,
                 mapping_value: Some(vec!["account".to_string(), address.to_string()]),
@@ -274,6 +276,30 @@ fn check_balance<N: Network>(
         println!("Your current public balance is {} credits.\n", balance as f64 / 1_000_000.0);
         Ok(())
     }
+}
+
+// A helper function to query for the latest block height.
+fn get_latest_block_height(endpoint: &str, network: &str, context: &Context) -> Result<u32> {
+    // Query the latest block height.
+    let height = LeoQuery {
+        endpoint: Some(endpoint.to_string()),
+        network: Some(network.to_string()),
+        command: QueryCommands::Block {
+            command: query::LeoBlock {
+                id: None,
+                latest: false,
+                latest_hash: false,
+                latest_height: true,
+                range: None,
+                transactions: false,
+                to_height: false,
+            },
+        },
+    }
+    .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
+    // Parse the height.
+    let height = height.parse::<u32>().map_err(CliError::string_parse_error)?;
+    Ok(height)
 }
 
 /// Determine if the transaction should be broadcast or displayed to user.

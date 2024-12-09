@@ -42,6 +42,7 @@ use snarkvm::{
         VM,
         Value,
         execution_cost_v1,
+        execution_cost_v2,
         query::Query as SnarkVMQuery,
         store::{
             ConsensusStore,
@@ -213,8 +214,28 @@ fn handle_execute<A: Aleo>(
         // Check the transaction cost.
         let (mut total_cost, (storage_cost, finalize_cost)) = if let ExecuteTransaction(_, execution, _) = &transaction
         {
-            // TODO: Update to V2 after block migration.
-            execution_cost_v1(&vm.process().read(), execution)?
+            // Attempt to get the height of the latest block to determine which version of the execution cost to use.
+            if let Ok(height) = get_latest_block_height(endpoint, &network.to_string(), &context) {
+                if height < A::Network::CONSENSUS_V2_HEIGHT {
+                    execution_cost_v1(&vm.process().read(), execution)?
+                } else {
+                    execution_cost_v2(&vm.process().read(), execution)?
+                }
+            }
+            // Otherwise, default to the one provided in `fee_options`.
+            else {
+                println!(
+                    "Failed to get the latest block height. Defaulting to V{}.",
+                    command.fee_options.consensus_version
+                );
+                match command.fee_options.consensus_version {
+                    1 => execution_cost_v1(&vm.process().read(), execution)?,
+                    2 => execution_cost_v2(&vm.process().read(), execution)?,
+                    version => {
+                        panic!("Invalid consensus version: {version}. Please specify a valid version.")
+                    }
+                }
+            }
         } else {
             panic!("All transactions should be of type Execute.")
         };
@@ -231,7 +252,7 @@ fn handle_execute<A: Aleo>(
 
         // Check if the public balance is sufficient.
         if fee_record.is_none() {
-            check_balance::<A::Network>(&private_key, endpoint, &network.to_string(), context, total_cost)?;
+            check_balance::<A::Network>(&private_key, endpoint, &network.to_string(), &context, total_cost)?;
         }
 
         // Broadcast the execution transaction.

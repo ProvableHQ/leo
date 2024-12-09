@@ -193,7 +193,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             }
             None => {
                 // Make sure the user has enough public balance to pay for the deployment.
-                check_balance(&private_key, endpoint, &network.to_string(), context.clone(), total_cost)?;
+                check_balance(&private_key, endpoint, &network.to_string(), &context, total_cost)?;
                 let fee_authorization = vm.authorize_fee_public(
                     &private_key,
                     total_cost,

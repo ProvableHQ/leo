@@ -17,26 +17,26 @@
 use super::*;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
-mod block;
-use block::LeoBlock;
+pub mod block;
+pub use block::LeoBlock;
 
 pub mod program;
 pub use program::LeoProgram;
 
-mod state_root;
-use state_root::StateRoot;
+pub mod state_root;
+pub use state_root::StateRoot;
 
-mod committee;
-use committee::LeoCommittee;
+pub mod committee;
+pub use committee::LeoCommittee;
 
-mod mempool;
-use mempool::LeoMempool;
+pub mod mempool;
+pub use mempool::LeoMempool;
 
-mod peers;
-use peers::LeoPeers;
+pub mod peers;
+pub use peers::LeoPeers;
 
-mod transaction;
-use transaction::LeoTransaction;
+pub mod transaction;
+pub use transaction::LeoTransaction;
 
 mod utils;
 use utils::*;
