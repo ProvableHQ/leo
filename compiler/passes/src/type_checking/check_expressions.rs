@@ -202,7 +202,11 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                         sym::height => {
                             // Check that the operation is invoked in a `finalize` block.
                             self.check_access_allowed("block.height", true, access.name.span());
-                            return Some(Type::Integer(IntegerType::U32));
+                            return Some(self.assert_and_return_type(
+                                Type::Integer(IntegerType::U32),
+                                expected,
+                                input.span(),
+                            ));
                         }
                         _ => {
                             self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
