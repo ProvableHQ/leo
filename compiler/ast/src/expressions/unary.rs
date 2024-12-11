@@ -30,6 +30,8 @@ pub enum UnaryOperation {
     Inverse,
     /// Negate operation, i.e. `.neg()`.
     Negate,
+    /// Gets a record's nonce.
+    Nonce,
     /// Bitwise NOT, i.e. `!`, `.not()`.
     Not,
     /// Square operation, i.e. `.square()`.
@@ -51,6 +53,7 @@ impl UnaryOperation {
             sym::double => Self::Double,
             sym::inv => Self::Inverse,
             sym::neg => Self::Negate,
+            sym::nonce => Self::Nonce,
             sym::not => Self::Not,
             sym::square => Self::Square,
             sym::square_root => Self::SquareRoot,
@@ -68,6 +71,7 @@ impl UnaryOperation {
             Self::Double => "double",
             Self::Inverse => "inv",
             Self::Negate => "neg",
+            Self::Nonce => "nonce",
             Self::Not => "not",
             Self::Square => "square",
             Self::SquareRoot => "square_root",

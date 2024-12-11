@@ -1026,6 +1026,11 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                 self.assert_field_group_signed_int_type(&type_, input.receiver.span());
                 type_
             }
+            UnaryOperation::Nonce => {
+                let type_ = self.visit_expression(&input.receiver, destination);
+                self.assert_record_type(&type_, input.receiver.span());
+                type_
+            }
             UnaryOperation::Not => {
                 // Only boolean or integer types.
                 self.assert_bool_int_type(destination, input.span());

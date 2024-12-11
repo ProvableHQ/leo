@@ -202,6 +202,7 @@ impl<'a> CodeGenerator<'a> {
             UnaryOperation::AbsWrapped => ("abs.w", ""),
             UnaryOperation::Double => ("double", ""),
             UnaryOperation::Inverse => ("inv", ""),
+            UnaryOperation::Nonce => ("record.nonce", ""),
             UnaryOperation::Not => ("not", ""),
             UnaryOperation::Negate => ("neg", ""),
             UnaryOperation::Square => ("square", ""),
