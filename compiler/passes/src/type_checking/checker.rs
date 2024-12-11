@@ -353,6 +353,24 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         )
     }
 
+    /// Emits an error to the handler if the given type is not a record.
+    pub(crate) fn assert_record_type(&self, type_: &Option<Type>, span: Span) {
+        // Look up the type and see if it is a record.
+        if let Some(type_) = type_ {
+            if let Type::Composite(composite_type) = type_ {
+                let location = Location::new(composite_type.program, composite_type.id.name);
+                if let Some(composite) =
+                    self.symbol_table.borrow().lookup_struct(location, self.scope_state.program_name)
+                {
+                    if composite.is_record {
+                        return;
+                    }
+                }
+            }
+            self.emit_err(TypeCheckerError::expected_one_type_of("record", type_, span));
+        }
+    }
+
     /// Type checks the inputs to an associated constant and returns the expected output type.
     pub(crate) fn get_core_constant(&self, type_: &Type, constant: &Identifier) -> Option<CoreConstant> {
         if let Type::Identifier(ident) = type_ {
@@ -1020,6 +1038,12 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 Some(Type::Boolean)
             }
             CoreFunction::FutureAwait => Some(Type::Unit),
+            CoreFunction::RecordNonce => {
+                // Check that the first argument is a record.
+                self.assert_record_type(&arguments[0].0, arguments[0].1);
+                // Return a group.
+                Some(Type::Group)
+            }
         }
     }
 

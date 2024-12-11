@@ -289,6 +289,7 @@ pub enum CoreFunction {
 
     SignatureVerify,
     FutureAwait,
+    RecordNonce,
 }
 
 impl CoreFunction {
@@ -566,6 +567,7 @@ impl CoreFunction {
 
             (sym::signature, sym::verify) => Self::SignatureVerify,
             (sym::Future, sym::Await) => Self::FutureAwait,
+            (sym::Record, sym::nonce) => Self::RecordNonce,
             _ => return None,
         })
     }
@@ -844,6 +846,7 @@ impl CoreFunction {
 
             Self::SignatureVerify => 3,
             Self::FutureAwait => 1,
+            Self::RecordNonce => 1,
         }
     }
 
@@ -1101,7 +1104,8 @@ impl CoreFunction {
             | CoreFunction::SHA3_512HashToScalar
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
-            | CoreFunction::SignatureVerify => false,
+            | CoreFunction::SignatureVerify
+            | CoreFunction::RecordNonce => false,
         }
     }
 }

@@ -485,6 +485,14 @@ impl<'a> CodeGenerator<'a> {
                 writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
                 (String::new(), instruction)
             }
+            sym::Record => {
+                let mut instruction = "    record.nonce".to_string();
+                let destination_register = get_destination_register();
+                // Write the argument and the destination register.
+                writeln!(instruction, " {} into {destination_register};", arguments[0])
+                    .expect("failed to write to string");
+                (destination_register, instruction)
+            }
             _ => {
                 unreachable!("All core functions should be known at this phase of compilation")
             }
