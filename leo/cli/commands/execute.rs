@@ -212,52 +212,63 @@ fn handle_execute<A: Aleo>(
         )?;
 
         // Check the transaction cost.
-        let (mut total_cost, (storage_cost, finalize_cost)) = if let ExecuteTransaction(_, execution, _) = &transaction
-        {
-            // Attempt to get the height of the latest block to determine which version of the execution cost to use.
-            if let Ok(height) = get_latest_block_height(endpoint, &network.to_string(), &context) {
-                if height < A::Network::CONSENSUS_V2_HEIGHT {
-                    execution_cost_v1(&vm.process().read(), execution)?
-                } else {
-                    execution_cost_v2(&vm.process().read(), execution)?
-                }
-            }
-            // Otherwise, default to the one provided in `fee_options`.
-            else {
-                // Get the consensus version from the command.
-                let version = match command.fee_options.consensus_version {
-                    Some(1) => 1,
-                    None | Some(2) => 2,
-                    Some(version) => {
-                        panic!("Invalid consensus version: {version}. Please specify a valid version.")
-                    }
-                };
-                // Print a warning message.
-                println!("Failed to get the latest block height. Defaulting to V{version}.",);
-                // Use the provided version.
-                match version {
-                    1 => execution_cost_v1(&vm.process().read(), execution)?,
-                    2 => execution_cost_v2(&vm.process().read(), execution)?,
-                    _ => unreachable!(),
-                }
-            }
-        } else {
-            panic!("All transactions should be of type Execute.")
-        };
+        let base_fee = match command.fee_options.base_fee {
+            Some(base_fee) => base_fee,
+            None => {
+                let (base_fee, (storage_cost, finalize_cost)) =
+                    if let ExecuteTransaction(_, execution, _) = &transaction {
+                        // Attempt to get the height of the latest block to determine which version of the execution cost to use.
+                        if let Ok(height) = get_latest_block_height(endpoint, &network.to_string(), &context) {
+                            if height < A::Network::CONSENSUS_V2_HEIGHT {
+                                execution_cost_v1(&vm.process().read(), execution)?
+                            } else {
+                                execution_cost_v2(&vm.process().read(), execution)?
+                            }
+                        }
+                        // Otherwise, default to the one provided in `fee_options`.
+                        else {
+                            // Get the consensus version from the command.
+                            let version = match command.fee_options.consensus_version {
+                                Some(1) => 1,
+                                None | Some(2) => 2,
+                                Some(version) => {
+                                    panic!("Invalid consensus version: {version}. Please specify a valid version.")
+                                }
+                            };
+                            // Print a warning message.
+                            println!("Failed to get the latest block height. Defaulting to V{version}.",);
+                            // Use the provided version.
+                            match version {
+                                1 => execution_cost_v1(&vm.process().read(), execution)?,
+                                2 => execution_cost_v2(&vm.process().read(), execution)?,
+                                _ => unreachable!(),
+                            }
+                        }
+                    } else {
+                        panic!("All transactions should be of type Execute.")
+                    };
 
-        // Print the cost breakdown.
-        total_cost += command.fee_options.priority_fee;
-        execution_cost_breakdown(
-            &program_name,
-            total_cost as f64 / 1_000_000.0,
-            storage_cost as f64 / 1_000_000.0,
-            finalize_cost as f64 / 1_000_000.0,
-            command.fee_options.priority_fee as f64 / 1_000_000.0,
-        )?;
+                // Print the cost breakdown.
+                execution_cost_breakdown(
+                    &program_name,
+                    base_fee as f64 / 1_000_000.0,
+                    storage_cost as f64 / 1_000_000.0,
+                    finalize_cost as f64 / 1_000_000.0,
+                    command.fee_options.priority_fee as f64 / 1_000_000.0,
+                )?;
+                base_fee
+            }
+        };
 
         // Check if the public balance is sufficient.
         if fee_record.is_none() {
-            check_balance::<A::Network>(&private_key, endpoint, &network.to_string(), &context, total_cost)?;
+            check_balance::<A::Network>(
+                &private_key,
+                endpoint,
+                &network.to_string(),
+                &context,
+                base_fee + command.fee_options.priority_fee,
+            )?;
         }
 
         // Broadcast the execution transaction.
@@ -423,19 +434,19 @@ fn load_program_from_network<N: Network>(
 // A helper function to display a cost breakdown of the execution.
 fn execution_cost_breakdown(
     name: &String,
-    total_cost: f64,
+    base_fee: f64,
     storage_cost: f64,
     finalize_cost: f64,
     priority_fee: f64,
 ) -> Result<()> {
-    println!("\nBase execution cost for '{}' is {} credits.\n", name.bold(), total_cost);
+    println!("\nBase execution cost for '{}' is {} credits.\n", name.bold(), base_fee);
     // Display the cost breakdown in a table.
     let data = [
         [name, "Cost (credits)"],
         ["Transaction Storage", &format!("{:.6}", storage_cost)],
         ["On-chain Execution", &format!("{:.6}", finalize_cost)],
         ["Priority Fee", &format!("{:.6}", priority_fee)],
-        ["Total", &format!("{:.6}", total_cost)],
+        ["Total", &format!("{:.6}", base_fee + priority_fee)],
     ];
     let mut out = Vec::new();
     text_tables::render(&mut out, data).map_err(CliError::table_render_failed)?;

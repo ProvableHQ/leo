@@ -210,6 +210,8 @@ pub struct FeeOptions {
     pub(crate) yes: bool,
     #[clap(long, help = "Performs a dry-run of transaction generation")]
     pub(crate) dry_run: bool,
+    #[clap(long, help = "Base fee in microcredits. Automatically calculated if not provided.")]
+    pub(crate) base_fee: Option<u64>,
     #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
     pub(crate) priority_fee: u64,
     #[clap(long, help = "Private key to authorize fee expenditure.")]
