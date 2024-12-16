@@ -1734,7 +1734,7 @@
                     </span><span class="self">self</span>.scope_state.is_call = <span class="bool-val">true</span>;
                     <span class="kw">let </span>(<span class="kw-2">mut </span>input_futures, <span class="kw-2">mut </span>inferred_finalize_inputs) = (Vec::new(), Vec::new());
                     <span class="kw">for </span>(expected, argument) <span class="kw">in </span>func.input.iter().zip(input.arguments.iter()) {
-                        <span class="comment">// Get the type of the expression. If the type is not known, do not attempt to attempt any futher inference.
+                        <span class="comment">// Get the type of the expression. If the type is not known, do not attempt to attempt any further inference.
                         </span><span class="kw">let </span>ty = <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_().clone()))<span class="question-mark">?</span>;
                         <span class="comment">// Extract information about futures that are being consumed.
                         </span><span class="kw">if </span>func.variant == Variant::AsyncFunction &amp;&amp; <span class="macro">matches!</span>(expected.type_(), Type::Future(<span class="kw">_</span>)) {

@@ -378,7 +378,7 @@
     <span class="comment">// Detects if there is a cycle in the graph starting from the given node, via a recursive depth-first search.
     // If there is no cycle, returns `None`.
     // If there is a cycle, returns the node that was most recently discovered.
-    // Nodes are added to to `finished` in post-order order.
+    // Nodes are added to `finished` in post-order order.
     </span><span class="kw">fn </span>contains_cycle_from(<span class="kw-2">&amp;</span><span class="self">self</span>, node: N, discovered: <span class="kw-2">&amp;mut </span>IndexSet&lt;N&gt;, finished: <span class="kw-2">&amp;mut </span>IndexSet&lt;N&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;N&gt; {
         <span class="comment">// Add the node to the set of discovered nodes.
         </span>discovered.insert(node);

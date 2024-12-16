@@ -522,7 +522,7 @@
             }
 
             <span class="comment">// If the variable exists and its in an async function, then check that it is in the current scope.
-            // Note that this unwrap is safe because the scope state is initalized before traversing the function.
+            // Note that this unwrap is safe because the scope state is initialized before traversing the function.
             </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant.unwrap().is_async_function()
                 &amp;&amp; <span class="self">self</span>.scope_state.is_conditional
                 &amp;&amp; <span class="self">self

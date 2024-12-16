@@ -270,7 +270,7 @@
     <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FunctionStub) {
         <span class="comment">// Construct the location for the function.
         </span><span class="kw">let </span>location = Location::new(<span class="self">self</span>.program_name, input.name());
-        <span class="comment">// Initalize the function symbol.
+        <span class="comment">// Initialize the function symbol.
         </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_fn(location.clone(), <span class="kw-2">&amp;</span>Function::from(input.clone())) {
             <span class="self">self</span>.handler.emit_err(err);
         }
