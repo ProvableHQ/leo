@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Position"],"fn":["future_check_function"],"struct":["FutureChecker"]};

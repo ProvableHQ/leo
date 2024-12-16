@@ -387,7 +387,8 @@
 <a href="#386" id="386">386</a>
 <a href="#387" id="387">387</a>
 <a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -679,9 +680,10 @@
         <span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>.<span class="number">0</span>;
+        <span class="kw">let </span>(type_, type_span) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
+        <span class="kw">let </span>span = name.span() + type_span;
 
-        <span class="prelude-val">Ok</span>(functions::Input { identifier: name, mode, type_, span: name.span, id: <span class="self">self</span>.node_builder.next_id() })
+        <span class="prelude-val">Ok</span>(functions::Input { identifier: name, mode, type_, span, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
     <span class="doccomment">/// Returns an [`Output`] AST node if the next tokens represent a function output.

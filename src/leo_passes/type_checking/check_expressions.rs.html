@@ -1061,7 +1061,13 @@
 <a href="#1060" id="1060">1060</a>
 <a href="#1061" id="1061">1061</a>
 <a href="#1062" id="1062">1062</a>
-<a href="#1063" id="1063">1063</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#1063" id="1063">1063</a>
+<a href="#1064" id="1064">1064</a>
+<a href="#1065" id="1065">1065</a>
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a>
+<a href="#1068" id="1068">1068</a>
+<a href="#1069" id="1069">1069</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1210,7 +1216,6 @@
                                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(expected) = expected {
                                     <span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(actual.clone()), <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.clone()), access.span());
                                 }
-
                                 <span class="comment">// Return type of tuple index.
                                 </span><span class="kw">return </span><span class="prelude-val">Some</span>(actual);
                             }
@@ -1738,6 +1743,30 @@
                         </span><span class="kw">let </span>ty = <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_().clone()))<span class="question-mark">?</span>;
                         <span class="comment">// Extract information about futures that are being consumed.
                         </span><span class="kw">if </span>func.variant == Variant::AsyncFunction &amp;&amp; <span class="macro">matches!</span>(expected.type_(), Type::Future(<span class="kw">_</span>)) {
+                            <span class="comment">// Consume the future.
+                            </span><span class="kw">let </span>option_name = <span class="kw">match </span>argument {
+                                Expression::Identifier(id) =&gt; <span class="prelude-val">Some</span>(id.name),
+                                Expression::Access(AccessExpression::Tuple(tuple_access)) =&gt; {
+                                    <span class="kw">if let </span>Expression::Identifier(id) = <span class="kw-2">&amp;*</span>tuple_access.tuple {
+                                        <span class="prelude-val">Some</span>(id.name)
+                                    } <span class="kw">else </span>{
+                                        <span class="prelude-val">None
+                                    </span>}
+                                }
+                                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+                            };
+
+                            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = option_name {
+                                <span class="kw">match </span><span class="self">self</span>.scope_state.futures.shift_remove(<span class="kw-2">&amp;</span>name) {
+                                    <span class="prelude-val">Some</span>(future) =&gt; {
+                                        <span class="self">self</span>.scope_state.call_location = <span class="prelude-val">Some</span>(future.clone());
+                                    }
+                                    <span class="prelude-val">None </span>=&gt; {
+                                        <span class="self">self</span>.emit_err(TypeCheckerError::unknown_future_consumed(name, argument.span()));
+                                    }
+                                }
+                            }
+
                             <span class="kw">match </span>argument {
                                 Expression::Identifier(<span class="kw">_</span>)
                                 | Expression::Call(<span class="kw">_</span>)
@@ -1920,23 +1949,6 @@
     <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>var = <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">None</span>, input.name)).cloned();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="kw-2">&amp;</span>var {
-            <span class="kw">if </span><span class="macro">matches!</span>(var.type_, Type::Future(<span class="kw">_</span>)) &amp;&amp; <span class="macro">matches!</span>(expected, <span class="prelude-val">Some</span>(Type::Future(<span class="kw">_</span>))) {
-                <span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; <span class="self">self</span>.scope_state.is_call {
-                    <span class="comment">// Consume future.
-                    </span><span class="kw">match </span><span class="self">self</span>.scope_state.futures.shift_remove(<span class="kw-2">&amp;</span>input.name) {
-                        <span class="prelude-val">Some</span>(future) =&gt; {
-                            <span class="self">self</span>.scope_state.call_location = <span class="prelude-val">Some</span>(future.clone());
-                            <span class="kw">return </span><span class="prelude-val">Some</span>(var.type_.clone());
-                        }
-                        <span class="prelude-val">None </span>=&gt; {
-                            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_future_consumed(input.name, input.span));
-                        }
-                    }
-                } <span class="kw">else </span>{
-                    <span class="comment">// Case where accessing input argument of future. Ex `f.1`.
-                    </span><span class="kw">return </span><span class="prelude-val">Some</span>(var.type_.clone());
-                }
-            }
             <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(var.type_.clone(), expected, input.span()))
         } <span class="kw">else </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"variable"</span>, input.name, input.span()));

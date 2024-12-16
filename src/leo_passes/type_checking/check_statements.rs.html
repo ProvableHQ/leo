@@ -435,7 +435,9 @@
 <a href="#434" id="434">434</a>
 <a href="#435" id="435">435</a>
 <a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -459,8 +461,6 @@
     <span class="kw-2">*</span>,
 };
 <span class="kw">use </span>leo_errors::TypeCheckerError;
-
-<span class="kw">use </span>itertools::Itertools;
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; StatementVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>, N&gt; {
     <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Statement) {
@@ -685,7 +685,7 @@
         <span class="comment">// Insert the variables into the symbol table.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
             Expression::Identifier(identifier) =&gt; {
-                <span class="self">self</span>.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), <span class="number">0</span>, identifier.span)
+                <span class="self">self</span>.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), identifier.span)
             }
             Expression::Tuple(tuple_expression) =&gt; {
                 <span class="kw">let </span>tuple_type = <span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
@@ -702,9 +702,13 @@
                     ));
                 }
 
-                <span class="kw">for </span>((index, expr), type_) <span class="kw">in
-                    </span>tuple_expression.elements.iter().enumerate().zip_eq(tuple_type.elements().iter())
-                {
+                <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..tuple_expression.elements.len() {
+                    <span class="kw">let </span>inferred = <span class="kw">if let </span><span class="prelude-val">Some</span>(Type::Tuple(inferred_tuple)) = <span class="kw-2">&amp;</span>inferred_type {
+                        inferred_tuple.elements().get(i).cloned()
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">None
+                    </span>};
+                    <span class="kw">let </span>expr = <span class="kw-2">&amp;</span>tuple_expression.elements[i];
                     <span class="kw">let </span>identifier = <span class="kw">match </span>expr {
                         Expression::Identifier(identifier) =&gt; identifier,
                         <span class="kw">_ </span>=&gt; {
@@ -712,7 +716,7 @@
                                 </span>.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
                         }
                     };
-                    <span class="self">self</span>.insert_variable(inferred_type.clone(), identifier, type_.clone(), index, identifier.span);
+                    <span class="self">self</span>.insert_variable(inferred, identifier, tuple_type.elements()[i].clone(), identifier.span);
                 }
             }
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),

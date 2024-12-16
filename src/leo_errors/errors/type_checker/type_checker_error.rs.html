@@ -913,7 +913,14 @@
 <a href="#912" id="912">912</a>
 <a href="#913" id="913">913</a>
 <a href="#914" id="914">914</a>
-<a href="#915" id="915">915</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1825,6 +1832,13 @@
     array_element_cannot_be_future {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"An array cannot have a future as an element type."</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    no_future_parameters {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">"Futures may only appear as parameters to async functions."</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

@@ -1352,7 +1352,9 @@
 <a href="#1351" id="1351">1351</a>
 <a href="#1352" id="1352">1352</a>
 <a href="#1353" id="1353">1353</a>
-<a href="#1354" id="1354">1354</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -2574,10 +2576,21 @@
                 }
             }
 
-            <span class="comment">// Add function inputs to the symbol table. Futures have already been added.
-            </span><span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input_var.type_(), <span class="kw-2">&amp;</span>Type::Future(<span class="kw">_</span>)) {
-                <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-                    Location::new(<span class="prelude-val">None</span>, input_var.identifier().name),
+            <span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input_var.type_(), Type::Future(<span class="kw">_</span>)) {
+                <span class="comment">// Future parameters may only appear in async functions.
+                </span><span class="kw">if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.scope_state.variant, <span class="prelude-val">Some</span>(Variant::AsyncFunction)) {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::no_future_parameters(input_var.span()));
+                }
+            }
+
+            <span class="kw">let </span>location = Location::new(<span class="prelude-val">None</span>, input_var.identifier().name);
+            <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input_var.type_(), Type::Future(<span class="kw">_</span>))
+                || <span class="self">self</span>.symbol_table.borrow().lookup_variable_in_current_scope(location.clone()).is_none()
+            {
+                <span class="comment">// Add function inputs to the symbol table. If inference happened properly above, futures were already added.
+                // But if a future was not added, add it now so as not to give confusing error messages.
+                </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
+                    location.clone(),
                     <span class="self">self</span>.scope_state.program_name,
                     VariableSymbol {
                         type_: input_var.type_().clone(),
@@ -2656,32 +2669,23 @@
     }
 
     <span class="doccomment">/// Inserts variable to symbol table.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>insert_variable(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        inferred_type: <span class="prelude-ty">Option</span>&lt;Type&gt;,
-        name: <span class="kw-2">&amp;</span>Identifier,
-        type_: Type,
-        index: usize,
-        span: Span,
-    ) {
-        <span class="kw">let </span>ty: Type = <span class="kw">if let </span>Type::Future(<span class="kw">_</span>) = type_ {
-            <span class="comment">// Need to insert the fully inferred future type, or else will just be default future type.
-            </span><span class="kw">let </span>ret = <span class="kw">match </span>inferred_type.unwrap() {
-                Type::Future(future) =&gt; Type::Future(future),
-                Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.elements().get(index) {
-                    <span class="prelude-val">Some</span>(Type::Future(future)) =&gt; Type::Future(future.clone()),
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that the inferred type is a future."</span>),
-                },
-                <span class="kw">_ </span>=&gt; {
-                    <span class="macro">unreachable!</span>(<span class="string">"TYC guarantees that the inferred type is a future, or tuple containing futures."</span>)
-                }
-            };
-            <span class="comment">// Insert future into list of futures for the function.
-            </span><span class="self">self</span>.scope_state.futures.insert(name.name, <span class="self">self</span>.scope_state.call_location.clone().unwrap());
-            ret
-        } <span class="kw">else </span>{
-            type_
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>insert_variable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, inferred_type: <span class="prelude-ty">Option</span>&lt;Type&gt;, name: <span class="kw-2">&amp;</span>Identifier, type_: Type, span: Span) {
+        <span class="kw">let </span>is_future = <span class="kw">match </span><span class="kw-2">&amp;</span>type_ {
+            Type::Future(..) =&gt; <span class="bool-val">true</span>,
+            Type::Tuple(tuple_type) <span class="kw">if </span><span class="macro">matches!</span>(tuple_type.elements().last(), <span class="prelude-val">Some</span>(Type::Future(..))) =&gt; <span class="bool-val">true</span>,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         };
+
+        <span class="kw">if </span>is_future {
+            <span class="self">self</span>.scope_state.futures.insert(name.name, <span class="self">self</span>.scope_state.call_location.clone().unwrap());
+        }
+
+        <span class="kw">let </span>ty = <span class="kw">match </span>(is_future, inferred_type) {
+            (<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; type_,
+            (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(inferred)) =&gt; inferred,
+            (<span class="bool-val">true</span>, <span class="prelude-val">None</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees the inferred type is present"</span>),
+        };
+
         <span class="comment">// Insert the variable into the symbol table.
         </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
             Location::new(<span class="prelude-val">None</span>, name.name),
