@@ -116,7 +116,7 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
     fn visit_function_stub(&mut self, input: &'a FunctionStub) {
         // Construct the location for the function.
         let location = Location::new(self.program_name, input.name());
-        // Initalize the function symbol.
+        // Initialize the function symbol.
         if let Err(err) = self.symbol_table.insert_fn(location.clone(), &Function::from(input.clone())) {
             self.handler.emit_err(err);
         }
