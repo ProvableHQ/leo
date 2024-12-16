@@ -290,9 +290,10 @@ impl<N: Network> ParserContext<'_, N> {
         let name = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
 
-        let type_ = self.parse_type()?.0;
+        let (type_, type_span) = self.parse_type()?;
+        let span = name.span() + type_span;
 
-        Ok(functions::Input { identifier: name, mode, type_, span: name.span, id: self.node_builder.next_id() })
+        Ok(functions::Input { identifier: name, mode, type_, span, id: self.node_builder.next_id() })
     }
 
     /// Returns an [`Output`] AST node if the next tokens represent a function output.

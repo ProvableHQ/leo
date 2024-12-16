@@ -912,4 +912,11 @@ create_messages!(
         msg: format!("An array cannot have a future as an element type."),
         help: None,
     }
+
+    @formatted
+    no_future_parameters {
+        args: (),
+        msg: format!("Futures may only appear as parameters to async functions."),
+        help: None,
+    }
 );

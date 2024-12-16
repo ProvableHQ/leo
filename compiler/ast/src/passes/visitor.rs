@@ -114,7 +114,12 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_struct_init(&mut self, _input: &'a StructExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        for StructVariableInitializer { expression, .. } in input.members.iter() {
+            if let Some(expression) = expression {
+                self.visit_expression(expression, additional);
+            }
+        }
         Default::default()
     }
 

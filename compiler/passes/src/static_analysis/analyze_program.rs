@@ -39,6 +39,10 @@ impl<'a, N: Network> ProgramVisitor<'a> for StaticAnalyzer<'a, N> {
         // Set `non_async_external_call_seen` to false.
         self.non_async_external_call_seen = false;
 
+        if matches!(self.variant, Some(Variant::AsyncFunction) | Some(Variant::AsyncTransition)) {
+            super::future_checker::future_check_function(function, self.type_table, self.handler);
+        }
+
         // If the function is an async function, initialize the await checker.
         if self.variant == Some(Variant::AsyncFunction) {
             // Initialize the list of input futures. Each one must be awaited before the end of the function.

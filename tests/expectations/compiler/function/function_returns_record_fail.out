@@ -5,12 +5,12 @@ Error [ETYC0372057]: Only `transition` functions can have a record as input or o
     --> compiler-test:9:18
      |
    9 |     function foo(board: Board, data: u8) -> Board {
-     |                  ^^^^^
+     |                  ^^^^^^^^^^^^
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
     --> compiler-test:9:18
      |
    9 |     function foo(board: Board, data: u8) -> Board {
-     |                  ^^^^^
+     |                  ^^^^^^^^^^^^
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
     --> compiler-test:9:45
      |
@@ -25,10 +25,10 @@ Error [ETYC0372057]: Only `transition` functions can have a record as input or o
     --> compiler-test:16:18
      |
   16 |     function bar(board: Board) {
-     |                  ^^^^^
+     |                  ^^^^^^^^^^^^
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
     --> compiler-test:16:18
      |
   16 |     function bar(board: Board) {
-     |                  ^^^^^
+     |                  ^^^^^^^^^^^^
 """]

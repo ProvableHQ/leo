@@ -39,8 +39,8 @@ functions = [
     [
     "finalize_main",
     { annotations = [], variant = "AsyncFunction", identifier = '{"id":"16","name":"finalize_main","span":"{\"lo\":186,\"hi\":199}"}', id = 30, input = [
-    { identifier = '{"id":"17","name":"a","span":"{\"lo\":200,\"hi\":201}"}', mode = "None", id = 18, type_ = { Integer = "U32" }, span = { lo = 200, hi = 201 } },
-    { identifier = '{"id":"19","name":"b","span":"{\"lo\":207,\"hi\":208}"}', mode = "None", id = 20, type_ = { Integer = "U32" }, span = { lo = 207, hi = 208 } },
+    { identifier = '{"id":"17","name":"a","span":"{\"lo\":200,\"hi\":201}"}', mode = "None", id = 18, type_ = { Integer = "U32" }, span = { lo = 200, hi = 205 } },
+    { identifier = '{"id":"19","name":"b","span":"{\"lo\":207,\"hi\":208}"}', mode = "None", id = 20, type_ = { Integer = "U32" }, span = { lo = 207, hi = 212 } },
 ], output = [{ mode = "None", id = 21, type_ = { Future = { inputs = [], is_explicit = false } }, span = { lo = 217, hi = 223 } }], output_type = { Future = { inputs = [], is_explicit = false } }, block = { id = 29, statements = [{ Expression = { id = 28, expression = { Access = { AssociatedFunction = { variant = '{"id":"22","name":"Mapping","span":"{\"lo\":234,\"hi\":241}"}', name = '{"id":"23","name":"set","span":"{\"lo\":243,\"hi\":246}"}', id = 27, arguments = [
     { Identifier = '{"id":"24","name":"Yo","span":"{\"lo\":247,\"hi\":249}"}' },
     { Identifier = '{"id":"25","name":"a","span":"{\"lo\":251,\"hi\":252}"}' },

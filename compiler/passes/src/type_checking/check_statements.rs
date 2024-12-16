@@ -23,8 +23,6 @@ use leo_ast::{
 };
 use leo_errors::TypeCheckerError;
 
-use itertools::Itertools;
-
 impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
     fn visit_statement(&mut self, input: &'a Statement) {
         // No statements can follow a return statement.
@@ -248,7 +246,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         // Insert the variables into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
-                self.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), 0, identifier.span)
+                self.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), identifier.span)
             }
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
@@ -265,9 +263,13 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
                     ));
                 }
 
-                for ((index, expr), type_) in
-                    tuple_expression.elements.iter().enumerate().zip_eq(tuple_type.elements().iter())
-                {
+                for i in 0..tuple_expression.elements.len() {
+                    let inferred = if let Some(Type::Tuple(inferred_tuple)) = &inferred_type {
+                        inferred_tuple.elements().get(i).cloned()
+                    } else {
+                        None
+                    };
+                    let expr = &tuple_expression.elements[i];
                     let identifier = match expr {
                         Expression::Identifier(identifier) => identifier,
                         _ => {
@@ -275,7 +277,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
                                 .emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
                         }
                     };
-                    self.insert_variable(inferred_type.clone(), identifier, type_.clone(), index, identifier.span);
+                    self.insert_variable(inferred, identifier, tuple_type.elements()[i].clone(), identifier.span);
                 }
             }
             _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),

@@ -28,8 +28,8 @@ functions = [
     [
     "main",
     { annotations = [], variant = "AsyncFunction", identifier = '{"id":"13","name":"main","span":"{\"lo\":193,\"hi\":197}"}', id = 23, input = [
-    { identifier = '{"id":"14","name":"a","span":"{\"lo\":198,\"hi\":199}"}', mode = "None", id = 16, type_ = { Composite = { id = '{"id":"15","name":"foo","span":"{\"lo\":201,\"hi\":204}"}', program = "test" } }, span = { lo = 198, hi = 199 } },
-    { identifier = '{"id":"17","name":"b","span":"{\"lo\":206,\"hi\":207}"}', mode = "None", id = 19, type_ = { Composite = { id = '{"id":"18","name":"bar","span":"{\"lo\":209,\"hi\":212}"}', program = "test" } }, span = { lo = 206, hi = 207 } },
+    { identifier = '{"id":"14","name":"a","span":"{\"lo\":198,\"hi\":199}"}', mode = "None", id = 16, type_ = { Composite = { id = '{"id":"15","name":"foo","span":"{\"lo\":201,\"hi\":204}"}', program = "test" } }, span = { lo = 198, hi = 204 } },
+    { identifier = '{"id":"17","name":"b","span":"{\"lo\":206,\"hi\":207}"}', mode = "None", id = 19, type_ = { Composite = { id = '{"id":"18","name":"bar","span":"{\"lo\":209,\"hi\":212}"}', program = "test" } }, span = { lo = 206, hi = 212 } },
 ], output = [{ mode = "None", id = 21, type_ = { Composite = { id = '{"id":"20","name":"baz","span":"{\"lo\":217,\"hi\":220}"}', program = "test" } }, span = { lo = 217, hi = 220 } }], output_type = { Composite = { id = '{"id":"20","name":"baz","span":"{\"lo\":217,\"hi\":220}"}', program = "test" } }, block = { statements = [], id = 22, span = { lo = 221, hi = 233 } }, span = { lo = 178, hi = 233 } },
 ],
 ]
