@@ -1057,7 +1057,11 @@
 <a href="#1056" id="1056">1056</a>
 <a href="#1057" id="1057">1057</a>
 <a href="#1058" id="1058">1058</a>
-<a href="#1059" id="1059">1059</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1261,7 +1265,11 @@
                         sym::height =&gt; {
                             <span class="comment">// Check that the operation is invoked in a `finalize` block.
                             </span><span class="self">self</span>.check_access_allowed(<span class="string">"block.height"</span>, <span class="bool-val">true</span>, access.name.span());
-                            <span class="kw">return </span><span class="prelude-val">Some</span>(Type::Integer(IntegerType::U32));
+                            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(
+                                Type::Integer(IntegerType::U32),
+                                expected,
+                                input.span(),
+                            ));
                         }
                         <span class="kw">_ </span>=&gt; {
                             <span class="self">self</span>.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
