@@ -160,19 +160,24 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
         // Initialize the VM.
         let vm = VM::from(store)?;
 
-        // Compute the minimum deployment cost.
-        let (mut total_cost, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(&deployment)?;
+        let base_fee = match command.fee_options.base_fee {
+            Some(base_fee) => base_fee,
+            None => {
+                // Compute the minimum deployment cost.
+                let (base_fee, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(&deployment)?;
 
-        // Display the deployment cost breakdown using `credit` denomination.
-        total_cost += command.fee_options.priority_fee;
-        deploy_cost_breakdown(
-            name,
-            total_cost as f64 / 1_000_000.0,
-            storage_cost as f64 / 1_000_000.0,
-            synthesis_cost as f64 / 1_000_000.0,
-            namespace_cost as f64 / 1_000_000.0,
-            command.fee_options.priority_fee as f64 / 1_000_000.0,
-        )?;
+                // Display the deployment cost breakdown using `credit` denomination.
+                deploy_cost_breakdown(
+                    name,
+                    base_fee as f64 / 1_000_000.0,
+                    storage_cost as f64 / 1_000_000.0,
+                    synthesis_cost as f64 / 1_000_000.0,
+                    namespace_cost as f64 / 1_000_000.0,
+                    command.fee_options.priority_fee as f64 / 1_000_000.0,
+                )?;
+                base_fee
+            }
+        };
 
         // Initialize an RNG.
         let rng = &mut rand::thread_rng();
@@ -184,7 +189,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
                 let fee_authorization = vm.authorize_fee_private(
                     &private_key,
                     fee_record,
-                    total_cost,
+                    base_fee,
                     command.fee_options.priority_fee,
                     deployment_id,
                     rng,
@@ -193,10 +198,16 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
             }
             None => {
                 // Make sure the user has enough public balance to pay for the deployment.
-                check_balance(&private_key, endpoint, &network.to_string(), context.clone(), total_cost)?;
+                check_balance(
+                    &private_key,
+                    endpoint,
+                    &network.to_string(),
+                    &context,
+                    base_fee + command.fee_options.priority_fee,
+                )?;
                 let fee_authorization = vm.authorize_fee_public(
                     &private_key,
-                    total_cost,
+                    base_fee,
                     command.fee_options.priority_fee,
                     deployment_id,
                     rng,
@@ -247,13 +258,13 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 // A helper function to display a cost breakdown of the deployment.
 fn deploy_cost_breakdown(
     name: &String,
-    total_cost: f64,
+    base_fee: f64,
     storage_cost: f64,
     synthesis_cost: f64,
     namespace_cost: f64,
     priority_fee: f64,
 ) -> Result<()> {
-    println!("\nBase deployment cost for '{}' is {} credits.\n", name.bold(), total_cost);
+    println!("\nBase deployment cost for '{}' is {} credits.\n", name.bold(), base_fee);
     // Display the cost breakdown in a table.
     let data = [
         [name, "Cost (credits)"],
@@ -261,7 +272,7 @@ fn deploy_cost_breakdown(
         ["Program Synthesis", &format!("{:.6}", synthesis_cost)],
         ["Namespace", &format!("{:.6}", namespace_cost)],
         ["Priority Fee", &format!("{:.6}", priority_fee)],
-        ["Total", &format!("{:.6}", total_cost)],
+        ["Total", &format!("{:.6}", base_fee + priority_fee)],
     ];
     let mut out = Vec::new();
     text_tables::render(&mut out, data).map_err(CliError::table_render_failed)?;

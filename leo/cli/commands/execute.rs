@@ -31,7 +31,6 @@ use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
     cli::LOCALE,
-    ledger::Transaction::Execute as ExecuteTransaction,
     package::Package as SnarkVMPackage,
     prelude::{
         Identifier,
@@ -42,6 +41,7 @@ use snarkvm::{
         VM,
         Value,
         execution_cost_v1,
+        execution_cost_v2,
         query::Query as SnarkVMQuery,
         store::{
             ConsensusStore,
@@ -193,46 +193,110 @@ fn handle_execute<A: Aleo>(
         let program_id = &ProgramID::<A::Network>::from_str(&format!("{program_name}.aleo"))?;
         load_program_from_network(context.clone(), &mut vm.process().write(), program_id, network, endpoint)?;
 
+        // Compute the authorization.
+        let authorization = vm.authorize(&private_key, program_id, &command.name, inputs, rng)?;
+        // Determine if a fee is required.
+        let is_fee_required = !authorization.is_split();
+        // Determine if a priority fee is declared.
+        let is_priority_fee_declared = command.fee_options.priority_fee > 0;
+        // Compute the execution.
+        let execution = match vm.execute_authorization(authorization, None, Some(query.clone()), rng)? {
+            Transaction::Execute(_, execution, _) => execution,
+            _ => unreachable!("VM::execute_authorization should return a Transaction::Execute"),
+        };
+
         let fee_record = if let Some(record) = command.fee_options.record {
             Some(parse_record(&private_key, &record)?)
         } else {
             None
         };
 
-        // Create a new transaction.
-        let transaction = vm.execute(
-            &private_key,
-            (program_id, command.name.clone()),
-            inputs.iter(),
-            fee_record.clone(),
-            command.fee_options.priority_fee,
-            Some(query),
-            rng,
-        )?;
-
         // Check the transaction cost.
-        let (mut total_cost, (storage_cost, finalize_cost)) = if let ExecuteTransaction(_, execution, _) = &transaction
-        {
-            // TODO: Update to V2 after block migration.
-            execution_cost_v1(&vm.process().read(), execution)?
-        } else {
-            panic!("All transactions should be of type Execute.")
-        };
+        let base_fee = match command.fee_options.base_fee {
+            Some(base_fee) => base_fee,
+            None => {
+                let (base_fee, (storage_cost, finalize_cost)) =
+                    // Attempt to get the height of the latest block to determine which version of the execution cost to use.
+                    if let Ok(height) = get_latest_block_height(endpoint, &network.to_string(), &context) {
+                        if height < A::Network::CONSENSUS_V2_HEIGHT {
+                            execution_cost_v1(&vm.process().read(), &execution)?
+                        } else {
+                            execution_cost_v2(&vm.process().read(), &execution)?
+                        }
+                    }
+                    // Otherwise, default to the one provided in `fee_options`.
+                    else {
+                        // Get the consensus version from the command.
+                        let version = match command.fee_options.consensus_version {
+                            Some(1) => 1,
+                            None | Some(2) => 2,
+                            Some(version) => {
+                                panic!("Invalid consensus version: {version}. Please specify a valid version.")
+                            }
+                        };
+                        // Print a warning message.
+                        println!("Failed to get the latest block height. Defaulting to V{version}.",);
+                        // Use the provided version.
+                        match version {
+                            1 => execution_cost_v1(&vm.process().read(), &execution)?,
+                            2 => execution_cost_v2(&vm.process().read(), &execution)?,
+                            _ => unreachable!(),
+                        }
+                    };
 
-        // Print the cost breakdown.
-        total_cost += command.fee_options.priority_fee;
-        execution_cost_breakdown(
-            &program_name,
-            total_cost as f64 / 1_000_000.0,
-            storage_cost as f64 / 1_000_000.0,
-            finalize_cost as f64 / 1_000_000.0,
-            command.fee_options.priority_fee as f64 / 1_000_000.0,
-        )?;
+                // Print the cost breakdown.
+                execution_cost_breakdown(
+                    &program_name,
+                    base_fee as f64 / 1_000_000.0,
+                    storage_cost as f64 / 1_000_000.0,
+                    finalize_cost as f64 / 1_000_000.0,
+                    command.fee_options.priority_fee as f64 / 1_000_000.0,
+                )?;
+                base_fee
+            }
+        };
 
         // Check if the public balance is sufficient.
         if fee_record.is_none() {
-            check_balance::<A::Network>(&private_key, endpoint, &network.to_string(), context, total_cost)?;
+            check_balance::<A::Network>(
+                &private_key,
+                endpoint,
+                &network.to_string(),
+                &context,
+                base_fee + command.fee_options.priority_fee,
+            )?;
         }
+
+        // Compute the fee.
+        let fee = match is_fee_required || is_priority_fee_declared {
+            true => {
+                // Compute the execution ID.
+                let execution_id = execution.to_execution_id()?;
+                // Authorize the fee.
+                let authorization = match fee_record {
+                    Some(record) => vm.authorize_fee_private(
+                        &private_key,
+                        record,
+                        base_fee,
+                        command.fee_options.priority_fee,
+                        execution_id,
+                        rng,
+                    )?,
+                    None => vm.authorize_fee_public(
+                        &private_key,
+                        base_fee,
+                        command.fee_options.priority_fee,
+                        execution_id,
+                        rng,
+                    )?,
+                };
+                // Execute the fee.
+                Some(vm.execute_fee_authorization(authorization, Some(query), rng)?)
+            }
+            false => None,
+        };
+        // Return the execute transaction.
+        let transaction = Transaction::from_execution(execution, fee)?;
 
         // Broadcast the execution transaction.
         if !command.fee_options.dry_run {
@@ -397,19 +461,19 @@ fn load_program_from_network<N: Network>(
 // A helper function to display a cost breakdown of the execution.
 fn execution_cost_breakdown(
     name: &String,
-    total_cost: f64,
+    base_fee: f64,
     storage_cost: f64,
     finalize_cost: f64,
     priority_fee: f64,
 ) -> Result<()> {
-    println!("\nBase execution cost for '{}' is {} credits.\n", name.bold(), total_cost);
+    println!("\nBase execution cost for '{}' is {} credits.\n", name.bold(), base_fee);
     // Display the cost breakdown in a table.
     let data = [
         [name, "Cost (credits)"],
         ["Transaction Storage", &format!("{:.6}", storage_cost)],
         ["On-chain Execution", &format!("{:.6}", finalize_cost)],
         ["Priority Fee", &format!("{:.6}", priority_fee)],
-        ["Total", &format!("{:.6}", total_cost)],
+        ["Total", &format!("{:.6}", base_fee + priority_fee)],
     ];
     let mut out = Vec::new();
     text_tables::render(&mut out, data).map_err(CliError::table_render_failed)?;
