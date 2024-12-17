@@ -1,12 +1,12 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372003]: Expected type `scalar` but type `field` was found
+Error [ETYC0372117]: Expected type `scalar` but type `field` was found.
     --> compiler-test:12:25
      |
   12 |         let a: scalar = ChaCha::rand_field();
      |                         ^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372003]: Expected type `group` but type `field` was found
+Error [ETYC0372117]: Expected type `group` but type `field` was found.
     --> compiler-test:13:24
      |
   13 |         let b: group = ChaCha::rand_field();

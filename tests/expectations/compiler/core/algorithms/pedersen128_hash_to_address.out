@@ -1,21 +1,29 @@
 namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_symbol_table = "9a9ce539c5db1390d701f8f9cce7591f1aadb958544c76640332f89dc4871818", type_checked_symbol_table = "9e0c93b497a4e4ea4adb478df544aacf04b210ca3be8448127a19746517fd4f0", unrolled_symbol_table = "9e0c93b497a4e4ea4adb478df544aacf04b210ca3be8448127a19746517fd4f0", initial_ast = "2887a87b28ce882ef5eb92729940e91f3eab8a2f5efb96eefe325be750373b1d", unrolled_ast = "2887a87b28ce882ef5eb92729940e91f3eab8a2f5efb96eefe325be750373b1d", ssa_ast = "fb7dca997fec396d9a20feda66d5a292d7ba39a11e9de8f5bf86843ad608720b", flattened_ast = "48c35557707bcfce348e1acef81c87bccd7f79bcd01d03c36438070bfb5bd755", destructured_ast = "86c4c74fa0be1fff02c706d16c646cb412733cc3617c3d353290d409479a20f1", inlined_ast = "86c4c74fa0be1fff02c706d16c646cb412733cc3617c3d353290d409479a20f1", dce_ast = "0afa089fff57677dc8ed2d4ae6f86797bc100b7a424fbc50964ce7c53b372e31", bytecode = """
-program test.aleo;
-
-struct Foo:
-    a as u32;
-    b as u32;
-
-function main:
-    input r0 as i8.private;
-    input r1 as i16.private;
-    input r2 as i32.private;
-    input r3 as i64.private;
-    input r4 as u8.private;
-    input r5 as u16.private;
-    input r6 as u32.private;
-    input r7 as u64.private;
-    hash.ped128 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as address;
-    output r8 as address.private;
-""", errors = "", warnings = "" }] }]]
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `address` was found.
+    --> compiler-test:29:55
+     |
+  29 |         let a: address = Pedersen128::hash_to_address(addr_value);
+     |                                                       ^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `field` was found.
+    --> compiler-test:31:55
+     |
+  31 |         let c: address = Pedersen128::hash_to_address(field_value);
+     |                                                       ^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `group` was found.
+    --> compiler-test:32:55
+     |
+  32 |         let d: address = Pedersen128::hash_to_address(group_value);
+     |                                                       ^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `scalar` was found.
+    --> compiler-test:41:55
+     |
+  41 |         let o: address = Pedersen128::hash_to_address(scalar_value);
+     |                                                       ^^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `Foo` was found.
+    --> compiler-test:43:55
+     |
+  43 |         let p: address = Pedersen128::hash_to_address(Foo { a: 1u32, b: 1u32 });
+     |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+"""]

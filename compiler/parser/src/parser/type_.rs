@@ -108,7 +108,7 @@ impl<N: Network> ParserContext<'_, N> {
                 }
             }
 
-            Ok((Type::Composite(CompositeType { id: ident, program: self.program_name }), ident.span))
+            Ok((Type::Composite(CompositeType { id: ident, program: None }), ident.span))
         } else if self.token.token == Token::LeftSquare {
             // Parse the left bracket.
             self.expect(&Token::LeftSquare)?;

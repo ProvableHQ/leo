@@ -819,8 +819,8 @@ create_messages!(
     @formatted
     external_transition_call_must_be_before_finalize {
         args: (),
-        msg: "External async transition calls cannot be made after local async function call".to_string(),
-        help: Some("Move the async call before the function call.".to_string()),
+        msg: "External transition calls cannot be made after local async function call".to_string(),
+        help: Some("Move the async function call before the transition call.".to_string()),
     }
 
     @formatted
@@ -918,5 +918,62 @@ create_messages!(
         args: (),
         msg: format!("Futures may only appear as parameters to async functions."),
         help: None,
+    }
+
+    /// For when the user tries to assign to a const input.
+    ///
+    /// This is a replacement for `type_should_be` with a slightly better message.
+    @formatted
+    type_should_be2 {
+        args: (type_: impl Display, expected: impl Display),
+        msg: format!(
+            "Expected {expected} but type `{type_}` was found.",
+        ),
+        help: None,
+    }
+
+    @formatted
+    ternary_branch_mismatch {
+        args: (type1: impl Display, type2: impl Display),
+        msg: format!(
+            "Received different types `{type1}` and `{type2}` for the arms of a ternary conditional."
+        ),
+        help: Some("Make both branches the same type.".into()),
+    }
+
+    @formatted
+    operation_types_mismatch {
+        args: (operation: impl Display, type1: impl Display, type2: impl Display),
+        msg: format!(
+            "Received different types `{type1}` and `{type2}` for the operation `{operation}`."
+        ),
+        help: Some("Make both operands the same type.".into()),
+    }
+
+    @formatted
+    mul_types_mismatch {
+        args: (type1: impl Display, type2: impl Display),
+        msg: format!(
+            "Received types `{type1}` and `{type2}` for the operation `*`."
+        ),
+        help: Some("Valid operands are two integers of the same type, two fields, or a scalar and a group.".into()),
+    }
+
+    @formatted
+    pow_types_mismatch {
+        args: (type1: impl Display, type2: impl Display),
+        msg: format!(
+            "Received types `{type1}` and `{type2}` for the operation `pow`."
+        ),
+        help: Some("Valid operands are two fields, or an integer base and a `u8`, `u16`, or `u32` exponent.".into()),
+    }
+
+    @formatted
+    shift_type_magnitude {
+        args: (operation: impl Display, rhs_type: impl Display),
+        msg: format!(
+            "Received type `{rhs_type}` for the second operand of the operation `{operation}`."
+        ),
+        help: Some("Valid second operands are `u8`, `u16`, or `u32`".into()),
     }
 );

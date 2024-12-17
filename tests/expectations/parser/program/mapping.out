@@ -18,7 +18,7 @@ mappings = [
 ],
     [
     "foo",
-    { identifier = '{"id":"4","name":"foo","span":"{\"lo\":82,\"hi\":85}"}', id = 7, key_type = { Composite = { id = '{"id":"5","name":"bar","span":"{\"lo\":87,\"hi\":90}"}', program = "test" } }, value_type = { Composite = { id = '{"id":"6","name":"baz","span":"{\"lo\":94,\"hi\":97}"}', program = "test" } }, span = { lo = 74, hi = 98 } },
+    { identifier = '{"id":"4","name":"foo","span":"{\"lo\":82,\"hi\":85}"}', id = 7, key_type = { Composite = { id = '{"id":"5","name":"bar","span":"{\"lo\":87,\"hi\":90}"}' } }, value_type = { Composite = { id = '{"id":"6","name":"baz","span":"{\"lo\":94,\"hi\":97}"}' } }, span = { lo = 74, hi = 98 } },
 ],
 ]
 functions = []

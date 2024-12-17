@@ -11,14 +11,9 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
      |     ^
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
-Error [ETYC0372003]: Expected type `u64` but type `u8` was found
+Error [ETYC0372117]: Expected type `u64` but type `u8` was found.
     --> compiler-test:12:16
      |
   12 |         return 1u8 + 2u8;
-     |                ^^^
-Error [ETYC0372003]: Expected type `u64` but type `u8` was found
-    --> compiler-test:12:22
-     |
-  12 |         return 1u8 + 2u8;
-     |                      ^^^
+     |                ^^^^^^^^^
 """]

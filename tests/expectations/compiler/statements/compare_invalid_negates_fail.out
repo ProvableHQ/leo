@@ -1,71 +1,36 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372007]: Expected one type from `field, group, i8, i16, i32, i64, i128`, but got `u8`
-    --> compiler-test:5:24
-     |
-   5 |         let b: bool = -a == -1u8;
-     |                        ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
     --> compiler-test:5:29
      |
    5 |         let b: bool = -a == -1u8;
      |                             ^^^^
-Error [ETYC0372007]: Expected one type from `field, group, i8, i16, i32, i64, i128`, but got `u8`
-    --> compiler-test:6:24
-     |
-   6 |         let c: bool = -a > -1u8;
-     |                        ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
     --> compiler-test:6:28
      |
    6 |         let c: bool = -a > -1u8;
      |                            ^^^^
-Error [ETYC0372007]: Expected one type from `field, group, i8, i16, i32, i64, i128`, but got `u8`
-    --> compiler-test:7:24
-     |
-   7 |         let d: bool = -a < -1u8;
-     |                        ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
     --> compiler-test:7:28
      |
    7 |         let d: bool = -a < -1u8;
      |                            ^^^^
-Error [ETYC0372007]: Expected one type from `field, group, i8, i16, i32, i64, i128`, but got `u8`
-    --> compiler-test:8:24
-     |
-   8 |         let e: bool = -a >= -1u8;
-     |                        ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
     --> compiler-test:8:29
      |
    8 |         let e: bool = -a >= -1u8;
      |                             ^^^^
-Error [ETYC0372007]: Expected one type from `field, group, i8, i16, i32, i64, i128`, but got `u8`
-    --> compiler-test:9:24
-     |
-   9 |         let f: bool = -a <= -1u8;
-     |                        ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
     --> compiler-test:9:29
      |
    9 |         let f: bool = -a <= -1u8;
      |                             ^^^^
-Error [ETYC0372007]: Expected one type from `field, group, i8, i16, i32, i64, i128`, but got `u8`
-    --> compiler-test:10:22
-     |
-  10 |         let g: u8 = -a * -1u8;
-     |                      ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
     --> compiler-test:10:26
      |
   10 |         let g: u8 = -a * -1u8;
      |                          ^^^^
-Error [ETYC0372007]: Expected one type from `field, group, i8, i16, i32, i64, i128`, but got `u8`
-    --> compiler-test:11:22
-     |
-  11 |         let h: u8 = -a ** -1u8;
-     |                      ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
     --> compiler-test:11:27
      |

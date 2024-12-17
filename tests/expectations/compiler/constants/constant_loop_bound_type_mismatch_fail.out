@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372003]: Expected type `u8` but type `u32` was found
+Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
     --> compiler-test:8:22
      |
    8 |         for i: u8 in START..STOP {

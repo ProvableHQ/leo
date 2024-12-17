@@ -11,12 +11,12 @@ Error [ETYC0372005]: Unknown variable `account`
      |
   14 |         CheatCode::print_mapping(test_dep.aleo/account);
      |                                  ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372003]: Expected type `u32` but type `u64` was found
+Error [ETYC0372117]: Expected type `u32` but type `u64` was found.
     --> compiler-test:15:37
      |
   15 |         CheatCode::set_block_height(1u64);
      |                                     ^^^^
-Error [ETYC0372003]: Expected type `u32` but type `u64` was found
+Error [ETYC0372117]: Expected type `u32` but type `u64` was found.
     --> compiler-test:16:37
      |
   16 |         CheatCode::set_block_height(a);

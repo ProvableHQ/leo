@@ -1,23 +1,29 @@
 namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_symbol_table = "98f0b93406bc0ab5d755fb4d4da966be418df82f4a376f328dad3769a95db3eb", type_checked_symbol_table = "36395772cc753c8445b1891d3eca79be770019b5f9be35dec15c4daa437dd0fb", unrolled_symbol_table = "36395772cc753c8445b1891d3eca79be770019b5f9be35dec15c4daa437dd0fb", initial_ast = "594a14284059b421b9b836a46a0063c3ad6a992364dc05add652eb226fbe2a07", unrolled_ast = "594a14284059b421b9b836a46a0063c3ad6a992364dc05add652eb226fbe2a07", ssa_ast = "ede6f692866dadf3e2b5de89cce9479e661e4f2a35cb510e5d57e17537577ac6", flattened_ast = "37187dc61d74852dad5ed54df704e576960cf81c259cd94ce14c1bcd5d4081a2", destructured_ast = "43a99b40ee568b1cfac907cc4205d60ec74ef59ddd68553402d4a652de22f5f2", inlined_ast = "43a99b40ee568b1cfac907cc4205d60ec74ef59ddd68553402d4a652de22f5f2", dce_ast = "226dff47c2f977b5a88781f5f41ad9e0fb73b805c7de2477c1773d85ea895ccb", bytecode = """
-program test.aleo;
-
-struct Foo:
-    a as u16;
-    b as u16;
-
-function main:
-    input r0 as i8.private;
-    input r1 as i16.private;
-    input r2 as i32.private;
-    input r3 as i64.private;
-    input r4 as u8.private;
-    input r5 as u16.private;
-    input r6 as u32.private;
-    input r7 as u64.private;
-    commit.ped64 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta 1scalar into r8 as group;
-    commit.ped64 r4 1scalar into r9 as group;
-    is.eq r8 r9 into r10;
-    output r10 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `address` was found.
+    --> compiler-test:27:52
+     |
+  27 |         let a: group = Pedersen64::commit_to_group(addr_value, scalar_value);
+     |                                                    ^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `field` was found.
+    --> compiler-test:29:52
+     |
+  29 |         let c: group = Pedersen64::commit_to_group(field_value, scalar_value);
+     |                                                    ^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `group` was found.
+    --> compiler-test:30:52
+     |
+  30 |         let d: group = Pedersen64::commit_to_group(group_value, scalar_value);
+     |                                                    ^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `scalar` was found.
+    --> compiler-test:37:52
+     |
+  37 |         let m: group = Pedersen64::commit_to_group(scalar_value, scalar_value);
+     |                                                    ^^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `Foo` was found.
+    --> compiler-test:39:52
+     |
+  39 |         let n: group = Pedersen64::commit_to_group(Foo { a: 1u16, b: 1u16 }, scalar_value);
+     |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+"""]

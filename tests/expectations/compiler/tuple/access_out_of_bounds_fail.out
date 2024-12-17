@@ -6,11 +6,6 @@ Error [ETYC0372024]: Tuple index `2` out of range for a tuple with length `2`
      |
    7 |         return (t.0, t.2); // Index `t.2` is out of bounds.
      |                        ^
-Error [ETYC0372014]: t.2 is not a valid core function call.
-    --> compiler-test:7:24
-     |
-   7 |         return (t.0, t.2); // Index `t.2` is out of bounds.
-     |                        ^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |

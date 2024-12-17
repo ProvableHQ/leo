@@ -16,6 +16,7 @@
 
 use crate::Type;
 
+use itertools::Itertools as _;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -44,6 +45,6 @@ impl TupleType {
 
 impl fmt::Display for TupleType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({})", self.elements.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","))
+        write!(f, "({})", self.elements.iter().format(", "))
     }
 }

@@ -209,6 +209,10 @@ impl SymbolTable {
     pub fn lookup_struct(&self, location: Location, main_program: Option<Symbol>) -> Option<&Composite> {
         if let Some(struct_) = self.structs.get(&location) {
             return Some(struct_);
+        } else if location.program.is_none() {
+            if let Some(struct_) = self.structs.get(&Location::new(main_program, location.name)) {
+                return Some(struct_);
+            }
         } else if location.program == main_program {
             if let Some(struct_) = self.structs.get(&Location::new(None, location.name)) {
                 return Some(struct_);

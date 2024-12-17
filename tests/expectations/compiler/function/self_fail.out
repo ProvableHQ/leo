@@ -6,9 +6,4 @@ Error [ETYC0372040]: The allowed accesses to `self` are `self.caller` and `self.
      |
    5 |         return self.foo == addr;
      |                     ^^^
-Error [ETYC0372003]: Expected type `address` but type `no type` was found
-    --> compiler-test:5:16
-     |
-   5 |         return self.foo == addr;
-     |                ^^^^^^^^^^^^^^^^
 """]

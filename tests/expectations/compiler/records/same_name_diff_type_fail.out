@@ -1,0 +1,11 @@
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372119]: Received different types `R` and `child.aleo/R` for the operation `==`.
+    --> compiler-test:16:16
+     |
+  16 |         return r1 == child.aleo/create();
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Make both operands the same type.
+"""]
