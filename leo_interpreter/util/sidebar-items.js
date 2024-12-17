@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["snarkvm_identifier_to_symbol"],"trait":["ExpectTc"]};

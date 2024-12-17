@@ -530,7 +530,7 @@
     }
 
     <span class="doccomment">/// Find the source file containing `pos`.
-    </span><span class="kw">fn </span>find_source_file(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: BytePos) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;SourceFile&gt;&gt; {
+    </span><span class="kw">pub fn </span>find_source_file(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: BytePos) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;SourceFile&gt;&gt; {
         <span class="prelude-val">Some</span>(<span class="self">self</span>.inner.borrow().source_files[<span class="self">self</span>.find_source_file_index(pos)<span class="question-mark">?</span>].clone())
     }
 

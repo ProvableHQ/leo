@@ -172,7 +172,14 @@
 <a href="#171" id="171">171</a>
 <a href="#172" id="172">172</a>
 <a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -211,6 +218,9 @@
 </span><span class="kw">pub mod </span>loop_unroller;
 <span class="kw">pub use </span><span class="self">self</span>::loop_unroller::<span class="kw-2">*</span>;
 
+<span class="kw">pub mod </span>interpreter_halt;
+<span class="kw">pub use </span><span class="self">self</span>::interpreter_halt::<span class="kw-2">*</span>;
+
 <span class="doccomment">/// Contains the Package error definitions.
 </span><span class="kw">pub mod </span>package;
 <span class="kw">pub use </span><span class="self">self</span>::package::<span class="kw-2">*</span>;
@@ -244,6 +254,8 @@
     <span class="doccomment">/// Represents a Compiler Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>CompilerError(<span class="attr">#[from] </span>CompilerError),
+    <span class="attr">#[error(transparent)]
+    </span>InterpreterHalt(<span class="attr">#[from] </span>InterpreterHalt),
     <span class="doccomment">/// Represents a Package Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>PackageError(<span class="attr">#[from] </span>PackageError),
@@ -292,7 +304,8 @@
             UtilError(error) =&gt; error.error_code(),
             LastErrorCode(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             Anyhow(<span class="kw">_</span>) =&gt; <span class="string">"SnarkVM Error"</span>.to_string(), <span class="comment">// todo: implement error codes for snarkvm errors.
-        </span>}
+            </span>InterpreterHalt(<span class="kw">_</span>) =&gt; <span class="string">"Interpreter Halt"</span>.to_string(),
+        }
     }
 
     <span class="doccomment">/// Implement exit code for each type of Error.
@@ -312,7 +325,8 @@
             UtilError(error) =&gt; error.exit_code(),
             LastErrorCode(code) =&gt; <span class="kw-2">*</span>code,
             Anyhow(<span class="kw">_</span>) =&gt; <span class="number">11000</span>, <span class="comment">// todo: implement exit codes for snarkvm errors.
-        </span>}
+            </span>InterpreterHalt(<span class="kw">_</span>) =&gt; <span class="number">1</span>,
+        }
     }
 }
 

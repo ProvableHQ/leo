@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `HELP` constant in crate `leo_interpreter`."><title>HELP in leo_interpreter - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="leo_interpreter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc constant"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../leo_interpreter/index.html">leo_<wbr>interpreter</a><span class="version">2.4.0</span></h2></div><div class="sidebar-elems"><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><span class="rustdoc-breadcrumbs"><a href="index.html">leo_interpreter</a></span><h1>Constant <span class="constant">HELP</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/leo_interpreter/lib.rs.html#56-108">source</a> </span></div><pre class="rust item-decl"><code>pub(crate) const HELP: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.83.0/std/primitive.str.html">str</a> = &quot;
+You probably want to start by running a function or transition.
+For instance
+#into program.aleo/main()
+Once a function is running, commands include
+#into    to evaluate into the next expression or statement;
+#step    to take one step towards evaluating the current expression or statement;
+#over    to complete evaluating the current expression or statement;
+#run     to finish evaluating
+#quit    to quit the interpreter.
+
+You can set a breakpoint with
+#break program_name line_number
+
+When executing Aleo VM code, you can print the value of a register like this:
+#print 2
+
+Some of the commands may be run with one letter abbreviations, such as #i.
+
+Note that this interpreter is not line oriented as in many common debuggers;
+rather it is oriented around expressions and statements.
+As you step into code, individual expressions or statements will
+be evaluated one by one, including arguments of function calls.
+
+You may simply enter Leo expressions or statements on the command line
+to evaluate. For instance, if you want to see the value of a variable w:
+w
+If you want to set w to a new value:
+w = z + 2u8;
+
+Note that statements (like the assignment above) must end with a semicolon.
+
+If there are futures available to be executed, they will be listed by
+numerical index, and you may run them using `#future` (or `#f`); for instance
+#future 0
+
+The interpreter begins in a global context, not in any Leo program. You can set
+the current program with
+
+#set_program program_name
+
+This allows you to refer to structs and other items in the indicated program.
+
+The interpreter may enter an invalid state, often due to Leo code entered at the
+REPL. In this case, you may use the command
+
+#restore
+
+Which will restore to the last saved state of the interpreter. Any time you
+enter Leo code at the prompt, interpreter state is saved.
+
+Input history is available - use the up and down arrow keys.
+&quot;;</code></pre></section></div></main></body></html>

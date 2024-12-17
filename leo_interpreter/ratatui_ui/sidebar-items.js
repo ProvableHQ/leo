@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["append_lines","code_text","render_titled"],"struct":["DebuggerLayout","DrawData","Prompt","RatatuiUi"]};

@@ -1105,7 +1105,18 @@
 <a href="#1104" id="1104">1104</a>
 <a href="#1105" id="1105">1105</a>
 <a href="#1106" id="1106">1106</a>
-<a href="#1107" id="1107">1107</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1396,6 +1407,9 @@
 
     SignatureVerify,
     FutureAwait,
+
+    CheatCodePrintMapping,
+    CheatCodeSetBlockHeight,
 }
 
 <span class="kw">impl </span>CoreFunction {
@@ -1673,6 +1687,9 @@
 
             (sym::signature, sym::verify) =&gt; <span class="self">Self</span>::SignatureVerify,
             (sym::Future, sym::Await) =&gt; <span class="self">Self</span>::FutureAwait,
+
+            (sym::CheatCode, sym::print_mapping) =&gt; <span class="self">Self</span>::CheatCodePrintMapping,
+            (sym::CheatCode, sym::set_block_height) =&gt; <span class="self">Self</span>::CheatCodeSetBlockHeight,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         })
     }
@@ -1951,6 +1968,9 @@
 
             <span class="self">Self</span>::SignatureVerify =&gt; <span class="number">3</span>,
             <span class="self">Self</span>::FutureAwait =&gt; <span class="number">1</span>,
+
+            <span class="self">Self</span>::CheatCodePrintMapping =&gt; <span class="number">1</span>,
+            <span class="self">Self</span>::CheatCodeSetBlockHeight =&gt; <span class="number">1</span>,
         }
     }
 
@@ -2208,7 +2228,9 @@
             | CoreFunction::SHA3_512HashToScalar
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
-            | CoreFunction::SignatureVerify =&gt; <span class="bool-val">false</span>,
+            | CoreFunction::SignatureVerify
+            | CoreFunction::CheatCodePrintMapping
+            | CoreFunction::CheatCodeSetBlockHeight =&gt; <span class="bool-val">false</span>,
         }
     }
 }

@@ -93,7 +93,10 @@
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -127,9 +130,12 @@
 
     <span class="doccomment">/// Reconstructs the associated function access expression.
     </span><span class="kw">fn </span>reconstruct_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssociatedFunction) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="comment">// If the associated function manipulates a mapping, mark the statement as necessary.
+        <span class="comment">// If the associated function manipulates a mapping, or a cheat code, mark the statement as necessary.
         </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>input.variant.name, input.name.name) {
-            (<span class="kw-2">&amp;</span>sym::Mapping, sym::remove) | (<span class="kw-2">&amp;</span>sym::Mapping, sym::set) | (<span class="kw-2">&amp;</span>sym::Future, sym::Await) =&gt; {
+            (<span class="kw-2">&amp;</span>sym::Mapping, sym::remove)
+            | (<span class="kw-2">&amp;</span>sym::Mapping, sym::set)
+            | (<span class="kw-2">&amp;</span>sym::Future, sym::Await)
+            | (<span class="kw-2">&amp;</span>sym::CheatCode, <span class="kw">_</span>) =&gt; {
                 <span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
             }
             <span class="kw">_ </span>=&gt; {}

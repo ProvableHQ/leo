@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AleoContext","Element","FunctionVariant"],"fn":["evaluate_binary","evaluate_unary"],"struct":["ContextStack","Cursor","Frame","FunctionContext","GlobalId","StepResult"],"type":["Closure","Finalize","SvmFunction"]};

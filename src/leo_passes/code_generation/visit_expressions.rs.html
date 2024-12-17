@@ -617,7 +617,11 @@
 <a href="#616" id="616">616</a>
 <a href="#617" id="617">617</a>
 <a href="#618" id="618">618</a>
-<a href="#619" id="619">619</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1104,6 +1108,10 @@
                 <span class="macro">writeln!</span>(instruction, <span class="string">" {};"</span>, arguments[<span class="number">0</span>]).expect(<span class="string">"failed to write to string"</span>);
                 (String::new(), instruction)
             }
+            sym::CheatCode =&gt; {
+                (String::new(), String::new())
+                <span class="comment">// Do nothing. Cheat codes do not generate instructions.
+            </span>}
             <span class="kw">_ </span>=&gt; {
                 <span class="macro">unreachable!</span>(<span class="string">"All core functions should be known at this phase of compilation"</span>)
             }
