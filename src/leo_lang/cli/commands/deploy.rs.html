@@ -268,7 +268,18 @@
 <a href="#267" id="267">267</a>
 <a href="#268" id="268">268</a>
 <a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -430,19 +441,24 @@
         <span class="comment">// Initialize the VM.
         </span><span class="kw">let </span>vm = VM::from(store)<span class="question-mark">?</span>;
 
-        <span class="comment">// Compute the minimum deployment cost.
-        </span><span class="kw">let </span>(<span class="kw-2">mut </span>total_cost, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(<span class="kw-2">&amp;</span>deployment)<span class="question-mark">?</span>;
+        <span class="kw">let </span>base_fee = <span class="kw">match </span>command.fee_options.base_fee {
+            <span class="prelude-val">Some</span>(base_fee) =&gt; base_fee,
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="comment">// Compute the minimum deployment cost.
+                </span><span class="kw">let </span>(base_fee, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(<span class="kw-2">&amp;</span>deployment)<span class="question-mark">?</span>;
 
-        <span class="comment">// Display the deployment cost breakdown using `credit` denomination.
-        </span>total_cost += command.fee_options.priority_fee;
-        deploy_cost_breakdown(
-            name,
-            total_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-            storage_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-            synthesis_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-            namespace_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-            command.fee_options.priority_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-        )<span class="question-mark">?</span>;
+                <span class="comment">// Display the deployment cost breakdown using `credit` denomination.
+                </span>deploy_cost_breakdown(
+                    name,
+                    base_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
+                    storage_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
+                    synthesis_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
+                    namespace_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
+                    command.fee_options.priority_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
+                )<span class="question-mark">?</span>;
+                base_fee
+            }
+        };
 
         <span class="comment">// Initialize an RNG.
         </span><span class="kw">let </span>rng = <span class="kw-2">&amp;mut </span>rand::thread_rng();
@@ -454,7 +470,7 @@
                 <span class="kw">let </span>fee_authorization = vm.authorize_fee_private(
                     <span class="kw-2">&amp;</span>private_key,
                     fee_record,
-                    total_cost,
+                    base_fee,
                     command.fee_options.priority_fee,
                     deployment_id,
                     rng,
@@ -463,10 +479,16 @@
             </span>}
             <span class="prelude-val">None </span>=&gt; {
                 <span class="comment">// Make sure the user has enough public balance to pay for the deployment.
-                </span>check_balance(<span class="kw-2">&amp;</span>private_key, endpoint, <span class="kw-2">&amp;</span>network.to_string(), context.clone(), total_cost)<span class="question-mark">?</span>;
+                </span>check_balance(
+                    <span class="kw-2">&amp;</span>private_key,
+                    endpoint,
+                    <span class="kw-2">&amp;</span>network.to_string(),
+                    <span class="kw-2">&amp;</span>context,
+                    base_fee + command.fee_options.priority_fee,
+                )<span class="question-mark">?</span>;
                 <span class="kw">let </span>fee_authorization = vm.authorize_fee_public(
                     <span class="kw-2">&amp;</span>private_key,
-                    total_cost,
+                    base_fee,
                     command.fee_options.priority_fee,
                     deployment_id,
                     rng,
@@ -517,13 +539,13 @@
 <span class="comment">// A helper function to display a cost breakdown of the deployment.
 </span><span class="kw">fn </span>deploy_cost_breakdown(
     name: <span class="kw-2">&amp;</span>String,
-    total_cost: f64,
+    base_fee: f64,
     storage_cost: f64,
     synthesis_cost: f64,
     namespace_cost: f64,
     priority_fee: f64,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="macro">println!</span>(<span class="string">"\nBase deployment cost for '{}' is {} credits.\n"</span>, name.bold(), total_cost);
+    <span class="macro">println!</span>(<span class="string">"\nBase deployment cost for '{}' is {} credits.\n"</span>, name.bold(), base_fee);
     <span class="comment">// Display the cost breakdown in a table.
     </span><span class="kw">let </span>data = [
         [name, <span class="string">"Cost (credits)"</span>],
@@ -531,7 +553,7 @@
         [<span class="string">"Program Synthesis"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, synthesis_cost)],
         [<span class="string">"Namespace"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, namespace_cost)],
         [<span class="string">"Priority Fee"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, priority_fee)],
-        [<span class="string">"Total"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, total_cost)],
+        [<span class="string">"Total"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, base_fee + priority_fee)],
     ];
     <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
     text_tables::render(<span class="kw-2">&amp;mut </span>out, data).map_err(CliError::table_render_failed)<span class="question-mark">?</span>;

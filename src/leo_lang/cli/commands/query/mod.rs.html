@@ -189,26 +189,26 @@
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
-<span class="kw">mod </span>block;
-<span class="kw">use </span>block::LeoBlock;
+<span class="kw">pub mod </span>block;
+<span class="kw">pub use </span>block::LeoBlock;
 
 <span class="kw">pub mod </span>program;
 <span class="kw">pub use </span>program::LeoProgram;
 
-<span class="kw">mod </span>state_root;
-<span class="kw">use </span>state_root::StateRoot;
+<span class="kw">pub mod </span>state_root;
+<span class="kw">pub use </span>state_root::StateRoot;
 
-<span class="kw">mod </span>committee;
-<span class="kw">use </span>committee::LeoCommittee;
+<span class="kw">pub mod </span>committee;
+<span class="kw">pub use </span>committee::LeoCommittee;
 
-<span class="kw">mod </span>mempool;
-<span class="kw">use </span>mempool::LeoMempool;
+<span class="kw">pub mod </span>mempool;
+<span class="kw">pub use </span>mempool::LeoMempool;
 
-<span class="kw">mod </span>peers;
-<span class="kw">use </span>peers::LeoPeers;
+<span class="kw">pub mod </span>peers;
+<span class="kw">pub use </span>peers::LeoPeers;
 
-<span class="kw">mod </span>transaction;
-<span class="kw">use </span>transaction::LeoTransaction;
+<span class="kw">pub mod </span>transaction;
+<span class="kw">pub use </span>transaction::LeoTransaction;
 
 <span class="kw">mod </span>utils;
 <span class="kw">use </span>utils::<span class="kw-2">*</span>;

@@ -416,7 +416,71 @@
 <a href="#415" id="415">415</a>
 <a href="#416" id="416">416</a>
 <a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -449,7 +513,6 @@
 <span class="kw">use </span>snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
     cli::LOCALE,
-    ledger::Transaction::Execute <span class="kw">as </span>ExecuteTransaction,
     package::Package <span class="kw">as </span>SnarkVMPackage,
     prelude::{
         Identifier,
@@ -460,6 +523,7 @@
         VM,
         Value,
         execution_cost_v1,
+        execution_cost_v2,
         query::Query <span class="kw">as </span>SnarkVMQuery,
         store::{
             ConsensusStore,
@@ -611,46 +675,110 @@
         </span><span class="kw">let </span>program_id = <span class="kw-2">&amp;</span>ProgramID::&lt;A::Network&gt;::from_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{program_name}.aleo"</span>))<span class="question-mark">?</span>;
         load_program_from_network(context.clone(), <span class="kw-2">&amp;mut </span>vm.process().write(), program_id, network, endpoint)<span class="question-mark">?</span>;
 
+        <span class="comment">// Compute the authorization.
+        </span><span class="kw">let </span>authorization = vm.authorize(<span class="kw-2">&amp;</span>private_key, program_id, <span class="kw-2">&amp;</span>command.name, inputs, rng)<span class="question-mark">?</span>;
+        <span class="comment">// Determine if a fee is required.
+        </span><span class="kw">let </span>is_fee_required = !authorization.is_split();
+        <span class="comment">// Determine if a priority fee is declared.
+        </span><span class="kw">let </span>is_priority_fee_declared = command.fee_options.priority_fee &gt; <span class="number">0</span>;
+        <span class="comment">// Compute the execution.
+        </span><span class="kw">let </span>execution = <span class="kw">match </span>vm.execute_authorization(authorization, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(query.clone()), rng)<span class="question-mark">? </span>{
+            Transaction::Execute(<span class="kw">_</span>, execution, <span class="kw">_</span>) =&gt; execution,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"VM::execute_authorization should return a Transaction::Execute"</span>),
+        };
+
         <span class="kw">let </span>fee_record = <span class="kw">if let </span><span class="prelude-val">Some</span>(record) = command.fee_options.record {
             <span class="prelude-val">Some</span>(parse_record(<span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>record)<span class="question-mark">?</span>)
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>};
 
-        <span class="comment">// Create a new transaction.
-        </span><span class="kw">let </span>transaction = vm.execute(
-            <span class="kw-2">&amp;</span>private_key,
-            (program_id, command.name.clone()),
-            inputs.iter(),
-            fee_record.clone(),
-            command.fee_options.priority_fee,
-            <span class="prelude-val">Some</span>(query),
-            rng,
-        )<span class="question-mark">?</span>;
-
         <span class="comment">// Check the transaction cost.
-        </span><span class="kw">let </span>(<span class="kw-2">mut </span>total_cost, (storage_cost, finalize_cost)) = <span class="kw">if let </span>ExecuteTransaction(<span class="kw">_</span>, execution, <span class="kw">_</span>) = <span class="kw-2">&amp;</span>transaction
-        {
-            <span class="comment">// TODO: Update to V2 after block migration.
-            </span>execution_cost_v1(<span class="kw-2">&amp;</span>vm.process().read(), execution)<span class="question-mark">?
-        </span>} <span class="kw">else </span>{
-            <span class="macro">panic!</span>(<span class="string">"All transactions should be of type Execute."</span>)
-        };
+        </span><span class="kw">let </span>base_fee = <span class="kw">match </span>command.fee_options.base_fee {
+            <span class="prelude-val">Some</span>(base_fee) =&gt; base_fee,
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="kw">let </span>(base_fee, (storage_cost, finalize_cost)) =
+                    <span class="comment">// Attempt to get the height of the latest block to determine which version of the execution cost to use.
+                    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(height) = get_latest_block_height(endpoint, <span class="kw-2">&amp;</span>network.to_string(), <span class="kw-2">&amp;</span>context) {
+                        <span class="kw">if </span>height &lt; A::Network::CONSENSUS_V2_HEIGHT {
+                            execution_cost_v1(<span class="kw-2">&amp;</span>vm.process().read(), <span class="kw-2">&amp;</span>execution)<span class="question-mark">?
+                        </span>} <span class="kw">else </span>{
+                            execution_cost_v2(<span class="kw-2">&amp;</span>vm.process().read(), <span class="kw-2">&amp;</span>execution)<span class="question-mark">?
+                        </span>}
+                    }
+                    <span class="comment">// Otherwise, default to the one provided in `fee_options`.
+                    </span><span class="kw">else </span>{
+                        <span class="comment">// Get the consensus version from the command.
+                        </span><span class="kw">let </span>version = <span class="kw">match </span>command.fee_options.consensus_version {
+                            <span class="prelude-val">Some</span>(<span class="number">1</span>) =&gt; <span class="number">1</span>,
+                            <span class="prelude-val">None </span>| <span class="prelude-val">Some</span>(<span class="number">2</span>) =&gt; <span class="number">2</span>,
+                            <span class="prelude-val">Some</span>(version) =&gt; {
+                                <span class="macro">panic!</span>(<span class="string">"Invalid consensus version: {version}. Please specify a valid version."</span>)
+                            }
+                        };
+                        <span class="comment">// Print a warning message.
+                        </span><span class="macro">println!</span>(<span class="string">"Failed to get the latest block height. Defaulting to V{version}."</span>,);
+                        <span class="comment">// Use the provided version.
+                        </span><span class="kw">match </span>version {
+                            <span class="number">1 </span>=&gt; execution_cost_v1(<span class="kw-2">&amp;</span>vm.process().read(), <span class="kw-2">&amp;</span>execution)<span class="question-mark">?</span>,
+                            <span class="number">2 </span>=&gt; execution_cost_v2(<span class="kw-2">&amp;</span>vm.process().read(), <span class="kw-2">&amp;</span>execution)<span class="question-mark">?</span>,
+                            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
+                        }
+                    };
 
-        <span class="comment">// Print the cost breakdown.
-        </span>total_cost += command.fee_options.priority_fee;
-        execution_cost_breakdown(
-            <span class="kw-2">&amp;</span>program_name,
-            total_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-            storage_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-            finalize_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-            command.fee_options.priority_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
-        )<span class="question-mark">?</span>;
+                <span class="comment">// Print the cost breakdown.
+                </span>execution_cost_breakdown(
+                    <span class="kw-2">&amp;</span>program_name,
+                    base_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
+                    storage_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
+                    finalize_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
+                    command.fee_options.priority_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>,
+                )<span class="question-mark">?</span>;
+                base_fee
+            }
+        };
 
         <span class="comment">// Check if the public balance is sufficient.
         </span><span class="kw">if </span>fee_record.is_none() {
-            check_balance::&lt;A::Network&gt;(<span class="kw-2">&amp;</span>private_key, endpoint, <span class="kw-2">&amp;</span>network.to_string(), context, total_cost)<span class="question-mark">?</span>;
+            check_balance::&lt;A::Network&gt;(
+                <span class="kw-2">&amp;</span>private_key,
+                endpoint,
+                <span class="kw-2">&amp;</span>network.to_string(),
+                <span class="kw-2">&amp;</span>context,
+                base_fee + command.fee_options.priority_fee,
+            )<span class="question-mark">?</span>;
         }
+
+        <span class="comment">// Compute the fee.
+        </span><span class="kw">let </span>fee = <span class="kw">match </span>is_fee_required || is_priority_fee_declared {
+            <span class="bool-val">true </span>=&gt; {
+                <span class="comment">// Compute the execution ID.
+                </span><span class="kw">let </span>execution_id = execution.to_execution_id()<span class="question-mark">?</span>;
+                <span class="comment">// Authorize the fee.
+                </span><span class="kw">let </span>authorization = <span class="kw">match </span>fee_record {
+                    <span class="prelude-val">Some</span>(record) =&gt; vm.authorize_fee_private(
+                        <span class="kw-2">&amp;</span>private_key,
+                        record,
+                        base_fee,
+                        command.fee_options.priority_fee,
+                        execution_id,
+                        rng,
+                    )<span class="question-mark">?</span>,
+                    <span class="prelude-val">None </span>=&gt; vm.authorize_fee_public(
+                        <span class="kw-2">&amp;</span>private_key,
+                        base_fee,
+                        command.fee_options.priority_fee,
+                        execution_id,
+                        rng,
+                    )<span class="question-mark">?</span>,
+                };
+                <span class="comment">// Execute the fee.
+                </span><span class="prelude-val">Some</span>(vm.execute_fee_authorization(authorization, <span class="prelude-val">Some</span>(query), rng)<span class="question-mark">?</span>)
+            }
+            <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
+        };
+        <span class="comment">// Return the execute transaction.
+        </span><span class="kw">let </span>transaction = Transaction::from_execution(execution, fee)<span class="question-mark">?</span>;
 
         <span class="comment">// Broadcast the execution transaction.
         </span><span class="kw">if </span>!command.fee_options.dry_run {
@@ -815,19 +943,19 @@
 <span class="comment">// A helper function to display a cost breakdown of the execution.
 </span><span class="kw">fn </span>execution_cost_breakdown(
     name: <span class="kw-2">&amp;</span>String,
-    total_cost: f64,
+    base_fee: f64,
     storage_cost: f64,
     finalize_cost: f64,
     priority_fee: f64,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="macro">println!</span>(<span class="string">"\nBase execution cost for '{}' is {} credits.\n"</span>, name.bold(), total_cost);
+    <span class="macro">println!</span>(<span class="string">"\nBase execution cost for '{}' is {} credits.\n"</span>, name.bold(), base_fee);
     <span class="comment">// Display the cost breakdown in a table.
     </span><span class="kw">let </span>data = [
         [name, <span class="string">"Cost (credits)"</span>],
         [<span class="string">"Transaction Storage"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, storage_cost)],
         [<span class="string">"On-chain Execution"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, finalize_cost)],
         [<span class="string">"Priority Fee"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, priority_fee)],
-        [<span class="string">"Total"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, total_cost)],
+        [<span class="string">"Total"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{:.6}"</span>, base_fee + priority_fee)],
     ];
     <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
     text_tables::render(<span class="kw-2">&amp;mut </span>out, data).map_err(CliError::table_render_failed)<span class="question-mark">?</span>;
