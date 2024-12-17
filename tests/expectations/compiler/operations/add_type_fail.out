@@ -1,0 +1,14 @@
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372117]: Expected a field, group, scalar, or integer but type `bool` was found.
+    --> compiler-test:5:17
+     |
+   5 |         return (true + false) as u8;
+     |                 ^^^^
+Error [ETYC0372117]: Expected a field, group, scalar, or integer but type `bool` was found.
+    --> compiler-test:5:24
+     |
+   5 |         return (true + false) as u8;
+     |                        ^^^^^
+"""]

@@ -1,21 +1,29 @@
 namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_symbol_table = "9333d02fedbf611192b8ac7603d6cd75a5547610205440f01df034c7f1429266", type_checked_symbol_table = "bb92631c8360eff0d8a11ceeebe545d184e0f24e57f4e03ef4a33efa6183e3f8", unrolled_symbol_table = "bb92631c8360eff0d8a11ceeebe545d184e0f24e57f4e03ef4a33efa6183e3f8", initial_ast = "23f1cfeb5ded0a386597ac1ed019ff7906d3bf31c2124f5aa0c6b6289a1fedd7", unrolled_ast = "23f1cfeb5ded0a386597ac1ed019ff7906d3bf31c2124f5aa0c6b6289a1fedd7", ssa_ast = "67e881b8a0c853ab46b3bdbda543e99a9047b59ac03cc59656109e7e08bf3fc4", flattened_ast = "27cea8d4bbd11b33c828a7241c31dd8990424b825e3fb73bb99f297f1cc04f66", destructured_ast = "8030b6ae11db9610277d3630c3d5a54889028a6b99385ff9e3c39f665d894731", inlined_ast = "8030b6ae11db9610277d3630c3d5a54889028a6b99385ff9e3c39f665d894731", dce_ast = "967aac06caf5b7e8aa98f98ad764c6a029105235205558c26db189d81dace023", bytecode = """
-program test.aleo;
-
-struct Foo:
-    a as u16;
-    b as u16;
-
-function main:
-    input r0 as i8.private;
-    input r1 as i16.private;
-    input r2 as i32.private;
-    input r3 as i64.private;
-    input r4 as u8.private;
-    input r5 as u16.private;
-    input r6 as u32.private;
-    input r7 as u64.private;
-    hash.ped64 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as u16;
-    output r8 as u16.private;
-""", errors = "", warnings = "" }] }]]
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `address` was found.
+    --> compiler-test:29:46
+     |
+  29 |         let a: u16 = Pedersen64::hash_to_u16(addr_value);
+     |                                              ^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `field` was found.
+    --> compiler-test:31:46
+     |
+  31 |         let c: u16 = Pedersen64::hash_to_u16(field_value);
+     |                                              ^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `group` was found.
+    --> compiler-test:32:46
+     |
+  32 |         let d: u16 = Pedersen64::hash_to_u16(group_value);
+     |                                              ^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `scalar` was found.
+    --> compiler-test:39:46
+     |
+  39 |         let o: u16 = Pedersen64::hash_to_u16(scalar_value);
+     |                                              ^^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `Foo` was found.
+    --> compiler-test:41:46
+     |
+  41 |         let q: u16 = Pedersen64::hash_to_u16(Foo { a: 1u16, b: 1u16, });
+     |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^
+"""]

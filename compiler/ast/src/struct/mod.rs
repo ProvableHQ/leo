@@ -57,7 +57,7 @@ pub struct Composite {
 
 impl PartialEq for Composite {
     fn eq(&self, other: &Self) -> bool {
-        self.identifier == other.identifier
+        self.identifier == other.identifier && self.external == other.external
     }
 }
 

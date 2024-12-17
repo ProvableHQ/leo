@@ -72,7 +72,8 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         if !input.is_record && !self.structs.insert(input.name()) {
             return self.handler.emit_err::<LeoError>(AstError::shadowed_struct(input.name(), input.span).into());
         }
-        if let Err(err) = self.symbol_table.insert_struct(Location::new(input.external, input.name()), input) {
+        let program_name = input.external.or(self.program_name);
+        if let Err(err) = self.symbol_table.insert_struct(Location::new(program_name, input.name()), input) {
             self.handler.emit_err(err);
         }
     }

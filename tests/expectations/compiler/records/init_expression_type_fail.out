@@ -11,12 +11,12 @@ Error [ETYC0372057]: Only `transition` functions can have a record as input or o
      |
   11 |     function mint(r0: address, r1: u64) -> Token {
      |                                            ^^^^^
-Error [ETYC0372003]: Expected type `address` but type `u64` was found
+Error [ETYC0372117]: Expected type `address` but type `u64` was found.
     --> compiler-test:13:20
      |
   13 |             owner: r1, // This variable should be type address.
      |                    ^^
-Error [ETYC0372003]: Expected type `u64` but type `address` was found
+Error [ETYC0372117]: Expected type `u64` but type `address` was found.
     --> compiler-test:14:21
      |
   14 |             amount: r0, // This variable should be type u64.

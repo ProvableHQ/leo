@@ -1,12 +1,12 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372003]: Expected type `[bool; 8]` but type `[bool; 7]` was found
+Error [ETYC0372117]: Expected type `[bool; 8]` but type `[bool; 7]` was found.
     --> compiler-test:5:16
      |
    5 |         return [a, a, a, a, a, a, a];
      |                ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372003]: Expected type `u8` but type `u32` was found
+Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
     --> compiler-test:9:52
      |
    9 |         return [1u8, 2u8, 3u8, 4u8, 5u8, 6u8, 7u8, 8u32];

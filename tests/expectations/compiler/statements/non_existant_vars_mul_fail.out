@@ -11,16 +11,6 @@ Error [ETYC0372005]: Unknown variable `z`
      |
    5 |     \tlet b: u8 = x*z;
      |                    ^
-Error [ETYC0372004]: Could not determine the type of `x`
-    --> compiler-test:5:18
-     |
-   5 |     \tlet b: u8 = x*z;
-     |                  ^
-Error [ETYC0372004]: Could not determine the type of `z`
-    --> compiler-test:5:20
-     |
-   5 |     \tlet b: u8 = x*z;
-     |                    ^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |

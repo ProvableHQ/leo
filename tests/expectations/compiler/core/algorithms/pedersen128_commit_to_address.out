@@ -1,23 +1,29 @@
 namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_symbol_table = "501d55f20d3f1a572c2a5c1bbaeb74c0daf60d60206e00a480f3515a8b317d72", type_checked_symbol_table = "cf18ef0906051a43a21927ca8ab931709985574f7a0c257ed0a3bde10886db41", unrolled_symbol_table = "cf18ef0906051a43a21927ca8ab931709985574f7a0c257ed0a3bde10886db41", initial_ast = "d10b8955d24f0ea00219c01c7b98dca6019e7e470ceee990ed117c7add0cb463", unrolled_ast = "d10b8955d24f0ea00219c01c7b98dca6019e7e470ceee990ed117c7add0cb463", ssa_ast = "5004830327a5db55b58e950850b05b991574c644027dc6ab56484e685e25463e", flattened_ast = "9ef1fd1aa11b35cabc0a6de842e57eef43e50fd69ad24b3d3e7f7678daad7af4", destructured_ast = "b5c766a35043afd037da5869b81c212a8086d13c3c596379c60f605000c4a3a9", inlined_ast = "b5c766a35043afd037da5869b81c212a8086d13c3c596379c60f605000c4a3a9", dce_ast = "3838b540951a48634c3c008076e9ab64017ad6cc5cf022d30bbf75f590b47b12", bytecode = """
-program test.aleo;
-
-struct Foo:
-    a as u32;
-    b as u32;
-
-function main:
-    input r0 as i8.private;
-    input r1 as i16.private;
-    input r2 as i32.private;
-    input r3 as i64.private;
-    input r4 as u8.private;
-    input r5 as u16.private;
-    input r6 as u32.private;
-    input r7 as u64.private;
-    commit.ped128 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta 1scalar into r8 as address;
-    commit.ped128 r4 1scalar into r9 as address;
-    is.eq r8 r9 into r10;
-    output r10 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `address` was found.
+    --> compiler-test:29:57
+     |
+  29 |         let a: address = Pedersen128::commit_to_address(addr_value, scalar_value);
+     |                                                         ^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `field` was found.
+    --> compiler-test:31:57
+     |
+  31 |         let c: address = Pedersen128::commit_to_address(field_value, scalar_value);
+     |                                                         ^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `group` was found.
+    --> compiler-test:32:57
+     |
+  32 |         let d: address = Pedersen128::commit_to_address(group_value, scalar_value);
+     |                                                         ^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `scalar` was found.
+    --> compiler-test:41:57
+     |
+  41 |         let o: address = Pedersen128::commit_to_address(scalar_value, scalar_value);
+     |                                                         ^^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `Foo` was found.
+    --> compiler-test:43:57
+     |
+  43 |         let p: address = Pedersen128::commit_to_address(Foo { a: 1u32, b: 1u32 }, scalar_value);
+     |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+"""]

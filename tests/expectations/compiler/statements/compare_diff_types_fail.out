@@ -1,46 +1,55 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `==`.
     --> compiler-test:5:23
      |
    5 |         let b: bool = a == 1u8;
      |                       ^^^^^^^^
-Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `!=`.
     --> compiler-test:6:23
      |
    6 |         let c: bool = a != 1u8;
      |                       ^^^^^^^^
-Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `>`.
     --> compiler-test:7:23
      |
    7 |         let d: bool = a > 1u8;
      |                       ^^^^^^^
-Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `<`.
     --> compiler-test:8:23
      |
    8 |         let e: bool = a < 1u8;
      |                       ^^^^^^^
-Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `>=`.
     --> compiler-test:9:23
      |
    9 |         let f: bool = a >= 1u8;
      |                       ^^^^^^^^
-Error [ETYC0372003]: Expected type `u8` but type `i8` was found
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `<=`.
     --> compiler-test:10:23
      |
   10 |         let g: bool = a <= 1u8;
      |                       ^^^^^^^^
-Error [ETYC0372003]: Expected type `i8` but type `u8` was found
-    --> compiler-test:11:26
      |
-  11 |         let h: u32 = a * 1u8;
-     |                          ^^^
-Error [ETYC0372003]: Expected type `i8` but type `u32` was found
+     = Make both operands the same type.
+Error [ETYC0372120]: Received types `i8` and `u8` for the operation `*`.
     --> compiler-test:11:22
      |
   11 |         let h: u32 = a * 1u8;
      |                      ^^^^^^^
+     |
+     = Valid operands are two integers of the same type, two fields, or a scalar and a group.
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |

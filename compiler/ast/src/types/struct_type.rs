@@ -31,6 +31,10 @@ pub struct CompositeType {
 
 impl fmt::Display for CompositeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{id}", id = self.id)
+        if let Some(program) = self.program {
+            write!(f, "{}.aleo/{}", program, self.id)
+        } else {
+            write!(f, "{}", self.id)
+        }
     }
 }

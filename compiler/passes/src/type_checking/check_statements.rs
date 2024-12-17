@@ -48,15 +48,17 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
     fn visit_assert(&mut self, input: &'a AssertStatement) {
         match &input.variant {
             AssertVariant::Assert(expr) => {
-                let type_ = self.visit_expression(expr, &Some(Type::Boolean));
-                self.assert_bool_type(&type_, expr.span());
+                let _type = self.visit_expression(expr, &Some(Type::Boolean));
             }
             AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
                 let t1 = self.visit_expression(left, &None);
                 let t2 = self.visit_expression(right, &None);
 
-                // Check that the types are equal.
-                self.check_eq_types(&t1, &t2, input.span());
+                if t1 != Type::Err && t2 != Type::Err && !self.eq_user(&t1, &t2) {
+                    let op =
+                        if matches!(input.variant, AssertVariant::AssertEq(..)) { "assert_eq" } else { "assert_neq" };
+                    self.emit_err(TypeCheckerError::operation_types_mismatch(op, t1, t2, input.span()));
+                }
             }
         }
     }
@@ -246,7 +248,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         // Insert the variables into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
-                self.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), identifier.span)
+                self.insert_variable(Some(inferred_type.clone()), identifier, input.type_.clone(), identifier.span)
             }
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
@@ -264,10 +266,10 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
                 }
 
                 for i in 0..tuple_expression.elements.len() {
-                    let inferred = if let Some(Type::Tuple(inferred_tuple)) = &inferred_type {
-                        inferred_tuple.elements().get(i).cloned()
+                    let inferred = if let Type::Tuple(inferred_tuple) = &inferred_type {
+                        inferred_tuple.elements().get(i).cloned().unwrap_or_default()
                     } else {
-                        None
+                        Type::Err
                     };
                     let expr = &tuple_expression.elements[i];
                     let identifier = match expr {
@@ -277,7 +279,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
                                 .emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
                         }
                     };
-                    self.insert_variable(inferred, identifier, tuple_type.elements()[i].clone(), identifier.span);
+                    self.insert_variable(Some(inferred), identifier, tuple_type.elements()[i].clone(), identifier.span);
                 }
             }
             _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
@@ -298,8 +300,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
-        let iter_type = &Some(input.type_.clone());
-        self.assert_int_type(iter_type, input.variable.span);
+        self.assert_int_type(&input.type_, input.variable.span);
 
         // Create a new scope for the loop body.
         let scope_index = self.create_child_scope();
@@ -333,7 +334,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         self.exit_scope(scope_index);
 
         // Check that the literal is valid.
-        self.visit_expression(&input.start, iter_type);
+        self.visit_expression(&input.start, &Some(input.type_.clone()));
 
         // If `input.start` is a valid literal, instantiate it as a value.
         match &input.start {
@@ -353,7 +354,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
             _ => self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.start.span())),
         }
 
-        self.visit_expression(&input.stop, iter_type);
+        self.visit_expression(&input.stop, &Some(input.type_.clone()));
 
         // If `input.stop` is a valid literal, instantiate it as a value.
         match &input.stop {

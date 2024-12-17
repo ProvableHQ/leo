@@ -1,11 +1,16 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372021]: Comparison `>` is not supported for the address type.
+Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was found.
     --> compiler-test:7:16
      |
    7 |         return x > sender;
-     |                ^^^^^^^^^^
+     |                ^
+Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was found.
+    --> compiler-test:7:20
+     |
+   7 |         return x > sender;
+     |                    ^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |

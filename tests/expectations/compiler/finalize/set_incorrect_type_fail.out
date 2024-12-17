@@ -6,42 +6,42 @@ Error [ETYC0372031]: A mapping's value cannot be a record
      |
   10 |     mapping tokens: address => Token;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372003]: Expected type `Token` but type `u128` was found
+Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
     --> compiler-test:17:36
      |
   17 |         Mapping::set(tokens, addr, amount);
      |                                    ^^^^^^
-Error [ETYC0372003]: Expected type `Token` but type `u128` was found
+Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
     --> compiler-test:18:26
      |
   18 |         tokens.set(addr, amount);
      |                          ^^^^^^
-Error [ETYC0372003]: Expected type `address` but type `u8` was found
+Error [ETYC0372117]: Expected type `address` but type `u8` was found.
     --> compiler-test:19:31
      |
   19 |         Mapping::set(amounts, 1u8, amount);
      |                               ^^^
-Error [ETYC0372003]: Expected type `address` but type `u8` was found
+Error [ETYC0372117]: Expected type `address` but type `u8` was found.
     --> compiler-test:20:21
      |
   20 |         amounts.set(1u8, amount);
      |                     ^^^
-Error [ETYC0372003]: Expected type `u128` but type `u8` was found
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
     --> compiler-test:21:37
      |
   21 |         Mapping::set(amounts, addr, 1u8);
      |                                     ^^^
-Error [ETYC0372003]: Expected type `u128` but type `u8` was found
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
     --> compiler-test:22:27
      |
   22 |         amounts.set(addr, 1u8);
      |                           ^^^
-Error [ETYC0372003]: Expected type `u128` but type `u8` was found
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
     --> compiler-test:23:65
      |
   23 |         Mapping::set(tokens, addr, Token { owner: addr, amount: 1u8 });
      |                                                                 ^^^
-Error [ETYC0372003]: Expected type `u128` but type `u8` was found
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
     --> compiler-test:24:55
      |
   24 |         tokens.set(addr, Token { owner: addr, amount: 1u8 });

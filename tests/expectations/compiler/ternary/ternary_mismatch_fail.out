@@ -1,0 +1,11 @@
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372118]: Received different types `u8` and `u16` for the arms of a ternary conditional.
+    --> compiler-test:5:17
+     |
+   5 |         return (true ? 1u8 : 1u16) as u32;
+     |                 ^^^^^^^^^^^^^^^^^
+     |
+     = Make both branches the same type.
+"""]

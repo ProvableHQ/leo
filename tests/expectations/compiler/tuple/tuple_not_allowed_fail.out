@@ -26,17 +26,17 @@ Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
      |
   13 |         return (1u8, (2u16, 3u32));
      |                      ^^^^^^^^^^^^
-Error [ETYC0372007]: Expected one type from `i8, i16, i32, i64, i128, u8, u16, u32, u64, u128`, but got `(u8,u16)`
+Error [ETYC0372117]: Expected an integer but type `(u8, u16)` was found.
     --> compiler-test:17:13
      |
   17 |         for i: (u8, u16) in 0u8..2u8 {}
      |             ^
-Error [ETYC0372003]: Expected type `(u8,u16)` but type `u8` was found
+Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
     --> compiler-test:17:29
      |
   17 |         for i: (u8, u16) in 0u8..2u8 {}
      |                             ^^^
-Error [ETYC0372003]: Expected type `(u8,u16)` but type `u8` was found
+Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
     --> compiler-test:17:34
      |
   17 |         for i: (u8, u16) in 0u8..2u8 {}

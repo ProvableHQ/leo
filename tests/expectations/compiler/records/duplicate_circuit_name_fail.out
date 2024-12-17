@@ -1,11 +1,11 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+Error [EAST0372008]: record `Token` shadowed by
+    --> compiler-test:11:5
      |
-   1 | 
-   2 | 
-   3 | program test.aleo {    
-     | ^^^^^^^^^^^^
+  11 |     struct Token { // This struct cannot have the same name as the record defined above it.
+  12 |         x: u32,
+  13 |     }
+     |     ^
 """]

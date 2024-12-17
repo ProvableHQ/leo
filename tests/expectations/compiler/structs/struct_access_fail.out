@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372003]: Expected type `i8` but type `u32` was found
+Error [ETYC0372117]: Expected type `i8` but type `u32` was found.
     --> compiler-test:11:21
      |
   11 |         let x: i8 = s.f1;

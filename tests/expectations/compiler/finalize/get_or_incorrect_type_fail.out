@@ -6,42 +6,42 @@ Error [ETYC0372031]: A mapping's value cannot be a record
      |
   10 |     mapping tokens: address => Token;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372003]: Expected type `Token` but type `u128` was found
+Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
     --> compiler-test:17:43
      |
   17 |         Mapping::get_or_use(tokens, addr, amount);
      |                                           ^^^^^^
-Error [ETYC0372003]: Expected type `Token` but type `u128` was found
+Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
     --> compiler-test:18:33
      |
   18 |         tokens.get_or_use(addr, amount);
      |                                 ^^^^^^
-Error [ETYC0372003]: Expected type `address` but type `u8` was found
+Error [ETYC0372117]: Expected type `address` but type `u8` was found.
     --> compiler-test:19:38
      |
   19 |         Mapping::get_or_use(amounts, 1u8, amount);
      |                                      ^^^
-Error [ETYC0372003]: Expected type `address` but type `u8` was found
+Error [ETYC0372117]: Expected type `address` but type `u8` was found.
     --> compiler-test:20:28
      |
   20 |         amounts.get_or_use(1u8, amount);
      |                            ^^^
-Error [ETYC0372003]: Expected type `u128` but type `u8` was found
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
     --> compiler-test:21:44
      |
   21 |         Mapping::get_or_use(amounts, addr, 1u8);
      |                                            ^^^
-Error [ETYC0372003]: Expected type `u128` but type `u8` was found
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
     --> compiler-test:22:34
      |
   22 |         amounts.get_or_use(addr, 1u8);
      |                                  ^^^
-Error [ETYC0372003]: Expected type `u128` but type `u8` was found
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
     --> compiler-test:23:72
      |
   23 |         Mapping::get_or_use(tokens, addr, Token { owner: addr, amount: 1u8 });
      |                                                                        ^^^
-Error [ETYC0372003]: Expected type `u128` but type `u8` was found
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
     --> compiler-test:24:62
      |
   24 |         tokens.get_or_use(addr, Token { owner: addr, amount: 1u8 });
