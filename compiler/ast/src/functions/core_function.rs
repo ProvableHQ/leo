@@ -289,6 +289,9 @@ pub enum CoreFunction {
 
     SignatureVerify,
     FutureAwait,
+
+    CheatCodePrintMapping,
+    CheatCodeSetBlockHeight,
 }
 
 impl CoreFunction {
@@ -566,6 +569,9 @@ impl CoreFunction {
 
             (sym::signature, sym::verify) => Self::SignatureVerify,
             (sym::Future, sym::Await) => Self::FutureAwait,
+
+            (sym::CheatCode, sym::print_mapping) => Self::CheatCodePrintMapping,
+            (sym::CheatCode, sym::set_block_height) => Self::CheatCodeSetBlockHeight,
             _ => return None,
         })
     }
@@ -844,6 +850,9 @@ impl CoreFunction {
 
             Self::SignatureVerify => 3,
             Self::FutureAwait => 1,
+
+            Self::CheatCodePrintMapping => 1,
+            Self::CheatCodeSetBlockHeight => 1,
         }
     }
 
@@ -1101,7 +1110,9 @@ impl CoreFunction {
             | CoreFunction::SHA3_512HashToScalar
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
-            | CoreFunction::SignatureVerify => false,
+            | CoreFunction::SignatureVerify
+            | CoreFunction::CheatCodePrintMapping
+            | CoreFunction::CheatCodeSetBlockHeight => false,
         }
     }
 }

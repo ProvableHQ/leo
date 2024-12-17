@@ -31,6 +31,8 @@ use std::{fs, fs::ReadDir, path::PathBuf};
 
 pub static LEO_FILE_EXTENSION: &str = ".leo";
 
+pub static TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
+
 pub(crate) fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<()> {
     for file_entry in directory {
         let file_entry = file_entry.map_err(PackageError::failed_to_get_leo_file_entry)?;

@@ -26,6 +26,9 @@ pub use build::LeoBuild;
 pub mod clean;
 pub use clean::LeoClean;
 
+pub mod debug;
+pub use debug::LeoDebug;
+
 pub mod deploy;
 pub use deploy::Deploy;
 
