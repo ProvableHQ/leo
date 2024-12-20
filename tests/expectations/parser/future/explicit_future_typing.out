@@ -79,16 +79,16 @@ functions = [
     [
     "finalize_main",
     { annotations = [], variant = "AsyncFunction", identifier = '{"id":"26","name":"finalize_main","span":"{\"lo\":426,\"hi\":439}"}', output = [], output_type = "Unit", id = 49, input = [
-    { identifier = '{"id":"27","name":"a","span":"{\"lo\":440,\"hi\":441}"}', mode = "None", id = 28, type_ = { Integer = "U32" }, span = { lo = 440, hi = 441 } },
-    { identifier = '{"id":"29","name":"b","span":"{\"lo\":448,\"hi\":449}"}', mode = "None", id = 30, type_ = { Integer = "U32" }, span = { lo = 448, hi = 449 } },
-    { identifier = '{"id":"31","name":"f0","span":"{\"lo\":456,\"hi\":458}"}', mode = "None", id = 32, type_ = { Future = { inputs = [], is_explicit = true } }, span = { lo = 456, hi = 458 } },
+    { identifier = '{"id":"27","name":"a","span":"{\"lo\":440,\"hi\":441}"}', mode = "None", id = 28, type_ = { Integer = "U32" }, span = { lo = 440, hi = 446 } },
+    { identifier = '{"id":"29","name":"b","span":"{\"lo\":448,\"hi\":449}"}', mode = "None", id = 30, type_ = { Integer = "U32" }, span = { lo = 448, hi = 454 } },
+    { identifier = '{"id":"31","name":"f0","span":"{\"lo\":456,\"hi\":458}"}', mode = "None", id = 32, type_ = { Future = { inputs = [], is_explicit = true } }, span = { lo = 456, hi = 471 } },
     { identifier = '{"id":"33","name":"f1","span":"{\"lo\":474,\"hi\":476}"}', mode = "None", id = 34, type_ = { Future = { is_explicit = true, inputs = [
     { Integer = "U32" },
     { Future = { is_explicit = true, inputs = [
     { Integer = "U32" },
     { Integer = "U32" },
 ] } },
-] } }, span = { lo = 474, hi = 476 } },
+] } }, span = { lo = 474, hi = 514 } },
 ], block = { id = 48, statements = [
     { Expression = { id = 39, expression = { Access = { AssociatedFunction = { variant = '{"id":"37","name":"Future","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"36","name":"await","span":"{\"lo\":530,\"hi\":535}"}', id = 38, arguments = [{ Identifier = '{"id":"35","name":"f0","span":"{\"lo\":527,\"hi\":529}"}' }], span = { lo = 527, hi = 537 } } } }, span = { lo = 527, hi = 538 } } },
     { Expression = { id = 44, expression = { Access = { AssociatedFunction = { variant = '{"id":"42","name":"Future","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"41","name":"await","span":"{\"lo\":550,\"hi\":555}"}', id = 43, arguments = [{ Identifier = '{"id":"40","name":"f1","span":"{\"lo\":547,\"hi\":549}"}' }], span = { lo = 547, hi = 557 } } } }, span = { lo = 547, hi = 558 } } },

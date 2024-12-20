@@ -99,6 +99,7 @@ impl<'a> Unroller<'a> {
             .swap(previous_constant_propagation_table.borrow().lookup_scope_by_index(index).unwrap());
         self.constant_propagation_table.borrow_mut().parent =
             Some(Box::new(previous_constant_propagation_table.into_inner()));
+
         core::mem::replace(&mut self.scope_index, 0)
     }
 

@@ -84,7 +84,6 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 destructured_ast: true,
                 inlined_ast: true,
                 dce_ast: true,
-                build_tests: false,
             },
         };
 

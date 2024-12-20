@@ -17,6 +17,9 @@
 #![forbid(unsafe_code)]
 #![doc = include_str!("../README.md")]
 
+pub mod static_analysis;
+pub use static_analysis::*;
+
 pub mod code_generation;
 pub use code_generation::*;
 

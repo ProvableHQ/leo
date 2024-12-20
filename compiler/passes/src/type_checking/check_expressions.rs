@@ -119,14 +119,10 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                     }
 
                     // Await futures here so that can use the argument variable names to lookup.
-                    if core_instruction == CoreFunction::FutureAwait {
-                        if access.arguments.len() != 1 {
-                            self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
-                            return Some(Type::Unit);
-                        }
-                        self.assert_future_await(&access.arguments.first(), input.span());
+                    if core_instruction == CoreFunction::FutureAwait && access.arguments.len() != 1 {
+                        self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
+                        return Some(Type::Unit);
                     }
-
                     return return_type;
                 } else {
                     self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
@@ -151,7 +147,6 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                                 if let Some(expected) = expected {
                                     self.check_eq_types(&Some(actual.clone()), &Some(expected.clone()), access.span());
                                 }
-
                                 // Return type of tuple index.
                                 return Some(actual);
                             }
@@ -206,7 +201,11 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                         sym::height => {
                             // Check that the operation is invoked in a `finalize` block.
                             self.check_access_allowed("block.height", true, access.name.span());
-                            return Some(Type::Integer(IntegerType::U32));
+                            return Some(self.assert_and_return_type(
+                                Type::Integer(IntegerType::U32),
+                                expected,
+                                input.span(),
+                            ));
                         }
                         _ => {
                             self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
@@ -671,10 +670,34 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                     self.scope_state.is_call = true;
                     let (mut input_futures, mut inferred_finalize_inputs) = (Vec::new(), Vec::new());
                     for (expected, argument) in func.input.iter().zip(input.arguments.iter()) {
-                        // Get the type of the expression. If the type is not known, do not attempt to attempt any futher inference.
+                        // Get the type of the expression. If the type is not known, do not attempt to attempt any further inference.
                         let ty = self.visit_expression(argument, &Some(expected.type_().clone()))?;
                         // Extract information about futures that are being consumed.
                         if func.variant == Variant::AsyncFunction && matches!(expected.type_(), Type::Future(_)) {
+                            // Consume the future.
+                            let option_name = match argument {
+                                Expression::Identifier(id) => Some(id.name),
+                                Expression::Access(AccessExpression::Tuple(tuple_access)) => {
+                                    if let Expression::Identifier(id) = &*tuple_access.tuple {
+                                        Some(id.name)
+                                    } else {
+                                        None
+                                    }
+                                }
+                                _ => None,
+                            };
+
+                            if let Some(name) = option_name {
+                                match self.scope_state.futures.shift_remove(&name) {
+                                    Some(future) => {
+                                        self.scope_state.call_location = Some(future.clone());
+                                    }
+                                    None => {
+                                        self.emit_err(TypeCheckerError::unknown_future_consumed(name, argument.span()));
+                                    }
+                                }
+                            }
+
                             match argument {
                                 Expression::Identifier(_)
                                 | Expression::Call(_)
@@ -857,23 +880,6 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
         let var = self.symbol_table.borrow().lookup_variable(Location::new(None, input.name)).cloned();
         if let Some(var) = &var {
-            if matches!(var.type_, Type::Future(_)) && matches!(expected, Some(Type::Future(_))) {
-                if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.is_call {
-                    // Consume future.
-                    match self.scope_state.futures.shift_remove(&input.name) {
-                        Some(future) => {
-                            self.scope_state.call_location = Some(future.clone());
-                            return Some(var.type_.clone());
-                        }
-                        None => {
-                            self.emit_err(TypeCheckerError::unknown_future_consumed(input.name, input.span));
-                        }
-                    }
-                } else {
-                    // Case where accessing input argument of future. Ex `f.1`.
-                    return Some(var.type_.clone());
-                }
-            }
             Some(self.assert_and_return_type(var.type_.clone(), expected, input.span()))
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));

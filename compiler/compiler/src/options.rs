@@ -32,6 +32,8 @@ pub struct BuildOptions {
     pub conditional_block_max_depth: usize,
     /// Whether to disable type checking for nested conditionals.
     pub disable_conditional_branch_type_checking: bool,
+    /// If enabled builds all test programs.
+    pub build_tests: bool,
 }
 
 #[derive(Clone, Default)]
@@ -60,6 +62,4 @@ pub struct OutputOptions {
     pub inlined_ast: bool,
     /// If enabled writes the AST after dead code elimination.
     pub dce_ast: bool,
-    /// If enabled builds all test programs.
-    pub build_tests: bool,
 }

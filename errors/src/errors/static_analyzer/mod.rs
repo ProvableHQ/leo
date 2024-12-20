@@ -14,16 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::create_errors;
+/// This module contains the static analysis error definitions.
+pub mod static_analyzer_error;
+pub use self::static_analyzer_error::*;
 
-use std::{
-    error::Error as ErrorArg,
-    fmt::{Debug, Display},
-};
-
-create_errors!(
-    /// ImportError enum that represents all the errors for the `leo-import` crate.
-    ImportError,
-    exit_code_mask: 4000i32,
-    error_code_prefix: "IMP",
-);
+pub mod static_analyzer_warning;
+pub use self::static_analyzer_warning::*;

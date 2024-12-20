@@ -21,7 +21,7 @@ use crate::{
     TypeTable,
     VariableSymbol,
     VariableType,
-    type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
+    type_checking::scope_state::ScopeState,
 };
 
 use leo_ast::*;
@@ -47,8 +47,6 @@ pub struct TypeChecker<'a, N: Network> {
     pub(crate) handler: &'a Handler,
     /// The state of the current scope being traversed.
     pub(crate) scope_state: ScopeState,
-    /// Struct to store the state relevant to checking all futures are awaited.
-    pub(crate) await_checker: AwaitChecker,
     /// Mapping from async function name to the inferred input types.
     pub(crate) async_function_input_types: IndexMap<Location, Vec<Type>>,
     /// The set of used composites.
@@ -105,14 +103,7 @@ const MAGNITUDE_TYPES: [Type; 3] =
 
 impl<'a, N: Network> TypeChecker<'a, N> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(
-        symbol_table: SymbolTable,
-        type_table: &'a TypeTable,
-        handler: &'a Handler,
-        max_depth: usize,
-        disabled: bool,
-        is_test: bool,
-    ) -> Self {
+    pub fn new(symbol_table: SymbolTable, type_table: &'a TypeTable, handler: &'a Handler, is_test: bool) -> Self {
         let struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
         let function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
 
@@ -124,7 +115,6 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             call_graph: CallGraph::new(function_names),
             handler,
             scope_state: ScopeState::new(),
-            await_checker: AwaitChecker::new(max_depth, !disabled),
             async_function_input_types: IndexMap::new(),
             used_structs: IndexSet::new(),
             build_tests: is_test,
@@ -1033,6 +1023,16 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 Some(Type::Boolean)
             }
             CoreFunction::FutureAwait => Some(Type::Unit),
+            CoreFunction::CheatCodePrintMapping => {
+                // Check that the argument is a mapping.
+                let _ = self.assert_mapping_type(&arguments[0].0, arguments[0].1);
+                Some(Type::Unit)
+            }
+            CoreFunction::CheatCodeSetBlockHeight => {
+                // Assert that the argument is a u32.
+                self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::U32), arguments[0].1);
+                Some(Type::Unit)
+            }
         }
     }
 
@@ -1100,6 +1100,8 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 }
                 // Check that the array element type is valid.
                 match array_type.element_type() {
+                    // Array elements cannot be futures.
+                    Type::Future(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_future(span)),
                     // Array elements cannot be tuples.
                     Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
                     // Array elements cannot be records.
@@ -1231,10 +1233,21 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 }
             }
 
-            // Add function inputs to the symbol table. Futures have already been added.
-            if !matches!(&input_var.type_(), &Type::Future(_)) {
+            if matches!(&input_var.type_(), Type::Future(_)) {
+                // Future parameters may only appear in async functions.
+                if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction)) {
+                    self.emit_err(TypeCheckerError::no_future_parameters(input_var.span()));
+                }
+            }
+
+            let location = Location::new(None, input_var.identifier().name);
+            if !matches!(&input_var.type_(), Type::Future(_))
+                || self.symbol_table.borrow().lookup_variable_in_current_scope(location.clone()).is_none()
+            {
+                // Add function inputs to the symbol table. If inference happened properly above, futures were already added.
+                // But if a future was not added, add it now so as not to give confusing error messages.
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                    Location::new(None, input_var.identifier().name),
+                    location.clone(),
                     self.scope_state.program_name,
                     VariableSymbol {
                         type_: input_var.type_().clone(),
@@ -1312,58 +1325,24 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         struct_
     }
 
-    /// Type checks the awaiting of a future.
-    pub(crate) fn assert_future_await(&mut self, future: &Option<&Expression>, span: Span) {
-        // Make sure that it is an identifier expression.
-        let future_variable = match future {
-            Some(Expression::Identifier(name)) => name,
-            _ => {
-                return self.emit_err(TypeCheckerError::invalid_await_call(span));
-            }
-        };
-
-        // Make sure that the future is defined.
-        match self.symbol_table.borrow().lookup_variable(Location::new(None, future_variable.name)) {
-            Some(var) => {
-                if !matches!(&var.type_, &Type::Future(_)) {
-                    self.emit_err(TypeCheckerError::expected_future(future_variable.name, future_variable.span()));
-                }
-                // Mark the future as consumed.
-                self.await_checker.remove(future_variable);
-            }
-            None => {
-                self.emit_err(TypeCheckerError::expected_future(future_variable.name, future_variable.span()));
-            }
-        }
-    }
-
     /// Inserts variable to symbol table.
-    pub(crate) fn insert_variable(
-        &mut self,
-        inferred_type: Option<Type>,
-        name: &Identifier,
-        type_: Type,
-        index: usize,
-        span: Span,
-    ) {
-        let ty: Type = if let Type::Future(_) = type_ {
-            // Need to insert the fully inferred future type, or else will just be default future type.
-            let ret = match inferred_type.unwrap() {
-                Type::Future(future) => Type::Future(future),
-                Type::Tuple(tuple) => match tuple.elements().get(index) {
-                    Some(Type::Future(future)) => Type::Future(future.clone()),
-                    _ => unreachable!("Parsing guarantees that the inferred type is a future."),
-                },
-                _ => {
-                    unreachable!("TYC guarantees that the inferred type is a future, or tuple containing futures.")
-                }
-            };
-            // Insert future into list of futures for the function.
-            self.scope_state.futures.insert(name.name, self.scope_state.call_location.clone().unwrap());
-            ret
-        } else {
-            type_
+    pub(crate) fn insert_variable(&mut self, inferred_type: Option<Type>, name: &Identifier, type_: Type, span: Span) {
+        let is_future = match &type_ {
+            Type::Future(..) => true,
+            Type::Tuple(tuple_type) if matches!(tuple_type.elements().last(), Some(Type::Future(..))) => true,
+            _ => false,
         };
+
+        if is_future {
+            self.scope_state.futures.insert(name.name, self.scope_state.call_location.clone().unwrap());
+        }
+
+        let ty = match (is_future, inferred_type) {
+            (false, _) => type_,
+            (true, Some(inferred)) => inferred,
+            (true, None) => unreachable!("Type checking guarantees the inferred type is present"),
+        };
+
         // Insert the variable into the symbol table.
         if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
             Location::new(None, name.name),

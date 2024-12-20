@@ -742,6 +742,7 @@ create_messages!(
         help: Some(" Future arguments must be addressed by their index. Ex: `f.1.3`.".to_string()),
     }
 
+    // TODO: This error is deprecated. Remove.
     @formatted
     no_path_awaits_all_futures_exactly_once {
         args: (num_total_paths: impl Display),
@@ -749,6 +750,7 @@ create_messages!(
         help: Some("Ex: for `f: Future` call `f.await()` to await a future. Remove duplicate future await redundancies, and add future awaits for un-awaited futures.".to_string()),
     }
 
+    // TODO: This error is deprecated. Remove.
     @formatted
     future_awaits_missing {
         args: (unawaited: impl Display),
@@ -763,6 +765,7 @@ create_messages!(
         help: Some("Futures can only be defined as the result of async calls.".to_string()),
     }
 
+    // TODO: This error is deprecated. Remove.
     @formatted
     invalid_await_call {
         args: (),
@@ -777,6 +780,7 @@ create_messages!(
         help: Some("Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future.".to_string()),
     }
 
+    // TODO: This error is deprecated. Remove.
     @formatted
     expected_future {
         args: (type_: impl Display),
@@ -892,6 +896,27 @@ create_messages!(
     empty_function_arglist {
         args: (),
         msg: format!("Cannot define a function with no parameters."),
+        help: None,
+    }
+
+    @formatted
+    composite_data_type_cannot_contain_future {
+        args: (data_type: impl Display),
+        msg: format!("A {data_type} cannot contain a future."),
+        help: None,
+    }
+
+    @formatted
+    array_element_cannot_be_future {
+        args: (),
+        msg: format!("An array cannot have a future as an element type."),
+        help: None,
+    }
+
+    @formatted
+    no_future_parameters {
+        args: (),
+        msg: format!("Futures may only appear as parameters to async functions."),
         help: None,
     }
 

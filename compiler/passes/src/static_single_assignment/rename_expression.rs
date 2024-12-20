@@ -320,7 +320,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         (Expression::Identifier(place), vec![statement])
     }
 
-    /// Consumes and returns the locator expression without making any modifciations
+    /// Consumes and returns the locator expression without making any modifications
     fn consume_locator(&mut self, input: LocatorExpression) -> Self::Output {
         (Expression::Locator(input), Vec::new())
     }

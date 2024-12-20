@@ -188,7 +188,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 let if_true = create_phi_argument(&if_table, **symbol);
                 let if_false = create_phi_argument(&else_table, **symbol);
 
-                // Create a new node ID for the the phi function.
+                // Create a new node ID for the phi function.
                 let id = self.node_builder.next_id();
                 // Update the type of the node ID.
                 let type_ = match self.type_table.get(&if_true.id()) {

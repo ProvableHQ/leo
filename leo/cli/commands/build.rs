@@ -45,6 +45,7 @@ impl From<BuildOptions> for CompilerOptions {
                 dce_enabled: options.enable_dce,
                 conditional_block_max_depth: options.conditional_block_max_depth,
                 disable_conditional_branch_type_checking: options.disable_conditional_branch_type_checking,
+                build_tests: options.build_tests,
             },
             output: OutputOptions {
                 symbol_table_spans_enabled: options.enable_symbol_table_spans,
@@ -59,7 +60,6 @@ impl From<BuildOptions> for CompilerOptions {
                 destructured_ast: options.enable_destructured_ast_snapshot,
                 inlined_ast: options.enable_inlined_ast_snapshot,
                 dce_ast: options.enable_dce_ast_snapshot,
-                build_tests: options.build_tests,
             },
         };
         if options.enable_all_ast_snapshots {

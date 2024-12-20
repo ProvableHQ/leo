@@ -10,7 +10,7 @@ Error [ETYC0372051]: A function cannot take in a tuple as input.
     --> compiler-test:8:18
      |
    8 |     function foo(a: (u8, u16)) -> (u8, u16) {
-     |                  ^
+     |                  ^^^^^^^^^^^^
 Error [ETYC0372049]: A tuple type cannot contain a tuple.
     --> compiler-test:12:36
      |

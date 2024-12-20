@@ -204,6 +204,11 @@ symbols! {
     verify,
     Await: "await",
 
+    // CheatCodes
+    CheatCode,
+    print_mapping,
+    set_block_height,
+
     // types
     address,
     bool,

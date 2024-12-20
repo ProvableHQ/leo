@@ -26,6 +26,9 @@ pub use build::LeoBuild;
 pub mod clean;
 pub use clean::LeoClean;
 
+pub mod debug;
+pub use debug::LeoDebug;
+
 pub mod deploy;
 pub use deploy::Deploy;
 
@@ -207,7 +210,7 @@ impl Default for BuildOptions {
             enable_dce_ast_snapshot: false,
             conditional_block_max_depth: 10,
             disable_conditional_branch_type_checking: false,
-            build_tests: false,
+            build_tests: true,
         }
     }
 }
@@ -220,6 +223,8 @@ pub struct FeeOptions {
     pub(crate) yes: bool,
     #[clap(long, help = "Performs a dry-run of transaction generation")]
     pub(crate) dry_run: bool,
+    #[clap(long, help = "Base fee in microcredits. Automatically calculated if not provided.")]
+    pub(crate) base_fee: Option<u64>,
     #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
     pub(crate) priority_fee: u64,
     #[clap(long, help = "Private key to authorize fee expenditure.")]
@@ -230,6 +235,8 @@ pub struct FeeOptions {
         long
     )]
     record: Option<String>,
+    #[clap(long, help = "Consensus version to use for the transaction.")]
+    pub(crate) consensus_version: Option<u8>,
 }
 
 /// Parses the record string. If the string is a ciphertext, then attempt to decrypt it. Lifted from snarkOS.
@@ -251,7 +258,7 @@ fn check_balance<N: Network>(
     private_key: &PrivateKey<N>,
     endpoint: &str,
     network: &str,
-    context: Context,
+    context: &Context,
     total_cost: u64,
 ) -> Result<()> {
     // Derive the account address.
@@ -261,7 +268,7 @@ fn check_balance<N: Network>(
         endpoint: Some(endpoint.to_string()),
         network: Some(network.to_string()),
         command: QueryCommands::Program {
-            command: crate::cli::commands::query::LeoProgram {
+            command: query::LeoProgram {
                 name: "credits".to_string(),
                 mappings: false,
                 mapping_value: Some(vec!["account".to_string(), address.to_string()]),
@@ -284,6 +291,30 @@ fn check_balance<N: Network>(
         println!("Your current public balance is {} credits.\n", balance as f64 / 1_000_000.0);
         Ok(())
     }
+}
+
+// A helper function to query for the latest block height.
+fn get_latest_block_height(endpoint: &str, network: &str, context: &Context) -> Result<u32> {
+    // Query the latest block height.
+    let height = LeoQuery {
+        endpoint: Some(endpoint.to_string()),
+        network: Some(network.to_string()),
+        command: QueryCommands::Block {
+            command: query::LeoBlock {
+                id: None,
+                latest: false,
+                latest_hash: false,
+                latest_height: true,
+                range: None,
+                transactions: false,
+                to_height: false,
+            },
+        },
+    }
+    .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
+    // Parse the height.
+    let height = height.parse::<u32>().map_err(CliError::string_parse_error)?;
+    Ok(height)
 }
 
 /// Determine if the transaction should be broadcast or displayed to user.

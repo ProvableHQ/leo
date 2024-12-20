@@ -37,6 +37,9 @@ pub use self::flattener::*;
 pub mod loop_unroller;
 pub use self::loop_unroller::*;
 
+pub mod interpreter_halt;
+pub use self::interpreter_halt::*;
+
 /// Contains the Package error definitions.
 pub mod package;
 pub use self::package::*;
@@ -44,6 +47,10 @@ pub use self::package::*;
 /// Contains the Parser error definitions.
 pub mod parser;
 pub use self::parser::*;
+
+/// Contains the Static Analyzer error definitions.
+pub mod static_analyzer;
+pub use self::static_analyzer::*;
 
 /// Contains the Type Checker error definitions.
 pub mod type_checker;
@@ -66,12 +73,17 @@ pub enum LeoError {
     /// Represents a Compiler Error in a Leo Error.
     #[error(transparent)]
     CompilerError(#[from] CompilerError),
+    #[error(transparent)]
+    InterpreterHalt(#[from] InterpreterHalt),
     /// Represents a Package Error in a Leo Error.
     #[error(transparent)]
     PackageError(#[from] PackageError),
     /// Represents a Parser Error in a Leo Error.
     #[error(transparent)]
     ParserError(#[from] ParserError),
+    /// Represents a Static Analyzer Error in a Leo Error.
+    #[error(transparent)]
+    StaticAnalyzerError(#[from] StaticAnalyzerError),
     /// Represents a Type Checker Error in a Leo Error.
     #[error(transparent)]
     TypeCheckerError(#[from] TypeCheckerError),
@@ -104,12 +116,14 @@ impl LeoError {
             CliError(error) => error.error_code(),
             ParserError(error) => error.error_code(),
             PackageError(error) => error.error_code(),
+            StaticAnalyzerError(error) => error.error_code(),
             TypeCheckerError(error) => error.error_code(),
             LoopUnrollerError(error) => error.error_code(),
             FlattenError(error) => error.error_code(),
             UtilError(error) => error.error_code(),
             LastErrorCode(_) => unreachable!(),
             Anyhow(_) => "SnarkVM Error".to_string(), // todo: implement error codes for snarkvm errors.
+            InterpreterHalt(_) => "Interpreter Halt".to_string(),
         }
     }
 
@@ -123,12 +137,14 @@ impl LeoError {
             CliError(error) => error.exit_code(),
             ParserError(error) => error.exit_code(),
             PackageError(error) => error.exit_code(),
+            StaticAnalyzerError(error) => error.exit_code(),
             TypeCheckerError(error) => error.exit_code(),
             LoopUnrollerError(error) => error.exit_code(),
             FlattenError(error) => error.exit_code(),
             UtilError(error) => error.exit_code(),
             LastErrorCode(code) => *code,
             Anyhow(_) => 11000, // todo: implement exit codes for snarkvm errors.
+            InterpreterHalt(_) => 1,
         }
     }
 }
@@ -140,6 +156,9 @@ pub enum LeoWarning {
     /// Represents an Parser Warning in a Leo Warning.
     #[error(transparent)]
     ParserWarning(#[from] ParserWarning),
+    /// Represents a Static Analyzer Warning in a Leo Warning.
+    #[error(transparent)]
+    StaticAnalyzerWarning(#[from] StaticAnalyzerWarning),
     /// Represents a Type Checker Warning in a Leo Warning.
     #[error(transparent)]
     TypeCheckerWarning(#[from] TypeCheckerWarning),
@@ -153,6 +172,7 @@ impl LeoWarning {
         match self {
             ParserWarning(warning) => warning.warning_code(),
             TypeCheckerWarning(warning) => warning.warning_code(),
+            StaticAnalyzerWarning(warning) => warning.warning_code(),
         }
     }
 }

@@ -15,15 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{ConditionalTreeNode, TypeChecker, VariableSymbol, VariableType};
+use crate::{TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::{
     Type::{Future, Tuple},
     *,
 };
 use leo_errors::TypeCheckerError;
-
-use itertools::Itertools;
 
 impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
     fn visit_statement(&mut self, input: &'a Statement) {
@@ -85,7 +83,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
             }
 
             // If the variable exists and its in an async function, then check that it is in the current scope.
-            // Note that this unwrap is safe because the scope state is initalized before traversing the function.
+            // Note that this unwrap is safe because the scope state is initialized before traversing the function.
             if self.scope_state.variant.unwrap().is_async_function()
                 && self.scope_state.is_conditional
                 && self
@@ -133,25 +131,11 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         // Set the `is_conditional` flag.
         let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
 
-        // Create scope for checking awaits in `then` branch of conditional.
-        let current_bst_nodes: Vec<ConditionalTreeNode> = match self
-            .await_checker
-            .create_then_scope(self.scope_state.variant == Some(Variant::AsyncFunction), input.span)
-        {
-            Ok(nodes) => nodes,
-            Err(warn) => return self.emit_warning(warn),
-        };
-
         // Visit block.
         self.visit_block(&input.then);
 
         // Store the `has_return` flag for the then-block.
         then_block_has_return = self.scope_state.has_return;
-
-        // Exit scope for checking awaits in `then` branch of conditional.
-        let saved_paths = self
-            .await_checker
-            .exit_then_scope(self.scope_state.variant == Some(Variant::AsyncFunction), current_bst_nodes);
 
         if let Some(otherwise) = &input.otherwise {
             // Set the `has_return` flag for the otherwise-block.
@@ -169,9 +153,6 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
             // Store the `has_return` flag for the otherwise-block.
             otherwise_block_has_return = self.scope_state.has_return;
         }
-
-        // Update the set of all possible BST paths.
-        self.await_checker.exit_statement_scope(self.scope_state.variant == Some(Variant::AsyncFunction), saved_paths);
 
         // Restore the previous `has_return` flag.
         self.scope_state.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
@@ -265,7 +246,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         // Insert the variables into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
-                self.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), 0, identifier.span)
+                self.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), identifier.span)
             }
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
@@ -282,9 +263,13 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
                     ));
                 }
 
-                for ((index, expr), type_) in
-                    tuple_expression.elements.iter().enumerate().zip_eq(tuple_type.elements().iter())
-                {
+                for i in 0..tuple_expression.elements.len() {
+                    let inferred = if let Some(Type::Tuple(inferred_tuple)) = &inferred_type {
+                        inferred_tuple.elements().get(i).cloned()
+                    } else {
+                        None
+                    };
+                    let expr = &tuple_expression.elements[i];
                     let identifier = match expr {
                         Expression::Identifier(identifier) => identifier,
                         _ => {
@@ -292,7 +277,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
                                 .emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
                         }
                     };
-                    self.insert_variable(inferred_type.clone(), identifier, type_.clone(), index, identifier.span);
+                    self.insert_variable(inferred, identifier, tuple_type.elements()[i].clone(), identifier.span);
                 }
             }
             _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),

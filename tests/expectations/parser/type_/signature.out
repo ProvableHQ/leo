@@ -16,9 +16,9 @@ functions = [
     [
     "baz",
     { annotations = [], variant = "Transition", identifier = '{"id":"2","name":"baz","span":"{\"lo\":37,\"hi\":40}"}', output = [], output_type = "Unit", id = 30, input = [
-    { identifier = '{"id":"3","name":"s","span":"{\"lo\":41,\"hi\":42}"}', mode = "None", type_ = "Signature", id = 4, span = { lo = 41, hi = 42 } },
-    { identifier = '{"id":"5","name":"a","span":"{\"lo\":55,\"hi\":56}"}', mode = "None", type_ = "Address", id = 6, span = { lo = 55, hi = 56 } },
-    { identifier = '{"id":"7","name":"v","span":"{\"lo\":67,\"hi\":68}"}', mode = "None", id = 9, type_ = { Composite = { id = '{"id":"8","name":"value","span":"{\"lo\":70,\"hi\":75}"}', program = "test" } }, span = { lo = 67, hi = 68 } },
+    { identifier = '{"id":"3","name":"s","span":"{\"lo\":41,\"hi\":42}"}', mode = "None", type_ = "Signature", id = 4, span = { lo = 41, hi = 53 } },
+    { identifier = '{"id":"5","name":"a","span":"{\"lo\":55,\"hi\":56}"}', mode = "None", type_ = "Address", id = 6, span = { lo = 55, hi = 65 } },
+    { identifier = '{"id":"7","name":"v","span":"{\"lo\":67,\"hi\":68}"}', mode = "None", id = 9, type_ = { Composite = { id = '{"id":"8","name":"value","span":"{\"lo\":70,\"hi\":75}"}', program = "test" } }, span = { lo = 67, hi = 75 } },
 ], block = { id = 29, statements = [
     { Definition = { declaration_type = "Let", type_ = "Boolean", id = 17, place = { Identifier = '{"id":"10","name":"a","span":"{\"lo\":91,\"hi\":92}"}' }, value = { Access = { AssociatedFunction = { variant = '{"id":"11","name":"signature","span":"{\"lo\":101,\"hi\":110}"}', name = '{"id":"12","name":"verify","span":"{\"lo\":112,\"hi\":118}"}', id = 16, arguments = [
     { Identifier = '{"id":"13","name":"s","span":"{\"lo\":119,\"hi\":120}"}' },
@@ -38,7 +38,7 @@ functions = [
 ],
     [
     "bar",
-    { annotations = [], variant = "Transition", identifier = '{"id":"31","name":"bar","span":"{\"lo\":214,\"hi\":217}"}', id = 43, input = [{ identifier = '{"id":"32","name":"x","span":"{\"lo\":218,\"hi\":219}"}', mode = "None", id = 33, type_ = { Integer = "U8" }, span = { lo = 218, hi = 219 } }], output = [{ mode = "None", id = 34, type_ = { Integer = "U8" }, span = { lo = 228, hi = 230 } }], output_type = { Integer = "U8" }, block = { id = 42, statements = [
+    { annotations = [], variant = "Transition", identifier = '{"id":"31","name":"bar","span":"{\"lo\":214,\"hi\":217}"}', id = 43, input = [{ identifier = '{"id":"32","name":"x","span":"{\"lo\":218,\"hi\":219}"}', mode = "None", id = 33, type_ = { Integer = "U8" }, span = { lo = 218, hi = 223 } }], output = [{ mode = "None", id = 34, type_ = { Integer = "U8" }, span = { lo = 228, hi = 230 } }], output_type = { Integer = "U8" }, block = { id = 42, statements = [
     { Definition = { declaration_type = "Let", id = 39, place = { Identifier = '{"id":"35","name":"signature","span":"{\"lo\":245,\"hi\":254}"}' }, type_ = { Integer = "U8" }, value = { Binary = { op = "Add", id = 38, left = { Literal = { Integer = [
     "U8",
     "1",
@@ -51,9 +51,9 @@ functions = [
     [
     "bax",
     { annotations = [], variant = "Transition", identifier = '{"id":"44","name":"bax","span":"{\"lo\":317,\"hi\":320}"}', output = [], output_type = "Unit", id = 64, input = [
-    { identifier = '{"id":"45","name":"s","span":"{\"lo\":321,\"hi\":322}"}', mode = "None", type_ = "Signature", id = 46, span = { lo = 321, hi = 322 } },
-    { identifier = '{"id":"47","name":"a","span":"{\"lo\":335,\"hi\":336}"}', mode = "None", type_ = "Address", id = 48, span = { lo = 335, hi = 336 } },
-    { identifier = '{"id":"49","name":"v","span":"{\"lo\":347,\"hi\":348}"}', mode = "None", id = 51, type_ = { Composite = { id = '{"id":"50","name":"value","span":"{\"lo\":350,\"hi\":355}"}', program = "test" } }, span = { lo = 347, hi = 348 } },
+    { identifier = '{"id":"45","name":"s","span":"{\"lo\":321,\"hi\":322}"}', mode = "None", type_ = "Signature", id = 46, span = { lo = 321, hi = 333 } },
+    { identifier = '{"id":"47","name":"a","span":"{\"lo\":335,\"hi\":336}"}', mode = "None", type_ = "Address", id = 48, span = { lo = 335, hi = 345 } },
+    { identifier = '{"id":"49","name":"v","span":"{\"lo\":347,\"hi\":348}"}', mode = "None", id = 51, type_ = { Composite = { id = '{"id":"50","name":"value","span":"{\"lo\":350,\"hi\":355}"}', program = "test" } }, span = { lo = 347, hi = 355 } },
 ], block = { id = 63, statements = [
     { Definition = { declaration_type = "Let", type_ = "Boolean", id = 59, place = { Identifier = '{"id":"52","name":"a","span":"{\"lo\":370,\"hi\":371}"}' }, value = { Access = { AssociatedFunction = { variant = '{"id":"53","name":"signature","span":"{\"lo\":380,\"hi\":389}"}', name = '{"id":"54","name":"sign","span":"{\"lo\":391,\"hi\":395}"}', id = 58, arguments = [
     { Identifier = '{"id":"55","name":"s","span":"{\"lo\":396,\"hi\":397}"}' },

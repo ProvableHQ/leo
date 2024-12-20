@@ -20,6 +20,28 @@
 
 use crate::*;
 
+// TODO: The Visitor and Reconstructor patterns need a redesign so that the default implementation can easily be invoked though its implemented in an overriding trait.
+// Here is a pattern that seems to work
+// trait ProgramVisitor {
+//     // The trait method that can be overridden
+//     fn visit_program_scope(&mut self);
+//
+//     // Private helper function containing the default implementation
+//     fn default_visit_program_scope(&mut self) {
+//         println!("Do default stuff");
+//     }
+// }
+//
+// struct YourStruct;
+//
+// impl ProgramVisitor for YourStruct {
+//     fn visit_program_scope(&mut self) {
+//         println!("Do custom stuff.");
+//         // Call the default implementation
+//         self.default_visit_program_scope();
+//     }
+// }
+
 /// A Visitor trait for expressions in the AST.
 pub trait ExpressionVisitor<'a> {
     type AdditionalInput: Default;
@@ -92,7 +114,12 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_struct_init(&mut self, _input: &'a StructExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        for StructVariableInitializer { expression, .. } in input.members.iter() {
+            if let Some(expression) = expression {
+                self.visit_expression(expression, additional);
+            }
+        }
         Default::default()
     }
 

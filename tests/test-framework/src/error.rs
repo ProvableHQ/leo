@@ -48,6 +48,8 @@ fn toml_to_string(x: &Value) -> String {
             s.push('\n');
         }
         s
+    } else if let Some(s) = x.as_str() {
+        s.to_string()
     } else {
         toml::to_string(x).expect("serialization failed")
     }

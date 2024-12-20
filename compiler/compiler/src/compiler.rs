@@ -144,19 +144,24 @@ impl<'a, N: Network> Compiler<'a, N> {
 
     /// Runs the type checker pass.
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        let (symbol_table, struct_graph, call_graph) = TypeChecker::<N>::do_pass((
+        let (symbol_table, struct_graph, call_graph) =
+            TypeChecker::<N>::do_pass((&self.ast, self.handler, symbol_table, &self.type_table, false))?;
+        if self.compiler_options.output.type_checked_symbol_table {
+            self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
+        }
+        Ok((symbol_table, struct_graph, call_graph))
+    }
+
+    /// Runs the static analysis pass.
+    pub fn static_analysis_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
+        StaticAnalyzer::<N>::do_pass((
             &self.ast,
             self.handler,
             symbol_table,
             &self.type_table,
             self.compiler_options.build.conditional_block_max_depth,
             self.compiler_options.build.disable_conditional_branch_type_checking,
-            self.compiler_options.output.build_tests,
-        ))?;
-        if self.compiler_options.output.type_checked_symbol_table {
-            self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
-        }
-        Ok((symbol_table, struct_graph, call_graph))
+        ))
     }
 
     /// Runs the loop unrolling pass.
@@ -275,7 +280,10 @@ impl<'a, N: Network> Compiler<'a, N> {
     /// Runs the compiler stages.
     pub fn compiler_stages(&mut self) -> Result<(SymbolTable, StructGraph, CallGraph)> {
         let st = self.symbol_table_pass()?;
+
         let (st, struct_graph, call_graph) = self.type_checker_pass(st)?;
+
+        self.static_analysis_pass(&st)?;
 
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;
@@ -307,15 +315,8 @@ impl<'a, N: Network> Compiler<'a, N> {
         &'a self,
         symbol_table: SymbolTable,
     ) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        let (symbol_table, struct_graph, call_graph) = TypeChecker::<N>::do_pass((
-            &self.ast,
-            self.handler,
-            symbol_table,
-            &self.type_table,
-            self.compiler_options.build.conditional_block_max_depth,
-            self.compiler_options.build.disable_conditional_branch_type_checking,
-            self.compiler_options.output.build_tests,
-        ))?;
+        let (symbol_table, struct_graph, call_graph) =
+            TypeChecker::<N>::do_pass((&self.ast, self.handler, symbol_table, &self.type_table, true))?;
         if self.compiler_options.output.type_checked_symbol_table {
             self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
         }

@@ -38,6 +38,7 @@ create_messages!(
         help: Some("Look at the times `.await()` is called, and try to reduce redundancies. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
     }
 
+    // TODO: This warning is deprecated, remove it in the future.
     @formatted
     async_function_is_never_called_by_transition_function {
         args: (name: impl Display),

@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// This module contains the Import error definitions.
-pub mod import_errors;
-pub use self::import_errors::*;
+use serial_test::serial;
+
+mod runner;
+
+#[test]
+#[serial]
+pub fn tests() {
+    leo_test_framework::run_tests(&runner::InterpreterRunner, "interpreter");
+}

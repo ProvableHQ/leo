@@ -1,6 +1,6 @@
 [package]
 name = "leo-compiler"
-version = "2.3.0"
+version = "2.4.1"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Compiler for Leo programming language"
 homepage = "https://leo-lang.org"
@@ -74,7 +74,7 @@ workspace = true
 version = "3.1.1"
 
 [dev-dependencies.tempfile]
-version = "3.13"
+workspace = true
 
 [features]
 default = [ ]

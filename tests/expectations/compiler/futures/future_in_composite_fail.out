@@ -1,0 +1,24 @@
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372114]: A struct cannot contain a future.
+    --> compiler-test:7:9
+     |
+   7 |         member: Future,
+     |         ^^^^^^
+Error [ETYC0372031]: A mapping's key cannot be a future
+    --> compiler-test:4:5
+     |
+   4 |     mapping x: Future => Future;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372031]: A mapping's value cannot be a future
+    --> compiler-test:4:5
+     |
+   4 |     mapping x: Future => Future;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372115]: An array cannot have a future as an element type.
+    --> compiler-test:12:9
+     |
+  12 |         let an_array: [Future; 1] = [future];
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""]

@@ -485,6 +485,10 @@ impl<'a> CodeGenerator<'a> {
                 writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
                 (String::new(), instruction)
             }
+            sym::CheatCode => {
+                (String::new(), String::new())
+                // Do nothing. Cheat codes do not generate instructions.
+            }
             _ => {
                 unreachable!("All core functions should be known at this phase of compilation")
             }

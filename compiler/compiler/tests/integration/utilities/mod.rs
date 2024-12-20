@@ -104,6 +104,7 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
                             .expect("Expected value to be a boolean."),
                         conditional_block_max_depth: 10,
                         disable_conditional_branch_type_checking: false,
+                        build_tests: true,
                     }
                 })
                 .collect()
@@ -112,6 +113,7 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
             dce_enabled: true,
             conditional_block_max_depth: 10,
             disable_conditional_branch_type_checking: false,
+            build_tests: true,
         }],
     }
 }
@@ -251,6 +253,8 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a, CurrentNetwork>) -> 
     CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);
 
     let (st, struct_graph, call_graph) = parsed.type_checker_pass(st)?;
+
+    parsed.static_analysis_pass(&st)?;
 
     CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);
 

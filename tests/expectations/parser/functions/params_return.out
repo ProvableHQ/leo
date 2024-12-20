@@ -15,8 +15,8 @@ mappings = []
 functions = [[
     "x",
     { annotations = [], variant = "Function", identifier = '{"id":"2","name":"x","span":"{\"lo\":39,\"hi\":40}"}', id = 11, input = [
-    { identifier = '{"id":"3","name":"x","span":"{\"lo\":41,\"hi\":42}"}', mode = "None", id = 4, type_ = { Integer = "U32" }, span = { lo = 41, hi = 42 } },
-    { identifier = '{"id":"5","name":"y","span":"{\"lo\":49,\"hi\":50}"}', mode = "None", id = 6, type_ = { Integer = "I32" }, span = { lo = 49, hi = 50 } },
+    { identifier = '{"id":"3","name":"x","span":"{\"lo\":41,\"hi\":42}"}', mode = "None", id = 4, type_ = { Integer = "U32" }, span = { lo = 41, hi = 47 } },
+    { identifier = '{"id":"5","name":"y","span":"{\"lo\":49,\"hi\":50}"}', mode = "None", id = 6, type_ = { Integer = "I32" }, span = { lo = 49, hi = 55 } },
 ], output = [{ mode = "None", id = 7, type_ = { Integer = "U32" }, span = { lo = 60, hi = 63 } }], output_type = { Integer = "U32" }, block = { id = 10, statements = [{ Return = { id = 9, expression = { Literal = { Integer = [
     "U8",
     "0",

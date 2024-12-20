@@ -14,7 +14,7 @@ Error [ETYC0372032]: An input to an async function must be public.
     --> compiler-test:10:76
      |
   10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     |                                                                            ^^^^^^
+     |                                                                            ^^^^^^^^^^^
      |
      = Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.
 Error [ETYC0372038]: A returned value cannot be a constant.

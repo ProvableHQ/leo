@@ -5,5 +5,5 @@ Error [ETYC0372051]: A function cannot take in a tuple as input.
     --> compiler-test:4:20
      |
    4 |     transition foo(a: (u8, u16)) -> (u8, u16) {
-     |                    ^
+     |                    ^^^^^^^^^^^^
 """]

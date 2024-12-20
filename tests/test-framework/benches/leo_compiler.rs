@@ -94,6 +94,7 @@ fn new_compiler(handler: &Handler) -> Compiler<'_, CurrentNetwork> {
                 dce_enabled: true,
                 conditional_block_max_depth: 10,
                 disable_conditional_branch_type_checking: false,
+                build_tests: true,
             },
             output: OutputOptions {
                 symbol_table_spans_enabled: false,
@@ -108,7 +109,6 @@ fn new_compiler(handler: &Handler) -> Compiler<'_, CurrentNetwork> {
                 destructured_ast: false,
                 inlined_ast: false,
                 dce_ast: false,
-                build_tests: false,
             },
         },
         IndexMap::new(),

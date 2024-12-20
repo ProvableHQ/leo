@@ -82,6 +82,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoBuild,
     },
+    #[clap(about = "Debug the current package via the interpreter")]
+    Debug {
+        #[clap(flatten)]
+        command: LeoDebug,
+    },
     #[clap(about = "Add a new on-chain or local dependency to the current package.")]
     Add {
         #[clap(flatten)]
@@ -129,6 +134,11 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         })?;
     }
 
+    //  Check for updates. If not forced, it checks once per day.
+    if let Ok(true) = updater::Updater::check_for_updates(false) {
+        let _ = updater::Updater::print_cli();
+    }
+
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
     let context = handle_error(Context::new(cli.path, cli.home, false));
@@ -138,6 +148,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Account { command } => command.try_execute(context),
         Commands::New { command } => command.try_execute(context),
         Commands::Build { command } => command.try_execute(context),
+        Commands::Debug { command } => command.try_execute(context),
         Commands::Query { command } => command.try_execute(context),
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
@@ -149,6 +160,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Update { command } => command.try_execute(context),
     }
 }
+
 #[cfg(test)]
 mod tests {
     use crate::cli::{
