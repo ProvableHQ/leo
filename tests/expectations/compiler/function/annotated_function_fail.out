@@ -1,21 +1,36 @@
 namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
-Error [ETYC0372027]: Unknown annotation: `@test`.
-    --> compiler-test:4:5
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "4886e187c6b46dbeeb507a7f5188c89f415516c2ff7781ad5af48ea13fca665b", type_checked_symbol_table = "214bdcdf17793e3098343e1aa5993244ad520847278f8864ce7ce0bf4e3bf8ad", unrolled_symbol_table = "214bdcdf17793e3098343e1aa5993244ad520847278f8864ce7ce0bf4e3bf8ad", initial_ast = "05ac2357efbe8d0e00d30f8b7ee33cb625070471ab6f513d2613cb8baeaeff39", unrolled_ast = "05ac2357efbe8d0e00d30f8b7ee33cb625070471ab6f513d2613cb8baeaeff39", ssa_ast = "2f8548323d07c917964e711b10e5198796ac601eb3c75aae61009a600a437220", flattened_ast = "67707c544bfd8a551287d9bf6d4d869b4817d767003c44735ec27ff33d75cf8d", destructured_ast = "3c3c87cf1069c8691bfe57d696be55e2716021cb03e11f8345d3bafb5b23c99b", inlined_ast = "3c3c87cf1069c8691bfe57d696be55e2716021cb03e11f8345d3bafb5b23c99b", dce_ast = "3c3c87cf1069c8691bfe57d696be55e2716021cb03e11f8345d3bafb5b23c99b", bytecode = """
+program test.aleo;
+
+function test:
+    is.eq 1u32 1u32 into r0;
+    assert.eq r0 true;
+
+closure foo:
+    input r0 as u8;
+    input r1 as u8;
+    add r0 r1 into r2;
+    output r2 as u8;
+
+closure bar:
+    input r0 as u8;
+    input r1 as u8;
+    mul r0 r1 into r2;
+    output r2 as u8;
+""", errors = "", warnings = """
+Warning [WTYC0372005]: Unknown key `foo` in annotation `test`.
+    --> compiler-test:16:11
      |
-   4 |     @test
-     |     ^^^^^
-Error [ETYC0372027]: Unknown annotation: `@program`.
-    --> compiler-test:9:5
+  16 |     @test(foo)
+     |           ^^^
+Warning [WTYC0372004]: Unknown annotation: `foo`.
+    --> compiler-test:6:5
      |
-   9 |     @program
-     |     ^^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+   6 |     @foo
+     |     ^^^^
+Warning [WTYC0372004]: Unknown annotation: `program`.
+    --> compiler-test:11:5
      |
-   1 | 
-   2 | 
-   3 | program test.aleo {    
-     | ^^^^^^^^^^^^
-"""]
+  11 |     @program
+     |     ^^^^^^^^""" }] }]]

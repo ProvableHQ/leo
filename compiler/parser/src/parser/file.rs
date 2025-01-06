@@ -328,7 +328,7 @@ impl<N: Network> ParserContext<'_, N> {
             Token::LeftParen => {
                 let (data, _, span) = self.parse_paren_comma_list(|p| {
                     let key = p.expect_identifier()?;
-                    let value = if p.eat(&Token::Eq) {
+                    let value = if p.eat(&Token::Assign) {
                         match &p.token.token {
                             Token::StaticString(s) => {
                                 let value = s.clone();

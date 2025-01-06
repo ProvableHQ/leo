@@ -1,0 +1,13 @@
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_symbol_table = "690edb74eb02c5ac9e717bfb51933668a2b530f7e803ba5666880d23f28d5bec", type_checked_symbol_table = "e7e865d4fe1f786bea9fa28c5cff41a8c29ce00da69306b522dd79eac50d4c78", unrolled_symbol_table = "e7e865d4fe1f786bea9fa28c5cff41a8c29ce00da69306b522dd79eac50d4c78", initial_ast = "97b8563a49a209737aa82195d8fe84257cdd16ac2b32133de91b43de7bb557b1", unrolled_ast = "97b8563a49a209737aa82195d8fe84257cdd16ac2b32133de91b43de7bb557b1", ssa_ast = "4e6c70e32a0fd6f3fc362568ba2f365b198be164922c9276b48a54513a9a0501", flattened_ast = "5ecbeaa566e8bd200515944b8f73945bff67eace488df97e8d0f477f2255bcd7", destructured_ast = "f0ae5e19798aaa5777a17d477f6eb0b2d9ccd1067c807c4348e1ba0a0f147dd5", inlined_ast = "f0ae5e19798aaa5777a17d477f6eb0b2d9ccd1067c807c4348e1ba0a0f147dd5", dce_ast = "f0ae5e19798aaa5777a17d477f6eb0b2d9ccd1067c807c4348e1ba0a0f147dd5", bytecode = """
+program test.aleo;
+
+function test:
+    is.eq 1u32 1u32 into r0;
+    assert.eq r0 true;
+
+function test_other:
+    is.eq 1u32 1u32 into r0;
+    assert.eq r0 true;
+""", errors = "", warnings = "" }] }]]

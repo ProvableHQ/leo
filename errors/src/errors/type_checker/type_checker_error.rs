@@ -269,7 +269,7 @@ create_messages!(
         help: Some("Remove the code in the loop body that always returns.".to_string()),
     }
 
-    // TODO: Consider emitting a warning instead of an error.
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     unknown_annotation {
         args: (annotation: impl Display),
@@ -419,7 +419,6 @@ create_messages!(
     }
 
     // TODO: Consider changing this to a warning.
-
     @formatted
     assign_unit_expression_to_variable {
         args: (),

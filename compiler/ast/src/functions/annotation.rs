@@ -50,7 +50,7 @@ impl fmt::Display for Annotation {
                         Some(value) => string.push_str(&format!("{key} = \"{value}\",")),
                     }
                 }
-                string
+                format!("({string})")
             }
         };
         write!(f, "@{}{}", self.identifier, data)
