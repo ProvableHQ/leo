@@ -47,8 +47,10 @@ pub struct TypeChecker<'a, N: Network> {
     pub(crate) handler: &'a Handler,
     /// The state of the current scope being traversed.
     pub(crate) scope_state: ScopeState,
-    /// Mapping from async function name to the inferred input types.
+    /// Mapping from async function stub name to the inferred input types.
     pub(crate) async_function_input_types: IndexMap<Location, Vec<Type>>,
+    /// Mapping from async function name to the names of async transition callers.
+    pub(crate) async_function_callers: IndexMap<Location, IndexSet<Location>>,
     /// The set of used composites.
     pub(crate) used_structs: IndexSet<Symbol>,
     // Allows the type checker to be generic over the network.
@@ -70,6 +72,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             handler,
             scope_state: ScopeState::new(),
             async_function_input_types: IndexMap::new(),
+            async_function_callers: IndexMap::new(),
             used_structs: IndexSet::new(),
             phantom: Default::default(),
         }
@@ -933,127 +936,115 @@ impl<'a, N: Network> TypeChecker<'a, N> {
     pub(crate) fn check_function_signature(&mut self, function: &Function) {
         self.scope_state.variant = Some(function.variant);
 
-        // Special type checking for finalize blocks. Can skip for stubs.
+        let mut inferred_inputs: Vec<Type> = Vec::new();
+
         if self.scope_state.variant == Some(Variant::AsyncFunction) && !self.scope_state.is_stub {
-            // Finalize functions are not allowed to return values.
+            // Async functions are not allowed to return values.
             if !function.output.is_empty() {
                 self.emit_err(TypeCheckerError::async_function_cannot_return_value(function.span()));
             }
 
-            // Check that the input types are consistent with when the function is invoked.
-            if let Some(inferred_input_types) = self.async_function_input_types.get(&self.scope_state.location()) {
-                // Check same number of inputs as expected.
-                if inferred_input_types.len() != function.input.len() {
-                    return self.emit_err(TypeCheckerError::async_function_input_length_mismatch(
-                        inferred_input_types.len(),
-                        function.input.len(),
-                        function.span(),
-                    ));
-                }
-                // Check that the input parameters match the inferred types from when the async function is invoked.
-                for (t1, t2) in function.input.iter().zip_eq(inferred_input_types.iter()) {
-                    // Allow partial type matching of futures since inferred are fully typed, whereas AST has default futures.
-                    if matches!(t2, Type::Future(_)) && matches!(t1.type_(), Type::Future(_)) {
-                        // Insert to symbol table
-                        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                            Location::new(None, t1.identifier().name),
-                            self.scope_state.program_name,
-                            VariableSymbol {
-                                type_: t2.clone(),
-                                span: t1.identifier.span(),
-                                declaration: VariableType::Input(Mode::Public),
-                            },
-                        ) {
-                            self.handler.emit_err(err);
-                        }
-                    }
-                    self.check_eq_types(&Some(t1.type_().clone()), &Some(t2.clone()), t1.span())
-                }
+            let st = self.symbol_table.borrow();
+
+            // Iterator over the `finalize` member (type Finalizer) of each async transition that calls
+            // this async function.
+            let mut caller_finalizers = self
+                .async_function_callers
+                .get(&Location::new(self.scope_state.program_name, function.identifier.name))
+                .map(|callers| {
+                    callers
+                        .iter()
+                        .flat_map(|caller| st.lookup_fn_symbol(caller.clone()))
+                        .flat_map(|fn_symbol| fn_symbol.finalize.clone())
+                })
+                .into_iter()
+                .flatten();
+
+            if let Some(first) = caller_finalizers.next() {
+                inferred_inputs = first.inferred_inputs.clone();
             } else {
                 self.emit_warning(TypeCheckerWarning::async_function_is_never_called_by_transition_function(
                     function.identifier.name,
                     function.span(),
                 ));
             }
+
+            // If any input is a future that doesn't have the same member type for all
+            // finalizers, set that member to `Type::Err`.
+            for finalizer in caller_finalizers {
+                assert_eq!(inferred_inputs.len(), finalizer.inferred_inputs.len());
+                for (t1, t2) in inferred_inputs.iter_mut().zip(finalizer.inferred_inputs.iter()) {
+                    self.merge_types(t1, t2);
+                }
+            }
         }
 
-        // Type check the function's parameters.
-        function.input.iter().for_each(|input_var| {
+        for (i, input) in function.input.iter().enumerate() {
+            // No need to check compatibility of these types; that's already been done
+            let table_type = inferred_inputs.get(i).unwrap_or_else(|| input.type_());
+
             // Check that the type of input parameter is defined.
-            self.assert_type_is_valid(input_var.type_(), input_var.span());
+            self.assert_type_is_valid(table_type, input.span());
+
             // Check that the type of the input parameter is not a tuple.
-            if matches!(input_var.type_(), Type::Tuple(_)) {
-                self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
+            if matches!(table_type, Type::Tuple(_)) {
+                self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input.span()))
             }
+
             // Make sure only transitions can take a record as an input.
-            else if let Type::Composite(struct_) = input_var.type_() {
+            if let Type::Composite(struct_) = table_type {
                 // Throw error for undefined type.
                 if !function.variant.is_transition() {
                     if let Some(elem) = self.lookup_struct(struct_.program, struct_.id.name) {
                         if elem.is_record {
-                            self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()))
+                            self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
                         }
                     } else {
-                        self.emit_err(TypeCheckerError::undefined_type(struct_.id, input_var.span()));
+                        self.emit_err(TypeCheckerError::undefined_type(struct_.id, input.span()));
                     }
                 }
             }
 
-            // Note that this unwrap is safe since we assign to `self.variant` above.
+            // This unwrap works since we assign to `variant` above.
             match self.scope_state.variant.unwrap() {
                 // If the function is a transition function, then check that the parameter mode is not a constant.
-                Variant::Transition | Variant::AsyncTransition if input_var.mode() == Mode::Constant => {
-                    self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
+                Variant::Transition | Variant::AsyncTransition if input.mode() == Mode::Constant => {
+                    self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input.span()))
                 }
                 // If the function is standard function or inline, then check that the parameters do not have an associated mode.
-                Variant::Function | Variant::Inline if input_var.mode() != Mode::None => {
-                    self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
+                Variant::Function | Variant::Inline if input.mode() != Mode::None => {
+                    self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input.span()))
                 }
                 // If the function is an async function, then check that the input parameter is not constant or private.
-                Variant::AsyncFunction if input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private => {
-                    self.emit_err(TypeCheckerError::async_function_input_must_be_public(input_var.span()));
+                Variant::AsyncFunction if matches!(input.mode(), Mode::Constant | Mode::Private) => {
+                    self.emit_err(TypeCheckerError::async_function_input_must_be_public(input.span()));
                 }
                 _ => {} // Do nothing.
             }
 
-            // If the function is not a transition function, then it cannot have a record as input
-            if let Type::Composite(struct_) = input_var.type_() {
-                if let Some(val) = self.lookup_struct(struct_.program, struct_.id.name) {
-                    if val.is_record && !function.variant.is_transition() {
-                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
-                    }
-                }
-            }
-
-            if matches!(&input_var.type_(), Type::Future(_)) {
+            if matches!(table_type, Type::Future(..)) {
                 // Future parameters may only appear in async functions.
                 if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction)) {
-                    self.emit_err(TypeCheckerError::no_future_parameters(input_var.span()));
+                    self.emit_err(TypeCheckerError::no_future_parameters(input.span()));
                 }
             }
 
-            let location = Location::new(None, input_var.identifier().name);
-            if !matches!(&input_var.type_(), Type::Future(_))
-                || self.symbol_table.borrow().lookup_variable_in_current_scope(location.clone()).is_none()
-            {
-                // Add function inputs to the symbol table. If inference happened properly above, futures were already added.
-                // But if a future was not added, add it now so as not to give confusing error messages.
-                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                    location.clone(),
-                    self.scope_state.program_name,
-                    VariableSymbol {
-                        type_: input_var.type_().clone(),
-                        span: input_var.identifier().span(),
-                        declaration: VariableType::Input(input_var.mode()),
-                    },
-                ) {
-                    self.handler.emit_err(err);
-                }
+            // Add the input to the symbol table.
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                Location::new(None, input.identifier().name),
+                self.scope_state.program_name,
+                VariableSymbol {
+                    type_: table_type.clone(),
+                    span: input.identifier.span(),
+                    declaration: VariableType::Input(input.mode()),
+                },
+            ) {
+                self.handler.emit_err(err);
             }
 
             // Add the input to the type table.
-            self.type_table.insert(input_var.identifier().id(), input_var.type_().clone());
-        });
+            self.type_table.insert(input.identifier().id(), table_type.clone());
+        }
 
         // Type check the function's return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
@@ -1070,15 +1061,6 @@ impl<'a, N: Network> TypeChecker<'a, N> {
 
             // Check that the output type is valid.
             self.assert_type_is_valid(&function_output.type_, function_output.span);
-
-            // If the function is not a transition function, then it cannot output a record.
-            if let Type::Composite(struct_) = function_output.type_.clone() {
-                if !function.variant.is_transition()
-                    && self.lookup_struct(struct_.program, struct_.id.name).map_or(false, |s| s.is_record)
-                {
-                    self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
-                }
-            }
 
             // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
             if matches!(&function_output.type_, Type::Tuple(_)) {
@@ -1103,6 +1085,29 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 self.emit_err(TypeCheckerError::only_async_transition_can_return_future(function_output.span));
             }
         });
+    }
+
+    /// Merge inferred types into `lhs`.
+    ///
+    /// That is, if `lhs` and `rhs` aren't equal, set `lhs` to Type::Err;
+    /// or, if they're both futures, set any member of `lhs` that isn't
+    /// equal to the equivalent member of `rhs` to `Type::Err`.
+    fn merge_types(&self, lhs: &mut Type, rhs: &Type) {
+        if let Type::Future(f1) = lhs {
+            if let Type::Future(f2) = rhs {
+                for (i, type_) in f2.inputs.iter().enumerate() {
+                    if let Some(lhs_type) = f1.inputs.get_mut(i) {
+                        self.merge_types(lhs_type, type_);
+                    } else {
+                        f1.inputs.push(Type::Err);
+                    }
+                }
+            } else {
+                *lhs = Type::Err;
+            }
+        } else if !self.eq_user(lhs, rhs) {
+            *lhs = Type::Err;
+        }
     }
 
     /// Are the types considered equal as far as the Leo user is concerned?
@@ -1174,7 +1179,11 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         };
 
         if is_future {
-            self.scope_state.futures.insert(name.name, self.scope_state.call_location.clone().unwrap());
+            // It can happen that the call location has not been set if there was an error
+            // in the call that produced the Future.
+            if let Some(call_location) = self.scope_state.call_location.clone() {
+                self.scope_state.futures.insert(name.name, call_location);
+            }
         }
 
         let ty = match (is_future, inferred_type) {

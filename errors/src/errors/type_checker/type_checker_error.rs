@@ -719,6 +719,8 @@ create_messages!(
         msg: "An async transition must call an async function.".to_string(),
         help: Some("Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`".to_string()),
     }
+
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     async_function_input_length_mismatch {
         args: (expected: impl Display, received: impl Display),
@@ -982,5 +984,14 @@ create_messages!(
         args: (),
         msg: "The unit type () may appear only as the return type of a function.".to_string(),
         help: None,
+    }
+
+    @formatted
+    future_error_member {
+        args: (num: impl Display),
+        msg: format!("Cannot access argument `{num}` from future."),
+        help: Some(
+            "Ensure that the async function is not called with multiple times with incompatible types.".to_string()
+        ),
     }
 );

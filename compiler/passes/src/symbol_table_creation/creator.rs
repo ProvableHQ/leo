@@ -121,27 +121,20 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         if let Err(err) = self.symbol_table.insert_fn(location.clone(), &Function::from(input.clone())) {
             self.handler.emit_err(err);
         }
+
         // If the `FunctionStub` is an async transition, attach the finalize logic to the function.
+        // NOTE - for an external function like this, we really only need to attach the finalizer
+        // for the use of `assert_simple_async_transition_call` in the static analyzer.
+        // In principle that could be handled differently.
         if matches!(input.variant, Variant::AsyncTransition) {
             // This matches the logic in the disassembler.
             let name = Symbol::intern(&format!("finalize/{}", input.name()));
-            if let Err(err) = self.symbol_table.attach_finalize(location, Location::new(self.program_name, name)) {
-                self.handler.emit_err(err);
-            }
-        }
-        // Otherwise is the `FunctionStub` is an async function, attach the future inputs.
-        else if matches!(input.variant, Variant::AsyncFunction) {
-            let future_inputs = input
-                .input
-                .iter()
-                .filter_map(|input| match &input.type_ {
-                    Type::Future(future_type) => future_type.location.clone(),
-                    _ => None,
-                })
-                .collect();
-            // Note that this unwrap is safe, because `self.program_name` is set before traversing the AST.
-            if let Err(err) = self.symbol_table.insert_futures(self.program_name.unwrap(), input.name(), future_inputs)
-            {
+            if let Err(err) = self.symbol_table.attach_finalize(
+                location,
+                Location::new(self.program_name, name),
+                Vec::new(),
+                Vec::new(),
+            ) {
                 self.handler.emit_err(err);
             }
         }

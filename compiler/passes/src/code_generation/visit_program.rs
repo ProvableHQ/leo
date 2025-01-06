@@ -80,7 +80,6 @@ impl<'a> CodeGenerator<'a> {
         // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
         // In other words, a callee function precedes its caller function in the program scope.
         for (_symbol, function) in program_scope.functions.iter() {
-            // program_string.push_str(&program_scope.functions.iter().map(|(_, function)| {
             if function.variant != Variant::AsyncFunction {
                 let mut function_string = self.visit_function(function);
 
@@ -98,11 +97,11 @@ impl<'a> CodeGenerator<'a> {
                         .unwrap()
                         .clone()
                         .finalize
-                        .unwrap()
-                        .name;
+                        .unwrap();
                     // Write the finalize string.
-                    function_string.push_str(&self.visit_function(
-                        &program_scope.functions.iter().find(|(name, _f)| name == finalize).unwrap().1,
+                    function_string.push_str(&self.visit_function_with(
+                        &program_scope.functions.iter().find(|(name, _f)| name == &finalize.location.name).unwrap().1,
+                        &finalize.future_inputs,
                     ));
                 }
 
@@ -167,7 +166,7 @@ impl<'a> CodeGenerator<'a> {
         output_string
     }
 
-    fn visit_function(&mut self, function: &'a Function) -> String {
+    fn visit_function_with(&mut self, function: &'a Function, futures: &[Location]) -> String {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
@@ -189,13 +188,9 @@ impl<'a> CodeGenerator<'a> {
             Variant::Inline => return String::new(),
         };
 
+        let mut futures = futures.iter();
+
         // Construct and append the input declarations of the function.
-        let mut futures = self
-            .symbol_table
-            .lookup_fn_symbol(Location::new(Some(self.program_id.unwrap().name.name), function.identifier.name))
-            .unwrap()
-            .future_inputs
-            .clone();
         for input in function.input.iter() {
             let register_string = format!("r{}", self.next_register);
             self.next_register += 1;
@@ -210,7 +205,10 @@ impl<'a> CodeGenerator<'a> {
                 };
                 // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
                 if matches!(input.type_, Type::Future(_)) {
-                    let location = futures.remove(0);
+                    let location = futures
+                        .next()
+                        .expect("Type checking guarantees we have future locations for each future input")
+                        .clone();
                     format!("{}.aleo/{}.future", location.program.unwrap(), location.name)
                 } else {
                     self.visit_type_with_visibility(&input.type_, visibility)
@@ -233,6 +231,10 @@ impl<'a> CodeGenerator<'a> {
         function_string.push_str(&block_string);
 
         function_string
+    }
+
+    fn visit_function(&mut self, function: &'a Function) -> String {
+        self.visit_function_with(function, &[])
     }
 
     fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {

@@ -23,7 +23,7 @@ pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{Composite, Function, Location, normalize_json_value, remove_key_from_json};
+use leo_ast::{Composite, Function, Location, Type, normalize_json_value, remove_key_from_json};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -148,12 +148,18 @@ impl SymbolTable {
     }
 
     /// Attach a finalize to a function.
-    pub fn attach_finalize(&mut self, caller: Location, callee: Location) -> Result<()> {
+    pub fn attach_finalize(
+        &mut self,
+        caller: Location,
+        callee: Location,
+        future_inputs: Vec<Location>,
+        inferred_inputs: Vec<Type>,
+    ) -> Result<()> {
         if let Some(func) = self.functions.get_mut(&caller) {
-            func.finalize = Some(callee);
+            func.finalize = Some(Finalizer { location: callee, future_inputs, inferred_inputs });
             Ok(())
         } else if let Some(parent) = self.parent.as_mut() {
-            parent.attach_finalize(caller, callee)
+            parent.attach_finalize(caller, callee, future_inputs, inferred_inputs)
         } else {
             Err(AstError::function_not_found(caller.name).into())
         }
@@ -169,18 +175,6 @@ impl SymbolTable {
         self.check_shadowing(&location, program, false, insert.span)?;
         self.variables.insert(location, insert);
         Ok(())
-    }
-
-    /// Inserts futures into the function definition.
-    pub fn insert_futures(&mut self, program: Symbol, function: Symbol, futures: Vec<Location>) -> Result<()> {
-        if let Some(func) = self.functions.get_mut(&Location::new(Some(program), function)) {
-            func.future_inputs = futures;
-            Ok(())
-        } else if let Some(parent) = self.parent.as_mut() {
-            parent.insert_futures(program, function, futures)
-        } else {
-            Err(AstError::function_not_found(function).into())
-        }
     }
 
     /// Removes a variable from the symbol table.
