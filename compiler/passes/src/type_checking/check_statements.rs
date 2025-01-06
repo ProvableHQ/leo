@@ -383,18 +383,12 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
 
         // Fully type the expected return value.
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
-            let inferred_future_type =
-                match self.async_function_input_types.get(&func.unwrap().finalize.clone().unwrap()) {
-                    Some(types) => Future(FutureType::new(
-                        types.clone(),
-                        Some(Location::new(self.scope_state.program_name, parent)),
-                        true,
-                    )),
-                    None => {
-                        return self
-                            .emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
-                    }
-                };
+            let inferred_future_type = Future(FutureType::new(
+                func.unwrap().finalize.as_ref().unwrap().inferred_inputs.clone(),
+                Some(Location::new(self.scope_state.program_name, parent)),
+                true,
+            ));
+
             // Need to modify return type since the function signature is just default future, but the actual return type is the fully inferred future of the finalize input type.
             let inferred = match return_type.clone() {
                 Some(Future(_)) => Some(inferred_future_type),

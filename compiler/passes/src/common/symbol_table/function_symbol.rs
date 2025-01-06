@@ -34,10 +34,20 @@ pub struct FunctionSymbol {
     pub(crate) _span: Span,
     /// The inputs to the function.
     pub(crate) input: Vec<Input>,
-    /// Future inputs.
-    pub(crate) future_inputs: Vec<Location>,
-    /// The finalize block associated with the function.
-    pub(crate) finalize: Option<Location>,
+    /// The finalizer associated with this async transition.
+    pub(crate) finalize: Option<Finalizer>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub struct Finalizer {
+    /// The name of the async function this async transition calls.
+    pub location: Location,
+
+    /// The locations of the futures passed to the async function called by this async transition.
+    pub future_inputs: Vec<Location>,
+
+    /// The types passed to the async function called by this async transition.
+    pub inferred_inputs: Vec<Type>,
 }
 
 impl SymbolTable {
@@ -48,7 +58,6 @@ impl SymbolTable {
             variant: func.variant,
             _span: func.span,
             input: func.input.clone(),
-            future_inputs: Vec::new(),
             finalize: None,
         }
     }

@@ -140,6 +140,12 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                             return Type::Err;
                         };
 
+                        // If all inferred types weren't the same, the member will be of type `Type::Err`.
+                        if let Type::Err = actual {
+                            self.emit_err(TypeCheckerError::future_error_member(access.index.value(), access.span()));
+                            return Type::Err;
+                        }
+
                         self.maybe_assert_type(actual, expected, access.span());
 
                         actual.clone()
@@ -563,7 +569,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
 
             let future_type =
                 Type::Future(FutureType::new(inputs.clone(), Some(Location::new(input.program, ident.name)), true));
-            let fully_inferred_type = match func.output_type {
+            let fully_inferred_type = match &func.output_type {
                 Type::Tuple(tup) => Type::Tuple(TupleType::new(
                     tup.elements()
                         .iter()
@@ -687,15 +693,20 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
             }
             // Add future locations to symbol table. Unwrap safe since insert function into symbol table during previous pass.
             let mut st = self.symbol_table.borrow_mut();
-            // Insert futures into symbol table.
-            st.insert_futures(input.program.unwrap(), ident.name, input_futures).unwrap();
             // Link async transition to the async function that finalizes it.
-            st.attach_finalize(self.scope_state.location(), Location::new(self.scope_state.program_name, ident.name))
-                .unwrap();
+            st.attach_finalize(
+                self.scope_state.location(),
+                Location::new(self.scope_state.program_name, ident.name),
+                input_futures,
+                inferred_finalize_inputs.clone(),
+            )
+            .expect("Failed to attach finalize");
             drop(st);
             // Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
-            self.async_function_input_types
-                .insert(Location::new(self.scope_state.program_name, ident.name), inferred_finalize_inputs.clone());
+            self.async_function_callers
+                .entry(Location::new(self.scope_state.program_name, ident.name))
+                .or_default()
+                .insert(self.scope_state.location());
 
             // Set scope state flag.
             self.scope_state.has_called_finalize = true;

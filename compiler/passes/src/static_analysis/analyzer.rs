@@ -123,7 +123,7 @@ impl<'a, N: Network> StaticAnalyzer<'a, N> {
         }
         // Otherwise, get the location of the finalize block.
         let location = match &function.finalize {
-            Some(location) => location.clone(),
+            Some(finalizer) => finalizer.location.clone(),
             None => {
                 unreachable!("Typechecking guarantees that all async transitions have an associated `finalize` field.");
             }
@@ -136,7 +136,7 @@ impl<'a, N: Network> StaticAnalyzer<'a, N> {
             }
         };
         // If the async function takes a future as an argument, emit an error.
-        if !async_function.future_inputs.is_empty() {
+        if async_function.input.iter().any(|input| matches!(input.type_(), Type::Future(..))) {
             self.emit_err(StaticAnalyzerError::async_transition_call_with_future_argument(function_name, span));
         }
     }

@@ -1,0 +1,45 @@
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [
+    { initial_symbol_table = "e8070ee22d563af7ef4bfd7e659e778683a371d1446309a230cbd12219743e4e", type_checked_symbol_table = "34669c6b0763b89c57dacfe710b3c517efe22f79d724d03e070846a4331e90cd", unrolled_symbol_table = "34669c6b0763b89c57dacfe710b3c517efe22f79d724d03e070846a4331e90cd", initial_ast = "fada8aacb7d6f60f4c517f12a8bfb2d0c192dcad3af4720d4e4ef32b35aaf28a", unrolled_ast = "fada8aacb7d6f60f4c517f12a8bfb2d0c192dcad3af4720d4e4ef32b35aaf28a", ssa_ast = "b7646084b507cba895fb6c4d6bd7a69242f6be4fe568aa3f345d0abc1dd0f2fa", flattened_ast = "f7a43b22029fe91c14ee4d5d3efb8c88bb3ace6dc3a2036401071d91fb9474d4", destructured_ast = "467719935e2babebc5cafa5b3a21da6e6101810d163681adbd69d9c14d0b9bba", inlined_ast = "5bc72432dd452ed4c4ae0a7a3d98cbf7b1700e554ce02bfe283699f7fb592ca8", dce_ast = "5bc72432dd452ed4c4ae0a7a3d98cbf7b1700e554ce02bfe283699f7fb592ca8", bytecode = """
+program dependent.aleo;
+
+function t1:
+    async t1 1u8 into r0;
+    output r0 as dependent.aleo/t1.future;
+
+finalize t1:
+    input r0 as u8.public;
+    assert.eq 1u8 1u8;
+
+function t2:
+    async t2 1u8 into r0;
+    output r0 as dependent.aleo/t2.future;
+
+finalize t2:
+    input r0 as u8.public;
+    assert.eq 1u8 1u8;
+""", errors = "", warnings = "" },
+    { initial_symbol_table = "92694004bf2faf9e52be8a5126302e81b27b0c0fe7f03b72ae1d3c1332c16405", type_checked_symbol_table = "c34091ba754c088c4de8dfb3ec18efd4fe195bb8f41b7359318f0cc8c39a4b1d", unrolled_symbol_table = "c34091ba754c088c4de8dfb3ec18efd4fe195bb8f41b7359318f0cc8c39a4b1d", initial_ast = "84ea5eda60a0bbc735c3cb3d39401fa5ea05eaf03412d342c6325f10e20d3964", unrolled_ast = "af464b1f097e5c1d080fdadea8b65d5119a78dab74dd6bbb2dd5115dede9ed46", ssa_ast = "4b6f3f762b25f02af2b74201b19c6e49256a37e73aa3f5b34173cdb0cad03e78", flattened_ast = "6ad013865dc97b971900ac5998b3cfc227fdfba39c8a1f90f6479aafa3a7df6d", destructured_ast = "8465bcadcb8d42011370624d096d4e8f4f8046d456f00551c9d04a77444e200d", inlined_ast = "33817d54a94091b27cc7a1f39d6847b210ffb01d232d96b4bca0a3fe7af315d4", dce_ast = "c77872a68b63cbc4cf62c2f8268b1a65f8e73925f400adc1c07360d3196631af", bytecode = """
+import dependent.aleo;
+program test.aleo;
+
+function t1:
+    call dependent.aleo/t1 into r0;
+    async t1 r0 into r1;
+    output r1 as test.aleo/t1.future;
+
+finalize t1:
+    input r0 as dependent.aleo/t1.future;
+    await r0;
+
+function t2:
+    call dependent.aleo/t2 into r0;
+    async t2 r0 into r1;
+    output r1 as test.aleo/t2.future;
+
+finalize t2:
+    input r0 as dependent.aleo/t2.future;
+    await r0;
+""", errors = "", warnings = "" },
+] }]]

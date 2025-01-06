@@ -325,7 +325,7 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
                         Type::Future(f) => {
                             // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
                             Type::Future(FutureType::new(
-                                finalize_input_map.get(&f.location.clone().unwrap()).unwrap().clone(),
+                                finalize_input_map.get(f.location.as_ref().unwrap()).unwrap().clone(),
                                 f.location.clone(),
                                 true,
                             ))
