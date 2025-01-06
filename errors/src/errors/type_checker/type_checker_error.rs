@@ -418,8 +418,7 @@ create_messages!(
         help: None,
     }
 
-    // TODO: Consider changing this to a warning.
-
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     assign_unit_expression_to_variable {
         args: (),
@@ -476,6 +475,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     unit_expression_only_in_return_statements {
         args: (),
@@ -975,5 +975,12 @@ create_messages!(
             "Received type `{rhs_type}` for the second operand of the operation `{operation}`."
         ),
         help: Some("Valid second operands are `u8`, `u16`, or `u32`".into()),
+    }
+
+    @formatted
+    unit_type_only_return {
+        args: (),
+        msg: "The unit type () may appear only as the return type of a function.".to_string(),
+        help: None,
     }
 );

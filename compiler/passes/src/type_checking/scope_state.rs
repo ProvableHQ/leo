@@ -25,8 +25,6 @@ pub struct ScopeState {
     pub(crate) variant: Option<Variant>,
     /// Whether or not the function that we are currently traversing has a return statement.
     pub(crate) has_return: bool,
-    /// Whether or not we are currently traversing a return statement.
-    pub(crate) is_return: bool,
     /// Current program name.
     pub(crate) program_name: Option<Symbol>,
     /// Whether or not we are currently traversing a stub.
@@ -50,7 +48,6 @@ impl ScopeState {
             function: None,
             variant: None,
             has_return: false,
-            is_return: false,
             program_name: None,
             is_stub: true,
             futures: IndexMap::new(),

@@ -1,9 +1,0 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
-Error [ETYC0372056]: Unit expressions can only be used in return statements.
-    --> compiler-test:10:13
-     |
-  10 |         foo(());
-     |             ^^
-"""]

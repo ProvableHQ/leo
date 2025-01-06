@@ -996,12 +996,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
         ty
     }
 
-    fn visit_unit(&mut self, input: &'a UnitExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        // Unit expression are only allowed inside a return statement.
-        if !self.scope_state.is_return {
-            self.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(input.span()));
-        }
-        self.maybe_assert_type(&Type::Unit, additional, input.span());
-        Type::Unit
+    fn visit_unit(&mut self, _input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        unreachable!("Unit expressions should not exist in normal code");
     }
 }

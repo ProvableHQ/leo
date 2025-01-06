@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372055]: The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements.
+Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
     --> compiler-test:11:9
      |
   11 |         let result: () = Mapping::set(amounts, addr, amount);

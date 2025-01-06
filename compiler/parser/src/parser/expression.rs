@@ -608,18 +608,20 @@ impl<N: Network> ParserContext<'_, N> {
 
         let (mut elements, trailing, span) = self.parse_expr_tuple()?;
 
-        match elements.len() {
-            // If the tuple expression is empty, return a `UnitExpression`.
-            0 => Ok(Expression::Unit(UnitExpression { span, id: self.node_builder.next_id() })),
-            1 => match trailing {
+        match (elements.len(), trailing) {
+            (0, _) | (1, true) => {
+                // A tuple with 0 or 1 elements - emit an error since tuples must have at least two elements.
+                Err(ParserError::tuple_must_have_at_least_two_elements("expression", span).into())
+            }
+            (1, false) => {
                 // If there is one element in the tuple but no trailing comma, e.g `(foo)`, return the element.
-                false => Ok(elements.swap_remove(0)),
-                // If there is one element in the tuple and a trailing comma, e.g `(foo,)`, emit an error since tuples must have at least two elements.
-                true => Err(ParserError::tuple_must_have_at_least_two_elements("expression", span).into()),
-            },
-            // Otherwise, return a tuple expression.
-            // Note: This is the only place where `TupleExpression` is constructed in the parser.
-            _ => Ok(Expression::Tuple(TupleExpression { elements, span, id: self.node_builder.next_id() })),
+                Ok(elements.remove(0))
+            }
+            _ => {
+                // Otherwise, return a tuple expression.
+                // Note: This is the only place where `TupleExpression` is constructed in the parser.
+                Ok(Expression::Tuple(TupleExpression { elements, span, id: self.node_builder.next_id() }))
+            }
         }
     }
 

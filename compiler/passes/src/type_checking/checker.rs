@@ -856,29 +856,30 @@ impl<'a, N: Network> TypeChecker<'a, N> {
     }
 
     /// Emits an error if the type or its constituent types is not valid.
-    pub(crate) fn assert_type_is_valid(&mut self, type_: &Type, span: Span) -> bool {
-        let mut is_valid = true;
+    pub(crate) fn assert_type_is_valid(&mut self, type_: &Type, span: Span) {
         match type_ {
+            // Unit types may only appear as the return type of a function.
+            Type::Unit => {
+                self.emit_err(TypeCheckerError::unit_type_only_return(span));
+            }
             // String types are temporarily disabled.
             Type::String => {
-                is_valid = false;
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that the named composite type has been defined.
             Type::Composite(struct_) if self.lookup_struct(struct_.program, struct_.id.name).is_none() => {
-                is_valid = false;
                 self.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.elements().iter() {
-                    is_valid &= self.assert_type_is_valid(type_, span)
+                    self.assert_type_is_valid(type_, span);
                 }
             }
             // Check that the constituent types of mapping are valid.
             Type::Mapping(mapping_type) => {
-                is_valid &= self.assert_type_is_valid(&mapping_type.key, span);
-                is_valid &= self.assert_type_is_valid(&mapping_type.value, span);
+                self.assert_type_is_valid(&mapping_type.key, span);
+                self.assert_type_is_valid(&mapping_type.value, span);
             }
             // Check that the array element types are valid.
             Type::Array(array_type) => {
@@ -909,11 +910,10 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                     }
                     _ => {} // Do nothing.
                 }
-                is_valid &= self.assert_type_is_valid(array_type.element_type(), span)
+                self.assert_type_is_valid(array_type.element_type(), span);
             }
             _ => {} // Do nothing.
         }
-        is_valid
     }
 
     /// Emits an error if the type is not a mapping.
@@ -1067,17 +1067,19 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                     }
                 }
             }
-            // Check that the type of output is defined.
-            if self.assert_type_is_valid(&function_output.type_, function_output.span) {
-                // If the function is not a transition function, then it cannot output a record.
-                if let Type::Composite(struct_) = function_output.type_.clone() {
-                    if !function.variant.is_transition()
-                        && self.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record
-                    {
-                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
-                    }
+
+            // Check that the output type is valid.
+            self.assert_type_is_valid(&function_output.type_, function_output.span);
+
+            // If the function is not a transition function, then it cannot output a record.
+            if let Type::Composite(struct_) = function_output.type_.clone() {
+                if !function.variant.is_transition()
+                    && self.lookup_struct(struct_.program, struct_.id.name).map_or(false, |s| s.is_record)
+                {
+                    self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
                 }
             }
+
             // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
             if matches!(&function_output.type_, Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
