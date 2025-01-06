@@ -317,10 +317,37 @@ impl<N: Network> ParserContext<'_, N> {
 
         // TODO: Verify that this check is sound.
         // Check that there is no whitespace or comments in between the `@` symbol and identifier.
-        match identifier.span.hi.0 - start.lo.0 > 1 + identifier.name.to_string().len() as u32 {
-            true => Err(ParserError::space_in_annotation(span).into()),
-            false => Ok(Annotation { identifier, span, id: self.node_builder.next_id() }),
+        if identifier.span.hi.0 - start.lo.0 > 1 + identifier.name.to_string().len() as u32 {
+            return Err(ParserError::space_in_annotation(span).into());
         }
+
+        // Optionally parse the data associated with the annotation.
+        // The data is a comma-separated sequence of identifiers or identifiers with associated strings.
+        // For example, `@test(should_fail, private_key = "foobar")`
+        let (data, span) = match &self.token.token {
+            Token::LeftParen => {
+                let (data, _, span) = self.parse_paren_comma_list(|p| {
+                    let key = p.expect_identifier()?;
+                    let value = if p.eat(&Token::Eq) {
+                        match &p.token.token {
+                            Token::StaticString(s) => {
+                                let value = s.clone();
+                                p.expect(&Token::StaticString(value.clone()))?;
+                                Some(value)
+                            }
+                            _ => return Err(ParserError::expected_string_literal_in_annotation(p.token.span).into()),
+                        }
+                    } else {
+                        None
+                    };
+                    Ok(Some((key, value)))
+                })?;
+                (data.into_iter().collect(), span)
+            }
+            _ => (Default::default(), span),
+        };
+
+        Ok(Annotation { identifier, data, span, id: self.node_builder.next_id() })
     }
 
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name

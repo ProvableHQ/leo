@@ -372,4 +372,11 @@ create_messages!(
         msg: format!("Identifier {ident} is too long ({length} bytes; maximum is {max_length})"),
         help: None,
     }
+
+    @formatted
+    expected_string_literal_in_annotation {
+        args: (),
+        msg: format!("Expected a string literal in annotation body"),
+        help: Some("The body of an annotation can either be an identifier or an identifier-string par. For example, `foo`, `foo = \"bar\"`".to_string()),
+    }
 );

@@ -18,6 +18,7 @@ use crate::{Identifier, Node, NodeID, simple_node_impl};
 
 use leo_span::Span;
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -27,6 +28,8 @@ pub struct Annotation {
     // TODO: Consider using a symbol instead of an identifier.
     /// The name of the annotation.
     pub identifier: Identifier,
+    /// The data associated with the annotation.
+    pub data: IndexMap<Identifier, Option<String>>,
     /// A span locating where the annotation occurred in the source.
     pub span: Span,
     /// The ID of the node.
@@ -37,6 +40,19 @@ simple_node_impl!(Annotation);
 
 impl fmt::Display for Annotation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "@{}", self.identifier)
+        let data = match self.data.is_empty() {
+            true => "".to_string(),
+            false => {
+                let mut string = String::new();
+                for (key, value) in self.data.iter() {
+                    match value {
+                        None => string.push_str(&format!("{key},")),
+                        Some(value) => string.push_str(&format!("{key} = \"{value}\",")),
+                    }
+                }
+                string
+            }
+        };
+        write!(f, "@{}{}", self.identifier, data)
     }
 }

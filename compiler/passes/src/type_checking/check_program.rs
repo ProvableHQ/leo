@@ -237,7 +237,7 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
 
     fn visit_function(&mut self, function: &'a Function) {
         // Check that the function's annotations are valid.
-        let valid_annotations = [sym::should_fail, sym::compiled_test, sym::interpreted_test];
+        let valid_annotations = [sym::should_fail, sym::test];
         for annotation in function.annotations.iter() {
             // All Leo annotations currently apply only to test code.
             if !self.build_tests || !valid_annotations.contains(&annotation.identifier.name) {

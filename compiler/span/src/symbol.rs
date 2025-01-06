@@ -238,8 +238,7 @@ symbols! {
 
     // annotations
     should_fail,
-    compiled_test,
-    interpreted_test,
+    test,
 
     // general keywords
     As: "as",
