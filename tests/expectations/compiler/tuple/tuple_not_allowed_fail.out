@@ -21,11 +21,6 @@ Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
      |
   13 |         return (1u8, (2u16, 3u32));
      |                      ^^^^^^^^^^^^
-Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
-    --> compiler-test:13:22
-     |
-  13 |         return (1u8, (2u16, 3u32));
-     |                      ^^^^^^^^^^^^
 Error [ETYC0372117]: Expected an integer but type `(u8, u16)` was found.
     --> compiler-test:17:13
      |

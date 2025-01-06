@@ -1,13 +1,7 @@
 namespace = "Compile"
 expectation = "Pass"
-outputs = [[{ compile = [{ initial_symbol_table = "5931e9e8bf3df8ca226d00a479f35404edcc010093d1eb360dc67d82391b1538", type_checked_symbol_table = "bac9de371b7871ec03c288aa6f1f932d59509e79fbecdda79dca5f1944e347d6", unrolled_symbol_table = "bac9de371b7871ec03c288aa6f1f932d59509e79fbecdda79dca5f1944e347d6", initial_ast = "5656071e540418bee7f1d24156ca443a68904977039c84ca8b060ead7d0195f3", unrolled_ast = "5656071e540418bee7f1d24156ca443a68904977039c84ca8b060ead7d0195f3", ssa_ast = "5656071e540418bee7f1d24156ca443a68904977039c84ca8b060ead7d0195f3", flattened_ast = "63bfc28e505ec93892a04a9c61e20040aba6af50526c30b19847ea0a02a26d23", destructured_ast = "c963649c5ab9a1fd4f8883e674465a2c4b331b9e0fa9cc8ea5b938dc65ca8e30", inlined_ast = "c963649c5ab9a1fd4f8883e674465a2c4b331b9e0fa9cc8ea5b938dc65ca8e30", dce_ast = "c963649c5ab9a1fd4f8883e674465a2c4b331b9e0fa9cc8ea5b938dc65ca8e30", bytecode = """
+outputs = [[{ compile = [{ initial_symbol_table = "5f63fbb0866219290b9c25ae6150dcf7df23b35fc63dcd13c6e085fa507d546b", type_checked_symbol_table = "2fbc99ea074d672d430fcb5c2e4db60d732bff120cb77c25997e1efdb4168493", unrolled_symbol_table = "2fbc99ea074d672d430fcb5c2e4db60d732bff120cb77c25997e1efdb4168493", initial_ast = "2744442271ec20dc37bf0b9bf73e39079da06b8c5cdd134e3f5d931a955c8edf", unrolled_ast = "2744442271ec20dc37bf0b9bf73e39079da06b8c5cdd134e3f5d931a955c8edf", ssa_ast = "2744442271ec20dc37bf0b9bf73e39079da06b8c5cdd134e3f5d931a955c8edf", flattened_ast = "b7f1c450d79cd7a78d9e174e20b5b8a4feb687eb3782a031f50d0bddb2639863", destructured_ast = "4cdc7012d694d9c2b854780bdee40ae4eceaa809a0d05cd40285efd37aac90ce", inlined_ast = "4cdc7012d694d9c2b854780bdee40ae4eceaa809a0d05cd40285efd37aac90ce", dce_ast = "4cdc7012d694d9c2b854780bdee40ae4eceaa809a0d05cd40285efd37aac90ce", bytecode = """
 program test.aleo;
-
-function foo:
-    input r0 as u8.private;
-    input r1 as u8.private;
-    assert.eq r0 r1;
-    assert.eq r1 r0;
 
 function bar:
     input r0 as u8.private;
@@ -16,12 +10,6 @@ function bar:
     assert.eq r1 r0;
 
 function baz:
-    input r0 as u8.private;
-    input r1 as u8.private;
-    assert.eq r0 r1;
-    assert.eq r1 r0;
-
-function floo:
     input r0 as u8.private;
     input r1 as u8.private;
     assert.eq r0 r1;

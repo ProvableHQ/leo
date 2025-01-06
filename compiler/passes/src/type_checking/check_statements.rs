@@ -222,8 +222,6 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
 
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
-            // If the type is an empty tuple, return an error.
-            Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             // If the type is a singleton tuple, return an error.
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
@@ -421,20 +419,12 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         // Set the `has_return` flag.
         self.scope_state.has_return = true;
 
-        // Check that the return expression is not a nested tuple.
-        if let Expression::Tuple(TupleExpression { elements, .. }) = &input.expression {
-            for element in elements {
-                if matches!(element, Expression::Tuple(_)) {
-                    self.emit_err(TypeCheckerError::nested_tuple_expression(element.span()));
-                }
-            }
-        }
-
-        // Set the `is_return` flag. This is necessary to allow unit expressions in the return statement.
-        self.scope_state.is_return = true;
         // Type check the associated expression.
-        self.visit_expression(&input.expression, &return_type);
-        // Unset the `is_return` flag.
-        self.scope_state.is_return = false;
+        if let Expression::Unit(..) = input.expression {
+            // TODO - do will this error message be appropriate?
+            self.maybe_assert_type(&Type::Unit, &return_type, input.expression.span());
+        } else {
+            self.visit_expression(&input.expression, &return_type);
+        }
     }
 }
