@@ -1000,12 +1000,7 @@
 <a href="#999" id="999">999</a>
 <a href="#1000" id="1000">1000</a>
 <a href="#1001" id="1001">1001</a>
-<a href="#1002" id="1002">1002</a>
-<a href="#1003" id="1003">1003</a>
-<a href="#1004" id="1004">1004</a>
-<a href="#1005" id="1005">1005</a>
-<a href="#1006" id="1006">1006</a>
-<a href="#1007" id="1007">1007</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#1002" id="1002">1002</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -2003,13 +1998,8 @@
         ty
     }
 
-    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnitExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="comment">// Unit expression are only allowed inside a return statement.
-        </span><span class="kw">if </span>!<span class="self">self</span>.scope_state.is_return {
-            <span class="self">self</span>.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(input.span()));
-        }
-        <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>Type::Unit, additional, input.span());
-        Type::Unit
+    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="macro">unreachable!</span>(<span class="string">"Unit expressions should not exist in normal code"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

@@ -70,10 +70,7 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#72" id="72">72</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -100,8 +97,6 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) variant: <span class="prelude-ty">Option</span>&lt;Variant&gt;,
     <span class="doccomment">/// Whether or not the function that we are currently traversing has a return statement.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_return: bool,
-    <span class="doccomment">/// Whether or not we are currently traversing a return statement.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_return: bool,
     <span class="doccomment">/// Current program name.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) program_name: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
     <span class="doccomment">/// Whether or not we are currently traversing a stub.
@@ -125,7 +120,6 @@
             function: <span class="prelude-val">None</span>,
             variant: <span class="prelude-val">None</span>,
             has_return: <span class="bool-val">false</span>,
-            is_return: <span class="bool-val">false</span>,
             program_name: <span class="prelude-val">None</span>,
             is_stub: <span class="bool-val">true</span>,
             futures: IndexMap::new(),

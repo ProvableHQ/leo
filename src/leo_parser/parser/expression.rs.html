@@ -850,7 +850,9 @@
 <a href="#849" id="849">849</a>
 <a href="#850" id="850">850</a>
 <a href="#851" id="851">851</a>
-<a href="#852" id="852">852</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1460,18 +1462,20 @@
 
         <span class="kw">let </span>(<span class="kw-2">mut </span>elements, trailing, span) = <span class="self">self</span>.parse_expr_tuple()<span class="question-mark">?</span>;
 
-        <span class="kw">match </span>elements.len() {
-            <span class="comment">// If the tuple expression is empty, return a `UnitExpression`.
-            </span><span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>(Expression::Unit(UnitExpression { span, id: <span class="self">self</span>.node_builder.next_id() })),
-            <span class="number">1 </span>=&gt; <span class="kw">match </span>trailing {
+        <span class="kw">match </span>(elements.len(), trailing) {
+            (<span class="number">0</span>, <span class="kw">_</span>) | (<span class="number">1</span>, <span class="bool-val">true</span>) =&gt; {
+                <span class="comment">// A tuple with 0 or 1 elements - emit an error since tuples must have at least two elements.
+                </span><span class="prelude-val">Err</span>(ParserError::tuple_must_have_at_least_two_elements(<span class="string">"expression"</span>, span).into())
+            }
+            (<span class="number">1</span>, <span class="bool-val">false</span>) =&gt; {
                 <span class="comment">// If there is one element in the tuple but no trailing comma, e.g `(foo)`, return the element.
-                </span><span class="bool-val">false </span>=&gt; <span class="prelude-val">Ok</span>(elements.swap_remove(<span class="number">0</span>)),
-                <span class="comment">// If there is one element in the tuple and a trailing comma, e.g `(foo,)`, emit an error since tuples must have at least two elements.
-                </span><span class="bool-val">true </span>=&gt; <span class="prelude-val">Err</span>(ParserError::tuple_must_have_at_least_two_elements(<span class="string">"expression"</span>, span).into()),
-            },
-            <span class="comment">// Otherwise, return a tuple expression.
-            // Note: This is the only place where `TupleExpression` is constructed in the parser.
-            </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Expression::Tuple(TupleExpression { elements, span, id: <span class="self">self</span>.node_builder.next_id() })),
+                </span><span class="prelude-val">Ok</span>(elements.remove(<span class="number">0</span>))
+            }
+            <span class="kw">_ </span>=&gt; {
+                <span class="comment">// Otherwise, return a tuple expression.
+                // Note: This is the only place where `TupleExpression` is constructed in the parser.
+                </span><span class="prelude-val">Ok</span>(Expression::Tuple(TupleExpression { elements, span, id: <span class="self">self</span>.node_builder.next_id() }))
+            }
         }
     }
 

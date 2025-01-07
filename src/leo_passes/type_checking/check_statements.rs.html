@@ -428,17 +428,7 @@
 <a href="#427" id="427">427</a>
 <a href="#428" id="428">428</a>
 <a href="#429" id="429">429</a>
-<a href="#430" id="430">430</a>
-<a href="#431" id="431">431</a>
-<a href="#432" id="432">432</a>
-<a href="#433" id="433">433</a>
-<a href="#434" id="434">434</a>
-<a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#430" id="430">430</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -662,8 +652,6 @@
 
         <span class="comment">// Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
-            <span class="comment">// If the type is an empty tuple, return an error.
-            </span>Type::Unit =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             <span class="comment">// If the type is a singleton tuple, return an error.
             </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
                 <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that tuple types have at least two elements."</span>),
@@ -861,21 +849,13 @@
         <span class="comment">// Set the `has_return` flag.
         </span><span class="self">self</span>.scope_state.has_return = <span class="bool-val">true</span>;
 
-        <span class="comment">// Check that the return expression is not a nested tuple.
-        </span><span class="kw">if let </span>Expression::Tuple(TupleExpression { elements, .. }) = <span class="kw-2">&amp;</span>input.expression {
-            <span class="kw">for </span>element <span class="kw">in </span>elements {
-                <span class="kw">if </span><span class="macro">matches!</span>(element, Expression::Tuple(<span class="kw">_</span>)) {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_expression(element.span()));
-                }
-            }
-        }
-
-        <span class="comment">// Set the `is_return` flag. This is necessary to allow unit expressions in the return statement.
-        </span><span class="self">self</span>.scope_state.is_return = <span class="bool-val">true</span>;
         <span class="comment">// Type check the associated expression.
-        </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>return_type);
-        <span class="comment">// Unset the `is_return` flag.
-        </span><span class="self">self</span>.scope_state.is_return = <span class="bool-val">false</span>;
+        </span><span class="kw">if let </span>Expression::Unit(..) = input.expression {
+            <span class="comment">// TODO - do will this error message be appropriate?
+            </span><span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>Type::Unit, <span class="kw-2">&amp;</span>return_type, input.expression.span());
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>return_type);
+        }
     }
 }
 </code></pre></div></section></main></body></html>

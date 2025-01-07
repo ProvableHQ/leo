@@ -241,10 +241,7 @@
 <a href="#240" id="240">240</a>
 <a href="#241" id="241">241</a>
 <a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#243" id="243">243</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -326,59 +323,56 @@
     }
 
     <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ReturnStatement) -&gt; String {
-        <span class="kw">let </span>outputs = <span class="kw">match </span>input.expression {
+        <span class="kw">if let </span>Expression::Unit(..) = input.expression {
             <span class="comment">// Skip empty return statements.
-            </span>Expression::Unit(<span class="kw">_</span>) =&gt; String::new(),
-            <span class="kw">_ </span>=&gt; {
-                <span class="kw">let </span>(operand, <span class="kw-2">mut </span>expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression);
-                <span class="comment">// Get the output type of the function.
-                </span><span class="kw">let </span>output = <span class="self">self</span>.current_function.unwrap().output.iter();
-                <span class="comment">// If the operand string is empty, initialize an empty vector.
-                </span><span class="kw">let </span>operand_strings = <span class="kw">match </span>operand.is_empty() {
-                    <span class="bool-val">true </span>=&gt; <span class="macro">vec!</span>[],
-                    <span class="bool-val">false </span>=&gt; operand.split(<span class="string">' '</span>).collect_vec(),
-                };
+            </span><span class="kw">return </span>String::new();
+        }
 
-                <span class="kw">let </span><span class="kw-2">mut </span>future_output = String::new();
-                <span class="kw">let </span><span class="kw-2">mut </span>instructions = operand_strings
-                    .iter()
-                    .zip_eq(output)
-                    .map(|(operand, output)| {
-                        <span class="comment">// Transitions outputs with no mode are private.
-                        // Note that this unwrap is safe because we set the variant before traversing the function.
-                        </span><span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.variant.unwrap().is_transition(), output.mode) {
-                            (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Private,
-                            (<span class="kw">_</span>, mode) =&gt; mode,
-                        };
-
-                        <span class="kw">if let </span>Type::Future(<span class="kw">_</span>) = output.type_ {
-                            future_output = <span class="macro">format!</span>(
-                                <span class="string">"    output {} as {}.aleo/{}.future;\n"</span>,
-                                operand,
-                                <span class="self">self</span>.program_id.unwrap().name,
-                                <span class="self">self</span>.current_function.unwrap().identifier,
-                            );
-                            String::new()
-                        } <span class="kw">else </span>{
-                            <span class="macro">format!</span>(
-                                <span class="string">"    output {} as {};\n"</span>,
-                                operand,
-                                <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>output.type_, visibility)
-                            )
-                        }
-                    })
-                    .join(<span class="string">""</span>);
-
-                <span class="comment">// Insert future output at the end.
-                </span>instructions.push_str(<span class="kw-2">&amp;</span>future_output);
-
-                expression_instructions.push_str(<span class="kw-2">&amp;</span>instructions);
-
-                expression_instructions
-            }
+        <span class="kw">let </span>(operand, <span class="kw-2">mut </span>expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression);
+        <span class="comment">// Get the output type of the function.
+        </span><span class="kw">let </span>output = <span class="self">self</span>.current_function.unwrap().output.iter();
+        <span class="comment">// If the operand string is empty, initialize an empty vector.
+        </span><span class="kw">let </span>operand_strings = <span class="kw">match </span>operand.is_empty() {
+            <span class="bool-val">true </span>=&gt; <span class="macro">vec!</span>[],
+            <span class="bool-val">false </span>=&gt; operand.split(<span class="string">' '</span>).collect_vec(),
         };
 
-        outputs
+        <span class="kw">let </span><span class="kw-2">mut </span>future_output = String::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>instructions = operand_strings
+            .iter()
+            .zip_eq(output)
+            .map(|(operand, output)| {
+                <span class="comment">// Transitions outputs with no mode are private.
+                // Note that this unwrap is safe because we set the variant before traversing the function.
+                </span><span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.variant.unwrap().is_transition(), output.mode) {
+                    (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Private,
+                    (<span class="kw">_</span>, mode) =&gt; mode,
+                };
+
+                <span class="kw">if let </span>Type::Future(<span class="kw">_</span>) = output.type_ {
+                    future_output = <span class="macro">format!</span>(
+                        <span class="string">"    output {} as {}.aleo/{}.future;\n"</span>,
+                        operand,
+                        <span class="self">self</span>.program_id.unwrap().name,
+                        <span class="self">self</span>.current_function.unwrap().identifier,
+                    );
+                    String::new()
+                } <span class="kw">else </span>{
+                    <span class="macro">format!</span>(
+                        <span class="string">"    output {} as {};\n"</span>,
+                        operand,
+                        <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>output.type_, visibility)
+                    )
+                }
+            })
+            .join(<span class="string">""</span>);
+
+        <span class="comment">// Insert future output at the end.
+        </span>instructions.push_str(<span class="kw-2">&amp;</span>future_output);
+
+        expression_instructions.push_str(<span class="kw-2">&amp;</span>instructions);
+
+        expression_instructions
     }
 
     <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DefinitionStatement) -&gt; String {

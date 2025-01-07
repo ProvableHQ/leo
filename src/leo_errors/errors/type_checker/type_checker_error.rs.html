@@ -977,7 +977,14 @@
 <a href="#976" id="976">976</a>
 <a href="#977" id="977">977</a>
 <a href="#978" id="978">978</a>
-<a href="#979" id="979">979</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1397,8 +1404,7 @@
         help: <span class="prelude-val">None</span>,
     }
 
-    <span class="comment">// TODO: Consider changing this to a warning.
-
+    <span class="comment">// TODO This error is unused. Remove it in a future version.
     </span>@formatted
     assign_unit_expression_to_variable {
         args: (),
@@ -1455,7 +1461,8 @@
         help: <span class="prelude-val">None</span>,
     }
 
-    @formatted
+    <span class="comment">// TODO This error is unused. Remove it in a future version.
+    </span>@formatted
     unit_expression_only_in_return_statements {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"Unit expressions can only be used in return statements."</span>),
@@ -1954,6 +1961,13 @@
             <span class="string">"Received type `{rhs_type}` for the second operand of the operation `{operation}`."
         </span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"Valid second operands are `u8`, `u16`, or `u32`"</span>.into()),
+    }
+
+    @formatted
+    unit_type_only_return {
+        args: (),
+        msg: <span class="string">"The unit type () may appear only as the return type of a function."</span>.to_string(),
+        help: <span class="prelude-val">None</span>,
     }
 );
 </code></pre></div></section></main></body></html>
