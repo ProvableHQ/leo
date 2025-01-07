@@ -34,7 +34,11 @@
 <a href="#33" id="33">33</a>
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
-<a href="#36" id="36">36</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -67,7 +71,11 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>CompositeType {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"{id}"</span>, id = <span class="self">self</span>.id)
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(program) = <span class="self">self</span>.program {
+            <span class="macro">write!</span>(f, <span class="string">"{}.aleo/{}"</span>, program, <span class="self">self</span>.id)
+        } <span class="kw">else </span>{
+            <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.id)
+        }
     }
 }
 </code></pre></div></section></main></body></html>

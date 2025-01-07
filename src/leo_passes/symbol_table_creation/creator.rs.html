@@ -152,7 +152,8 @@
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -226,7 +227,8 @@
         </span><span class="kw">if </span>!input.is_record &amp;&amp; !<span class="self">self</span>.structs.insert(input.name()) {
             <span class="kw">return </span><span class="self">self</span>.handler.emit_err::&lt;LeoError&gt;(AstError::shadowed_struct(input.name(), input.span).into());
         }
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(Location::new(input.external, input.name()), input) {
+        <span class="kw">let </span>program_name = input.external.or(<span class="self">self</span>.program_name);
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(Location::new(program_name, input.name()), input) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }

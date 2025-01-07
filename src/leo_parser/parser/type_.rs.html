@@ -267,7 +267,7 @@
                 }
             }
 
-            <span class="prelude-val">Ok</span>((Type::Composite(CompositeType { id: ident, program: <span class="self">self</span>.program_name }), ident.span))
+            <span class="prelude-val">Ok</span>((Type::Composite(CompositeType { id: ident, program: <span class="prelude-val">None </span>}), ident.span))
         } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::LeftSquare {
             <span class="comment">// Parse the left bracket.
             </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftSquare)<span class="question-mark">?</span>;

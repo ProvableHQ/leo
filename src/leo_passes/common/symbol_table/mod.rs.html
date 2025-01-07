@@ -347,7 +347,11 @@
 <a href="#346" id="346">346</a>
 <a href="#347" id="347">347</a>
 <a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -558,6 +562,10 @@
     </span><span class="kw">pub fn </span>lookup_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, location: Location, main_program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Composite&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>location) {
             <span class="kw">return </span><span class="prelude-val">Some</span>(struct_);
+        } <span class="kw">else if </span>location.program.is_none() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>Location::new(main_program, location.name)) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(struct_);
+            }
         } <span class="kw">else if </span>location.program == main_program {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>Location::new(<span class="prelude-val">None</span>, location.name)) {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(struct_);

@@ -920,7 +920,64 @@
 <a href="#919" id="919">919</a>
 <a href="#920" id="920">920</a>
 <a href="#921" id="921">921</a>
-<a href="#922" id="922">922</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1741,8 +1798,8 @@
     @formatted
     external_transition_call_must_be_before_finalize {
         args: (),
-        msg: <span class="string">"External async transition calls cannot be made after local async function call"</span>.to_string(),
-        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call before the function call."</span>.to_string()),
+        msg: <span class="string">"External transition calls cannot be made after local async function call"</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async function call before the transition call."</span>.to_string()),
     }
 
     @formatted
@@ -1840,6 +1897,63 @@
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"Futures may only appear as parameters to async functions."</span>),
         help: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// For when the user tries to assign to a const input.
+    ///
+    /// This is a replacement for `type_should_be` with a slightly better message.
+    </span>@formatted
+    type_should_be2 {
+        args: (type_: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">"Expected {expected} but type `{type_}` was found."</span>,
+        ),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    ternary_branch_mismatch {
+        args: (type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">"Received different types `{type1}` and `{type2}` for the arms of a ternary conditional."
+        </span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Make both branches the same type."</span>.into()),
+    }
+
+    @formatted
+    operation_types_mismatch {
+        args: (operation: <span class="kw">impl </span>Display, type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">"Received different types `{type1}` and `{type2}` for the operation `{operation}`."
+        </span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Make both operands the same type."</span>.into()),
+    }
+
+    @formatted
+    mul_types_mismatch {
+        args: (type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">"Received types `{type1}` and `{type2}` for the operation `*`."
+        </span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Valid operands are two integers of the same type, two fields, or a scalar and a group."</span>.into()),
+    }
+
+    @formatted
+    pow_types_mismatch {
+        args: (type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">"Received types `{type1}` and `{type2}` for the operation `pow`."
+        </span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Valid operands are two fields, or an integer base and a `u8`, `u16`, or `u32` exponent."</span>.into()),
+    }
+
+    @formatted
+    shift_type_magnitude {
+        args: (operation: <span class="kw">impl </span>Display, rhs_type: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">"Received type `{rhs_type}` for the second operand of the operation `{operation}`."
+        </span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Valid second operands are `u8`, `u16`, or `u32`"</span>.into()),
     }
 );
 </code></pre></div></section></main></body></html>

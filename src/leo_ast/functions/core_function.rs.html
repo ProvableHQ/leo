@@ -1135,7 +1135,7 @@
 </span><span class="kw">use </span>leo_span::{Symbol, sym};
 
 <span class="doccomment">/// A core instruction that maps directly to an AVM bytecode instruction.
-</span><span class="attr">#[derive(Clone, PartialEq, Eq)]
+</span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>CoreFunction {
     BHP256CommitToAddress,
     BHP256CommitToField,

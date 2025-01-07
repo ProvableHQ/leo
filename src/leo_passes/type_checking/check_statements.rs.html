@@ -437,7 +437,8 @@
 <a href="#436" id="436">436</a>
 <a href="#437" id="437">437</a>
 <a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -487,15 +488,17 @@
     <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssertStatement) {
         <span class="kw">match </span><span class="kw-2">&amp;</span>input.variant {
             AssertVariant::Assert(expr) =&gt; {
-                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
-                <span class="self">self</span>.assert_bool_type(<span class="kw-2">&amp;</span>type_, expr.span());
+                <span class="kw">let </span>_type = <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
             }
             AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) =&gt; {
                 <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(left, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
                 <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(right, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 
-                <span class="comment">// Check that the types are equal.
-                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
+                <span class="kw">if </span>t1 != Type::Err &amp;&amp; t2 != Type::Err &amp;&amp; !<span class="self">self</span>.eq_user(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2) {
+                    <span class="kw">let </span>op =
+                        <span class="kw">if </span><span class="macro">matches!</span>(input.variant, AssertVariant::AssertEq(..)) { <span class="string">"assert_eq" </span>} <span class="kw">else </span>{ <span class="string">"assert_neq" </span>};
+                    <span class="self">self</span>.emit_err(TypeCheckerError::operation_types_mismatch(op, t1, t2, input.span()));
+                }
             }
         }
     }
@@ -685,7 +688,7 @@
         <span class="comment">// Insert the variables into the symbol table.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
             Expression::Identifier(identifier) =&gt; {
-                <span class="self">self</span>.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), identifier.span)
+                <span class="self">self</span>.insert_variable(<span class="prelude-val">Some</span>(inferred_type.clone()), identifier, input.type_.clone(), identifier.span)
             }
             Expression::Tuple(tuple_expression) =&gt; {
                 <span class="kw">let </span>tuple_type = <span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
@@ -703,11 +706,11 @@
                 }
 
                 <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..tuple_expression.elements.len() {
-                    <span class="kw">let </span>inferred = <span class="kw">if let </span><span class="prelude-val">Some</span>(Type::Tuple(inferred_tuple)) = <span class="kw-2">&amp;</span>inferred_type {
-                        inferred_tuple.elements().get(i).cloned()
+                    <span class="kw">let </span>inferred = <span class="kw">if let </span>Type::Tuple(inferred_tuple) = <span class="kw-2">&amp;</span>inferred_type {
+                        inferred_tuple.elements().get(i).cloned().unwrap_or_default()
                     } <span class="kw">else </span>{
-                        <span class="prelude-val">None
-                    </span>};
+                        Type::Err
+                    };
                     <span class="kw">let </span>expr = <span class="kw-2">&amp;</span>tuple_expression.elements[i];
                     <span class="kw">let </span>identifier = <span class="kw">match </span>expr {
                         Expression::Identifier(identifier) =&gt; identifier,
@@ -716,7 +719,7 @@
                                 </span>.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
                         }
                     };
-                    <span class="self">self</span>.insert_variable(inferred, identifier, tuple_type.elements()[i].clone(), identifier.span);
+                    <span class="self">self</span>.insert_variable(<span class="prelude-val">Some</span>(inferred), identifier, tuple_type.elements()[i].clone(), identifier.span);
                 }
             }
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
@@ -737,8 +740,7 @@
     }
 
     <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>IterationStatement) {
-        <span class="kw">let </span>iter_type = <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone());
-        <span class="self">self</span>.assert_int_type(iter_type, input.variable.span);
+        <span class="self">self</span>.assert_int_type(<span class="kw-2">&amp;</span>input.type_, input.variable.span);
 
         <span class="comment">// Create a new scope for the loop body.
         </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
@@ -772,7 +774,7 @@
         </span><span class="self">self</span>.exit_scope(scope_index);
 
         <span class="comment">// Check that the literal is valid.
-        </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.start, iter_type);
+        </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.start, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone()));
 
         <span class="comment">// If `input.start` is a valid literal, instantiate it as a value.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.start {
@@ -792,7 +794,7 @@
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.start.span())),
         }
 
-        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.stop, iter_type);
+        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.stop, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone()));
 
         <span class="comment">// If `input.stop` is a valid literal, instantiate it as a value.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.stop {
