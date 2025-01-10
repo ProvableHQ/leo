@@ -31,7 +31,7 @@ use snarkvm::{
 use indexmap::IndexMap;
 use leo_package::tst::TestDirectory;
 use leo_span::source_map::FileName;
-use snarkvm::prelude::CanaryV0;
+use snarkvm::prelude::{CanaryV0, Program};
 use std::{
     io::Write,
     path::{Path, PathBuf},
@@ -252,6 +252,12 @@ fn compile_tests<N: Network>(
     // Get the files in `/tests` directory.
     let test_files = TestDirectory::files(package_path)?;
 
+    // Create a subdirectory for the built tests.
+    let build_dir = BuildDirectory::open(package_path)?;
+    let test_dir = build_dir.join("tests");
+    std::fs::create_dir_all(&test_dir)
+        .map_err(|e| CliError::general_cli_error(format!("Failed to create `build/tests` directory: {e}")))?;
+
     // Construct the compiler.
     let mut compiler = Compiler::<N>::new(
         "tests".to_string(),
@@ -263,6 +269,9 @@ fn compile_tests<N: Network>(
     );
 
     // Read and compile the test files individually.
+    // For each test file, we create a new package.
+    // This is because tests files themselves are valid Leo programs that can be deployed and executed.
+    // A test program with the name `foo.aleo` will be compiled to package at `build/tests/foo.aleo`.
     for file_path in test_files {
         // Read the test file.
         let file_content = std::fs::read_to_string(&file_path).map_err(|e| {
@@ -276,19 +285,24 @@ fn compile_tests<N: Network>(
         compiler.reset(vec![(FileName::Real(file_path.clone()), file_content)]);
 
         // Compile the test file.
-        let output = compiler.compile_tests()?;
+        let (output, test_manifest) = compiler.compile_tests()?;
+        // Parse the program.
+        let program = Program::<N>::from_str(&output)?;
+        // Get the program ID.
+        let program_id = program.id();
 
-        // Create a subdirectory for the test.
-        let build_dir = BuildDirectory::open(package_path)?;
-        let test_dir = build_dir.join("tests");
-        std::fs::create_dir_all(&test_dir)
-            .map_err(|e| CliError::general_cli_error(format!("Failed to create `build/tests` directory: {e}")))?;
+        // Initialize the test package path.
+        let test_package_name = program_id.name().to_string();
+        let program_id = ProgramID::<N>::from_str(&test_package_name)?;
+        let test_package_path = test_dir.join(test_package_name);
 
-        // Write the outputs.
-        let test_file_name = file_path.file_name().unwrap().to_str().unwrap();
-        let test_file_path = test_dir.join(test_file_name);
-        std::fs::write(&test_file_path, output).map_err(|e| {
-            CliError::general_cli_error(format!("Failed to write test file '{:?}': {e}", test_file_path))
+        // Initialize a new package.
+        Package::create(&test_package_path, &program_id)?;
+
+        // Write the program to the `main.aleo` file in the test package.
+        let main_file_path = test_package_path.join("main.aleo");
+        std::fs::write(&main_file_path, output).map_err(|e| {
+            CliError::general_cli_error(format!("Failed to write test file '{:?}': {e}", main_file_path))
         })?;
     }
     tracing::info!("✅ Compiled tests for '{name}'");

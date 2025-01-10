@@ -323,6 +323,12 @@ impl<'a, N: Network> Compiler<'a, N> {
         Ok((symbol_table, struct_graph, call_graph))
     }
 
+    /// Generates the test manifest.
+    pub fn test_manifest_pass(&self) -> Result<TestManifest<N>> {
+        let manifest = TestManifestGenerator::do_pass((&self.ast, &self.handler))?;
+        Ok(manifest)
+    }
+
     /// Runs the test loop unrolling pass.
     pub fn test_loop_unrolling_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
         let (ast, symbol_table) = Unroller::do_pass((
@@ -437,9 +443,11 @@ impl<'a, N: Network> Compiler<'a, N> {
     }
 
     /// Runs the test compiler stages.
-    pub fn test_compiler_stages(&mut self) -> Result<(SymbolTable, StructGraph, CallGraph)> {
+    pub fn test_compiler_stages(&mut self) -> Result<(SymbolTable, StructGraph, CallGraph, TestManifest<N>)> {
         let st = self.test_symbol_table_pass()?;
         let (st, struct_graph, call_graph) = self.test_type_checker_pass(st)?;
+
+        let test_manifest = self.test_manifest_pass()?;
 
         let st = self.test_loop_unrolling_pass(st)?;
 
@@ -453,7 +461,7 @@ impl<'a, N: Network> Compiler<'a, N> {
 
         self.test_dead_code_elimination_pass()?;
 
-        Ok((st, struct_graph, call_graph))
+        Ok((st, struct_graph, call_graph, test_manifest))
     }
 
     /// Returns a compiled Leo program.
@@ -470,16 +478,16 @@ impl<'a, N: Network> Compiler<'a, N> {
     }
 
     /// Returns the compiled Leo tests.
-    pub fn compile_tests(&mut self) -> Result<String> {
+    pub fn compile_tests(&mut self) -> Result<(String, TestManifest<N>)> {
         // Parse the program.
         self.parse()?;
         // Copy the dependencies specified in `program.json` into the AST.
         self.add_import_stubs()?;
         // Run the intermediate compiler stages.
-        let (symbol_table, struct_graph, call_graph) = self.test_compiler_stages()?;
+        let (symbol_table, struct_graph, call_graph, test_manifest) = self.test_compiler_stages()?;
         // Run code generation.
         let bytecode = self.test_code_generation_pass(&symbol_table, &struct_graph, &call_graph)?;
-        Ok(bytecode)
+        Ok((bytecode, test_manifest))
     }
 
     /// Writes the AST to a JSON file.

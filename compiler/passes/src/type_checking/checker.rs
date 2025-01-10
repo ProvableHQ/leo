@@ -28,11 +28,11 @@ use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning, emitter::Handler};
 use leo_span::{Span, Symbol, sym};
 
-use snarkvm::{console::network::Network, prelude::PrivateKey};
+use snarkvm::console::network::Network;
 
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
-use std::{cell::RefCell, marker::PhantomData, ops::Deref, str::FromStr};
+use std::{cell::RefCell, marker::PhantomData, ops::Deref};
 
 pub struct TypeChecker<'a, N: Network> {
     /// The symbol table for the program.
@@ -1217,71 +1217,8 @@ impl<'a, N: Network> TypeChecker<'a, N> {
 
     // Check if the annotation is valid.
     pub(crate) fn check_annotation(&mut self, annotation: &Annotation) {
-        match annotation.identifier.name {
-            sym::test => {
-                // Check the annotation body.
-                for (key, value) in annotation.data.iter() {
-                    // Check that the key and associated value is valid.
-                    if key.name == Symbol::intern("private_key") {
-                        // Attempt to parse the value as a private key.
-                        match value {
-                            None => self.emit_warning(TypeCheckerWarning::missing_annotation_value(
-                                annotation.identifier,
-                                key,
-                                key.span,
-                            )),
-                            Some(string) => {
-                                if let Err(err) = PrivateKey::<N>::from_str(string) {
-                                    self.emit_warning(TypeCheckerWarning::invalid_annotation_value(
-                                        annotation.identifier,
-                                        key,
-                                        string,
-                                        err,
-                                        key.span,
-                                    ));
-                                }
-                            }
-                        }
-                    } else if key.name == Symbol::intern("seed") || key.name == Symbol::intern("batch") {
-                        // Attempt to parse the value as a u64.
-                        match value {
-                            None => self.emit_warning(TypeCheckerWarning::missing_annotation_value(
-                                annotation.identifier,
-                                key,
-                                key.span,
-                            )),
-                            Some(string) => {
-                                if let Err(err) = string.parse::<u64>() {
-                                    self.emit_warning(TypeCheckerWarning::invalid_annotation_value(
-                                        annotation.identifier,
-                                        key,
-                                        string,
-                                        err,
-                                        key.span,
-                                    ));
-                                }
-                            }
-                        }
-                    } else if key.name == Symbol::intern("should_fail") {
-                        // Check that there is no value associated with the key.
-                        if let Some(string) = value {
-                            self.emit_warning(TypeCheckerWarning::unexpected_annotation_value(
-                                annotation.identifier,
-                                key,
-                                string,
-                                key.span,
-                            ));
-                        }
-                    } else {
-                        self.emit_warning(TypeCheckerWarning::unknown_annotation_key(
-                            annotation.identifier,
-                            key,
-                            key.span,
-                        ))
-                    }
-                }
-            }
-            _ => self.emit_warning(TypeCheckerWarning::unknown_annotation(annotation.identifier, annotation.span)),
+        if annotation.identifier.name != sym::test {
+            self.emit_warning(TypeCheckerWarning::unknown_annotation(annotation.identifier, annotation.span));
         }
     }
 }

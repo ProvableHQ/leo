@@ -41,6 +41,9 @@ pub use function_inlining::*;
 pub mod loop_unrolling;
 pub use self::loop_unrolling::*;
 
+pub mod test_manifest_generation;
+pub use test_manifest_generation::*;
+
 pub mod pass;
 pub use self::pass::*;
 

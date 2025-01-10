@@ -59,32 +59,4 @@ create_messages!(
         msg: format!("Unknown annotation: `{annotation}`."),
         help: None,
     }
-
-    @formatted
-    unknown_annotation_key {
-        args: (annotation: impl Display, key: impl Display),
-        msg: format!("Unknown key `{key}` in annotation `{annotation}`."),
-        help: None,
-    }
-
-    @formatted
-    missing_annotation_value {
-        args: (annotation: impl Display, key: impl Display),
-        msg: format!("Missing value for key `{key}` in annotation `{annotation}`."),
-        help: None,
-    }
-
-    @formatted
-    invalid_annotation_value {
-        args: (annotation: impl Display, key: impl Display, value: impl Display, error: impl Display),
-        msg: format!("Invalid value `{value}` for key `{key}` in annotation `{annotation}`. Error: {error}"),
-        help: None,
-    }
-
-    @formatted
-    unexpected_annotation_value {
-        args: (annotation: impl Display, key: impl Display, value: impl Display),
-        msg: format!("Unexpected value `{value}` for key `{key}` in annotation `{annotation}`."),
-        help: None,
-    }
 );

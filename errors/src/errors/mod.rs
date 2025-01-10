@@ -52,6 +52,10 @@ pub use self::parser::*;
 pub mod static_analyzer;
 pub use self::static_analyzer::*;
 
+/// Contains the Test error definitions.
+pub mod test;
+pub use self::test::*;
+
 /// Contains the Type Checker error definitions.
 pub mod type_checker;
 pub use self::type_checker::*;
@@ -84,6 +88,9 @@ pub enum LeoError {
     /// Represents a Static Analyzer Error in a Leo Error.
     #[error(transparent)]
     StaticAnalyzerError(#[from] StaticAnalyzerError),
+    /// Represents a Test Error in a Leo Error.
+    #[error(transparent)]
+    TestError(#[from] TestError),
     /// Represents a Type Checker Error in a Leo Error.
     #[error(transparent)]
     TypeCheckerError(#[from] TypeCheckerError),
@@ -117,6 +124,7 @@ impl LeoError {
             ParserError(error) => error.error_code(),
             PackageError(error) => error.error_code(),
             StaticAnalyzerError(error) => error.error_code(),
+            TestError(error) => error.error_code(),
             TypeCheckerError(error) => error.error_code(),
             LoopUnrollerError(error) => error.error_code(),
             FlattenError(error) => error.error_code(),
@@ -138,6 +146,7 @@ impl LeoError {
             ParserError(error) => error.exit_code(),
             PackageError(error) => error.exit_code(),
             StaticAnalyzerError(error) => error.exit_code(),
+            TestError(error) => error.exit_code(),
             TypeCheckerError(error) => error.exit_code(),
             LoopUnrollerError(error) => error.exit_code(),
             FlattenError(error) => error.exit_code(),
