@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_expressions.rs`."><title>check_expressions.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/type_checking/</div>check_expressions.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_expressions.rs`."><title>check_expressions.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0 (9fc6b4312 2025-01-07)" data-channel="1.84.0" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/type_checking/</div>check_expressions.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -1000,7 +1000,18 @@
 <a href="#999" id="999">999</a>
 <a href="#1000" id="1000">1000</a>
 <a href="#1001" id="1001">1001</a>
-<a href="#1002" id="1002">1002</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1141,6 +1152,12 @@
                             ));
                             <span class="kw">return </span>Type::Err;
                         };
+
+                        <span class="comment">// If all inferred types weren't the same, the member will be of type `Type::Err`.
+                        </span><span class="kw">if let </span>Type::Err = actual {
+                            <span class="self">self</span>.emit_err(TypeCheckerError::future_error_member(access.index.value(), access.span()));
+                            <span class="kw">return </span>Type::Err;
+                        }
 
                         <span class="self">self</span>.maybe_assert_type(actual, expected, access.span());
 
@@ -1565,7 +1582,7 @@
 
             <span class="kw">let </span>future_type =
                 Type::Future(FutureType::new(inputs.clone(), <span class="prelude-val">Some</span>(Location::new(input.program, ident.name)), <span class="bool-val">true</span>));
-            <span class="kw">let </span>fully_inferred_type = <span class="kw">match </span>func.output_type {
+            <span class="kw">let </span>fully_inferred_type = <span class="kw">match </span><span class="kw-2">&amp;</span>func.output_type {
                 Type::Tuple(tup) =&gt; Type::Tuple(TupleType::new(
                     tup.elements()
                         .iter()
@@ -1689,15 +1706,20 @@
             }
             <span class="comment">// Add future locations to symbol table. Unwrap safe since insert function into symbol table during previous pass.
             </span><span class="kw">let </span><span class="kw-2">mut </span>st = <span class="self">self</span>.symbol_table.borrow_mut();
-            <span class="comment">// Insert futures into symbol table.
-            </span>st.insert_futures(input.program.unwrap(), ident.name, input_futures).unwrap();
             <span class="comment">// Link async transition to the async function that finalizes it.
-            </span>st.attach_finalize(<span class="self">self</span>.scope_state.location(), Location::new(<span class="self">self</span>.scope_state.program_name, ident.name))
-                .unwrap();
+            </span>st.attach_finalize(
+                <span class="self">self</span>.scope_state.location(),
+                Location::new(<span class="self">self</span>.scope_state.program_name, ident.name),
+                input_futures,
+                inferred_finalize_inputs.clone(),
+            )
+            .expect(<span class="string">"Failed to attach finalize"</span>);
             drop(st);
             <span class="comment">// Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
-            </span><span class="self">self</span>.async_function_input_types
-                .insert(Location::new(<span class="self">self</span>.scope_state.program_name, ident.name), inferred_finalize_inputs.clone());
+            </span><span class="self">self</span>.async_function_callers
+                .entry(Location::new(<span class="self">self</span>.scope_state.program_name, ident.name))
+                .or_default()
+                .insert(<span class="self">self</span>.scope_state.location());
 
             <span class="comment">// Set scope state flag.
             </span><span class="self">self</span>.scope_state.has_called_finalize = <span class="bool-val">true</span>;

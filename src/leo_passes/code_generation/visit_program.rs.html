@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_program.rs`."><title>visit_program.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/code_generation/</div>visit_program.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_program.rs`."><title>visit_program.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0 (9fc6b4312 2025-01-07)" data-channel="1.84.0" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/code_generation/</div>visit_program.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -269,7 +269,9 @@
 <a href="#268" id="268">268</a>
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -351,8 +353,7 @@
         // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
         // In other words, a callee function precedes its caller function in the program scope.
         </span><span class="kw">for </span>(_symbol, function) <span class="kw">in </span>program_scope.functions.iter() {
-            <span class="comment">// program_string.push_str(&amp;program_scope.functions.iter().map(|(_, function)| {
-            </span><span class="kw">if </span>function.variant != Variant::AsyncFunction {
+            <span class="kw">if </span>function.variant != Variant::AsyncFunction {
                 <span class="kw">let </span><span class="kw-2">mut </span>function_string = <span class="self">self</span>.visit_function(function);
 
                 <span class="comment">// Attach the associated finalize to async transitions.
@@ -369,11 +370,11 @@
                         .unwrap()
                         .clone()
                         .finalize
-                        .unwrap()
-                        .name;
+                        .unwrap();
                     <span class="comment">// Write the finalize string.
-                    </span>function_string.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.visit_function(
-                        <span class="kw-2">&amp;</span>program_scope.functions.iter().find(|(name, _f)| name == finalize).unwrap().<span class="number">1</span>,
+                    </span>function_string.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.visit_function_with(
+                        <span class="kw-2">&amp;</span>program_scope.functions.iter().find(|(name, _f)| name == <span class="kw-2">&amp;</span>finalize.location.name).unwrap().<span class="number">1</span>,
+                        <span class="kw-2">&amp;</span>finalize.future_inputs,
                     ));
                 }
 
@@ -438,7 +439,7 @@
         output_string
     }
 
-    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function) -&gt; String {
+    <span class="kw">fn </span>visit_function_with(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function, futures: <span class="kw-2">&amp;</span>[Location]) -&gt; String {
         <span class="comment">// Initialize the state of `self` with the appropriate values before visiting `function`.
         </span><span class="self">self</span>.next_register = <span class="number">0</span>;
         <span class="self">self</span>.variable_mapping = IndexMap::new();
@@ -460,14 +461,10 @@
             Variant::Inline =&gt; <span class="kw">return </span>String::new(),
         };
 
+        <span class="kw">let </span><span class="kw-2">mut </span>futures = futures.iter();
+
         <span class="comment">// Construct and append the input declarations of the function.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>futures = <span class="self">self
-            </span>.symbol_table
-            .lookup_fn_symbol(Location::new(<span class="prelude-val">Some</span>(<span class="self">self</span>.program_id.unwrap().name.name), function.identifier.name))
-            .unwrap()
-            .future_inputs
-            .clone();
-        <span class="kw">for </span>input <span class="kw">in </span>function.input.iter() {
+        </span><span class="kw">for </span>input <span class="kw">in </span>function.input.iter() {
             <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
             <span class="self">self</span>.next_register += <span class="number">1</span>;
 
@@ -481,7 +478,10 @@
                 };
                 <span class="comment">// Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
                 </span><span class="kw">if </span><span class="macro">matches!</span>(input.type_, Type::Future(<span class="kw">_</span>)) {
-                    <span class="kw">let </span>location = futures.remove(<span class="number">0</span>);
+                    <span class="kw">let </span>location = futures
+                        .next()
+                        .expect(<span class="string">"Type checking guarantees we have future locations for each future input"</span>)
+                        .clone();
                     <span class="macro">format!</span>(<span class="string">"{}.aleo/{}.future"</span>, location.program.unwrap(), location.name)
                 } <span class="kw">else </span>{
                     <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility)
@@ -504,6 +504,10 @@
         function_string.push_str(<span class="kw-2">&amp;</span>block_string);
 
         function_string
+    }
+
+    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function) -&gt; String {
+        <span class="self">self</span>.visit_function_with(function, <span class="kw-2">&amp;</span>[])
     }
 
     <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mapping: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Mapping) -&gt; String {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/checker.rs`."><title>checker.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/type_checking/</div>checker.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/checker.rs`."><title>checker.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0 (9fc6b4312 2025-01-07)" data-channel="1.84.0" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../static.files/storage-59e33391.js"></script><script defer src="../../../static.files/src-script-56102188.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/type_checking/</div>checker.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -1203,7 +1203,16 @@
 <a href="#1202" id="1202">1202</a>
 <a href="#1203" id="1203">1203</a>
 <a href="#1204" id="1204">1204</a>
-<a href="#1205" id="1205">1205</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#1205" id="1205">1205</a>
+<a href="#1206" id="1206">1206</a>
+<a href="#1207" id="1207">1207</a>
+<a href="#1208" id="1208">1208</a>
+<a href="#1209" id="1209">1209</a>
+<a href="#1210" id="1210">1210</a>
+<a href="#1211" id="1211">1211</a>
+<a href="#1212" id="1212">1212</a>
+<a href="#1213" id="1213">1213</a>
+<a href="#1214" id="1214">1214</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1252,8 +1261,10 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
     <span class="doccomment">/// The state of the current scope being traversed.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) scope_state: ScopeState,
-    <span class="doccomment">/// Mapping from async function name to the inferred input types.
+    <span class="doccomment">/// Mapping from async function stub name to the inferred input types.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) async_function_input_types: IndexMap&lt;Location, Vec&lt;Type&gt;&gt;,
+    <span class="doccomment">/// Mapping from async function name to the names of async transition callers.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) async_function_callers: IndexMap&lt;Location, IndexSet&lt;Location&gt;&gt;,
     <span class="doccomment">/// The set of used composites.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) used_structs: IndexSet&lt;Symbol&gt;,
     <span class="comment">// Allows the type checker to be generic over the network.
@@ -1275,6 +1286,7 @@
             handler,
             scope_state: ScopeState::new(),
             async_function_input_types: IndexMap::new(),
+            async_function_callers: IndexMap::new(),
             used_structs: IndexSet::new(),
             phantom: Default::default(),
         }
@@ -2138,127 +2150,115 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_function_signature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span>Function) {
         <span class="self">self</span>.scope_state.variant = <span class="prelude-val">Some</span>(function.variant);
 
-        <span class="comment">// Special type checking for finalize blocks. Can skip for stubs.
-        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; !<span class="self">self</span>.scope_state.is_stub {
-            <span class="comment">// Finalize functions are not allowed to return values.
+        <span class="kw">let </span><span class="kw-2">mut </span>inferred_inputs: Vec&lt;Type&gt; = Vec::new();
+
+        <span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; !<span class="self">self</span>.scope_state.is_stub {
+            <span class="comment">// Async functions are not allowed to return values.
             </span><span class="kw">if </span>!function.output.is_empty() {
                 <span class="self">self</span>.emit_err(TypeCheckerError::async_function_cannot_return_value(function.span()));
             }
 
-            <span class="comment">// Check that the input types are consistent with when the function is invoked.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(inferred_input_types) = <span class="self">self</span>.async_function_input_types.get(<span class="kw-2">&amp;</span><span class="self">self</span>.scope_state.location()) {
-                <span class="comment">// Check same number of inputs as expected.
-                </span><span class="kw">if </span>inferred_input_types.len() != function.input.len() {
-                    <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::async_function_input_length_mismatch(
-                        inferred_input_types.len(),
-                        function.input.len(),
-                        function.span(),
-                    ));
-                }
-                <span class="comment">// Check that the input parameters match the inferred types from when the async function is invoked.
-                </span><span class="kw">for </span>(t1, t2) <span class="kw">in </span>function.input.iter().zip_eq(inferred_input_types.iter()) {
-                    <span class="comment">// Allow partial type matching of futures since inferred are fully typed, whereas AST has default futures.
-                    </span><span class="kw">if </span><span class="macro">matches!</span>(t2, Type::Future(<span class="kw">_</span>)) &amp;&amp; <span class="macro">matches!</span>(t1.type_(), Type::Future(<span class="kw">_</span>)) {
-                        <span class="comment">// Insert to symbol table
-                        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-                            Location::new(<span class="prelude-val">None</span>, t1.identifier().name),
-                            <span class="self">self</span>.scope_state.program_name,
-                            VariableSymbol {
-                                type_: t2.clone(),
-                                span: t1.identifier.span(),
-                                declaration: VariableType::Input(Mode::Public),
-                            },
-                        ) {
-                            <span class="self">self</span>.handler.emit_err(err);
-                        }
-                    }
-                    <span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(t1.type_().clone()), <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(t2.clone()), t1.span())
-                }
+            <span class="kw">let </span>st = <span class="self">self</span>.symbol_table.borrow();
+
+            <span class="comment">// Iterator over the `finalize` member (type Finalizer) of each async transition that calls
+            // this async function.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>caller_finalizers = <span class="self">self
+                </span>.async_function_callers
+                .get(<span class="kw-2">&amp;</span>Location::new(<span class="self">self</span>.scope_state.program_name, function.identifier.name))
+                .map(|callers| {
+                    callers
+                        .iter()
+                        .flat_map(|caller| st.lookup_fn_symbol(caller.clone()))
+                        .flat_map(|fn_symbol| fn_symbol.finalize.clone())
+                })
+                .into_iter()
+                .flatten();
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(first) = caller_finalizers.next() {
+                inferred_inputs = first.inferred_inputs.clone();
             } <span class="kw">else </span>{
                 <span class="self">self</span>.emit_warning(TypeCheckerWarning::async_function_is_never_called_by_transition_function(
                     function.identifier.name,
                     function.span(),
                 ));
             }
+
+            <span class="comment">// If any input is a future that doesn't have the same member type for all
+            // finalizers, set that member to `Type::Err`.
+            </span><span class="kw">for </span>finalizer <span class="kw">in </span>caller_finalizers {
+                <span class="macro">assert_eq!</span>(inferred_inputs.len(), finalizer.inferred_inputs.len());
+                <span class="kw">for </span>(t1, t2) <span class="kw">in </span>inferred_inputs.iter_mut().zip(finalizer.inferred_inputs.iter()) {
+                    <span class="self">self</span>.merge_types(t1, t2);
+                }
+            }
         }
 
-        <span class="comment">// Type check the function's parameters.
-        </span>function.input.iter().for_each(|input_var| {
+        <span class="kw">for </span>(i, input) <span class="kw">in </span>function.input.iter().enumerate() {
+            <span class="comment">// No need to check compatibility of these types; that's already been done
+            </span><span class="kw">let </span>table_type = inferred_inputs.get(i).unwrap_or_else(|| input.type_());
+
             <span class="comment">// Check that the type of input parameter is defined.
-            </span><span class="self">self</span>.assert_type_is_valid(input_var.type_(), input_var.span());
+            </span><span class="self">self</span>.assert_type_is_valid(table_type, input.span());
+
             <span class="comment">// Check that the type of the input parameter is not a tuple.
-            </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
-                <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
+            </span><span class="kw">if </span><span class="macro">matches!</span>(table_type, Type::Tuple(<span class="kw">_</span>)) {
+                <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input.span()))
             }
+
             <span class="comment">// Make sure only transitions can take a record as an input.
-            </span><span class="kw">else if let </span>Type::Composite(struct_) = input_var.type_() {
+            </span><span class="kw">if let </span>Type::Composite(struct_) = table_type {
                 <span class="comment">// Throw error for undefined type.
                 </span><span class="kw">if </span>!function.variant.is_transition() {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(elem) = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name) {
                         <span class="kw">if </span>elem.is_record {
-                            <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()))
+                            <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
                         }
                     } <span class="kw">else </span>{
-                        <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(struct_.id, input_var.span()));
+                        <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(struct_.id, input.span()));
                     }
                 }
             }
 
-            <span class="comment">// Note that this unwrap is safe since we assign to `self.variant` above.
+            <span class="comment">// This unwrap works since we assign to `variant` above.
             </span><span class="kw">match </span><span class="self">self</span>.scope_state.variant.unwrap() {
                 <span class="comment">// If the function is a transition function, then check that the parameter mode is not a constant.
-                </span>Variant::Transition | Variant::AsyncTransition <span class="kw">if </span>input_var.mode() == Mode::Constant =&gt; {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
+                </span>Variant::Transition | Variant::AsyncTransition <span class="kw">if </span>input.mode() == Mode::Constant =&gt; {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input.span()))
                 }
                 <span class="comment">// If the function is standard function or inline, then check that the parameters do not have an associated mode.
-                </span>Variant::Function | Variant::Inline <span class="kw">if </span>input_var.mode() != Mode::None =&gt; {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
+                </span>Variant::Function | Variant::Inline <span class="kw">if </span>input.mode() != Mode::None =&gt; {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input.span()))
                 }
                 <span class="comment">// If the function is an async function, then check that the input parameter is not constant or private.
-                </span>Variant::AsyncFunction <span class="kw">if </span>input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private =&gt; {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::async_function_input_must_be_public(input_var.span()));
+                </span>Variant::AsyncFunction <span class="kw">if </span><span class="macro">matches!</span>(input.mode(), Mode::Constant | Mode::Private) =&gt; {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::async_function_input_must_be_public(input.span()));
                 }
                 <span class="kw">_ </span>=&gt; {} <span class="comment">// Do nothing.
             </span>}
 
-            <span class="comment">// If the function is not a transition function, then it cannot have a record as input
-            </span><span class="kw">if let </span>Type::Composite(struct_) = input_var.type_() {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name) {
-                    <span class="kw">if </span>val.is_record &amp;&amp; !function.variant.is_transition() {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
-                    }
-                }
-            }
-
-            <span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input_var.type_(), Type::Future(<span class="kw">_</span>)) {
+            <span class="kw">if </span><span class="macro">matches!</span>(table_type, Type::Future(..)) {
                 <span class="comment">// Future parameters may only appear in async functions.
                 </span><span class="kw">if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.scope_state.variant, <span class="prelude-val">Some</span>(Variant::AsyncFunction)) {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::no_future_parameters(input_var.span()));
+                    <span class="self">self</span>.emit_err(TypeCheckerError::no_future_parameters(input.span()));
                 }
             }
 
-            <span class="kw">let </span>location = Location::new(<span class="prelude-val">None</span>, input_var.identifier().name);
-            <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input_var.type_(), Type::Future(<span class="kw">_</span>))
-                || <span class="self">self</span>.symbol_table.borrow().lookup_variable_in_current_scope(location.clone()).is_none()
-            {
-                <span class="comment">// Add function inputs to the symbol table. If inference happened properly above, futures were already added.
-                // But if a future was not added, add it now so as not to give confusing error messages.
-                </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-                    location.clone(),
-                    <span class="self">self</span>.scope_state.program_name,
-                    VariableSymbol {
-                        type_: input_var.type_().clone(),
-                        span: input_var.identifier().span(),
-                        declaration: VariableType::Input(input_var.mode()),
-                    },
-                ) {
-                    <span class="self">self</span>.handler.emit_err(err);
-                }
+            <span class="comment">// Add the input to the symbol table.
+            </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
+                Location::new(<span class="prelude-val">None</span>, input.identifier().name),
+                <span class="self">self</span>.scope_state.program_name,
+                VariableSymbol {
+                    type_: table_type.clone(),
+                    span: input.identifier.span(),
+                    declaration: VariableType::Input(input.mode()),
+                },
+            ) {
+                <span class="self">self</span>.handler.emit_err(err);
             }
 
             <span class="comment">// Add the input to the type table.
-            </span><span class="self">self</span>.type_table.insert(input_var.identifier().id(), input_var.type_().clone());
-        });
+            </span><span class="self">self</span>.type_table.insert(input.identifier().id(), table_type.clone());
+        }
 
         <span class="comment">// Type check the function's return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
@@ -2275,15 +2275,6 @@
 
             <span class="comment">// Check that the output type is valid.
             </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>function_output.type_, function_output.span);
-
-            <span class="comment">// If the function is not a transition function, then it cannot output a record.
-            </span><span class="kw">if let </span>Type::Composite(struct_) = function_output.type_.clone() {
-                <span class="kw">if </span>!function.variant.is_transition()
-                    &amp;&amp; <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).map_or(<span class="bool-val">false</span>, |s| s.is_record)
-                {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
-                }
-            }
 
             <span class="comment">// Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
             </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>function_output.type_, Type::Tuple(<span class="kw">_</span>)) {
@@ -2308,6 +2299,29 @@
                 <span class="self">self</span>.emit_err(TypeCheckerError::only_async_transition_can_return_future(function_output.span));
             }
         });
+    }
+
+    <span class="doccomment">/// Merge inferred types into `lhs`.
+    ///
+    /// That is, if `lhs` and `rhs` aren't equal, set `lhs` to Type::Err;
+    /// or, if they're both futures, set any member of `lhs` that isn't
+    /// equal to the equivalent member of `rhs` to `Type::Err`.
+    </span><span class="kw">fn </span>merge_types(<span class="kw-2">&amp;</span><span class="self">self</span>, lhs: <span class="kw-2">&amp;mut </span>Type, rhs: <span class="kw-2">&amp;</span>Type) {
+        <span class="kw">if let </span>Type::Future(f1) = lhs {
+            <span class="kw">if let </span>Type::Future(f2) = rhs {
+                <span class="kw">for </span>(i, type_) <span class="kw">in </span>f2.inputs.iter().enumerate() {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(lhs_type) = f1.inputs.get_mut(i) {
+                        <span class="self">self</span>.merge_types(lhs_type, type_);
+                    } <span class="kw">else </span>{
+                        f1.inputs.push(Type::Err);
+                    }
+                }
+            } <span class="kw">else </span>{
+                <span class="kw-2">*</span>lhs = Type::Err;
+            }
+        } <span class="kw">else if </span>!<span class="self">self</span>.eq_user(lhs, rhs) {
+            <span class="kw-2">*</span>lhs = Type::Err;
+        }
     }
 
     <span class="doccomment">/// Are the types considered equal as far as the Leo user is concerned?
@@ -2379,7 +2393,11 @@
         };
 
         <span class="kw">if </span>is_future {
-            <span class="self">self</span>.scope_state.futures.insert(name.name, <span class="self">self</span>.scope_state.call_location.clone().unwrap());
+            <span class="comment">// It can happen that the call location has not been set if there was an error
+            // in the call that produced the Future.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(call_location) = <span class="self">self</span>.scope_state.call_location.clone() {
+                <span class="self">self</span>.scope_state.futures.insert(name.name, call_location);
+            }
         }
 
         <span class="kw">let </span>ty = <span class="kw">match </span>(is_future, inferred_type) {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/common/symbol_table/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-b0742ba02757f159.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0 (90b35a623 2024-11-26)" data-channel="1.83.0" data-search-js="search-f0d225181b97f9a4.js" data-settings-js="settings-805db61a62df4bd2.js" ><script src="../../../../static.files/storage-1d39b6787ed640ff.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-f070b9041d14864c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-0111fcff984fae8f.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/common/symbol_table/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/common/symbol_table/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0 (9fc6b4312 2025-01-07)" data-channel="1.84.0" data-search-js="search-92e6798f.js" data-settings-js="settings-0f613d39.js" ><script src="../../../../static.files/storage-59e33391.js"></script><script defer src="../../../../static.files/src-script-56102188.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/common/symbol_table/</div>mod.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -345,13 +345,7 @@
 <a href="#344" id="344">344</a>
 <a href="#345" id="345">345</a>
 <a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#347" id="347">347</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -376,7 +370,7 @@
 
 <span class="kw">use </span>std::cell::RefCell;
 
-<span class="kw">use </span>leo_ast::{Composite, Function, Location, normalize_json_value, remove_key_from_json};
+<span class="kw">use </span>leo_ast::{Composite, Function, Location, Type, normalize_json_value, remove_key_from_json};
 <span class="kw">use </span>leo_errors::{AstError, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
@@ -501,12 +495,18 @@
     </span>}
 
     <span class="doccomment">/// Attach a finalize to a function.
-    </span><span class="kw">pub fn </span>attach_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: Location, callee: Location) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub fn </span>attach_finalize(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        caller: Location,
+        callee: Location,
+        future_inputs: Vec&lt;Location&gt;,
+        inferred_inputs: Vec&lt;Type&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.functions.get_mut(<span class="kw-2">&amp;</span>caller) {
-            func.finalize = <span class="prelude-val">Some</span>(callee);
+            func.finalize = <span class="prelude-val">Some</span>(Finalizer { location: callee, future_inputs, inferred_inputs });
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_mut() {
-            parent.attach_finalize(caller, callee)
+            parent.attach_finalize(caller, callee, future_inputs, inferred_inputs)
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(AstError::function_not_found(caller.name).into())
         }
@@ -522,18 +522,6 @@
         <span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, program, <span class="bool-val">false</span>, insert.span)<span class="question-mark">?</span>;
         <span class="self">self</span>.variables.insert(location, insert);
         <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Inserts futures into the function definition.
-    </span><span class="kw">pub fn </span>insert_futures(<span class="kw-2">&amp;mut </span><span class="self">self</span>, program: Symbol, function: Symbol, futures: Vec&lt;Location&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.functions.get_mut(<span class="kw-2">&amp;</span>Location::new(<span class="prelude-val">Some</span>(program), function)) {
-            func.future_inputs = futures;
-            <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_mut() {
-            parent.insert_futures(program, function, futures)
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(AstError::function_not_found(function).into())
-        }
     }
 
     <span class="doccomment">/// Removes a variable from the symbol table.

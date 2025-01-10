@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["FunctionSymbol"]};
+window.SIDEBAR_ITEMS = {"struct":["Finalizer","FunctionSymbol"]};
