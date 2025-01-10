@@ -48,15 +48,17 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
     fn visit_assert(&mut self, input: &'a AssertStatement) {
         match &input.variant {
             AssertVariant::Assert(expr) => {
-                let type_ = self.visit_expression(expr, &Some(Type::Boolean));
-                self.assert_bool_type(&type_, expr.span());
+                let _type = self.visit_expression(expr, &Some(Type::Boolean));
             }
             AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
                 let t1 = self.visit_expression(left, &None);
                 let t2 = self.visit_expression(right, &None);
 
-                // Check that the types are equal.
-                self.check_eq_types(&t1, &t2, input.span());
+                if t1 != Type::Err && t2 != Type::Err && !self.eq_user(&t1, &t2) {
+                    let op =
+                        if matches!(input.variant, AssertVariant::AssertEq(..)) { "assert_eq" } else { "assert_neq" };
+                    self.emit_err(TypeCheckerError::operation_types_mismatch(op, t1, t2, input.span()));
+                }
             }
         }
     }
@@ -220,8 +222,6 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
 
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
-            // If the type is an empty tuple, return an error.
-            Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             // If the type is a singleton tuple, return an error.
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
@@ -246,7 +246,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         // Insert the variables into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
-                self.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), identifier.span)
+                self.insert_variable(Some(inferred_type.clone()), identifier, input.type_.clone(), identifier.span)
             }
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
@@ -264,10 +264,10 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
                 }
 
                 for i in 0..tuple_expression.elements.len() {
-                    let inferred = if let Some(Type::Tuple(inferred_tuple)) = &inferred_type {
-                        inferred_tuple.elements().get(i).cloned()
+                    let inferred = if let Type::Tuple(inferred_tuple) = &inferred_type {
+                        inferred_tuple.elements().get(i).cloned().unwrap_or_default()
                     } else {
-                        None
+                        Type::Err
                     };
                     let expr = &tuple_expression.elements[i];
                     let identifier = match expr {
@@ -277,7 +277,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
                                 .emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
                         }
                     };
-                    self.insert_variable(inferred, identifier, tuple_type.elements()[i].clone(), identifier.span);
+                    self.insert_variable(Some(inferred), identifier, tuple_type.elements()[i].clone(), identifier.span);
                 }
             }
             _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
@@ -298,8 +298,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
-        let iter_type = &Some(input.type_.clone());
-        self.assert_int_type(iter_type, input.variable.span);
+        self.assert_int_type(&input.type_, input.variable.span);
 
         // Create a new scope for the loop body.
         let scope_index = self.create_child_scope();
@@ -333,7 +332,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         self.exit_scope(scope_index);
 
         // Check that the literal is valid.
-        self.visit_expression(&input.start, iter_type);
+        self.visit_expression(&input.start, &Some(input.type_.clone()));
 
         // If `input.start` is a valid literal, instantiate it as a value.
         match &input.start {
@@ -353,7 +352,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
             _ => self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.start.span())),
         }
 
-        self.visit_expression(&input.stop, iter_type);
+        self.visit_expression(&input.stop, &Some(input.type_.clone()));
 
         // If `input.stop` is a valid literal, instantiate it as a value.
         match &input.stop {
@@ -384,18 +383,12 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
 
         // Fully type the expected return value.
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
-            let inferred_future_type =
-                match self.async_function_input_types.get(&func.unwrap().finalize.clone().unwrap()) {
-                    Some(types) => Future(FutureType::new(
-                        types.clone(),
-                        Some(Location::new(self.scope_state.program_name, parent)),
-                        true,
-                    )),
-                    None => {
-                        return self
-                            .emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
-                    }
-                };
+            let inferred_future_type = Future(FutureType::new(
+                func.unwrap().finalize.as_ref().unwrap().inferred_inputs.clone(),
+                Some(Location::new(self.scope_state.program_name, parent)),
+                true,
+            ));
+
             // Need to modify return type since the function signature is just default future, but the actual return type is the fully inferred future of the finalize input type.
             let inferred = match return_type.clone() {
                 Some(Future(_)) => Some(inferred_future_type),
@@ -420,20 +413,12 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         // Set the `has_return` flag.
         self.scope_state.has_return = true;
 
-        // Check that the return expression is not a nested tuple.
-        if let Expression::Tuple(TupleExpression { elements, .. }) = &input.expression {
-            for element in elements {
-                if matches!(element, Expression::Tuple(_)) {
-                    self.emit_err(TypeCheckerError::nested_tuple_expression(element.span()));
-                }
-            }
-        }
-
-        // Set the `is_return` flag. This is necessary to allow unit expressions in the return statement.
-        self.scope_state.is_return = true;
         // Type check the associated expression.
-        self.visit_expression(&input.expression, &return_type);
-        // Unset the `is_return` flag.
-        self.scope_state.is_return = false;
+        if let Expression::Unit(..) = input.expression {
+            // TODO - do will this error message be appropriate?
+            self.maybe_assert_type(&Type::Unit, &return_type, input.expression.span());
+        } else {
+            self.visit_expression(&input.expression, &return_type);
+        }
     }
 }

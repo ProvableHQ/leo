@@ -1,14 +1,9 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372007]: Expected one type from `array`, but got `u32`
+Error [ETYC0372117]: Expected an array but type `u32` was found.
     --> compiler-test:9:29
      |
    9 |                 sum = sum + a[i][j];
      |                             ^^^^
-Error [ETYC0372003]: Expected type `u32` but type `no type` was found
-    --> compiler-test:9:23
-     |
-   9 |                 sum = sum + a[i][j];
-     |                       ^^^^^^^^^^^^^
 """]

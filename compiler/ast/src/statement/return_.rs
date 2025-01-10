@@ -33,7 +33,11 @@ pub struct ReturnStatement {
 
 impl fmt::Display for ReturnStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "return {}", self.expression)
+        if let Expression::Unit(..) = self.expression {
+            write!(f, "return")
+        } else {
+            write!(f, "return {}", self.expression)
+        }
     }
 }
 

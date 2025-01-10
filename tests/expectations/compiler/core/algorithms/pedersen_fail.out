@@ -1,12 +1,12 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372007]: Expected one type from `address, bool, field, group, struct, integer, scalar, struct`, but got `u128`
+Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `u128` was found.
     --> compiler-test:5:50
      |
    5 |         let a: group = Pedersen64::hash_to_field(1u128); // Pedersen64 hash_to_field returns a field type
      |                                                  ^^^^^
-Error [ETYC0372003]: Expected type `group` but type `field` was found
+Error [ETYC0372117]: Expected type `group` but type `field` was found.
     --> compiler-test:5:24
      |
    5 |         let a: group = Pedersen64::hash_to_field(1u128); // Pedersen64 hash_to_field returns a field type

@@ -114,7 +114,6 @@ impl FunctionStub {
             Variant::Inline => write!(f, "inline ")?,
             Variant::Function | Variant::AsyncFunction => write!(f, "function ")?,
             Variant::Transition | Variant::AsyncTransition => write!(f, "transition ")?,
-            Variant::Interpret => write!(f, "interpret")?,
         }
         write!(f, "{}", self.identifier)?;
 

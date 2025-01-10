@@ -1,0 +1,29 @@
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
+    --> compiler-test:5:9
+     |
+   5 |         x: (),
+     |         ^^^^^
+Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
+    --> compiler-test:9:21
+     |
+   9 |     transition main(x: ()) {}
+     |                     ^^^^^
+Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
+    --> compiler-test:11:22
+     |
+  11 |     transition other(x: [(); 2]) {}
+     |                      ^^^^^^^^^^
+Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
+    --> compiler-test:13:39
+     |
+  13 |     transition yet_another() -> [(); 2] {}
+     |                                       ^
+Error [ETYC0372036]: Function must return a value.
+    --> compiler-test:13:5
+     |
+  13 |     transition yet_another() -> [(); 2] {}
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""]

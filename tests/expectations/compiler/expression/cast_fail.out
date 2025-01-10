@@ -6,22 +6,22 @@ Error [ETYC0372045]: Strings are not yet supported.
      |
   13 |         let b: string = a as string;
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372007]: Expected one type from `field, group, scalar, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, bool, address`, but got `string`
+Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `string` was found.
     --> compiler-test:13:25
      |
   13 |         let b: string = a as string;
      |                         ^^^^^^^^^^^
-Error [ETYC0372007]: Expected one type from `field, group, scalar, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, bool, address`, but got `Foo`
+Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `Foo` was found.
     --> compiler-test:16:24
      |
   16 |         let d: field = c as field;
      |                        ^
-Error [ETYC0372007]: Expected one type from `field, group, scalar, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, bool, address`, but got `(field,field)`
+Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `(field, field)` was found.
     --> compiler-test:19:24
      |
   19 |         let f: field = e as field;
      |                        ^
-Error [ETYC0372007]: Expected one type from `field, group, scalar, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, bool, address`, but got `(field => field)`
+Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `(field => field)` was found.
     --> compiler-test:25:24
      |
   25 |         let b: field = balances as field;

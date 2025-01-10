@@ -1,11 +1,18 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372003]: Expected type `bool` but type `u32` was found
+Error [ETYC0372117]: Expected type `bool` but type `u32` was found.
     --> compiler-test:5:30
      |
    5 |         let x: bool = true ? x: true;
      |                              ^
+Error [ETYC0372118]: Received different types `u32` and `bool` for the arms of a ternary conditional.
+    --> compiler-test:5:23
+     |
+   5 |         let x: bool = true ? x: true;
+     |                       ^^^^^^^^^^^^^^
+     |
+     = Make both branches the same type.
 Error [EAST0372009]: variable `x` shadowed by
     --> compiler-test:5:13
      |

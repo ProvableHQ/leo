@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372003]: Expected type `bool` but type `u64` was found
+Error [ETYC0372117]: Expected type `bool` but type `u64` was found.
     --> compiler-test:5:35
      |
    5 |         let t: (bool, bool) = (a, 1u64); // We should be declaring to a bool, not a u64.

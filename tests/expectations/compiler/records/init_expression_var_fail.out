@@ -6,11 +6,6 @@ Error [ETYC0372057]: Only `transition` functions can have a record as input or o
      |
   11 |     function mint(r0: address, r1: u64) -> Token {
      |                                            ^^^^^
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:11:44
-     |
-  11 |     function mint(r0: address, r1: u64) -> Token {
-     |                                            ^^^^^
 Error [ETYC0372013]: Struct initialization expression for `Token` is missing member `owner`.
     --> compiler-test:12:16
      |

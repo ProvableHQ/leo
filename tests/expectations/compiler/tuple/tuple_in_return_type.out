@@ -11,9 +11,4 @@ Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
      |
    5 |         return (a, (a + a, a * a));
      |                    ^^^^^^^^^^^^^^
-Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
-    --> compiler-test:5:20
-     |
-   5 |         return (a, (a + a, a * a));
-     |                    ^^^^^^^^^^^^^^
 """]

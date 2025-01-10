@@ -80,59 +80,56 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
-        let outputs = match input.expression {
+        if let Expression::Unit(..) = input.expression {
             // Skip empty return statements.
-            Expression::Unit(_) => String::new(),
-            _ => {
-                let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
-                // Get the output type of the function.
-                let output = self.current_function.unwrap().output.iter();
-                // If the operand string is empty, initialize an empty vector.
-                let operand_strings = match operand.is_empty() {
-                    true => vec![],
-                    false => operand.split(' ').collect_vec(),
-                };
+            return String::new();
+        }
 
-                let mut future_output = String::new();
-                let mut instructions = operand_strings
-                    .iter()
-                    .zip_eq(output)
-                    .map(|(operand, output)| {
-                        // Transitions outputs with no mode are private.
-                        // Note that this unwrap is safe because we set the variant before traversing the function.
-                        let visibility = match (self.variant.unwrap().is_transition(), output.mode) {
-                            (true, Mode::None) => Mode::Private,
-                            (_, mode) => mode,
-                        };
-
-                        if let Type::Future(_) = output.type_ {
-                            future_output = format!(
-                                "    output {} as {}.aleo/{}.future;\n",
-                                operand,
-                                self.program_id.unwrap().name,
-                                self.current_function.unwrap().identifier,
-                            );
-                            String::new()
-                        } else {
-                            format!(
-                                "    output {} as {};\n",
-                                operand,
-                                self.visit_type_with_visibility(&output.type_, visibility)
-                            )
-                        }
-                    })
-                    .join("");
-
-                // Insert future output at the end.
-                instructions.push_str(&future_output);
-
-                expression_instructions.push_str(&instructions);
-
-                expression_instructions
-            }
+        let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
+        // Get the output type of the function.
+        let output = self.current_function.unwrap().output.iter();
+        // If the operand string is empty, initialize an empty vector.
+        let operand_strings = match operand.is_empty() {
+            true => vec![],
+            false => operand.split(' ').collect_vec(),
         };
 
-        outputs
+        let mut future_output = String::new();
+        let mut instructions = operand_strings
+            .iter()
+            .zip_eq(output)
+            .map(|(operand, output)| {
+                // Transitions outputs with no mode are private.
+                // Note that this unwrap is safe because we set the variant before traversing the function.
+                let visibility = match (self.variant.unwrap().is_transition(), output.mode) {
+                    (true, Mode::None) => Mode::Private,
+                    (_, mode) => mode,
+                };
+
+                if let Type::Future(_) = output.type_ {
+                    future_output = format!(
+                        "    output {} as {}.aleo/{}.future;\n",
+                        operand,
+                        self.program_id.unwrap().name,
+                        self.current_function.unwrap().identifier,
+                    );
+                    String::new()
+                } else {
+                    format!(
+                        "    output {} as {};\n",
+                        operand,
+                        self.visit_type_with_visibility(&output.type_, visibility)
+                    )
+                }
+            })
+            .join("");
+
+        // Insert future output at the end.
+        instructions.push_str(&future_output);
+
+        expression_instructions.push_str(&instructions);
+
+        expression_instructions
     }
 
     fn visit_definition(&mut self, _input: &'a DefinitionStatement) -> String {

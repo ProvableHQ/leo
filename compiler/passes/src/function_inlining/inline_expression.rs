@@ -102,11 +102,9 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
 
                 (result, inlined_statements)
             }
-            Variant::Function
-            | Variant::AsyncFunction
-            | Variant::Transition
-            | Variant::AsyncTransition
-            | Variant::Interpret => (Expression::Call(input), Default::default()),
+            Variant::Function | Variant::AsyncFunction | Variant::Transition | Variant::AsyncTransition => {
+                (Expression::Call(input), Default::default())
+            }
         }
     }
 }

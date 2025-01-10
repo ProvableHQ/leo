@@ -7,16 +7,6 @@ Error [ETYC0372057]: Only `transition` functions can have a record as input or o
    9 |     function foo(a: credits) -> u8 {
      |                  ^^^^^^^^^^
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:9:18
-     |
-   9 |     function foo(a: credits) -> u8 {
-     |                  ^^^^^^^^^^
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:13:41
-     |
-  13 |     function boo(a: address, b: u64) -> credits {
-     |                                         ^^^^^^^
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
     --> compiler-test:13:41
      |
   13 |     function boo(a: address, b: u64) -> credits {

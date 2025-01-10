@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372003]: Expected type `u64` but type `u32` was found
+Error [ETYC0372117]: Expected type `u64` but type `u32` was found.
     --> compiler-test:5:22
      |
    5 |         let x: u64 = block.height;

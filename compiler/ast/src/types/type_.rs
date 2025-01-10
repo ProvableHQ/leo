@@ -27,7 +27,7 @@ use snarkvm::prelude::{
 use std::fmt;
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Type {
     /// The `address` type.
     Address,
@@ -61,56 +61,11 @@ pub enum Type {
     Unit,
     /// Placeholder for a type that could not be resolved or was not well-formed.
     /// Will eventually lead to a compile error.
+    #[default]
     Err,
 }
 
 impl Type {
-    ///
-    /// Returns `true` if the self `Type` is equal to the other `Type`.
-    ///
-    /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
-    ///
-    pub fn eq_flat(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Type::Address, Type::Address)
-            | (Type::Boolean, Type::Boolean)
-            | (Type::Field, Type::Field)
-            | (Type::Group, Type::Group)
-            | (Type::Scalar, Type::Scalar)
-            | (Type::Signature, Type::Signature)
-            | (Type::String, Type::String)
-            | (Type::Unit, Type::Unit) => true,
-            (Type::Array(left), Type::Array(right)) => {
-                left.element_type().eq_flat(right.element_type()) && left.length() == right.length()
-            }
-            (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
-            (Type::Integer(left), Type::Integer(right)) => left.eq(right),
-            (Type::Mapping(left), Type::Mapping(right)) => {
-                left.key.eq_flat(&right.key) && left.value.eq_flat(&right.value)
-            }
-            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
-                .elements()
-                .iter()
-                .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
-            (Type::Composite(left), Type::Composite(right)) => {
-                left.id.name == right.id.name && left.program == right.program
-            }
-            (Type::Future(left), Type::Future(right))
-                if left.inputs.len() == right.inputs.len() && left.location.is_some() && right.location.is_some() =>
-            {
-                left.location == right.location
-                    && left
-                        .inputs()
-                        .iter()
-                        .zip_eq(right.inputs().iter())
-                        .all(|(left_type, right_type)| left_type.eq_flat(right_type))
-            }
-            _ => false,
-        }
-    }
-
-    ///
     /// Returns `true` if the self `Type` is equal to the other `Type` in all aspects besides composite program of origin.
     ///
     /// In the case of futures, it also makes sure that if both are not explicit, they are equal.
@@ -194,7 +149,7 @@ impl fmt::Display for Type {
             Type::Scalar => write!(f, "scalar"),
             Type::Signature => write!(f, "signature"),
             Type::String => write!(f, "string"),
-            Type::Composite(ref struct_type) => write!(f, "{}", struct_type.id.name),
+            Type::Composite(ref struct_type) => write!(f, "{struct_type}"),
             Type::Tuple(ref tuple) => write!(f, "{tuple}"),
             Type::Unit => write!(f, "()"),
             Type::Err => write!(f, "error"),

@@ -6,7 +6,7 @@ Error [EAST0372009]: variable `m` shadowed by
      |
    7 |         let m: u8 = 1u8;
      |             ^
-Error [ETYC0372003]: Expected type `u8` but type `(u8 => u8)` was found
+Error [ETYC0372117]: Expected type `u8` but type `(u8 => u8)` was found.
     --> compiler-test:8:16
      |
    8 |         return m;

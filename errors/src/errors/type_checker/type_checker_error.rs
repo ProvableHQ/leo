@@ -418,7 +418,7 @@ create_messages!(
         help: None,
     }
 
-    // TODO: Consider changing this to a warning.
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     assign_unit_expression_to_variable {
         args: (),
@@ -475,6 +475,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     unit_expression_only_in_return_statements {
         args: (),
@@ -718,6 +719,8 @@ create_messages!(
         msg: "An async transition must call an async function.".to_string(),
         help: Some("Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`".to_string()),
     }
+
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     async_function_input_length_mismatch {
         args: (expected: impl Display, received: impl Display),
@@ -818,8 +821,8 @@ create_messages!(
     @formatted
     external_transition_call_must_be_before_finalize {
         args: (),
-        msg: "External async transition calls cannot be made after local async function call".to_string(),
-        help: Some("Move the async call before the function call.".to_string()),
+        msg: "External transition calls cannot be made after local async function call".to_string(),
+        help: Some("Move the async function call before the transition call.".to_string()),
     }
 
     @formatted
@@ -919,10 +922,76 @@ create_messages!(
         help: None,
     }
 
+    /// For when the user tries to assign to a const input.
+    ///
+    /// This is a replacement for `type_should_be` with a slightly better message.
     @formatted
-    interpret_outside_test {
-        args: (),
-        msg: "Cannot define an `interpret` function outside of tests.".to_string(),
+    type_should_be2 {
+        args: (type_: impl Display, expected: impl Display),
+        msg: format!(
+            "Expected {expected} but type `{type_}` was found.",
+        ),
         help: None,
+    }
+
+    @formatted
+    ternary_branch_mismatch {
+        args: (type1: impl Display, type2: impl Display),
+        msg: format!(
+            "Received different types `{type1}` and `{type2}` for the arms of a ternary conditional."
+        ),
+        help: Some("Make both branches the same type.".into()),
+    }
+
+    @formatted
+    operation_types_mismatch {
+        args: (operation: impl Display, type1: impl Display, type2: impl Display),
+        msg: format!(
+            "Received different types `{type1}` and `{type2}` for the operation `{operation}`."
+        ),
+        help: Some("Make both operands the same type.".into()),
+    }
+
+    @formatted
+    mul_types_mismatch {
+        args: (type1: impl Display, type2: impl Display),
+        msg: format!(
+            "Received types `{type1}` and `{type2}` for the operation `*`."
+        ),
+        help: Some("Valid operands are two integers of the same type, two fields, or a scalar and a group.".into()),
+    }
+
+    @formatted
+    pow_types_mismatch {
+        args: (type1: impl Display, type2: impl Display),
+        msg: format!(
+            "Received types `{type1}` and `{type2}` for the operation `pow`."
+        ),
+        help: Some("Valid operands are two fields, or an integer base and a `u8`, `u16`, or `u32` exponent.".into()),
+    }
+
+    @formatted
+    shift_type_magnitude {
+        args: (operation: impl Display, rhs_type: impl Display),
+        msg: format!(
+            "Received type `{rhs_type}` for the second operand of the operation `{operation}`."
+        ),
+        help: Some("Valid second operands are `u8`, `u16`, or `u32`".into()),
+    }
+
+    @formatted
+    unit_type_only_return {
+        args: (),
+        msg: "The unit type () may appear only as the return type of a function.".to_string(),
+        help: None,
+    }
+
+    @formatted
+    future_error_member {
+        args: (num: impl Display),
+        msg: format!("Cannot access argument `{num}` from future."),
+        help: Some(
+            "Ensure that the async function is not called with multiple times with incompatible types.".to_string()
+        ),
     }
 );
