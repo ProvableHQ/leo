@@ -110,33 +110,28 @@ impl<'a, N: Network> StaticAnalyzer<'a, N> {
     /// Assert that an async call is a "simple" one.
     /// Simple is defined as an async transition function which does not return a `Future` that itself takes a `Future` as an argument.
     pub(crate) fn assert_simple_async_transition_call(&self, program: Symbol, function_name: Symbol, span: Span) {
-        // Look up the function.
-        let function = match self.symbol_table.lookup_fn_symbol(Location::new(Some(program), function_name)) {
-            Some(function) => function,
-            None => {
-                unreachable!("Type checking guarantees that this function exists.");
-            }
-        };
+        let func_symbol = self
+            .symbol_table
+            .lookup_function(Location::new(program, function_name))
+            .expect("Type checking guarantees functions are present.");
+
         // If it is not an async transition, return.
-        if function.variant != Variant::AsyncTransition {
+        if func_symbol.function.variant != Variant::AsyncTransition {
             return;
         }
-        // Otherwise, get the location of the finalize block.
-        let location = match &function.finalize {
-            Some(finalizer) => finalizer.location.clone(),
-            None => {
-                unreachable!("Typechecking guarantees that all async transitions have an associated `finalize` field.");
-            }
-        };
-        // Look up the async function.
-        let async_function = match self.symbol_table.lookup_fn_symbol(location) {
-            Some(function) => function,
-            None => {
-                unreachable!("Type checking guarantees that this function exists.");
-            }
-        };
+
+        let finalizer = func_symbol
+            .finalizer
+            .as_ref()
+            .expect("Typechecking guarantees that all async transitions have an associated `finalize` field.");
+
+        let async_function = self
+            .symbol_table
+            .lookup_function(finalizer.location)
+            .expect("Type checking guarantees functions are present.");
+
         // If the async function takes a future as an argument, emit an error.
-        if async_function.input.iter().any(|input| matches!(input.type_(), Type::Future(..))) {
+        if async_function.function.input.iter().any(|input| matches!(input.type_(), Type::Future(..))) {
             self.emit_err(StaticAnalyzerError::async_transition_call_with_future_argument(function_name, span));
         }
     }

@@ -20,13 +20,11 @@ use leo_ast::{Type, *};
 use leo_errors::TypeCheckerError;
 use leo_span::sym;
 
-use snarkvm::console::network::Network;
-
 use std::collections::HashSet;
 
 // TODO: Cleanup logic for tuples.
 
-impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
+impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_program(&mut self, input: &'a Program) {
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {
@@ -69,9 +67,9 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
         }
 
         // Check that the number of mappings does not exceed the maximum.
-        if mapping_count > N::MAX_MAPPINGS {
+        if mapping_count > self.limits.max_mappings {
             self.emit_err(TypeCheckerError::too_many_mappings(
-                N::MAX_MAPPINGS,
+                self.limits.max_mappings,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -92,9 +90,9 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
 
         // TODO: Need similar checks for structs (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
-        if transition_count > N::MAX_FUNCTIONS {
+        if transition_count > self.limits.max_functions {
             self.emit_err(TypeCheckerError::too_many_transitions(
-                N::MAX_FUNCTIONS,
+                self.limits.max_functions,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -205,10 +203,14 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
             Type::Future(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "future", input.span)),
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
             Type::Composite(struct_type) => {
-                if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
-                    if struct_.is_record {
+                if let Some(comp) =
+                    self.lookup_struct(struct_type.program.or(self.scope_state.program_name), struct_type.id.name)
+                {
+                    if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
                     }
+                } else {
+                    self.emit_err(TypeCheckerError::undefined_type(&input.key_type, input.span));
                 }
             }
             // Note that this is not possible since the parser does not currently accept mapping types.
@@ -223,10 +225,14 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
             Type::Future(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "future", input.span)),
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
             Type::Composite(struct_type) => {
-                if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
-                    if struct_.is_record {
+                if let Some(comp) =
+                    self.lookup_struct(struct_type.program.or(self.scope_state.program_name), struct_type.id.name)
+                {
+                    if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
                     }
+                } else {
+                    self.emit_err(TypeCheckerError::undefined_type(&input.key_type, input.span));
                 }
             }
             // Note that this is not possible since the parser does not currently accept mapping types.
@@ -246,46 +252,31 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
         // Set type checker variables for function variant details.
         self.scope_state.initialize_function_state(function.variant);
 
-        // Lookup function metadata in the symbol table.
-        // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index = self
-            .symbol_table
-            .borrow()
-            .lookup_fn_symbol(Location::new(self.scope_state.program_name, function.identifier.name))
-            .unwrap()
-            .id;
+        self.in_conditional_scope(|slf| {
+            slf.in_scope(function.id, |slf| {
+                function.input.iter().for_each(|input| slf.insert_symbol_conditional_scope(input.identifier.name));
 
-        // Enter the function's scope.
-        self.enter_scope(function_index);
+                // The function's body does not have a return statement.
+                slf.scope_state.has_return = false;
 
-        // The function's body does not have a return statement.
-        self.scope_state.has_return = false;
+                // Store the name of the function.
+                slf.scope_state.function = Some(function.name());
 
-        // Store the name of the function.
-        self.scope_state.function = Some(function.name());
+                // Query helper function to type check function parameters and outputs.
+                slf.check_function_signature(function, false);
 
-        // Create a new child scope for the function's parameters and body.
-        let scope_index = self.create_child_scope();
+                if function.variant == Variant::Function && function.input.is_empty() {
+                    slf.emit_err(TypeCheckerError::empty_function_arglist(function.span));
+                }
 
-        // Query helper function to type check function parameters and outputs.
-        self.check_function_signature(function);
+                slf.visit_block(&function.block);
 
-        if function.variant == Variant::Function && function.input.is_empty() {
-            self.emit_err(TypeCheckerError::empty_function_arglist(function.span));
-        }
-
-        self.visit_block(&function.block);
-
-        // If the function has a return type, then check that it has a return.
-        if function.output_type != Type::Unit && !self.scope_state.has_return {
-            self.emit_err(TypeCheckerError::missing_return(function.span));
-        }
-
-        // Exit the scope for the function's parameters and body.
-        self.exit_scope(scope_index);
-
-        // Exit the function's scope.
-        self.exit_scope(function_index);
+                // If the function has a return type, then check that it has a return.
+                if function.output_type != Type::Unit && !slf.scope_state.has_return {
+                    slf.emit_err(TypeCheckerError::missing_return(function.span));
+                }
+            })
+        });
 
         // Make sure that async transitions call finalize.
         if self.scope_state.variant == Some(Variant::AsyncTransition) && !self.scope_state.has_called_finalize {
@@ -299,21 +290,6 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
             self.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
         }
 
-        // Lookup function metadata in the symbol table.
-        // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index = self
-            .symbol_table
-            .borrow()
-            .lookup_fn_symbol(Location::new(self.scope_state.program_name, input.identifier.name))
-            .unwrap()
-            .id;
-
-        // Enter the function's scope.
-        self.enter_scope(function_index);
-
-        // Create a new child scope for the function's parameters and body.
-        let scope_index = self.create_child_scope();
-
         // Create future stubs.
         if input.variant == Variant::AsyncFunction {
             let finalize_input_map = &mut self.async_function_input_types;
@@ -326,7 +302,7 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
                             // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
                             Type::Future(FutureType::new(
                                 finalize_input_map.get(f.location.as_ref().unwrap()).unwrap().clone(),
-                                f.location.clone(),
+                                f.location,
                                 true,
                             ))
                         }
@@ -336,17 +312,11 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
                 .collect();
 
             finalize_input_map
-                .insert(Location::new(self.scope_state.program_name, input.identifier.name), resolved_inputs);
+                .insert(Location::new(self.scope_state.program_name.unwrap(), input.identifier.name), resolved_inputs);
         }
 
         // Query helper function to type check function parameters and outputs.
-        self.check_function_signature(&Function::from(input.clone()));
-
-        // Exit the scope for the function's parameters and body.
-        self.exit_scope(scope_index);
-
-        // Exit the function's scope.
-        self.exit_scope(function_index);
+        self.check_function_signature(&Function::from(input.clone()), /* is_stub */ true);
     }
 
     fn visit_struct_stub(&mut self, input: &'a Composite) {

@@ -35,11 +35,11 @@ impl<'a> Pass for Unroller<'a> {
     type Input = (Ast, &'a Handler, &'a NodeBuilder, SymbolTable, &'a TypeTable);
     type Output = Result<(Ast, SymbolTable)>;
 
-    fn do_pass((ast, handler, node_builder, st, tt): Self::Input) -> Self::Output {
-        let mut reconstructor = Self::new(st, tt, handler, node_builder);
+    fn do_pass((ast, handler, node_builder, symbol_table, tt): Self::Input) -> Self::Output {
+        let mut reconstructor = Self::new(symbol_table, tt, handler, node_builder);
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err().map_err(|e| *e)?;
 
-        Ok((Ast::new(program), reconstructor.symbol_table.take()))
+        Ok((Ast::new(program), reconstructor.symbol_table))
     }
 }

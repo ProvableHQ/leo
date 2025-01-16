@@ -23,7 +23,6 @@ use crate::CompilerOptions;
 pub use leo_ast::Ast;
 use leo_ast::{NodeBuilder, Program, Stub};
 use leo_errors::{CompilerError, Result, emitter::Handler};
-pub use leo_passes::SymbolTable;
 use leo_passes::*;
 use leo_span::{Symbol, source_map::FileName, symbol::with_session_globals};
 
@@ -147,19 +146,17 @@ impl<'a, N: Network> Compiler<'a, N> {
     /// Runs the symbol table pass.
     pub fn symbol_table_pass(&self) -> Result<SymbolTable> {
         let symbol_table = SymbolTableCreator::do_pass((&self.ast, self.handler))?;
-        if self.compiler_options.output.initial_symbol_table {
-            self.write_symbol_table_to_json("initial_symbol_table.json", &symbol_table)?;
-        }
         Ok(symbol_table)
     }
 
     /// Runs the type checker pass.
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
         let (symbol_table, struct_graph, call_graph) =
-            TypeChecker::<N>::do_pass((&self.ast, self.handler, symbol_table, &self.type_table))?;
-        if self.compiler_options.output.type_checked_symbol_table {
-            self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
-        }
+            TypeChecker::do_pass((&self.ast, self.handler, symbol_table, &self.type_table, NetworkLimits {
+                max_array_elements: N::MAX_ARRAY_ELEMENTS,
+                max_mappings: N::MAX_MAPPINGS,
+                max_functions: N::MAX_FUNCTIONS,
+            }))?;
         Ok((symbol_table, struct_graph, call_graph))
     }
 
@@ -188,10 +185,6 @@ impl<'a, N: Network> Compiler<'a, N> {
 
         if self.compiler_options.output.unrolled_ast {
             self.write_ast_to_json("unrolled_ast.json")?;
-        }
-
-        if self.compiler_options.output.unrolled_symbol_table {
-            self.write_symbol_table_to_json("unrolled_symbol_table.json", &symbol_table)?;
         }
 
         Ok(symbol_table)
@@ -332,22 +325,6 @@ impl<'a, N: Network> Compiler<'a, N> {
             self.ast.to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
         } else {
             self.ast.to_json_file_without_keys(
-                self.output_directory.clone(),
-                &format!("{}.{file_suffix}", self.program_name),
-                &["_span", "span"],
-            )?;
-        }
-        Ok(())
-    }
-
-    /// Writes the Symbol Table to a JSON file.
-    fn write_symbol_table_to_json(&self, file_suffix: &str, symbol_table: &SymbolTable) -> Result<()> {
-        // Remove `Span`s if they are not enabled.
-        if self.compiler_options.output.symbol_table_spans_enabled {
-            symbol_table
-                .to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
-        } else {
-            symbol_table.to_json_file_without_keys(
                 self.output_directory.clone(),
                 &format!("{}.{file_suffix}", self.program_name),
                 &["_span", "span"],

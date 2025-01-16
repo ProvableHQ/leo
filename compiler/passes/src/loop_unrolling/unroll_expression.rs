@@ -43,8 +43,8 @@ impl ExpressionReconstructor for Unroller<'_> {
 
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
         // Substitute the identifier with the constant value if it is a constant.
-        if let Some(expr) = self.constant_propagation_table.borrow().lookup_constant(input.name) {
-            return (expr.clone(), Default::default());
+        if let Some(expr) = self.symbol_table.lookup_const(self.current_program.unwrap(), input.name) {
+            return (expr, Default::default());
         }
         (Expression::Identifier(input), Default::default())
     }

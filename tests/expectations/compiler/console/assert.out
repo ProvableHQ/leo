@@ -1,14 +1,14 @@
 namespace = "Compile"
 expectation = "Pass"
-outputs = [[{ compile = [{ initial_symbol_table = "fc733d451f4e2fa481aa372a62467692dd6e489d0b1c07f1c8f6b068e93b4b9a", type_checked_symbol_table = "4b5a198988de9d3f07f0626afd365c9d15a547030f8b0e8ece38e3f9b26a073e", unrolled_symbol_table = "4b5a198988de9d3f07f0626afd365c9d15a547030f8b0e8ece38e3f9b26a073e", initial_ast = "ade6a543693f5fa250337f907a2fc60682e91a30041e4429c997a1a64d2a7d21", unrolled_ast = "ade6a543693f5fa250337f907a2fc60682e91a30041e4429c997a1a64d2a7d21", ssa_ast = "205b0e256162ee0f668c8eb126ead3fb6cfe5ab29e078b849510e4618599ed12", flattened_ast = "c20f911f4549bb2640dea1a42c952cf0d72b09c7ea38d85e8ae1cf4782bb218f", destructured_ast = "0e3ddfa4e71ebe6d7f86fa9ea0083973831945dccd0f84debd6f3302cfd724b2", inlined_ast = "0e3ddfa4e71ebe6d7f86fa9ea0083973831945dccd0f84debd6f3302cfd724b2", dce_ast = "0e3ddfa4e71ebe6d7f86fa9ea0083973831945dccd0f84debd6f3302cfd724b2", bytecode = """
+outputs = [[{ compile = [{ initial_ast = "ade6a543693f5fa250337f907a2fc60682e91a30041e4429c997a1a64d2a7d21", unrolled_ast = "ade6a543693f5fa250337f907a2fc60682e91a30041e4429c997a1a64d2a7d21", ssa_ast = "205b0e256162ee0f668c8eb126ead3fb6cfe5ab29e078b849510e4618599ed12", flattened_ast = "c20f911f4549bb2640dea1a42c952cf0d72b09c7ea38d85e8ae1cf4782bb218f", destructured_ast = "0e3ddfa4e71ebe6d7f86fa9ea0083973831945dccd0f84debd6f3302cfd724b2", inlined_ast = "0e3ddfa4e71ebe6d7f86fa9ea0083973831945dccd0f84debd6f3302cfd724b2", dce_ast = "0e3ddfa4e71ebe6d7f86fa9ea0083973831945dccd0f84debd6f3302cfd724b2", bytecode = """
 program test.aleo;
-
-struct Foo:
-    a as u8;
 
 record Token:
     owner as address.private;
     amount as u64.private;
+
+struct Foo:
+    a as u8;
 
 function main:
     input r0 as boolean.private;

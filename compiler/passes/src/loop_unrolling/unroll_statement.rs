@@ -23,44 +23,39 @@ use crate::{VariableSymbol, VariableType, unroller::Unroller};
 
 impl StatementReconstructor for Unroller<'_> {
     fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
-        let scope_index = self.current_scope_index();
+        let id = if self.is_unrolling { self.node_builder.next_id() } else { input.id };
 
-        // Enter the block scope.
-        let previous_scope_index = self.enter_scope(scope_index);
+        self.in_scope(id, |slf| {
+            // Filter out the statements that have additional output = true
+            let filtered_statements: Vec<_> = input
+                .statements
+                .into_iter()
+                .filter_map(|s| {
+                    let (reconstructed_statement, additional_output) = slf.reconstruct_statement(s);
+                    if additional_output {
+                        None // Exclude this statement from the block since it is a constant variable definition
+                    } else {
+                        Some(reconstructed_statement)
+                    }
+                })
+                .collect();
 
-        // Filter out the statements that have additional output = true
-        let filtered_statements: Vec<_> = input
-            .statements
-            .into_iter()
-            .filter_map(|s| {
-                let (reconstructed_statement, additional_output) = self.reconstruct_statement(s);
-                if additional_output {
-                    None // Exclude this statement from the block since it is a constant variable definition
-                } else {
-                    Some(reconstructed_statement)
-                }
-            })
-            .collect();
+            let block = Block { statements: filtered_statements, span: input.span, id: input.id };
 
-        let block = Block { statements: filtered_statements, span: input.span, id: input.id };
-
-        // Exit the block scope.
-        self.exit_scope(previous_scope_index);
-
-        (block, Default::default())
+            (block, Default::default())
+        })
     }
 
     fn reconstruct_const(&mut self, input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
         // Reconstruct the RHS expression to allow for constant propagation
         let reconstructed_value_expression = self.reconstruct_expression(input.value.clone()).0;
 
-        // Add to constant propagation table. Since TC completed we know that the RHS is a literal or tuple of literals.
-        if let Err(err) = self.constant_propagation_table.borrow_mut().insert_constant(input.place.name, input.value) {
-            self.handler.emit_err(err);
-        }
-
-        // Remove from symbol table
-        self.symbol_table.borrow_mut().remove_variable_from_current_scope(Location::new(None, input.place.name));
+        // Add to symbol table.
+        self.symbol_table.insert_const(
+            self.current_program.unwrap(),
+            input.place.name,
+            reconstructed_value_expression.clone(),
+        );
 
         (
             Statement::Const(ConstDeclaration {
@@ -75,42 +70,54 @@ impl StatementReconstructor for Unroller<'_> {
     }
 
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        // Helper function to add  variables to symbol table
-        let insert_variable = |symbol: Symbol, type_: Type, span: Span| {
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                Location::new(None, symbol),
-                self.current_program,
-                VariableSymbol { type_, span, declaration: VariableType::Mut },
-            ) {
+        if !self.is_unrolling {
+            return (
+                Statement::Definition(DefinitionStatement {
+                    declaration_type: input.declaration_type,
+                    place: input.place,
+                    type_: input.type_,
+                    value: self.reconstruct_expression(input.value).0,
+                    span: input.span,
+                    id: input.id,
+                }),
+                Default::default(),
+            );
+        }
+
+        // Helper function to add variables to symbol table
+        let mut insert_variable = |symbol: Symbol, type_: Type, span: Span| {
+            if let Err(err) = self.symbol_table.insert_variable(self.current_program.unwrap(), symbol, VariableSymbol {
+                type_: type_.clone(),
+                span,
+                declaration: VariableType::Mut,
+            }) {
                 self.handler.emit_err(err);
             }
         };
 
         // If we are unrolling a loop, then we need to repopulate the symbol table.
-        if self.is_unrolling {
-            match &input.place {
-                Expression::Identifier(identifier) => {
-                    insert_variable(identifier.name, input.type_.clone(), input.span);
-                }
-                Expression::Tuple(tuple_expression) => {
-                    let tuple_type = match input.type_ {
-                        Type::Tuple(ref tuple_type) => tuple_type,
-                        _ => unreachable!(
-                            "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
-                        ),
-                    };
-                    tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(|(expression, _type_)| {
+        match &input.place {
+            Expression::Identifier(identifier) => {
+                insert_variable(identifier.name, input.type_.clone(), input.span);
+            }
+            Expression::Tuple(tuple_expression) => {
+                let tuple_type = match input.type_ {
+                    Type::Tuple(ref tuple_type) => tuple_type,
+                    _ => unreachable!(
+                        "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
+                    ),
+                };
+                tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(|(expression, _type_)| {
                         let identifier = match expression {
                             Expression::Identifier(identifier) => identifier,
                             _ => unreachable!("Type checking guarantees that if the lhs is a tuple, all of its elements are identifiers.")
                         };
                         insert_variable(identifier.name, input.type_.clone(), input.span);
                     });
-                }
-                _ => unreachable!(
-                    "Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple."
-                ),
             }
+            _ => unreachable!(
+                "Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple."
+            ),
         }
 
         // Reconstruct the expression and return
@@ -121,7 +128,7 @@ impl StatementReconstructor for Unroller<'_> {
                 type_: input.type_,
                 value: self.reconstruct_expression(input.value).0,
                 span: input.span,
-                id: input.id,
+                id: self.node_builder.next_id(),
             }),
             Default::default(),
         )

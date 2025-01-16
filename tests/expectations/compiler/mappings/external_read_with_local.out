@@ -1,0 +1,37 @@
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [
+    { initial_ast = "c2ffaf912fbd09cc5562fb0099e9d6aa78bbdcf5a72fa4ca790bcde7bee6604d", unrolled_ast = "c2ffaf912fbd09cc5562fb0099e9d6aa78bbdcf5a72fa4ca790bcde7bee6604d", ssa_ast = "12eca155ed26e724287ccd4e6a447bd05301f943f8bd6908fa51080861300bd9", flattened_ast = "99e5df8257db67c4ade0de1f9e4bc247f97a8aee10d689fe2680b0c0289c6bee", destructured_ast = "d6e321cad708ea692ca0f0755f4006592ad18ed036dd044313be6cfec7946121", inlined_ast = "5d576013dee2c062bfcd300e7c1ccc829205615c4e5b2dd55bd4b006e9bc09a6", dce_ast = "5d576013dee2c062bfcd300e7c1ccc829205615c4e5b2dd55bd4b006e9bc09a6", bytecode = """
+program registry.aleo;
+
+mapping users:
+    key as address.public;
+    value as boolean.public;
+
+function register:
+    async register self.caller into r0;
+    output r0 as registry.aleo/register.future;
+
+finalize register:
+    input r0 as address.public;
+    set true into users[r0];
+""", errors = "", warnings = "" },
+    { initial_ast = "5ca0830b9d3edffa3384847f9844880469583d8c33203eafe747076b29c5c923", unrolled_ast = "e21e839555001dbcd10ba0d9ddf5158558d37de6911a6d334c79a6ac1de325bc", ssa_ast = "da6ba96df8d6a1a7c748562cb3b5e30475a7cc104f66c9232a81402ae4b49af9", flattened_ast = "efe6f4f1ab759bccc40e0bd4bd62307adc660b2d2a4525d6b4293d8d305642dd", destructured_ast = "3415f76ce1ddef7d1042d01e9315fb4d95b8911192ffce7342849bbc15d3d432", inlined_ast = "02253da8b6028b5c66ce150ce12764cb3cc4743116a6a58a0c1969b897561d3f", dce_ast = "02253da8b6028b5c66ce150ce12764cb3cc4743116a6a58a0c1969b897561d3f", bytecode = """
+import registry.aleo;
+program relay.aleo;
+
+mapping users:
+    key as address.public;
+    value as boolean.public;
+
+function send:
+    input r0 as address.private;
+    async send r0 into r1;
+    output r1 as relay.aleo/send.future;
+
+finalize send:
+    input r0 as address.public;
+    get users[r0] into r1;
+    assert.eq r1 true;
+""", errors = "", warnings = "" },
+] }]]

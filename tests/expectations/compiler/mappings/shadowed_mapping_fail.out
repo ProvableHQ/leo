@@ -6,4 +6,11 @@ Error [EAST0372009]: variable `one` shadowed by
      |
    6 |     mapping one: field => field;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [EAST0372009]: variable `one` shadowed by
+    --> compiler-test:8:5
+     |
+   8 |     transition one() -> u8 {
+   9 |         return 1u8 + 1u8;
+  10 |     }
+     |     ^
 """]

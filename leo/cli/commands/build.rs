@@ -45,10 +45,6 @@ impl From<BuildOptions> for CompilerOptions {
                 disable_conditional_branch_type_checking: options.disable_conditional_branch_type_checking,
             },
             output: OutputOptions {
-                symbol_table_spans_enabled: options.enable_symbol_table_spans,
-                initial_symbol_table: options.enable_initial_symbol_table_snapshot,
-                type_checked_symbol_table: options.enable_type_checked_symbol_table_snapshot,
-                unrolled_symbol_table: options.enable_unrolled_symbol_table_snapshot,
                 ast_spans_enabled: options.enable_ast_spans,
                 initial_ast: options.enable_initial_ast_snapshot,
                 unrolled_ast: options.enable_unrolled_ast_snapshot,

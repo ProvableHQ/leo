@@ -144,14 +144,6 @@ pub struct BuildOptions {
     pub non_recursive: bool,
     #[clap(long, help = "Enables offline mode.")]
     pub offline: bool,
-    #[clap(long, help = "Enable spans in symbol table snapshots.")]
-    pub enable_symbol_table_spans: bool,
-    #[clap(long, help = "Writes the symbol table after the symbol table pass.")]
-    pub enable_initial_symbol_table_snapshot: bool,
-    #[clap(long, help = "Writes symbol table snapshot of the type checked symbol table.")]
-    pub enable_type_checked_symbol_table_snapshot: bool,
-    #[clap(long, help = "Writes symbol table snapshot of the unrolled symbol table.")]
-    pub enable_unrolled_symbol_table_snapshot: bool,
     #[clap(long, help = "Enable spans in AST snapshots.")]
     pub enable_ast_spans: bool,
     #[clap(long, help = "Enables dead code elimination in the compiler.")]
@@ -185,11 +177,6 @@ impl Default for BuildOptions {
             network: None,
             non_recursive: false,
             offline: false,
-            enable_symbol_table_spans: false,
-            enable_initial_symbol_table_snapshot: false,
-            enable_type_checked_symbol_table_snapshot: false,
-            enable_unrolled_symbol_table_snapshot: false,
-            enable_ast_spans: false,
             enable_dce: false,
             enable_all_ast_snapshots: false,
             enable_initial_ast_snapshot: false,
@@ -198,6 +185,7 @@ impl Default for BuildOptions {
             enable_flattened_ast_snapshot: false,
             enable_destructured_ast_snapshot: false,
             enable_inlined_ast_snapshot: false,
+            enable_ast_spans: false,
             enable_dce_ast_snapshot: false,
             conditional_block_max_depth: 10,
             disable_conditional_branch_type_checking: false,

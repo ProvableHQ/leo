@@ -72,10 +72,6 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         let compiler_options = CompilerOptions {
             build,
             output: OutputOptions {
-                symbol_table_spans_enabled: false,
-                initial_symbol_table: true,
-                type_checked_symbol_table: true,
-                unrolled_symbol_table: true,
                 ast_spans_enabled: false,
                 initial_ast: true,
                 unrolled_ast: true,
@@ -137,19 +133,12 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
             let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) =
                 hash_asts(&program_name);
 
-            // Hash the symbol tables.
-            let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) =
-                hash_symbol_tables(&program_name);
-
             // Clean up the output directory.
             if fs::read_dir("/tmp/output").is_ok() {
                 fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
             }
 
             let output = CompileOutput {
-                initial_symbol_table,
-                type_checked_symbol_table,
-                unrolled_symbol_table,
                 initial_ast,
                 unrolled_ast,
                 ssa_ast,

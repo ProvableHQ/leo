@@ -14,52 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CompositeType;
 use leo_span::Symbol;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
-// Create custom struct to wrap (Symbol, Symbol) so that it can be serialized and deserialized.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Location {
-    pub program: Option<Symbol>,
+    pub program: Symbol,
     pub name: Symbol,
 }
 
 impl Location {
-    // Create new Location instance.
-    pub fn new(program: Option<Symbol>, name: Symbol) -> Location {
+    pub fn new(program: Symbol, name: Symbol) -> Location {
         Location { program, name }
-    }
-}
-
-impl From<&CompositeType> for Location {
-    fn from(composite: &CompositeType) -> Location {
-        Location::new(composite.program, composite.id.name)
-    }
-}
-
-impl Serialize for Location {
-    fn serialize<S>(&self, serializer: S) -> leo_errors::Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let condensed_str = match self.program {
-            Some(program) => format!("{}/{}", program, self.name),
-            None => format!("{}", self.name),
-        };
-        serializer.serialize_str(&condensed_str)
-    }
-}
-
-impl<'de> Deserialize<'de> for Location {
-    fn deserialize<D>(deserializer: D) -> leo_errors::Result<Location, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
-        let mut parts: Vec<&str> = s.split('/').collect();
-        let program = if parts.len() == 1 { None } else { Some(Symbol::intern(parts.remove(0))) };
-        let name = Symbol::intern(parts.first().unwrap());
-        Ok(Location::new(program, name))
     }
 }

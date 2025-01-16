@@ -28,15 +28,19 @@ use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning, emitter::Handler};
 use leo_span::{Span, Symbol};
 
-use snarkvm::console::network::Network;
-
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
-use std::{cell::RefCell, marker::PhantomData, ops::Deref};
+use std::ops::Deref;
 
-pub struct TypeChecker<'a, N: Network> {
+pub struct NetworkLimits {
+    pub max_array_elements: usize,
+    pub max_mappings: usize,
+    pub max_functions: usize,
+}
+
+pub struct TypeChecker<'a> {
     /// The symbol table for the program.
-    pub(crate) symbol_table: RefCell<SymbolTable>,
+    pub(crate) symbol_table: SymbolTable,
     /// A mapping from node IDs to their types.
     pub(crate) type_table: &'a TypeTable,
     /// A dependency graph of the structs in program.
@@ -53,19 +57,30 @@ pub struct TypeChecker<'a, N: Network> {
     pub(crate) async_function_callers: IndexMap<Location, IndexSet<Location>>,
     /// The set of used composites.
     pub(crate) used_structs: IndexSet<Symbol>,
-    // Allows the type checker to be generic over the network.
-    phantom: PhantomData<N>,
+    /// So we can check if we exceed limits on array size, number of mappings, or number of functions.
+    pub(crate) limits: NetworkLimits,
+    /// For detecting the error `TypeCheckerError::async_cannot_assign_outside_conditional`.
+    conditional_scopes: Vec<IndexSet<Symbol>>,
 }
 
-impl<'a, N: Network> TypeChecker<'a, N> {
+impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: SymbolTable, type_table: &'a TypeTable, handler: &'a Handler) -> Self {
-        let struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
-        let function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
+    pub fn new(
+        symbol_table: SymbolTable,
+        type_table: &'a TypeTable,
+        handler: &'a Handler,
+        limits: NetworkLimits,
+    ) -> Self {
+        let struct_names = symbol_table
+            .iter_records()
+            .map(|(loc, _)| loc.name)
+            .chain(symbol_table.iter_structs().map(|(name, _)| name))
+            .collect();
+        let function_names = symbol_table.iter_functions().map(|(loc, _)| loc.name).collect();
 
         // Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
         Self {
-            symbol_table: RefCell::new(symbol_table),
+            symbol_table,
             type_table,
             struct_graph: StructGraph::new(struct_names),
             call_graph: CallGraph::new(function_names),
@@ -74,32 +89,31 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             async_function_input_types: IndexMap::new(),
             async_function_callers: IndexMap::new(),
             used_structs: IndexSet::new(),
-            phantom: Default::default(),
+            conditional_scopes: Vec::new(),
+            limits,
         }
     }
 
-    /// Enters a child scope.
-    pub(crate) fn enter_scope(&mut self, index: usize) {
-        let previous_symbol_table = std::mem::take(&mut self.symbol_table);
-        self.symbol_table.swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
+    pub(crate) fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
+        self.symbol_table.enter_scope(Some(id));
+        let result = func(self);
+        self.symbol_table.enter_parent();
+        result
     }
 
-    /// Creates a new child scope.
-    pub(crate) fn create_child_scope(&mut self) -> usize {
-        // Creates a new child scope.
-        let scope_index = self.symbol_table.borrow_mut().insert_block();
-        // Enter the new scope.
-        self.enter_scope(scope_index);
-        // Return the index of the new scope.
-        scope_index
+    pub(crate) fn in_conditional_scope<T>(&mut self, func: impl FnOnce(&mut Self) -> T) -> T {
+        self.conditional_scopes.push(Default::default());
+        let result = func(self);
+        self.conditional_scopes.pop();
+        result
     }
 
-    /// Exits the current scope.
-    pub(crate) fn exit_scope(&mut self, index: usize) {
-        let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(previous_symbol_table.lookup_scope_by_index(index).unwrap());
-        self.symbol_table = RefCell::new(previous_symbol_table);
+    pub(crate) fn insert_symbol_conditional_scope(&mut self, symbol: Symbol) {
+        self.conditional_scopes.last_mut().expect("A conditional scope must be present.").insert(symbol);
+    }
+
+    pub(crate) fn symbol_in_conditional_scope(&mut self, symbol: Symbol) -> bool {
+        self.conditional_scopes.last().map(|set| set.contains(&symbol)).unwrap_or(false)
     }
 
     /// Emits a type checker error.
@@ -845,7 +859,9 @@ impl<'a, N: Network> TypeChecker<'a, N> {
     pub(crate) fn assert_member_is_not_record(&mut self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {
             Type::Composite(struct_)
-                if self.lookup_struct(struct_.program, struct_.id.name).map_or(false, |struct_| struct_.is_record) =>
+                if self
+                    .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
+                    .map_or(false, |struct_| struct_.is_record) =>
             {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
             }
@@ -870,7 +886,9 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that the named composite type has been defined.
-            Type::Composite(struct_) if self.lookup_struct(struct_.program, struct_.id.name).is_none() => {
+            Type::Composite(struct_)
+                if self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name).is_none() =>
+            {
                 self.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
             }
             // Check that the constituent types of the tuple are valid.
@@ -890,8 +908,12 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 match array_type.length() {
                     0 => self.emit_err(TypeCheckerError::array_empty(span)),
                     length => {
-                        if length > N::MAX_ARRAY_ELEMENTS {
-                            self.emit_err(TypeCheckerError::array_too_large(length, N::MAX_ARRAY_ELEMENTS, span))
+                        if length > self.limits.max_array_elements {
+                            self.emit_err(TypeCheckerError::array_too_large(
+                                length,
+                                self.limits.max_array_elements,
+                                span,
+                            ))
                         }
                     }
                 }
@@ -904,7 +926,9 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                     // Array elements cannot be records.
                     Type::Composite(struct_type) => {
                         // Look up the type.
-                        if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
+                        if let Some(struct_) = self
+                            .lookup_struct(struct_type.program.or(self.scope_state.program_name), struct_type.id.name)
+                        {
                             // Check that the type is not a record.
                             if struct_.is_record {
                                 self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
@@ -933,7 +957,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
     }
 
     /// Helper function to check that the input and output of function are valid
-    pub(crate) fn check_function_signature(&mut self, function: &Function) {
+    pub(crate) fn check_function_signature(&mut self, function: &Function, is_stub: bool) {
         self.scope_state.variant = Some(function.variant);
 
         let mut inferred_inputs: Vec<Type> = Vec::new();
@@ -944,18 +968,19 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 self.emit_err(TypeCheckerError::async_function_cannot_return_value(function.span()));
             }
 
-            let st = self.symbol_table.borrow();
-
             // Iterator over the `finalize` member (type Finalizer) of each async transition that calls
             // this async function.
             let mut caller_finalizers = self
                 .async_function_callers
-                .get(&Location::new(self.scope_state.program_name, function.identifier.name))
+                .get(&Location::new(self.scope_state.program_name.unwrap(), function.identifier.name))
                 .map(|callers| {
                     callers
                         .iter()
-                        .flat_map(|caller| st.lookup_fn_symbol(caller.clone()))
-                        .flat_map(|fn_symbol| fn_symbol.finalize.clone())
+                        .flat_map(|caller| {
+                            let caller = Location::new(caller.program, caller.name);
+                            self.symbol_table.lookup_function(caller)
+                        })
+                        .flat_map(|fn_symbol| fn_symbol.finalizer.clone())
                 })
                 .into_iter()
                 .flatten();
@@ -995,7 +1020,9 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             if let Type::Composite(struct_) = table_type {
                 // Throw error for undefined type.
                 if !function.variant.is_transition() {
-                    if let Some(elem) = self.lookup_struct(struct_.program, struct_.id.name) {
+                    if let Some(elem) =
+                        self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
+                    {
                         if elem.is_record {
                             self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
                         }
@@ -1029,21 +1056,23 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 }
             }
 
-            // Add the input to the symbol table.
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                Location::new(None, input.identifier().name),
-                self.scope_state.program_name,
-                VariableSymbol {
-                    type_: table_type.clone(),
-                    span: input.identifier.span(),
-                    declaration: VariableType::Input(input.mode()),
-                },
-            ) {
-                self.handler.emit_err(err);
-            }
+            if !is_stub {
+                // Add the input to the symbol table.
+                if let Err(err) = self.symbol_table.insert_variable(
+                    self.scope_state.program_name.unwrap(),
+                    input.identifier().name,
+                    VariableSymbol {
+                        type_: table_type.clone(),
+                        span: input.identifier.span(),
+                        declaration: VariableType::Input(input.mode()),
+                    },
+                ) {
+                    self.handler.emit_err(err);
+                }
 
-            // Add the input to the type table.
-            self.type_table.insert(input.identifier().id(), table_type.clone());
+                // Add the input to the type table.
+                self.type_table.insert(input.identifier().id(), table_type.clone());
+            }
         }
 
         // Type check the function's return type.
@@ -1052,7 +1081,9 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             // If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
             if let Type::Composite(struct_) = function_output.type_.clone() {
-                if let Some(val) = self.lookup_struct(struct_.program, struct_.id.name) {
+                if let Some(val) =
+                    self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
+                {
                     if val.is_record && !function.variant.is_transition() {
                         self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
                     }
@@ -1158,20 +1189,19 @@ impl<'a, N: Network> TypeChecker<'a, N> {
 
     /// Wrapper around lookup_struct that additionally records all structs that are used in the program.
     pub(crate) fn lookup_struct(&mut self, program: Option<Symbol>, name: Symbol) -> Option<Composite> {
-        let struct_ = self
-            .symbol_table
-            .borrow()
-            .lookup_struct(Location::new(program, name), self.scope_state.program_name)
-            .cloned();
+        let record_comp = program.and_then(|prog| self.symbol_table.lookup_record(Location::new(prog, name)));
+        let comp = record_comp.or_else(|| self.symbol_table.lookup_struct(name));
         // Record the usage.
-        if let Some(s) = &struct_ {
+        if let Some(s) = comp {
             self.used_structs.insert(s.identifier.name);
         }
-        struct_
+        comp.cloned()
     }
 
     /// Inserts variable to symbol table.
     pub(crate) fn insert_variable(&mut self, inferred_type: Option<Type>, name: &Identifier, type_: Type, span: Span) {
+        self.insert_symbol_conditional_scope(name.name);
+
         let is_future = match &type_ {
             Type::Future(..) => true,
             Type::Tuple(tuple_type) if matches!(tuple_type.elements().last(), Some(Type::Future(..))) => true,
@@ -1181,7 +1211,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         if is_future {
             // It can happen that the call location has not been set if there was an error
             // in the call that produced the Future.
-            if let Some(call_location) = self.scope_state.call_location.clone() {
+            if let Some(call_location) = self.scope_state.call_location {
                 self.scope_state.futures.insert(name.name, call_location);
             }
         }
@@ -1193,11 +1223,13 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         };
 
         // Insert the variable into the symbol table.
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-            Location::new(None, name.name),
-            self.scope_state.program_name,
-            VariableSymbol { type_: ty, span, declaration: VariableType::Mut },
-        ) {
+        if let Err(err) =
+            self.symbol_table.insert_variable(self.scope_state.program_name.unwrap(), name.name, VariableSymbol {
+                type_: ty.clone(),
+                span,
+                declaration: VariableType::Mut,
+            })
+        {
             self.handler.emit_err(err);
         }
     }

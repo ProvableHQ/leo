@@ -67,6 +67,9 @@ impl ScopeState {
 
     /// Get the current location.
     pub fn location(&self) -> Location {
-        Location::new(self.program_name, self.function.unwrap())
+        Location::new(
+            self.program_name.expect("Only call ScopeState::location when visiting a function or function stub."),
+            self.function.expect("Only call ScopeState::location when visiting a function or function stub."),
+        )
     }
 }

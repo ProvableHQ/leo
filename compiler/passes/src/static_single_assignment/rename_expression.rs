@@ -253,9 +253,11 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         // Reorder the members to match that of the struct definition.
 
         // Lookup the struct definition.
-        // Note that type checking guarantees that the correct struct definition exists.
-        let struct_definition: &Composite =
-            self.symbol_table.lookup_struct(Location::new(self.program, input.name.name), self.program).unwrap();
+        let struct_definition: &Composite = self
+            .symbol_table
+            .lookup_record(Location::new(self.program.unwrap(), input.name.name))
+            .or_else(|| self.symbol_table.lookup_struct(input.name.name))
+            .expect("Type checking guarantees this definition exists.");
 
         // Initialize the list of reordered members.
         let mut reordered_members = Vec::with_capacity(members.len());
