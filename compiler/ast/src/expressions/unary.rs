@@ -60,7 +60,7 @@ impl UnaryOperation {
         })
     }
 
-    /// Represents the opera.tor as a string.
+    /// Represents the operator as a string.
     fn as_str(self) -> &'static str {
         match self {
             Self::Abs => "abs",
@@ -74,6 +74,12 @@ impl UnaryOperation {
             Self::ToXCoordinate => "to_x_coordinate",
             Self::ToYCoordinate => "to_y_coordinate",
         }
+    }
+}
+
+impl fmt::Display for UnaryOperation {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
@@ -92,7 +98,7 @@ pub struct UnaryExpression {
 
 impl fmt::Display for UnaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}", self.op.as_str(), self.receiver)
+        write!(f, "({}).{}()", self.receiver, self.op)
     }
 }
 

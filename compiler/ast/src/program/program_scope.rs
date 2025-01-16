@@ -59,6 +59,9 @@ impl From<Stub> for ProgramScope {
 impl fmt::Display for ProgramScope {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "program {} {{", self.program_id)?;
+        for (_, const_decl) in self.consts.iter() {
+            writeln!(f, "    {const_decl}")?;
+        }
         for (_, struct_) in self.structs.iter() {
             writeln!(f, "    {struct_}")?;
         }

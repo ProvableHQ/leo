@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 #![forbid(unsafe_code)]
-#![deny(clippy::all, clippy::missing_docs_in_private_items)]
+#![deny(clippy::all)]
 #![doc = include_str!("../README.md")]
 
 #[macro_use]

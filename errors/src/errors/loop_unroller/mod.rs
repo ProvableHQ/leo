@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// This module contains the Input error definitions.
+//! This module contains the loop unroller error definitions.
+
 pub mod loop_unroller_errors;
 pub use self::loop_unroller_errors::*;

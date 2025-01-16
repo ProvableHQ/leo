@@ -33,8 +33,12 @@ mod test;
 mod util;
 use util::*;
 
+mod core_functions;
+pub use core_functions::{CoreFunctionHelper, evaluate_core_function};
+
 mod cursor;
 use cursor::*;
+pub use cursor::{evaluate_binary, evaluate_unary, literal_to_value};
 
 mod interpreter;
 use interpreter::*;
@@ -42,6 +46,7 @@ use interpreter::*;
 mod cursor_aleo;
 
 mod value;
+pub use value::Value;
 use value::*;
 
 mod ui;

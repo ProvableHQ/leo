@@ -17,8 +17,10 @@
 use leo_ast::{
     Block,
     Expression,
+    ExpressionReconstructor,
     IterationStatement,
     Literal,
+    Node,
     NodeBuilder,
     NodeID,
     Statement,
@@ -28,13 +30,13 @@ use leo_ast::{
 };
 
 use leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
-use leo_span::Symbol;
+use leo_span::{Span, Symbol};
 
 use crate::{Clusivity, LoopBound, RangeIterator, SymbolTable, TypeTable};
 
 pub struct Unroller<'a> {
     /// The symbol table for the function being processed.
-    pub(crate) symbol_table: SymbolTable,
+    pub(crate) symbol_table: &'a mut SymbolTable,
     /// A mapping from node IDs to their types.
     pub(crate) type_table: &'a TypeTable,
     /// An error handler used for any errors found during unrolling.
@@ -45,16 +47,29 @@ pub struct Unroller<'a> {
     pub(crate) is_unrolling: bool,
     /// The current program name.
     pub(crate) current_program: Option<Symbol>,
+    /// If we've encountered a loop that was not unrolled, here's it's spanned.
+    pub(crate) loop_not_unrolled: Option<Span>,
+    /// Have we unrolled any loop?
+    pub(crate) loop_unrolled: bool,
 }
 
 impl<'a> Unroller<'a> {
     pub(crate) fn new(
-        symbol_table: SymbolTable,
+        symbol_table: &'a mut SymbolTable,
         type_table: &'a TypeTable,
         handler: &'a Handler,
         node_builder: &'a NodeBuilder,
     ) -> Self {
-        Self { symbol_table, type_table, handler, node_builder, is_unrolling: false, current_program: None }
+        Self {
+            symbol_table,
+            type_table,
+            handler,
+            node_builder,
+            is_unrolling: false,
+            current_program: None,
+            loop_not_unrolled: None,
+            loop_unrolled: false,
+        }
     }
 
     pub(crate) fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
@@ -125,45 +140,37 @@ impl<'a> Unroller<'a> {
         // Update the type table.
         self.type_table.insert(const_id, input.type_.clone());
 
-        let block_id = self.node_builder.next_id();
+        let outer_block_id = self.node_builder.next_id();
 
         // Reconstruct `iteration_count` as a `Literal`.
         let Type::Integer(integer_type) = &input.type_ else {
             unreachable!("Type checking enforces that the iteration variable is of integer type");
         };
 
-        self.in_scope(block_id, |slf| {
-            let prior_is_unrolling = slf.is_unrolling;
-            slf.is_unrolling = true;
-
+        self.in_scope(outer_block_id, |slf| {
             let value = Literal::Integer(*integer_type, iteration_count.to_string(), Default::default(), const_id);
 
-            // Add the loop variable as a constant for the current scope
+            // Add the loop variable as a constant for the current scope.
             slf.symbol_table.insert_const(
                 slf.current_program.unwrap(),
                 input.variable.name,
-                Expression::Literal(value.clone()),
+                Expression::Literal(value),
             );
 
-            // Reconstruct the statements in the loop body.
-            let statements: Vec<_> = input
-                .block
-                .statements
-                .clone()
-                .into_iter()
-                .filter_map(|s| {
-                    let (reconstructed_statement, additional_output) = slf.reconstruct_statement(s);
-                    if additional_output {
-                        None // Exclude this statement from the block since it is a constant variable definition
-                    } else {
-                        Some(reconstructed_statement)
-                    }
-                })
-                .collect();
+            let duplicated_body = super::duplicate::duplicate(input.block.clone(), slf.symbol_table, slf.node_builder);
+
+            let prior_is_unrolling = slf.is_unrolling;
+            slf.is_unrolling = true;
+
+            let result = Statement::Block(slf.reconstruct_block(duplicated_body).0);
 
             slf.is_unrolling = prior_is_unrolling;
 
-            Statement::Block(Block { statements, span: input.block.span, id: block_id })
+            Statement::Block(Block { statements: vec![result], span: input.span(), id: outer_block_id })
         })
     }
+}
+
+impl ExpressionReconstructor for Unroller<'_> {
+    type AdditionalOutput = ();
 }

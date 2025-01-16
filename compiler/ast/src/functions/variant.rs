@@ -22,8 +22,9 @@ use serde::{Deserialize, Serialize};
 /// A regular function is not permitted to manipulate records.
 /// An asynchronous function contains on-chain operations.
 /// An inline function is directly copied at the call site.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Variant {
+    #[default]
     Inline,
     Function,
     Transition,

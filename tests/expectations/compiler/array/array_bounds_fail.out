@@ -1,0 +1,9 @@
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ESAZ0374010]: Array index 8 out of bounds (array length is 8).
+    --> compiler-test:7:17
+     |
+   7 |             x = a[i];
+     |                 ^^^^
+"""]

@@ -1,0 +1,8 @@
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ECMP0376008]: This loop bound could not be determined at compile time.
+    --> compiler-test:12:38
+     |
+  12 |             for j: u32 in SOME+1u32..STOP+a {
+     |                                      ^^^^^^"""]

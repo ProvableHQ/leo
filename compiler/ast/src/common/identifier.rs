@@ -41,7 +41,7 @@ use std::{
 /// Attention - When adding or removing fields from this struct,
 /// please remember to update its Serialize and Deserialize implementation
 /// to reflect the new struct instantiation.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 pub struct Identifier {
     /// The symbol that the user wrote, e.g., `foo`.
     pub name: Symbol,

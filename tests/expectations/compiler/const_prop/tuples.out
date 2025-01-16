@@ -1,0 +1,8 @@
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_ast = "a6dc954157f3ceb76a9266c54c270ed7a8ff581ba45c87e3967f393d524104c7", unrolled_ast = "8322d2b35e0ab220fdcdeeaf3fc125ef16cb3785186d29af249c4835c5183e37", ssa_ast = "9be11e3411114daa5ddfd01edcc585fb9ea766bdaf85990907baa044110ecd30", flattened_ast = "5ec388837bd67ef1c399551d0b01fb3ecd86cc8b80f446e87f6892b212670f8f", destructured_ast = "694710733ba774c889aed0f2ae7b65a7d65bdb7aabcc68a20eaa57fc44e6759d", inlined_ast = "694710733ba774c889aed0f2ae7b65a7d65bdb7aabcc68a20eaa57fc44e6759d", dce_ast = "79708bdc7dead403d8d67708d2cbe4540eb0134f2d176343d157eb668d285ecc", bytecode = """
+program test.aleo;
+
+function main:
+    output 12i32 as i32.private;
+""", errors = "", warnings = "" }] }]]

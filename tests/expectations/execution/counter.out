@@ -1,6 +1,6 @@
 namespace = "Execute"
 expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "19721e772e221eb97e37f1c93467922f709e85ce513f52509ada17ee6d772f43", unrolled_ast = "bf98c020b55ec42149bbebccd94fc4472393f136396a6e0f9f4de668e3a929a8", ssa_ast = "4cdb461c03b67dd1116b5ba10fe79ea1275c6a50a23865a37181a8bc525efc65", flattened_ast = "7763d804c2926a3c1e032a8729421ec31f659db3e614f4714a7e369a6748464a", destructured_ast = "ed3275214bc2c59c628cd54521cd017a6876c34fd2ac96bde750c050cc565cda", inlined_ast = "6f7b0819d5bc9087f7c973618450f0cd67300f4f58ccf8ae279d8193332617a0", dce_ast = "6f7b0819d5bc9087f7c973618450f0cd67300f4f58ccf8ae279d8193332617a0", bytecode = """
+outputs = [[{ compile = [{ initial_ast = "19721e772e221eb97e37f1c93467922f709e85ce513f52509ada17ee6d772f43", unrolled_ast = "79dfae454e56fefdd3427fa5e7a8d669959311278c6a044a00a250c935a9618e", ssa_ast = "c7596ddbc331604cd16694ccad6ef2ddb97121f605e7d345792833d4ad26e0ce", flattened_ast = "19e9d6a184bde839d70cd1bc805b508194d0c648daf5998e25e14375b88a18b3", destructured_ast = "5344f1eb7c6c48b96a995f0e2cb730fb07eab759a1d630541a3846312841f04e", inlined_ast = "bb742af09e8388e5402b2ec6ef5b32f19f57fb7d4cf07da4fb8c61bad267c9b6", dce_ast = "bb742af09e8388e5402b2ec6ef5b32f19f57fb7d4cf07da4fb8c61bad267c9b6", bytecode = """
 program test.aleo;
 
 mapping counter:
@@ -13,14 +13,12 @@ function dubble:
 
 finalize dubble:
     input r0 as address.public;
-    add 0_0u64 234u64 into r1;
-    add r1 0_1u64 into r2;
-    get.or_use counter[r0] r2 into r3;
-    add r3 1__u64 into r4;
+    get.or_use counter[r0] 235u64 into r1;
+    add r1 1__u64 into r2;
+    set r2 into counter[r0];
+    get counter[r0] into r3;
+    add r3 0___1u64 into r4;
     set r4 into counter[r0];
-    get counter[r0] into r5;
-    add r5 0___1u64 into r6;
-    set r6 into counter[r0];
 
 function unsafe_increment:
     async unsafe_increment self.caller into r0;

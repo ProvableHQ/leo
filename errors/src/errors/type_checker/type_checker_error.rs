@@ -587,6 +587,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     const_declaration_must_be_literal_or_tuple_of_literals {
         args: (),
@@ -594,6 +595,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     loop_bound_must_be_literal_or_const {
         args: (),

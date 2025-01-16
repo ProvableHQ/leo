@@ -93,6 +93,12 @@ pub enum Expression {
     Unit(UnitExpression),
 }
 
+impl Default for Expression {
+    fn default() -> Self {
+        Expression::Err(Default::default())
+    }
+}
+
 impl Node for Expression {
     fn span(&self) -> Span {
         use Expression::*;

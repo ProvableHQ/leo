@@ -1,6 +1,6 @@
 namespace = "Compile"
 expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "aa4a1a0f9e75a5b4b8af1232b601a8901b54421c041d5745df979cb9e668e18c", unrolled_ast = "aa4a1a0f9e75a5b4b8af1232b601a8901b54421c041d5745df979cb9e668e18c", ssa_ast = "1010eb033d528e2c47d8f0f815ab72366470696d8be0597b8134fee5d3f20967", flattened_ast = "a3d6e47fd24d2de910f133f9f10b6059d231a61244d5ac24508c7b21df083283", destructured_ast = "50e3a564e7551ffa6f7c6eb6866dfc556a0dfaeb1b60ba7588d476b652ca4ffd", inlined_ast = "50e3a564e7551ffa6f7c6eb6866dfc556a0dfaeb1b60ba7588d476b652ca4ffd", dce_ast = "50e3a564e7551ffa6f7c6eb6866dfc556a0dfaeb1b60ba7588d476b652ca4ffd", bytecode = """
+outputs = [[{ compile = [{ initial_ast = "aa4a1a0f9e75a5b4b8af1232b601a8901b54421c041d5745df979cb9e668e18c", unrolled_ast = "2b192cc806585ee29c96682a51968a21d90b252e39f2356b0853c096a562c69c", ssa_ast = "81851ac38a2b0a211459f9437788b71da5ae414c3395970238988d3078194bb1", flattened_ast = "0cd789febe780d49d7d86b41784497252eaabcb10dfba7c644726b25f9a5a195", destructured_ast = "1306d11f7c6b8fc2c0b5efc41e0baaa183950f4163ad9ca96b29b2e176cf1cf2", inlined_ast = "1306d11f7c6b8fc2c0b5efc41e0baaa183950f4163ad9ca96b29b2e176cf1cf2", dce_ast = "1306d11f7c6b8fc2c0b5efc41e0baaa183950f4163ad9ca96b29b2e176cf1cf2", bytecode = """
 program test.aleo;
 
 struct Board:
@@ -15,6 +15,6 @@ function main:
 closure win:
     input r0 as Board;
     input r1 as u8;
-    and false true into r2;
-    output r2 as boolean;
+    assert.eq true true;
+    output false as boolean;
 """, errors = "", warnings = "" }] }]]

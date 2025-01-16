@@ -30,13 +30,7 @@ version = "1.0.0"
 [dependencies.leo-ast]
 workspace = true
 
-[dependencies.leo-passes]
-workspace = true
-
 [dependencies.leo-errors]
-workspace = true
-
-[dependencies.leo-package]
 workspace = true
 
 [dependencies.leo-parser]

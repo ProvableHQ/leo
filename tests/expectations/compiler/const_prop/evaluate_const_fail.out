@@ -1,0 +1,8 @@
+namespace = "Compile"
+expectation = "Fail"
+outputs = ["""
+Error [ECMP0376007]: The value of this const could not be determined at compile time.
+    --> compiler-test:11:13
+     |
+  11 |             const SOME: u32 = a + 1u32;
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^"""]

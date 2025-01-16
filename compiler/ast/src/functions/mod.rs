@@ -39,7 +39,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A function definition.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize, Deserialize)]
 pub struct Function {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,

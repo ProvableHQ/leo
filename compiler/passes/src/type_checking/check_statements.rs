@@ -166,22 +166,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             _ => (), // Do nothing
         }
 
-        // Enforce that Constant variables have literal expressions on right-hand side
-        match &input.value {
-            Expression::Literal(_) => (),
-            Expression::Tuple(tuple_expression) => match tuple_expression.elements.len() {
-                0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
-                _ => {
-                    if tuple_expression.elements.iter().any(|expr| !matches!(expr, Expression::Literal(_))) {
-                        self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(
-                            input.span,
-                        ))
-                    }
-                }
-            },
-            _ => self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(input.span())),
-        }
-
         // Check the expression on the right-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
@@ -225,7 +209,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Insert the variables into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
-                self.insert_variable(Some(inferred_type.clone()), identifier, input.type_.clone(), identifier.span)
+                self.insert_variable(Some(inferred_type.clone()), identifier, input.type_.clone(), identifier.span);
             }
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
@@ -306,46 +290,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             slf.scope_state.has_called_finalize = prior_has_finalize;
         });
 
-        // Check that the literal is valid.
         self.visit_expression(&input.start, &Some(input.type_.clone()));
 
-        // If `input.start` is a valid literal, instantiate it as a value.
-        match &input.start {
-            Expression::Literal(literal) => {
-                // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
-                if let Ok(value) = Value::try_from(literal) {
-                    input.start_value.replace(Some(value));
-                }
-            }
-            Expression::Identifier(id) => {
-                if let Some(var) = self.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), id.name) {
-                    if VariableType::Const != var.declaration {
-                        self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
-                    }
-                }
-            }
-            _ => self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.start.span())),
-        }
-
         self.visit_expression(&input.stop, &Some(input.type_.clone()));
-
-        // If `input.stop` is a valid literal, instantiate it as a value.
-        match &input.stop {
-            Expression::Literal(literal) => {
-                // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
-                if let Ok(value) = Value::try_from(literal) {
-                    input.stop_value.replace(Some(value));
-                }
-            }
-            Expression::Identifier(id) => {
-                if let Some(var) = self.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), id.name) {
-                    if VariableType::Const != var.declaration {
-                        self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
-                    }
-                }
-            }
-            _ => self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.stop.span())),
-        }
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
