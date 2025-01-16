@@ -42,10 +42,7 @@ pub struct DefinitionStatement {
 
 impl fmt::Display for DefinitionStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} ", self.declaration_type)?;
-        write!(f, "{}", self.place)?;
-        write!(f, ": {}", self.type_)?;
-        write!(f, " = {};", self.value)
+        write!(f, "{} {}: {} = {}", self.declaration_type, self.place, self.type_, self.value)
     }
 }
 

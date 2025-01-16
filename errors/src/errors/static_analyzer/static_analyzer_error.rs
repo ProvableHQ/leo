@@ -66,4 +66,39 @@ create_messages!(
         msg: "A future may not be used in this way".to_string(),
         help: Some("Futures should be created, assigned to a variable, and consumed without being moved or reassigned.".to_string()),
     }
+
+    @formatted
+    compile_time_unary_op {
+        args: (value: impl Display, op: impl Display, err: impl Display),
+        msg: format!("Unary operation `{value}.{op}()` failed at compile time: {err}."),
+        help: None,
+    }
+
+    @formatted
+    compile_time_binary_op {
+        args: (value_lhs: impl Display, value_rhs: impl Display, op: impl Display, err: impl Display),
+        msg: format!("Binary operation `{value_lhs} {op} {value_rhs}` failed at compile time: {err}."),
+        help: None,
+    }
+
+    @formatted
+    compile_time_cast {
+        args: (value: impl Display, type_: impl Display),
+        msg: format!("Compile time cast failure: `{value} as {type_}`."),
+        help: None,
+    }
+
+    @formatted
+    compile_core_function {
+        args: (err: impl Display),
+        msg: format!("Error during compile time evaluation of this core function: {err}."),
+        help: None,
+    }
+
+    @formatted
+    array_bounds {
+        args: (index: impl Display, len: impl Display),
+        msg: format!("Array index {index} out of bounds (array length is {len})."),
+        help: None,
+    }
 );

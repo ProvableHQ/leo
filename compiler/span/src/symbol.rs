@@ -292,6 +292,12 @@ pub struct Symbol(
     NonZeroU32,
 );
 
+impl Default for Symbol {
+    fn default() -> Self {
+        Symbol(NonZeroU32::MIN)
+    }
+}
+
 impl Symbol {
     /// Returns the corresponding `Symbol` for the given `index`.
     pub const fn new(index: u32) -> Self {

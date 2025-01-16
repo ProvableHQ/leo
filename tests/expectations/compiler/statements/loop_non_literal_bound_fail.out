@@ -1,9 +1,8 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372071]: The loop bound must be a literal or a const
+Error [ECMP0376008]: This loop bound could not be determined at compile time.
     --> compiler-test:11:28
      |
   11 |         for i:u64 in 0u64..amount {
-     |                            ^^^^^^
-"""]
+     |                            ^^^^^^"""]

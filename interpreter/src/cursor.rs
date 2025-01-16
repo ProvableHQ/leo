@@ -24,6 +24,7 @@ use leo_ast::{
     CoreConstant,
     CoreFunction,
     Expression,
+    FromStrRadix as _,
     Function,
     GroupLiteral,
     IntegerType,
@@ -37,23 +38,19 @@ use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol, sym};
 
 use snarkvm::prelude::{
-    CastLossy as _,
     Closure as SvmClosure,
     Double as _,
     Finalize as SvmFinalize,
     Function as SvmFunctionParam,
     Inverse as _,
-    Network as _,
     Pow as _,
     ProgramID,
     Square as _,
     SquareRoot as _,
     TestnetV0,
-    ToBits,
 };
 
 use indexmap::{IndexMap, IndexSet};
-use rand::Rng as _;
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
 use std::{cmp::Ordering, collections::HashMap, fmt, mem, str::FromStr as _};
 
@@ -267,6 +264,28 @@ pub struct Cursor<'a> {
     pub program: Option<Symbol>,
 }
 
+impl CoreFunctionHelper for Cursor<'_> {
+    fn pop_value_impl(&mut self) -> Option<Value> {
+        self.values.pop()
+    }
+
+    fn set_block_height(&mut self, height: u32) {
+        self.block_height = height;
+    }
+
+    fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<Value, Value>> {
+        Cursor::lookup_mapping(self, program, name)
+    }
+
+    fn lookup_mapping_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut HashMap<Value, Value>> {
+        Cursor::lookup_mapping_mut(self, program, name)
+    }
+
+    fn rng(&mut self) -> Option<&mut ChaCha20Rng> {
+        Some(&mut self.rng)
+    }
+}
+
 impl<'a> Cursor<'a> {
     /// `really_async` indicates we should really delay execution of async function calls until the user runs them.
     pub fn new(really_async: bool, signer: SvmAddress, block_height: u32) -> Self {
@@ -360,10 +379,6 @@ impl<'a> Cursor<'a> {
         } else {
             self.user_values.insert(symbol, value);
         }
-    }
-
-    fn set_block_height(&mut self, block_height: u32) {
-        self.block_height = block_height;
     }
 
     /// Execute the whole step of the current Element.
@@ -724,13 +739,25 @@ impl<'a> Cursor<'a> {
 
                 let span = function.span();
 
-                let value = self.evaluate_core_function(core_function.clone(), &function.arguments, span)?;
-
                 if let CoreFunction::FutureAwait = core_function {
+                    let value = self.pop_value()?;
+                    let Value::Future(future) = value else {
+                        halt!(span, "Invalid value for await: {value}");
+                    };
+                    for async_execution in future.0 {
+                        self.values.extend(async_execution.arguments.into_iter());
+                        self.frames.push(Frame {
+                            step: 0,
+                            element: Element::DelayedCall(async_execution.function),
+                            user_initiated: false,
+                        });
+                    }
                     // For an await, we have one extra step - first we must evaluate the delayed call.
                     None
                 } else {
-                    Some(value)
+                    let value = crate::evaluate_core_function(self, core_function.clone(), &function.arguments, span)?;
+                    assert!(value.is_some());
+                    value
                 }
             }
             Expression::Access(AccessExpression::AssociatedFunction(function)) if step == 2 => {
@@ -772,7 +799,7 @@ impl<'a> Cursor<'a> {
             Expression::Binary(binary) if step == 1 => {
                 let rhs = self.pop_value()?;
                 let lhs = self.pop_value()?;
-                Some(evaluate_binary(binary.span, binary.op, lhs, rhs)?)
+                Some(evaluate_binary(binary.span, binary.op, &lhs, &rhs)?)
             }
             Expression::Call(call) if step == 0 => {
                 call.arguments.iter().rev().for_each(push!());
@@ -821,34 +848,7 @@ impl<'a> Cursor<'a> {
             Expression::Identifier(identifier) if step == 0 => {
                 Some(self.lookup(identifier.name).expect_tc(identifier.span())?)
             }
-            Expression::Literal(literal) if step == 0 => Some(match literal {
-                Literal::Boolean(b, ..) => Value::Bool(*b),
-                Literal::Integer(IntegerType::U8, s, ..) => Value::U8(s.parse().expect_tc(literal.span())?),
-                Literal::Integer(IntegerType::U16, s, ..) => Value::U16(s.parse().expect_tc(literal.span())?),
-                Literal::Integer(IntegerType::U32, s, ..) => Value::U32(s.parse().expect_tc(literal.span())?),
-                Literal::Integer(IntegerType::U64, s, ..) => Value::U64(s.parse().expect_tc(literal.span())?),
-                Literal::Integer(IntegerType::U128, s, ..) => Value::U128(s.parse().expect_tc(literal.span())?),
-                Literal::Integer(IntegerType::I8, s, ..) => Value::I8(s.parse().expect_tc(literal.span())?),
-                Literal::Integer(IntegerType::I16, s, ..) => Value::I16(s.parse().expect_tc(literal.span())?),
-                Literal::Integer(IntegerType::I32, s, ..) => Value::I32(s.parse().expect_tc(literal.span())?),
-                Literal::Integer(IntegerType::I64, s, ..) => Value::I64(s.parse().expect_tc(literal.span())?),
-                Literal::Integer(IntegerType::I128, s, ..) => Value::I128(s.parse().expect_tc(literal.span())?),
-                Literal::Field(s, ..) => Value::Field(format!("{s}field").parse().expect_tc(literal.span())?),
-                Literal::Group(group_literal) => match &**group_literal {
-                    GroupLiteral::Single(s, ..) => Value::Group(format!("{s}group").parse().expect_tc(literal.span())?),
-                    GroupLiteral::Tuple(_group_tuple) => todo!(),
-                },
-                Literal::Address(s, ..) => {
-                    if s.ends_with(".aleo") {
-                        let program_id = ProgramID::from_str(s)?;
-                        Value::Address(program_id.to_address()?)
-                    } else {
-                        Value::Address(s.parse().expect_tc(literal.span())?)
-                    }
-                }
-                Literal::Scalar(s, ..) => Value::Scalar(format!("{s}scalar").parse().expect_tc(literal.span())?),
-                Literal::String(..) => tc_fail!(),
-            }),
+            Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal)?),
             Expression::Locator(_locator) => todo!(),
             Expression::Struct(struct_) if step == 0 => {
                 struct_.members.iter().flat_map(|init| init.expression.as_ref()).for_each(push!());
@@ -907,7 +907,7 @@ impl<'a> Cursor<'a> {
             }
             Expression::Unary(unary) if step == 1 => {
                 let value = self.pop_value()?;
-                Some(evaluate_unary(unary.span, unary.op, value)?)
+                Some(evaluate_unary(unary.span, unary.op, &value)?)
             }
             Expression::Unit(_) if step == 0 => Some(Value::Unit),
             x => unreachable!("Unexpected expression {x}"),
@@ -1100,1103 +1100,6 @@ impl<'a> Cursor<'a> {
 
         Ok(())
     }
-
-    pub fn evaluate_core_function(
-        &mut self,
-        core_function: CoreFunction,
-        arguments: &[Expression],
-        span: Span,
-    ) -> Result<Value> {
-        macro_rules! apply {
-            ($func: expr, $value: ident, $to: ident) => {{
-                let v = self.pop_value()?;
-                let bits = v.$to();
-                Value::$value($func(&bits).expect_tc(span)?)
-            }};
-        }
-
-        macro_rules! apply_cast {
-            ($func: expr, $value: ident, $to: ident) => {{
-                let v = self.pop_value()?;
-                let bits = v.$to();
-                let group = $func(&bits).expect_tc(span)?;
-                let x = group.to_x_coordinate();
-                Value::$value(x.cast_lossy())
-            }};
-        }
-
-        macro_rules! apply_cast_int {
-            ($func: expr, $value: ident, $int_ty: ident, $to: ident) => {{
-                let v = self.pop_value()?;
-                let bits = v.$to();
-                let group = $func(&bits).expect_tc(span)?;
-                let x = group.to_x_coordinate();
-                let bits = x.to_bits_le();
-                let mut result: $int_ty = 0;
-                for bit in 0..std::cmp::min($int_ty::BITS as usize, bits.len()) {
-                    let setbit = (if bits[bit] { 1 } else { 0 }) << bit;
-                    result |= setbit;
-                }
-                Value::$value(result)
-            }};
-        }
-
-        macro_rules! apply_cast2 {
-            ($func: expr, $value: ident) => {{
-                let Value::Scalar(randomizer) = self.pop_value()? else {
-                    tc_fail!();
-                };
-                let v = self.pop_value()?;
-                let bits = v.to_bits_le();
-                let group = $func(&bits, &randomizer).expect_tc(span)?;
-                let x = group.to_x_coordinate();
-                Value::$value(x.cast_lossy())
-            }};
-        }
-
-        let value = match core_function {
-            CoreFunction::BHP256CommitToAddress => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp256, Address)
-            }
-            CoreFunction::BHP256CommitToField => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp256, Field)
-            }
-            CoreFunction::BHP256CommitToGroup => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp256, Group)
-            }
-            CoreFunction::BHP256HashToAddress => {
-                apply_cast!(TestnetV0::hash_to_group_bhp256, Address, to_bits_le)
-            }
-            CoreFunction::BHP256HashToField => apply!(TestnetV0::hash_bhp256, Field, to_bits_le),
-            CoreFunction::BHP256HashToGroup => apply!(TestnetV0::hash_to_group_bhp256, Group, to_bits_le),
-            CoreFunction::BHP256HashToI8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp256, I8, i8, to_bits_le)
-            }
-            CoreFunction::BHP256HashToI16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp256, I16, i16, to_bits_le)
-            }
-            CoreFunction::BHP256HashToI32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp256, I32, i32, to_bits_le)
-            }
-            CoreFunction::BHP256HashToI64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp256, I64, i64, to_bits_le)
-            }
-            CoreFunction::BHP256HashToI128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp256, I128, i128, to_bits_le)
-            }
-            CoreFunction::BHP256HashToU8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp256, U8, u8, to_bits_le)
-            }
-            CoreFunction::BHP256HashToU16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp256, U16, u16, to_bits_le)
-            }
-            CoreFunction::BHP256HashToU32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp256, U32, u32, to_bits_le)
-            }
-            CoreFunction::BHP256HashToU64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp256, U64, u64, to_bits_le)
-            }
-            CoreFunction::BHP256HashToU128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp256, U128, u128, to_bits_le)
-            }
-            CoreFunction::BHP256HashToScalar => {
-                apply_cast!(TestnetV0::hash_to_group_bhp256, Scalar, to_bits_le)
-            }
-            CoreFunction::BHP512CommitToAddress => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp512, Address)
-            }
-            CoreFunction::BHP512CommitToField => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp512, Field)
-            }
-            CoreFunction::BHP512CommitToGroup => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp512, Group)
-            }
-            CoreFunction::BHP512HashToAddress => {
-                apply_cast!(TestnetV0::hash_to_group_bhp512, Address, to_bits_le)
-            }
-            CoreFunction::BHP512HashToField => apply!(TestnetV0::hash_bhp512, Field, to_bits_le),
-            CoreFunction::BHP512HashToGroup => apply!(TestnetV0::hash_to_group_bhp512, Group, to_bits_le),
-            CoreFunction::BHP512HashToI8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp512, I8, i8, to_bits_le)
-            }
-            CoreFunction::BHP512HashToI16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp512, I16, i16, to_bits_le)
-            }
-            CoreFunction::BHP512HashToI32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp512, I32, i32, to_bits_le)
-            }
-            CoreFunction::BHP512HashToI64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp512, I64, i64, to_bits_le)
-            }
-            CoreFunction::BHP512HashToI128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp512, I128, i128, to_bits_le)
-            }
-            CoreFunction::BHP512HashToU8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp512, U8, u8, to_bits_le)
-            }
-            CoreFunction::BHP512HashToU16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp512, U16, u16, to_bits_le)
-            }
-            CoreFunction::BHP512HashToU32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp512, U32, u32, to_bits_le)
-            }
-            CoreFunction::BHP512HashToU64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp512, U64, u64, to_bits_le)
-            }
-            CoreFunction::BHP512HashToU128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp512, U128, u128, to_bits_le)
-            }
-            CoreFunction::BHP512HashToScalar => {
-                apply_cast!(TestnetV0::hash_to_group_bhp512, Scalar, to_bits_le)
-            }
-            CoreFunction::BHP768CommitToAddress => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp768, Address)
-            }
-            CoreFunction::BHP768CommitToField => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp768, Field)
-            }
-            CoreFunction::BHP768CommitToGroup => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp768, Group)
-            }
-            CoreFunction::BHP768HashToAddress => {
-                apply_cast!(TestnetV0::hash_to_group_bhp768, Address, to_bits_le)
-            }
-            CoreFunction::BHP768HashToField => apply!(TestnetV0::hash_bhp768, Field, to_bits_le),
-            CoreFunction::BHP768HashToGroup => apply!(TestnetV0::hash_to_group_bhp768, Group, to_bits_le),
-            CoreFunction::BHP768HashToI8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp768, I8, i8, to_bits_le)
-            }
-            CoreFunction::BHP768HashToI16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp768, I16, i16, to_bits_le)
-            }
-            CoreFunction::BHP768HashToI32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp768, I32, i32, to_bits_le)
-            }
-            CoreFunction::BHP768HashToI64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp768, I64, i64, to_bits_le)
-            }
-            CoreFunction::BHP768HashToI128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp768, I128, i128, to_bits_le)
-            }
-            CoreFunction::BHP768HashToU8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp768, U8, u8, to_bits_le)
-            }
-            CoreFunction::BHP768HashToU16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp768, U16, u16, to_bits_le)
-            }
-            CoreFunction::BHP768HashToU32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp768, U32, u32, to_bits_le)
-            }
-            CoreFunction::BHP768HashToU64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp768, U64, u64, to_bits_le)
-            }
-            CoreFunction::BHP768HashToU128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp768, U128, u128, to_bits_le)
-            }
-            CoreFunction::BHP768HashToScalar => {
-                apply_cast!(TestnetV0::hash_to_group_bhp768, Scalar, to_bits_le)
-            }
-            CoreFunction::BHP1024CommitToAddress => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp1024, Address)
-            }
-            CoreFunction::BHP1024CommitToField => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp1024, Field)
-            }
-            CoreFunction::BHP1024CommitToGroup => {
-                apply_cast2!(TestnetV0::commit_to_group_bhp1024, Group)
-            }
-            CoreFunction::BHP1024HashToAddress => {
-                apply_cast!(TestnetV0::hash_to_group_bhp1024, Address, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToField => apply!(TestnetV0::hash_bhp1024, Field, to_bits_le),
-            CoreFunction::BHP1024HashToGroup => apply!(TestnetV0::hash_to_group_bhp1024, Group, to_bits_le),
-            CoreFunction::BHP1024HashToI8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp1024, I8, i8, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToI16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp1024, I16, i16, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToI32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp1024, I32, i32, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToI64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp1024, I64, i64, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToI128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp1024, I128, i128, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToU8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp1024, U8, u8, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToU16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp1024, U16, u16, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToU32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp1024, U32, u32, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToU64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp1024, U64, u64, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToU128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_bhp1024, U128, u128, to_bits_le)
-            }
-            CoreFunction::BHP1024HashToScalar => {
-                apply_cast!(TestnetV0::hash_to_group_bhp1024, Scalar, to_bits_le)
-            }
-            CoreFunction::ChaChaRandAddress => Value::Address(self.rng.gen()),
-            CoreFunction::ChaChaRandBool => Value::Bool(self.rng.gen()),
-            CoreFunction::ChaChaRandField => Value::Field(self.rng.gen()),
-            CoreFunction::ChaChaRandGroup => Value::Group(self.rng.gen()),
-            CoreFunction::ChaChaRandI8 => Value::I8(self.rng.gen()),
-            CoreFunction::ChaChaRandI16 => Value::I16(self.rng.gen()),
-            CoreFunction::ChaChaRandI32 => Value::I32(self.rng.gen()),
-            CoreFunction::ChaChaRandI64 => Value::I64(self.rng.gen()),
-            CoreFunction::ChaChaRandI128 => Value::I128(self.rng.gen()),
-            CoreFunction::ChaChaRandU8 => Value::U8(self.rng.gen()),
-            CoreFunction::ChaChaRandU16 => Value::U16(self.rng.gen()),
-            CoreFunction::ChaChaRandU32 => Value::U32(self.rng.gen()),
-            CoreFunction::ChaChaRandU64 => Value::U64(self.rng.gen()),
-            CoreFunction::ChaChaRandU128 => Value::U128(self.rng.gen()),
-            CoreFunction::ChaChaRandScalar => Value::Scalar(self.rng.gen()),
-            CoreFunction::Keccak256HashToAddress => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                Address,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToField => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                Field,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToGroup => {
-                apply!(
-                    |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                    Group,
-                    to_bits_le
-                )
-            }
-            CoreFunction::Keccak256HashToI8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                I8,
-                i8,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToI16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                I16,
-                i16,
-                to_bits_le
-            ),
-
-            CoreFunction::Keccak256HashToI32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                I32,
-                i32,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToI64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                I64,
-                i64,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToI128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                I128,
-                i128,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToU8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                U8,
-                u8,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToU16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                U16,
-                u16,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToU32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                U32,
-                u32,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToU64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                U64,
-                u64,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToU128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                U128,
-                u128,
-                to_bits_le
-            ),
-            CoreFunction::Keccak256HashToScalar => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                Scalar,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToAddress => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                Address,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToField => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                Field,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToGroup => {
-                apply!(
-                    |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                    Group,
-                    to_bits_le
-                )
-            }
-            CoreFunction::Keccak384HashToI8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                I8,
-                i8,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToI16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                I16,
-                i16,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToI32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                I32,
-                i32,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToI64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                I64,
-                i64,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToI128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                I128,
-                i128,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToU8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                U8,
-                u8,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToU16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                U16,
-                u16,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToU32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                U32,
-                u32,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToU64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                U64,
-                u64,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToU128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                U128,
-                u128,
-                to_bits_le
-            ),
-            CoreFunction::Keccak384HashToScalar => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                Scalar,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToAddress => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                Address,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToField => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                Field,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToGroup => {
-                apply!(
-                    |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                    Group,
-                    to_bits_le
-                )
-            }
-            CoreFunction::Keccak512HashToI8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                I8,
-                i8,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToI16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                I16,
-                i16,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToI32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                I32,
-                i32,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToI64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                I64,
-                i64,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToI128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                I128,
-                i128,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToU8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                U8,
-                u8,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToU16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                U16,
-                u16,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToU32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                U32,
-                u32,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToU64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                U64,
-                u64,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToU128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                U128,
-                u128,
-                to_bits_le
-            ),
-            CoreFunction::Keccak512HashToScalar => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                Scalar,
-                to_bits_le
-            ),
-            CoreFunction::Pedersen64CommitToAddress => {
-                apply_cast2!(TestnetV0::commit_to_group_ped64, Address)
-            }
-            CoreFunction::Pedersen64CommitToField => {
-                apply_cast2!(TestnetV0::commit_to_group_ped64, Field)
-            }
-            CoreFunction::Pedersen64CommitToGroup => {
-                apply_cast2!(TestnetV0::commit_to_group_ped64, Group)
-            }
-            CoreFunction::Pedersen64HashToAddress => {
-                apply_cast!(TestnetV0::hash_to_group_ped64, Address, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToField => apply!(TestnetV0::hash_ped64, Field, to_bits_le),
-            CoreFunction::Pedersen64HashToGroup => apply!(TestnetV0::hash_to_group_ped64, Group, to_bits_le),
-            CoreFunction::Pedersen64HashToI8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, I8, i8, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToI16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, I16, i16, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToI32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, I32, i32, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToI64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, I64, i64, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToI128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, I128, i128, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToU8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, U8, u8, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToU16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, U16, u16, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToU32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, U32, u32, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToU64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, U64, u64, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToU128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, U128, u128, to_bits_le)
-            }
-            CoreFunction::Pedersen64HashToScalar => {
-                apply_cast!(TestnetV0::hash_to_group_ped64, Scalar, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToAddress => {
-                apply_cast!(TestnetV0::hash_to_group_ped128, Address, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToField => {
-                apply_cast!(TestnetV0::hash_to_group_ped128, Field, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToGroup => {
-                apply_cast!(TestnetV0::hash_to_group_ped128, Group, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToI8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped128, I8, i8, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToI16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, I16, i16, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToI32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped128, I32, i32, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToI64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, I64, i64, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToI128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped128, I128, i128, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToU8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped128, U8, u8, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToU16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, U16, u16, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToU32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped128, U32, u32, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToU64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped64, U64, u64, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToU128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_ped128, U128, u128, to_bits_le)
-            }
-            CoreFunction::Pedersen128HashToScalar => {
-                apply_cast!(TestnetV0::hash_to_group_ped128, Scalar, to_bits_le)
-            }
-            CoreFunction::Pedersen128CommitToAddress => {
-                apply_cast2!(TestnetV0::commit_to_group_ped128, Address)
-            }
-            CoreFunction::Pedersen128CommitToField => {
-                apply_cast2!(TestnetV0::commit_to_group_ped128, Field)
-            }
-            CoreFunction::Pedersen128CommitToGroup => {
-                apply_cast2!(TestnetV0::commit_to_group_ped128, Group)
-            }
-            CoreFunction::Poseidon2HashToAddress => {
-                apply_cast!(TestnetV0::hash_to_group_psd2, Address, to_fields)
-            }
-            CoreFunction::Poseidon2HashToField => {
-                apply!(TestnetV0::hash_psd2, Field, to_fields)
-            }
-            CoreFunction::Poseidon2HashToGroup => {
-                apply_cast!(TestnetV0::hash_to_group_psd2, Group, to_fields)
-            }
-            CoreFunction::Poseidon2HashToI8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd2, I8, i8, to_fields)
-            }
-            CoreFunction::Poseidon2HashToI16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd2, I16, i16, to_fields)
-            }
-            CoreFunction::Poseidon2HashToI32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd2, I32, i32, to_fields)
-            }
-            CoreFunction::Poseidon2HashToI64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd2, I64, i64, to_fields)
-            }
-            CoreFunction::Poseidon2HashToI128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd2, I128, i128, to_fields)
-            }
-            CoreFunction::Poseidon2HashToU8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd2, U8, u8, to_fields)
-            }
-            CoreFunction::Poseidon2HashToU16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd2, U16, u16, to_fields)
-            }
-            CoreFunction::Poseidon2HashToU32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd2, U32, u32, to_fields)
-            }
-            CoreFunction::Poseidon2HashToU64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd2, U64, u64, to_fields)
-            }
-            CoreFunction::Poseidon2HashToU128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd2, U128, u128, to_fields)
-            }
-            CoreFunction::Poseidon2HashToScalar => {
-                apply_cast!(TestnetV0::hash_to_group_psd4, Scalar, to_fields)
-            }
-            CoreFunction::Poseidon4HashToAddress => {
-                apply_cast!(TestnetV0::hash_to_group_psd4, Address, to_fields)
-            }
-            CoreFunction::Poseidon4HashToField => {
-                apply!(TestnetV0::hash_psd4, Field, to_fields)
-            }
-            CoreFunction::Poseidon4HashToGroup => {
-                apply_cast!(TestnetV0::hash_to_group_psd4, Group, to_fields)
-            }
-            CoreFunction::Poseidon4HashToI8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd4, I8, i8, to_fields)
-            }
-            CoreFunction::Poseidon4HashToI16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd4, I16, i16, to_fields)
-            }
-            CoreFunction::Poseidon4HashToI32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd4, I32, i32, to_fields)
-            }
-            CoreFunction::Poseidon4HashToI64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd4, I64, i64, to_fields)
-            }
-            CoreFunction::Poseidon4HashToI128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd4, I128, i128, to_fields)
-            }
-            CoreFunction::Poseidon4HashToU8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd4, U8, u8, to_fields)
-            }
-            CoreFunction::Poseidon4HashToU16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd4, U16, u16, to_fields)
-            }
-            CoreFunction::Poseidon4HashToU32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd4, U32, u32, to_fields)
-            }
-            CoreFunction::Poseidon4HashToU64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd4, U64, u64, to_fields)
-            }
-            CoreFunction::Poseidon4HashToU128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd4, U128, u128, to_fields)
-            }
-            CoreFunction::Poseidon4HashToScalar => {
-                apply_cast!(TestnetV0::hash_to_group_psd4, Scalar, to_fields)
-            }
-            CoreFunction::Poseidon8HashToAddress => {
-                apply_cast!(TestnetV0::hash_to_group_psd8, Address, to_fields)
-            }
-            CoreFunction::Poseidon8HashToField => {
-                apply!(TestnetV0::hash_psd8, Field, to_fields)
-            }
-            CoreFunction::Poseidon8HashToGroup => {
-                apply_cast!(TestnetV0::hash_to_group_psd8, Group, to_fields)
-            }
-            CoreFunction::Poseidon8HashToI8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd8, I8, i8, to_fields)
-            }
-            CoreFunction::Poseidon8HashToI16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd8, I16, i16, to_fields)
-            }
-            CoreFunction::Poseidon8HashToI32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd8, I32, i32, to_fields)
-            }
-            CoreFunction::Poseidon8HashToI64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd8, I64, i64, to_fields)
-            }
-            CoreFunction::Poseidon8HashToI128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd8, I128, i128, to_fields)
-            }
-            CoreFunction::Poseidon8HashToU8 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd8, U8, u8, to_fields)
-            }
-            CoreFunction::Poseidon8HashToU16 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd8, U16, u16, to_fields)
-            }
-            CoreFunction::Poseidon8HashToU32 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd8, U32, u32, to_fields)
-            }
-            CoreFunction::Poseidon8HashToU64 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd8, U64, u64, to_fields)
-            }
-            CoreFunction::Poseidon8HashToU128 => {
-                apply_cast_int!(TestnetV0::hash_to_group_psd8, U128, u128, to_fields)
-            }
-            CoreFunction::Poseidon8HashToScalar => {
-                apply_cast!(TestnetV0::hash_to_group_psd8, Scalar, to_fields)
-            }
-            CoreFunction::SHA3_256HashToAddress => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                Address,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToField => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                Field,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToGroup => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                Group,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToI8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                I8,
-                i8,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToI16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                I16,
-                i16,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToI32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                I32,
-                i32,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToI64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                I64,
-                i64,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToI128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                I128,
-                i128,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToU8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                U8,
-                u8,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToU16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                U16,
-                u16,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToU32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                U32,
-                u32,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToU64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                U64,
-                u64,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToU128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                U128,
-                u128,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_256HashToScalar => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-                Scalar,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToAddress => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                Address,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToField => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                Field,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToGroup => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                Group,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToI8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                I8,
-                i8,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToI16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                I16,
-                i16,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToI32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                I32,
-                i32,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToI64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                I64,
-                i64,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToI128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                I128,
-                i128,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToU8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                U8,
-                u8,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToU16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                U16,
-                u16,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToU32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                U32,
-                u32,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToU64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                U64,
-                u64,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToU128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                U128,
-                u128,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_384HashToScalar => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-                Scalar,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToAddress => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                Address,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToField => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                Field,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToGroup => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                Group,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToI8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                I8,
-                i8,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToI16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                I16,
-                i16,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToI32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                I32,
-                i32,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToI64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                I64,
-                i64,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToI128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                I128,
-                i128,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToU8 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                U8,
-                u8,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToU16 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                U16,
-                u16,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToU32 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                U32,
-                u32,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToU64 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                U64,
-                u64,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToU128 => apply_cast_int!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                U128,
-                u128,
-                to_bits_le
-            ),
-            CoreFunction::SHA3_512HashToScalar => apply_cast!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-                Scalar,
-                to_bits_le
-            ),
-            CoreFunction::MappingGet => {
-                let key = self.values.pop().expect_tc(span)?;
-                let (program, name) = match &arguments[0] {
-                    Expression::Identifier(id) => (None, id.name),
-                    Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                    _ => tc_fail!(),
-                };
-                match self.lookup_mapping(program, name).and_then(|mapping| mapping.get(&key)) {
-                    Some(v) => v.clone(),
-                    None => halt!(span, "map lookup failure"),
-                }
-            }
-            CoreFunction::MappingGetOrUse => {
-                let use_value = self.values.pop().expect_tc(span)?;
-                let key = self.values.pop().expect_tc(span)?;
-                let (program, name) = match &arguments[0] {
-                    Expression::Identifier(id) => (None, id.name),
-                    Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                    _ => tc_fail!(),
-                };
-                match self.lookup_mapping(program, name).and_then(|mapping| mapping.get(&key)) {
-                    Some(v) => v.clone(),
-                    None => use_value,
-                }
-            }
-            CoreFunction::MappingSet => {
-                let value = self.pop_value()?;
-                let key = self.pop_value()?;
-                let (program, name) = match &arguments[0] {
-                    Expression::Identifier(id) => (None, id.name),
-                    Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                    _ => tc_fail!(),
-                };
-                if let Some(mapping) = self.lookup_mapping_mut(program, name) {
-                    mapping.insert(key, value);
-                } else {
-                    tc_fail!();
-                }
-                Value::Unit
-            }
-            CoreFunction::MappingRemove => {
-                let key = self.pop_value()?;
-                let (program, name) = match &arguments[0] {
-                    Expression::Identifier(id) => (None, id.name),
-                    Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                    _ => tc_fail!(),
-                };
-                if let Some(mapping) = self.lookup_mapping_mut(program, name) {
-                    mapping.remove(&key);
-                } else {
-                    tc_fail!();
-                }
-                Value::Unit
-            }
-            CoreFunction::MappingContains => {
-                let key = self.pop_value()?;
-                let (program, name) = match &arguments[0] {
-                    Expression::Identifier(id) => (None, id.name),
-                    Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                    _ => tc_fail!(),
-                };
-                if let Some(mapping) = self.lookup_mapping_mut(program, name) {
-                    Value::Bool(mapping.contains_key(&key))
-                } else {
-                    tc_fail!();
-                }
-            }
-            CoreFunction::GroupToXCoordinate => {
-                let Value::Group(g) = self.pop_value()? else {
-                    tc_fail!();
-                };
-                Value::Field(g.to_x_coordinate())
-            }
-            CoreFunction::GroupToYCoordinate => {
-                let Value::Group(g) = self.pop_value()? else {
-                    tc_fail!();
-                };
-                Value::Field(g.to_y_coordinate())
-            }
-            CoreFunction::SignatureVerify => todo!(),
-            CoreFunction::FutureAwait => {
-                let value = self.pop_value()?;
-                let Value::Future(future) = value else {
-                    halt!(span, "Invalid value for await: {value}");
-                };
-                for async_execution in future.0 {
-                    self.values.extend(async_execution.arguments.into_iter());
-                    self.frames.push(Frame {
-                        step: 0,
-                        element: Element::DelayedCall(async_execution.function),
-                        user_initiated: false,
-                    });
-                }
-                Value::Unit
-            }
-            CoreFunction::CheatCodePrintMapping => {
-                let (program, name) = match &arguments[0] {
-                    Expression::Identifier(id) => (None, id.name),
-                    Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                    _ => tc_fail!(),
-                };
-                if let Some(mapping) = self.lookup_mapping(program, name) {
-                    // TODO: What is the appropriate way to print this to the console.
-                    // Print the name of the mapping.
-                    println!(
-                        "Mapping: {}",
-                        if let Some(program) = program { format!("{}/{}", program, name) } else { name.to_string() }
-                    );
-                    // Print the contents of the mapping.
-                    for (key, value) in mapping {
-                        println!("  {} -> {}", key, value);
-                    }
-                } else {
-                    tc_fail!();
-                }
-                Value::Unit
-            }
-            CoreFunction::CheatCodeSetBlockHeight => {
-                let Value::U32(height) = self.pop_value()? else {
-                    tc_fail!();
-                };
-                self.set_block_height(height);
-                Value::Unit
-            }
-        };
-
-        Ok(value)
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -2209,23 +1112,23 @@ pub struct StepResult {
 }
 
 /// Evaluate a binary operation.
-pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) -> Result<Value> {
+pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value) -> Result<Value> {
     let value = match op {
         BinaryOperation::Add => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_add(y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_add(y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_add(y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_add(y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_add(y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_add(y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_add(y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_add(y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_add(y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_add(y).map(Value::I128),
-                (Value::Group(x), Value::Group(y)) => Some(Value::Group(x + y)),
-                (Value::Field(x), Value::Field(y)) => Some(Value::Field(x + y)),
-                (Value::Scalar(x), Value::Scalar(y)) => Some(Value::Scalar(x + y)),
+                (Value::U8(x), Value::U8(y)) => x.checked_add(*y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_add(*y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_add(*y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_add(*y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_add(*y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_add(*y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_add(*y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_add(*y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_add(*y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_add(*y).map(Value::I128),
+                (Value::Group(x), Value::Group(y)) => Some(Value::Group(*x + *y)),
+                (Value::Field(x), Value::Field(y)) => Some(Value::Field(*x + *y)),
+                (Value::Scalar(x), Value::Scalar(y)) => Some(Value::Scalar(*x + *y)),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "add overflow");
@@ -2233,20 +1136,20 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             value
         }
         BinaryOperation::AddWrapped => match (lhs, rhs) {
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_add(y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_add(y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_add(y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_add(y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_add(y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_add(y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_add(y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_add(y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_add(y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_add(y)),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_add(*y)),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_add(*y)),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_add(*y)),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_add(*y)),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_add(*y)),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_add(*y)),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_add(*y)),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_add(*y)),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_add(*y)),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_add(*y)),
             _ => halt!(span, "Type error"),
         },
         BinaryOperation::And => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(x && y),
+            (Value::Bool(x), Value::Bool(y)) => Value::Bool(*x && *y),
             _ => halt!(span, "Type error"),
         },
         BinaryOperation::BitwiseAnd => match (lhs, rhs) {
@@ -2265,17 +1168,17 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
         },
         BinaryOperation::Div => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_div(y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_div(y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_div(y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_div(y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_div(y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_div(y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_div(y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_div(y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_div(y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_div(y).map(Value::I128),
-                (Value::Field(x), Value::Field(y)) => y.inverse().map(|y| Value::Field(x * y)).ok(),
+                (Value::U8(x), Value::U8(y)) => x.checked_div(*y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_div(*y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_div(*y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_div(*y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_div(*y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_div(*y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_div(*y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_div(*y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_div(*y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_div(*y).map(Value::I128),
+                (Value::Field(x), Value::Field(y)) => y.inverse().map(|y| Value::Field(*x * y)).ok(),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "div overflow");
@@ -2293,35 +1196,35 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             | (Value::I32(_), Value::I32(0))
             | (Value::I64(_), Value::I64(0))
             | (Value::I128(_), Value::I128(0)) => halt!(span, "divide by 0"),
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_div(y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_div(y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_div(y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_div(y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_div(y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_div(y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_div(y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_div(y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_div(y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_div(y)),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_div(*y)),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_div(*y)),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_div(*y)),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_div(*y)),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_div(*y)),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_div(*y)),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_div(*y)),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_div(*y)),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_div(*y)),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_div(*y)),
             _ => halt!(span, "Type error"),
         },
-        BinaryOperation::Eq => Value::Bool(lhs.eq(&rhs)?),
-        BinaryOperation::Gte => Value::Bool(lhs.gte(&rhs)?),
-        BinaryOperation::Gt => Value::Bool(lhs.gt(&rhs)?),
-        BinaryOperation::Lte => Value::Bool(lhs.lte(&rhs)?),
-        BinaryOperation::Lt => Value::Bool(lhs.lt(&rhs)?),
+        BinaryOperation::Eq => Value::Bool(lhs.eq(rhs)?),
+        BinaryOperation::Gte => Value::Bool(lhs.gte(rhs)?),
+        BinaryOperation::Gt => Value::Bool(lhs.gt(rhs)?),
+        BinaryOperation::Lte => Value::Bool(lhs.lte(rhs)?),
+        BinaryOperation::Lt => Value::Bool(lhs.lt(rhs)?),
         BinaryOperation::Mod => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_rem(y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_rem(y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_rem(y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_rem(y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_rem(y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_rem(y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_rem(y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_rem(y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_rem(y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_rem(y).map(Value::I128),
+                (Value::U8(x), Value::U8(y)) => x.checked_rem(*y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_rem(*y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_rem(*y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_rem(*y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_rem(*y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_rem(*y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_rem(*y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_rem(*y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_rem(*y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_rem(*y).map(Value::I128),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "mod overflow");
@@ -2330,19 +1233,19 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
         }
         BinaryOperation::Mul => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_mul(y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_mul(y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_mul(y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_mul(y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_mul(y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_mul(y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_mul(y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_mul(y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_mul(y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_mul(y).map(Value::I128),
-                (Value::Field(x), Value::Field(y)) => Some(Value::Field(x * y)),
-                (Value::Group(x), Value::Scalar(y)) => Some(Value::Group(x * y)),
-                (Value::Scalar(x), Value::Group(y)) => Some(Value::Group(x * y)),
+                (Value::U8(x), Value::U8(y)) => x.checked_mul(*y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_mul(*y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_mul(*y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_mul(*y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_mul(*y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_mul(*y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_mul(*y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_mul(*y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_mul(*y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_mul(*y).map(Value::I128),
+                (Value::Field(x), Value::Field(y)) => Some(Value::Field(*x * *y)),
+                (Value::Group(x), Value::Scalar(y)) => Some(Value::Group(*x * *y)),
+                (Value::Scalar(x), Value::Group(y)) => Some(Value::Group(*x * *y)),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "mul overflow");
@@ -2350,17 +1253,16 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             value
         }
         BinaryOperation::MulWrapped => match (lhs, rhs) {
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_mul(y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_mul(y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_mul(y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_mul(y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_mul(y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_mul(y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_mul(y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_mul(y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_mul(y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_mul(y)),
-            (Value::Field(_), Value::Field(_)) => todo!(),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_mul(*y)),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_mul(*y)),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_mul(*y)),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_mul(*y)),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_mul(*y)),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_mul(*y)),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_mul(*y)),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_mul(*y)),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_mul(*y)),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_mul(*y)),
             _ => halt!(span, "Type error"),
         },
 
@@ -2368,7 +1270,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             (Value::Bool(x), Value::Bool(y)) => Value::Bool(!(x & y)),
             _ => halt!(span, "Type error"),
         },
-        BinaryOperation::Neq => Value::Bool(lhs.neq(&rhs)?),
+        BinaryOperation::Neq => Value::Bool(lhs.neq(rhs)?),
         BinaryOperation::Nor => match (lhs, rhs) {
             (Value::Bool(x), Value::Bool(y)) => Value::Bool(!(x | y)),
             _ => halt!(span, "Type error"),
@@ -2396,9 +1298,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
                 Value::Field(x.pow(y))
             } else {
                 let rhs: u32 = match rhs {
-                    Value::U8(y) => y.into(),
-                    Value::U16(y) => y.into(),
-                    Value::U32(y) => y,
+                    Value::U8(y) => (*y).into(),
+                    Value::U16(y) => (*y).into(),
+                    Value::U32(y) => *y,
                     _ => tc_fail!(),
                 };
 
@@ -2422,9 +1324,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
         }
         BinaryOperation::PowWrapped => {
             let rhs: u32 = match rhs {
-                Value::U8(y) => y.into(),
-                Value::U16(y) => y.into(),
-                Value::U32(y) => y,
+                Value::U8(y) => (*y).into(),
+                Value::U16(y) => (*y).into(),
+                Value::U32(y) => *y,
                 _ => halt!(span, "Type error"),
             };
 
@@ -2444,16 +1346,16 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
         }
         BinaryOperation::Rem => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_rem(y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_rem(y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_rem(y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_rem(y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_rem(y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_rem(y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_rem(y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_rem(y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_rem(y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_rem(y).map(Value::I128),
+                (Value::U8(x), Value::U8(y)) => x.checked_rem(*y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_rem(*y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_rem(*y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_rem(*y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_rem(*y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_rem(*y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_rem(*y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_rem(*y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_rem(*y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_rem(*y).map(Value::I128),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "rem error");
@@ -2471,23 +1373,23 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
             | (Value::I32(_), Value::I32(0))
             | (Value::I64(_), Value::I64(0))
             | (Value::I128(_), Value::I128(0)) => halt!(span, "rem by 0"),
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_rem(y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_rem(y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_rem(y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_rem(y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_rem(y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_rem(y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_rem(y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_rem(y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_rem(y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_rem(y)),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_rem(*y)),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_rem(*y)),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_rem(*y)),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_rem(*y)),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_rem(*y)),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_rem(*y)),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_rem(*y)),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_rem(*y)),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_rem(*y)),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_rem(*y)),
             _ => halt!(span, "Type error"),
         },
         BinaryOperation::Shl => {
             let rhs: u32 = match rhs {
-                Value::U8(y) => y.into(),
-                Value::U16(y) => y.into(),
-                Value::U32(y) => y,
+                Value::U8(y) => (*y).into(),
+                Value::U16(y) => (*y).into(),
+                Value::U32(y) => *y,
                 _ => halt!(span, "Type error"),
             };
             match lhs {
@@ -2511,9 +1413,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
 
         BinaryOperation::ShlWrapped => {
             let rhs: u32 = match rhs {
-                Value::U8(y) => y.into(),
-                Value::U16(y) => y.into(),
-                Value::U32(y) => y,
+                Value::U8(y) => (*y).into(),
+                Value::U16(y) => (*y).into(),
+                Value::U32(y) => *y,
                 _ => halt!(span, "Type error"),
             };
             match lhs {
@@ -2533,9 +1435,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
 
         BinaryOperation::Shr => {
             let rhs: u32 = match rhs {
-                Value::U8(y) => y.into(),
-                Value::U16(y) => y.into(),
-                Value::U32(y) => y,
+                Value::U8(y) => (*y).into(),
+                Value::U16(y) => (*y).into(),
+                Value::U32(y) => *y,
                 _ => halt!(span, "Type error"),
             };
 
@@ -2553,9 +1455,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
 
         BinaryOperation::ShrWrapped => {
             let rhs: u32 = match rhs {
-                Value::U8(y) => y.into(),
-                Value::U16(y) => y.into(),
-                Value::U32(y) => y,
+                Value::U8(y) => (*y).into(),
+                Value::U16(y) => (*y).into(),
+                Value::U32(y) => *y,
                 _ => halt!(span, "Type error"),
             };
 
@@ -2576,18 +1478,18 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
 
         BinaryOperation::Sub => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_sub(y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_sub(y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_sub(y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_sub(y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_sub(y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_sub(y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_sub(y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_sub(y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_sub(y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_sub(y).map(Value::I128),
-                (Value::Group(x), Value::Group(y)) => Some(Value::Group(x - y)),
-                (Value::Field(x), Value::Field(y)) => Some(Value::Field(x - y)),
+                (Value::U8(x), Value::U8(y)) => x.checked_sub(*y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_sub(*y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_sub(*y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_sub(*y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_sub(*y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_sub(*y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_sub(*y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_sub(*y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_sub(*y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_sub(*y).map(Value::I128),
+                (Value::Group(x), Value::Group(y)) => Some(Value::Group(*x - *y)),
+                (Value::Field(x), Value::Field(y)) => Some(Value::Field(*x - *y)),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "sub overflow");
@@ -2596,31 +1498,31 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
         }
 
         BinaryOperation::SubWrapped => match (lhs, rhs) {
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_sub(y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_sub(y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_sub(y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_sub(y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_sub(y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_sub(y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_sub(y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_sub(y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_sub(y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_sub(y)),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_sub(*y)),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_sub(*y)),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_sub(*y)),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_sub(*y)),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_sub(*y)),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_sub(*y)),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_sub(*y)),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_sub(*y)),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_sub(*y)),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_sub(*y)),
             _ => halt!(span, "Type error"),
         },
 
         BinaryOperation::Xor => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(x ^ y),
-            (Value::U8(x), Value::U8(y)) => Value::U8(x ^ y),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x ^ y),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x ^ y),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x ^ y),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x ^ y),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x ^ y),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x ^ y),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x ^ y),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x ^ y),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x ^ y),
+            (Value::Bool(x), Value::Bool(y)) => Value::Bool(*x ^ *y),
+            (Value::U8(x), Value::U8(y)) => Value::U8(*x ^ *y),
+            (Value::U16(x), Value::U16(y)) => Value::U16(*x ^ *y),
+            (Value::U32(x), Value::U32(y)) => Value::U32(*x ^ *y),
+            (Value::U64(x), Value::U64(y)) => Value::U64(*x ^ *y),
+            (Value::U128(x), Value::U128(y)) => Value::U128(*x ^ *y),
+            (Value::I8(x), Value::I8(y)) => Value::I8(*x ^ *y),
+            (Value::I16(x), Value::I16(y)) => Value::I16(*x ^ *y),
+            (Value::I32(x), Value::I32(y)) => Value::I32(*x ^ *y),
+            (Value::I64(x), Value::I64(y)) => Value::I64(*x ^ *y),
+            (Value::I128(x), Value::I128(y)) => Value::I128(*x ^ *y),
             _ => halt!(span, "Type error"),
         },
     };
@@ -2628,39 +1530,39 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: Value, rhs: Value) 
 }
 
 /// Evaluate a unary operation.
-pub fn evaluate_unary(span: Span, op: UnaryOperation, value: Value) -> Result<Value> {
+pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value) -> Result<Value> {
     let value_result = match op {
         UnaryOperation::Abs => match value {
             Value::I8(x) => {
-                if x == i8::MIN {
+                if *x == i8::MIN {
                     halt!(span, "abs overflow");
                 } else {
                     Value::I8(x.abs())
                 }
             }
             Value::I16(x) => {
-                if x == i16::MIN {
+                if *x == i16::MIN {
                     halt!(span, "abs overflow");
                 } else {
                     Value::I16(x.abs())
                 }
             }
             Value::I32(x) => {
-                if x == i32::MIN {
+                if *x == i32::MIN {
                     halt!(span, "abs overflow");
                 } else {
                     Value::I32(x.abs())
                 }
             }
             Value::I64(x) => {
-                if x == i64::MIN {
+                if *x == i64::MIN {
                     halt!(span, "abs overflow");
                 } else {
                     Value::I64(x.abs())
                 }
             }
             Value::I128(x) => {
-                if x == i128::MIN {
+                if *x == i128::MIN {
                     halt!(span, "abs overflow");
                 } else {
                     Value::I128(x.abs())
@@ -2711,8 +1613,8 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: Value) -> Result<Va
                 None => halt!(span, "negation overflow"),
                 Some(y) => Value::I128(y),
             },
-            Value::Group(x) => Value::Group(-x),
-            Value::Field(x) => Value::Field(-x),
+            Value::Group(x) => Value::Group(-*x),
+            Value::Field(x) => Value::Field(-*x),
             _ => halt!(span, "Type error"),
         },
         UnaryOperation::Not => match value {
@@ -2753,4 +1655,67 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: Value) -> Result<Va
     };
 
     Ok(value_result)
+}
+
+pub fn literal_to_value(literal: &Literal) -> Result<Value> {
+    let value = match literal {
+        Literal::Boolean(b, ..) => Value::Bool(*b),
+        Literal::Integer(IntegerType::U8, s, ..) => {
+            let s = s.replace("_", "");
+            Value::U8(u8::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+        }
+        Literal::Integer(IntegerType::U16, s, ..) => {
+            let s = s.replace("_", "");
+            Value::U16(u16::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+        }
+        Literal::Integer(IntegerType::U32, s, ..) => {
+            let s = s.replace("_", "");
+            Value::U32(u32::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+        }
+        Literal::Integer(IntegerType::U64, s, ..) => {
+            let s = s.replace("_", "");
+            Value::U64(u64::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+        }
+        Literal::Integer(IntegerType::U128, s, ..) => {
+            let s = s.replace("_", "");
+            Value::U128(u128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+        }
+        Literal::Integer(IntegerType::I8, s, ..) => {
+            let s = s.replace("_", "");
+            Value::I8(i8::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+        }
+        Literal::Integer(IntegerType::I16, s, ..) => {
+            let s = s.replace("_", "");
+            Value::I16(i16::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+        }
+        Literal::Integer(IntegerType::I32, s, ..) => {
+            let s = s.replace("_", "");
+            Value::I32(i32::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+        }
+        Literal::Integer(IntegerType::I64, s, ..) => {
+            let s = s.replace("_", "");
+            Value::I64(i64::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+        }
+        Literal::Integer(IntegerType::I128, s, ..) => {
+            let s = s.replace("_", "");
+            Value::I128(i128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+        }
+        Literal::Field(s, ..) => Value::Field(format!("{s}field").parse().expect_tc(literal.span())?),
+        Literal::Group(group_literal) => match &**group_literal {
+            GroupLiteral::Single(s, ..) => Value::Group(format!("{s}group").parse().expect_tc(literal.span())?),
+            GroupLiteral::Tuple(_group_tuple) => todo!(),
+        },
+        Literal::Address(s, ..) => {
+            if s.ends_with(".aleo") {
+                let program_id = ProgramID::from_str(s)?;
+                Value::Address(program_id.to_address()?)
+            } else {
+                Value::Address(s.parse().expect_tc(literal.span())?)
+            }
+        }
+        Literal::Scalar(s, ..) => Value::Scalar(format!("{s}scalar").parse().expect_tc(literal.span())?),
+        Literal::String(..) => tc_fail!(),
+    };
+
+    Ok(value)
 }

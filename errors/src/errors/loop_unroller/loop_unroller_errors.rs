@@ -30,6 +30,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     variable_array_access {
         args: (),

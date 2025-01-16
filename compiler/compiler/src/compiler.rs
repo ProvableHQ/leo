@@ -150,14 +150,14 @@ impl<'a, N: Network> Compiler<'a, N> {
     }
 
     /// Runs the type checker pass.
-    pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        let (symbol_table, struct_graph, call_graph) =
+    pub fn type_checker_pass(&'a self, symbol_table: &mut SymbolTable) -> Result<(StructGraph, CallGraph)> {
+        let (struct_graph, call_graph) =
             TypeChecker::do_pass((&self.ast, self.handler, symbol_table, &self.type_table, NetworkLimits {
                 max_array_elements: N::MAX_ARRAY_ELEMENTS,
                 max_mappings: N::MAX_MAPPINGS,
                 max_functions: N::MAX_FUNCTIONS,
             }))?;
-        Ok((symbol_table, struct_graph, call_graph))
+        Ok((struct_graph, call_graph))
     }
 
     /// Runs the static analysis pass.
@@ -172,22 +172,70 @@ impl<'a, N: Network> Compiler<'a, N> {
         ))
     }
 
+    /// Run const propagation and loop unrolling until we hit a fixed point or find an error.
+    pub fn const_propagation_and_unroll_loop(&mut self, symbol_table: &mut SymbolTable) -> Result<()> {
+        const LARGE_LOOP_BOUND: usize = 1024usize;
+
+        for _ in 0..LARGE_LOOP_BOUND {
+            let loop_unroll_output = self.loop_unrolling_pass(symbol_table)?;
+
+            let const_prop_output = self.const_propagation_pass(symbol_table)?;
+
+            if !const_prop_output.changed && !loop_unroll_output.loop_unrolled {
+                // We've got a fixed point, so see if we have any errors.
+                if let Some(not_evaluated_span) = const_prop_output.const_not_evaluated {
+                    return Err(CompilerError::const_not_evaluated(not_evaluated_span).into());
+                }
+
+                if let Some(not_evaluated_span) = const_prop_output.array_index_not_evaluated {
+                    return Err(CompilerError::array_index_not_evaluated(not_evaluated_span).into());
+                }
+
+                if let Some(not_unrolled_span) = loop_unroll_output.loop_not_unrolled {
+                    return Err(CompilerError::loop_bounds_not_evaluated(not_unrolled_span).into());
+                }
+
+                if self.compiler_options.output.unrolled_ast {
+                    self.write_ast_to_json("unrolled_ast.json")?;
+                }
+
+                return Ok(());
+            }
+        }
+
+        // Note that it's challenging to write code in practice that demonstrates this error, because Leo code
+        // with many nested loops or operations will blow the stack in the compiler before this bound is hit.
+        Err(CompilerError::const_prop_unroll_many_loops(LARGE_LOOP_BOUND, Default::default()).into())
+    }
+
+    /// Runs the const propagation pass.
+    pub fn const_propagation_pass(&mut self, symbol_table: &mut SymbolTable) -> Result<ConstPropagatorOutput> {
+        let (ast, output) = ConstPropagator::do_pass((
+            std::mem::take(&mut self.ast),
+            self.handler,
+            symbol_table,
+            &self.type_table,
+            &self.node_builder,
+        ))?;
+
+        self.ast = ast;
+
+        Ok(output)
+    }
+
     /// Runs the loop unrolling pass.
-    pub fn loop_unrolling_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
-        let (ast, symbol_table) = Unroller::do_pass((
+    pub fn loop_unrolling_pass(&mut self, symbol_table: &mut SymbolTable) -> Result<UnrollerOutput> {
+        let (ast, output) = Unroller::do_pass((
             std::mem::take(&mut self.ast),
             self.handler,
             &self.node_builder,
             symbol_table,
             &self.type_table,
         ))?;
+
         self.ast = ast;
 
-        if self.compiler_options.output.unrolled_ast {
-            self.write_ast_to_json("unrolled_ast.json")?;
-        }
-
-        Ok(symbol_table)
+        Ok(output)
     }
 
     /// Runs the static single assignment pass.
@@ -283,14 +331,13 @@ impl<'a, N: Network> Compiler<'a, N> {
 
     /// Runs the compiler stages.
     pub fn compiler_stages(&mut self) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        let st = self.symbol_table_pass()?;
+        let mut st = self.symbol_table_pass()?;
 
-        let (st, struct_graph, call_graph) = self.type_checker_pass(st)?;
+        let (struct_graph, call_graph) = self.type_checker_pass(&mut st)?;
 
         self.static_analysis_pass(&st)?;
 
-        // TODO: Make this pass optional.
-        let st = self.loop_unrolling_pass(st)?;
+        self.const_propagation_and_unroll_loop(&mut st)?;
 
         self.static_single_assignment_pass(&st)?;
 

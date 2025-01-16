@@ -389,22 +389,22 @@ impl Value {
     }
 
     /// Convert to the given type if possible under Aleo casting rules.
-    pub fn cast(self, cast_type: &Type) -> Option<Value> {
+    pub fn cast(&self, cast_type: &Type) -> Option<Value> {
         match self {
-            Value::Bool(b) => really_cast(SvmBoolean::new(b), cast_type),
-            Value::U8(x) => really_cast(SvmInteger::new(x), cast_type),
-            Value::U16(x) => really_cast(SvmInteger::new(x), cast_type),
-            Value::U32(x) => really_cast(SvmInteger::new(x), cast_type),
-            Value::U64(x) => really_cast(SvmInteger::new(x), cast_type),
-            Value::U128(x) => really_cast(SvmInteger::new(x), cast_type),
-            Value::I8(x) => really_cast(SvmInteger::new(x), cast_type),
-            Value::I16(x) => really_cast(SvmInteger::new(x), cast_type),
-            Value::I32(x) => really_cast(SvmInteger::new(x), cast_type),
-            Value::I64(x) => really_cast(SvmInteger::new(x), cast_type),
-            Value::I128(x) => really_cast(SvmInteger::new(x), cast_type),
+            Value::Bool(b) => really_cast(SvmBoolean::new(*b), cast_type),
+            Value::U8(x) => really_cast(SvmInteger::new(*x), cast_type),
+            Value::U16(x) => really_cast(SvmInteger::new(*x), cast_type),
+            Value::U32(x) => really_cast(SvmInteger::new(*x), cast_type),
+            Value::U64(x) => really_cast(SvmInteger::new(*x), cast_type),
+            Value::U128(x) => really_cast(SvmInteger::new(*x), cast_type),
+            Value::I8(x) => really_cast(SvmInteger::new(*x), cast_type),
+            Value::I16(x) => really_cast(SvmInteger::new(*x), cast_type),
+            Value::I32(x) => really_cast(SvmInteger::new(*x), cast_type),
+            Value::I64(x) => really_cast(SvmInteger::new(*x), cast_type),
+            Value::I128(x) => really_cast(SvmInteger::new(*x), cast_type),
             Value::Group(g) => really_cast(g.to_x_coordinate(), cast_type),
-            Value::Field(f) => really_cast(f, cast_type),
-            Value::Scalar(s) => really_cast(s, cast_type),
+            Value::Field(f) => really_cast(*f, cast_type),
+            Value::Scalar(s) => really_cast(*s, cast_type),
             Value::Address(a) => really_cast(a.to_group().to_x_coordinate(), cast_type),
             _ => None,
         }

@@ -82,6 +82,12 @@ impl LocalTable {
             })),
         }
     }
+
+    fn dup(&self, new_id: NodeID) -> Self {
+        let mut inner = self.inner.borrow().clone();
+        inner.id = new_id;
+        LocalTable { inner: Rc::new(RefCell::new(inner)) }
+    }
 }
 
 impl SymbolTable {
@@ -139,8 +145,21 @@ impl SymbolTable {
         self.local = id.map(|id| {
             let parent = self.local.as_ref().map(|table| table.inner.borrow().id);
             let new_local_table = self.all_locals.entry(id).or_insert_with(|| LocalTable::new(id, parent));
+            assert_eq!(parent, new_local_table.inner.borrow().parent, "Entered scopes out of order.");
             new_local_table.clone()
         });
+    }
+
+    /// Enter the new scope with id `new_id`, duplicating its local symbol table from the scope at `old_id`.
+    ///
+    /// This is useful for a pass like loop unrolling, in which the loop body must be duplicated multiple times.
+    pub fn enter_scope_duped(&mut self, new_id: NodeID, old_id: NodeID) {
+        let old_local_table = self.all_locals.get(&old_id).expect("Must have an old scope to dup from.");
+        let new_local_table = old_local_table.dup(new_id);
+        let parent = self.local.as_ref().map(|table| table.inner.borrow().id);
+        new_local_table.inner.borrow_mut().parent = parent;
+        self.all_locals.insert(new_id, new_local_table.clone());
+        self.local = Some(new_local_table);
     }
 
     /// Enther the parent scope of the current scope (or the global scope if there is no local parent scope).

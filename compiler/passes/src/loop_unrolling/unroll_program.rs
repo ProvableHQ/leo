@@ -33,36 +33,18 @@ impl ProgramReconstructor for Unroller<'_> {
         }
     }
 
-    fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
+    fn reconstruct_program_scope(&mut self, mut input: ProgramScope) -> ProgramScope {
         // Set the current program.
         self.current_program = Some(input.program_id.name.name);
-        // Don't need to reconstructed consts, just need to add them to constant propagation table
-        input.consts.into_iter().for_each(|(_, c)| {
-            self.reconstruct_const(c);
-        });
-        // Reconstruct the program scope
-        ProgramScope {
-            program_id: input.program_id,
-            structs: input.structs,
-            mappings: input.mappings,
-            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
-            consts: Vec::new(),
-            span: input.span,
-        }
+        input.functions = input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect();
+        input
     }
 
     // Reconstruct the function body, entering the associated scopes as needed.
-    fn reconstruct_function(&mut self, function: Function) -> Function {
-        self.in_scope(function.id(), |slf| Function {
-            annotations: function.annotations,
-            variant: function.variant,
-            identifier: function.identifier,
-            input: function.input,
-            output: function.output,
-            output_type: function.output_type,
-            block: slf.reconstruct_block(function.block).0,
-            span: function.span,
-            id: function.id,
+    fn reconstruct_function(&mut self, mut function: Function) -> Function {
+        self.in_scope(function.id(), |slf| {
+            function.block = slf.reconstruct_block(function.block).0;
+            function
         })
     }
 }

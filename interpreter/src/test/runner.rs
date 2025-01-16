@@ -25,6 +25,8 @@ use std::{fs, path::PathBuf, str::FromStr as _};
 
 pub struct LeoNamespace;
 
+pub static TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
+
 impl Namespace for LeoNamespace {
     fn parse_type(&self) -> ParseType {
         ParseType::Whole
@@ -66,7 +68,7 @@ fn run_leo_test(test: Test) -> Result<Value, String> {
     fs::write(&filename, &test.content).map_err(|e| format!("{e}"))?;
 
     let private_key: PrivateKey<TestnetV0> =
-        PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY).expect("should be able to parse private key");
+        PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should be able to parse private key");
     let address = Address::try_from(&private_key).expect("should be able to create address");
     let empty: [&PathBuf; 0] = [];
     let mut interpreter = Interpreter::new([filename].iter(), empty, address, 0).map_err(|e| format!("{e}"))?;
@@ -86,7 +88,7 @@ fn run_aleo_test(test: Test) -> Result<Value, String> {
     fs::write(&filename, &test.content).map_err(|e| format!("{e}"))?;
 
     let private_key: PrivateKey<TestnetV0> =
-        PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY).expect("should be able to parse private key");
+        PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should be able to parse private key");
     let address = Address::try_from(&private_key).expect("should be able to create address");
     let empty: [&PathBuf; 0] = [];
     let mut interpreter = Interpreter::new(empty, [filename].iter(), address, 0).map_err(|e| format!("{e}"))?;

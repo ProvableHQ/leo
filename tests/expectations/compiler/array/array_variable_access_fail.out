@@ -1,9 +1,8 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ELUN0379001]: The array index must be constant.
-    --> compiler-test:5:16
+Error [ECMP0376009]: This array index could not be determined at compile time.
+    --> compiler-test:5:18
      |
    5 |         return a[index];
-     |                ^^^^^^^^
-"""]
+     |                  ^^^^^"""]

@@ -237,7 +237,8 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
     }
 
     fn consume_const(&mut self, _: ConstDeclaration) -> Self::Output {
-        unreachable!("Loop unrolling pass removes all constant declaration statements in the program.")
+        // Constants have been propagated everywhere by this point, so we no longer need const declarations.
+        Default::default()
     }
 
     /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
@@ -370,7 +371,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 }))
             }
 
-            _ => unreachable!("Type checking guarantees that expression statements are always function calls."),
+            _ => panic!("Type checking guarantees that expression statements are always function calls."),
         }
 
         statements

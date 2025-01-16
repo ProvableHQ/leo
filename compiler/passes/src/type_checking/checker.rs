@@ -40,7 +40,7 @@ pub struct NetworkLimits {
 
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
-    pub(crate) symbol_table: SymbolTable,
+    pub(crate) symbol_table: &'a mut SymbolTable,
     /// A mapping from node IDs to their types.
     pub(crate) type_table: &'a TypeTable,
     /// A dependency graph of the structs in program.
@@ -66,7 +66,7 @@ pub struct TypeChecker<'a> {
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(
-        symbol_table: SymbolTable,
+        symbol_table: &'a mut SymbolTable,
         type_table: &'a TypeTable,
         handler: &'a Handler,
         limits: NetworkLimits,

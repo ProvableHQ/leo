@@ -77,4 +77,32 @@ create_messages!(
         msg: format!("`{main_program_name}` imports `{dependency_name}.aleo`, but `{dependency_name}.aleo` is not found in program manifest. Use `leo add --help` for more information on how to add a dependency."),
         help: None,
     }
+
+    @formatted
+    const_not_evaluated {
+        args: (),
+        msg: "The value of this const could not be determined at compile time.".to_string(),
+        help: None,
+    }
+
+    @formatted
+    loop_bounds_not_evaluated {
+        args: (),
+        msg: "This loop bound could not be determined at compile time.".to_string(),
+        help: None,
+    }
+
+    @formatted
+    array_index_not_evaluated {
+        args: (),
+        msg: "This array index could not be determined at compile time.".to_string(),
+        help: None,
+    }
+
+    @formatted
+    const_prop_unroll_many_loops {
+        args: (bound: usize),
+        msg: format!("The const propagation and loop unrolling passes ran {bound} times without reaching a fixed point."),
+        help: Some("This should only happen with a pathological Leo program containing numerous nested loops or nested operations. Otherwise, this may be a bug in the Leo compiler.".to_string()),
+    }
 );

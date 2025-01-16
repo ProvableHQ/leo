@@ -1,11 +1,6 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372070]: The value of a const declaration must be a literal
-    --> compiler-test:7:9
-     |
-   7 |         const B: u8 = ((1u8,1u8),1u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372023]: Tuples must be explicitly typed in Leo
     --> compiler-test:7:23
      |

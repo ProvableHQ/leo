@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A constant declaration statement.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, Default, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct ConstDeclaration {
     /// The place to assign to. As opposed to `DefinitionStatement`, this can only be an identifier
     pub place: Identifier,
@@ -37,9 +37,7 @@ pub struct ConstDeclaration {
 
 impl fmt::Display for ConstDeclaration {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.place)?;
-        write!(f, ": {}", self.type_)?;
-        write!(f, " = {};", self.value)
+        write!(f, "const {}: {} = {}", self.place, self.type_, self.value)
     }
 }
 

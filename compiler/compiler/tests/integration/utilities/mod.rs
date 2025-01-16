@@ -251,17 +251,17 @@ pub fn temp_dir() -> PathBuf {
 pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a, CurrentNetwork>) -> Result<String, LeoError> {
     parsed.add_import_stubs()?;
 
-    let st = parsed.symbol_table_pass()?;
+    let mut st = parsed.symbol_table_pass()?;
 
     CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);
 
-    let (st, struct_graph, call_graph) = parsed.type_checker_pass(st)?;
+    let (struct_graph, call_graph) = parsed.type_checker_pass(&mut st)?;
 
     parsed.static_analysis_pass(&st)?;
 
     CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);
 
-    let st = parsed.loop_unrolling_pass(st)?;
+    parsed.const_propagation_and_unroll_loop(&mut st)?;
 
     parsed.static_single_assignment_pass(&st)?;
 
