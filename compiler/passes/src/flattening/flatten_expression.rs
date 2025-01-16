@@ -92,8 +92,12 @@ impl ExpressionReconstructor for Flattener<'_> {
                         // Get the struct definitions.
                         let first_type = self
                             .symbol_table
-                            .lookup_struct(Location::new(self.program, first_type.id.name), self.program)
-                            .unwrap();
+                            .lookup_struct(first_type.id.name)
+                            .or_else(|| {
+                                self.symbol_table
+                                    .lookup_record(Location::new(self.program.unwrap(), first_type.id.name))
+                            })
+                            .expect("This definition should exist");
                         self.ternary_struct(first_type, &input.condition, &first, &second)
                     }
                     Type::Tuple(first_type) => self.ternary_tuple(first_type, &input.condition, &first, &second),

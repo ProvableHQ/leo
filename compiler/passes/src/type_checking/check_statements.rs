@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
 use crate::{TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::{
@@ -23,7 +22,7 @@ use leo_ast::{
 };
 use leo_errors::TypeCheckerError;
 
-impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
+impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
         // No statements can follow a return statement.
         if self.scope_state.has_return {
@@ -64,62 +63,42 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {
-        let var_name = match input.place {
-            Expression::Identifier(id) => id,
-            _ => {
-                self.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
-                return;
-            }
+        let Expression::Identifier(var_name) = input.place else {
+            self.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
+            return;
         };
 
         // Lookup the variable in the symbol table and retrieve its type.
-        let var_type = if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, var_name.name))
-        {
-            // If the variable exists, then check that it is not a constant.
-            match &var.declaration {
-                VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
-                VariableType::Input(Mode::Constant) => {
-                    self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
-                }
-                VariableType::Mut | VariableType::Input(_) => {}
-            }
-
-            // If the variable exists and its in an async function, then check that it is in the current scope.
-            // Note that this unwrap is safe because the scope state is initialized before traversing the function.
-            if self.scope_state.variant.unwrap().is_async_function()
-                && self.scope_state.is_conditional
-                && self
-                    .symbol_table
-                    .borrow()
-                    .lookup_variable_in_current_scope(Location::new(None, var_name.name))
-                    .is_none()
-            {
-                self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(var_name, var.span));
-            }
-            // Prohibit reassignment of futures.
-            if let Type::Future(_) = var.type_ {
-                self.emit_err(TypeCheckerError::cannot_reassign_future_variable(var_name, var.span));
-            }
-
-            Some(var.type_.clone())
-        } else {
+        let Some(var) = self.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), var_name.name) else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
-            None
+            return;
         };
 
-        if var_type.is_some() {
-            self.visit_expression(&input.value, &var_type);
+        // If the variable exists, then check that it is not a constant.
+        match &var.declaration {
+            VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
+            VariableType::Input(Mode::Constant) => {
+                self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
+            }
+            VariableType::Mut | VariableType::Input(_) => {}
         }
+
+        // If the variable exists and it's in an async function, then check that it is in the current conditional scope.
+        if self.scope_state.variant.unwrap().is_async_function() && !self.symbol_in_conditional_scope(var_name.name) {
+            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(var_name, var.span));
+        }
+        // Prohibit reassignment of futures.
+        if let Type::Future(_) = var.type_ {
+            self.emit_err(TypeCheckerError::cannot_reassign_future_variable(var_name, var.span));
+        }
+
+        self.visit_expression(&input.value, &Some(var.type_.clone()));
     }
 
     fn visit_block(&mut self, input: &'a Block) {
-        // Create a new scope for the then-block.
-        let scope_index = self.create_child_scope();
-
-        input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
-
-        // Exit the scope for the then-block.
-        self.exit_scope(scope_index);
+        self.in_scope(input.id, |slf| {
+            input.statements.iter().for_each(|stmt| slf.visit_statement(stmt));
+        });
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
@@ -134,7 +113,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
 
         // Visit block.
-        self.visit_block(&input.then);
+        self.in_conditional_scope(|slf| slf.visit_block(&input.then));
 
         // Store the `has_return` flag for the then-block.
         then_block_has_return = self.scope_state.has_return;
@@ -146,7 +125,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
             match &**otherwise {
                 Statement::Block(stmt) => {
                     // Visit the otherwise-block.
-                    self.visit_block(stmt);
+                    self.in_conditional_scope(|slf| slf.visit_block(stmt));
                 }
                 Statement::Conditional(stmt) => self.visit_conditional(stmt),
                 _ => unreachable!("Else-case can only be a block or conditional statement."),
@@ -206,10 +185,10 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
         // Check the expression on the right-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
-        // Add constants to symbol table so that any references to them in later statements will pass TC
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-            Location::new(None, input.place.name),
-            self.scope_state.program_name,
+        // Add constants to symbol table so that any references to them in later statements will pass type checking.
+        if let Err(err) = self.symbol_table.insert_variable(
+            self.scope_state.program_name.unwrap(),
+            input.place.name,
             VariableSymbol { type_: input.type_.clone(), span: input.place.span, declaration: VariableType::Const },
         ) {
             self.handler.emit_err(err);
@@ -300,36 +279,32 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
         self.assert_int_type(&input.type_, input.variable.span);
 
-        // Create a new scope for the loop body.
-        let scope_index = self.create_child_scope();
+        self.in_scope(input.id(), |slf| {
+            // Add the loop variable to the scope of the loop body.
+            if let Err(err) = slf.symbol_table.insert_variable(
+                slf.scope_state.program_name.unwrap(),
+                input.variable.name,
+                VariableSymbol { type_: input.type_.clone(), span: input.span(), declaration: VariableType::Const },
+            ) {
+                slf.handler.emit_err(err);
+            }
 
-        // Add the loop variable to the scope of the loop body.
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-            Location::new(None, input.variable.name),
-            self.scope_state.program_name,
-            VariableSymbol { type_: input.type_.clone(), span: input.span(), declaration: VariableType::Const },
-        ) {
-            self.handler.emit_err(err);
-        }
+            let prior_has_return = core::mem::take(&mut slf.scope_state.has_return);
+            let prior_has_finalize = core::mem::take(&mut slf.scope_state.has_called_finalize);
 
-        let prior_has_return = core::mem::take(&mut self.scope_state.has_return);
-        let prior_has_finalize = core::mem::take(&mut self.scope_state.has_called_finalize);
+            slf.visit_block(&input.block);
 
-        self.visit_block(&input.block);
+            if slf.scope_state.has_return {
+                slf.emit_err(TypeCheckerError::loop_body_contains_return(input.span()));
+            }
 
-        if self.scope_state.has_return {
-            self.emit_err(TypeCheckerError::loop_body_contains_return(input.span()));
-        }
+            if slf.scope_state.has_called_finalize {
+                slf.emit_err(TypeCheckerError::loop_body_contains_finalize(input.span()));
+            }
 
-        if self.scope_state.has_called_finalize {
-            self.emit_err(TypeCheckerError::loop_body_contains_finalize(input.span()));
-        }
-
-        self.scope_state.has_return = prior_has_return;
-        self.scope_state.has_called_finalize = prior_has_finalize;
-
-        // Exit the scope.
-        self.exit_scope(scope_index);
+            slf.scope_state.has_return = prior_has_return;
+            slf.scope_state.has_called_finalize = prior_has_finalize;
+        });
 
         // Check that the literal is valid.
         self.visit_expression(&input.start, &Some(input.type_.clone()));
@@ -343,7 +318,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
                 }
             }
             Expression::Identifier(id) => {
-                if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, id.name)) {
+                if let Some(var) = self.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), id.name) {
                     if VariableType::Const != var.declaration {
                         self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
                     }
@@ -363,7 +338,7 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
                 }
             }
             Expression::Identifier(id) => {
-                if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, id.name)) {
+                if let Some(var) = self.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), id.name) {
                     if VariableType::Const != var.declaration {
                         self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
                     }
@@ -374,51 +349,43 @@ impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
-        // We can safely unwrap all self.parent instances because
-        // statements should always have some parent block
-        let parent = self.scope_state.function.unwrap();
-        let func =
-            self.symbol_table.borrow().lookup_fn_symbol(Location::new(self.scope_state.program_name, parent)).cloned();
-        let mut return_type = func.clone().map(|f| f.output_type.clone());
+        let func_name = self.scope_state.function.unwrap();
+        let func_symbol = self
+            .symbol_table
+            .lookup_function(Location::new(self.scope_state.program_name.unwrap(), func_name))
+            .expect("The symbol table creator should already have visited all functions.");
+        let mut return_type = func_symbol.function.output_type.clone();
 
         // Fully type the expected return value.
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
             let inferred_future_type = Future(FutureType::new(
-                func.unwrap().finalize.as_ref().unwrap().inferred_inputs.clone(),
-                Some(Location::new(self.scope_state.program_name, parent)),
+                func_symbol.finalizer.as_ref().unwrap().inferred_inputs.clone(),
+                Some(Location::new(self.scope_state.program_name.unwrap(), func_name)),
                 true,
             ));
 
             // Need to modify return type since the function signature is just default future, but the actual return type is the fully inferred future of the finalize input type.
             let inferred = match return_type.clone() {
-                Some(Future(_)) => Some(inferred_future_type),
-                Some(Tuple(tuple)) => Some(Tuple(TupleType::new(
+                Future(_) => inferred_future_type,
+                Tuple(tuple) => Tuple(TupleType::new(
                     tuple
                         .elements()
                         .iter()
                         .map(|t| if matches!(t, Future(_)) { inferred_future_type.clone() } else { t.clone() })
                         .collect::<Vec<Type>>(),
-                ))),
+                )),
                 _ => {
                     return self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
                 }
             };
 
             // Check that the explicit type declared in the function output signature matches the inferred type.
-            if let Some(ty) = inferred {
-                return_type = Some(self.assert_and_return_type(ty, &return_type, input.span()));
-            }
+            return_type = self.assert_and_return_type(inferred, &Some(return_type), input.span());
         }
 
         // Set the `has_return` flag.
         self.scope_state.has_return = true;
 
-        // Type check the associated expression.
-        if let Expression::Unit(..) = input.expression {
-            // TODO - do will this error message be appropriate?
-            self.maybe_assert_type(&Type::Unit, &return_type, input.expression.span());
-        } else {
-            self.visit_expression(&input.expression, &return_type);
-        }
+        self.visit_expression(&input.expression, &Some(return_type));
     }
 }

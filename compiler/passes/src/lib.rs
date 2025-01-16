@@ -47,7 +47,7 @@ pub use self::pass::*;
 pub mod static_single_assignment;
 pub use static_single_assignment::*;
 
-pub mod symbol_table_creation;
+mod symbol_table_creation;
 pub use symbol_table_creation::*;
 
 pub mod type_checking;

@@ -61,14 +61,6 @@ pub fn hash_asts(program_name: &str) -> (String, String, String, String, String,
     (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast)
 }
 
-pub fn hash_symbol_tables(program_name: &str) -> (String, String, String) {
-    let initial_symbol_table = hash_file(&format!("/tmp/output/{program_name}.initial_symbol_table.json"));
-    let type_checked_symbol_table = hash_file(&format!("/tmp/output/{program_name}.type_checked_symbol_table.json"));
-    let unrolled_symbol_table = hash_file(&format!("/tmp/output/{program_name}.unrolled_symbol_table.json"));
-
-    (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table)
-}
-
 pub fn get_cwd_option(test: &Test) -> Option<PathBuf> {
     // Check for CWD option:
     // ``` cwd: import ```

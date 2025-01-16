@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [EAST0372008]: record `bar` shadowed by
+Error [EAST0372007]: struct `bar` shadowed by
     --> compiler-test:5:5
      |
    5 |     mapping bar: u8 => u8;

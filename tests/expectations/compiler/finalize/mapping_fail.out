@@ -13,6 +13,27 @@ Error [ETYC0372017]: The type `baz` is not found in the current scope.
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `baz` is not found in the current scope.
+    --> compiler-test:6:5
+     |
+   6 |     mapping floo: baz => u8;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
+    --> compiler-test:8:5
+     |
+   8 |     mapping floop: foo => foo;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
+    --> compiler-test:8:5
+     |
+   8 |     mapping floop: foo => foo;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `foo` is not found in the current scope.
     --> compiler-test:8:5
      |
@@ -34,7 +55,21 @@ Error [ETYC0372017]: The type `foo` is not found in the current scope.
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
+    --> compiler-test:10:5
+     |
+  10 |     mapping bar: foo => baz;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `baz` is not found in the current scope.
+    --> compiler-test:10:5
+     |
+  10 |     mapping bar: foo => baz;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
     --> compiler-test:10:5
      |
   10 |     mapping bar: foo => baz;

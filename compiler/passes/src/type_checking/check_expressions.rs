@@ -20,11 +20,9 @@ use leo_ast::*;
 use leo_errors::{TypeCheckerError, emitter::Handler};
 use leo_span::{Span, Symbol, sym};
 
-use snarkvm::console::network::Network;
+use itertools::Itertools as _;
 
-use itertools::Itertools;
-
-impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
+impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     type AdditionalInput = Option<Type>;
     type Output = Type;
 
@@ -205,12 +203,15 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                     },
                     _ => {
                         // Check that the type of `inner` in `inner.name` is a struct.
-                        match self.visit_expression(&access.inner, &None) {
+                        let ty = self.visit_expression(&access.inner, &None);
+                        match ty {
                             Type::Err => Type::Err,
                             Type::Composite(struct_) => {
                                 // Retrieve the struct definition associated with `identifier`.
-                                let Some(struct_) = self.lookup_struct(struct_.program, struct_.id.name) else {
-                                    self.emit_err(TypeCheckerError::undefined_type(&access.inner, access.inner.span()));
+                                let Some(struct_) = self
+                                    .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
+                                else {
+                                    self.emit_err(TypeCheckerError::undefined_type(ty, access.inner.span()));
                                     return Type::Err;
                                 };
                                 // Check that `access.name` is a member of the struct.
@@ -265,8 +266,12 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
 
         let element_type = self.visit_expression(&input.elements[0], &None);
 
-        if input.elements.len() > N::MAX_ARRAY_ELEMENTS {
-            self.emit_err(TypeCheckerError::array_too_large(input.elements.len(), N::MAX_ARRAY_ELEMENTS, input.span()));
+        if input.elements.len() > self.limits.max_array_elements {
+            self.emit_err(TypeCheckerError::array_too_large(
+                input.elements.len(),
+                self.limits.max_array_elements,
+                input.span(),
+            ));
         }
 
         if element_type == Type::Err {
@@ -517,12 +522,15 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
         let Expression::Identifier(ident) = &*input.function else {
             unreachable!("Parsing guarantees that a function name is always an identifier.");
         };
-        let func = self.symbol_table.borrow().lookup_fn_symbol(Location::new(input.program, ident.name)).cloned();
 
-        let Some(func) = func else {
+        let callee_program = input.program.or(self.scope_state.program_name).unwrap();
+
+        let Some(func_symbol) = self.symbol_table.lookup_function(Location::new(callee_program, ident.name)) else {
             self.emit_err(TypeCheckerError::unknown_sym("function", ident.name, ident.span()));
             return Type::Err;
         };
+
+        let func = func_symbol.function.clone();
 
         // Check that the call is valid.
         // We always set the variant before entering the body of a function, so this unwrap works.
@@ -548,7 +556,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
         let mut ret = if func.variant == Variant::AsyncFunction {
             // Type check after resolving the input types.
             if let Some(Type::Future(_)) = expected {
-                Type::Future(FutureType::new(Vec::new(), Some(Location::new(input.program, ident.name)), false))
+                Type::Future(FutureType::new(Vec::new(), Some(Location::new(callee_program, ident.name)), false))
             } else {
                 self.emit_err(TypeCheckerError::return_type_of_finalize_function_is_future(input.span));
                 Type::Unit
@@ -557,18 +565,18 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
             // Fully infer future type.
             let Some(inputs) = self
                 .async_function_input_types
-                .get(&Location::new(input.program, Symbol::intern(&format!("finalize/{}", ident.name))))
+                .get(&Location::new(callee_program, Symbol::intern(&format!("finalize/{}", ident.name))))
             else {
                 self.emit_err(TypeCheckerError::async_function_not_found(ident.name, input.span));
                 return Type::Future(FutureType::new(
                     Vec::new(),
-                    Some(Location::new(input.program, ident.name)),
+                    Some(Location::new(callee_program, ident.name)),
                     false,
                 ));
             };
 
             let future_type =
-                Type::Future(FutureType::new(inputs.clone(), Some(Location::new(input.program, ident.name)), true));
+                Type::Future(FutureType::new(inputs.clone(), Some(Location::new(callee_program, ident.name)), true));
             let fully_inferred_type = match &func.output_type {
                 Type::Tuple(tup) => Type::Tuple(TupleType::new(
                     tup.elements()
@@ -616,7 +624,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                 if let Some(name) = option_name {
                     match self.scope_state.futures.shift_remove(&name) {
                         Some(future) => {
-                            self.scope_state.call_location = Some(future.clone());
+                            self.scope_state.call_location = Some(future);
                         }
                         None => {
                             self.emit_err(TypeCheckerError::unknown_future_consumed(name, argument.span()));
@@ -628,7 +636,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
                     Expression::Identifier(_)
                     | Expression::Call(_)
                     | Expression::Access(AccessExpression::Tuple(_)) => {
-                        match self.scope_state.call_location.clone() {
+                        match self.scope_state.call_location {
                             Some(location) => {
                                 // Get the external program and function name.
                                 input_futures.push(location);
@@ -687,24 +695,21 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
             // Check that all futures consumed.
             if !self.scope_state.futures.is_empty() {
                 self.emit_err(TypeCheckerError::not_all_futures_consumed(
-                    self.scope_state.futures.iter().map(|(f, _)| f.to_string()).join(", "),
+                    self.scope_state.futures.iter().map(|(f, _)| f).join(", "),
                     input.span,
                 ));
             }
-            // Add future locations to symbol table. Unwrap safe since insert function into symbol table during previous pass.
-            let mut st = self.symbol_table.borrow_mut();
-            // Link async transition to the async function that finalizes it.
-            st.attach_finalize(
-                self.scope_state.location(),
-                Location::new(self.scope_state.program_name, ident.name),
-                input_futures,
-                inferred_finalize_inputs.clone(),
-            )
-            .expect("Failed to attach finalize");
-            drop(st);
+            self.symbol_table
+                .attach_finalizer(
+                    Location::new(callee_program, caller_name),
+                    Location::new(callee_program, ident.name),
+                    input_futures,
+                    inferred_finalize_inputs.clone(),
+                )
+                .expect("Failed to attach finalizer");
             // Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
             self.async_function_callers
-                .entry(Location::new(self.scope_state.program_name, ident.name))
+                .entry(Location::new(self.scope_state.program_name.unwrap(), ident.name))
                 .or_default()
                 .insert(self.scope_state.location());
 
@@ -714,7 +719,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
             // Update ret to reflect fully inferred future type.
             ret = Type::Future(FutureType::new(
                 inferred_finalize_inputs,
-                Some(Location::new(input.program, ident.name)),
+                Some(Location::new(callee_program, ident.name)),
                 true,
             ));
 
@@ -723,7 +728,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
         }
 
         // Set call location so that definition statement knows where future comes from.
-        self.scope_state.call_location = Some(Location::new(input.program, ident.name));
+        self.scope_state.call_location = Some(Location::new(callee_program, ident.name));
 
         ret
     }
@@ -796,8 +801,8 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        let var = self.symbol_table.borrow().lookup_variable(Location::new(None, input.name)).cloned();
-        if let Some(var) = &var {
+        let var = self.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), input.name);
+        if let Some(var) = var {
             self.maybe_assert_type(&var.type_, expected, input.span());
             var.type_.clone()
         } else {
@@ -872,11 +877,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
     }
 
     fn visit_locator(&mut self, input: &'a LocatorExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        let maybe_var = self
-            .symbol_table
-            .borrow()
-            .lookup_variable(Location::new(Some(input.program.name.name), input.name))
-            .cloned();
+        let maybe_var = self.symbol_table.lookup_global(Location::new(input.program.name.name, input.name)).cloned();
         if let Some(var) = maybe_var {
             self.maybe_assert_type(&var.type_, expected, input.span());
             var.type_
@@ -1008,6 +1009,6 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
     }
 
     fn visit_unit(&mut self, _input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        unreachable!("Unit expressions should not exist in normal code");
+        Type::Unit
     }
 }

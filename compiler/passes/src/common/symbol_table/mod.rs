@@ -14,334 +14,279 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod function_symbol;
-pub use function_symbol::*;
-
-pub mod variable_symbol;
-
-pub use variable_symbol::*;
-
-use std::cell::RefCell;
-
-use leo_ast::{Composite, Function, Location, Type, normalize_json_value, remove_key_from_json};
+use leo_ast::{Composite, Expression, Function, Location, NodeID, Type};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
-use serde::{Deserialize, Serialize};
-use serde_json;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-// TODO (@d0cd) Consider a safe interface for the symbol table.
-// TODO (@d0cd) Cleanup API
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
+mod symbols;
+pub use symbols::*;
+
+/// Maps global and local symbols to information about them.
+///
+/// Scopes are indexed by the NodeID of the function, block, or iteration.
+#[derive(Debug, Default)]
 pub struct SymbolTable {
-    /// The parent scope if it exists.
-    /// For example, the parent scope of a then-block is the scope containing the associated ConditionalStatement.
-    pub(crate) parent: Option<Box<SymbolTable>>,
-    /// Maps parent program name and  function name to the AST's function definition.
-    /// This field is populated at a first pass.
-    pub functions: IndexMap<Location, FunctionSymbol>,
-    /// Maps parent program name and composite name to composite definitions.
-    /// This field is populated at a first pass.
-    pub structs: IndexMap<Location, Composite>,
-    /// The variables defined in a scope.
-    /// This field is populated as necessary.
-    pub(crate) variables: IndexMap<Location, VariableSymbol>,
-    /// The index of the current scope.
-    pub(crate) scope_index: usize,
-    /// The sub-scopes of this scope.
-    pub(crate) scopes: Vec<RefCell<SymbolTable>>,
+    /// Functions indexed by location.
+    functions: IndexMap<Location, FunctionSymbol>,
+
+    /// Records indexed by location.
+    records: IndexMap<Location, Composite>,
+
+    /// Structs indexed by location.
+    structs: IndexMap<Symbol, Composite>,
+
+    /// Consts that have been successfully evaluated.
+    global_consts: IndexMap<Location, Expression>,
+
+    /// Global variables indexed by location.
+    globals: IndexMap<Location, VariableSymbol>,
+
+    /// Local tables index by the NodeID of the function, iteration, or block they're contained in.
+    all_locals: HashMap<NodeID, LocalTable>,
+
+    /// The current LocalTable we're looking at.
+    local: Option<LocalTable>,
+}
+
+#[derive(Clone, Default, Debug)]
+struct LocalTable {
+    inner: Rc<RefCell<LocalTableInner>>,
+}
+
+#[derive(Clone, Default, Debug)]
+struct LocalTableInner {
+    /// The `NodeID` of the function, iteration, or block this table indexes.
+    id: NodeID,
+
+    /// The parent `NodeID` of this scope, if it exists.
+    parent: Option<NodeID>,
+
+    /// The consts we've evaluated in this scope.
+    consts: HashMap<Symbol, Expression>,
+
+    /// Variables in this scope, indexed by name.
+    variables: HashMap<Symbol, VariableSymbol>,
+}
+
+impl LocalTable {
+    fn new(id: NodeID, parent: Option<NodeID>) -> Self {
+        LocalTable {
+            inner: Rc::new(RefCell::new(LocalTableInner {
+                id,
+                parent,
+                consts: HashMap::new(),
+                variables: HashMap::new(),
+            })),
+        }
+    }
 }
 
 impl SymbolTable {
-    /// Recursively checks if the symbol table contains an entry for the given symbol.
-    /// Leo does not allow any variable shadowing or overlap between different symbols.
-    pub fn check_shadowing(
-        &self,
-        location: &Location,
-        program: Option<Symbol>,
-        is_struct: bool,
-        span: Span,
-    ) -> Result<()> {
-        self.check_shadowing_impl(location, is_struct, span)?;
-        // Even if the current item is not scoped by program, we want a collision
-        // if there are program-scoped items with the same name, so check that too.
-        if program.is_some() && location.program.is_none() {
-            let location2 = Location::new(program, location.name);
-            self.check_shadowing_impl(&location2, is_struct, span)?;
+    /// Iterator over all the structs (not records) in this program.
+    pub fn iter_structs(&self) -> impl Iterator<Item = (Symbol, &Composite)> {
+        self.structs.iter().map(|(name, comp)| (*name, comp))
+    }
+
+    /// Iterator over all the records in this program.
+    pub fn iter_records(&self) -> impl Iterator<Item = (Location, &Composite)> {
+        self.records.iter().map(|(loc, comp)| (*loc, comp))
+    }
+
+    /// Iterator over all the functions in this program.
+    pub fn iter_functions(&self) -> impl Iterator<Item = (Location, &FunctionSymbol)> {
+        self.functions.iter().map(|(loc, func_symbol)| (*loc, func_symbol))
+    }
+
+    /// Access the struct by this name if it exists.
+    pub fn lookup_struct(&self, name: Symbol) -> Option<&Composite> {
+        self.structs.get(&name)
+    }
+
+    /// Access the record at this location if it exists.
+    pub fn lookup_record(&self, location: Location) -> Option<&Composite> {
+        self.records.get(&location)
+    }
+
+    /// Access the function at this location if it exists.
+    pub fn lookup_function(&self, location: Location) -> Option<&FunctionSymbol> {
+        self.functions.get(&location)
+    }
+
+    /// Access the variable accessible by this name in the current scope.
+    pub fn lookup_variable(&self, program: Symbol, name: Symbol) -> Option<VariableSymbol> {
+        let mut current = self.local.as_ref();
+
+        while let Some(table) = current {
+            let borrowed = table.inner.borrow();
+            let value = borrowed.variables.get(&name);
+            if value.is_some() {
+                return value.cloned();
+            }
+
+            current = borrowed.parent.and_then(|id| self.all_locals.get(&id));
         }
+
+        self.globals.get(&Location::new(program, name)).cloned()
+    }
+
+    /// Enter the scope of this `NodeID`, creating a table if it doesn't exist yet.
+    ///
+    /// Passing `None` means to enter the global scope.
+    pub fn enter_scope(&mut self, id: Option<NodeID>) {
+        self.local = id.map(|id| {
+            let parent = self.local.as_ref().map(|table| table.inner.borrow().id);
+            let new_local_table = self.all_locals.entry(id).or_insert_with(|| LocalTable::new(id, parent));
+            new_local_table.clone()
+        });
+    }
+
+    /// Enther the parent scope of the current scope (or the global scope if there is no local parent scope).
+    pub fn enter_parent(&mut self) {
+        let parent: Option<NodeID> = self.local.as_ref().and_then(|table| table.inner.borrow().parent);
+        self.local = parent.map(|id| self.all_locals.get(&id).expect("Parent should exist.")).cloned();
+    }
+
+    /// Insert an evaluated const into the current scope.
+    pub fn insert_const(&mut self, program: Symbol, name: Symbol, value: Expression) {
+        if let Some(table) = self.local.as_mut() {
+            table.inner.borrow_mut().consts.insert(name, value);
+        } else {
+            self.global_consts.insert(Location::new(program, name), value);
+        }
+    }
+
+    /// Find the evaluated const accessible by the given name in the current scope.
+    pub fn lookup_const(&self, program: Symbol, name: Symbol) -> Option<Expression> {
+        let mut current = self.local.as_ref();
+
+        while let Some(table) = current {
+            let borrowed = table.inner.borrow();
+            let value = borrowed.consts.get(&name);
+            if value.is_some() {
+                return value.cloned();
+            }
+
+            current = borrowed.parent.and_then(|id| self.all_locals.get(&id));
+        }
+
+        self.global_consts.get(&Location::new(program, name)).cloned()
+    }
+
+    /// Insert a struct at this name.
+    ///
+    /// Since structs are indexed only by name, the program is used only to check shadowing.
+    pub fn insert_struct(&mut self, program: Symbol, name: Symbol, composite: Composite) -> Result<()> {
+        if let Some(old_composite) = self.structs.get(&name) {
+            if eq_struct(&composite, old_composite) {
+                Ok(())
+            } else {
+                Err(AstError::redefining_external_struct(name, composite.span).into())
+            }
+        } else {
+            let location = Location::new(program, name);
+            self.check_shadow_global(location, composite.span)?;
+            self.structs.insert(name, composite);
+            Ok(())
+        }
+    }
+
+    /// Insert a record at this location.
+    pub fn insert_record(&mut self, location: Location, composite: Composite) -> Result<()> {
+        self.check_shadow_global(location, composite.span)?;
+        self.records.insert(location, composite);
         Ok(())
     }
 
-    fn check_shadowing_impl(&self, location: &Location, is_struct: bool, span: Span) -> Result<()> {
-        if self.functions.contains_key(location) {
-            return Err(AstError::shadowed_function(location.name, span).into());
-        } else if self.structs.get(location).is_some() && !(location.program.is_none() && is_struct) {
-            // The second half of the conditional makes sure that structs are only caught for shadowing local records during ST creation, not for redefinition of external structs.
-            return Err(AstError::shadowed_record(location.name, span).into());
-        } else if self.structs.get(&Location::new(None, location.name)).is_some() && !is_struct {
-            // Struct redefinition is allowed. If there are more than one occurrences, the error will be caught in the creator pass.
-            return Err(AstError::shadowed_struct(location.name, span).into());
-        } else if self.variables.contains_key(location) {
-            return Err(AstError::shadowed_variable(location.name, span).into());
-        }
-        if let Some(parent) = self.parent.as_ref() {
-            parent.check_shadowing_impl(location, is_struct, span)
+    /// Insert a function at this location.
+    pub fn insert_function(&mut self, location: Location, function: Function) -> Result<()> {
+        self.check_shadow_global(location, function.span)?;
+        self.functions.insert(location, FunctionSymbol { function, finalizer: None });
+        Ok(())
+    }
+
+    /// Insert a global at this location.
+    pub fn insert_global(&mut self, location: Location, var: VariableSymbol) -> Result<()> {
+        self.check_shadow_global(location, var.span)?;
+        self.globals.insert(location, var);
+        Ok(())
+    }
+
+    /// Access the global at this location if it exists.
+    pub fn lookup_global(&self, location: Location) -> Option<&VariableSymbol> {
+        self.globals.get(&location)
+    }
+
+    fn check_shadow_global(&self, location: Location, span: Span) -> Result<()> {
+        if self.functions.contains_key(&location) {
+            Err(AstError::shadowed_function(location.name, span).into())
+        } else if self.records.contains_key(&location) {
+            Err(AstError::shadowed_record(location.name, span).into())
+        } else if self.structs.contains_key(&location.name) {
+            Err(AstError::shadowed_struct(location.name, span).into())
+        } else if self.globals.contains_key(&location) {
+            Err(AstError::shadowed_variable(location.name, span).into())
         } else {
             Ok(())
         }
     }
 
-    /// Returns the current scope index.
-    /// Increments the scope index.
-    pub fn scope_index(&mut self) -> usize {
-        let index = self.scope_index;
-        self.scope_index += 1;
-        index
-    }
+    fn check_shadow_variable(&self, program: Symbol, name: Symbol, span: Span) -> Result<()> {
+        let mut current = self.local.as_ref();
 
-    /// Inserts a function into the symbol table.
-    pub fn insert_fn(&mut self, location: Location, insert: &Function) -> Result<()> {
-        let id = self.scope_index();
-        self.check_shadowing(&location, None, false, insert.span)?;
-        self.functions.insert(location, Self::new_function_symbol(id, insert));
-        self.scopes.push(Default::default());
+        while let Some(table) = current {
+            if table.inner.borrow().variables.contains_key(&name) {
+                return Err(AstError::shadowed_variable(name, span).into());
+            }
+            current = table.inner.borrow().parent.map(|id| self.all_locals.get(&id).expect("Parent should exist."));
+        }
+
+        self.check_shadow_global(Location::new(program, name), span)?;
+
         Ok(())
     }
 
-    /// Inserts a struct into the symbol table.
-    pub fn insert_struct(&mut self, location: Location, insert: &Composite) -> Result<()> {
-        // Check shadowing.
-        self.check_shadowing(&location, None, !insert.is_record, insert.span)?;
+    /// Insert a variable into the current scope.
+    pub fn insert_variable(&mut self, program: Symbol, name: Symbol, var: VariableSymbol) -> Result<()> {
+        self.check_shadow_variable(program, name, var.span)?;
 
-        if insert.is_record {
-            // Insert the record into the symbol table.
-            self.structs.insert(location, insert.clone());
+        if let Some(table) = self.local.as_mut() {
+            table.inner.borrow_mut().variables.insert(name, var);
         } else {
-            if let Some(struct_) = self.structs.get(&Location::new(None, location.name)) {
-                // Allow redefinition of external structs so long as the definitions match.
-                if !self.check_eq_struct(insert, struct_) {
-                    return Err(AstError::redefining_external_struct(location.name, insert.span).into());
-                }
-            }
-            // Insert with program location set to `None` to reflect that in snarkVM structs are not attached to programs (unlike records).
-            self.structs.insert(Location::new(None, location.name), insert.clone());
+            self.globals.insert(Location::new(program, name), var);
         }
 
         Ok(())
     }
 
-    /// Checks if two structs are equal.
-    fn check_eq_struct(&self, new: &Composite, old: &Composite) -> bool {
-        if new.is_record || old.is_record {
-            return false;
-        }
-        if new.members.len() != old.members.len() {
-            return false;
-        }
-        for (member1, member2) in new.members.iter().zip(old.members.iter()) {
-            if member1.name() != member2.name() || !member1.type_.eq_flat_relaxed(&member2.type_) {
-                return false;
-            }
-        }
-        true
-    }
-
-    /// Attach a finalize to a function.
-    pub fn attach_finalize(
+    /// Attach a finalizer to a function.
+    pub fn attach_finalizer(
         &mut self,
         caller: Location,
         callee: Location,
         future_inputs: Vec<Location>,
         inferred_inputs: Vec<Type>,
     ) -> Result<()> {
+        let callee_location = Location::new(callee.program, callee.name);
+
         if let Some(func) = self.functions.get_mut(&caller) {
-            func.finalize = Some(Finalizer { location: callee, future_inputs, inferred_inputs });
+            func.finalizer = Some(Finalizer { location: callee_location, future_inputs, inferred_inputs });
             Ok(())
-        } else if let Some(parent) = self.parent.as_mut() {
-            parent.attach_finalize(caller, callee, future_inputs, inferred_inputs)
         } else {
             Err(AstError::function_not_found(caller.name).into())
         }
     }
-
-    /// Inserts a variable into the symbol table.
-    pub fn insert_variable(
-        &mut self,
-        location: Location,
-        program: Option<Symbol>,
-        insert: VariableSymbol,
-    ) -> Result<()> {
-        self.check_shadowing(&location, program, false, insert.span)?;
-        self.variables.insert(location, insert);
-        Ok(())
-    }
-
-    /// Removes a variable from the symbol table.
-    pub fn remove_variable_from_current_scope(&mut self, location: Location) {
-        self.variables.shift_remove(&location);
-    }
-
-    /// Creates a new scope for the block and stores it in the symbol table.
-    pub fn insert_block(&mut self) -> usize {
-        self.scopes.push(RefCell::new(Default::default()));
-        self.scope_index()
-    }
-
-    /// Attempts to lookup a function in the symbol table.
-    pub fn lookup_fn_symbol(&self, location: Location) -> Option<&FunctionSymbol> {
-        if let Some(func) = self.functions.get(&location) {
-            Some(func)
-        } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_fn_symbol(location)
-        } else {
-            None
-        }
-    }
-
-    /// Attempts to lookup a struct in the symbol table.
-    pub fn lookup_struct(&self, location: Location, main_program: Option<Symbol>) -> Option<&Composite> {
-        if let Some(struct_) = self.structs.get(&location) {
-            return Some(struct_);
-        } else if location.program.is_none() {
-            if let Some(struct_) = self.structs.get(&Location::new(main_program, location.name)) {
-                return Some(struct_);
-            }
-        } else if location.program == main_program {
-            if let Some(struct_) = self.structs.get(&Location::new(None, location.name)) {
-                return Some(struct_);
-            }
-        }
-        if let Some(parent) = self.parent.as_ref() { parent.lookup_struct(location, main_program) } else { None }
-    }
-
-    /// Attempts to lookup a variable in the symbol table.
-    pub fn lookup_variable(&self, location: Location) -> Option<&VariableSymbol> {
-        if let Some(var) = self.variables.get(&location) {
-            Some(var)
-        } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_variable(location)
-        } else {
-            None
-        }
-    }
-
-    /// Attempts to lookup a variable in the current scope.
-    pub fn lookup_variable_in_current_scope(&self, location: Location) -> Option<&VariableSymbol> {
-        self.variables.get(&location)
-    }
-
-    /// Returns the scope associated with `index`, if it exists in the symbol table.
-    pub fn lookup_scope_by_index(&self, index: usize) -> Option<&RefCell<Self>> {
-        self.scopes.get(index)
-    }
-
-    /// Serializes the symbol table into a JSON string.
-    pub fn to_json_string(&self) -> Result<String> {
-        Ok(serde_json::to_string_pretty(&self)
-            .map_err(|e| AstError::failed_to_convert_symbol_table_to_json_string(&e))?)
-    }
-
-    /// Converts the symbol table into a JSON value
-    pub fn to_json_value(&self) -> Result<serde_json::Value> {
-        Ok(serde_json::to_value(self).map_err(|e| AstError::failed_to_convert_symbol_table_to_json_value(&e))?)
-    }
-
-    // Serializes the symbol table into a JSON file.
-    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
-        path.push(file_name);
-        let file =
-            std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_symbol_table_json_file(&path, &e))?;
-        let writer = std::io::BufWriter::new(file);
-        Ok(serde_json::to_writer_pretty(writer, &self)
-            .map_err(|e| AstError::failed_to_write_symbol_table_to_json_file(&path, &e))?)
-    }
-
-    /// Serializes the symbol table into a JSON value and removes keys from object mappings before writing to a file.
-    pub fn to_json_file_without_keys(
-        &self,
-        mut path: std::path::PathBuf,
-        file_name: &str,
-        excluded_keys: &[&str],
-    ) -> Result<()> {
-        path.push(file_name);
-        let file =
-            std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_symbol_table_json_file(&path, &e))?;
-        let writer = std::io::BufWriter::new(file);
-
-        let mut value = self.to_json_value().unwrap();
-        for key in excluded_keys {
-            value = remove_key_from_json(value, key);
-        }
-        value = normalize_json_value(value);
-
-        Ok(serde_json::to_writer_pretty(writer, &value)
-            .map_err(|e| AstError::failed_to_write_symbol_table_to_json_file(&path, &e))?)
-    }
-
-    /// Deserializes the JSON string into a symbol table.
-    pub fn from_json_string(json: &str) -> Result<Self> {
-        let symbol_table: SymbolTable =
-            serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_symbol_table(&e))?;
-        Ok(symbol_table)
-    }
-
-    /// Deserializes the JSON string into a symbol table from a file.
-    pub fn from_json_file(path: std::path::PathBuf) -> Result<Self> {
-        let data = std::fs::read_to_string(&path).map_err(|e| AstError::failed_to_read_json_file(&path, &e))?;
-        Self::from_json_string(&data)
-    }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use leo_ast::{Identifier, Type, Variant};
-    use leo_span::{Symbol, symbol::create_session_if_not_set_then};
-    #[test]
-    fn serialization_test() {
-        create_session_if_not_set_then(|_| {
-            let mut symbol_table = SymbolTable::default();
-            let func_loc = Location::new(Some(Symbol::intern("credits")), Symbol::intern("transfer_public"));
-            let insert = Function {
-                annotations: Vec::new(),
-                id: 0,
-                output_type: Type::Address,
-                variant: Variant::Inline,
-                span: Default::default(),
-                input: Vec::new(),
-                identifier: Identifier::new(Symbol::intern("transfer_public"), Default::default()),
-                output: vec![],
-                block: Default::default(),
-            };
-            symbol_table.insert_fn(func_loc, &insert).unwrap();
-            symbol_table
-                .insert_variable(
-                    Location::new(Some(Symbol::intern("credits")), Symbol::intern("accounts")),
-                    None,
-                    VariableSymbol { type_: Type::Address, span: Default::default(), declaration: VariableType::Const },
-                )
-                .unwrap();
-            symbol_table
-                .insert_struct(Location::new(Some(Symbol::intern("credits")), Symbol::intern("token")), &Composite {
-                    is_record: false,
-                    span: Default::default(),
-                    id: 0,
-                    identifier: Identifier::new(Symbol::intern("token"), Default::default()),
-                    members: Vec::new(),
-                    external: None,
-                })
-                .unwrap();
-            symbol_table
-                .insert_variable(Location::new(None, Symbol::intern("foo")), None, VariableSymbol {
-                    type_: Type::Address,
-                    span: Default::default(),
-                    declaration: VariableType::Const,
-                })
-                .unwrap();
-            let json = symbol_table.to_json_string().unwrap();
-            let deserialized = SymbolTable::from_json_string(&json).unwrap();
-            assert_eq!(symbol_table, deserialized);
-        });
+fn eq_struct(new: &Composite, old: &Composite) -> bool {
+    if new.members.len() != old.members.len() {
+        return false;
     }
+
+    new.members
+        .iter()
+        .zip(old.members.iter())
+        .all(|(member1, member2)| member1.name() == member2.name() && member1.type_.eq_flat_relaxed(&member2.type_))
 }

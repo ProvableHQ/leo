@@ -178,7 +178,7 @@ impl FunctionStub {
                     id: Default::default(),
                     type_: Type::Future(FutureType::new(
                         Vec::new(),
-                        Some(Location::new(Some(program), Identifier::from(function.name()).name)),
+                        Some(Location::new(program, Identifier::from(function.name()).name)),
                         false,
                     )),
                 }],
@@ -278,7 +278,7 @@ impl FunctionStub {
                         FutureFinalizeType(val) => Type::Future(FutureType::new(
                             Vec::new(),
                             Some(Location::new(
-                                Some(Identifier::from(val.program_id().name()).name),
+                                Identifier::from(val.program_id().name()).name,
                                 Symbol::intern(&format!("finalize/{}", val.resource())),
                             )),
                             false,

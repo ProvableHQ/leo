@@ -38,8 +38,8 @@ impl<'a, N: Network> Pass for StaticAnalyzer<'a, N> {
     type Input = (&'a Ast, &'a Handler, &'a SymbolTable, &'a TypeTable, usize, bool);
     type Output = Result<()>;
 
-    fn do_pass((ast, handler, st, tt, max_depth, await_checking): Self::Input) -> Self::Output {
-        let mut visitor = StaticAnalyzer::<N>::new(st, tt, handler, max_depth, await_checking);
+    fn do_pass((ast, handler, symbol_table, tt, max_depth, await_checking): Self::Input) -> Self::Output {
+        let mut visitor = StaticAnalyzer::<N>::new(symbol_table, tt, handler, max_depth, await_checking);
         visitor.visit_program(ast.as_repr());
         handler.last_err().map_err(|e| *e)
     }

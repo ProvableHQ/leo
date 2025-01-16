@@ -88,7 +88,12 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_locator(&mut self, input: &'a LocatorExpression) -> (String, String) {
-        (format!("{input}"), String::new())
+        if input.program.name.name == self.program_id.expect("Locators only appear within programs.").name.name {
+            // This locator refers to the current program, so we only output the name, not the program.
+            (format!("{}", input.name), String::new())
+        } else {
+            (format!("{input}"), String::new())
+        }
     }
 
     fn visit_binary(&mut self, input: &'a BinaryExpression) -> (String, String) {
@@ -518,28 +523,28 @@ impl<'a> CodeGenerator<'a> {
             _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
         };
 
-        // Check if function is external.
-        let main_program = input.program.unwrap();
+        let caller_program = self.program_id.expect("Calls only appear within programs.").name.name;
+        let callee_program = input.program.unwrap_or(caller_program);
+
+        let func_symbol = self
+            .symbol_table
+            .lookup_function(Location::new(callee_program, function_name))
+            .expect("Type checking guarantees functions exist");
+
         // Need to determine the program the function originated from as well as if the function has a finalize block.
-        let mut call_instruction = if main_program != self.program_id.unwrap().name.name {
+        let mut call_instruction = if caller_program != callee_program {
             // All external functions must be defined as stubs.
-            if self.program.stubs.get(&main_program).is_some() {
-                format!("    call {}.aleo/{}", main_program, input.function)
-            } else {
-                unreachable!("Type checking guarantees that imported and stub programs are well defined.")
-            }
+            assert!(
+                self.program.stubs.get(&callee_program).is_some(),
+                "Type checking guarantees that imported and stub programs are present."
+            );
+            format!("    call {}.aleo/{}", callee_program, input.function)
+        } else if func_symbol.function.variant.is_async() {
+            format!("    async {}", self.current_function.unwrap().identifier)
         } else {
-            // Lookup in symbol table to determine if its an async function.
-            if let Some(func) = self.symbol_table.lookup_fn_symbol(Location::new(input.program, function_name)) {
-                if func.variant.is_async() && input.program.unwrap() == self.program_id.unwrap().name.name {
-                    format!("    async {}", self.current_function.unwrap().identifier)
-                } else {
-                    format!("    call {}", input.function)
-                }
-            } else {
-                unreachable!("Type checking guarantees that all functions are well defined.")
-            }
+            format!("    call {}", input.function)
         };
+
         let mut instructions = String::new();
 
         for argument in input.arguments.iter() {
@@ -552,8 +557,7 @@ impl<'a> CodeGenerator<'a> {
         let mut destinations = Vec::new();
 
         // Create operands for the output registers.
-        let func = &self.symbol_table.lookup_fn_symbol(Location::new(Some(main_program), function_name)).unwrap();
-        match func.output_type.clone() {
+        match func_symbol.function.output_type.clone() {
             Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
@@ -573,7 +577,7 @@ impl<'a> CodeGenerator<'a> {
         }
 
         // Add a register for async functions to represent the future created.
-        if func.variant == Variant::AsyncFunction {
+        if func_symbol.function.variant == Variant::AsyncFunction {
             let destination_register = format!("r{}", self.next_register);
             destinations.push(destination_register);
             self.next_register += 1;

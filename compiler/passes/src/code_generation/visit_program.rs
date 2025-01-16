@@ -47,26 +47,17 @@ impl<'a> CodeGenerator<'a> {
         // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
         let order = self.struct_graph.post_order().unwrap();
 
-        // Create a mapping of symbols to references of structs so can perform constant-time lookups.
-        let structs_map: IndexMap<Symbol, &Composite> = self
-            .symbol_table
-            .structs
-            .iter()
-            .filter_map(|(name, struct_)| {
-                // Only include structs and local records.
-                if !(struct_.is_record
-                    && struct_.external.map(|program| program != self.program_id.unwrap().name.name).unwrap_or(false))
-                {
-                    Some((name.name, struct_))
-                } else {
-                    None
-                }
-            })
-            .collect();
+        let this_program = self.program_id.unwrap().name.name;
+
+        let lookup = |name: Symbol| {
+            self.symbol_table
+                .lookup_struct(name)
+                .or_else(|| self.symbol_table.lookup_record(Location::new(this_program, name)))
+        };
 
         // Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         for name in order.into_iter() {
-            if let Some(struct_) = structs_map.get(&name) {
+            if let Some(struct_) = lookup(name) {
                 program_string.push_str(&self.visit_struct_or_record(struct_));
             }
         }
@@ -90,13 +81,10 @@ impl<'a> CodeGenerator<'a> {
                     // Generate code for the associated finalize function.
                     let finalize = &self
                         .symbol_table
-                        .lookup_fn_symbol(Location::new(
-                            Some(self.program_id.unwrap().name.name),
-                            function.identifier.name,
-                        ))
+                        .lookup_function(Location::new(self.program_id.unwrap().name.name, function.identifier.name))
                         .unwrap()
                         .clone()
-                        .finalize
+                        .finalizer
                         .unwrap();
                     // Write the finalize string.
                     function_string.push_str(&self.visit_function_with(
@@ -205,11 +193,10 @@ impl<'a> CodeGenerator<'a> {
                 };
                 // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
                 if matches!(input.type_, Type::Future(_)) {
-                    let location = futures
+                    let location = *futures
                         .next()
-                        .expect("Type checking guarantees we have future locations for each future input")
-                        .clone();
-                    format!("{}.aleo/{}.future", location.program.unwrap(), location.name)
+                        .expect("Type checking guarantees we have future locations for each future input");
+                    format!("{}.aleo/{}.future", location.program, location.name)
                 } else {
                     self.visit_type_with_visibility(&input.type_, visibility)
                 }

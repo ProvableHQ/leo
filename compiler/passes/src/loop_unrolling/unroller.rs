@@ -17,38 +17,26 @@
 use leo_ast::{
     Block,
     Expression,
-    IntegerType,
     IterationStatement,
     Literal,
     NodeBuilder,
+    NodeID,
     Statement,
     StatementReconstructor,
     Type,
     Value,
 };
-use std::cell::RefCell;
 
 use leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
 use leo_span::Symbol;
 
-use crate::{
-    Clusivity,
-    LoopBound,
-    RangeIterator,
-    SymbolTable,
-    TypeTable,
-    constant_propagation_table::ConstantPropagationTable,
-};
+use crate::{Clusivity, LoopBound, RangeIterator, SymbolTable, TypeTable};
 
 pub struct Unroller<'a> {
-    /// A table of constant variables.
-    pub(crate) constant_propagation_table: RefCell<ConstantPropagationTable>,
     /// The symbol table for the function being processed.
-    pub(crate) symbol_table: RefCell<SymbolTable>,
+    pub(crate) symbol_table: SymbolTable,
     /// A mapping from node IDs to their types.
     pub(crate) type_table: &'a TypeTable,
-    /// The index of the current scope.
-    pub(crate) scope_index: usize,
     /// An error handler used for any errors found during unrolling.
     pub(crate) handler: &'a Handler,
     /// A counter used to generate unique node IDs.
@@ -66,52 +54,14 @@ impl<'a> Unroller<'a> {
         handler: &'a Handler,
         node_builder: &'a NodeBuilder,
     ) -> Self {
-        Self {
-            constant_propagation_table: RefCell::new(ConstantPropagationTable::default()),
-            symbol_table: RefCell::new(symbol_table),
-            type_table,
-            scope_index: 0,
-            handler,
-            node_builder,
-            is_unrolling: false,
-            current_program: None,
-        }
+        Self { symbol_table, type_table, handler, node_builder, is_unrolling: false, current_program: None }
     }
 
-    /// Returns the index of the current scope.
-    /// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.
-    pub(crate) fn current_scope_index(&mut self) -> usize {
-        if self.is_unrolling { self.symbol_table.borrow_mut().insert_block() } else { self.scope_index }
-    }
-
-    /// Enters a child scope.
-    pub(crate) fn enter_scope(&mut self, index: usize) -> usize {
-        let previous_symbol_table = std::mem::take(&mut self.symbol_table);
-        self.symbol_table.swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
-        self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
-
-        // Can assume that CPT has not constructed any scoping yet, since have never seen this scope before
-        self.constant_propagation_table.borrow_mut().insert_block();
-
-        // Build CPT recursive scoping structure just like symbol table
-        let previous_constant_propagation_table = std::mem::take(&mut self.constant_propagation_table);
-        self.constant_propagation_table
-            .swap(previous_constant_propagation_table.borrow().lookup_scope_by_index(index).unwrap());
-        self.constant_propagation_table.borrow_mut().parent =
-            Some(Box::new(previous_constant_propagation_table.into_inner()));
-
-        core::mem::replace(&mut self.scope_index, 0)
-    }
-
-    /// Exits the current block scope.
-    pub(crate) fn exit_scope(&mut self, index: usize) {
-        let prev_ct = *self.constant_propagation_table.borrow_mut().parent.take().unwrap();
-        self.constant_propagation_table.swap(prev_ct.lookup_scope_by_index(index).unwrap());
-        self.constant_propagation_table = RefCell::new(prev_ct);
-        let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table.swap(prev_st.lookup_scope_by_index(index).unwrap());
-        self.symbol_table = RefCell::new(prev_st);
-        self.scope_index = index + 1;
+    pub(crate) fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
+        self.symbol_table.enter_scope(Some(id));
+        let result = func(self);
+        self.symbol_table.enter_parent();
+        result
     }
 
     /// Emits a Loop Unrolling Error
@@ -147,121 +97,73 @@ impl<'a> Unroller<'a> {
             Err(s) => return s,
         };
 
-        // Get the index of the current scope.
-        let scope_index = self.current_scope_index();
-
-        // Enter the scope of the loop body.
-        let previous_scope_index = self.enter_scope(scope_index);
-
-        // Clear the symbol table and constant propagation table for the loop body.
-        // This is necessary because loop unrolling transforms the program, which requires reconstructing the tables
-        self.symbol_table.borrow_mut().variables.clear();
-        self.symbol_table.borrow_mut().scopes.clear();
-        self.symbol_table.borrow_mut().scope_index = 0;
+        let new_block_id = self.node_builder.next_id();
 
         // Create a block statement to replace the iteration statement.
-        // Creates a new block per iteration inside the outer block statement.
-        let iter_blocks = Statement::Block(Block {
-            span: input.span,
-            statements: match input.inclusive {
-                true => {
-                    let iter = RangeIterator::new(start, stop, Clusivity::Inclusive);
-                    iter.map(|iteration_count| self.unroll_single_iteration(&input, iteration_count)).collect()
-                }
-                false => {
-                    let iter = RangeIterator::new(start, stop, Clusivity::Exclusive);
-                    iter.map(|iteration_count| self.unroll_single_iteration(&input, iteration_count)).collect()
-                }
-            },
-            id: input.id,
-        });
-
-        // Exit the scope of the loop body.
-        self.exit_scope(previous_scope_index);
-
-        iter_blocks
+        self.in_scope(new_block_id, |slf| {
+            Statement::Block(Block {
+                span: input.span,
+                statements: match input.inclusive {
+                    true => {
+                        let iter = RangeIterator::new(start, stop, Clusivity::Inclusive);
+                        iter.map(|iteration_count| slf.unroll_single_iteration(&input, iteration_count)).collect()
+                    }
+                    false => {
+                        let iter = RangeIterator::new(start, stop, Clusivity::Exclusive);
+                        iter.map(|iteration_count| slf.unroll_single_iteration(&input, iteration_count)).collect()
+                    }
+                },
+                id: new_block_id,
+            })
+        })
     }
 
     /// A helper function to unroll a single iteration an IterationStatement.
     fn unroll_single_iteration<I: LoopBound>(&mut self, input: &IterationStatement, iteration_count: I) -> Statement {
-        // Create a scope for a single unrolling of the `IterationStatement`.
-        let scope_index = self.symbol_table.borrow_mut().insert_block();
-        let previous_scope_index = self.enter_scope(scope_index);
-
-        let prior_is_unrolling = self.is_unrolling;
-        self.is_unrolling = true;
-
         // Construct a new node ID.
-        let id = self.node_builder.next_id();
+        let const_id = self.node_builder.next_id();
         // Update the type table.
-        self.type_table.insert(id, input.type_.clone());
+        self.type_table.insert(const_id, input.type_.clone());
+
+        let block_id = self.node_builder.next_id();
 
         // Reconstruct `iteration_count` as a `Literal`.
-        let value = match input.type_ {
-            Type::Integer(IntegerType::I8) => {
-                Literal::Integer(IntegerType::I8, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::I16) => {
-                Literal::Integer(IntegerType::I16, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::I32) => {
-                Literal::Integer(IntegerType::I32, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::I64) => {
-                Literal::Integer(IntegerType::I64, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::I128) => {
-                Literal::Integer(IntegerType::I128, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::U8) => {
-                Literal::Integer(IntegerType::U8, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::U16) => {
-                Literal::Integer(IntegerType::U16, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::U32) => {
-                Literal::Integer(IntegerType::U32, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::U64) => {
-                Literal::Integer(IntegerType::U64, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::U128) => {
-                Literal::Integer(IntegerType::U128, iteration_count.to_string(), Default::default(), id)
-            }
-            _ => unreachable!(
-                "The iteration variable must be an integer type. This should be enforced by type checking."
-            ),
+        let Type::Integer(integer_type) = &input.type_ else {
+            unreachable!("Type checking enforces that the iteration variable is of integer type");
         };
 
-        // Add the loop variable as a constant for the current scope
-        self.constant_propagation_table
-            .borrow_mut()
-            .insert_constant(input.variable.name, Expression::Literal(value.clone()))
-            .expect("Failed to insert constant into CPT");
+        self.in_scope(block_id, |slf| {
+            let prior_is_unrolling = slf.is_unrolling;
+            slf.is_unrolling = true;
 
-        // Reconstruct the statements in the loop body.
-        let statements: Vec<_> = input
-            .block
-            .statements
-            .clone()
-            .into_iter()
-            .filter_map(|s| {
-                let (reconstructed_statement, additional_output) = self.reconstruct_statement(s);
-                if additional_output {
-                    None // Exclude this statement from the block since it is a constant variable definition
-                } else {
-                    Some(reconstructed_statement)
-                }
-            })
-            .collect();
+            let value = Literal::Integer(*integer_type, iteration_count.to_string(), Default::default(), const_id);
 
-        let block = Statement::Block(Block { statements, span: input.block.span, id: input.block.id });
+            // Add the loop variable as a constant for the current scope
+            slf.symbol_table.insert_const(
+                slf.current_program.unwrap(),
+                input.variable.name,
+                Expression::Literal(value.clone()),
+            );
 
-        self.is_unrolling = prior_is_unrolling;
+            // Reconstruct the statements in the loop body.
+            let statements: Vec<_> = input
+                .block
+                .statements
+                .clone()
+                .into_iter()
+                .filter_map(|s| {
+                    let (reconstructed_statement, additional_output) = slf.reconstruct_statement(s);
+                    if additional_output {
+                        None // Exclude this statement from the block since it is a constant variable definition
+                    } else {
+                        Some(reconstructed_statement)
+                    }
+                })
+                .collect();
 
-        // Exit the scope.
-        self.exit_scope(previous_scope_index);
+            slf.is_unrolling = prior_is_unrolling;
 
-        block
+            Statement::Block(Block { statements, span: input.block.span, id: block_id })
+        })
     }
 }

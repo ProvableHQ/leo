@@ -51,25 +51,23 @@ impl<'a> CodeGenerator<'a> {
     }
 
     pub(crate) fn visit_type_with_visibility(&self, type_: &'a Type, visibility: Mode) -> String {
-        match type_ {
-            // When the type is a record
-            Type::Composite(struct_)
-                if self
-                    .symbol_table
-                    .lookup_struct(Location::from(struct_), self.program_id.map(|p| p.name.name))
-                    .unwrap()
-                    .is_record =>
-            {
-                if struct_.program == self.program_id.map(|p| p.name.name) || struct_.program.is_none() {
-                    format!("{}.record", struct_.id.name)
+        // If the type is a record, handle it separately.
+        if let Type::Composite(composite) = type_ {
+            let this_program_name = self.program_id.unwrap().name.name;
+            let program_name = composite.program.unwrap_or(this_program_name);
+            if self.symbol_table.lookup_record(Location::new(program_name, composite.id.name)).is_some() {
+                if program_name == this_program_name {
+                    return format!("{}.record", composite.id.name);
                 } else {
-                    format!("{}.aleo/{}.record", struct_.program.unwrap(), struct_.id.name)
+                    return format!("{}.aleo/{}.record", program_name, composite.id.name);
                 }
             }
-            _ => match visibility {
-                Mode::None => Self::visit_type(type_),
-                _ => format!("{}.{visibility}", Self::visit_type(type_)),
-            },
+        }
+
+        if let Mode::None = visibility {
+            Self::visit_type(type_)
+        } else {
+            format!("{}.{visibility}", Self::visit_type(type_))
         }
     }
 }

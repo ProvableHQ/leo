@@ -18,9 +18,6 @@ use super::*;
 
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
 pub struct CompileOutput {
-    pub initial_symbol_table: String,
-    pub type_checked_symbol_table: String,
-    pub unrolled_symbol_table: String,
     pub initial_ast: String,
     pub unrolled_ast: String,
     pub ssa_ast: String,

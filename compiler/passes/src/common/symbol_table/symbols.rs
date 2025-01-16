@@ -14,28 +14,55 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Function, Input, Location, Type, Variant};
-use leo_span::Span;
+use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use crate::SymbolTable;
+use leo_ast::{Function, Location, Mode, Type};
+use leo_span::Span;
 
-/// An entry for a function in the symbol table.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+/// An enumeration of the different types of variable type.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum VariableType {
+    Const,
+    Input(Mode),
+    Mut,
+}
+
+impl Display for VariableType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use VariableType::*;
+
+        match self {
+            Const => write!(f, "const var"),
+            Input(m) => write!(f, "{m} input"),
+            Mut => write!(f, "mut var"),
+        }
+    }
+}
+
+/// An entry for a variable in the symbol table.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct VariableSymbol {
+    /// The `Type` of the variable.
+    pub type_: Type,
+    /// The `Span` associated with the variable.
+    pub span: Span,
+    /// The type of declaration for the variable.
+    pub declaration: VariableType,
+}
+
+impl Display for VariableSymbol {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}: {}", self.declaration, self.type_)?;
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct FunctionSymbol {
-    /// The index associated with the scope in the parent symbol table.
-    pub(crate) id: usize,
-    /// The output type of the function.
-    pub(crate) output_type: Type,
-    /// Is this function a transition, inlined, or a regular function?.
-    pub variant: Variant,
-    /// The `Span` associated with the function.
-    pub(crate) _span: Span,
-    /// The inputs to the function.
-    pub(crate) input: Vec<Input>,
-    /// The finalizer associated with this async transition.
-    pub(crate) finalize: Option<Finalizer>,
+    pub function: Function,
+    pub finalizer: Option<Finalizer>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -48,17 +75,4 @@ pub struct Finalizer {
 
     /// The types passed to the async function called by this async transition.
     pub inferred_inputs: Vec<Type>,
-}
-
-impl SymbolTable {
-    pub(crate) fn new_function_symbol(id: usize, func: &Function) -> FunctionSymbol {
-        FunctionSymbol {
-            id,
-            output_type: func.output_type.clone(),
-            variant: func.variant,
-            _span: func.span,
-            input: func.input.clone(),
-            finalize: None,
-        }
-    }
 }

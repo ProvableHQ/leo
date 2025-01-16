@@ -8,7 +8,7 @@ Error [ETYC0372030]: A struct or record cannot contain another record.
      |         ^^^^^
      |
      = Remove the record `Token` from `Foo`.
-Error [ETYC0372058]: Cyclic dependency between structs: `Foo` --> `Token` --> `Foo`
+Error [ETYC0372058]: Cyclic dependency between structs: `Token` --> `Foo` --> `Token`
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |

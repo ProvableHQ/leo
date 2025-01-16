@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Pass"
 outputs = [[{ compile = [
-    { initial_symbol_table = "e4b28ad1bf5801625e3f68ba8fbc14fe73571b65e7c9eed845a549ebbb875d50", type_checked_symbol_table = "987cf718249898b5d9177f4522326d1e4cc6f61fc9d46ece0ed7ad22c5502106", unrolled_symbol_table = "987cf718249898b5d9177f4522326d1e4cc6f61fc9d46ece0ed7ad22c5502106", initial_ast = "dfb2a5dca7b21b4eb06219c8f616cc693862287c2b97f24a23736c56b105db5a", unrolled_ast = "dfb2a5dca7b21b4eb06219c8f616cc693862287c2b97f24a23736c56b105db5a", ssa_ast = "caac3c70ecf19722963866758522241698f40ab7749c8ff62f829387fb331fba", flattened_ast = "f20625031bf75a66d4be965847b9c38b94e51f6d5a63d4a84190e398863ea093", destructured_ast = "649e13977b743f61997f9163a8b580c794affb374dabe26bb5fc6d0b69fe255e", inlined_ast = "9ce711fdf38df420e2988871d7b4ef30540dc188a0e5b2aa7b7d0bbebf882c6b", dce_ast = "9ce711fdf38df420e2988871d7b4ef30540dc188a0e5b2aa7b7d0bbebf882c6b", bytecode = """
+    { initial_ast = "dfb2a5dca7b21b4eb06219c8f616cc693862287c2b97f24a23736c56b105db5a", unrolled_ast = "dfb2a5dca7b21b4eb06219c8f616cc693862287c2b97f24a23736c56b105db5a", ssa_ast = "caac3c70ecf19722963866758522241698f40ab7749c8ff62f829387fb331fba", flattened_ast = "f20625031bf75a66d4be965847b9c38b94e51f6d5a63d4a84190e398863ea093", destructured_ast = "649e13977b743f61997f9163a8b580c794affb374dabe26bb5fc6d0b69fe255e", inlined_ast = "9ce711fdf38df420e2988871d7b4ef30540dc188a0e5b2aa7b7d0bbebf882c6b", dce_ast = "9ce711fdf38df420e2988871d7b4ef30540dc188a0e5b2aa7b7d0bbebf882c6b", bytecode = """
 program parent.aleo;
 
 struct TestStruct:
@@ -17,7 +17,7 @@ finalize init:
     input r0 as TestStruct.public;
     assert.eq 0u32 0u32;
 """, errors = "", warnings = "" },
-    { initial_symbol_table = "ade5e10cbf2e161b593ece0c125a91194e5c8c8119be591bb9a5e42a20d0ad37", type_checked_symbol_table = "5cfed9246d46a427a9dbed1cdbd40b4ea00837d34e94f9e5dea5b135ee2c65a9", unrolled_symbol_table = "5cfed9246d46a427a9dbed1cdbd40b4ea00837d34e94f9e5dea5b135ee2c65a9", initial_ast = "b1348090a951e00cbf76c62d734fa808bfceea5b4169aa6da15a08ff185cbc50", unrolled_ast = "f1c461c8b0f677d0954ff6d29ab29abb648b57c7c141ddaf116a28d837e2b546", ssa_ast = "39e50a1b965cf6d4c19750d75edd4b1a8f8c02c04bbcb361f4fa70cebdc39574", flattened_ast = "a5a1c8def04670f3c5177946811bd27dcae5b045fce181e5e3307d9964686341", destructured_ast = "97153aa38aad12f2695c1e457270bd678add4d96f01f78660a9be0ab8cd409bf", inlined_ast = "97153aa38aad12f2695c1e457270bd678add4d96f01f78660a9be0ab8cd409bf", dce_ast = "97153aa38aad12f2695c1e457270bd678add4d96f01f78660a9be0ab8cd409bf", bytecode = """
+    { initial_ast = "b1348090a951e00cbf76c62d734fa808bfceea5b4169aa6da15a08ff185cbc50", unrolled_ast = "247180b52b593e1e83145ea948686c23c0b32fdda337a60d385ed0e30c6237b5", ssa_ast = "6d5221789e513c2a9f83df24011180c9f55f919260c741ebc94969624a0a66a1", flattened_ast = "609c2c3575c40e6f7bdb376d4b53637d4033b47e6f341ecf60eb3fc8db7e86b2", destructured_ast = "3dbeb25d86e9f4a7016a8ef2a6532fd2f2f1380a4e91e67023610ed8bf30a633", inlined_ast = "3dbeb25d86e9f4a7016a8ef2a6532fd2f2f1380a4e91e67023610ed8bf30a633", dce_ast = "3dbeb25d86e9f4a7016a8ef2a6532fd2f2f1380a4e91e67023610ed8bf30a633", bytecode = """
 import parent.aleo;
 program child.aleo;
 

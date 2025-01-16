@@ -36,14 +36,6 @@ pub struct BuildOptions {
 
 #[derive(Clone, Default)]
 pub struct OutputOptions {
-    //// Whether spans are enabled in the output symbol tables.
-    pub symbol_table_spans_enabled: bool,
-    // If enabled writes the symbol table after symbol table pass
-    pub initial_symbol_table: bool,
-    /// If enabled writes the symbol table after type checking.
-    pub type_checked_symbol_table: bool,
-    /// If enabled writes the symbol table after loop unrolling.
-    pub unrolled_symbol_table: bool,
     /// Whether spans are enabled in the output ASTs.
     pub ast_spans_enabled: bool,
     /// If enabled writes the AST after parsing.

@@ -69,8 +69,8 @@ impl<'a> Pass for Flattener<'a> {
     type Input = (Ast, &'a SymbolTable, &'a TypeTable, &'a NodeBuilder, &'a Assigner);
     type Output = Result<Ast>;
 
-    fn do_pass((ast, st, tt, node_builder, assigner): Self::Input) -> Self::Output {
-        let mut reconstructor = Flattener::new(st, tt, node_builder, assigner);
+    fn do_pass((ast, symbol_table, type_table, node_builder, assigner): Self::Input) -> Self::Output {
+        let mut reconstructor = Flattener::new(symbol_table, type_table, node_builder, assigner);
         let program = reconstructor.reconstruct_program(ast.into_repr());
 
         Ok(Ast::new(program))
