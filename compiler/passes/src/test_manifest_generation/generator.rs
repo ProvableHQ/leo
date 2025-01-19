@@ -18,7 +18,7 @@ use super::*;
 use snarkvm::prelude::{Itertools, PrivateKey};
 use std::str::FromStr;
 
-use leo_ast::{ExpressionVisitor, Function, ProgramId, ProgramScope, StatementVisitor};
+use leo_ast::{ExpressionVisitor, Function, ProgramId, ProgramScope, StatementVisitor, TestManifest, TestMetadata};
 use leo_errors::TestError;
 use leo_span::{Symbol, sym};
 
@@ -36,15 +36,15 @@ impl<'a, N: Network> TestManifestGenerator<'a, N> {
     }
 
     /// Initialize the manifest.
-    pub fn initialize_manifest(&mut self, program_id: ProgramId) {
-        self.manifest = Some(TestManifest { program_id, tests: Vec::new() });
+    pub fn initialize_manifest(&mut self, program_id: &ProgramId) {
+        self.manifest = Some(TestManifest::new(program_id));
     }
 }
 
 impl<'a, N: Network> ProgramVisitor<'a> for TestManifestGenerator<'a, N> {
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
         // Initialize a new manifest.
-        self.initialize_manifest(input.program_id);
+        self.initialize_manifest(&input.program_id);
         // Visit the functions in the program scope.
         input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
     }
@@ -136,7 +136,12 @@ impl<'a, N: Network> ProgramVisitor<'a> for TestManifestGenerator<'a, N> {
         }
 
         // Add the test to the manifest.
-        self.manifest.as_mut().unwrap().add_test(TestMetadata { private_key, seed, should_fail });
+        self.manifest.as_mut().unwrap().add_test(TestMetadata {
+            function_name: input.identifier.to_string(),
+            private_key,
+            seed,
+            should_fail,
+        });
     }
 }
 

@@ -17,12 +17,9 @@
 mod generator;
 pub use generator::TestManifestGenerator;
 
-mod manifest;
-pub use manifest::*;
-
 use crate::Pass;
 
-use leo_ast::{Ast, ProgramVisitor};
+use leo_ast::{Ast, ProgramVisitor, TestManifest};
 use leo_errors::{Result, emitter::Handler};
 
 use snarkvm::prelude::Network;

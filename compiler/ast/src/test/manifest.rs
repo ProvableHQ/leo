@@ -14,23 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
+use crate::ProgramId;
+use snarkvm::prelude::{Network, PrivateKey};
 
-use leo_ast::ProgramId;
-use snarkvm::prelude::PrivateKey;
+use serde::{Deserialize, Serialize};
 
 /// A manifest describing the tests to be run and their associated metadata.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(bound = "")]
 pub struct TestManifest<N: Network> {
     /// The program ID.
-    pub program_id: ProgramId,
+    pub program_id: String,
     /// The tests to be run.
     pub tests: Vec<TestMetadata<N>>,
 }
 
 impl<N: Network> TestManifest<N> {
     /// Create a new test manifest.
-    pub fn new(program_id: ProgramId) -> Self {
-        Self { program_id, tests: Vec::new() }
+    pub fn new(program_id: &ProgramId) -> Self {
+        Self { program_id: program_id.to_string(), tests: Vec::new() }
     }
 
     /// Add a test to the manifest.
@@ -40,7 +42,11 @@ impl<N: Network> TestManifest<N> {
 }
 
 /// Metadata associated with a test.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(bound = "")]
 pub struct TestMetadata<N: Network> {
+    /// The name of the function.
+    pub function_name: String,
     /// The private key to run the test with.
     pub private_key: Option<PrivateKey<N>>,
     /// The seed for the RNG.

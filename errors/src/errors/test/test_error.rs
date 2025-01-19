@@ -64,4 +64,11 @@ create_messages!(
         msg: format!("A test annotation is only allowed on transition functions."),
         help: None,
     }
+
+    @backtraced
+    test_error {
+        args: (error: impl Display),
+        msg: format!("Test Error: {error}"),
+        help: None,
+    }
 );

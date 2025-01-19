@@ -1709,6 +1709,7 @@ dependencies = [
  "num_cpus",
  "rand",
  "rand_chacha",
+ "rayon",
  "rpassword",
  "rusty-hook",
  "self_update 0.41.0",

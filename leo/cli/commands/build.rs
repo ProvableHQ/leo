@@ -293,7 +293,6 @@ fn compile_tests<N: Network>(
 
         // Initialize the test package path.
         let test_package_name = program_id.name().to_string();
-        let program_id = ProgramID::<N>::from_str(&test_package_name)?;
         let test_package_path = test_dir.join(test_package_name);
 
         // Initialize a new package.
@@ -303,6 +302,14 @@ fn compile_tests<N: Network>(
         let main_file_path = test_package_path.join("main.aleo");
         std::fs::write(&main_file_path, output).map_err(|e| {
             CliError::general_cli_error(format!("Failed to write test file '{:?}': {e}", main_file_path))
+        })?;
+
+        // Write the test manifest to `manifest.json` in the test package.
+        let manifest_file_path = test_package_path.join("manifest.json");
+        let manifest_json = serde_json::to_string_pretty(&test_manifest)
+            .map_err(|e| CliError::general_cli_error(format!("Failed to serialize test manifest: {e}")))?;
+        std::fs::write(&manifest_file_path, manifest_json).map_err(|e| {
+            CliError::general_cli_error(format!("Failed to write test manifest '{:?}': {e}", manifest_file_path))
         })?;
     }
     tracing::info!("✅ Compiled tests for '{name}'");

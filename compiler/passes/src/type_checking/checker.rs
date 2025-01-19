@@ -53,15 +53,13 @@ pub struct TypeChecker<'a, N: Network> {
     pub(crate) async_function_callers: IndexMap<Location, IndexSet<Location>>,
     /// The set of used composites.
     pub(crate) used_structs: IndexSet<Symbol>,
-    /// Are we compiling tests?
-    pub(crate) build_tests: bool,
     // Allows the type checker to be generic over the network.
     phantom: PhantomData<N>,
 }
 
 impl<'a, N: Network> TypeChecker<'a, N> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: SymbolTable, type_table: &'a TypeTable, handler: &'a Handler, is_test: bool) -> Self {
+    pub fn new(symbol_table: SymbolTable, type_table: &'a TypeTable, handler: &'a Handler) -> Self {
         let struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
         let function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
 
@@ -76,7 +74,6 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             async_function_input_types: IndexMap::new(),
             async_function_callers: IndexMap::new(),
             used_structs: IndexSet::new(),
-            build_tests: is_test,
             phantom: Default::default(),
         }
     }

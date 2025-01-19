@@ -235,6 +235,9 @@ features = [ "fmt" ]
 [dependencies.crossterm]
 version = "0.28.1"
 
+[dependencies.rayon]
+version = "1.10.0"
+
 [dependencies.rpassword]
 version = "7.3.1"
 
