@@ -296,7 +296,7 @@ fn compile_tests<N: Network>(
         let test_package_path = test_dir.join(test_package_name);
 
         // Initialize a new package.
-        Package::create(&test_package_path, &program_id)?;
+        Package::create(&test_package_path, program_id)?;
 
         // Write the program to the `main.aleo` file in the test package.
         let main_file_path = test_package_path.join("main.aleo");

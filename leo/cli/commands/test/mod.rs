@@ -17,12 +17,15 @@
 mod result;
 use result::*;
 
+mod utilities;
+use utilities::*;
+
 use super::*;
 
 use leo_ast::TestManifest;
 use leo_errors::TestError;
 
-use snarkvm::prelude::{Itertools, Value};
+use snarkvm::prelude::{Itertools, Program, Value, execution_cost_v1, execution_cost_v2};
 
 use rand::{Rng, SeedableRng, rngs::OsRng};
 use rand_chacha::ChaChaRng;
@@ -79,6 +82,7 @@ impl Command for LeoTest {
     }
 }
 
+// TODO (@d0cd) The logic needs a lot of refactoring.
 // A helper function to handle the `test` command.
 fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest as Command>::Output> {
     // Select the number of jobs, defaulting to the number of CPUs.
@@ -98,7 +102,6 @@ fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest a
         .collect_vec();
 
     // For each test package within the tests directory:
-    //  - Open the package as a snarkVM `Package`.
     //  - Open the manifest.
     //  - Initialize the VM.
     //  - Run each test within the manifest sequentially.
@@ -108,12 +111,6 @@ fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest a
             // The default bug message.
             const BUG_MESSAGE: &str =
                 "This is a bug, please file an issue at https://github.com/ProvableHQ/leo/issues/new?template=0_bug.md";
-            // Open the package as a snarkVM `Package`.
-            let package = match snarkvm::package::Package::<A::Network>::open(&path) {
-                Ok(package) => package,
-                Err(e) => return format!("Failed to open test package: {e}. {BUG_MESSAGE}"),
-            };
-
             // Load the `manifest.json` within the test directory.
             let manifest_path = path.join("manifest.json");
             let manifest_json = match std::fs::read_to_string(&manifest_path) {
@@ -125,14 +122,39 @@ fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest a
                 Err(e) => return format!("Failed to parse manifest.json: {e}. {BUG_MESSAGE}"),
             };
 
-            // TODO (@d0cd). Change this to VM initialization.
-            // Initialize the process.
-            let process = match package.get_process() {
-                Ok(process) => process,
-                Err(e) => return format!("Failed to get process: {e}. {BUG_MESSAGE}"),
+            // Get the programs in the package in the following order:
+            //  - If the `imports` directory exists, load the programs from the `imports` directory.
+            //  - Load the main program from the package.
+            let mut program_paths = Vec::new();
+            let imports_directory = path.join("imports");
+            if let Ok(dir) = std::fs::read_dir(&imports_directory) {
+                if let Ok(paths) =
+                    dir.map(|dir_entry| dir_entry.map(|dir_entry| dir_entry.path())).collect::<Result<Vec<_>, _>>()
+                {
+                    program_paths.extend(paths);
+                }
             };
+            program_paths.push(path.join("main.aleo"));
 
-            println!("3");
+            // Read and parse the programs.
+            let mut programs = Vec::with_capacity(program_paths.len());
+            for path in program_paths {
+                let program_string = match std::fs::read_to_string(&path) {
+                    Ok(program_string) => program_string,
+                    Err(e) => return format!("Failed to read program: {e}. {BUG_MESSAGE}"),
+                };
+                let program = match Program::<A::Network>::from_str(&program_string) {
+                    Ok(program) => program,
+                    Err(e) => return format!("Failed to parse program: {e}. {BUG_MESSAGE}"),
+                };
+                programs.push(program);
+            }
+
+            // Initialize the VM.
+            let (vm, genesis_private_key) = match initialize_vm(programs) {
+                Ok((vm, genesis_private_key)) => (vm, genesis_private_key),
+                Err(e) => return format!("Failed to initialize VM: {e}. {BUG_MESSAGE}"),
+            };
 
             // Initialize the results object.
             let mut results = TestResults::new(manifest.program_id.clone());
@@ -177,7 +199,7 @@ fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest a
 
                 // Execute the function.
                 let inputs: Vec<Value<A::Network>> = Vec::new();
-                let authorization = match process.authorize::<A, _>(
+                let authorization = match vm.process().read().authorize::<A, _>(
                     &private_key,
                     &manifest.program_id,
                     &test.function_name,
@@ -190,14 +212,83 @@ fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest a
                         continue;
                     }
                 };
-                let result = process.execute::<A, _>(authorization, rng);
+                let Transaction::Execute(_, execution, _) =
+                    (match vm.execute_authorization(authorization, None, None, rng) {
+                        Ok(transaction) => transaction,
+                        Err(e) => {
+                            // TODO (@d0cd) A failure here may not be a bug.
+                            results.add_result(test_name, format!("Failed to execute: {e}. {BUG_MESSAGE}"));
+                            continue;
+                        }
+                    })
+                else {
+                    unreachable!("VM::execute_authorization always produces an execution")
+                };
+                let block_height = vm.block_store().current_block_height();
+                let result = match block_height < A::Network::CONSENSUS_V2_HEIGHT {
+                    true => execution_cost_v1(&vm.process().read(), &execution),
+                    false => execution_cost_v2(&vm.process().read(), &execution),
+                };
+                let base_fee_in_microcredits = match result {
+                    Ok((total, _)) => total,
+                    Err(e) => {
+                        results.add_result(test_name, format!("Failed to get execution cost: {e}. {BUG_MESSAGE}"));
+                        continue;
+                    }
+                };
+                let execution_id = match execution.to_execution_id() {
+                    Ok(execution_id) => execution_id,
+                    Err(e) => {
+                        results.add_result(test_name, format!("Failed to get execution ID: {e}. {BUG_MESSAGE}"));
+                        continue;
+                    }
+                };
+                let fee_authorization =
+                    match vm.authorize_fee_public(&genesis_private_key, base_fee_in_microcredits, 0, execution_id, rng)
+                    {
+                        Ok(fee_authorization) => fee_authorization,
+                        Err(e) => {
+                            results.add_result(test_name, format!("Failed to authorize fee: {e}. {BUG_MESSAGE}"));
+                            continue;
+                        }
+                    };
+                let fee = match vm.execute_fee_authorization(fee_authorization, None, rng) {
+                    Ok(transaction) => transaction,
+                    Err(e) => {
+                        results
+                            .add_result(test_name, format!("Failed to execute fee authorization: {e}. {BUG_MESSAGE}"));
+                        continue;
+                    }
+                };
+                let transaction = match Transaction::from_execution(execution, Some(fee)) {
+                    Ok(transaction) => transaction,
+                    Err(e) => {
+                        results.add_result(test_name, format!("Failed to construct transaction: {e}. {BUG_MESSAGE}"));
+                        continue;
+                    }
+                };
+                let is_verified = vm.check_transaction(&transaction, None, rng).is_ok();
+                let (block, is_accepted) = match construct_next_block(&vm, &genesis_private_key, transaction, rng) {
+                    Ok(block) => block,
+                    Err(e) => {
+                        results.add_result(test_name, format!("Failed to create block: {e}. {BUG_MESSAGE}"));
+                        continue;
+                    }
+                };
+
+                if let Err(e) = vm.add_next_block(&block) {
+                    results.add_result(test_name, format!("Failed to add block: {e}. {BUG_MESSAGE}"));
+                    continue;
+                }
 
                 // Construct the result.
-                match (result, should_fail) {
-                    (Ok(_), true) => results.add_result(test_name, "❌ Test should have failed".to_string()),
-                    (Err(e), false) => results.add_result(test_name, format!("❌ Test failed: {e}")),
-                    (Ok(_), false) => results.add_result(test_name, "✅ Test succeeded".to_string()),
-                    (Err(e), true) => results.add_result(test_name, format!("✅ Test failed as expected: {e}")),
+                match (is_verified & is_accepted, should_fail) {
+                    (true, true) => results.add_result(test_name, "❌ Test passed but should have failed".to_string()),
+                    (false, false) => {
+                        results.add_result(test_name, "❌ Test failed but should have passed".to_string())
+                    }
+                    (true, false) => results.add_result(test_name, "✅ Test passed as expected".to_string()),
+                    (false, true) => results.add_result(test_name, "✅ Test failed as expected".to_string()),
                 }
             }
 
