@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+mod result;
+use result::*;
+
 use super::*;
 
 use leo_ast::TestManifest;
@@ -36,14 +39,6 @@ pub struct LeoTest {
     no_fail_fast: bool,
     #[clap(short, long, help = "Number of parallel jobs, defaults to the number of CPUs.")]
     jobs: Option<usize>,
-    #[clap(long, help = "Skip running the native tests.", default_value = "false")]
-    skip_native: bool,
-    // TODO: The default should eventually be `false`.
-    #[clap(long, help = "Skip running the interpreted tests.", default_value = "true")]
-    skip_interpreted: bool,
-    // TODO: The default should eventually be `false`.
-    #[clap(long, help = "Skip running the end-to-end tests.", default_value = "true")]
-    skip_end_to_end: bool,
     #[clap(flatten)]
     compiler_options: BuildOptions,
 }
@@ -91,48 +86,70 @@ fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest a
     let jobs = command.jobs.unwrap_or(num_cpus);
 
     // Initialize the Rayon thread pool.
-    ThreadPoolBuilder::new().num_threads(jobs).build_global().map_err(TestError::test_error)?;
+    ThreadPoolBuilder::new().num_threads(jobs).build_global().map_err(TestError::default_error)?;
 
     // Get the individual test directories within the build directory at `<PACKAGE_PATH>/build/tests`
     let package_path = context.dir()?;
     let build_directory = BuildDirectory::open(&package_path)?;
     let tests_directory = build_directory.join("tests");
     let test_directories = std::fs::read_dir(tests_directory)
-        .map_err(TestError::test_error)?
-        .into_iter()
+        .map_err(TestError::default_error)?
         .flat_map(|dir_entry| dir_entry.map(|dir_entry| dir_entry.path()))
         .collect_vec();
-
-    println!("Running tests...");
-    println!("Test directories: {:?}", test_directories);
 
     // For each test package within the tests directory:
     //  - Open the package as a snarkVM `Package`.
     //  - Open the manifest.
     //  - Initialize the VM.
     //  - Run each test within the manifest sequentially.
-    let errors: Vec<_> = test_directories
+    let results: Vec<_> = test_directories
         .into_par_iter()
-        .map(|path| -> Result<<LeoTest as Command>::Output> {
+        .map(|path| -> String {
+            // The default bug message.
+            const BUG_MESSAGE: &str =
+                "This is a bug, please file an issue at https://github.com/ProvableHQ/leo/issues/new?template=0_bug.md";
             // Open the package as a snarkVM `Package`.
-            let package = snarkvm::package::Package::<A::Network>::open(&path).map_err(TestError::test_error)?;
+            let package = match snarkvm::package::Package::<A::Network>::open(&path) {
+                Ok(package) => package,
+                Err(e) => return format!("Failed to open test package: {e}. {BUG_MESSAGE}"),
+            };
 
             // Load the `manifest.json` within the test directory.
             let manifest_path = path.join("manifest.json");
-            let manifest_json = std::fs::read_to_string(&manifest_path).map_err(TestError::test_error)?;
-            let manifest: TestManifest<A::Network> =
-                serde_json::from_str(&manifest_json).map_err(TestError::test_error)?;
+            let manifest_json = match std::fs::read_to_string(&manifest_path) {
+                Ok(manifest_json) => manifest_json,
+                Err(e) => return format!("Failed to read manifest.json: {e}. {BUG_MESSAGE}"),
+            };
+            let manifest: TestManifest<A::Network> = match serde_json::from_str(&manifest_json) {
+                Ok(manifest) => manifest,
+                Err(e) => return format!("Failed to parse manifest.json: {e}. {BUG_MESSAGE}"),
+            };
 
             // TODO (@d0cd). Change this to VM initialization.
             // Initialize the process.
-            let process = package.get_process()?;
+            let process = match package.get_process() {
+                Ok(process) => process,
+                Err(e) => return format!("Failed to get process: {e}. {BUG_MESSAGE}"),
+            };
 
-            // TODO (@d0cd). Handle this correctly.
-            // Initialize a vector to aggregate the results.
-            // let results = Vec::with_capacity(manifest.tests.len());
+            println!("3");
+
+            // Initialize the results object.
+            let mut results = TestResults::new(manifest.program_id.clone());
 
             // Run each test within the manifest.
             for test in manifest.tests {
+                // Get the full test name.
+                let test_name = format!("{}/{}", manifest.program_id, test.function_name);
+
+                // If a filter is specified, skip the test if it does not contain the filter.
+                if let Some(filter) = &command.filter {
+                    if !test_name.contains(filter) {
+                        results.skip(test_name);
+                        continue;
+                    }
+                }
+
                 // Get the seed if specified, otherwise use a random seed.
                 let seed = match test.seed {
                     Some(seed) => seed,
@@ -145,7 +162,14 @@ fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest a
                 // Use the private key if provided, otherwise initialize one using the RNG.
                 let private_key = match test.private_key {
                     Some(private_key) => private_key,
-                    None => PrivateKey::new(rng)?,
+                    None => match PrivateKey::new(rng) {
+                        Ok(private_key) => private_key,
+                        Err(e) => {
+                            results
+                                .add_result(test_name, format!("Failed to generate private key: {e}. {BUG_MESSAGE}"));
+                            continue;
+                        }
+                    },
                 };
 
                 // Determine whether or not the function should fail.
@@ -153,26 +177,39 @@ fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest a
 
                 // Execute the function.
                 let inputs: Vec<Value<A::Network>> = Vec::new();
-                let authorization = process.authorize::<A, _>(
+                let authorization = match process.authorize::<A, _>(
                     &private_key,
                     &manifest.program_id,
                     &test.function_name,
                     inputs.iter(),
                     rng,
-                )?;
+                ) {
+                    Ok(authorization) => authorization,
+                    Err(e) => {
+                        results.add_result(test_name, format!("Failed to authorize: {e}. {BUG_MESSAGE}"));
+                        continue;
+                    }
+                };
                 let result = process.execute::<A, _>(authorization, rng);
 
                 // Construct the result.
-                // TODO (@d0cd) Pipe result output.
-                match result {
-                    Ok(_) => println!("Test passed!"),
-                    Err(e) => println!("Test failed: {e}"),
+                match (result, should_fail) {
+                    (Ok(_), true) => results.add_result(test_name, "❌ Test should have failed".to_string()),
+                    (Err(e), false) => results.add_result(test_name, format!("❌ Test failed: {e}")),
+                    (Ok(_), false) => results.add_result(test_name, "✅ Test succeeded".to_string()),
+                    (Err(e), true) => results.add_result(test_name, format!("✅ Test failed as expected: {e}")),
                 }
             }
 
-            Ok(())
+            // Return the results as a string.
+            results.to_string()
         })
         .collect();
+
+    // Print the results.
+    for result in results {
+        println!("{result}");
+    }
 
     Ok(())
 }

@@ -66,7 +66,7 @@ create_messages!(
     }
 
     @backtraced
-    test_error {
+    default_error {
         args: (error: impl Display),
         msg: format!("Test Error: {error}"),
         help: None,
