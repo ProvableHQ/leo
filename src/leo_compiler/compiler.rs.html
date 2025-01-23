@@ -370,30 +370,7 @@
 <a href="#369" id="369">369</a>
 <a href="#370" id="370">370</a>
 <a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-<a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
-<a href="#375" id="375">375</a>
-<a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
-<a href="#382" id="382">382</a>
-<a href="#383" id="383">383</a>
-<a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
-<a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
-<a href="#392" id="392">392</a>
-<a href="#393" id="393">393</a>
-<a href="#394" id="394">394</a>
-<a href="#395" id="395">395</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#372" id="372">372</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -418,7 +395,6 @@
 <span class="kw">pub use </span>leo_ast::Ast;
 <span class="kw">use </span>leo_ast::{NodeBuilder, Program, Stub};
 <span class="kw">use </span>leo_errors::{CompilerError, <span class="prelude-ty">Result</span>, emitter::Handler};
-<span class="kw">pub use </span>leo_passes::SymbolTable;
 <span class="kw">use </span>leo_passes::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_span::{Symbol, source_map::FileName, symbol::with_session_globals};
 
@@ -542,19 +518,17 @@
     <span class="doccomment">/// Runs the symbol table pass.
     </span><span class="kw">pub fn </span>symbol_table_pass(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SymbolTable&gt; {
         <span class="kw">let </span>symbol_table = SymbolTableCreator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler))<span class="question-mark">?</span>;
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.initial_symbol_table {
-            <span class="self">self</span>.write_symbol_table_to_json(<span class="string">"initial_symbol_table.json"</span>, <span class="kw-2">&amp;</span>symbol_table)<span class="question-mark">?</span>;
-        }
         <span class="prelude-val">Ok</span>(symbol_table)
     }
 
     <span class="doccomment">/// Runs the type checker pass.
     </span><span class="kw">pub fn </span>type_checker_pass(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, symbol_table: SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, StructGraph, CallGraph)&gt; {
         <span class="kw">let </span>(symbol_table, struct_graph, call_graph) =
-            TypeChecker::&lt;N&gt;::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler, symbol_table, <span class="kw-2">&amp;</span><span class="self">self</span>.type_table))<span class="question-mark">?</span>;
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.type_checked_symbol_table {
-            <span class="self">self</span>.write_symbol_table_to_json(<span class="string">"type_checked_symbol_table.json"</span>, <span class="kw-2">&amp;</span>symbol_table)<span class="question-mark">?</span>;
-        }
+            TypeChecker::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler, symbol_table, <span class="kw-2">&amp;</span><span class="self">self</span>.type_table, NetworkLimits {
+                max_array_elements: N::MAX_ARRAY_ELEMENTS,
+                max_mappings: N::MAX_MAPPINGS,
+                max_functions: N::MAX_FUNCTIONS,
+            }))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>((symbol_table, struct_graph, call_graph))
     }
 
@@ -583,10 +557,6 @@
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.unrolled_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">"unrolled_ast.json"</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.unrolled_symbol_table {
-            <span class="self">self</span>.write_symbol_table_to_json(<span class="string">"unrolled_symbol_table.json"</span>, <span class="kw-2">&amp;</span>symbol_table)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(symbol_table)
@@ -727,22 +697,6 @@
             <span class="self">self</span>.ast.to_json_file(<span class="self">self</span>.output_directory.clone(), <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}.{file_suffix}"</span>, <span class="self">self</span>.program_name))<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
             <span class="self">self</span>.ast.to_json_file_without_keys(
-                <span class="self">self</span>.output_directory.clone(),
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}.{file_suffix}"</span>, <span class="self">self</span>.program_name),
-                <span class="kw-2">&amp;</span>[<span class="string">"_span"</span>, <span class="string">"span"</span>],
-            )<span class="question-mark">?</span>;
-        }
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Writes the Symbol Table to a JSON file.
-    </span><span class="kw">fn </span>write_symbol_table_to_json(<span class="kw-2">&amp;</span><span class="self">self</span>, file_suffix: <span class="kw-2">&amp;</span>str, symbol_table: <span class="kw-2">&amp;</span>SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="comment">// Remove `Span`s if they are not enabled.
-        </span><span class="kw">if </span><span class="self">self</span>.compiler_options.output.symbol_table_spans_enabled {
-            symbol_table
-                .to_json_file(<span class="self">self</span>.output_directory.clone(), <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}.{file_suffix}"</span>, <span class="self">self</span>.program_name))<span class="question-mark">?</span>;
-        } <span class="kw">else </span>{
-            symbol_table.to_json_file_without_keys(
                 <span class="self">self</span>.output_directory.clone(),
                 <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}.{file_suffix}"</span>, <span class="self">self</span>.program_name),
                 <span class="kw-2">&amp;</span>[<span class="string">"_span"</span>, <span class="string">"span"</span>],

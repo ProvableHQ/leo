@@ -398,7 +398,9 @@
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -653,9 +655,11 @@
         <span class="comment">// Reorder the members to match that of the struct definition.
 
         // Lookup the struct definition.
-        // Note that type checking guarantees that the correct struct definition exists.
-        </span><span class="kw">let </span>struct_definition: <span class="kw-2">&amp;</span>Composite =
-            <span class="self">self</span>.symbol_table.lookup_struct(Location::new(<span class="self">self</span>.program, input.name.name), <span class="self">self</span>.program).unwrap();
+        </span><span class="kw">let </span>struct_definition: <span class="kw-2">&amp;</span>Composite = <span class="self">self
+            </span>.symbol_table
+            .lookup_record(Location::new(<span class="self">self</span>.program.unwrap(), input.name.name))
+            .or_else(|| <span class="self">self</span>.symbol_table.lookup_struct(input.name.name))
+            .expect(<span class="string">"Type checking guarantees this definition exists."</span>);
 
         <span class="comment">// Initialize the list of reordered members.
         </span><span class="kw">let </span><span class="kw-2">mut </span>reordered_members = Vec::with_capacity(members.len());

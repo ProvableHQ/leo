@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["TypeChecker"]};
+window.SIDEBAR_ITEMS = {"struct":["NetworkLimits","TypeChecker"]};

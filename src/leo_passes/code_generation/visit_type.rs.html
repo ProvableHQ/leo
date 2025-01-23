@@ -71,9 +71,7 @@
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#73" id="73">73</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -126,25 +124,23 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_type_with_visibility(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Type, visibility: Mode) -&gt; String {
-        <span class="kw">match </span>type_ {
-            <span class="comment">// When the type is a record
-            </span>Type::Composite(struct_)
-                <span class="kw">if </span><span class="self">self
-                    </span>.symbol_table
-                    .lookup_struct(Location::from(struct_), <span class="self">self</span>.program_id.map(|p| p.name.name))
-                    .unwrap()
-                    .is_record =&gt;
-            {
-                <span class="kw">if </span>struct_.program == <span class="self">self</span>.program_id.map(|p| p.name.name) || struct_.program.is_none() {
-                    <span class="macro">format!</span>(<span class="string">"{}.record"</span>, struct_.id.name)
+        <span class="comment">// If the type is a record, handle it separately.
+        </span><span class="kw">if let </span>Type::Composite(composite) = type_ {
+            <span class="kw">let </span>this_program_name = <span class="self">self</span>.program_id.unwrap().name.name;
+            <span class="kw">let </span>program_name = composite.program.unwrap_or(this_program_name);
+            <span class="kw">if </span><span class="self">self</span>.symbol_table.lookup_record(Location::new(program_name, composite.id.name)).is_some() {
+                <span class="kw">if </span>program_name == this_program_name {
+                    <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{}.record"</span>, composite.id.name);
                 } <span class="kw">else </span>{
-                    <span class="macro">format!</span>(<span class="string">"{}.aleo/{}.record"</span>, struct_.program.unwrap(), struct_.id.name)
+                    <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{}.aleo/{}.record"</span>, program_name, composite.id.name);
                 }
             }
-            <span class="kw">_ </span>=&gt; <span class="kw">match </span>visibility {
-                Mode::None =&gt; <span class="self">Self</span>::visit_type(type_),
-                <span class="kw">_ </span>=&gt; <span class="macro">format!</span>(<span class="string">"{}.{visibility}"</span>, <span class="self">Self</span>::visit_type(type_)),
-            },
+        }
+
+        <span class="kw">if let </span>Mode::None = visibility {
+            <span class="self">Self</span>::visit_type(type_)
+        } <span class="kw">else </span>{
+            <span class="macro">format!</span>(<span class="string">"{}.{visibility}"</span>, <span class="self">Self</span>::visit_type(type_))
         }
     }
 }

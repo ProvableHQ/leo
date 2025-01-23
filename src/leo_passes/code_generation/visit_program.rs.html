@@ -258,20 +258,7 @@
 <a href="#257" id="257">257</a>
 <a href="#258" id="258">258</a>
 <a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#260" id="260">260</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -320,26 +307,17 @@
         // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
         </span><span class="kw">let </span>order = <span class="self">self</span>.struct_graph.post_order().unwrap();
 
-        <span class="comment">// Create a mapping of symbols to references of structs so can perform constant-time lookups.
-        </span><span class="kw">let </span>structs_map: IndexMap&lt;Symbol, <span class="kw-2">&amp;</span>Composite&gt; = <span class="self">self
-            </span>.symbol_table
-            .structs
-            .iter()
-            .filter_map(|(name, struct_)| {
-                <span class="comment">// Only include structs and local records.
-                </span><span class="kw">if </span>!(struct_.is_record
-                    &amp;&amp; struct_.external.map(|program| program != <span class="self">self</span>.program_id.unwrap().name.name).unwrap_or(<span class="bool-val">false</span>))
-                {
-                    <span class="prelude-val">Some</span>((name.name, struct_))
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">None
-                </span>}
-            })
-            .collect();
+        <span class="kw">let </span>this_program = <span class="self">self</span>.program_id.unwrap().name.name;
+
+        <span class="kw">let </span>lookup = |name: Symbol| {
+            <span class="self">self</span>.symbol_table
+                .lookup_struct(name)
+                .or_else(|| <span class="self">self</span>.symbol_table.lookup_record(Location::new(this_program, name)))
+        };
 
         <span class="comment">// Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         </span><span class="kw">for </span>name <span class="kw">in </span>order.into_iter() {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = structs_map.get(<span class="kw-2">&amp;</span>name) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = lookup(name) {
                 program_string.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.visit_struct_or_record(struct_));
             }
         }
@@ -363,13 +341,10 @@
                     <span class="comment">// Generate code for the associated finalize function.
                     </span><span class="kw">let </span>finalize = <span class="kw-2">&amp;</span><span class="self">self
                         </span>.symbol_table
-                        .lookup_fn_symbol(Location::new(
-                            <span class="prelude-val">Some</span>(<span class="self">self</span>.program_id.unwrap().name.name),
-                            function.identifier.name,
-                        ))
+                        .lookup_function(Location::new(<span class="self">self</span>.program_id.unwrap().name.name, function.identifier.name))
                         .unwrap()
                         .clone()
-                        .finalize
+                        .finalizer
                         .unwrap();
                     <span class="comment">// Write the finalize string.
                     </span>function_string.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.visit_function_with(
@@ -478,11 +453,10 @@
                 };
                 <span class="comment">// Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
                 </span><span class="kw">if </span><span class="macro">matches!</span>(input.type_, Type::Future(<span class="kw">_</span>)) {
-                    <span class="kw">let </span>location = futures
+                    <span class="kw">let </span>location = <span class="kw-2">*</span>futures
                         .next()
-                        .expect(<span class="string">"Type checking guarantees we have future locations for each future input"</span>)
-                        .clone();
-                    <span class="macro">format!</span>(<span class="string">"{}.aleo/{}.future"</span>, location.program.unwrap(), location.name)
+                        .expect(<span class="string">"Type checking guarantees we have future locations for each future input"</span>);
+                    <span class="macro">format!</span>(<span class="string">"{}.aleo/{}.future"</span>, location.program, location.name)
                 } <span class="kw">else </span>{
                     <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility)
                 }

@@ -1011,7 +1011,8 @@
 <a href="#1010" id="1010">1010</a>
 <a href="#1011" id="1011">1011</a>
 <a href="#1012" id="1012">1012</a>
-<a href="#1013" id="1013">1013</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1033,11 +1034,9 @@
 <span class="kw">use </span>leo_errors::{TypeCheckerError, emitter::Handler};
 <span class="kw">use </span>leo_span::{Span, Symbol, sym};
 
-<span class="kw">use </span>snarkvm::console::network::Network;
+<span class="kw">use </span>itertools::Itertools <span class="kw">as _</span>;
 
-<span class="kw">use </span>itertools::Itertools;
-
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; ExpressionVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>, N&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ExpressionVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>AdditionalInput = <span class="prelude-ty">Option</span>&lt;Type&gt;;
     <span class="kw">type </span>Output = Type;
 
@@ -1218,12 +1217,15 @@
                     },
                     <span class="kw">_ </span>=&gt; {
                         <span class="comment">// Check that the type of `inner` in `inner.name` is a struct.
-                        </span><span class="kw">match </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>access.inner, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
+                        </span><span class="kw">let </span>ty = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>access.inner, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                        <span class="kw">match </span>ty {
                             Type::Err =&gt; Type::Err,
                             Type::Composite(struct_) =&gt; {
                                 <span class="comment">// Retrieve the struct definition associated with `identifier`.
-                                </span><span class="kw">let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name) <span class="kw">else </span>{
-                                    <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(<span class="kw-2">&amp;</span>access.inner, access.inner.span()));
+                                </span><span class="kw">let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self
+                                    </span>.lookup_struct(struct_.program.or(<span class="self">self</span>.scope_state.program_name), struct_.id.name)
+                                <span class="kw">else </span>{
+                                    <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(ty, access.inner.span()));
                                     <span class="kw">return </span>Type::Err;
                                 };
                                 <span class="comment">// Check that `access.name` is a member of the struct.
@@ -1278,8 +1280,12 @@
 
         <span class="kw">let </span>element_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.elements[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 
-        <span class="kw">if </span>input.elements.len() &gt; N::MAX_ARRAY_ELEMENTS {
-            <span class="self">self</span>.emit_err(TypeCheckerError::array_too_large(input.elements.len(), N::MAX_ARRAY_ELEMENTS, input.span()));
+        <span class="kw">if </span>input.elements.len() &gt; <span class="self">self</span>.limits.max_array_elements {
+            <span class="self">self</span>.emit_err(TypeCheckerError::array_too_large(
+                input.elements.len(),
+                <span class="self">self</span>.limits.max_array_elements,
+                input.span(),
+            ));
         }
 
         <span class="kw">if </span>element_type == Type::Err {
@@ -1530,12 +1536,15 @@
         </span><span class="kw">let </span>Expression::Identifier(ident) = <span class="kw-2">&amp;*</span>input.function <span class="kw">else </span>{
             <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>);
         };
-        <span class="kw">let </span>func = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(Location::new(input.program, ident.name)).cloned();
 
-        <span class="kw">let </span><span class="prelude-val">Some</span>(func) = func <span class="kw">else </span>{
+        <span class="kw">let </span>callee_program = input.program.or(<span class="self">self</span>.scope_state.program_name).unwrap();
+
+        <span class="kw">let </span><span class="prelude-val">Some</span>(func_symbol) = <span class="self">self</span>.symbol_table.lookup_function(Location::new(callee_program, ident.name)) <span class="kw">else </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"function"</span>, ident.name, ident.span()));
             <span class="kw">return </span>Type::Err;
         };
+
+        <span class="kw">let </span>func = func_symbol.function.clone();
 
         <span class="comment">// Check that the call is valid.
         // We always set the variant before entering the body of a function, so this unwrap works.
@@ -1561,7 +1570,7 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="kw">if </span>func.variant == Variant::AsyncFunction {
             <span class="comment">// Type check after resolving the input types.
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(Type::Future(<span class="kw">_</span>)) = expected {
-                Type::Future(FutureType::new(Vec::new(), <span class="prelude-val">Some</span>(Location::new(input.program, ident.name)), <span class="bool-val">false</span>))
+                Type::Future(FutureType::new(Vec::new(), <span class="prelude-val">Some</span>(Location::new(callee_program, ident.name)), <span class="bool-val">false</span>))
             } <span class="kw">else </span>{
                 <span class="self">self</span>.emit_err(TypeCheckerError::return_type_of_finalize_function_is_future(input.span));
                 Type::Unit
@@ -1570,18 +1579,18 @@
             <span class="comment">// Fully infer future type.
             </span><span class="kw">let </span><span class="prelude-val">Some</span>(inputs) = <span class="self">self
                 </span>.async_function_input_types
-                .get(<span class="kw-2">&amp;</span>Location::new(input.program, Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"finalize/{}"</span>, ident.name))))
+                .get(<span class="kw-2">&amp;</span>Location::new(callee_program, Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"finalize/{}"</span>, ident.name))))
             <span class="kw">else </span>{
                 <span class="self">self</span>.emit_err(TypeCheckerError::async_function_not_found(ident.name, input.span));
                 <span class="kw">return </span>Type::Future(FutureType::new(
                     Vec::new(),
-                    <span class="prelude-val">Some</span>(Location::new(input.program, ident.name)),
+                    <span class="prelude-val">Some</span>(Location::new(callee_program, ident.name)),
                     <span class="bool-val">false</span>,
                 ));
             };
 
             <span class="kw">let </span>future_type =
-                Type::Future(FutureType::new(inputs.clone(), <span class="prelude-val">Some</span>(Location::new(input.program, ident.name)), <span class="bool-val">true</span>));
+                Type::Future(FutureType::new(inputs.clone(), <span class="prelude-val">Some</span>(Location::new(callee_program, ident.name)), <span class="bool-val">true</span>));
             <span class="kw">let </span>fully_inferred_type = <span class="kw">match </span><span class="kw-2">&amp;</span>func.output_type {
                 Type::Tuple(tup) =&gt; Type::Tuple(TupleType::new(
                     tup.elements()
@@ -1629,7 +1638,7 @@
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = option_name {
                     <span class="kw">match </span><span class="self">self</span>.scope_state.futures.shift_remove(<span class="kw-2">&amp;</span>name) {
                         <span class="prelude-val">Some</span>(future) =&gt; {
-                            <span class="self">self</span>.scope_state.call_location = <span class="prelude-val">Some</span>(future.clone());
+                            <span class="self">self</span>.scope_state.call_location = <span class="prelude-val">Some</span>(future);
                         }
                         <span class="prelude-val">None </span>=&gt; {
                             <span class="self">self</span>.emit_err(TypeCheckerError::unknown_future_consumed(name, argument.span()));
@@ -1641,7 +1650,7 @@
                     Expression::Identifier(<span class="kw">_</span>)
                     | Expression::Call(<span class="kw">_</span>)
                     | Expression::Access(AccessExpression::Tuple(<span class="kw">_</span>)) =&gt; {
-                        <span class="kw">match </span><span class="self">self</span>.scope_state.call_location.clone() {
+                        <span class="kw">match </span><span class="self">self</span>.scope_state.call_location {
                             <span class="prelude-val">Some</span>(location) =&gt; {
                                 <span class="comment">// Get the external program and function name.
                                 </span>input_futures.push(location);
@@ -1700,24 +1709,21 @@
             <span class="comment">// Check that all futures consumed.
             </span><span class="kw">if </span>!<span class="self">self</span>.scope_state.futures.is_empty() {
                 <span class="self">self</span>.emit_err(TypeCheckerError::not_all_futures_consumed(
-                    <span class="self">self</span>.scope_state.futures.iter().map(|(f, <span class="kw">_</span>)| f.to_string()).join(<span class="string">", "</span>),
+                    <span class="self">self</span>.scope_state.futures.iter().map(|(f, <span class="kw">_</span>)| f).join(<span class="string">", "</span>),
                     input.span,
                 ));
             }
-            <span class="comment">// Add future locations to symbol table. Unwrap safe since insert function into symbol table during previous pass.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>st = <span class="self">self</span>.symbol_table.borrow_mut();
-            <span class="comment">// Link async transition to the async function that finalizes it.
-            </span>st.attach_finalize(
-                <span class="self">self</span>.scope_state.location(),
-                Location::new(<span class="self">self</span>.scope_state.program_name, ident.name),
-                input_futures,
-                inferred_finalize_inputs.clone(),
-            )
-            .expect(<span class="string">"Failed to attach finalize"</span>);
-            drop(st);
+            <span class="self">self</span>.symbol_table
+                .attach_finalizer(
+                    Location::new(callee_program, caller_name),
+                    Location::new(callee_program, ident.name),
+                    input_futures,
+                    inferred_finalize_inputs.clone(),
+                )
+                .expect(<span class="string">"Failed to attach finalizer"</span>);
             <span class="comment">// Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
             </span><span class="self">self</span>.async_function_callers
-                .entry(Location::new(<span class="self">self</span>.scope_state.program_name, ident.name))
+                .entry(Location::new(<span class="self">self</span>.scope_state.program_name.unwrap(), ident.name))
                 .or_default()
                 .insert(<span class="self">self</span>.scope_state.location());
 
@@ -1727,7 +1733,7 @@
             <span class="comment">// Update ret to reflect fully inferred future type.
             </span>ret = Type::Future(FutureType::new(
                 inferred_finalize_inputs,
-                <span class="prelude-val">Some</span>(Location::new(input.program, ident.name)),
+                <span class="prelude-val">Some</span>(Location::new(callee_program, ident.name)),
                 <span class="bool-val">true</span>,
             ));
 
@@ -1736,7 +1742,7 @@
         }
 
         <span class="comment">// Set call location so that definition statement knows where future comes from.
-        </span><span class="self">self</span>.scope_state.call_location = <span class="prelude-val">Some</span>(Location::new(input.program, ident.name));
+        </span><span class="self">self</span>.scope_state.call_location = <span class="prelude-val">Some</span>(Location::new(callee_program, ident.name));
 
         ret
     }
@@ -1809,8 +1815,8 @@
     }
 
     <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span>var = <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">None</span>, input.name)).cloned();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="kw-2">&amp;</span>var {
+        <span class="kw">let </span>var = <span class="self">self</span>.symbol_table.lookup_variable(<span class="self">self</span>.scope_state.program_name.unwrap(), input.name);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = var {
             <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>var.type_, expected, input.span());
             var.type_.clone()
         } <span class="kw">else </span>{
@@ -1885,11 +1891,7 @@
     }
 
     <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocatorExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span>maybe_var = <span class="self">self
-            </span>.symbol_table
-            .borrow()
-            .lookup_variable(Location::new(<span class="prelude-val">Some</span>(input.program.name.name), input.name))
-            .cloned();
+        <span class="kw">let </span>maybe_var = <span class="self">self</span>.symbol_table.lookup_global(Location::new(input.program.name.name, input.name)).cloned();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = maybe_var {
             <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>var.type_, expected, input.span());
             var.type_
@@ -2021,7 +2023,7 @@
     }
 
     <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="macro">unreachable!</span>(<span class="string">"Unit expressions should not exist in normal code"</span>);
+        Type::Unit
     }
 }
 </code></pre></div></section></main></body></html>

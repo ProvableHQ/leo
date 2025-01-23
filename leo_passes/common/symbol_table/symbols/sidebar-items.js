@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["VariableType"],"struct":["Finalizer","FunctionSymbol","VariableSymbol"]};

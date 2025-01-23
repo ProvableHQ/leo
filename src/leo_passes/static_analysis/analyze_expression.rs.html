@@ -65,7 +65,11 @@
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -107,28 +111,32 @@
     }
 
     <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CallExpression, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">match </span><span class="kw-2">&amp;*</span>input.function {
-            <span class="comment">// Note that the parser guarantees that `input.function` is always an identifier.
-            </span>Expression::Identifier(ident) =&gt; {
-                <span class="comment">// If the function call is an external async transition, then for all async calls that follow a non-async call,
-                // we must check that the async call is not an async function that takes a future as an argument.
-                </span><span class="kw">if </span><span class="self">self</span>.non_async_external_call_seen
-                    &amp;&amp; <span class="self">self</span>.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition)
-                    &amp;&amp; input.program.is_some()
-                {
-                    <span class="comment">// Note that this unwrap is safe since we check that `input.program` is `Some` above.
-                    </span><span class="self">self</span>.assert_simple_async_transition_call(input.program.unwrap(), ident.name, input.span());
-                }
-                <span class="comment">// Otherwise look up the function and check if it is a non-async call.
-                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(function_symbol) =
-                    <span class="self">self</span>.symbol_table.lookup_fn_symbol(Location::new(input.program, ident.name))
-                {
-                    <span class="kw">if </span>function_symbol.variant == Variant::Transition {
-                        <span class="self">self</span>.non_async_external_call_seen = <span class="bool-val">true</span>;
-                    }
-                }
-            }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>),
+        <span class="kw">let </span>Expression::Identifier(ident) = <span class="kw-2">&amp;*</span>input.function <span class="kw">else </span>{
+            <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>);
+        };
+
+        <span class="kw">let </span>caller_program = <span class="self">self</span>.current_program.unwrap();
+        <span class="kw">let </span>callee_program = input.program.unwrap_or(caller_program);
+
+        <span class="comment">// If the function call is an external async transition, then for all async calls that follow a non-async call,
+        // we must check that the async call is not an async function that takes a future as an argument.
+        </span><span class="kw">if </span><span class="self">self</span>.non_async_external_call_seen
+            &amp;&amp; <span class="self">self</span>.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition)
+            &amp;&amp; callee_program != caller_program
+        {
+            <span class="self">self</span>.assert_simple_async_transition_call(callee_program, ident.name, input.span());
+        }
+
+        <span class="comment">// Look up the function and check if it is a non-async call.
+        </span><span class="kw">let </span>function_program = input.program.unwrap_or(<span class="self">self</span>.current_program.unwrap());
+
+        <span class="kw">let </span>func_symbol = <span class="self">self
+            </span>.symbol_table
+            .lookup_function(Location::new(function_program, ident.name))
+            .expect(<span class="string">"Type checking guarantees functions exist."</span>);
+
+        <span class="kw">if </span>func_symbol.function.variant == Variant::Transition {
+            <span class="self">self</span>.non_async_external_call_seen = <span class="bool-val">true</span>;
         }
     }
 }

@@ -1212,7 +1212,39 @@
 <a href="#1211" id="1211">1211</a>
 <a href="#1212" id="1212">1212</a>
 <a href="#1213" id="1213">1213</a>
-<a href="#1214" id="1214">1214</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#1214" id="1214">1214</a>
+<a href="#1215" id="1215">1215</a>
+<a href="#1216" id="1216">1216</a>
+<a href="#1217" id="1217">1217</a>
+<a href="#1218" id="1218">1218</a>
+<a href="#1219" id="1219">1219</a>
+<a href="#1220" id="1220">1220</a>
+<a href="#1221" id="1221">1221</a>
+<a href="#1222" id="1222">1222</a>
+<a href="#1223" id="1223">1223</a>
+<a href="#1224" id="1224">1224</a>
+<a href="#1225" id="1225">1225</a>
+<a href="#1226" id="1226">1226</a>
+<a href="#1227" id="1227">1227</a>
+<a href="#1228" id="1228">1228</a>
+<a href="#1229" id="1229">1229</a>
+<a href="#1230" id="1230">1230</a>
+<a href="#1231" id="1231">1231</a>
+<a href="#1232" id="1232">1232</a>
+<a href="#1233" id="1233">1233</a>
+<a href="#1234" id="1234">1234</a>
+<a href="#1235" id="1235">1235</a>
+<a href="#1236" id="1236">1236</a>
+<a href="#1237" id="1237">1237</a>
+<a href="#1238" id="1238">1238</a>
+<a href="#1239" id="1239">1239</a>
+<a href="#1240" id="1240">1240</a>
+<a href="#1241" id="1241">1241</a>
+<a href="#1242" id="1242">1242</a>
+<a href="#1243" id="1243">1243</a>
+<a href="#1244" id="1244">1244</a>
+<a href="#1245" id="1245">1245</a>
+<a href="#1246" id="1246">1246</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1242,15 +1274,19 @@
 <span class="kw">use </span>leo_errors::{TypeCheckerError, TypeCheckerWarning, emitter::Handler};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use </span>snarkvm::console::network::Network;
-
 <span class="kw">use </span>indexmap::{IndexMap, IndexSet};
 <span class="kw">use </span>itertools::Itertools;
-<span class="kw">use </span>std::{cell::RefCell, marker::PhantomData, ops::Deref};
+<span class="kw">use </span>std::ops::Deref;
 
-<span class="kw">pub struct </span>TypeChecker&lt;<span class="lifetime">'a</span>, N: Network&gt; {
+<span class="kw">pub struct </span>NetworkLimits {
+    <span class="kw">pub </span>max_array_elements: usize,
+    <span class="kw">pub </span>max_mappings: usize,
+    <span class="kw">pub </span>max_functions: usize,
+}
+
+<span class="kw">pub struct </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The symbol table for the program.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: RefCell&lt;SymbolTable&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: SymbolTable,
     <span class="doccomment">/// A mapping from node IDs to their types.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
     <span class="doccomment">/// A dependency graph of the structs in program.
@@ -1267,19 +1303,30 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) async_function_callers: IndexMap&lt;Location, IndexSet&lt;Location&gt;&gt;,
     <span class="doccomment">/// The set of used composites.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) used_structs: IndexSet&lt;Symbol&gt;,
-    <span class="comment">// Allows the type checker to be generic over the network.
-    </span>phantom: PhantomData&lt;N&gt;,
+    <span class="doccomment">/// So we can check if we exceed limits on array size, number of mappings, or number of functions.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) limits: NetworkLimits,
+    <span class="doccomment">/// For detecting the error `TypeCheckerError::async_cannot_assign_outside_conditional`.
+    </span>conditional_scopes: Vec&lt;IndexSet&lt;Symbol&gt;&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; TypeChecker&lt;<span class="lifetime">'a</span>, N&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a new type checker given a symbol table and error handler.
-    </span><span class="kw">pub fn </span>new(symbol_table: SymbolTable, type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable, handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
-        <span class="kw">let </span>function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
+    </span><span class="kw">pub fn </span>new(
+        symbol_table: SymbolTable,
+        type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
+        handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
+        limits: NetworkLimits,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>struct_names = symbol_table
+            .iter_records()
+            .map(|(loc, <span class="kw">_</span>)| loc.name)
+            .chain(symbol_table.iter_structs().map(|(name, <span class="kw">_</span>)| name))
+            .collect();
+        <span class="kw">let </span>function_names = symbol_table.iter_functions().map(|(loc, <span class="kw">_</span>)| loc.name).collect();
 
         <span class="comment">// Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
         </span><span class="self">Self </span>{
-            symbol_table: RefCell::new(symbol_table),
+            symbol_table,
             type_table,
             struct_graph: StructGraph::new(struct_names),
             call_graph: CallGraph::new(function_names),
@@ -1288,32 +1335,31 @@
             async_function_input_types: IndexMap::new(),
             async_function_callers: IndexMap::new(),
             used_structs: IndexSet::new(),
-            phantom: Default::default(),
+            conditional_scopes: Vec::new(),
+            limits,
         }
     }
 
-    <span class="doccomment">/// Enters a child scope.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>enter_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) {
-        <span class="kw">let </span>previous_symbol_table = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.symbol_table);
-        <span class="self">self</span>.symbol_table.swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
-        <span class="self">self</span>.symbol_table.borrow_mut().parent = <span class="prelude-val">Some</span>(Box::new(previous_symbol_table.into_inner()));
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>in_scope&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID, func: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
+        <span class="self">self</span>.symbol_table.enter_scope(<span class="prelude-val">Some</span>(id));
+        <span class="kw">let </span>result = func(<span class="self">self</span>);
+        <span class="self">self</span>.symbol_table.enter_parent();
+        result
     }
 
-    <span class="doccomment">/// Creates a new child scope.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>create_child_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; usize {
-        <span class="comment">// Creates a new child scope.
-        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.symbol_table.borrow_mut().insert_block();
-        <span class="comment">// Enter the new scope.
-        </span><span class="self">self</span>.enter_scope(scope_index);
-        <span class="comment">// Return the index of the new scope.
-        </span>scope_index
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>in_conditional_scope&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, func: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
+        <span class="self">self</span>.conditional_scopes.push(Default::default());
+        <span class="kw">let </span>result = func(<span class="self">self</span>);
+        <span class="self">self</span>.conditional_scopes.pop();
+        result
     }
 
-    <span class="doccomment">/// Exits the current scope.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>exit_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) {
-        <span class="kw">let </span>previous_symbol_table = <span class="kw-2">*</span><span class="self">self</span>.symbol_table.borrow_mut().parent.take().unwrap();
-        <span class="self">self</span>.symbol_table.swap(previous_symbol_table.lookup_scope_by_index(index).unwrap());
-        <span class="self">self</span>.symbol_table = RefCell::new(previous_symbol_table);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>insert_symbol_conditional_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol: Symbol) {
+        <span class="self">self</span>.conditional_scopes.last_mut().expect(<span class="string">"A conditional scope must be present."</span>).insert(symbol);
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>symbol_in_conditional_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol: Symbol) -&gt; bool {
+        <span class="self">self</span>.conditional_scopes.last().map(|set| set.contains(<span class="kw-2">&amp;</span>symbol)).unwrap_or(<span class="bool-val">false</span>)
     }
 
     <span class="doccomment">/// Emits a type checker error.
@@ -2059,7 +2105,9 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_member_is_not_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span, parent: Symbol, type_: <span class="kw-2">&amp;</span>Type) {
         <span class="kw">match </span>type_ {
             Type::Composite(struct_)
-                <span class="kw">if </span><span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).map_or(<span class="bool-val">false</span>, |struct_| struct_.is_record) =&gt;
+                <span class="kw">if </span><span class="self">self
+                    </span>.lookup_struct(struct_.program.or(<span class="self">self</span>.scope_state.program_name), struct_.id.name)
+                    .map_or(<span class="bool-val">false</span>, |struct_| struct_.is_record) =&gt;
             {
                 <span class="self">self</span>.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
             }
@@ -2084,7 +2132,9 @@
                 <span class="self">self</span>.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             <span class="comment">// Check that the named composite type has been defined.
-            </span>Type::Composite(struct_) <span class="kw">if </span><span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).is_none() =&gt; {
+            </span>Type::Composite(struct_)
+                <span class="kw">if </span><span class="self">self</span>.lookup_struct(struct_.program.or(<span class="self">self</span>.scope_state.program_name), struct_.id.name).is_none() =&gt;
+            {
                 <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
             }
             <span class="comment">// Check that the constituent types of the tuple are valid.
@@ -2104,8 +2154,12 @@
                 </span><span class="kw">match </span>array_type.length() {
                     <span class="number">0 </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::array_empty(span)),
                     length =&gt; {
-                        <span class="kw">if </span>length &gt; N::MAX_ARRAY_ELEMENTS {
-                            <span class="self">self</span>.emit_err(TypeCheckerError::array_too_large(length, N::MAX_ARRAY_ELEMENTS, span))
+                        <span class="kw">if </span>length &gt; <span class="self">self</span>.limits.max_array_elements {
+                            <span class="self">self</span>.emit_err(TypeCheckerError::array_too_large(
+                                length,
+                                <span class="self">self</span>.limits.max_array_elements,
+                                span,
+                            ))
                         }
                     }
                 }
@@ -2118,7 +2172,9 @@
                     <span class="comment">// Array elements cannot be records.
                     </span>Type::Composite(struct_type) =&gt; {
                         <span class="comment">// Look up the type.
-                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.lookup_struct(struct_type.program, struct_type.id.name) {
+                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self
+                            </span>.lookup_struct(struct_type.program.or(<span class="self">self</span>.scope_state.program_name), struct_type.id.name)
+                        {
                             <span class="comment">// Check that the type is not a record.
                             </span><span class="kw">if </span>struct_.is_record {
                                 <span class="self">self</span>.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
@@ -2147,7 +2203,7 @@
     }
 
     <span class="doccomment">/// Helper function to check that the input and output of function are valid
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_function_signature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span>Function) {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_function_signature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span>Function, is_stub: bool) {
         <span class="self">self</span>.scope_state.variant = <span class="prelude-val">Some</span>(function.variant);
 
         <span class="kw">let </span><span class="kw-2">mut </span>inferred_inputs: Vec&lt;Type&gt; = Vec::new();
@@ -2158,18 +2214,19 @@
                 <span class="self">self</span>.emit_err(TypeCheckerError::async_function_cannot_return_value(function.span()));
             }
 
-            <span class="kw">let </span>st = <span class="self">self</span>.symbol_table.borrow();
-
             <span class="comment">// Iterator over the `finalize` member (type Finalizer) of each async transition that calls
             // this async function.
             </span><span class="kw">let </span><span class="kw-2">mut </span>caller_finalizers = <span class="self">self
                 </span>.async_function_callers
-                .get(<span class="kw-2">&amp;</span>Location::new(<span class="self">self</span>.scope_state.program_name, function.identifier.name))
+                .get(<span class="kw-2">&amp;</span>Location::new(<span class="self">self</span>.scope_state.program_name.unwrap(), function.identifier.name))
                 .map(|callers| {
                     callers
                         .iter()
-                        .flat_map(|caller| st.lookup_fn_symbol(caller.clone()))
-                        .flat_map(|fn_symbol| fn_symbol.finalize.clone())
+                        .flat_map(|caller| {
+                            <span class="kw">let </span>caller = Location::new(caller.program, caller.name);
+                            <span class="self">self</span>.symbol_table.lookup_function(caller)
+                        })
+                        .flat_map(|fn_symbol| fn_symbol.finalizer.clone())
                 })
                 .into_iter()
                 .flatten();
@@ -2209,7 +2266,9 @@
             </span><span class="kw">if let </span>Type::Composite(struct_) = table_type {
                 <span class="comment">// Throw error for undefined type.
                 </span><span class="kw">if </span>!function.variant.is_transition() {
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(elem) = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name) {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(elem) =
+                        <span class="self">self</span>.lookup_struct(struct_.program.or(<span class="self">self</span>.scope_state.program_name), struct_.id.name)
+                    {
                         <span class="kw">if </span>elem.is_record {
                             <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
                         }
@@ -2243,21 +2302,23 @@
                 }
             }
 
-            <span class="comment">// Add the input to the symbol table.
-            </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-                Location::new(<span class="prelude-val">None</span>, input.identifier().name),
-                <span class="self">self</span>.scope_state.program_name,
-                VariableSymbol {
-                    type_: table_type.clone(),
-                    span: input.identifier.span(),
-                    declaration: VariableType::Input(input.mode()),
-                },
-            ) {
-                <span class="self">self</span>.handler.emit_err(err);
-            }
+            <span class="kw">if </span>!is_stub {
+                <span class="comment">// Add the input to the symbol table.
+                </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_variable(
+                    <span class="self">self</span>.scope_state.program_name.unwrap(),
+                    input.identifier().name,
+                    VariableSymbol {
+                        type_: table_type.clone(),
+                        span: input.identifier.span(),
+                        declaration: VariableType::Input(input.mode()),
+                    },
+                ) {
+                    <span class="self">self</span>.handler.emit_err(err);
+                }
 
-            <span class="comment">// Add the input to the type table.
-            </span><span class="self">self</span>.type_table.insert(input.identifier().id(), table_type.clone());
+                <span class="comment">// Add the input to the type table.
+                </span><span class="self">self</span>.type_table.insert(input.identifier().id(), table_type.clone());
+            }
         }
 
         <span class="comment">// Type check the function's return type.
@@ -2266,7 +2327,9 @@
             <span class="comment">// If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
             </span><span class="kw">if let </span>Type::Composite(struct_) = function_output.type_.clone() {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(val) =
+                    <span class="self">self</span>.lookup_struct(struct_.program.or(<span class="self">self</span>.scope_state.program_name), struct_.id.name)
+                {
                     <span class="kw">if </span>val.is_record &amp;&amp; !function.variant.is_transition() {
                         <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
                     }
@@ -2372,20 +2435,19 @@
 
     <span class="doccomment">/// Wrapper around lookup_struct that additionally records all structs that are used in the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>lookup_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;, name: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;Composite&gt; {
-        <span class="kw">let </span>struct_ = <span class="self">self
-            </span>.symbol_table
-            .borrow()
-            .lookup_struct(Location::new(program, name), <span class="self">self</span>.scope_state.program_name)
-            .cloned();
+        <span class="kw">let </span>record_comp = program.and_then(|prog| <span class="self">self</span>.symbol_table.lookup_record(Location::new(prog, name)));
+        <span class="kw">let </span>comp = record_comp.or_else(|| <span class="self">self</span>.symbol_table.lookup_struct(name));
         <span class="comment">// Record the usage.
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = <span class="kw-2">&amp;</span>struct_ {
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = comp {
             <span class="self">self</span>.used_structs.insert(s.identifier.name);
         }
-        struct_
+        comp.cloned()
     }
 
     <span class="doccomment">/// Inserts variable to symbol table.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>insert_variable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, inferred_type: <span class="prelude-ty">Option</span>&lt;Type&gt;, name: <span class="kw-2">&amp;</span>Identifier, type_: Type, span: Span) {
+        <span class="self">self</span>.insert_symbol_conditional_scope(name.name);
+
         <span class="kw">let </span>is_future = <span class="kw">match </span><span class="kw-2">&amp;</span>type_ {
             Type::Future(..) =&gt; <span class="bool-val">true</span>,
             Type::Tuple(tuple_type) <span class="kw">if </span><span class="macro">matches!</span>(tuple_type.elements().last(), <span class="prelude-val">Some</span>(Type::Future(..))) =&gt; <span class="bool-val">true</span>,
@@ -2395,7 +2457,7 @@
         <span class="kw">if </span>is_future {
             <span class="comment">// It can happen that the call location has not been set if there was an error
             // in the call that produced the Future.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(call_location) = <span class="self">self</span>.scope_state.call_location.clone() {
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(call_location) = <span class="self">self</span>.scope_state.call_location {
                 <span class="self">self</span>.scope_state.futures.insert(name.name, call_location);
             }
         }
@@ -2407,11 +2469,13 @@
         };
 
         <span class="comment">// Insert the variable into the symbol table.
-        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-            Location::new(<span class="prelude-val">None</span>, name.name),
-            <span class="self">self</span>.scope_state.program_name,
-            VariableSymbol { type_: ty, span, declaration: VariableType::Mut },
-        ) {
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+            <span class="self">self</span>.symbol_table.insert_variable(<span class="self">self</span>.scope_state.program_name.unwrap(), name.name, VariableSymbol {
+                type_: ty.clone(),
+                span,
+                declaration: VariableType::Mut,
+            })
+        {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }

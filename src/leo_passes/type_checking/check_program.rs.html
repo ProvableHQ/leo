@@ -323,37 +323,7 @@
 <a href="#322" id="322">322</a>
 <a href="#323" id="323">323</a>
 <a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
-<a href="#330" id="330">330</a>
-<a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#325" id="325">325</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -375,13 +345,11 @@
 <span class="kw">use </span>leo_errors::TypeCheckerError;
 <span class="kw">use </span>leo_span::sym;
 
-<span class="kw">use </span>snarkvm::console::network::Network;
-
 <span class="kw">use </span>std::collections::HashSet;
 
 <span class="comment">// TODO: Cleanup logic for tuples.
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; ProgramVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>, N&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ProgramVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Program) {
         <span class="comment">// Typecheck the program's stubs.
         </span>input.stubs.iter().for_each(|(symbol, stub)| {
@@ -424,9 +392,9 @@
         }
 
         <span class="comment">// Check that the number of mappings does not exceed the maximum.
-        </span><span class="kw">if </span>mapping_count &gt; N::MAX_MAPPINGS {
+        </span><span class="kw">if </span>mapping_count &gt; <span class="self">self</span>.limits.max_mappings {
             <span class="self">self</span>.emit_err(TypeCheckerError::too_many_mappings(
-                N::MAX_MAPPINGS,
+                <span class="self">self</span>.limits.max_mappings,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -447,9 +415,9 @@
 
         <span class="comment">// TODO: Need similar checks for structs (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
-        </span><span class="kw">if </span>transition_count &gt; N::MAX_FUNCTIONS {
+        </span><span class="kw">if </span>transition_count &gt; <span class="self">self</span>.limits.max_functions {
             <span class="self">self</span>.emit_err(TypeCheckerError::too_many_transitions(
-                N::MAX_FUNCTIONS,
+                <span class="self">self</span>.limits.max_functions,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -560,10 +528,14 @@
             Type::Future(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"future"</span>, input.span)),
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"tuple"</span>, input.span)),
             Type::Composite(struct_type) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.lookup_struct(struct_type.program, struct_type.id.name) {
-                    <span class="kw">if </span>struct_.is_record {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(comp) =
+                    <span class="self">self</span>.lookup_struct(struct_type.program.or(<span class="self">self</span>.scope_state.program_name), struct_type.id.name)
+                {
+                    <span class="kw">if </span>comp.is_record {
                         <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"record"</span>, input.span));
                     }
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(<span class="kw-2">&amp;</span>input.key_type, input.span));
                 }
             }
             <span class="comment">// Note that this is not possible since the parser does not currently accept mapping types.
@@ -578,10 +550,14 @@
             Type::Future(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"future"</span>, input.span)),
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"tuple"</span>, input.span)),
             Type::Composite(struct_type) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.lookup_struct(struct_type.program, struct_type.id.name) {
-                    <span class="kw">if </span>struct_.is_record {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(comp) =
+                    <span class="self">self</span>.lookup_struct(struct_type.program.or(<span class="self">self</span>.scope_state.program_name), struct_type.id.name)
+                {
+                    <span class="kw">if </span>comp.is_record {
                         <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"record"</span>, input.span));
                     }
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(<span class="kw-2">&amp;</span>input.key_type, input.span));
                 }
             }
             <span class="comment">// Note that this is not possible since the parser does not currently accept mapping types.
@@ -601,46 +577,31 @@
         <span class="comment">// Set type checker variables for function variant details.
         </span><span class="self">self</span>.scope_state.initialize_function_state(function.variant);
 
-        <span class="comment">// Lookup function metadata in the symbol table.
-        // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        </span><span class="kw">let </span>function_index = <span class="self">self
-            </span>.symbol_table
-            .borrow()
-            .lookup_fn_symbol(Location::new(<span class="self">self</span>.scope_state.program_name, function.identifier.name))
-            .unwrap()
-            .id;
+        <span class="self">self</span>.in_conditional_scope(|slf| {
+            slf.in_scope(function.id, |slf| {
+                function.input.iter().for_each(|input| slf.insert_symbol_conditional_scope(input.identifier.name));
 
-        <span class="comment">// Enter the function's scope.
-        </span><span class="self">self</span>.enter_scope(function_index);
+                <span class="comment">// The function's body does not have a return statement.
+                </span>slf.scope_state.has_return = <span class="bool-val">false</span>;
 
-        <span class="comment">// The function's body does not have a return statement.
-        </span><span class="self">self</span>.scope_state.has_return = <span class="bool-val">false</span>;
+                <span class="comment">// Store the name of the function.
+                </span>slf.scope_state.function = <span class="prelude-val">Some</span>(function.name());
 
-        <span class="comment">// Store the name of the function.
-        </span><span class="self">self</span>.scope_state.function = <span class="prelude-val">Some</span>(function.name());
+                <span class="comment">// Query helper function to type check function parameters and outputs.
+                </span>slf.check_function_signature(function, <span class="bool-val">false</span>);
 
-        <span class="comment">// Create a new child scope for the function's parameters and body.
-        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
+                <span class="kw">if </span>function.variant == Variant::Function &amp;&amp; function.input.is_empty() {
+                    slf.emit_err(TypeCheckerError::empty_function_arglist(function.span));
+                }
 
-        <span class="comment">// Query helper function to type check function parameters and outputs.
-        </span><span class="self">self</span>.check_function_signature(function);
+                slf.visit_block(<span class="kw-2">&amp;</span>function.block);
 
-        <span class="kw">if </span>function.variant == Variant::Function &amp;&amp; function.input.is_empty() {
-            <span class="self">self</span>.emit_err(TypeCheckerError::empty_function_arglist(function.span));
-        }
-
-        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>function.block);
-
-        <span class="comment">// If the function has a return type, then check that it has a return.
-        </span><span class="kw">if </span>function.output_type != Type::Unit &amp;&amp; !<span class="self">self</span>.scope_state.has_return {
-            <span class="self">self</span>.emit_err(TypeCheckerError::missing_return(function.span));
-        }
-
-        <span class="comment">// Exit the scope for the function's parameters and body.
-        </span><span class="self">self</span>.exit_scope(scope_index);
-
-        <span class="comment">// Exit the function's scope.
-        </span><span class="self">self</span>.exit_scope(function_index);
+                <span class="comment">// If the function has a return type, then check that it has a return.
+                </span><span class="kw">if </span>function.output_type != Type::Unit &amp;&amp; !slf.scope_state.has_return {
+                    slf.emit_err(TypeCheckerError::missing_return(function.span));
+                }
+            })
+        });
 
         <span class="comment">// Make sure that async transitions call finalize.
         </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; !<span class="self">self</span>.scope_state.has_called_finalize {
@@ -654,21 +615,6 @@
             <span class="self">self</span>.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
         }
 
-        <span class="comment">// Lookup function metadata in the symbol table.
-        // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        </span><span class="kw">let </span>function_index = <span class="self">self
-            </span>.symbol_table
-            .borrow()
-            .lookup_fn_symbol(Location::new(<span class="self">self</span>.scope_state.program_name, input.identifier.name))
-            .unwrap()
-            .id;
-
-        <span class="comment">// Enter the function's scope.
-        </span><span class="self">self</span>.enter_scope(function_index);
-
-        <span class="comment">// Create a new child scope for the function's parameters and body.
-        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
-
         <span class="comment">// Create future stubs.
         </span><span class="kw">if </span>input.variant == Variant::AsyncFunction {
             <span class="kw">let </span>finalize_input_map = <span class="kw-2">&amp;mut </span><span class="self">self</span>.async_function_input_types;
@@ -681,7 +627,7 @@
                             <span class="comment">// Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
                             </span>Type::Future(FutureType::new(
                                 finalize_input_map.get(f.location.as_ref().unwrap()).unwrap().clone(),
-                                f.location.clone(),
+                                f.location,
                                 <span class="bool-val">true</span>,
                             ))
                         }
@@ -691,17 +637,11 @@
                 .collect();
 
             finalize_input_map
-                .insert(Location::new(<span class="self">self</span>.scope_state.program_name, input.identifier.name), resolved_inputs);
+                .insert(Location::new(<span class="self">self</span>.scope_state.program_name.unwrap(), input.identifier.name), resolved_inputs);
         }
 
         <span class="comment">// Query helper function to type check function parameters and outputs.
-        </span><span class="self">self</span>.check_function_signature(<span class="kw-2">&amp;</span>Function::from(input.clone()));
-
-        <span class="comment">// Exit the scope for the function's parameters and body.
-        </span><span class="self">self</span>.exit_scope(scope_index);
-
-        <span class="comment">// Exit the function's scope.
-        </span><span class="self">self</span>.exit_scope(function_index);
+        </span><span class="self">self</span>.check_function_signature(<span class="kw-2">&amp;</span>Function::from(input.clone()), <span class="comment">/* is_stub */ </span><span class="bool-val">true</span>);
     }
 
     <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {

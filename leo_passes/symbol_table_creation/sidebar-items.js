@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["creator"]};
+window.SIDEBAR_ITEMS = {"struct":["SymbolTableCreator"]};

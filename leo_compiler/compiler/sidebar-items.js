@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Ast","Compiler","SymbolTable"]};
+window.SIDEBAR_ITEMS = {"struct":["Ast","Compiler"]};

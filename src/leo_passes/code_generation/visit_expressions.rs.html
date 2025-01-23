@@ -621,7 +621,11 @@
 <a href="#620" id="620">620</a>
 <a href="#621" id="621">621</a>
 <a href="#622" id="622">622</a>
-<a href="#623" id="623">623</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -711,7 +715,12 @@
     }
 
     <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocatorExpression) -&gt; (String, String) {
-        (<span class="macro">format!</span>(<span class="string">"{input}"</span>), String::new())
+        <span class="kw">if </span>input.program.name.name == <span class="self">self</span>.program_id.expect(<span class="string">"Locators only appear within programs."</span>).name.name {
+            <span class="comment">// This locator refers to the current program, so we only output the name, not the program.
+            </span>(<span class="macro">format!</span>(<span class="string">"{}"</span>, input.name), String::new())
+        } <span class="kw">else </span>{
+            (<span class="macro">format!</span>(<span class="string">"{input}"</span>), String::new())
+        }
     }
 
     <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BinaryExpression) -&gt; (String, String) {
@@ -1141,28 +1150,28 @@
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>),
         };
 
-        <span class="comment">// Check if function is external.
-        </span><span class="kw">let </span>main_program = input.program.unwrap();
+        <span class="kw">let </span>caller_program = <span class="self">self</span>.program_id.expect(<span class="string">"Calls only appear within programs."</span>).name.name;
+        <span class="kw">let </span>callee_program = input.program.unwrap_or(caller_program);
+
+        <span class="kw">let </span>func_symbol = <span class="self">self
+            </span>.symbol_table
+            .lookup_function(Location::new(callee_program, function_name))
+            .expect(<span class="string">"Type checking guarantees functions exist"</span>);
+
         <span class="comment">// Need to determine the program the function originated from as well as if the function has a finalize block.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>call_instruction = <span class="kw">if </span>main_program != <span class="self">self</span>.program_id.unwrap().name.name {
+        </span><span class="kw">let </span><span class="kw-2">mut </span>call_instruction = <span class="kw">if </span>caller_program != callee_program {
             <span class="comment">// All external functions must be defined as stubs.
-            </span><span class="kw">if </span><span class="self">self</span>.program.stubs.get(<span class="kw-2">&amp;</span>main_program).is_some() {
-                <span class="macro">format!</span>(<span class="string">"    call {}.aleo/{}"</span>, main_program, input.function)
-            } <span class="kw">else </span>{
-                <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that imported and stub programs are well defined."</span>)
-            }
+            </span><span class="macro">assert!</span>(
+                <span class="self">self</span>.program.stubs.get(<span class="kw-2">&amp;</span>callee_program).is_some(),
+                <span class="string">"Type checking guarantees that imported and stub programs are present."
+            </span>);
+            <span class="macro">format!</span>(<span class="string">"    call {}.aleo/{}"</span>, callee_program, input.function)
+        } <span class="kw">else if </span>func_symbol.function.variant.is_async() {
+            <span class="macro">format!</span>(<span class="string">"    async {}"</span>, <span class="self">self</span>.current_function.unwrap().identifier)
         } <span class="kw">else </span>{
-            <span class="comment">// Lookup in symbol table to determine if its an async function.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.symbol_table.lookup_fn_symbol(Location::new(input.program, function_name)) {
-                <span class="kw">if </span>func.variant.is_async() &amp;&amp; input.program.unwrap() == <span class="self">self</span>.program_id.unwrap().name.name {
-                    <span class="macro">format!</span>(<span class="string">"    async {}"</span>, <span class="self">self</span>.current_function.unwrap().identifier)
-                } <span class="kw">else </span>{
-                    <span class="macro">format!</span>(<span class="string">"    call {}"</span>, input.function)
-                }
-            } <span class="kw">else </span>{
-                <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that all functions are well defined."</span>)
-            }
+            <span class="macro">format!</span>(<span class="string">"    call {}"</span>, input.function)
         };
+
         <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
 
         <span class="kw">for </span>argument <span class="kw">in </span>input.arguments.iter() {
@@ -1175,8 +1184,7 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>destinations = Vec::new();
 
         <span class="comment">// Create operands for the output registers.
-        </span><span class="kw">let </span>func = <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.lookup_fn_symbol(Location::new(<span class="prelude-val">Some</span>(main_program), function_name)).unwrap();
-        <span class="kw">match </span>func.output_type.clone() {
+        </span><span class="kw">match </span>func_symbol.function.output_type.clone() {
             Type::Unit =&gt; {} <span class="comment">// Do nothing
             </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
                 <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a tuple type has at least two elements"</span>),
@@ -1196,7 +1204,7 @@
         }
 
         <span class="comment">// Add a register for async functions to represent the future created.
-        </span><span class="kw">if </span>func.variant == Variant::AsyncFunction {
+        </span><span class="kw">if </span>func_symbol.function.variant == Variant::AsyncFunction {
             <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
             destinations.push(destination_register);
             <span class="self">self</span>.next_register += <span class="number">1</span>;

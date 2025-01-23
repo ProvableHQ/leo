@@ -195,7 +195,14 @@
 <a href="#194" id="194">194</a>
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -220,44 +227,39 @@
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>Unroller&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="kw">let </span>scope_index = <span class="self">self</span>.current_scope_index();
+        <span class="kw">let </span>id = <span class="kw">if </span><span class="self">self</span>.is_unrolling { <span class="self">self</span>.node_builder.next_id() } <span class="kw">else </span>{ input.id };
 
-        <span class="comment">// Enter the block scope.
-        </span><span class="kw">let </span>previous_scope_index = <span class="self">self</span>.enter_scope(scope_index);
+        <span class="self">self</span>.in_scope(id, |slf| {
+            <span class="comment">// Filter out the statements that have additional output = true
+            </span><span class="kw">let </span>filtered_statements: Vec&lt;<span class="kw">_</span>&gt; = input
+                .statements
+                .into_iter()
+                .filter_map(|s| {
+                    <span class="kw">let </span>(reconstructed_statement, additional_output) = slf.reconstruct_statement(s);
+                    <span class="kw">if </span>additional_output {
+                        <span class="prelude-val">None </span><span class="comment">// Exclude this statement from the block since it is a constant variable definition
+                    </span>} <span class="kw">else </span>{
+                        <span class="prelude-val">Some</span>(reconstructed_statement)
+                    }
+                })
+                .collect();
 
-        <span class="comment">// Filter out the statements that have additional output = true
-        </span><span class="kw">let </span>filtered_statements: Vec&lt;<span class="kw">_</span>&gt; = input
-            .statements
-            .into_iter()
-            .filter_map(|s| {
-                <span class="kw">let </span>(reconstructed_statement, additional_output) = <span class="self">self</span>.reconstruct_statement(s);
-                <span class="kw">if </span>additional_output {
-                    <span class="prelude-val">None </span><span class="comment">// Exclude this statement from the block since it is a constant variable definition
-                </span>} <span class="kw">else </span>{
-                    <span class="prelude-val">Some</span>(reconstructed_statement)
-                }
-            })
-            .collect();
+            <span class="kw">let </span>block = Block { statements: filtered_statements, span: input.span, id: input.id };
 
-        <span class="kw">let </span>block = Block { statements: filtered_statements, span: input.span, id: input.id };
-
-        <span class="comment">// Exit the block scope.
-        </span><span class="self">self</span>.exit_scope(previous_scope_index);
-
-        (block, Default::default())
+            (block, Default::default())
+        })
     }
 
     <span class="kw">fn </span>reconstruct_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConstDeclaration) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// Reconstruct the RHS expression to allow for constant propagation
         </span><span class="kw">let </span>reconstructed_value_expression = <span class="self">self</span>.reconstruct_expression(input.value.clone()).<span class="number">0</span>;
 
-        <span class="comment">// Add to constant propagation table. Since TC completed we know that the RHS is a literal or tuple of literals.
-        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.constant_propagation_table.borrow_mut().insert_constant(input.place.name, input.value) {
-            <span class="self">self</span>.handler.emit_err(err);
-        }
-
-        <span class="comment">// Remove from symbol table
-        </span><span class="self">self</span>.symbol_table.borrow_mut().remove_variable_from_current_scope(Location::new(<span class="prelude-val">None</span>, input.place.name));
+        <span class="comment">// Add to symbol table.
+        </span><span class="self">self</span>.symbol_table.insert_const(
+            <span class="self">self</span>.current_program.unwrap(),
+            input.place.name,
+            reconstructed_value_expression.clone(),
+        );
 
         (
             Statement::Const(ConstDeclaration {
@@ -272,42 +274,54 @@
     }
 
     <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="comment">// Helper function to add  variables to symbol table
-        </span><span class="kw">let </span>insert_variable = |symbol: Symbol, type_: Type, span: Span| {
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-                Location::new(<span class="prelude-val">None</span>, symbol),
-                <span class="self">self</span>.current_program,
-                VariableSymbol { type_, span, declaration: VariableType::Mut },
-            ) {
+        <span class="kw">if </span>!<span class="self">self</span>.is_unrolling {
+            <span class="kw">return </span>(
+                Statement::Definition(DefinitionStatement {
+                    declaration_type: input.declaration_type,
+                    place: input.place,
+                    type_: input.type_,
+                    value: <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>,
+                    span: input.span,
+                    id: input.id,
+                }),
+                Default::default(),
+            );
+        }
+
+        <span class="comment">// Helper function to add variables to symbol table
+        </span><span class="kw">let </span><span class="kw-2">mut </span>insert_variable = |symbol: Symbol, type_: Type, span: Span| {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_variable(<span class="self">self</span>.current_program.unwrap(), symbol, VariableSymbol {
+                type_: type_.clone(),
+                span,
+                declaration: VariableType::Mut,
+            }) {
                 <span class="self">self</span>.handler.emit_err(err);
             }
         };
 
         <span class="comment">// If we are unrolling a loop, then we need to repopulate the symbol table.
-        </span><span class="kw">if </span><span class="self">self</span>.is_unrolling {
-            <span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
-                Expression::Identifier(identifier) =&gt; {
-                    insert_variable(identifier.name, input.type_.clone(), input.span);
-                }
-                Expression::Tuple(tuple_expression) =&gt; {
-                    <span class="kw">let </span>tuple_type = <span class="kw">match </span>input.type_ {
-                        Type::Tuple(<span class="kw-2">ref </span>tuple_type) =&gt; tuple_type,
-                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
-                            <span class="string">"Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
-                        </span>),
-                    };
-                    tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(|(expression, _type_)| {
+        </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
+            Expression::Identifier(identifier) =&gt; {
+                insert_variable(identifier.name, input.type_.clone(), input.span);
+            }
+            Expression::Tuple(tuple_expression) =&gt; {
+                <span class="kw">let </span>tuple_type = <span class="kw">match </span>input.type_ {
+                    Type::Tuple(<span class="kw-2">ref </span>tuple_type) =&gt; tuple_type,
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
+                        <span class="string">"Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
+                    </span>),
+                };
+                tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(|(expression, _type_)| {
                         <span class="kw">let </span>identifier = <span class="kw">match </span>expression {
                             Expression::Identifier(identifier) =&gt; identifier,
                             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that if the lhs is a tuple, all of its elements are identifiers."</span>)
                         };
                         insert_variable(identifier.name, input.type_.clone(), input.span);
                     });
-                }
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
-                    <span class="string">"Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple."
-                </span>),
             }
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
+                <span class="string">"Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple."
+            </span>),
         }
 
         <span class="comment">// Reconstruct the expression and return
@@ -318,7 +332,7 @@
                 type_: input.type_,
                 value: <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>,
                 span: input.span,
-                id: input.id,
+                id: <span class="self">self</span>.node_builder.next_id(),
             }),
             Default::default(),
         )

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["compiler","options"],"struct":["Ast","BuildOptions","Compiler","CompilerOptions","OutputOptions","SymbolTable"]};
+window.SIDEBAR_ITEMS = {"mod":["compiler","options"],"struct":["Ast","BuildOptions","Compiler","CompilerOptions","OutputOptions"]};

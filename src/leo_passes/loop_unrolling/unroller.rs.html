@@ -167,105 +167,7 @@
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
 <a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#169" id="169">169</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -284,38 +186,26 @@
 </span><span class="kw">use </span>leo_ast::{
     Block,
     Expression,
-    IntegerType,
     IterationStatement,
     Literal,
     NodeBuilder,
+    NodeID,
     Statement,
     StatementReconstructor,
     Type,
     Value,
 };
-<span class="kw">use </span>std::cell::RefCell;
 
 <span class="kw">use </span>leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
 <span class="kw">use </span>leo_span::Symbol;
 
-<span class="kw">use crate</span>::{
-    Clusivity,
-    LoopBound,
-    RangeIterator,
-    SymbolTable,
-    TypeTable,
-    constant_propagation_table::ConstantPropagationTable,
-};
+<span class="kw">use crate</span>::{Clusivity, LoopBound, RangeIterator, SymbolTable, TypeTable};
 
 <span class="kw">pub struct </span>Unroller&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="doccomment">/// A table of constant variables.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) constant_propagation_table: RefCell&lt;ConstantPropagationTable&gt;,
     <span class="doccomment">/// The symbol table for the function being processed.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: RefCell&lt;SymbolTable&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: SymbolTable,
     <span class="doccomment">/// A mapping from node IDs to their types.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
-    <span class="doccomment">/// The index of the current scope.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) scope_index: usize,
     <span class="doccomment">/// An error handler used for any errors found during unrolling.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
     <span class="doccomment">/// A counter used to generate unique node IDs.
@@ -333,52 +223,14 @@
         handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
         node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder,
     ) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            constant_propagation_table: RefCell::new(ConstantPropagationTable::default()),
-            symbol_table: RefCell::new(symbol_table),
-            type_table,
-            scope_index: <span class="number">0</span>,
-            handler,
-            node_builder,
-            is_unrolling: <span class="bool-val">false</span>,
-            current_program: <span class="prelude-val">None</span>,
-        }
+        <span class="self">Self </span>{ symbol_table, type_table, handler, node_builder, is_unrolling: <span class="bool-val">false</span>, current_program: <span class="prelude-val">None </span>}
     }
 
-    <span class="doccomment">/// Returns the index of the current scope.
-    /// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>current_scope_index(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; usize {
-        <span class="kw">if </span><span class="self">self</span>.is_unrolling { <span class="self">self</span>.symbol_table.borrow_mut().insert_block() } <span class="kw">else </span>{ <span class="self">self</span>.scope_index }
-    }
-
-    <span class="doccomment">/// Enters a child scope.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>enter_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; usize {
-        <span class="kw">let </span>previous_symbol_table = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.symbol_table);
-        <span class="self">self</span>.symbol_table.swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
-        <span class="self">self</span>.symbol_table.borrow_mut().parent = <span class="prelude-val">Some</span>(Box::new(previous_symbol_table.into_inner()));
-
-        <span class="comment">// Can assume that CPT has not constructed any scoping yet, since have never seen this scope before
-        </span><span class="self">self</span>.constant_propagation_table.borrow_mut().insert_block();
-
-        <span class="comment">// Build CPT recursive scoping structure just like symbol table
-        </span><span class="kw">let </span>previous_constant_propagation_table = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.constant_propagation_table);
-        <span class="self">self</span>.constant_propagation_table
-            .swap(previous_constant_propagation_table.borrow().lookup_scope_by_index(index).unwrap());
-        <span class="self">self</span>.constant_propagation_table.borrow_mut().parent =
-            <span class="prelude-val">Some</span>(Box::new(previous_constant_propagation_table.into_inner()));
-
-        core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.scope_index, <span class="number">0</span>)
-    }
-
-    <span class="doccomment">/// Exits the current block scope.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>exit_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) {
-        <span class="kw">let </span>prev_ct = <span class="kw-2">*</span><span class="self">self</span>.constant_propagation_table.borrow_mut().parent.take().unwrap();
-        <span class="self">self</span>.constant_propagation_table.swap(prev_ct.lookup_scope_by_index(index).unwrap());
-        <span class="self">self</span>.constant_propagation_table = RefCell::new(prev_ct);
-        <span class="kw">let </span>prev_st = <span class="kw-2">*</span><span class="self">self</span>.symbol_table.borrow_mut().parent.take().unwrap();
-        <span class="self">self</span>.symbol_table.swap(prev_st.lookup_scope_by_index(index).unwrap());
-        <span class="self">self</span>.symbol_table = RefCell::new(prev_st);
-        <span class="self">self</span>.scope_index = index + <span class="number">1</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>in_scope&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID, func: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
+        <span class="self">self</span>.symbol_table.enter_scope(<span class="prelude-val">Some</span>(id));
+        <span class="kw">let </span>result = func(<span class="self">self</span>);
+        <span class="self">self</span>.symbol_table.enter_parent();
+        result
     }
 
     <span class="doccomment">/// Emits a Loop Unrolling Error
@@ -414,122 +266,74 @@
             <span class="prelude-val">Err</span>(s) =&gt; <span class="kw">return </span>s,
         };
 
-        <span class="comment">// Get the index of the current scope.
-        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.current_scope_index();
-
-        <span class="comment">// Enter the scope of the loop body.
-        </span><span class="kw">let </span>previous_scope_index = <span class="self">self</span>.enter_scope(scope_index);
-
-        <span class="comment">// Clear the symbol table and constant propagation table for the loop body.
-        // This is necessary because loop unrolling transforms the program, which requires reconstructing the tables
-        </span><span class="self">self</span>.symbol_table.borrow_mut().variables.clear();
-        <span class="self">self</span>.symbol_table.borrow_mut().scopes.clear();
-        <span class="self">self</span>.symbol_table.borrow_mut().scope_index = <span class="number">0</span>;
+        <span class="kw">let </span>new_block_id = <span class="self">self</span>.node_builder.next_id();
 
         <span class="comment">// Create a block statement to replace the iteration statement.
-        // Creates a new block per iteration inside the outer block statement.
-        </span><span class="kw">let </span>iter_blocks = Statement::Block(Block {
-            span: input.span,
-            statements: <span class="kw">match </span>input.inclusive {
-                <span class="bool-val">true </span>=&gt; {
-                    <span class="kw">let </span>iter = RangeIterator::new(start, stop, Clusivity::Inclusive);
-                    iter.map(|iteration_count| <span class="self">self</span>.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count)).collect()
-                }
-                <span class="bool-val">false </span>=&gt; {
-                    <span class="kw">let </span>iter = RangeIterator::new(start, stop, Clusivity::Exclusive);
-                    iter.map(|iteration_count| <span class="self">self</span>.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count)).collect()
-                }
-            },
-            id: input.id,
-        });
-
-        <span class="comment">// Exit the scope of the loop body.
-        </span><span class="self">self</span>.exit_scope(previous_scope_index);
-
-        iter_blocks
+        </span><span class="self">self</span>.in_scope(new_block_id, |slf| {
+            Statement::Block(Block {
+                span: input.span,
+                statements: <span class="kw">match </span>input.inclusive {
+                    <span class="bool-val">true </span>=&gt; {
+                        <span class="kw">let </span>iter = RangeIterator::new(start, stop, Clusivity::Inclusive);
+                        iter.map(|iteration_count| slf.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count)).collect()
+                    }
+                    <span class="bool-val">false </span>=&gt; {
+                        <span class="kw">let </span>iter = RangeIterator::new(start, stop, Clusivity::Exclusive);
+                        iter.map(|iteration_count| slf.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count)).collect()
+                    }
+                },
+                id: new_block_id,
+            })
+        })
     }
 
     <span class="doccomment">/// A helper function to unroll a single iteration an IterationStatement.
     </span><span class="kw">fn </span>unroll_single_iteration&lt;I: LoopBound&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>IterationStatement, iteration_count: I) -&gt; Statement {
-        <span class="comment">// Create a scope for a single unrolling of the `IterationStatement`.
-        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.symbol_table.borrow_mut().insert_block();
-        <span class="kw">let </span>previous_scope_index = <span class="self">self</span>.enter_scope(scope_index);
-
-        <span class="kw">let </span>prior_is_unrolling = <span class="self">self</span>.is_unrolling;
-        <span class="self">self</span>.is_unrolling = <span class="bool-val">true</span>;
-
         <span class="comment">// Construct a new node ID.
-        </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
+        </span><span class="kw">let </span>const_id = <span class="self">self</span>.node_builder.next_id();
         <span class="comment">// Update the type table.
-        </span><span class="self">self</span>.type_table.insert(id, input.type_.clone());
+        </span><span class="self">self</span>.type_table.insert(const_id, input.type_.clone());
+
+        <span class="kw">let </span>block_id = <span class="self">self</span>.node_builder.next_id();
 
         <span class="comment">// Reconstruct `iteration_count` as a `Literal`.
-        </span><span class="kw">let </span>value = <span class="kw">match </span>input.type_ {
-            Type::Integer(IntegerType::I8) =&gt; {
-                Literal::Integer(IntegerType::I8, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::I16) =&gt; {
-                Literal::Integer(IntegerType::I16, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::I32) =&gt; {
-                Literal::Integer(IntegerType::I32, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::I64) =&gt; {
-                Literal::Integer(IntegerType::I64, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::I128) =&gt; {
-                Literal::Integer(IntegerType::I128, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::U8) =&gt; {
-                Literal::Integer(IntegerType::U8, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::U16) =&gt; {
-                Literal::Integer(IntegerType::U16, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::U32) =&gt; {
-                Literal::Integer(IntegerType::U32, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::U64) =&gt; {
-                Literal::Integer(IntegerType::U64, iteration_count.to_string(), Default::default(), id)
-            }
-            Type::Integer(IntegerType::U128) =&gt; {
-                Literal::Integer(IntegerType::U128, iteration_count.to_string(), Default::default(), id)
-            }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
-                <span class="string">"The iteration variable must be an integer type. This should be enforced by type checking."
-            </span>),
+        </span><span class="kw">let </span>Type::Integer(integer_type) = <span class="kw-2">&amp;</span>input.type_ <span class="kw">else </span>{
+            <span class="macro">unreachable!</span>(<span class="string">"Type checking enforces that the iteration variable is of integer type"</span>);
         };
 
-        <span class="comment">// Add the loop variable as a constant for the current scope
-        </span><span class="self">self</span>.constant_propagation_table
-            .borrow_mut()
-            .insert_constant(input.variable.name, Expression::Literal(value.clone()))
-            .expect(<span class="string">"Failed to insert constant into CPT"</span>);
+        <span class="self">self</span>.in_scope(block_id, |slf| {
+            <span class="kw">let </span>prior_is_unrolling = slf.is_unrolling;
+            slf.is_unrolling = <span class="bool-val">true</span>;
 
-        <span class="comment">// Reconstruct the statements in the loop body.
-        </span><span class="kw">let </span>statements: Vec&lt;<span class="kw">_</span>&gt; = input
-            .block
-            .statements
-            .clone()
-            .into_iter()
-            .filter_map(|s| {
-                <span class="kw">let </span>(reconstructed_statement, additional_output) = <span class="self">self</span>.reconstruct_statement(s);
-                <span class="kw">if </span>additional_output {
-                    <span class="prelude-val">None </span><span class="comment">// Exclude this statement from the block since it is a constant variable definition
-                </span>} <span class="kw">else </span>{
-                    <span class="prelude-val">Some</span>(reconstructed_statement)
-                }
-            })
-            .collect();
+            <span class="kw">let </span>value = Literal::Integer(<span class="kw-2">*</span>integer_type, iteration_count.to_string(), Default::default(), const_id);
 
-        <span class="kw">let </span>block = Statement::Block(Block { statements, span: input.block.span, id: input.block.id });
+            <span class="comment">// Add the loop variable as a constant for the current scope
+            </span>slf.symbol_table.insert_const(
+                slf.current_program.unwrap(),
+                input.variable.name,
+                Expression::Literal(value.clone()),
+            );
 
-        <span class="self">self</span>.is_unrolling = prior_is_unrolling;
+            <span class="comment">// Reconstruct the statements in the loop body.
+            </span><span class="kw">let </span>statements: Vec&lt;<span class="kw">_</span>&gt; = input
+                .block
+                .statements
+                .clone()
+                .into_iter()
+                .filter_map(|s| {
+                    <span class="kw">let </span>(reconstructed_statement, additional_output) = slf.reconstruct_statement(s);
+                    <span class="kw">if </span>additional_output {
+                        <span class="prelude-val">None </span><span class="comment">// Exclude this statement from the block since it is a constant variable definition
+                    </span>} <span class="kw">else </span>{
+                        <span class="prelude-val">Some</span>(reconstructed_statement)
+                    }
+                })
+                .collect();
 
-        <span class="comment">// Exit the scope.
-        </span><span class="self">self</span>.exit_scope(previous_scope_index);
+            slf.is_unrolling = prior_is_unrolling;
 
-        block
+            Statement::Block(Block { statements, span: input.block.span, id: block_id })
+        })
     }
 }
 </code></pre></div></section></main></body></html>

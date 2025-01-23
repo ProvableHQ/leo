@@ -128,7 +128,11 @@
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -222,8 +226,12 @@
                         <span class="comment">// Get the struct definitions.
                         </span><span class="kw">let </span>first_type = <span class="self">self
                             </span>.symbol_table
-                            .lookup_struct(Location::new(<span class="self">self</span>.program, first_type.id.name), <span class="self">self</span>.program)
-                            .unwrap();
+                            .lookup_struct(first_type.id.name)
+                            .or_else(|| {
+                                <span class="self">self</span>.symbol_table
+                                    .lookup_record(Location::new(<span class="self">self</span>.program.unwrap(), first_type.id.name))
+                            })
+                            .expect(<span class="string">"This definition should exist"</span>);
                         <span class="self">self</span>.ternary_struct(first_type, <span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>first, <span class="kw-2">&amp;</span>second)
                     }
                     Type::Tuple(first_type) =&gt; <span class="self">self</span>.ternary_tuple(first_type, <span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>first, <span class="kw-2">&amp;</span>second),

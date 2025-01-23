@@ -136,12 +136,7 @@
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
+<a href="#138" id="138">138</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2024 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -253,33 +248,28 @@
     <span class="doccomment">/// Assert that an async call is a "simple" one.
     /// Simple is defined as an async transition function which does not return a `Future` that itself takes a `Future` as an argument.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_simple_async_transition_call(<span class="kw-2">&amp;</span><span class="self">self</span>, program: Symbol, function_name: Symbol, span: Span) {
-        <span class="comment">// Look up the function.
-        </span><span class="kw">let </span>function = <span class="kw">match </span><span class="self">self</span>.symbol_table.lookup_fn_symbol(Location::new(<span class="prelude-val">Some</span>(program), function_name)) {
-            <span class="prelude-val">Some</span>(function) =&gt; function,
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that this function exists."</span>);
-            }
-        };
+        <span class="kw">let </span>func_symbol = <span class="self">self
+            </span>.symbol_table
+            .lookup_function(Location::new(program, function_name))
+            .expect(<span class="string">"Type checking guarantees functions are present."</span>);
+
         <span class="comment">// If it is not an async transition, return.
-        </span><span class="kw">if </span>function.variant != Variant::AsyncTransition {
+        </span><span class="kw">if </span>func_symbol.function.variant != Variant::AsyncTransition {
             <span class="kw">return</span>;
         }
-        <span class="comment">// Otherwise, get the location of the finalize block.
-        </span><span class="kw">let </span>location = <span class="kw">match </span><span class="kw-2">&amp;</span>function.finalize {
-            <span class="prelude-val">Some</span>(finalizer) =&gt; finalizer.location.clone(),
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">"Typechecking guarantees that all async transitions have an associated `finalize` field."</span>);
-            }
-        };
-        <span class="comment">// Look up the async function.
-        </span><span class="kw">let </span>async_function = <span class="kw">match </span><span class="self">self</span>.symbol_table.lookup_fn_symbol(location) {
-            <span class="prelude-val">Some</span>(function) =&gt; function,
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that this function exists."</span>);
-            }
-        };
+
+        <span class="kw">let </span>finalizer = func_symbol
+            .finalizer
+            .as_ref()
+            .expect(<span class="string">"Typechecking guarantees that all async transitions have an associated `finalize` field."</span>);
+
+        <span class="kw">let </span>async_function = <span class="self">self
+            </span>.symbol_table
+            .lookup_function(finalizer.location)
+            .expect(<span class="string">"Type checking guarantees functions are present."</span>);
+
         <span class="comment">// If the async function takes a future as an argument, emit an error.
-        </span><span class="kw">if </span>async_function.input.iter().any(|input| <span class="macro">matches!</span>(input.type_(), Type::Future(..))) {
+        </span><span class="kw">if </span>async_function.function.input.iter().any(|input| <span class="macro">matches!</span>(input.type_(), Type::Future(..))) {
             <span class="self">self</span>.emit_err(StaticAnalyzerError::async_transition_call_with_future_argument(function_name, span));
         }
     }
