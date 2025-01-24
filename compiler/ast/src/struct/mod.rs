@@ -17,7 +17,7 @@
 pub mod member;
 pub use member::*;
 
-use crate::{Identifier, Mode, Node, NodeID, Type};
+use crate::{Identifier, Indent, Mode, Node, NodeID, Type};
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools;
@@ -135,11 +135,11 @@ impl fmt::Debug for Composite {
 impl fmt::Display for Composite {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_str(if self.is_record { "record" } else { "struct" })?;
-        writeln!(f, " {} {{ ", self.identifier)?;
+        writeln!(f, "{} {{", self.identifier)?;
         for field in self.members.iter() {
-            writeln!(f, "        {field}")?;
+            writeln!(f, "{},", Indent(field))?;
         }
-        write!(f, "    }}")
+        write!(f, "}}")
     }
 }
 

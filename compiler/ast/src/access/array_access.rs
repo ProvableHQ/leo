@@ -35,7 +35,7 @@ pub struct ArrayAccess {
 
 impl fmt::Display for ArrayAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.array, self.index)
+        write!(f, "{}[{}]", self.array, self.index)
     }
 }
 

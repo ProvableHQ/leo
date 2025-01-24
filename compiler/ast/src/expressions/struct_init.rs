@@ -17,6 +17,8 @@
 use super::*;
 use leo_span::sym;
 
+use itertools::Itertools as _;
+
 /// An initializer for a single field / variable of a struct initializer expression.
 /// That is, in `Foo { bar: 42, baz }`, this is either `bar: 42`, or `baz`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -90,7 +92,15 @@ impl StructExpression {
 
 impl fmt::Display for StructExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{{{}}}", self.members.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", "))
+        write!(f, "{} {{", self.name)?;
+        if !self.members.is_empty() {
+            write!(f, " ")?;
+        }
+        write!(f, "{}", self.members.iter().format(", "))?;
+        if !self.members.is_empty() {
+            write!(f, " ")?;
+        }
+        write!(f, "}}")
     }
 }
 

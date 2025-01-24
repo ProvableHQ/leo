@@ -46,9 +46,9 @@ pub struct AssertStatement {
 impl fmt::Display for AssertStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.variant {
-            AssertVariant::Assert(ref expr) => write!(f, "assert({expr});"),
-            AssertVariant::AssertEq(ref expr1, ref expr2) => write!(f, "assert_eq({expr1}, {expr2});"),
-            AssertVariant::AssertNeq(ref expr1, ref expr2) => write!(f, "assert_neq({expr1}, {expr2});"),
+            AssertVariant::Assert(ref expr) => write!(f, "assert({expr})"),
+            AssertVariant::AssertEq(ref expr1, ref expr2) => write!(f, "assert_eq({expr1}, {expr2})"),
+            AssertVariant::AssertNeq(ref expr1, ref expr2) => write!(f, "assert_neq({expr1}, {expr2})"),
         }
     }
 }

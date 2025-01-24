@@ -17,6 +17,7 @@
 use crate::{Expression, Identifier, Node, NodeID};
 use leo_span::Span;
 
+use itertools::Itertools as _;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -37,7 +38,7 @@ pub struct AssociatedFunction {
 
 impl fmt::Display for AssociatedFunction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}::{}", self.variant, self.name)
+        write!(f, "{}::{}({})", self.variant, self.name, self.arguments.iter().format(", "))
     }
 }
 

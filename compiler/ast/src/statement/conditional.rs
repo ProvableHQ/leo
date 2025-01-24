@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Node, NodeID, Statement};
+use crate::{Block, Expression, Indent, Node, NodeID, Statement};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -37,11 +37,25 @@ pub struct ConditionalStatement {
 
 impl fmt::Display for ConditionalStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "if ({}) {}", self.condition, self.then)?;
-        match self.otherwise.as_ref() {
-            Some(n_or_e) => write!(f, " else {n_or_e}"),
-            None => write!(f, ""),
+        writeln!(f, "if {} {{", self.condition)?;
+        for stmt in self.then.statements.iter() {
+            writeln!(f, "{}{}", Indent(stmt), stmt.semicolon())?;
         }
+        match self.otherwise.as_deref() {
+            None => write!(f, "}}")?,
+            Some(Statement::Block(block)) => {
+                writeln!(f, "}} else {{")?;
+                for stmt in block.statements.iter() {
+                    writeln!(f, "{}{}", Indent(stmt), stmt.semicolon())?;
+                }
+                write!(f, "}}")?;
+            }
+            Some(Statement::Conditional(cond)) => {
+                write!(f, "}} else {cond}")?;
+            }
+            Some(_) => panic!("`otherwise` of a `ConditionalStatement` must be a block or conditional."),
+        }
+        Ok(())
     }
 }
 

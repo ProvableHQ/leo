@@ -40,6 +40,9 @@ pub use self::functions::*;
 pub mod groups;
 pub use self::groups::*;
 
+mod indent_display;
+use indent_display::*;
+
 pub mod mapping;
 pub use self::mapping::*;
 

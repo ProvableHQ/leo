@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Identifier, Node, NodeID, Type, Value};
+use crate::{Block, Expression, Identifier, Indent, Node, NodeID, Type, Value};
 
 use leo_span::Span;
 
@@ -52,7 +52,11 @@ pub struct IterationStatement {
 impl fmt::Display for IterationStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let eq = if self.inclusive { "=" } else { "" };
-        write!(f, "for {} in {}..{eq}{} {}", self.variable, self.start, self.stop, self.block)
+        writeln!(f, "for {}: {} in {}..{eq}{} {{", self.variable, self.type_, self.start, self.stop)?;
+        for stmt in self.block.statements.iter() {
+            writeln!(f, "{}{}", Indent(stmt), stmt.semicolon())?;
+        }
+        writeln!(f, "}}")
     }
 }
 

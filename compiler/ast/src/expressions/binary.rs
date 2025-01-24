@@ -17,6 +17,8 @@
 use super::*;
 use leo_span::{Symbol, sym};
 
+use std::cmp::Ordering;
+
 /// A binary operator.
 ///
 /// Precedence is defined in the parser.
@@ -177,7 +179,78 @@ pub struct BinaryExpression {
 
 impl fmt::Display for BinaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {} {}", self.left, self.op, self.right)
+        use Associativity::*;
+        use BinaryOperation::*;
+
+        if matches!(
+            self.op,
+            AddWrapped
+                | DivWrapped
+                | Mod
+                | MulWrapped
+                | Nand
+                | Nor
+                | PowWrapped
+                | RemWrapped
+                | ShlWrapped
+                | ShrWrapped
+                | SubWrapped
+        ) {
+            if self.left.precedence() < 20 {
+                write!(f, "({})", self.left)?;
+            } else {
+                write!(f, "{}", self.left)?;
+            }
+            write!(f, ".{}({})", self.op, self.right)
+        } else {
+            let my_precedence = self.precedence();
+            let my_associativity = self.associativity();
+            match (self.left.precedence().cmp(&my_precedence), my_associativity, self.left.associativity()) {
+                (Ordering::Greater, _, _) | (Ordering::Equal, Left, Left) => write!(f, "{}", self.left)?,
+                _ => write!(f, "({})", self.left)?,
+            }
+            write!(f, " {} ", self.op)?;
+            match (self.right.precedence().cmp(&my_precedence), my_associativity, self.right.associativity()) {
+                (Ordering::Greater, _, _) | (Ordering::Equal, Right, Right) => write!(f, "{}", self.right)?,
+                _ => write!(f, "({})", self.right)?,
+            }
+            Ok(())
+        }
+    }
+}
+
+impl BinaryExpression {
+    pub(crate) fn precedence(&self) -> u32 {
+        use BinaryOperation::*;
+
+        match self.op {
+            BitwiseOr => 1,
+            BitwiseAnd => 2,
+            Eq | Neq | Lt | Gt | Lte | Gte => 3,
+            Or => 4,
+            Xor => 5,
+            And => 6,
+            Shl => 7,
+            Shr => 8,
+            Add | Sub => 9,
+            Mul | Div | Rem => 10,
+            Pow => 11,
+            AddWrapped | DivWrapped | Mod | MulWrapped | Nand | Nor | PowWrapped | RemWrapped | ShlWrapped
+            | ShrWrapped | SubWrapped => 20,
+        }
+    }
+
+    pub(crate) fn associativity(&self) -> Associativity {
+        use Associativity::*;
+        use BinaryOperation::*;
+
+        match self.op {
+            Pow => Right,
+            BitwiseOr | BitwiseAnd | Eq | Neq | Lt | Gt | Lte | Gte | Or | Xor | And | Shl | Shr | Add | Sub | Mul
+            | Div | Rem => Left,
+            AddWrapped | DivWrapped | Mod | MulWrapped | Nand | Nor | PowWrapped | RemWrapped | ShlWrapped
+            | ShrWrapped | SubWrapped => None,
+        }
     }
 }
 

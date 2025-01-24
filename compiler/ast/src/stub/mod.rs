@@ -19,7 +19,7 @@
 pub mod function_stub;
 pub use function_stub::*;
 
-use crate::{Composite, ConstDeclaration, Identifier, Mapping, NodeID, ProgramId};
+use crate::{Composite, ConstDeclaration, Identifier, Indent, Mapping, NodeID, ProgramId};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -65,18 +65,17 @@ impl fmt::Display for Stub {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "stub {} {{", self.stub_id)?;
         for import in self.imports.iter() {
-            writeln!(f, "    import {import}")?;
+            writeln!(f, "    import {import};")?;
         }
         for (_, mapping) in self.mappings.iter() {
-            writeln!(f, "    {mapping}")?;
+            writeln!(f, "{};", Indent(mapping))?;
         }
         for (_, struct_) in self.structs.iter() {
-            writeln!(f, "    {struct_}")?;
+            writeln!(f, "{}", Indent(struct_))?;
         }
         for (_, function) in self.functions.iter() {
-            writeln!(f, "    {function}")?;
+            writeln!(f, "{}", Indent(function))?;
         }
-        writeln!(f, "}}")?;
-        Ok(())
+        write!(f, "}}")
     }
 }
