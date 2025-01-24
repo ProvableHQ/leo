@@ -16,7 +16,7 @@ Error [ETYC0372009]: Mapping::has_key is not a valid core function.
      |
   12 |          let has_key: bool = Mapping::has_key(account, receiver);
      |                              ^^^^^^^
-Error [ETYC0372014]: Mapping::has_key is not a valid core function call.
+Error [ETYC0372014]: Mapping::has_key(account, receiver) is not a valid core function call.
     --> compiler-test:12:30
      |
   12 |          let has_key: bool = Mapping::has_key(account, receiver);

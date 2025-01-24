@@ -98,7 +98,12 @@ pub struct UnaryExpression {
 
 impl fmt::Display for UnaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({}).{}()", self.receiver, self.op)
+        if self.receiver.precedence() < 20 {
+            write!(f, "({})", self.receiver)?;
+        } else {
+            write!(f, "{}", self.receiver)?;
+        }
+        write!(f, ".{}()", self.op)
     }
 }
 

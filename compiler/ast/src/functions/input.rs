@@ -37,7 +37,11 @@ pub struct Input {
 
 impl Input {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {}: {}", self.mode, self.identifier, self.type_)
+        if self.mode == Mode::None {
+            write!(f, "{}: {}", self.identifier, self.type_)
+        } else {
+            write!(f, "{} {}: {}", self.mode, self.identifier, self.type_)
+        }
     }
 
     pub fn identifier(&self) -> &Identifier {

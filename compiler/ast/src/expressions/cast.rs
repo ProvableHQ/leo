@@ -33,7 +33,12 @@ pub struct CastExpression {
 
 impl fmt::Display for CastExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({} as {})", self.expression, self.type_)
+        if self.expression.precedence() < 12 {
+            write!(f, "({})", self.expression)?;
+        } else {
+            write!(f, "{}", self.expression)?;
+        }
+        write!(f, " as {}", self.type_)
     }
 }
 

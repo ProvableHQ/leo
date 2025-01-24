@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Node, NodeID, Statement};
+use crate::{Indent, Node, NodeID, Statement};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -34,10 +34,8 @@ pub struct Block {
 impl fmt::Display for Block {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "{{")?;
-        if self.statements.is_empty() {
-            writeln!(f, "\t")?;
-        } else {
-            self.statements.iter().try_for_each(|statement| writeln!(f, "\t{statement};"))?;
+        for stmt in self.statements.iter() {
+            writeln!(f, "{}{}", Indent(stmt), stmt.semicolon())?;
         }
         write!(f, "}}")
     }

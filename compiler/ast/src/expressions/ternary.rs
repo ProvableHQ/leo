@@ -33,7 +33,21 @@ pub struct TernaryExpression {
 
 impl fmt::Display for TernaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({} ? {} : {})", self.condition, self.if_true, self.if_false)
+        if self.condition.precedence() > 14 {
+            write!(f, "{}", self.condition)?;
+        } else {
+            write!(f, "({})", self.condition)?;
+        }
+
+        write!(f, " ? {} : ", self.if_true)?;
+
+        if self.if_false.precedence() > 14 {
+            write!(f, "{}", self.if_false)?;
+        } else {
+            write!(f, "({})", self.if_false)?;
+        }
+
+        Ok(())
     }
 }
 

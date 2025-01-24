@@ -81,6 +81,12 @@ impl Statement {
     pub fn dummy(span: Span, id: NodeID) -> Self {
         Self::Block(Block { statements: Vec::new(), span, id })
     }
+
+    pub(crate) fn semicolon(&self) -> &'static str {
+        use Statement::*;
+
+        if matches!(self, Block(..) | Conditional(..) | Iteration(..)) { "" } else { ";" }
+    }
 }
 
 impl fmt::Display for Statement {

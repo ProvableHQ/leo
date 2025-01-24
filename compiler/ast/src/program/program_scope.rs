@@ -16,7 +16,7 @@
 
 //! A Leo program scope consists of struct, function, and mapping definitions.
 
-use crate::{Composite, ConstDeclaration, Function, Mapping, ProgramId, Stub};
+use crate::{Composite, ConstDeclaration, Function, Indent, Mapping, ProgramId, Stub};
 
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
@@ -60,17 +60,17 @@ impl fmt::Display for ProgramScope {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "program {} {{", self.program_id)?;
         for (_, const_decl) in self.consts.iter() {
-            writeln!(f, "    {const_decl}")?;
+            writeln!(f, "{};", Indent(const_decl))?;
         }
         for (_, struct_) in self.structs.iter() {
-            writeln!(f, "    {struct_}")?;
+            writeln!(f, "{}", Indent(struct_))?;
         }
         for (_, mapping) in self.mappings.iter() {
-            writeln!(f, "    {mapping}")?;
+            writeln!(f, "{};", Indent(mapping))?;
         }
         for (_, function) in self.functions.iter() {
-            writeln!(f, "    {function}")?;
+            writeln!(f, "{}", Indent(function))?;
         }
-        Ok(())
+        write!(f, "}}")
     }
 }

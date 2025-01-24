@@ -32,9 +32,10 @@ pub use output::*;
 pub mod mode;
 pub use mode::*;
 
-use crate::{Block, FunctionStub, Identifier, Node, NodeID, TupleType, Type};
+use crate::{Block, FunctionStub, Identifier, Indent, Node, NodeID, TupleType, Type};
 use leo_span::{Span, Symbol};
 
+use itertools::Itertools as _;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -95,28 +96,6 @@ impl Function {
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }
-
-    ///
-    /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
-    ///
-    fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.variant {
-            Variant::Inline => write!(f, "inline ")?,
-            Variant::Function | Variant::AsyncFunction => write!(f, "function ")?,
-            Variant::Transition | Variant::AsyncTransition => write!(f, "transition ")?,
-        }
-        write!(f, "{}", self.identifier)?;
-
-        let parameters = self.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
-        let returns = match self.output.len() {
-            0 => "()".to_string(),
-            1 => self.output[0].to_string(),
-            _ => self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","),
-        };
-        write!(f, "({parameters}) -> {returns} {}", self.block)?;
-
-        Ok(())
-    }
 }
 
 impl From<FunctionStub> for Function {
@@ -137,13 +116,38 @@ impl From<FunctionStub> for Function {
 
 impl fmt::Debug for Function {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
+        write!(f, "{}", self)
     }
 }
 
 impl fmt::Display for Function {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.format(f)
+        match self.variant {
+            Variant::Inline => write!(f, "inline ")?,
+            Variant::Function => write!(f, "function ")?,
+            Variant::AsyncFunction => write!(f, "async function ")?,
+            Variant::Transition => write!(f, "transition ")?,
+            Variant::AsyncTransition => write!(f, "asyc transition ")?,
+        }
+        write!(f, "{}({})", self.identifier, self.input.iter().format(", "))?;
+
+        match self.output.len() {
+            0 => {}
+            1 => {
+                if !matches!(self.output[0].type_, Type::Unit) {
+                    write!(f, " -> {}", self.output[0])?;
+                }
+            }
+            _ => {
+                write!(f, " -> {}", self.output.iter().format(", "))?;
+            }
+        }
+
+        writeln!(f, " {{")?;
+        for stmt in self.block.statements.iter() {
+            writeln!(f, "{}{}", Indent(stmt), stmt.semicolon())?;
+        }
+        write!(f, "}}")
     }
 }
 
