@@ -82,7 +82,6 @@ impl Command for LeoTest {
     }
 }
 
-// TODO (@d0cd) The logic needs a lot of refactoring.
 // A helper function to handle the `test` command.
 fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest as Command>::Output> {
     // Select the number of jobs, defaulting to the number of CPUs.
@@ -100,6 +99,8 @@ fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest a
         .map_err(TestError::default_error)?
         .flat_map(|dir_entry| dir_entry.map(|dir_entry| dir_entry.path()))
         .collect_vec();
+
+    println!("Running {} tests...", test_directories.len());
 
     // For each test package within the tests directory:
     //  - Open the manifest.
@@ -283,12 +284,12 @@ fn handle_test<A: Aleo>(command: LeoTest, context: Context) -> Result<<LeoTest a
 
                 // Construct the result.
                 match (is_verified & is_accepted, should_fail) {
-                    (true, true) => results.add_result(test_name, "❌ Test passed but should have failed".to_string()),
+                    (true, true) => results.add_result(test_name, " ❌ Test passed but should have failed".to_string()),
                     (false, false) => {
-                        results.add_result(test_name, "❌ Test failed but should have passed".to_string())
+                        results.add_result(test_name, " ❌ Test failed but should have passed".to_string())
                     }
-                    (true, false) => results.add_result(test_name, "✅ Test passed as expected".to_string()),
-                    (false, true) => results.add_result(test_name, "✅ Test failed as expected".to_string()),
+                    (true, false) => results.add_result(test_name, " ✅ Test passed as expected".to_string()),
+                    (false, true) => results.add_result(test_name, " ✅ Test failed as expected".to_string()),
                 }
             }
 

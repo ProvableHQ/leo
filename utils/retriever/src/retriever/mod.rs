@@ -35,6 +35,14 @@ use std::{
 };
 use ureq::AgentBuilder;
 
+// TODO: The retriever does too many things.
+//   It should only be responsible for pulling dependencies and managing the global cache.
+//   Otherwise, the aggregated files should be passed on to whatever context needs them.
+//   The cache should also be made optional and configurable.
+//   The definition of manifest and lock files should be handled by the build system.
+//   As part of this refactor, the package system should be improved with better build caching and organization.
+//   The current system uses snarkVM's which doesn't fit well with Leo's needs.
+
 // Retriever is responsible for retrieving external programs
 pub struct Retriever<N: Network> {
     name: Symbol,

@@ -31,7 +31,7 @@ use snarkvm::{
 use indexmap::IndexMap;
 use leo_package::tst::TestDirectory;
 use leo_span::source_map::FileName;
-use snarkvm::prelude::{CanaryV0, Program};
+use snarkvm::prelude::{CanaryV0, Itertools, Program};
 use std::{
     io::Write,
     path::{Path, PathBuf},
@@ -193,7 +193,6 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
 
     // If the `build_tests` flag is set, compile the tests.
     if command.options.build_tests {
-        println!("main_stubs: {:?}", main_stubs);
         // Compile the tests.
         compile_tests::<N>(main_sym.to_string(), &package_path, &handler, command.options.clone(), main_stubs.clone())?;
     }
@@ -214,9 +213,8 @@ fn compile_leo_files<N: Network>(
     // Read the files and collect it into sources.
     let mut sources = Vec::with_capacity(local_source_files.len());
     for file_path in local_source_files.iter() {
-        let file_content = std::fs::read_to_string(file_path.clone()).map_err(|e| {
-            CliError::general_cli_error(format!("Failed to read source file '{:?}': {e}", file_path.as_path()))
-        })?; // Read the file content.
+        let file_content = std::fs::read_to_string(file_path.clone())
+            .map_err(|_| CliError::general_cli_error("Failed to read source files."))?; // Read the file content.
         sources.push((FileName::Real(file_path.clone()), file_content));
     }
 
@@ -256,7 +254,29 @@ fn compile_tests<N: Network>(
     let build_dir = BuildDirectory::open(package_path)?;
     let test_dir = build_dir.join("tests");
     std::fs::create_dir_all(&test_dir)
-        .map_err(|e| CliError::general_cli_error(format!("Failed to create `build/tests` directory: {e}")))?;
+        .map_err(|_| CliError::general_cli_error("Failed to create directory for the built tests."))?;
+
+    // Get the program ID and programs in the built package.
+    let mut programs = Vec::new();
+    // Read the main program.
+    let package = Package::open(build_dir.as_path())?;
+    programs.push(package.program().clone());
+    // Read the imported programs if they exist.
+    let entries = std::fs::read_dir(package.imports_directory())
+        .map_or(vec![], |entries| entries.into_iter().flatten().collect_vec());
+    for entry in entries {
+        // Read the file if it is a `.aleo` file.
+        let path = entry.path();
+        if path.is_file() && path.extension().map_or(false, |ext| ext == "aleo") {
+            // Read the file.
+            let program = std::fs::read_to_string(path.clone())
+                .map_err(|_| CliError::general_cli_error("Failed to read the built package."))?;
+            // Parse the program.
+            let program = Program::<N>::from_str(&program)?;
+            // Push the program.
+            programs.push(program);
+        }
+    }
 
     // Construct the compiler.
     let mut compiler = Compiler::<N>::new(
@@ -274,12 +294,8 @@ fn compile_tests<N: Network>(
     // A test program with the name `foo.aleo` will be compiled to package at `build/tests/foo.aleo`.
     for file_path in test_files {
         // Read the test file.
-        let file_content = std::fs::read_to_string(&file_path).map_err(|e| {
-            CliError::general_cli_error(format!(
-                "Failed to read test file '{:?}': {e}",
-                file_path.clone().into_os_string()
-            ))
-        })?;
+        let file_content = std::fs::read_to_string(&file_path)
+            .map_err(|_| CliError::general_cli_error("Failed to read test file."))?;
 
         // Reset the compiler with the test file content.
         compiler.reset(vec![(FileName::Real(file_path.clone()), file_content)]);
@@ -300,17 +316,25 @@ fn compile_tests<N: Network>(
 
         // Write the program to the `main.aleo` file in the test package.
         let main_file_path = test_package_path.join("main.aleo");
-        std::fs::write(&main_file_path, output).map_err(|e| {
-            CliError::general_cli_error(format!("Failed to write test file '{:?}': {e}", main_file_path))
-        })?;
+        std::fs::write(&main_file_path, output)
+            .map_err(|_| CliError::general_cli_error("Failed to write test file."))?;
+
+        // Write the programs to the imports in the test package.
+        let imports_dir = test_package_path.join("imports");
+        std::fs::create_dir_all(&imports_dir)
+            .map_err(|_| CliError::general_cli_error("Failed to write test dependencies."))?;
+        for program in programs.iter() {
+            let import_path = imports_dir.join(program.id().to_string());
+            std::fs::write(import_path, program.to_string())
+                .map_err(|_| CliError::general_cli_error("Failed to write test dependency file."))?;
+        }
 
         // Write the test manifest to `manifest.json` in the test package.
         let manifest_file_path = test_package_path.join("manifest.json");
         let manifest_json = serde_json::to_string_pretty(&test_manifest)
-            .map_err(|e| CliError::general_cli_error(format!("Failed to serialize test manifest: {e}")))?;
-        std::fs::write(&manifest_file_path, manifest_json).map_err(|e| {
-            CliError::general_cli_error(format!("Failed to write test manifest '{:?}': {e}", manifest_file_path))
-        })?;
+            .map_err(|_| CliError::general_cli_error("Failed to create test manifest"))?;
+        std::fs::write(&manifest_file_path, manifest_json)
+            .map_err(|_| CliError::general_cli_error("Failed to write test manifest"))?;
     }
     tracing::info!("✅ Compiled tests for '{name}'");
     Ok(())
