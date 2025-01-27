@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{GroupLiteral, IntegerType};
+use crate::IntegerType;
 
 use super::*;
 
@@ -29,9 +29,8 @@ pub enum Literal {
     /// A field literal, e.g., `42field`.
     /// A signed number followed by the keyword `field`.
     Field(String, #[serde(with = "leo_span::span_json")] Span, NodeID),
-    /// A group literal, either product or affine.
-    /// For example, `42group` or `(12, 52)group`.
-    Group(Box<GroupLiteral>),
+    /// A group literal, eg `42group`.
+    Group(String, #[serde(with = "leo_span::span_json")] Span, NodeID),
     /// An integer literal, e.g., `42`.
     Integer(IntegerType, String, #[serde(with = "leo_span::span_json")] Span, NodeID),
     /// A scalar literal, e.g. `1scalar`.
@@ -47,7 +46,7 @@ impl fmt::Display for Literal {
             Self::Address(address, _, _) => write!(f, "{address}"),
             Self::Boolean(boolean, _, _) => write!(f, "{boolean}"),
             Self::Field(field, _, _) => write!(f, "{field}field"),
-            Self::Group(group) => write!(f, "{group}group"),
+            Self::Group(group, _, _) => write!(f, "{group}group"),
             Self::Integer(type_, value, _, _) => write!(f, "{value}{type_}"),
             Self::Scalar(scalar, _, _) => write!(f, "{scalar}scalar"),
             Self::String(string, _, _) => write!(f, "\"{string}\""),
@@ -61,10 +60,10 @@ impl Node for Literal {
             Self::Address(_, span, _)
             | Self::Boolean(_, span, _)
             | Self::Field(_, span, _)
+            | Self::Group(_, span, _)
             | Self::Integer(_, _, span, _)
             | Self::Scalar(_, span, _)
             | Self::String(_, span, _) => *span,
-            Self::Group(group) => *group.span(),
         }
     }
 
@@ -74,9 +73,9 @@ impl Node for Literal {
             | Self::Boolean(_, span, _)
             | Self::Field(_, span, _)
             | Self::Integer(_, _, span, _)
+            | Self::Group(_, span, _)
             | Self::Scalar(_, span, _)
             | Self::String(_, span, _) => *span = new_span,
-            Self::Group(group) => group.set_span(new_span),
         }
     }
 
@@ -85,10 +84,10 @@ impl Node for Literal {
             Self::Address(_, _, id)
             | Self::Boolean(_, _, id)
             | Self::Field(_, _, id)
+            | Self::Group(_, _, id)
             | Self::Integer(_, _, _, id)
             | Self::Scalar(_, _, id)
             | Self::String(_, _, id) => *id,
-            Self::Group(group) => *group.id(),
         }
     }
 
@@ -97,10 +96,10 @@ impl Node for Literal {
             Self::Address(_, _, old_id)
             | Self::Boolean(_, _, old_id)
             | Self::Field(_, _, old_id)
+            | Self::Group(_, _, old_id)
             | Self::Integer(_, _, _, old_id)
             | Self::Scalar(_, _, old_id)
             | Self::String(_, _, old_id) => *old_id = id,
-            Self::Group(group) => group.set_id(id),
         }
     }
 }
@@ -122,7 +121,7 @@ impl fmt::Display for DisplayDecimal<'_> {
             Literal::Address(address, _, _) => write!(f, "{address}"),
             Literal::Boolean(boolean, _, _) => write!(f, "{boolean}"),
             Literal::Field(field, _, _) => write!(f, "{field}field"),
-            Literal::Group(group) => write!(f, "{group}group"),
+            Literal::Group(group, _, _) => write!(f, "{group}group"),
             Literal::Integer(type_, value, _, _) => {
                 if !value.starts_with("0x")
                     && !value.starts_with("-0x")

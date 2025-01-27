@@ -863,7 +863,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 parse_integer_literal::<i128>(self.handler, string, input.span(), "i128");
                 Type::Integer(IntegerType::I128)
             }
-            Literal::Group(_) => Type::Group,
+            Literal::Group(..) => Type::Group,
             Literal::Scalar(..) => Type::Scalar,
             Literal::String(..) => {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));

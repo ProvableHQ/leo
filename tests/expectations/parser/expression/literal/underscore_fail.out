@@ -81,24 +81,6 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found '_'
      | ^""",
     """
 Error [EPAR0370009]: unexpected string: expected 'expression', found '_'
-    --> test:1:2
-     |
-   1 | (_1___2__3,-4_5__6)group
-     |  ^""",
-    """
-Error [EPAR0370009]: unexpected string: expected 'expression', found '_'
-    --> test:1:3
-     |
-   1 | (-__12___3,456__)group
-     |   ^""",
-    """
-Error [EPAR0370009]: unexpected string: expected 'expression', found '_'
-    --> test:1:3
-     |
-   1 | (-_12__3,_45______6)group
-     |   ^""",
-    """
-Error [EPAR0370009]: unexpected string: expected 'expression', found '_'
     --> test:1:1
      |
    1 | _023group

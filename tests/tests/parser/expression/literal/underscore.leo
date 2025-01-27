@@ -99,27 +99,3 @@ expectation = "Pass"
 873__778____02group
 84699__261group
 29__282609__0group
-
-// group
-(1___2__3,-4_5__6)group
-(-12___3,456__)group
-(-12__3,45______6)group
-(1__23, _)group
-(12__3, -)group
-(0___1_2_3, -)group
-(12_3, +)group
-(0____123, +)group
-(12_3, -)group
-(12__3, _)group
-(+, 345__)group
-(_, 34_5)group
-(+, 345_)group
-(-, 34_____5)group
-(+, 3_45)group
-(-, 3_5)group
-(_, 345_2)group
-(1_2,3_4)group
-(12_3,4_5)group
-(12_3,45_6)group
-(1_2_3,4_5_6)group
-(12_3_4,56_7)group

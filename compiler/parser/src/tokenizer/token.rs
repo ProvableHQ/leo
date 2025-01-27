@@ -104,8 +104,6 @@ pub enum Token {
     BigArrow,
     Underscore,
     At, // @ is not a symbol token in the ABNF grammar (see explanation about annotations below)
-    // There is no symbol for `)group` here (unlike the ABNF grammar),
-    // because we handle that differently in the parser: see the eat_group_partial function.
 
     // The ABNF grammar has annotations as tokens,
     // defined as @ immediately followed by an identifier.

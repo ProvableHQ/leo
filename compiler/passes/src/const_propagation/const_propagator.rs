@@ -107,7 +107,7 @@ pub(crate) fn value_to_expression(value: &Value, span: Span, node_builder: &Node
             let mut s = format!("{x}");
             // Strip off the `group` suffix.
             s.truncate(s.len() - 5);
-            Expression::Literal(Literal::Group(Box::new(leo_ast::GroupLiteral::Single(s, span, id))))
+            Expression::Literal(Literal::Group(s, span, id))
         }
         Field(x) => {
             let mut s = format!("{x}");

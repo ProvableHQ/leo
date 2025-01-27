@@ -1,73 +1,8 @@
 namespace = "ParseExpression"
 expectation = "Fail"
-outputs = [
-    """
-Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> test:1:1
+outputs = ["""
+Error [EPAR0370004]: Unexpected white space between terms 123 and group
+    --> test:1:4
      |
-   1 | ()group
-     | ^^""",
-    """
-Error [EPAR0370017]: Could not parse the implicit value: 123.
-    --> test:1:2
-     |
-   1 | (123)group
-     |  ^^^""",
-    """
-Error [EPAR0370009]: unexpected string: expected 'expression', found ','
-    --> test:1:2
-     |
-   1 | (,)group
-     |  ^""",
-    """
-Error [EPAR0370009]: unexpected string: expected 'expression', found '+'
-    --> test:1:2
-     |
-   1 | (+, -,)group
-     |  ^""",
-    """
-Error [EPAR0370009]: unexpected string: expected 'expression', found ','
-    --> test:1:2
-     |
-   1 | (,+, -)group
-     |  ^""",
-    """
-did not consume all input: 'group' @ 1:6-11
-""",
-    """
-Error [EPAR0370017]: Could not parse the implicit value: 123.
-    --> test:1:2
-     |
-   1 | (123,456u8)group
-     |  ^^^""",
-    """
-Error [EPAR0370017]: Could not parse the implicit value: 123.
-    --> test:1:2
-     |
-   1 | (123,456field)group
-     |  ^^^""",
-    """
-Error [EPAR0370004]: Unexpected white space between terms (123,456) and group
-    --> test:1:11
-     |
-   1 | (123, 456) group
-     |           ^""",
-    """
-Error [EPAR0370017]: Could not parse the implicit value: 123.
-    --> test:1:2
-     |
-   1 | (123, )group
-     |  ^^^""",
-    """
-Error [EPAR0370017]: Could not parse the implicit value: 123.
-    --> test:1:2
-     |
-   1 | (123, 456, 789)group
-     |  ^^^""",
-    """
-Error [EPAR0370017]: Could not parse the implicit value: 123.
-    --> test:1:2
-     |
-   1 | (123, 456)bool
-     |  ^^^""",
-]
+   1 | 123 group
+     |    ^"""]

@@ -282,12 +282,6 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
     }
 
     fn reconstruct_literal(&mut self, input: leo_ast::Literal) -> (Expression, Self::AdditionalOutput) {
-        if let leo_ast::Literal::Group(boxed_gl) = &input {
-            if matches!(&**boxed_gl, leo_ast::GroupLiteral::Tuple(..)) {
-                // YYY - I don't know how to handle this.
-                return (Expression::Literal(input), None);
-            }
-        }
         let value = leo_interpreter::literal_to_value(&input).expect("Should work");
         (Expression::Literal(input), Some(value))
     }

@@ -386,152 +386,39 @@ outputs = [
     0,
 ] } },
     "",
-    { Literal = { Group = { Single = [
+    { Literal = { Group = [
     "19____9__3756___17",
     { span = { lo = 0, hi = 23 } },
     0,
-] } } },
-    { Literal = { Group = { Single = [
+] } },
+    { Literal = { Group = [
     "68______03______3718____9__",
     { span = { lo = 0, hi = 32 } },
     0,
-] } } },
-    { Literal = { Group = { Single = [
+] } },
+    { Literal = { Group = [
     "818__79931__",
     { span = { lo = 0, hi = 17 } },
     0,
-] } } },
-    { Literal = { Group = { Single = [
+] } },
+    { Literal = { Group = [
     "8__9369328__1",
     { span = { lo = 0, hi = 18 } },
     0,
-] } } },
-    { Literal = { Group = { Single = [
+] } },
+    { Literal = { Group = [
     "873__778____02",
     { span = { lo = 0, hi = 19 } },
     0,
-] } } },
-    { Literal = { Group = { Single = [
+] } },
+    { Literal = { Group = [
     "84699__261",
     { span = { lo = 0, hi = 15 } },
     0,
-] } } },
-    { Literal = { Group = { Single = [
+] } },
+    { Literal = { Group = [
     "29__282609__0",
     { span = { lo = 0, hi = 18 } },
     0,
-] } } },
-    "",
-    { Literal = { Group = { Tuple = { id = 0, x = { Number = [
-    "1___2__3",
-    { span = { lo = 1, hi = 9 } },
-] }, y = { Number = [
-    "-4_5__6",
-    { span = { lo = 11, hi = 17 } },
-] }, span = { lo = 0, hi = 23 } } } } },
-    { Literal = { Group = { Tuple = { id = 0, x = { Number = [
-    "-12___3",
-    { span = { lo = 2, hi = 8 } },
-] }, y = { Number = [
-    "456__",
-    { span = { lo = 9, hi = 14 } },
-] }, span = { lo = 0, hi = 20 } } } } },
-    { Literal = { Group = { Tuple = { id = 0, x = { Number = [
-    "-12__3",
-    { span = { lo = 2, hi = 7 } },
-] }, y = { Number = [
-    "45______6",
-    { span = { lo = 8, hi = 17 } },
-] }, span = { lo = 0, hi = 23 } } } } },
-    { Literal = { Group = { Tuple = { y = "Inferred", id = 0, x = { Number = [
-    "1__23",
-    { span = { lo = 1, hi = 6 } },
-] }, span = { lo = 0, hi = 15 } } } } },
-    { Literal = { Group = { Tuple = { y = "SignLow", id = 0, x = { Number = [
-    "12__3",
-    { span = { lo = 1, hi = 6 } },
-] }, span = { lo = 0, hi = 15 } } } } },
-    { Literal = { Group = { Tuple = { y = "SignLow", id = 0, x = { Number = [
-    "0___1_2_3",
-    { span = { lo = 1, hi = 10 } },
-] }, span = { lo = 0, hi = 19 } } } } },
-    { Literal = { Group = { Tuple = { y = "SignHigh", id = 0, x = { Number = [
-    "12_3",
-    { span = { lo = 1, hi = 5 } },
-] }, span = { lo = 0, hi = 14 } } } } },
-    { Literal = { Group = { Tuple = { y = "SignHigh", id = 0, x = { Number = [
-    "0____123",
-    { span = { lo = 1, hi = 9 } },
-] }, span = { lo = 0, hi = 18 } } } } },
-    { Literal = { Group = { Tuple = { y = "SignLow", id = 0, x = { Number = [
-    "12_3",
-    { span = { lo = 1, hi = 5 } },
-] }, span = { lo = 0, hi = 14 } } } } },
-    { Literal = { Group = { Tuple = { y = "Inferred", id = 0, x = { Number = [
-    "12__3",
-    { span = { lo = 1, hi = 6 } },
-] }, span = { lo = 0, hi = 15 } } } } },
-    { Literal = { Group = { Tuple = { x = "SignHigh", id = 0, y = { Number = [
-    "345__",
-    { span = { lo = 4, hi = 9 } },
-] }, span = { lo = 0, hi = 15 } } } } },
-    { Literal = { Group = { Tuple = { x = "Inferred", id = 0, y = { Number = [
-    "34_5",
-    { span = { lo = 4, hi = 8 } },
-] }, span = { lo = 0, hi = 14 } } } } },
-    { Literal = { Group = { Tuple = { x = "SignHigh", id = 0, y = { Number = [
-    "345_",
-    { span = { lo = 4, hi = 8 } },
-] }, span = { lo = 0, hi = 14 } } } } },
-    { Literal = { Group = { Tuple = { x = "SignLow", id = 0, y = { Number = [
-    "34_____5",
-    { span = { lo = 4, hi = 12 } },
-] }, span = { lo = 0, hi = 18 } } } } },
-    { Literal = { Group = { Tuple = { x = "SignHigh", id = 0, y = { Number = [
-    "3_45",
-    { span = { lo = 4, hi = 8 } },
-] }, span = { lo = 0, hi = 14 } } } } },
-    { Literal = { Group = { Tuple = { x = "SignLow", id = 0, y = { Number = [
-    "3_5",
-    { span = { lo = 4, hi = 7 } },
-] }, span = { lo = 0, hi = 13 } } } } },
-    { Literal = { Group = { Tuple = { x = "Inferred", id = 0, y = { Number = [
-    "345_2",
-    { span = { lo = 4, hi = 9 } },
-] }, span = { lo = 0, hi = 15 } } } } },
-    { Literal = { Group = { Tuple = { id = 0, x = { Number = [
-    "1_2",
-    { span = { lo = 1, hi = 4 } },
-] }, y = { Number = [
-    "3_4",
-    { span = { lo = 5, hi = 8 } },
-] }, span = { lo = 0, hi = 14 } } } } },
-    { Literal = { Group = { Tuple = { id = 0, x = { Number = [
-    "12_3",
-    { span = { lo = 1, hi = 5 } },
-] }, y = { Number = [
-    "4_5",
-    { span = { lo = 6, hi = 9 } },
-] }, span = { lo = 0, hi = 15 } } } } },
-    { Literal = { Group = { Tuple = { id = 0, x = { Number = [
-    "12_3",
-    { span = { lo = 1, hi = 5 } },
-] }, y = { Number = [
-    "45_6",
-    { span = { lo = 6, hi = 10 } },
-] }, span = { lo = 0, hi = 16 } } } } },
-    { Literal = { Group = { Tuple = { id = 0, x = { Number = [
-    "1_2_3",
-    { span = { lo = 1, hi = 6 } },
-] }, y = { Number = [
-    "4_5_6",
-    { span = { lo = 7, hi = 12 } },
-] }, span = { lo = 0, hi = 18 } } } } },
-    { Literal = { Group = { Tuple = { id = 0, x = { Number = [
-    "12_3_4",
-    { span = { lo = 1, hi = 7 } },
-] }, y = { Number = [
-    "56_7",
-    { span = { lo = 8, hi = 12 } },
-] }, span = { lo = 0, hi = 18 } } } } },
+] } },
 ]
