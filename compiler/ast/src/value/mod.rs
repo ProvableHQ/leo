@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FromStrRadix as _, GroupLiteral, Identifier, IntegerType, Literal, NodeID, Type};
+use crate::{FromStrRadix as _, Identifier, IntegerType, Literal, NodeID, Type};
 
 use leo_errors::{FlattenError, LeoError, Result, type_name};
 use leo_span::{Span, Symbol};
@@ -188,7 +188,7 @@ pub enum Value {
     Boolean(bool, Span),
     Struct(Identifier, IndexMap<Symbol, Value>),
     Field(String, Span),
-    Group(Box<GroupLiteral>),
+    Group(String, Span),
     I8(i8, Span),
     I16(i16, Span),
     I32(i32, Span),
@@ -734,7 +734,7 @@ impl Display for Value {
             Struct(val, _) => write!(f, "{}", val.name),
             Boolean(val, _) => write!(f, "{val}"),
             Field(val, _) => write!(f, "{val}"),
-            Group(val) => write!(f, "{val}"),
+            Group(val, _) => write!(f, "{val}"),
             I8(val, _) => write!(f, "{val}"),
             I16(val, _) => write!(f, "{val}"),
             I32(val, _) => write!(f, "{val}"),
@@ -842,7 +842,7 @@ impl From<&Value> for Type {
             Boolean(_, _) => Type::Boolean,
             Struct(ident, _) => Type::Identifier(*ident),
             Field(_, _) => Type::Field,
-            Group(_) => Type::Group,
+            Group(_, _) => Type::Group,
             I8(_, _) => Type::Integer(IntegerType::I8),
             I16(_, _) => Type::Integer(IntegerType::I16),
             I32(_, _) => Type::Integer(IntegerType::I32),
@@ -868,7 +868,7 @@ impl TryFrom<&Literal> for Value {
             Literal::Address(string, span, _) => Self::Address(string.clone(), *span),
             Literal::Boolean(bool, span, _) => Self::Boolean(*bool, *span),
             Literal::Field(string, span, _) => Self::Field(string.clone(), *span),
-            Literal::Group(group_literal) => Self::Group(group_literal.clone()),
+            Literal::Group(string, span, _) => Self::Group(string.clone(), *span),
             Literal::Scalar(string, span, _) => Self::Scalar(string.clone(), *span),
             Literal::String(string, span, _) => Self::String(string.clone(), *span),
             Literal::Integer(integer_type, raw_string, span, _) => {
@@ -900,7 +900,7 @@ impl Literal {
             Boolean(v, span) => Literal::Boolean(v, span, id),
             Struct(_ident, _values) => todo!("We need to test if this is hittable"),
             Field(v, span) => Literal::Field(v, span, id),
-            Group(v) => Literal::Group(v),
+            Group(v, span) => Literal::Group(v, span, id),
             I8(v, span) => Literal::Integer(IntegerType::I8, v.to_string(), span, id),
             I16(v, span) => Literal::Integer(IntegerType::I16, v.to_string(), span, id),
             I32(v, span) => Literal::Integer(IntegerType::I32, v.to_string(), span, id),

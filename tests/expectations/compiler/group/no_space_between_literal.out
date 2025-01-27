@@ -1,8 +1,8 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [EPAR0370004]: Unexpected white space between terms (0,1) and group
-    --> compiler-test:5:27
+Error [EPAR0370004]: Unexpected white space between terms 1 and group
+    --> compiler-test:5:23
      |
-   5 |       let g: group = (0,1) group;
-     |                           ^"""]
+   5 |       let g: group = 1 group;
+     |                       ^"""]

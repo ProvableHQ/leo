@@ -26,7 +26,6 @@ use leo_ast::{
     Expression,
     FromStrRadix as _,
     Function,
-    GroupLiteral,
     IntegerType,
     Literal,
     Statement,
@@ -1701,10 +1700,7 @@ pub fn literal_to_value(literal: &Literal) -> Result<Value> {
             Value::I128(i128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
         Literal::Field(s, ..) => Value::Field(format!("{s}field").parse().expect_tc(literal.span())?),
-        Literal::Group(group_literal) => match &**group_literal {
-            GroupLiteral::Single(s, ..) => Value::Group(format!("{s}group").parse().expect_tc(literal.span())?),
-            GroupLiteral::Tuple(_group_tuple) => todo!(),
-        },
+        Literal::Group(s, ..) => Value::Group(format!("{s}group").parse().expect_tc(literal.span())?),
         Literal::Address(s, ..) => {
             if s.ends_with(".aleo") {
                 let program_id = ProgramID::from_str(s)?;

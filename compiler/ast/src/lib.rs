@@ -37,9 +37,6 @@ pub use self::expressions::*;
 pub mod functions;
 pub use self::functions::*;
 
-pub mod groups;
-pub use self::groups::*;
-
 mod indent_display;
 use indent_display::*;
 

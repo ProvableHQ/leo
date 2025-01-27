@@ -283,17 +283,11 @@ impl<N: Network> ParserContext<'_, N> {
                     // Construct a negative field literal.
                     inner = Expression::Literal(Literal::Field(format!("-{string}"), op_span + span, id));
                 }
-                Expression::Literal(Literal::Group(group_literal)) => {
+                Expression::Literal(Literal::Group(string, span, id)) => {
                     // Remove the negation from the operations.
                     let (_, op_span) = ops.pop().unwrap();
                     // Construct a negative group literal.
-                    // Note that we only handle the case where the group literal is a single integral value.
-                    inner = Expression::Literal(Literal::Group(Box::new(match *group_literal {
-                        GroupLiteral::Single(string, span, id) => {
-                            GroupLiteral::Single(format!("-{string}"), op_span + span, id)
-                        }
-                        GroupLiteral::Tuple(tuple) => GroupLiteral::Tuple(tuple),
-                    })));
+                    inner = Expression::Literal(Literal::Group(format!("-{string}"), op_span + span, id));
                 }
                 Expression::Literal(Literal::Scalar(string, span, id)) => {
                     // Remove the negation from the operations.
@@ -602,10 +596,6 @@ impl<N: Network> ParserContext<'_, N> {
     /// a parenthesized expression or a unit expression
     /// or a tuple initialization expression or an affine group literal.
     fn parse_tuple_expression(&mut self) -> Result<Expression> {
-        if let Some(gt) = self.eat_group_partial().transpose()? {
-            return Ok(Expression::Literal(Literal::Group(Box::new(GroupLiteral::Tuple(gt)))));
-        }
-
         let (mut elements, trailing, span) = self.parse_expr_tuple()?;
 
         match (elements.len(), trailing) {
@@ -636,66 +626,6 @@ impl<N: Network> ParserContext<'_, N> {
             // Note: This is the only place where `ArrayExpression` is constructed in the parser.
             false => Ok(Expression::Array(ArrayExpression { elements, span, id: self.node_builder.next_id() })),
         }
-    }
-
-    /// Returns a reference to the next token if it is a [`GroupCoordinate`], or [None] if
-    /// the next token is not a [`GroupCoordinate`].
-    fn peek_group_coordinate(&self, dist: &mut usize) -> Option<GroupCoordinate> {
-        let (advanced, gc) = self.look_ahead(*dist, |t0| match &t0.token {
-            Token::Add => Some((1, GroupCoordinate::SignHigh)),
-            Token::Sub => self.look_ahead(*dist + 1, |t1| match &t1.token {
-                Token::Integer(value) => Some((2, GroupCoordinate::Number(format!("-{value}"), t1.span))),
-                _ => Some((1, GroupCoordinate::SignLow)),
-            }),
-            Token::Underscore => Some((1, GroupCoordinate::Inferred)),
-            Token::Integer(value) => Some((1, GroupCoordinate::Number(value.clone(), t0.span))),
-            _ => None,
-        })?;
-        *dist += advanced;
-        Some(gc)
-    }
-
-    /// Attempts to parse an affine group literal, if present.
-    /// If absent, returns [None].
-    fn eat_group_partial(&mut self) -> Option<Result<GroupTuple>> {
-        assert!(self.check(&Token::LeftParen)); // `(`.
-
-        // Peek at first group coordinate.
-        let start_span = &self.token.span;
-        let mut dist = 1; // 0th is `(` so 1st is first group coordinate's start.
-        let first_gc = self.peek_group_coordinate(&mut dist)?;
-
-        let check_ahead = |d, token: &_| self.look_ahead(d, |t| (&t.token == token).then_some(t.span));
-
-        // Peek at `,`.
-        check_ahead(dist, &Token::Comma)?;
-        dist += 1; // Standing at `,` so advance one for next gc's start.
-
-        // Peek at second group coordinate.
-        let second_gc = self.peek_group_coordinate(&mut dist)?;
-
-        // Peek at `)`.
-        let right_paren_span = check_ahead(dist, &Token::RightParen)?;
-        dist += 1; // Standing at `)` so advance one for 'group'.
-
-        // Peek at `group`.
-        let end_span = check_ahead(dist, &Token::Group)?;
-        dist += 1; // Standing at `)` so advance one for 'group'.
-
-        let gt =
-            GroupTuple { span: start_span + &end_span, x: first_gc, y: second_gc, id: self.node_builder.next_id() };
-
-        // Eat everything so that this isn't just peeking.
-        for _ in 0..dist {
-            self.bump();
-        }
-
-        // Ensure that the ending `)` and `group` are treated as one token `)group` as in the ABNF grammar:
-        if let Err(e) = assert_no_whitespace(right_paren_span, end_span, &format!("({},{})", gt.x, gt.y), "group") {
-            return Some(Err(e));
-        }
-
-        Some(Ok(gt))
     }
 
     fn parse_struct_member(&mut self) -> Result<StructVariableInitializer> {
@@ -779,11 +709,7 @@ impl<N: Network> ParserContext<'_, N> {
                     // Literal followed by `group`, e.g., `42group`.
                     Some(Token::Group) => {
                         assert_no_whitespace("group")?;
-                        Expression::Literal(Literal::Group(Box::new(GroupLiteral::Single(
-                            value,
-                            full_span,
-                            self.node_builder.next_id(),
-                        ))))
+                        Expression::Literal(Literal::Group(value, full_span, self.node_builder.next_id()))
                     }
                     // Literal followed by `scalar` e.g., `42scalar`.
                     Some(Token::Scalar) => {
