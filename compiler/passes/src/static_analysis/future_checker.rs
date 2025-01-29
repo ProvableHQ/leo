@@ -50,11 +50,11 @@ impl<'a> FutureChecker<'a> {
     }
 }
 
-impl<'a> ExpressionVisitor<'a> for FutureChecker<'a> {
+impl ExpressionVisitor for FutureChecker<'_> {
     type AdditionalInput = Position;
     type Output = ();
 
-    fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_expression(&mut self, input: &Expression, additional: &Self::AdditionalInput) -> Self::Output {
         use Position::*;
         let is_call = matches!(input, Expression::Call(..));
         match self.type_table.get(&input.id()) {
@@ -104,11 +104,7 @@ impl<'a> ExpressionVisitor<'a> for FutureChecker<'a> {
         }
     }
 
-    fn visit_access(
-        &mut self,
-        input: &'a leo_ast::AccessExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> Self::Output {
+    fn visit_access(&mut self, input: &leo_ast::AccessExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         match input {
             leo_ast::AccessExpression::Array(array) => {
                 self.visit_expression(&array.array, &Position::Misc);
@@ -135,14 +131,14 @@ impl<'a> ExpressionVisitor<'a> for FutureChecker<'a> {
         Default::default()
     }
 
-    fn visit_call(&mut self, input: &'a leo_ast::CallExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_call(&mut self, input: &leo_ast::CallExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         input.arguments.iter().for_each(|expr| {
             self.visit_expression(expr, &Position::FunctionArgument);
         });
         Default::default()
     }
 
-    fn visit_tuple(&mut self, input: &'a leo_ast::TupleExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_tuple(&mut self, input: &leo_ast::TupleExpression, additional: &Self::AdditionalInput) -> Self::Output {
         let next_position = match additional {
             Position::Definition | Position::Return => Position::LastTupleLiteral,
             _ => Position::Misc,
@@ -156,12 +152,12 @@ impl<'a> ExpressionVisitor<'a> for FutureChecker<'a> {
     }
 }
 
-impl<'a> StatementVisitor<'a> for FutureChecker<'a> {
-    fn visit_definition(&mut self, input: &'a leo_ast::DefinitionStatement) {
+impl StatementVisitor for FutureChecker<'_> {
+    fn visit_definition(&mut self, input: &leo_ast::DefinitionStatement) {
         self.visit_expression(&input.value, &Position::Definition);
     }
 
-    fn visit_return(&mut self, input: &'a leo_ast::ReturnStatement) {
+    fn visit_return(&mut self, input: &leo_ast::ReturnStatement) {
         self.visit_expression(&input.expression, &Position::Return);
     }
 }

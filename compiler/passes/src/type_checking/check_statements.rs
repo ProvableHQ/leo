@@ -22,8 +22,8 @@ use leo_ast::{
 };
 use leo_errors::TypeCheckerError;
 
-impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
-    fn visit_statement(&mut self, input: &'a Statement) {
+impl StatementVisitor for TypeChecker<'_> {
+    fn visit_statement(&mut self, input: &Statement) {
         // No statements can follow a return statement.
         if self.scope_state.has_return {
             self.emit_err(TypeCheckerError::unreachable_code_after_return(input.span()));
@@ -44,7 +44,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_assert(&mut self, input: &'a AssertStatement) {
+    fn visit_assert(&mut self, input: &AssertStatement) {
         match &input.variant {
             AssertVariant::Assert(expr) => {
                 let _type = self.visit_expression(expr, &Some(Type::Boolean));
@@ -62,7 +62,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_assign(&mut self, input: &'a AssignStatement) {
+    fn visit_assign(&mut self, input: &AssignStatement) {
         let Expression::Identifier(var_name) = input.place else {
             self.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
             return;
@@ -95,13 +95,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.visit_expression(&input.value, &Some(var.type_.clone()));
     }
 
-    fn visit_block(&mut self, input: &'a Block) {
+    fn visit_block(&mut self, input: &Block) {
         self.in_scope(input.id, |slf| {
             input.statements.iter().for_each(|stmt| slf.visit_statement(stmt));
         });
     }
 
-    fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
+    fn visit_conditional(&mut self, input: &ConditionalStatement) {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
         let mut then_block_has_return = false;
@@ -141,11 +141,11 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.scope_state.is_conditional = previous_is_conditional;
     }
 
-    fn visit_console(&mut self, _: &'a ConsoleStatement) {
+    fn visit_console(&mut self, _: &ConsoleStatement) {
         unreachable!("Parsing guarantees that console statements are not present in the AST.");
     }
 
-    fn visit_const(&mut self, input: &'a ConstDeclaration) {
+    fn visit_const(&mut self, input: &ConstDeclaration) {
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
@@ -179,7 +179,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
+    fn visit_definition(&mut self, input: &DefinitionStatement) {
         // Check that the type of the definition is defined.
         self.assert_type_is_valid(&input.type_, input.span);
 
@@ -247,7 +247,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
+    fn visit_expression_statement(&mut self, input: &ExpressionStatement) {
         // Expression statements can only be function calls.
         if !matches!(
             input.expression,
@@ -260,7 +260,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_iteration(&mut self, input: &'a IterationStatement) {
+    fn visit_iteration(&mut self, input: &IterationStatement) {
         self.assert_int_type(&input.type_, input.variable.span);
 
         self.in_scope(input.id(), |slf| {
@@ -295,7 +295,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.visit_expression(&input.stop, &Some(input.type_.clone()));
     }
 
-    fn visit_return(&mut self, input: &'a ReturnStatement) {
+    fn visit_return(&mut self, input: &ReturnStatement) {
         let func_name = self.scope_state.function.unwrap();
         let func_symbol = self
             .symbol_table

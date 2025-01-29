@@ -16,19 +16,18 @@
 
 use leo_ast::*;
 
-use std::{collections::HashSet, marker::PhantomData};
+use std::collections::HashSet;
 
 /// A utility that checks that each node in the AST has a unique `NodeID`.
-pub struct CheckUniqueNodeIds<'a> {
+pub struct CheckUniqueNodeIds {
     /// The set of `NodeID`s that have been seen.
     seen: HashSet<NodeID>,
-    _phantom: PhantomData<&'a ()>,
 }
 
-impl<'a> CheckUniqueNodeIds<'a> {
+impl CheckUniqueNodeIds {
     /// Creates a new `CheckUniqueNodeId`.
     pub fn new() -> Self {
-        Self { seen: HashSet::new(), _phantom: PhantomData }
+        Self { seen: HashSet::new() }
     }
 
     /// Checks that the given `NodeID` has not been seen before.
@@ -39,7 +38,7 @@ impl<'a> CheckUniqueNodeIds<'a> {
     }
 
     /// Checks that the given `Type` has a unique `NodeID`.
-    pub fn check_ty(&mut self, ty: &'a Type) {
+    pub fn check_ty(&mut self, ty: &Type) {
         match ty {
             Type::Identifier(identifier) => self.visit_identifier(identifier, &Default::default()),
             Type::Mapping(mapping) => {
@@ -56,11 +55,11 @@ impl<'a> CheckUniqueNodeIds<'a> {
     }
 }
 
-impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
+impl ExpressionVisitor for CheckUniqueNodeIds {
     type AdditionalInput = ();
     type Output = ();
 
-    fn visit_access(&mut self, input: &'a AccessExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_access(&mut self, input: &AccessExpression, _: &Self::AdditionalInput) -> Self::Output {
         match input {
             AccessExpression::Array(ArrayAccess { array, index, id, .. }) => {
                 self.visit_expression(array, &Default::default());
@@ -93,14 +92,14 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
         }
     }
 
-    fn visit_binary(&mut self, input: &'a BinaryExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_binary(&mut self, input: &BinaryExpression, _: &Self::AdditionalInput) -> Self::Output {
         let BinaryExpression { left, right, id, .. } = input;
         self.visit_expression(left, &Default::default());
         self.visit_expression(right, &Default::default());
         self.check(*id);
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_call(&mut self, input: &CallExpression, _: &Self::AdditionalInput) -> Self::Output {
         let CallExpression { function, arguments, program: _external, id, .. } = input;
         self.visit_expression(function, &Default::default());
         for argument in arguments {
@@ -109,14 +108,14 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.check(*id);
     }
 
-    fn visit_cast(&mut self, input: &'a CastExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_cast(&mut self, input: &CastExpression, _: &Self::AdditionalInput) -> Self::Output {
         let CastExpression { expression, type_, id, .. } = input;
         self.visit_expression(expression, &Default::default());
         self.check_ty(type_);
         self.check(*id);
     }
 
-    fn visit_struct_init(&mut self, input: &'a StructExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_struct_init(&mut self, input: &StructExpression, _: &Self::AdditionalInput) -> Self::Output {
         let StructExpression { name, members, id, .. } = input;
         self.visit_identifier(name, &Default::default());
         for StructVariableInitializer { identifier, expression, id, .. } in members {
@@ -129,19 +128,19 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.check(*id);
     }
 
-    fn visit_err(&mut self, input: &'a ErrExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_err(&mut self, input: &ErrExpression, _: &Self::AdditionalInput) -> Self::Output {
         self.check(input.id);
     }
 
-    fn visit_identifier(&mut self, input: &'a Identifier, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_identifier(&mut self, input: &Identifier, _: &Self::AdditionalInput) -> Self::Output {
         self.check(input.id)
     }
 
-    fn visit_literal(&mut self, input: &'a Literal, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_literal(&mut self, input: &Literal, _: &Self::AdditionalInput) -> Self::Output {
         self.check(input.id())
     }
 
-    fn visit_ternary(&mut self, input: &'a TernaryExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_ternary(&mut self, input: &TernaryExpression, _: &Self::AdditionalInput) -> Self::Output {
         let TernaryExpression { condition, if_true, if_false, id, .. } = input;
         self.visit_expression(condition, &Default::default());
         self.visit_expression(if_true, &Default::default());
@@ -149,7 +148,7 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.check(*id);
     }
 
-    fn visit_tuple(&mut self, input: &'a TupleExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_tuple(&mut self, input: &TupleExpression, _: &Self::AdditionalInput) -> Self::Output {
         let TupleExpression { elements, id, .. } = input;
         for element in elements {
             self.visit_expression(element, &Default::default());
@@ -157,19 +156,19 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.check(*id);
     }
 
-    fn visit_unary(&mut self, input: &'a UnaryExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unary(&mut self, input: &UnaryExpression, _: &Self::AdditionalInput) -> Self::Output {
         let UnaryExpression { receiver, id, .. } = input;
         self.visit_expression(receiver, &Default::default());
         self.check(*id);
     }
 
-    fn visit_unit(&mut self, input: &'a UnitExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unit(&mut self, input: &UnitExpression, _: &Self::AdditionalInput) -> Self::Output {
         self.check(input.id)
     }
 }
 
-impl<'a> StatementVisitor<'a> for CheckUniqueNodeIds<'a> {
-    fn visit_assert(&mut self, input: &'a AssertStatement) {
+impl StatementVisitor for CheckUniqueNodeIds {
+    fn visit_assert(&mut self, input: &AssertStatement) {
         match &input.variant {
             AssertVariant::Assert(expr) => self.visit_expression(expr, &Default::default()),
             AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
@@ -180,18 +179,18 @@ impl<'a> StatementVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.check(input.id)
     }
 
-    fn visit_assign(&mut self, input: &'a AssignStatement) {
+    fn visit_assign(&mut self, input: &AssignStatement) {
         self.visit_expression(&input.place, &Default::default());
         self.visit_expression(&input.value, &Default::default());
         self.check(input.id)
     }
 
-    fn visit_block(&mut self, input: &'a Block) {
+    fn visit_block(&mut self, input: &Block) {
         input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
         self.check(input.id)
     }
 
-    fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
+    fn visit_conditional(&mut self, input: &ConditionalStatement) {
         self.visit_expression(&input.condition, &Default::default());
         self.visit_block(&input.then);
         if let Some(stmt) = input.otherwise.as_ref() {
@@ -200,7 +199,7 @@ impl<'a> StatementVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.check(input.id)
     }
 
-    fn visit_console(&mut self, input: &'a ConsoleStatement) {
+    fn visit_console(&mut self, input: &ConsoleStatement) {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
                 self.visit_expression(expr, &Default::default());
@@ -217,19 +216,19 @@ impl<'a> StatementVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.check(input.id)
     }
 
-    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
+    fn visit_definition(&mut self, input: &DefinitionStatement) {
         self.visit_expression(&input.place, &Default::default());
         self.check_ty(&input.type_);
         self.visit_expression(&input.value, &Default::default());
         self.check(input.id)
     }
 
-    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
+    fn visit_expression_statement(&mut self, input: &ExpressionStatement) {
         self.visit_expression(&input.expression, &Default::default());
         self.check(input.id)
     }
 
-    fn visit_iteration(&mut self, input: &'a IterationStatement) {
+    fn visit_iteration(&mut self, input: &IterationStatement) {
         self.visit_identifier(&input.variable, &Default::default());
         self.check_ty(&input.type_);
         self.visit_expression(&input.start, &Default::default());
@@ -238,14 +237,14 @@ impl<'a> StatementVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.check(input.id)
     }
 
-    fn visit_return(&mut self, input: &'a ReturnStatement) {
+    fn visit_return(&mut self, input: &ReturnStatement) {
         self.visit_expression(&input.expression, &Default::default());
         self.check(input.id)
     }
 }
 
-impl<'a> ProgramVisitor<'a> for CheckUniqueNodeIds<'a> {
-    fn visit_struct(&mut self, input: &'a Composite) {
+impl ProgramVisitor for CheckUniqueNodeIds {
+    fn visit_struct(&mut self, input: &Composite) {
         let Composite { identifier, members, id, .. } = input;
         self.visit_identifier(identifier, &Default::default());
         for Member { identifier, type_, id, .. } in members {
@@ -256,7 +255,7 @@ impl<'a> ProgramVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.check(*id);
     }
 
-    fn visit_mapping(&mut self, input: &'a Mapping) {
+    fn visit_mapping(&mut self, input: &Mapping) {
         let Mapping { identifier, key_type, value_type, id, .. } = input;
         self.visit_identifier(identifier, &Default::default());
         self.check_ty(key_type);
@@ -264,7 +263,7 @@ impl<'a> ProgramVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.check(*id);
     }
 
-    fn visit_function(&mut self, input: &'a Function) {
+    fn visit_function(&mut self, input: &Function) {
         let Function { annotations, identifier, input, output, block, id, .. } = input;
         // Check the annotations.
         for Annotation { identifier, id, .. } in annotations {
