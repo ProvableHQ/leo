@@ -163,7 +163,7 @@
 </span><span class="kw">pub mod </span>member;
 <span class="kw">pub use </span>member::<span class="kw-2">*</span>;
 
-<span class="kw">use crate</span>::{Identifier, Mode, Node, NodeID, Type};
+<span class="kw">use crate</span>::{Identifier, Indent, Mode, Node, NodeID, Type};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
 <span class="kw">use </span>itertools::Itertools;
@@ -281,11 +281,11 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Composite {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         f.write_str(<span class="kw">if </span><span class="self">self</span>.is_record { <span class="string">"record" </span>} <span class="kw">else </span>{ <span class="string">"struct" </span>})<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(f, <span class="string">" {} {{ "</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">"{} {{"</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
         <span class="kw">for </span>field <span class="kw">in </span><span class="self">self</span>.members.iter() {
-            <span class="macro">writeln!</span>(f, <span class="string">"        {field}"</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"{},"</span>, Indent(field))<span class="question-mark">?</span>;
         }
-        <span class="macro">write!</span>(f, <span class="string">"    }}"</span>)
+        <span class="macro">write!</span>(f, <span class="string">"}}"</span>)
     }
 }
 

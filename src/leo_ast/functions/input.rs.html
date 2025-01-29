@@ -60,7 +60,11 @@
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -99,7 +103,11 @@
 
 <span class="kw">impl </span>Input {
     <span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"{} {}: {}"</span>, <span class="self">self</span>.mode, <span class="self">self</span>.identifier, <span class="self">self</span>.type_)
+        <span class="kw">if </span><span class="self">self</span>.mode == Mode::None {
+            <span class="macro">write!</span>(f, <span class="string">"{}: {}"</span>, <span class="self">self</span>.identifier, <span class="self">self</span>.type_)
+        } <span class="kw">else </span>{
+            <span class="macro">write!</span>(f, <span class="string">"{} {}: {}"</span>, <span class="self">self</span>.mode, <span class="self">self</span>.identifier, <span class="self">self</span>.type_)
+        }
     }
 
     <span class="kw">pub fn </span>identifier(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Identifier {

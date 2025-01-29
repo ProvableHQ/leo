@@ -42,7 +42,8 @@
 <a href="#41" id="41">41</a>
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
-<a href="#44" id="44">44</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#44" id="44">44</a>
+<a href="#45" id="45">45</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -61,6 +62,7 @@
 </span><span class="kw">use crate</span>::{Expression, Identifier, Node, NodeID};
 <span class="kw">use </span>leo_span::Span;
 
+<span class="kw">use </span>itertools::Itertools <span class="kw">as _</span>;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::fmt;
 
@@ -81,7 +83,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>AssociatedFunction {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"{}::{}"</span>, <span class="self">self</span>.variant, <span class="self">self</span>.name)
+        <span class="macro">write!</span>(f, <span class="string">"{}::{}({})"</span>, <span class="self">self</span>.variant, <span class="self">self</span>.name, <span class="self">self</span>.arguments.iter().format(<span class="string">", "</span>))
     }
 }
 

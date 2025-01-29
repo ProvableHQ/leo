@@ -34,7 +34,9 @@
 <a href="#33" id="33">33</a>
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
-<a href="#36" id="36">36</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -52,6 +54,8 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
+<span class="kw">use </span>itertools::Itertools <span class="kw">as _</span>;
+
 <span class="doccomment">/// An array expression, e.g., `[true, false, true, false]`.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>ArrayExpression {
@@ -65,7 +69,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ArrayExpression {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"[{}]"</span>, <span class="self">self</span>.elements.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">","</span>))
+        <span class="macro">write!</span>(f, <span class="string">"[{}]"</span>, <span class="self">self</span>.elements.iter().format(<span class="string">", "</span>))
     }
 }
 

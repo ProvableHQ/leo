@@ -102,9 +102,9 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>AssertStatement {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self</span>.variant {
-            AssertVariant::Assert(<span class="kw-2">ref </span>expr) =&gt; <span class="macro">write!</span>(f, <span class="string">"assert({expr});"</span>),
-            AssertVariant::AssertEq(<span class="kw-2">ref </span>expr1, <span class="kw-2">ref </span>expr2) =&gt; <span class="macro">write!</span>(f, <span class="string">"assert_eq({expr1}, {expr2});"</span>),
-            AssertVariant::AssertNeq(<span class="kw-2">ref </span>expr1, <span class="kw-2">ref </span>expr2) =&gt; <span class="macro">write!</span>(f, <span class="string">"assert_neq({expr1}, {expr2});"</span>),
+            AssertVariant::Assert(<span class="kw-2">ref </span>expr) =&gt; <span class="macro">write!</span>(f, <span class="string">"assert({expr})"</span>),
+            AssertVariant::AssertEq(<span class="kw-2">ref </span>expr1, <span class="kw-2">ref </span>expr2) =&gt; <span class="macro">write!</span>(f, <span class="string">"assert_eq({expr1}, {expr2})"</span>),
+            AssertVariant::AssertNeq(<span class="kw-2">ref </span>expr1, <span class="kw-2">ref </span>expr2) =&gt; <span class="macro">write!</span>(f, <span class="string">"assert_neq({expr1}, {expr2})"</span>),
         }
     }
 }

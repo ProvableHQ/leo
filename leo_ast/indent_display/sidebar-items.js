@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["SPACES"],"struct":["Indent","IndentWriter"]};

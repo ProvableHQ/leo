@@ -92,7 +92,7 @@
 
 </span><span class="doccomment">//! A Leo program scope consists of struct, function, and mapping definitions.
 
-</span><span class="kw">use crate</span>::{Composite, ConstDeclaration, Function, Mapping, ProgramId, Stub};
+</span><span class="kw">use crate</span>::{Composite, ConstDeclaration, Function, Indent, Mapping, ProgramId, Stub};
 
 <span class="kw">use </span>leo_span::{Span, Symbol};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -136,18 +136,18 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">writeln!</span>(f, <span class="string">"program {} {{"</span>, <span class="self">self</span>.program_id)<span class="question-mark">?</span>;
         <span class="kw">for </span>(<span class="kw">_</span>, const_decl) <span class="kw">in </span><span class="self">self</span>.consts.iter() {
-            <span class="macro">writeln!</span>(f, <span class="string">"    {const_decl}"</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"{};"</span>, Indent(const_decl))<span class="question-mark">?</span>;
         }
         <span class="kw">for </span>(<span class="kw">_</span>, struct_) <span class="kw">in </span><span class="self">self</span>.structs.iter() {
-            <span class="macro">writeln!</span>(f, <span class="string">"    {struct_}"</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"{}"</span>, Indent(struct_))<span class="question-mark">?</span>;
         }
         <span class="kw">for </span>(<span class="kw">_</span>, mapping) <span class="kw">in </span><span class="self">self</span>.mappings.iter() {
-            <span class="macro">writeln!</span>(f, <span class="string">"    {mapping}"</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"{};"</span>, Indent(mapping))<span class="question-mark">?</span>;
         }
         <span class="kw">for </span>(<span class="kw">_</span>, function) <span class="kw">in </span><span class="self">self</span>.functions.iter() {
-            <span class="macro">writeln!</span>(f, <span class="string">"    {function}"</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"{}"</span>, Indent(function))<span class="question-mark">?</span>;
         }
-        <span class="prelude-val">Ok</span>(())
+        <span class="macro">write!</span>(f, <span class="string">"}}"</span>)
     }
 }
 </code></pre></div></section></main></body></html>

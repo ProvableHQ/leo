@@ -61,9 +61,7 @@
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#63" id="63">63</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -108,15 +106,13 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Program {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">for </span>(id, _import) <span class="kw">in </span><span class="self">self</span>.imports.iter() {
-            <span class="macro">writeln!</span>(f, <span class="string">"import {id}.leo;"</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"import {id}.aleo;"</span>)<span class="question-mark">?</span>;
         }
         <span class="kw">for </span>(<span class="kw">_</span>, stub) <span class="kw">in </span><span class="self">self</span>.stubs.iter() {
-            stub.fmt(f)<span class="question-mark">?</span>;
-            <span class="macro">writeln!</span>(f,)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"{}"</span>, stub)<span class="question-mark">?</span>;
         }
         <span class="kw">for </span>(<span class="kw">_</span>, program_scope) <span class="kw">in </span><span class="self">self</span>.program_scopes.iter() {
-            program_scope.fmt(f)<span class="question-mark">?</span>;
-            <span class="macro">writeln!</span>(f,)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">"{}"</span>, program_scope)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }

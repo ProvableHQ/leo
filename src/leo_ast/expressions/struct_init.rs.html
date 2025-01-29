@@ -95,7 +95,17 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -113,6 +123,8 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_span::sym;
+
+<span class="kw">use </span>itertools::Itertools <span class="kw">as _</span>;
 
 <span class="doccomment">/// An initializer for a single field / variable of a struct initializer expression.
 /// That is, in `Foo { bar: 42, baz }`, this is either `bar: 42`, or `baz`.
@@ -187,7 +199,15 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>StructExpression {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"{{{}}}"</span>, <span class="self">self</span>.members.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">", "</span>))
+        <span class="macro">write!</span>(f, <span class="string">"{} {{"</span>, <span class="self">self</span>.name)<span class="question-mark">?</span>;
+        <span class="kw">if </span>!<span class="self">self</span>.members.is_empty() {
+            <span class="macro">write!</span>(f, <span class="string">" "</span>)<span class="question-mark">?</span>;
+        }
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.members.iter().format(<span class="string">", "</span>))<span class="question-mark">?</span>;
+        <span class="kw">if </span>!<span class="self">self</span>.members.is_empty() {
+            <span class="macro">write!</span>(f, <span class="string">" "</span>)<span class="question-mark">?</span>;
+        }
+        <span class="macro">write!</span>(f, <span class="string">"}}"</span>)
     }
 }
 

@@ -57,7 +57,11 @@
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -73,7 +77,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Block, Expression, Identifier, Node, NodeID, Type, Value};
+</span><span class="kw">use crate</span>::{Block, Expression, Identifier, Indent, Node, NodeID, Type, Value};
 
 <span class="kw">use </span>leo_span::Span;
 
@@ -111,7 +115,11 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>IterationStatement {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">let </span>eq = <span class="kw">if </span><span class="self">self</span>.inclusive { <span class="string">"=" </span>} <span class="kw">else </span>{ <span class="string">"" </span>};
-        <span class="macro">write!</span>(f, <span class="string">"for {} in {}..{eq}{} {}"</span>, <span class="self">self</span>.variable, <span class="self">self</span>.start, <span class="self">self</span>.stop, <span class="self">self</span>.block)
+        <span class="macro">writeln!</span>(f, <span class="string">"for {}: {} in {}..{eq}{} {{"</span>, <span class="self">self</span>.variable, <span class="self">self</span>.type_, <span class="self">self</span>.start, <span class="self">self</span>.stop)<span class="question-mark">?</span>;
+        <span class="kw">for </span>stmt <span class="kw">in </span><span class="self">self</span>.block.statements.iter() {
+            <span class="macro">writeln!</span>(f, <span class="string">"{}{}"</span>, Indent(stmt), stmt.semicolon())<span class="question-mark">?</span>;
+        }
+        <span class="macro">writeln!</span>(f, <span class="string">"}}"</span>)
     }
 }
 

@@ -148,7 +148,11 @@
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -182,9 +186,10 @@
 <span class="kw">pub mod </span>mode;
 <span class="kw">pub use </span>mode::<span class="kw-2">*</span>;
 
-<span class="kw">use crate</span>::{Block, FunctionStub, Identifier, Node, NodeID, TupleType, Type};
+<span class="kw">use crate</span>::{Block, FunctionStub, Identifier, Indent, Node, NodeID, TupleType, Type};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
+<span class="kw">use </span>itertools::Itertools <span class="kw">as _</span>;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::fmt;
 
@@ -245,28 +250,6 @@
     </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Symbol {
         <span class="self">self</span>.identifier.name
     }
-
-    <span class="doccomment">///
-    /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
-    ///
-    </span><span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="kw">match </span><span class="self">self</span>.variant {
-            Variant::Inline =&gt; <span class="macro">write!</span>(f, <span class="string">"inline "</span>)<span class="question-mark">?</span>,
-            Variant::Function | Variant::AsyncFunction =&gt; <span class="macro">write!</span>(f, <span class="string">"function "</span>)<span class="question-mark">?</span>,
-            Variant::Transition | Variant::AsyncTransition =&gt; <span class="macro">write!</span>(f, <span class="string">"transition "</span>)<span class="question-mark">?</span>,
-        }
-        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>parameters = <span class="self">self</span>.input.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">","</span>);
-        <span class="kw">let </span>returns = <span class="kw">match </span><span class="self">self</span>.output.len() {
-            <span class="number">0 </span>=&gt; <span class="string">"()"</span>.to_string(),
-            <span class="number">1 </span>=&gt; <span class="self">self</span>.output[<span class="number">0</span>].to_string(),
-            <span class="kw">_ </span>=&gt; <span class="self">self</span>.output.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">","</span>),
-        };
-        <span class="macro">write!</span>(f, <span class="string">"({parameters}) -&gt; {returns} {}"</span>, <span class="self">self</span>.block)<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(())
-    }
 }
 
 <span class="kw">impl </span>From&lt;FunctionStub&gt; <span class="kw">for </span>Function {
@@ -287,13 +270,38 @@
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Function {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="self">self</span>.format(f)
+        <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>)
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Function {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="self">self</span>.format(f)
+        <span class="kw">match </span><span class="self">self</span>.variant {
+            Variant::Inline =&gt; <span class="macro">write!</span>(f, <span class="string">"inline "</span>)<span class="question-mark">?</span>,
+            Variant::Function =&gt; <span class="macro">write!</span>(f, <span class="string">"function "</span>)<span class="question-mark">?</span>,
+            Variant::AsyncFunction =&gt; <span class="macro">write!</span>(f, <span class="string">"async function "</span>)<span class="question-mark">?</span>,
+            Variant::Transition =&gt; <span class="macro">write!</span>(f, <span class="string">"transition "</span>)<span class="question-mark">?</span>,
+            Variant::AsyncTransition =&gt; <span class="macro">write!</span>(f, <span class="string">"asyc transition "</span>)<span class="question-mark">?</span>,
+        }
+        <span class="macro">write!</span>(f, <span class="string">"{}({})"</span>, <span class="self">self</span>.identifier, <span class="self">self</span>.input.iter().format(<span class="string">", "</span>))<span class="question-mark">?</span>;
+
+        <span class="kw">match </span><span class="self">self</span>.output.len() {
+            <span class="number">0 </span>=&gt; {}
+            <span class="number">1 </span>=&gt; {
+                <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.output[<span class="number">0</span>].type_, Type::Unit) {
+                    <span class="macro">write!</span>(f, <span class="string">" -&gt; {}"</span>, <span class="self">self</span>.output[<span class="number">0</span>])<span class="question-mark">?</span>;
+                }
+            }
+            <span class="kw">_ </span>=&gt; {
+                <span class="macro">write!</span>(f, <span class="string">" -&gt; {}"</span>, <span class="self">self</span>.output.iter().format(<span class="string">", "</span>))<span class="question-mark">?</span>;
+            }
+        }
+
+        <span class="macro">writeln!</span>(f, <span class="string">" {{"</span>)<span class="question-mark">?</span>;
+        <span class="kw">for </span>stmt <span class="kw">in </span><span class="self">self</span>.block.statements.iter() {
+            <span class="macro">writeln!</span>(f, <span class="string">"{}{}"</span>, Indent(stmt), stmt.semicolon())<span class="question-mark">?</span>;
+        }
+        <span class="macro">write!</span>(f, <span class="string">"}}"</span>)
     }
 }
 

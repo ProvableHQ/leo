@@ -42,9 +42,7 @@
 <a href="#41" id="41">41</a>
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
-<a href="#44" id="44">44</a>
-<a href="#45" id="45">45</a>
-<a href="#46" id="46">46</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#44" id="44">44</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -60,7 +58,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Node, NodeID, Statement};
+</span><span class="kw">use crate</span>::{Indent, Node, NodeID, Statement};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -80,10 +78,8 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Block {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">writeln!</span>(f, <span class="string">"{{"</span>)<span class="question-mark">?</span>;
-        <span class="kw">if </span><span class="self">self</span>.statements.is_empty() {
-            <span class="macro">writeln!</span>(f, <span class="string">"\t"</span>)<span class="question-mark">?</span>;
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.statements.iter().try_for_each(|statement| <span class="macro">writeln!</span>(f, <span class="string">"\t{statement};"</span>))<span class="question-mark">?</span>;
+        <span class="kw">for </span>stmt <span class="kw">in </span><span class="self">self</span>.statements.iter() {
+            <span class="macro">writeln!</span>(f, <span class="string">"{}{}"</span>, Indent(stmt), stmt.semicolon())<span class="question-mark">?</span>;
         }
         <span class="macro">write!</span>(f, <span class="string">"}}"</span>)
     }
