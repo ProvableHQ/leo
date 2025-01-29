@@ -21,8 +21,8 @@ use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
 
 use snarkvm::console::network::Network;
 
-impl<'a, N: Network> ProgramVisitor<'a> for StaticAnalyzer<'a, N> {
-    fn visit_program_scope(&mut self, input: &'a ProgramScope) {
+impl<N: Network> ProgramVisitor for StaticAnalyzer<'_, N> {
+    fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set the current program name.
         self.current_program = Some(input.program_id.name.name);
         // Do the default implementation for visiting the program scope.
@@ -32,7 +32,7 @@ impl<'a, N: Network> ProgramVisitor<'a> for StaticAnalyzer<'a, N> {
         input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
     }
 
-    fn visit_function(&mut self, function: &'a Function) {
+    fn visit_function(&mut self, function: &Function) {
         // Set the function name and variant.
         self.variant = Some(function.variant);
 

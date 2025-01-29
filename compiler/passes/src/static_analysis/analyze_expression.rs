@@ -20,11 +20,11 @@ use leo_ast::*;
 
 use snarkvm::console::network::Network;
 
-impl<'a, N: Network> ExpressionVisitor<'a> for StaticAnalyzer<'a, N> {
+impl<N: Network> ExpressionVisitor for StaticAnalyzer<'_, N> {
     type AdditionalInput = ();
     type Output = ();
 
-    fn visit_access(&mut self, input: &'a AccessExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_access(&mut self, input: &AccessExpression, _: &Self::AdditionalInput) -> Self::Output {
         if let AccessExpression::AssociatedFunction(access) = input {
             // Get the core function.
             let core_function = match CoreFunction::from_symbols(access.variant.name, access.name.name) {
@@ -39,7 +39,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for StaticAnalyzer<'a, N> {
         }
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression, _: &Self::AdditionalInput) -> Self::Output {
+    fn visit_call(&mut self, input: &CallExpression, _: &Self::AdditionalInput) -> Self::Output {
         let Expression::Identifier(ident) = &*input.function else {
             unreachable!("Parsing guarantees that a function name is always an identifier.");
         };

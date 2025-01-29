@@ -63,15 +63,15 @@ impl<'a> SymbolTableCreator<'a> {
     }
 }
 
-impl<'a> ExpressionVisitor<'a> for SymbolTableCreator<'a> {
+impl ExpressionVisitor for SymbolTableCreator<'_> {
     type AdditionalInput = ();
     type Output = ();
 }
 
-impl<'a> StatementVisitor<'a> for SymbolTableCreator<'a> {}
+impl StatementVisitor for SymbolTableCreator<'_> {}
 
-impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
-    fn visit_program_scope(&mut self, input: &'a ProgramScope) {
+impl ProgramVisitor for SymbolTableCreator<'_> {
+    fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set current program name
         self.program_name = input.program_id.name.name;
         self.is_stub = false;
@@ -83,11 +83,11 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
     }
 
-    fn visit_import(&mut self, input: &'a Program) {
+    fn visit_import(&mut self, input: &Program) {
         self.visit_program(input)
     }
 
-    fn visit_struct(&mut self, input: &'a Composite) {
+    fn visit_struct(&mut self, input: &Composite) {
         // Allow up to one local redefinition for each external struct.
         if !input.is_record && !self.structs.insert(input.name()) {
             return self.handler.emit_err::<LeoError>(AstError::shadowed_struct(input.name(), input.span).into());
@@ -103,7 +103,7 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         }
     }
 
-    fn visit_mapping(&mut self, input: &'a Mapping) {
+    fn visit_mapping(&mut self, input: &Mapping) {
         // Add the variable associated with the mapping to the symbol table.
         if let Err(err) =
             self.symbol_table.insert_global(Location::new(self.program_name, input.identifier.name), VariableSymbol {
@@ -120,7 +120,7 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         }
     }
 
-    fn visit_function(&mut self, input: &'a Function) {
+    fn visit_function(&mut self, input: &Function) {
         if let Err(err) =
             self.symbol_table.insert_function(Location::new(self.program_name, input.name()), input.clone())
         {
@@ -128,7 +128,7 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         }
     }
 
-    fn visit_stub(&mut self, input: &'a Stub) {
+    fn visit_stub(&mut self, input: &Stub) {
         self.is_stub = true;
         self.program_name = input.stub_id.name.name;
         input.functions.iter().for_each(|(_, c)| (self.visit_function_stub(c)));
@@ -136,7 +136,7 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
     }
 
-    fn visit_function_stub(&mut self, input: &'a FunctionStub) {
+    fn visit_function_stub(&mut self, input: &FunctionStub) {
         // Construct the location for the function.
         let location = Location::new(self.program_name, input.name());
         // Initialize the function symbol.
@@ -162,7 +162,7 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         }
     }
 
-    fn visit_struct_stub(&mut self, input: &'a Composite) {
+    fn visit_struct_stub(&mut self, input: &Composite) {
         if let Some(program) = input.external {
             assert_eq!(program, self.program_name);
         }

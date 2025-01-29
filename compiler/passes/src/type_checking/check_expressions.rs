@@ -22,11 +22,11 @@ use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
 
-impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
+impl ExpressionVisitor for TypeChecker<'_> {
     type AdditionalInput = Option<Type>;
     type Output = Type;
 
-    fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_expression(&mut self, input: &Expression, additional: &Self::AdditionalInput) -> Self::Output {
         let output = match input {
             Expression::Access(access) => self.visit_access(access, additional),
             Expression::Array(array) => self.visit_array(array, additional),
@@ -48,7 +48,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         output
     }
 
-    fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_access(&mut self, input: &AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
             AccessExpression::Array(access) => {
                 // Check that the expression is an array.
@@ -258,7 +258,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_array(&mut self, input: &'a ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_array(&mut self, input: &ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
         if input.elements.is_empty() {
             self.emit_err(TypeCheckerError::array_empty(input.span()));
             return Type::Err;
@@ -295,7 +295,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         type_
     }
 
-    fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
+    fn visit_binary(&mut self, input: &BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         let assert_same_type = |slf: &Self, t1: &Type, t2: &Type| -> Type {
             if t1 == &Type::Err || t2 == &Type::Err {
                 Type::Err
@@ -517,7 +517,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_call(&mut self, input: &CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         // Get the function symbol.
         let Expression::Identifier(ident) = &*input.function else {
             unreachable!("Parsing guarantees that a function name is always an identifier.");
@@ -733,7 +733,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         ret
     }
 
-    fn visit_cast(&mut self, input: &'a CastExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_cast(&mut self, input: &CastExpression, expected: &Self::AdditionalInput) -> Self::Output {
         let expression_type = self.visit_expression(&input.expression, &None);
 
         let assert_castable_type = |actual: &Type, span: Span| {
@@ -758,7 +758,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         input.type_.clone()
     }
 
-    fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_struct_init(&mut self, input: &StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
         let struct_ = self.lookup_struct(self.scope_state.program_name, input.name.name).clone();
         let Some(struct_) = struct_ else {
             self.emit_err(TypeCheckerError::unknown_sym("struct or record", input.name.name, input.name.span()));
@@ -796,11 +796,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     // We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.
-    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_err(&mut self, _input: &ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Type::Err
     }
 
-    fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_identifier(&mut self, input: &Identifier, expected: &Self::AdditionalInput) -> Self::Output {
         let var = self.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), input.name);
         if let Some(var) = var {
             self.maybe_assert_type(&var.type_, expected, input.span());
@@ -811,7 +811,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_literal(&mut self, input: &Literal, expected: &Self::AdditionalInput) -> Self::Output {
         fn parse_integer_literal<I: FromStrRadix>(handler: &Handler, raw_string: &str, span: Span, type_string: &str) {
             let string = raw_string.replace('_', "");
             if I::from_str_by_radix(&string).is_err() {
@@ -876,7 +876,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         type_
     }
 
-    fn visit_locator(&mut self, input: &'a LocatorExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_locator(&mut self, input: &LocatorExpression, expected: &Self::AdditionalInput) -> Self::Output {
         let maybe_var = self.symbol_table.lookup_global(Location::new(input.program.name.name, input.name)).cloned();
         if let Some(var) = maybe_var {
             self.maybe_assert_type(&var.type_, expected, input.span());
@@ -887,7 +887,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_ternary(&mut self, input: &TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
         let t1 = self.visit_expression(&input.if_true, expected);
@@ -903,7 +903,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_tuple(&mut self, input: &TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
         // Check the expected tuple types if they are known.
         let Some(Type::Tuple(expected_types)) = expected else {
             self.emit_err(TypeCheckerError::invalid_tuple(input.span()));
@@ -930,7 +930,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         Type::Tuple(expected_types.clone())
     }
 
-    fn visit_unary(&mut self, input: &'a UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unary(&mut self, input: &UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         let assert_signed_int = |slf: &mut Self, type_: &Type| {
             if !matches!(
                 type_,
@@ -1008,7 +1008,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         ty
     }
 
-    fn visit_unit(&mut self, _input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unit(&mut self, _input: &UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Type::Unit
     }
 }

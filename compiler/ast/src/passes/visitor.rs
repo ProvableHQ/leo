@@ -43,11 +43,11 @@ use crate::*;
 // }
 
 /// A Visitor trait for expressions in the AST.
-pub trait ExpressionVisitor<'a> {
+pub trait ExpressionVisitor {
     type AdditionalInput: Default;
     type Output: Default;
 
-    fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_expression(&mut self, input: &Expression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
             Expression::Access(access) => self.visit_access(access, additional),
             Expression::Array(array) => self.visit_array(array, additional),
@@ -66,7 +66,7 @@ pub trait ExpressionVisitor<'a> {
         }
     }
 
-    fn visit_access(&mut self, input: &'a AccessExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_access(&mut self, input: &AccessExpression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
             AccessExpression::Array(array) => {
                 self.visit_expression(&array.array, additional);
@@ -89,32 +89,32 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_array(&mut self, input: &'a ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_array(&mut self, input: &ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
         input.elements.iter().for_each(|expr| {
             self.visit_expression(expr, additional);
         });
         Default::default()
     }
 
-    fn visit_binary(&mut self, input: &'a BinaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_binary(&mut self, input: &BinaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.left, additional);
         self.visit_expression(&input.right, additional);
         Default::default()
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_call(&mut self, input: &CallExpression, additional: &Self::AdditionalInput) -> Self::Output {
         input.arguments.iter().for_each(|expr| {
             self.visit_expression(expr, additional);
         });
         Default::default()
     }
 
-    fn visit_cast(&mut self, input: &'a CastExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_cast(&mut self, input: &CastExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.expression, additional);
         Default::default()
     }
 
-    fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_struct_init(&mut self, input: &StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
         for StructVariableInitializer { expression, .. } in input.members.iter() {
             if let Some(expression) = expression {
                 self.visit_expression(expression, additional);
@@ -123,49 +123,49 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_err(&mut self, _input: &ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn visit_identifier(&mut self, _input: &'a Identifier, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_identifier(&mut self, _input: &Identifier, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 
-    fn visit_literal(&mut self, _input: &'a Literal, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_literal(&mut self, _input: &Literal, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 
-    fn visit_locator(&mut self, _input: &'a LocatorExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_locator(&mut self, _input: &LocatorExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 
-    fn visit_ternary(&mut self, input: &'a TernaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_ternary(&mut self, input: &TernaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, additional);
         self.visit_expression(&input.if_true, additional);
         self.visit_expression(&input.if_false, additional);
         Default::default()
     }
 
-    fn visit_tuple(&mut self, input: &'a TupleExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_tuple(&mut self, input: &TupleExpression, additional: &Self::AdditionalInput) -> Self::Output {
         input.elements.iter().for_each(|expr| {
             self.visit_expression(expr, additional);
         });
         Default::default()
     }
 
-    fn visit_unary(&mut self, input: &'a UnaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unary(&mut self, input: &UnaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.receiver, additional);
         Default::default()
     }
 
-    fn visit_unit(&mut self, _input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unit(&mut self, _input: &UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 }
 
 /// A Visitor trait for statements in the AST.
-pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
-    fn visit_statement(&mut self, input: &'a Statement) {
+pub trait StatementVisitor: ExpressionVisitor {
+    fn visit_statement(&mut self, input: &Statement) {
         match input {
             Statement::Assert(stmt) => self.visit_assert(stmt),
             Statement::Assign(stmt) => self.visit_assign(stmt),
@@ -180,7 +180,7 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
         }
     }
 
-    fn visit_assert(&mut self, input: &'a AssertStatement) {
+    fn visit_assert(&mut self, input: &AssertStatement) {
         match &input.variant {
             AssertVariant::Assert(expr) => self.visit_expression(expr, &Default::default()),
             AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
@@ -190,15 +190,15 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
         };
     }
 
-    fn visit_assign(&mut self, input: &'a AssignStatement) {
+    fn visit_assign(&mut self, input: &AssignStatement) {
         self.visit_expression(&input.value, &Default::default());
     }
 
-    fn visit_block(&mut self, input: &'a Block) {
+    fn visit_block(&mut self, input: &Block) {
         input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
     }
 
-    fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
+    fn visit_conditional(&mut self, input: &ConditionalStatement) {
         self.visit_expression(&input.condition, &Default::default());
         self.visit_block(&input.then);
         if let Some(stmt) = input.otherwise.as_ref() {
@@ -206,7 +206,7 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
         }
     }
 
-    fn visit_console(&mut self, input: &'a ConsoleStatement) {
+    fn visit_console(&mut self, input: &ConsoleStatement) {
         match &input.function {
             ConsoleFunction::Assert(expr) => {
                 self.visit_expression(expr, &Default::default());
@@ -222,38 +222,38 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
         };
     }
 
-    fn visit_const(&mut self, input: &'a ConstDeclaration) {
+    fn visit_const(&mut self, input: &ConstDeclaration) {
         self.visit_expression(&input.value, &Default::default());
     }
 
-    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
+    fn visit_definition(&mut self, input: &DefinitionStatement) {
         self.visit_expression(&input.value, &Default::default());
     }
 
-    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
+    fn visit_expression_statement(&mut self, input: &ExpressionStatement) {
         self.visit_expression(&input.expression, &Default::default());
     }
 
-    fn visit_iteration(&mut self, input: &'a IterationStatement) {
+    fn visit_iteration(&mut self, input: &IterationStatement) {
         self.visit_expression(&input.start, &Default::default());
         self.visit_expression(&input.stop, &Default::default());
         self.visit_block(&input.block);
     }
 
-    fn visit_return(&mut self, input: &'a ReturnStatement) {
+    fn visit_return(&mut self, input: &ReturnStatement) {
         self.visit_expression(&input.expression, &Default::default());
     }
 }
 
 /// A Visitor trait for the program represented by the AST.
-pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
-    fn visit_program(&mut self, input: &'a Program) {
+pub trait ProgramVisitor: StatementVisitor {
+    fn visit_program(&mut self, input: &Program) {
         input.imports.values().for_each(|import| self.visit_import(&import.0));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
     }
 
-    fn visit_program_scope(&mut self, input: &'a ProgramScope) {
+    fn visit_program_scope(&mut self, input: &ProgramScope) {
         input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
 
         input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
@@ -263,21 +263,21 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
         input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
     }
 
-    fn visit_stub(&mut self, _input: &'a Stub) {}
+    fn visit_stub(&mut self, _input: &Stub) {}
 
-    fn visit_import(&mut self, input: &'a Program) {
+    fn visit_import(&mut self, input: &Program) {
         self.visit_program(input)
     }
 
-    fn visit_struct(&mut self, _input: &'a Composite) {}
+    fn visit_struct(&mut self, _input: &Composite) {}
 
-    fn visit_mapping(&mut self, _input: &'a Mapping) {}
+    fn visit_mapping(&mut self, _input: &Mapping) {}
 
-    fn visit_function(&mut self, input: &'a Function) {
+    fn visit_function(&mut self, input: &Function) {
         self.visit_block(&input.block);
     }
 
-    fn visit_function_stub(&mut self, _input: &'a FunctionStub) {}
+    fn visit_function_stub(&mut self, _input: &FunctionStub) {}
 
-    fn visit_struct_stub(&mut self, _input: &'a Composite) {}
+    fn visit_struct_stub(&mut self, _input: &Composite) {}
 }

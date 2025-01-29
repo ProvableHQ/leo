@@ -19,8 +19,8 @@ use crate::ConditionalTreeNode;
 
 use leo_ast::*;
 
-impl<'a, N: Network> StatementVisitor<'a> for StaticAnalyzer<'a, N> {
-    fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
+impl<N: Network> StatementVisitor for StaticAnalyzer<'_, N> {
+    fn visit_conditional(&mut self, input: &ConditionalStatement) {
         self.visit_expression(&input.condition, &Default::default());
 
         // Create scope for checking awaits in `then` branch of conditional.

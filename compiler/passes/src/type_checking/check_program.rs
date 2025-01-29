@@ -24,8 +24,8 @@ use std::collections::HashSet;
 
 // TODO: Cleanup logic for tuples.
 
-impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
-    fn visit_program(&mut self, input: &'a Program) {
+impl ProgramVisitor for TypeChecker<'_> {
+    fn visit_program(&mut self, input: &Program) {
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {
             // Check that naming and ordering is consistent.
@@ -44,7 +44,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
     }
 
-    fn visit_program_scope(&mut self, input: &'a ProgramScope) {
+    fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set the current program name.
         self.scope_state.program_name = Some(input.program_id.name.name);
 
@@ -103,7 +103,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_stub(&mut self, input: &'a Stub) {
+    fn visit_stub(&mut self, input: &Stub) {
         // Set the current program name.
         self.scope_state.program_name = Some(input.stub_id.name.name);
 
@@ -119,7 +119,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function));
     }
 
-    fn visit_struct(&mut self, input: &'a Composite) {
+    fn visit_struct(&mut self, input: &Composite) {
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
         // TODO: Better span to target duplicate member.
@@ -195,7 +195,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_mapping(&mut self, input: &'a Mapping) {
+    fn visit_mapping(&mut self, input: &Mapping) {
         // Check that a mapping's key type is valid.
         self.assert_type_is_valid(&input.key_type, input.span);
         // Check that a mapping's key type is not a future, tuple, record, or mapping.
@@ -241,7 +241,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_function(&mut self, function: &'a Function) {
+    fn visit_function(&mut self, function: &Function) {
         // Check that the function's annotations are valid.
         // Note that Leo does not natively support any specific annotations.
         for annotation in function.annotations.iter() {
@@ -284,7 +284,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_function_stub(&mut self, input: &'a FunctionStub) {
+    fn visit_function_stub(&mut self, input: &FunctionStub) {
         // Must not be an inline function
         if input.variant == Variant::Inline {
             self.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
@@ -319,7 +319,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.check_function_signature(&Function::from(input.clone()), /* is_stub */ true);
     }
 
-    fn visit_struct_stub(&mut self, input: &'a Composite) {
+    fn visit_struct_stub(&mut self, input: &Composite) {
         self.visit_struct(input);
     }
 }
