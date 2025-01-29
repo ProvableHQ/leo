@@ -393,7 +393,8 @@
 <a href="#392" id="392">392</a>
 <a href="#393" id="393">393</a>
 <a href="#394" id="394">394</a>
-<a href="#395" id="395">395</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -632,7 +633,8 @@
     }
 
     <span class="kw">fn </span>consume_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConstDeclaration) -&gt; <span class="self">Self</span>::Output {
-        <span class="macro">unreachable!</span>(<span class="string">"Loop unrolling pass removes all constant declaration statements in the program."</span>)
+        <span class="comment">// Constants have been propagated everywhere by this point, so we no longer need const declarations.
+        </span>Default::default()
     }
 
     <span class="doccomment">/// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
@@ -765,7 +767,7 @@
                 }))
             }
 
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that expression statements are always function calls."</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Type checking guarantees that expression statements are always function calls."</span>),
         }
 
         statements

@@ -265,7 +265,12 @@
 <a href="#264" id="264">264</a>
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -300,8 +305,12 @@
 <span class="kw">mod </span>util;
 <span class="kw">use </span>util::<span class="kw-2">*</span>;
 
+<span class="kw">mod </span>core_functions;
+<span class="kw">pub use </span>core_functions::{CoreFunctionHelper, evaluate_core_function};
+
 <span class="kw">mod </span>cursor;
 <span class="kw">use </span>cursor::<span class="kw-2">*</span>;
+<span class="kw">pub use </span>cursor::{evaluate_binary, evaluate_unary, literal_to_value};
 
 <span class="kw">mod </span>interpreter;
 <span class="kw">use </span>interpreter::<span class="kw-2">*</span>;
@@ -309,6 +318,7 @@
 <span class="kw">mod </span>cursor_aleo;
 
 <span class="kw">mod </span>value;
+<span class="kw">pub use </span>value::Value;
 <span class="kw">use </span>value::<span class="kw-2">*</span>;
 
 <span class="kw">mod </span>ui;

@@ -83,7 +83,7 @@
         <span class="kw">if </span><span class="self">self</span>.statements.is_empty() {
             <span class="macro">writeln!</span>(f, <span class="string">"\t"</span>)<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
-            <span class="self">self</span>.statements.iter().try_for_each(|statement| <span class="macro">writeln!</span>(f, <span class="string">"\t{statement}"</span>))<span class="question-mark">?</span>;
+            <span class="self">self</span>.statements.iter().try_for_each(|statement| <span class="macro">writeln!</span>(f, <span class="string">"\t{statement};"</span>))<span class="question-mark">?</span>;
         }
         <span class="macro">write!</span>(f, <span class="string">"}}"</span>)
     }

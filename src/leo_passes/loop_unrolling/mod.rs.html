@@ -43,7 +43,18 @@
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
 <a href="#44" id="44">44</a>
-<a href="#45" id="45">45</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#45" id="45">45</a>
+<a href="#46" id="46">46</a>
+<a href="#47" id="47">47</a>
+<a href="#48" id="48">48</a>
+<a href="#49" id="49">49</a>
+<a href="#50" id="50">50</a>
+<a href="#51" id="51">51</a>
+<a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -59,13 +70,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">mod </span>range_iterator;
+</span><span class="kw">mod </span>duplicate;
+
+<span class="kw">mod </span>range_iterator;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>range_iterator::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>unroller;
 <span class="kw">pub use </span>unroller::<span class="kw-2">*</span>;
-
-<span class="kw">pub mod </span>unroll_expression;
 
 <span class="kw">pub mod </span>unroll_program;
 
@@ -75,17 +86,28 @@
 
 <span class="kw">use </span>leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
 <span class="kw">use </span>leo_errors::{<span class="prelude-ty">Result</span>, emitter::Handler};
+<span class="kw">use </span>leo_span::Span;
+
+<span class="kw">pub struct </span>UnrollerOutput {
+    <span class="doccomment">/// If we encountered a loop that was not unrolled, here's it's spanned.
+    </span><span class="kw">pub </span>loop_not_unrolled: <span class="prelude-ty">Option</span>&lt;Span&gt;,
+    <span class="doccomment">/// Did we unroll any loop?
+    </span><span class="kw">pub </span>loop_unrolled: bool,
+}
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Pass <span class="kw">for </span>Unroller&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder, SymbolTable, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable);
-    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(Ast, SymbolTable)&gt;;
+    <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>SymbolTable, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable);
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(Ast, UnrollerOutput)&gt;;
 
     <span class="kw">fn </span>do_pass((ast, handler, node_builder, symbol_table, tt): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span><span class="kw-2">mut </span>reconstructor = <span class="self">Self</span>::new(symbol_table, tt, handler, node_builder);
         <span class="kw">let </span>program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err().map_err(|e| <span class="kw-2">*</span>e)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((Ast::new(program), reconstructor.symbol_table))
+        <span class="prelude-val">Ok</span>((Ast::new(program), UnrollerOutput {
+            loop_not_unrolled: reconstructor.loop_not_unrolled,
+            loop_unrolled: reconstructor.loop_unrolled,
+        }))
     }
 }
 </code></pre></div></section></main></body></html>

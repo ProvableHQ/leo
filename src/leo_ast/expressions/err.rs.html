@@ -51,7 +51,7 @@
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// Represents a syntactically invalid expression.
-</span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>ErrExpression {
     <span class="doccomment">/// The span of the invalid expression.
     </span><span class="kw">pub </span>span: Span,

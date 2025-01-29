@@ -370,7 +370,54 @@
 <a href="#369" id="369">369</a>
 <a href="#370" id="370">370</a>
 <a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -522,14 +569,14 @@
     }
 
     <span class="doccomment">/// Runs the type checker pass.
-    </span><span class="kw">pub fn </span>type_checker_pass(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, symbol_table: SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, StructGraph, CallGraph)&gt; {
-        <span class="kw">let </span>(symbol_table, struct_graph, call_graph) =
+    </span><span class="kw">pub fn </span>type_checker_pass(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;mut </span>SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;(StructGraph, CallGraph)&gt; {
+        <span class="kw">let </span>(struct_graph, call_graph) =
             TypeChecker::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler, symbol_table, <span class="kw-2">&amp;</span><span class="self">self</span>.type_table, NetworkLimits {
                 max_array_elements: N::MAX_ARRAY_ELEMENTS,
                 max_mappings: N::MAX_MAPPINGS,
                 max_functions: N::MAX_FUNCTIONS,
             }))<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>((symbol_table, struct_graph, call_graph))
+        <span class="prelude-val">Ok</span>((struct_graph, call_graph))
     }
 
     <span class="doccomment">/// Runs the static analysis pass.
@@ -544,22 +591,70 @@
         ))
     }
 
+    <span class="doccomment">/// Run const propagation and loop unrolling until we hit a fixed point or find an error.
+    </span><span class="kw">pub fn </span>const_propagation_and_unroll_loop(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;mut </span>SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">const </span>LARGE_LOOP_BOUND: usize = <span class="number">1024usize</span>;
+
+        <span class="kw">for _ in </span><span class="number">0</span>..LARGE_LOOP_BOUND {
+            <span class="kw">let </span>loop_unroll_output = <span class="self">self</span>.loop_unrolling_pass(symbol_table)<span class="question-mark">?</span>;
+
+            <span class="kw">let </span>const_prop_output = <span class="self">self</span>.const_propagation_pass(symbol_table)<span class="question-mark">?</span>;
+
+            <span class="kw">if </span>!const_prop_output.changed &amp;&amp; !loop_unroll_output.loop_unrolled {
+                <span class="comment">// We've got a fixed point, so see if we have any errors.
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(not_evaluated_span) = const_prop_output.const_not_evaluated {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(CompilerError::const_not_evaluated(not_evaluated_span).into());
+                }
+
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(not_evaluated_span) = const_prop_output.array_index_not_evaluated {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(CompilerError::array_index_not_evaluated(not_evaluated_span).into());
+                }
+
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(not_unrolled_span) = loop_unroll_output.loop_not_unrolled {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(CompilerError::loop_bounds_not_evaluated(not_unrolled_span).into());
+                }
+
+                <span class="kw">if </span><span class="self">self</span>.compiler_options.output.unrolled_ast {
+                    <span class="self">self</span>.write_ast_to_json(<span class="string">"unrolled_ast.json"</span>)<span class="question-mark">?</span>;
+                }
+
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+            }
+        }
+
+        <span class="comment">// Note that it's challenging to write code in practice that demonstrates this error, because Leo code
+        // with many nested loops or operations will blow the stack in the compiler before this bound is hit.
+        </span><span class="prelude-val">Err</span>(CompilerError::const_prop_unroll_many_loops(LARGE_LOOP_BOUND, Default::default()).into())
+    }
+
+    <span class="doccomment">/// Runs the const propagation pass.
+    </span><span class="kw">pub fn </span>const_propagation_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;mut </span>SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;ConstPropagatorOutput&gt; {
+        <span class="kw">let </span>(ast, output) = ConstPropagator::do_pass((
+            std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast),
+            <span class="self">self</span>.handler,
+            symbol_table,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.type_table,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
+        ))<span class="question-mark">?</span>;
+
+        <span class="self">self</span>.ast = ast;
+
+        <span class="prelude-val">Ok</span>(output)
+    }
+
     <span class="doccomment">/// Runs the loop unrolling pass.
-    </span><span class="kw">pub fn </span>loop_unrolling_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;SymbolTable&gt; {
-        <span class="kw">let </span>(ast, symbol_table) = Unroller::do_pass((
+    </span><span class="kw">pub fn </span>loop_unrolling_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;mut </span>SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;UnrollerOutput&gt; {
+        <span class="kw">let </span>(ast, output) = Unroller::do_pass((
             std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast),
             <span class="self">self</span>.handler,
             <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
             symbol_table,
             <span class="kw-2">&amp;</span><span class="self">self</span>.type_table,
         ))<span class="question-mark">?</span>;
+
         <span class="self">self</span>.ast = ast;
 
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.unrolled_ast {
-            <span class="self">self</span>.write_ast_to_json(<span class="string">"unrolled_ast.json"</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(symbol_table)
+        <span class="prelude-val">Ok</span>(output)
     }
 
     <span class="doccomment">/// Runs the static single assignment pass.
@@ -655,14 +750,13 @@
 
     <span class="doccomment">/// Runs the compiler stages.
     </span><span class="kw">pub fn </span>compiler_stages(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, StructGraph, CallGraph)&gt; {
-        <span class="kw">let </span>st = <span class="self">self</span>.symbol_table_pass()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>st = <span class="self">self</span>.symbol_table_pass()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>(st, struct_graph, call_graph) = <span class="self">self</span>.type_checker_pass(st)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(struct_graph, call_graph) = <span class="self">self</span>.type_checker_pass(<span class="kw-2">&amp;mut </span>st)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.static_analysis_pass(<span class="kw-2">&amp;</span>st)<span class="question-mark">?</span>;
 
-        <span class="comment">// TODO: Make this pass optional.
-        </span><span class="kw">let </span>st = <span class="self">self</span>.loop_unrolling_pass(st)<span class="question-mark">?</span>;
+        <span class="self">self</span>.const_propagation_and_unroll_loop(<span class="kw-2">&amp;mut </span>st)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.static_single_assignment_pass(<span class="kw-2">&amp;</span>st)<span class="question-mark">?</span>;
 

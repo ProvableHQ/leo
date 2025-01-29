@@ -995,7 +995,9 @@
 <a href="#994" id="994">994</a>
 <a href="#995" id="995">995</a>
 <a href="#996" id="996">996</a>
-<a href="#997" id="997">997</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1584,14 +1586,16 @@
         help: <span class="prelude-val">None</span>,
     }
 
-    @formatted
+    <span class="comment">// TODO This error is unused. Remove it in a future version.
+    </span>@formatted
     const_declaration_must_be_literal_or_tuple_of_literals {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"The value of a const declaration must be a literal"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
-    @formatted
+    <span class="comment">// TODO This error is unused. Remove it in a future version.
+    </span>@formatted
     loop_bound_must_be_literal_or_const {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"The loop bound must be a literal or a const"</span>),

@@ -71,7 +71,10 @@
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -132,6 +135,9 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ProgramScope {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">writeln!</span>(f, <span class="string">"program {} {{"</span>, <span class="self">self</span>.program_id)<span class="question-mark">?</span>;
+        <span class="kw">for </span>(<span class="kw">_</span>, const_decl) <span class="kw">in </span><span class="self">self</span>.consts.iter() {
+            <span class="macro">writeln!</span>(f, <span class="string">"    {const_decl}"</span>)<span class="question-mark">?</span>;
+        }
         <span class="kw">for </span>(<span class="kw">_</span>, struct_) <span class="kw">in </span><span class="self">self</span>.structs.iter() {
             <span class="macro">writeln!</span>(f, <span class="string">"    {struct_}"</span>)<span class="question-mark">?</span>;
         }

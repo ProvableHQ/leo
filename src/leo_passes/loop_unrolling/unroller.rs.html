@@ -167,7 +167,14 @@
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
 <a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -186,8 +193,10 @@
 </span><span class="kw">use </span>leo_ast::{
     Block,
     Expression,
+    ExpressionReconstructor,
     IterationStatement,
     Literal,
+    Node,
     NodeBuilder,
     NodeID,
     Statement,
@@ -197,13 +206,13 @@
 };
 
 <span class="kw">use </span>leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
-<span class="kw">use </span>leo_span::Symbol;
+<span class="kw">use </span>leo_span::{Span, Symbol};
 
 <span class="kw">use crate</span>::{Clusivity, LoopBound, RangeIterator, SymbolTable, TypeTable};
 
 <span class="kw">pub struct </span>Unroller&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The symbol table for the function being processed.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: SymbolTable,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>SymbolTable,
     <span class="doccomment">/// A mapping from node IDs to their types.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
     <span class="doccomment">/// An error handler used for any errors found during unrolling.
@@ -214,16 +223,29 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_unrolling: bool,
     <span class="doccomment">/// The current program name.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) current_program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
+    <span class="doccomment">/// If we've encountered a loop that was not unrolled, here's it's spanned.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) loop_not_unrolled: <span class="prelude-ty">Option</span>&lt;Span&gt;,
+    <span class="doccomment">/// Have we unrolled any loop?
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) loop_unrolled: bool,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Unroller&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
-        symbol_table: SymbolTable,
+        symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>SymbolTable,
         type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
         handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
         node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder,
     ) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ symbol_table, type_table, handler, node_builder, is_unrolling: <span class="bool-val">false</span>, current_program: <span class="prelude-val">None </span>}
+        <span class="self">Self </span>{
+            symbol_table,
+            type_table,
+            handler,
+            node_builder,
+            is_unrolling: <span class="bool-val">false</span>,
+            current_program: <span class="prelude-val">None</span>,
+            loop_not_unrolled: <span class="prelude-val">None</span>,
+            loop_unrolled: <span class="bool-val">false</span>,
+        }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>in_scope&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID, func: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
@@ -294,46 +316,38 @@
         <span class="comment">// Update the type table.
         </span><span class="self">self</span>.type_table.insert(const_id, input.type_.clone());
 
-        <span class="kw">let </span>block_id = <span class="self">self</span>.node_builder.next_id();
+        <span class="kw">let </span>outer_block_id = <span class="self">self</span>.node_builder.next_id();
 
         <span class="comment">// Reconstruct `iteration_count` as a `Literal`.
         </span><span class="kw">let </span>Type::Integer(integer_type) = <span class="kw-2">&amp;</span>input.type_ <span class="kw">else </span>{
             <span class="macro">unreachable!</span>(<span class="string">"Type checking enforces that the iteration variable is of integer type"</span>);
         };
 
-        <span class="self">self</span>.in_scope(block_id, |slf| {
-            <span class="kw">let </span>prior_is_unrolling = slf.is_unrolling;
-            slf.is_unrolling = <span class="bool-val">true</span>;
-
+        <span class="self">self</span>.in_scope(outer_block_id, |slf| {
             <span class="kw">let </span>value = Literal::Integer(<span class="kw-2">*</span>integer_type, iteration_count.to_string(), Default::default(), const_id);
 
-            <span class="comment">// Add the loop variable as a constant for the current scope
+            <span class="comment">// Add the loop variable as a constant for the current scope.
             </span>slf.symbol_table.insert_const(
                 slf.current_program.unwrap(),
                 input.variable.name,
-                Expression::Literal(value.clone()),
+                Expression::Literal(value),
             );
 
-            <span class="comment">// Reconstruct the statements in the loop body.
-            </span><span class="kw">let </span>statements: Vec&lt;<span class="kw">_</span>&gt; = input
-                .block
-                .statements
-                .clone()
-                .into_iter()
-                .filter_map(|s| {
-                    <span class="kw">let </span>(reconstructed_statement, additional_output) = slf.reconstruct_statement(s);
-                    <span class="kw">if </span>additional_output {
-                        <span class="prelude-val">None </span><span class="comment">// Exclude this statement from the block since it is a constant variable definition
-                    </span>} <span class="kw">else </span>{
-                        <span class="prelude-val">Some</span>(reconstructed_statement)
-                    }
-                })
-                .collect();
+            <span class="kw">let </span>duplicated_body = <span class="kw">super</span>::duplicate::duplicate(input.block.clone(), slf.symbol_table, slf.node_builder);
+
+            <span class="kw">let </span>prior_is_unrolling = slf.is_unrolling;
+            slf.is_unrolling = <span class="bool-val">true</span>;
+
+            <span class="kw">let </span>result = Statement::Block(slf.reconstruct_block(duplicated_body).<span class="number">0</span>);
 
             slf.is_unrolling = prior_is_unrolling;
 
-            Statement::Block(Block { statements, span: input.block.span, id: block_id })
+            Statement::Block(Block { statements: <span class="macro">vec!</span>[result], span: input.span(), id: outer_block_id })
         })
     }
+}
+
+<span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>Unroller&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">type </span>AdditionalOutput = ();
 }
 </code></pre></div></section></main></body></html>

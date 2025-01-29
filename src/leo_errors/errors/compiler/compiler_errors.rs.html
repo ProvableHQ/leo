@@ -78,7 +78,35 @@
 <a href="#77" id="77">77</a>
 <a href="#78" id="78">78</a>
 <a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -156,6 +184,34 @@
         args: (main_program_name: <span class="kw">impl </span>Display, dependency_name: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"`{main_program_name}` imports `{dependency_name}.aleo`, but `{dependency_name}.aleo` is not found in program manifest. Use `leo add --help` for more information on how to add a dependency."</span>),
         help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    const_not_evaluated {
+        args: (),
+        msg: <span class="string">"The value of this const could not be determined at compile time."</span>.to_string(),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    loop_bounds_not_evaluated {
+        args: (),
+        msg: <span class="string">"This loop bound could not be determined at compile time."</span>.to_string(),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    array_index_not_evaluated {
+        args: (),
+        msg: <span class="string">"This array index could not be determined at compile time."</span>.to_string(),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    const_prop_unroll_many_loops {
+        args: (bound: usize),
+        msg: <span class="macro">format!</span>(<span class="string">"The const propagation and loop unrolling passes ran {bound} times without reaching a fixed point."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"This should only happen with a pathological Leo program containing numerous nested loops or nested operations. Otherwise, this may be a bug in the Leo compiler."</span>.to_string()),
     }
 );
 </code></pre></div></section></main></body></html>

@@ -202,7 +202,7 @@
 /// Attention - When adding or removing fields from this struct,
 /// please remember to update its Serialize and Deserialize implementation
 /// to reflect the new struct instantiation.
-</span><span class="attr">#[derive(Clone, Copy)]
+</span><span class="attr">#[derive(Clone, Copy, Default)]
 </span><span class="kw">pub struct </span>Identifier {
     <span class="doccomment">/// The symbol that the user wrote, e.g., `foo`.
     </span><span class="kw">pub </span>name: Symbol,

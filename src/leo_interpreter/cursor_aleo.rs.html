@@ -1229,7 +1229,7 @@
         <span class="macro">macro_rules!</span> unary {
             (<span class="macro-nonterminal">$svm_op</span>: expr, <span class="macro-nonterminal">$op</span>: ident) =&gt; {{
                 <span class="kw">let </span>operand = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$svm_op</span>.operands()[<span class="number">0</span>]);
-                <span class="kw">let </span>value = evaluate_unary(Default::default(), UnaryOperation::<span class="macro-nonterminal">$op</span>, operand)<span class="question-mark">?</span>;
+                <span class="kw">let </span>value = evaluate_unary(Default::default(), UnaryOperation::<span class="macro-nonterminal">$op</span>, <span class="kw-2">&amp;</span>operand)<span class="question-mark">?</span>;
                 <span class="self">self</span>.increment_instruction_index();
                 (value, <span class="macro-nonterminal">$svm_op</span>.destinations()[<span class="number">0</span>].clone())
             }};
@@ -1239,7 +1239,7 @@
             (<span class="macro-nonterminal">$svm_op</span>: expr, <span class="macro-nonterminal">$op</span>: ident) =&gt; {{
                 <span class="kw">let </span>operand0 = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$svm_op</span>.operands()[<span class="number">0</span>]);
                 <span class="kw">let </span>operand1 = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$svm_op</span>.operands()[<span class="number">1</span>]);
-                <span class="kw">let </span>value = evaluate_binary(Default::default(), BinaryOperation::<span class="macro-nonterminal">$op</span>, operand0, operand1)<span class="question-mark">?</span>;
+                <span class="kw">let </span>value = evaluate_binary(Default::default(), BinaryOperation::<span class="macro-nonterminal">$op</span>, <span class="kw-2">&amp;</span>operand0, <span class="kw-2">&amp;</span>operand1)<span class="question-mark">?</span>;
                 <span class="self">self</span>.increment_instruction_index();
                 (value, <span class="macro-nonterminal">$svm_op</span>.destinations()[<span class="number">0</span>].clone())
             }};
@@ -1262,9 +1262,9 @@
                 <span class="kw">let </span>operand_value = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$commit</span>.operands()[<span class="number">1</span>]);
                 <span class="self">self</span>.values.push(randomizer_value);
                 <span class="self">self</span>.values.push(operand_value);
-                <span class="kw">let </span>value = <span class="self">self</span>.evaluate_core_function(core_function, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
+                <span class="kw">let </span>value = <span class="kw">crate</span>::evaluate_core_function(<span class="self">self</span>, core_function, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
                 <span class="self">self</span>.increment_instruction_index();
-                (value, <span class="macro-nonterminal">$commit</span>.destinations()[<span class="number">0</span>].clone())
+                (value.expect(<span class="string">"Evaluation should work"</span>), <span class="macro-nonterminal">$commit</span>.destinations()[<span class="number">0</span>].clone())
             }};
         }
 
@@ -1304,9 +1304,9 @@
                 };
                 <span class="kw">let </span>operand_value = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$hash</span>.operands()[<span class="number">0</span>]);
                 <span class="self">self</span>.values.push(operand_value);
-                <span class="kw">let </span>value = <span class="self">self</span>.evaluate_core_function(core_function, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
+                <span class="kw">let </span>value = <span class="kw">crate</span>::evaluate_core_function(<span class="self">self</span>, core_function, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
                 <span class="self">self</span>.increment_instruction_index();
-                (value, <span class="macro-nonterminal">$hash</span>.destinations()[<span class="number">0</span>].clone())
+                (value.expect(<span class="string">"Evaluation should work"</span>), <span class="macro-nonterminal">$hash</span>.destinations()[<span class="number">0</span>].clone())
             }};
         }
 

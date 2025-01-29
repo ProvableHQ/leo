@@ -1286,7 +1286,7 @@
 
 <span class="kw">pub struct </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The symbol table for the program.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: SymbolTable,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>SymbolTable,
     <span class="doccomment">/// A mapping from node IDs to their types.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
     <span class="doccomment">/// A dependency graph of the structs in program.
@@ -1312,7 +1312,7 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a new type checker given a symbol table and error handler.
     </span><span class="kw">pub fn </span>new(
-        symbol_table: SymbolTable,
+        symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>SymbolTable,
         type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
         handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
         limits: NetworkLimits,

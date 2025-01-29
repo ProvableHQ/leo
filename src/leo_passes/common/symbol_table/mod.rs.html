@@ -290,7 +290,26 @@
 <a href="#289" id="289">289</a>
 <a href="#290" id="290">290</a>
 <a href="#291" id="291">291</a>
-<a href="#292" id="292">292</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -374,6 +393,12 @@
             })),
         }
     }
+
+    <span class="kw">fn </span>dup(<span class="kw-2">&amp;</span><span class="self">self</span>, new_id: NodeID) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.borrow().clone();
+        inner.id = new_id;
+        LocalTable { inner: Rc::new(RefCell::new(inner)) }
+    }
 }
 
 <span class="kw">impl </span>SymbolTable {
@@ -431,8 +456,21 @@
         <span class="self">self</span>.local = id.map(|id| {
             <span class="kw">let </span>parent = <span class="self">self</span>.local.as_ref().map(|table| table.inner.borrow().id);
             <span class="kw">let </span>new_local_table = <span class="self">self</span>.all_locals.entry(id).or_insert_with(|| LocalTable::new(id, parent));
+            <span class="macro">assert_eq!</span>(parent, new_local_table.inner.borrow().parent, <span class="string">"Entered scopes out of order."</span>);
             new_local_table.clone()
         });
+    }
+
+    <span class="doccomment">/// Enter the new scope with id `new_id`, duplicating its local symbol table from the scope at `old_id`.
+    ///
+    /// This is useful for a pass like loop unrolling, in which the loop body must be duplicated multiple times.
+    </span><span class="kw">pub fn </span>enter_scope_duped(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_id: NodeID, old_id: NodeID) {
+        <span class="kw">let </span>old_local_table = <span class="self">self</span>.all_locals.get(<span class="kw-2">&amp;</span>old_id).expect(<span class="string">"Must have an old scope to dup from."</span>);
+        <span class="kw">let </span>new_local_table = old_local_table.dup(new_id);
+        <span class="kw">let </span>parent = <span class="self">self</span>.local.as_ref().map(|table| table.inner.borrow().id);
+        new_local_table.inner.borrow_mut().parent = parent;
+        <span class="self">self</span>.all_locals.insert(new_id, new_local_table.clone());
+        <span class="self">self</span>.local = <span class="prelude-val">Some</span>(new_local_table);
     }
 
     <span class="doccomment">/// Enther the parent scope of the current scope (or the global scope if there is no local parent scope).
