@@ -1877,7 +1877,7 @@
                 parse_integer_literal::&lt;i128&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"i128"</span>);
                 Type::Integer(IntegerType::I128)
             }
-            Literal::Group(<span class="kw">_</span>) =&gt; Type::Group,
+            Literal::Group(..) =&gt; Type::Group,
             Literal::Scalar(..) =&gt; Type::Scalar,
             Literal::String(..) =&gt; {
                 <span class="self">self</span>.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));

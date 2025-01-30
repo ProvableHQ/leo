@@ -327,13 +327,7 @@
 <a href="#326" id="326">326</a>
 <a href="#327" id="327">327</a>
 <a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
-<a href="#330" id="330">330</a>
-<a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#329" id="329">329</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -617,12 +611,6 @@
     }
 
     <span class="kw">fn </span>reconstruct_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: leo_ast::Literal) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="kw">if let </span>leo_ast::Literal::Group(boxed_gl) = <span class="kw-2">&amp;</span>input {
-            <span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;**</span>boxed_gl, leo_ast::GroupLiteral::Tuple(..)) {
-                <span class="comment">// YYY - I don't know how to handle this.
-                </span><span class="kw">return </span>(Expression::Literal(input), <span class="prelude-val">None</span>);
-            }
-        }
         <span class="kw">let </span>value = leo_interpreter::literal_to_value(<span class="kw-2">&amp;</span>input).expect(<span class="string">"Should work"</span>);
         (Expression::Literal(input), <span class="prelude-val">Some</span>(value))
     }

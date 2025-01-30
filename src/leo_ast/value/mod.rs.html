@@ -932,7 +932,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{FromStrRadix <span class="kw">as _</span>, GroupLiteral, Identifier, IntegerType, Literal, NodeID, Type};
+</span><span class="kw">use crate</span>::{FromStrRadix <span class="kw">as _</span>, Identifier, IntegerType, Literal, NodeID, Type};
 
 <span class="kw">use </span>leo_errors::{FlattenError, LeoError, <span class="prelude-ty">Result</span>, type_name};
 <span class="kw">use </span>leo_span::{Span, Symbol};
@@ -1106,7 +1106,7 @@
     Boolean(bool, Span),
     Struct(Identifier, IndexMap&lt;Symbol, Value&gt;),
     Field(String, Span),
-    Group(Box&lt;GroupLiteral&gt;),
+    Group(String, Span),
     I8(i8, Span),
     I16(i16, Span),
     I32(i32, Span),
@@ -1652,7 +1652,7 @@
             Struct(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, val.name),
             Boolean(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
             Field(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
-            Group(val) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            Group(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
             I8(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
             I16(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
             I32(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
@@ -1760,7 +1760,7 @@
             Boolean(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Boolean,
             Struct(ident, <span class="kw">_</span>) =&gt; Type::Identifier(<span class="kw-2">*</span>ident),
             Field(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Field,
-            Group(<span class="kw">_</span>) =&gt; Type::Group,
+            Group(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Group,
             I8(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::I8),
             I16(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::I16),
             I32(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::I32),
@@ -1786,7 +1786,7 @@
             Literal::Address(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Address(string.clone(), <span class="kw-2">*</span>span),
             Literal::Boolean(bool, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Boolean(<span class="kw-2">*</span>bool, <span class="kw-2">*</span>span),
             Literal::Field(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Field(string.clone(), <span class="kw-2">*</span>span),
-            Literal::Group(group_literal) =&gt; <span class="self">Self</span>::Group(group_literal.clone()),
+            Literal::Group(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Group(string.clone(), <span class="kw-2">*</span>span),
             Literal::Scalar(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Scalar(string.clone(), <span class="kw-2">*</span>span),
             Literal::String(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::String(string.clone(), <span class="kw-2">*</span>span),
             Literal::Integer(integer_type, raw_string, span, <span class="kw">_</span>) =&gt; {
@@ -1818,7 +1818,7 @@
             Boolean(v, span) =&gt; Literal::Boolean(v, span, id),
             Struct(_ident, _values) =&gt; <span class="macro">todo!</span>(<span class="string">"We need to test if this is hittable"</span>),
             Field(v, span) =&gt; Literal::Field(v, span, id),
-            Group(v) =&gt; Literal::Group(v),
+            Group(v, span) =&gt; Literal::Group(v, span, id),
             I8(v, span) =&gt; Literal::Integer(IntegerType::I8, v.to_string(), span, id),
             I16(v, span) =&gt; Literal::Integer(IntegerType::I16, v.to_string(), span, id),
             I32(v, span) =&gt; Literal::Integer(IntegerType::I32, v.to_string(), span, id),

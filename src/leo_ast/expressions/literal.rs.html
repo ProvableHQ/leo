@@ -196,8 +196,7 @@
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#198" id="198">198</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -213,7 +212,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{GroupLiteral, IntegerType};
+</span><span class="kw">use </span><span class="kw">crate</span>::IntegerType;
 
 <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -228,9 +227,8 @@
     <span class="doccomment">/// A field literal, e.g., `42field`.
     /// A signed number followed by the keyword `field`.
     </span>Field(String, <span class="attr">#[serde(with = <span class="string">"leo_span::span_json"</span>)] </span>Span, NodeID),
-    <span class="doccomment">/// A group literal, either product or affine.
-    /// For example, `42group` or `(12, 52)group`.
-    </span>Group(Box&lt;GroupLiteral&gt;),
+    <span class="doccomment">/// A group literal, eg `42group`.
+    </span>Group(String, <span class="attr">#[serde(with = <span class="string">"leo_span::span_json"</span>)] </span>Span, NodeID),
     <span class="doccomment">/// An integer literal, e.g., `42`.
     </span>Integer(IntegerType, String, <span class="attr">#[serde(with = <span class="string">"leo_span::span_json"</span>)] </span>Span, NodeID),
     <span class="doccomment">/// A scalar literal, e.g. `1scalar`.
@@ -246,7 +244,7 @@
             <span class="self">Self</span>::Address(address, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{address}"</span>),
             <span class="self">Self</span>::Boolean(boolean, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{boolean}"</span>),
             <span class="self">Self</span>::Field(field, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{field}field"</span>),
-            <span class="self">Self</span>::Group(group) =&gt; <span class="macro">write!</span>(f, <span class="string">"{group}group"</span>),
+            <span class="self">Self</span>::Group(group, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{group}group"</span>),
             <span class="self">Self</span>::Integer(type_, value, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{value}{type_}"</span>),
             <span class="self">Self</span>::Scalar(scalar, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{scalar}scalar"</span>),
             <span class="self">Self</span>::String(string, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"\"{string}\""</span>),
@@ -260,10 +258,10 @@
             <span class="self">Self</span>::Address(<span class="kw">_</span>, span, <span class="kw">_</span>)
             | <span class="self">Self</span>::Boolean(<span class="kw">_</span>, span, <span class="kw">_</span>)
             | <span class="self">Self</span>::Field(<span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::Group(<span class="kw">_</span>, span, <span class="kw">_</span>)
             | <span class="self">Self</span>::Integer(<span class="kw">_</span>, <span class="kw">_</span>, span, <span class="kw">_</span>)
             | <span class="self">Self</span>::Scalar(<span class="kw">_</span>, span, <span class="kw">_</span>)
             | <span class="self">Self</span>::String(<span class="kw">_</span>, span, <span class="kw">_</span>) =&gt; <span class="kw-2">*</span>span,
-            <span class="self">Self</span>::Group(group) =&gt; <span class="kw-2">*</span>group.span(),
         }
     }
 
@@ -273,9 +271,9 @@
             | <span class="self">Self</span>::Boolean(<span class="kw">_</span>, span, <span class="kw">_</span>)
             | <span class="self">Self</span>::Field(<span class="kw">_</span>, span, <span class="kw">_</span>)
             | <span class="self">Self</span>::Integer(<span class="kw">_</span>, <span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::Group(<span class="kw">_</span>, span, <span class="kw">_</span>)
             | <span class="self">Self</span>::Scalar(<span class="kw">_</span>, span, <span class="kw">_</span>)
             | <span class="self">Self</span>::String(<span class="kw">_</span>, span, <span class="kw">_</span>) =&gt; <span class="kw-2">*</span>span = new_span,
-            <span class="self">Self</span>::Group(group) =&gt; group.set_span(new_span),
         }
     }
 
@@ -284,10 +282,10 @@
             <span class="self">Self</span>::Address(<span class="kw">_</span>, <span class="kw">_</span>, id)
             | <span class="self">Self</span>::Boolean(<span class="kw">_</span>, <span class="kw">_</span>, id)
             | <span class="self">Self</span>::Field(<span class="kw">_</span>, <span class="kw">_</span>, id)
+            | <span class="self">Self</span>::Group(<span class="kw">_</span>, <span class="kw">_</span>, id)
             | <span class="self">Self</span>::Integer(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, id)
             | <span class="self">Self</span>::Scalar(<span class="kw">_</span>, <span class="kw">_</span>, id)
             | <span class="self">Self</span>::String(<span class="kw">_</span>, <span class="kw">_</span>, id) =&gt; <span class="kw-2">*</span>id,
-            <span class="self">Self</span>::Group(group) =&gt; <span class="kw-2">*</span>group.id(),
         }
     }
 
@@ -296,10 +294,10 @@
             <span class="self">Self</span>::Address(<span class="kw">_</span>, <span class="kw">_</span>, old_id)
             | <span class="self">Self</span>::Boolean(<span class="kw">_</span>, <span class="kw">_</span>, old_id)
             | <span class="self">Self</span>::Field(<span class="kw">_</span>, <span class="kw">_</span>, old_id)
+            | <span class="self">Self</span>::Group(<span class="kw">_</span>, <span class="kw">_</span>, old_id)
             | <span class="self">Self</span>::Integer(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, old_id)
             | <span class="self">Self</span>::Scalar(<span class="kw">_</span>, <span class="kw">_</span>, old_id)
             | <span class="self">Self</span>::String(<span class="kw">_</span>, <span class="kw">_</span>, old_id) =&gt; <span class="kw-2">*</span>old_id = id,
-            <span class="self">Self</span>::Group(group) =&gt; group.set_id(id),
         }
     }
 }
@@ -321,7 +319,7 @@
             Literal::Address(address, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{address}"</span>),
             Literal::Boolean(boolean, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{boolean}"</span>),
             Literal::Field(field, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{field}field"</span>),
-            Literal::Group(group) =&gt; <span class="macro">write!</span>(f, <span class="string">"{group}group"</span>),
+            Literal::Group(group, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{group}group"</span>),
             Literal::Integer(type_, value, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
                 <span class="kw">if </span>!value.starts_with(<span class="string">"0x"</span>)
                     &amp;&amp; !value.starts_with(<span class="string">"-0x"</span>)

@@ -237,7 +237,7 @@
             <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="macro">format!</span>(<span class="string">"{x}"</span>);
             <span class="comment">// Strip off the `group` suffix.
             </span>s.truncate(s.len() - <span class="number">5</span>);
-            Expression::Literal(Literal::Group(Box::new(leo_ast::GroupLiteral::Single(s, span, id))))
+            Expression::Literal(Literal::Group(s, span, id))
         }
         Field(x) =&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="macro">format!</span>(<span class="string">"{x}"</span>);
