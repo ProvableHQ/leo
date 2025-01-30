@@ -268,7 +268,7 @@ impl<N: Network> ParserContext<'_, N> {
         // If the last operation is a negation and the inner expression is a literal, then construct a negative literal.
         if let Some((UnaryOperation::Negate, _)) = ops.last() {
             match inner {
-                Expression::Literal(Literal::Integer(integer_type, string, span, id)) => {
+                Expression::Literal(Literal::Integer(integer_type, string, span, id)) if !string.starts_with('-') => {
                     // Remove the negation from the operations.
                     // Note that this unwrap is safe because there is at least one operation in `ops`.
                     let (_, op_span) = ops.pop().unwrap();
@@ -276,20 +276,20 @@ impl<N: Network> ParserContext<'_, N> {
                     inner =
                         Expression::Literal(Literal::Integer(integer_type, format!("-{string}"), op_span + span, id));
                 }
-                Expression::Literal(Literal::Field(string, span, id)) => {
+                Expression::Literal(Literal::Field(string, span, id)) if !string.starts_with('-') => {
                     // Remove the negation from the operations.
                     // Note that
                     let (_, op_span) = ops.pop().unwrap();
                     // Construct a negative field literal.
                     inner = Expression::Literal(Literal::Field(format!("-{string}"), op_span + span, id));
                 }
-                Expression::Literal(Literal::Group(string, span, id)) => {
+                Expression::Literal(Literal::Group(string, span, id)) if !string.starts_with('-') => {
                     // Remove the negation from the operations.
                     let (_, op_span) = ops.pop().unwrap();
                     // Construct a negative group literal.
                     inner = Expression::Literal(Literal::Group(format!("-{string}"), op_span + span, id));
                 }
-                Expression::Literal(Literal::Scalar(string, span, id)) => {
+                Expression::Literal(Literal::Scalar(string, span, id)) if !string.starts_with('-') => {
                     // Remove the negation from the operations.
                     let (_, op_span) = ops.pop().unwrap();
                     // Construct a negative scalar literal.

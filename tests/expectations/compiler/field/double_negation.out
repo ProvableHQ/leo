@@ -1,0 +1,8 @@
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_ast = "e7bcf3eb47bb60ca381acc31ce6e9241c4dc4012f15e6067ec0d112485f44250", unrolled_ast = "d1f265ef48af254cf931a5517c918ed2b3ddd2fddaff0f2e70b1bf53f60a7427", ssa_ast = "74a1e841eaf86568417fb9a66803b466b87fbcf43823813ef7f980299e46e402", flattened_ast = "1f4dac3dfe833f42289c00340b8b5473df8ffdd7a2c9eae4d7ca4115f4efcbf4", destructured_ast = "75d1b9d954aa0cbf2bad7e25fddcd011c713393fd35d41bb7c8dd319ecb8c5cf", inlined_ast = "75d1b9d954aa0cbf2bad7e25fddcd011c713393fd35d41bb7c8dd319ecb8c5cf", dce_ast = "cad4418236706c64f0310170308d1fbc4c95775c7cee1ba002451c04a3f5e2a9", bytecode = """
+program test.aleo;
+
+function main:
+    output 1field as field.private;
+""", errors = "", warnings = "" }] }]]
