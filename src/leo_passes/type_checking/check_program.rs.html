@@ -349,8 +349,8 @@
 
 <span class="comment">// TODO: Cleanup logic for tuples.
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ProgramVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Program) {
+</span><span class="kw">impl </span>ProgramVisitor <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Program) {
         <span class="comment">// Typecheck the program's stubs.
         </span>input.stubs.iter().for_each(|(symbol, stub)| {
             <span class="comment">// Check that naming and ordering is consistent.
@@ -369,7 +369,7 @@
         </span>input.program_scopes.values().for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
     }
 
-    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ProgramScope) {
+    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ProgramScope) {
         <span class="comment">// Set the current program name.
         </span><span class="self">self</span>.scope_state.program_name = <span class="prelude-val">Some</span>(input.program_id.name.name);
 
@@ -428,7 +428,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stub) {
+    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Stub) {
         <span class="comment">// Set the current program name.
         </span><span class="self">self</span>.scope_state.program_name = <span class="prelude-val">Some</span>(input.stub_id.name.name);
 
@@ -444,7 +444,7 @@
         </span>input.functions.iter().for_each(|(<span class="kw">_</span>, function)| <span class="self">self</span>.visit_function_stub(function));
     }
 
-    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
+    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Composite) {
         <span class="comment">// Check for conflicting struct/record member names.
         </span><span class="kw">let </span><span class="kw-2">mut </span>used = HashSet::new();
         <span class="comment">// TODO: Better span to target duplicate member.
@@ -520,7 +520,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Mapping) {
+    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Mapping) {
         <span class="comment">// Check that a mapping's key type is valid.
         </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.key_type, input.span);
         <span class="comment">// Check that a mapping's key type is not a future, tuple, record, or mapping.
@@ -566,7 +566,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function) {
+    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span>Function) {
         <span class="comment">// Check that the function's annotations are valid.
         // Note that Leo does not natively support any specific annotations.
         </span><span class="kw">for </span>annotation <span class="kw">in </span>function.annotations.iter() {
@@ -609,7 +609,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FunctionStub) {
+    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>FunctionStub) {
         <span class="comment">// Must not be an inline function
         </span><span class="kw">if </span>input.variant == Variant::Inline {
             <span class="self">self</span>.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
@@ -644,7 +644,7 @@
         </span><span class="self">self</span>.check_function_signature(<span class="kw-2">&amp;</span>Function::from(input.clone()), <span class="comment">/* is_stub */ </span><span class="bool-val">true</span>);
     }
 
-    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
+    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Composite) {
         <span class="self">self</span>.visit_struct(input);
     }
 }

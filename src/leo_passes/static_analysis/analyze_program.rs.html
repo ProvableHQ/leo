@@ -136,8 +136,8 @@
 
 <span class="kw">use </span>snarkvm::console::network::Network;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; ProgramVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>StaticAnalyzer&lt;<span class="lifetime">'a</span>, N&gt; {
-    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ProgramScope) {
+<span class="kw">impl</span>&lt;N: Network&gt; ProgramVisitor <span class="kw">for </span>StaticAnalyzer&lt;<span class="lifetime">'_</span>, N&gt; {
+    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ProgramScope) {
         <span class="comment">// Set the current program name.
         </span><span class="self">self</span>.current_program = <span class="prelude-val">Some</span>(input.program_id.name.name);
         <span class="comment">// Do the default implementation for visiting the program scope.
@@ -147,7 +147,7 @@
         input.consts.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_const(c)));
     }
 
-    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function) {
+    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span>Function) {
         <span class="comment">// Set the function name and variant.
         </span><span class="self">self</span>.variant = <span class="prelude-val">Some</span>(function.variant);
 

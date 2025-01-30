@@ -161,11 +161,7 @@
 <a href="#160" id="160">160</a>
 <a href="#161" id="161">161</a>
 <a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
+<a href="#163" id="163">163</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -217,11 +213,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ExpressionVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>FutureChecker&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>ExpressionVisitor <span class="kw">for </span>FutureChecker&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">type </span>AdditionalInput = Position;
     <span class="kw">type </span>Output = ();
 
-    <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Expression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Expression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">use </span>Position::<span class="kw-2">*</span>;
         <span class="kw">let </span>is_call = <span class="macro">matches!</span>(input, Expression::Call(..));
         <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>input.id()) {
@@ -271,11 +267,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_access(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>leo_ast::AccessExpression,
-        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
-    ) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>leo_ast::AccessExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input {
             leo_ast::AccessExpression::Array(array) =&gt; {
                 <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>array.array, <span class="kw-2">&amp;</span>Position::Misc);
@@ -302,14 +294,14 @@
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>leo_ast::CallExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>leo_ast::CallExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         input.arguments.iter().for_each(|expr| {
             <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Position::FunctionArgument);
         });
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>leo_ast::TupleExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>leo_ast::TupleExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>next_position = <span class="kw">match </span>additional {
             Position::Definition | Position::Return =&gt; Position::LastTupleLiteral,
             <span class="kw">_ </span>=&gt; Position::Misc,
@@ -323,12 +315,12 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; StatementVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>FutureChecker&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>leo_ast::DefinitionStatement) {
+<span class="kw">impl </span>StatementVisitor <span class="kw">for </span>FutureChecker&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>leo_ast::DefinitionStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Position::Definition);
     }
 
-    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>leo_ast::ReturnStatement) {
+    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>leo_ast::ReturnStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Position::Return);
     }
 }

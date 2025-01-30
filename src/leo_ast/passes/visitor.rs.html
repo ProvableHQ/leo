@@ -326,11 +326,11 @@
 // }
 
 </span><span class="doccomment">/// A Visitor trait for expressions in the AST.
-</span><span class="kw">pub trait </span>ExpressionVisitor&lt;<span class="lifetime">'a</span>&gt; {
+</span><span class="kw">pub trait </span>ExpressionVisitor {
     <span class="kw">type </span>AdditionalInput: Default;
     <span class="kw">type </span>Output: Default;
 
-    <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Expression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Expression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input {
             Expression::Access(access) =&gt; <span class="self">self</span>.visit_access(access, additional),
             Expression::Array(array) =&gt; <span class="self">self</span>.visit_array(array, additional),
@@ -349,7 +349,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AccessExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AccessExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input {
             AccessExpression::Array(array) =&gt; {
                 <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>array.array, additional);
@@ -372,32 +372,32 @@
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ArrayExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         input.elements.iter().for_each(|expr| {
             <span class="self">self</span>.visit_expression(expr, additional);
         });
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BinaryExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>BinaryExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, additional);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, additional);
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CallExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CallExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         input.arguments.iter().for_each(|expr| {
             <span class="self">self</span>.visit_expression(expr, additional);
         });
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CastExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CastExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, additional);
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">for </span>StructVariableInitializer { expression, .. } <span class="kw">in </span>input.members.iter() {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(expression) = expression {
                 <span class="self">self</span>.visit_expression(expression, additional);
@@ -406,49 +406,49 @@
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ErrExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>ErrExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">unreachable!</span>(<span class="string">"`ErrExpression`s should not be in the AST at this phase of compilation."</span>)
     }
 
-    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Identifier, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Identifier, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Literal, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Literal, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocatorExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>LocatorExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TernaryExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TernaryExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, additional);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_true, additional);
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_false, additional);
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TupleExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         input.elements.iter().for_each(|expr| {
             <span class="self">self</span>.visit_expression(expr, additional);
         });
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnaryExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>UnaryExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, additional);
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         Default::default()
     }
 }
 
 <span class="doccomment">/// A Visitor trait for statements in the AST.
-</span><span class="kw">pub trait </span>StatementVisitor&lt;<span class="lifetime">'a</span>&gt;: ExpressionVisitor&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Statement) {
+</span><span class="kw">pub trait </span>StatementVisitor: ExpressionVisitor {
+    <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Statement) {
         <span class="kw">match </span>input {
             Statement::Assert(stmt) =&gt; <span class="self">self</span>.visit_assert(stmt),
             Statement::Assign(stmt) =&gt; <span class="self">self</span>.visit_assign(stmt),
@@ -463,7 +463,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssertStatement) {
+    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AssertStatement) {
         <span class="kw">match </span><span class="kw-2">&amp;</span>input.variant {
             AssertVariant::Assert(expr) =&gt; <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default()),
             AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) =&gt; {
@@ -473,15 +473,15 @@
         };
     }
 
-    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssignStatement) {
+    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AssignStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
     }
 
-    <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Block) {
+    <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Block) {
         input.statements.iter().for_each(|stmt| <span class="self">self</span>.visit_statement(stmt));
     }
 
-    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConditionalStatement) {
+    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ConditionalStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>Default::default());
         <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.then);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(stmt) = input.otherwise.as_ref() {
@@ -489,7 +489,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConsoleStatement) {
+    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ConsoleStatement) {
         <span class="kw">match </span><span class="kw-2">&amp;</span>input.function {
             ConsoleFunction::Assert(expr) =&gt; {
                 <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
@@ -505,38 +505,38 @@
         };
     }
 
-    <span class="kw">fn </span>visit_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConstDeclaration) {
+    <span class="kw">fn </span>visit_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ConstDeclaration) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
     }
 
-    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DefinitionStatement) {
+    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>DefinitionStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
     }
 
-    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ExpressionStatement) {
+    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ExpressionStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
     }
 
-    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>IterationStatement) {
+    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>IterationStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.start, <span class="kw-2">&amp;</span>Default::default());
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.stop, <span class="kw-2">&amp;</span>Default::default());
         <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
     }
 
-    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ReturnStatement) {
+    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ReturnStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
     }
 }
 
 <span class="doccomment">/// A Visitor trait for the program represented by the AST.
-</span><span class="kw">pub trait </span>ProgramVisitor&lt;<span class="lifetime">'a</span>&gt;: StatementVisitor&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Program) {
+</span><span class="kw">pub trait </span>ProgramVisitor: StatementVisitor {
+    <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Program) {
         input.imports.values().for_each(|import| <span class="self">self</span>.visit_import(<span class="kw-2">&amp;</span>import.<span class="number">0</span>));
         input.stubs.values().for_each(|stub| <span class="self">self</span>.visit_stub(stub));
         input.program_scopes.values().for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
     }
 
-    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ProgramScope) {
+    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ProgramScope) {
         input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct(c)));
 
         input.mappings.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_mapping(c)));
@@ -546,22 +546,22 @@
         input.consts.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_const(c)));
     }
 
-    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stub) {}
+    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Stub) {}
 
-    <span class="kw">fn </span>visit_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Program) {
+    <span class="kw">fn </span>visit_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Program) {
         <span class="self">self</span>.visit_program(input)
     }
 
-    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {}
+    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Composite) {}
 
-    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Mapping) {}
+    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Mapping) {}
 
-    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function) {
+    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Function) {
         <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
     }
 
-    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FunctionStub) {}
+    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>FunctionStub) {}
 
-    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {}
+    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Composite) {}
 }
 </code></pre></div></section></main></body></html>

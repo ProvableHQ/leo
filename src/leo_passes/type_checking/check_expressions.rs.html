@@ -1036,11 +1036,11 @@
 
 <span class="kw">use </span>itertools::Itertools <span class="kw">as _</span>;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ExpressionVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>ExpressionVisitor <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">type </span>AdditionalInput = <span class="prelude-ty">Option</span>&lt;Type&gt;;
     <span class="kw">type </span>Output = Type;
 
-    <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Expression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Expression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>output = <span class="kw">match </span>input {
             Expression::Access(access) =&gt; <span class="self">self</span>.visit_access(access, additional),
             Expression::Array(array) =&gt; <span class="self">self</span>.visit_array(array, additional),
@@ -1062,7 +1062,7 @@
         output
     }
 
-    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AccessExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AccessExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input {
             AccessExpression::Array(access) =&gt; {
                 <span class="comment">// Check that the expression is an array.
@@ -1272,7 +1272,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ArrayExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">if </span>input.elements.is_empty() {
             <span class="self">self</span>.emit_err(TypeCheckerError::array_empty(input.span()));
             <span class="kw">return </span>Type::Err;
@@ -1309,7 +1309,7 @@
         type_
     }
 
-    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BinaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>BinaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>assert_same_type = |slf: <span class="kw-2">&amp;</span><span class="self">Self</span>, t1: <span class="kw-2">&amp;</span>Type, t2: <span class="kw-2">&amp;</span>Type| -&gt; Type {
             <span class="kw">if </span>t1 == <span class="kw-2">&amp;</span>Type::Err || t2 == <span class="kw-2">&amp;</span>Type::Err {
                 Type::Err
@@ -1531,7 +1531,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CallExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CallExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// Get the function symbol.
         </span><span class="kw">let </span>Expression::Identifier(ident) = <span class="kw-2">&amp;*</span>input.function <span class="kw">else </span>{
             <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>);
@@ -1747,7 +1747,7 @@
         ret
     }
 
-    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CastExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CastExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>expression_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 
         <span class="kw">let </span>assert_castable_type = |actual: <span class="kw-2">&amp;</span>Type, span: Span| {
@@ -1772,7 +1772,7 @@
         input.type_.clone()
     }
 
-    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>struct_ = <span class="self">self</span>.lookup_struct(<span class="self">self</span>.scope_state.program_name, input.name.name).clone();
         <span class="kw">let </span><span class="prelude-val">Some</span>(struct_) = struct_ <span class="kw">else </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"struct or record"</span>, input.name.name, input.name.span()));
@@ -1810,11 +1810,11 @@
     }
 
     <span class="comment">// We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.
-    </span><span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ErrExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>ErrExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         Type::Err
     }
 
-    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>var = <span class="self">self</span>.symbol_table.lookup_variable(<span class="self">self</span>.scope_state.program_name.unwrap(), input.name);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = var {
             <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>var.type_, expected, input.span());
@@ -1825,7 +1825,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Literal, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Literal, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">fn </span>parse_integer_literal&lt;I: FromStrRadix&gt;(handler: <span class="kw-2">&amp;</span>Handler, raw_string: <span class="kw-2">&amp;</span>str, span: Span, type_string: <span class="kw-2">&amp;</span>str) {
             <span class="kw">let </span>string = raw_string.replace(<span class="string">'_'</span>, <span class="string">""</span>);
             <span class="kw">if </span>I::from_str_by_radix(<span class="kw-2">&amp;</span>string).is_err() {
@@ -1890,7 +1890,7 @@
         type_
     }
 
-    <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocatorExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>LocatorExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>maybe_var = <span class="self">self</span>.symbol_table.lookup_global(Location::new(input.program.name.name, input.name)).cloned();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = maybe_var {
             <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>var.type_, expected, input.span());
@@ -1901,7 +1901,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TernaryExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TernaryExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
 
         <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_true, expected);
@@ -1917,7 +1917,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TupleExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// Check the expected tuple types if they are known.
         </span><span class="kw">let </span><span class="prelude-val">Some</span>(Type::Tuple(expected_types)) = expected <span class="kw">else </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::invalid_tuple(input.span()));
@@ -1944,7 +1944,7 @@
         Type::Tuple(expected_types.clone())
     }
 
-    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>UnaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>assert_signed_int = |slf: <span class="kw-2">&amp;mut </span><span class="self">Self</span>, type_: <span class="kw-2">&amp;</span>Type| {
             <span class="kw">if </span>!<span class="macro">matches!</span>(
                 type_,
@@ -2022,7 +2022,7 @@
         ty
     }
 
-    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         Type::Unit
     }
 }

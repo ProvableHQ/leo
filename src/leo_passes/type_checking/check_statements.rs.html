@@ -360,8 +360,8 @@
 };
 <span class="kw">use </span>leo_errors::TypeCheckerError;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; StatementVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Statement) {
+<span class="kw">impl </span>StatementVisitor <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Statement) {
         <span class="comment">// No statements can follow a return statement.
         </span><span class="kw">if </span><span class="self">self</span>.scope_state.has_return {
             <span class="self">self</span>.emit_err(TypeCheckerError::unreachable_code_after_return(input.span()));
@@ -382,7 +382,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssertStatement) {
+    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AssertStatement) {
         <span class="kw">match </span><span class="kw-2">&amp;</span>input.variant {
             AssertVariant::Assert(expr) =&gt; {
                 <span class="kw">let </span>_type = <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
@@ -400,7 +400,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssignStatement) {
+    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AssignStatement) {
         <span class="kw">let </span>Expression::Identifier(var_name) = input.place <span class="kw">else </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
             <span class="kw">return</span>;
@@ -433,13 +433,13 @@
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(var.type_.clone()));
     }
 
-    <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Block) {
+    <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Block) {
         <span class="self">self</span>.in_scope(input.id, |slf| {
             input.statements.iter().for_each(|stmt| slf.visit_statement(stmt));
         });
     }
 
-    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConditionalStatement) {
+    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ConditionalStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
 
         <span class="kw">let </span><span class="kw-2">mut </span>then_block_has_return = <span class="bool-val">false</span>;
@@ -479,11 +479,11 @@
         </span><span class="self">self</span>.scope_state.is_conditional = previous_is_conditional;
     }
 
-    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConsoleStatement) {
+    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>ConsoleStatement) {
         <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that console statements are not present in the AST."</span>);
     }
 
-    <span class="kw">fn </span>visit_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConstDeclaration) {
+    <span class="kw">fn </span>visit_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ConstDeclaration) {
         <span class="comment">// Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
             <span class="comment">// If the type is an empty tuple, return an error.
@@ -517,7 +517,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DefinitionStatement) {
+    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>DefinitionStatement) {
         <span class="comment">// Check that the type of the definition is defined.
         </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.type_, input.span);
 
@@ -585,7 +585,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ExpressionStatement) {
+    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ExpressionStatement) {
         <span class="comment">// Expression statements can only be function calls.
         </span><span class="kw">if </span>!<span class="macro">matches!</span>(
             input.expression,
@@ -598,7 +598,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>IterationStatement) {
+    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>IterationStatement) {
         <span class="self">self</span>.assert_int_type(<span class="kw-2">&amp;</span>input.type_, input.variable.span);
 
         <span class="self">self</span>.in_scope(input.id(), |slf| {
@@ -633,7 +633,7 @@
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.stop, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone()));
     }
 
-    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ReturnStatement) {
+    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ReturnStatement) {
         <span class="kw">let </span>func_name = <span class="self">self</span>.scope_state.function.unwrap();
         <span class="kw">let </span>func_symbol = <span class="self">self
             </span>.symbol_table
