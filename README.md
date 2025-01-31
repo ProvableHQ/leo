@@ -130,7 +130,8 @@ Please see our guidelines in the [developer documentation](./CONTRIBUTING.md)
 
 ## ❤️ Contributors
 
-View all Leo contributors [here](./CONTRIBUTORS.md).
+The list of contributors has been moved to a separate repository.
+View all Leo contributors [here](https://github.com/ProvableHQ/leo-contributors/blob/master/CONTRIBUTORS.md).
 
 ## 🛡️ License
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE.md)
