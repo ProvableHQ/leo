@@ -120,6 +120,14 @@ impl<N: Network> ParserContext<'_, N> {
         self.parse_bin_expr(&[Token::And], Self::parse_equality_expression)
     }
 
+    fn eat_unary_op(&mut self) -> Option<UnaryOperation> {
+        self.eat_any(&[Token::Not, Token::Sub]).then(|| match &self.prev_token.token {
+            Token::Not => UnaryOperation::Not,
+            Token::Sub => UnaryOperation::Negate,
+            _ => panic!("Can't happen."),
+        })
+    }
+
     /// Eats one of binary operators matching any in `tokens`.
     fn eat_bin_op(&mut self, tokens: &[Token]) -> Option<BinaryOperation> {
         self.eat_any(tokens).then(|| match &self.prev_token.token {
@@ -253,63 +261,36 @@ impl<N: Network> ParserContext<'_, N> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_postfix_expression`].
     pub(super) fn parse_unary_expression(&mut self) -> Result<Expression> {
-        let mut ops = Vec::new();
-        while self.eat_any(&[Token::Not, Token::Sub]) {
-            let operation = match self.prev_token.token {
-                Token::Not => UnaryOperation::Not,
-                Token::Sub => UnaryOperation::Negate,
-                _ => unreachable!("parse_unary_expression_ shouldn't produce this"),
-            };
-            ops.push((operation, self.prev_token.span));
-        }
+        let token_span = self.token.span;
 
-        let mut inner = self.parse_postfix_expression()?;
+        let Some(op) = self.eat_unary_op() else {
+            return self.parse_postfix_expression();
+        };
 
-        // If the last operation is a negation and the inner expression is a literal, then construct a negative literal.
-        if let Some((UnaryOperation::Negate, _)) = ops.last() {
-            match inner {
-                Expression::Literal(Literal::Integer(integer_type, string, span, id)) if !string.starts_with('-') => {
-                    // Remove the negation from the operations.
-                    // Note that this unwrap is safe because there is at least one operation in `ops`.
-                    let (_, op_span) = ops.pop().unwrap();
-                    // Construct a negative integer literal.
-                    inner =
-                        Expression::Literal(Literal::Integer(integer_type, format!("-{string}"), op_span + span, id));
+        let mut inner = self.parse_unary_expression()?;
+
+        // Try to construct a negative literal.
+        if let UnaryOperation::Negate = op {
+            use Literal::*;
+            if let Expression::Literal(
+                Integer(_, string, span, _) | Field(string, span, _) | Group(string, span, _) | Scalar(string, span, _),
+            ) = &mut inner
+            {
+                if !string.starts_with('-') {
+                    // The operation was a negation and the literal was not already negative, so fold it in.
+                    string.insert(0, '-');
+                    *span = token_span + *span;
+                    return Ok(inner);
                 }
-                Expression::Literal(Literal::Field(string, span, id)) if !string.starts_with('-') => {
-                    // Remove the negation from the operations.
-                    // Note that
-                    let (_, op_span) = ops.pop().unwrap();
-                    // Construct a negative field literal.
-                    inner = Expression::Literal(Literal::Field(format!("-{string}"), op_span + span, id));
-                }
-                Expression::Literal(Literal::Group(string, span, id)) if !string.starts_with('-') => {
-                    // Remove the negation from the operations.
-                    let (_, op_span) = ops.pop().unwrap();
-                    // Construct a negative group literal.
-                    inner = Expression::Literal(Literal::Group(format!("-{string}"), op_span + span, id));
-                }
-                Expression::Literal(Literal::Scalar(string, span, id)) if !string.starts_with('-') => {
-                    // Remove the negation from the operations.
-                    let (_, op_span) = ops.pop().unwrap();
-                    // Construct a negative scalar literal.
-                    inner = Expression::Literal(Literal::Scalar(format!("-{string}"), op_span + span, id));
-                }
-                _ => (), // Do nothing.
             }
         }
 
-        // Apply the operations in reverse order, constructing a unary expression.
-        for (op, op_span) in ops.into_iter().rev() {
-            inner = Expression::Unary(UnaryExpression {
-                span: op_span + inner.span(),
-                op,
-                receiver: Box::new(inner),
-                id: self.node_builder.next_id(),
-            });
-        }
-
-        Ok(inner)
+        Ok(Expression::Unary(UnaryExpression {
+            span: token_span + inner.span(),
+            op,
+            receiver: Box::new(inner),
+            id: self.node_builder.next_id(),
+        }))
     }
 
     // TODO: Parse method call expressions directly and later put them into a canonical form.
