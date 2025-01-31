@@ -970,11 +970,21 @@ impl ExpressionVisitor for TypeChecker<'_> {
             }
             UnaryOperation::Negate => {
                 let type_ = self.visit_expression(&input.receiver, &None);
-                if !matches!(&type_, Type::Err | Type::Integer(_) | Type::Group | Type::Field) {
+                if !matches!(
+                    &type_,
+                    Type::Err
+                        | Type::Integer(IntegerType::I8)
+                        | Type::Integer(IntegerType::I16)
+                        | Type::Integer(IntegerType::I32)
+                        | Type::Integer(IntegerType::I64)
+                        | Type::Integer(IntegerType::I128)
+                        | Type::Group
+                        | Type::Field
+                ) {
                     self.emit_err(TypeCheckerError::type_should_be2(
                         &type_,
-                        "an integer, group, or field",
-                        input.span(),
+                        "a signed integer, group, or field",
+                        input.receiver.span(),
                     ));
                 }
                 type_
