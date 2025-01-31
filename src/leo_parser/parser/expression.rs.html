@@ -1048,7 +1048,7 @@
         <span class="comment">// If the last operation is a negation and the inner expression is a literal, then construct a negative literal.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>((UnaryOperation::Negate, <span class="kw">_</span>)) = ops.last() {
             <span class="kw">match </span>inner {
-                Expression::Literal(Literal::Integer(integer_type, string, span, id)) =&gt; {
+                Expression::Literal(Literal::Integer(integer_type, string, span, id)) <span class="kw">if </span>!string.starts_with(<span class="string">'-'</span>) =&gt; {
                     <span class="comment">// Remove the negation from the operations.
                     // Note that this unwrap is safe because there is at least one operation in `ops`.
                     </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
@@ -1056,20 +1056,20 @@
                     </span>inner =
                         Expression::Literal(Literal::Integer(integer_type, <span class="macro">format!</span>(<span class="string">"-{string}"</span>), op_span + span, id));
                 }
-                Expression::Literal(Literal::Field(string, span, id)) =&gt; {
+                Expression::Literal(Literal::Field(string, span, id)) <span class="kw">if </span>!string.starts_with(<span class="string">'-'</span>) =&gt; {
                     <span class="comment">// Remove the negation from the operations.
                     // Note that
                     </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
                     <span class="comment">// Construct a negative field literal.
                     </span>inner = Expression::Literal(Literal::Field(<span class="macro">format!</span>(<span class="string">"-{string}"</span>), op_span + span, id));
                 }
-                Expression::Literal(Literal::Group(string, span, id)) =&gt; {
+                Expression::Literal(Literal::Group(string, span, id)) <span class="kw">if </span>!string.starts_with(<span class="string">'-'</span>) =&gt; {
                     <span class="comment">// Remove the negation from the operations.
                     </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
                     <span class="comment">// Construct a negative group literal.
                     </span>inner = Expression::Literal(Literal::Group(<span class="macro">format!</span>(<span class="string">"-{string}"</span>), op_span + span, id));
                 }
-                Expression::Literal(Literal::Scalar(string, span, id)) =&gt; {
+                Expression::Literal(Literal::Scalar(string, span, id)) <span class="kw">if </span>!string.starts_with(<span class="string">'-'</span>) =&gt; {
                     <span class="comment">// Remove the negation from the operations.
                     </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
                     <span class="comment">// Construct a negative scalar literal.
