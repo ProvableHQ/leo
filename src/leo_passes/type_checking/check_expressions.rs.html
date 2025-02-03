@@ -1012,7 +1012,17 @@
 <a href="#1011" id="1011">1011</a>
 <a href="#1012" id="1012">1012</a>
 <a href="#1013" id="1013">1013</a>
-<a href="#1014" id="1014">1014</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1984,11 +1994,21 @@
             }
             UnaryOperation::Negate =&gt; {
                 <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>type_, Type::Err | Type::Integer(<span class="kw">_</span>) | Type::Group | Type::Field) {
+                <span class="kw">if </span>!<span class="macro">matches!</span>(
+                    <span class="kw-2">&amp;</span>type_,
+                    Type::Err
+                        | Type::Integer(IntegerType::I8)
+                        | Type::Integer(IntegerType::I16)
+                        | Type::Integer(IntegerType::I32)
+                        | Type::Integer(IntegerType::I64)
+                        | Type::Integer(IntegerType::I128)
+                        | Type::Group
+                        | Type::Field
+                ) {
                     <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be2(
                         <span class="kw-2">&amp;</span>type_,
-                        <span class="string">"an integer, group, or field"</span>,
-                        input.span(),
+                        <span class="string">"a signed integer, group, or field"</span>,
+                        input.receiver.span(),
                     ));
                 }
                 type_
