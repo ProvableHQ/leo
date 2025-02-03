@@ -759,26 +759,7 @@
 <a href="#758" id="758">758</a>
 <a href="#759" id="759">759</a>
 <a href="#760" id="760">760</a>
-<a href="#761" id="761">761</a>
-<a href="#762" id="762">762</a>
-<a href="#763" id="763">763</a>
-<a href="#764" id="764">764</a>
-<a href="#765" id="765">765</a>
-<a href="#766" id="766">766</a>
-<a href="#767" id="767">767</a>
-<a href="#768" id="768">768</a>
-<a href="#769" id="769">769</a>
-<a href="#770" id="770">770</a>
-<a href="#771" id="771">771</a>
-<a href="#772" id="772">772</a>
-<a href="#773" id="773">773</a>
-<a href="#774" id="774">774</a>
-<a href="#775" id="775">775</a>
-<a href="#776" id="776">776</a>
-<a href="#777" id="777">777</a>
-<a href="#778" id="778">778</a>
-<a href="#779" id="779">779</a>
-<a href="#780" id="780">780</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#761" id="761">761</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -898,6 +879,14 @@
     /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
     </span><span class="kw">fn </span>parse_boolean_and_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
         <span class="self">self</span>.parse_bin_expr(<span class="kw-2">&amp;</span>[Token::And], <span class="self">Self</span>::parse_equality_expression)
+    }
+
+    <span class="kw">fn </span>eat_unary_op(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;UnaryOperation&gt; {
+        <span class="self">self</span>.eat_any(<span class="kw-2">&amp;</span>[Token::Not, Token::Sub]).then(|| <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.prev_token.token {
+            Token::Not =&gt; UnaryOperation::Not,
+            Token::Sub =&gt; UnaryOperation::Negate,
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Can't happen."</span>),
+        })
     }
 
     <span class="doccomment">/// Eats one of binary operators matching any in `tokens`.
@@ -1033,63 +1022,36 @@
     ///
     /// Otherwise, tries to parse the next token using [`parse_postfix_expression`].
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_unary_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>ops = Vec::new();
-        <span class="kw">while </span><span class="self">self</span>.eat_any(<span class="kw-2">&amp;</span>[Token::Not, Token::Sub]) {
-            <span class="kw">let </span>operation = <span class="kw">match </span><span class="self">self</span>.prev_token.token {
-                Token::Not =&gt; UnaryOperation::Not,
-                Token::Sub =&gt; UnaryOperation::Negate,
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"parse_unary_expression_ shouldn't produce this"</span>),
-            };
-            ops.push((operation, <span class="self">self</span>.prev_token.span));
+        <span class="kw">let </span>token_span = <span class="self">self</span>.token.span;
+
+        <span class="kw">let </span><span class="prelude-val">Some</span>(op) = <span class="self">self</span>.eat_unary_op() <span class="kw">else </span>{
+            <span class="kw">return </span><span class="self">self</span>.parse_postfix_expression();
+        };
+
+        <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.parse_unary_expression()<span class="question-mark">?</span>;
+
+        <span class="comment">// Try to construct a negative literal.
+        </span><span class="kw">if let </span>UnaryOperation::Negate = op {
+            <span class="kw">use </span>Literal::<span class="kw-2">*</span>;
+            <span class="kw">if let </span>Expression::Literal(
+                Integer(<span class="kw">_</span>, string, span, <span class="kw">_</span>) | Field(string, span, <span class="kw">_</span>) | Group(string, span, <span class="kw">_</span>) | Scalar(string, span, <span class="kw">_</span>),
+            ) = <span class="kw-2">&amp;mut </span>inner
+            {
+                <span class="kw">if </span>!string.starts_with(<span class="string">'-'</span>) {
+                    <span class="comment">// The operation was a negation and the literal was not already negative, so fold it in.
+                    </span>string.insert(<span class="number">0</span>, <span class="string">'-'</span>);
+                    <span class="kw-2">*</span>span = token_span + <span class="kw-2">*</span>span;
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(inner);
+                }
+            }
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.parse_postfix_expression()<span class="question-mark">?</span>;
-
-        <span class="comment">// If the last operation is a negation and the inner expression is a literal, then construct a negative literal.
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((UnaryOperation::Negate, <span class="kw">_</span>)) = ops.last() {
-            <span class="kw">match </span>inner {
-                Expression::Literal(Literal::Integer(integer_type, string, span, id)) <span class="kw">if </span>!string.starts_with(<span class="string">'-'</span>) =&gt; {
-                    <span class="comment">// Remove the negation from the operations.
-                    // Note that this unwrap is safe because there is at least one operation in `ops`.
-                    </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
-                    <span class="comment">// Construct a negative integer literal.
-                    </span>inner =
-                        Expression::Literal(Literal::Integer(integer_type, <span class="macro">format!</span>(<span class="string">"-{string}"</span>), op_span + span, id));
-                }
-                Expression::Literal(Literal::Field(string, span, id)) <span class="kw">if </span>!string.starts_with(<span class="string">'-'</span>) =&gt; {
-                    <span class="comment">// Remove the negation from the operations.
-                    // Note that
-                    </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
-                    <span class="comment">// Construct a negative field literal.
-                    </span>inner = Expression::Literal(Literal::Field(<span class="macro">format!</span>(<span class="string">"-{string}"</span>), op_span + span, id));
-                }
-                Expression::Literal(Literal::Group(string, span, id)) <span class="kw">if </span>!string.starts_with(<span class="string">'-'</span>) =&gt; {
-                    <span class="comment">// Remove the negation from the operations.
-                    </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
-                    <span class="comment">// Construct a negative group literal.
-                    </span>inner = Expression::Literal(Literal::Group(<span class="macro">format!</span>(<span class="string">"-{string}"</span>), op_span + span, id));
-                }
-                Expression::Literal(Literal::Scalar(string, span, id)) <span class="kw">if </span>!string.starts_with(<span class="string">'-'</span>) =&gt; {
-                    <span class="comment">// Remove the negation from the operations.
-                    </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
-                    <span class="comment">// Construct a negative scalar literal.
-                    </span>inner = Expression::Literal(Literal::Scalar(<span class="macro">format!</span>(<span class="string">"-{string}"</span>), op_span + span, id));
-                }
-                <span class="kw">_ </span>=&gt; (), <span class="comment">// Do nothing.
-            </span>}
-        }
-
-        <span class="comment">// Apply the operations in reverse order, constructing a unary expression.
-        </span><span class="kw">for </span>(op, op_span) <span class="kw">in </span>ops.into_iter().rev() {
-            inner = Expression::Unary(UnaryExpression {
-                span: op_span + inner.span(),
-                op,
-                receiver: Box::new(inner),
-                id: <span class="self">self</span>.node_builder.next_id(),
-            });
-        }
-
-        <span class="prelude-val">Ok</span>(inner)
+        <span class="prelude-val">Ok</span>(Expression::Unary(UnaryExpression {
+            span: token_span + inner.span(),
+            op,
+            receiver: Box::new(inner),
+            id: <span class="self">self</span>.node_builder.next_id(),
+        }))
     }
 
     <span class="comment">// TODO: Parse method call expressions directly and later put them into a canonical form.
