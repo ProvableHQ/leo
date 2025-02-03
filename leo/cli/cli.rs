@@ -52,11 +52,6 @@ enum Commands {
         #[clap(flatten)]
         command: LeoNew,
     },
-    #[clap(about = "Create a new Leo example package in a new directory")]
-    Example {
-        #[clap(flatten)]
-        command: LeoExample,
-    },
     #[clap(about = "Run a program with input variables")]
     Run {
         #[clap(flatten)]
@@ -147,7 +142,6 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Query { command } => command.try_execute(context),
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
-        Commands::Example { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
         Commands::Remove { command } => command.try_execute(context),

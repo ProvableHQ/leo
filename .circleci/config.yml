@@ -274,19 +274,6 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-clean.sh
 
-  leo-example:
-    docker:
-      - image: cimg/rust:1.82
-    resource_class: xlarge
-    steps:
-      - attach_workspace:
-          at: /home/circleci/project/
-      - run:
-          name: leo example
-          command: |
-            export LEO=/home/circleci/project/project/bin/leo
-            ./project/.circleci/leo-example.sh
-
   test-examples:
     docker:
       - image: cimg/rust:1.82
@@ -314,9 +301,6 @@ workflows:
           requires:
             - leo-executable
       - leo-clean:
-          requires:
-            - leo-executable
-      - leo-example:
           requires:
             - leo-executable
       - test-examples:

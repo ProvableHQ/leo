@@ -32,9 +32,6 @@ pub use debug::LeoDebug;
 pub mod deploy;
 pub use deploy::Deploy;
 
-pub mod example;
-pub use example::LeoExample;
-
 pub mod execute;
 pub use execute::LeoExecute;
 
