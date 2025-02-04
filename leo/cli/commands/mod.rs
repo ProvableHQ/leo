@@ -177,7 +177,7 @@ impl Default for BuildOptions {
             network: None,
             non_recursive: false,
             offline: false,
-            enable_dce: false,
+            enable_dce: true,
             enable_all_ast_snapshots: false,
             enable_initial_ast_snapshot: false,
             enable_unrolled_ast_snapshot: false,

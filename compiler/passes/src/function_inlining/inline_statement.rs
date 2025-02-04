@@ -46,7 +46,7 @@ impl StatementReconstructor for FunctionInliner<'_> {
                         id: self.node_builder.next_id(),
                     }))
                 }));
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
+                (Statement::dummy(), statements)
             }
 
             (place, value) => (
@@ -65,6 +65,8 @@ impl StatementReconstructor for FunctionInliner<'_> {
             statements.extend(additional_statements);
             statements.push(reconstructed_statement);
         }
+
+        statements.retain(|stmt| !stmt.is_empty());
 
         (Block { span: block.span, statements, id: block.id }, Default::default())
     }
@@ -105,7 +107,7 @@ impl StatementReconstructor for FunctionInliner<'_> {
 
         // If the resulting expression is a unit expression, return a dummy statement.
         let statement = match expression {
-            Expression::Unit(_) => Statement::dummy(Default::default(), self.node_builder.next_id()),
+            Expression::Unit(_) => Statement::dummy(),
             _ => Statement::Expression(ExpressionStatement { expression, span: input.span, id: input.id }),
         };
 

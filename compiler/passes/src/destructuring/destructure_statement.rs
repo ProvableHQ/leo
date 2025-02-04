@@ -50,7 +50,7 @@ impl StatementReconstructor for Destructurer<'_> {
             (Expression::Identifier(identifier), Expression::Tuple(tuple)) => {
                 self.tuples.insert(identifier.name, tuple);
                 // Note that tuple assignments are removed from the AST.
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default())
+                (Statement::dummy(), Default::default())
             }
             // If the lhs is an identifier and the rhs is an identifier that is a tuple, then add it to `self.tuples`.
             // Return a dummy statement in its place.
@@ -61,7 +61,7 @@ impl StatementReconstructor for Destructurer<'_> {
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists.
                 self.tuples.insert(lhs_identifier.name, self.tuples.get(&rhs_identifier.name).unwrap().clone());
                 // Note that tuple assignments are removed from the AST.
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default())
+                (Statement::dummy(), Default::default())
             }
             // If the lhs is an identifier and the rhs is a function call that produces a tuple, then add it to `self.tuples`.
             (Expression::Identifier(lhs_identifier), Expression::Call(call)) => {
@@ -160,7 +160,7 @@ impl StatementReconstructor for Destructurer<'_> {
                         }))
                     })
                     .collect();
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
+                (Statement::dummy(), statements)
             }
             // If the lhs is a tuple and the rhs is an identifier that is a tuple, create a new assign statement for each tuple element.
             (Expression::Tuple(lhs_tuple), Expression::Identifier(identifier))
@@ -193,7 +193,7 @@ impl StatementReconstructor for Destructurer<'_> {
                         }))
                     })
                     .collect();
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
+                (Statement::dummy(), statements)
             }
             // If the lhs of an assignment is a tuple, then the rhs can be one of the following:
             //  - A function call that produces a tuple. (handled above)
@@ -216,6 +216,8 @@ impl StatementReconstructor for Destructurer<'_> {
             statements.extend(additional_statements);
             statements.push(reconstructed_statement);
         }
+
+        statements.retain(|stmt| !stmt.is_empty());
 
         (Block { span: block.span, statements, id: self.node_builder.next_id() }, Default::default())
     }

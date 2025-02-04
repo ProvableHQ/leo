@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Node, NodeID};
-use leo_span::Span;
+
+use leo_span::{Span, sym};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -211,6 +212,34 @@ pub(crate) enum Associativity {
 }
 
 impl Expression {
+    pub fn side_effect_free(&self) -> bool {
+        use Expression::*;
+        match self {
+            Access(AccessExpression::Array(array)) => array.array.side_effect_free() && array.index.side_effect_free(),
+            Access(AccessExpression::AssociatedConstant(_)) => true,
+            Access(AccessExpression::AssociatedFunction(func)) => {
+                func.arguments.iter().all(|expr| expr.side_effect_free())
+                    && !matches!(func.name.name, sym::CheatCode | sym::Mapping)
+            }
+            Access(AccessExpression::Member(mem)) => mem.inner.side_effect_free(),
+            Access(AccessExpression::Tuple(tuple)) => tuple.tuple.side_effect_free(),
+            Array(array) => array.elements.iter().all(|expr| expr.side_effect_free()),
+            Binary(bin) => bin.left.side_effect_free() && bin.right.side_effect_free(),
+            Call(call) => call.arguments.iter().all(|expr| expr.side_effect_free()),
+            Cast(cast) => cast.expression.side_effect_free(),
+            Struct(struct_) => {
+                struct_.members.iter().all(|mem| mem.expression.as_ref().map_or(true, |expr| expr.side_effect_free()))
+            }
+            Ternary(tern) => {
+                [&tern.condition, &tern.if_true, &tern.if_false].into_iter().all(|expr| expr.side_effect_free())
+            }
+            Tuple(tuple) => tuple.elements.iter().all(|expr| expr.side_effect_free()),
+            Unary(un) => un.receiver.side_effect_free(),
+            Err(_) => false,
+            Identifier(_) | Literal(_) | Locator(_) | Unit(_) => true,
+        }
+    }
+
     pub(crate) fn precedence(&self) -> u32 {
         use Expression::*;
         match self {

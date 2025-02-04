@@ -16,10 +16,9 @@
 
 use crate::{ParserContext, SpannedToken, tokenizer};
 
-use leo_ast::{NodeBuilder, NodeID, Statement};
+use leo_ast::{NodeBuilder, Statement};
 use leo_errors::{LeoError, emitter::Handler};
 use leo_span::{
-    Span,
     source_map::FileName,
     symbol::{SessionGlobals, create_session_if_not_set_then},
 };
@@ -120,7 +119,7 @@ impl Namespace for ParseStatementNamespace {
         create_session_if_not_set_then(|s| {
             let tokenizer = tokenize(test, s)?;
             if all_are_comments(&tokenizer) {
-                return Ok(toml_or_fail(Statement::dummy(Span::default(), NodeID::default())));
+                return Ok(toml_or_fail(Statement::dummy()));
             }
             with_handler(tokenizer, |p| p.parse_statement()).map(toml_or_fail)
         })

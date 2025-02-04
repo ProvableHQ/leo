@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Pass"
 outputs = [[
-    { compile = [{ initial_ast = "a03b62665e30eedea3d493842083160f588787e920e25c1b53caeeaf780fa985", unrolled_ast = "a03b62665e30eedea3d493842083160f588787e920e25c1b53caeeaf780fa985", ssa_ast = "245399f8485816f9687ebe4a758067ee86c38c65772e11c7e952e3efba46c45c", flattened_ast = "1cbaf23a82ac78edd880cce14f97ca791ad05586c2b298305b5d116c66f741cd", destructured_ast = "7399f593b39548470b1c26f25ca1336b4c565f30383515c19bf2b7d2b7595194", inlined_ast = "7399f593b39548470b1c26f25ca1336b4c565f30383515c19bf2b7d2b7595194", dce_ast = "867c80b990ef129c07631f494d2f26a249d769cae7f407ea569112d696db659c", bytecode = """
+    { compile = [{ initial_ast = "a03b62665e30eedea3d493842083160f588787e920e25c1b53caeeaf780fa985", unrolled_ast = "a03b62665e30eedea3d493842083160f588787e920e25c1b53caeeaf780fa985", ssa_ast = "245399f8485816f9687ebe4a758067ee86c38c65772e11c7e952e3efba46c45c", flattened_ast = "067dcb3463f02cda95ffad857e5798aefbcf8be8bc20f389bcfc396e16a1ef9d", destructured_ast = "914746a2921d23cbb9d481cd5c93f7c4e25ae63c1552a560b96efcf939552cb5", inlined_ast = "914746a2921d23cbb9d481cd5c93f7c4e25ae63c1552a560b96efcf939552cb5", dce_ast = "a47842688ac5af59d3b0583b7e52ddcc88f6fac66e2f178b8fd428ce21034ff9", bytecode = """
 program test.aleo;
 
 struct TokenInfo:
@@ -9,7 +9,7 @@ struct TokenInfo:
 
 function add_new_liquidity_token_2:
 """, errors = "", warnings = "" }] },
-    { compile = [{ initial_ast = "d4a2d9b3ae480ba78e5d645c99fe3e52421213cb3899d32e6cb57962271f3500", unrolled_ast = "d4a2d9b3ae480ba78e5d645c99fe3e52421213cb3899d32e6cb57962271f3500", ssa_ast = "70025d49470fabc8804bb98b54ae1d0d0d5d5943fc9d3e6e76b708f346aef7c1", flattened_ast = "806c948265ae74e02fa0130bf2f66a572c0327341a6d990031fa5afee46a4182", destructured_ast = "2863f3ca7be0e5bbfd5754c2e091dc6481bce1473d91b5bff1256ebb63e48f55", inlined_ast = "2863f3ca7be0e5bbfd5754c2e091dc6481bce1473d91b5bff1256ebb63e48f55", dce_ast = "2863f3ca7be0e5bbfd5754c2e091dc6481bce1473d91b5bff1256ebb63e48f55", bytecode = """
+    { compile = [{ initial_ast = "d4a2d9b3ae480ba78e5d645c99fe3e52421213cb3899d32e6cb57962271f3500", unrolled_ast = "d4a2d9b3ae480ba78e5d645c99fe3e52421213cb3899d32e6cb57962271f3500", ssa_ast = "70025d49470fabc8804bb98b54ae1d0d0d5d5943fc9d3e6e76b708f346aef7c1", flattened_ast = "3e6a51c10f6e4e0ade94cf5093b31c4a968be6f3aa66fae2a10146113c360963", destructured_ast = "86e0a12f997841a15dd93104621a1c8466348aad9db4f9cb435f2ee8f9a2eb1b", inlined_ast = "86e0a12f997841a15dd93104621a1c8466348aad9db4f9cb435f2ee8f9a2eb1b", dce_ast = "86e0a12f997841a15dd93104621a1c8466348aad9db4f9cb435f2ee8f9a2eb1b", bytecode = """
 program test.aleo;
 
 struct TokenInfo:

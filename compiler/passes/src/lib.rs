@@ -29,8 +29,8 @@ pub use common::*;
 mod const_propagation;
 pub use const_propagation::*;
 
-pub mod dead_code_elimination;
-pub use dead_code_elimination::*;
+mod dead_code_elimination;
+pub use dead_code_elimination::{DeadCodeEliminator, VariableTracker};
 
 pub mod destructuring;
 pub use destructuring::*;

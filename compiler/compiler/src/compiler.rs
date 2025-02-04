@@ -308,15 +308,33 @@ impl<'a, N: Network> Compiler<'a, N> {
 
     /// Runs the dead code elimination pass.
     pub fn dead_code_elimination_pass(&mut self) -> Result<()> {
-        if self.compiler_options.build.dce_enabled {
-            self.ast = DeadCodeEliminator::do_pass((std::mem::take(&mut self.ast), &self.node_builder))?;
+        if !self.compiler_options.build.dce_enabled {
+            if self.compiler_options.output.dce_ast {
+                self.write_ast_to_json("dce_ast.json")?;
+            }
+            return Ok(());
         }
 
-        if self.compiler_options.output.dce_ast {
-            self.write_ast_to_json("dce_ast.json")?;
+        // This seems to be an absurdly high limit, but at least one test case
+        // (underscore_for_loop.leo) previously did need over 4096 passes. Then
+        // again that could be considered a pathological program we don't actually
+        // care about.
+        const LARGE_LOOP_BOUND: usize = 65536usize;
+
+        // Run the pass until we hit a fixed point.
+        for _ in 0..LARGE_LOOP_BOUND {
+            let (ast, changed) = DeadCodeEliminator::do_pass((std::mem::take(&mut self.ast),))?;
+            self.ast = ast;
+            if !changed {
+                if self.compiler_options.output.dce_ast {
+                    self.write_ast_to_json("dce_ast.json")?;
+                }
+
+                return Ok(());
+            }
         }
 
-        Ok(())
+        Err(CompilerError::dead_code_many_loops(LARGE_LOOP_BOUND, Default::default()).into())
     }
 
     /// Runs the code generation pass.

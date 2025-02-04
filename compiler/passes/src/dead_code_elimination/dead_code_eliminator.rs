@@ -14,25 +14,48 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::NodeBuilder;
-use leo_span::Symbol;
+use crate::SymbolTable;
 
-use indexmap::IndexSet;
+use leo_ast::NodeID;
 
+/// Dead code elimination.
+///
+/// Currently this pass only eliminates unused variables.
+/// Note that this pass expects SSA form, so there is no shadowing
+/// of variable names, and there are no reassignments.
 pub struct DeadCodeEliminator<'a> {
-    /// A counter to generate unique node IDs.
-    pub(crate) node_builder: &'a NodeBuilder,
-    /// The set of used variables in the current function body.
-    pub(crate) used_variables: IndexSet<Symbol>,
-    /// Whether or not the variables are necessary.
-    pub(crate) is_necessary: bool,
-    /// Whether or not we are currently traversing an async function.
-    pub(crate) is_async: bool,
+    /// A `SymbolTable` filled in by the `VariableTracker` below.
+    pub(crate) symbol_table: &'a mut SymbolTable,
+    /// Has this pass actually made any changes to the AST?
+    pub(crate) changed: bool,
 }
 
 impl<'a> DeadCodeEliminator<'a> {
     /// Initializes a new `DeadCodeEliminator`.
-    pub fn new(node_builder: &'a NodeBuilder) -> Self {
-        Self { node_builder, used_variables: Default::default(), is_necessary: false, is_async: false }
+    pub fn new(symbol_table: &'a mut SymbolTable) -> Self {
+        Self { symbol_table, changed: false }
+    }
+
+    /// Enter, in the symbol table, the scope indicated by this `id`.
+    pub(crate) fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
+        self.symbol_table.enter_scope(Some(id));
+        let result = func(self);
+        self.symbol_table.enter_parent();
+        result
+    }
+}
+
+pub struct VariableTracker<'a> {
+    /// A `SymbolTable` for tracking which variables are actually used.
+    pub(crate) symbol_table: &'a mut SymbolTable,
+}
+
+impl VariableTracker<'_> {
+    /// Enter, in the symbol table, the scope indicated by this `id`.
+    pub(crate) fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
+        self.symbol_table.enter_scope(Some(id));
+        let result = func(self);
+        self.symbol_table.enter_parent();
+        result
     }
 }

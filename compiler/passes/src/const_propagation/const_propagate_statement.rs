@@ -40,13 +40,6 @@ fn empty_statement() -> Statement {
     Statement::Block(Block { statements: Vec::new(), span: Default::default(), id: Default::default() })
 }
 
-fn is_empty_statement(stmt: &Statement) -> bool {
-    let Statement::Block(block) = stmt else {
-        return false;
-    };
-    block.statements.is_empty()
-}
-
 impl StatementReconstructor for ConstPropagator<'_> {
     fn reconstruct_assert(&mut self, mut input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
         // Catching asserts at compile time is not feasible here due to control flow, but could be done in
@@ -77,7 +70,7 @@ impl StatementReconstructor for ConstPropagator<'_> {
                 let bogus_statement = empty_statement();
                 let this_statement = std::mem::replace(statement, bogus_statement);
                 *statement = slf.reconstruct_statement(this_statement).0;
-                !is_empty_statement(statement)
+                !statement.is_empty()
             });
             (block, None)
         })

@@ -5,7 +5,6 @@ expectation = "Pass"
 
 program test.aleo {
     transition main(x: u32) -> bool {
-
         // For i8
         let count_i8: i8 = 0__0i8 + 1_9i8;
         for i: i8 in 0______1i8..0__________5i8 {
@@ -26,13 +25,13 @@ program test.aleo {
 
         // For i64
         let count_i64: i64 = 0__0i64 * 000_0__1_9i64;
-        for i: i64 in 000__1___1i64..1___000_5i64 {
+        for i: i64 in 000__1___1i64..0___00015i64 {
             count_i64 += 1i64;
         }
 
         // For i128
         let count_i128: i128 = 000_0_000_0_0__0i128 + 000_0_1_9i128;
-        for i: i128 in 000___0001__0________1i128..000_500______i128 {
+        for i: i128 in 000___0001__0________1i128..000_1_20_______i128 {
             count_i128 += 1i128;
         }
 
@@ -65,6 +64,7 @@ program test.aleo {
         for i: u128 in 0_0000_0000_0000_0001u128..0000_____00000___1_____________5u128 {
             count_u128 += 1u128;
         }
+
         return true;
     }
 }

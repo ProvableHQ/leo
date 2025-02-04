@@ -105,4 +105,11 @@ create_messages!(
         msg: format!("The const propagation and loop unrolling passes ran {bound} times without reaching a fixed point."),
         help: Some("This should only happen with a pathological Leo program containing numerous nested loops or nested operations. Otherwise, this may be a bug in the Leo compiler.".to_string()),
     }
+
+    @formatted
+    dead_code_many_loops {
+        args: (bound: usize),
+        msg: format!("The dead code elimination pass ran {bound} times without reaching a fixed point."),
+        help: Some("This should only happen with a pathological Leo program. Otherwise, this may be a bug in the Leo compiler.".to_string()),
+    }
 );

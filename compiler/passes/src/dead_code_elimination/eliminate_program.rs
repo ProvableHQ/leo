@@ -14,30 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::DeadCodeEliminator;
+use crate::{DeadCodeEliminator, VariableTracker};
 
-use leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{Function, Node as _, ProgramReconstructor, ProgramVisitor, StatementReconstructor, StatementVisitor};
 
 impl ProgramReconstructor for DeadCodeEliminator<'_> {
-    fn reconstruct_function(&mut self, input: Function) -> Function {
-        // Reset the state of the dead code eliminator.
-        self.used_variables.clear();
-        self.is_necessary = false;
-        self.is_async = input.variant.is_async_function();
+    fn reconstruct_function(&mut self, mut input: Function) -> Function {
+        self.in_scope(input.id(), |slf| {
+            input.block = slf.reconstruct_block(input.block).0;
+            input
+        })
+    }
+}
 
-        // Traverse the function body.
-        let block = self.reconstruct_block(input.block).0;
+impl ProgramVisitor for VariableTracker<'_> {
+    fn visit_program(&mut self, input: &leo_ast::Program) {
+        self.symbol_table.clear_used_symbols();
+        input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
+    }
 
-        Function {
-            annotations: input.annotations,
-            variant: input.variant,
-            identifier: input.identifier,
-            input: input.input,
-            output: input.output,
-            output_type: input.output_type,
-            block,
-            span: input.span,
-            id: input.id,
-        }
+    fn visit_program_scope(&mut self, input: &leo_ast::ProgramScope) {
+        input.functions.iter().for_each(|(_, c)| self.visit_function(c));
+    }
+
+    fn visit_function(&mut self, input: &Function) {
+        self.in_scope(input.id(), |slf| slf.visit_block(&input.block));
     }
 }

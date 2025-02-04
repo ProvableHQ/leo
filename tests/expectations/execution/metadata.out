@@ -1,6 +1,6 @@
 namespace = "Execute"
 expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "2046f4b2df6c90aed76613afc85d1784a8e293bd203efedd32bb416715982d63", unrolled_ast = "2046f4b2df6c90aed76613afc85d1784a8e293bd203efedd32bb416715982d63", ssa_ast = "a90f345a4a71399b2e61dddfa5c5ec22826bba09fb1828cbb68708b84f17c472", flattened_ast = "537d17595b4dea625a8e46cf3b28307963ba74f75bff3b028d8162463c5fc280", destructured_ast = "2994c3f5f24c6b2b6e7d9804511b5c90fff8f3f2f048ef0ddbe7a9809aef219b", inlined_ast = "1e50eaf77ff3f385d9355f5df95656230dcf2517cca5ba414c804083e867dcd6", dce_ast = "1e50eaf77ff3f385d9355f5df95656230dcf2517cca5ba414c804083e867dcd6", bytecode = """
+outputs = [[{ compile = [{ initial_ast = "2046f4b2df6c90aed76613afc85d1784a8e293bd203efedd32bb416715982d63", unrolled_ast = "2046f4b2df6c90aed76613afc85d1784a8e293bd203efedd32bb416715982d63", ssa_ast = "a90f345a4a71399b2e61dddfa5c5ec22826bba09fb1828cbb68708b84f17c472", flattened_ast = "7e93c084889559ae3a4be2c5a03200354588dbe612d1b03f38e8eeeee853e402", destructured_ast = "488d7dfa8b96cbc51f7ea7354b77c46010dc4f962f21fb3bf892cf93c9ba3355", inlined_ast = "603f3d6393b44b4cdd5f416f09832fedfc9382a39eb20e1c79c313cb4f4ce849", dce_ast = "603f3d6393b44b4cdd5f416f09832fedfc9382a39eb20e1c79c313cb4f4ce849", bytecode = """
 program metadata.aleo;
 
 function is_block_height:

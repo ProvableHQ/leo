@@ -242,6 +242,8 @@ impl StatementReconstructor for Flattener<'_> {
             statements.push(reconstructed_statement);
         }
 
+        statements.retain(|stmt| !stmt.is_empty());
+
         (Block { span: block.span, statements, id: self.node_builder.next_id() }, Default::default())
     }
 
@@ -325,7 +327,7 @@ impl StatementReconstructor for Flattener<'_> {
             self.condition_stack.pop();
         };
 
-        (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
+        (Statement::dummy(), statements)
     }
 
     fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
@@ -359,6 +361,6 @@ impl StatementReconstructor for Flattener<'_> {
             _ => unreachable!("SSA guarantees that the expression is always an identifier or unit expression."),
         };
 
-        (Statement::dummy(Default::default(), self.node_builder.next_id()), statements.unwrap_or_default())
+        (Statement::dummy(), statements.unwrap_or_default())
     }
 }

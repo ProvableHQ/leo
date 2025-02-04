@@ -19,7 +19,13 @@ use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{
+    cell::RefCell,
+    collections::{HashMap, HashSet},
+    iter,
+    ops::{Deref, DerefMut},
+    rc::Rc,
+};
 
 mod symbols;
 pub use symbols::*;
@@ -69,6 +75,9 @@ struct LocalTableInner {
 
     /// Variables in this scope, indexed by name.
     variables: HashMap<Symbol, VariableSymbol>,
+
+    /// Used symbols in this scope.
+    used_symbols: HashSet<Symbol>,
 }
 
 impl LocalTable {
@@ -79,6 +88,7 @@ impl LocalTable {
                 parent,
                 consts: HashMap::new(),
                 variables: HashMap::new(),
+                used_symbols: HashSet::new(),
             })),
         }
     }
@@ -179,19 +189,36 @@ impl SymbolTable {
 
     /// Find the evaluated const accessible by the given name in the current scope.
     pub fn lookup_const(&self, program: Symbol, name: Symbol) -> Option<Expression> {
-        let mut current = self.local.as_ref();
-
-        while let Some(table) = current {
-            let borrowed = table.inner.borrow();
-            let value = borrowed.consts.get(&name);
+        for table in self.iter_parents() {
+            let value = table.consts.get(&name);
             if value.is_some() {
                 return value.cloned();
             }
-
-            current = borrowed.parent.and_then(|id| self.all_locals.get(&id));
         }
 
         self.global_consts.get(&Location::new(program, name)).cloned()
+    }
+
+    pub fn clear_used_symbols(&mut self) {
+        for local_table in self.all_locals.values_mut() {
+            local_table.inner.borrow_mut().used_symbols.clear();
+        }
+    }
+
+    pub fn use_symbol(&mut self, symbol: Symbol) {
+        for mut table in self.iter_parents_mut() {
+            if table.variables.contains_key(&symbol) {
+                table.used_symbols.insert(symbol);
+                return;
+            }
+        }
+        // Presumably the symbol is global, which we don't need to mark.
+    }
+
+    /// A symbol assigned to in the current context is used somewhere.
+    pub fn symbol_is_used(&self, symbol: Symbol) -> bool {
+        let current = self.local.as_ref().expect("This function only makes sense in a local context.");
+        current.inner.borrow().used_symbols.contains(&symbol)
     }
 
     /// Insert a struct at this name.
@@ -253,13 +280,10 @@ impl SymbolTable {
     }
 
     fn check_shadow_variable(&self, program: Symbol, name: Symbol, span: Span) -> Result<()> {
-        let mut current = self.local.as_ref();
-
-        while let Some(table) = current {
-            if table.inner.borrow().variables.contains_key(&name) {
+        for table in self.iter_parents() {
+            if table.variables.contains_key(&name) {
                 return Err(AstError::shadowed_variable(name, span).into());
             }
-            current = table.inner.borrow().parent.map(|id| self.all_locals.get(&id).expect("Parent should exist."));
         }
 
         self.check_shadow_global(Location::new(program, name), span)?;
@@ -278,6 +302,20 @@ impl SymbolTable {
         }
 
         Ok(())
+    }
+
+    // Iterate through the current local scope and its parent scopes in succession.
+    fn iter_parents(&self) -> impl Iterator<Item = impl '_ + Deref<Target = LocalTableInner>> {
+        iter::successors(self.local.as_ref().map(|table| table.inner.borrow()), |prev| {
+            prev.parent.map(|id| self.all_locals.get(&id).expect("Parent should exist").inner.borrow())
+        })
+    }
+
+    // Iterate through the current local scope and its parent scopes in succession, with mutable references.
+    fn iter_parents_mut(&mut self) -> impl Iterator<Item = impl '_ + DerefMut<Target = LocalTableInner>> {
+        iter::successors(self.local.as_mut().map(|table| table.inner.borrow_mut()), |prev| {
+            prev.parent.map(|id| self.all_locals.get(&id).expect("Parent should exist").inner.borrow_mut())
+        })
     }
 
     /// Attach a finalizer to a function.

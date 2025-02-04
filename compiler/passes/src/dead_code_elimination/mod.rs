@@ -14,41 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The Dead Code Elimination pass traverses the AST and eliminates unused code,
-//! specifically assignment statements, within the boundary of `transition`s and `function`s.
-//! The pass is run after the Function Inlining pass.
-//!
-//! See https://en.wikipedia.org/wiki/Dead-code_elimination for more information.
-//!
-//! Consider the following flattened Leo code.
-//! ```leo
-//! function main(flag: u8, value: u8) -> u8 {
-//!     $var$0 = flag == 0u8;
-//!     $var$4$5 = value * value;
-//!     $var$1 = $var$4$5;
-//!     value$2 = $var$1;
-//!     value$3 = $var$0 ? value$2 : value;
-//!     value$6 = $var$1 * $var$1;
-//!     return value$3;
-//! }
-//! ```
-//!
-//! The dead code elimination pass produces the following code.
-//! ```leo
-//! function main(flag: u8, value: u8) -> u8 {
-//!     $var$0 = flag == 0u8;
-//!     $var$4$5 = value * value;
-//!     $var$1 = $var$4$5;
-//!     value$2 = $var$1;
-//!     value$3 = $var$0 ? value$2 : value;
-//!     return value$3;
-//! }
-//! ```
-//! Note this pass relies on the following invariants:
-//! - No shadowing for all variables, struct names, function names, etc.
-//! - Unique variable names (provided by SSA)
-//! - Flattened code (provided by the flattening pass)
-
 mod eliminate_expression;
 
 mod eliminate_statement;
@@ -58,19 +23,26 @@ mod eliminate_program;
 pub mod dead_code_eliminator;
 pub use dead_code_eliminator::*;
 
-use crate::Pass;
+use crate::{Pass, SymbolTable};
 
-use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
+use leo_ast::{Ast, ProgramReconstructor as _, ProgramVisitor as _};
 use leo_errors::Result;
 
 impl<'a> Pass for DeadCodeEliminator<'a> {
-    type Input = (Ast, &'a NodeBuilder);
-    type Output = Result<Ast>;
+    type Input = (Ast,);
+    /// The `bool` indicates whether the pass actually made any changes.
+    type Output = Result<(Ast, bool)>;
 
-    fn do_pass((ast, node_builder): Self::Input) -> Self::Output {
-        let mut reconstructor = DeadCodeEliminator::new(node_builder);
+    fn do_pass((ast,): Self::Input) -> Self::Output {
+        // We make a new `SymbolTable` that will be filled in by the `VariableTracker`.
+        // The SSA pass did not update the previous `SymbolTable`, so we'll need to
+        // fill this one based on assignment statements as well as track usage.
+        let mut symbol_table = SymbolTable::default();
+        let mut tracker = VariableTracker { symbol_table: &mut symbol_table };
+        tracker.visit_program(ast.as_repr());
+        let mut reconstructor = DeadCodeEliminator::new(tracker.symbol_table);
         let program = reconstructor.reconstruct_program(ast.into_repr());
 
-        Ok(Ast::new(program))
+        Ok((Ast::new(program), reconstructor.changed))
     }
 }
