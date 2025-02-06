@@ -35,7 +35,7 @@ impl Updater {
     const LEO_CACHE_LAST_CHECK_FILE: &'static str = "leo_cache_last_update_check";
     const LEO_CACHE_VERSION_FILE: &'static str = "leo_cache_latest_version";
     const LEO_REPO_NAME: &'static str = "leo";
-    const LEO_REPO_OWNER: &'static str = "AleoHQ";
+    const LEO_REPO_OWNER: &'static str = "ProvableHQ";
     // 24 hours
     const LEO_UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
 
