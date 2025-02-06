@@ -872,7 +872,7 @@ create_messages!(
     async_cannot_assign_outside_conditional {
         args: (variable: impl Display),
         msg: format!("Cannot re-assign to `{variable}` from a conditional scope to an outer scope in an async function."),
-        help: Some("This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/AleoHQ/ARCs) will support more complex assignments in async functions.".to_string()),
+        help: Some("This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/ProvableHQ/ARCs) will support more complex assignments in async functions.".to_string()),
     }
 
     @formatted
