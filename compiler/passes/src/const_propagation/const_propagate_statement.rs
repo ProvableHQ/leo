@@ -36,6 +36,8 @@ use leo_ast::{
     StatementReconstructor,
 };
 
+use itertools::Itertools as _;
+
 fn empty_statement() -> Statement {
     Statement::Block(Block { statements: Vec::new(), span: Default::default(), id: Default::default() })
 }
@@ -124,10 +126,23 @@ impl StatementReconstructor for ConstPropagator<'_> {
 
         if definition.declaration_type == DeclarationType::Const {
             if opt_value.is_some() {
-                let Expression::Identifier(id) = &definition.place else {
-                    panic!("Const definitions always have identifiers as the place.");
-                };
-                self.symbol_table.insert_const(self.program, id.name, expr.clone());
+                match &definition.place {
+                    Expression::Identifier(ident) => {
+                        self.symbol_table.insert_const(self.program, ident.name, expr.clone());
+                    }
+                    Expression::Tuple(tuple) => {
+                        let Expression::Tuple(rhs) = &expr else {
+                            panic!("Type checking guarantees this is a tuple.");
+                        };
+                        for (expr_id, expr_rhs) in tuple.elements.iter().zip_eq(rhs.elements.iter()) {
+                            let Expression::Identifier(ident) = expr_id else {
+                                panic!("Type checking guarantees this is an identifier.");
+                            };
+                            self.symbol_table.insert_const(self.program, ident.name, expr_rhs.clone());
+                        }
+                    }
+                    _ => panic!("Definitions may only have identifiers or tuples as the place."),
+                }
             } else {
                 self.const_not_evaluated = Some(span);
             }

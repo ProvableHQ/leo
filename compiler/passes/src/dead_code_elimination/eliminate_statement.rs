@@ -100,7 +100,7 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
                 (statement, Default::default())
             }
             // Otherwise, we can eliminate it.
-            false => (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default()),
+            false => (Statement::dummy(), Default::default()),
         }
     }
 
@@ -188,7 +188,7 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
             }
             // Any other expression is dead code, since they do not have side effects.
             // Note: array access expressions will have side effects and need to be handled here.
-            _ => (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default()),
+            _ => (Statement::dummy(), Default::default()),
         }
     }
 

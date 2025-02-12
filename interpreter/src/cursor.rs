@@ -47,6 +47,7 @@ use snarkvm::prelude::{
     Square as _,
     SquareRoot as _,
     TestnetV0,
+    Zero as _,
 };
 
 use indexmap::{IndexMap, IndexSet};
@@ -1112,6 +1113,13 @@ pub struct StepResult {
 
 /// Evaluate a binary operation.
 pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value) -> Result<Value> {
+    fn transmogrify<T: Default>(opt: Option<T>, func: fn(T) -> Value) -> Value {
+        match opt {
+            Some(val) => Value::Tuple(vec![func(val), Value::Bool(true)]),
+            None => Value::Tuple(vec![func(Default::default()), Value::Bool(false)]),
+        }
+    }
+
     let value = match op {
         BinaryOperation::Add => {
             let Some(value) = (match (lhs, rhs) {
@@ -1184,6 +1192,27 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
             };
             value
         }
+        BinaryOperation::DivFlagged => match (lhs, rhs) {
+            (Value::U8(x), Value::U8(y)) => transmogrify(x.checked_div(*y), Value::U8),
+            (Value::U16(x), Value::U16(y)) => transmogrify(x.checked_div(*y), Value::U16),
+            (Value::U32(x), Value::U32(y)) => transmogrify(x.checked_div(*y), Value::U32),
+            (Value::U64(x), Value::U64(y)) => transmogrify(x.checked_div(*y), Value::U64),
+            (Value::U128(x), Value::U128(y)) => transmogrify(x.checked_div(*y), Value::U128),
+            (Value::I8(x), Value::I8(y)) => transmogrify(x.checked_div(*y), Value::I8),
+            (Value::I16(x), Value::I16(y)) => transmogrify(x.checked_div(*y), Value::I16),
+            (Value::I32(x), Value::I32(y)) => transmogrify(x.checked_div(*y), Value::I32),
+            (Value::I64(x), Value::I64(y)) => transmogrify(x.checked_div(*y), Value::I64),
+            (Value::I128(x), Value::I128(y)) => transmogrify(x.checked_div(*y), Value::I128),
+            (Value::Field(x), Value::Field(y)) => {
+                if y.is_zero() {
+                    Value::Tuple(vec![Value::Field(*y), Value::Bool(false)])
+                } else {
+                    Value::Tuple(vec![Value::Field(*x * y.inverse()?), Value::Bool(true)])
+                }
+            }
+
+            _ => halt!(span, "Type error"),
+        },
         BinaryOperation::DivWrapped => match (lhs, rhs) {
             (Value::U8(_), Value::U8(0))
             | (Value::U16(_), Value::U16(0))

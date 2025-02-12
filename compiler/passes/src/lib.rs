@@ -41,6 +41,9 @@ pub use flattening::*;
 pub mod function_inlining;
 pub use function_inlining::*;
 
+mod insert_flags;
+pub use insert_flags::*;
+
 pub mod loop_unrolling;
 pub use self::loop_unrolling::*;
 

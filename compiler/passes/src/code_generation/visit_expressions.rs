@@ -106,6 +106,7 @@ impl<'a> CodeGenerator<'a> {
             BinaryOperation::And => String::from("and"),
             BinaryOperation::BitwiseAnd => String::from("and"),
             BinaryOperation::Div => String::from("div"),
+            BinaryOperation::DivFlagged => String::from("div.flagged"),
             BinaryOperation::DivWrapped => String::from("div.w"),
             BinaryOperation::Eq => String::from("is.eq"),
             BinaryOperation::Gte => String::from("gte"),
@@ -133,18 +134,29 @@ impl<'a> CodeGenerator<'a> {
             BinaryOperation::Xor => String::from("xor"),
         };
 
-        let destination_register = format!("r{}", self.next_register);
-        let binary_instruction = format!("    {opcode} {left_operand} {right_operand} into {destination_register};\n",);
+        let output_count = match input.op {
+            BinaryOperation::DivFlagged => 2,
+            _ => 1,
+        };
 
-        // Increment the register counter.
-        self.next_register += 1;
+        // Make an output register for however many we need.
+        let mut outputs = String::new();
+        for _ in 0..output_count {
+            if !outputs.is_empty() {
+                write!(&mut outputs, " ").expect("Write can't fail.");
+            }
+            write!(&mut outputs, "r{}", self.next_register).expect("Write can't fail.");
+            self.next_register += 1;
+        }
+
+        let binary_instruction = format!("    {opcode} {left_operand} {right_operand} into {outputs};\n",);
 
         // Concatenate the instructions.
         let mut instructions = left_instructions;
         instructions.push_str(&right_instructions);
         instructions.push_str(&binary_instruction);
 
-        (destination_register, instructions)
+        (outputs, instructions)
     }
 
     fn visit_cast(&mut self, input: &'a CastExpression) -> (String, String) {

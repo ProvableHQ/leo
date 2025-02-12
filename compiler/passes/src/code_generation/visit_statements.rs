@@ -145,32 +145,26 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
-        match (&input.place, &input.value) {
-            (Expression::Identifier(identifier), _) => {
+        match &input.place {
+            Expression::Identifier(identifier) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 self.variable_mapping.insert(&identifier.name, operand);
                 expression_instructions
             }
-            (Expression::Tuple(tuple), Expression::Call(_)) => {
+            Expression::Tuple(tuple) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 // Split out the destinations from the tuple.
-                let operands = operand.split(' ').collect::<Vec<_>>();
+                let operands = operand.split(' ');
                 // Add the destinations to the variable mapping.
                 tuple.elements.iter().zip_eq(operands).for_each(|(element, operand)| {
-                    match element {
-                        Expression::Identifier(identifier) => {
-                            self.variable_mapping.insert(&identifier.name, operand.to_string())
-                        }
-                        _ => {
-                            unreachable!("Type checking ensures that tuple elements on the lhs are always identifiers.")
-                        }
+                    let Expression::Identifier(identifier) = element else {
+                        panic!("Type checking ensures that tuple elements on the lhs are always identifiers.");
                     };
+                    self.variable_mapping.insert(&identifier.name, operand.to_string());
                 });
                 expression_instructions
             }
-            _ => unimplemented!(
-                "Code generation for the left-hand side of an assignment is only implemented for `Identifier`s."
-            ),
+            _ => panic!("The left hand side of an assignment may only be a tuple or identifier."),
         }
     }
 

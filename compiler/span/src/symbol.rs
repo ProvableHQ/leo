@@ -116,6 +116,7 @@ symbols! {
     add_wrapped,
     and,
     div,
+    div_flagged,
     div_wrapped,
     eq,
     gte,

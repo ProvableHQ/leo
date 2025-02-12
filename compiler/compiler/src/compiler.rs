@@ -160,6 +160,19 @@ impl<'a, N: Network> Compiler<'a, N> {
         Ok((struct_graph, call_graph))
     }
 
+    /// Runs the flag inserter pass.
+    pub fn flag_inserter_pass(&mut self, symbol_table: &mut SymbolTable) -> Result<()> {
+        let ast = FlagInserter::do_pass((
+            std::mem::take(&mut self.ast),
+            self.handler,
+            symbol_table,
+            &self.type_table,
+            &self.node_builder,
+        ))?;
+        self.ast = ast;
+        Ok(())
+    }
+
     /// Runs the static analysis pass.
     pub fn static_analysis_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
         StaticAnalyzer::<N>::do_pass((
@@ -334,6 +347,8 @@ impl<'a, N: Network> Compiler<'a, N> {
         let mut st = self.symbol_table_pass()?;
 
         let (struct_graph, call_graph) = self.type_checker_pass(&mut st)?;
+
+        self.flag_inserter_pass(&mut st)?;
 
         self.static_analysis_pass(&st)?;
 

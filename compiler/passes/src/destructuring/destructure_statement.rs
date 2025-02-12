@@ -18,6 +18,7 @@ use crate::Destructurer;
 
 use leo_ast::{
     AssignStatement,
+    BinaryOperation,
     Block,
     ConditionalStatement,
     ConsoleStatement,
@@ -50,8 +51,9 @@ impl StatementReconstructor for Destructurer<'_> {
             (Expression::Identifier(identifier), Expression::Tuple(tuple)) => {
                 self.tuples.insert(identifier.name, tuple);
                 // Note that tuple assignments are removed from the AST.
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default())
+                (Statement::dummy(), Default::default())
             }
+            // (Expression::Identifier(identifier, Expression::Binary(bin)))
             // If the lhs is an identifier and the rhs is an identifier that is a tuple, then add it to `self.tuples`.
             // Return a dummy statement in its place.
             (Expression::Identifier(lhs_identifier), Expression::Identifier(rhs_identifier))
@@ -61,12 +63,14 @@ impl StatementReconstructor for Destructurer<'_> {
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists.
                 self.tuples.insert(lhs_identifier.name, self.tuples.get(&rhs_identifier.name).unwrap().clone());
                 // Note that tuple assignments are removed from the AST.
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default())
+                (Statement::dummy(), Default::default())
             }
             // If the lhs is an identifier and the rhs is a function call that produces a tuple, then add it to `self.tuples`.
-            (Expression::Identifier(lhs_identifier), Expression::Call(call)) => {
+            (Expression::Identifier(lhs_identifier), rhs @ (Expression::Call(_) | Expression::Binary(_))) => {
+                // TODO - this is all getting fairly hackish and should be refactored.
+
                 // Retrieve the entry in the type table for the function call.
-                let value_type = match self.type_table.get(&call.id()) {
+                let value_type = match self.type_table.get(&rhs.id()) {
                     Some(type_) => type_,
                     None => unreachable!("Type checking guarantees that the type of the rhs is in the type table."),
                 };
@@ -111,7 +115,7 @@ impl StatementReconstructor for Destructurer<'_> {
                         (
                             Statement::Assign(Box::new(AssignStatement {
                                 place: Expression::Tuple(tuple_expression),
-                                value: Expression::Call(call),
+                                value: rhs,
                                 span: Default::default(),
                                 id: self.node_builder.next_id(),
                             })),
@@ -119,12 +123,22 @@ impl StatementReconstructor for Destructurer<'_> {
                         )
                     }
                     // Otherwise, reconstruct the assignment as is.
-                    _ => (self.simple_assign_statement(lhs_identifier, Expression::Call(call)), Default::default()),
+                    _ => (self.simple_assign_statement(lhs_identifier, rhs), Default::default()),
                 }
             }
             (Expression::Identifier(identifier), expression) => {
                 (self.simple_assign_statement(identifier, expression), Default::default())
             }
+            // If the lhs is a tuple and the rhs is a flagged operation, then return the reconstructed statement.
+            (Expression::Tuple(tuple), Expression::Binary(binary)) if binary.op == BinaryOperation::DivFlagged => (
+                Statement::Assign(Box::new(AssignStatement {
+                    place: Expression::Tuple(tuple),
+                    value: Expression::Binary(binary),
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                })),
+                Default::default(),
+            ),
             // If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
             (Expression::Tuple(tuple), Expression::Call(call)) => (
                 Statement::Assign(Box::new(AssignStatement {
@@ -160,7 +174,7 @@ impl StatementReconstructor for Destructurer<'_> {
                         }))
                     })
                     .collect();
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
+                (Statement::dummy(), statements)
             }
             // If the lhs is a tuple and the rhs is an identifier that is a tuple, create a new assign statement for each tuple element.
             (Expression::Tuple(lhs_tuple), Expression::Identifier(identifier))
@@ -193,15 +207,15 @@ impl StatementReconstructor for Destructurer<'_> {
                         }))
                     })
                     .collect();
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
+                (Statement::dummy(), statements)
             }
             // If the lhs of an assignment is a tuple, then the rhs can be one of the following:
             //  - A function call that produces a tuple. (handled above)
             //  - A tuple. (handled above)
             //  - An identifier that is a tuple. (handled above)
             //  - A ternary expression that produces a tuple. (handled when the rhs is flattened above)
-            (Expression::Tuple(_), _) => {
-                unreachable!("`Type checking guarantees that the rhs of an assignment to a tuple is a tuple.`")
+            (Expression::Tuple(_), x) => {
+                unreachable!("`Type checking guarantees that the rhs of an assignment to a tuple is a tuple.` {x}")
             }
             _ => unreachable!("`AssignStatement`s can only have `Identifier`s or `Tuple`s on the left hand side."),
         }

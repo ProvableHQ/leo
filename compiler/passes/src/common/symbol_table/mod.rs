@@ -49,6 +49,9 @@ pub struct SymbolTable {
 
     /// The current LocalTable we're looking at.
     local: Option<LocalTable>,
+
+    /// Index for generating unique symbols.
+    gensym_index: u64,
 }
 
 #[derive(Clone, Default, Debug)]
@@ -296,6 +299,12 @@ impl SymbolTable {
         } else {
             Err(AstError::function_not_found(caller.name).into())
         }
+    }
+
+    pub fn gensym(&mut self, base_name: &str) -> Symbol {
+        let sym_name = format!("{base_name}#{}", self.gensym_index);
+        self.gensym_index += 1;
+        Symbol::intern(&sym_name)
     }
 }
 

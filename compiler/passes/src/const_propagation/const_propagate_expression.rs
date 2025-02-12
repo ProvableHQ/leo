@@ -32,6 +32,8 @@ use crate::ConstPropagator;
 
 use super::const_propagator::value_to_expression;
 
+use itertools::Itertools as _;
+
 const VALUE_ERROR: &str = "A non-future value should always be able to be converted into an expression";
 
 impl ExpressionReconstructor for ConstPropagator<'_> {
@@ -269,6 +271,7 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
 
     fn reconstruct_binary(&mut self, mut input: leo_ast::BinaryExpression) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
+        let id = input.id();
 
         let (lhs_expr, lhs_opt_value) = self.reconstruct_expression(*input.left);
         let (rhs_expr, rhs_opt_value) = self.reconstruct_expression(*input.right);
@@ -278,6 +281,18 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
             match leo_interpreter::evaluate_binary(span, input.op, &lhs_value, &rhs_value) {
                 Ok(new_value) => {
                     let new_expr = value_to_expression(&new_value, span, self.node_builder).expect(VALUE_ERROR);
+
+                    // This is overly ad hoc - if we have suddenly created an entire tuple expression
+                    // at once, the code in `reconstruct_expression` won't put the subexpressions into the
+                    // type table, so do it here.
+                    if let (Expression::Tuple(tuple), Type::Tuple(tuple_type)) =
+                        (&new_expr, self.type_table.get(&id).expect("Types should exist."))
+                    {
+                        for (expr, ty) in tuple.elements.iter().zip_eq(tuple_type.elements()) {
+                            self.type_table.insert(expr.id(), ty.clone());
+                        }
+                    }
+
                     return (new_expr, Some(new_value));
                 }
                 Err(err) => self

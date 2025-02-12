@@ -392,6 +392,22 @@ impl ExpressionVisitor for TypeChecker<'_> {
 
                 result_t
             }
+            BinaryOperation::DivFlagged => {
+                let t1 = self.visit_expression(&input.left, &None);
+                println!("ABOUT TO VISIT {}, {}", input.right, input.right.id());
+                let t2 = self.visit_expression(&input.right, &None);
+                println!("ITS {:?}", self.type_table.get(&input.right.id()));
+
+                self.assert_field_int_type(&t1, input.left.span());
+                self.assert_field_int_type(&t2, input.right.span());
+
+                let partial_result_t = assert_same_type(self, &t1, &t2);
+                let result_t = Type::Tuple(TupleType::new(vec![partial_result_t, Type::Boolean]));
+
+                self.maybe_assert_type(&result_t, destination, input.span());
+
+                result_t
+            }
             BinaryOperation::Rem | BinaryOperation::RemWrapped => {
                 let t1 = self.visit_expression(&input.left, &None);
                 let t2 = self.visit_expression(&input.right, &None);

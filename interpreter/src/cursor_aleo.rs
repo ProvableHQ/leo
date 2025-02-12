@@ -211,7 +211,15 @@ impl Cursor<'_> {
                 let operand1 = self.operand_value(&$svm_op.operands()[1]);
                 let value = evaluate_binary(Default::default(), BinaryOperation::$op, &operand0, &operand1)?;
                 self.increment_instruction_index();
-                (value, $svm_op.destinations()[0].clone())
+                if let Value::Tuple(mut vals) = value {
+                    assert_eq!(vals.len(), 2);
+                    // Perhaps a slightly hacky way to do this...
+                    self.set_register($svm_op.destinations()[0].clone(), vals.remove(0));
+                    self.set_register($svm_op.destinations()[1].clone(), vals.remove(0));
+                    return Ok(());
+                } else {
+                    (value, $svm_op.destinations()[0].clone())
+                }
             }};
         }
 
@@ -464,6 +472,7 @@ impl Cursor<'_> {
             }
             Div(div) => binary!(div, Div),
             DivWrapped(div_wrapped) => binary!(div_wrapped, DivWrapped),
+            // DivFlagged(div_flagged) => binary!(div_flagged, DivFlagged),
             Double(double) => unary!(double, Double),
             GreaterThan(gt) => binary!(gt, Gt),
             GreaterThanOrEqual(gte) => binary!(gte, Gte),
@@ -760,6 +769,7 @@ impl Cursor<'_> {
                 (self.operand_value(result), ternary.destinations()[0].clone())
             }
             Xor(xor) => binary!(xor, Xor),
+            _ => panic!("YYY"),
         };
 
         self.set_register(destination, value);

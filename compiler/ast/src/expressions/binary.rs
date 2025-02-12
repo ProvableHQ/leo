@@ -34,6 +34,8 @@ pub enum BinaryOperation {
     BitwiseAnd,
     /// Division, i.e. `/`, `.div()`.
     Div,
+    /// Flagged division, i.e. `.div_flagged()`.
+    DivFlagged,
     /// Wrapping division, i.e. `.div_wrapped()`.
     DivWrapped,
     /// Equality relation, i.e. `==`, `.eq()`.
@@ -94,6 +96,7 @@ impl fmt::Display for BinaryOperation {
             Self::And => "&&",
             Self::BitwiseAnd => "&",
             Self::Div => "/",
+            Self::DivFlagged => "div_flagged",
             Self::DivWrapped => "div_wrapped",
             Self::Eq => "==",
             Self::Gte => ">=",
@@ -133,6 +136,7 @@ impl BinaryOperation {
             sym::and => Self::BitwiseAnd,
             sym::div => Self::Div,
             sym::div_wrapped => Self::DivWrapped,
+            sym::div_flagged => Self::DivFlagged,
             sym::eq => Self::Eq,
             sym::gte => Self::Gte,
             sym::gt => Self::Gt,
@@ -185,6 +189,7 @@ impl fmt::Display for BinaryExpression {
         if matches!(
             self.op,
             AddWrapped
+                | DivFlagged
                 | DivWrapped
                 | Mod
                 | MulWrapped
@@ -235,8 +240,8 @@ impl BinaryExpression {
             Add | Sub => 9,
             Mul | Div | Rem => 10,
             Pow => 11,
-            AddWrapped | DivWrapped | Mod | MulWrapped | Nand | Nor | PowWrapped | RemWrapped | ShlWrapped
-            | ShrWrapped | SubWrapped => 20,
+            AddWrapped | DivFlagged | DivWrapped | Mod | MulWrapped | Nand | Nor | PowWrapped | RemWrapped
+            | ShlWrapped | ShrWrapped | SubWrapped => 20,
         }
     }
 
@@ -248,8 +253,8 @@ impl BinaryExpression {
             Pow => Right,
             BitwiseOr | BitwiseAnd | Eq | Neq | Lt | Gt | Lte | Gte | Or | Xor | And | Shl | Shr | Add | Sub | Mul
             | Div | Rem => Left,
-            AddWrapped | DivWrapped | Mod | MulWrapped | Nand | Nor | PowWrapped | RemWrapped | ShlWrapped
-            | ShrWrapped | SubWrapped => None,
+            AddWrapped | DivFlagged | DivWrapped | Mod | MulWrapped | Nand | Nor | PowWrapped | RemWrapped
+            | ShlWrapped | ShrWrapped | SubWrapped => None,
         }
     }
 }
