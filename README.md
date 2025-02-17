@@ -72,7 +72,7 @@ git clone --recurse-submodules https://github.com/ProvableHQ/leo
 cd leo
 
 # Install 'leo'
-$ cargo install --path .
+cargo install --path .
 ```
 
 Now to use leo, in your terminal, run:
