@@ -1871,7 +1871,7 @@
     async_cannot_assign_outside_conditional {
         args: (variable: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Cannot re-assign to `{variable}` from a conditional scope to an outer scope in an async function."</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">"This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/AleoHQ/ARCs) will support more complex assignments in async functions."</span>.to_string()),
+        help: <span class="prelude-val">Some</span>(<span class="string">"This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/ProvableHQ/ARCs) will support more complex assignments in async functions."</span>.to_string()),
     }
 
     @formatted
