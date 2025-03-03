@@ -1,0 +1,15 @@
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_ast = "335c2e592a953215230b4dd2b8f0b8bdee4889efbb79ee47279aa96f1e64a1b5", unrolled_ast = "ff751ea6fbc245229f7cdb711e19d944079514b7794a197c5ea6d76797394704", ssa_ast = "c59bcc7e84cb147ce12c1b51d305069a4bd1498c9e843fa6b6af9074c5579446", flattened_ast = "f42071f8ba0712fa0004d84ede29094f48a6b263e26c16227585ff08e03dd057", destructured_ast = "4f8c01f9b819adaf32bdd7155e487fd24d7cddadd4ee902220a3e47399e31c5f", inlined_ast = "4f8c01f9b819adaf32bdd7155e487fd24d7cddadd4ee902220a3e47399e31c5f", dce_ast = "4f8c01f9b819adaf32bdd7155e487fd24d7cddadd4ee902220a3e47399e31c5f", bytecode = """
+program test.aleo;
+
+function f1:
+    output aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta as address.private;
+
+function f2:
+    output 0field as field.private;
+
+function f3:
+    cast  aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r0 as [address; 2u32];
+    output r0 as [address; 2u32].private;
+""", errors = "", warnings = "" }] }]]
