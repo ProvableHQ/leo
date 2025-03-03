@@ -46,8 +46,8 @@ use interpreter::*;
 mod cursor_aleo;
 
 mod value;
-pub use value::Value;
 use value::*;
+pub use value::{StructContents, Value};
 
 mod ui;
 use ui::Ui;

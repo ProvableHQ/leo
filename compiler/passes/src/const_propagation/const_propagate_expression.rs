@@ -25,12 +25,14 @@ use leo_ast::{
     Type,
 };
 use leo_errors::StaticAnalyzerError;
-use leo_interpreter::Value;
+use leo_interpreter::{StructContents, Value};
 use leo_span::sym;
 
 use crate::ConstPropagator;
 
 use super::const_propagator::value_to_expression;
+
+const VALUE_ERROR: &str = "A non-future value should always be able to be converted into an expression";
 
 impl ExpressionReconstructor for ConstPropagator<'_> {
     type AdditionalOutput = Option<Value>;
@@ -65,12 +67,25 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
     }
 
     fn reconstruct_struct_init(&mut self, mut input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+        let mut values = Vec::new();
         for member in input.members.iter_mut() {
             if let Some(expr) = std::mem::take(&mut member.expression) {
-                member.expression = Some(self.reconstruct_expression(expr).0);
+                let (new_expr, value_opt) = self.reconstruct_expression(expr);
+                member.expression = Some(new_expr);
+                if let Some(value) = value_opt {
+                    values.push(value);
+                }
             }
         }
-        (Expression::Struct(input), Default::default())
+        if values.len() == input.members.len() {
+            let value = Value::Struct(StructContents {
+                name: input.name.name,
+                contents: input.members.iter().map(|mem| mem.identifier.name).zip(values).collect(),
+            });
+            (Expression::Struct(input), Some(value))
+        } else {
+            (Expression::Struct(input), None)
+        }
     }
 
     fn reconstruct_ternary(&mut self, mut input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
@@ -100,8 +115,10 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
 
     fn reconstruct_array_access(&mut self, mut input: leo_ast::ArrayAccess) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
-        *input.array = self.reconstruct_expression(*input.array).0;
+        let (array_expr, value_opt) = self.reconstruct_expression(*input.array);
+        *input.array = array_expr;
         let (index_expr, opt_value) = self.reconstruct_expression(*input.index);
+        *input.index = index_expr;
         if let Some(value) = opt_value {
             // We can perform compile time bounds checking.
 
@@ -111,36 +128,51 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
             };
             let len = array_ty.length();
 
-            macro_rules! err {
-                ($x: expr) => {
-                    // Only emit a bounds error if we have no other errors yet.
-                    // This prevents a chain of redundant error messages when a loop is unrolled.
-                    if !self.handler.had_errors() {
-                        self.emit_err(StaticAnalyzerError::array_bounds($x, len, span));
-                    }
-                };
-            }
-
-            match value {
-                Value::U8(x) if x as usize >= len => err!(&x),
-                Value::U16(x) if x as usize >= len => err!(&x),
-                Value::U32(x) if x.try_into().unwrap_or(len) >= len => err!(&x),
-                Value::U64(x) if x.try_into().unwrap_or(len) >= len => err!(&x),
-                Value::U128(x) if x.try_into().unwrap_or(len) >= len => err!(&x),
-                Value::I8(x) if x.try_into().unwrap_or(len) >= len => err!(&x),
-                Value::I16(x) if x.try_into().unwrap_or(len) >= len => err!(&x),
-                Value::I32(x) if x.try_into().unwrap_or(len) >= len => err!(&x),
-                Value::I64(x) if x.try_into().unwrap_or(len) >= len => err!(&x),
-                Value::I128(x) if x.try_into().unwrap_or(len) >= len => err!(&x),
-                _ => {
-                    // Type checking guarantees this is an integer, and none of the above cases matched,
-                    // so we're in bounds and don't need to do anything.
-                }
+            let index: usize = match value {
+                Value::U8(x) => x as usize,
+                Value::U16(x) => x as usize,
+                Value::U32(x) => x.try_into().unwrap_or(len),
+                Value::U64(x) => x.try_into().unwrap_or(len),
+                Value::U128(x) => x.try_into().unwrap_or(len),
+                Value::I8(x) => x.try_into().unwrap_or(len),
+                Value::I16(x) => x.try_into().unwrap_or(len),
+                Value::I32(x) => x.try_into().unwrap_or(len),
+                Value::I64(x) => x.try_into().unwrap_or(len),
+                Value::I128(x) => x.try_into().unwrap_or(len),
+                _ => panic!("Type checking guarantees this is an intger"),
             };
+
+            if index >= len {
+                // Only emit a bounds error if we have no other errors yet.
+                // This prevents a chain of redundant error messages when a loop is unrolled.
+                if !self.handler.had_errors() {
+                    // Get the integer string with no suffix.
+                    let str_index = match value {
+                        Value::U8(x) => format!("{x}"),
+                        Value::U16(x) => format!("{x}"),
+                        Value::U32(x) => format!("{x}"),
+                        Value::U64(x) => format!("{x}"),
+                        Value::U128(x) => format!("{x}"),
+                        Value::I8(x) => format!("{x}"),
+                        Value::I16(x) => format!("{x}"),
+                        Value::I32(x) => format!("{x}"),
+                        Value::I64(x) => format!("{x}"),
+                        Value::I128(x) => format!("{x}"),
+                        _ => unreachable!("We would have panicked above"),
+                    };
+                    self.emit_err(StaticAnalyzerError::array_bounds(str_index, len, span));
+                }
+            } else if let Some(Value::Array(value)) = value_opt {
+                // We're in bounds and we can evaluate the array at compile time, so just return the value.
+                let result_value = value.get(index).expect("We already checked bounds.");
+                return (
+                    value_to_expression(result_value, input.span, self.node_builder).expect(VALUE_ERROR),
+                    Some(result_value.clone()),
+                );
+            }
         } else {
-            self.array_index_not_evaluated = Some(index_expr.span());
+            self.array_index_not_evaluated = Some(input.index.span());
         }
-        *input.index = index_expr;
         (Expression::Access(leo_ast::AccessExpression::Array(input)), None)
     }
 
@@ -150,7 +182,7 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
     ) -> (Expression, Self::AdditionalOutput) {
         // Currently there is only one associated constant.
         let generator = Value::generator();
-        let expr = value_to_expression(&generator, input.span(), self.node_builder);
+        let expr = value_to_expression(&generator, input.span(), self.node_builder).expect(VALUE_ERROR);
         (expr, Some(generator))
     }
 
@@ -173,12 +205,10 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
             let core_function = CoreFunction::from_symbols(input.variant.name, input.name.name)
                 .expect("Type checking guarantees this is valid.");
 
-            values.reverse();
-
             match leo_interpreter::evaluate_core_function(&mut values, core_function, &[], input.span()) {
                 Ok(Some(value)) => {
                     // Successful evaluation.
-                    let expr = value_to_expression(&value, input.span(), self.node_builder);
+                    let expr = value_to_expression(&value, input.span(), self.node_builder).expect(VALUE_ERROR);
                     return (expr, Some(value));
                 }
                 Ok(None) =>
@@ -194,27 +224,47 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
     }
 
     fn reconstruct_member_access(&mut self, mut input: leo_ast::MemberAccess) -> (Expression, Self::AdditionalOutput) {
-        *input.inner = self.reconstruct_expression(*input.inner).0;
-        (Expression::Access(leo_ast::AccessExpression::Member(input)), None)
+        let span = input.span();
+        let (expr, value_opt) = self.reconstruct_expression(*input.inner);
+        *input.inner = expr;
+        let member_name = input.name.name;
+        let expr_result = Expression::Access(leo_ast::AccessExpression::Member(input));
+        if let Some(Value::Struct(contents)) = value_opt {
+            let value_result =
+                contents.contents.get(&member_name).expect("Type checking guarantees the member exists.");
+
+            (value_to_expression(value_result, span, self.node_builder).expect(VALUE_ERROR), Some(value_result.clone()))
+        } else {
+            (expr_result, None)
+        }
     }
 
-    fn reconstruct_tuple_access(&mut self, input: leo_ast::TupleAccess) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Access(leo_ast::AccessExpression::Tuple(leo_ast::TupleAccess {
-                tuple: Box::new(self.reconstruct_expression(*input.tuple).0),
-                index: input.index,
-                span: input.span,
-                id: input.id,
-            })),
-            None,
-        )
+    fn reconstruct_tuple_access(&mut self, mut input: leo_ast::TupleAccess) -> (Expression, Self::AdditionalOutput) {
+        let span = input.span();
+        let (expr, value_opt) = self.reconstruct_expression(*input.tuple);
+        *input.tuple = expr;
+        if let Some(Value::Tuple(tuple)) = value_opt {
+            let value_result = tuple.get(input.index.value()).expect("Type checking checked bounds.");
+            (value_to_expression(value_result, span, self.node_builder).expect(VALUE_ERROR), Some(value_result.clone()))
+        } else {
+            (Expression::Access(leo_ast::AccessExpression::Tuple(input)), None)
+        }
     }
 
     fn reconstruct_array(&mut self, mut input: leo_ast::ArrayExpression) -> (Expression, Self::AdditionalOutput) {
+        let mut values = Vec::new();
         input.elements.iter_mut().for_each(|element| {
-            *element = self.reconstruct_expression(std::mem::take(element)).0;
+            let (new_element, value_opt) = self.reconstruct_expression(std::mem::take(element));
+            if let Some(value) = value_opt {
+                values.push(value);
+            }
+            *element = new_element;
         });
-        (Expression::Array(input), None)
+        if values.len() == input.elements.len() {
+            (Expression::Array(input), Some(Value::Array(values)))
+        } else {
+            (Expression::Array(input), None)
+        }
     }
 
     fn reconstruct_binary(&mut self, mut input: leo_ast::BinaryExpression) -> (Expression, Self::AdditionalOutput) {
@@ -227,7 +277,7 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
             // We were able to evaluate both operands, so we can evaluate this expression.
             match leo_interpreter::evaluate_binary(span, input.op, &lhs_value, &rhs_value) {
                 Ok(new_value) => {
-                    let new_expr = value_to_expression(&new_value, span, self.node_builder);
+                    let new_expr = value_to_expression(&new_value, span, self.node_builder).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
                 Err(err) => self
@@ -255,7 +305,7 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
 
         if let Some(value) = opt_value {
             if let Some(cast_value) = value.cast(&input.type_) {
-                let expr = value_to_expression(&cast_value, span, self.node_builder);
+                let expr = value_to_expression(&cast_value, span, self.node_builder).expect(VALUE_ERROR);
                 return (expr, Some(cast_value));
             } else {
                 self.emit_err(StaticAnalyzerError::compile_time_cast(value, &input.type_, span));
@@ -313,7 +363,7 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
             // We were able to evaluate the operand, so we can evaluate the expression.
             match leo_interpreter::evaluate_unary(span, input.op, &value) {
                 Ok(new_value) => {
-                    let new_expr = value_to_expression(&new_value, span, self.node_builder);
+                    let new_expr = value_to_expression(&new_value, span, self.node_builder).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
                 Err(err) => self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span)),

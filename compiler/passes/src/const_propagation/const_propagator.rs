@@ -16,7 +16,18 @@
 
 use crate::{SymbolTable, TypeTable};
 
-use leo_ast::{Expression, IntegerType, Literal, NodeBuilder, NodeID, TupleExpression};
+use leo_ast::{
+    ArrayExpression,
+    Expression,
+    Identifier,
+    IntegerType,
+    Literal,
+    NodeBuilder,
+    NodeID,
+    StructExpression,
+    StructVariableInitializer,
+    TupleExpression,
+};
 use leo_errors::{StaticAnalyzerError, emitter::Handler};
 use leo_interpreter::Value;
 use leo_span::{Span, Symbol};
@@ -86,11 +97,11 @@ impl<'a> ConstPropagator<'a> {
     }
 }
 
-pub(crate) fn value_to_expression(value: &Value, span: Span, node_builder: &NodeBuilder) -> Expression {
+pub(crate) fn value_to_expression(value: &Value, span: Span, node_builder: &NodeBuilder) -> Option<Expression> {
     use Value::*;
     let id = node_builder.next_id();
 
-    match value {
+    let result = match value {
         Unit => Expression::Unit(leo_ast::UnitExpression { span, id }),
         Bool(x) => Expression::Literal(Literal::Boolean(*x, span, id)),
         U8(x) => Expression::Literal(Literal::Integer(IntegerType::U8, format!("{x}"), span, id)),
@@ -103,6 +114,7 @@ pub(crate) fn value_to_expression(value: &Value, span: Span, node_builder: &Node
         I32(x) => Expression::Literal(Literal::Integer(IntegerType::I32, format!("{x}"), span, id)),
         I64(x) => Expression::Literal(Literal::Integer(IntegerType::I64, format!("{x}"), span, id)),
         I128(x) => Expression::Literal(Literal::Integer(IntegerType::I128, format!("{x}"), span, id)),
+        Address(x) => Expression::Literal(Literal::Address(format!("{x}"), span, id)),
         Group(x) => {
             let mut s = format!("{x}");
             // Strip off the `group` suffix.
@@ -122,9 +134,39 @@ pub(crate) fn value_to_expression(value: &Value, span: Span, node_builder: &Node
             Expression::Literal(Literal::Scalar(s, span, id))
         }
         Tuple(x) => {
-            let elements = x.iter().map(|val| value_to_expression(val, span, node_builder)).collect();
+            let mut elements = Vec::with_capacity(x.len());
+            for value in x.iter() {
+                elements.push(value_to_expression(value, span, node_builder)?);
+            }
             Expression::Tuple(TupleExpression { elements, span, id })
         }
-        _ => panic!("Can only evaluate literals and tuples."),
-    }
+        Array(x) => {
+            let mut elements = Vec::with_capacity(x.len());
+            for value in x.iter() {
+                elements.push(value_to_expression(value, span, node_builder)?);
+            }
+            Expression::Array(ArrayExpression { elements, span, id })
+        }
+        Struct(x) => Expression::Struct(StructExpression {
+            name: Identifier { name: x.name, id: node_builder.next_id(), span },
+            members: {
+                let mut members = Vec::with_capacity(x.contents.len());
+                for (name, val) in x.contents.iter() {
+                    let initializer = StructVariableInitializer {
+                        identifier: Identifier { name: *name, id: node_builder.next_id(), span },
+                        expression: Some(value_to_expression(val, span, node_builder)?),
+                        span,
+                        id: node_builder.next_id(),
+                    };
+                    members.push(initializer)
+                }
+                members
+            },
+            span,
+            id,
+        }),
+        Future(..) => return None,
+    };
+
+    Some(result)
 }
