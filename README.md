@@ -117,8 +117,6 @@ If the issue still persists, please [open an issue](https://github.com/ProvableH
 
 ## 📖 Documentation
 
-* [Hello World - Next Steps](https://docs.leo-lang.org/leo/hello)
-* [Leo Language Documentation](https://docs.leo-lang.org/leo/language)
 * [Leo ABNF Grammar](https://github.com/ProvableHQ/grammars/blob/master/leo.abnf)
 * [Homepage](https://docs.leo-lang.org/)
 
