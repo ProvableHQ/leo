@@ -192,8 +192,28 @@ impl ExpressionReconstructor for FlagInserter<'_> {
     }
 
     fn reconstruct_unary(&mut self, mut input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (receiver, definitions) = self.reconstruct_expression(mem::take(&mut *input.receiver));
+        let span = input.span();
+        let (receiver, mut definitions) = self.reconstruct_expression(mem::take(&mut *input.receiver));
         *input.receiver = receiver;
-        (Expression::Unary(input), definitions)
+
+        // TODO: Redundancy here and in `reconstruct_binary`.
+        if let UnaryOperation::Inverse = input.op {
+            let name = self.symbol_table.gensym("inv_result");
+            let name_identifier = Expression::Identifier(Identifier { name, span, id: self.node_builder.next_id() });
+            let flag_name = self.symbol_table.gensym("div_flag");
+            let ty = self.type_table.get(&input.id()).expect("Types should have been assigned.");
+            self.type_table.insert(name_identifier.id(), ty.clone());
+            let expr = Expression::Unary(UnaryExpression {
+                receiver: input.receiver,
+                op: UnaryOperation::InvFlagged,
+                span,
+                id: self.node_builder.next_id(),
+            });
+            definitions.push(ToDefine { first_type: ty, name, flag: flag_name, expr, span });
+
+            (name_identifier, definitions)
+        } else {
+            (Expression::Unary(input), definitions)
+        }
     }
 }

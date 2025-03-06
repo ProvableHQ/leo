@@ -106,6 +106,7 @@ symbols! {
     abs_wrapped,
     double,
     inv,
+    inv_flagged,
     neg,
     not,
     square,

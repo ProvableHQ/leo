@@ -1,0 +1,26 @@
+namespace = "Compile"
+expectation = "Pass"
+outputs = [[{ compile = [{ initial_ast = "bf8c998978b07ae920d3ece476f90a0f535309bcb70055abb90e494eaee37408", unrolled_ast = "dc9ad7aeaaac3f23e6418efee141bc1403b86968b786004ffddd8886dec12f57", ssa_ast = "efb1918a072a86794fd63828a9fb21be2e352eed88ddc07a4338c8bdfedc7408", flattened_ast = "f7859a8a8185a5acfdeb8df7dffd6fbf45bc106abe1f6ea41ef6f73d31eeb044", destructured_ast = "2bf8ec13dbe88900bc07469c59fd92bbf25949c43b12f87857babfa45deaca7a", inlined_ast = "2bf8ec13dbe88900bc07469c59fd92bbf25949c43b12f87857babfa45deaca7a", dce_ast = "46677cf5cb4bcf66ade57315580f53198218134dea6290c1e777031fd68e055c", bytecode = """
+program test.aleo;
+
+function main:
+    input r0 as field.private;
+    is.eq r0 0field into r1;
+    not r1 into r2;
+    inv.flagged r0 into r3 r4;
+    not r2 into r5;
+    or r4 r5 into r6;
+    or r6 r1 into r7;
+    assert.eq r7 true;
+    ternary r1 0field r3 into r8;
+    output r8 as field.private;
+
+function main2:
+    not false into r0;
+    not r0 into r1;
+    or true r1 into r2;
+    or r2 false into r3;
+    assert.eq r3 true;
+    ternary false 0field 1field into r4;
+    output r4 as field.private;
+""", errors = "", warnings = "" }] }]]

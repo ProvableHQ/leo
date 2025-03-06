@@ -984,6 +984,15 @@ impl ExpressionVisitor for TypeChecker<'_> {
                 self.assert_type(&type_, &Type::Field, input.span());
                 type_
             }
+            UnaryOperation::InvFlagged => {
+                let type_ = self.visit_expression(&input.receiver, &None);
+                self.assert_type(&type_, &Type::Field, input.span());
+
+                let result_t = Type::Tuple(TupleType::new(vec![type_, Type::Boolean]));
+                self.maybe_assert_type(&result_t, destination, input.span());
+
+                result_t
+            }
             UnaryOperation::Negate => {
                 let type_ = self.visit_expression(&input.receiver, &None);
                 if !matches!(

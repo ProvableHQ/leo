@@ -33,6 +33,7 @@ use leo_ast::{
     StatementReconstructor,
     TupleExpression,
     Type,
+    UnaryOperation,
 };
 
 use itertools::Itertools;
@@ -66,7 +67,10 @@ impl StatementReconstructor for Destructurer<'_> {
                 (Statement::dummy(), Default::default())
             }
             // If the lhs is an identifier and the rhs is a function call that produces a tuple, then add it to `self.tuples`.
-            (Expression::Identifier(lhs_identifier), rhs @ (Expression::Call(_) | Expression::Binary(_))) => {
+            (
+                Expression::Identifier(lhs_identifier),
+                rhs @ (Expression::Call(_) | Expression::Binary(_) | Expression::Unary(_)),
+            ) => {
                 // TODO - this is all getting fairly hackish and should be refactored.
 
                 // Retrieve the entry in the type table for the function call.
@@ -129,11 +133,21 @@ impl StatementReconstructor for Destructurer<'_> {
             (Expression::Identifier(identifier), expression) => {
                 (self.simple_assign_statement(identifier, expression), Default::default())
             }
-            // If the lhs is a tuple and the rhs is a flagged operation, then return the reconstructed statement.
+            // If the lhs is a tuple and the rhs is a binary flagged operation, then return the reconstructed statement.
             (Expression::Tuple(tuple), Expression::Binary(binary)) if binary.op == BinaryOperation::DivFlagged => (
                 Statement::Assign(Box::new(AssignStatement {
                     place: Expression::Tuple(tuple),
                     value: Expression::Binary(binary),
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                })),
+                Default::default(),
+            ),
+            // If the lhs is a tuple and the rhs is a unary flagged operation, then return the reconstructed statement.
+            (Expression::Tuple(tuple), Expression::Unary(unary)) if unary.op == UnaryOperation::InvFlagged => (
+                Statement::Assign(Box::new(AssignStatement {
+                    place: Expression::Tuple(tuple),
+                    value: Expression::Unary(unary),
                     span: Default::default(),
                     id: self.node_builder.next_id(),
                 })),

@@ -28,6 +28,8 @@ pub enum UnaryOperation {
     Double,
     /// Multiplicative inverse, i.e. `.inv()`.
     Inverse,
+    /// Flagged multiplicative inverse, i.e. `.inv_flagged()`.
+    InvFlagged,
     /// Negate operation, i.e. `.neg()`.
     Negate,
     /// Bitwise NOT, i.e. `!`, `.not()`.
@@ -50,6 +52,7 @@ impl UnaryOperation {
             sym::abs_wrapped => Self::AbsWrapped,
             sym::double => Self::Double,
             sym::inv => Self::Inverse,
+            sym::inv_flagged => Self::InvFlagged,
             sym::neg => Self::Negate,
             sym::not => Self::Not,
             sym::square => Self::Square,
@@ -67,6 +70,7 @@ impl UnaryOperation {
             Self::AbsWrapped => "abs_wrapped",
             Self::Double => "double",
             Self::Inverse => "inv",
+            Self::InvFlagged => "inv_flagged",
             Self::Negate => "neg",
             Self::Not => "not",
             Self::Square => "square",

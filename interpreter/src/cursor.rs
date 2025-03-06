@@ -1620,6 +1620,16 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value) -> Result<V
             }
             _ => halt!(span, "Can only invert fields"),
         },
+        UnaryOperation::InvFlagged => match value {
+            Value::Field(x) => {
+                if x.is_zero() {
+                    Value::Tuple(vec![Value::Field(*x), Value::Bool(false)])
+                } else {
+                    Value::Tuple(vec![Value::Field(x.inverse()?), Value::Bool(true)])
+                }
+            }
+            _ => halt!(span, "Can only invert fields"),
+        },
         UnaryOperation::Negate => match value {
             Value::I8(x) => match x.checked_neg() {
                 None => halt!(span, "negation overflow"),

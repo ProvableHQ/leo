@@ -219,6 +219,7 @@ impl<'a> CodeGenerator<'a> {
             UnaryOperation::AbsWrapped => ("abs.w", ""),
             UnaryOperation::Double => ("double", ""),
             UnaryOperation::Inverse => ("inv", ""),
+            UnaryOperation::InvFlagged => ("inv.flagged", ""),
             UnaryOperation::Not => ("not", ""),
             UnaryOperation::Negate => ("neg", ""),
             UnaryOperation::Square => ("square", ""),
@@ -227,17 +228,29 @@ impl<'a> CodeGenerator<'a> {
             UnaryOperation::ToYCoordinate => ("cast", " as group.y"),
         };
 
-        let destination_register = format!("r{}", self.next_register);
-        let unary_instruction = format!("    {opcode} {expression_operand} into {destination_register}{suffix};\n");
+        let output_count = match input.op {
+            UnaryOperation::InvFlagged => 2,
+            _ => 1,
+        };
 
-        // Increment the register counter.
-        self.next_register += 1;
+        // Make an output register for however many we need.
+        let mut outputs = String::new();
+        for _ in 0..output_count {
+            if !outputs.is_empty() {
+                write!(&mut outputs, " ").expect("Write can't fail.");
+            }
+            // A little silly - we're relying on `suffix` being empty if there are multilple outputs.
+            write!(&mut outputs, "r{}{suffix}", self.next_register).expect("Write can't fail.");
+            self.next_register += 1;
+        }
+
+        let unary_instruction = format!("    {opcode} {expression_operand} into {outputs};\n");
 
         // Concatenate the instructions.
         let mut instructions = expression_instructions;
         instructions.push_str(&unary_instruction);
 
-        (destination_register, instructions)
+        (outputs, instructions)
     }
 
     fn visit_ternary(&mut self, input: &'a TernaryExpression) -> (String, String) {

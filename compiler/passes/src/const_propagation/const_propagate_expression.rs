@@ -371,14 +371,27 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
     }
 
     fn reconstruct_unary(&mut self, mut input: leo_ast::UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (expr, opt_value) = self.reconstruct_expression(*input.receiver);
         let span = input.span;
+        let id = input.id();
+        let (expr, opt_value) = self.reconstruct_expression(*input.receiver);
 
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
             match leo_interpreter::evaluate_unary(span, input.op, &value) {
                 Ok(new_value) => {
                     let new_expr = value_to_expression(&new_value, span, self.node_builder).expect(VALUE_ERROR);
+
+                    // TODO: duplicate code in reconstruct_binary.
+                    // This is overly ad hoc - if we have suddenly created an entire tuple expression
+                    // at once, the code in `reconstruct_expression` won't put the subexpressions into the
+                    // type table, so do it here.
+                    if let (Expression::Tuple(tuple), Type::Tuple(tuple_type)) =
+                        (&new_expr, self.type_table.get(&id).expect("Types should exist."))
+                    {
+                        for (expr, ty) in tuple.elements.iter().zip_eq(tuple_type.elements()) {
+                            self.type_table.insert(expr.id(), ty.clone());
+                        }
+                    }
                     return (new_expr, Some(new_value));
                 }
                 Err(err) => self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span)),
