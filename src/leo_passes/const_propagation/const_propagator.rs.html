@@ -128,7 +128,49 @@
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -146,7 +188,18 @@
 
 </span><span class="kw">use crate</span>::{SymbolTable, TypeTable};
 
-<span class="kw">use </span>leo_ast::{Expression, IntegerType, Literal, NodeBuilder, NodeID, TupleExpression};
+<span class="kw">use </span>leo_ast::{
+    ArrayExpression,
+    Expression,
+    Identifier,
+    IntegerType,
+    Literal,
+    NodeBuilder,
+    NodeID,
+    StructExpression,
+    StructVariableInitializer,
+    TupleExpression,
+};
 <span class="kw">use </span>leo_errors::{StaticAnalyzerError, emitter::Handler};
 <span class="kw">use </span>leo_interpreter::Value;
 <span class="kw">use </span>leo_span::{Span, Symbol};
@@ -216,11 +269,11 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>value_to_expression(value: <span class="kw-2">&amp;</span>Value, span: Span, node_builder: <span class="kw-2">&amp;</span>NodeBuilder) -&gt; Expression {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>value_to_expression(value: <span class="kw-2">&amp;</span>Value, span: Span, node_builder: <span class="kw-2">&amp;</span>NodeBuilder) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&gt; {
     <span class="kw">use </span>Value::<span class="kw-2">*</span>;
     <span class="kw">let </span>id = node_builder.next_id();
 
-    <span class="kw">match </span>value {
+    <span class="kw">let </span>result = <span class="kw">match </span>value {
         Unit =&gt; Expression::Unit(leo_ast::UnitExpression { span, id }),
         Bool(x) =&gt; Expression::Literal(Literal::Boolean(<span class="kw-2">*</span>x, span, id)),
         U8(x) =&gt; Expression::Literal(Literal::Integer(IntegerType::U8, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id)),
@@ -233,6 +286,7 @@
         I32(x) =&gt; Expression::Literal(Literal::Integer(IntegerType::I32, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id)),
         I64(x) =&gt; Expression::Literal(Literal::Integer(IntegerType::I64, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id)),
         I128(x) =&gt; Expression::Literal(Literal::Integer(IntegerType::I128, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id)),
+        Address(x) =&gt; Expression::Literal(Literal::Address(<span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id)),
         Group(x) =&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="macro">format!</span>(<span class="string">"{x}"</span>);
             <span class="comment">// Strip off the `group` suffix.
@@ -252,10 +306,40 @@
             Expression::Literal(Literal::Scalar(s, span, id))
         }
         Tuple(x) =&gt; {
-            <span class="kw">let </span>elements = x.iter().map(|val| value_to_expression(val, span, node_builder)).collect();
+            <span class="kw">let </span><span class="kw-2">mut </span>elements = Vec::with_capacity(x.len());
+            <span class="kw">for </span>value <span class="kw">in </span>x.iter() {
+                elements.push(value_to_expression(value, span, node_builder)<span class="question-mark">?</span>);
+            }
             Expression::Tuple(TupleExpression { elements, span, id })
         }
-        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Can only evaluate literals and tuples."</span>),
-    }
+        Array(x) =&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>elements = Vec::with_capacity(x.len());
+            <span class="kw">for </span>value <span class="kw">in </span>x.iter() {
+                elements.push(value_to_expression(value, span, node_builder)<span class="question-mark">?</span>);
+            }
+            Expression::Array(ArrayExpression { elements, span, id })
+        }
+        Struct(x) =&gt; Expression::Struct(StructExpression {
+            name: Identifier { name: x.name, id: node_builder.next_id(), span },
+            members: {
+                <span class="kw">let </span><span class="kw-2">mut </span>members = Vec::with_capacity(x.contents.len());
+                <span class="kw">for </span>(name, val) <span class="kw">in </span>x.contents.iter() {
+                    <span class="kw">let </span>initializer = StructVariableInitializer {
+                        identifier: Identifier { name: <span class="kw-2">*</span>name, id: node_builder.next_id(), span },
+                        expression: <span class="prelude-val">Some</span>(value_to_expression(val, span, node_builder)<span class="question-mark">?</span>),
+                        span,
+                        id: node_builder.next_id(),
+                    };
+                    members.push(initializer)
+                }
+                members
+            },
+            span,
+            id,
+        }),
+        Future(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+    };
+
+    <span class="prelude-val">Some</span>(result)
 }
 </code></pre></div></section></main></body></html>
