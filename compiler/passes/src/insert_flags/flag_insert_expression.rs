@@ -103,25 +103,29 @@ impl ExpressionReconstructor for FlagInserter<'_> {
         *input.right = right;
         definitions.extend(definitions2);
         if let BinaryOperation::Div = input.op {
-            // We need to make a new ToDefine and replace the current expression with its new symbol name.
-            let name = self.symbol_table.gensym("div_result");
-            let name_identifier = Expression::Identifier(Identifier { name, span, id: self.node_builder.next_id() });
-            let flag_name = self.symbol_table.gensym("div_flag");
-            let ty = self.type_table.get(&input.id()).expect("Types have been assigned.");
-            self.type_table.insert(name_identifier.id(), ty.clone());
-            let expr = Expression::Binary(BinaryExpression {
-                left: input.left,
-                right: input.right,
-                op: BinaryOperation::DivFlagged,
-                span,
-                id: self.node_builder.next_id(),
-            });
-            definitions.push(ToDefine { first_type: ty, name, flag: flag_name, expr, span });
+            // At the moment div_flagged is only implemented for field types.
+            if self.type_table.get(&input.id()) == Some(Type::Field) {
+                // We need to make a new ToDefine and replace the current expression with its new symbol name.
+                let name = self.symbol_table.gensym("div_result");
+                let name_identifier =
+                    Expression::Identifier(Identifier { name, span, id: self.node_builder.next_id() });
+                let flag_name = self.symbol_table.gensym("div_flag");
+                let ty = self.type_table.get(&input.id()).expect("Types have been assigned.");
+                self.type_table.insert(name_identifier.id(), ty.clone());
+                let expr = Expression::Binary(BinaryExpression {
+                    left: input.left,
+                    right: input.right,
+                    op: BinaryOperation::DivFlagged,
+                    span,
+                    id: self.node_builder.next_id(),
+                });
+                definitions.push(ToDefine { first_type: ty, name, flag: flag_name, expr, span });
 
-            (name_identifier, definitions)
-        } else {
-            (Expression::Binary(input), definitions)
+                return (name_identifier, definitions);
+            }
         }
+
+        (Expression::Binary(input), definitions)
     }
 
     fn reconstruct_call(&mut self, mut input: CallExpression) -> (Expression, Self::AdditionalOutput) {

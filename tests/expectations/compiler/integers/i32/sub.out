@@ -1,6 +1,6 @@
 namespace = "Compile"
 expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "aa5f4dc5119c279ef8d46c270ba9bc33886216c7b7e99e934975429f65a13089", unrolled_ast = "aa5f4dc5119c279ef8d46c270ba9bc33886216c7b7e99e934975429f65a13089", ssa_ast = "b178dcccd1545e0768bfce699c5c6ad55d1ec4607c7abeb78ffb8d896cec4182", flattened_ast = "63f068cd118cf7f0a3696a432647c07d675368348a0d0f807087b5c0dcf11d56", destructured_ast = "5a716d88a4bd2a8ccecd6b66dfd4d6ebd56a2b8d2a6ebe56538f0d96023cb0c2", inlined_ast = "5a716d88a4bd2a8ccecd6b66dfd4d6ebd56a2b8d2a6ebe56538f0d96023cb0c2", dce_ast = "5a716d88a4bd2a8ccecd6b66dfd4d6ebd56a2b8d2a6ebe56538f0d96023cb0c2", bytecode = """
+outputs = [[{ compile = [{ initial_ast = "aa5f4dc5119c279ef8d46c270ba9bc33886216c7b7e99e934975429f65a13089", unrolled_ast = "aa5f4dc5119c279ef8d46c270ba9bc33886216c7b7e99e934975429f65a13089", ssa_ast = "b178dcccd1545e0768bfce699c5c6ad55d1ec4607c7abeb78ffb8d896cec4182", flattened_ast = "b7dcb40745194718ebb3696e5738cd509a069d82a2bbae8e1d417d173780210c", destructured_ast = "72a1c91b188850db7baeede7e3aff69aecd48bb3f98b0b21fbf22e7d8270a357", inlined_ast = "72a1c91b188850db7baeede7e3aff69aecd48bb3f98b0b21fbf22e7d8270a357", dce_ast = "72a1c91b188850db7baeede7e3aff69aecd48bb3f98b0b21fbf22e7d8270a357", bytecode = """
 program test.aleo;
 
 function main:

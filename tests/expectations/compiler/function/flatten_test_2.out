@@ -1,26 +1,10 @@
 namespace = "Compile"
 expectation = "Pass"
-outputs = [[
-    { compile = [{ initial_ast = "a03b62665e30eedea3d493842083160f588787e920e25c1b53caeeaf780fa985", unrolled_ast = "a03b62665e30eedea3d493842083160f588787e920e25c1b53caeeaf780fa985", ssa_ast = "245399f8485816f9687ebe4a758067ee86c38c65772e11c7e952e3efba46c45c", flattened_ast = "1cbaf23a82ac78edd880cce14f97ca791ad05586c2b298305b5d116c66f741cd", destructured_ast = "7399f593b39548470b1c26f25ca1336b4c565f30383515c19bf2b7d2b7595194", inlined_ast = "7399f593b39548470b1c26f25ca1336b4c565f30383515c19bf2b7d2b7595194", dce_ast = "867c80b990ef129c07631f494d2f26a249d769cae7f407ea569112d696db659c", bytecode = """
+outputs = [[{ compile = [{ initial_ast = "a03b62665e30eedea3d493842083160f588787e920e25c1b53caeeaf780fa985", unrolled_ast = "a03b62665e30eedea3d493842083160f588787e920e25c1b53caeeaf780fa985", ssa_ast = "245399f8485816f9687ebe4a758067ee86c38c65772e11c7e952e3efba46c45c", flattened_ast = "fbd608fbf3302ab3402cdaa94575f281791ed3099e578fbad1126fba5be2fc09", destructured_ast = "ee7c4b983c376fff07325a80d5f940455372ade9883ae31bdf4f6ac0d29b3145", inlined_ast = "ee7c4b983c376fff07325a80d5f940455372ade9883ae31bdf4f6ac0d29b3145", dce_ast = "4e4c3b41655caa35c73e83959cc34fcf4d98159b3ac9874ee2166c1b9126eaab", bytecode = """
 program test.aleo;
 
 struct TokenInfo:
     id as u64;
 
 function add_new_liquidity_token_2:
-""", errors = "", warnings = "" }] },
-    { compile = [{ initial_ast = "d4a2d9b3ae480ba78e5d645c99fe3e52421213cb3899d32e6cb57962271f3500", unrolled_ast = "d4a2d9b3ae480ba78e5d645c99fe3e52421213cb3899d32e6cb57962271f3500", ssa_ast = "70025d49470fabc8804bb98b54ae1d0d0d5d5943fc9d3e6e76b708f346aef7c1", flattened_ast = "806c948265ae74e02fa0130bf2f66a572c0327341a6d990031fa5afee46a4182", destructured_ast = "2863f3ca7be0e5bbfd5754c2e091dc6481bce1473d91b5bff1256ebb63e48f55", inlined_ast = "2863f3ca7be0e5bbfd5754c2e091dc6481bce1473d91b5bff1256ebb63e48f55", dce_ast = "2863f3ca7be0e5bbfd5754c2e091dc6481bce1473d91b5bff1256ebb63e48f55", bytecode = """
-program test.aleo;
-
-struct TokenInfo:
-    id as u64;
-
-function add_new_liquidity_token_2:
-    cast 0u64 into r0 as TokenInfo;
-    is.eq r0.id 0u64 into r1;
-    cast 10u64 into r2 as TokenInfo;
-    not r1 into r3;
-    ternary r1 r2.id r0.id into r4;
-    cast r4 into r5 as TokenInfo;
-""", errors = "", warnings = "" }] },
-]]
+""", errors = "", warnings = "" }] }]]
