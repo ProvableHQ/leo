@@ -194,16 +194,26 @@ fn handle_execute<A: Aleo>(
         load_program_from_network(context.clone(), &mut vm.process().write(), program_id, network, endpoint)?;
 
         // Compute the authorization.
-        let authorization = vm.authorize(&private_key, program_id, &command.name, inputs, rng)?;
+        let authorization = vm.authorize(&private_key, program_id, &command.name, inputs.clone(), rng)?;
+
         // Determine if a fee is required.
         let is_fee_required = !authorization.is_split();
         // Determine if a priority fee is declared.
         let is_priority_fee_declared = command.fee_options.priority_fee > 0;
+
         // Compute the execution.
         let execution = match vm.execute_authorization(authorization, None, Some(query.clone()), rng)? {
             Transaction::Execute(_, execution, _) => execution,
             _ => unreachable!("VM::execute_authorization should return a Transaction::Execute"),
         };
+
+        // Need to compute the authorization again. Doesn't seem to work if authorization is cloned?
+        let authorization2 = vm.authorize(&private_key, program_id, &command.name, inputs, rng)?;
+        // Execute the circuit.
+        let (response, trace) = vm.process().read().execute::<A, _>(authorization2, rng)?;
+
+        // Retrieve the call metrics.
+        let metrics = trace.call_metrics().to_vec();
 
         let fee_record = if let Some(record) = command.fee_options.record {
             Some(parse_record(&private_key, &record)?)
@@ -295,8 +305,58 @@ fn handle_execute<A: Aleo>(
             }
             false => None,
         };
+
         // Return the execute transaction.
         let transaction = Transaction::from_execution(execution, fee)?;
+
+        // Log the metrics.
+        use num_format::ToFormattedString;
+
+        // Count the number of times a function is called.
+        let mut program_frequency = HashMap::<String, usize>::new();
+        for metric in metrics.iter() {
+            // Prepare the function name string.
+            let function_name_string = format!("'{}/{}'", metric.program_id, metric.function_name).bold();
+
+            // Prepare the function constraints string
+            let function_constraints_string = format!(
+                "{function_name_string} - {} constraints",
+                metric.num_function_constraints.to_formatted_string(LOCALE)
+            );
+
+            // Increment the counter for the function call.
+            match program_frequency.get_mut(&function_constraints_string) {
+                Some(counter) => *counter += 1,
+                None => {
+                    let _ = program_frequency.insert(function_constraints_string, 1);
+                }
+            }
+        }
+
+        println!("⛓  Constraints\n");
+        for (function_constraints, counter) in program_frequency {
+            // Log the constraints
+            let counter_string = match counter {
+                1 => "(called 1 time)".to_string().dimmed(),
+                counter => format!("(called {counter} times)").dimmed(),
+            };
+
+            println!(" •  {function_constraints} {counter_string}",)
+        }
+
+        // Log the outputs.
+        match response.outputs().len() {
+            0 => (),
+            1 => println!("\n➡️  Output\n"),
+            _ => println!("\n➡️  Outputs\n"),
+        };
+        for output in response.outputs() {
+            println!(" • {output}");
+        }
+        println!();
+
+        //Print transaction only when -d or --debug is passed
+        tracing::debug!("{transaction}\n");
 
         // Broadcast the execution transaction.
         if !command.fee_options.dry_run {
@@ -325,96 +385,96 @@ fn handle_execute<A: Aleo>(
             println!("✅ Successful dry run execution for '{}'\n", program_id.to_string().bold());
         }
 
-        return Ok(());
-    }
+        Ok(())
+    } else {
+        // Open the Leo build/ directory.
+        let path = context.dir()?.join("build/");
 
-    // Open the Leo build/ directory.
-    let path = context.dir()?.join("build/");
+        // Unset the Leo panic hook.
+        let _ = std::panic::take_hook();
 
-    // Unset the Leo panic hook.
-    let _ = std::panic::take_hook();
+        // Conduct the execution locally (code lifted from snarkVM).
+        // Load the package.
+        let package = SnarkVMPackage::open(&path)?;
+        // Convert the inputs.
+        let mut parsed_inputs: Vec<Value<A::Network>> = Vec::new();
+        for input in inputs.iter() {
+            let value = Value::from_str(input)?;
+            parsed_inputs.push(value);
+        }
+        // Execute the request.
+        let (response, execution, metrics) = package
+            .execute::<A, _>(
+                endpoint.to_string(),
+                &private_key,
+                Identifier::try_from(command.name.clone())?,
+                &parsed_inputs,
+                rng,
+            )
+            .map_err(PackageError::execution_error)?;
 
-    // Conduct the execution locally (code lifted from snarkVM).
-    // Load the package.
-    let package = SnarkVMPackage::open(&path)?;
-    // Convert the inputs.
-    let mut parsed_inputs: Vec<Value<A::Network>> = Vec::new();
-    for input in inputs.iter() {
-        let value = Value::from_str(input)?;
-        parsed_inputs.push(value);
-    }
-    // Execute the request.
-    let (response, execution, metrics) = package
-        .execute::<A, _>(
-            endpoint.to_string(),
-            &private_key,
-            Identifier::try_from(command.name.clone())?,
-            &parsed_inputs,
-            rng,
-        )
-        .map_err(PackageError::execution_error)?;
+        let fee = None;
 
-    let fee = None;
+        // Construct the transaction.
+        let transaction = Transaction::from_execution(execution, fee)?;
 
-    // Construct the transaction.
-    let transaction = Transaction::from_execution(execution, fee)?;
+        // Log the metrics.
+        use num_format::ToFormattedString;
 
-    // Log the metrics.
-    use num_format::ToFormattedString;
+        // Count the number of times a function is called.
+        let mut program_frequency = HashMap::<String, usize>::new();
+        for metric in metrics.iter() {
+            // Prepare the function name string.
+            let function_name_string = format!("'{}/{}'", metric.program_id, metric.function_name).bold();
 
-    // Count the number of times a function is called.
-    let mut program_frequency = HashMap::<String, usize>::new();
-    for metric in metrics.iter() {
-        // Prepare the function name string.
-        let function_name_string = format!("'{}/{}'", metric.program_id, metric.function_name).bold();
+            // Prepare the function constraints string
+            let function_constraints_string = format!(
+                "{function_name_string} - {} constraints",
+                metric.num_function_constraints.to_formatted_string(LOCALE)
+            );
 
-        // Prepare the function constraints string
-        let function_constraints_string = format!(
-            "{function_name_string} - {} constraints",
-            metric.num_function_constraints.to_formatted_string(LOCALE)
-        );
-
-        // Increment the counter for the function call.
-        match program_frequency.get_mut(&function_constraints_string) {
-            Some(counter) => *counter += 1,
-            None => {
-                let _ = program_frequency.insert(function_constraints_string, 1);
+            // Increment the counter for the function call.
+            match program_frequency.get_mut(&function_constraints_string) {
+                Some(counter) => *counter += 1,
+                None => {
+                    let _ = program_frequency.insert(function_constraints_string, 1);
+                }
             }
         }
-    }
 
-    println!("⛓  Constraints\n");
-    for (function_constraints, counter) in program_frequency {
-        // Log the constraints
-        let counter_string = match counter {
-            1 => "(called 1 time)".to_string().dimmed(),
-            counter => format!("(called {counter} times)").dimmed(),
+        println!("⛓  Constraints\n");
+        for (function_constraints, counter) in program_frequency {
+            // Log the constraints
+            let counter_string = match counter {
+                1 => "(called 1 time)".to_string().dimmed(),
+                counter => format!("(called {counter} times)").dimmed(),
+            };
+
+            println!(" •  {function_constraints} {counter_string}",)
+        }
+
+        // Log the outputs.
+        match response.outputs().len() {
+            0 => (),
+            1 => println!("\n➡️  Output\n"),
+            _ => println!("\n➡️  Outputs\n"),
         };
+        for output in response.outputs() {
+            println!(" • {output}");
+        }
+        println!();
 
-        println!(" •  {function_constraints} {counter_string}",)
+        // Print the transaction.
+        println!("{transaction}\n");
+
+        // Prepare the locator.
+        let locator = Locator::<A::Network>::from_str(&format!("{}/{}", package.program_id(), command.name))?;
+        // Prepare the path string.
+        let path_string = format!("(in \"{}\")", path.display());
+
+        println!("✅ Executed '{}' {}", locator.to_string().bold(), path_string.dimmed());
+        Ok(())
     }
-
-    // Log the outputs.
-    match response.outputs().len() {
-        0 => (),
-        1 => println!("\n➡️  Output\n"),
-        _ => println!("\n➡️  Outputs\n"),
-    };
-    for output in response.outputs() {
-        println!(" • {output}");
-    }
-    println!();
-
-    // Print the transaction.
-    println!("{transaction}\n");
-
-    // Prepare the locator.
-    let locator = Locator::<A::Network>::from_str(&format!("{}/{}", package.program_id(), command.name))?;
-    // Prepare the path string.
-    let path_string = format!("(in \"{}\")", path.display());
-
-    println!("✅ Executed '{}' {}", locator.to_string().bold(), path_string.dimmed());
-    Ok(())
 }
 
 /// A helper function to recursively load the program and all of its imports into the process. Lifted from snarkOS.
