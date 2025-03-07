@@ -45,11 +45,18 @@ impl StatementReconstructor for FlagInserter<'_> {
                         span: to_define.span,
                         id: slf.node_builder.next_id(),
                     });
+                    slf.type_table.insert(flag_identifier.id(), Type::Boolean);
                     let mut flag_identifier2 = flag_identifier.clone();
                     flag_identifier2.set_id(slf.node_builder.next_id());
                     slf.insert_variable(to_define.flag, Type::Boolean, to_define.span, variable_type);
-                    slf.type_table.insert(flag_identifier.id(), Type::Boolean);
                     slf.type_table.insert(flag_identifier2.id(), Type::Boolean);
+                    let not_flag = Expression::Unary(UnaryExpression {
+                        receiver: Box::new(flag_identifier2),
+                        op: UnaryOperation::Not,
+                        span: to_define.span,
+                        id: slf.node_builder.next_id(),
+                    });
+                    slf.type_table.insert(not_flag.id(), Type::Boolean);
                     let place = Expression::Tuple(TupleExpression {
                         elements: vec![name_identifier, flag_identifier],
                         span: to_define.span,
@@ -66,7 +73,7 @@ impl StatementReconstructor for FlagInserter<'_> {
                         id: slf.node_builder.next_id(),
                     });
                     let assert_ = Statement::Assert(AssertStatement {
-                        variant: AssertVariant::Assert(flag_identifier2),
+                        variant: AssertVariant::Assert(not_flag),
                         span: to_define.span,
                         id: slf.node_builder.next_id(),
                     });

@@ -1,6 +1,6 @@
 namespace = "Compile"
 expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "d9f2d6bc457a8bebc1609b0e40a4d7c5a9be67ccf327140f7cb33c7d7f7e084f", unrolled_ast = "df37b3bae703ddd8b442e8dcdbc2cab6a4cdf99a0726365cfd3ccdf56e88c1da", ssa_ast = "c3f94be44ff5f2b4cfab2add20f5e93a66d101ff43c213f801468975b70daabc", flattened_ast = "01be2dcf0732bca587fb2716755502661a2b96ea731643ab771d31d7fb99f989", destructured_ast = "bb8fd0e51b67ef47005ab13966b0535f3c5b6c09577eceebf306f561ca9f2da4", inlined_ast = "bb8fd0e51b67ef47005ab13966b0535f3c5b6c09577eceebf306f561ca9f2da4", dce_ast = "86988708d94841149aee42e77f42fb0d2be4039011eea2e6227f1a0d7e4ae03b", bytecode = """
+outputs = [[{ compile = [{ initial_ast = "d9f2d6bc457a8bebc1609b0e40a4d7c5a9be67ccf327140f7cb33c7d7f7e084f", unrolled_ast = "c90130005960b334485dc5e9e6240cbd8e981ea574887efecb3c7a75f29d229d", ssa_ast = "467c99ca2abee345af40153e4025de047b15bf544c90bb65fea7d84df01140b3", flattened_ast = "5567360745648eaff12dd440c5fa4878346d86997b969de1a8812a09d0891222", destructured_ast = "7dbd98fdd03792904b583e3d77e64bc0031a5ac4e4b6f4ecce515de0a66703c6", inlined_ast = "7dbd98fdd03792904b583e3d77e64bc0031a5ac4e4b6f4ecce515de0a66703c6", dce_ast = "a2334ce413a6dbce3e05d16a41ae8162e54fcb7750c914cf39da3405a9bdb33b", bytecode = """
 program test.aleo;
 
 function main:
@@ -8,17 +8,18 @@ function main:
     is.eq r0 0field into r1;
     not r1 into r2;
     div.flagged 123field r0 into r3 r4;
-    not r2 into r5;
-    or r4 r5 into r6;
-    or r6 r1 into r7;
-    assert.eq r7 true;
-    ternary r1 0field r3 into r8;
-    output r8 as field.private;
+    not r4 into r5;
+    not r2 into r6;
+    or r5 r6 into r7;
+    or r7 r1 into r8;
+    assert.eq r8 true;
+    ternary r1 0field r3 into r9;
+    output r9 as field.private;
 
 function main2:
     not false into r0;
     not r0 into r1;
-    or true r1 into r2;
+    or false r1 into r2;
     or r2 false into r3;
     assert.eq r3 true;
     ternary false 0field 123field into r4;
