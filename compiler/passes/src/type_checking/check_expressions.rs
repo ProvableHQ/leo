@@ -1043,7 +1043,8 @@ impl ExpressionVisitor for TypeChecker<'_> {
         ty
     }
 
-    fn visit_unit(&mut self, _input: &UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unit(&mut self, input: &UnitExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        self.maybe_assert_type(&Type::Unit, additional, input.span());
         Type::Unit
     }
 }
