@@ -104,7 +104,7 @@ impl ExpressionReconstructor for FlagInserter<'_> {
         definitions.extend(definitions2);
         if let BinaryOperation::Div = input.op {
             // At the moment div_flagged is only implemented for field types.
-            if self.type_table.get(&input.id()) == Some(Type::Field) {
+            if self.conditionals > 0 && self.type_table.get(&input.id()) == Some(Type::Field) {
                 // We need to make a new ToDefine and replace the current expression with its new symbol name.
                 let name = self.symbol_table.gensym("div_result");
                 let name_identifier =
@@ -201,7 +201,7 @@ impl ExpressionReconstructor for FlagInserter<'_> {
         *input.receiver = receiver;
 
         // TODO: Redundancy here and in `reconstruct_binary`.
-        if let UnaryOperation::Inverse = input.op {
+        if input.op == UnaryOperation::Inverse && self.conditionals > 0 {
             let name = self.symbol_table.gensym("inv_result");
             let name_identifier = Expression::Identifier(Identifier { name, span, id: self.node_builder.next_id() });
             let flag_name = self.symbol_table.gensym("div_flag");

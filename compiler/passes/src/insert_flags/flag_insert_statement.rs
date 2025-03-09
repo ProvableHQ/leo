@@ -135,6 +135,7 @@ impl StatementReconstructor for FlagInserter<'_> {
     fn reconstruct_conditional(&mut self, mut input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
         let (expr, mut to_defines) = self.reconstruct_expression(input.condition);
         input.condition = expr;
+        self.conditionals += 1;
         let (block, to_defines2) = self.reconstruct_block(input.then);
         assert!(to_defines2.is_empty());
         input.then = block;
@@ -144,6 +145,7 @@ impl StatementReconstructor for FlagInserter<'_> {
             to_defines.extend(to_defines3);
             input.otherwise = Some(Box::new(block));
         }
+        self.conditionals -= 1;
         (Statement::Conditional(input), to_defines)
     }
 

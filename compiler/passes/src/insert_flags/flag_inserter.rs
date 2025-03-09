@@ -31,6 +31,8 @@ pub struct FlagInserter<'a> {
     pub(crate) node_builder: &'a NodeBuilder,
     /// The name of the current program.
     pub(crate) program: Symbol,
+    /// Depth of conditionals we're in.
+    pub(crate) conditionals: u32,
 }
 
 impl<'a> FlagInserter<'a> {
@@ -41,7 +43,7 @@ impl<'a> FlagInserter<'a> {
         handler: &'a Handler,
         node_builder: &'a NodeBuilder,
     ) -> Self {
-        Self { symbol_table, type_table, handler, node_builder, program: Symbol::intern("") }
+        Self { symbol_table, type_table, handler, node_builder, program: Symbol::intern(""), conditionals: 0u32 }
     }
 
     /// Emits a static analyzer warning.
