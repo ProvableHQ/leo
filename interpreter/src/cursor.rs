@@ -1205,9 +1205,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
             (Value::I128(x), Value::I128(y)) => transmogrify(x.checked_div(*y), Value::I128),
             (Value::Field(x), Value::Field(y)) => {
                 if y.is_zero() {
-                    Value::Tuple(vec![Value::Field(*y), Value::Bool(false)])
+                    Value::Tuple(vec![Value::Field(*y), Value::Bool(true)])
                 } else {
-                    Value::Tuple(vec![Value::Field(*x * y.inverse()?), Value::Bool(true)])
+                    Value::Tuple(vec![Value::Field(*x * y.inverse()?), Value::Bool(false)])
                 }
             }
 
@@ -1623,9 +1623,9 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value) -> Result<V
         UnaryOperation::InvFlagged => match value {
             Value::Field(x) => {
                 if x.is_zero() {
-                    Value::Tuple(vec![Value::Field(*x), Value::Bool(false)])
+                    Value::Tuple(vec![Value::Field(*x), Value::Bool(true)])
                 } else {
-                    Value::Tuple(vec![Value::Field(x.inverse()?), Value::Bool(true)])
+                    Value::Tuple(vec![Value::Field(x.inverse()?), Value::Bool(false)])
                 }
             }
             _ => halt!(span, "Can only invert fields"),
