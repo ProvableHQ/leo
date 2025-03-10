@@ -303,7 +303,9 @@ impl StatementVisitor for TypeChecker<'_> {
             .expect("The symbol table creator should already have visited all functions.");
         let mut return_type = func_symbol.function.output_type.clone();
 
-        // Fully type the expected return value.
+        // Set the `has_return` flag.
+        self.scope_state.has_return = true;
+
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
             let inferred_future_type = Future(FutureType::new(
                 func_symbol.finalizer.as_ref().unwrap().inferred_inputs.clone(),
@@ -330,8 +332,15 @@ impl StatementVisitor for TypeChecker<'_> {
             return_type = self.assert_and_return_type(inferred, &Some(return_type), input.span());
         }
 
-        // Set the `has_return` flag.
-        self.scope_state.has_return = true;
+        if matches!(input.expression, Expression::Unit(..)) {
+            // Manually type check rather than using one of the assert functions for a better error message.
+            if return_type != Type::Unit {
+                // TODO - This is a bit hackish. We're reusing an existing error, because
+                // we have too many errors in TypeCheckerError without hitting the recursion
+                // limit for macros. But the error message to the user should still be pretty clear.
+                return self.emit_err(TypeCheckerError::missing_return(input.span()));
+            }
+        }
 
         self.visit_expression(&input.expression, &Some(return_type));
     }
