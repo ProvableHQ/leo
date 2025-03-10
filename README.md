@@ -7,8 +7,8 @@
 <p align="center">
     <a href="https://circleci.com/gh/ProvableHQ/leo"><img src="https://circleci.com/gh/ProvableHQ/leo.svg?style=svg&circle-token=00960191919c40be0774e00ce8f7fa1fcaa20c00"></a>
     <a href="https://discord.gg/aleo"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
-    <a href="https://github.com/ProvableHQ/leo/blob/mainnet/CONTRIBUTORS.md"><img src="https://img.shields.io/badge/contributors-393-ee8449"/></a>
-     <a href="https://twitter.com/ProvableHQ"><img src="https://img.shields.io/twitter/follow/ProvableHQ?style=social"/></a>
+    <a href="https://github.com/ProvableHQ/leo/blob/mainnet/CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributors-393-ee8449"/></a>
+     <a href="https://x.com/ProvableHQ"><img src="https://img.shields.io/twitter/follow/ProvableHQ?style=social"/></a>
 </p>
 <div id="top"></div>
 Leo is an imperative, statically-typed programming language built for writing private applications.
