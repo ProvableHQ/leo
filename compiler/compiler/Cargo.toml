@@ -76,6 +76,9 @@ workspace = true
 [dev-dependencies.toml]
 workspace = true
 
+[dev-dependencies.regex]
+version = "1.11.1"
+
 [dev-dependencies.serial_test]
 workspace = true
 

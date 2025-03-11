@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::TypeChecker;
+use crate::{TypeChecker, VariableType};
 
 use leo_ast::*;
 use leo_errors::{TypeCheckerError, emitter::Handler};
@@ -22,43 +22,36 @@ use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
 
-impl ExpressionVisitor for TypeChecker<'_> {
-    type AdditionalInput = Option<Type>;
-    type Output = Type;
-
-    fn visit_expression(&mut self, input: &Expression, additional: &Self::AdditionalInput) -> Self::Output {
+impl TypeChecker<'_> {
+    pub(crate) fn visit_expression_assign(&mut self, input: &Expression) -> Type {
         let output = match input {
-            Expression::Access(access) => self.visit_access(access, additional),
-            Expression::Array(array) => self.visit_array(array, additional),
-            Expression::AssociatedConstant(associated_constant) => {
-                self.visit_associated_constant(associated_constant, additional)
+            Expression::Access(access @ AccessExpression::Tuple(tuple_access))
+                if matches!(&*tuple_access.tuple, Expression::Identifier(..)) =>
+            {
+                self.visit_access_general(access, true, &None)
             }
-            Expression::AssociatedFunction(associated_function) => {
-                self.visit_associated_function(associated_function, additional)
+            Expression::Identifier(x) => self.visit_identifier_assign(x),
+            _ => {
+                self.emit_err(TypeCheckerError::invalid_assignment_target(input, input.span()));
+                Type::Err
             }
-            Expression::Binary(binary) => self.visit_binary(binary, additional),
-            Expression::Call(call) => self.visit_call(call, additional),
-            Expression::Cast(cast) => self.visit_cast(cast, additional),
-            Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
-            Expression::Err(err) => self.visit_err(err, additional),
-            Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
-            Expression::Literal(literal) => self.visit_literal(literal, additional),
-            Expression::Locator(locator) => self.visit_locator(locator, additional),
-            Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
-            Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
-            Expression::Unary(unary) => self.visit_unary(unary, additional),
-            Expression::Unit(unit) => self.visit_unit(unit, additional),
         };
-        // Add the expression and its associated type to the symbol table.
+
+        // Add the expression and its associated type to the type table.
         self.type_table.insert(input.id(), output.clone());
         output
     }
 
-    fn visit_access(&mut self, input: &AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    /// Whether we're on the LHS of an assign or not, much of what we need to do is the same,
+    /// so we'll just write one function to take care of both cases.
+    fn visit_access_general(&mut self, input: &AccessExpression, assign: bool, expected: &Option<Type>) -> Type {
+        let visit_next = |slf: &mut Self, expr: &Expression| -> Type {
+            if assign { slf.visit_expression_assign(expr) } else { slf.visit_expression(expr, &None) }
+        };
         match input {
             AccessExpression::Array(access) => {
                 // Check that the expression is an array.
-                let this_type = self.visit_expression(&access.array, &None);
+                let this_type = visit_next(self, &access.array);
                 self.assert_array_type(&this_type, access.array.span());
 
                 // Check that the index is an integer type.
@@ -80,7 +73,7 @@ impl ExpressionVisitor for TypeChecker<'_> {
                 element_type.clone()
             }
             AccessExpression::Tuple(access) => {
-                let type_ = self.visit_expression(&access.tuple, &None);
+                let type_ = visit_next(self, &access.tuple);
 
                 match type_ {
                     Type::Err => Type::Err,
@@ -129,97 +122,168 @@ impl ExpressionVisitor for TypeChecker<'_> {
                 }
             }
             AccessExpression::Member(access) => {
-                match *access.inner {
-                    // If the access expression is of the form `self.<name>`, then check the <name> is valid.
-                    Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
-                        sym::caller => {
-                            // Check that the operation is not invoked in a `finalize` block.
-                            self.check_access_allowed("self.caller", false, access.name.span());
-                            Type::Address
-                        }
-                        sym::signer => {
-                            // Check that operation is not invoked in a `finalize` block.
-                            self.check_access_allowed("self.signer", false, access.name.span());
-                            Type::Address
-                        }
-                        _ => {
-                            self.emit_err(TypeCheckerError::invalid_self_access(access.name.span()));
-                            Type::Err
-                        }
-                    },
-                    // If the access expression is of the form `block.<name>`, then check the <name> is valid.
-                    Expression::Identifier(identifier) if identifier.name == sym::block => match access.name.name {
-                        sym::height => {
-                            // Check that the operation is invoked in a `finalize` block.
-                            self.check_access_allowed("block.height", true, access.name.span());
-                            let ty = Type::Integer(IntegerType::U32);
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            ty
-                        }
-                        _ => {
-                            self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
-                            Type::Err
-                        }
-                    },
-                    // If the access expression is of the form `network.<name>`, then check that the <name> is valid.
-                    Expression::Identifier(identifier) if identifier.name == sym::network => match access.name.name {
-                        sym::id => {
-                            // Check that the operation is not invoked outside a `finalize` block.
-                            self.check_access_allowed("network.id", true, access.name.span());
-                            let ty = Type::Integer(IntegerType::U16);
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            ty
-                        }
-                        _ => {
-                            self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
-                            Type::Err
-                        }
-                    },
-                    _ => {
-                        // Check that the type of `inner` in `inner.name` is a struct.
-                        let ty = self.visit_expression(&access.inner, &None);
-                        match ty {
-                            Type::Err => Type::Err,
-                            Type::Composite(struct_) => {
-                                // Retrieve the struct definition associated with `identifier`.
-                                let Some(struct_) = self
-                                    .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
-                                else {
-                                    self.emit_err(TypeCheckerError::undefined_type(ty, access.inner.span()));
+                if !assign {
+                    match *access.inner {
+                        // If the access expression is of the form `self.<name>`, then check the <name> is valid.
+                        Expression::Identifier(identifier) if identifier.name == sym::SelfLower => {
+                            match access.name.name {
+                                sym::caller => {
+                                    // Check that the operation is not invoked in a `finalize` block.
+                                    self.check_access_allowed("self.caller", false, access.name.span());
+                                    return Type::Address;
+                                }
+                                sym::signer => {
+                                    // Check that operation is not invoked in a `finalize` block.
+                                    self.check_access_allowed("self.signer", false, access.name.span());
+                                    return Type::Address;
+                                }
+                                _ => {
+                                    self.emit_err(TypeCheckerError::invalid_self_access(access.name.span()));
                                     return Type::Err;
-                                };
-                                // Check that `access.name` is a member of the struct.
-                                match struct_.members.iter().find(|member| member.name() == access.name.name) {
-                                    // Case where `access.name` is a member of the struct.
-                                    Some(Member { type_, .. }) => {
-                                        // Check that the type of `access.name` is the same as `expected`.
-                                        self.maybe_assert_type(type_, expected, access.span());
-                                        type_.clone()
-                                    }
-                                    // Case where `access.name` is not a member of the struct.
-                                    None => {
-                                        self.emit_err(TypeCheckerError::invalid_struct_variable(
-                                            access.name,
-                                            &struct_,
-                                            access.name.span(),
-                                        ));
-                                        Type::Err
-                                    }
                                 }
                             }
-                            type_ => {
-                                self.emit_err(TypeCheckerError::type_should_be2(
-                                    type_,
-                                    "a struct or record",
-                                    access.inner.span(),
+                        }
+                        // If the access expression is of the form `block.<name>`, then check the <name> is valid.
+                        Expression::Identifier(identifier) if identifier.name == sym::block => match access.name.name {
+                            sym::height => {
+                                // Check that the operation is invoked in a `finalize` block.
+                                self.check_access_allowed("block.height", true, access.name.span());
+                                let ty = Type::Integer(IntegerType::U32);
+                                self.maybe_assert_type(&ty, expected, input.span());
+                                return ty;
+                            }
+                            _ => {
+                                self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
+                                return Type::Err;
+                            }
+                        },
+                        // If the access expression is of the form `network.<name>`, then check that the <name> is valid.
+                        Expression::Identifier(identifier) if identifier.name == sym::network => match access.name.name
+                        {
+                            sym::id => {
+                                // Check that the operation is not invoked outside a `finalize` block.
+                                self.check_access_allowed("network.id", true, access.name.span());
+                                let ty = Type::Integer(IntegerType::U16);
+                                self.maybe_assert_type(&ty, expected, input.span());
+                                return ty;
+                            }
+                            _ => {
+                                self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
+                                return Type::Err;
+                            }
+                        },
+                        _ => {}
+                    }
+                }
+
+                // Check that the type of `inner` in `inner.name` is a struct.
+                let ty = visit_next(self, &access.inner);
+
+                match ty {
+                    Type::Err => Type::Err,
+                    Type::Composite(struct_) => {
+                        // Retrieve the struct definition associated with `identifier`.
+                        let Some(struct_) =
+                            self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
+                        else {
+                            self.emit_err(TypeCheckerError::undefined_type(ty, access.inner.span()));
+                            return Type::Err;
+                        };
+                        // Check that `access.name` is a member of the struct.
+                        match struct_.members.iter().find(|member| member.name() == access.name.name) {
+                            // Case where `access.name` is a member of the struct.
+                            Some(Member { type_, .. }) => {
+                                // Check that the type of `access.name` is the same as `expected`.
+                                self.maybe_assert_type(type_, expected, access.span());
+                                type_.clone()
+                            }
+                            // Case where `access.name` is not a member of the struct.
+                            None => {
+                                self.emit_err(TypeCheckerError::invalid_struct_variable(
+                                    access.name,
+                                    &struct_,
+                                    access.name.span(),
                                 ));
                                 Type::Err
                             }
                         }
                     }
+                    type_ => {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            type_,
+                            "a struct or record",
+                            access.inner.span(),
+                        ));
+                        Type::Err
+                    }
                 }
             }
         }
+    }
+
+    fn visit_identifier_assign(&mut self, input: &Identifier) -> Type {
+        // Lookup the variable in the symbol table and retrieve its type.
+        let Some(var) = self.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), input.name) else {
+            self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span));
+            return Type::Err;
+        };
+
+        // If the variable exists, then check that it is not a constant.
+        match &var.declaration {
+            VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(input, var.span)),
+            VariableType::Input(Mode::Constant) => {
+                self.emit_err(TypeCheckerError::cannot_assign_to_const_input(input, var.span))
+            }
+            VariableType::Mut | VariableType::Input(_) => {}
+        }
+
+        // If the variable exists and it's in an async function, then check that it is in the current conditional scope.
+        if self.scope_state.variant.unwrap().is_async_function() && !self.symbol_in_conditional_scope(input.name) {
+            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, var.span));
+        }
+        // Prohibit reassignment of futures.
+        if let Type::Future(_) = var.type_ {
+            self.emit_err(TypeCheckerError::cannot_reassign_future_variable(input, var.span));
+        }
+
+        var.type_.clone()
+    }
+}
+
+impl ExpressionVisitor for TypeChecker<'_> {
+    type AdditionalInput = Option<Type>;
+    type Output = Type;
+
+    fn visit_expression(&mut self, input: &Expression, additional: &Self::AdditionalInput) -> Self::Output {
+        let output = match input {
+            Expression::Access(access) => self.visit_access(access, additional),
+            Expression::Array(array) => self.visit_array(array, additional),
+            Expression::AssociatedConstant(associated_constant) => {
+                self.visit_associated_constant(associated_constant, additional)
+            }
+            Expression::AssociatedFunction(associated_function) => {
+                self.visit_associated_function(associated_function, additional)
+            }
+            Expression::Binary(binary) => self.visit_binary(binary, additional),
+            Expression::Call(call) => self.visit_call(call, additional),
+            Expression::Cast(cast) => self.visit_cast(cast, additional),
+            Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
+            Expression::Err(err) => self.visit_err(err, additional),
+            Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
+            Expression::Literal(literal) => self.visit_literal(literal, additional),
+            Expression::Locator(locator) => self.visit_locator(locator, additional),
+            Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
+            Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
+            Expression::Unary(unary) => self.visit_unary(unary, additional),
+            Expression::Unit(unit) => self.visit_unit(unit, additional),
+        };
+        // Add the expression and its associated type to the symbol table.
+        self.type_table.insert(input.id(), output.clone());
+        output
+    }
+
+    fn visit_access(&mut self, input: &AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        self.visit_access_general(input, false, expected)
     }
 
     fn visit_array(&mut self, input: &ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {

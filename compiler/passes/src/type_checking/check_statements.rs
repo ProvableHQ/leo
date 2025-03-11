@@ -63,33 +63,9 @@ impl StatementVisitor for TypeChecker<'_> {
     }
 
     fn visit_assign(&mut self, input: &AssignStatement) {
-        let var_name = input.place;
+        let lhs_type = self.visit_expression_assign(&input.place);
 
-        // Lookup the variable in the symbol table and retrieve its type.
-        let Some(var) = self.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), var_name.name) else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
-            return;
-        };
-
-        // If the variable exists, then check that it is not a constant.
-        match &var.declaration {
-            VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
-            VariableType::Input(Mode::Constant) => {
-                self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
-            }
-            VariableType::Mut | VariableType::Input(_) => {}
-        }
-
-        // If the variable exists and it's in an async function, then check that it is in the current conditional scope.
-        if self.scope_state.variant.unwrap().is_async_function() && !self.symbol_in_conditional_scope(var_name.name) {
-            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(var_name, var.span));
-        }
-        // Prohibit reassignment of futures.
-        if let Type::Future(_) = var.type_ {
-            self.emit_err(TypeCheckerError::cannot_reassign_future_variable(var_name, var.span));
-        }
-
-        self.visit_expression(&input.value, &Some(var.type_.clone()));
+        self.visit_expression(&input.value, &Some(lhs_type.clone()));
     }
 
     fn visit_block(&mut self, input: &Block) {

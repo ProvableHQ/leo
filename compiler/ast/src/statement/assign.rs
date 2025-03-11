@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node, NodeID};
+use crate::{Expression, Node, NodeID};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -24,8 +24,8 @@ use std::fmt;
 /// Note that there is no operation associated with the assignment.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct AssignStatement {
-    /// The identifier to assign to.
-    pub place: Identifier,
+    /// The place to assign to.
+    pub place: Expression,
     /// The value to assign to the `assignee`.
     pub value: Expression,
     /// The span, excluding the semicolon.

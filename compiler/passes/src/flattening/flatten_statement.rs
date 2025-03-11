@@ -337,6 +337,8 @@ impl StatementReconstructor for Flattener<'_> {
     /// Transforms a return statement into an empty block statement.
     /// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.
     fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
+        use Expression::*;
+
         // If we are traversing an async function, return as is.
         if self.is_async {
             return (Statement::Return(input), Default::default());
@@ -346,12 +348,12 @@ impl StatementReconstructor for Flattener<'_> {
 
         let return_guard = guard_identifier.map_or(ReturnGuard::None, ReturnGuard::Unconstructed);
 
-        match input.expression {
-            Expression::Unit(_) | Expression::Identifier(_) | Expression::AssociatedConstant(_) => {
-                self.returns.push((return_guard, input))
-            }
-            _ => panic!("SSA guarantees that the expression is always an identifier or unit expression."),
-        };
+        let is_tuple_ids = matches!(&input.expression, Tuple(tuple_expr) if tuple_expr .elements.iter() .all(|expr| matches!(expr, Identifier(_))));
+        if !matches!(&input.expression, Unit(_) | Identifier(_) | AssociatedConstant(_)) && !is_tuple_ids {
+            panic!("SSA guarantees that the expression is always an identifier, unit expression, or tuple literal.")
+        }
+
+        self.returns.push((return_guard, input));
 
         (Statement::dummy(), statements.unwrap_or_default())
     }

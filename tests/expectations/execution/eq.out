@@ -1,1 +1,88 @@
-Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal)
+verified: false
+status: none
+errors: Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal)
+warnings:
+null
+
+verified: true
+status: accepted
+errors: 
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1ewhdawc9fgnty3lyxkdnvalpklrpvug5fq34c43eyvnuppwwsy8sth9epv",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "2054620529198825009283220465498300535612444664291878493251070167497338032631field",
+          "value": "ciphertext1qyq0l0dfxktxdejs4kd6cmc34cgpp7sgrdz3hgx8dd6vfj83cxe2gzgm5uhdc"
+        },
+        {
+          "type": "private",
+          "id": "7024313106342925465949387833277560085590971066021627954739795909201823645field",
+          "value": "ciphertext1qyq2tgg3yfnldk2jk9n6klqhat8lzlfl94ppc7yfpuuy25p9x5vdjqsay7s2x"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "2077266985677439373135489825360153277564320626847180013927097400221649447324field",
+          "value": "ciphertext1qyqxzxlvga6ssqkz8r95xe7nlchzvxcgmzsahy8ae0fyjg9kegrqypsmwsm7h"
+        }
+      ],
+      "tpk": "4360282043946598496223776270916476426698330947802988938531269646655646163512group",
+      "tcm": "4288065454111944941415993426129091303107521965318412817511146515220246189903field",
+      "scm": "5585993325292910994848706685890367122831789970628179966092519179701396406371field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqqqwy4j8sgnxmxu06cqtufmyfhphejlqdu5de8fjxsgyz2gqmrus047yw5tezaur20ux34xcdxx9gpqx49l5l36haxe7u99pfemnx2jm9a6ewy06hnwny8gqcr6xhw242ln3507h8yxqmzqzlze58p025mmqyx27kshez56e6r789ey5zdf5xjnj9rmc5tey936pfkmrnp2q6hqg9qz008n2pmrmff98qrz0ar2xqfqrww52emzpq9q5wn8f7c8jgcjehwpdepkfzaqrxf0nuk7jcdcsqssgzqkg245ujcr43l0d23sm5putzkqpz3n5wzm2dq0dfmqtd3wu283as5ggpt8r2ncjl3mafe89lyg2flpxpkrezrwjuv8zqrn97gq3060lh06thm6z74pdugevul7ak2r87t8na6ygy6yryvawcaavl3fwzrjk0nprtkmae857rqx7a8sq0t5zx6l4zvzzs06pzvnw7edzwf9p22w0vwmac0y4q7hwpt9uql9jfek3d9r5r9clsfxx8ke6vs4qys8xjxcgknmlfm074rdve2a4waldsu8ax4ae785f2n5k9wcf7lpa0e3wlr85j0we2vx30ary8hmwqt3umrahr0q07pxx3954wetd0yv0ghpm3r8d39p65rdp85dmzk5udq2sre7kvjseu3eg8rfvul2dgq3m67rkksqmz3k8el986zxww0df2gm7nupywvanv98t4yfcnwpcz7vwmf32nhv2wn96dgd78rqt6wsxfvzjp5l2z22kfcp3fuzka57pr97kl3j5w604u8cehvu27c9p773uzvut4qaqj7vn7g2sj5f95rzxvpvuktgtdve5dmumckc7vm87ce8w9f538shrc9m250y3t9ywysssztlgrmn797ga8a9k00wacfdqh9qkcggkv8hfepd43nzv2hqgcjtlaupulmz0q0m9jwzrmyzjshqh44cdlnah4jrl6ss76fhrxgp5gzx5tszuye6axta3r695k2v674q64mu53wk38je2lsz2qege8h2r7a4xhqls2lwruyhe6vlvwfs53rkkcv4jvsflfr2w0r05j8uww3py6dyew9dpzyltukz6269uwlsxx5r5ktmu649c5japnh6qnv8xnqpu34d9nvq5tv4cltpyua4clhvvm47r9hrd8drf7n0h30jrucujssqvqqqqqqqqqqp3rkkt6m2kndcje8c266a9nxm89072lfrkc803q954pfamu7nllx44tn7a7w6gq5s0m76m56cyshsyq8yxf26lp5w0q87xh8ekt0taednjca5m7pzzde43ay6fdljftrttucgaaeg7g9t7yjknh49cfn8ncqqxh66krwejgat7srctd4tyeuhzf7e9q66r7xd6mlmc9and93elxprtg2hd608tghy038ywx7mp62xc0p06wmt2cvnmvfvh4tcfx6kuu7cs0fn0kje2k3c7ceq4rnuljvqyqqj57vwz"
+}
+
+verified: false
+status: none
+errors: Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal)
+warnings:
+null
+
+verified: true
+status: accepted
+errors: 
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1qvreys7njnyx49p2rrvc0t0rlgacqekkls4fxuxr7zg68lh3ccgqaaaczr",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "884990758639353395514545298492665039702063761012031883006383468781854740394field",
+          "value": "ciphertext1qyqzz8zakwz2j5h5jwke0kn6lpuhhpgzw96tduqjaqu6yp3cefvrqrcp8mklm"
+        },
+        {
+          "type": "private",
+          "id": "6980822363770614020590498117068123449375857512902627265001417460050776283542field",
+          "value": "ciphertext1qyqznd22pumcxu03t45cxjt4mfqm2n42cjxuvp67vcpd7lzhp0m7wqcn4v93c"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "1430209919583808586583631188169863200080956924440469912994527823641152704822field",
+          "value": "ciphertext1qyqxh3xd83hq77nw7ka0gv2d3dc66ae3gxg9k5dumz4090msezdfyyqrke558"
+        }
+      ],
+      "tpk": "7783523846349936762192140880628991011398217265376483192908491497254794896570group",
+      "tcm": "8104978759018346819468924628859082529666280766392410653078727145121113705216field",
+      "scm": "3776195292774415611853403681061074707445243002587766679782879861868696333659field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqy6z5hf8p8q0s58vhdywc46p3laj9adx33cld3jhdqu57m3qy7ufjjckf6l7ptkvkgmqd36g30kc5qqy0t5xva7metfmks8q3xgspdhd7t7p94dl5lxk23msa5sxxf7zx6puvumz5ns9p4mtegx7y77269uq2axv7ujvp9z8ch7fsztqh9pplrltptwrf67tuu534nycfg4yurzn6ux5mxalatcep287nvc2qu0xqsz0mhqq39z78t9f3cce0zx7q6myhznlj9s2zddctdhjdmvrjufdfyqf276uxl3nxcz4x7ezkztyqp3j5k54yzjcefshyyw54p6ql7rvt74nnrtxkkfk455j53q2rkpucl20mzjdskvvkf55w4jjfsngmqzwlntaw7az2pv2qkk465hakkn2uuv9jy2sprlpyzjg3xa9dah73cgzl7lhjucx97v24dht600je0q9vcnvgzrdnvwsyqd7ss90a7d6vek38wgsnlvh4up7wqu679f8pspw8ng2zkg6jrd47hd2sjlpsf3qgxuq875e343qyxpmgh9dp7u5y3w6lnl4durphjgc3acmkr3keajtk0fd9g9e2yfxcdfkzcmnxat6q76uw3mdhszvgau93432f8zmkrfdenpwqfwhs80s4p2f9xcez29j0skxvs2rf405lutjug2gdjhgupre5mgy4cevg24mgs4j5aq5c26lzpfm5etjfwskkzlprxvll58v99m50wewsfy7cwzh6rc5n8rdeqqajdfyxvr3jjy5mafxlnlxlpkrgj5dav7xvzj62czsy6swql7v9sgdr6vwnzzwknafsyl3f5kvlmq089skcjz5tlxmqt7vxqp2504mnn9lr4rl5uavc39tvrdna96zmqjjh8a9slumpr9jhtqx4lytjpv4nutldezrata6cc2rm39txsayg0gwvp72xup4gusmcz8hz2zupt04v9qspd6xtxevqure7qn666mgpkha3fvxma3ezjyn3xh8ra0tnt6ez9jus8f25wn4uv3k5v6j36kzx0n08dsk88rs3q8ta730yqrvnj5hp67xtup03ledvpfylptyqcq0ckyndvjq4e3fg9ylv3sxmygnjpv7ln6jg9wrfkfy7hdfhfyeqszmdsjrumwukaaepjq7gu0awr8fne8369a43s0a63zvhcjmqjt2g2qvqqqqqqqqqqqqx8kqrvn04xe0e23kdglnevqm97y7dyex32xud4ja6p6h73nc4kynhk4sg5j8hfptl2cemkjxv7qqq8gecg5ezscxt2madqq5zw908dmramzgf5ra59yz7dnx3qfugcqvr9yvkhtj5jsy7stx980x70j2upq8khhsuxq4fw4jxsc74pjat2y64envasz25x8a8z4zyfmtqyppf3zs2k7r2q7ung4pu4snkzndq4eeg2mepctegxxrfhtv3c6kyplek39kn04aatk6savurn8m65p7emqyqqnmn7te"
+}
+

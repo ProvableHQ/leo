@@ -33,7 +33,7 @@ impl Assigner {
         self.inner.borrow_mut().unique_symbol(arg, separator)
     }
 
-    /// Constructs the assignment statement `place = expr;`.
+    /// Constructs the definition statement `let place = expr;`.
     /// This function should be the only place where `DefinitionStatement`s are constructed.
     pub fn simple_definition(&self, identifier: Identifier, value: Expression, id: NodeID) -> Statement {
         self.inner.borrow_mut().simple_definition(identifier, value, id)
@@ -55,7 +55,7 @@ impl AssignerInner {
         Symbol::intern(&format!("{}{}{}", arg, separator, self.counter - 1))
     }
 
-    /// Constructs the assignment statement `place = expr;`.
+    /// Constructs the definition statement `let place = expr;`.
     /// This function should be the only place where `DefinitionStatement`s are constructed.
     fn simple_definition(&mut self, identifier: Identifier, value: Expression, id: NodeID) -> Statement {
         Statement::Definition(DefinitionStatement {

@@ -214,13 +214,14 @@ impl<'a, N: Network> Compiler<'a, N> {
     }
 
     /// Runs the static single assignment pass.
-    pub fn static_single_assignment_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
+    pub fn static_single_assignment_pass(&mut self, symbol_table: &SymbolTable, rename_defs: bool) -> Result<()> {
         self.ast = StaticSingleAssigner::do_pass((
             std::mem::take(&mut self.ast),
             &self.node_builder,
             &self.assigner,
             symbol_table,
             &self.type_table,
+            rename_defs,
         ))?;
 
         if self.compiler_options.output.ssa_ast {
@@ -316,11 +317,13 @@ impl<'a, N: Network> Compiler<'a, N> {
 
         self.const_propagation_and_unroll_loop(&mut st)?;
 
-        self.static_single_assignment_pass(&st)?;
-
-        self.flattening_pass(&st)?;
+        self.static_single_assignment_pass(&st, /* rename_defs */ true)?;
 
         self.destructuring_pass()?;
+
+        self.static_single_assignment_pass(&st, /* rename_defs */ false)?;
+
+        self.flattening_pass(&st)?;
 
         self.function_inlining_pass(&call_graph)?;
 

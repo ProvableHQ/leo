@@ -279,7 +279,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
     /// Note that this shouldn't be used for `Identifier`s on the lhs of definitions or
     /// assignments.
     fn consume_identifier(&mut self, identifier: Identifier) -> Self::Output {
-        // If lookup fails, presumably it's the name of a mapping.
+        // If lookup fails, either it's the name of a mapping or we didn't rename it.
         let name = *self.rename_table.lookup(identifier.name).unwrap_or(&identifier.name);
         (Expression::Identifier(Identifier { name, span: identifier.span, id: identifier.id }), Default::default())
     }

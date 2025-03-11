@@ -1,0 +1,390 @@
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1pl0ad4lmz57p3egslk3e5pttypp6rdx2x2qdsmrv8zcz8d9v7syslus4q8",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7323019324219485418398276681746907444370703808174274190577941372644166796356field",
+          "value": "ciphertext1qyqghuejcs64pk4m46gd6w7hw6k64arhs5jgqkkpa4nehdkvsevzgpqsnwrg5"
+        },
+        {
+          "type": "private",
+          "id": "4327832663810818816969690973572677594780399474032035961985592397439121589356field",
+          "value": "ciphertext1qyq8kce6sp0eqzrn84n68zzq62w8dg7kmnlqpzgk0yydxa5u3d32kzq3y9d63"
+        },
+        {
+          "type": "private",
+          "id": "7528297812304627799015398735162031349232704516796306973532715468212171679118field",
+          "value": "ciphertext1qyqqyt2ec3gjyf4kx6te29zvgls70qlyl35z47t0q8pvh208n76pupqdnfphs"
+        },
+        {
+          "type": "private",
+          "id": "7269596931152503074672666992258331352427354940809899932801428885416805950053field",
+          "value": "ciphertext1qyq06dn7zexh098rdry3jrpdfkpw6rykqg7tndqz3j4gx65mnhaq2psmwjtd9"
+        },
+        {
+          "type": "private",
+          "id": "4971077802814481615864393953185588937176100180144060676754459303813400053108field",
+          "value": "ciphertext1qyqyyjmelw6p88n7uxsagrhrfdryr8cyaq82s6qmshze0q62x674cps5cu5ev"
+        },
+        {
+          "type": "private",
+          "id": "7802469034570531846445523623116855956074321037910254412442118542149321313247field",
+          "value": "ciphertext1qyq8gj5lsajcpr86ymxfutuxm3kldcwf40hfhcrwmwv2s8lstgrzyrqrj4tkr"
+        },
+        {
+          "type": "private",
+          "id": "7753930162368090837590232253056135431088545780081613844504037247631405839518field",
+          "value": "ciphertext1qyqy7e08mdkvnflk3uthdjnklsvhq4zg2ews5pkqdu8g8j78uc5gwpsr3p776"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "4384182460759586002727918501743327005458471352416572583500953126127969581010field",
+          "value": "100u64"
+        },
+        {
+          "type": "public",
+          "id": "4032544723770484570253272408659086315679375395366678850012689001358429252210field",
+          "value": "200u64"
+        },
+        {
+          "type": "public",
+          "id": "5629262022843396223506501966729446916913589985751392817924626834347047403857field",
+          "value": "3u64"
+        },
+        {
+          "type": "public",
+          "id": "6731164912912447577884648311714360643812124338307989829102249426266000026917field",
+          "value": "400u64"
+        }
+      ],
+      "tpk": "5729162727296776602562966001764035262200688158181815476649618893682251440408group",
+      "tcm": "7626499539019280699818483131555768799896484803820669606067088653565749353502field",
+      "scm": "3597752676216311372673676166968159292972999522412495920365331668384210190152field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqfrmrejn2sgv4ht4e88ay3q6n745eaes3hu77crgx5c58skxth0rdwk3xr4vrxkhm4eqfwh9eznw5qqytndx6um9xg3c3x2eycrn9jphyfdzrxn44ygkyckvj00sq0732372canku44qp97xuu32d259f3vqtgr53cwsnc6ydxv9kcdsnxnm25g947y0jftpr9ud4epc2vhrx4d6w7n2f02chx2tf0nvfmcymrzyqwmguyncsxwgf6xvpytg72q9d339gcrayaf0mjslpndzd8afx6fmf2v0qfm9ugvauwnm2m75z5cjvqkl5ny3txkvnlfgq9zuu8dwyq6nkn5dpkpm0gnl06q9ycz48wx5zlpt7768x5qa4y7z9l2c7qcalsqslkayxfm3tl0c80at00stn8ygtmjj67hmrvcjlrw4tkjz006pza2rwtkpmqh4nxnvxn8xxzhg4xspw9yu39c93w2m862gukgqke9y6xe7nnuglgrx4kfxyw23ysvass3kyx9pyhvja2pw3vs9jynpueyqw4d3dcqltl4a6z2cnegrp9cgegac8zgrwes6h9acqw4wq9lth88cjpalmpz2xxn8m4dazjxlw0w5qx4e6mgasq4kpeeshl4mer0w8uex9d5gyks92nwfd4qeeyw7d4lu0mjg2tfzkfswkxat6gw4d3t2cqea26ent4w0rh34y4ywgfqqm247g6uz7vvdfc3tgwl0dl76l0pyxpd7qvldesv5xwlen2esk4cdn425wvn82tv2079r77kwgngrj8vrqcr5w62lgh3jx7r2rzeum4j3akhkpkz4jxt64cyfagc0auws7upmt2quudcqa095x6f9tx5ch0q2xytkfm5axnupflkkkymkuhstqqltkz8qh3tqafwx5y7st02salxc78syjnuxpwsfmx2vepwq6h2scqep73rmh39kp6mv2vt7q5w0zug3672ux5exa60za037wyjkyqfuztjgnraavt3dxr4axpv0dahy2q56qmk0yzq7gkqv3rr50yt6zjyrh7hk25uff0kr84na7m3avza9xgs5fe9s78mlzv7gmrcaggarnwzf2h9e35t3hmgnndydy5t3ghkzf406lavg5wsajq7ewjux59nfeqd9ct7kz4uvsrgs5mylszg66ywseup4gevtju90z63m7qml7p37qfqvqqqqqqqqqqqstt4thjmndl2a9l3pejkz3jh82avzcey0mpa6j5j63dd9t4hz7n5c7dd6au3ajfk20v9qajt4ukqyq8zctjzraj3vjy4mt8rck9yrrtfl5ejctn5z62s73uljj57rnylc95v6r94n2m57ay8dvq0r5h3p5pqyk5xgrj2gvk5t3xjlhtvwwe8nwf5gx2ck7qjctest4yp2jnk4nq5kyl0vae0deh40hg8lc7j0fsdkcfhc2t35c3ezunnsh8qcvsajjqq4he0kr0e3y4z3t27aek0q90sqqqspxlu8"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1audtuk0c57ejuzee9ajv4lehet29hpepsz4hedefmf2dcf6y5gzsag2dys",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5572475146018983698861684089683691494234497160932491679605872922412741810209field",
+          "value": "ciphertext1qyqy6kq6aew3ff9cze8mddsl8pwhag9ltfw5wp2crv4t23hmcy88jqsalunnk"
+        },
+        {
+          "type": "private",
+          "id": "2788325102107167561765946266200949558572137377373233350792146303535428466339field",
+          "value": "ciphertext1qyqdyntfyx4xegxl4ykre3n699xjn3vcqul687uy703prx3g76y8srqwcu3yd"
+        },
+        {
+          "type": "private",
+          "id": "332947934552322863729902009666470762049645183009035411222818102479831044148field",
+          "value": "ciphertext1qyqppggd2jx3yg8qlut56suk50p5u785sh82mnxcss8xyk87hkavvzqz879cc"
+        },
+        {
+          "type": "private",
+          "id": "1292574055348289695888129069267215741029966323914167796485321155232251301014field",
+          "value": "ciphertext1qyqt5rmmetlnnputdylqy6k6zf0z6ujnmpyz0yxqs6ed0ex2ghfdgzq890mqr"
+        },
+        {
+          "type": "private",
+          "id": "573511548598698271183792775227183448231396109682113376427044577583663303225field",
+          "value": "ciphertext1qyqwwuphl8h5vzg53gpteamwx9997wrpy227ptc349hfnyvrm720kqqmvtcam"
+        },
+        {
+          "type": "private",
+          "id": "4674624256426925146990097547678466339134120929499301576402005706321337425544field",
+          "value": "ciphertext1qyqquxntugztyplvuw69alzh702nzc4d06urzjc99lrucyew70du7pq5fa8n4"
+        },
+        {
+          "type": "private",
+          "id": "5416344185330425812060061975156162961340824555530655778377376543043563189887field",
+          "value": "ciphertext1qyqytsc9744c7tujs8qmnf8a20yywsj3lxd8zhzr3hv3a399pt06wrg0xh4ua"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "2975303976028055722487363452507604066904321893720479050244496350336509819355field",
+          "value": "500u64"
+        },
+        {
+          "type": "public",
+          "id": "4276489314211123731042140486633274076750685554047513053864424548101136883697field",
+          "value": "2u64"
+        },
+        {
+          "type": "public",
+          "id": "1375986369554128556084328623439634493147323161397619798620281899857080874349field",
+          "value": "600u64"
+        },
+        {
+          "type": "public",
+          "id": "4582641700583720844433258122773219584392222249690466673138958454018147468715field",
+          "value": "4u64"
+        }
+      ],
+      "tpk": "2057891701169966765020406006407641269107206674855090514620578017063314139818group",
+      "tcm": "3057231814691947503178859612526095111352602383093700491288640467872284977560field",
+      "scm": "3827819408660121032691426797199400131857436578985447815182268643157486791395field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqpd4gsc7sn2gs6lnr2k6s05mcymz6he8etm07gdyjxghqm9qf9wlj4la0juc39c2t2ht605gd8sgspqxh0v22tznxt65zjntfmvmwl4c25rkle86z9zcrawg0ar7687ycaehhndcfk0qg2e8auwxvcw6qj3q9eazpjw0eje6gnnxucf482k7z959g3vjykf3qus8hrfrsa0l5xrv8euw3j4zjr44ayee2ez48rc2qpy5hv0e5ky6w5e0vkgjz8cyckfa0q9xn8rhgnpey36f7fccuujytk579gspm33w68u7927ncxz6spj4rkgjzpvj9fz04nurxjgylcef65stxhd0pn34r0xuejl88j7yctwg5gu2uezl28x0kh3nzs8q3qqspxv3xskullhnj6c4uh7u26ps0yn79seepjefarfujhrezyxqh9rc2wcgpxhtae6jenrrxuz7u7s8gj4xa9gyre5x6q7zk3mcl45gf0e2m99fac43y5dw6e3nm8jtkn25g4d264mrdrqshel4pnqhc5gqz9ymp2lcqamyxhpvzxuk36nwxtefc0f4kf0zj69x8fa2nddaq33uyzcv7u9zn5kyj6hzp6jsd8pqqs728vsffkuhen3s94yg8dlwx49qf5ynenjstcpr75qxapyexgacj77ex0z6jq37y2vpsgcl296kqpxyxvqmxe2xala9msm8e3lft5gxckg6sgwl9827x55339j6ghlu8q5yfn9395s5flkthmt8439raasnnrj5ectzvjct9w9ar7ydt4ur5n8q4qka67xhj60akrayd82729aw3jneu0kjqvvx8kcplqktlnp44n9tf300qp2h06sl6tdrfxc788r5lt06t5qgvlcfgss2trkapqfezkaft9c3vsd564xda0txgy32e585hefg25d4j425nwtyyt53sz5wq2amlgq00zfwknf7vwx9ata7yatqjx4zx0r0w6tung8w7exyyppjxh4sxj9hvk935fg4d2pmv62pjv9gpxxlnvafj3t9zqh4x2vra3qe902r2sejhapj52v3889vs8p6alx4ces3wy3ks2se5cz43npxv86cth0sd7fu8lzcla7mnnnff864nh3wa7f3k8eaafp4xs53l3rxygjew38fxn7m20afzhlqa66dhvfk2uzaacfcvu8en3fey0quqwqvqqqqqqqqqqqwegd2vcx9sld2qr30fw2udtzf7cjve9kgtc34zzzkjcalnk66t53wrqwx3tv0dwsu834serfls6syqwvw6p5shv3pkmr04nlwtcc594dwyqycyljzlarplec7hupxe6utu2k0udjahdjwuj68uguvvnsmgpq98r8lgyfsulteftjalp448l8kmnu602z2kh7puy7q75hcjjr85qa35n5n7ff0psjgcdy0kzq980vzhwuym700v2mpaqvtwsqkfwjpfu4q6z9xeyd2egxtdaxqdu0yetqqqq59e8x0"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1yn4f4re20jlp0gl8uwxtc4wm63cp78lu0tdzk63azwqsv5qyxu8qlnje2h",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "2536901965812856062751070887741165971562164231553888840849393554289304253374field",
+          "value": "ciphertext1qyq0jh6per09hetckfe0h34fhyp732h86fpugv2nkljqneuktktwjzg9jzz36"
+        },
+        {
+          "type": "private",
+          "id": "1496113005655677940886392430259692647838737362884320395690258271482095290992field",
+          "value": "ciphertext1qyqgdplrcql8r50zu65hm2n2mxnunj556n9j8wmqym0pmyxyzemxgysn0lk7z"
+        },
+        {
+          "type": "private",
+          "id": "6636793803651956349126455313726259677076807772287876450631242452145449542144field",
+          "value": "ciphertext1qyqyt2rjvggg7enzvad9qklnw52zvj2tj9axqjhen53fgwjy2w8vvpgy8wh7n"
+        },
+        {
+          "type": "private",
+          "id": "7809996385648919074076739758417661751219833662572122173596966265917210001099field",
+          "value": "ciphertext1qyqtu6vrnhftye7teasyu6n297gmy06hadmr0u37yyqztxz33up9szqyvjh3q"
+        },
+        {
+          "type": "private",
+          "id": "7266497108001322899420110552917991438470667582846156111245155291692735526430field",
+          "value": "ciphertext1qyqz8xn9n2yhwgy8xm7lwuumuvfnv6mmmydxexwy52a70uvc6fj5vrse0nwh0"
+        },
+        {
+          "type": "private",
+          "id": "5161513461263131115503791254170722920719808342998349812415983206136740974139field",
+          "value": "ciphertext1qyqw473czfu9tz4mkshjvvlt2mlpkrnnvaldcmuje2d8nj45qdtkszqvza47k"
+        },
+        {
+          "type": "private",
+          "id": "47849841808193754438031199270980312820623993238243407119245947856534072745field",
+          "value": "ciphertext1qyq9xfzcpje9jvth4kn9gm2jkdla4j0wzernjey7ytcls5urtwymjzs54guh2"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "7485408144905910073422532388575993201408629910759840836007183460872869103050field",
+          "value": "1u64"
+        },
+        {
+          "type": "public",
+          "id": "5334754611677461299193880760887917586980170592089394202167519729158919947686field",
+          "value": "2u64"
+        },
+        {
+          "type": "public",
+          "id": "277278164019984993876076001457421699931951675437655842173114515763106838325field",
+          "value": "3u64"
+        },
+        {
+          "type": "public",
+          "id": "4660752194427554014972253086194280903402794925234797227369133903757886523159field",
+          "value": "800u64"
+        }
+      ],
+      "tpk": "1589235873560947657500666602047055439178032829924334340168663742280118848397group",
+      "tcm": "2624090711172262298260125487961592250579755910835339366771390574212137636451field",
+      "scm": "7800625061087589016983462822264530274522967927599544947789830663800271010901field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqxmylvz7s5020a44fhhcs7efhz9eyua4srh8305vkxcp8exvslk8p32p3dtnw9z8uh6w3utcj83cuqqx7pth45ucw0rdn7p2tyx3q65tyw8g0prry4plgtw2kpc298hygmyxk8xmkmhwmhe0yhp5ap8c08hqgsdw0fvrqfc8t8p4ckeejpk3dlz70pr4c3fqfyq04ncgzunlk2cd6r9pxyky72elakuqn5mct02uq0xekprtzqvh6p96u6a6le8xej0p5y8futuq3wtvphqv4lmq4pdhsva2k746cps9ueqcxg28jrx9yp6f03zfm6z25jmtzvwv3hlq43tdttxp57r04lqw4qlzcdhrj2h3fz9p2nu42wt987f4xjz7685ekcpff2n87stjjdf25uwpd5nlhp5fg4dcpw23lcw2d3eryc80hwl4gftw4pdkpfge5pa9s7nmnr3a0nsqfm7kr6c7mspnu5k4z8y2uqj79pam4jfmf4v2qt5y2x273srjswlgy7aels2wmy65xvf789xkz4sqd66j79w59y0p2ks36phkr2hmwzyqxgrs5zmwpsh0cp74tea27xrhjksj7wxsy49rly7lgnved635qc7fwdvs37nd42rxdcnq0r09pg6kazcrd62zpvhag84ddjlgqmd5c097c0t2yxmt7t8uv6cptyqhsqjn3sq50mwc5twxnzkqmq56lfdvwqdp6tlgfsgk477rhpm6y5zg802206v0wnafyuypakkwcxg3e5u5t8fpqtdlex459axsdnnmwa5p32zyz5r4ykjzhl78raaqx0634c090wjzv4tt5jzmmwwvqrmztnz2clnx7f7hf7rc4ssl4dyflw2rt7ydl5wknnug8qdxrk0j9ylurse7xunazq0stfzclap3huf6vpetult66m6me6mpd70vgcgdlvrvqrrnayzstqvtwuhlyl8se9pwgqvgwkffg009cmpyz0wxz5043w4vpr6p5vwcn4zt26vfk5cs4r6j0yvs4tyrt9htuv54kke0fpkww9vrumz0jqhkn98j2fgdym5r24a9rgr6lpg43vp8ce74c2f2tw9t4rqk6c2psedcxxzy6kaw0x5tjcg3ggqsvk3dnvw03230vlz2s768h3ppvukr80f47374l7xwykq8y5ypuefzpj7p8ymvqt4mhpj49v62c2qvqqqqqqqqqqpgtf2mg8c3jzt5jcqj6yu26dddx2yjmeqsq7pev52vthc0qternfz79varz7lu5hjdxatyy4yla2qyqdx0df2xcw6zul83xzl97as87swtfd26rjht3f6rv09utq3sf0kzsqa6z43kf229c93xpaq8he9yyqq8e2rkftg3u065pqjxu2re6xczj4vmkyvvhnppsuzkr9qmuhsndsjsta97kftzqmae8tgnz65hr009rhlely8txzqmegywmaca4zf3c3yqwj8ktnac5dmnup6uafn267syqqk45phk"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au17r5gejxa479zfws5pjaypf4522l59u8vdh9ufvprq5ngqervrygqz5hez0",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7450739953228982317077486403464910927085213689887437414590511440592186330856field",
+          "value": "ciphertext1qyq9yyh8p7e3z23ad50ems26guq65sru8lkft2ycw980vt7j2x05uyg48ksye"
+        },
+        {
+          "type": "private",
+          "id": "8160713802336840286720241050025091238358208128964715039071396971408958047361field",
+          "value": "ciphertext1qyqp6v2lmtsra3xumckpyff3m0cxcc0869yn9j06g5lcvxn803v7jpcyrsqnx"
+        },
+        {
+          "type": "private",
+          "id": "4609999823098684965867405220209568192909144013281917313937011853775891656772field",
+          "value": "ciphertext1qyqzrrwdt9w6dn3sualgly3d9sw78cxarv66t6r639tyaa4sl3e0yrgnvvl5u"
+        },
+        {
+          "type": "private",
+          "id": "4301892157027278160614254303544842982022266292118605107723746653156210836963field",
+          "value": "ciphertext1qyq9xrntu0x0r9kjgqyj8d5ag4342u7cjh8fddlujwe942t67ze3vpcuwf2vg"
+        },
+        {
+          "type": "private",
+          "id": "1144338230408474849816994785126799914828288095256394632614433606418582307060field",
+          "value": "ciphertext1qyq9deahanchpdtsl3rsrwjt7ssn5quu49d04jn68v8ljtfelu6yyrg8t6xpx"
+        },
+        {
+          "type": "private",
+          "id": "1506836572159701210643600152558614227740828482778826788129915807715507797951field",
+          "value": "ciphertext1qyqqnpjuep6nqzqrm3k433q0galaktp4vj985kqr2g278nnyhc7nupg79qgnw"
+        },
+        {
+          "type": "private",
+          "id": "3708482199449517406180613684945801898484618382252470401247453725946254559291field",
+          "value": "ciphertext1qyq8j2qpflhsy3ehlr0hfprjn938d9q8lxm463j2trz5zxf6yz5qcqsea2djl"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "4300183986425523323605896373049433542880182269756987229642435911153499926098field",
+          "value": "1u64"
+        },
+        {
+          "type": "public",
+          "id": "3235887969260600613492365374797890077043738928068122495921948767141298312177field",
+          "value": "700u64"
+        },
+        {
+          "type": "public",
+          "id": "3965880106484590069955712276224103818704866930372855079289824952430905203767field",
+          "value": "3u64"
+        },
+        {
+          "type": "public",
+          "id": "6078308035092531988991030919444280561962554407492963481269630791281368846389field",
+          "value": "4u64"
+        }
+      ],
+      "tpk": "3069672554016249994683040075406112402885946659071248263177322500852761081770group",
+      "tcm": "351930336807388354120102483219420721184226245510628403373609706477158217830field",
+      "scm": "1058747778431148351956304731903486460080026168162200723973490010638753163090field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqvwquljjmy9nju5jp23jpy6sshnvrvkz4ezl9rgne0u62g7hegc7ufwdz5ens4cs7v6c3chuaj4zspqxsln95wuhatz4d6m4l8h7vprzyxdyu8hccps9x2rwjn7dym3ctmqvdq2p4204q6nh25af3rj0wasqpamx4vwhjhk2x08epa3za7gmxdwhmwgaf0gr7ap46sqtruxqke2a4rt4devr0e88th4gyfw0pszsq7mmxryd6yz369xnyas5vc28v886vcch0rzjhzjlcnyjueuv5stkvjxqy3ugc05pean9qdtwh8j6cq85ftyf0q6353pshp2mphupqjhueu0wan93uewf35x6sdxykvuwh9hh7qglpgqacew3kkll9j2v5gzkca69eqwmuxtpyvrryqg8glr290au9t0vpc68qm3exzmnwtltymhjqnc7gg8ymtfvu82ad8pd69sptr8tlgvvkz2hpad3lhhdslf6tyu3feqwu767rxqxvj5rkzyqw30rx7qzs9hvc9mj4jfyqvkfwh2qffex06rtn6x2jglpfrv2wx2xm8krcqqvnnkl73xvnrlmcg68ql0f0lltkzmf67xn58fu5k8y63rwqtyk3tlnnz4qc90lvd4lvyuhfgptlyylptzy7lygzx7rhsm2tr78g4w9thx7r84u2mpz5ug7ck6e5qe50mhzt4tc9agghyeperzypzzrvduj2nu6wk9u848tz49cxm5cfz4wx3urwh0kd92pmnp0tf3j8w2e0dchmm9vj4w5ucw0u86cpjvy9nqgma0zlt0lfh32guxrurld4axlfpx5k2zc605saeq6s98n3kpjdjttsaetk7l8vwq0c2pg4777yrywmxsudp3pcgamxr62t9l7x39ukuhvdkc4eac2m82jlv070zgh7m4dffaz3whsgkgh7w608fn5qsgt7j2hmqv6w2tnsmyjq52evn6qazzkm6fs9g2dju6t4qltfl5cpy56wqd0r5zwapjfry27hwwsmcn7s7m6v7flawdp9s4c5usfvt6p5ks3snsk8eu340jymukzfvna330at5gdu4dl6dllxhdev9axhwq2tx0fkhqg9mw0deuaxa3kfg3wjulm7nn287jhl2zj6hu59gva4q5yxggfc6485ejpg5903kwl9knhrdwppn4t8h7w0npysrt0umt0gdqvqqqqqqqqqqp6mu0gut0zs4vwc8jnjq0rrzdena0r3ldydk27mkk3a4pmzftdj4njdetsnpjphxpmcjx50n4c9yqqqqq92lpekhkk08flya8ppadscxk0ufcpngs7x432llw9l50geqtx553gxzwc45yv5n4e374qg8j2vpq9mujg8adp4j8c6s49fkhn76snlcuv2heaz4e0lv7ffruu0gqmwsqw6mpaznzuws54lkyn647wxyl0zc8nk09wnp7ryw6zse8576839kz7vd8rcl69nvrmjygeknlwtksqqqeczyrd"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1pkh03hy95vprjd06lq24ealg3yn0chhmflxphvcyl3l8zfjpvcxstyu7vj",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6813412604110470222443268209048864168726726170890524755820345345666439644458field",
+          "value": "ciphertext1qyqffzxa5xxz6mz6pmf25m52y8q2eh5mra8qcdy6wrc2lsvstxxsjqgae4zgd"
+        },
+        {
+          "type": "private",
+          "id": "5925203831971762821449581911436496783072459036206168845137552172779916050973field",
+          "value": "ciphertext1qyqds7jnvsud0q657xzc6x52scxh9xunz8wrrwvq25qzp69xduewszc7sn9rj"
+        },
+        {
+          "type": "private",
+          "id": "7460652538093900601384211893575660582110809302662996142057445818689855417971field",
+          "value": "ciphertext1qyqrwjhsfv5ux37qgnd9xnwk5cau0hrg58gsp7u6y9ja58xs5s7u5zc6letf7"
+        },
+        {
+          "type": "private",
+          "id": "6180792241445140995461852453894747234636238709633347660040273433553493577152field",
+          "value": "ciphertext1qyqp7zskapm5258grs95n4m7ycqfdmfvl3q3jmpe7mm4p3xerhmrwzslcmkt9"
+        },
+        {
+          "type": "private",
+          "id": "4863426706564853939005000894902376024797470279573065046817901199958953928508field",
+          "value": "ciphertext1qyqv7hfzn4w28qjwl9dryn4ju6g25mvjuqrlw7lswg232v46r4prqzsp4rr40"
+        },
+        {
+          "type": "private",
+          "id": "6570627867887887065524190792986266936553962970834982727474680348018858047192field",
+          "value": "ciphertext1qyqwx4tz80qr7wtk0cazkprex6g426eqfs280vlzsmhr7vckm8aqwzs5nj7qw"
+        },
+        {
+          "type": "private",
+          "id": "1929416595048976726757531480595405935043815080539769644429247824137613610846field",
+          "value": "ciphertext1qyqg50lvey2zdzxzkwnpcyn8tr822lcc7q27yjn9yxf78aqk0gdkwrsu7xfcr"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "5787097223457842782092345507111565833393759482275985067271355428356684397025field",
+          "value": "1u64"
+        },
+        {
+          "type": "public",
+          "id": "2262880097832160838073687809822492633106380086558863472908503951103479045150field",
+          "value": "2u64"
+        },
+        {
+          "type": "public",
+          "id": "6661419480645401332082190341773971186726671075568875097881391591955675940982field",
+          "value": "3u64"
+        },
+        {
+          "type": "public",
+          "id": "2920212507631742441714799889482306588899613257176703677775206770924160629282field",
+          "value": "800u64"
+        }
+      ],
+      "tpk": "1543518955771979192469022707138421657716819267162085828925575830354278760233group",
+      "tcm": "6661043699973179354625953252747411082979233109089572287486237052043282183512field",
+      "scm": "5163735917514895325972307135729272814152204888391212302749533002231353573439field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqdyadwe7xtv7cjw0m3qpxm8w9ql8wlg6jpmls9ycl0r94ugjttt6wncqj3tucccs4vrem56jw4nyupq84z03669laf6xfknvl909uad6ymucjdp8ytv99rhqkz0gedd7ff6wazpv2xnn7l3n9w50ukdydf4qgq0knc5s447trhznusvghd69tu8ttpdjyqenvza860f6ax3qrfkd898v27fx5sg3wxcapggmh38yq7aqluaxs3n0yg7w78dyn42xpfr8h27urtv4njefx3yrlyv6em05t5705lqtwejzacpnquwvwnxqgqux0enf0mz24regpf4rudc7xu0rhu7hcf7vg0yuv203ljretcm8zhmam6x7audr5mx8kdz2zrhpqqzd667n8fwnt6apvehcr2fwqckhl09m4qeya3qrsjjy8ep63p88m4mmtfh8l2k3dynzjdcsdycvgwsx7zqyxm7ya72lymgucdmzmc5eaghjghkh5g34wncf8yg7cpa460z39wx6ffxrnv3wycy962evygtqdjqykq6u0r92nt995akhs9kkvwhpawgd7rcll9c8czx6kde5nu4ayu5caxh0sdv9xz26y224263qqjy29vql7zugqj6gptppra2xche3cnz3mxgzya7jpkxf80p9hf8xmt3hr4uy8plfr2d28alfqvxtspn3dygzkr2qu8lnhyuspcygj3qe628twe7ehngq6k8a4wj5r59sx87j8fs9ayzp0kdmzakmjncptq9hd30r5y0xuuz70gh5h7engw5qczxze8frurnxky86ljgn87txzgumt2nee2nq9xqgkzhu5s75pzq73ecjwffjtpq2c76tkltdc7qgmjhpe4rsl7ztkhswqu9xnrca2q95emz75ln7ajl3cqy5ej7wgad4slpwdlypr6a64ht3c00ma62vqd22uqlcxsu0rtcmcsjry82qvpc85pw2hp0mthaj9a0nkqpmgdnvz36auxk0ch3cwrx3vrz66wql9tjra0xxsws5k0mpgqqdpu02m7cqsexu8nh6c0p4gl4cunfnzx7x3avlfu2kdcyyc9s6c7ay7rr53lpnn7slvl9vmxkmhh0pu65ggz4kmfdq3ua790g0www7gw375z6g9q3lr59axt73ts62pnk4c2xcr0hafxakqc5630exkm04etn5rtj9ggqvqqqqqqqqqqq72kuawc77h9cgexd8aw997rh7j2xcapj0tck48ps95qg2q0ns6rgdnlqgdr5zhk8ux9szdtpjqqsyqd49574mpnqlc4cwphdeeqdgpc4ka7p5rwruc4tdff7m7sfu6mhf8zc4xxnjv6n4wh5zqf3jws53vqq8u0km5kkths0qumvlfuwrysymhszspqr26375h2ykqs8m2yu7xsjulgqz4jxy9k8htk3nqw7u4ve2ut5vjvul36yxj6f8jj0zuj8us07qj9wl2a9lrwekgvk8xl4k24sqqqwdk7r3"
+}
+

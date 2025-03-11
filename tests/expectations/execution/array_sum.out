@@ -1,1 +1,66 @@
-Failed to parse input #0 for 'test.aleo/sum_manually'
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au12aw9sayrqh2vl48z6edxl573q8h50kevm72hz8wu2m4xq44h0sgs7054pf",
+      "program": "test.aleo",
+      "function": "sum_manually",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "281079189056661785676984412406113060416996271685035836928787360022552844237field",
+          "value": "ciphertext1qgqd75dda8cr442d8hklps5yngf6w07txqjfrlvz4anauy6djs6mvzqj5rm3d86tjjhr439vsvmxzx38ch0f8r7s7gqjkpckdj8enq2sqq6jalcv"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "1620251652143124493551174438408689568446379476701999419929244886960972074218field",
+          "value": "ciphertext1qyqpkjrf8rcug5e4huremperhkmye2nfdtq43a0tw4q23cp5w0mz7ygnyjulm"
+        }
+      ],
+      "tpk": "6405002630257055511402326132920951411637134743658749348184751252413284450901group",
+      "tcm": "8274056627177325122197491370112818103451843847504083494339255608979976962654field",
+      "scm": "154264026170247132139692957325546299797632039148128430039719577911894712286field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq2r0626506hp9e2wk6u8f2pp9ftzervpknqv4mj2gze3cz9jzqm5l4t9me4us7mwzs6ue9qw5zf9cpq9hd8hyekl78tw0a8flqdr2rh9jh9glqtexpjk3g8g2048wkcauk50pxnecxg09e36czx7s3t6l53qwvelasqk5t2f75yv75ca8wvjk9rhm6e9mzzpydkn9dk9y9s5804znwnn088y7rsek03478raxu42qe2l6sn57lh56c762scn8pttqv5rxwqhqjrwvdxv2wjqsdt6t88xc7qu6vddkzcmrqe4uup7zswuuq5hdk933hcy3l8au2zjgkn3xk8dv6ujhrqc3lg09z7teq3r9hh5rug906aeqxsqlemaqe2uw5faeqzgfm0rdxk85ur6sp5908etg0fcukqx4c6a7nezfjey38etc4ndhutq6sqsjq08rsxdzrdlx3ghzgsrwata3ejx60prqc23r2du7j470d5p5w4m6v2ths4vyhm275rch66cn6hpfkc40wn0qfcj4duk3jpqzy8t9esje60xj4fkeyq6s9vu5fek0zrxzlnvx8zr2qe48up6jmkyge0pypaqu4ckwe06rerzvlsjq4f2gf05llxcvy3y3tv55enrrkpd66m6q9czek9dpytw6ajc4v4udk8n8sncewjwd73z6w7ex9tagqc925jvzzvhys6kqca6nz3hsy8tdee6ukdnlguavrut620gwk9ux7nyk3achenymtzcp6znq9f946tvr63qn8vx2tpa0r80ewq30gjqaw9tamawuy5qwhrp50vpuwj8rek423vavj3p6cfusc3x32a0y6pdltagqaq8cmazudtjzgp9p0284395y0ulp0r2m8fz0jgfapt24qdfy6l3cc8p7k5e9m6st74t3l3s72tvyqu5u5k92eckqv6pw3ldsyks3393hrf7g6mugvj04ktnneuuqc9j662d8dqcgxwe44lvvqmg8ulcchn0w6zq9035k60ah6gvwttd09frqhdlghk5ww47426evtjp59e3jw6a0ejlg6hz0fataq2d3dypqpxez284ydpcq6qdgfqaucztmsuththxaly0nmwvpz7hcs5v0np85we2x2yhrk4slxazwgtqls0z4ctpf3xhzgf9swlr7vmekl50y2vfn2r7jpd68dr0s0vwcnzwcpqvqqqqqqqqqqqxg3a2dsq8n2c886k8va0tnxnz65akuh5rd2udvzreuuylulhe9segvd720wlr00l2j5huy6tr0zsqqtd39zzmmvzu574zhlr8mnrk6jcs5z7u6sjr4ws7sukvxkc3g27a2v03t65f9zdx885g40t9entzvqq8w778r7zguaw590cdv5xn6pd4uh44ycc2gqs5gngntszgcxrvuq2h9y09krtlkxtnpvkyz99axattr8umj7g8sm5l0cvr2wxs8sc3mf06w733lfs9gqtn8gdquqhdr6qqqqsv5h70"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1338nnp46e06txnh0xskfflq6rsatv33r4l3y8462052wgzzfm5zseg2978",
+      "program": "test.aleo",
+      "function": "sum_with_loop",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "1607410274291024657290346238372459509822170868457129986871337049717913452825field",
+          "value": "ciphertext1qgqq95pegwmwsvar07puvccl4ytrskq4jpc5ulkt0jk86e86ngw8yz7zrpakgj5s0ppwmgk34dyee299uuusz04hfcyya3qlgdphu5azpcgl694t"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "546489596709514366031715359631868067037110826434262358223226628268111317243field",
+          "value": "ciphertext1qyq0mj65hkwpdrevqasclvzjlt74yxwynx9zxytwnvd4lah8mc6muqs78k5kd"
+        }
+      ],
+      "tpk": "5770350526636134758095021433577274576055460738882938232115712398311793264130group",
+      "tcm": "2493435288626490828395064597541880595597751724492282213478625456282253327357field",
+      "scm": "4480723998420320350896045500716148889534420317597128903085981094185912754119field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqz3fgd5faku9mjlfevwhtpfgu36g09asx7kcz7cp0uf7rrnshx8pv50zmmgganfw3emgxxp3shz0qpqy76nh9l5zsxqyuu2jfvu2gxtgp8xa7z02p6lun7cjryzkl7efhead2qeu66s93sp9ar8ed84czr5qg9jj4ppd0xt56uf6fsr595n6dq02m4n5ml32r082ddkfpx3jrypx8m0e2a0cvvg8hdrdld4jzrs2qczwqmtgged8624cp68ztgs3qqhfc4zx9npucvehs6km6406d2xn88322qvvn9mgejk8kn6famde5qy8744dg759n9zrg7xv5nk6pvjlsmaqgdzgyk0q3esgwd6ugwlvjcpnr72w89cug8azdk47lp68pgp3zwgngejchnky69mumff7afm5lsaamtte4wsavywkqjm3wyuncppl4jdp7uywxz3cjl7xjpysecqzf3aydamlaj28edn7p5e7azwfnzq0vddqtev3s5j4k9pzyqu4nvpd6xpz0pdjsp26mzv75pzgnesq9wuesqxzdharffmhljexzfs7jxe79dzet3wd58k8nhqspekypynmuqcmxva6wzu6afta2latvllyqv39zdxcefj7dkwtd0yqj9aj7tqjlkzlsrajyrs72xjzr4uyfjukvkuuymyahjnglvgr0yf72xjqqpcuvgfxrk2p4s8360u9k8dr9qjmahzdmr7036setdzvacermnhsxnmpt3hm6ych3nj82e8vf0rna3cgqtavl76yxkg6k6tqxkv8ne6p9yhv4tdl9k0r5ft6x6wzv2a5ef3eskwdev0s52ukllm8rd6qgvzqp46nwu9rq0zcllrh3pgnfp643f503tlhjs6mkpxgs0tvhcfggsxmkmt4uj4x4je23qljv9mn2ndxjug4u3ccmdjq2hs2t2757rnkgyhx8c8x50eapruuxgs9wgzwu420lywkhzeu8e4dzsw2svywgu9ux9xjgt4mq2yrsrzuz6qkpcslyawrnpv2gug2g45uyt5s8ygdt3xz7s6y4ap08vuk32swyxzu06dxtg3lks0rs3hqnrpm5wnug0qrc5q9ppthqwz28teepc7r82rz2tqsqu8d6r4sdlxs8pkem82rzpk0ns4s2yydnlly6nvatquwfgm2dgzajdr8zzwgw6s8l5sadfqcpazgggqvqqqqqqqqqqp3wkjaqxl695slpu2j3y3hhwlvlwu73emvdyc4tn84aef3zftqyq957h465cft49dlvu2z5wd9lhsqqtnmsxhc3cadhxsf03c9wzqj0c9unlscn56uku9s2pt6yeu7qt6d2h22nysp6aj88mljuw4zdesuuqq8rkx9qu3cpll0k8vaslc46a2z7jq55dq0xuugmspx9j69fwuzsq2n795c0p4avvrq35l2aqfus0gpyrsqjfekk59v86f888fqugm53usuen2rkqhl7fw8sjphv96j4pqyqqkse9x0"
+}
+

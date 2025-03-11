@@ -17,6 +17,7 @@
 use crate::Destructurer;
 
 use leo_ast::{
+    AccessExpression,
     AssignStatement,
     Block,
     ConditionalStatement,
@@ -31,15 +32,82 @@ use leo_ast::{
     ReturnStatement,
     Statement,
     StatementReconstructor,
-    TupleExpression,
     Type,
 };
+use leo_span::Symbol;
 
-use itertools::Itertools;
+use itertools::{Itertools as _, izip};
 
 impl StatementReconstructor for Destructurer<'_> {
-    fn reconstruct_assign(&mut self, _assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        panic!("`AssignStatement`s should not exist in the AST at this phase of compilation.")
+    fn reconstruct_assign(&mut self, mut assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        let (value, mut statements) = self.reconstruct_expression(assign.value);
+
+        match assign.place {
+            Expression::Identifier(identifier) => {
+                if let Type::Tuple(tuple_type) =
+                    self.type_table.get(&value.id()).expect("Expressions should have types.")
+                {
+                    // It's a variable of tuple type. Aleo VM doesn't know about tuples, so
+                    // we'll need to handle this.
+                    let new_symbol = self.assigner.unique_symbol(identifier, "##");
+                    let new_identifier = Identifier::new(new_symbol, self.node_builder.next_id());
+                    self.type_table.insert(new_identifier.id(), Type::Tuple(tuple_type.clone()));
+
+                    let identifiers = self.tuples.get(&identifier.name).expect("Tuple should have been encountered.");
+
+                    let Expression::Identifier(rhs) = value else {
+                        panic!("SSA should have ensured this is an identifier.");
+                    };
+
+                    let rhs_identifiers = self.tuples.get(&rhs.name).expect("Tuple should have been encountered.");
+
+                    // Again, make an assignment for each identifier.
+                    for (identifier, rhs_identifier) in identifiers.iter().zip_eq(rhs_identifiers) {
+                        let stmt = Statement::Assign(Box::new(AssignStatement {
+                            place: Expression::Identifier(*identifier),
+                            value: Expression::Identifier(*rhs_identifier),
+                            id: self.node_builder.next_id(),
+                            span: Default::default(),
+                        }));
+
+                        statements.push(stmt);
+                    }
+
+                    (Statement::dummy(), statements)
+                } else {
+                    assign.value = value;
+                    (Statement::Assign(Box::new(assign)), statements)
+                }
+            }
+
+            Expression::Access(AccessExpression::Tuple(access)) => {
+                // We're assigning to a tuple member. Again, Aleo VM doesn't know about tuples,
+                // so we'll need to handle this.
+                let Expression::Identifier(identifier) = &*access.tuple else {
+                    panic!("SSA should have ensured this is an identifier.");
+                };
+
+                let tuple_ids = self.tuples.get(&identifier.name).expect("Tuple should have been encountered.");
+
+                // This is the correspondig variable name of the member we're assigning to.
+                let identifier = tuple_ids[access.index.value()];
+
+                // So just assign to the variable.
+                let assign = Statement::Assign(Box::new(AssignStatement {
+                    place: Expression::Identifier(identifier),
+                    value,
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                }));
+
+                (assign, statements)
+            }
+
+            _ => {
+                assign.value = value;
+                (Statement::Assign(Box::new(assign)), statements)
+            }
+        }
     }
 
     fn reconstruct_block(&mut self, block: Block) -> (Block, Self::AdditionalOutput) {
@@ -56,21 +124,15 @@ impl StatementReconstructor for Destructurer<'_> {
     }
 
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
-        // Conditional statements can only exist in finalize blocks.
-        if !self.is_async {
-            unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
-        } else {
-            (
-                Statement::Conditional(ConditionalStatement {
-                    condition: self.reconstruct_expression(input.condition).0,
-                    then: self.reconstruct_block(input.then).0,
-                    otherwise: input.otherwise.map(|n| Box::new(self.reconstruct_statement(*n).0)),
-                    span: input.span,
-                    id: input.id,
-                }),
-                Default::default(),
-            )
-        }
+        let (condition, mut statements) = self.reconstruct_expression(input.condition);
+        let (then, statements2) = self.reconstruct_block(input.then);
+        statements.extend(statements2);
+        let otherwise = input.otherwise.map(|oth| {
+            let (expr, statements3) = self.reconstruct_statement(*oth);
+            statements.extend(statements3);
+            Box::new(expr)
+        });
+        (Statement::Conditional(ConditionalStatement { condition, then, otherwise, ..input }), statements)
     }
 
     fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
@@ -80,65 +142,87 @@ impl StatementReconstructor for Destructurer<'_> {
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         use DefinitionPlace::*;
 
+        let make_identifiers = |slf: &mut Self, single: Symbol, count: usize| -> Vec<Identifier> {
+            (0..count)
+                .map(|i| {
+                    Identifier::new(
+                        slf.assigner.unique_symbol(format_args!("{single}#tuple{i}"), "$"),
+                        slf.node_builder.next_id(),
+                    )
+                })
+                .collect()
+        };
+
         let (value, mut statements) = self.reconstruct_expression(definition.value);
         let ty = self.type_table.get(&value.id()).expect("Expressions should have a type.");
         match (definition.place, value, ty) {
-            (Single(identifier), Expression::Tuple(tuple), Type::Tuple(..)) => {
-                // Just put the identifier in `self.tuples`. We don't need to keep our definition.
-                self.tuples.insert(identifier.name, tuple);
+            (Single(identifier), Expression::Identifier(rhs), Type::Tuple(tuple_type)) => {
+                // We need to give the members new names, in case they are assigned to.
+                let identifiers = make_identifiers(self, identifier.name, tuple_type.length());
+
+                let rhs_identifiers = self.tuples.get(&rhs.name).unwrap();
+
+                for (identifier, rhs_identifier, ty) in izip!(&identifiers, rhs_identifiers, tuple_type.elements()) {
+                    // Make a definition for each.
+                    let stmt = Statement::Definition(DefinitionStatement {
+                        place: Single(*identifier),
+                        type_: ty.clone(),
+                        value: Expression::Identifier(*rhs_identifier),
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    });
+                    statements.push(stmt);
+
+                    // Put each into the type table.
+                    self.type_table.insert(identifier.id(), ty.clone());
+                }
+
+                // Put the identifier in `self.tuples`. We don't need to keep our definition.
+                self.tuples.insert(identifier.name, identifiers);
                 (Statement::dummy(), statements)
             }
-            (Single(identifier), Expression::Identifier(rhs), Type::Tuple(..)) => {
-                // Again, just put the identifier in `self.tuples` and we don't need to keep our definition.
-                let tuple_expr = self.tuples.get(&rhs.name).expect("We should have encountered this tuple by now");
-                self.tuples.insert(identifier.name, tuple_expr.clone());
+            (Single(identifier), Expression::Tuple(tuple), Type::Tuple(tuple_type)) => {
+                // Name each of the expressions on the right.
+                let identifiers = make_identifiers(self, identifier.name, tuple_type.length());
+
+                for (identifier, expr, ty) in izip!(&identifiers, tuple.elements, tuple_type.elements()) {
+                    // Make a definition for each.
+                    let stmt = Statement::Definition(DefinitionStatement {
+                        place: Single(*identifier),
+                        type_: ty.clone(),
+                        value: expr,
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    });
+                    statements.push(stmt);
+
+                    // Put each into the type table.
+                    self.type_table.insert(identifier.id(), ty.clone());
+                }
+
+                // Put the identifier in `self.tuples`. We don't need to keep our definition.
+                self.tuples.insert(identifier.name, identifiers);
                 (Statement::dummy(), statements)
             }
-            (Single(identifier), Expression::Call(rhs), Type::Tuple(tuple_type)) => {
-                // Make new identifiers for each member of the tuple.
-                let identifiers: Vec<Identifier> = (0..tuple_type.elements().len())
-                    .map(|i| {
-                        Identifier::new(
-                            self.assigner.unique_symbol(identifier.name, format!("$index${i}$")),
-                            self.node_builder.next_id(),
-                        )
-                    })
-                    .collect();
+            (Single(identifier), rhs @ Expression::Call(..), Type::Tuple(tuple_type)) => {
+                let definition_stmt = self.assign_tuple(rhs, identifier.name);
 
-                // Make expressions corresponding to those identifiers.
-                let expressions: Vec<Expression> = identifiers
-                    .iter()
-                    .zip_eq(tuple_type.elements().iter())
-                    .map(|(identifier, type_)| {
-                        let expr = Expression::Identifier(*identifier);
-                        self.type_table.insert(expr.id(), type_.clone());
-                        expr
-                    })
-                    .collect();
-
-                // Make a tuple expression.
-                let expr = TupleExpression {
-                    elements: expressions,
-                    span: Default::default(),
-                    id: self.node_builder.next_id(),
+                let Statement::Definition(DefinitionStatement {
+                    place: DefinitionPlace::Multiple(identifiers), ..
+                }) = &definition_stmt
+                else {
+                    panic!("assign_tuple creates `Multiple`.");
                 };
 
-                // Put it in the type table.
-                self.type_table.insert(expr.id(), Type::Tuple(tuple_type));
-
                 // Put it into `self.tuples`.
-                self.tuples.insert(identifier.name, expr);
+                self.tuples.insert(identifier.name, identifiers.clone());
 
-                // Define the new variables. We don't need to keep the old definition.
-                let stmt = Statement::Definition(DefinitionStatement {
-                    place: Multiple(identifiers),
-                    type_: Type::Err,
-                    value: Expression::Call(rhs),
-                    span: Default::default(),
-                    id: self.node_builder.next_id(),
-                });
+                // Put each into the type table.
+                for (identifier, ty) in identifiers.iter().zip(tuple_type.elements()) {
+                    self.type_table.insert(identifier.id(), ty.clone());
+                }
 
-                (stmt, statements)
+                (definition_stmt, statements)
             }
             (Multiple(identifiers), Expression::Tuple(tuple), Type::Tuple(..)) => {
                 // Just make a definition for each tuple element.
@@ -156,14 +240,14 @@ impl StatementReconstructor for Destructurer<'_> {
                 // We don't need to keep the original definition.
                 (Statement::dummy(), statements)
             }
-            (Multiple(identifiers), Expression::Identifier(identifier), Type::Tuple(..)) => {
+            (Multiple(identifiers), Expression::Identifier(rhs), Type::Tuple(..)) => {
                 // Again, make a definition for each tuple element.
-                let tuple = self.tuples.get(&identifier.name).expect("We should have encountered this tuple by now");
-                for (identifier, expr) in identifiers.into_iter().zip_eq(tuple.elements.iter()) {
+                let rhs_identifiers = self.tuples.get(&rhs.name).expect("We should have encountered this tuple by now");
+                for (identifier, rhs_identifier) in identifiers.into_iter().zip_eq(rhs_identifiers.iter()) {
                     let stmt = Statement::Definition(DefinitionStatement {
                         place: Single(identifier),
                         type_: Type::Err,
-                        value: expr.clone(),
+                        value: Expression::Identifier(*rhs_identifier),
                         span: Default::default(),
                         id: self.node_builder.next_id(),
                     });
@@ -184,24 +268,19 @@ impl StatementReconstructor for Destructurer<'_> {
                 });
                 (stmt, statements)
             }
-            (_, Expression::Ternary(..), Type::Tuple(..)) => {
-                panic!("Ternary conditionals of tuple type should have been removed by flattening");
-            }
             (_, _, Type::Tuple(..)) => {
                 panic!("Expressions of tuple type can only be tuple literals, identifiers, or calls.");
             }
             (Single(identifier), rhs, _) => {
                 // This isn't a tuple. Just build the definition again.
-                (
-                    Statement::Definition(DefinitionStatement {
-                        place: Single(identifier),
-                        type_: Type::Err,
-                        value: rhs,
-                        span: Default::default(),
-                        id: definition.id,
-                    }),
-                    statements,
-                )
+                let stmt = Statement::Definition(DefinitionStatement {
+                    place: Single(identifier),
+                    type_: Type::Err,
+                    value: rhs,
+                    span: Default::default(),
+                    id: definition.id,
+                });
+                (stmt, statements)
             }
             (Multiple(_), _, _) => panic!("A definition with multiple identifiers must have tuple type"),
         }
@@ -211,19 +290,9 @@ impl StatementReconstructor for Destructurer<'_> {
         panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
-    fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
-        // Note that SSA guarantees that `input.expression` is either a literal, identifier, or unit expression.
-        let expression = match input.expression {
-            // If the input is an identifier that maps to a tuple, use the tuple expression.
-            Expression::Identifier(identifier) if self.tuples.contains_key(&identifier.name) => {
-                // Note that the `unwrap` is safe since the match arm checks that the entry exists in `self.tuples`.
-                let tuple = self.tuples.get(&identifier.name).unwrap().clone();
-                Expression::Tuple(tuple)
-            }
-            // Otherwise, use the original expression.
-            _ => input.expression,
-        };
-
-        (Statement::Return(ReturnStatement { expression, span: input.span, id: input.id }), Default::default())
+    fn reconstruct_return(&mut self, mut input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
+        let (expression, statements) = self.reconstruct_expression_tuple(input.expression);
+        input.expression = expression;
+        (Statement::Return(input), statements)
     }
 }

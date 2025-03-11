@@ -1,12 +1,14 @@
 {
   "Assign": {
     "place": {
-      "name": "x",
-      "span": {
-        "lo": 0,
-        "hi": 1
-      },
-      "id": 0
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 0,
+          "hi": 1
+        },
+        "id": 0
+      }
     },
     "value": {
       "Identifier": {
@@ -29,12 +31,14 @@
 {
   "Assign": {
     "place": {
-      "name": "x",
-      "span": {
-        "lo": 10,
-        "hi": 11
-      },
-      "id": 0
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 10,
+          "hi": 11
+        },
+        "id": 0
+      }
     },
     "value": {
       "Binary": {
@@ -77,12 +81,14 @@
 {
   "Assign": {
     "place": {
-      "name": "x",
-      "span": {
-        "lo": 19,
-        "hi": 20
-      },
-      "id": 0
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 19,
+          "hi": 20
+        },
+        "id": 0
+      }
     },
     "value": {
       "Call": {
