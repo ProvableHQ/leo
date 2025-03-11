@@ -1,12 +1,37 @@
 DCE_ENABLED:
-Error [ETYC0372000]: invalid assignment target
+Error [ETYC0372117]: Expected an array but type `(address => u128)` was found.
+    --> compiler-test:6:16
+     |
+   6 |         return balances[addr];
+     |                ^^^^^^^^
+Error [ETYC0372117]: Expected an integer but type `address` was found.
+    --> compiler-test:6:25
+     |
+   6 |         return balances[addr];
+     |                         ^^^^
+Error [ETYC0372000]: Invalid assignment target: balances[addr].
     --> compiler-test:10:9
      |
   10 |         balances[addr] = amount;
      |         ^^^^^^^^^^^^^^
+     |
+     = Valid assignment targets are identifiers or tuple accesses of identifiers.
+
 DCE_DISABLED:
-Error [ETYC0372000]: invalid assignment target
+Error [ETYC0372117]: Expected an array but type `(address => u128)` was found.
+    --> compiler-test:6:16
+     |
+   6 |         return balances[addr];
+     |                ^^^^^^^^
+Error [ETYC0372117]: Expected an integer but type `address` was found.
+    --> compiler-test:6:25
+     |
+   6 |         return balances[addr];
+     |                         ^^^^
+Error [ETYC0372000]: Invalid assignment target: balances[addr].
     --> compiler-test:10:9
      |
   10 |         balances[addr] = amount;
      |         ^^^^^^^^^^^^^^
+     |
+     = Valid assignment targets are identifiers or tuple accesses of identifiers.

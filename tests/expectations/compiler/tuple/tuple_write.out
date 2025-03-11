@@ -1,0 +1,76 @@
+DCE_ENABLED:
+program test.aleo;
+
+function baz:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    add r0 r1 into r2;
+    add r2 2u8 into r3;
+    output r3 as u8.private;
+
+function baz2:
+    input r0 as field.private;
+    input r1 as field.private;
+    add r0 r0 into r2;
+    add r0 r1 into r3;
+    output r3 as field.private;
+    output r2 as field.private;
+
+function baz3:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as boolean.private;
+    add r0 r0 into r3;
+    add r1 r1 into r4;
+    ternary r2 r3 r0 into r5;
+    ternary r2 r1 r4 into r6;
+    output r5 as field.private;
+    output r6 as field.private;
+
+function baz4:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as boolean.private;
+    ternary r2 r0 r1 into r3;
+    ternary r2 r1 r0 into r4;
+    output r3 as field.private;
+    output r4 as field.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+function baz:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    add r0 r1 into r2;
+    add r2 2u8 into r3;
+    output r3 as u8.private;
+
+function baz2:
+    input r0 as field.private;
+    input r1 as field.private;
+    add r0 r0 into r2;
+    add r0 r1 into r3;
+    output r3 as field.private;
+    output r2 as field.private;
+
+function baz3:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as boolean.private;
+    add r0 r0 into r3;
+    not r2 into r4;
+    add r1 r1 into r5;
+    ternary r2 r3 r0 into r6;
+    ternary r2 r1 r5 into r7;
+    output r6 as field.private;
+    output r7 as field.private;
+
+function baz4:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as boolean.private;
+    ternary r2 r0 r1 into r3;
+    ternary r2 r1 r0 into r4;
+    output r3 as field.private;
+    output r4 as field.private;

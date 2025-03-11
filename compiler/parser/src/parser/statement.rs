@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_errors::{ParserError, Result, TypeCheckerError};
+use leo_errors::{ParserError, Result};
 use leo_span::sym;
 
 const ASSIGN_TOKENS: &[Token] = &[
@@ -89,12 +89,6 @@ impl<N: Network> ParserContext<'_, N> {
     fn parse_assign_statement(&mut self) -> Result<Statement> {
         let expression = self.parse_expression()?;
         if self.eat_any(ASSIGN_TOKENS) {
-            let Expression::Identifier(identifier) = expression else {
-                // TODO - We're temporarily making use of a TypeCheckerError; this should go away
-                // and be handled by type checking once more assignment targets are introduced.
-                return Err(TypeCheckerError::invalid_assignment_target(expression.span()).into());
-            };
-
             // Determine the corresponding binary operation for each token, if it exists.
             let operation = match &self.prev_token.token {
                 Token::Assign => None,
@@ -139,7 +133,7 @@ impl<N: Network> ParserContext<'_, N> {
 
             return Ok(Statement::Assign(Box::new(AssignStatement {
                 span,
-                place: identifier,
+                place: expression,
                 value,
                 id: self.node_builder.next_id(),
             })));

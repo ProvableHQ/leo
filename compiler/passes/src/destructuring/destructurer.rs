@@ -16,11 +16,26 @@
 
 use crate::{Assigner, TypeTable};
 
-use leo_ast::{NodeBuilder, TupleExpression};
+use leo_ast::{
+    DefinitionPlace,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor as _,
+    Identifier,
+    Node as _,
+    NodeBuilder,
+    Statement,
+    TupleExpression,
+    Type,
+};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
 
+/// A pass to rewrite tuple creation and accesses into other code.
+///
+/// This pass must be run after SSA, because it depends on identifiers being unique.
+/// It must be run before flattening, because flattening cannot handle assignment statements.
 pub struct Destructurer<'a> {
     /// A mapping between node IDs and their types.
     pub(crate) type_table: &'a TypeTable,
@@ -28,8 +43,9 @@ pub struct Destructurer<'a> {
     pub(crate) node_builder: &'a NodeBuilder,
     /// A struct used to construct (unique) assignment statements.
     pub(crate) assigner: &'a Assigner,
-    /// A mapping between variables and tuple elements.
-    pub(crate) tuples: IndexMap<Symbol, TupleExpression>,
+    /// A mapping between variables of tuple type and the variables we're creating to
+    /// constitute their members.
+    pub(crate) tuples: IndexMap<Symbol, Vec<Identifier>>,
     /// Whether or not we are currently traversing an async function block.
     pub(crate) is_async: bool,
 }
@@ -37,5 +53,93 @@ pub struct Destructurer<'a> {
 impl<'a> Destructurer<'a> {
     pub(crate) fn new(type_table: &'a TypeTable, node_builder: &'a NodeBuilder, assigner: &'a Assigner) -> Self {
         Self { type_table, node_builder, assigner, tuples: IndexMap::new(), is_async: false }
+    }
+
+    /// Similar to `reconstruct_expression`, except that if `expression` is of tuple type, returns it as a tuple
+    /// literal `(mem1, mem2, mem3, ...)`.
+    pub(crate) fn reconstruct_expression_tuple(&mut self, expression: Expression) -> (Expression, Vec<Statement>) {
+        let Type::Tuple(tuple_type) = self.type_table.get(&expression.id()).expect("Expressions should have types.")
+        else {
+            // It's not a tuple, so there's no more to do.
+            return self.reconstruct_expression(expression);
+        };
+
+        let (new_expression, mut statements) = self.reconstruct_expression(expression);
+
+        match new_expression {
+            Expression::Identifier(identifier) => {
+                // It's a variable name, so just get the member identifiers we've already made.
+                let identifiers = self.tuples.get(&identifier.name).expect("Tuples should have been found");
+                let elements: Vec<Expression> =
+                    identifiers.iter().map(|identifier| Expression::Identifier(*identifier)).collect();
+
+                let tuple = Expression::Tuple(TupleExpression {
+                    elements,
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                });
+
+                self.type_table.insert(tuple.id(), Type::Tuple(tuple_type.clone()));
+
+                (tuple, statements)
+            }
+
+            tuple @ Expression::Tuple(..) => {
+                // It's already a tuple literal.
+                (tuple, statements)
+            }
+
+            expr @ Expression::Call(..) => {
+                // It's a call, so we'll need to make a new definition for the variables.
+                let definition_stmt = self.assign_tuple(expr, Symbol::intern("destructure"));
+                let Statement::Definition(DefinitionStatement {
+                    place: DefinitionPlace::Multiple(identifiers), ..
+                }) = &definition_stmt
+                else {
+                    panic!("`assign_tuple` always creates a definition with `Multiple`");
+                };
+
+                let elements = identifiers.iter().map(|identifier| Expression::Identifier(*identifier)).collect();
+
+                let expr = Expression::Tuple(TupleExpression {
+                    elements,
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                });
+
+                self.type_table.insert(expr.id(), Type::Tuple(tuple_type.clone()));
+
+                statements.push(definition_stmt);
+
+                (expr, statements)
+            }
+
+            _ => panic!("Tuples may only be identifiers, tuple literals, or calls."),
+        }
+    }
+
+    // Given the `expression` of tuple type, make a definition assigning variable to its members.
+    //
+    // That is, `let (mem1, mem2, mem3...) = expression;`
+    pub(crate) fn assign_tuple(&mut self, expression: Expression, name: Symbol) -> Statement {
+        let Type::Tuple(tuple_type) = self.type_table.get(&expression.id()).expect("Expressions should have types.")
+        else {
+            panic!("assign_tuple should only be called for tuple types.");
+        };
+
+        let new_identifiers: Vec<Identifier> = (0..tuple_type.length())
+            .map(|i| {
+                let new_symbol = self.assigner.unique_symbol(name, format_args!("#{i}#"));
+                Identifier::new(new_symbol, self.node_builder.next_id())
+            })
+            .collect();
+
+        Statement::Definition(DefinitionStatement {
+            place: DefinitionPlace::Multiple(new_identifiers),
+            type_: Type::Tuple(tuple_type.clone()),
+            value: expression,
+            span: Default::default(),
+            id: self.node_builder.next_id(),
+        })
     }
 }

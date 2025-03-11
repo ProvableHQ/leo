@@ -32,6 +32,8 @@ pub struct StaticSingleAssigner<'a> {
     pub(crate) assigner: &'a Assigner,
     /// The main program name.
     pub(crate) program: Option<Symbol>,
+    /// Whether to rename places in definitions.
+    pub(crate) rename_defs: bool,
 }
 
 impl<'a> StaticSingleAssigner<'a> {
@@ -41,8 +43,17 @@ impl<'a> StaticSingleAssigner<'a> {
         symbol_table: &'a SymbolTable,
         type_table: &'a TypeTable,
         assigner: &'a Assigner,
+        rename_defs: bool,
     ) -> Self {
-        Self { node_builder, symbol_table, type_table, rename_table: RenameTable::new(None), assigner, program: None }
+        Self {
+            node_builder,
+            symbol_table,
+            type_table,
+            rename_table: RenameTable::new(None),
+            assigner,
+            program: None,
+            rename_defs,
+        }
     }
 
     /// Pushes a new scope, setting the current scope as the new scope's parent.

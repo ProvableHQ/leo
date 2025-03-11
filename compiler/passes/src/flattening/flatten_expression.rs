@@ -19,6 +19,7 @@ use crate::Flattener;
 use leo_ast::{
     Expression,
     ExpressionReconstructor,
+    Identifier,
     Location,
     Node,
     Statement,
@@ -70,64 +71,57 @@ impl ExpressionReconstructor for Flattener<'_> {
     /// var$2
     /// ```
     fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let mut statements = Vec::new();
-        match (*input.if_true, *input.if_false) {
-            // If both expressions are identifiers which are arrays, construct ternary expressions for each of the members and an array expression for the result.
-            (Expression::Identifier(first), Expression::Identifier(second)) => {
-                let first_type = match self.type_table.get(&first.id()) {
-                    Some(first_type) => first_type,
-                    _ => unreachable!("Type checking guarantees that all expressions are typed."),
-                };
-                let second_type = match self.type_table.get(&second.id()) {
-                    Some(second_type) => second_type,
-                    _ => unreachable!("Type checking guarantees that all expressions are typed."),
-                };
+        let if_true_type =
+            self.type_table.get(&input.if_true.id()).expect("Type checking guarantees that all expressions are typed.");
+        let if_false_type = self
+            .type_table
+            .get(&input.if_false.id())
+            .expect("Type checking guarantees that all expressions are typed.");
 
-                // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                assert!(first_type.eq_flat_relaxed(&second_type));
+        // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
+        assert!(if_true_type.eq_flat_relaxed(&if_false_type));
 
-                match &first_type {
-                    Type::Array(first_type) => self.ternary_array(first_type, &input.condition, &first, &second),
-                    Type::Composite(first_type) => {
-                        // Get the struct definitions.
-                        let first_type = self
-                            .symbol_table
-                            .lookup_struct(first_type.id.name)
-                            .or_else(|| {
-                                self.symbol_table
-                                    .lookup_record(Location::new(self.program.unwrap(), first_type.id.name))
-                            })
-                            .expect("This definition should exist");
-                        self.ternary_struct(first_type, &input.condition, &first, &second)
-                    }
-                    Type::Tuple(first_type) => self.ternary_tuple(first_type, &input.condition, &first, &second),
-                    _ => {
-                        // Reconstruct the true case.
-                        let (if_true, stmts) = self.reconstruct_expression(Expression::Identifier(first));
-                        statements.extend(stmts);
+        fn as_identifier(ident_expr: Expression) -> Identifier {
+            let Expression::Identifier(identifier) = ident_expr else {
+                panic!("SSA form should have guaranteed this is an identifier: {}.", ident_expr);
+            };
+            identifier
+        }
 
-                        // Reconstruct the false case.
-                        let (if_false, stmts) = self.reconstruct_expression(Expression::Identifier(second));
-                        statements.extend(stmts);
-
-                        let (identifier, statement) =
-                            self.unique_simple_definition(Expression::Ternary(TernaryExpression {
-                                condition: input.condition,
-                                if_true: Box::new(if_true),
-                                if_false: Box::new(if_false),
-                                span: input.span,
-                                id: input.id,
-                            }));
-
-                        // Accumulate the new assignment statement.
-                        statements.push(statement);
-
-                        (Expression::Identifier(identifier), statements)
-                    }
-                }
+        match &if_true_type {
+            Type::Array(if_true_type) => self.ternary_array(
+                if_true_type,
+                &input.condition,
+                &as_identifier(*input.if_true),
+                &as_identifier(*input.if_false),
+            ),
+            Type::Composite(if_true_type) => {
+                // Get the struct definitions.
+                let if_true_type = self
+                    .symbol_table
+                    .lookup_struct(if_true_type.id.name)
+                    .or_else(|| {
+                        self.symbol_table.lookup_record(Location::new(self.program.unwrap(), if_true_type.id.name))
+                    })
+                    .expect("This definition should exist");
+                self.ternary_struct(
+                    if_true_type,
+                    &input.condition,
+                    &as_identifier(*input.if_true),
+                    &as_identifier(*input.if_false),
+                )
+            }
+            Type::Tuple(if_true_type) => {
+                self.ternary_tuple(if_true_type, &input.condition, &input.if_true, &input.if_false)
             }
             _ => {
-                unreachable!("SSA guarantees that the subexpressions of a ternary expression are identifiers.")
+                // There's nothing to be done - SSA has guaranteed that `if_true` and `if_false` are identifiers,
+                // so there's not even any point in reconstructing them.
+
+                assert!(matches!(&*input.if_true, Expression::Identifier(..)));
+                assert!(matches!(&*input.if_false, Expression::Identifier(..)));
+
+                (Expression::Ternary(input), Default::default())
             }
         }
     }

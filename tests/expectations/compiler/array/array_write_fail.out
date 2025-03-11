@@ -1,12 +1,31 @@
 DCE_ENABLED:
-Error [ETYC0372000]: invalid assignment target
+Error [ETYC0372000]: Invalid assignment target: a[0u32].
     --> compiler-test:4:9
      |
    4 |         a[0u32] = false;
      |         ^^^^^^^
+     |
+     = Valid assignment targets are identifiers or tuple accesses of identifiers.
+Error [ETYC0372000]: Invalid assignment target: a[1u32].
+    --> compiler-test:5:9
+     |
+   5 |         a[1u32] = true;
+     |         ^^^^^^^
+     |
+     = Valid assignment targets are identifiers or tuple accesses of identifiers.
+
 DCE_DISABLED:
-Error [ETYC0372000]: invalid assignment target
+Error [ETYC0372000]: Invalid assignment target: a[0u32].
     --> compiler-test:4:9
      |
    4 |         a[0u32] = false;
      |         ^^^^^^^
+     |
+     = Valid assignment targets are identifiers or tuple accesses of identifiers.
+Error [ETYC0372000]: Invalid assignment target: a[1u32].
+    --> compiler-test:5:9
+     |
+   5 |         a[1u32] = true;
+     |         ^^^^^^^
+     |
+     = Valid assignment targets are identifiers or tuple accesses of identifiers.

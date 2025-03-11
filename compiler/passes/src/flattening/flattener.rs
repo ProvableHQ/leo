@@ -624,9 +624,32 @@ impl<'a> Flattener<'a> {
         &mut self,
         tuple_type: &TupleType,
         condition: &Expression,
-        first: &Identifier,
-        second: &Identifier,
+        first: &Expression,
+        second: &Expression,
     ) -> (Expression, Vec<Statement>) {
+        let make_access = |base_expression: &Expression, i: usize, ty: Type| -> Expression {
+            match base_expression {
+                expr @ Expression::Identifier(..) => {
+                    Expression::Access(AccessExpression::Tuple(TupleAccess {
+                        tuple: Box::new(expr.clone()),
+                        index: NonNegativeNumber::from(i),
+                        span: Default::default(),
+                        id: {
+                            // Create a new node ID for the access expression.
+                            let id = self.node_builder.next_id();
+                            // Set the type of the node ID.
+                            self.type_table.insert(id, ty);
+                            id
+                        },
+                    }))
+                }
+
+                Expression::Tuple(tuple_expr) => tuple_expr.elements[i].clone(),
+
+                _ => panic!("SSA should have prevented this"),
+            }
+        };
+
         // Initialize a vector to accumulate any statements generated.
         let mut statements = Vec::new();
         // For each tuple element, construct a new ternary expression.
@@ -636,34 +659,10 @@ impl<'a> Flattener<'a> {
             .enumerate()
             .map(|(i, type_)| {
                 // Create an assignment statement for the first access expression.
-                let (first, stmt) =
-                    self.unique_simple_definition(Expression::Access(AccessExpression::Tuple(TupleAccess {
-                        tuple: Box::new(Expression::Identifier(*first)),
-                        index: NonNegativeNumber::from(i),
-                        span: Default::default(),
-                        id: {
-                            // Create a new node ID for the access expression.
-                            let id = self.node_builder.next_id();
-                            // Set the type of the node ID.
-                            self.type_table.insert(id, type_.clone());
-                            id
-                        },
-                    })));
+                let (first, stmt) = self.unique_simple_definition(make_access(first, i, type_.clone()));
                 statements.push(stmt);
                 // Create an assignment statement for the second access expression.
-                let (second, stmt) =
-                    self.unique_simple_definition(Expression::Access(AccessExpression::Tuple(TupleAccess {
-                        tuple: Box::new(Expression::Identifier(*second)),
-                        index: NonNegativeNumber::from(i),
-                        span: Default::default(),
-                        id: {
-                            // Create a new node ID for the access expression.
-                            let id = self.node_builder.next_id();
-                            // Set the type of the node ID.
-                            self.type_table.insert(id, type_.clone());
-                            id
-                        },
-                    })));
+                let (second, stmt) = self.unique_simple_definition(make_access(second, i, type_.clone()));
                 statements.push(stmt);
 
                 // Recursively reconstruct the ternary expression.
@@ -702,16 +701,21 @@ impl<'a> Flattener<'a> {
                 id
             },
         };
-        let (expr, stmts) = self.reconstruct_tuple(tuple.clone());
+        let (expr, stmts) = self.reconstruct_tuple(tuple);
 
         // Accumulate any statements generated.
         statements.extend(stmts);
 
-        // Create a new assignment statement for the tuple expression.
-        let (identifier, statement) = self.unique_simple_definition(expr);
+        if let Expression::Identifier(..) = first {
+            // Create a new assignment statement for the tuple expression.
+            let (identifier, statement) = self.unique_simple_definition(expr);
 
-        statements.push(statement);
+            statements.push(statement);
 
-        (Expression::Identifier(identifier), statements)
+            (Expression::Identifier(identifier), statements)
+        } else {
+            // Just use the tuple we just made.
+            (expr, statements)
+        }
     }
 }

@@ -17,6 +17,7 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
+    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
@@ -83,16 +84,35 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
     }
 
     /// Consume all `AssignStatement`s, renaming as necessary.
-    fn consume_assign(&mut self, assign: AssignStatement) -> Self::Output {
+    fn consume_assign(&mut self, mut assign: AssignStatement) -> Self::Output {
         // First consume the right-hand-side of the assignment.
         let (value, mut statements) = self.consume_expression(assign.value);
 
-        // Then assign a new unique name to the left-hand-side of the assignment.
-        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
-        let new_place = self.rename_identifier(assign.place);
+        match &mut assign.place {
+            Expression::Identifier(name) => {
+                // Then assign a new unique name to the left-hand-side of the assignment.
+                // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
+                let new_place = self.rename_identifier(*name);
 
-        statements.push(self.simple_definition(new_place, value));
+                statements.push(self.simple_definition(new_place, value));
+            }
+            Expression::Access(AccessExpression::Tuple(tuple)) => {
+                assign.value = value;
 
+                let Expression::Identifier(identifier) = &*tuple.tuple else {
+                    panic!("Type checking should have prevented this.");
+                };
+
+                let (expression, new_statements) = self.consume_identifier(*identifier);
+
+                assert!(new_statements.is_empty());
+
+                *tuple.tuple = expression;
+
+                statements.push(Statement::Assign(Box::new(assign)));
+            }
+            _ => panic!("Type checking should have prevented this."),
+        }
         statements
     }
 
@@ -233,24 +253,47 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
     /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     fn consume_definition(&mut self, definition: DefinitionStatement) -> Self::Output {
-        // First consume the right-hand-side of the definition.
-        let (value, mut statements) = self.consume_expression(definition.value);
+        let mut statements = Vec::new();
 
         match definition.place {
             DefinitionPlace::Single(identifier) => {
-                let new_identifier = self.rename_identifier(identifier);
+                // Consume the right-hand-side of the definition.
+                let (value, statements2) = self.consume_expression(definition.value);
+                statements = statements2;
+                let new_identifier = if self.rename_defs { self.rename_identifier(identifier) } else { identifier };
                 // Create a new assignment statement.
                 statements.push(self.simple_definition(new_identifier, value));
             }
             DefinitionPlace::Multiple(identifiers) => {
-                let new_identifiers: Vec<Identifier> =
-                    identifiers.into_iter().map(|identifier| self.rename_identifier(identifier)).collect();
+                let new_identifiers: Vec<Identifier> = if self.rename_defs {
+                    identifiers
+                        .into_iter()
+                        .map(
+                            |identifier| if self.rename_defs { self.rename_identifier(identifier) } else { identifier },
+                        )
+                        .collect()
+                } else {
+                    identifiers
+                };
 
                 // We don't need to update the type table, as the new identifiers have
                 // the same IDs as the old ones.
 
                 // Construct the lhs of the assignment.
                 let place = DefinitionPlace::Multiple(new_identifiers);
+
+                let value = if let Expression::Call(mut call) = definition.value {
+                    for argument in call.arguments.iter_mut() {
+                        let (new_argument, new_statements) = self.consume_expression(std::mem::take(argument));
+                        *argument = new_argument;
+                        statements.extend(new_statements);
+                    }
+                    Expression::Call(call)
+                } else {
+                    let (value, new_statements) = self.consume_expression(definition.value);
+                    statements.extend(new_statements);
+                    value
+                };
 
                 // Create the definition.
                 let definition = Statement::Definition(DefinitionStatement {
@@ -333,13 +376,22 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
     /// Reconstructs the expression associated with the return statement, returning a simplified `ReturnStatement`.
     /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
-    fn consume_return(&mut self, input: ReturnStatement) -> Self::Output {
-        // Consume the return expression.
-        let (expression, mut statements) = self.consume_expression(input.expression);
-
-        // Add the simplified return statement to the list of produced statements.
-        statements.push(Statement::Return(ReturnStatement { expression, span: input.span, id: input.id }));
-
-        statements
+    fn consume_return(&mut self, mut input: ReturnStatement) -> Self::Output {
+        if let Expression::Tuple(tuple_expr) = &mut input.expression {
+            // Leave tuple expressions alone.
+            let mut statements = Vec::new();
+            for element in tuple_expr.elements.iter_mut() {
+                let (new_element, new_statements) = self.consume_expression(std::mem::take(element));
+                *element = new_element;
+                statements.extend(new_statements);
+            }
+            statements.push(Statement::Return(input));
+            statements
+        } else {
+            let (expression, mut statements) = self.consume_expression(input.expression);
+            input.expression = expression;
+            statements.push(Statement::Return(input));
+            statements
+        }
     }
 }

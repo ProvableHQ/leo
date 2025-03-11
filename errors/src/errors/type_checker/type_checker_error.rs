@@ -20,17 +20,16 @@ use std::fmt::{Debug, Display};
 // TODO: Consolidate errors.
 
 create_messages!(
-    /// InputError enum that represents all the errors for the inputs part of `leo-ast` crate.
     TypeCheckerError,
     code_mask: 2000i32,
     code_prefix: "TYC",
 
-    /// For when the parser encountered an invalid assignment target.
+    /// For when the type checker encountered an invalid assignment target.
     @formatted
     invalid_assignment_target {
-        args: (),
-        msg: "invalid assignment target",
-        help: None,
+        args: (target: impl Display),
+        msg: format!("Invalid assignment target: {target}."),
+        help: Some("Valid assignment targets are identifiers or tuple accesses of identifiers.".to_string()),
     }
 
     /// For when the user tries to assign to a const input.

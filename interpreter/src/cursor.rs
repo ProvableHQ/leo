@@ -497,7 +497,21 @@ impl<'a> Cursor<'a> {
             }
             Statement::Assign(assign) if step == 1 => {
                 let value = self.values.pop().unwrap();
-                self.set_variable(assign.place.name, value);
+                match &assign.place {
+                    Expression::Identifier(name) => self.set_variable(name.name, value),
+                    Expression::Access(AccessExpression::Tuple(tuple_access)) => {
+                        let Expression::Identifier(identifier) = &*tuple_access.tuple else {
+                            halt!(assign.span(), "tuple assignments must refer to identifiers.");
+                        };
+                        let mut current_tuple = self.lookup(identifier.name).expect_tc(identifier.span())?;
+                        let Value::Tuple(tuple) = &mut current_tuple else {
+                            halt!(tuple_access.span(), "Type error: this must be a tuple.");
+                        };
+                        tuple[tuple_access.index.value()] = value;
+                        self.set_variable(identifier.name, current_tuple);
+                    }
+                    _ => halt!(assign.span(), "Invalid assignment place."),
+                }
                 true
             }
             Statement::Block(block) => return Ok(self.step_block(block, false, step)),
