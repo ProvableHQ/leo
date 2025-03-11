@@ -17,12 +17,6 @@
 mod array_access;
 pub use array_access::*;
 
-mod associated_constant_access;
-pub use associated_constant_access::*;
-
-mod associated_function_access;
-pub use associated_function_access::*;
-
 mod member_access;
 pub use member_access::*;
 

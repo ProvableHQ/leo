@@ -23,6 +23,7 @@ use leo_ast::{
     Block,
     CoreConstant,
     CoreFunction,
+    DefinitionPlace,
     Expression,
     FromStrRadix as _,
     Function,
@@ -496,8 +497,7 @@ impl<'a> Cursor<'a> {
             }
             Statement::Assign(assign) if step == 1 => {
                 let value = self.values.pop().unwrap();
-                let Expression::Identifier(id) = &assign.place else { tc_fail!() };
-                self.set_variable(id.name, value);
+                self.set_variable(assign.place.name, value);
                 true
             }
             Statement::Block(block) => return Ok(self.step_block(block, false, step)),
@@ -543,19 +543,15 @@ impl<'a> Cursor<'a> {
             Statement::Definition(definition) if step == 1 => {
                 let value = self.pop_value()?;
                 match &definition.place {
-                    Expression::Identifier(id) => self.set_variable(id.name, value),
-                    Expression::Tuple(tuple) => {
+                    DefinitionPlace::Single(id) => self.set_variable(id.name, value),
+                    DefinitionPlace::Multiple(ids) => {
                         let Value::Tuple(rhs) = value else {
                             tc_fail!();
                         };
-                        for (name, val) in tuple.elements.iter().zip(rhs.into_iter()) {
-                            let Expression::Identifier(id) = name else {
-                                tc_fail!();
-                            };
+                        for (id, val) in ids.iter().zip(rhs.into_iter()) {
                             self.set_variable(id.name, val);
                         }
                     }
-                    _ => tc_fail!(),
                 }
                 true
             }
@@ -664,17 +660,6 @@ impl<'a> Cursor<'a> {
                 let Value::Array(vec_array) = array else { tc_fail!() };
                 Some(vec_array.get(index_usize).expect_tc(span)?.clone())
             }
-            Expression::Access(AccessExpression::AssociatedConstant(constant)) if step == 0 => {
-                let Type::Identifier(type_ident) = constant.ty else {
-                    tc_fail!();
-                };
-                let Some(core_constant) = CoreConstant::from_symbols(type_ident.name, constant.name.name) else {
-                    halt!(constant.span(), "Unknown constant {constant}");
-                };
-                match core_constant {
-                    CoreConstant::GroupGenerator => Some(Value::generator()),
-                }
-            }
             Expression::Access(AccessExpression::Member(access)) => match &*access.inner {
                 Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
                     sym::signer => Some(Value::Address(self.signer)),
@@ -709,7 +694,42 @@ impl<'a> Cursor<'a> {
                 }
                 _ => unreachable!("we've actually covered all possible patterns above"),
             },
-            Expression::Access(AccessExpression::AssociatedFunction(function)) if step == 0 => {
+            Expression::Access(AccessExpression::Tuple(tuple_access)) if step == 0 => {
+                push!()(&*tuple_access.tuple);
+                None
+            }
+            Expression::Access(AccessExpression::Tuple(tuple_access)) if step == 1 => {
+                let Some(value) = self.values.pop() else { tc_fail!() };
+                let Value::Tuple(tuple) = value else {
+                    halt!(tuple_access.span(), "Type error");
+                };
+                if let Some(result) = tuple.get(tuple_access.index.value()) {
+                    Some(result.clone())
+                } else {
+                    halt!(tuple_access.span(), "Tuple index out of range");
+                }
+            }
+            Expression::Array(array) if step == 0 => {
+                array.elements.iter().rev().for_each(push!());
+                None
+            }
+            Expression::Array(array) if step == 1 => {
+                let len = self.values.len();
+                let array_values = self.values.drain(len - array.elements.len()..).collect();
+                Some(Value::Array(array_values))
+            }
+            Expression::AssociatedConstant(constant) if step == 0 => {
+                let Type::Identifier(type_ident) = constant.ty else {
+                    tc_fail!();
+                };
+                let Some(core_constant) = CoreConstant::from_symbols(type_ident.name, constant.name.name) else {
+                    halt!(constant.span(), "Unknown constant {constant}");
+                };
+                match core_constant {
+                    CoreConstant::GroupGenerator => Some(Value::generator()),
+                }
+            }
+            Expression::AssociatedFunction(function) if step == 0 => {
                 let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
@@ -731,7 +751,7 @@ impl<'a> Cursor<'a> {
                 }
                 None
             }
-            Expression::Access(AccessExpression::AssociatedFunction(function)) if step == 1 => {
+            Expression::AssociatedFunction(function) if step == 1 => {
                 let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
@@ -759,36 +779,12 @@ impl<'a> Cursor<'a> {
                     value
                 }
             }
-            Expression::Access(AccessExpression::AssociatedFunction(function)) if step == 2 => {
+            Expression::AssociatedFunction(function) if step == 2 => {
                 let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
                 assert!(core_function == CoreFunction::FutureAwait);
                 Some(Value::Unit)
-            }
-            Expression::Access(AccessExpression::Tuple(tuple_access)) if step == 0 => {
-                push!()(&*tuple_access.tuple);
-                None
-            }
-            Expression::Access(AccessExpression::Tuple(tuple_access)) if step == 1 => {
-                let Some(value) = self.values.pop() else { tc_fail!() };
-                let Value::Tuple(tuple) = value else {
-                    halt!(tuple_access.span(), "Type error");
-                };
-                if let Some(result) = tuple.get(tuple_access.index.value()) {
-                    Some(result.clone())
-                } else {
-                    halt!(tuple_access.span(), "Tuple index out of range");
-                }
-            }
-            Expression::Array(array) if step == 0 => {
-                array.elements.iter().rev().for_each(push!());
-                None
-            }
-            Expression::Array(array) if step == 1 => {
-                let len = self.values.len();
-                let array_values = self.values.drain(len - array.elements.len()..).collect();
-                Some(Value::Array(array_values))
             }
             Expression::Binary(binary) if step == 0 => {
                 push!()(&binary.right);

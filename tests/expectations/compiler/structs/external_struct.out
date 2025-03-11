@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Pass"
 outputs = [[{ compile = [
-    { initial_ast = "80d537920cacd874248c4a04ad1c7f13fd9150a77c5f358786816ed23f7f1469", unrolled_ast = "80d537920cacd874248c4a04ad1c7f13fd9150a77c5f358786816ed23f7f1469", ssa_ast = "67b51b20c2e292a780020ab8605917f45108cf5348bf7221230224785a2ff9f5", flattened_ast = "0fcd3068648256a2f8f2d6ecbf015bb4be6e6ca3934361d9c7dff005db969b42", destructured_ast = "358a6f584cd0f6cb72940bed001c4f899ab5bec64fd853ecd77bbde396554329", inlined_ast = "358a6f584cd0f6cb72940bed001c4f899ab5bec64fd853ecd77bbde396554329", dce_ast = "358a6f584cd0f6cb72940bed001c4f899ab5bec64fd853ecd77bbde396554329", bytecode = """
+    { initial_ast = "80d537920cacd874248c4a04ad1c7f13fd9150a77c5f358786816ed23f7f1469", unrolled_ast = "80d537920cacd874248c4a04ad1c7f13fd9150a77c5f358786816ed23f7f1469", ssa_ast = "b3f0bd102782a066cacad4163ea53d65e601d0e8afc78086f79145d8ca904f09", flattened_ast = "e30407914b2ecc1f5d5b718cb31f367eee60318cba8f573edbe9c129b1e94eaf", destructured_ast = "36d8bb1b396471a37d37d7463f54c69558ebbc63b350cab433441592aaa01536", inlined_ast = "36d8bb1b396471a37d37d7463f54c69558ebbc63b350cab433441592aaa01536", dce_ast = "36d8bb1b396471a37d37d7463f54c69558ebbc63b350cab433441592aaa01536", bytecode = """
 program child.aleo;
 
 record Boo:
@@ -43,7 +43,7 @@ function create:
     output r13 as Foo.private;
     output r14 as Boo.record;
 """, errors = "", warnings = "" },
-    { initial_ast = "6f336cf5b1dafd7cada6e05cf192fc1ea445eb7e0e4c363e61a814fae25b7461", unrolled_ast = "7d0e93818e46dc27ec5cd5c79d71f2ed3f88ec714075ddd364894a452bd73635", ssa_ast = "e1d7cf6ccc11755eed857785d7e09ff4f4daa21b6cc860bd8ac8449c270048f9", flattened_ast = "977ed6c81080f5dac68137e97d69b48e3476db3fc2770d0dd8fbb85db6801c4c", destructured_ast = "f6a21b79481faf95ff0495d9579510ff82e0f87fbf7c28f05b42e5921478eff8", inlined_ast = "f6a21b79481faf95ff0495d9579510ff82e0f87fbf7c28f05b42e5921478eff8", dce_ast = "ad6e474e1263201bdec885ca22305ce4965fbe7e3b27d7e7c6d3e12b5b89150b", bytecode = """
+    { initial_ast = "cac137b099c8c5c6e6c0910cdee74c79a09c6e1444c4ed9e3c917344c0f8a2ff", unrolled_ast = "cab6075aeb522b6c17c1fbfdcdca2ab7f40bcc57bc7b05603524e7457c0f4407", ssa_ast = "3447fd058ed9773f734973e6a6d241da6ed3d568ac92d5e0b32af7f7ec82aa18", flattened_ast = "933f4177c077528a047e0d3e1ce2a52173d90289d70afb563f49642be887c5d1", destructured_ast = "3555bc1cba14ac274b9dd6165ecf7e457b8ede85970927931e3aa58d13f62eb5", inlined_ast = "3555bc1cba14ac274b9dd6165ecf7e457b8ede85970927931e3aa58d13f62eb5", dce_ast = "bb20afeaad484637fa3dfa50769811e148174e693b9a200cdd3dc81af75dc375", bytecode = """
 import child.aleo;
 program parent.aleo;
 
@@ -87,7 +87,7 @@ function create_another_wrapper:
     output r3 as BooHoo.record;
     output r4 as Woo.private;
 """, errors = "", warnings = "" },
-    { initial_ast = "8473d0584e78127a612fccd0c20273d13283bb10bf900bf0fe68963b04ff9d0e", unrolled_ast = "d597c4a4a9dda80008bd9e333bbf104318e294be627380ca03fd7c141edfdb47", ssa_ast = "13083334a8f117de456a16b687d89c9a17060697b59d352aab435dbcd619aea1", flattened_ast = "4915862b664c509380d5d4b95ac1260cd8e88f60b78a82013195ef9d3ed91539", destructured_ast = "bf843b64d15fe670c20e1febe0446859512be2babfd701e9d9b412da8194b67f", inlined_ast = "bf843b64d15fe670c20e1febe0446859512be2babfd701e9d9b412da8194b67f", dce_ast = "e93a226a421c1ea46eeb75d9b3b127d182357b1a626ef0a2706a48972256debd", bytecode = """
+    { initial_ast = "26ba761573d4baebc673937c8822ded5636a4f4b6858d54dc6ae90d7f44a860d", unrolled_ast = "b6ad684cddb6a356d83bc479881e20f7a805faa2626604ed0130641e73897c12", ssa_ast = "8c700705638d36021d8608702a7aaf95f570f61d9287aa68c8275fc3b9c50517", flattened_ast = "0ad11b48c5d080a22e5b2a7b668509383fcaa324171001f1401074c3f97650a8", destructured_ast = "cce21f015fef8525547efb73131d36baa836c30dae5a2ab243e5ad2e4a0c27d5", inlined_ast = "cce21f015fef8525547efb73131d36baa836c30dae5a2ab243e5ad2e4a0c27d5", dce_ast = "f1787d6fed10b5fde88a7f945e86780f95e8b90d2e4d00d0083f548720333770", bytecode = """
 import child.aleo;
 import parent.aleo;
 program grandparent.aleo;

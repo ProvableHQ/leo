@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_errors::{ParserError, ParserWarning, Result};
+use leo_errors::{ParserError, Result, TypeCheckerError};
 use leo_span::sym;
 
 const ASSIGN_TOKENS: &[Token] = &[
@@ -87,9 +87,14 @@ impl<N: Network> ParserContext<'_, N> {
 
     /// Returns an [`AssignStatement`] AST node if the next tokens represent an assignment, otherwise expects an expression statement.
     fn parse_assign_statement(&mut self) -> Result<Statement> {
-        let place = self.parse_expression()?;
-
+        let expression = self.parse_expression()?;
         if self.eat_any(ASSIGN_TOKENS) {
+            let Expression::Identifier(identifier) = expression else {
+                // TODO - We're temporarily making use of a TypeCheckerError; this should go away
+                // and be handled by type checking once more assignment targets are introduced.
+                return Err(TypeCheckerError::invalid_assignment_target(expression.span()).into());
+            };
+
             // Determine the corresponding binary operation for each token, if it exists.
             let operation = match &self.prev_token.token {
                 Token::Assign => None,
@@ -106,17 +111,17 @@ impl<N: Network> ParserContext<'_, N> {
                 Token::BitXorAssign => Some(BinaryOperation::Xor),
                 Token::ShrAssign => Some(BinaryOperation::Shr),
                 Token::ShlAssign => Some(BinaryOperation::Shl),
-                _ => unreachable!("`parse_assign_statement` shouldn't produce this"),
+                _ => panic!("`parse_assign_statement` shouldn't produce this"),
             };
 
             let value = self.parse_expression()?;
             self.expect(&Token::Semicolon)?;
 
             // Construct the span for the statement.
-            let span = place.span() + value.span();
+            let span = expression.span() + value.span();
 
             // Construct a copy of the lhs with a unique id.
-            let mut left = place.clone();
+            let mut left = expression.clone();
             left.set_id(self.node_builder.next_id());
 
             // Simplify complex assignments into simple assignments.
@@ -132,37 +137,21 @@ impl<N: Network> ParserContext<'_, N> {
                 }),
             };
 
-            Ok(Statement::Assign(Box::new(AssignStatement { span, place, value, id: self.node_builder.next_id() })))
-        } else {
-            // Check for `increment` and `decrement` statements. If found, emit a deprecation warning.
-            if let Expression::Call(call_expression) = &place {
-                match *call_expression.function {
-                    Expression::Identifier(Identifier { name: sym::decrement, .. }) => {
-                        self.emit_warning(ParserWarning::deprecated(
-                            "decrement",
-                            "Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings.",
-                            place.span(),
-                        ));
-                    }
-                    Expression::Identifier(Identifier { name: sym::increment, .. }) => {
-                        self.emit_warning(ParserWarning::deprecated(
-                            "increment",
-                            "Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings.",
-                            place.span(),
-                        ));
-                    }
-                    _ => (),
-                }
-            }
-
-            // Parse the expression as a statement.
-            let end = self.expect(&Token::Semicolon)?;
-            Ok(Statement::Expression(ExpressionStatement {
-                span: place.span() + end,
-                expression: place,
+            return Ok(Statement::Assign(Box::new(AssignStatement {
+                span,
+                place: identifier,
+                value,
                 id: self.node_builder.next_id(),
-            }))
+            })));
         }
+
+        let end = self.expect(&Token::Semicolon)?;
+
+        Ok(Statement::Expression(ExpressionStatement {
+            span: expression.span() + end,
+            expression,
+            id: self.node_builder.next_id(),
+        }))
     }
 
     /// Returns a [`Block`] AST node if the next tokens represent a block of statements.
@@ -313,18 +302,29 @@ impl<N: Network> ParserContext<'_, N> {
         Ok(ConstDeclaration { span: decl_span + value.span(), place, type_, value, id: self.node_builder.next_id() })
     }
 
+    fn parse_definition_place(&mut self) -> Result<DefinitionPlace> {
+        if let Some(identifier) = self.eat_identifier() {
+            return Ok(DefinitionPlace::Single(identifier));
+        }
+
+        let (identifiers, _, _) = self.parse_paren_comma_list(|p| {
+            let span = p.token.span;
+
+            let eaten = p.eat_identifier();
+
+            if eaten.is_some() { Ok(eaten) } else { Err(ParserError::expected_identifier(span).into()) }
+        })?;
+
+        Ok(DefinitionPlace::Multiple(identifiers))
+    }
+
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
     pub(super) fn parse_definition_statement(&mut self) -> Result<DefinitionStatement> {
         self.expect(&Token::Let)?;
         let decl_span = self.prev_token.span;
-        let decl_type = match &self.prev_token.token {
-            Token::Let => DeclarationType::Let,
-            // Note: Reserving for `constant` declarations.
-            _ => unreachable!("parse_definition_statement_ shouldn't produce this"),
-        };
 
         // Parse variable name and type.
-        let place = self.parse_expression()?;
+        let place = self.parse_definition_place()?;
         self.expect(&Token::Colon)?;
         let type_ = self.parse_type()?.0;
 
@@ -332,13 +332,6 @@ impl<N: Network> ParserContext<'_, N> {
         let value = self.parse_expression()?;
         self.expect(&Token::Semicolon)?;
 
-        Ok(DefinitionStatement {
-            span: decl_span + value.span(),
-            declaration_type: decl_type,
-            place,
-            type_,
-            value,
-            id: self.node_builder.next_id(),
-        })
+        Ok(DefinitionStatement { span: decl_span + value.span(), place, type_, value, id: self.node_builder.next_id() })
     }
 }

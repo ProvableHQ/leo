@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, AssignmentRenamer, CallGraph, TypeTable};
+use crate::{CallGraph, TypeTable};
 
 use leo_ast::{Function, NodeBuilder};
 use leo_span::Symbol;
@@ -24,8 +24,6 @@ pub struct FunctionInliner<'a> {
     pub(crate) node_builder: &'a NodeBuilder,
     /// The call graph for the program.
     pub(crate) call_graph: &'a CallGraph,
-    /// A wrapper around an Assigner used to create unique variable assignments.
-    pub(crate) assignment_renamer: AssignmentRenamer<'a>,
     /// A mapping between node IDs and their types.
     pub(crate) type_table: &'a TypeTable,
     /// A map of reconstructed functions in the current program scope.
@@ -38,16 +36,10 @@ pub struct FunctionInliner<'a> {
 
 impl<'a> FunctionInliner<'a> {
     /// Initializes a new `FunctionInliner`.
-    pub fn new(
-        node_builder: &'a NodeBuilder,
-        call_graph: &'a CallGraph,
-        assigner: &'a Assigner,
-        type_table: &'a TypeTable,
-    ) -> Self {
+    pub fn new(node_builder: &'a NodeBuilder, call_graph: &'a CallGraph, type_table: &'a TypeTable) -> Self {
         Self {
             node_builder,
             call_graph,
-            assignment_renamer: AssignmentRenamer::new(assigner),
             reconstructed_functions: Default::default(),
             type_table,
             program: None,

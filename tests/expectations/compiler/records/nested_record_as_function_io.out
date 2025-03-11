@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Pass"
 outputs = [[{ compile = [
-    { initial_ast = "b64182a25ffce908c6ed2a904e9e294603e8cb603de9aaeb73668e1a8cbbf5d0", unrolled_ast = "b64182a25ffce908c6ed2a904e9e294603e8cb603de9aaeb73668e1a8cbbf5d0", ssa_ast = "528aa2e48a0930f37ba4e90ac96aaa1cf0fb86635263446f5378e4dfa43d41fd", flattened_ast = "9428b742d8d262b97984cecf88806b1d369d2713b30a1ea3923e62236e04a1fe", destructured_ast = "509bff06f2ebce0396b4857413307e17e79e20f379d1900f140408217ae9c8f9", inlined_ast = "509bff06f2ebce0396b4857413307e17e79e20f379d1900f140408217ae9c8f9", dce_ast = "509bff06f2ebce0396b4857413307e17e79e20f379d1900f140408217ae9c8f9", bytecode = """
+    { initial_ast = "b64182a25ffce908c6ed2a904e9e294603e8cb603de9aaeb73668e1a8cbbf5d0", unrolled_ast = "b64182a25ffce908c6ed2a904e9e294603e8cb603de9aaeb73668e1a8cbbf5d0", ssa_ast = "4eae8d70743b313fd288d4ab8256431ce67621a671fd26ee547c519f309ab02c", flattened_ast = "249f04cdef1814768d17e283fa852d9dd0ce449e7c8170adcb5175dc98088fd6", destructured_ast = "5bdb8631a2d6cd5d8db4443ee308abd266ab99913bc6c333835799c7e3df9a9c", inlined_ast = "5bdb8631a2d6cd5d8db4443ee308abd266ab99913bc6c333835799c7e3df9a9c", dce_ast = "5bdb8631a2d6cd5d8db4443ee308abd266ab99913bc6c333835799c7e3df9a9c", bytecode = """
 program program_a.aleo;
 
 record X:
@@ -13,7 +13,7 @@ function mint2:
     cast self.signer r0 into r1 as X.record;
     output r1 as X.record;
 """, errors = "", warnings = "" },
-    { initial_ast = "60b69111a28cdb34c2cb3cf3a7531a8ad49f128e543bdde432224cf04c654624", unrolled_ast = "60ffc72796bcb5f714be3f720b9f27666a8de0488b46f3fba693aeb5e63d6828", ssa_ast = "ef3e9d3142c9bb9a7879c68fbc56bc6d13b524e7e9d90f73b4a2605c09419535", flattened_ast = "e2fd31f33193492ef8a3027869618a26c8e257b12e7a42221c01adcbc186eea8", destructured_ast = "397fc94cd8b0277f666f6a8cb2d145f44f43a8709d8b1d91890f6ff44466717a", inlined_ast = "397fc94cd8b0277f666f6a8cb2d145f44f43a8709d8b1d91890f6ff44466717a", dce_ast = "397fc94cd8b0277f666f6a8cb2d145f44f43a8709d8b1d91890f6ff44466717a", bytecode = """
+    { initial_ast = "60b69111a28cdb34c2cb3cf3a7531a8ad49f128e543bdde432224cf04c654624", unrolled_ast = "60ffc72796bcb5f714be3f720b9f27666a8de0488b46f3fba693aeb5e63d6828", ssa_ast = "b7da2c0dc51f0e30a70a27b9ee9977ec69c013eff1d73ba498617c076a80dec0", flattened_ast = "ca1cf5b6fc9131f5b20894e622e0bf32e3f54b060e3c59ca4882ccc8c72efbc4", destructured_ast = "4613d7bdc88c475d172ecc3a92df04e080ac6142ba3a2b28efa876fce4acb1f2", inlined_ast = "4613d7bdc88c475d172ecc3a92df04e080ac6142ba3a2b28efa876fce4acb1f2", dce_ast = "4613d7bdc88c475d172ecc3a92df04e080ac6142ba3a2b28efa876fce4acb1f2", bytecode = """
 import program_a.aleo;
 program program_b.aleo;
 
@@ -25,7 +25,7 @@ function boofar:
     input r0 as program_a.aleo/X.record;
     output r0 as program_a.aleo/X.record;
 """, errors = "", warnings = "" },
-    { initial_ast = "c74d819aafa9edb960e8408ceb1b3ee2b5de2c9ae343590f32911b497446d65b", unrolled_ast = "2feeb1f565012e518714d6713df15fd2f921b7ec414c6dc2abf0fd727a1d0e8c", ssa_ast = "54c51b42c1b2d911ebe11e697831fd994cf9da2f49ab4f77473fedf8b9931835", flattened_ast = "321c82b52e3cd2b1b2057e85b65ff3d9bfd70b163d065cecf57a98159fa95c6c", destructured_ast = "29c33e54172af371074530b5245143eef6ff2fc7f9ee8900e246f11bd3299c97", inlined_ast = "29c33e54172af371074530b5245143eef6ff2fc7f9ee8900e246f11bd3299c97", dce_ast = "29c33e54172af371074530b5245143eef6ff2fc7f9ee8900e246f11bd3299c97", bytecode = """
+    { initial_ast = "c74d819aafa9edb960e8408ceb1b3ee2b5de2c9ae343590f32911b497446d65b", unrolled_ast = "2feeb1f565012e518714d6713df15fd2f921b7ec414c6dc2abf0fd727a1d0e8c", ssa_ast = "d52323d8f3d43d6680e5e44f37b3eb612d16f5edfc9a7b52f59824649f96415b", flattened_ast = "06e968c9b4abbdc50f5cd1fdfa792351ef6d7c16930d89f7d0c3d8ceff371d61", destructured_ast = "2aece892ab9e605ada8d938717f7fb05fb4fec3ad4d735934cea222a4fd0b00f", inlined_ast = "2aece892ab9e605ada8d938717f7fb05fb4fec3ad4d735934cea222a4fd0b00f", dce_ast = "2aece892ab9e605ada8d938717f7fb05fb4fec3ad4d735934cea222a4fd0b00f", bytecode = """
 import program_a.aleo;
 import program_b.aleo;
 program program_c.aleo;

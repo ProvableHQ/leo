@@ -4,10 +4,8 @@ expectation = "Pass"
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"expr","span":"{\"lo\":4,\"hi\":8}"}'
@@ -19,10 +17,8 @@ hi = 8
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
 id = 5
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
 
 [outputs.Assign.value.Binary]
 op = "Add"
@@ -45,10 +41,8 @@ hi = 7
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
 id = 4
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":0,\"hi\":1}"}'
 
 [outputs.Assign.value.Call]
 arguments = []

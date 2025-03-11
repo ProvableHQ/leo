@@ -1,6 +1,6 @@
 namespace = "Compile"
 expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "15b9546ab7a4c5d7beeb223816ddac37ea0572634bed5a2cc34bb311aa72e4cd", unrolled_ast = "15b9546ab7a4c5d7beeb223816ddac37ea0572634bed5a2cc34bb311aa72e4cd", ssa_ast = "232c939ca56f08e4b64bde91fe46378604c743c68d044734c4c0d87164feae0f", flattened_ast = "5d1ead6ab82deafdd0b1a0ef2bba29d5bcd013cef8696e992b1ee4b6d1c2b492", destructured_ast = "8aaca8c57b9195cf47bc6c7de8be3b4dbfd7a2577018fa2303d2c3824c5d0515", inlined_ast = "594722fe6c8f48eefc16c2bc6e4f7477a33d614dc460a9f140b414cc125181c6", dce_ast = "594722fe6c8f48eefc16c2bc6e4f7477a33d614dc460a9f140b414cc125181c6", bytecode = """
+outputs = [[{ compile = [{ initial_ast = "30b73265a6670eaa78210fe828c861ee62ba4fd7a393001860902e9a505080e1", unrolled_ast = "30b73265a6670eaa78210fe828c861ee62ba4fd7a393001860902e9a505080e1", ssa_ast = "c5298931a0786c69cd80349b4d7aeadf8fa3cf7752e2a23ef9ca07c3ff2ffca9", flattened_ast = "e07b6e70167ba1a6d50aabd9d1d5a6ed13f5d4cae223aca163884cf342584946", destructured_ast = "791bd46112cdfda7d7f755e4ce27a95385177e99de47a8fda3ac38f26b72e2a7", inlined_ast = "6fdda93c72c95805f584c5700f58cbebe1457501d5173f6c541f9fba75d51ddc", dce_ast = "6fdda93c72c95805f584c5700f58cbebe1457501d5173f6c541f9fba75d51ddc", bytecode = """
 program lottery.aleo;
 
 record Ticket:

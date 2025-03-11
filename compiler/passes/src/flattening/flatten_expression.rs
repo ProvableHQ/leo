@@ -111,7 +111,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                         statements.extend(stmts);
 
                         let (identifier, statement) =
-                            self.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+                            self.unique_simple_definition(Expression::Ternary(TernaryExpression {
                                 condition: input.condition,
                                 if_true: Box::new(if_true),
                                 if_false: Box::new(if_false),

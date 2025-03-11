@@ -4,11 +4,10 @@ expectation = "Pass"
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 2
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U8"
@@ -23,11 +22,10 @@ hi = 16
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U16"
@@ -53,11 +51,10 @@ hi = 16
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 3
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U8"
@@ -80,12 +77,11 @@ hi = 15
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 type_ = "String"
 id = 2
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.value]
 Identifier = '{"id":"1","name":"expr","span":"{\"lo\":16,\"hi\":20}"}'
@@ -97,11 +93,10 @@ hi = 20
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 2
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "I8"
@@ -116,11 +111,10 @@ hi = 16
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "I16"
@@ -146,11 +140,10 @@ hi = 16
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 3
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "I8"
@@ -173,12 +166,11 @@ hi = 15
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 type_ = "String"
 id = 2
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.value]
 Identifier = '{"id":"1","name":"expr","span":"{\"lo\":16,\"hi\":20}"}'
@@ -190,11 +182,10 @@ hi = 20
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 6
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_.Composite]
 id = '{"id":"1","name":"credits","span":"{\"lo\":7,\"hi\":14}"}'
@@ -227,11 +218,10 @@ hi = 50
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 7
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_.Composite]
 id = '{"id":"2","name":"credits","span":"{\"lo\":20,\"hi\":27}"}'
@@ -265,11 +255,10 @@ hi = 63
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 2
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U32"
@@ -284,11 +273,10 @@ hi = 17
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U32"
@@ -314,11 +302,10 @@ hi = 16
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 3
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U32"
@@ -341,11 +328,10 @@ hi = 16
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 2
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U32"
@@ -360,11 +346,10 @@ hi = 17
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U32"
@@ -390,11 +375,10 @@ hi = 16
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 3
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U32"
@@ -417,12 +401,11 @@ hi = 16
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 type_ = "Address"
 id = 2
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.value.Literal]
 Address = [

@@ -9,24 +9,4 @@ Error [EAST0372006]: function `finalize_no_params` shadowed by
   29 |         increment(account, self.caller, 1u64);
   30 |     }
      |     ^
-Warning [WPAR0370001]: The keyword `increment` is deprecated.
-    --> compiler-test:12:9
-     |
-  12 |         increment(account, receiver, amount);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings.
-Warning [WPAR0370001]: The keyword `increment` is deprecated.
-    --> compiler-test:28:9
-     |
-  28 |         increment(values, 0u8, 1u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings.
-Warning [WPAR0370001]: The keyword `increment` is deprecated.
-    --> compiler-test:29:9
-     |
-  29 |         increment(account, self.caller, 1u64);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings."""]
+"""]

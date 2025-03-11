@@ -21,7 +21,9 @@ use leo_ast::{
     Composite,
     Function,
     FunctionConsumer,
+    Identifier,
     Member,
+    Node as _,
     Program,
     ProgramConsumer,
     ProgramScope,
@@ -62,34 +64,35 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
     type Output = Function;
 
     /// Reconstructs the `Function`s in the `Program`, while allocating the appropriate `RenameTable`s.
-    fn consume_function(&mut self, function: Function) -> Self::Output {
+    fn consume_function(&mut self, mut function: Function) -> Self::Output {
         // Allocate a `RenameTable` for the function.
         self.push();
 
-        // There is no need to reconstruct `function.inputs`.
-        // However, for each input, we must add each symbol to the rename table.
-        for input_variable in function.input.iter() {
-            let identifier = input_variable.identifier();
-            self.rename_table.update(identifier.name, identifier.name, identifier.id);
+        // For each input, change to a unique name.
+        // Give a unique However, for each input, we must add each symbol to the rename table.
+        for input_variable in function.input.iter_mut() {
+            let old_identifier = input_variable.identifier;
+            let new_symbol = self.assigner.unique_symbol(old_identifier, "$$");
+            let new_identifier = Identifier::new(new_symbol, self.node_builder.next_id());
+            input_variable.identifier = new_identifier;
+
+            // Add the new identifier to the type table.
+            self.type_table.insert(new_identifier.id(), input_variable.type_.clone());
+
+            // Associate the old name with its ID.
+            self.rename_table.update(old_identifier.name, old_identifier.name, old_identifier.id);
+
+            // And make the rename.
+            self.rename_table.update(old_identifier.name, new_identifier.name, old_identifier.id);
         }
 
-        let block =
+        function.block =
             Block { span: function.block.span, id: function.block.id, statements: self.consume_block(function.block) };
 
         // Remove the `RenameTable` for the function.
         self.pop();
 
-        Function {
-            annotations: function.annotations,
-            variant: function.variant,
-            identifier: function.identifier,
-            input: function.input,
-            output: function.output,
-            output_type: function.output_type,
-            block,
-            span: function.span,
-            id: function.id,
-        }
+        function
     }
 }
 

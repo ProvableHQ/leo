@@ -14,16 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{
-    AccessExpression,
-    CoreFunction,
-    Expression,
-    ExpressionReconstructor,
-    Node,
-    StructExpression,
-    TernaryExpression,
-    Type,
-};
+use leo_ast::{CoreFunction, Expression, ExpressionReconstructor, Node, StructExpression, TernaryExpression, Type};
 use leo_errors::StaticAnalyzerError;
 use leo_interpreter::{StructContents, Value};
 use leo_span::sym;
@@ -42,6 +33,12 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
         let (new_expr, opt_value) = match input {
             Expression::Access(access) => self.reconstruct_access(access),
             Expression::Array(array) => self.reconstruct_array(array),
+            Expression::AssociatedConstant(associated_constant) => {
+                self.reconstruct_associated_constant(associated_constant)
+            }
+            Expression::AssociatedFunction(associated_function) => {
+                self.reconstruct_associated_function(associated_function)
+            }
             Expression::Binary(binary) => self.reconstruct_binary(binary),
             Expression::Call(call) => self.reconstruct_call(call),
             Expression::Cast(cast) => self.reconstruct_cast(cast),
@@ -106,8 +103,6 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
     fn reconstruct_access(&mut self, input: leo_ast::AccessExpression) -> (Expression, Self::AdditionalOutput) {
         match input {
             leo_ast::AccessExpression::Array(array) => self.reconstruct_array_access(array),
-            leo_ast::AccessExpression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
-            leo_ast::AccessExpression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
             leo_ast::AccessExpression::Member(member) => self.reconstruct_member_access(member),
             leo_ast::AccessExpression::Tuple(tuple) => self.reconstruct_tuple_access(tuple),
         }
@@ -178,7 +173,7 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
 
     fn reconstruct_associated_constant(
         &mut self,
-        input: leo_ast::AssociatedConstant,
+        input: leo_ast::AssociatedConstantExpression,
     ) -> (Expression, Self::AdditionalOutput) {
         // Currently there is only one associated constant.
         let generator = Value::generator();
@@ -188,7 +183,7 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
 
     fn reconstruct_associated_function(
         &mut self,
-        mut input: leo_ast::AssociatedFunction,
+        mut input: leo_ast::AssociatedFunctionExpression,
     ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
         for argument in input.arguments.iter_mut() {
@@ -220,7 +215,7 @@ impl ExpressionReconstructor for ConstPropagator<'_> {
             }
         }
 
-        (Expression::Access(AccessExpression::AssociatedFunction(input)), Default::default())
+        (Expression::AssociatedFunction(input), Default::default())
     }
 
     fn reconstruct_member_access(&mut self, mut input: leo_ast::MemberAccess) -> (Expression, Self::AdditionalOutput) {

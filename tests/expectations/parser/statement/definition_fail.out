@@ -122,19 +122,19 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
    1 | constant mut x: u32 = x();
      | ^^^^^^^^""",
     """
-Error [EPAR0370009]: unexpected string: expected 'expression', found ','
+Error [EPAR0370045]: Expected an identifier.
     --> test:1:10
      |
    1 | let (x,y,,) = ();
      |          ^""",
     """
-Error [EPAR0370009]: unexpected string: expected 'expression', found ','
+Error [EPAR0370045]: Expected an identifier.
     --> test:1:6
      |
    1 | let (,x,y) = ();
      |      ^""",
     """
-Error [EPAR0370009]: unexpected string: expected 'expression', found ','
+Error [EPAR0370045]: Expected an identifier.
     --> test:1:8
      |
    1 | let (x,,y) = ();
@@ -158,7 +158,7 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
    1 | constant x: let = expr;
      | ^^^^^^^^""",
     """
-Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
+Error [EPAR0370005]: expected ( -- found '<eof>'
     --> test:1:1
      |
    1 | let
@@ -182,13 +182,13 @@ Error [EPAR0370005]: expected : -- found '='
    1 | let x = (a, y]);
      |       ^""",
     """
-Error [EPAR0370009]: unexpected string: expected 'expression', found '='
+Error [EPAR0370005]: expected ( -- found '='
     --> test:1:5
      |
    1 | let = 1u8;
      |     ^""",
     """
-Error [EPAR0370009]: unexpected string: expected 'expression', found ';'
+Error [EPAR0370005]: expected ( -- found ';'
     --> test:1:4
      |
    1 | let;
@@ -251,19 +251,19 @@ Error [EPAR0370005]: expected : -- found '='
    1 | let (x) = ...;
      |         ^""",
     """
-Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> test:1:5
+Error [EPAR0370005]: expected : -- found '='
+    --> test:1:10
      |
    1 | let (x,) = ...;
-     |     ^^^^""",
+     |          ^""",
     """
-Error [EPAR0370009]: unexpected string: expected 'expression', found '_'
+Error [EPAR0370005]: expected ( -- found '_'
     --> test:1:5
      |
    1 | let _1: u8 = 1u8;
      |     ^""",
     """
-Error [EPAR0370017]: Could not parse the implicit value: 1___091.
+Error [EPAR0370005]: expected ( -- found '1___091'
     --> test:1:5
      |
    1 | let 1___091: u8 = 12u8;

@@ -62,35 +62,24 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
                     .zip_eq(input.arguments)
                     .collect::<IndexMap<_, _>>();
 
-                // Initializer `self.assignment_renamer` with the function parameters.
-                self.assignment_renamer.load(
-                    callee
-                        .input
-                        .iter()
-                        .map(|input| (input.identifier().name, input.identifier().name, input.identifier().id)),
-                );
-
-                // Duplicate the body of the callee and create a unique assignment statement for each assignment in the body.
-                // This is necessary to ensure the inlined variables do not conflict with variables in the caller.
-                let unique_block = self.assignment_renamer.reconstruct_block(callee.block.clone()).0;
-
-                // Reset `self.assignment_renamer`.
-                self.assignment_renamer.clear();
-
                 // Replace each input variable with the appropriate parameter.
-                let replace = |identifier: &Identifier| match parameter_to_argument.get(&identifier.name) {
-                    Some(expression) => expression.clone(),
-                    None => Expression::Identifier(*identifier),
+                let replace = |identifier: &Identifier| {
+                    parameter_to_argument
+                        .get(&identifier.name)
+                        .cloned()
+                        .unwrap_or_else(|| Expression::Identifier(*identifier))
                 };
-                let mut inlined_statements = Replacer::new(replace).reconstruct_block(unique_block).0.statements;
 
-                // If the inlined block returns a value, then use the value in place of the call expression, otherwise, use the unit expression.
+                let mut inlined_statements =
+                    Replacer::new(replace).reconstruct_block(callee.block.clone()).0.statements;
+
+                // If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
                 let result = match inlined_statements.last() {
                     Some(Statement::Return(_)) => {
                         // Note that this unwrap is safe since we know that the last statement is a return statement.
                         match inlined_statements.pop().unwrap() {
                             Statement::Return(ReturnStatement { expression, .. }) => expression,
-                            _ => unreachable!("This branch checks that the last statement is a return statement."),
+                            _ => panic!("This branch checks that the last statement is a return statement."),
                         }
                     }
                     _ => {

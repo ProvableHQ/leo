@@ -1,16 +1,8 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [ETYC0372054]: Tuples on the left-hand side of a `DefinitionStatement` can only contain identifiers.
+Error [EPAR0370045]: Expected an identifier.
     --> compiler-test:5:14
      |
    5 |         let (1u8+1u8,1u8+1u8): (u8,u8) = (1u8,2u8);
-     |              ^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
-     |
-   1 | 
-   2 | 
-   3 | program test.aleo {
-     | ^^^^^^^^^^^^
-"""]
+     |              ^"""]

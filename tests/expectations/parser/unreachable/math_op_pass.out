@@ -4,11 +4,10 @@ expectation = "Pass"
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U8"
@@ -34,11 +33,10 @@ hi = 18
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U8"
@@ -64,11 +62,10 @@ hi = 18
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U8"
@@ -94,11 +91,10 @@ hi = 17
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U8"
@@ -124,11 +120,10 @@ hi = 18
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U8"
@@ -154,11 +149,10 @@ hi = 17
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U8"
@@ -184,11 +178,10 @@ hi = 18
 [[outputs]]
 
 [outputs.Definition]
-declaration_type = "Let"
 id = 4
 
 [outputs.Definition.place]
-Identifier = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
+Single = '{"id":"0","name":"x","span":"{\"lo\":4,\"hi\":5}"}'
 
 [outputs.Definition.type_]
 Integer = "U8"
@@ -214,10 +207,8 @@ hi = 17
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"x_","span":"{\"lo\":0,\"hi\":2}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"x_","span":"{\"lo\":0,\"hi\":2}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":3,\"hi\":4}"}'
@@ -229,10 +220,8 @@ hi = 4
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xconsole","span":"{\"lo\":0,\"hi\":8}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xconsole","span":"{\"lo\":0,\"hi\":8}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":9,\"hi\":10}"}'
@@ -244,10 +233,8 @@ hi = 10
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xconst","span":"{\"lo\":0,\"hi\":6}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xconst","span":"{\"lo\":0,\"hi\":6}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":7,\"hi\":8}"}'
@@ -259,10 +246,8 @@ hi = 8
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xlet","span":"{\"lo\":0,\"hi\":4}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xlet","span":"{\"lo\":0,\"hi\":4}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":5,\"hi\":6}"}'
@@ -274,10 +259,8 @@ hi = 6
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xfor","span":"{\"lo\":0,\"hi\":4}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xfor","span":"{\"lo\":0,\"hi\":4}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":5,\"hi\":6}"}'
@@ -289,10 +272,8 @@ hi = 6
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xif","span":"{\"lo\":0,\"hi\":3}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xif","span":"{\"lo\":0,\"hi\":3}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":4,\"hi\":5}"}'
@@ -304,10 +285,8 @@ hi = 5
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xelse","span":"{\"lo\":0,\"hi\":5}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xelse","span":"{\"lo\":0,\"hi\":5}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":6,\"hi\":7}"}'
@@ -319,10 +298,8 @@ hi = 7
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xi8","span":"{\"lo\":0,\"hi\":3}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xi8","span":"{\"lo\":0,\"hi\":3}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":4,\"hi\":5}"}'
@@ -334,10 +311,8 @@ hi = 5
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xi16","span":"{\"lo\":0,\"hi\":4}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xi16","span":"{\"lo\":0,\"hi\":4}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":5,\"hi\":6}"}'
@@ -349,10 +324,8 @@ hi = 6
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xi32","span":"{\"lo\":0,\"hi\":4}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xi32","span":"{\"lo\":0,\"hi\":4}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":5,\"hi\":6}"}'
@@ -364,10 +337,8 @@ hi = 6
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xi64","span":"{\"lo\":0,\"hi\":4}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xi64","span":"{\"lo\":0,\"hi\":4}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":5,\"hi\":6}"}'
@@ -379,10 +350,8 @@ hi = 6
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xi128","span":"{\"lo\":0,\"hi\":5}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xi128","span":"{\"lo\":0,\"hi\":5}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":6,\"hi\":7}"}'
@@ -394,10 +363,8 @@ hi = 7
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xu8","span":"{\"lo\":0,\"hi\":3}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xu8","span":"{\"lo\":0,\"hi\":3}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":4,\"hi\":5}"}'
@@ -409,10 +376,8 @@ hi = 5
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xu16","span":"{\"lo\":0,\"hi\":4}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xu16","span":"{\"lo\":0,\"hi\":4}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":5,\"hi\":6}"}'
@@ -424,10 +389,8 @@ hi = 6
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xu32","span":"{\"lo\":0,\"hi\":4}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xu32","span":"{\"lo\":0,\"hi\":4}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":5,\"hi\":6}"}'
@@ -439,10 +402,8 @@ hi = 6
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xu64","span":"{\"lo\":0,\"hi\":4}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xu64","span":"{\"lo\":0,\"hi\":4}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":5,\"hi\":6}"}'
@@ -454,10 +415,8 @@ hi = 6
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xu128","span":"{\"lo\":0,\"hi\":5}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xu128","span":"{\"lo\":0,\"hi\":5}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":6,\"hi\":7}"}'
@@ -469,10 +428,8 @@ hi = 7
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xreturn","span":"{\"lo\":0,\"hi\":7}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xreturn","span":"{\"lo\":0,\"hi\":7}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":8,\"hi\":9}"}'
@@ -484,10 +441,8 @@ hi = 9
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xtrue","span":"{\"lo\":0,\"hi\":5}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xtrue","span":"{\"lo\":0,\"hi\":5}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":6,\"hi\":7}"}'
@@ -499,10 +454,8 @@ hi = 7
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"xfalse","span":"{\"lo\":0,\"hi\":6}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"xfalse","span":"{\"lo\":0,\"hi\":6}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":7,\"hi\":8}"}'
@@ -514,10 +467,8 @@ hi = 8
 [[outputs]]
 
 [outputs.Assign]
+place = '{"id":"0","name":"x0","span":"{\"lo\":0,\"hi\":2}"}'
 id = 3
-
-[outputs.Assign.place]
-Identifier = '{"id":"0","name":"x0","span":"{\"lo\":0,\"hi\":2}"}'
 
 [outputs.Assign.value]
 Identifier = '{"id":"1","name":"b","span":"{\"lo\":3,\"hi\":4}"}'

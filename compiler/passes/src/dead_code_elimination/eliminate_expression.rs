@@ -17,8 +17,7 @@
 use crate::DeadCodeEliminator;
 
 use leo_ast::{
-    AccessExpression,
-    AssociatedFunction,
+    AssociatedFunctionExpression,
     Expression,
     ExpressionReconstructor,
     Identifier,
@@ -27,11 +26,14 @@ use leo_ast::{
 };
 use leo_span::sym;
 
-impl ExpressionReconstructor for DeadCodeEliminator<'_> {
+impl ExpressionReconstructor for DeadCodeEliminator {
     type AdditionalOutput = ();
 
     /// Reconstructs the associated function access expression.
-    fn reconstruct_associated_function(&mut self, input: AssociatedFunction) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_associated_function(
+        &mut self,
+        input: AssociatedFunctionExpression,
+    ) -> (Expression, Self::AdditionalOutput) {
         // If the associated function manipulates a mapping, or a cheat code, mark the statement as necessary.
         match (&input.variant.name, input.name.name) {
             (&sym::Mapping, sym::remove)
@@ -44,13 +46,13 @@ impl ExpressionReconstructor for DeadCodeEliminator<'_> {
         };
         // Reconstruct the access expression.
         let result = (
-            Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+            Expression::AssociatedFunction(AssociatedFunctionExpression {
                 variant: input.variant,
                 name: input.name,
                 arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                 span: input.span,
                 id: input.id,
-            })),
+            }),
             Default::default(),
         );
         // Unset `self.is_necessary`.

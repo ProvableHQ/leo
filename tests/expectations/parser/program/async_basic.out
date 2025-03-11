@@ -19,7 +19,7 @@ functions = [
     [
     "main",
     { annotations = [], variant = "AsyncTransition", identifier = '{"id":"4","name":"main","span":"{\"lo\":72,\"hi\":76}"}', input = [], id = 15, output = [{ mode = "None", id = 5, type_ = { Future = { inputs = [], is_explicit = false } }, span = { lo = 82, hi = 88 } }], output_type = { Future = { inputs = [], is_explicit = false } }, block = { id = 14, statements = [
-    { Definition = { declaration_type = "Let", id = 11, place = { Identifier = '{"id":"6","name":"f","span":"{\"lo\":103,\"hi\":104}"}' }, type_ = { Future = { inputs = [], is_explicit = false } }, value = { Call = { program = "test", id = 10, arguments = [
+    { Definition = { id = 11, place = { Single = '{"id":"6","name":"f","span":"{\"lo\":103,\"hi\":104}"}' }, type_ = { Future = { inputs = [], is_explicit = false } }, value = { Call = { program = "test", id = 10, arguments = [
     { Literal = { Integer = [
     "U32",
     "1",
@@ -41,11 +41,11 @@ functions = [
     { annotations = [], variant = "AsyncFunction", identifier = '{"id":"16","name":"finalize_main","span":"{\"lo\":186,\"hi\":199}"}', id = 30, input = [
     { identifier = '{"id":"17","name":"a","span":"{\"lo\":200,\"hi\":201}"}', mode = "None", id = 18, type_ = { Integer = "U32" }, span = { lo = 200, hi = 205 } },
     { identifier = '{"id":"19","name":"b","span":"{\"lo\":207,\"hi\":208}"}', mode = "None", id = 20, type_ = { Integer = "U32" }, span = { lo = 207, hi = 212 } },
-], output = [{ mode = "None", id = 21, type_ = { Future = { inputs = [], is_explicit = false } }, span = { lo = 217, hi = 223 } }], output_type = { Future = { inputs = [], is_explicit = false } }, block = { id = 29, statements = [{ Expression = { id = 28, expression = { Access = { AssociatedFunction = { variant = '{"id":"22","name":"Mapping","span":"{\"lo\":234,\"hi\":241}"}', name = '{"id":"23","name":"set","span":"{\"lo\":243,\"hi\":246}"}', id = 27, arguments = [
+], output = [{ mode = "None", id = 21, type_ = { Future = { inputs = [], is_explicit = false } }, span = { lo = 217, hi = 223 } }], output_type = { Future = { inputs = [], is_explicit = false } }, block = { id = 29, statements = [{ Expression = { id = 28, expression = { AssociatedFunction = { variant = '{"id":"22","name":"Mapping","span":"{\"lo\":234,\"hi\":241}"}', name = '{"id":"23","name":"set","span":"{\"lo\":243,\"hi\":246}"}', id = 27, arguments = [
     { Identifier = '{"id":"24","name":"Yo","span":"{\"lo\":247,\"hi\":249}"}' },
     { Identifier = '{"id":"25","name":"a","span":"{\"lo\":251,\"hi\":252}"}' },
     { Identifier = '{"id":"26","name":"b","span":"{\"lo\":254,\"hi\":255}"}' },
-], span = { lo = 234, hi = 256 } } } }, span = { lo = 234, hi = 257 } } }], span = { lo = 224, hi = 263 } }, span = { lo = 171, hi = 263 } },
+], span = { lo = 234, hi = 256 } } }, span = { lo = 234, hi = 257 } } }], span = { lo = 224, hi = 263 } }, span = { lo = 171, hi = 263 } },
 ],
 ]
 

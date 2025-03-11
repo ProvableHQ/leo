@@ -16,7 +16,7 @@
 
 use crate::{Assigner, TypeTable};
 
-use leo_ast::{Expression, Identifier, Node, NodeBuilder, Statement, TupleExpression};
+use leo_ast::{NodeBuilder, TupleExpression};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -28,7 +28,7 @@ pub struct Destructurer<'a> {
     pub(crate) node_builder: &'a NodeBuilder,
     /// A struct used to construct (unique) assignment statements.
     pub(crate) assigner: &'a Assigner,
-    /// A mapping between variables and flattened tuple expressions.
+    /// A mapping between variables and tuple elements.
     pub(crate) tuples: IndexMap<Symbol, TupleExpression>,
     /// Whether or not we are currently traversing an async function block.
     pub(crate) is_async: bool,
@@ -37,17 +37,5 @@ pub struct Destructurer<'a> {
 impl<'a> Destructurer<'a> {
     pub(crate) fn new(type_table: &'a TypeTable, node_builder: &'a NodeBuilder, assigner: &'a Assigner) -> Self {
         Self { type_table, node_builder, assigner, tuples: IndexMap::new(), is_async: false }
-    }
-
-    /// A wrapper around `assigner.simple_assign_statement` that tracks the type of the lhs.
-    pub(crate) fn simple_assign_statement(&mut self, lhs: Identifier, rhs: Expression) -> Statement {
-        // Update the type table.
-        let type_ = match self.type_table.get(&rhs.id()) {
-            Some(type_) => type_,
-            None => unreachable!("Type checking guarantees that all expressions have a type."),
-        };
-        self.type_table.insert(lhs.id(), type_);
-        // Construct the statement.
-        self.assigner.simple_assign_statement(lhs, rhs, self.node_builder.next_id())
     }
 }

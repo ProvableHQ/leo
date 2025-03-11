@@ -14,23 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::{Identifier, Node, NodeID, Type};
+use leo_span::Span;
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// The sort of bindings to introduce, either `let` or `const`.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum DeclarationType {
-    /// This is a `const` binding.
-    Const,
-    /// This is a `let` binding.
-    Let,
+/// An access expression to an struct constant., e.g. `u8::MAX`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AssociatedConstantExpression {
+    /// The inner struct type.
+    pub ty: Type,
+    /// The struct constant that is being accessed.
+    pub name: Identifier,
+    /// The span for the entire expression `Foo::bar()`.
+    pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
-impl fmt::Display for DeclarationType {
+impl fmt::Display for AssociatedConstantExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            DeclarationType::Const => write!(f, "const"),
-            DeclarationType::Let => write!(f, "let"),
-        }
+        write!(f, "{}::{}", self.ty, self.name)
     }
 }
+
+crate::simple_node_impl!(AssociatedConstantExpression);

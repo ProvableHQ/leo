@@ -24,7 +24,6 @@ use leo_ast::{
     ConditionalStatement,
     ConsoleStatement,
     ConstDeclaration,
-    DeclarationType,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -118,20 +117,7 @@ impl StatementReconstructor for ConstPropagator<'_> {
     }
 
     fn reconstruct_definition(&mut self, mut definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        let span = definition.span();
-
-        let (expr, opt_value) = self.reconstruct_expression(definition.value);
-
-        if definition.declaration_type == DeclarationType::Const {
-            if opt_value.is_some() {
-                let Expression::Identifier(id) = &definition.place else {
-                    panic!("Const definitions always have identifiers as the place.");
-                };
-                self.symbol_table.insert_const(self.program, id.name, expr.clone());
-            } else {
-                self.const_not_evaluated = Some(span);
-            }
-        }
+        let (expr, _) = self.reconstruct_expression(definition.value);
 
         definition.value = expr;
 

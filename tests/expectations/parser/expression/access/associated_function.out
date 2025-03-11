@@ -3,28 +3,28 @@ expectation = "Pass"
 
 [[outputs]]
 
-[outputs.Access.AssociatedFunction]
+[outputs.AssociatedFunction]
 variant = '{"id":"0","name":"group","span":"{\"lo\":0,\"hi\":5}"}'
 name = '{"id":"1","name":"to_x_coordinate","span":"{\"lo\":7,\"hi\":22}"}'
 id = 3
 
-[[outputs.Access.AssociatedFunction.arguments]]
+[[outputs.AssociatedFunction.arguments]]
 Identifier = '{"id":"2","name":"a","span":"{\"lo\":23,\"hi\":24}"}'
 
-[outputs.Access.AssociatedFunction.span]
+[outputs.AssociatedFunction.span]
 lo = 0
 hi = 25
 
 [[outputs]]
 
-[outputs.Access.AssociatedFunction]
+[outputs.AssociatedFunction]
 variant = '{"id":"0","name":"group","span":"{\"lo\":0,\"hi\":5}"}'
 name = '{"id":"1","name":"to_y_coordinate","span":"{\"lo\":7,\"hi\":22}"}'
 id = 3
 
-[[outputs.Access.AssociatedFunction.arguments]]
+[[outputs.AssociatedFunction.arguments]]
 Identifier = '{"id":"2","name":"a","span":"{\"lo\":23,\"hi\":24}"}'
 
-[outputs.Access.AssociatedFunction.span]
+[outputs.AssociatedFunction.span]
 lo = 0
 hi = 25

@@ -1,7 +1,7 @@
 namespace = "Compile"
 expectation = "Pass"
 outputs = [[{ compile = [
-    { initial_ast = "713c85bcb7d5fef43e4626a09e4fe3858f76de6025fcae475cb0398c26b5d123", unrolled_ast = "713c85bcb7d5fef43e4626a09e4fe3858f76de6025fcae475cb0398c26b5d123", ssa_ast = "5e2a213bd10e28dad299e0e48ac3336484fd2ffd894eeb63d15d67e6af65195e", flattened_ast = "11828763a38326b604155e1074699e6ca85205fbc83167d554624d0fe5d8bb2b", destructured_ast = "83c9eaa9aef53de6143980c9e001e59da64c291a7b2aa0693139b868339e589c", inlined_ast = "dda1aade2a50a9f25571004c8a68e3ff90efadd6a567ce25b1edbbd2e82b59d7", dce_ast = "dda1aade2a50a9f25571004c8a68e3ff90efadd6a567ce25b1edbbd2e82b59d7", bytecode = """
+    { initial_ast = "e57a60d38e8ea848e9ccb127c8b3c0385d5d005364601fc1c3042c0f4b894c49", unrolled_ast = "e57a60d38e8ea848e9ccb127c8b3c0385d5d005364601fc1c3042c0f4b894c49", ssa_ast = "2671fa23941dd329a89473131f7173df5bf3edb233f386346a5c3d56df6fd5df", flattened_ast = "c47aa36281f36970862465ff093428d945a279097edd68a1bb3016360bacf898", destructured_ast = "03a652ecf9ce329e9dcabe446733ffb0406494402f75ecceb4129ff8acfa4251", inlined_ast = "65708d2be3cc15871aa2fed13dc87d673bb6f597431e36f923c9fe5398ddde31", dce_ast = "65708d2be3cc15871aa2fed13dc87d673bb6f597431e36f923c9fe5398ddde31", bytecode = """
 program test.aleo;
 
 mapping foo:
@@ -19,7 +19,7 @@ finalize main_inner:
     input r1 as u32.public;
     set r1 into foo[r0];
 """, errors = "", warnings = "" },
-    { initial_ast = "0614c4d1a71ead028505adbca60be45e21f8dfff3cac5c2d5825fdccb742599a", unrolled_ast = "6f1ce7a8683a7102a244f0fa8f0dbb90303ce5f885a6c7cbb536480fdd357d19", ssa_ast = "26ced1c6730bb5170fbff8321c318ab09ed00f857128e3781a045b1085033256", flattened_ast = "1d74c647d2a359525e6fee861373ba037c246fa390d8d7b23028fde1fab2f180", destructured_ast = "9e85b345cdf7339c6289d68d75e148abb8f846f6a729dcba916bd40ddacef9e3", inlined_ast = "fcaa0e0fc3f74a5a71282ff4e812ef6bddc952241225523cff439b83ebb02b34", dce_ast = "fcaa0e0fc3f74a5a71282ff4e812ef6bddc952241225523cff439b83ebb02b34", bytecode = """
+    { initial_ast = "cbc0ed6c78554c6fe277027fc73afc63ef74ddec74b30c133ce54353b4d60645", unrolled_ast = "b13d58b0f90d4d6346d047ce855c80e38c3a2d19f65c5a2dd4c95540112a5654", ssa_ast = "7fdc6738c4fa4755a1729a46abf03c8f6e5526ff5c7cf5986180aa6e3243b90a", flattened_ast = "6d65ef6ef47e1c0a53f21c6746e160ad69b1542532be68b8652036ef23467f76", destructured_ast = "d0ffe04cc899f4d13325898dc3947deb2641082e6d47d4bfebe1376922bf50bb", inlined_ast = "93c99d5fe62627b6a304203e4a7b07d71319b6a656dbdce3b4ff62dbd5266e31", dce_ast = "93c99d5fe62627b6a304203e4a7b07d71319b6a656dbdce3b4ff62dbd5266e31", bytecode = """
 import test.aleo;
 program basic.aleo;
 

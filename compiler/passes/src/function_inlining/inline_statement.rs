@@ -21,6 +21,7 @@ use leo_ast::{
     Block,
     ConditionalStatement,
     ConsoleStatement,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -28,32 +29,12 @@ use leo_ast::{
     IterationStatement,
     Statement,
     StatementReconstructor,
+    Type,
 };
 
 impl StatementReconstructor for FunctionInliner<'_> {
-    /// Reconstruct an assignment statement by inlining any function calls.
-    /// This function also segments tuple assignment statements into multiple assignment statements.
-    fn reconstruct_assign(&mut self, input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        let (value, mut statements) = self.reconstruct_expression(input.value.clone());
-        match (input.place, value) {
-            // If the function call produces a tuple, we need to segment the tuple into multiple assignment statements.
-            (Expression::Tuple(left), Expression::Tuple(right)) if left.elements.len() == right.elements.len() => {
-                statements.extend(left.elements.into_iter().zip(right.elements).map(|(lhs, rhs)| {
-                    Statement::Assign(Box::new(AssignStatement {
-                        place: lhs,
-                        value: rhs,
-                        span: Default::default(),
-                        id: self.node_builder.next_id(),
-                    }))
-                }));
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
-            }
-
-            (place, value) => (
-                Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: input.id })),
-                statements,
-            ),
-        }
+    fn reconstruct_assign(&mut self, _input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        panic!("`AssignStatement`s should not exist in the AST at this phase of compilation.")
     }
 
     /// Reconstructs the statements inside a basic block, accumulating any statements produced by function inlining.
@@ -72,7 +53,7 @@ impl StatementReconstructor for FunctionInliner<'_> {
     /// Flattening removes conditional statements from the program.
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
         if !self.is_async {
-            unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
+            panic!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
         } else {
             (
                 Statement::Conditional(ConditionalStatement {
@@ -89,12 +70,37 @@ impl StatementReconstructor for FunctionInliner<'_> {
 
     /// Parsing guarantees that console statements are not present in the program.
     fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
+        panic!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
-    /// Static single assignment replaces definition statements with assignment statements.
-    fn reconstruct_definition(&mut self, _: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
+    /// Reconstruct a definition statement by inlining any function calls.
+    /// This function also segments tuple assignment statements into multiple assignment statements.
+    fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        let (value, mut statements) = self.reconstruct_expression(input.value);
+        match (input.place, value) {
+            // If we just inlined the production of a tuple literal, we need multiple definition statements.
+            (DefinitionPlace::Multiple(left), Expression::Tuple(right)) => {
+                assert_eq!(left.len(), right.elements.len());
+                for (identifier, rhs_value) in left.into_iter().zip(right.elements) {
+                    let stmt = Statement::Definition(DefinitionStatement {
+                        place: DefinitionPlace::Single(identifier),
+                        type_: Type::Err,
+                        value: rhs_value,
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    });
+
+                    statements.push(stmt);
+                }
+                (Statement::dummy(), statements)
+            }
+
+            (place, value) => {
+                input.value = value;
+                input.place = place;
+                (Statement::Definition(input), statements)
+            }
+        }
     }
 
     /// Reconstructs expression statements by inlining any function calls.
@@ -105,7 +111,7 @@ impl StatementReconstructor for FunctionInliner<'_> {
 
         // If the resulting expression is a unit expression, return a dummy statement.
         let statement = match expression {
-            Expression::Unit(_) => Statement::dummy(Default::default(), self.node_builder.next_id()),
+            Expression::Unit(_) => Statement::dummy(),
             _ => Statement::Expression(ExpressionStatement { expression, span: input.span, id: input.id }),
         };
 
@@ -114,6 +120,6 @@ impl StatementReconstructor for FunctionInliner<'_> {
 
     /// Loop unrolling unrolls and removes iteration statements from the program.
     fn reconstruct_iteration(&mut self, _: IterationStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
+        panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 }

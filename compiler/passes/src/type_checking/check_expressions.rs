@@ -30,6 +30,12 @@ impl ExpressionVisitor for TypeChecker<'_> {
         let output = match input {
             Expression::Access(access) => self.visit_access(access, additional),
             Expression::Array(array) => self.visit_array(array, additional),
+            Expression::AssociatedConstant(associated_constant) => {
+                self.visit_associated_constant(associated_constant, additional)
+            }
+            Expression::AssociatedFunction(associated_function) => {
+                self.visit_associated_function(associated_function, additional)
+            }
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
@@ -72,38 +78,6 @@ impl ExpressionVisitor for TypeChecker<'_> {
 
                 // Return the element type of the array.
                 element_type.clone()
-            }
-            AccessExpression::AssociatedFunction(access) => {
-                // Check core struct name and function.
-                let Some(core_instruction) = self.get_core_function_call(&access.variant, &access.name) else {
-                    self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
-                    return Type::Err;
-                };
-                // Check that operation is not restricted to finalize blocks.
-                if self.scope_state.variant != Some(Variant::AsyncFunction) && core_instruction.is_finalize_command() {
-                    self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
-                }
-
-                // Get the types of the arguments.
-                let argument_types = access
-                    .arguments
-                    .iter()
-                    .map(|arg| (self.visit_expression(arg, &None), arg.span()))
-                    .collect::<Vec<_>>();
-
-                // Check that the types of the arguments are valid.
-                let return_type =
-                    self.check_core_function_call(core_instruction.clone(), &argument_types, input.span());
-
-                // Check return type if the expected type is known.
-                self.maybe_assert_type(&return_type, expected, input.span());
-
-                // Await futures here so that can use the argument variable names to lookup.
-                if core_instruction == CoreFunction::FutureAwait && access.arguments.len() != 1 {
-                    self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
-                }
-
-                return_type
             }
             AccessExpression::Tuple(access) => {
                 let type_ = self.visit_expression(&access.tuple, &None);
@@ -245,16 +219,6 @@ impl ExpressionVisitor for TypeChecker<'_> {
                     }
                 }
             }
-            AccessExpression::AssociatedConstant(access) => {
-                // Check associated constant type and constant name
-                let Some(core_constant) = self.get_core_constant(&access.ty, &access.name) else {
-                    self.emit_err(TypeCheckerError::invalid_associated_constant(access, access.span));
-                    return Type::Err;
-                };
-                let type_ = core_constant.to_type();
-                self.maybe_assert_type(&type_, expected, input.span());
-                type_
-            }
         }
     }
 
@@ -293,6 +257,54 @@ impl ExpressionVisitor for TypeChecker<'_> {
         self.maybe_assert_type(&type_, additional, input.span());
 
         type_
+    }
+
+    fn visit_associated_constant(
+        &mut self,
+        input: &AssociatedConstantExpression,
+        expected: &Self::AdditionalInput,
+    ) -> Self::Output {
+        // Check associated constant type and constant name
+        let Some(core_constant) = self.get_core_constant(&input.ty, &input.name) else {
+            self.emit_err(TypeCheckerError::invalid_associated_constant(input, input.span));
+            return Type::Err;
+        };
+        let type_ = core_constant.to_type();
+        self.maybe_assert_type(&type_, expected, input.span());
+        type_
+    }
+
+    fn visit_associated_function(
+        &mut self,
+        input: &AssociatedFunctionExpression,
+        expected: &Self::AdditionalInput,
+    ) -> Self::Output {
+        // Check core struct name and function.
+        let Some(core_instruction) = self.get_core_function_call(&input.variant, &input.name) else {
+            self.emit_err(TypeCheckerError::invalid_core_function_call(input, input.span()));
+            return Type::Err;
+        };
+        // Check that operation is not restricted to finalize blocks.
+        if self.scope_state.variant != Some(Variant::AsyncFunction) && core_instruction.is_finalize_command() {
+            self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
+        }
+
+        // Get the types of the arguments.
+        let argument_types =
+            input.arguments.iter().map(|arg| (self.visit_expression(arg, &None), arg.span())).collect::<Vec<_>>();
+
+        // Check that the types of the arguments are valid.
+        let return_type = self.check_core_function_call(core_instruction.clone(), &argument_types, input.span());
+
+        // Check return type if the expected type is known.
+        self.maybe_assert_type(&return_type, expected, input.span());
+
+        // Await futures here so that can use the argument variable names to lookup.
+        if core_instruction == CoreFunction::FutureAwait && input.arguments.len() != 1 {
+            self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(input.span));
+        }
+
+        return_type
     }
 
     fn visit_binary(&mut self, input: &BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
