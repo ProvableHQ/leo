@@ -336,7 +336,16 @@
 <a href="#335" id="335">335</a>
 <a href="#336" id="336">336</a>
 <a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -641,8 +650,10 @@
             .expect(<span class="string">"The symbol table creator should already have visited all functions."</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>return_type = func_symbol.function.output_type.clone();
 
-        <span class="comment">// Fully type the expected return value.
-        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; <span class="self">self</span>.scope_state.has_called_finalize {
+        <span class="comment">// Set the `has_return` flag.
+        </span><span class="self">self</span>.scope_state.has_return = <span class="bool-val">true</span>;
+
+        <span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; <span class="self">self</span>.scope_state.has_called_finalize {
             <span class="kw">let </span>inferred_future_type = Future(FutureType::new(
                 func_symbol.finalizer.as_ref().unwrap().inferred_inputs.clone(),
                 <span class="prelude-val">Some</span>(Location::new(<span class="self">self</span>.scope_state.program_name.unwrap(), func_name)),
@@ -668,8 +679,15 @@
             </span>return_type = <span class="self">self</span>.assert_and_return_type(inferred, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(return_type), input.span());
         }
 
-        <span class="comment">// Set the `has_return` flag.
-        </span><span class="self">self</span>.scope_state.has_return = <span class="bool-val">true</span>;
+        <span class="kw">if </span><span class="macro">matches!</span>(input.expression, Expression::Unit(..)) {
+            <span class="comment">// Manually type check rather than using one of the assert functions for a better error message.
+            </span><span class="kw">if </span>return_type != Type::Unit {
+                <span class="comment">// TODO - This is a bit hackish. We're reusing an existing error, because
+                // we have too many errors in TypeCheckerError without hitting the recursion
+                // limit for macros. But the error message to the user should still be pretty clear.
+                </span><span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::missing_return(input.span()));
+            }
+        }
 
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(return_type));
     }
