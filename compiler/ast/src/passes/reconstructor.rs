@@ -27,6 +27,12 @@ pub trait ExpressionReconstructor {
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         match input {
             Expression::Access(access) => self.reconstruct_access(access),
+            Expression::AssociatedConstant(associated_constant) => {
+                self.reconstruct_associated_constant(associated_constant)
+            }
+            Expression::AssociatedFunction(associated_function) => {
+                self.reconstruct_associated_function(associated_function)
+            }
             Expression::Array(array) => self.reconstruct_array(array),
             Expression::Binary(binary) => self.reconstruct_binary(binary),
             Expression::Call(call) => self.reconstruct_call(call),
@@ -46,8 +52,6 @@ pub trait ExpressionReconstructor {
     fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
         match input {
             AccessExpression::Array(array) => self.reconstruct_array_access(array),
-            AccessExpression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
-            AccessExpression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
             AccessExpression::Member(member) => self.reconstruct_member_access(member),
             AccessExpression::Tuple(tuple) => self.reconstruct_tuple_access(tuple),
         }
@@ -65,27 +69,33 @@ pub trait ExpressionReconstructor {
         )
     }
 
-    fn reconstruct_associated_constant(&mut self, input: AssociatedConstant) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_associated_constant(
+        &mut self,
+        input: AssociatedConstantExpression,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
-            Expression::Access(AccessExpression::AssociatedConstant(AssociatedConstant {
+            Expression::AssociatedConstant(AssociatedConstantExpression {
                 ty: input.ty,
                 name: input.name,
                 span: input.span,
                 id: input.id,
-            })),
+            }),
             Default::default(),
         )
     }
 
-    fn reconstruct_associated_function(&mut self, input: AssociatedFunction) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_associated_function(
+        &mut self,
+        input: AssociatedFunctionExpression,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
-            Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+            Expression::AssociatedFunction(AssociatedFunctionExpression {
                 variant: input.variant,
                 name: input.name,
                 arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                 span: input.span,
                 id: input.id,
-            })),
+            }),
             Default::default(),
         )
     }
@@ -358,7 +368,6 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         (
             Statement::Definition(DefinitionStatement {
-                declaration_type: input.declaration_type,
                 place: input.place,
                 type_: input.type_,
                 value: self.reconstruct_expression(input.value).0,

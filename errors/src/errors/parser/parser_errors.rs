@@ -372,4 +372,11 @@ create_messages!(
         msg: format!("Identifier {ident} is too long ({length} bytes; maximum is {max_length})"),
         help: None,
     }
+
+    @formatted
+    expected_identifier {
+        args: (),
+        msg: format!("Expected an identifier."),
+        help: None,
+    }
 );

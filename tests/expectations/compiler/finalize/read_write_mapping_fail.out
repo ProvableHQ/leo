@@ -1,8 +1,8 @@
 namespace = "Compile"
 expectation = "Fail"
 outputs = ["""
-Error [EPAR0370009]: unexpected string: expected 'identifier', found ':'
-    --> compiler-test:26:53
+Error [ETYC0372000]: invalid assignment target
+    --> compiler-test:11:9
      |
-  26 |     async function finalize_write_in_finalize(public: addr: address, public amount: u128) {
-     |                                                     ^"""]
+  11 |         balances[addr] = amount;
+     |         ^^^^^^^^^^^^^^"""]

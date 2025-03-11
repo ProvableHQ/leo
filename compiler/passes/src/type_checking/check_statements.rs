@@ -63,10 +63,7 @@ impl StatementVisitor for TypeChecker<'_> {
     }
 
     fn visit_assign(&mut self, input: &AssignStatement) {
-        let Expression::Identifier(var_name) = input.place else {
-            self.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
-            return;
-        };
+        let var_name = input.place;
 
         // Lookup the variable in the symbol table and retrieve its type.
         let Some(var) = self.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), var_name.name) else {
@@ -208,51 +205,39 @@ impl StatementVisitor for TypeChecker<'_> {
 
         // Insert the variables into the symbol table.
         match &input.place {
-            Expression::Identifier(identifier) => {
+            DefinitionPlace::Single(identifier) => {
                 self.insert_variable(Some(inferred_type.clone()), identifier, input.type_.clone(), identifier.span);
             }
-            Expression::Tuple(tuple_expression) => {
+            DefinitionPlace::Multiple(identifiers) => {
                 let tuple_type = match &input.type_ {
                     Type::Tuple(tuple_type) => tuple_type,
                     _ => unreachable!(
                         "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
                     ),
                 };
-                if tuple_expression.elements.len() != tuple_type.length() {
+                if identifiers.len() != tuple_type.length() {
                     return self.emit_err(TypeCheckerError::incorrect_num_tuple_elements(
-                        tuple_expression.elements.len(),
+                        identifiers.len(),
                         tuple_type.length(),
-                        input.place.span(),
+                        input.span(),
                     ));
                 }
 
-                for i in 0..tuple_expression.elements.len() {
+                for (i, identifier) in identifiers.iter().enumerate() {
                     let inferred = if let Type::Tuple(inferred_tuple) = &inferred_type {
                         inferred_tuple.elements().get(i).cloned().unwrap_or_default()
                     } else {
                         Type::Err
                     };
-                    let expr = &tuple_expression.elements[i];
-                    let identifier = match expr {
-                        Expression::Identifier(identifier) => identifier,
-                        _ => {
-                            return self
-                                .emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
-                        }
-                    };
                     self.insert_variable(Some(inferred), identifier, tuple_type.elements()[i].clone(), identifier.span);
                 }
             }
-            _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
         }
     }
 
     fn visit_expression_statement(&mut self, input: &ExpressionStatement) {
         // Expression statements can only be function calls.
-        if !matches!(
-            input.expression,
-            Expression::Call(_) | Expression::Access(AccessExpression::AssociatedFunction(_))
-        ) {
+        if !matches!(input.expression, Expression::Call(_) | Expression::AssociatedFunction(_)) {
             self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span()));
         } else {
             // Check the expression.

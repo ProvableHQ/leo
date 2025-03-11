@@ -17,16 +17,16 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
-    AssociatedFunction,
+    AssociatedFunctionExpression,
     Block,
     CallExpression,
     ConditionalStatement,
     ConsoleStatement,
     ConstDeclaration,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionConsumer,
@@ -38,13 +38,11 @@ use leo_ast::{
     Statement,
     StatementConsumer,
     TernaryExpression,
-    TupleExpression,
     Type,
 };
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
-use itertools::Itertools;
 
 impl StatementConsumer for StaticSingleAssigner<'_> {
     type Output = Vec<Statement>;
@@ -91,14 +89,9 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
         // Then assign a new unique name to the left-hand-side of the assignment.
         // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
-        self.is_lhs = true;
-        let place = match self.consume_expression(assign.place).0 {
-            Expression::Identifier(identifier) => identifier,
-            _ => panic!("Type checking guarantees that the left-hand-side of an assignment is an identifier."),
-        };
-        self.is_lhs = false;
+        let new_place = self.rename_identifier(assign.place);
 
-        statements.push(self.simple_assign_statement(place, value));
+        statements.push(self.simple_definition(new_place, value));
 
         statements
     }
@@ -209,19 +202,16 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 statements.extend(stmts);
 
                 // Get the ID for the new name of the variable.
-                let id = match self.rename_table.lookup_id(symbol) {
-                    Some(id) => *id,
-                    None => {
-                        unreachable!("The ID for the symbol `{}` should already exist in the rename table.", symbol)
-                    }
-                };
+                let id = *self.rename_table.lookup_id(symbol).unwrap_or_else(|| {
+                    panic!("The ID for the symbol `{}` should already exist in the rename table.", symbol)
+                });
 
                 // Update the `RenameTable` with the new name of the variable.
                 self.rename_table.update(*(*symbol), new_name, id);
 
                 // Create a new `AssignStatement` for the phi function.
                 let identifier = Identifier { name: new_name, span: Default::default(), id };
-                let assignment = self.simple_assign_statement(identifier, value);
+                let assignment = self.simple_definition(identifier, value);
 
                 // Store the generated phi function.
                 statements.push(assignment);
@@ -233,7 +223,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
     /// Parsing guarantees that console statements are not present in the program.
     fn consume_console(&mut self, _: ConsoleStatement) -> Self::Output {
-        unreachable!("Parsing guarantees that console statements are not present in the program.")
+        panic!("Parsing guarantees that console statements are not present in the program.")
     }
 
     fn consume_const(&mut self, _: ConstDeclaration) -> Self::Output {
@@ -246,75 +236,34 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         // First consume the right-hand-side of the definition.
         let (value, mut statements) = self.consume_expression(definition.value);
 
-        // Then assign a new unique name to the left-hand-side of the definition.
-        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
-        self.is_lhs = true;
         match definition.place {
-            Expression::Identifier(identifier) => {
-                // Add the identifier to the rename table.
-                self.rename_table.update(identifier.name, identifier.name, identifier.id);
-                // Rename the identifier.
-                let identifier = match self.consume_identifier(identifier).0 {
-                    Expression::Identifier(identifier) => identifier,
-                    _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
-                };
+            DefinitionPlace::Single(identifier) => {
+                let new_identifier = self.rename_identifier(identifier);
                 // Create a new assignment statement.
-                statements.push(self.simple_assign_statement(identifier, value));
+                statements.push(self.simple_definition(new_identifier, value));
             }
-            Expression::Tuple(tuple) => {
-                let elements: Vec<Expression> = tuple.elements.into_iter().map(|element| {
-                    match element {
-                        Expression::Identifier(identifier) => {
-                            // Add the identifier to the rename table.
-                            self.rename_table.update(identifier.name, identifier.name, identifier.id);
-                            // Rename the identifier.
-                            let identifier = match self.consume_identifier(identifier).0 {
-                                Expression::Identifier(identifier) => identifier,
-                                _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
-                            };
-                            // Return the renamed identifier.
-                            Expression::Identifier(identifier)
-                        }
-                        _ => unreachable!("Type checking guarantees that the tuple elements on the lhs of a `DefinitionStatement` are always be identifiers."),
-                    }
-                }).collect();
+            DefinitionPlace::Multiple(identifiers) => {
+                let new_identifiers: Vec<Identifier> =
+                    identifiers.into_iter().map(|identifier| self.rename_identifier(identifier)).collect();
 
-                // Get the type of `value`.
-                let tuple_type_ = match self.type_table.get(&value.id()) {
-                    Some(Type::Tuple(type_)) => type_,
-                    _ => unreachable!("Type checking guarantees that this expression is a tuple."),
-                };
-
-                // Update the type of each element in the tuple.
-                for (element, type_) in elements.iter().zip_eq(tuple_type_.elements()) {
-                    self.type_table.insert(element.id(), type_.clone());
-                }
+                // We don't need to update the type table, as the new identifiers have
+                // the same IDs as the old ones.
 
                 // Construct the lhs of the assignment.
-                let place = Expression::Tuple(TupleExpression {
-                    elements,
-                    span: Default::default(),
-                    id: self.node_builder.next_id(),
-                });
+                let place = DefinitionPlace::Multiple(new_identifiers);
 
-                // Update the type of the lhs.
-                self.type_table.insert(place.id(), Type::Tuple(tuple_type_));
-
-                // Create the assignment statement.
-                let assignment = Statement::Assign(Box::new(AssignStatement {
+                // Create the definition.
+                let definition = Statement::Definition(DefinitionStatement {
                     place,
+                    type_: Type::Err,
                     value,
                     span: definition.span,
                     id: definition.id,
-                }));
+                });
 
-                statements.push(assignment);
+                statements.push(definition);
             }
-            _ => unreachable!(
-                "Type checking guarantees that the left-hand-side of a `DefinitionStatement` is an identifier or tuple."
-            ),
         }
-        self.is_lhs = false;
 
         statements
     }
@@ -353,19 +302,19 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                     id: input.id,
                 }));
             }
-            Expression::Access(AccessExpression::AssociatedFunction(associated_function)) => {
+            Expression::AssociatedFunction(associated_function) => {
                 // Process the arguments.
                 let arguments = process_arguments(associated_function.arguments);
                 // Create and accumulate the new expression statement.
                 // Note that we do not create a new assignment for the associated function; this is necessary for correct code generation.
                 statements.push(Statement::Expression(ExpressionStatement {
-                    expression: Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                    expression: Expression::AssociatedFunction(AssociatedFunctionExpression {
                         variant: associated_function.variant,
                         name: associated_function.name,
                         arguments,
                         span: associated_function.span,
                         id: associated_function.id,
-                    })),
+                    }),
                     span: input.span,
                     id: input.id,
                 }))

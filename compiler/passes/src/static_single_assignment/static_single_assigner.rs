@@ -28,8 +28,6 @@ pub struct StaticSingleAssigner<'a> {
     pub(crate) type_table: &'a TypeTable,
     /// The `RenameTable` for the current basic block in the AST
     pub(crate) rename_table: RenameTable,
-    /// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
-    pub(crate) is_lhs: bool,
     /// A struct used to construct (unique) assignment statements.
     pub(crate) assigner: &'a Assigner,
     /// The main program name.
@@ -44,15 +42,7 @@ impl<'a> StaticSingleAssigner<'a> {
         type_table: &'a TypeTable,
         assigner: &'a Assigner,
     ) -> Self {
-        Self {
-            node_builder,
-            symbol_table,
-            type_table,
-            rename_table: RenameTable::new(None),
-            is_lhs: false,
-            assigner,
-            program: None,
-        }
+        Self { node_builder, symbol_table, type_table, rename_table: RenameTable::new(None), assigner, program: None }
     }
 
     /// Pushes a new scope, setting the current scope as the new scope's parent.
@@ -67,7 +57,17 @@ impl<'a> StaticSingleAssigner<'a> {
         core::mem::replace(&mut self.rename_table, *parent)
     }
 
-    pub(crate) fn simple_assign_statement(&mut self, identifier: Identifier, rhs: Expression) -> Statement {
+    pub(crate) fn rename_identifier(&mut self, mut identifier: Identifier) -> Identifier {
+        // Associate this name with its id.
+        self.rename_table.update(identifier.name, identifier.name, identifier.id);
+
+        let new_name = self.assigner.unique_symbol(identifier.name, "$#");
+        self.rename_table.update(identifier.name, new_name, identifier.id);
+        identifier.name = new_name;
+        identifier
+    }
+
+    pub(crate) fn simple_definition(&mut self, identifier: Identifier, rhs: Expression) -> Statement {
         // Update the type table.
         let type_ = match self.type_table.get(&rhs.id()) {
             Some(type_) => type_,
@@ -77,13 +77,13 @@ impl<'a> StaticSingleAssigner<'a> {
         // Update the rename table.
         self.rename_table.update(identifier.name, identifier.name, identifier.id);
         // Construct the statement.
-        self.assigner.simple_assign_statement(identifier, rhs, self.node_builder.next_id())
+        self.assigner.simple_definition(identifier, rhs, self.node_builder.next_id())
     }
 
     /// Constructs a simple assign statement for `expr` with a unique name.
     /// For example, `expr` is transformed into `$var$0 = expr;`.
     /// The lhs is guaranteed to be unique with respect to the `Assigner`.
-    pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
+    pub(crate) fn unique_simple_definition(&mut self, expr: Expression) -> (Identifier, Statement) {
         // Create a new variable for the expression.
         let name = self.assigner.unique_symbol("$var", "$");
 
@@ -91,7 +91,7 @@ impl<'a> StaticSingleAssigner<'a> {
         let place = Identifier { name, span: Default::default(), id: self.node_builder.next_id() };
 
         // Construct the statement.
-        let statement = self.simple_assign_statement(place, expr);
+        let statement = self.simple_definition(place, expr);
 
         (place, statement)
     }

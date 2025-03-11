@@ -89,6 +89,12 @@ impl ExpressionVisitor for FutureChecker<'_> {
         match input {
             Expression::Access(access) => self.visit_access(access, &Position::Misc),
             Expression::Array(array) => self.visit_array(array, &Position::Misc),
+            Expression::AssociatedConstant(associated_constant) => {
+                self.visit_associated_constant(associated_constant, &Position::Misc)
+            }
+            Expression::AssociatedFunction(associated_function) => {
+                self.visit_associated_function(associated_function, &Position::Misc)
+            }
             Expression::Binary(binary) => self.visit_binary(binary, &Position::Misc),
             Expression::Call(call) => self.visit_call(call, &Position::Misc),
             Expression::Cast(cast) => self.visit_cast(cast, &Position::Misc),
@@ -110,25 +116,28 @@ impl ExpressionVisitor for FutureChecker<'_> {
                 self.visit_expression(&array.array, &Position::Misc);
                 self.visit_expression(&array.index, &Position::Misc);
             }
-            leo_ast::AccessExpression::AssociatedFunction(function) => {
-                let core_function = CoreFunction::from_symbols(function.variant.name, function.name.name)
-                    .expect("Typechecking guarantees that this function exists.");
-                let position =
-                    if core_function == CoreFunction::FutureAwait { Position::Await } else { Position::Misc };
-                function.arguments.iter().for_each(|arg| {
-                    self.visit_expression(arg, &position);
-                });
-            }
             leo_ast::AccessExpression::Member(member) => {
                 self.visit_expression(&member.inner, &Position::Misc);
             }
             leo_ast::AccessExpression::Tuple(tuple) => {
                 self.visit_expression(&tuple.tuple, &Position::TupleAccess);
             }
-            _ => {}
         }
 
         Default::default()
+    }
+
+    fn visit_associated_function(
+        &mut self,
+        input: &leo_ast::AssociatedFunctionExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        let core_function = CoreFunction::from_symbols(input.variant.name, input.name.name)
+            .expect("Typechecking guarantees that this function exists.");
+        let position = if core_function == CoreFunction::FutureAwait { Position::Await } else { Position::Misc };
+        input.arguments.iter().for_each(|arg| {
+            self.visit_expression(arg, &position);
+        });
     }
 
     fn visit_call(&mut self, input: &leo_ast::CallExpression, _additional: &Self::AdditionalInput) -> Self::Output {

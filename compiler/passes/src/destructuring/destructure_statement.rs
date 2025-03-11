@@ -21,6 +21,7 @@ use leo_ast::{
     Block,
     ConditionalStatement,
     ConsoleStatement,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -37,174 +38,8 @@ use leo_ast::{
 use itertools::Itertools;
 
 impl StatementReconstructor for Destructurer<'_> {
-    /// Flattens an assign statement, if necessary.
-    /// Marks variables as structs as necessary.
-    /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
-    /// Otherwise, the statement is returned as is.
-    fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        // Flatten the rhs of the assignment.
-        let value = self.reconstruct_expression(assign.value).0;
-        match (assign.place, value.clone()) {
-            // If the lhs is an identifier and the rhs is a tuple, then add the tuple to `self.tuples`.
-            // Return a dummy statement in its place.
-            (Expression::Identifier(identifier), Expression::Tuple(tuple)) => {
-                self.tuples.insert(identifier.name, tuple);
-                // Note that tuple assignments are removed from the AST.
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default())
-            }
-            // If the lhs is an identifier and the rhs is an identifier that is a tuple, then add it to `self.tuples`.
-            // Return a dummy statement in its place.
-            (Expression::Identifier(lhs_identifier), Expression::Identifier(rhs_identifier))
-                if self.tuples.contains_key(&rhs_identifier.name) =>
-            {
-                // Lookup the entry in `self.tuples` and add it for the lhs of the assignment.
-                // Note that the `unwrap` is safe since the match arm checks that the entry exists.
-                self.tuples.insert(lhs_identifier.name, self.tuples.get(&rhs_identifier.name).unwrap().clone());
-                // Note that tuple assignments are removed from the AST.
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default())
-            }
-            // If the lhs is an identifier and the rhs is a function call that produces a tuple, then add it to `self.tuples`.
-            (Expression::Identifier(lhs_identifier), Expression::Call(call)) => {
-                // Retrieve the entry in the type table for the function call.
-                let value_type = match self.type_table.get(&call.id()) {
-                    Some(type_) => type_,
-                    None => unreachable!("Type checking guarantees that the type of the rhs is in the type table."),
-                };
-
-                match &value_type {
-                    // If the function returns a tuple, reconstruct the assignment and add an entry to `self.tuples`.
-                    Type::Tuple(tuple) => {
-                        // Create a new tuple expression with unique identifiers for each index of the lhs.
-                        let tuple_expression = TupleExpression {
-                            elements: (0..tuple.length())
-                                .zip_eq(tuple.elements().iter())
-                                .map(|(i, type_)| {
-                                    // Return the identifier as an expression.
-                                    Expression::Identifier(Identifier::new(
-                                        self.assigner.unique_symbol(lhs_identifier.name, format!("$index${i}$")),
-                                        {
-                                            // Construct a node ID for the identifier.
-                                            let id = self.node_builder.next_id();
-                                            // Update the type table with the type.
-                                            self.type_table.insert(id, type_.clone());
-                                            id
-                                        },
-                                    ))
-                                })
-                                .collect(),
-                            span: Default::default(),
-                            id: {
-                                // Construct a node ID for the tuple expression.
-                                let id = self.node_builder.next_id();
-                                // Update the type table with the type.
-                                self.type_table.insert(id, Type::Tuple(tuple.clone()));
-                                id
-                            },
-                        };
-                        // Add the `tuple_expression` to `self.tuples`.
-                        self.tuples.insert(lhs_identifier.name, tuple_expression.clone());
-
-                        // Update the type table with the type of the tuple expression.
-                        self.type_table.insert(tuple_expression.id, Type::Tuple(tuple.clone()));
-
-                        // Construct a new assignment statement with a tuple expression on the lhs.
-                        (
-                            Statement::Assign(Box::new(AssignStatement {
-                                place: Expression::Tuple(tuple_expression),
-                                value: Expression::Call(call),
-                                span: Default::default(),
-                                id: self.node_builder.next_id(),
-                            })),
-                            Default::default(),
-                        )
-                    }
-                    // Otherwise, reconstruct the assignment as is.
-                    _ => (self.simple_assign_statement(lhs_identifier, Expression::Call(call)), Default::default()),
-                }
-            }
-            (Expression::Identifier(identifier), expression) => {
-                (self.simple_assign_statement(identifier, expression), Default::default())
-            }
-            // If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
-            (Expression::Tuple(tuple), Expression::Call(call)) => (
-                Statement::Assign(Box::new(AssignStatement {
-                    place: Expression::Tuple(tuple),
-                    value: Expression::Call(call),
-                    span: Default::default(),
-                    id: self.node_builder.next_id(),
-                })),
-                Default::default(),
-            ),
-            // If the lhs is a tuple and the rhs is a tuple, create a new assign statement for each tuple element.
-            (Expression::Tuple(lhs_tuple), Expression::Tuple(rhs_tuple)) => {
-                let statements = lhs_tuple
-                    .elements
-                    .into_iter()
-                    .zip_eq(rhs_tuple.elements)
-                    .map(|(lhs, rhs)| {
-                        // Get the type of the rhs.
-                        let type_ = match self.type_table.get(&lhs.id()) {
-                            Some(type_) => type_.clone(),
-                            None => {
-                                unreachable!("Type checking guarantees that the type of the lhs is in the type table.")
-                            }
-                        };
-                        // Set the type of the lhs.
-                        self.type_table.insert(rhs.id(), type_);
-                        // Return the assign statement.
-                        Statement::Assign(Box::new(AssignStatement {
-                            place: lhs,
-                            value: rhs,
-                            span: Default::default(),
-                            id: self.node_builder.next_id(),
-                        }))
-                    })
-                    .collect();
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
-            }
-            // If the lhs is a tuple and the rhs is an identifier that is a tuple, create a new assign statement for each tuple element.
-            (Expression::Tuple(lhs_tuple), Expression::Identifier(identifier))
-                if self.tuples.contains_key(&identifier.name) =>
-            {
-                // Lookup the entry in `self.tuples`.
-                // Note that the `unwrap` is safe since the match arm checks that the entry exists.
-                let rhs_tuple = self.tuples.get(&identifier.name).unwrap().clone();
-                // Create a new assign statement for each tuple element.
-                let statements = lhs_tuple
-                    .elements
-                    .into_iter()
-                    .zip_eq(rhs_tuple.elements)
-                    .map(|(lhs, rhs)| {
-                        // Get the type of the rhs.
-                        let type_ = match self.type_table.get(&lhs.id()) {
-                            Some(type_) => type_.clone(),
-                            None => {
-                                unreachable!("Type checking guarantees that the type of the lhs is in the type table.")
-                            }
-                        };
-                        // Set the type of the lhs.
-                        self.type_table.insert(rhs.id(), type_);
-                        // Return the assign statement.
-                        Statement::Assign(Box::new(AssignStatement {
-                            place: lhs,
-                            value: rhs,
-                            span: Default::default(),
-                            id: self.node_builder.next_id(),
-                        }))
-                    })
-                    .collect();
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
-            }
-            // If the lhs of an assignment is a tuple, then the rhs can be one of the following:
-            //  - A function call that produces a tuple. (handled above)
-            //  - A tuple. (handled above)
-            //  - An identifier that is a tuple. (handled above)
-            //  - A ternary expression that produces a tuple. (handled when the rhs is flattened above)
-            (Expression::Tuple(_), _) => {
-                unreachable!("`Type checking guarantees that the rhs of an assignment to a tuple is a tuple.`")
-            }
-            _ => unreachable!("`AssignStatement`s can only have `Identifier`s or `Tuple`s on the left hand side."),
-        }
+    fn reconstruct_assign(&mut self, _assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        panic!("`AssignStatement`s should not exist in the AST at this phase of compilation.")
     }
 
     fn reconstruct_block(&mut self, block: Block) -> (Block, Self::AdditionalOutput) {
@@ -239,18 +74,143 @@ impl StatementReconstructor for Destructurer<'_> {
     }
 
     fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
+        panic!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_definition(&mut self, _: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
+    fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        use DefinitionPlace::*;
+
+        let (value, mut statements) = self.reconstruct_expression(definition.value);
+        let ty = self.type_table.get(&value.id()).expect("Expressions should have a type.");
+        match (definition.place, value, ty) {
+            (Single(identifier), Expression::Tuple(tuple), Type::Tuple(..)) => {
+                // Just put the identifier in `self.tuples`. We don't need to keep our definition.
+                self.tuples.insert(identifier.name, tuple);
+                (Statement::dummy(), statements)
+            }
+            (Single(identifier), Expression::Identifier(rhs), Type::Tuple(..)) => {
+                // Again, just put the identifier in `self.tuples` and we don't need to keep our definition.
+                let tuple_expr = self.tuples.get(&rhs.name).expect("We should have encountered this tuple by now");
+                self.tuples.insert(identifier.name, tuple_expr.clone());
+                (Statement::dummy(), statements)
+            }
+            (Single(identifier), Expression::Call(rhs), Type::Tuple(tuple_type)) => {
+                // Make new identifiers for each member of the tuple.
+                let identifiers: Vec<Identifier> = (0..tuple_type.elements().len())
+                    .map(|i| {
+                        Identifier::new(
+                            self.assigner.unique_symbol(identifier.name, format!("$index${i}$")),
+                            self.node_builder.next_id(),
+                        )
+                    })
+                    .collect();
+
+                // Make expressions corresponding to those identifiers.
+                let expressions: Vec<Expression> = identifiers
+                    .iter()
+                    .zip_eq(tuple_type.elements().iter())
+                    .map(|(identifier, type_)| {
+                        let expr = Expression::Identifier(*identifier);
+                        self.type_table.insert(expr.id(), type_.clone());
+                        expr
+                    })
+                    .collect();
+
+                // Make a tuple expression.
+                let expr = TupleExpression {
+                    elements: expressions,
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                };
+
+                // Put it in the type table.
+                self.type_table.insert(expr.id(), Type::Tuple(tuple_type));
+
+                // Put it into `self.tuples`.
+                self.tuples.insert(identifier.name, expr);
+
+                // Define the new variables. We don't need to keep the old definition.
+                let stmt = Statement::Definition(DefinitionStatement {
+                    place: Multiple(identifiers),
+                    type_: Type::Err,
+                    value: Expression::Call(rhs),
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                });
+
+                (stmt, statements)
+            }
+            (Multiple(identifiers), Expression::Tuple(tuple), Type::Tuple(..)) => {
+                // Just make a definition for each tuple element.
+                for (identifier, expr) in identifiers.into_iter().zip_eq(tuple.elements) {
+                    let stmt = Statement::Definition(DefinitionStatement {
+                        place: Single(identifier),
+                        type_: Type::Err,
+                        value: expr,
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    });
+                    statements.push(stmt);
+                }
+
+                // We don't need to keep the original definition.
+                (Statement::dummy(), statements)
+            }
+            (Multiple(identifiers), Expression::Identifier(identifier), Type::Tuple(..)) => {
+                // Again, make a definition for each tuple element.
+                let tuple = self.tuples.get(&identifier.name).expect("We should have encountered this tuple by now");
+                for (identifier, expr) in identifiers.into_iter().zip_eq(tuple.elements.iter()) {
+                    let stmt = Statement::Definition(DefinitionStatement {
+                        place: Single(identifier),
+                        type_: Type::Err,
+                        value: expr.clone(),
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    });
+                    statements.push(stmt);
+                }
+
+                // We don't need to keep the original definition.
+                (Statement::dummy(), statements)
+            }
+            (m @ Multiple(..), value @ Expression::Call(..), Type::Tuple(..)) => {
+                // Just reconstruct the statement.
+                let stmt = Statement::Definition(DefinitionStatement {
+                    place: m,
+                    type_: Type::Err,
+                    value,
+                    span: definition.span,
+                    id: definition.id,
+                });
+                (stmt, statements)
+            }
+            (_, Expression::Ternary(..), Type::Tuple(..)) => {
+                panic!("Ternary conditionals of tuple type should have been removed by flattening");
+            }
+            (_, _, Type::Tuple(..)) => {
+                panic!("Expressions of tuple type can only be tuple literals, identifiers, or calls.");
+            }
+            (Single(identifier), rhs, _) => {
+                // This isn't a tuple. Just build the definition again.
+                (
+                    Statement::Definition(DefinitionStatement {
+                        place: Single(identifier),
+                        type_: Type::Err,
+                        value: rhs,
+                        span: Default::default(),
+                        id: definition.id,
+                    }),
+                    statements,
+                )
+            }
+            (Multiple(_), _, _) => panic!("A definition with multiple identifiers must have tuple type"),
+        }
     }
 
     fn reconstruct_iteration(&mut self, _: IterationStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
+        panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
-    /// Reconstructs
     fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
         // Note that SSA guarantees that `input.expression` is either a literal, identifier, or unit expression.
         let expression = match input.expression {

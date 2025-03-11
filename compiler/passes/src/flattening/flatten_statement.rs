@@ -25,6 +25,7 @@ use leo_ast::{
     Block,
     ConditionalStatement,
     ConsoleStatement,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -113,7 +114,7 @@ impl StatementReconstructor for Flattener<'_> {
                     id
                 },
             });
-            let (identifier, statement) = self.unique_simple_assign_statement(not_guard);
+            let (identifier, statement) = self.unique_simple_definition(not_guard);
             statements.push(statement);
             guards.push(Expression::Identifier(identifier));
         }
@@ -151,7 +152,7 @@ impl StatementReconstructor for Flattener<'_> {
                         id
                     },
                 });
-                let (identifier, statement) = self.unique_simple_assign_statement(binary);
+                let (identifier, statement) = self.unique_simple_definition(binary);
                 statements.push(statement);
                 Expression::Identifier(identifier)
             }
@@ -174,7 +175,7 @@ impl StatementReconstructor for Flattener<'_> {
                 left: Box::new(expression),
                 right: Box::new(guard),
             });
-            let (identifier, statement) = self.unique_simple_assign_statement(binary);
+            let (identifier, statement) = self.unique_simple_definition(binary);
             statements.push(statement);
             expression = Expression::Identifier(identifier);
         }
@@ -188,45 +189,8 @@ impl StatementReconstructor for Flattener<'_> {
         (assert_statement, statements)
     }
 
-    /// Flattens an assign statement, if necessary.
-    /// Marks variables as structs as necessary.
-    /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
-    /// Otherwise, the statement is returned as is.
-    fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        // Flatten the rhs of the assignment.
-        let (value, statements) = self.reconstruct_expression(assign.value);
-        match (assign.place, &value) {
-            (Expression::Identifier(identifier), _) => (self.simple_assign_statement(identifier, value), statements),
-            (Expression::Tuple(tuple), expression) => {
-                let output_type = match &self.type_table.get(&expression.id()) {
-                    Some(Type::Tuple(tuple_type)) => tuple_type.clone(),
-                    _ => unreachable!("Type checking guarantees that the output type is a tuple."),
-                };
-
-                tuple.elements.iter().zip_eq(output_type.elements().iter()).for_each(|(identifier, type_)| {
-                    let identifier = match identifier {
-                        Expression::Identifier(identifier) => identifier,
-                        _ => unreachable!("Type checking guarantees that a tuple element on the lhs is an identifier."),
-                    };
-                    // Add the type of each identifier to the type table.
-                    self.type_table.insert(identifier.id, type_.clone());
-                });
-
-                // Set the type of the tuple expression.
-                self.type_table.insert(tuple.id, Type::Tuple(output_type.clone()));
-
-                (
-                    Statement::Assign(Box::new(AssignStatement {
-                        place: Expression::Tuple(tuple),
-                        value,
-                        span: Default::default(),
-                        id: self.node_builder.next_id(),
-                    })),
-                    statements,
-                )
-            }
-            _ => unreachable!("`AssignStatement`s can only have `Identifier`s or `Tuple`s on the left hand side."),
-        }
+    fn reconstruct_assign(&mut self, _assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        panic!("`AssignStatement`s should not be in the AST at this phase of compilation");
     }
 
     // TODO: Do we want to flatten nested blocks? They do not affect code generation but it would regularize the AST structure.
@@ -255,7 +219,7 @@ impl StatementReconstructor for Flattener<'_> {
             let otherwise_block = match conditional.otherwise {
                 Some(statement) => match *statement {
                     Statement::Block(block) => self.reconstruct_block(block).0,
-                    _ => unreachable!("SSA guarantees that the `otherwise` is always a `Block`"),
+                    _ => panic!("SSA guarantees that the `otherwise` is always a `Block`"),
                 },
                 None => Block { span: Default::default(), statements: Vec::new(), id: self.node_builder.next_id() },
             };
@@ -283,7 +247,7 @@ impl StatementReconstructor for Flattener<'_> {
             },
         };
 
-        statements.push(self.simple_assign_statement(place, conditional.condition.clone()));
+        statements.push(self.simple_definition(place, conditional.condition.clone()));
 
         // Add condition to the condition stack.
         self.condition_stack.push(Guard::Unconstructed(place));
@@ -312,32 +276,62 @@ impl StatementReconstructor for Flattener<'_> {
                     id
                 },
             };
-            statements.push(self.simple_assign_statement(not_place, not_condition));
+            statements.push(self.simple_definition(not_place, not_condition));
             self.condition_stack.push(Guard::Unconstructed(not_place));
 
             // Reconstruct the otherwise-block and accumulate it constituent statements.
             match *statement {
                 Statement::Block(block) => statements.extend(self.reconstruct_block(block).0.statements),
-                _ => unreachable!("SSA guarantees that the `otherwise` is always a `Block`"),
+                _ => panic!("SSA guarantees that the `otherwise` is always a `Block`"),
             }
 
             // Remove the negated condition from the condition stack.
             self.condition_stack.pop();
         };
 
-        (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
+        (Statement::dummy(), statements)
     }
 
     fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
+        panic!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_definition(&mut self, _definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
+    /// Flattens a definition, if necessary.
+    /// Marks variables as structs as necessary.
+    /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
+    /// Otherwise, the statement is returned as is.
+    fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        // Flatten the rhs of the assignment.
+        let (value, statements) = self.reconstruct_expression(definition.value);
+        match (definition.place, &value) {
+            (DefinitionPlace::Single(identifier), _) => (self.simple_definition(identifier, value), statements),
+            (DefinitionPlace::Multiple(identifiers), expression) => {
+                let output_type = match &self.type_table.get(&expression.id()) {
+                    Some(Type::Tuple(tuple_type)) => tuple_type.clone(),
+                    _ => panic!("Type checking guarantees that the output type is a tuple."),
+                };
+
+                for (identifier, type_) in identifiers.iter().zip_eq(output_type.elements().iter()) {
+                    // Add the type of each identifier to the type table.
+                    self.type_table.insert(identifier.id, type_.clone());
+                }
+
+                (
+                    Statement::Definition(DefinitionStatement {
+                        place: DefinitionPlace::Multiple(identifiers),
+                        type_: Type::Err,
+                        value,
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    }),
+                    statements,
+                )
+            }
+        }
     }
 
     fn reconstruct_iteration(&mut self, _input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
+        panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
     /// Transforms a return statement into an empty block statement.
@@ -353,12 +347,12 @@ impl StatementReconstructor for Flattener<'_> {
         let return_guard = guard_identifier.map_or(ReturnGuard::None, ReturnGuard::Unconstructed);
 
         match input.expression {
-            Expression::Unit(_) | Expression::Identifier(_) | Expression::Access(_) => {
+            Expression::Unit(_) | Expression::Identifier(_) | Expression::AssociatedConstant(_) => {
                 self.returns.push((return_guard, input))
             }
-            _ => unreachable!("SSA guarantees that the expression is always an identifier or unit expression."),
+            _ => panic!("SSA guarantees that the expression is always an identifier or unit expression."),
         };
 
-        (Statement::dummy(Default::default(), self.node_builder.next_id()), statements.unwrap_or_default())
+        (Statement::dummy(), statements.unwrap_or_default())
     }
 }

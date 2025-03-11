@@ -38,15 +38,15 @@ functions = [
 ] } },
 ] } },
 ] } }, block = { id = 24, statements = [
-    { Definition = { declaration_type = "Let", id = 8, place = { Identifier = '{"id":"4","name":"f0","span":"{\"lo\":140,\"hi\":142}"}' }, type_ = { Future = { inputs = [], is_explicit = true } }, value = { Call = { arguments = [], program = "bye", id = 7, function = { Identifier = '{"id":"6","name":"add","span":"{\"lo\":168,\"hi\":171}"}' }, span = { lo = 159, hi = 173 } } }, span = { lo = 136, hi = 173 } } },
-    { Definition = { declaration_type = "Let", id = 13, place = { Identifier = '{"id":"9","name":"f1","span":"{\"lo\":187,\"hi\":189}"}' }, type_ = { Future = { is_explicit = true, inputs = [
+    { Definition = { id = 8, place = { Single = '{"id":"4","name":"f0","span":"{\"lo\":140,\"hi\":142}"}' }, type_ = { Future = { inputs = [], is_explicit = true } }, value = { Call = { arguments = [], program = "bye", id = 7, function = { Identifier = '{"id":"6","name":"add","span":"{\"lo\":168,\"hi\":171}"}' }, span = { lo = 159, hi = 173 } } }, span = { lo = 136, hi = 173 } } },
+    { Definition = { id = 13, place = { Single = '{"id":"9","name":"f1","span":"{\"lo\":187,\"hi\":189}"}' }, type_ = { Future = { is_explicit = true, inputs = [
     { Integer = "U32" },
     { Future = { is_explicit = true, inputs = [
     { Integer = "U32" },
     { Integer = "U32" },
 ] } },
 ] } }, value = { Call = { arguments = [], program = "hello", id = 12, function = { Identifier = '{"id":"11","name":"nested_fn","span":"{\"lo\":242,\"hi\":251}"}' }, span = { lo = 231, hi = 253 } } }, span = { lo = 183, hi = 253 } } },
-    { Definition = { declaration_type = "Let", id = 21, place = { Identifier = '{"id":"14","name":"f2","span":"{\"lo\":267,\"hi\":269}"}' }, type_ = { Future = { is_explicit = true, inputs = [
+    { Definition = { id = 21, place = { Single = '{"id":"14","name":"f2","span":"{\"lo\":267,\"hi\":269}"}' }, type_ = { Future = { is_explicit = true, inputs = [
     { Integer = "U32" },
     { Integer = "U32" },
     { Future = { inputs = [], is_explicit = true } },
@@ -90,8 +90,8 @@ functions = [
 ] } },
 ] } }, span = { lo = 474, hi = 514 } },
 ], block = { id = 48, statements = [
-    { Expression = { id = 39, expression = { Access = { AssociatedFunction = { variant = '{"id":"37","name":"Future","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"36","name":"await","span":"{\"lo\":530,\"hi\":535}"}', id = 38, arguments = [{ Identifier = '{"id":"35","name":"f0","span":"{\"lo\":527,\"hi\":529}"}' }], span = { lo = 527, hi = 537 } } } }, span = { lo = 527, hi = 538 } } },
-    { Expression = { id = 44, expression = { Access = { AssociatedFunction = { variant = '{"id":"42","name":"Future","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"41","name":"await","span":"{\"lo\":550,\"hi\":555}"}', id = 43, arguments = [{ Identifier = '{"id":"40","name":"f1","span":"{\"lo\":547,\"hi\":549}"}' }], span = { lo = 547, hi = 557 } } } }, span = { lo = 547, hi = 558 } } },
+    { Expression = { id = 39, expression = { AssociatedFunction = { variant = '{"id":"37","name":"Future","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"36","name":"await","span":"{\"lo\":530,\"hi\":535}"}', id = 38, arguments = [{ Identifier = '{"id":"35","name":"f0","span":"{\"lo\":527,\"hi\":529}"}' }], span = { lo = 527, hi = 537 } } }, span = { lo = 527, hi = 538 } } },
+    { Expression = { id = 44, expression = { AssociatedFunction = { variant = '{"id":"42","name":"Future","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"41","name":"await","span":"{\"lo\":550,\"hi\":555}"}', id = 43, arguments = [{ Identifier = '{"id":"40","name":"f1","span":"{\"lo\":547,\"hi\":549}"}' }], span = { lo = 547, hi = 557 } } }, span = { lo = 547, hi = 558 } } },
     { Assert = { id = 47, variant = { AssertEq = [
     { Identifier = '{"id":"45","name":"a","span":"{\"lo\":577,\"hi\":578}"}' },
     { Identifier = '{"id":"46","name":"b","span":"{\"lo\":579,\"hi\":580}"}' },

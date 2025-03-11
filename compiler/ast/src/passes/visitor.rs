@@ -51,6 +51,12 @@ pub trait ExpressionVisitor {
         match input {
             Expression::Access(access) => self.visit_access(access, additional),
             Expression::Array(array) => self.visit_array(array, additional),
+            Expression::AssociatedConstant(associated_constant) => {
+                self.visit_associated_constant(associated_constant, additional)
+            }
+            Expression::AssociatedFunction(associated_function) => {
+                self.visit_associated_function(associated_function, additional)
+            }
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
@@ -72,18 +78,12 @@ pub trait ExpressionVisitor {
                 self.visit_expression(&array.array, additional);
                 self.visit_expression(&array.index, additional);
             }
-            AccessExpression::AssociatedFunction(function) => {
-                function.arguments.iter().for_each(|arg| {
-                    self.visit_expression(arg, &Default::default());
-                });
-            }
             AccessExpression::Member(member) => {
                 self.visit_expression(&member.inner, additional);
             }
             AccessExpression::Tuple(tuple) => {
                 self.visit_expression(&tuple.tuple, additional);
             }
-            _ => {}
         }
 
         Default::default()
@@ -92,6 +92,25 @@ pub trait ExpressionVisitor {
     fn visit_array(&mut self, input: &ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
         input.elements.iter().for_each(|expr| {
             self.visit_expression(expr, additional);
+        });
+        Default::default()
+    }
+
+    fn visit_associated_constant(
+        &mut self,
+        _input: &AssociatedConstantExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_associated_function(
+        &mut self,
+        input: &AssociatedFunctionExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        input.arguments.iter().for_each(|arg| {
+            self.visit_expression(arg, &Default::default());
         });
         Default::default()
     }

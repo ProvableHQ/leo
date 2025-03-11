@@ -5,10 +5,4 @@ Error [ETYC0372000]: invalid assignment target
     --> compiler-test:5:9
      |
    5 |         a[0u32] = false;
-     |         ^^^^^^^
-Error [ETYC0372000]: invalid assignment target
-    --> compiler-test:6:9
-     |
-   6 |         a[1u32] = true;
-     |         ^^^^^^^
-"""]
+     |         ^^^^^^^"""]

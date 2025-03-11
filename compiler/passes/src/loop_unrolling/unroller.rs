@@ -96,7 +96,7 @@ impl<'a> Unroller<'a> {
                 Ok(val_as_u128) => Ok(val_as_u128),
                 Err(err) => {
                     self.handler.emit_err(err);
-                    Err(Statement::dummy(input.span, self.node_builder.next_id()))
+                    Err(Statement::dummy())
                 }
             }
         };

@@ -23,6 +23,7 @@ use leo_ast::{
     Block,
     ConditionalStatement,
     ConsoleStatement,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionStatement,
@@ -44,7 +45,7 @@ impl<'a> CodeGenerator<'a> {
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
             Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Const(_) => {
-                unreachable!("`ConstStatement`s should not be in the AST at this phase of compilation.")
+                panic!("`ConstStatement`s should not be in the AST at this phase of compilation.")
             }
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
@@ -132,46 +133,31 @@ impl<'a> CodeGenerator<'a> {
         expression_instructions
     }
 
-    fn visit_definition(&mut self, _input: &'a DefinitionStatement) -> String {
-        // TODO: If SSA is made optional, then conditionally enable codegen for DefinitionStatement
-        // let (operand, expression_instructions) = self.visit_expression(&input.value);
-        // self.variable_mapping.insert(&input.variable_name.name, operand);
-        // expression_instructions
-        unreachable!("DefinitionStatement's should not exist in SSA form.")
+    fn visit_definition(&mut self, input: &'a DefinitionStatement) -> String {
+        match (&input.place, &input.value) {
+            (DefinitionPlace::Single(identifier), _) => {
+                let (operand, expression_instructions) = self.visit_expression(&input.value);
+                self.variable_mapping.insert(&identifier.name, operand);
+                expression_instructions
+            }
+            (DefinitionPlace::Multiple(identifiers), Expression::Call(_)) => {
+                let (operand, expression_instructions) = self.visit_expression(&input.value);
+                // Add the destinations to the variable mapping.
+                for (identifier, operand) in identifiers.iter().zip_eq(operand.split(' ')) {
+                    self.variable_mapping.insert(&identifier.name, operand.to_string());
+                }
+                expression_instructions
+            }
+            _ => panic!("Previous passes should have ensured that a definition with multiple identifiers is a `Call`."),
+        }
     }
 
     fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) -> String {
         self.visit_expression(&input.expression).1
     }
 
-    fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
-        match (&input.place, &input.value) {
-            (Expression::Identifier(identifier), _) => {
-                let (operand, expression_instructions) = self.visit_expression(&input.value);
-                self.variable_mapping.insert(&identifier.name, operand);
-                expression_instructions
-            }
-            (Expression::Tuple(tuple), Expression::Call(_)) => {
-                let (operand, expression_instructions) = self.visit_expression(&input.value);
-                // Split out the destinations from the tuple.
-                let operands = operand.split(' ').collect::<Vec<_>>();
-                // Add the destinations to the variable mapping.
-                tuple.elements.iter().zip_eq(operands).for_each(|(element, operand)| {
-                    match element {
-                        Expression::Identifier(identifier) => {
-                            self.variable_mapping.insert(&identifier.name, operand.to_string())
-                        }
-                        _ => {
-                            unreachable!("Type checking ensures that tuple elements on the lhs are always identifiers.")
-                        }
-                    };
-                });
-                expression_instructions
-            }
-            _ => unimplemented!(
-                "Code generation for the left-hand side of an assignment is only implemented for `Identifier`s."
-            ),
-        }
+    fn visit_assign(&mut self, _input: &'a AssignStatement) -> String {
+        panic!("AssignStatement's should not exist in SSA form.")
     }
 
     fn visit_conditional(&mut self, _input: &'a ConditionalStatement) -> String {

@@ -24,7 +24,7 @@ structs = []
 mappings = []
 functions = [[
     "main",
-    { annotations = [], variant = "Function", identifier = '{"id":"3","name":"main","span":"{\"lo\":53,\"hi\":57}"}', input = [], output = [], output_type = "Unit", id = 8, block = { id = 7, statements = [{ Definition = { declaration_type = "Let", id = 6, place = { Identifier = '{"id":"4","name":"x","span":"{\"lo\":74,\"hi\":75}"}' }, type_ = { Integer = "U8" }, value = { Literal = { Integer = [
+    { annotations = [], variant = "Function", identifier = '{"id":"3","name":"main","span":"{\"lo\":53,\"hi\":57}"}', input = [], output = [], output_type = "Unit", id = 8, block = { id = 7, statements = [{ Definition = { id = 6, place = { Single = '{"id":"4","name":"x","span":"{\"lo\":74,\"hi\":75}"}' }, type_ = { Integer = "U8" }, value = { Literal = { Integer = [
     "U8",
     "1",
     { span = { lo = 81, hi = 84 } },

@@ -11,8 +11,8 @@ program test.aleo {
     }
 
     transition bar(x: u8) -> u8 {
-        let signature: u8 = 1u8 + x;
-        return signature;
+        let signature_: u8 = 1u8 + x;
+        return signature_;
     }
 
    transition bax(s: signature, a: address, v: value) {

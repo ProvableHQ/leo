@@ -17,7 +17,7 @@
 use crate::{Token, tokenizer::*};
 
 use leo_ast::*;
-use leo_errors::{ParserError, ParserWarning, Result, emitter::Handler};
+use leo_errors::{ParserError, Result, emitter::Handler};
 use leo_span::{Span, Symbol, symbol::with_session_globals};
 
 use snarkvm::prelude::{Field, Network};
@@ -126,11 +126,6 @@ impl<'a, N: Network> ParserContext<'a, N> {
         self.handler.emit_err(err);
     }
 
-    /// Emit the warning `warning`.
-    pub(super) fn emit_warning(&self, warning: ParserWarning) {
-        self.handler.emit_warning(warning.into());
-    }
-
     /// Returns true if the next token exists.
     pub(crate) fn has_next(&self) -> bool {
         !matches!(self.token.token, Token::Eof)
@@ -150,6 +145,7 @@ impl<'a, N: Network> ParserContext<'a, N> {
             self.check_identifier(&identifier);
             return Some(identifier);
         }
+
         None
     }
 

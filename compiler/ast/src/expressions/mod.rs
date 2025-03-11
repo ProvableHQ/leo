@@ -23,6 +23,12 @@ use std::fmt;
 mod access;
 pub use access::*;
 
+mod associated_constant;
+pub use associated_constant::*;
+
+mod associated_function;
+pub use associated_function::*;
+
 mod array;
 pub use array::*;
 
@@ -64,6 +70,10 @@ pub use locator::*;
 pub enum Expression {
     /// A struct access expression, e.g. `Foo.bar`.
     Access(AccessExpression),
+    /// An associated constant; e.g., `group::GEN`.
+    AssociatedConstant(AssociatedConstantExpression),
+    /// An associated function; e.g., `BHP256::hash_to_field`.
+    AssociatedFunction(AssociatedFunctionExpression),
     /// An array expression, e.g., `[true, false, true, false]`.
     Array(ArrayExpression),
     /// A binary expression, e.g., `42 + 24`.
@@ -105,6 +115,8 @@ impl Node for Expression {
         match self {
             Access(n) => n.span(),
             Array(n) => n.span(),
+            AssociatedConstant(n) => n.span(),
+            AssociatedFunction(n) => n.span(),
             Binary(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
@@ -125,6 +137,8 @@ impl Node for Expression {
         match self {
             Access(n) => n.set_span(span),
             Array(n) => n.set_span(span),
+            AssociatedConstant(n) => n.set_span(span),
+            AssociatedFunction(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
@@ -145,6 +159,8 @@ impl Node for Expression {
         match self {
             Access(n) => n.id(),
             Array(n) => n.id(),
+            AssociatedConstant(n) => n.id(),
+            AssociatedFunction(n) => n.id(),
             Binary(n) => n.id(),
             Call(n) => n.id(),
             Cast(n) => n.id(),
@@ -165,6 +181,8 @@ impl Node for Expression {
         match self {
             Access(n) => n.set_id(id),
             Array(n) => n.set_id(id),
+            AssociatedConstant(n) => n.set_id(id),
+            AssociatedFunction(n) => n.set_id(id),
             Binary(n) => n.set_id(id),
             Call(n) => n.set_id(id),
             Cast(n) => n.set_id(id),
@@ -187,6 +205,8 @@ impl fmt::Display for Expression {
         match &self {
             Access(n) => n.fmt(f),
             Array(n) => n.fmt(f),
+            AssociatedConstant(n) => n.fmt(f),
+            AssociatedFunction(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
@@ -217,8 +237,19 @@ impl Expression {
             Binary(e) => e.precedence(),
             Cast(_) => 12,
             Ternary(_) => 14,
-            Access(_) | Array(_) | Call(_) | Err(_) | Identifier(_) | Literal(_) | Locator(_) | Struct(_)
-            | Tuple(_) | Unary(_) | Unit(_) => 20,
+            Access(_)
+            | Array(_)
+            | AssociatedConstant(_)
+            | AssociatedFunction(_)
+            | Call(_)
+            | Err(_)
+            | Identifier(_)
+            | Literal(_)
+            | Locator(_)
+            | Struct(_)
+            | Tuple(_)
+            | Unary(_)
+            | Unit(_) => 20,
         }
     }
 

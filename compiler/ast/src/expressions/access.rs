@@ -25,12 +25,6 @@ use std::fmt;
 pub enum AccessExpression {
     /// An `array[index]` expression.
     Array(ArrayAccess),
-    // /// An expression accessing a range of an array.
-    // ArrayRange(ArrayRangeAccess),
-    /// Access to an associated variable of a struct e.g `u8::MAX`.
-    AssociatedConstant(AssociatedConstant),
-    /// Access to an associated function of a struct e.g `Pedersen64::hash()`.
-    AssociatedFunction(AssociatedFunction),
     /// An expression accessing a field in a structure, e.g., `struct_var.field`.
     Member(MemberAccess),
     /// Access to a tuple field using its position, e.g., `tuple.1`.
@@ -41,8 +35,6 @@ impl Node for AccessExpression {
     fn span(&self) -> Span {
         match self {
             AccessExpression::Array(n) => n.span(),
-            AccessExpression::AssociatedConstant(n) => n.span(),
-            AccessExpression::AssociatedFunction(n) => n.span(),
             AccessExpression::Member(n) => n.span(),
             AccessExpression::Tuple(n) => n.span(),
         }
@@ -51,8 +43,6 @@ impl Node for AccessExpression {
     fn set_span(&mut self, span: Span) {
         match self {
             AccessExpression::Array(n) => n.set_span(span),
-            AccessExpression::AssociatedConstant(n) => n.set_span(span),
-            AccessExpression::AssociatedFunction(n) => n.set_span(span),
             AccessExpression::Member(n) => n.set_span(span),
             AccessExpression::Tuple(n) => n.set_span(span),
         }
@@ -61,8 +51,6 @@ impl Node for AccessExpression {
     fn id(&self) -> NodeID {
         match self {
             AccessExpression::Array(n) => n.id(),
-            AccessExpression::AssociatedConstant(n) => n.id(),
-            AccessExpression::AssociatedFunction(n) => n.id(),
             AccessExpression::Member(n) => n.id(),
             AccessExpression::Tuple(n) => n.id(),
         }
@@ -71,8 +59,6 @@ impl Node for AccessExpression {
     fn set_id(&mut self, id: NodeID) {
         match self {
             AccessExpression::Array(n) => n.set_id(id),
-            AccessExpression::AssociatedConstant(n) => n.set_id(id),
-            AccessExpression::AssociatedFunction(n) => n.set_id(id),
             AccessExpression::Member(n) => n.set_id(id),
             AccessExpression::Tuple(n) => n.set_id(id),
         }
@@ -84,8 +70,6 @@ impl fmt::Display for AccessExpression {
         use AccessExpression::*;
         match self {
             Array(access) => access.fmt(f),
-            AssociatedConstant(access) => access.fmt(f),
-            AssociatedFunction(access) => access.fmt(f),
             Member(access) => access.fmt(f),
             Tuple(access) => access.fmt(f),
         }

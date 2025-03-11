@@ -19,8 +19,8 @@ use leo_ast::{
     AccessExpression,
     ArrayAccess,
     ArrayExpression,
-    AssociatedConstant,
-    AssociatedFunction,
+    AssociatedConstantExpression,
+    AssociatedFunctionExpression,
     BinaryExpression,
     BinaryOperation,
     CallExpression,
@@ -55,6 +55,8 @@ impl<'a> CodeGenerator<'a> {
         match input {
             Expression::Access(expr) => self.visit_access(expr),
             Expression::Array(expr) => self.visit_array(expr),
+            Expression::AssociatedConstant(expr) => self.visit_associated_constant(expr),
+            Expression::AssociatedFunction(expr) => self.visit_associated_function(expr),
             Expression::Binary(expr) => self.visit_binary(expr),
             Expression::Call(expr) => self.visit_call(expr),
             Expression::Cast(expr) => self.visit_cast(expr),
@@ -320,12 +322,12 @@ impl<'a> CodeGenerator<'a> {
     }
 
     // group::GEN -> group::GEN
-    fn visit_associated_constant(&mut self, input: &'a AssociatedConstant) -> (String, String) {
+    fn visit_associated_constant(&mut self, input: &'a AssociatedConstantExpression) -> (String, String) {
         (format!("{input}"), String::new())
     }
 
     // Pedersen64::hash() -> hash.ped64
-    fn visit_associated_function(&mut self, input: &'a AssociatedFunction) -> (String, String) {
+    fn visit_associated_function(&mut self, input: &'a AssociatedFunctionExpression) -> (String, String) {
         let mut instructions = String::new();
 
         // Visit each function argument and accumulate instructions from expressions.
@@ -508,8 +510,6 @@ impl<'a> CodeGenerator<'a> {
         match input {
             AccessExpression::Array(array) => self.visit_array_access(array),
             AccessExpression::Member(access) => self.visit_member_access(access),
-            AccessExpression::AssociatedConstant(constant) => self.visit_associated_constant(constant),
-            AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function),
             AccessExpression::Tuple(_) => {
                 unreachable!("Tuple access should not be in the AST at this phase of compilation.")
             }

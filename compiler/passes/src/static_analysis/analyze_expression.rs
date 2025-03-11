@@ -24,18 +24,20 @@ impl<N: Network> ExpressionVisitor for StaticAnalyzer<'_, N> {
     type AdditionalInput = ();
     type Output = ();
 
-    fn visit_access(&mut self, input: &AccessExpression, _: &Self::AdditionalInput) -> Self::Output {
-        if let AccessExpression::AssociatedFunction(access) = input {
-            // Get the core function.
-            let core_function = match CoreFunction::from_symbols(access.variant.name, access.name.name) {
-                Some(core_function) => core_function,
-                None => unreachable!("Typechecking guarantees that this function exists."),
-            };
+    fn visit_associated_function(
+        &mut self,
+        input: &AssociatedFunctionExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        // Get the core function.
+        let core_function = match CoreFunction::from_symbols(input.variant.name, input.name.name) {
+            Some(core_function) => core_function,
+            None => unreachable!("Typechecking guarantees that this function exists."),
+        };
 
-            // Check that the future was awaited correctly.
-            if core_function == CoreFunction::FutureAwait {
-                self.assert_future_await(&access.arguments.first(), input.span());
-            }
+        // Check that the future was awaited correctly.
+        if core_function == CoreFunction::FutureAwait {
+            self.assert_future_await(&input.arguments.first(), input.span());
         }
     }
 

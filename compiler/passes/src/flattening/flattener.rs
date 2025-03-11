@@ -152,7 +152,7 @@ impl<'a> Flattener<'a> {
                 span: Default::default(),
                 id: self.node_builder.next_id(),
             };
-            let statement = self.simple_assign_statement(
+            let statement = self.simple_definition(
                 place,
                 Expression::Literal(Literal::Boolean(true, Default::default(), self.node_builder.next_id())),
             );
@@ -204,7 +204,7 @@ impl<'a> Flattener<'a> {
                 span: Default::default(),
                 id: self.node_builder.next_id(),
             };
-            statements.push(self.simple_assign_statement(place, binary));
+            statements.push(self.simple_definition(place, binary));
 
             // Make that assigned Identifier the constructed guard.
             self.returns[i].0 = ReturnGuard::Constructed { plain: identifier, any_return: place };
@@ -270,7 +270,7 @@ impl<'a> Flattener<'a> {
                 span: Default::default(),
                 id: self.node_builder.next_id(),
             };
-            statements.push(self.simple_assign_statement(place, binary));
+            statements.push(self.simple_definition(place, binary));
 
             // Make that assigned Identifier the constructed guard.
             self.condition_stack[i] = Guard::Constructed(place);
@@ -331,7 +331,7 @@ impl<'a> Flattener<'a> {
                             Expression::Tuple(_) => value,
                             // Otherwise, assign the expression to a variable and return the variable.
                             _ => {
-                                statements.push(self.simple_assign_statement(place, value));
+                                statements.push(self.simple_definition(place, value));
                                 Expression::Identifier(place)
                             }
                         }
@@ -348,20 +348,20 @@ impl<'a> Flattener<'a> {
         }
     }
 
-    /// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
-    pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
+    /// A wrapper around `assigner.unique_simple_definition` that updates `self.structs`.
+    pub(crate) fn unique_simple_definition(&mut self, expr: Expression) -> (Identifier, Statement) {
         // Create a new variable for the expression.
         let name = self.assigner.unique_symbol("$var", "$");
         // Construct the lhs of the assignment.
         let place = Identifier { name, span: Default::default(), id: self.node_builder.next_id() };
         // Construct the assignment statement.
-        let statement = self.simple_assign_statement(place, expr);
+        let statement = self.simple_definition(place, expr);
 
         (place, statement)
     }
 
-    /// A wrapper around `assigner.simple_assign_statement` that tracks the type of the lhs.
-    pub(crate) fn simple_assign_statement(&mut self, lhs: Identifier, rhs: Expression) -> Statement {
+    /// A wrapper around `assigner.simple_definition` that tracks the type of the lhs.
+    pub(crate) fn simple_definition(&mut self, lhs: Identifier, rhs: Expression) -> Statement {
         // Update the type table.
         let type_ = match self.type_table.get(&rhs.id()) {
             Some(type_) => type_,
@@ -369,7 +369,7 @@ impl<'a> Flattener<'a> {
         };
         self.type_table.insert(lhs.id(), type_);
         // Construct the statement.
-        self.assigner.simple_assign_statement(lhs, rhs, self.node_builder.next_id())
+        self.assigner.simple_definition(lhs, rhs, self.node_builder.next_id())
     }
 
     /// Folds a list of return statements into a single return statement and adds the produced statements to the block.
@@ -423,7 +423,7 @@ impl<'a> Flattener<'a> {
             .map(|i| {
                 // Create an assignment statement for the first access expression.
                 let (first, stmt) =
-                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Array(ArrayAccess {
+                    self.unique_simple_definition(Expression::Access(AccessExpression::Array(ArrayAccess {
                         array: Box::new(Expression::Identifier(*first)),
                         index: Box::new(Expression::Literal(Literal::Integer(
                             IntegerType::U32,
@@ -449,7 +449,7 @@ impl<'a> Flattener<'a> {
                 statements.push(stmt);
                 // Create an assignment statement for the second access expression.
                 let (second, stmt) =
-                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Array(ArrayAccess {
+                    self.unique_simple_definition(Expression::Access(AccessExpression::Array(ArrayAccess {
                         array: Box::new(Expression::Identifier(*second)),
                         index: Box::new(Expression::Literal(Literal::Integer(
                             IntegerType::U32,
@@ -515,7 +515,7 @@ impl<'a> Flattener<'a> {
         statements.extend(stmts);
 
         // Create a new assignment statement for the array expression.
-        let (identifier, statement) = self.unique_simple_assign_statement(expr);
+        let (identifier, statement) = self.unique_simple_definition(expr);
 
         statements.push(statement);
 
@@ -538,7 +538,7 @@ impl<'a> Flattener<'a> {
             .map(|Member { identifier, type_, .. }| {
                 // Create an assignment statement for the first access expression.
                 let (first, stmt) =
-                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Member(MemberAccess {
+                    self.unique_simple_definition(Expression::Access(AccessExpression::Member(MemberAccess {
                         inner: Box::new(Expression::Identifier(*first)),
                         name: *identifier,
                         span: Default::default(),
@@ -553,7 +553,7 @@ impl<'a> Flattener<'a> {
                 statements.push(stmt);
                 // Create an assignment statement for the second access expression.
                 let (second, stmt) =
-                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Member(MemberAccess {
+                    self.unique_simple_definition(Expression::Access(AccessExpression::Member(MemberAccess {
                         inner: Box::new(Expression::Identifier(*second)),
                         name: *identifier,
                         span: Default::default(),
@@ -613,7 +613,7 @@ impl<'a> Flattener<'a> {
         statements.extend(stmts);
 
         // Create a new assignment statement for the struct expression.
-        let (identifier, statement) = self.unique_simple_assign_statement(expr);
+        let (identifier, statement) = self.unique_simple_definition(expr);
 
         statements.push(statement);
 
@@ -637,7 +637,7 @@ impl<'a> Flattener<'a> {
             .map(|(i, type_)| {
                 // Create an assignment statement for the first access expression.
                 let (first, stmt) =
-                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
+                    self.unique_simple_definition(Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: Box::new(Expression::Identifier(*first)),
                         index: NonNegativeNumber::from(i),
                         span: Default::default(),
@@ -652,7 +652,7 @@ impl<'a> Flattener<'a> {
                 statements.push(stmt);
                 // Create an assignment statement for the second access expression.
                 let (second, stmt) =
-                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
+                    self.unique_simple_definition(Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: Box::new(Expression::Identifier(*second)),
                         index: NonNegativeNumber::from(i),
                         span: Default::default(),
@@ -708,7 +708,7 @@ impl<'a> Flattener<'a> {
         statements.extend(stmts);
 
         // Create a new assignment statement for the tuple expression.
-        let (identifier, statement) = self.unique_simple_assign_statement(expr);
+        let (identifier, statement) = self.unique_simple_definition(expr);
 
         statements.push(statement);
 

@@ -17,13 +17,13 @@
 use crate::DeadCodeEliminator;
 
 use leo_ast::{
-    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
     Block,
     ConditionalStatement,
     ConsoleStatement,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -34,7 +34,7 @@ use leo_ast::{
     StatementReconstructor,
 };
 
-impl StatementReconstructor for DeadCodeEliminator<'_> {
+impl StatementReconstructor for DeadCodeEliminator {
     fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
         // Set the `is_necessary` flag.
         self.is_necessary = true;
@@ -60,48 +60,9 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
         (statement, Default::default())
     }
 
-    /// Reconstruct an assignment statement by eliminating any dead code.
-    fn reconstruct_assign(&mut self, input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        // Check the lhs of the assignment to see any of variables are used.
-        let lhs_is_used = match &input.place {
-            Expression::Identifier(identifier) => self.used_variables.contains(&identifier.name),
-            Expression::Tuple(tuple_expression) => tuple_expression
-                .elements
-                .iter()
-                .map(|element| match element {
-                    Expression::Identifier(identifier) => identifier.name,
-                    _ => unreachable!(
-                        "The previous compiler passes guarantee the tuple elements on the lhs are identifiers."
-                    ),
-                })
-                .any(|symbol| self.used_variables.contains(&symbol)),
-            _ => unreachable!(
-                "The previous compiler passes guarantee that `place` is either an identifier or tuple of identifiers."
-            ),
-        };
-
-        match lhs_is_used {
-            // If the lhs is used, then we return the original statement.
-            true => {
-                // Set the `is_necessary` flag.
-                self.is_necessary = true;
-
-                // Visit the statement.
-                let statement = Statement::Assign(Box::new(AssignStatement {
-                    place: input.place,
-                    value: self.reconstruct_expression(input.value).0,
-                    span: input.span,
-                    id: input.id,
-                }));
-
-                // Unset the `is_necessary` flag.
-                self.is_necessary = false;
-
-                (statement, Default::default())
-            }
-            // Otherwise, we can eliminate it.
-            false => (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default()),
-        }
+    /// Static single assignment removed all assignments.
+    fn reconstruct_assign(&mut self, _input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        panic!("`AssignStatement`s should not exist in the AST at this phase of compilation.")
     }
 
     /// Reconstructs the statements inside a basic block, eliminating any dead code.
@@ -119,7 +80,7 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
     /// Flattening removes conditional statements from the program.
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
         if !self.is_async {
-            unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
+            panic!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
         } else {
             (
                 Statement::Conditional(ConditionalStatement {
@@ -144,12 +105,33 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
 
     /// Parsing guarantees that console statements are not present in the program.
     fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
+        panic!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
     /// Static single assignment replaces definition statements with assignment statements.
-    fn reconstruct_definition(&mut self, _: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
+    fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        // Check the lhs of the definition to see any of variables are used.
+        let lhs_is_used = match &input.place {
+            DefinitionPlace::Single(identifier) => self.used_variables.contains(&identifier.name),
+            DefinitionPlace::Multiple(identifiers) => {
+                identifiers.iter().any(|identifier| self.used_variables.contains(&identifier.name))
+            }
+        };
+
+        if lhs_is_used {
+            // Set the `is_necessary` flag.
+            self.is_necessary = true;
+
+            input.value = self.reconstruct_expression(input.value).0;
+
+            // Unset the `is_necessary` flag.
+            self.is_necessary = false;
+
+            (Statement::Definition(input), Default::default())
+        } else {
+            // Eliminate it.
+            (Statement::dummy(), Default::default())
+        }
     }
 
     /// Reconstructs expression statements by eliminating any dead code.
@@ -173,13 +155,11 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
 
                 (statement, Default::default())
             }
-            Expression::Access(AccessExpression::AssociatedFunction(associated_function)) => {
+            Expression::AssociatedFunction(associated_function) => {
                 // Visit the expression.
                 (
                     Statement::Expression(ExpressionStatement {
-                        expression: self
-                            .reconstruct_access(AccessExpression::AssociatedFunction(associated_function))
-                            .0,
+                        expression: self.reconstruct_associated_function(associated_function).0,
                         span: input.span,
                         id: input.id,
                     }),
@@ -188,13 +168,13 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
             }
             // Any other expression is dead code, since they do not have side effects.
             // Note: array access expressions will have side effects and need to be handled here.
-            _ => (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default()),
+            _ => (Statement::dummy(), Default::default()),
         }
     }
 
     /// Loop unrolling unrolls and removes iteration statements from the program.
     fn reconstruct_iteration(&mut self, _: IterationStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
+        panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
     fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {

@@ -321,7 +321,7 @@ impl<N: Network> ParserContext<'_, N> {
         } else if let (2, Some(CoreFunction::SignatureVerify)) =
             (args.len(), CoreFunction::from_symbols(sym::signature, method.name))
         {
-            Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+            Ok(Expression::AssociatedFunction(AssociatedFunctionExpression {
                 variant: Identifier::new(sym::signature, self.node_builder.next_id()),
                 name: method,
                 arguments: {
@@ -331,17 +331,17 @@ impl<N: Network> ParserContext<'_, N> {
                 },
                 span,
                 id: self.node_builder.next_id(),
-            })))
+            }))
         } else if let (0, Some(CoreFunction::FutureAwait)) =
             (args.len(), CoreFunction::from_symbols(sym::Future, method.name))
         {
-            Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+            Ok(Expression::AssociatedFunction(AssociatedFunctionExpression {
                 variant: Identifier::new(sym::Future, self.node_builder.next_id()),
                 name: method,
                 arguments: vec![receiver],
                 span,
                 id: self.node_builder.next_id(),
-            })))
+            }))
         } else {
             // Attempt to parse the method call as a mapping operation.
             match (args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {
@@ -351,7 +351,7 @@ impl<N: Network> ParserContext<'_, N> {
                 | (1, Some(CoreFunction::MappingRemove))
                 | (1, Some(CoreFunction::MappingContains)) => {
                     // Found an instance of `<mapping>.get`, `<mapping>.get_or_use`, `<mapping>.set`, `<mapping>.remove`, or `<mapping>.contains`.
-                    Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                    Ok(Expression::AssociatedFunction(AssociatedFunctionExpression {
                         variant: Identifier::new(sym::Mapping, self.node_builder.next_id()),
                         name: method,
                         arguments: {
@@ -361,7 +361,7 @@ impl<N: Network> ParserContext<'_, N> {
                         },
                         span,
                         id: self.node_builder.next_id(),
-                    })))
+                    }))
                 }
                 _ => {
                     // Either an invalid unary/binary operator, or more arguments given.
@@ -386,12 +386,12 @@ impl<N: Network> ParserContext<'_, N> {
         let member_name = self.expect_identifier()?;
 
         // Check if there are arguments.
-        Ok(Expression::Access(if self.check(&Token::LeftParen) {
+        let expression = if self.check(&Token::LeftParen) {
             // Parse the arguments
             let (args, _, end) = self.parse_expr_tuple()?;
 
             // Return the associated function.
-            AccessExpression::AssociatedFunction(AssociatedFunction {
+            Expression::AssociatedFunction(AssociatedFunctionExpression {
                 span: module_name.span() + end,
                 variant,
                 name: member_name,
@@ -400,13 +400,15 @@ impl<N: Network> ParserContext<'_, N> {
             })
         } else {
             // Return the associated constant.
-            AccessExpression::AssociatedConstant(AssociatedConstant {
+            Expression::AssociatedConstant(AssociatedConstantExpression {
                 span: module_name.span() + member_name.span(),
                 ty: Type::Identifier(variant),
                 name: member_name,
                 id: self.node_builder.next_id(),
             })
-        }))
+        };
+
+        Ok(expression)
     }
 
     /// Parses a tuple of `Expression` AST nodes.

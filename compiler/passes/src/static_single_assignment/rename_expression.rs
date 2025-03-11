@@ -20,7 +20,7 @@ use leo_ast::{
     AccessExpression,
     ArrayAccess,
     ArrayExpression,
-    AssociatedFunction,
+    AssociatedFunctionExpression,
     BinaryExpression,
     CallExpression,
     CastExpression,
@@ -51,27 +51,6 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
     /// Consumes an access expression, accumulating any statements that are generated.
     fn consume_access(&mut self, input: AccessExpression) -> Self::Output {
         let (expr, mut statements) = match input {
-            AccessExpression::AssociatedFunction(function) => {
-                let mut statements = Vec::new();
-                (
-                    AccessExpression::AssociatedFunction(AssociatedFunction {
-                        variant: function.variant,
-                        name: function.name,
-                        arguments: function
-                            .arguments
-                            .into_iter()
-                            .map(|arg| {
-                                let (arg, mut stmts) = self.consume_expression(arg);
-                                statements.append(&mut stmts);
-                                arg
-                            })
-                            .collect(),
-                        span: function.span,
-                        id: function.id,
-                    }),
-                    statements,
-                )
-            }
             AccessExpression::Member(member) => {
                 // TODO: Create AST node for native access expressions?
                 // If the access expression is of the form `self.<name>`, then don't rename it.
@@ -117,9 +96,8 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                     statements,
                 )
             }
-            expr => (expr, Vec::new()),
         };
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Access(expr));
+        let (place, statement) = self.unique_simple_definition(Expression::Access(expr));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -141,7 +119,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             .collect();
 
         // Construct and accumulate a new assignment statement for the array expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Array(ArrayExpression {
+        let (place, statement) = self.unique_simple_definition(Expression::Array(ArrayExpression {
             elements,
             span: input.span,
             id: input.id,
@@ -160,8 +138,8 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         // Accumulate any statements produced.
         statements.append(&mut right_statements);
 
-        // Construct and accumulate a unique assignment statement storing the result of the binary expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Binary(BinaryExpression {
+        // Construct and accumulate a unique definition statement storing the result of the binary expression.
+        let (place, statement) = self.unique_simple_definition(Expression::Binary(BinaryExpression {
             left: Box::new(left_expression),
             right: Box::new(right_expression),
             op: input.op,
@@ -188,8 +166,8 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             })
             .collect();
 
-        // Construct and accumulate a new assignment statement for the call expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Call(CallExpression {
+        // Construct and accumulate a new definition statement for the call expression.
+        let (place, statement) = self.unique_simple_definition(Expression::Call(CallExpression {
             // Note that we do not rename the function name.
             function: input.function,
             // Consume the arguments.
@@ -208,8 +186,8 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         // Reconstruct the expression being casted.
         let (expression, mut statements) = self.consume_expression(*input.expression);
 
-        // Construct and accumulate a unique assignment statement storing the result of the cast expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Cast(CastExpression {
+        // Construct and accumulate a unique definition statement storing the result of the cast expression.
+        let (place, statement) = self.unique_simple_definition(Expression::Cast(CastExpression {
             expression: Box::new(expression),
             type_: input.type_,
             span: input.span,
@@ -284,8 +262,8 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             }
         }
 
-        // Construct and accumulate a new assignment statement for the struct expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Struct(StructExpression {
+        // Construct and accumulate a new definition statement for the struct expression.
+        let (place, statement) = self.unique_simple_definition(Expression::Struct(StructExpression {
             name: input.name,
             span: input.span,
             members: reordered_members,
@@ -296,29 +274,20 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         (Expression::Identifier(place), statements)
     }
 
-    /// Produces a new `Identifier` with a unique name.
+    /// Retrieve the new name for this `Identifier`.
+    ///
+    /// Note that this shouldn't be used for `Identifier`s on the lhs of definitions or
+    /// assignments.
     fn consume_identifier(&mut self, identifier: Identifier) -> Self::Output {
-        let name = match self.is_lhs {
-            // If consuming the left-hand side of a definition or assignment, a new unique name is introduced.
-            true => {
-                let new_name = self.assigner.unique_symbol(identifier.name, "$");
-                self.rename_table.update(identifier.name, new_name, identifier.id);
-                new_name
-            }
-            // Otherwise, we look up the previous name in the `RenameTable`.
-            // Note that we do not panic if the identifier is not found in the rename table.
-            // Variables that do not exist in the rename table are ones that have been introduced during the SSA pass.
-            // These variables are never re-assigned, and will never have an entry in the rename-table.
-            false => *self.rename_table.lookup(identifier.name).unwrap_or(&identifier.name),
-        };
-
+        // If lookup fails, presumably it's the name of a mapping.
+        let name = *self.rename_table.lookup(identifier.name).unwrap_or(&identifier.name);
         (Expression::Identifier(Identifier { name, span: identifier.span, id: identifier.id }), Default::default())
     }
 
     /// Consumes and returns the literal without making any modifications.
     fn consume_literal(&mut self, input: Literal) -> Self::Output {
         // Construct and accumulate a new assignment statement for the literal.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Literal(input));
+        let (place, statement) = self.unique_simple_definition(Expression::Literal(input));
         (Expression::Identifier(place), vec![statement])
     }
 
@@ -341,7 +310,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         statements.append(&mut if_false_statements);
 
         // Construct and accumulate a unique assignment statement storing the result of the ternary expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+        let (place, statement) = self.unique_simple_definition(Expression::Ternary(TernaryExpression {
             condition: Box::new(cond_expr),
             if_true: Box::new(if_true_expr),
             if_false: Box::new(if_false_expr),
@@ -369,7 +338,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             .collect();
 
         // Construct and accumulate a new assignment statement for the tuple expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Tuple(TupleExpression {
+        let (place, statement) = self.unique_simple_definition(Expression::Tuple(TupleExpression {
             elements,
             span: input.span,
             id: input.id,
@@ -385,7 +354,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let (receiver, mut statements) = self.consume_expression(*input.receiver);
 
         // Construct and accumulate a new assignment statement for the unary expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Unary(UnaryExpression {
+        let (place, statement) = self.unique_simple_definition(Expression::Unary(UnaryExpression {
             op: input.op,
             receiver: Box::new(receiver),
             span: input.span,
@@ -398,5 +367,34 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
     fn consume_unit(&mut self, input: UnitExpression) -> Self::Output {
         (Expression::Unit(input), Default::default())
+    }
+
+    fn consume_associated_constant(&mut self, input: leo_ast::AssociatedConstantExpression) -> Self::Output {
+        (Expression::AssociatedConstant(input), Default::default())
+    }
+
+    fn consume_associated_function(&mut self, input: leo_ast::AssociatedFunctionExpression) -> Self::Output {
+        let mut statements = Vec::new();
+        let expr = Expression::AssociatedFunction(AssociatedFunctionExpression {
+            variant: input.variant,
+            name: input.name,
+            arguments: input
+                .arguments
+                .into_iter()
+                .map(|arg| {
+                    let (arg, mut stmts) = self.consume_expression(arg);
+                    statements.append(&mut stmts);
+                    arg
+                })
+                .collect(),
+            span: input.span,
+            id: input.id,
+        });
+
+        let (place, statement) = self.unique_simple_definition(expr);
+
+        statements.push(statement);
+
+        (Expression::Identifier(place), statements)
     }
 }

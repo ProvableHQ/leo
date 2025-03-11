@@ -33,34 +33,33 @@ impl ExpressionReconstructor for Destructurer<'_> {
 
     /// Replaces a tuple access expression with the appropriate expression.
     fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
+        let Expression::Identifier(identifier) = input.tuple.as_ref() else {
+            panic!("SSA guarantees that subexpressions are identifiers or literals.");
+        };
+
         // Lookup the expression in the tuple map.
-        match input.tuple.as_ref() {
-            Expression::Identifier(identifier) => {
-                match self.tuples.get(&identifier.name).and_then(|tuple| tuple.elements.get(input.index.value())) {
-                    Some(element) => (element.clone(), Default::default()),
-                    None => {
-                        if matches!(self.type_table.get(&identifier.id), Some(Type::Future(_))) {
-                            (
-                                Expression::Access(AccessExpression::Array(ArrayAccess {
-                                    array: Box::new(Expression::Identifier(*identifier)),
-                                    index: Box::new(Expression::Literal(Literal::Integer(
-                                        IntegerType::U32,
-                                        input.index.to_string(),
-                                        input.span,
-                                        Default::default(),
-                                    ))),
-                                    span: input.span,
-                                    id: input.id,
-                                })),
+        match self.tuples.get(&identifier.name).and_then(|tuple_expr| tuple_expr.elements.get(input.index.value())) {
+            Some(element) => (element.clone(), Default::default()),
+            None => {
+                if matches!(self.type_table.get(&identifier.id), Some(Type::Future(_))) {
+                    (
+                        Expression::Access(AccessExpression::Array(ArrayAccess {
+                            array: Box::new(Expression::Identifier(*identifier)),
+                            index: Box::new(Expression::Literal(Literal::Integer(
+                                IntegerType::U32,
+                                input.index.to_string(),
+                                input.span,
                                 Default::default(),
-                            )
-                        } else {
-                            unreachable!("SSA guarantees that all tuple accesses are declared and indices are valid.")
-                        }
-                    }
+                            ))),
+                            span: input.span,
+                            id: input.id,
+                        })),
+                        Default::default(),
+                    )
+                } else {
+                    panic!("SSA guarantees that all tuple accesses are declared and indices are valid.")
                 }
             }
-            _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
         }
     }
 }

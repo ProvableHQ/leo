@@ -26,7 +26,7 @@ functions = [
     [
     "main",
     { annotations = [], variant = "AsyncTransition", identifier = '{"id":"3","name":"main","span":"{\"lo\":61,\"hi\":65}"}', input = [], output = [], output_type = "Unit", id = 10, block = { id = 9, statements = [
-    { Definition = { declaration_type = "Let", id = 6, place = { Identifier = '{"id":"4","name":"x","span":"{\"lo\":82,\"hi\":83}"}' }, type_ = { Integer = "U8" }, value = { Literal = { Integer = [
+    { Definition = { id = 6, place = { Single = '{"id":"4","name":"x","span":"{\"lo\":82,\"hi\":83}"}' }, type_ = { Integer = "U8" }, value = { Literal = { Integer = [
     "U8",
     "1",
     { span = { lo = 89, hi = 92 } },
@@ -38,7 +38,7 @@ functions = [
     [
     "finalize_main",
     { annotations = [], variant = "AsyncFunction", identifier = '{"id":"11","name":"finalize_main","span":"{\"lo\":135,\"hi\":148}"}', input = [], output = [], output_type = "Unit", id = 65, block = { id = 64, statements = [
-    { Expression = { id = 23, expression = { Access = { AssociatedFunction = { variant = '{"id":"12","name":"Mapping","span":"{\"lo\":161,\"hi\":168}"}', name = '{"id":"13","name":"set","span":"{\"lo\":170,\"hi\":173}"}', id = 22, arguments = [
+    { Expression = { id = 23, expression = { AssociatedFunction = { variant = '{"id":"12","name":"Mapping","span":"{\"lo\":161,\"hi\":168}"}', name = '{"id":"13","name":"set","span":"{\"lo\":170,\"hi\":173}"}', id = 22, arguments = [
     { Locator = { program = '{"name":"hello","network":"\"{\\\"id\\\":\\\"16\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":180,\\\\\\\"hi\\\\\\\":184}\\\"}\""}', name = "counter", id = 17, span = { lo = 174, hi = 192 } } },
     { Identifier = '{"id":"18","name":"addr","span":"{\"lo\":194,\"hi\":198}"}' },
     { Binary = { op = "Add", id = 21, left = { Identifier = '{"id":"19","name":"current_value","span":"{\"lo\":200,\"hi\":213}"}' }, right = { Literal = { Integer = [
@@ -47,16 +47,16 @@ functions = [
     { span = { lo = 216, hi = 220 } },
     20,
 ] } }, span = { lo = 200, hi = 220 } } },
-], span = { lo = 161, hi = 221 } } } }, span = { lo = 161, hi = 222 } } },
-    { Expression = { id = 32, expression = { Access = { AssociatedFunction = { variant = '{"id":"24","name":"Mapping","span":"{\"lo\":231,\"hi\":238}"}', name = '{"id":"25","name":"remove","span":"{\"lo\":240,\"hi\":246}"}', id = 31, arguments = [
+], span = { lo = 161, hi = 221 } } }, span = { lo = 161, hi = 222 } } },
+    { Expression = { id = 32, expression = { AssociatedFunction = { variant = '{"id":"24","name":"Mapping","span":"{\"lo\":231,\"hi\":238}"}', name = '{"id":"25","name":"remove","span":"{\"lo\":240,\"hi\":246}"}', id = 31, arguments = [
     { Locator = { program = '{"name":"hello","network":"\"{\\\"id\\\":\\\"28\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":253,\\\\\\\"hi\\\\\\\":257}\\\"}\""}', name = "foo", id = 29, span = { lo = 247, hi = 261 } } },
     { Identifier = '{"id":"30","name":"addr","span":"{\"lo\":263,\"hi\":267}"}' },
-], span = { lo = 231, hi = 268 } } } }, span = { lo = 231, hi = 269 } } },
-    { Definition = { declaration_type = "Let", id = 42, place = { Identifier = '{"id":"33","name":"a","span":"{\"lo\":282,\"hi\":283}"}' }, type_ = { Integer = "U32" }, value = { Access = { AssociatedFunction = { variant = '{"id":"34","name":"Mapping","span":"{\"lo\":290,\"hi\":297}"}', name = '{"id":"35","name":"get","span":"{\"lo\":299,\"hi\":302}"}', id = 41, arguments = [
+], span = { lo = 231, hi = 268 } } }, span = { lo = 231, hi = 269 } } },
+    { Definition = { id = 42, place = { Single = '{"id":"33","name":"a","span":"{\"lo\":282,\"hi\":283}"}' }, type_ = { Integer = "U32" }, value = { AssociatedFunction = { variant = '{"id":"34","name":"Mapping","span":"{\"lo\":290,\"hi\":297}"}', name = '{"id":"35","name":"get","span":"{\"lo\":299,\"hi\":302}"}', id = 41, arguments = [
     { Locator = { program = '{"name":"hello","network":"\"{\\\"id\\\":\\\"38\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":309,\\\\\\\"hi\\\\\\\":313}\\\"}\""}', name = "foo", id = 39, span = { lo = 303, hi = 317 } } },
     { Identifier = '{"id":"40","name":"addr","span":"{\"lo\":319,\"hi\":323}"}' },
-], span = { lo = 290, hi = 324 } } } }, span = { lo = 278, hi = 324 } } },
-    { Definition = { declaration_type = "Let", id = 53, place = { Identifier = '{"id":"43","name":"b","span":"{\"lo\":338,\"hi\":339}"}' }, type_ = { Integer = "U32" }, value = { Access = { AssociatedFunction = { variant = '{"id":"44","name":"Mapping","span":"{\"lo\":346,\"hi\":353}"}', name = '{"id":"45","name":"get_or_use","span":"{\"lo\":355,\"hi\":365}"}', id = 52, arguments = [
+], span = { lo = 290, hi = 324 } } }, span = { lo = 278, hi = 324 } } },
+    { Definition = { id = 53, place = { Single = '{"id":"43","name":"b","span":"{\"lo\":338,\"hi\":339}"}' }, type_ = { Integer = "U32" }, value = { AssociatedFunction = { variant = '{"id":"44","name":"Mapping","span":"{\"lo\":346,\"hi\":353}"}', name = '{"id":"45","name":"get_or_use","span":"{\"lo\":355,\"hi\":365}"}', id = 52, arguments = [
     { Locator = { program = '{"name":"hello","network":"\"{\\\"id\\\":\\\"48\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":372,\\\\\\\"hi\\\\\\\":376}\\\"}\""}', name = "foo", id = 49, span = { lo = 366, hi = 380 } } },
     { Identifier = '{"id":"50","name":"addr","span":"{\"lo\":382,\"hi\":386}"}' },
     { Literal = { Integer = [
@@ -65,11 +65,11 @@ functions = [
     { span = { lo = 388, hi = 392 } },
     51,
 ] } },
-], span = { lo = 346, hi = 393 } } } }, span = { lo = 334, hi = 393 } } },
-    { Definition = { declaration_type = "Let", id = 63, place = { Identifier = '{"id":"54","name":"c","span":"{\"lo\":407,\"hi\":408}"}' }, type_ = { Integer = "U32" }, value = { Access = { AssociatedFunction = { variant = '{"id":"55","name":"Mapping","span":"{\"lo\":415,\"hi\":422}"}', name = '{"id":"56","name":"contains","span":"{\"lo\":424,\"hi\":432}"}', id = 62, arguments = [
+], span = { lo = 346, hi = 393 } } }, span = { lo = 334, hi = 393 } } },
+    { Definition = { id = 63, place = { Single = '{"id":"54","name":"c","span":"{\"lo\":407,\"hi\":408}"}' }, type_ = { Integer = "U32" }, value = { AssociatedFunction = { variant = '{"id":"55","name":"Mapping","span":"{\"lo\":415,\"hi\":422}"}', name = '{"id":"56","name":"contains","span":"{\"lo\":424,\"hi\":432}"}', id = 62, arguments = [
     { Locator = { program = '{"name":"hello","network":"\"{\\\"id\\\":\\\"59\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":439,\\\\\\\"hi\\\\\\\":443}\\\"}\""}', name = "foo", id = 60, span = { lo = 433, hi = 447 } } },
     { Identifier = '{"id":"61","name":"addr","span":"{\"lo\":449,\"hi\":453}"}' },
-], span = { lo = 415, hi = 454 } } } }, span = { lo = 403, hi = 454 } } },
+], span = { lo = 415, hi = 454 } } }, span = { lo = 403, hi = 454 } } },
 ], span = { lo = 151, hi = 461 } }, span = { lo = 120, hi = 461 } },
 ],
 ]

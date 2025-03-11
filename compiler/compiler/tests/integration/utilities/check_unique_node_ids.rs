@@ -66,20 +66,6 @@ impl ExpressionVisitor for CheckUniqueNodeIds {
                 self.visit_expression(index, &Default::default());
                 self.check(*id);
             }
-            AccessExpression::AssociatedConstant(AssociatedConstant { ty, name, id, .. }) => {
-                self.check_ty(ty);
-                self.visit_identifier(name, &Default::default());
-                self.check(*id);
-            }
-            AccessExpression::AssociatedFunction(AssociatedFunction {
-                variant: _variant, name, arguments, id, ..
-            }) => {
-                self.visit_identifier(name, &Default::default());
-                for argument in arguments {
-                    self.visit_expression(argument, &Default::default());
-                }
-                self.check(*id);
-            }
             AccessExpression::Member(MemberAccess { inner, name, id, .. }) => {
                 self.visit_expression(inner, &Default::default());
                 self.visit_identifier(name, &Default::default());
@@ -90,6 +76,28 @@ impl ExpressionVisitor for CheckUniqueNodeIds {
                 self.check(*id);
             }
         }
+    }
+
+    fn visit_associated_constant(
+        &mut self,
+        input: &AssociatedConstantExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        self.check_ty(&input.ty);
+        self.visit_identifier(&input.name, &Default::default());
+        self.check(input.id);
+    }
+
+    fn visit_associated_function(
+        &mut self,
+        input: &AssociatedFunctionExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        self.visit_identifier(&input.name, &Default::default());
+        for argument in &input.arguments {
+            self.visit_expression(argument, &Default::default());
+        }
+        self.check(input.id);
     }
 
     fn visit_binary(&mut self, input: &BinaryExpression, _: &Self::AdditionalInput) -> Self::Output {
@@ -180,7 +188,7 @@ impl StatementVisitor for CheckUniqueNodeIds {
     }
 
     fn visit_assign(&mut self, input: &AssignStatement) {
-        self.visit_expression(&input.place, &Default::default());
+        self.visit_identifier(&input.place, &Default::default());
         self.visit_expression(&input.value, &Default::default());
         self.check(input.id)
     }
@@ -217,7 +225,6 @@ impl StatementVisitor for CheckUniqueNodeIds {
     }
 
     fn visit_definition(&mut self, input: &DefinitionStatement) {
-        self.visit_expression(&input.place, &Default::default());
         self.check_ty(&input.type_);
         self.visit_expression(&input.value, &Default::default());
         self.check(input.id)
