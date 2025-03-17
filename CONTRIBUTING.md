@@ -17,6 +17,8 @@ These guidelines ensure consistent readable rust code within the Leo repository.
 
 ### Comments
 
+Every struct, struct member, and function should have a comment explaining what it does. If it's a public item, use a doc comment.
+
 Prefer line comments (//) to block comments (/* ... */).
 
 When using single-line block comments there should be a single space after the opening sigil and before the closing sigil. Multi-line block comments should have a newline after the opening sigil and before the closing sigil.
@@ -56,6 +58,11 @@ use std::{
 ```
 
 `rust fmt` should automatically sort imports alphabetically after they are split into the appropriate sections.
+
+### Panics
+
+- If code is unreachable for all invocations, use the unreachable! macro.
+- Do not use unwraps, use expect with a reason, assert!, or a test-and-panic.
 
 ## Coding conventions
 
