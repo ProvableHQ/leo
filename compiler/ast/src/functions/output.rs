@@ -45,7 +45,7 @@ impl Output {
 
 impl fmt::Display for Output {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {}", self.mode, self.type_)
+        if self.mode == Mode::None { write!(f, "{}", self.type_) } else { write!(f, "{} {}", self.mode, self.type_) }
     }
 }
 

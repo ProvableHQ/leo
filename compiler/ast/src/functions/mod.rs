@@ -139,7 +139,7 @@ impl fmt::Display for Function {
                 }
             }
             _ => {
-                write!(f, " -> {}", self.output.iter().format(", "))?;
+                write!(f, " -> ({})", self.output.iter().format(", "))?;
             }
         }
 
