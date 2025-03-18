@@ -135,7 +135,7 @@ impl fmt::Debug for Composite {
 impl fmt::Display for Composite {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_str(if self.is_record { "record" } else { "struct" })?;
-        writeln!(f, "{} {{", self.identifier)?;
+        writeln!(f, " {} {{", self.identifier)?;
         for field in self.members.iter() {
             writeln!(f, "{},", Indent(field))?;
         }
