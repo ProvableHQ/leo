@@ -26,11 +26,6 @@ use std::{
     ops::{BitAnd, BitOr, BitXor, Not},
 };
 
-// TODO: Consider refactoring this module to use the console implementations from snarkVM.
-
-// This is temporary since the currently unused code is used in constant folding.
-#[allow(dead_code)]
-
 // Macro for making implementing unary operations over appropriate types easier.
 macro_rules! implement_const_unary {
     (

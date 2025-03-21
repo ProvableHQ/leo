@@ -867,28 +867,28 @@ impl Cursor<'_> {
                 for value in rand.operands().iter().map(|op| self.operand_value(op)) {
                     value.write_bits_le(&mut bits);
                 }
-                let field: Field<TestnetV0> = self.rng.gen();
+                let field: Field<TestnetV0> = self.rng.r#gen();
                 field.write_bits_le(&mut bits);
                 let seed_vec = TestnetV0::hash_bhp1024(&bits)?.to_bytes_le()?;
                 let mut seed = [0u8; 32];
                 seed.copy_from_slice(&seed_vec[..32]);
                 let mut rng = ChaCha20Rng::from_seed(seed);
                 let value = match rand.destination_type() {
-                    LiteralType::Address => Value::Address(rng.gen()),
-                    LiteralType::Boolean => Value::Bool(rng.gen()),
-                    LiteralType::Field => Value::Field(rng.gen()),
-                    LiteralType::Group => Value::Group(rng.gen()),
-                    LiteralType::I8 => Value::I8(rng.gen()),
-                    LiteralType::I16 => Value::I16(rng.gen()),
-                    LiteralType::I32 => Value::I32(rng.gen()),
-                    LiteralType::I64 => Value::I64(rng.gen()),
-                    LiteralType::I128 => Value::I128(rng.gen()),
-                    LiteralType::U8 => Value::U8(rng.gen()),
-                    LiteralType::U16 => Value::U16(rng.gen()),
-                    LiteralType::U32 => Value::U32(rng.gen()),
-                    LiteralType::U64 => Value::U64(rng.gen()),
-                    LiteralType::U128 => Value::U128(rng.gen()),
-                    LiteralType::Scalar => Value::Scalar(rng.gen()),
+                    LiteralType::Address => Value::Address(rng.r#gen()),
+                    LiteralType::Boolean => Value::Bool(rng.r#gen()),
+                    LiteralType::Field => Value::Field(rng.r#gen()),
+                    LiteralType::Group => Value::Group(rng.r#gen()),
+                    LiteralType::I8 => Value::I8(rng.r#gen()),
+                    LiteralType::I16 => Value::I16(rng.r#gen()),
+                    LiteralType::I32 => Value::I32(rng.r#gen()),
+                    LiteralType::I64 => Value::I64(rng.r#gen()),
+                    LiteralType::I128 => Value::I128(rng.r#gen()),
+                    LiteralType::U8 => Value::U8(rng.r#gen()),
+                    LiteralType::U16 => Value::U16(rng.r#gen()),
+                    LiteralType::U32 => Value::U32(rng.r#gen()),
+                    LiteralType::U64 => Value::U64(rng.r#gen()),
+                    LiteralType::U128 => Value::U128(rng.r#gen()),
+                    LiteralType::Scalar => Value::Scalar(rng.r#gen()),
                     LiteralType::Signature => halt_no_span!("Cannot create a random signature"),
                     LiteralType::String => halt_no_span!("Cannot create a random string"),
                 };

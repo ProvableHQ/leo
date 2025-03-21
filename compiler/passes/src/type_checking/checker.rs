@@ -865,7 +865,7 @@ impl<'a> TypeChecker<'a> {
             Type::Composite(struct_)
                 if self
                     .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
-                    .map_or(false, |struct_| struct_.is_record) =>
+                    .is_some_and(|struct_| struct_.is_record) =>
             {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
             }

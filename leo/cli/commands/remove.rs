@@ -60,7 +60,7 @@ impl Command for LeoRemove {
 
             let mut found_match = false;
             let dep = match manifest.dependencies() {
-                Some(ref dependencies) => dependencies
+                Some(dependencies) => dependencies
                     .iter()
                     .filter_map(|dependency| {
                         if dependency.name() == &name {

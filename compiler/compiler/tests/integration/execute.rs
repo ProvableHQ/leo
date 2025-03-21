@@ -85,6 +85,8 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
     let mut outputs = Vec::with_capacity(build_options.len());
 
+    let re = Regex::new(r"program\s+([^\s.]+)\.aleo").unwrap();
+
     for build in build_options {
         let compiler_options = CompilerOptions {
             build,
@@ -127,7 +129,6 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         // Compile each program string separately.
         for program_string in program_strings {
             // Parse the program name from the program string.
-            let re = Regex::new(r"program\s+([^\s.]+)\.aleo").unwrap();
             let program_name = re.captures(program_string).unwrap().get(1).unwrap().as_str();
 
             // Parse the program.

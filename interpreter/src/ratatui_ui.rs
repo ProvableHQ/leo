@@ -154,7 +154,7 @@ struct Prompt {
     cursor: usize,
 }
 
-impl<'a> Widget for &'a Prompt {
+impl Widget for &Prompt {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut plain = || {
             Text::raw(&self.current).render(area, buf);

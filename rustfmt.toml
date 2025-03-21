@@ -1,16 +1,16 @@
 # https://github.com/rust-lang/rustfmt/blob/master/Configurations.md
 
 # Stable configurations
-edition = "2021"
+edition = "2024"
 max_width = 120
 merge_derives = true
 use_field_init_shorthand = true
 use_small_heuristics = "Max"
 use_try_shorthand = true
-
-# Nightly configurations
 imports_layout = "HorizontalVertical"
 imports_granularity = "Crate"
 overflow_delimited_expr = true
+
+# Nightly configurations
 reorder_impl_items = true
 style_edition = "2024"
