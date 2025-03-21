@@ -97,7 +97,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Output {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"{} {}"</span>, <span class="self">self</span>.mode, <span class="self">self</span>.type_)
+        <span class="kw">if </span><span class="self">self</span>.mode == Mode::None { <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.type_) } <span class="kw">else </span>{ <span class="macro">write!</span>(f, <span class="string">"{} {}"</span>, <span class="self">self</span>.mode, <span class="self">self</span>.type_) }
     }
 }
 

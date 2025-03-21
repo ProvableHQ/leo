@@ -37,7 +37,9 @@
 <a href="#36" id="36">36</a>
 <a href="#37" id="37">37</a>
 <a href="#38" id="38">38</a>
-<a href="#39" id="39">39</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -55,6 +57,8 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
+<span class="kw">use </span>itertools::Itertools <span class="kw">as _</span>;
+
 <span class="comment">// TODO: Consider a restricted interface for constructing a tuple expression.
 
 </span><span class="doccomment">/// A tuple expression, e.g., `(foo, false, 42)`.
@@ -71,7 +75,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>TupleExpression {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"({})"</span>, <span class="self">self</span>.elements.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">","</span>))
+        <span class="macro">write!</span>(f, <span class="string">"({})"</span>, <span class="self">self</span>.elements.iter().format(<span class="string">", "</span>))
     }
 }
 
