@@ -1,0 +1,30 @@
+DCE_ENABLED:
+program test.aleo;
+
+function main:
+    input r0 as field.public;
+    input r1 as field.private;
+    input r2 as u8.private;
+    input r3 as u8.private;
+    add r2 r3 into r4;
+    is.eq r1 0field into r5;
+    div r0 r1 into r6;
+    ternary r5 r0 r6 into r7;
+    output r7 as field.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as field.public;
+    input r1 as field.private;
+    input r2 as u8.private;
+    input r3 as u8.private;
+    hash.bhp256 r0 into r4 as field;
+    add r2 r3 into r5;
+    sub.w r2 r3 into r6;
+    is.eq r1 0field into r7;
+    not r7 into r8;
+    div r0 r1 into r9;
+    ternary r7 r0 r9 into r10;
+    output r10 as field.private;

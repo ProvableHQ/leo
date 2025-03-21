@@ -17,90 +17,42 @@
 use crate::DeadCodeEliminator;
 
 use leo_ast::{
-    AssertStatement,
-    AssertVariant,
     AssignStatement,
     Block,
-    ConditionalStatement,
     ConsoleStatement,
     DefinitionPlace,
     DefinitionStatement,
-    Expression,
     ExpressionReconstructor,
     ExpressionStatement,
     IterationStatement,
-    ReturnStatement,
     Statement,
     StatementReconstructor,
 };
 
-impl StatementReconstructor for DeadCodeEliminator {
-    fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
-        // Set the `is_necessary` flag.
-        self.is_necessary = true;
-
-        // Visit the statement.
-        let statement = Statement::Assert(AssertStatement {
-            variant: match input.variant {
-                AssertVariant::Assert(expr) => AssertVariant::Assert(self.reconstruct_expression(expr).0),
-                AssertVariant::AssertEq(left, right) => {
-                    AssertVariant::AssertEq(self.reconstruct_expression(left).0, self.reconstruct_expression(right).0)
-                }
-                AssertVariant::AssertNeq(left, right) => {
-                    AssertVariant::AssertNeq(self.reconstruct_expression(left).0, self.reconstruct_expression(right).0)
-                }
-            },
-            span: input.span,
-            id: input.id,
-        });
-
-        // Unset the `is_necessary` flag.
-        self.is_necessary = false;
-
-        (statement, Default::default())
-    }
-
-    /// Static single assignment removed all assignments.
+impl StatementReconstructor for DeadCodeEliminator<'_> {
+    /// Reconstruct an assignment statement by eliminating any dead code.
     fn reconstruct_assign(&mut self, _input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         panic!("`AssignStatement`s should not exist in the AST at this phase of compilation.")
     }
 
     /// Reconstructs the statements inside a basic block, eliminating any dead code.
     fn reconstruct_block(&mut self, block: Block) -> (Block, Self::AdditionalOutput) {
+        // Don't count empty blocks as statements, as that would be a bit misleading to the user as
+        // to how much the code is being transformed.
+        self.statements_before += block.statements.iter().filter(|stmt| !stmt.is_empty()).count() as u32;
+
         // Reconstruct each of the statements in reverse.
         let mut statements: Vec<Statement> =
             block.statements.into_iter().rev().map(|statement| self.reconstruct_statement(statement).0).collect();
 
+        statements.retain(|stmt| !stmt.is_empty());
+
         // Reverse the direction of `statements`.
         statements.reverse();
 
+        self.statements_after += statements.len() as u32;
+
         (Block { statements, span: block.span, id: block.id }, Default::default())
-    }
-
-    /// Flattening removes conditional statements from the program.
-    fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
-        if !self.is_async {
-            panic!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
-        } else {
-            (
-                Statement::Conditional(ConditionalStatement {
-                    then: self.reconstruct_block(input.then).0,
-                    otherwise: input.otherwise.map(|n| Box::new(self.reconstruct_statement(*n).0)),
-                    condition: {
-                        // Set the `is_necessary` flag.
-                        self.is_necessary = true;
-                        let condition = self.reconstruct_expression(input.condition).0;
-                        // Unset the `is_necessary` flag.
-                        self.is_necessary = false;
-
-                        condition
-                    },
-                    span: input.span,
-                    id: input.id,
-                }),
-                Default::default(),
-            )
-        }
     }
 
     /// Parsing guarantees that console statements are not present in the program.
@@ -118,57 +70,13 @@ impl StatementReconstructor for DeadCodeEliminator {
             }
         };
 
-        if lhs_is_used {
-            // Set the `is_necessary` flag.
-            self.is_necessary = true;
-
-            input.value = self.reconstruct_expression(input.value).0;
-
-            // Unset the `is_necessary` flag.
-            self.is_necessary = false;
-
-            (Statement::Definition(input), Default::default())
-        } else {
-            // Eliminate it.
+        if !lhs_is_used && self.side_effect_free(&input.value) {
+            // We can eliminate this statement.
             (Statement::dummy(), Default::default())
-        }
-    }
-
-    /// Reconstructs expression statements by eliminating any dead code.
-    fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
-        match input.expression {
-            // If the expression is a function call, then we reconstruct it.
-            // Note that we preserve function calls because they may have side effects.
-            Expression::Call(expression) => {
-                // Set the `is_necessary` flag.
-                self.is_necessary = true;
-
-                // Visit the expression.
-                let statement = Statement::Expression(ExpressionStatement {
-                    expression: self.reconstruct_call(expression).0,
-                    span: input.span,
-                    id: input.id,
-                });
-
-                // Unset the `is_necessary` flag.
-                self.is_necessary = false;
-
-                (statement, Default::default())
-            }
-            Expression::AssociatedFunction(associated_function) => {
-                // Visit the expression.
-                (
-                    Statement::Expression(ExpressionStatement {
-                        expression: self.reconstruct_associated_function(associated_function).0,
-                        span: input.span,
-                        id: input.id,
-                    }),
-                    Default::default(),
-                )
-            }
-            // Any other expression is dead code, since they do not have side effects.
-            // Note: array access expressions will have side effects and need to be handled here.
-            _ => (Statement::dummy(), Default::default()),
+        } else {
+            // We still need it.
+            input.value = self.reconstruct_expression(input.value).0;
+            (Statement::Definition(input), Default::default())
         }
     }
 
@@ -177,20 +85,15 @@ impl StatementReconstructor for DeadCodeEliminator {
         panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
-    fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
-        // Set the `is_necessary` flag.
-        self.is_necessary = true;
-
-        // Visit the statement.
-        let statement = Statement::Return(ReturnStatement {
-            expression: self.reconstruct_expression(input.expression).0,
-            span: input.span,
-            id: input.id,
-        });
-
-        // Unset the `is_necessary` flag.
-        self.is_necessary = false;
-
-        (statement, Default::default())
+    fn reconstruct_expression_statement(
+        &mut self,
+        mut input: ExpressionStatement,
+    ) -> (Statement, Self::AdditionalOutput) {
+        if self.side_effect_free(&input.expression) {
+            (Statement::dummy(), Default::default())
+        } else {
+            input.expression = self.reconstruct_expression(input.expression).0;
+            (Statement::Expression(input), Default::default())
+        }
     }
 }

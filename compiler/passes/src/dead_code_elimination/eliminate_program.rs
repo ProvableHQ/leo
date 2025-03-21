@@ -16,28 +16,22 @@
 
 use crate::DeadCodeEliminator;
 
-use leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{Function, ProgramReconstructor, StatementReconstructor as _};
 
-impl ProgramReconstructor for DeadCodeEliminator {
-    fn reconstruct_function(&mut self, input: Function) -> Function {
+impl ProgramReconstructor for DeadCodeEliminator<'_> {
+    fn reconstruct_function(&mut self, mut input: Function) -> Function {
         // Reset the state of the dead code eliminator.
         self.used_variables.clear();
-        self.is_necessary = false;
-        self.is_async = input.variant.is_async_function();
 
         // Traverse the function body.
-        let block = self.reconstruct_block(input.block).0;
+        input.block = self.reconstruct_block(input.block).0;
 
-        Function {
-            annotations: input.annotations,
-            variant: input.variant,
-            identifier: input.identifier,
-            input: input.input,
-            output: input.output,
-            output_type: input.output_type,
-            block,
-            span: input.span,
-            id: input.id,
-        }
+        input
+    }
+
+    fn reconstruct_program_scope(&mut self, mut input: leo_ast::ProgramScope) -> leo_ast::ProgramScope {
+        self.program_name = input.program_id.name.name;
+        input.functions = input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect();
+        input
     }
 }

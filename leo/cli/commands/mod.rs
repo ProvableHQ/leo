@@ -143,7 +143,7 @@ pub struct BuildOptions {
     pub offline: bool,
     #[clap(long, help = "Enable spans in AST snapshots.")]
     pub enable_ast_spans: bool,
-    #[clap(long, help = "Enables dead code elimination in the compiler.")]
+    #[clap(long, help = "Enables dead code elimination in the compiler.", default_value = "true")]
     pub enable_dce: bool,
     #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
     pub enable_all_ast_snapshots: bool,
@@ -174,7 +174,7 @@ impl Default for BuildOptions {
             network: None,
             non_recursive: false,
             offline: false,
-            enable_dce: false,
+            enable_dce: true,
             enable_all_ast_snapshots: false,
             enable_initial_ast_snapshot: false,
             enable_unrolled_ast_snapshot: false,

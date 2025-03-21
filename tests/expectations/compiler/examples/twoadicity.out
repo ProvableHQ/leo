@@ -1265,9 +1265,10 @@ function main:
     ternary r1251 r1252 r1249 into r1254;
     ternary r1251 r1253 r1250 into r1255;
     call is_even_and_nonzero r1254 into r1256;
-    add r1255 1u8 into r1257;
-    ternary r1256 r1257 r1255 into r1258;
-    output r1258 as u8.private;
+    div r1254 2field into r1257;
+    add r1255 1u8 into r1258;
+    ternary r1256 r1258 r1255 into r1259;
+    output r1259 as u8.private;
 
 DCE_DISABLED:
 program test.aleo;

@@ -163,8 +163,9 @@ function main:
     ternary r154 r156 r153 into r158;
     is.neq r158 0u32 into r159;
     add r157 1u8 into r160;
-    ternary r159 r160 r157 into r161;
-    output r161 as u8.private;
+    shr r158 1u8 into r161;
+    ternary r159 r160 r157 into r162;
+    output r162 as u8.private;
 
 DCE_DISABLED:
 program test.aleo;

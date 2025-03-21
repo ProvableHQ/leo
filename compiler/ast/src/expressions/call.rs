@@ -17,6 +17,8 @@
 use super::*;
 use leo_span::Symbol;
 
+use itertools::Itertools as _;
+
 /// A function call expression, e.g.`foo(args)` or `Foo::bar(args)`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CallExpression {
@@ -35,15 +37,7 @@ pub struct CallExpression {
 
 impl fmt::Display for CallExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}(", self.function)?;
-
-        for (i, param) in self.arguments.iter().enumerate() {
-            write!(f, "{param}")?;
-            if i < self.arguments.len() - 1 {
-                write!(f, ", ")?;
-            }
-        }
-        write!(f, ")")
+        write!(f, "{}({})", self.function, self.arguments.iter().format(", "))
     }
 }
 

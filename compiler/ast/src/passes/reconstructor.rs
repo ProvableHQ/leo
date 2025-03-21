@@ -182,10 +182,7 @@ pub trait ExpressionReconstructor {
                     .into_iter()
                     .map(|member| StructVariableInitializer {
                         identifier: member.identifier,
-                        expression: match member.expression {
-                            Some(expression) => Some(self.reconstruct_expression(expression).0),
-                            None => Some(self.reconstruct_expression(Expression::Identifier(member.identifier)).0),
-                        },
+                        expression: member.expression.map(|expr| self.reconstruct_expression(expr).0),
                         span: member.span,
                         id: member.id,
                     })
