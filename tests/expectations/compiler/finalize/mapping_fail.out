@@ -1,96 +1,185 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372031]: A mapping's key cannot be a tuple
-    --> compiler-test:4:5
+    --> compiler-test:3:5
      |
-   4 |     mapping foo: (u32, u32) => u32;
+   3 |     mapping foo: (u32, u32) => u32;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372017]: The type `baz` is not found in the current scope.
-    --> compiler-test:6:5
+    --> compiler-test:5:5
      |
-   6 |     mapping floo: baz => u8;
+   5 |     mapping floo: baz => u8;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `baz` is not found in the current scope.
-    --> compiler-test:6:5
+    --> compiler-test:5:5
      |
-   6 |     mapping floo: baz => u8;
+   5 |     mapping floo: baz => u8;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `foo` is not found in the current scope.
-    --> compiler-test:8:5
+    --> compiler-test:7:5
      |
-   8 |     mapping floop: foo => foo;
+   7 |     mapping floop: foo => foo;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `foo` is not found in the current scope.
-    --> compiler-test:8:5
+    --> compiler-test:7:5
      |
-   8 |     mapping floop: foo => foo;
+   7 |     mapping floop: foo => foo;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `foo` is not found in the current scope.
-    --> compiler-test:8:5
+    --> compiler-test:7:5
      |
-   8 |     mapping floop: foo => foo;
+   7 |     mapping floop: foo => foo;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `foo` is not found in the current scope.
-    --> compiler-test:8:5
+    --> compiler-test:7:5
      |
-   8 |     mapping floop: foo => foo;
+   7 |     mapping floop: foo => foo;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `foo` is not found in the current scope.
-    --> compiler-test:10:5
+    --> compiler-test:9:5
      |
-  10 |     mapping bar: foo => baz;
+   9 |     mapping bar: foo => baz;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `foo` is not found in the current scope.
-    --> compiler-test:10:5
+    --> compiler-test:9:5
      |
-  10 |     mapping bar: foo => baz;
+   9 |     mapping bar: foo => baz;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `baz` is not found in the current scope.
-    --> compiler-test:10:5
+    --> compiler-test:9:5
      |
-  10 |     mapping bar: foo => baz;
+   9 |     mapping bar: foo => baz;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372017]: The type `foo` is not found in the current scope.
-    --> compiler-test:10:5
+    --> compiler-test:9:5
      |
-  10 |     mapping bar: foo => baz;
+   9 |     mapping bar: foo => baz;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372031]: A mapping's value cannot be a record
-    --> compiler-test:19:5
+    --> compiler-test:18:5
      |
-  19 |     mapping real_tokens: address => RealToken;
+  18 |     mapping real_tokens: address => RealToken;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372031]: A mapping's key cannot be a record
-    --> compiler-test:21:5
+    --> compiler-test:20:5
      |
-  21 |     mapping owners: RealToken => address;
+  20 |     mapping owners: RealToken => address;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372031]: A mapping's key cannot be a tuple
+    --> compiler-test:3:5
+     |
+   3 |     mapping foo: (u32, u32) => u32;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372017]: The type `baz` is not found in the current scope.
+    --> compiler-test:5:5
+     |
+   5 |     mapping floo: baz => u8;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `baz` is not found in the current scope.
+    --> compiler-test:5:5
+     |
+   5 |     mapping floo: baz => u8;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
+    --> compiler-test:7:5
+     |
+   7 |     mapping floop: foo => foo;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
+    --> compiler-test:7:5
+     |
+   7 |     mapping floop: foo => foo;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
+    --> compiler-test:7:5
+     |
+   7 |     mapping floop: foo => foo;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
+    --> compiler-test:7:5
+     |
+   7 |     mapping floop: foo => foo;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
+    --> compiler-test:9:5
+     |
+   9 |     mapping bar: foo => baz;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
+    --> compiler-test:9:5
+     |
+   9 |     mapping bar: foo => baz;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `baz` is not found in the current scope.
+    --> compiler-test:9:5
+     |
+   9 |     mapping bar: foo => baz;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `foo` is not found in the current scope.
+    --> compiler-test:9:5
+     |
+   9 |     mapping bar: foo => baz;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372031]: A mapping's value cannot be a record
+    --> compiler-test:18:5
+     |
+  18 |     mapping real_tokens: address => RealToken;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372031]: A mapping's key cannot be a record
+    --> compiler-test:20:5
+     |
+  20 |     mapping owners: RealToken => address;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

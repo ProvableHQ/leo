@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "b6e4b19263f2aeb2c74753717110c29fb37c606de1d7f721b6855e6d96e34b64", unrolled_ast = "b6e4b19263f2aeb2c74753717110c29fb37c606de1d7f721b6855e6d96e34b64", ssa_ast = "03787d89028b56fdcb7ef89f8c04c81ca4178dcd0347d9812614af3d1883494d", flattened_ast = "34ae46ca4593beaa93409d0b383c7813e3fa713b2634f20315076fc1a61c5c1a", destructured_ast = "bbcff850524dc4c9a45056405969fa0bde235e1f8e47bbd4347a36448d402a60", inlined_ast = "9ea43eb4da4deb78097d1b880df90cf5e87df67ba0b5a2446a6a59e10c74e3e2", dce_ast = "9ea43eb4da4deb78097d1b880df90cf5e87df67ba0b5a2446a6a59e10c74e3e2", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function public_adder:
@@ -15,4 +13,19 @@ finalize public_adder:
     assert.neq r0 r1;
     add r0 r1 into r2;
     assert.neq r2 0u8;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function public_adder:
+    input r0 as u8.public;
+    input r1 as u8.public;
+    async public_adder r0 r1 into r2;
+    output r2 as test.aleo/public_adder.future;
+
+finalize public_adder:
+    input r0 as u8.public;
+    input r1 as u8.public;
+    assert.neq r0 r1;
+    add r0 r1 into r2;
+    assert.neq r2 0u8;

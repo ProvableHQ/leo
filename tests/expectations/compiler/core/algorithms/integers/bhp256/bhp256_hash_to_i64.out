@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "e0b0758204db99e27b52a9e91d7b2b61125b7d51adb7715f2bf4c577ee6b9e07", unrolled_ast = "7b544c79d7953b71d2334287dd8d53e83a1bb50c1dc96d834b8292a99aab65c4", ssa_ast = "6b8e8948846190723b5272ac1df9042dcd3dd6ad5202d4af11369cd68c7f9ddd", flattened_ast = "c2c4baa0608d3631be4117f5a42a40901565ed2af887dccedd02b6b3aaa8fa07", destructured_ast = "cc4b1726480db0a94629180bfa93ef105259fc403fd505ce431ce8b4aa142ef7", inlined_ast = "cc4b1726480db0a94629180bfa93ef105259fc403fd505ce431ce8b4aa142ef7", dce_ast = "71b4780df1f2d28edcdc94150e27092507815dfb235c479c26dd6bb548aa0423", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,5 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.bhp256 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i64;
+    hash.bhp256 true into r9 as i64;
+    hash.bhp256 1field into r10 as i64;
+    hash.bhp256 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i64;
+    hash.bhp256 r0 into r12 as i64;
+    hash.bhp256 r1 into r13 as i64;
+    hash.bhp256 r2 into r14 as i64;
+    hash.bhp256 r3 into r15 as i64;
+    hash.bhp256 1i128 into r16 as i64;
+    hash.bhp256 r4 into r17 as i64;
+    hash.bhp256 r5 into r18 as i64;
+    hash.bhp256 r6 into r19 as i64;
+    hash.bhp256 r7 into r20 as i64;
+    hash.bhp256 1u128 into r21 as i64;
+    hash.bhp256 1scalar into r22 as i64;
     output r8 as i64.private;
-""", errors = "", warnings = "" }] }]]
+    output r9 as i64.private;
+    output r10 as i64.private;
+    output r11 as i64.private;
+    output r12 as i64.private;
+    output r13 as i64.private;
+    output r14 as i64.private;
+    output r15 as i64.private;
+    output r16 as i64.private;
+    output r17 as i64.private;
+    output r18 as i64.private;
+    output r19 as i64.private;
+    output r20 as i64.private;
+    output r21 as i64.private;
+    output r22 as i64.private;
+    output -7140612570991509892i64 as i64.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.bhp256 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i64;
+    hash.bhp256 true into r9 as i64;
+    hash.bhp256 1field into r10 as i64;
+    hash.bhp256 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i64;
+    hash.bhp256 r0 into r12 as i64;
+    hash.bhp256 r1 into r13 as i64;
+    hash.bhp256 r2 into r14 as i64;
+    hash.bhp256 r3 into r15 as i64;
+    hash.bhp256 1i128 into r16 as i64;
+    hash.bhp256 r4 into r17 as i64;
+    hash.bhp256 r5 into r18 as i64;
+    hash.bhp256 r6 into r19 as i64;
+    hash.bhp256 r7 into r20 as i64;
+    hash.bhp256 1u128 into r21 as i64;
+    hash.bhp256 1scalar into r22 as i64;
+    output r8 as i64.private;
+    output r9 as i64.private;
+    output r10 as i64.private;
+    output r11 as i64.private;
+    output r12 as i64.private;
+    output r13 as i64.private;
+    output r14 as i64.private;
+    output r15 as i64.private;
+    output r16 as i64.private;
+    output r17 as i64.private;
+    output r18 as i64.private;
+    output r19 as i64.private;
+    output r20 as i64.private;
+    output r21 as i64.private;
+    output r22 as i64.private;
+    output -7140612570991509892i64 as i64.private;

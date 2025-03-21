@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "2fa7db3c2df95d817a45c9cce83a3ecb58dcb0fdb02425a46c14ab1b27797fa9", unrolled_ast = "4faff846bf0f730a3790bbafab5853b34554f40184acc65654737d8777b501d3", ssa_ast = "d920c42af51725d536d01a42f69c6b8f91bb0cf27bda64b862d7663ac434043e", flattened_ast = "e453b527a92cf01c296d9a2e02106056fb04a64bcdc93cf70d1285c0cf0ee669", destructured_ast = "c6c01f3f10a3bf39770840a29aae1a4d4d18be764149917c877b477c073b0d05", inlined_ast = "c6c01f3f10a3bf39770840a29aae1a4d4d18be764149917c877b477c073b0d05", dce_ast = "d0f8f953652684912ad8eefeb36a1a7ab1125ceaf81e261db11e21431923e99c", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,5 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.keccak512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as u64;
+    hash.keccak512 true into r9 as u64;
+    hash.keccak512 1field into r10 as u64;
+    hash.keccak512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as u64;
+    hash.keccak512 r0 into r12 as u64;
+    hash.keccak512 r1 into r13 as u64;
+    hash.keccak512 r2 into r14 as u64;
+    hash.keccak512 r3 into r15 as u64;
+    hash.keccak512 1i128 into r16 as u64;
+    hash.keccak512 r4 into r17 as u64;
+    hash.keccak512 r5 into r18 as u64;
+    hash.keccak512 r6 into r19 as u64;
+    hash.keccak512 r7 into r20 as u64;
+    hash.keccak512 1u128 into r21 as u64;
+    hash.keccak512 1scalar into r22 as u64;
     output r8 as u64.private;
-""", errors = "", warnings = "" }] }]]
+    output r9 as u64.private;
+    output r10 as u64.private;
+    output r11 as u64.private;
+    output r12 as u64.private;
+    output r13 as u64.private;
+    output r14 as u64.private;
+    output r15 as u64.private;
+    output r16 as u64.private;
+    output r17 as u64.private;
+    output r18 as u64.private;
+    output r19 as u64.private;
+    output r20 as u64.private;
+    output r21 as u64.private;
+    output r22 as u64.private;
+    output 1864078282700828493u64 as u64.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.keccak512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as u64;
+    hash.keccak512 true into r9 as u64;
+    hash.keccak512 1field into r10 as u64;
+    hash.keccak512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as u64;
+    hash.keccak512 r0 into r12 as u64;
+    hash.keccak512 r1 into r13 as u64;
+    hash.keccak512 r2 into r14 as u64;
+    hash.keccak512 r3 into r15 as u64;
+    hash.keccak512 1i128 into r16 as u64;
+    hash.keccak512 r4 into r17 as u64;
+    hash.keccak512 r5 into r18 as u64;
+    hash.keccak512 r6 into r19 as u64;
+    hash.keccak512 r7 into r20 as u64;
+    hash.keccak512 1u128 into r21 as u64;
+    hash.keccak512 1scalar into r22 as u64;
+    output r8 as u64.private;
+    output r9 as u64.private;
+    output r10 as u64.private;
+    output r11 as u64.private;
+    output r12 as u64.private;
+    output r13 as u64.private;
+    output r14 as u64.private;
+    output r15 as u64.private;
+    output r16 as u64.private;
+    output r17 as u64.private;
+    output r18 as u64.private;
+    output r19 as u64.private;
+    output r20 as u64.private;
+    output r21 as u64.private;
+    output r22 as u64.private;
+    output 1864078282700828493u64 as u64.private;

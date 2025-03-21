@@ -1,19 +1,33 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:9:18
+    --> compiler-test:8:18
      |
-   9 |     function foo(board: Board, data: u8) -> Board {
+   8 |     function foo(board: Board, data: u8) -> Board {
      |                  ^^^^^^^^^^^^
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:9:45
+    --> compiler-test:8:45
      |
-   9 |     function foo(board: Board, data: u8) -> Board {
+   8 |     function foo(board: Board, data: u8) -> Board {
      |                                             ^^^^^
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:16:18
+    --> compiler-test:15:18
      |
-  16 |     function bar(board: Board) {
+  15 |     function bar(board: Board) {
      |                  ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
+    --> compiler-test:8:18
+     |
+   8 |     function foo(board: Board, data: u8) -> Board {
+     |                  ^^^^^^^^^^^^
+Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
+    --> compiler-test:8:45
+     |
+   8 |     function foo(board: Board, data: u8) -> Board {
+     |                                             ^^^^^
+Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
+    --> compiler-test:15:18
+     |
+  15 |     function bar(board: Board) {
+     |                  ^^^^^^^^^^^^

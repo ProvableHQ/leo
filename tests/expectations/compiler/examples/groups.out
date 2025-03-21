@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "772a9b3e71a56179ab84c6b9f50b8231166769d95bf6188b0ba4ef9df483fbeb", unrolled_ast = "33f0fdbe831401b623ee77baabd0b88724e61585efdf82a388bea5c0eceb8fb1", ssa_ast = "c26972e6dfa5f1d2165c6a4c78b25c6680653eb976356992ec4837531e28bb54", flattened_ast = "e82307cb7575f8f806a957c1808388ca594d2c13e140b69f661c66c5de4478e0", destructured_ast = "e84207fe7315761898008bac7376310352fa19e8d867c06fb72ce24b3fbfb77e", inlined_ast = "e84207fe7315761898008bac7376310352fa19e8d867c06fb72ce24b3fbfb77e", dce_ast = "e84207fe7315761898008bac7376310352fa19e8d867c06fb72ce24b3fbfb77e", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -11,4 +9,15 @@ function main:
     add r3 r2 into r4;
     add r4 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r5;
     output r5 as group.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as group.private;
+    double r0 into r1;
+    neg r1 into r2;
+    mul r0 2scalar into r3;
+    add r3 r2 into r4;
+    add r4 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r5;
+    output r5 as group.private;

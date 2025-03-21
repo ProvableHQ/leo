@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "112fb74dc347007851a9e51cf2e95837fbb51b0b728aa7374e388be6de0e0f42", unrolled_ast = "cc7db5b6adc34f51f8c65c3bfc7950e765bc5cb1136a75d3dfe056f37062113f", ssa_ast = "539cf66ef841f9c8dffe50947150354c8297ccc618ffa02650a4176c93205cb8", flattened_ast = "53542b4eb4f8d84b42ed44f45e8c62b5a9d8adb28f79c188ef3f88b3ff4ab1c3", destructured_ast = "746af39ed83cff7e83836c9cc5f8e73b26cffa370322cd9ae64de5568b0249d6", inlined_ast = "746af39ed83cff7e83836c9cc5f8e73b26cffa370322cd9ae64de5568b0249d6", dce_ast = "f11e540f8037894b2800372f23726faadcbe17beca6b324433246a6d6903fb7b", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -16,5 +14,82 @@ function main:
     input r5 as u16.private;
     input r6 as u32.private;
     input r7 as u64.private;
-    output 1field as field.private;
-""", errors = "", warnings = "" }] }]]
+    hash.sha3_256 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as address;
+    hash.sha3_256 true into r9 as address;
+    hash.sha3_256 1field into r10 as address;
+    hash.sha3_256 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as address;
+    hash.sha3_256 r0 into r12 as address;
+    hash.sha3_256 r1 into r13 as address;
+    hash.sha3_256 r2 into r14 as address;
+    hash.sha3_256 r3 into r15 as address;
+    hash.sha3_256 1i128 into r16 as address;
+    hash.sha3_256 r4 into r17 as address;
+    hash.sha3_256 r5 into r18 as address;
+    hash.sha3_256 r6 into r19 as address;
+    hash.sha3_256 r7 into r20 as address;
+    hash.sha3_256 1u128 into r21 as address;
+    hash.sha3_256 1scalar into r22 as address;
+    output r8 as address.private;
+    output r9 as address.private;
+    output r10 as address.private;
+    output r11 as address.private;
+    output r12 as address.private;
+    output r13 as address.private;
+    output r14 as address.private;
+    output r15 as address.private;
+    output r16 as address.private;
+    output r17 as address.private;
+    output r18 as address.private;
+    output r19 as address.private;
+    output r20 as address.private;
+    output r21 as address.private;
+    output r22 as address.private;
+    output aleo17kmu3sejtvkg3re5gz220rlq5t5xt64hzncf5znswq46xwsw9qpqrcq00x as address.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.sha3_256 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as address;
+    hash.sha3_256 true into r9 as address;
+    hash.sha3_256 1field into r10 as address;
+    hash.sha3_256 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as address;
+    hash.sha3_256 r0 into r12 as address;
+    hash.sha3_256 r1 into r13 as address;
+    hash.sha3_256 r2 into r14 as address;
+    hash.sha3_256 r3 into r15 as address;
+    hash.sha3_256 1i128 into r16 as address;
+    hash.sha3_256 r4 into r17 as address;
+    hash.sha3_256 r5 into r18 as address;
+    hash.sha3_256 r6 into r19 as address;
+    hash.sha3_256 r7 into r20 as address;
+    hash.sha3_256 1u128 into r21 as address;
+    hash.sha3_256 1scalar into r22 as address;
+    output r8 as address.private;
+    output r9 as address.private;
+    output r10 as address.private;
+    output r11 as address.private;
+    output r12 as address.private;
+    output r13 as address.private;
+    output r14 as address.private;
+    output r15 as address.private;
+    output r16 as address.private;
+    output r17 as address.private;
+    output r18 as address.private;
+    output r19 as address.private;
+    output r20 as address.private;
+    output r21 as address.private;
+    output r22 as address.private;
+    output aleo17kmu3sejtvkg3re5gz220rlq5t5xt64hzncf5znswq46xwsw9qpqrcq00x as address.private;

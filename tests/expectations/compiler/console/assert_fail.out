@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370005]: expected , -- found ')'
-    --> compiler-test:6:27
+    --> compiler-test:5:27
      |
-   6 |         assert_eq(a == 1u8);
-     |                           ^"""]
+   5 |         assert_eq(a == 1u8);
+     |                           ^
+DCE_DISABLED:
+Error [EPAR0370005]: expected , -- found ')'
+    --> compiler-test:5:27
+     |
+   5 |         assert_eq(a == 1u8);
+     |                           ^

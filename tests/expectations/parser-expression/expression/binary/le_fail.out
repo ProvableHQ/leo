@@ -1,0 +1,21 @@
+Error [EPAR0370005]: expected <eof> -- found '<='
+    --> test_0:1:12
+     |
+   1 | 1u8 <= 2u8 <= 3u8
+     |            ^^
+
+
+Error [EPAR0370005]: expected <eof> -- found '<='
+    --> test_1:1:12
+     |
+   1 | 1u8 <= 2u8 <= 3u8
+     |            ^^
+
+
+Error [EPAR0370005]: expected <eof> -- found '<='
+    --> test_2:1:24
+     |
+   1 | 1u8 + 2u8 <= 3u8 + 4u8 <= 5u8 + 6u8
+     |                        ^^
+
+

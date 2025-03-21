@@ -1,9 +1,0 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
-Error [ETYC0372036]: Function must return a value.
-    --> compiler-test:6:9
-     |
-   6 |         return;
-     |         ^^^^^^^
-"""]

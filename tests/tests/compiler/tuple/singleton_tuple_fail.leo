@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
 // TODO: Compilation should pass, but warnings should be emitted.
 

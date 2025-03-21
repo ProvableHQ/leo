@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'let'
-    --> compiler-test:8:19
+    --> compiler-test:7:19
      |
-   8 |     function main(let x: u8, y: bool) -> bool {
-     |                   ^^^"""]
+   7 |     function main(let x: u8, y: bool) -> bool {
+     |                   ^^^
+DCE_DISABLED:
+Error [EPAR0370009]: unexpected string: expected 'identifier', found 'let'
+    --> compiler-test:7:19
+     |
+   7 |     function main(let x: u8, y: bool) -> bool {
+     |                   ^^^

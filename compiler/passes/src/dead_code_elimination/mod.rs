@@ -67,6 +67,8 @@ impl Pass for DeadCodeEliminator {
     type Input = (Ast,);
     type Output = Result<Ast>;
 
+    const NAME: &'static str = "DeadCodeEliminator";
+
     fn do_pass((ast,): Self::Input) -> Self::Output {
         let mut reconstructor = DeadCodeEliminator::new();
         let program = reconstructor.reconstruct_program(ast.into_repr());

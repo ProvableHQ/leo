@@ -1,10 +1,8 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372030]: A struct or record cannot contain another record.
-    --> compiler-test:6:9
+    --> compiler-test:5:9
      |
-   6 |         token: Token,
+   5 |         token: Token,
      |         ^^^^^
      |
      = Remove the record `Token` from `Foo`.
@@ -13,7 +11,21 @@ Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372030]: A struct or record cannot contain another record.
+    --> compiler-test:5:9
+     |
+   5 |         token: Token,
+     |         ^^^^^
+     |
+     = Remove the record `Token` from `Foo`.
+Error [ETYC0372058]: Cyclic dependency between structs: `Token` --> `Foo` --> `Token`
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

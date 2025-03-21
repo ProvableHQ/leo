@@ -1,47 +1,16 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "e57a60d38e8ea848e9ccb127c8b3c0385d5d005364601fc1c3042c0f4b894c49", unrolled_ast = "e57a60d38e8ea848e9ccb127c8b3c0385d5d005364601fc1c3042c0f4b894c49", ssa_ast = "2671fa23941dd329a89473131f7173df5bf3edb233f386346a5c3d56df6fd5df", flattened_ast = "c47aa36281f36970862465ff093428d945a279097edd68a1bb3016360bacf898", destructured_ast = "03a652ecf9ce329e9dcabe446733ffb0406494402f75ecceb4129ff8acfa4251", inlined_ast = "65708d2be3cc15871aa2fed13dc87d673bb6f597431e36f923c9fe5398ddde31", dce_ast = "65708d2be3cc15871aa2fed13dc87d673bb6f597431e36f923c9fe5398ddde31", bytecode = """
-program test.aleo;
-
-mapping foo:
-    key as u32.public;
-    value as u32.public;
-
-function main_inner:
-    input r0 as u32.public;
-    input r1 as u32.public;
-    async main_inner r0 r1 into r2;
-    output r2 as test.aleo/main_inner.future;
-
-finalize main_inner:
-    input r0 as u32.public;
-    input r1 as u32.public;
-    set r1 into foo[r0];
-""", errors = "", warnings = "" },
-    { initial_ast = "a48756178d24df1c328e376b5d0b99d6f3d83a1bb139331685c580fa78eb566d", unrolled_ast = "f91dc1e4e9618c71fdd68e32abdcdc672b4327ca96db0631f484c54557c2ba99", ssa_ast = "7efcb2af9a9c034ffac9af2c701c0b43c0bf652c0f01c7c16740fbf1752f3209", flattened_ast = "907360a0fe4d2184b9f5b80ada857eda169ca9b5f5e240eb6e34e9abe0ef89bc", destructured_ast = "0cadacb74b801333f434cb8528b608441cbb1694ce82da99b05b880ed1867e4f", inlined_ast = "526e6d57f29c8e66bbfa142a10c9fbb6abaa01cef4adef93a4631c6851a4dfd2", dce_ast = "526e6d57f29c8e66bbfa142a10c9fbb6abaa01cef4adef93a4631c6851a4dfd2", bytecode = """
-import test.aleo;
-program basic.aleo;
-
-function main:
-    input r0 as u32.public;
-    input r1 as u32.private;
-    call test.aleo/main_inner 0u32 0u32 into r2;
-    call test.aleo/main_inner 1u32 1u32 into r3;
-    async main r2 r3 into r4;
-    output r4 as basic.aleo/main.future;
-
-finalize main:
-    input r0 as test.aleo/main_inner.future;
-    input r1 as test.aleo/main_inner.future;
-    await r1;
-    await r0;
-""", errors = "", warnings = """
+DCE_ENABLED:
 Warning [WSAZ0374003]: The future `f2` is not awaited in the order in which they were passed in to the `async` function.
     --> compiler-test:13:9
      |
   13 |         f2.await();
      |         ^^
      |
-     = While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.""" },
-] }]]
+     = While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+DCE_DISABLED:
+Warning [WSAZ0374003]: The future `f2` is not awaited in the order in which they were passed in to the `async` function.
+    --> compiler-test:13:9
+     |
+  13 |         f2.await();
+     |         ^^
+     |
+     = While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.

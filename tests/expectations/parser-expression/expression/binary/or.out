@@ -1,0 +1,315 @@
+{
+  "Binary": {
+    "left": {
+      "Literal": {
+        "Boolean": [
+          true,
+          {
+            "span": {
+              "lo": 0,
+              "hi": 4
+            }
+          },
+          0
+        ]
+      }
+    },
+    "right": {
+      "Literal": {
+        "Boolean": [
+          true,
+          {
+            "span": {
+              "lo": 8,
+              "hi": 12
+            }
+          },
+          1
+        ]
+      }
+    },
+    "op": "Or",
+    "span": {
+      "lo": 0,
+      "hi": 12
+    },
+    "id": 2
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Literal": {
+        "Boolean": [
+          false,
+          {
+            "span": {
+              "lo": 13,
+              "hi": 18
+            }
+          },
+          0
+        ]
+      }
+    },
+    "right": {
+      "Literal": {
+        "Boolean": [
+          true,
+          {
+            "span": {
+              "lo": 20,
+              "hi": 24
+            }
+          },
+          1
+        ]
+      }
+    },
+    "op": "Or",
+    "span": {
+      "lo": 13,
+      "hi": 24
+    },
+    "id": 2
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Literal": {
+            "Boolean": [
+              true,
+              {
+                "span": {
+                  "lo": 25,
+                  "hi": 29
+                }
+              },
+              0
+            ]
+          }
+        },
+        "right": {
+          "Literal": {
+            "Boolean": [
+              false,
+              {
+                "span": {
+                  "lo": 31,
+                  "hi": 36
+                }
+              },
+              1
+            ]
+          }
+        },
+        "op": "Or",
+        "span": {
+          "lo": 25,
+          "hi": 36
+        },
+        "id": 2
+      }
+    },
+    "right": {
+      "Literal": {
+        "Boolean": [
+          false,
+          {
+            "span": {
+              "lo": 40,
+              "hi": 45
+            }
+          },
+          3
+        ]
+      }
+    },
+    "op": "Or",
+    "span": {
+      "lo": 25,
+      "hi": 45
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Literal": {
+                "Boolean": [
+                  true,
+                  {
+                    "span": {
+                      "lo": 46,
+                      "hi": 50
+                    }
+                  },
+                  0
+                ]
+              }
+            },
+            "right": {
+              "Literal": {
+                "Boolean": [
+                  false,
+                  {
+                    "span": {
+                      "lo": 54,
+                      "hi": 59
+                    }
+                  },
+                  1
+                ]
+              }
+            },
+            "op": "Or",
+            "span": {
+              "lo": 46,
+              "hi": 59
+            },
+            "id": 2
+          }
+        },
+        "right": {
+          "Literal": {
+            "Boolean": [
+              true,
+              {
+                "span": {
+                  "lo": 63,
+                  "hi": 67
+                }
+              },
+              3
+            ]
+          }
+        },
+        "op": "Or",
+        "span": {
+          "lo": 46,
+          "hi": 67
+        },
+        "id": 4
+      }
+    },
+    "right": {
+      "Literal": {
+        "Boolean": [
+          false,
+          {
+            "span": {
+              "lo": 71,
+              "hi": 76
+            }
+          },
+          5
+        ]
+      }
+    },
+    "op": "Or",
+    "span": {
+      "lo": 46,
+      "hi": 76
+    },
+    "id": 6
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Literal": {
+            "Boolean": [
+              true,
+              {
+                "span": {
+                  "lo": 77,
+                  "hi": 81
+                }
+              },
+              0
+            ]
+          }
+        },
+        "right": {
+          "Binary": {
+            "left": {
+              "Literal": {
+                "Boolean": [
+                  true,
+                  {
+                    "span": {
+                      "lo": 86,
+                      "hi": 90
+                    }
+                  },
+                  1
+                ]
+              }
+            },
+            "right": {
+              "Literal": {
+                "Boolean": [
+                  false,
+                  {
+                    "span": {
+                      "lo": 94,
+                      "hi": 99
+                    }
+                  },
+                  2
+                ]
+              }
+            },
+            "op": "Or",
+            "span": {
+              "lo": 86,
+              "hi": 99
+            },
+            "id": 3
+          }
+        },
+        "op": "Or",
+        "span": {
+          "lo": 77,
+          "hi": 99
+        },
+        "id": 4
+      }
+    },
+    "right": {
+      "Literal": {
+        "Boolean": [
+          true,
+          {
+            "span": {
+              "lo": 104,
+              "hi": 108
+            }
+          },
+          5
+        ]
+      }
+    },
+    "op": "Or",
+    "span": {
+      "lo": 77,
+      "hi": 108
+    },
+    "id": 6
+  }
+}
+

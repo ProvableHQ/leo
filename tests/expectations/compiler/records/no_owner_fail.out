@@ -1,19 +1,31 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372019]: The `record` type requires the variable `owner: address`.
-    --> compiler-test:5:5
+    --> compiler-test:4:5
      |
-   5 |     record Token {
-   6 |         // The token amount.
-   7 |         amount: u64,
-   8 |     }
+   4 |     record Token {
+   5 |         // The token amount.
+   6 |         amount: u64,
+   7 |     }
      |     ^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372019]: The `record` type requires the variable `owner: address`.
+    --> compiler-test:4:5
+     |
+   4 |     record Token {
+   5 |         // The token amount.
+   6 |         amount: u64,
+   7 |     }
+     |     ^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

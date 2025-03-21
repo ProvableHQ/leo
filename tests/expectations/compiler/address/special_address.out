@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "da0a545e9de3b8cdec100132e7d9886d08b7e69217d129229e8a86489199ec21", unrolled_ast = "da0a545e9de3b8cdec100132e7d9886d08b7e69217d129229e8a86489199ec21", ssa_ast = "2e6d069e24731cc68b39a39a5658dc7c47a90edfb02fdf9046b422ca01eac8f0", flattened_ast = "a5d1668ea6f0bd3582be76b1566783e0f3589c0d5d3a5fa2ce35bb1ff81a3a57", destructured_ast = "b52bb917d41ca253771303757b3d07d340f1a5639d3f7b3ac9864f0b9becb24b", inlined_ast = "b52bb917d41ca253771303757b3d07d340f1a5639d3f7b3ac9864f0b9becb24b", dce_ast = "b52bb917d41ca253771303757b3d07d340f1a5639d3f7b3ac9864f0b9becb24b", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 mapping Yo:
@@ -13,4 +11,17 @@ function main:
     assert.eq r0 test.aleo;
     assert.eq r0 hello.aleo;
     output foo.aleo as address.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+mapping Yo:
+    key as address.public;
+    value as u32.public;
+
+function main:
+    input r0 as address.private;
+    assert.eq r0 self.caller;
+    assert.eq r0 test.aleo;
+    assert.eq r0 hello.aleo;
+    output foo.aleo as address.private;

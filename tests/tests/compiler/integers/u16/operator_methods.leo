@@ -1,14 +1,10 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
-program test.aleo {    
-    
+program test.aleo {
+
     transition main(a: u16, b: u16) -> bool {
         // unary
         let h: u16 = a.not();
-    
+
         // binary
         let j: u16 = a.add(b);
         let k: u16 = a.add_wrapped(b);
@@ -46,6 +42,6 @@ program test.aleo {
         let at: u16 = a.mod(b);
         let au: u16 = a.rem(b);
         let av: u16 = a.rem_wrapped(b);
-    
+
         return a == b;
     }}

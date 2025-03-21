@@ -1,24 +1,44 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372005]: Unknown function `finalize_mint_public`
-    --> compiler-test:8:16
+    --> compiler-test:7:16
      |
-   8 |         return finalize_mint_public(receiver, amount);
+   7 |         return finalize_mint_public(receiver, amount);
      |                ^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372088]: An async transition must call an async function.
-    --> compiler-test:7:5
+    --> compiler-test:6:5
      |
-   7 |     async transition mint_public(public receiver: address, public amount: u64) -> Future {
-   8 |         return finalize_mint_public(receiver, amount);
-   9 |     }
+   6 |     async transition mint_public(public receiver: address, public amount: u64) -> Future {
+   7 |         return finalize_mint_public(receiver, amount);
+   8 |     }
      |     ^
      |
      = Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`
 Warning [WTYC0372002]: The async function `finalize_mint_private` is never called by an async transition.
-    --> compiler-test:11:5
+    --> compiler-test:10:5
      |
-  11 |     async function finalize_mint_private (public receiver: address, public amount: u64) {
-  12 |         Mapping::set(account, receiver, amount);
-  13 |     }
-     |     ^"""]
+  10 |     async function finalize_mint_private (public receiver: address, public amount: u64) {
+  11 |         Mapping::set(account, receiver, amount);
+  12 |     }
+     |     ^
+DCE_DISABLED:
+Error [ETYC0372005]: Unknown function `finalize_mint_public`
+    --> compiler-test:7:16
+     |
+   7 |         return finalize_mint_public(receiver, amount);
+     |                ^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372088]: An async transition must call an async function.
+    --> compiler-test:6:5
+     |
+   6 |     async transition mint_public(public receiver: address, public amount: u64) -> Future {
+   7 |         return finalize_mint_public(receiver, amount);
+   8 |     }
+     |     ^
+     |
+     = Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`
+Warning [WTYC0372002]: The async function `finalize_mint_private` is never called by an async transition.
+    --> compiler-test:10:5
+     |
+  10 |     async function finalize_mint_private (public receiver: address, public amount: u64) {
+  11 |         Mapping::set(account, receiver, amount);
+  12 |     }
+     |     ^

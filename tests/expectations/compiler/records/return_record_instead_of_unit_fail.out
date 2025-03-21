@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372117]: Expected type `()` but type `test_credits` was found.
-    --> compiler-test:10:16
+    --> compiler-test:9:16
      |
-  10 |         return test_credits {
+   9 |         return test_credits {
      |                ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected type `()` but type `test_credits` was found.
+    --> compiler-test:9:16
+     |
+   9 |         return test_credits {
+     |                ^^^^^^^^^^^^

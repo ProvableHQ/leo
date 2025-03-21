@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "6777bc3a2c1afa52a63691ba884baa59e29d30f0f40b929af1bf92412fc5bd80", unrolled_ast = "27a9a1385d56098e72f215e78fdad393ee16e1c0a8cbf67b9fbd8b682e3eb678", ssa_ast = "b89d783bfdbe0fdef775b0e7e9ec12fd458b081df95441b8cbccba83a1763ec1", flattened_ast = "9c1f049aa5302580fde89cc401b0d14220008748b9b936682d6bb3ac251c18dc", destructured_ast = "35ba47510bf7aa55bfc81fed987474a5c50ebd08ccd8b6bf3e5876f8068b8339", inlined_ast = "71256f6f0c8f116e20dad941880c1ce009b8bd383765174b8e37889ca57dee4e", dce_ast = "71256f6f0c8f116e20dad941880c1ce009b8bd383765174b8e37889ca57dee4e", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 mapping account:
@@ -25,4 +23,29 @@ finalize finalize_self_caller:
     get.or_use account[r0] 0u64 into r5;
     add r5 1u64 into r6;
     set r6 into account[r0];
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+mapping account:
+    key as address.public;
+    value as u64.public;
+
+mapping values:
+    key as u8.public;
+    value as u8.public;
+
+function finalize_self_caller:
+    async finalize_self_caller self.caller into r0;
+    output r0 as test.aleo/finalize_self_caller.future;
+
+finalize finalize_self_caller:
+    input r0 as address.public;
+    get.or_use values[0u8] 0u8 into r1;
+    add r1 3u8 into r2;
+    add r2 1u8 into r3;
+    add r3 1u8 into r4;
+    set r4 into values[0u8];
+    get.or_use account[r0] 0u64 into r5;
+    add r5 1u64 into r6;
+    set r6 into account[r0];

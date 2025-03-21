@@ -18,12 +18,11 @@ use crate::Identifier;
 
 use core::fmt;
 use leo_span::Symbol;
-use serde::{Deserialize, Deserializer, Serialize, Serializer, de, de::Visitor};
+use serde::{Deserialize, Serialize};
 use snarkvm::{console::program::ProgramID, prelude::Network};
-use std::collections::BTreeMap;
 
 /// An identifier for a program that is eventually deployed to the network.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct ProgramId {
     /// The name of the program.
     pub name: Identifier,
@@ -34,64 +33,6 @@ pub struct ProgramId {
 impl fmt::Display for ProgramId {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}.{}", self.name, self.network)
-    }
-}
-
-impl Serialize for ProgramId {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        // Converts an element that implements Serialize into a string.
-        fn to_json_string<E: Serialize, Error: serde::ser::Error>(element: &E) -> Result<String, Error> {
-            serde_json::to_string(&element).map_err(|e| Error::custom(e.to_string()))
-        }
-
-        // Load the struct elements into a BTreeMap (to preserve serialized ordering of keys).
-        let mut key: BTreeMap<String, String> = BTreeMap::new();
-        key.insert("name".to_string(), self.name.to_string());
-        key.insert("network".to_string(), to_json_string(&self.network)?);
-
-        // Convert the serialized object into a string for use as a key.
-        serializer.serialize_str(&to_json_string(&key)?)
-    }
-}
-
-impl<'de> Deserialize<'de> for ProgramId {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        struct ProgramIdVisitor;
-
-        impl Visitor<'_> for ProgramIdVisitor {
-            type Value = ProgramId;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a string encoding the ast ProgramId struct")
-            }
-
-            /// Implementation for recovering a string that serializes Identifier.
-            fn visit_str<E: de::Error>(self, value: &str) -> Result<Self::Value, E> {
-                // Converts a serialized string into an element that implements Deserialize.
-                fn to_json_string<'a, D: Deserialize<'a>, Error: serde::de::Error>(
-                    serialized: &'a str,
-                ) -> Result<D, Error> {
-                    serde_json::from_str::<'a>(serialized).map_err(|e| Error::custom(e.to_string()))
-                }
-
-                // Convert the serialized string into a BTreeMap to recover ProgramId.
-                let key: BTreeMap<String, String> = to_json_string(value)?;
-
-                let name: Identifier = match key.get("name") {
-                    Some(name) => to_json_string(name)?,
-                    None => return Err(E::custom("missing 'name' in serialized ProgramId struct")),
-                };
-
-                let network: Identifier = match key.get("network") {
-                    Some(network) => to_json_string(network)?,
-                    None => return Err(E::custom("missing 'network' in serialized ProgramId struct")),
-                };
-
-                Ok(ProgramId { name, network })
-            }
-        }
-
-        deserializer.deserialize_str(ProgramIdVisitor)
     }
 }
 

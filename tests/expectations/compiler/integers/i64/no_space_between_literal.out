@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370005]: expected : -- found '='
-    --> compiler-test:5:15
+    --> compiler-test:4:15
      |
-   5 |         let i = 1 i64;
-     |               ^"""]
+   4 |         let i = 1 i64;
+     |               ^
+DCE_DISABLED:
+Error [EPAR0370005]: expected : -- found '='
+    --> compiler-test:4:15
+     |
+   4 |         let i = 1 i64;
+     |               ^

@@ -1,29 +1,81 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
-Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `address` was found.
-    --> compiler-test:29:55
-     |
-  29 |         let a: address = Pedersen128::hash_to_address(addr_value);
-     |                                                       ^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `field` was found.
-    --> compiler-test:31:55
-     |
-  31 |         let c: address = Pedersen128::hash_to_address(field_value);
-     |                                                       ^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `group` was found.
-    --> compiler-test:32:55
-     |
-  32 |         let d: address = Pedersen128::hash_to_address(group_value);
-     |                                                       ^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `scalar` was found.
-    --> compiler-test:41:55
-     |
-  41 |         let o: address = Pedersen128::hash_to_address(scalar_value);
-     |                                                       ^^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `Foo` was found.
-    --> compiler-test:43:55
-     |
-  43 |         let p: address = Pedersen128::hash_to_address(Foo { a: 1u32, b: 1u32 });
-     |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^
-"""]
+DCE_ENABLED:
+program test.aleo;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.ped128 true into r8 as address;
+    hash.ped128 true into r9 as address;
+    hash.ped128 true into r10 as address;
+    hash.ped128 true into r11 as address;
+    hash.ped128 r0 into r12 as address;
+    hash.ped128 r1 into r13 as address;
+    hash.ped128 r2 into r14 as address;
+    hash.ped128 r3 into r15 as address;
+    hash.ped128 r4 into r16 as address;
+    hash.ped128 r5 into r17 as address;
+    hash.ped128 r6 into r18 as address;
+    hash.ped128 r7 into r19 as address;
+    hash.ped128 true into r20 as address;
+    hash.ped128 true into r21 as address;
+    output r8 as address.private;
+    output r9 as address.private;
+    output r10 as address.private;
+    output r11 as address.private;
+    output r12 as address.private;
+    output r13 as address.private;
+    output r14 as address.private;
+    output r15 as address.private;
+    output r16 as address.private;
+    output r17 as address.private;
+    output r18 as address.private;
+    output r19 as address.private;
+    output r20 as address.private;
+    output r21 as address.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.ped128 true into r8 as address;
+    hash.ped128 true into r9 as address;
+    hash.ped128 true into r10 as address;
+    hash.ped128 true into r11 as address;
+    hash.ped128 r0 into r12 as address;
+    hash.ped128 r1 into r13 as address;
+    hash.ped128 r2 into r14 as address;
+    hash.ped128 r3 into r15 as address;
+    hash.ped128 r4 into r16 as address;
+    hash.ped128 r5 into r17 as address;
+    hash.ped128 r6 into r18 as address;
+    hash.ped128 r7 into r19 as address;
+    hash.ped128 true into r20 as address;
+    hash.ped128 true into r21 as address;
+    output r8 as address.private;
+    output r9 as address.private;
+    output r10 as address.private;
+    output r11 as address.private;
+    output r12 as address.private;
+    output r13 as address.private;
+    output r14 as address.private;
+    output r15 as address.private;
+    output r16 as address.private;
+    output r17 as address.private;
+    output r18 as address.private;
+    output r19 as address.private;
+    output r20 as address.private;
+    output r21 as address.private;

@@ -1,9 +1,5 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     transition main() -> bool {
         let c1 : u32 = 123i16 * 123i32;
         let c2 : u32 = "123i32" * 123i16 * "sss";

@@ -17,8 +17,9 @@
 use crate::LeoWarning;
 
 use super::LeoError;
-use core::{default::Default, fmt};
-use std::{cell::RefCell, rc::Rc};
+
+use itertools::Itertools as _;
+use std::{cell::RefCell, fmt, rc::Rc};
 
 /// Types that are sinks for compiler errors.
 pub trait Emitter {
@@ -82,14 +83,7 @@ impl<T> Buffer<T> {
 
 impl<T: fmt::Display> fmt::Display for Buffer<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut iter = self.0.iter();
-        if let Some(x) = iter.next() {
-            x.fmt(f)?;
-        }
-        for x in iter {
-            f.write_fmt(format_args!("\n{x}"))?;
-        }
-        Ok(())
+        self.0.iter().format("\n").fmt(f)
     }
 }
 

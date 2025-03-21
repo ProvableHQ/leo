@@ -1,31 +1,220 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[outputs.imports]
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = []
-mappings = []
-functions = [
-    [
-    "inf",
-    { annotations = [], variant = "Function", identifier = '{"id":"2","name":"inf","span":"{\"lo\":39,\"hi\":42}"}', input = [], id = 8, output = [{ mode = "None", id = 3, type_ = { Integer = "U8" }, span = { lo = 48, hi = 50 } }], output_type = { Integer = "U8" }, block = { id = 7, statements = [{ Expression = { id = 6, expression = { Call = { arguments = [], program = "test", id = 5, function = { Identifier = '{"id":"4","name":"inf","span":"{\"lo\":61,\"hi\":64}"}' }, span = { lo = 61, hi = 66 } } }, span = { lo = 61, hi = 67 } } }], span = { lo = 51, hi = 73 } }, span = { lo = 30, hi = 73 } },
-],
-    [
-    "main",
-    { annotations = [], variant = "Function", identifier = '{"id":"9","name":"main","span":"{\"lo\":92,\"hi\":96}"}', output_type = "Boolean", id = 19, input = [{ identifier = '{"id":"10","name":"y","span":"{\"lo\":97,\"hi\":98}"}', mode = "None", type_ = "Boolean", id = 11, span = { lo = 97, hi = 104 } }], output = [{ mode = "None", type_ = "Boolean", id = 12, span = { lo = 109, hi = 113 } }], block = { id = 18, statements = [
-    { Expression = { id = 15, expression = { Call = { arguments = [], program = "test", id = 14, function = { Identifier = '{"id":"13","name":"inf","span":"{\"lo\":124,\"hi\":127}"}' }, span = { lo = 124, hi = 129 } } }, span = { lo = 124, hi = 130 } } },
-    { Return = { id = 17, expression = { Identifier = '{"id":"16","name":"y","span":"{\"lo\":146,\"hi\":147}"}' }, span = { lo = 139, hi = 148 } } },
-], span = { lo = 114, hi = 154 } }, span = { lo = 83, hi = 154 } },
-],
-]
-
-[outputs.program_scopes.test.span]
-lo = 2
-hi = 156
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 9,
+            "hi": 13
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "functions": [
+        [
+          "inf",
+          {
+            "annotations": [],
+            "variant": "Function",
+            "identifier": {
+              "name": "inf",
+              "span": {
+                "lo": 34,
+                "hi": 37
+              },
+              "id": 2
+            },
+            "input": [],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Integer": "U8"
+                },
+                "span": {
+                  "lo": 43,
+                  "hi": 45
+                },
+                "id": 3
+              }
+            ],
+            "output_type": {
+              "Integer": "U8"
+            },
+            "block": {
+              "statements": [
+                {
+                  "Expression": {
+                    "expression": {
+                      "Call": {
+                        "function": {
+                          "Identifier": {
+                            "name": "inf",
+                            "span": {
+                              "lo": 56,
+                              "hi": 59
+                            },
+                            "id": 4
+                          }
+                        },
+                        "arguments": [],
+                        "program": "test",
+                        "span": {
+                          "lo": 56,
+                          "hi": 61
+                        },
+                        "id": 5
+                      }
+                    },
+                    "span": {
+                      "lo": 56,
+                      "hi": 62
+                    },
+                    "id": 6
+                  }
+                }
+              ],
+              "span": {
+                "lo": 46,
+                "hi": 68
+              },
+              "id": 7
+            },
+            "span": {
+              "lo": 25,
+              "hi": 68
+            },
+            "id": 8
+          }
+        ],
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "Function",
+            "identifier": {
+              "name": "main",
+              "span": {
+                "lo": 83,
+                "hi": 87
+              },
+              "id": 9
+            },
+            "input": [
+              {
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 88,
+                    "hi": 89
+                  },
+                  "id": 10
+                },
+                "mode": "None",
+                "type_": "Boolean",
+                "span": {
+                  "lo": 88,
+                  "hi": 95
+                },
+                "id": 11
+              }
+            ],
+            "output": [
+              {
+                "mode": "None",
+                "type_": "Boolean",
+                "span": {
+                  "lo": 100,
+                  "hi": 104
+                },
+                "id": 12
+              }
+            ],
+            "output_type": "Boolean",
+            "block": {
+              "statements": [
+                {
+                  "Expression": {
+                    "expression": {
+                      "Call": {
+                        "function": {
+                          "Identifier": {
+                            "name": "inf",
+                            "span": {
+                              "lo": 115,
+                              "hi": 118
+                            },
+                            "id": 13
+                          }
+                        },
+                        "arguments": [],
+                        "program": "test",
+                        "span": {
+                          "lo": 115,
+                          "hi": 120
+                        },
+                        "id": 14
+                      }
+                    },
+                    "span": {
+                      "lo": 115,
+                      "hi": 121
+                    },
+                    "id": 15
+                  }
+                },
+                {
+                  "Return": {
+                    "expression": {
+                      "Identifier": {
+                        "name": "y",
+                        "span": {
+                          "lo": 137,
+                          "hi": 138
+                        },
+                        "id": 16
+                      }
+                    },
+                    "span": {
+                      "lo": 130,
+                      "hi": 139
+                    },
+                    "id": 17
+                  }
+                }
+              ],
+              "span": {
+                "lo": 105,
+                "hi": 145
+              },
+              "id": 18
+            },
+            "span": {
+              "lo": 74,
+              "hi": 145
+            },
+            "id": 19
+          }
+        ]
+      ],
+      "span": {
+        "lo": 1,
+        "hi": 147
+      }
+    }
+  }
+}

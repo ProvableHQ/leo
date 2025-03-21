@@ -14,211 +14,143 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ParserContext, SpannedToken, tokenizer};
+use crate::tokenizer;
 
-use leo_ast::{NodeBuilder, Statement};
-use leo_errors::{LeoError, emitter::Handler};
+use leo_ast::NodeBuilder;
+use leo_errors::{
+    LeoError,
+    emitter::{BufferEmitter, Handler},
+};
 use leo_span::{
     source_map::FileName,
-    symbol::{SessionGlobals, create_session_if_not_set_then},
+    span::BytePos,
+    symbol::{create_session_if_not_set_then, with_session_globals},
 };
-use leo_test_framework::{
-    Test,
-    runner::{Namespace, ParseType, Runner},
-};
+
+use snarkvm::prelude::TestnetV0;
+
+use itertools::Itertools as _;
 use serde::Serialize;
-use tokenizer::Token;
-use toml::Value;
+use serial_test::serial;
+use std::fmt::Write as _;
 
-type CurrentNetwork = snarkvm::prelude::MainnetV0;
-
-// TODO: Enable parser warnings for passing tests
-
-struct TokenNamespace;
-
-impl Namespace for TokenNamespace {
-    fn parse_type(&self) -> ParseType {
-        ParseType::Line
-    }
-
-    fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|s| {
-            tokenize(test, s).map(|tokens| {
-                Value::String(tokens.into_iter().map(|x| x.to_string()).collect::<Vec<String>>().join(","))
-            })
-        })
-    }
+fn run_parse_many_test<T: Serialize>(
+    test: &str,
+    handler: &Handler,
+    test_index: usize,
+    parse: fn(&Handler, &NodeBuilder, &str, BytePos) -> Result<T, LeoError>,
+) -> Result<String, ()> {
+    let source_map =
+        with_session_globals(|s| s.source_map.new_source(test, FileName::Custom(format!("test_{test_index}"))));
+    let result = parse(handler, &Default::default(), &source_map.src, source_map.start_pos);
+    let serializable = handler.extend_if_error(result)?;
+    let value = serde_json::to_value(&serializable).expect("Serialization failure");
+    let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");
+    s.push('\n');
+    Ok(s)
 }
 
-fn not_fully_consumed(tokens: &mut ParserContext<CurrentNetwork>) -> Result<(), String> {
-    if !tokens.has_next() {
-        return Ok(());
-    }
-    let mut out = "did not consume all input: ".to_string();
-    while tokens.has_next() {
-        tokens.bump();
-        out.push_str(&tokens.prev_token.to_string());
-        out.push('\n');
-    }
-    Err(out)
-}
+fn runner_parse_many_test<'a, T: Serialize>(
+    tests: impl Iterator<Item = &'a str>,
+    parse: fn(&Handler, &NodeBuilder, &str, BytePos) -> Result<T, LeoError>,
+) -> String {
+    create_session_if_not_set_then(|_| {
+        let mut output = String::new();
+        let buf = BufferEmitter::new();
+        let handler = Handler::new(Box::new(buf.clone()));
 
-fn with_handler<T>(
-    tokens: Vec<SpannedToken>,
-    logic: impl FnOnce(&mut ParserContext<'_, CurrentNetwork>) -> Result<T, LeoError>,
-) -> Result<T, String> {
-    let (handler, buf) = Handler::new_with_buf();
-    let node_builder = NodeBuilder::default();
-    let mut tokens = ParserContext::new(&handler, &node_builder, tokens);
-    let parsed = handler
-        .extend_if_error(logic(&mut tokens))
-        .map_err(|_| buf.extract_errs().to_string() + &buf.extract_warnings().to_string())?;
-    not_fully_consumed(&mut tokens)?;
-    Ok(parsed)
-}
-
-fn tokenize(test: Test, s: &SessionGlobals) -> Result<Vec<SpannedToken>, String> {
-    let sf = s.source_map.new_source(&test.content, FileName::Custom("test".into()));
-    tokenizer::tokenize(&sf.src, sf.start_pos).map_err(|x| x.to_string())
-}
-
-fn all_are_comments(tokens: &[SpannedToken]) -> bool {
-    tokens.iter().all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
-}
-
-fn toml_or_fail<T: Serialize>(value: T) -> Value {
-    Value::try_from(value).expect("serialization failed")
-}
-
-struct ParseExpressionNamespace;
-
-impl Namespace for ParseExpressionNamespace {
-    fn parse_type(&self) -> ParseType {
-        ParseType::Line
-    }
-
-    fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|s| {
-            let tokenizer = tokenize(test, s)?;
-            if all_are_comments(&tokenizer) {
-                return Ok(toml_or_fail(""));
-            }
-            with_handler(tokenizer, |p| p.parse_expression()).map(toml_or_fail)
-        })
-    }
-}
-
-struct ParseStatementNamespace;
-
-impl Namespace for ParseStatementNamespace {
-    fn parse_type(&self) -> ParseType {
-        ParseType::ContinuousLines
-    }
-
-    fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|s| {
-            let tokenizer = tokenize(test, s)?;
-            if all_are_comments(&tokenizer) {
-                return Ok(toml_or_fail(Statement::dummy()));
-            }
-            with_handler(tokenizer, |p| p.parse_statement()).map(toml_or_fail)
-        })
-    }
-}
-
-struct ParseNamespace;
-
-impl Namespace for ParseNamespace {
-    fn parse_type(&self) -> ParseType {
-        ParseType::Whole
-    }
-
-    fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|s| with_handler(tokenize(test, s)?, |p| p.parse_program()).map(toml_or_fail))
-    }
-}
-
-struct SerializeNamespace;
-
-// Helper functions to recursively filter keys from AST JSON.
-// Redeclaring here since we don't want to make this public.
-fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
-    match value {
-        serde_json::value::Value::Object(map) => {
-            map.remove(key);
-            for val in map.values_mut() {
-                remove_key_from_json(val, key);
+        for (i, test) in tests.enumerate() {
+            match run_parse_many_test(test, &handler, i, parse) {
+                Ok(s) => writeln!(output, "{s}").unwrap(),
+                Err(()) => writeln!(output, "{}\n{}\n", buf.extract_errs(), buf.extract_warnings()).unwrap(),
             }
         }
-        serde_json::value::Value::Array(values) => {
-            for val in values.iter_mut() {
-                remove_key_from_json(val, key);
+
+        output
+    })
+}
+
+// Tokenizer tests.
+
+fn runner_tokenizer_test(test: &str) -> String {
+    let tests = test.lines().map(|line| line.trim()).filter(|line| !line.is_empty());
+
+    create_session_if_not_set_then(|_| {
+        let mut output = String::new();
+
+        for (i, test) in tests.enumerate() {
+            let source_map =
+                with_session_globals(|s| s.source_map.new_source(test, FileName::Custom(format!("test_{i}"))));
+            match tokenizer::tokenize(&source_map.src, source_map.start_pos) {
+                Ok(tokens) => writeln!(output, "{}", tokens.iter().format(", ")).unwrap(),
+                Err(error) => writeln!(output, "{error}").unwrap(),
             }
         }
-        _ => (),
-    }
-}
 
-// Helper function to normalize AST
-// Redeclaring here because we don't want to make this public
-fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
-    match value {
-        serde_json::Value::Array(vec) => {
-            let orig_length = vec.len();
-            let mut new_vec: Vec<serde_json::Value> = vec
-                .into_iter()
-                .filter(|v| !matches!(v, serde_json::Value::Object(map) if map.is_empty()))
-                .map(normalize_json_value)
-                .collect();
-
-            if orig_length == 2 && new_vec.len() == 1 {
-                new_vec.pop().unwrap()
-            } else {
-                serde_json::Value::Array(new_vec)
-            }
-        }
-        serde_json::Value::Object(map) => {
-            serde_json::Value::Object(map.into_iter().map(|(k, v)| (k, normalize_json_value(v))).collect())
-        }
-        _ => value,
-    }
-}
-
-impl Namespace for SerializeNamespace {
-    fn parse_type(&self) -> ParseType {
-        ParseType::Whole
-    }
-
-    fn run_test(&self, test: Test) -> Result<Value, String> {
-        create_session_if_not_set_then(|s| {
-            let tokenizer = tokenize(test, s)?;
-            let parsed = with_handler(tokenizer, |p| p.parse_program())?;
-
-            let mut json = serde_json::to_value(parsed).expect("failed to convert to json value");
-            remove_key_from_json(&mut json, "span");
-            json = normalize_json_value(json);
-
-            Ok(serde_json::from_value::<toml::Value>(json).expect("failed serialization"))
-        })
-    }
-}
-
-struct TestRunner;
-
-impl Runner for TestRunner {
-    fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>> {
-        Some(match name {
-            "Parse" => Box::new(ParseNamespace),
-            "ParseExpression" => Box::new(ParseExpressionNamespace),
-            "ParseStatement" => Box::new(ParseStatementNamespace),
-            "Serialize" => Box::new(SerializeNamespace),
-            "Token" => Box::new(TokenNamespace),
-            _ => return None,
-        })
-    }
+        output
+    })
 }
 
 #[test]
-pub fn parser_tests() {
-    leo_test_framework::run_tests(&TestRunner, "parser");
+#[serial]
+fn tokenizer_tests() {
+    leo_test_framework::run_tests("parser-tokenizer", runner_tokenizer_test);
+}
+
+// Parse expression tests.
+
+fn runner_expression_test(test: &str) -> String {
+    let tests = test.lines().map(|line| line.trim()).filter(|line| !line.is_empty());
+
+    runner_parse_many_test(tests, crate::parse_expression::<TestnetV0>)
+}
+
+#[test]
+#[serial]
+fn parse_expression_tests() {
+    leo_test_framework::run_tests("parser-expression", runner_expression_test);
+}
+
+// Parse statement tests.
+
+fn runner_statement_test(test: &str) -> String {
+    let tests = test.split("\n\n").map(|text| text.trim()).filter(|text| !text.is_empty());
+
+    runner_parse_many_test(tests, crate::parse_statement::<TestnetV0>)
+}
+
+#[test]
+#[serial]
+fn parse_statement_tests() {
+    leo_test_framework::run_tests("parser-statement", runner_statement_test);
+}
+
+// Full parser tests.
+
+fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
+    let source_file = with_session_globals(|s| s.source_map.new_source(test, FileName::Custom("test".into())));
+    let result = crate::parse_ast::<TestnetV0>(handler, &Default::default(), &source_file.src, source_file.start_pos);
+    let ast = handler.extend_if_error(result)?;
+    let value = serde_json::to_value(&ast.ast).expect("Serialization failure");
+    let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");
+    s.push('\n');
+    Ok(s)
+}
+
+fn runner_parser_test(test: &str) -> String {
+    create_session_if_not_set_then(|_| {
+        let buf = BufferEmitter::new();
+        let handler = Handler::new(Box::new(buf.clone()));
+
+        match run_parser_test(test, &handler) {
+            Ok(x) => x,
+            Err(()) => format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
+        }
+    })
+}
+
+#[test]
+#[serial]
+fn parser_tests() {
+    leo_test_framework::run_tests("parser", runner_parser_test);
 }

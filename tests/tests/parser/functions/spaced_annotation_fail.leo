@@ -1,9 +1,5 @@
-/*
-namespace = "Parse"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     @ test
     function test() -> u8 {}
 }

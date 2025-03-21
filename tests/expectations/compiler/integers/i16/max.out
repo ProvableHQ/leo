@@ -1,10 +1,15 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "e57d1daf96605981f10a077380b2cc8555bcfae92dba202079f80931f881b2f9", unrolled_ast = "e57d1daf96605981f10a077380b2cc8555bcfae92dba202079f80931f881b2f9", ssa_ast = "90953f55a0736b970e2e0111ebebb4e8e655acafc9e86769d2b1b1a22cdc37fc", flattened_ast = "03b5090dab80d14c477434b2e2bafe356eee8ed05f7f1e3929623995815b121e", destructured_ast = "aa97cfd587a2a48f4bd6958c28322af0f790f0aa82b42fcbc7e9d9236ccf170d", inlined_ast = "aa97cfd587a2a48f4bd6958c28322af0f790f0aa82b42fcbc7e9d9236ccf170d", dce_ast = "aa97cfd587a2a48f4bd6958c28322af0f790f0aa82b42fcbc7e9d9236ccf170d", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
     input r0 as i16.private;
     sub 32767i16 r0 into r1;
     output r1 as i16.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as i16.private;
+    sub 32767i16 r0 into r1;
+    output r1 as i16.private;

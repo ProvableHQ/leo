@@ -1,0 +1,312 @@
+Error [EPAR0370005]: expected : -- found 'x'
+    --> test_0:1:9
+     |
+   1 | let mut x = expr;
+     |         ^
+
+
+Error [EPAR0370005]: expected : -- found 'x'
+    --> test_1:1:9
+     |
+   1 | let mut x = ();
+     |         ^
+
+
+Error [EPAR0370005]: expected : -- found 'x'
+    --> test_2:1:9
+     |
+   1 | let mut x = x+y;
+     |         ^
+
+
+Error [EPAR0370005]: expected : -- found 'x'
+    --> test_3:1:9
+     |
+   1 | let mut x = (x,y);
+     |         ^
+
+
+Error [EPAR0370005]: expected : -- found 'x'
+    --> test_4:1:9
+     |
+   1 | let mut x = x();
+     |         ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_5:1:1
+     |
+   1 | constant mut x = expr;
+     | ^^^^^^^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_6:1:1
+     |
+   1 | constant mut x = ();
+     | ^^^^^^^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_7:1:1
+     |
+   1 | constant mut x = x+y;
+     | ^^^^^^^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_8:1:1
+     |
+   1 | constant mut x = (x,y);
+     | ^^^^^^^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_9:1:1
+     |
+   1 | constant mut x = x();
+     | ^^^^^^^^
+
+
+Error [EPAR0370005]: expected : -- found 'x'
+    --> test_10:1:9
+     |
+   1 | let mut x: u32 = expr;
+     |         ^
+
+
+Error [EPAR0370005]: expected : -- found 'x'
+    --> test_11:1:9
+     |
+   1 | let mut x: u32 = ();
+     |         ^
+
+
+Error [EPAR0370005]: expected : -- found 'x'
+    --> test_12:1:9
+     |
+   1 | let mut x: u32 = x+y;
+     |         ^
+
+
+Error [EPAR0370005]: expected : -- found 'x'
+    --> test_13:1:9
+     |
+   1 | let mut x: u32 = (x,y);
+     |         ^
+
+
+Error [EPAR0370005]: expected : -- found 'x'
+    --> test_14:1:9
+     |
+   1 | let mut x: u32 = x();
+     |         ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_15:1:1
+     |
+   1 | constant mut x: u32 = expr;
+     | ^^^^^^^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_16:1:1
+     |
+   1 | constant mut x: u32 = ();
+     | ^^^^^^^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_17:1:1
+     |
+   1 | constant mut x: u32 = x+y;
+     | ^^^^^^^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_18:1:1
+     |
+   1 | constant mut x: u32 = (x,y);
+     | ^^^^^^^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_19:1:1
+     |
+   1 | constant mut x: u32 = x();
+     | ^^^^^^^^
+
+
+Error [EPAR0370045]: Expected an identifier.
+    --> test_20:1:10
+     |
+   1 | let (x,y,,) = ();
+     |          ^
+
+
+Error [EPAR0370045]: Expected an identifier.
+    --> test_21:1:6
+     |
+   1 | let (,x,y) = ();
+     |      ^
+
+
+Error [EPAR0370045]: Expected an identifier.
+    --> test_22:1:8
+     |
+   1 | let (x,,y) = ();
+     |        ^
+
+
+Error [EPAR0370005]: expected integer literal -- found '('
+    --> test_23:1:13
+     |
+   1 | let x: [u8; (2,,)] = [[0,0], [0,0]];
+     |             ^
+
+
+Error [EPAR0370005]: expected 'address', 'bool', 'field', 'Future', 'group', 'scalar', 'signature', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'constant'
+    --> test_24:1:8
+     |
+   1 | let x: constant = expr;
+     |        ^^^^^^^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
+    --> test_25:1:1
+     |
+   1 | constant x: let = expr;
+     | ^^^^^^^^
+
+
+Error [EPAR0370005]: expected ( -- found '<eof>'
+    --> test_26:1:1
+     |
+   1 | let
+     | ^^^
+
+
+Error [EPAR0370005]: expected : -- found '<eof>'
+    --> test_27:1:5
+     |
+   1 | let x
+     |     ^
+
+
+Error [EPAR0370005]: expected 'address', 'bool', 'field', 'Future', 'group', 'scalar', 'signature', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '<eof>'
+    --> test_28:1:6
+     |
+   1 | let x:
+     |      ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_29:1:7
+     |
+   1 | let x = (a, y]);
+     |       ^
+
+
+Error [EPAR0370005]: expected ( -- found '='
+    --> test_30:1:5
+     |
+   1 | let = 1u8;
+     |     ^
+
+
+Error [EPAR0370005]: expected ( -- found ';'
+    --> test_31:1:4
+     |
+   1 | let;
+     |    ^
+
+
+Error [EPAR0370005]: expected : -- found '1'
+    --> test_32:1:7
+     |
+   1 | let x 1u8;
+     |       ^
+
+
+Error [EPAR0370005]: expected = -- found ';'
+    --> test_33:1:10
+     |
+   1 | let x: u8;
+     |          ^
+
+
+Error [EPAR0370005]: expected = -- found '<eof>'
+    --> test_34:1:8
+     |
+   1 | let x: u8
+     |        ^^
+
+
+Error [EPAR0370005]: expected 'address', 'bool', 'field', 'Future', 'group', 'scalar', 'signature', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '='
+    --> test_35:1:8
+     |
+   1 | let x: = 1;
+     |        ^
+
+
+Error [EPAR0370005]: expected ; -- found ']'
+    --> test_36:1:11
+     |
+   1 | let x: [u8] = 1;
+     |           ^
+
+
+Error [EPAR0370005]: expected integer literal -- found '<eof>'
+    --> test_37:1:11
+     |
+   1 | let x: [u8;
+     |           ^
+
+
+Error [EPAR0370005]: expected ] -- found 'u8'
+    --> test_38:1:14
+     |
+   1 | let x: [u8; 1u8] = [1,
+     |              ^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found ']'
+    --> test_39:1:15
+     |
+   1 | let dbg: u8 = ];
+     |               ^
+
+
+Error [EPAR0370016]: Could not lex the following content: `🦀:`.
+
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_41:1:9
+     |
+   1 | let (x) = ...;
+     |         ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_42:1:10
+     |
+   1 | let (x,) = ...;
+     |          ^
+
+
+Error [EPAR0370005]: expected ( -- found '_'
+    --> test_43:1:5
+     |
+   1 | let _1: u8 = 1u8;
+     |     ^
+
+
+Error [EPAR0370005]: expected ( -- found '1___091'
+    --> test_44:1:5
+     |
+   1 | let 1___091: u8 = 12u8;
+     |     ^^^^^^^
+
+

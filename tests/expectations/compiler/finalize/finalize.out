@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "6d0f8cbe911f160eec296d1802791a0fe4c758323b73fca576d76e2bbf947e99", unrolled_ast = "6d0f8cbe911f160eec296d1802791a0fe4c758323b73fca576d76e2bbf947e99", ssa_ast = "2251e8342ffc73afb1e49c16ef8adbc244d95eb25a09b6183355e7aefbbb6f0d", flattened_ast = "8cd41c0a1f92fa9a3a4c20ab4bc1a10b91c97f30474da8b7b1ec6a1f80886775", destructured_ast = "2bd5ccaad95d5d6843ed3740b6c070340c0fab84f5914fb7baaff1369f06d36f", inlined_ast = "42f3d0df005f73ee40c1c14ff265b24a16d928377a0cbfc1d81ef18c37a98eef", dce_ast = "42f3d0df005f73ee40c1c14ff265b24a16d928377a0cbfc1d81ef18c37a98eef", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 mapping account:
@@ -36,4 +34,40 @@ finalize finalize_self_caller:
     get.or_use account[r0] 0u64 into r3;
     add r3 1u64 into r4;
     set r4 into account[r0];
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+mapping account:
+    key as address.public;
+    value as u64.public;
+
+mapping values:
+    key as u8.public;
+    value as u8.public;
+
+function mint_public:
+    input r0 as address.public;
+    input r1 as u64.public;
+    async mint_public r0 r1 into r2;
+    output r2 as test.aleo/mint_public.future;
+
+finalize mint_public:
+    input r0 as address.public;
+    input r1 as u64.public;
+    get.or_use account[r0] 0u64 into r2;
+    add r2 r1 into r3;
+    set r3 into account[r0];
+
+function finalize_self_caller:
+    async finalize_self_caller self.caller into r0;
+    output r0 as test.aleo/finalize_self_caller.future;
+
+finalize finalize_self_caller:
+    input r0 as address.public;
+    get.or_use values[0u8] 0u8 into r1;
+    add r1 1u8 into r2;
+    set r2 into values[0u8];
+    get.or_use account[r0] 0u64 into r3;
+    add r3 1u64 into r4;
+    set r4 into account[r0];

@@ -1,0 +1,115 @@
+{
+  "Assign": {
+    "place": {
+      "name": "x",
+      "span": {
+        "lo": 0,
+        "hi": 1
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "expr",
+        "span": {
+          "lo": 4,
+          "hi": 8
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 0,
+      "hi": 8
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "x",
+      "span": {
+        "lo": 10,
+        "hi": 11
+      },
+      "id": 0
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 14,
+              "hi": 15
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 16,
+              "hi": 17
+            },
+            "id": 2
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 14,
+          "hi": 17
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 10,
+      "hi": 17
+    },
+    "id": 5
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "x",
+      "span": {
+        "lo": 19,
+        "hi": 20
+      },
+      "id": 0
+    },
+    "value": {
+      "Call": {
+        "function": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 23,
+              "hi": 24
+            },
+            "id": 1
+          }
+        },
+        "arguments": [],
+        "program": null,
+        "span": {
+          "lo": 23,
+          "hi": 26
+        },
+        "id": 2
+      }
+    },
+    "span": {
+      "lo": 19,
+      "hi": 26
+    },
+    "id": 4
+  }
+}
+

@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "e638024190743e42d22971bf4a5d2ae071661a5c05a9774f97763362531c3f99", unrolled_ast = "beba3ab73d74d432e8365604f4a79bfb3b5f73e94cbd2d4fd240265bd6f4083c", ssa_ast = "93cc1bee127e234d4365c914c955982618f5e74268b062d0ba1d0ea65f49773a", flattened_ast = "66f9e44bf8f452b06e44f1554ae1151fd45ed990987a890d8e1b2c6987d51ac5", destructured_ast = "f9f638912c0fba37ad6b5a7c859e1846f8539c3df4a2a03a766c5f0ab7aca6a1", inlined_ast = "f9f638912c0fba37ad6b5a7c859e1846f8539c3df4a2a03a766c5f0ab7aca6a1", dce_ast = "f9f638912c0fba37ad6b5a7c859e1846f8539c3df4a2a03a766c5f0ab7aca6a1", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function foo:
@@ -9,4 +7,13 @@ function foo:
     assert.eq r0[1u32] true;
     assert.eq r0[2u32] true;
     assert.eq r0[3u32] true;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function foo:
+    input r0 as [boolean; 4u32].private;
+    assert.eq r0[0u32] true;
+    assert.eq r0[1u32] true;
+    assert.eq r0[2u32] true;
+    assert.eq r0[3u32] true;

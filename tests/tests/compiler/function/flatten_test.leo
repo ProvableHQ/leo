@@ -1,21 +1,17 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
-program test.aleo {    
+program test.aleo {
     struct Row {
         e1: u8,
         e2: u8,
         e3: u8
     }
-    
+
     struct Board {
         r1: Row,
         r2: Row,
         r3: Row,
     }
-    
+
     function win(b: Board, p: u8) -> bool {
         return
             (b.r1.e1 == p && b.r1.e2 == p && b.r1.e3 == p) || // row 1
@@ -27,7 +23,7 @@ program test.aleo {
             (b.r1.e1 == p && b.r2.e2 == p && b.r3.e3 == p) || // diagonal
             (b.r1.e3 == p && b.r2.e2 == p && b.r3.e1 == p); // other diagonal
     }
-    
+
     transition main(public player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
         let updated: Board = board;
         if row == 1u8 && col == 1u8 && updated.r1.e1 == 0u8 {

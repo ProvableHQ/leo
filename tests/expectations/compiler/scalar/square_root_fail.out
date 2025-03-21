@@ -1,16 +1,25 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372117]: Expected type `field` but type `scalar` was found.
-    --> compiler-test:5:16
+    --> compiler-test:4:16
      |
-   5 |         return a.square_root(); // square root not supported for scalar types.
+   4 |         return a.square_root(); // square root not supported for scalar types.
      |                ^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected type `field` but type `scalar` was found.
+    --> compiler-test:4:16
+     |
+   4 |         return a.square_root(); // square root not supported for scalar types.
+     |                ^^^^^^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

@@ -1,46 +1,85 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372050]: A struct cannot contain a tuple.
-    --> compiler-test:22:9
+    --> compiler-test:21:9
      |
-  22 |         mem: (u8, u16)
+  21 |         mem: (u8, u16)
      |         ^^^
 Error [ETYC0372051]: A function cannot take in a tuple as input.
-    --> compiler-test:8:18
+    --> compiler-test:7:18
      |
-   8 |     function foo(a: (u8, u16)) -> (u8, u16) {
+   7 |     function foo(a: (u8, u16)) -> (u8, u16) {
      |                  ^^^^^^^^^^^^
 Error [ETYC0372049]: A tuple type cannot contain a tuple.
-    --> compiler-test:12:36
+    --> compiler-test:11:36
      |
-  12 |     function bar(zz: bool) -> (u8, (u16, u32)) {
+  11 |     function bar(zz: bool) -> (u8, (u16, u32)) {
      |                                    ^^^^^^^^^^
 Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
-    --> compiler-test:13:22
+    --> compiler-test:12:22
      |
-  13 |         return (1u8, (2u16, 3u32));
+  12 |         return (1u8, (2u16, 3u32));
      |                      ^^^^^^^^^^^^
 Error [ETYC0372117]: Expected an integer but type `(u8, u16)` was found.
-    --> compiler-test:17:13
+    --> compiler-test:16:13
      |
-  17 |         for i: (u8, u16) in 0u8..2u8 {}
+  16 |         for i: (u8, u16) in 0u8..2u8 {}
      |             ^
 Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
-    --> compiler-test:17:29
+    --> compiler-test:16:29
      |
-  17 |         for i: (u8, u16) in 0u8..2u8 {}
+  16 |         for i: (u8, u16) in 0u8..2u8 {}
      |                             ^^^
 Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
-    --> compiler-test:17:34
+    --> compiler-test:16:34
      |
-  17 |         for i: (u8, u16) in 0u8..2u8 {}
+  16 |         for i: (u8, u16) in 0u8..2u8 {}
      |                                  ^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372050]: A struct cannot contain a tuple.
+    --> compiler-test:21:9
+     |
+  21 |         mem: (u8, u16)
+     |         ^^^
+Error [ETYC0372051]: A function cannot take in a tuple as input.
+    --> compiler-test:7:18
+     |
+   7 |     function foo(a: (u8, u16)) -> (u8, u16) {
+     |                  ^^^^^^^^^^^^
+Error [ETYC0372049]: A tuple type cannot contain a tuple.
+    --> compiler-test:11:36
+     |
+  11 |     function bar(zz: bool) -> (u8, (u16, u32)) {
+     |                                    ^^^^^^^^^^
+Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
+    --> compiler-test:12:22
+     |
+  12 |         return (1u8, (2u16, 3u32));
+     |                      ^^^^^^^^^^^^
+Error [ETYC0372117]: Expected an integer but type `(u8, u16)` was found.
+    --> compiler-test:16:13
+     |
+  16 |         for i: (u8, u16) in 0u8..2u8 {}
+     |             ^
+Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
+    --> compiler-test:16:29
+     |
+  16 |         for i: (u8, u16) in 0u8..2u8 {}
+     |                             ^^^
+Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
+    --> compiler-test:16:34
+     |
+  16 |         for i: (u8, u16) in 0u8..2u8 {}
+     |                                  ^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

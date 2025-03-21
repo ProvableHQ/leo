@@ -1,0 +1,641 @@
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 2,
+                  "hi": 3
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 16,
+                  "hi": 17
+                },
+                "id": 2
+              }
+            },
+            "op": "ShrWrapped",
+            "span": {
+              "lo": 2,
+              "hi": 18
+            },
+            "id": 3
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 1,
+          "hi": 18
+        },
+        "id": 4
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 0,
+      "hi": 18
+    },
+    "id": 5
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 19,
+                  "hi": 20
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 33,
+                  "hi": 34
+                },
+                "id": 2
+              }
+            },
+            "op": "ShrWrapped",
+            "span": {
+              "lo": 19,
+              "hi": 35
+            },
+            "id": 3
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 48,
+              "hi": 49
+            },
+            "id": 5
+          }
+        },
+        "op": "ShrWrapped",
+        "span": {
+          "lo": 19,
+          "hi": 50
+        },
+        "id": 6
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 63,
+          "hi": 64
+        },
+        "id": 8
+      }
+    },
+    "op": "ShrWrapped",
+    "span": {
+      "lo": 19,
+      "hi": 65
+    },
+    "id": 9
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 67,
+              "hi": 68
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 81,
+              "hi": 82
+            },
+            "id": 2
+          }
+        },
+        "op": "ShrWrapped",
+        "span": {
+          "lo": 67,
+          "hi": 83
+        },
+        "id": 3
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 66,
+      "hi": 83
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 86,
+              "hi": 87
+            },
+            "id": 0
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 85,
+          "hi": 87
+        },
+        "id": 1
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 101,
+          "hi": 102
+        },
+        "id": 3
+      }
+    },
+    "op": "ShrWrapped",
+    "span": {
+      "lo": 85,
+      "hi": 103
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 106,
+              "hi": 107
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 120,
+              "hi": 121
+            },
+            "id": 2
+          }
+        },
+        "op": "ShrWrapped",
+        "span": {
+          "lo": 106,
+          "hi": 122
+        },
+        "id": 3
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 104,
+      "hi": 122
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 126,
+                  "hi": 127
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 140,
+                  "hi": 141
+                },
+                "id": 2
+              }
+            },
+            "op": "ShrWrapped",
+            "span": {
+              "lo": 126,
+              "hi": 142
+            },
+            "id": 3
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 125,
+          "hi": 142
+        },
+        "id": 4
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 156,
+          "hi": 157
+        },
+        "id": 6
+      }
+    },
+    "op": "ShrWrapped",
+    "span": {
+      "lo": 125,
+      "hi": 158
+    },
+    "id": 7
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 160,
+              "hi": 161
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 174,
+              "hi": 175
+            },
+            "id": 2
+          }
+        },
+        "op": "ShrWrapped",
+        "span": {
+          "lo": 160,
+          "hi": 176
+        },
+        "id": 3
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 159,
+      "hi": 176
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 179,
+              "hi": 180
+            },
+            "id": 0
+          }
+        },
+        "op": "Not",
+        "span": {
+          "lo": 178,
+          "hi": 180
+        },
+        "id": 1
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 194,
+          "hi": 195
+        },
+        "id": 3
+      }
+    },
+    "op": "ShrWrapped",
+    "span": {
+      "lo": 178,
+      "hi": 196
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 199,
+              "hi": 200
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 213,
+              "hi": 214
+            },
+            "id": 2
+          }
+        },
+        "op": "ShrWrapped",
+        "span": {
+          "lo": 199,
+          "hi": 215
+        },
+        "id": 3
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 197,
+      "hi": 215
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 219,
+                  "hi": 220
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 233,
+                  "hi": 234
+                },
+                "id": 2
+              }
+            },
+            "op": "ShrWrapped",
+            "span": {
+              "lo": 219,
+              "hi": 235
+            },
+            "id": 3
+          }
+        },
+        "op": "Not",
+        "span": {
+          "lo": 218,
+          "hi": 235
+        },
+        "id": 4
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 249,
+          "hi": 250
+        },
+        "id": 6
+      }
+    },
+    "op": "ShrWrapped",
+    "span": {
+      "lo": 218,
+      "hi": 251
+    },
+    "id": 7
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 253,
+                  "hi": 254
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 267,
+                  "hi": 268
+                },
+                "id": 2
+              }
+            },
+            "op": "ShrWrapped",
+            "span": {
+              "lo": 253,
+              "hi": 269
+            },
+            "id": 3
+          }
+        },
+        "right": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 273,
+                  "hi": 274
+                },
+                "id": 4
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 287,
+                  "hi": 288
+                },
+                "id": 6
+              }
+            },
+            "op": "ShrWrapped",
+            "span": {
+              "lo": 273,
+              "hi": 289
+            },
+            "id": 7
+          }
+        },
+        "op": "Shr",
+        "span": {
+          "lo": 253,
+          "hi": 289
+        },
+        "id": 8
+      }
+    },
+    "right": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 303,
+                  "hi": 304
+                },
+                "id": 10
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 317,
+                  "hi": 318
+                },
+                "id": 12
+              }
+            },
+            "op": "ShrWrapped",
+            "span": {
+              "lo": 303,
+              "hi": 319
+            },
+            "id": 13
+          }
+        },
+        "right": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 323,
+                  "hi": 324
+                },
+                "id": 14
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 337,
+                  "hi": 338
+                },
+                "id": 16
+              }
+            },
+            "op": "ShrWrapped",
+            "span": {
+              "lo": 323,
+              "hi": 339
+            },
+            "id": 17
+          }
+        },
+        "op": "Shr",
+        "span": {
+          "lo": 303,
+          "hi": 339
+        },
+        "id": 18
+      }
+    },
+    "op": "ShrWrapped",
+    "span": {
+      "lo": 253,
+      "hi": 340
+    },
+    "id": 19
+  }
+}
+

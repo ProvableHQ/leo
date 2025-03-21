@@ -1,7 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "e57a60d38e8ea848e9ccb127c8b3c0385d5d005364601fc1c3042c0f4b894c49", unrolled_ast = "e57a60d38e8ea848e9ccb127c8b3c0385d5d005364601fc1c3042c0f4b894c49", ssa_ast = "2671fa23941dd329a89473131f7173df5bf3edb233f386346a5c3d56df6fd5df", flattened_ast = "c47aa36281f36970862465ff093428d945a279097edd68a1bb3016360bacf898", destructured_ast = "03a652ecf9ce329e9dcabe446733ffb0406494402f75ecceb4129ff8acfa4251", inlined_ast = "65708d2be3cc15871aa2fed13dc87d673bb6f597431e36f923c9fe5398ddde31", dce_ast = "65708d2be3cc15871aa2fed13dc87d673bb6f597431e36f923c9fe5398ddde31", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 mapping foo:
@@ -18,8 +15,7 @@ finalize main_inner:
     input r0 as u32.public;
     input r1 as u32.public;
     set r1 into foo[r0];
-""", errors = "", warnings = "" },
-    { initial_ast = "cbc0ed6c78554c6fe277027fc73afc63ef74ddec74b30c133ce54353b4d60645", unrolled_ast = "b13d58b0f90d4d6346d047ce855c80e38c3a2d19f65c5a2dd4c95540112a5654", ssa_ast = "7fdc6738c4fa4755a1729a46abf03c8f6e5526ff5c7cf5986180aa6e3243b90a", flattened_ast = "6d65ef6ef47e1c0a53f21c6746e160ad69b1542532be68b8652036ef23467f76", destructured_ast = "d0ffe04cc899f4d13325898dc3947deb2641082e6d47d4bfebe1376922bf50bb", inlined_ast = "93c99d5fe62627b6a304203e4a7b07d71319b6a656dbdce3b4ff62dbd5266e31", dce_ast = "93c99d5fe62627b6a304203e4a7b07d71319b6a656dbdce3b4ff62dbd5266e31", bytecode = """
+// --- Next Program --- //
 import test.aleo;
 program basic.aleo;
 
@@ -36,5 +32,38 @@ finalize main:
     input r1 as test.aleo/main_inner.future;
     await r0;
     await r1;
-""", errors = "", warnings = "" },
-] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+mapping foo:
+    key as u32.public;
+    value as u32.public;
+
+function main_inner:
+    input r0 as u32.public;
+    input r1 as u32.public;
+    async main_inner r0 r1 into r2;
+    output r2 as test.aleo/main_inner.future;
+
+finalize main_inner:
+    input r0 as u32.public;
+    input r1 as u32.public;
+    set r1 into foo[r0];
+// --- Next Program --- //
+import test.aleo;
+program basic.aleo;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    call test.aleo/main_inner 0u32 0u32 into r2;
+    call test.aleo/main_inner 1u32 1u32 into r3;
+    async main r3 r2 into r4;
+    output r4 as basic.aleo/main.future;
+
+finalize main:
+    input r0 as test.aleo/main_inner.future;
+    input r1 as test.aleo/main_inner.future;
+    await r0;
+    await r1;

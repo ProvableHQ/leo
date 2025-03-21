@@ -1,16 +1,25 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EAST0372009]: variable `x` shadowed by
-    --> compiler-test:6:12
+    --> compiler-test:5:12
      |
-   6 |       \tlet x: bool = true;
+   5 |       	let x: bool = true;
      |            ^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [EAST0372009]: variable `x` shadowed by
+    --> compiler-test:5:12
+     |
+   5 |       	let x: bool = true;
+     |            ^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

@@ -1,13 +1,10 @@
-namespace = "Parse"
-expectation = "Fail"
-outputs = ["""
 Error [EPAR0370041]: Each member declaration in a struct or record must be followed by a comma (except the last).
-    --> test:4:14
+    --> test:3:14
      |
-   4 |         x: u8;
+   3 |         x: u8;
      |              ^
 Error [EPAR0370009]: unexpected string: expected 'identifier', found ';'
-    --> test:4:14
+    --> test:3:14
      |
-   4 |         x: u8;
-     |              ^"""]
+   3 |         x: u8;
+     |              ^

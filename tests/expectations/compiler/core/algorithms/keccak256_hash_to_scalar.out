@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "488f3993e27803be6314ba2cc934d62630cfa6eb84ad1f9a31771a5e26da19b0", unrolled_ast = "03a19f30f80495cc7376dca1319d429f3875f94c7bd2d0c2468eae6310a45655", ssa_ast = "2ca73f162deededb818b9630855ff81abbf9af3e2d73c5b5d9e155126339e98b", flattened_ast = "1f9c41afc710e140764f2f16a6eee8b12c7eb3ab9ac608c965ae3ebeb04f7e7e", destructured_ast = "af4dcfa336aa7b75bd003ec4a4c73059291fa23e40bd1bd1846709346a742d48", inlined_ast = "af4dcfa336aa7b75bd003ec4a4c73059291fa23e40bd1bd1846709346a742d48", dce_ast = "dd90e1e2c3b74663e7c4bcf2f6e18f9f884ba32b0442de75925b91df3d21c52e", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,7 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.keccak256 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as scalar;
-    hash.keccak256 1scalar into r9 as scalar;
-    add r8 r9 into r10;
+    hash.keccak256 true into r9 as scalar;
+    hash.keccak256 1field into r10 as scalar;
+    hash.keccak256 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as scalar;
+    hash.keccak256 r0 into r12 as scalar;
+    hash.keccak256 r1 into r13 as scalar;
+    hash.keccak256 r2 into r14 as scalar;
+    hash.keccak256 r3 into r15 as scalar;
+    hash.keccak256 1i128 into r16 as scalar;
+    hash.keccak256 r4 into r17 as scalar;
+    hash.keccak256 r5 into r18 as scalar;
+    hash.keccak256 r6 into r19 as scalar;
+    hash.keccak256 r7 into r20 as scalar;
+    hash.keccak256 1u128 into r21 as scalar;
+    hash.keccak256 1scalar into r22 as scalar;
+    output r8 as scalar.private;
+    output r9 as scalar.private;
     output r10 as scalar.private;
-""", errors = "", warnings = "" }] }]]
+    output r11 as scalar.private;
+    output r12 as scalar.private;
+    output r13 as scalar.private;
+    output r14 as scalar.private;
+    output r15 as scalar.private;
+    output r16 as scalar.private;
+    output r17 as scalar.private;
+    output r18 as scalar.private;
+    output r19 as scalar.private;
+    output r20 as scalar.private;
+    output r21 as scalar.private;
+    output r22 as scalar.private;
+    output 1105961341758224036704033302990360200378091170292681184609970000251509319538scalar as scalar.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.keccak256 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as scalar;
+    hash.keccak256 true into r9 as scalar;
+    hash.keccak256 1field into r10 as scalar;
+    hash.keccak256 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as scalar;
+    hash.keccak256 r0 into r12 as scalar;
+    hash.keccak256 r1 into r13 as scalar;
+    hash.keccak256 r2 into r14 as scalar;
+    hash.keccak256 r3 into r15 as scalar;
+    hash.keccak256 1i128 into r16 as scalar;
+    hash.keccak256 r4 into r17 as scalar;
+    hash.keccak256 r5 into r18 as scalar;
+    hash.keccak256 r6 into r19 as scalar;
+    hash.keccak256 r7 into r20 as scalar;
+    hash.keccak256 1u128 into r21 as scalar;
+    hash.keccak256 1scalar into r22 as scalar;
+    output r8 as scalar.private;
+    output r9 as scalar.private;
+    output r10 as scalar.private;
+    output r11 as scalar.private;
+    output r12 as scalar.private;
+    output r13 as scalar.private;
+    output r14 as scalar.private;
+    output r15 as scalar.private;
+    output r16 as scalar.private;
+    output r17 as scalar.private;
+    output r18 as scalar.private;
+    output r19 as scalar.private;
+    output r20 as scalar.private;
+    output r21 as scalar.private;
+    output r22 as scalar.private;
+    output 1105961341758224036704033302990360200378091170292681184609970000251509319538scalar as scalar.private;

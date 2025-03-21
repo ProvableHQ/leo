@@ -1,23 +1,39 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372017]: The type `Foo` is not found in the current scope.
-    --> compiler-test:5:9
+    --> compiler-test:4:9
      |
-   5 |         let a: Foo = Foo { };
+   4 |         let a: Foo = Foo { };
      |         ^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372005]: Unknown struct or record `Foo`
-    --> compiler-test:5:22
+    --> compiler-test:4:22
      |
-   5 |         let a: Foo = Foo { };
+   4 |         let a: Foo = Foo { };
      |                      ^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372017]: The type `Foo` is not found in the current scope.
+    --> compiler-test:4:9
+     |
+   4 |         let a: Foo = Foo { };
+     |         ^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372005]: Unknown struct or record `Foo`
+    --> compiler-test:4:22
+     |
+   4 |         let a: Foo = Foo { };
+     |                      ^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

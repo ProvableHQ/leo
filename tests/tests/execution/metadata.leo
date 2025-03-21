@@ -1,35 +1,33 @@
 /*
-namespace = "Execute"
-expectation = "Pass"
-[[cases]]
+[case]
 program = "metadata.aleo"
 function = "is_block_height"
 input = ["2u32"]
-[[cases]]
+[case]
 program = "metadata.aleo"
 function = "is_block_height"
 input = ["3u32"]
-[[cases]]
+[case]
 program = "metadata.aleo"
 function = "is_block_height"
 input = ["4u32"]
-[[cases]]
+[case]
 program = "metadata.aleo"
 function = "is_block_height"
 input = ["0u32"]
-[[cases]]
+[case]
 program = "metadata.aleo"
 function = "is_network_id"
 input = ["0u16"]
-[[cases]]
+[case]
 program = "metadata.aleo"
 function = "is_network_id"
 input = ["1u16"]
-[[cases]]
+[case]
 program = "metadata.aleo"
 function = "is_network_id"
 input = ["2u16"]
-[[cases]]
+[case]
 program = "metadata.aleo"
 function = "is_network_id"
 input = ["3u16"]

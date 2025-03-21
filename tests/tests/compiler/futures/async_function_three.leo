@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 // Ensure Future types are correctly found through
 // two layers of dependencies.

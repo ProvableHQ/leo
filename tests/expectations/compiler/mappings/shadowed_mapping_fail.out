@@ -1,16 +1,27 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EAST0372009]: variable `one` shadowed by
-    --> compiler-test:6:5
+    --> compiler-test:5:5
      |
-   6 |     mapping one: field => field;
+   5 |     mapping one: field => field;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [EAST0372009]: variable `one` shadowed by
-    --> compiler-test:8:5
+    --> compiler-test:7:5
      |
-   8 |     transition one() -> u8 {
-   9 |         return 1u8 + 1u8;
-  10 |     }
+   7 |     transition one() -> u8 {
+   8 |         return 1u8 + 1u8;
+   9 |     }
      |     ^
-"""]
+
+DCE_DISABLED:
+Error [EAST0372009]: variable `one` shadowed by
+    --> compiler-test:5:5
+     |
+   5 |     mapping one: field => field;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [EAST0372009]: variable `one` shadowed by
+    --> compiler-test:7:5
+     |
+   7 |     transition one() -> u8 {
+   8 |         return 1u8 + 1u8;
+   9 |     }
+     |     ^

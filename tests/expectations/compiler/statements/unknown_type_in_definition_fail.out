@@ -1,16 +1,27 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372017]: The type `Foo` is not found in the current scope.
-    --> compiler-test:5:6
+    --> compiler-test:4:6
      |
-   5 |     \tlet b: Foo = 1u8;
+   4 |     	let b: Foo = 1u8;
      |      ^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
 Error [ETYC0372117]: Expected type `Foo` but type `u8` was found.
-    --> compiler-test:5:19
+    --> compiler-test:4:19
      |
-   5 |     \tlet b: Foo = 1u8;
+   4 |     	let b: Foo = 1u8;
      |                   ^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372017]: The type `Foo` is not found in the current scope.
+    --> compiler-test:4:6
+     |
+   4 |     	let b: Foo = 1u8;
+     |      ^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372117]: Expected type `Foo` but type `u8` was found.
+    --> compiler-test:4:19
+     |
+   4 |     	let b: Foo = 1u8;
+     |                   ^^^

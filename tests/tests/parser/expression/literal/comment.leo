@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Pass"
-*/
 /* test5 */
 
 /*
@@ -21,18 +17,18 @@ test 6 */
 
 /** **/
 
-program test.aleo {    
+program test.aleo {
     // test1
-    
-    // test2 
-    
+
+    // test2
+
     //test3
-    
+
     // test4
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
 }

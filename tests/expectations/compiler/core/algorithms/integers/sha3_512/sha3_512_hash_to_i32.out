@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "ecd2cd4ab60b0aee830a5d2b89b6fb182ca74dc74fecaccd908b5cb61605f072", unrolled_ast = "b7338132b937a0092241a8fbabfd063e35a041db787b5b086ed6981bb6255649", ssa_ast = "a480e401cc178deb242a199afdc7f4953cca3eee0c98a2bcfa7459f9d2c1dabf", flattened_ast = "7e7bcf7671dea5cef4417fe0918b23964b02d83784332c685ddf3109de6d512e", destructured_ast = "7364c46cbb99420fb34b47615670c0d38171bcd882237c77b05319cec2b6a0a7", inlined_ast = "7364c46cbb99420fb34b47615670c0d38171bcd882237c77b05319cec2b6a0a7", dce_ast = "f30ec8c0b785dd272e7f5b1277bad98ed166987f6553a858577bf25bf9f15964", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,5 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.sha3_512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i32;
+    hash.sha3_512 true into r9 as i32;
+    hash.sha3_512 1field into r10 as i32;
+    hash.sha3_512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i32;
+    hash.sha3_512 r0 into r12 as i32;
+    hash.sha3_512 r1 into r13 as i32;
+    hash.sha3_512 r2 into r14 as i32;
+    hash.sha3_512 r3 into r15 as i32;
+    hash.sha3_512 1i128 into r16 as i32;
+    hash.sha3_512 r4 into r17 as i32;
+    hash.sha3_512 r5 into r18 as i32;
+    hash.sha3_512 r6 into r19 as i32;
+    hash.sha3_512 r7 into r20 as i32;
+    hash.sha3_512 1u128 into r21 as i32;
+    hash.sha3_512 1scalar into r22 as i32;
     output r8 as i32.private;
-""", errors = "", warnings = "" }] }]]
+    output r9 as i32.private;
+    output r10 as i32.private;
+    output r11 as i32.private;
+    output r12 as i32.private;
+    output r13 as i32.private;
+    output r14 as i32.private;
+    output r15 as i32.private;
+    output r16 as i32.private;
+    output r17 as i32.private;
+    output r18 as i32.private;
+    output r19 as i32.private;
+    output r20 as i32.private;
+    output r21 as i32.private;
+    output r22 as i32.private;
+    output 232286842i32 as i32.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.sha3_512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i32;
+    hash.sha3_512 true into r9 as i32;
+    hash.sha3_512 1field into r10 as i32;
+    hash.sha3_512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i32;
+    hash.sha3_512 r0 into r12 as i32;
+    hash.sha3_512 r1 into r13 as i32;
+    hash.sha3_512 r2 into r14 as i32;
+    hash.sha3_512 r3 into r15 as i32;
+    hash.sha3_512 1i128 into r16 as i32;
+    hash.sha3_512 r4 into r17 as i32;
+    hash.sha3_512 r5 into r18 as i32;
+    hash.sha3_512 r6 into r19 as i32;
+    hash.sha3_512 r7 into r20 as i32;
+    hash.sha3_512 1u128 into r21 as i32;
+    hash.sha3_512 1scalar into r22 as i32;
+    output r8 as i32.private;
+    output r9 as i32.private;
+    output r10 as i32.private;
+    output r11 as i32.private;
+    output r12 as i32.private;
+    output r13 as i32.private;
+    output r14 as i32.private;
+    output r15 as i32.private;
+    output r16 as i32.private;
+    output r17 as i32.private;
+    output r18 as i32.private;
+    output r19 as i32.private;
+    output r20 as i32.private;
+    output r21 as i32.private;
+    output r22 as i32.private;
+    output 232286842i32 as i32.private;

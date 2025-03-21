@@ -1,11 +1,9 @@
 /*
-namespace = "Execute"
-expectation = "Pass"
-[[cases]]
+[case]
 program = "test.aleo"
 function = "mint"
 input = ["aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs",  "0u64"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "mint"
 input = ["aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q", "1u64"]

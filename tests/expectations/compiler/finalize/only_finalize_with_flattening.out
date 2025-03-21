@@ -1,6 +1,41 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "c17cc686ebde543e54d128d946c01f66d1c59387caa96c271a02653c2872941b", unrolled_ast = "c17cc686ebde543e54d128d946c01f66d1c59387caa96c271a02653c2872941b", ssa_ast = "af6d4a796e9f1d76ffc88ed746ffa83b89586199db8ca18d80cadd352e0ad3ba", flattened_ast = "8419e08a3ea61afe79b6426091a4534f931f6847fd13a7893594dd9d72a2d100", destructured_ast = "09886b86cf157382f55e68132c27c0b1ccb3ee470ac45f0a41b5504912618fc8", inlined_ast = "47215d4e345bc224b87c332f4525de358f4bce0fad363ba083f955ae44360ad4", dce_ast = "47215d4e345bc224b87c332f4525de358f4bce0fad363ba083f955ae44360ad4", bytecode = """
+DCE_ENABLED:
+program test.aleo;
+
+struct TokenInfo:
+    id as u64;
+
+mapping token_name_to_info:
+    key as field.public;
+    value as TokenInfo.public;
+
+function add_new_token:
+    async add_new_token into r0;
+    output r0 as test.aleo/add_new_token.future;
+
+finalize add_new_token:
+    branch.eq false false to end_then_0_0;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    branch.eq false false to end_then_0_2;
+    branch.eq true false to end_then_1_4;
+    branch.eq true true to end_otherwise_1_5;
+    position end_then_1_4;
+    position end_otherwise_1_5;
+    cast 0u64 into r0 as TokenInfo;
+    set r0 into token_name_to_info[0field];
+    branch.eq true true to end_otherwise_0_3;
+    position end_then_0_2;
+    position end_otherwise_0_3;
+
+function add_new_token_2:
+    async add_new_token_2 into r0;
+    output r0 as test.aleo/add_new_token_2.future;
+
+finalize add_new_token_2:
+    assert.eq true true;
+
+DCE_DISABLED:
 program test.aleo;
 
 struct TokenInfo:
@@ -41,4 +76,3 @@ finalize add_new_token_2:
     cast 10u64 into r3 as TokenInfo;
     ternary r2 r3.id r1.id into r4;
     cast r4 into r5 as TokenInfo;
-""", errors = "", warnings = "" }] }]]

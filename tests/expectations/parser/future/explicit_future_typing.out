@@ -1,105 +1,695 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[outputs.imports]
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = []
-mappings = []
-functions = [
-    [
-    "main",
-    { annotations = [], variant = "AsyncTransition", identifier = '{"id":"2","name":"main","span":"{\"lo\":42,\"hi\":46}"}', input = [], id = 25, output = [{ mode = "None", id = 3, type_ = { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Integer = "U32" },
-    { Future = { inputs = [], is_explicit = true } },
-    { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Integer = "U32" },
-] } },
-] } },
-] } }, span = { lo = 52, hi = 124 } }], output_type = { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Integer = "U32" },
-    { Future = { inputs = [], is_explicit = true } },
-    { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Integer = "U32" },
-] } },
-] } },
-] } }, block = { id = 24, statements = [
-    { Definition = { id = 8, place = { Single = '{"id":"4","name":"f0","span":"{\"lo\":140,\"hi\":142}"}' }, type_ = { Future = { inputs = [], is_explicit = true } }, value = { Call = { arguments = [], program = "bye", id = 7, function = { Identifier = '{"id":"6","name":"add","span":"{\"lo\":168,\"hi\":171}"}' }, span = { lo = 159, hi = 173 } } }, span = { lo = 136, hi = 173 } } },
-    { Definition = { id = 13, place = { Single = '{"id":"9","name":"f1","span":"{\"lo\":187,\"hi\":189}"}' }, type_ = { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Integer = "U32" },
-] } },
-] } }, value = { Call = { arguments = [], program = "hello", id = 12, function = { Identifier = '{"id":"11","name":"nested_fn","span":"{\"lo\":242,\"hi\":251}"}' }, span = { lo = 231, hi = 253 } } }, span = { lo = 183, hi = 253 } } },
-    { Definition = { id = 21, place = { Single = '{"id":"14","name":"f2","span":"{\"lo\":267,\"hi\":269}"}' }, type_ = { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Integer = "U32" },
-    { Future = { inputs = [], is_explicit = true } },
-    { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Integer = "U32" },
-] } },
-] } },
-] } }, value = { Call = { program = "test", id = 20, arguments = [
-    { Literal = { Integer = [
-    "U32",
-    "1",
-    { span = { lo = 361, hi = 365 } },
-    16,
-] } },
-    { Literal = { Integer = [
-    "U32",
-    "1",
-    { span = { lo = 367, hi = 371 } },
-    17,
-] } },
-    { Identifier = '{"id":"18","name":"f0","span":"{\"lo\":373,\"hi\":375}"}' },
-    { Identifier = '{"id":"19","name":"f1","span":"{\"lo\":377,\"hi\":379}"}' },
-], function = { Identifier = '{"id":"15","name":"finalize_main","span":"{\"lo\":347,\"hi\":360}"}' }, span = { lo = 347, hi = 380 } } }, span = { lo = 263, hi = 380 } } },
-    { Return = { id = 23, expression = { Identifier = '{"id":"22","name":"f2","span":"{\"lo\":397,\"hi\":399}"}' }, span = { lo = 390, hi = 400 } } },
-], span = { lo = 126, hi = 406 } }, span = { lo = 25, hi = 406 } },
-],
-    [
-    "finalize_main",
-    { annotations = [], variant = "AsyncFunction", identifier = '{"id":"26","name":"finalize_main","span":"{\"lo\":426,\"hi\":439}"}', output = [], output_type = "Unit", id = 49, input = [
-    { identifier = '{"id":"27","name":"a","span":"{\"lo\":440,\"hi\":441}"}', mode = "None", id = 28, type_ = { Integer = "U32" }, span = { lo = 440, hi = 446 } },
-    { identifier = '{"id":"29","name":"b","span":"{\"lo\":448,\"hi\":449}"}', mode = "None", id = 30, type_ = { Integer = "U32" }, span = { lo = 448, hi = 454 } },
-    { identifier = '{"id":"31","name":"f0","span":"{\"lo\":456,\"hi\":458}"}', mode = "None", id = 32, type_ = { Future = { inputs = [], is_explicit = true } }, span = { lo = 456, hi = 471 } },
-    { identifier = '{"id":"33","name":"f1","span":"{\"lo\":474,\"hi\":476}"}', mode = "None", id = 34, type_ = { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Future = { is_explicit = true, inputs = [
-    { Integer = "U32" },
-    { Integer = "U32" },
-] } },
-] } }, span = { lo = 474, hi = 514 } },
-], block = { id = 48, statements = [
-    { Expression = { id = 39, expression = { AssociatedFunction = { variant = '{"id":"37","name":"Future","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"36","name":"await","span":"{\"lo\":530,\"hi\":535}"}', id = 38, arguments = [{ Identifier = '{"id":"35","name":"f0","span":"{\"lo\":527,\"hi\":529}"}' }], span = { lo = 527, hi = 537 } } }, span = { lo = 527, hi = 538 } } },
-    { Expression = { id = 44, expression = { AssociatedFunction = { variant = '{"id":"42","name":"Future","span":"{\"lo\":0,\"hi\":0}"}', name = '{"id":"41","name":"await","span":"{\"lo\":550,\"hi\":555}"}', id = 43, arguments = [{ Identifier = '{"id":"40","name":"f1","span":"{\"lo\":547,\"hi\":549}"}' }], span = { lo = 547, hi = 557 } } }, span = { lo = 547, hi = 558 } } },
-    { Assert = { id = 47, variant = { AssertEq = [
-    { Identifier = '{"id":"45","name":"a","span":"{\"lo\":577,\"hi\":578}"}' },
-    { Identifier = '{"id":"46","name":"b","span":"{\"lo\":579,\"hi\":580}"}' },
-] }, span = { lo = 567, hi = 576 } } },
-], span = { lo = 517, hi = 588 } }, span = { lo = 411, hi = 588 } },
-],
-]
-
-[outputs.program_scopes.test.span]
-lo = 1
-hi = 590
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 8,
+            "hi": 12
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "functions": [
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "AsyncTransition",
+            "identifier": {
+              "name": "main",
+              "span": {
+                "lo": 41,
+                "hi": 45
+              },
+              "id": 2
+            },
+            "input": [],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Future": {
+                    "inputs": [
+                      {
+                        "Integer": "U32"
+                      },
+                      {
+                        "Integer": "U32"
+                      },
+                      {
+                        "Future": {
+                          "inputs": [],
+                          "location": null,
+                          "is_explicit": true
+                        }
+                      },
+                      {
+                        "Future": {
+                          "inputs": [
+                            {
+                              "Integer": "U32"
+                            },
+                            {
+                              "Future": {
+                                "inputs": [
+                                  {
+                                    "Integer": "U32"
+                                  },
+                                  {
+                                    "Integer": "U32"
+                                  }
+                                ],
+                                "location": null,
+                                "is_explicit": true
+                              }
+                            }
+                          ],
+                          "location": null,
+                          "is_explicit": true
+                        }
+                      }
+                    ],
+                    "location": null,
+                    "is_explicit": true
+                  }
+                },
+                "span": {
+                  "lo": 51,
+                  "hi": 123
+                },
+                "id": 3
+              }
+            ],
+            "output_type": {
+              "Future": {
+                "inputs": [
+                  {
+                    "Integer": "U32"
+                  },
+                  {
+                    "Integer": "U32"
+                  },
+                  {
+                    "Future": {
+                      "inputs": [],
+                      "location": null,
+                      "is_explicit": true
+                    }
+                  },
+                  {
+                    "Future": {
+                      "inputs": [
+                        {
+                          "Integer": "U32"
+                        },
+                        {
+                          "Future": {
+                            "inputs": [
+                              {
+                                "Integer": "U32"
+                              },
+                              {
+                                "Integer": "U32"
+                              }
+                            ],
+                            "location": null,
+                            "is_explicit": true
+                          }
+                        }
+                      ],
+                      "location": null,
+                      "is_explicit": true
+                    }
+                  }
+                ],
+                "location": null,
+                "is_explicit": true
+              }
+            },
+            "block": {
+              "statements": [
+                {
+                  "Definition": {
+                    "place": {
+                      "Single": {
+                        "name": "f0",
+                        "span": {
+                          "lo": 139,
+                          "hi": 141
+                        },
+                        "id": 4
+                      }
+                    },
+                    "type_": {
+                      "Future": {
+                        "inputs": [],
+                        "location": null,
+                        "is_explicit": true
+                      }
+                    },
+                    "value": {
+                      "Call": {
+                        "function": {
+                          "Identifier": {
+                            "name": "add",
+                            "span": {
+                              "lo": 167,
+                              "hi": 170
+                            },
+                            "id": 6
+                          }
+                        },
+                        "arguments": [],
+                        "program": "bye",
+                        "span": {
+                          "lo": 158,
+                          "hi": 172
+                        },
+                        "id": 7
+                      }
+                    },
+                    "span": {
+                      "lo": 135,
+                      "hi": 172
+                    },
+                    "id": 8
+                  }
+                },
+                {
+                  "Definition": {
+                    "place": {
+                      "Single": {
+                        "name": "f1",
+                        "span": {
+                          "lo": 186,
+                          "hi": 188
+                        },
+                        "id": 9
+                      }
+                    },
+                    "type_": {
+                      "Future": {
+                        "inputs": [
+                          {
+                            "Integer": "U32"
+                          },
+                          {
+                            "Future": {
+                              "inputs": [
+                                {
+                                  "Integer": "U32"
+                                },
+                                {
+                                  "Integer": "U32"
+                                }
+                              ],
+                              "location": null,
+                              "is_explicit": true
+                            }
+                          }
+                        ],
+                        "location": null,
+                        "is_explicit": true
+                      }
+                    },
+                    "value": {
+                      "Call": {
+                        "function": {
+                          "Identifier": {
+                            "name": "nested_fn",
+                            "span": {
+                              "lo": 241,
+                              "hi": 250
+                            },
+                            "id": 11
+                          }
+                        },
+                        "arguments": [],
+                        "program": "hello",
+                        "span": {
+                          "lo": 230,
+                          "hi": 252
+                        },
+                        "id": 12
+                      }
+                    },
+                    "span": {
+                      "lo": 182,
+                      "hi": 252
+                    },
+                    "id": 13
+                  }
+                },
+                {
+                  "Definition": {
+                    "place": {
+                      "Single": {
+                        "name": "f2",
+                        "span": {
+                          "lo": 266,
+                          "hi": 268
+                        },
+                        "id": 14
+                      }
+                    },
+                    "type_": {
+                      "Future": {
+                        "inputs": [
+                          {
+                            "Integer": "U32"
+                          },
+                          {
+                            "Integer": "U32"
+                          },
+                          {
+                            "Future": {
+                              "inputs": [],
+                              "location": null,
+                              "is_explicit": true
+                            }
+                          },
+                          {
+                            "Future": {
+                              "inputs": [
+                                {
+                                  "Integer": "U32"
+                                },
+                                {
+                                  "Future": {
+                                    "inputs": [
+                                      {
+                                        "Integer": "U32"
+                                      },
+                                      {
+                                        "Integer": "U32"
+                                      }
+                                    ],
+                                    "location": null,
+                                    "is_explicit": true
+                                  }
+                                }
+                              ],
+                              "location": null,
+                              "is_explicit": true
+                            }
+                          }
+                        ],
+                        "location": null,
+                        "is_explicit": true
+                      }
+                    },
+                    "value": {
+                      "Call": {
+                        "function": {
+                          "Identifier": {
+                            "name": "finalize_main",
+                            "span": {
+                              "lo": 346,
+                              "hi": 359
+                            },
+                            "id": 15
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "Literal": {
+                              "Integer": [
+                                "U32",
+                                "1",
+                                {
+                                  "span": {
+                                    "lo": 360,
+                                    "hi": 364
+                                  }
+                                },
+                                16
+                              ]
+                            }
+                          },
+                          {
+                            "Literal": {
+                              "Integer": [
+                                "U32",
+                                "1",
+                                {
+                                  "span": {
+                                    "lo": 366,
+                                    "hi": 370
+                                  }
+                                },
+                                17
+                              ]
+                            }
+                          },
+                          {
+                            "Identifier": {
+                              "name": "f0",
+                              "span": {
+                                "lo": 372,
+                                "hi": 374
+                              },
+                              "id": 18
+                            }
+                          },
+                          {
+                            "Identifier": {
+                              "name": "f1",
+                              "span": {
+                                "lo": 376,
+                                "hi": 378
+                              },
+                              "id": 19
+                            }
+                          }
+                        ],
+                        "program": "test",
+                        "span": {
+                          "lo": 346,
+                          "hi": 379
+                        },
+                        "id": 20
+                      }
+                    },
+                    "span": {
+                      "lo": 262,
+                      "hi": 379
+                    },
+                    "id": 21
+                  }
+                },
+                {
+                  "Return": {
+                    "expression": {
+                      "Identifier": {
+                        "name": "f2",
+                        "span": {
+                          "lo": 396,
+                          "hi": 398
+                        },
+                        "id": 22
+                      }
+                    },
+                    "span": {
+                      "lo": 389,
+                      "hi": 399
+                    },
+                    "id": 23
+                  }
+                }
+              ],
+              "span": {
+                "lo": 125,
+                "hi": 405
+              },
+              "id": 24
+            },
+            "span": {
+              "lo": 24,
+              "hi": 405
+            },
+            "id": 25
+          }
+        ],
+        [
+          "finalize_main",
+          {
+            "annotations": [],
+            "variant": "AsyncFunction",
+            "identifier": {
+              "name": "finalize_main",
+              "span": {
+                "lo": 425,
+                "hi": 438
+              },
+              "id": 26
+            },
+            "input": [
+              {
+                "identifier": {
+                  "name": "a",
+                  "span": {
+                    "lo": 439,
+                    "hi": 440
+                  },
+                  "id": 27
+                },
+                "mode": "None",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 439,
+                  "hi": 445
+                },
+                "id": 28
+              },
+              {
+                "identifier": {
+                  "name": "b",
+                  "span": {
+                    "lo": 447,
+                    "hi": 448
+                  },
+                  "id": 29
+                },
+                "mode": "None",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 447,
+                  "hi": 453
+                },
+                "id": 30
+              },
+              {
+                "identifier": {
+                  "name": "f0",
+                  "span": {
+                    "lo": 455,
+                    "hi": 457
+                  },
+                  "id": 31
+                },
+                "mode": "None",
+                "type_": {
+                  "Future": {
+                    "inputs": [],
+                    "location": null,
+                    "is_explicit": true
+                  }
+                },
+                "span": {
+                  "lo": 455,
+                  "hi": 470
+                },
+                "id": 32
+              },
+              {
+                "identifier": {
+                  "name": "f1",
+                  "span": {
+                    "lo": 473,
+                    "hi": 475
+                  },
+                  "id": 33
+                },
+                "mode": "None",
+                "type_": {
+                  "Future": {
+                    "inputs": [
+                      {
+                        "Integer": "U32"
+                      },
+                      {
+                        "Future": {
+                          "inputs": [
+                            {
+                              "Integer": "U32"
+                            },
+                            {
+                              "Integer": "U32"
+                            }
+                          ],
+                          "location": null,
+                          "is_explicit": true
+                        }
+                      }
+                    ],
+                    "location": null,
+                    "is_explicit": true
+                  }
+                },
+                "span": {
+                  "lo": 473,
+                  "hi": 513
+                },
+                "id": 34
+              }
+            ],
+            "output": [],
+            "output_type": "Unit",
+            "block": {
+              "statements": [
+                {
+                  "Expression": {
+                    "expression": {
+                      "AssociatedFunction": {
+                        "variant": {
+                          "name": "Future",
+                          "span": {
+                            "lo": 0,
+                            "hi": 0
+                          },
+                          "id": 37
+                        },
+                        "name": {
+                          "name": "await",
+                          "span": {
+                            "lo": 529,
+                            "hi": 534
+                          },
+                          "id": 36
+                        },
+                        "arguments": [
+                          {
+                            "Identifier": {
+                              "name": "f0",
+                              "span": {
+                                "lo": 526,
+                                "hi": 528
+                              },
+                              "id": 35
+                            }
+                          }
+                        ],
+                        "span": {
+                          "lo": 526,
+                          "hi": 536
+                        },
+                        "id": 38
+                      }
+                    },
+                    "span": {
+                      "lo": 526,
+                      "hi": 537
+                    },
+                    "id": 39
+                  }
+                },
+                {
+                  "Expression": {
+                    "expression": {
+                      "AssociatedFunction": {
+                        "variant": {
+                          "name": "Future",
+                          "span": {
+                            "lo": 0,
+                            "hi": 0
+                          },
+                          "id": 42
+                        },
+                        "name": {
+                          "name": "await",
+                          "span": {
+                            "lo": 549,
+                            "hi": 554
+                          },
+                          "id": 41
+                        },
+                        "arguments": [
+                          {
+                            "Identifier": {
+                              "name": "f1",
+                              "span": {
+                                "lo": 546,
+                                "hi": 548
+                              },
+                              "id": 40
+                            }
+                          }
+                        ],
+                        "span": {
+                          "lo": 546,
+                          "hi": 556
+                        },
+                        "id": 43
+                      }
+                    },
+                    "span": {
+                      "lo": 546,
+                      "hi": 557
+                    },
+                    "id": 44
+                  }
+                },
+                {
+                  "Assert": {
+                    "variant": {
+                      "AssertEq": [
+                        {
+                          "Identifier": {
+                            "name": "a",
+                            "span": {
+                              "lo": 576,
+                              "hi": 577
+                            },
+                            "id": 45
+                          }
+                        },
+                        {
+                          "Identifier": {
+                            "name": "b",
+                            "span": {
+                              "lo": 578,
+                              "hi": 579
+                            },
+                            "id": 46
+                          }
+                        }
+                      ]
+                    },
+                    "span": {
+                      "lo": 566,
+                      "hi": 575
+                    },
+                    "id": 47
+                  }
+                }
+              ],
+              "span": {
+                "lo": 516,
+                "hi": 587
+              },
+              "id": 48
+            },
+            "span": {
+              "lo": 410,
+              "hi": 587
+            },
+            "id": 49
+          }
+        ]
+      ],
+      "span": {
+        "lo": 0,
+        "hi": 589
+      }
+    }
+  }
+}

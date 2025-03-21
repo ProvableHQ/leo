@@ -1,5 +1,5 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370016]: Could not lex the following content: `🦀`.
-"""]
+
+DCE_DISABLED:
+Error [EPAR0370016]: Could not lex the following content: `🦀`.

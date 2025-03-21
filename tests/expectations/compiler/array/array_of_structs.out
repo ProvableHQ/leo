@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "d10f263df43d11f80f4680fa77584cbc84821340f3d4988a71123a23d91c6568", unrolled_ast = "d10f263df43d11f80f4680fa77584cbc84821340f3d4988a71123a23d91c6568", ssa_ast = "f0c5b83b506c9bb4bac894163bd1e911755fa69e6a5cc998fd8bdcb1b5e4d79c", flattened_ast = "54f2f3e9c3ab28ec33428e81fd71447162db32b6f5be958f7da408e967c76009", destructured_ast = "7fe5312828600cf035b4c342236d66b794469e87bbe9c1a578b3c5dd6821d35e", inlined_ast = "7fe5312828600cf035b4c342236d66b794469e87bbe9c1a578b3c5dd6821d35e", dce_ast = "7fe5312828600cf035b4c342236d66b794469e87bbe9c1a578b3c5dd6821d35e", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct bar:
@@ -9,4 +7,13 @@ struct bar:
 function foo:
     input r0 as [bar; 8u32].private;
     output r0[0u32].data as u8.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+struct bar:
+    data as u8;
+
+function foo:
+    input r0 as [bar; 8u32].private;
+    output r0[0u32].data as u8.private;

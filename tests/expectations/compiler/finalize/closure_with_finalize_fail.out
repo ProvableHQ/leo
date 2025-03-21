@@ -1,63 +1,119 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372110]: A `transition` cannot return a future.
-    --> compiler-test:4:35
+    --> compiler-test:3:35
      |
-   4 |     function foo(a: u8, b: u8) -> Future {
+   3 |     function foo(a: u8, b: u8) -> Future {
      |                                   ^^^^^^
      |
      = Use an `async transition` instead.
 Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:5:16
+    --> compiler-test:4:16
      |
-   5 |         return finalize_bar(a, b);
+   4 |         return finalize_bar(a, b);
      |                ^^^^^^^^^^^^^^^^^^
 Error [ETYC0372101]: Can only make an async call from an async transition.
-    --> compiler-test:5:16
+    --> compiler-test:4:16
      |
-   5 |         return finalize_bar(a, b);
+   4 |         return finalize_bar(a, b);
      |                ^^^^^^^^^^^^^^^^^^
      |
      = Move the async call inside of the async transition block.
 Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:12:5
+    --> compiler-test:11:5
      |
-  12 |     async function finalize_bar(a: u8, b: u8) -> u8 {
-  13 |         return a + b;
-  14 |     }
+  11 |     async function finalize_bar(a: u8, b: u8) -> u8 {
+  12 |         return a + b;
+  13 |     }
      |     ^
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
 Error [ETYC0372110]: A `transition` cannot return a future.
-    --> compiler-test:17:61
+    --> compiler-test:16:61
      |
-  17 |     function mint_public(receiver: address, amount: u64) -> Future {
+  16 |     function mint_public(receiver: address, amount: u64) -> Future {
      |                                                             ^^^^^^
      |
      = Use an `async transition` instead.
 Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:18:16
+    --> compiler-test:17:16
      |
-  18 |         return finalize_mint(receiver, amount);
+  17 |         return finalize_mint(receiver, amount);
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372101]: Can only make an async call from an async transition.
-    --> compiler-test:18:16
+    --> compiler-test:17:16
      |
-  18 |         return finalize_mint(receiver, amount);
+  17 |         return finalize_mint(receiver, amount);
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = Move the async call inside of the async transition block.
 Error [ETYC0372005]: Unknown variable `account`
-    --> compiler-test:22:22
+    --> compiler-test:21:22
      |
-  22 |         Mapping::set(account, receiver, amount);
+  21 |         Mapping::set(account, receiver, amount);
      |                      ^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372110]: A `transition` cannot return a future.
+    --> compiler-test:3:35
+     |
+   3 |     function foo(a: u8, b: u8) -> Future {
+     |                                   ^^^^^^
+     |
+     = Use an `async transition` instead.
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:4:16
+     |
+   4 |         return finalize_bar(a, b);
+     |                ^^^^^^^^^^^^^^^^^^
+Error [ETYC0372101]: Can only make an async call from an async transition.
+    --> compiler-test:4:16
+     |
+   4 |         return finalize_bar(a, b);
+     |                ^^^^^^^^^^^^^^^^^^
+     |
+     = Move the async call inside of the async transition block.
+Error [ETYC0372106]: An async function is not allowed to return a value.
+    --> compiler-test:11:5
+     |
+  11 |     async function finalize_bar(a: u8, b: u8) -> u8 {
+  12 |         return a + b;
+  13 |     }
+     |     ^
+     |
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
+Error [ETYC0372110]: A `transition` cannot return a future.
+    --> compiler-test:16:61
+     |
+  16 |     function mint_public(receiver: address, amount: u64) -> Future {
+     |                                                             ^^^^^^
+     |
+     = Use an `async transition` instead.
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:17:16
+     |
+  17 |         return finalize_mint(receiver, amount);
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372101]: Can only make an async call from an async transition.
+    --> compiler-test:17:16
+     |
+  17 |         return finalize_mint(receiver, amount);
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Move the async call inside of the async transition block.
+Error [ETYC0372005]: Unknown variable `account`
+    --> compiler-test:21:22
+     |
+  21 |         Mapping::set(account, receiver, amount);
+     |                      ^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

@@ -1,8 +1,5 @@
-namespace = "Parse"
-expectation = "Fail"
-outputs = ["""
 Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', '}' -- found 'finalize'
-    --> test:6:7
+    --> test:5:7
      |
-   6 |     } finalize {
-     |       ^^^^^^^^"""]
+   5 |     } finalize {
+     |       ^^^^^^^^

@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "a08d506ea1de1fafe1c7d3a2aa8e50c14e657870b6b8e0f5a11b48837f57193d", unrolled_ast = "27a77d29598c3078e2b7559753c5250c7aea5c21466dd97cc4f09f40b50202f6", ssa_ast = "b5d691ea06fd5f3428cad2e6ec0d628bcec6e21f27b334a58e0b25b7f7cd9766", flattened_ast = "24c2c60f0dee3135a1e5d8cdf767a93d26f578e041e950c126fdf62cdca3d347", destructured_ast = "2f43aedce955d46e2ef039f827e75157638a298aa44f3acc77c169506870a033", inlined_ast = "2f43aedce955d46e2ef039f827e75157638a298aa44f3acc77c169506870a033", dce_ast = "56fdd461c3669bbdca6f8b5d7868e8e0528c67e0a18192177128cc830502d50c", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -16,5 +14,82 @@ function main:
     input r5 as u16.private;
     input r6 as u32.private;
     input r7 as u64.private;
-    output 1field as field.private;
-""", errors = "", warnings = "" }] }]]
+    hash.psd4 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as address;
+    hash.psd4 true into r9 as address;
+    hash.psd4 1field into r10 as address;
+    hash.psd4 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as address;
+    hash.psd4 r0 into r12 as address;
+    hash.psd4 r1 into r13 as address;
+    hash.psd4 r2 into r14 as address;
+    hash.psd4 r3 into r15 as address;
+    hash.psd4 1i128 into r16 as address;
+    hash.psd4 r4 into r17 as address;
+    hash.psd4 r5 into r18 as address;
+    hash.psd4 r6 into r19 as address;
+    hash.psd4 r7 into r20 as address;
+    hash.psd4 1u128 into r21 as address;
+    hash.psd4 1scalar into r22 as address;
+    output r8 as address.private;
+    output r9 as address.private;
+    output r10 as address.private;
+    output r11 as address.private;
+    output r12 as address.private;
+    output r13 as address.private;
+    output r14 as address.private;
+    output r15 as address.private;
+    output r16 as address.private;
+    output r17 as address.private;
+    output r18 as address.private;
+    output r19 as address.private;
+    output r20 as address.private;
+    output r21 as address.private;
+    output r22 as address.private;
+    output aleo1ylka3l4w5vp7qamk3wjmfw0dp46aazxrcuv5j83sfsaq0kndxsqqq89x8y as address.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.psd4 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as address;
+    hash.psd4 true into r9 as address;
+    hash.psd4 1field into r10 as address;
+    hash.psd4 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as address;
+    hash.psd4 r0 into r12 as address;
+    hash.psd4 r1 into r13 as address;
+    hash.psd4 r2 into r14 as address;
+    hash.psd4 r3 into r15 as address;
+    hash.psd4 1i128 into r16 as address;
+    hash.psd4 r4 into r17 as address;
+    hash.psd4 r5 into r18 as address;
+    hash.psd4 r6 into r19 as address;
+    hash.psd4 r7 into r20 as address;
+    hash.psd4 1u128 into r21 as address;
+    hash.psd4 1scalar into r22 as address;
+    output r8 as address.private;
+    output r9 as address.private;
+    output r10 as address.private;
+    output r11 as address.private;
+    output r12 as address.private;
+    output r13 as address.private;
+    output r14 as address.private;
+    output r15 as address.private;
+    output r16 as address.private;
+    output r17 as address.private;
+    output r18 as address.private;
+    output r19 as address.private;
+    output r20 as address.private;
+    output r21 as address.private;
+    output r22 as address.private;
+    output aleo1ylka3l4w5vp7qamk3wjmfw0dp46aazxrcuv5j83sfsaq0kndxsqqq89x8y as address.private;

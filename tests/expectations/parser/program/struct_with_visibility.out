@@ -1,26 +1,110 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[outputs.imports]
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = [[
-    "foo",
-    { identifier = '{"id":"2","name":"foo","span":"{\"lo\":33,\"hi\":36}"}', is_record = false, id = 9, members = [
-    { mode = "Public", identifier = '{"id":"3","name":"baz","span":"{\"lo\":54,\"hi\":57}"}', type_ = "Address", id = 4, span = { lo = 54, hi = 66 } },
-    { mode = "Private", identifier = '{"id":"5","name":"floo","span":"{\"lo\":84,\"hi\":88}"}', id = 6, type_ = { Integer = "U64" }, span = { lo = 84, hi = 93 } },
-    { mode = "None", identifier = '{"id":"7","name":"data","span":"{\"lo\":103,\"hi\":107}"}', type_ = "Boolean", id = 8, span = { lo = 103, hi = 113 } },
-], span = { lo = 26, hi = 120 } },
-]]
-mappings = []
-functions = []
-
-[outputs.program_scopes.test.span]
-lo = 2
-hi = 122
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 9,
+            "hi": 13
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [
+        [
+          "foo",
+          {
+            "identifier": {
+              "name": "foo",
+              "span": {
+                "lo": 32,
+                "hi": 35
+              },
+              "id": 2
+            },
+            "members": [
+              {
+                "mode": "Public",
+                "identifier": {
+                  "name": "baz",
+                  "span": {
+                    "lo": 53,
+                    "hi": 56
+                  },
+                  "id": 3
+                },
+                "type_": "Address",
+                "span": {
+                  "lo": 53,
+                  "hi": 65
+                },
+                "id": 4
+              },
+              {
+                "mode": "Private",
+                "identifier": {
+                  "name": "floo",
+                  "span": {
+                    "lo": 83,
+                    "hi": 87
+                  },
+                  "id": 5
+                },
+                "type_": {
+                  "Integer": "U64"
+                },
+                "span": {
+                  "lo": 83,
+                  "hi": 92
+                },
+                "id": 6
+              },
+              {
+                "mode": "None",
+                "identifier": {
+                  "name": "data",
+                  "span": {
+                    "lo": 102,
+                    "hi": 106
+                  },
+                  "id": 7
+                },
+                "type_": "Boolean",
+                "span": {
+                  "lo": 102,
+                  "hi": 112
+                },
+                "id": 8
+              }
+            ],
+            "external": null,
+            "is_record": false,
+            "span": {
+              "lo": 25,
+              "hi": 119
+            },
+            "id": 9
+          }
+        ]
+      ],
+      "mappings": [],
+      "functions": [],
+      "span": {
+        "lo": 1,
+        "hi": 121
+      }
+    }
+  }
+}

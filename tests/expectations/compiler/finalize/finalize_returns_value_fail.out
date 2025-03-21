@@ -1,13 +1,21 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:8:5
+    --> compiler-test:7:5
      |
-   8 |     async function finalize_public_adder(a: u8, b: u8) -> public u8 {
-   9 |         return a + b;
-  10 |     }
+   7 |     async function finalize_public_adder(a: u8, b: u8) -> public u8 {
+   8 |         return a + b;
+   9 |     }
      |     ^
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372106]: An async function is not allowed to return a value.
+    --> compiler-test:7:5
+     |
+   7 |     async function finalize_public_adder(a: u8, b: u8) -> public u8 {
+   8 |         return a + b;
+   9 |     }
+     |     ^
+     |
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.

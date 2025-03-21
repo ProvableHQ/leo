@@ -1,64 +1,61 @@
 /*
-namespace = "Execute"
-expectation = "Pass"
-seed = 8937249
-[[cases]]
+[case]
 program = "test.aleo"
 function = "address_cast"
 input = ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "bool_cast"
 input = ["false"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "field_casts"
 input = ["0field"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "group_casts"
 input = ["0group"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "i8_casts"
 input = ["0i8"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "i16_casts"
 input = ["0i16"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "i32_casts"
 input = ["0i32"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "i64_casts"
 input = ["0i64"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "i128_casts"
 input = ["0i128"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "u8_casts"
 input = ["0u8"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "u16_casts"
 input = ["0u16"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "u32_casts"
 input = ["0u32"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "u64_casts"
 input = ["0u64"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "u128_casts"
 input = ["0u128"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "scalar_cast"
 input = ["0scalar"]

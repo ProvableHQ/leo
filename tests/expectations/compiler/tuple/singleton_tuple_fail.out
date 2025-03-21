@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370029]: A tuple type must have at least two elements.
-    --> compiler-test:7:16
+    --> compiler-test:6:16
      |
-   7 |         let c: (u8) = (a);
-     |                ^^^^"""]
+   6 |         let c: (u8) = (a);
+     |                ^^^^
+DCE_DISABLED:
+Error [EPAR0370029]: A tuple type must have at least two elements.
+    --> compiler-test:6:16
+     |
+   6 |         let c: (u8) = (a);
+     |                ^^^^

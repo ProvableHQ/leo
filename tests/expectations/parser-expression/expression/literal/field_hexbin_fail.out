@@ -1,0 +1,14 @@
+Error [EPAR0370042]: Hex, octal, and binary literals may only be used for integer types.
+    --> test_0:1:1
+     |
+   1 | 0xAAfield
+     | ^^^^
+
+
+Error [EPAR0370042]: Hex, octal, and binary literals may only be used for integer types.
+    --> test_1:1:1
+     |
+   1 | 0b10field
+     | ^^^^
+
+

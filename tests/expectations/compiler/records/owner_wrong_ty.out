@@ -1,18 +1,29 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372020]: The field `owner` in a `record` must have type `address`.
-    --> compiler-test:5:5
+    --> compiler-test:4:5
      |
-   5 |     record Token {
-   6 |         owner: bool,
-   7 |     }
+   4 |     record Token {
+   5 |         owner: bool,
+   6 |     }
      |     ^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372020]: The field `owner` in a `record` must have type `address`.
+    --> compiler-test:4:5
+     |
+   4 |     record Token {
+   5 |         owner: bool,
+   6 |     }
+     |     ^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

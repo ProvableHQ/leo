@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 // This example demonstrates the definition and initialization of a "struct" in Leo.
 program test.aleo {

@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "99ccef3b6c9ac21d66a77937d6159ac0c7213cad130c8f1f26f2d792fc3ce30b", unrolled_ast = "d521b938f7a08e46ad4ed24140f608d62c2fcfb139c2e0b14e375e867ee5bc76", ssa_ast = "4461e359e82522d8ef926955a7f1f7734befaf4fd68b55577d6bad529bdfbd27", flattened_ast = "eb54cb371110f753c4a53b76497486a9898c1d5723706f86500470bd42405b6c", destructured_ast = "00f8582eff30971d22df3084f99fe94698e7e9965b0e39723cfccd139b674d71", inlined_ast = "00f8582eff30971d22df3084f99fe94698e7e9965b0e39723cfccd139b674d71", dce_ast = "00f8582eff30971d22df3084f99fe94698e7e9965b0e39723cfccd139b674d71", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function f1:
@@ -12,4 +10,16 @@ function f2:
 function f3:
     cast  aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r0 as [address; 2u32];
     output r0 as [address; 2u32].private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function f1:
+    output aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta as address.private;
+
+function f2:
+    output 0field as field.private;
+
+function f3:
+    cast  aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r0 as [address; 2u32];
+    output r0 as [address; 2u32].private;

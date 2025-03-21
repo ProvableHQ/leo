@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ECMP0376009]: This array index could not be determined at compile time.
-    --> compiler-test:5:18
+    --> compiler-test:4:18
      |
-   5 |         return a[index];
-     |                  ^^^^^"""]
+   4 |         return a[index];
+     |                  ^^^^^
+DCE_DISABLED:
+Error [ECMP0376009]: This array index could not be determined at compile time.
+    --> compiler-test:4:18
+     |
+   4 |         return a[index];
+     |                  ^^^^^

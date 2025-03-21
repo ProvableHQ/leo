@@ -1,19 +1,33 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ESAZ0374007]: Binary operation `1i32 / 0i32` failed at compile time: div overflow.
-    --> compiler-test:4:20
+    --> compiler-test:3:20
      |
-   4 |     const A: i32 = 1i32 / 0i32;
+   3 |     const A: i32 = 1i32 / 0i32;
      |                    ^^^^^^^^^^^
 Error [ESAZ0374007]: Binary operation `255u8 + 1u8` failed at compile time: add overflow.
-    --> compiler-test:6:19
+    --> compiler-test:5:19
      |
-   6 |     const B: u8 = 255u8 + 1u8;
+   5 |     const B: u8 = 255u8 + 1u8;
      |                   ^^^^^^^^^^^
 Error [ESAZ0374006]: Unary operation `0field.inv()` failed at compile time: attempt to invert 0field.
-    --> compiler-test:8:22
+    --> compiler-test:7:22
      |
-   8 |     const C: field = 0field.inv();
+   7 |     const C: field = 0field.inv();
      |                      ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ESAZ0374007]: Binary operation `1i32 / 0i32` failed at compile time: div overflow.
+    --> compiler-test:3:20
+     |
+   3 |     const A: i32 = 1i32 / 0i32;
+     |                    ^^^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `255u8 + 1u8` failed at compile time: add overflow.
+    --> compiler-test:5:19
+     |
+   5 |     const B: u8 = 255u8 + 1u8;
+     |                   ^^^^^^^^^^^
+Error [ESAZ0374006]: Unary operation `0field.inv()` failed at compile time: attempt to invert 0field.
+    --> compiler-test:7:22
+     |
+   7 |     const C: field = 0field.inv();
+     |                      ^^^^^^^^^^^^

@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 program test.aleo {
     async transition main(a: u16) -> Future {
         return finalize_main(a);

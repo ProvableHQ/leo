@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "236422f9b5828658147cbee89a4fbab22dc93eb1a94702fd32d39ace14f40770", unrolled_ast = "236422f9b5828658147cbee89a4fbab22dc93eb1a94702fd32d39ace14f40770", ssa_ast = "1fa28313c7237856bda27af2a5234ca446418550bb29442bb5ae7488bc53f783", flattened_ast = "9cb9999a23b94af739576ac7a52a79f84a9ef76a1cefaef14c1860fc25163719", destructured_ast = "58feca6da1fc486bce39f604a7d8f8682eb731650f8b5199f4a2afb63883af59", inlined_ast = "58feca6da1fc486bce39f604a7d8f8682eb731650f8b5199f4a2afb63883af59", dce_ast = "9cdc5cfa1e9ea1f214cf3d454d9f864865d4ce48d41d9430502d7a6af7601ff3", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -9,4 +7,13 @@ function main:
     ternary r1 aleo16s003g206rjms5pm4ak48340f7y4z4dsskuqfrd2gvqz6umh2qfq7lajfp aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx into r2;
     is.eq r2 aleo1drcl2g8zxhxjzjw63ajp067gzvl94am3z7m7wgrzmr2ecd5sdq8sy66l5k into r3;
     output r3 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as address.private;
+    input r1 as boolean.private;
+    ternary r1 aleo16s003g206rjms5pm4ak48340f7y4z4dsskuqfrd2gvqz6umh2qfq7lajfp aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx into r2;
+    is.eq r2 aleo1drcl2g8zxhxjzjw63ajp067gzvl94am3z7m7wgrzmr2ecd5sdq8sy66l5k into r3;
+    output r3 as boolean.private;

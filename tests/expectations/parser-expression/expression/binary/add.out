@@ -1,0 +1,1087 @@
+{
+  "Binary": {
+    "left": {
+      "Literal": {
+        "Integer": [
+          "U8",
+          "1",
+          {
+            "span": {
+              "lo": 0,
+              "hi": 3
+            }
+          },
+          0
+        ]
+      }
+    },
+    "right": {
+      "Literal": {
+        "Integer": [
+          "U8",
+          "1",
+          {
+            "span": {
+              "lo": 6,
+              "hi": 9
+            }
+          },
+          1
+        ]
+      }
+    },
+    "op": "Add",
+    "span": {
+      "lo": 0,
+      "hi": 9
+    },
+    "id": 2
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Literal": {
+        "Integer": [
+          "U8",
+          "2",
+          {
+            "span": {
+              "lo": 10,
+              "hi": 13
+            }
+          },
+          0
+        ]
+      }
+    },
+    "right": {
+      "Literal": {
+        "Integer": [
+          "U8",
+          "3",
+          {
+            "span": {
+              "lo": 14,
+              "hi": 17
+            }
+          },
+          1
+        ]
+      }
+    },
+    "op": "Add",
+    "span": {
+      "lo": 10,
+      "hi": 17
+    },
+    "id": 2
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Literal": {
+            "Integer": [
+              "U8",
+              "1",
+              {
+                "span": {
+                  "lo": 18,
+                  "hi": 21
+                }
+              },
+              0
+            ]
+          }
+        },
+        "right": {
+          "Literal": {
+            "Integer": [
+              "U8",
+              "2",
+              {
+                "span": {
+                  "lo": 24,
+                  "hi": 27
+                }
+              },
+              1
+            ]
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 18,
+          "hi": 27
+        },
+        "id": 2
+      }
+    },
+    "right": {
+      "Literal": {
+        "Integer": [
+          "U8",
+          "3",
+          {
+            "span": {
+              "lo": 30,
+              "hi": 33
+            }
+          },
+          3
+        ]
+      }
+    },
+    "op": "Add",
+    "span": {
+      "lo": 18,
+      "hi": 33
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Literal": {
+            "Integer": [
+              "U8",
+              "1",
+              {
+                "span": {
+                  "lo": 34,
+                  "hi": 37
+                }
+              },
+              0
+            ]
+          }
+        },
+        "right": {
+          "Literal": {
+            "Integer": [
+              "U8",
+              "2",
+              {
+                "span": {
+                  "lo": 40,
+                  "hi": 43
+                }
+              },
+              1
+            ]
+          }
+        },
+        "op": "Mul",
+        "span": {
+          "lo": 34,
+          "hi": 43
+        },
+        "id": 2
+      }
+    },
+    "right": {
+      "Binary": {
+        "left": {
+          "Literal": {
+            "Integer": [
+              "U8",
+              "3",
+              {
+                "span": {
+                  "lo": 46,
+                  "hi": 49
+                }
+              },
+              3
+            ]
+          }
+        },
+        "right": {
+          "Literal": {
+            "Integer": [
+              "U8",
+              "4",
+              {
+                "span": {
+                  "lo": 52,
+                  "hi": 55
+                }
+              },
+              4
+            ]
+          }
+        },
+        "op": "Mul",
+        "span": {
+          "lo": 46,
+          "hi": 55
+        },
+        "id": 5
+      }
+    },
+    "op": "Add",
+    "span": {
+      "lo": 34,
+      "hi": 55
+    },
+    "id": 6
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Literal": {
+            "Integer": [
+              "U8",
+              "1",
+              {
+                "span": {
+                  "lo": 56,
+                  "hi": 59
+                }
+              },
+              0
+            ]
+          }
+        },
+        "right": {
+          "Literal": {
+            "Integer": [
+              "U8",
+              "2",
+              {
+                "span": {
+                  "lo": 62,
+                  "hi": 65
+                }
+              },
+              1
+            ]
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 56,
+          "hi": 65
+        },
+        "id": 2
+      }
+    },
+    "right": {
+      "Literal": {
+        "Integer": [
+          "U8",
+          "3",
+          {
+            "span": {
+              "lo": 68,
+              "hi": 71
+            }
+          },
+          3
+        ]
+      }
+    },
+    "op": "Sub",
+    "span": {
+      "lo": 56,
+      "hi": 71
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Literal": {
+                "Integer": [
+                  "U8",
+                  "1",
+                  {
+                    "span": {
+                      "lo": 72,
+                      "hi": 75
+                    }
+                  },
+                  0
+                ]
+              }
+            },
+            "right": {
+              "Literal": {
+                "Integer": [
+                  "U8",
+                  "2",
+                  {
+                    "span": {
+                      "lo": 78,
+                      "hi": 81
+                    }
+                  },
+                  1
+                ]
+              }
+            },
+            "op": "Mul",
+            "span": {
+              "lo": 72,
+              "hi": 81
+            },
+            "id": 2
+          }
+        },
+        "right": {
+          "Binary": {
+            "left": {
+              "Literal": {
+                "Integer": [
+                  "U8",
+                  "3",
+                  {
+                    "span": {
+                      "lo": 84,
+                      "hi": 87
+                    }
+                  },
+                  3
+                ]
+              }
+            },
+            "right": {
+              "Literal": {
+                "Integer": [
+                  "U8",
+                  "4",
+                  {
+                    "span": {
+                      "lo": 90,
+                      "hi": 93
+                    }
+                  },
+                  4
+                ]
+              }
+            },
+            "op": "Mul",
+            "span": {
+              "lo": 84,
+              "hi": 93
+            },
+            "id": 5
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 72,
+          "hi": 93
+        },
+        "id": 6
+      }
+    },
+    "right": {
+      "Binary": {
+        "left": {
+          "Literal": {
+            "Integer": [
+              "U8",
+              "5",
+              {
+                "span": {
+                  "lo": 96,
+                  "hi": 99
+                }
+              },
+              7
+            ]
+          }
+        },
+        "right": {
+          "Literal": {
+            "Integer": [
+              "U8",
+              "6",
+              {
+                "span": {
+                  "lo": 102,
+                  "hi": 105
+                }
+              },
+              8
+            ]
+          }
+        },
+        "op": "Mul",
+        "span": {
+          "lo": 96,
+          "hi": 105
+        },
+        "id": 9
+      }
+    },
+    "op": "Sub",
+    "span": {
+      "lo": 72,
+      "hi": 105
+    },
+    "id": 10
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 108,
+                  "hi": 109
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 114,
+                  "hi": 115
+                },
+                "id": 2
+              }
+            },
+            "op": "Add",
+            "span": {
+              "lo": 108,
+              "hi": 116
+            },
+            "id": 3
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 107,
+          "hi": 116
+        },
+        "id": 4
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 106,
+      "hi": 116
+    },
+    "id": 5
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 117,
+                  "hi": 118
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 123,
+                  "hi": 124
+                },
+                "id": 2
+              }
+            },
+            "op": "Add",
+            "span": {
+              "lo": 117,
+              "hi": 125
+            },
+            "id": 3
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 130,
+              "hi": 131
+            },
+            "id": 5
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 117,
+          "hi": 132
+        },
+        "id": 6
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 137,
+          "hi": 138
+        },
+        "id": 8
+      }
+    },
+    "op": "Add",
+    "span": {
+      "lo": 117,
+      "hi": 139
+    },
+    "id": 9
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 141,
+              "hi": 142
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 147,
+              "hi": 148
+            },
+            "id": 2
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 141,
+          "hi": 149
+        },
+        "id": 3
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 140,
+      "hi": 149
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 152,
+              "hi": 153
+            },
+            "id": 0
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 151,
+          "hi": 153
+        },
+        "id": 1
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 159,
+          "hi": 160
+        },
+        "id": 3
+      }
+    },
+    "op": "Add",
+    "span": {
+      "lo": 151,
+      "hi": 161
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 164,
+              "hi": 165
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 170,
+              "hi": 171
+            },
+            "id": 2
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 164,
+          "hi": 172
+        },
+        "id": 3
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 162,
+      "hi": 172
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 176,
+                  "hi": 177
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 182,
+                  "hi": 183
+                },
+                "id": 2
+              }
+            },
+            "op": "Add",
+            "span": {
+              "lo": 176,
+              "hi": 184
+            },
+            "id": 3
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 175,
+          "hi": 184
+        },
+        "id": 4
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 190,
+          "hi": 191
+        },
+        "id": 6
+      }
+    },
+    "op": "Add",
+    "span": {
+      "lo": 175,
+      "hi": 192
+    },
+    "id": 7
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 194,
+              "hi": 195
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 200,
+              "hi": 201
+            },
+            "id": 2
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 194,
+          "hi": 202
+        },
+        "id": 3
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 193,
+      "hi": 202
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 205,
+              "hi": 206
+            },
+            "id": 0
+          }
+        },
+        "op": "Not",
+        "span": {
+          "lo": 204,
+          "hi": 206
+        },
+        "id": 1
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 212,
+          "hi": 213
+        },
+        "id": 3
+      }
+    },
+    "op": "Add",
+    "span": {
+      "lo": 204,
+      "hi": 214
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 217,
+              "hi": 218
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 223,
+              "hi": 224
+            },
+            "id": 2
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 217,
+          "hi": 225
+        },
+        "id": 3
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 215,
+      "hi": 225
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 229,
+                  "hi": 230
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 235,
+                  "hi": 236
+                },
+                "id": 2
+              }
+            },
+            "op": "Add",
+            "span": {
+              "lo": 229,
+              "hi": 237
+            },
+            "id": 3
+          }
+        },
+        "op": "Not",
+        "span": {
+          "lo": 228,
+          "hi": 237
+        },
+        "id": 4
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 243,
+          "hi": 244
+        },
+        "id": 6
+      }
+    },
+    "op": "Add",
+    "span": {
+      "lo": 228,
+      "hi": 245
+    },
+    "id": 7
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 247,
+                  "hi": 248
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 253,
+                  "hi": 254
+                },
+                "id": 2
+              }
+            },
+            "op": "Add",
+            "span": {
+              "lo": 247,
+              "hi": 255
+            },
+            "id": 3
+          }
+        },
+        "right": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 258,
+                  "hi": 259
+                },
+                "id": 4
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 264,
+                  "hi": 265
+                },
+                "id": 6
+              }
+            },
+            "op": "Add",
+            "span": {
+              "lo": 258,
+              "hi": 266
+            },
+            "id": 7
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 247,
+          "hi": 266
+        },
+        "id": 8
+      }
+    },
+    "right": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 272,
+                  "hi": 273
+                },
+                "id": 10
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 278,
+                  "hi": 279
+                },
+                "id": 12
+              }
+            },
+            "op": "Add",
+            "span": {
+              "lo": 272,
+              "hi": 280
+            },
+            "id": 13
+          }
+        },
+        "right": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 283,
+                  "hi": 284
+                },
+                "id": 14
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 289,
+                  "hi": 290
+                },
+                "id": 16
+              }
+            },
+            "op": "Add",
+            "span": {
+              "lo": 283,
+              "hi": 291
+            },
+            "id": 17
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 272,
+          "hi": 291
+        },
+        "id": 18
+      }
+    },
+    "op": "Add",
+    "span": {
+      "lo": 247,
+      "hi": 292
+    },
+    "id": 19
+  }
+}
+

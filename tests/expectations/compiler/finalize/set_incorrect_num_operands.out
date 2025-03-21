@@ -1,18 +1,33 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370021]: The type of `tokens` has no associated function `set` that takes 3 argument(s).
-    --> compiler-test:18:9
+    --> compiler-test:17:9
      |
-  18 |         tokens.set(addr, amount, 1u128);
+  17 |         tokens.set(addr, amount, 1u128);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [EPAR0370021]: The type of `amounts` has no associated function `set` that takes 1 argument(s).
-    --> compiler-test:20:9
+    --> compiler-test:19:9
      |
-  20 |         amounts.set(1u8);
+  19 |         amounts.set(1u8);
      |         ^^^^^^^^^^^^^^^^
 Error [EPAR0370021]: The type of `amounts` has no associated function `set` that takes 0 argument(s).
-    --> compiler-test:22:9
+    --> compiler-test:21:9
      |
-  22 |         amounts.set();
-     |         ^^^^^^^^^^^^^"""]
+  21 |         amounts.set();
+     |         ^^^^^^^^^^^^^
+
+DCE_DISABLED:
+Error [EPAR0370021]: The type of `tokens` has no associated function `set` that takes 3 argument(s).
+    --> compiler-test:17:9
+     |
+  17 |         tokens.set(addr, amount, 1u128);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [EPAR0370021]: The type of `amounts` has no associated function `set` that takes 1 argument(s).
+    --> compiler-test:19:9
+     |
+  19 |         amounts.set(1u8);
+     |         ^^^^^^^^^^^^^^^^
+Error [EPAR0370021]: The type of `amounts` has no associated function `set` that takes 0 argument(s).
+    --> compiler-test:21:9
+     |
+  21 |         amounts.set();
+     |         ^^^^^^^^^^^^^

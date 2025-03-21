@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "efc3920bd789483fdcb524d79ced951c72e362a51e9384e8250e6b3494d3c177", unrolled_ast = "efc3920bd789483fdcb524d79ced951c72e362a51e9384e8250e6b3494d3c177", ssa_ast = "0e726e395902dfe121cd926c82f4fb6485f3ff0383b5f1fcc43741b479e239bf", flattened_ast = "d3700e05f8c37ba8da335a11f4fbb20f2895ef27887a7bf2da0edd233ff8d621", destructured_ast = "2759c658ca7644e33fc38f3f87132bbb4a39fe63dd746bd2c2c32ae443cb3ae8", inlined_ast = "942b9a7037091f2aca26f7a851ef54873719d465362f2edcd188b303dceea458", dce_ast = "942b9a7037091f2aca26f7a851ef54873719d465362f2edcd188b303dceea458", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 mapping data:
@@ -16,4 +14,20 @@ finalize foo:
     input r0 as address.public;
     input r1 as [boolean; 8u32].public;
     set r1 into data[r0];
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+mapping data:
+    key as address.public;
+    value as [boolean; 8u32].public;
+
+function foo:
+    input r0 as [boolean; 8u32].private;
+    async foo self.caller r0 into r1;
+    output r1 as test.aleo/foo.future;
+
+finalize foo:
+    input r0 as address.public;
+    input r1 as [boolean; 8u32].public;
+    set r1 into data[r0];

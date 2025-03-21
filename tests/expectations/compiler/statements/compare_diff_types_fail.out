@@ -1,52 +1,50 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `==`.
-    --> compiler-test:5:23
+    --> compiler-test:4:23
      |
-   5 |         let b: bool = a == 1u8;
+   4 |         let b: bool = a == 1u8;
      |                       ^^^^^^^^
      |
      = Make both operands the same type.
 Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `!=`.
-    --> compiler-test:6:23
+    --> compiler-test:5:23
      |
-   6 |         let c: bool = a != 1u8;
+   5 |         let c: bool = a != 1u8;
      |                       ^^^^^^^^
      |
      = Make both operands the same type.
 Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `>`.
-    --> compiler-test:7:23
+    --> compiler-test:6:23
      |
-   7 |         let d: bool = a > 1u8;
+   6 |         let d: bool = a > 1u8;
      |                       ^^^^^^^
      |
      = Make both operands the same type.
 Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `<`.
-    --> compiler-test:8:23
+    --> compiler-test:7:23
      |
-   8 |         let e: bool = a < 1u8;
+   7 |         let e: bool = a < 1u8;
      |                       ^^^^^^^
      |
      = Make both operands the same type.
 Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `>=`.
-    --> compiler-test:9:23
+    --> compiler-test:8:23
      |
-   9 |         let f: bool = a >= 1u8;
+   8 |         let f: bool = a >= 1u8;
      |                       ^^^^^^^^
      |
      = Make both operands the same type.
 Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `<=`.
-    --> compiler-test:10:23
+    --> compiler-test:9:23
      |
-  10 |         let g: bool = a <= 1u8;
+   9 |         let g: bool = a <= 1u8;
      |                       ^^^^^^^^
      |
      = Make both operands the same type.
 Error [ETYC0372120]: Received types `i8` and `u8` for the operation `*`.
-    --> compiler-test:11:22
+    --> compiler-test:10:22
      |
-  11 |         let h: u32 = a * 1u8;
+  10 |         let h: u32 = a * 1u8;
      |                      ^^^^^^^
      |
      = Valid operands are two integers of the same type, two fields, or a scalar and a group.
@@ -54,7 +52,62 @@ Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `==`.
+    --> compiler-test:4:23
+     |
+   4 |         let b: bool = a == 1u8;
+     |                       ^^^^^^^^
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `!=`.
+    --> compiler-test:5:23
+     |
+   5 |         let c: bool = a != 1u8;
+     |                       ^^^^^^^^
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `>`.
+    --> compiler-test:6:23
+     |
+   6 |         let d: bool = a > 1u8;
+     |                       ^^^^^^^
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `<`.
+    --> compiler-test:7:23
+     |
+   7 |         let e: bool = a < 1u8;
+     |                       ^^^^^^^
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `>=`.
+    --> compiler-test:8:23
+     |
+   8 |         let f: bool = a >= 1u8;
+     |                       ^^^^^^^^
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `<=`.
+    --> compiler-test:9:23
+     |
+   9 |         let g: bool = a <= 1u8;
+     |                       ^^^^^^^^
+     |
+     = Make both operands the same type.
+Error [ETYC0372120]: Received types `i8` and `u8` for the operation `*`.
+    --> compiler-test:10:22
+     |
+  10 |         let h: u32 = a * 1u8;
+     |                      ^^^^^^^
+     |
+     = Valid operands are two integers of the same type, two fields, or a scalar and a group.
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

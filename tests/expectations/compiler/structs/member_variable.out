@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "d7f5fcda52b0271a9e6758fb98db36fdf0e77855dc2a5bef13d94094624249f3", unrolled_ast = "d7f5fcda52b0271a9e6758fb98db36fdf0e77855dc2a5bef13d94094624249f3", ssa_ast = "f2caff0a4436705eb66aae0cf5b8ef0f565bc23a3f21071e16d8b3e40f69db10", flattened_ast = "5b50b9b7d482e2a0d76e96319686c7981dc23ecd2c626dd1be674ebf973162b6", destructured_ast = "896c18ef09cd92f399b1c6778461bac0780f1e4aaaa9addda18d5fc55f204c24", inlined_ast = "896c18ef09cd92f399b1c6778461bac0780f1e4aaaa9addda18d5fc55f204c24", dce_ast = "896c18ef09cd92f399b1c6778461bac0780f1e4aaaa9addda18d5fc55f204c24", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -12,4 +10,16 @@ function main:
     is.eq r1.x 1u32 into r2;
     is.eq r2 r0 into r3;
     output r3 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    x as u32;
+
+function main:
+    input r0 as boolean.private;
+    cast 1u32 into r1 as Foo;
+    is.eq r1.x 1u32 into r2;
+    is.eq r2 r0 into r3;
+    output r3 as boolean.private;

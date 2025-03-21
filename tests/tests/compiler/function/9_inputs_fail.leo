@@ -1,9 +1,5 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     // The maximum number of arguments to a function is 8.
     function main(
         a: u8,

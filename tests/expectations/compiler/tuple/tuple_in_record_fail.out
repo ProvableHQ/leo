@@ -1,16 +1,25 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372050]: A record cannot contain a tuple.
-    --> compiler-test:6:9
+    --> compiler-test:5:9
      |
-   6 |         amounts: (u64, u64),
+   5 |         amounts: (u64, u64),
      |         ^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372050]: A record cannot contain a tuple.
+    --> compiler-test:5:9
+     |
+   5 |         amounts: (u64, u64),
+     |         ^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

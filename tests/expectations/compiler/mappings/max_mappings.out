@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "dab4c349df7b581a19b258e289107e94355ce3d848801372999cacc807ddeb7b", unrolled_ast = "13d211b18aca0b119525c43e6979cd6e128f78bd56ab8c8140668596700a5e2d", ssa_ast = "2a535b84e35226ad7eac362b53812ac6303bc2d8d84b75de403803af722166f4", flattened_ast = "113906cedf04be457abfbb2426d4a86bc747bb5bfc5416f6759c63c70a79ef68", destructured_ast = "e817986b4ad5ade26a1d40831b5924ea5b21b109a10e8ce5be768aa7e89e395f", inlined_ast = "e817986b4ad5ade26a1d40831b5924ea5b21b109a10e8ce5be768aa7e89e395f", dce_ast = "e817986b4ad5ade26a1d40831b5924ea5b21b109a10e8ce5be768aa7e89e395f", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 mapping one:
@@ -129,4 +127,133 @@ mapping thirtyone:
 
 function foo:
     output 2u8 as u8.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+mapping one:
+    key as field.public;
+    value as field.public;
+
+mapping two:
+    key as field.public;
+    value as field.public;
+
+mapping three:
+    key as field.public;
+    value as field.public;
+
+mapping four:
+    key as field.public;
+    value as field.public;
+
+mapping five:
+    key as field.public;
+    value as field.public;
+
+mapping six:
+    key as field.public;
+    value as field.public;
+
+mapping seven:
+    key as field.public;
+    value as field.public;
+
+mapping eight:
+    key as field.public;
+    value as field.public;
+
+mapping nine:
+    key as field.public;
+    value as field.public;
+
+mapping ten:
+    key as field.public;
+    value as field.public;
+
+mapping eleven:
+    key as field.public;
+    value as field.public;
+
+mapping twelve:
+    key as field.public;
+    value as field.public;
+
+mapping thirteen:
+    key as field.public;
+    value as field.public;
+
+mapping fourteen:
+    key as field.public;
+    value as field.public;
+
+mapping fifteen:
+    key as field.public;
+    value as field.public;
+
+mapping sixteen:
+    key as field.public;
+    value as field.public;
+
+mapping seventeen:
+    key as field.public;
+    value as field.public;
+
+mapping eighteen:
+    key as field.public;
+    value as field.public;
+
+mapping nineteen:
+    key as field.public;
+    value as field.public;
+
+mapping twenty:
+    key as field.public;
+    value as field.public;
+
+mapping twentyone:
+    key as field.public;
+    value as field.public;
+
+mapping twentytwo:
+    key as field.public;
+    value as field.public;
+
+mapping twentythree:
+    key as field.public;
+    value as field.public;
+
+mapping twentyfour:
+    key as field.public;
+    value as field.public;
+
+mapping twentyfive:
+    key as field.public;
+    value as field.public;
+
+mapping twentysix:
+    key as field.public;
+    value as field.public;
+
+mapping twentyseven:
+    key as field.public;
+    value as field.public;
+
+mapping twentyeight:
+    key as field.public;
+    value as field.public;
+
+mapping twentynine:
+    key as field.public;
+    value as field.public;
+
+mapping thirty:
+    key as field.public;
+    value as field.public;
+
+mapping thirtyone:
+    key as field.public;
+    value as field.public;
+
+function foo:
+    output 2u8 as u8.private;

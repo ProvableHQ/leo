@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "4c1b9be363a90dcc975ffe0c0fe3648ed21a63aa41df15add00b2ab4de2571c9", unrolled_ast = "4c1b9be363a90dcc975ffe0c0fe3648ed21a63aa41df15add00b2ab4de2571c9", ssa_ast = "ee158a84ffb22b42463b554d994eb034be3f9b2be693201ab913310f3aa5c13f", flattened_ast = "796557216f75cbe376e8b56287ea12eed4c6586f96645156d8ab2248fd5e35cc", destructured_ast = "bcd67ce5edba29c86305a3e53e83088bde593bbc41b5c275a606a4d3c116f80c", inlined_ast = "bcd67ce5edba29c86305a3e53e83088bde593bbc41b5c275a606a4d3c116f80c", dce_ast = "231be30371a22a15dd6d6ceec25a863534665b835b0db30d6591e4072668aded", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -12,4 +10,18 @@ function main:
     is.eq r2 0u32 into r5;
     ternary r3 r4 r5 into r6;
     output r6 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as u32.private;
+    is.eq r0 3u32 into r1;
+    not r1 into r2;
+    ternary r1 1u32 0u32 into r3;
+    is.eq r0 3u32 into r4;
+    is.eq r3 1u32 into r5;
+    not r4 into r6;
+    is.eq r3 0u32 into r7;
+    ternary r4 r5 r7 into r8;
+    output r8 as boolean.private;

@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 program inner.aleo {
     mapping foo: u32 => u32;
 

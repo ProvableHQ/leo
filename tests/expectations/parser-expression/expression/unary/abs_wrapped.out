@@ -1,0 +1,330 @@
+{
+  "Unary": {
+    "receiver": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 0,
+          "hi": 1
+        },
+        "id": 0
+      }
+    },
+    "op": "AbsWrapped",
+    "span": {
+      "lo": 0,
+      "hi": 15
+    },
+    "id": 2
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Unary": {
+            "receiver": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 16,
+                  "hi": 17
+                },
+                "id": 0
+              }
+            },
+            "op": "AbsWrapped",
+            "span": {
+              "lo": 16,
+              "hi": 31
+            },
+            "id": 2
+          }
+        },
+        "op": "AbsWrapped",
+        "span": {
+          "lo": 16,
+          "hi": 45
+        },
+        "id": 4
+      }
+    },
+    "op": "AbsWrapped",
+    "span": {
+      "lo": 16,
+      "hi": 59
+    },
+    "id": 6
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 61,
+              "hi": 62
+            },
+            "id": 0
+          }
+        },
+        "op": "AbsWrapped",
+        "span": {
+          "lo": 61,
+          "hi": 76
+        },
+        "id": 2
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 60,
+      "hi": 76
+    },
+    "id": 3
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 79,
+              "hi": 80
+            },
+            "id": 0
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 78,
+          "hi": 80
+        },
+        "id": 1
+      }
+    },
+    "op": "AbsWrapped",
+    "span": {
+      "lo": 78,
+      "hi": 95
+    },
+    "id": 3
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 98,
+              "hi": 99
+            },
+            "id": 0
+          }
+        },
+        "op": "AbsWrapped",
+        "span": {
+          "lo": 98,
+          "hi": 113
+        },
+        "id": 2
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 96,
+      "hi": 113
+    },
+    "id": 3
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Unary": {
+            "receiver": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 117,
+                  "hi": 118
+                },
+                "id": 0
+              }
+            },
+            "op": "AbsWrapped",
+            "span": {
+              "lo": 117,
+              "hi": 132
+            },
+            "id": 2
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 116,
+          "hi": 132
+        },
+        "id": 3
+      }
+    },
+    "op": "AbsWrapped",
+    "span": {
+      "lo": 116,
+      "hi": 147
+    },
+    "id": 5
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 149,
+              "hi": 150
+            },
+            "id": 0
+          }
+        },
+        "op": "AbsWrapped",
+        "span": {
+          "lo": 149,
+          "hi": 164
+        },
+        "id": 2
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 148,
+      "hi": 164
+    },
+    "id": 3
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 167,
+              "hi": 168
+            },
+            "id": 0
+          }
+        },
+        "op": "Not",
+        "span": {
+          "lo": 166,
+          "hi": 168
+        },
+        "id": 1
+      }
+    },
+    "op": "AbsWrapped",
+    "span": {
+      "lo": 166,
+      "hi": 183
+    },
+    "id": 3
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 186,
+              "hi": 187
+            },
+            "id": 0
+          }
+        },
+        "op": "AbsWrapped",
+        "span": {
+          "lo": 186,
+          "hi": 201
+        },
+        "id": 2
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 184,
+      "hi": 201
+    },
+    "id": 3
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Unary": {
+            "receiver": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 205,
+                  "hi": 206
+                },
+                "id": 0
+              }
+            },
+            "op": "AbsWrapped",
+            "span": {
+              "lo": 205,
+              "hi": 220
+            },
+            "id": 2
+          }
+        },
+        "op": "Not",
+        "span": {
+          "lo": 204,
+          "hi": 220
+        },
+        "id": 3
+      }
+    },
+    "op": "AbsWrapped",
+    "span": {
+      "lo": 204,
+      "hi": 235
+    },
+    "id": 5
+  }
+}
+

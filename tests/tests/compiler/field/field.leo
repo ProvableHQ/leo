@@ -1,9 +1,5 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
-program test.aleo {    
+program test.aleo {
     transition main(a: field) -> bool {
         let negOneField: field = -1field;
         let negnegnegOneField: field = 0field - - - 1field;

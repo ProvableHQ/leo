@@ -43,6 +43,8 @@ impl<'a> Pass for ConstPropagator<'a> {
     type Input = (Ast, &'a Handler, &'a mut SymbolTable, &'a TypeTable, &'a NodeBuilder);
     type Output = Result<(Ast, ConstPropagatorOutput)>;
 
+    const NAME: &'static str = "ConstPropagator";
+
     fn do_pass((ast, handler, symbol_table, type_table, node_builder): Self::Input) -> Self::Output {
         let mut reconstructor = ConstPropagator::new(handler, symbol_table, type_table, node_builder);
         let program = reconstructor.reconstruct_program(ast.into_repr());

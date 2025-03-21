@@ -1,0 +1,196 @@
+{
+  "Assert": {
+    "variant": {
+      "AssertEq": [
+        {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 10,
+              "hi": 11
+            },
+            "id": 0
+          }
+        },
+        {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 13,
+              "hi": 14
+            },
+            "id": 1
+          }
+        }
+      ]
+    },
+    "span": {
+      "lo": 0,
+      "hi": 9
+    },
+    "id": 2
+  }
+}
+
+{
+  "Assert": {
+    "variant": {
+      "AssertEq": [
+        {
+          "Struct": {
+            "name": {
+              "name": "Foo",
+              "span": {
+                "lo": 27,
+                "hi": 30
+              },
+              "id": 0
+            },
+            "members": [
+              {
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 33,
+                    "hi": 34
+                  },
+                  "id": 1
+                },
+                "expression": {
+                  "Identifier": {
+                    "name": "x",
+                    "span": {
+                      "lo": 36,
+                      "hi": 37
+                    },
+                    "id": 2
+                  }
+                },
+                "span": {
+                  "lo": 33,
+                  "hi": 37
+                },
+                "id": 3
+              }
+            ],
+            "span": {
+              "lo": 27,
+              "hi": 39
+            },
+            "id": 4
+          }
+        },
+        {
+          "Struct": {
+            "name": {
+              "name": "Foo",
+              "span": {
+                "lo": 41,
+                "hi": 44
+              },
+              "id": 5
+            },
+            "members": [
+              {
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 47,
+                    "hi": 48
+                  },
+                  "id": 6
+                },
+                "expression": {
+                  "Identifier": {
+                    "name": "y",
+                    "span": {
+                      "lo": 50,
+                      "hi": 51
+                    },
+                    "id": 7
+                  }
+                },
+                "span": {
+                  "lo": 47,
+                  "hi": 51
+                },
+                "id": 8
+              }
+            ],
+            "span": {
+              "lo": 41,
+              "hi": 53
+            },
+            "id": 9
+          }
+        }
+      ]
+    },
+    "span": {
+      "lo": 17,
+      "hi": 26
+    },
+    "id": 10
+  }
+}
+
+{
+  "Assert": {
+    "variant": {
+      "AssertNeq": [
+        {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 67,
+              "hi": 68
+            },
+            "id": 0
+          }
+        },
+        {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 70,
+              "hi": 71
+            },
+            "id": 1
+          }
+        }
+      ]
+    },
+    "span": {
+      "lo": 56,
+      "hi": 66
+    },
+    "id": 2
+  }
+}
+
+{
+  "Assert": {
+    "variant": {
+      "Assert": {
+        "Literal": {
+          "Boolean": [
+            false,
+            {
+              "span": {
+                "lo": 81,
+                "hi": 86
+              }
+            },
+            0
+          ]
+        }
+      }
+    },
+    "span": {
+      "lo": 74,
+      "hi": 80
+    },
+    "id": 1
+  }
+}
+

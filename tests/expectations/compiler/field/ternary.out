@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "79657b057467e04a464e1f7f595851aac649e8d3983512ba672c17bf5448366b", unrolled_ast = "79657b057467e04a464e1f7f595851aac649e8d3983512ba672c17bf5448366b", ssa_ast = "1e3e2789576e4d2c9d5881ada8aa8f5937518e80ce8212b8838ae9c7e6c22158", flattened_ast = "c16b660251dc2e5ae63d25d9ad2990374a6c8a44d8289840e5771254ef6d73ea", destructured_ast = "7ddab6e355ae34b14a850855319387f3701f7832bfd9d77350b562eaedd00104", inlined_ast = "7ddab6e355ae34b14a850855319387f3701f7832bfd9d77350b562eaedd00104", dce_ast = "7ddab6e355ae34b14a850855319387f3701f7832bfd9d77350b562eaedd00104", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -12,4 +10,16 @@ function main:
     is.eq r2 2field into r5;
     ternary r3 r4 r5 into r6;
     output r6 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    is.eq r1 1field into r3;
+    is.eq r0 1field into r4;
+    is.eq r2 2field into r5;
+    ternary r3 r4 r5 into r6;
+    output r6 as boolean.private;

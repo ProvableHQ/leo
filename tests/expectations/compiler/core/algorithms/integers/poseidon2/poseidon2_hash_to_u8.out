@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "21bf4537c86da992ba7b168a5a2046605815444702c5d4012da157f001f5e237", unrolled_ast = "f1c2d0d53b2c76c358b886da35aaeab2671a959d9c3e6e0eed3de0a1adda720b", ssa_ast = "d93053a49f119d281263993f5eb88a110d1be48d972608073b8869d5276d432c", flattened_ast = "ff0379c31b021c80da3ff65c64c7f4c9964495552b598b6bbf44b6a58c8523b7", destructured_ast = "24aa3791f5888ed85984ba661f0e18cd5716a46aba50381eeeb698af07bfbca2", inlined_ast = "24aa3791f5888ed85984ba661f0e18cd5716a46aba50381eeeb698af07bfbca2", dce_ast = "18af4d895c04a5426f7b2ac2cf97c8ea4f4edb43661b4655eb459f234ccabe8f", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,5 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.psd2 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as u8;
+    hash.psd2 true into r9 as u8;
+    hash.psd2 1field into r10 as u8;
+    hash.psd2 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as u8;
+    hash.psd2 r0 into r12 as u8;
+    hash.psd2 r1 into r13 as u8;
+    hash.psd2 r2 into r14 as u8;
+    hash.psd2 r3 into r15 as u8;
+    hash.psd2 1i128 into r16 as u8;
+    hash.psd2 r4 into r17 as u8;
+    hash.psd2 r5 into r18 as u8;
+    hash.psd2 r6 into r19 as u8;
+    hash.psd2 r7 into r20 as u8;
+    hash.psd2 1u128 into r21 as u8;
+    hash.psd2 1scalar into r22 as u8;
     output r8 as u8.private;
-""", errors = "", warnings = "" }] }]]
+    output r9 as u8.private;
+    output r10 as u8.private;
+    output r11 as u8.private;
+    output r12 as u8.private;
+    output r13 as u8.private;
+    output r14 as u8.private;
+    output r15 as u8.private;
+    output r16 as u8.private;
+    output r17 as u8.private;
+    output r18 as u8.private;
+    output r19 as u8.private;
+    output r20 as u8.private;
+    output r21 as u8.private;
+    output r22 as u8.private;
+    output 254u8 as u8.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.psd2 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as u8;
+    hash.psd2 true into r9 as u8;
+    hash.psd2 1field into r10 as u8;
+    hash.psd2 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as u8;
+    hash.psd2 r0 into r12 as u8;
+    hash.psd2 r1 into r13 as u8;
+    hash.psd2 r2 into r14 as u8;
+    hash.psd2 r3 into r15 as u8;
+    hash.psd2 1i128 into r16 as u8;
+    hash.psd2 r4 into r17 as u8;
+    hash.psd2 r5 into r18 as u8;
+    hash.psd2 r6 into r19 as u8;
+    hash.psd2 r7 into r20 as u8;
+    hash.psd2 1u128 into r21 as u8;
+    hash.psd2 1scalar into r22 as u8;
+    output r8 as u8.private;
+    output r9 as u8.private;
+    output r10 as u8.private;
+    output r11 as u8.private;
+    output r12 as u8.private;
+    output r13 as u8.private;
+    output r14 as u8.private;
+    output r15 as u8.private;
+    output r16 as u8.private;
+    output r17 as u8.private;
+    output r18 as u8.private;
+    output r19 as u8.private;
+    output r20 as u8.private;
+    output r21 as u8.private;
+    output r22 as u8.private;
+    output 254u8 as u8.private;

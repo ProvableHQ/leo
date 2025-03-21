@@ -52,26 +52,32 @@ path = "../../leo/package"
 path = "../../utils/retriever"
 
 [dev-dependencies.leo-test-framework]
-path = "../../tests/test-framework"
+workspace = true
 
 [dev-dependencies.aleo-std-storage]
 version = "0.1.7"
 default-features = false
 
+[dev-dependencies.itertools]
+workspace = true
+
+[dev-dependencies.rand_chacha]
+workspace = true
+
 [dev-dependencies.snarkvm]
 workspace = true
 
-[dev-dependencies.regex]
+[dev-dependencies.serde]
 workspace = true
 
-[dev-dependencies.serde]
+[dev-dependencies.serde_json]
 workspace = true
 
 [dev-dependencies.toml]
 workspace = true
 
 [dev-dependencies.serial_test]
-version = "3.1.1"
+workspace = true
 
 [dev-dependencies.tempfile]
 workspace = true

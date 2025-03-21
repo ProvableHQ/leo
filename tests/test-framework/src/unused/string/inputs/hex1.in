@@ -1,5 +1,0 @@
-[main]
-character: char = '\x2A';
-
-[registers]
-r: char = 'a';

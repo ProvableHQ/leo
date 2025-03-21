@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "434ef9a5ee7c108360fcf7854bf5de2a4e505d9b479baa0ad47bdfb4a267c1ca", unrolled_ast = "434ef9a5ee7c108360fcf7854bf5de2a4e505d9b479baa0ad47bdfb4a267c1ca", ssa_ast = "30f76bc7e9900e52b288bdff28b1aed54969f2b66f0c65d1b47661b6f06bbbf4", flattened_ast = "5c4d0eac77a3aa0d6d46385f1eb011fd87e99114a1ed04a55323546c890dd2bd", destructured_ast = "17a9fe95a6cd555b9e44f02fedb7c02e9860fa114b32446bc69b686ae8ef1a1e", inlined_ast = "17a9fe95a6cd555b9e44f02fedb7c02e9860fa114b32446bc69b686ae8ef1a1e", dce_ast = "17a9fe95a6cd555b9e44f02fedb7c02e9860fa114b32446bc69b686ae8ef1a1e", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -8,4 +6,12 @@ function main:
     input r1 as u32.private;
     add r0 r1 into r2;
     output r2 as u32.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    output r2 as u32.private;

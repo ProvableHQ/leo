@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "b8db9a30846c574116f620de52d7e4c66bad848befbce4be4d02b4b168857b5d", unrolled_ast = "0d7396de0c064dba9201d0a92f2d3a16aab507a1110780e8cfa5265229121c2c", ssa_ast = "aec8d34884e1ce56718f38d8d07c039e401be721e711a7c018f16c97db587291", flattened_ast = "6ede6a8f15db7c576507df07970834bdded79956efe9510f859a3fcce80bb0ee", destructured_ast = "eba6f8d9fc491d5559af698b22b43f76d3b259b32c9c04f0854030199ed0f282", inlined_ast = "eba6f8d9fc491d5559af698b22b43f76d3b259b32c9c04f0854030199ed0f282", dce_ast = "40eaeadaa2f9f7a1191a574e2756be0d549db995b76a017c175fe334e3c78c68", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,5 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.bhp512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i32;
+    hash.bhp512 true into r9 as i32;
+    hash.bhp512 1field into r10 as i32;
+    hash.bhp512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i32;
+    hash.bhp512 r0 into r12 as i32;
+    hash.bhp512 r1 into r13 as i32;
+    hash.bhp512 r2 into r14 as i32;
+    hash.bhp512 r3 into r15 as i32;
+    hash.bhp512 1i128 into r16 as i32;
+    hash.bhp512 r4 into r17 as i32;
+    hash.bhp512 r5 into r18 as i32;
+    hash.bhp512 r6 into r19 as i32;
+    hash.bhp512 r7 into r20 as i32;
+    hash.bhp512 1u128 into r21 as i32;
+    hash.bhp512 1scalar into r22 as i32;
     output r8 as i32.private;
-""", errors = "", warnings = "" }] }]]
+    output r9 as i32.private;
+    output r10 as i32.private;
+    output r11 as i32.private;
+    output r12 as i32.private;
+    output r13 as i32.private;
+    output r14 as i32.private;
+    output r15 as i32.private;
+    output r16 as i32.private;
+    output r17 as i32.private;
+    output r18 as i32.private;
+    output r19 as i32.private;
+    output r20 as i32.private;
+    output r21 as i32.private;
+    output r22 as i32.private;
+    output 654505488i32 as i32.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.bhp512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i32;
+    hash.bhp512 true into r9 as i32;
+    hash.bhp512 1field into r10 as i32;
+    hash.bhp512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i32;
+    hash.bhp512 r0 into r12 as i32;
+    hash.bhp512 r1 into r13 as i32;
+    hash.bhp512 r2 into r14 as i32;
+    hash.bhp512 r3 into r15 as i32;
+    hash.bhp512 1i128 into r16 as i32;
+    hash.bhp512 r4 into r17 as i32;
+    hash.bhp512 r5 into r18 as i32;
+    hash.bhp512 r6 into r19 as i32;
+    hash.bhp512 r7 into r20 as i32;
+    hash.bhp512 1u128 into r21 as i32;
+    hash.bhp512 1scalar into r22 as i32;
+    output r8 as i32.private;
+    output r9 as i32.private;
+    output r10 as i32.private;
+    output r11 as i32.private;
+    output r12 as i32.private;
+    output r13 as i32.private;
+    output r14 as i32.private;
+    output r15 as i32.private;
+    output r16 as i32.private;
+    output r17 as i32.private;
+    output r18 as i32.private;
+    output r19 as i32.private;
+    output r20 as i32.private;
+    output r21 as i32.private;
+    output r22 as i32.private;
+    output 654505488i32 as i32.private;

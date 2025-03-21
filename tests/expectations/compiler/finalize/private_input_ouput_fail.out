@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'
-    --> compiler-test:5:9
+    --> compiler-test:4:9
      |
-   5 |         async finalize_foo(a);
-     |         ^^^^^"""]
+   4 |         async finalize_foo(a);
+     |         ^^^^^
+DCE_DISABLED:
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'
+    --> compiler-test:4:9
+     |
+   4 |         async finalize_foo(a);
+     |         ^^^^^

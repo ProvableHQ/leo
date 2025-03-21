@@ -183,6 +183,8 @@ impl<'a> Pass for SymbolTableCreator<'a> {
     type Input = (&'a Ast, &'a Handler);
     type Output = Result<SymbolTable>;
 
+    const NAME: &'static str = "SymbolTableCreator";
+
     /// Runs the compiler pass.
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
         let mut visitor = SymbolTableCreator::new(handler);

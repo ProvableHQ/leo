@@ -1,0 +1,42 @@
+{
+  "Unary": {
+    "receiver": {
+      "Identifier": {
+        "name": "a",
+        "span": {
+          "lo": 0,
+          "hi": 1
+        },
+        "id": 0
+      }
+    },
+    "op": "ToXCoordinate",
+    "span": {
+      "lo": 0,
+      "hi": 19
+    },
+    "id": 2
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 20,
+          "hi": 21
+        },
+        "id": 0
+      }
+    },
+    "op": "ToYCoordinate",
+    "span": {
+      "lo": 20,
+      "hi": 39
+    },
+    "id": 2
+  }
+}
+

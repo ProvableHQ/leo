@@ -1,71 +1,15 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "53ff89316f736b35738ae8875199a01456106ec97a1ee3386f2a7aa35855a86a", unrolled_ast = "53ff89316f736b35738ae8875199a01456106ec97a1ee3386f2a7aa35855a86a", ssa_ast = "0435bc4bed3d33a476edeabe7cf02e7042e4f6c17a3dfc945cbc5c93b48db602", flattened_ast = "aa1621ef42fe6597da0ecfc9c7563a6793418604e3963f44d23e4d12aa5d8783", destructured_ast = "2ffb80b9ed0fa66b617497a80fcc57df462c300ea66a9ae4b8768b066a109229", inlined_ast = "fbf6318682f9f0be81ef5fffcf93149281cdb54ff8db6105eb47bc49399eede7", dce_ast = "c867e030b7dca08afd334fbdbda33f2ec5cbbed2f79375c42611c651d6a509e0", bytecode = """
-program test_dep.aleo;
-
-record yeets:
-    owner as address.private;
-    val as u32.private;
-
-mapping Yo:
-    key as u32.public;
-    value as u32.public;
-
-function main_dep:
-    input r0 as u32.private;
-    async main_dep r0 1u32 into r1;
-    cast self.caller 1u32 into r2 as yeets.record;
-    output r2 as yeets.record;
-    output r1 as test_dep.aleo/main_dep.future;
-
-finalize main_dep:
-    input r0 as u32.public;
-    input r1 as u32.public;
-    set r1 into Yo[r0];
-""", errors = "", warnings = "" },
-    { initial_ast = "19b1a47a934c727451581644bacacee5ffddadd4cda9346e35cdbdc87ce8fce6", unrolled_ast = "11a9c63faa29be60f39914700a900a8af60f3f2db897f89808a5ed0ab8be8cdb", ssa_ast = "c82b0efbcf628cd4b33cc703b19a8d1533a3c52b9bbe991b2a0df5a06a5be1c2", flattened_ast = "0b450a2cb05ebcec1b089b0ce0ce67af772ba1458521da6819a9cb328316044f", destructured_ast = "96cf7eb3917e8ac35fc443707e2391007514a12e0003e5de8c91e947fe76dd49", inlined_ast = "70a5571aca6fc2907f2fa7051f556f4c4dfa1e36dd65458ddd26aa3a6a220eaa", dce_ast = "3e3d14b71294029e1f0841129c295b735e84da08fc091085a3f9410f56e14170", bytecode = """
-import test_dep.aleo;
-program test.aleo;
-
-mapping ayo:
-    key as u32.public;
-    value as u32.public;
-
-function main:
-    input r0 as u32.private;
-    call test_dep.aleo/main_dep 10u32 into r1 r2;
-    call test_dep.aleo/main_dep 1u32 into r3 r4;
-    async main r2 r4 1u32 into r5;
-    add r2[0u32] r4[0u32] into r6;
-    add r6 1u32 into r7;
-    add r7 r2[0u32] into r8;
-    mul r2[0u32] 2u32 into r9;
-    add r8 r9 into r10;
-    output r10 as u32.private;
-    output r5 as test.aleo/main.future;
-
-finalize main:
-    input r0 as test_dep.aleo/main_dep.future;
-    input r1 as test_dep.aleo/main_dep.future;
-    input r2 as u32.public;
-    is.eq r2 1u32 into r3;
-    branch.eq r3 false to end_then_0_0;
-    await r0;
-    await r1;
-    branch.eq true true to end_otherwise_0_1;
-    position end_then_0_0;
-    position end_otherwise_0_1;
-    is.eq r2 2u32 into r4;
-    branch.eq r4 false to end_then_0_2;
-    set 1u32 into ayo[1u32];
-    branch.eq true true to end_otherwise_0_3;
-    position end_then_0_2;
-    position end_otherwise_0_3;
-    add r0[0u32] r1[0u32] into r5;
-    set r5 into ayo[1u32];
-""", errors = "", warnings = """
-Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
+DCE_ENABLED:
+Warning [WSAZ0374002]: The type checker has exceeded the max depth of nested conditional blocks: 0.
+    --> compiler-test:24:9
+     |
+  24 |         if a == 2u32 {
+  25 |             //f2.await();
+  26 |             Mapping::set(ayo, 1u32, 1u32);
+  27 |         }
+     |         ^
+     |
+     = Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.
+Warning [WSAZ0374000]: Not all paths through the function await all futures. 1/2 paths contain at least one future that is never awaited.
     --> compiler-test:17:5
      |
   17 |     async function finalize_main(f: Future, f2: Future, a: u32) {
@@ -85,46 +29,36 @@ Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4
   31 |     }
      |     ^
      |
-     = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.""" },
-    { initial_ast = "ddc9be584ada4de2ba5c6103c6cb56366bc4adbbee390d8c6176c9a053869b22", unrolled_ast = "9f21a35d8d10f608bb87db7b1fdbdcb97adf10f37781f7e33bfa5752dc719720", ssa_ast = "53d99476f2d3fd97d473b85585d0252ca02be422c91ce467c538f3c6977bbb66", flattened_ast = "56c545010a52efdc3d399069abf436d9cb15982e4fe7c104d330cb60bb66e8ef", destructured_ast = "5aa00438c268f4a3dfe2738eed73aeebc9e5a6f38c931b4f71d544728d84b9fb", inlined_ast = "eaa191b1392944ad2c6bef8822bcf7db222d051cc5b0973d66581705c6d1afcf", dce_ast = "35f72eb97646a02e3fe34c668b538c1433dba5516adde3e196c67ab9fd362a93", bytecode = """
-import test_dep.aleo;
-import test.aleo;
-program wrapper.aleo;
-
-function main:
-    input r0 as u32.public;
-    input r1 as u32.private;
-    call test.aleo/main 1u32 into r2 r3;
-    call test.aleo/main 1u32 into r4 r5;
-    call test.aleo/main 1u32 into r6 r7;
-    async main r3 r5 r7 into r8;
-    output r2 as u32.private;
-    output r8 as wrapper.aleo/main.future;
-
-finalize main:
-    input r0 as test.aleo/main.future;
-    input r1 as test.aleo/main.future;
-    input r2 as test.aleo/main.future;
-    await r0;
-    await r1;
-    await r2;
-""", errors = "", warnings = "" },
-    { initial_ast = "3403f9bd7d0fdb44b5434c11b6dce6e16092b02ea49b87241976d9e20d580d7f", unrolled_ast = "2c2def4a456a7a8b396834c6f2031c628ff7eeee45d80b231eaa210e0361c37d", ssa_ast = "b7743782cb2fba78bc64655320e094ecb4550c780c44d50b6759944cc98ddff2", flattened_ast = "e96febd0586b129e5b7c9106ad2c1b9be12ef54b5143cfd775337d990292128d", destructured_ast = "1524ac660294e2936b1bfb71aa0fbb790ae2f1db90fab515bf27906e81844b51", inlined_ast = "28bd4aaf66fc8cb6558cd91c3fd3e20aa0b8392a7e9c31e34c86cce8340a8905", dce_ast = "9cf0c2fa41bc2ad3daef791ddc9cd79f09fa726c54480469b5b9f5d1d7c242a9", bytecode = """
-import test_dep.aleo;
-import test.aleo;
-import wrapper.aleo;
-program big_wrapper.aleo;
-
-function main:
-    input r0 as u32.public;
-    input r1 as u32.private;
-    call wrapper.aleo/main 10u32 10u32 into r2 r3;
-    async main r3 into r4;
-    output r4[0u32][0u32][0u32][0u32] as u32.private;
-    output r4 as big_wrapper.aleo/main.future;
-
-finalize main:
-    input r0 as wrapper.aleo/main.future;
-    await r0;
-""", errors = "", warnings = "" },
-] }]]
+     = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+DCE_DISABLED:
+Warning [WSAZ0374002]: The type checker has exceeded the max depth of nested conditional blocks: 0.
+    --> compiler-test:24:9
+     |
+  24 |         if a == 2u32 {
+  25 |             //f2.await();
+  26 |             Mapping::set(ayo, 1u32, 1u32);
+  27 |         }
+     |         ^
+     |
+     = Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.
+Warning [WSAZ0374000]: Not all paths through the function await all futures. 1/2 paths contain at least one future that is never awaited.
+    --> compiler-test:17:5
+     |
+  17 |     async function finalize_main(f: Future, f2: Future, a: u32) {
+  18 |         // f.await();
+  19 |         if a == 1u32 {
+  20 |             Future::await(f);
+  21 |             f2.await();
+  22 |         }
+  23 | 
+  24 |         if a == 2u32 {
+  25 |             //f2.await();
+  26 |             Mapping::set(ayo, 1u32, 1u32);
+  27 |         }
+  28 | 
+  29 |         let total: u32 = f.0 + f2.0;
+  30 |         Mapping::set(ayo, 1u32, total);
+  31 |     }
+     |     ^
+     |
+     = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.

@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 program test.aleo {
     // This function takes a group coordinate as input `a` and performs several operations which should output the `0group`.

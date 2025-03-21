@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "52821bfb39336dc73d34fba0c14cc53aa63082973904e8612b912d11660e0626", unrolled_ast = "4075aa5f41f771ba8685dae1261cfabe89961147ad477d796f49bc7a2dc53272", ssa_ast = "012efe5ce3a4de24a113763458704d052a64d3dd70870e51d2195a20e64f40a3", flattened_ast = "79d8fa2c5d0173d10358295042954f40eeb405eb7843d1e46cfbc909617a9a08", destructured_ast = "5c22d8e4430b80cd83aba4da84842045e970e54c2ad830c05c0a42ace8217862", inlined_ast = "5c22d8e4430b80cd83aba4da84842045e970e54c2ad830c05c0a42ace8217862", dce_ast = "d097889f0a6c4108fb3394222d4dcda11e4c27812b9755b2a1afa525513c64d3", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,7 +15,77 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     commit.bhp256 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta 1scalar into r8 as field;
-    commit.bhp256 1scalar 1scalar into r9 as field;
-    add r8 r9 into r10;
+    commit.bhp256 true 1scalar into r9 as field;
+    commit.bhp256 1field 1scalar into r10 as field;
+    commit.bhp256 r0 1scalar into r11 as field;
+    commit.bhp256 r1 1scalar into r12 as field;
+    commit.bhp256 r2 1scalar into r13 as field;
+    commit.bhp256 r3 1scalar into r14 as field;
+    commit.bhp256 1i128 1scalar into r15 as field;
+    commit.bhp256 r4 1scalar into r16 as field;
+    commit.bhp256 r5 1scalar into r17 as field;
+    commit.bhp256 r6 1scalar into r18 as field;
+    commit.bhp256 r7 1scalar into r19 as field;
+    commit.bhp256 1u128 1scalar into r20 as field;
+    commit.bhp256 1scalar 1scalar into r21 as field;
+    output r8 as field.private;
+    output r9 as field.private;
     output r10 as field.private;
-""", errors = "", warnings = "" }] }]]
+    output r11 as field.private;
+    output r12 as field.private;
+    output r13 as field.private;
+    output r14 as field.private;
+    output r15 as field.private;
+    output r16 as field.private;
+    output r17 as field.private;
+    output r18 as field.private;
+    output r19 as field.private;
+    output r20 as field.private;
+    output r21 as field.private;
+    output 4990562765940249187519574499347278959594974941683128227379316355607169317388field as field.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    commit.bhp256 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta 1scalar into r8 as field;
+    commit.bhp256 true 1scalar into r9 as field;
+    commit.bhp256 1field 1scalar into r10 as field;
+    commit.bhp256 r0 1scalar into r11 as field;
+    commit.bhp256 r1 1scalar into r12 as field;
+    commit.bhp256 r2 1scalar into r13 as field;
+    commit.bhp256 r3 1scalar into r14 as field;
+    commit.bhp256 1i128 1scalar into r15 as field;
+    commit.bhp256 r4 1scalar into r16 as field;
+    commit.bhp256 r5 1scalar into r17 as field;
+    commit.bhp256 r6 1scalar into r18 as field;
+    commit.bhp256 r7 1scalar into r19 as field;
+    commit.bhp256 1u128 1scalar into r20 as field;
+    commit.bhp256 1scalar 1scalar into r21 as field;
+    output r8 as field.private;
+    output r9 as field.private;
+    output r10 as field.private;
+    output r11 as field.private;
+    output r12 as field.private;
+    output r13 as field.private;
+    output r14 as field.private;
+    output r15 as field.private;
+    output r16 as field.private;
+    output r17 as field.private;
+    output r18 as field.private;
+    output r19 as field.private;
+    output r20 as field.private;
+    output r21 as field.private;
+    output 4990562765940249187519574499347278959594974941683128227379316355607169317388field as field.private;

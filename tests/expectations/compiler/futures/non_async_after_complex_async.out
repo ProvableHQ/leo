@@ -1,7 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "0d79953a4aa8fcb669a982d721ae77a6e90081d7049ffe7753645d8f580eea61", unrolled_ast = "0d79953a4aa8fcb669a982d721ae77a6e90081d7049ffe7753645d8f580eea61", ssa_ast = "e8e06860ea71734d6a18969fdf699b4f1f450488906a1f9deb2b6d1643b53728", flattened_ast = "88930d792f6dfc3eb295f3b34d1c49e1089e6ee10e71bcd698bfdd5236344e54", destructured_ast = "7de11314912fe698382ecc588c215a015a66dee372cb83c71d9dba9a54e73274", inlined_ast = "8d5561e81c517121905a3aaa4c377253ec79e8fb428c6a8dad486eb06962c88c", dce_ast = "8d5561e81c517121905a3aaa4c377253ec79e8fb428c6a8dad486eb06962c88c", bytecode = """
+DCE_ENABLED:
 program inner.aleo;
 
 mapping foo:
@@ -16,8 +13,7 @@ function inner:
 finalize inner:
     input r0 as u32.public;
     set r0 into foo[0u32];
-""", errors = "", warnings = "" },
-    { initial_ast = "ccf94ac32ca1fa8f40c378270d53dfd53d5a8b19aa515eeb036dacbb854ec8dc", unrolled_ast = "e41f3fcf6f9ed665666e3dfc11263797a7d8072a7a33e0ac756d629cef6c915a", ssa_ast = "6757298fba5d312a2a3e20daedb49746cc786ac1c0080daf17399fbcce7cf250", flattened_ast = "8c6da6118ed2a6386d774c12909bfb5bdcb47247e77d76278bf27c058b480ae3", destructured_ast = "c34f5a2eb13d909dc6be74cf20d794b5c1e8891ed9be65b70d5795e684427fc4", inlined_ast = "76d112fbe997dfbb77643ccc765407cd1d99c7a00df8a47034ea5509d7a88c9f", dce_ast = "76d112fbe997dfbb77643ccc765407cd1d99c7a00df8a47034ea5509d7a88c9f", bytecode = """
+// --- Next Program --- //
 import inner.aleo;
 program mid.aleo;
 
@@ -35,8 +31,7 @@ finalize mid:
     await r1;
 
 function dummy:
-""", errors = "", warnings = "" },
-    { initial_ast = "77a76389c4d70bf3f000adf1178017ac77ce02b59954bf546e24e05933206e51", unrolled_ast = "c0fa073593930867f069317e5787b4a0886fe9b24310e8a26d994cb391a58fea", ssa_ast = "d064a3507d298259070bce630c51ced53976b957cd07ddabd38842df865f317b", flattened_ast = "4015be0cb9fcac2dad1e7c990b512de1b7bfe46928d084315b16cb5cdf1ce674", destructured_ast = "6f70511d7d6630028092f2ba8f9b12769e1095aeea3a19fb1f74288ca445a835", inlined_ast = "f6790a5a235436b6a4c00abd42a512ce5dc6b49245de417314f99e65c78dac43", dce_ast = "f6790a5a235436b6a4c00abd42a512ce5dc6b49245de417314f99e65c78dac43", bytecode = """
+// --- Next Program --- //
 import inner.aleo;
 import mid.aleo;
 program outer.aleo;
@@ -54,5 +49,55 @@ finalize outer:
     input r1 as mid.aleo/mid.future;
     await r0;
     await r1;
-""", errors = "", warnings = "" },
-] }]]
+
+DCE_DISABLED:
+program inner.aleo;
+
+mapping foo:
+    key as u32.public;
+    value as u32.public;
+
+function inner:
+    input r0 as u32.private;
+    async inner r0 into r1;
+    output r1 as inner.aleo/inner.future;
+
+finalize inner:
+    input r0 as u32.public;
+    set r0 into foo[0u32];
+// --- Next Program --- //
+import inner.aleo;
+program mid.aleo;
+
+function mid:
+    input r0 as u32.private;
+    call inner.aleo/inner 0u32 into r1;
+    call inner.aleo/inner 1u32 into r2;
+    async mid r2 r1 into r3;
+    output r3 as mid.aleo/mid.future;
+
+finalize mid:
+    input r0 as inner.aleo/inner.future;
+    input r1 as inner.aleo/inner.future;
+    await r0;
+    await r1;
+
+function dummy:
+// --- Next Program --- //
+import inner.aleo;
+import mid.aleo;
+program outer.aleo;
+
+function outer:
+    input r0 as u32.private;
+    call mid.aleo/mid 0u32 into r1;
+    call mid.aleo/mid 1u32 into r2;
+    call mid.aleo/dummy;
+    async outer r1 r2 into r3;
+    output r3 as outer.aleo/outer.future;
+
+finalize outer:
+    input r0 as mid.aleo/mid.future;
+    input r1 as mid.aleo/mid.future;
+    await r0;
+    await r1;

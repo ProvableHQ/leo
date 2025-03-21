@@ -1,81 +1,155 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
+Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
+    --> compiler-test:4:24
+     |
+   4 |         let b: bool = -a == -1u8;
+     |                        ^
+Error [ETYC0372008]: The value -1 is not a valid `u8`
+    --> compiler-test:4:29
+     |
+   4 |         let b: bool = -a == -1u8;
+     |                             ^^^^
 Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
     --> compiler-test:5:24
      |
-   5 |         let b: bool = -a == -1u8;
+   5 |         let c: bool = -a > -1u8;
      |                        ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
-    --> compiler-test:5:29
+    --> compiler-test:5:28
      |
-   5 |         let b: bool = -a == -1u8;
-     |                             ^^^^
+   5 |         let c: bool = -a > -1u8;
+     |                            ^^^^
 Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
     --> compiler-test:6:24
      |
-   6 |         let c: bool = -a > -1u8;
+   6 |         let d: bool = -a < -1u8;
      |                        ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
     --> compiler-test:6:28
      |
-   6 |         let c: bool = -a > -1u8;
+   6 |         let d: bool = -a < -1u8;
      |                            ^^^^
 Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
     --> compiler-test:7:24
      |
-   7 |         let d: bool = -a < -1u8;
+   7 |         let e: bool = -a >= -1u8;
      |                        ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
-    --> compiler-test:7:28
+    --> compiler-test:7:29
      |
-   7 |         let d: bool = -a < -1u8;
-     |                            ^^^^
+   7 |         let e: bool = -a >= -1u8;
+     |                             ^^^^
 Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
     --> compiler-test:8:24
      |
-   8 |         let e: bool = -a >= -1u8;
+   8 |         let f: bool = -a <= -1u8;
      |                        ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
     --> compiler-test:8:29
      |
-   8 |         let e: bool = -a >= -1u8;
+   8 |         let f: bool = -a <= -1u8;
      |                             ^^^^
 Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
-    --> compiler-test:9:24
+    --> compiler-test:9:22
      |
-   9 |         let f: bool = -a <= -1u8;
-     |                        ^
+   9 |         let g: u8 = -a * -1u8;
+     |                      ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
-    --> compiler-test:9:29
+    --> compiler-test:9:26
      |
-   9 |         let f: bool = -a <= -1u8;
-     |                             ^^^^
+   9 |         let g: u8 = -a * -1u8;
+     |                          ^^^^
 Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
     --> compiler-test:10:22
      |
-  10 |         let g: u8 = -a * -1u8;
+  10 |         let h: u8 = -a ** -1u8;
      |                      ^
 Error [ETYC0372008]: The value -1 is not a valid `u8`
-    --> compiler-test:10:26
+    --> compiler-test:10:27
      |
-  10 |         let g: u8 = -a * -1u8;
-     |                          ^^^^
-Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
-    --> compiler-test:11:22
-     |
-  11 |         let h: u8 = -a ** -1u8;
-     |                      ^
-Error [ETYC0372008]: The value -1 is not a valid `u8`
-    --> compiler-test:11:27
-     |
-  11 |         let h: u8 = -a ** -1u8;
+  10 |         let h: u8 = -a ** -1u8;
      |                           ^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
+    --> compiler-test:4:24
+     |
+   4 |         let b: bool = -a == -1u8;
+     |                        ^
+Error [ETYC0372008]: The value -1 is not a valid `u8`
+    --> compiler-test:4:29
+     |
+   4 |         let b: bool = -a == -1u8;
+     |                             ^^^^
+Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
+    --> compiler-test:5:24
+     |
+   5 |         let c: bool = -a > -1u8;
+     |                        ^
+Error [ETYC0372008]: The value -1 is not a valid `u8`
+    --> compiler-test:5:28
+     |
+   5 |         let c: bool = -a > -1u8;
+     |                            ^^^^
+Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
+    --> compiler-test:6:24
+     |
+   6 |         let d: bool = -a < -1u8;
+     |                        ^
+Error [ETYC0372008]: The value -1 is not a valid `u8`
+    --> compiler-test:6:28
+     |
+   6 |         let d: bool = -a < -1u8;
+     |                            ^^^^
+Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
+    --> compiler-test:7:24
+     |
+   7 |         let e: bool = -a >= -1u8;
+     |                        ^
+Error [ETYC0372008]: The value -1 is not a valid `u8`
+    --> compiler-test:7:29
+     |
+   7 |         let e: bool = -a >= -1u8;
+     |                             ^^^^
+Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
+    --> compiler-test:8:24
+     |
+   8 |         let f: bool = -a <= -1u8;
+     |                        ^
+Error [ETYC0372008]: The value -1 is not a valid `u8`
+    --> compiler-test:8:29
+     |
+   8 |         let f: bool = -a <= -1u8;
+     |                             ^^^^
+Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
+    --> compiler-test:9:22
+     |
+   9 |         let g: u8 = -a * -1u8;
+     |                      ^
+Error [ETYC0372008]: The value -1 is not a valid `u8`
+    --> compiler-test:9:26
+     |
+   9 |         let g: u8 = -a * -1u8;
+     |                          ^^^^
+Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
+    --> compiler-test:10:22
+     |
+  10 |         let h: u8 = -a ** -1u8;
+     |                      ^
+Error [ETYC0372008]: The value -1 is not a valid `u8`
+    --> compiler-test:10:27
+     |
+  10 |         let h: u8 = -a ** -1u8;
+     |                           ^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

@@ -1,7 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "74aa9e40a602c9bdb732be4142c1c9c92c8a4585ab8efc45f15fac9d0ede9246", unrolled_ast = "74aa9e40a602c9bdb732be4142c1c9c92c8a4585ab8efc45f15fac9d0ede9246", ssa_ast = "22170d4dd5a900722beb833ccfd378dcc7eb21a17701942356d10fc9dcb8af41", flattened_ast = "ce5764f01b99a4763b627e0a8a50c3067931abf480140f1da6de2b7b13eb15a9", destructured_ast = "f2ef980c9ff15a01ab87745868e904d95bd83fd53a726edc6a3b7d433ca9f798", inlined_ast = "3fdd3ab09b885ab0454f6bda7bc82dfdcda59407d945794f7c622063dde5030d", dce_ast = "3fdd3ab09b885ab0454f6bda7bc82dfdcda59407d945794f7c622063dde5030d", bytecode = """
+DCE_ENABLED:
 program credits.aleo;
 
 record credits:
@@ -18,8 +15,7 @@ function transfer_private_to_public:
 
 finalize transfer_private_to_public:
     assert.eq 1u8 1u8;
-""", errors = "", warnings = "" },
-    { initial_ast = "6a9ec5009bb3ceb1831205fd5baa4ec4d0ea0a8568677c83aca5a3dc2c687d2e", unrolled_ast = "e38a47931d03fa3cde785c21ea5a445950ae9730b3cb23bc392e6fc2a8b76636", ssa_ast = "6768bdb51612d4c952ec3b923d4b35c23e6d8e642cc81a7030cfc8e0b3e6ec6d", flattened_ast = "a5d669d957cc7f463084fc6a9ec450b69c4e3350641271c6334c7d156bf4c29a", destructured_ast = "085c7e9438e2730ec641ace4146fde7b1b2b953b3a70754fa4330b9a8946678e", inlined_ast = "f992e91895e3105187937604c4d72ecd7b0dd47376991f2227b0acba73e4757c", dce_ast = "f992e91895e3105187937604c4d72ecd7b0dd47376991f2227b0acba73e4757c", bytecode = """
+// --- Next Program --- //
 import credits.aleo;
 program test_credits.aleo;
 
@@ -34,5 +30,36 @@ function send_credits:
 finalize send_credits:
     input r0 as credits.aleo/transfer_private_to_public.future;
     await r0;
-""", errors = "", warnings = "" },
-] }]]
+
+DCE_DISABLED:
+program credits.aleo;
+
+record credits:
+    owner as address.private;
+    amount as u64.private;
+
+function transfer_private_to_public:
+    input r0 as credits.record;
+    input r1 as address.private;
+    input r2 as u64.private;
+    async transfer_private_to_public into r3;
+    output r0 as credits.record;
+    output r3 as credits.aleo/transfer_private_to_public.future;
+
+finalize transfer_private_to_public:
+    assert.eq 1u8 1u8;
+// --- Next Program --- //
+import credits.aleo;
+program test_credits.aleo;
+
+function send_credits:
+    input r0 as credits.aleo/credits.record;
+    input r1 as u64.private;
+    call credits.aleo/transfer_private_to_public r0 test_credits.aleo r1 into r2 r3;
+    async send_credits r3 into r4;
+    output r2 as credits.aleo/credits.record;
+    output r4 as test_credits.aleo/send_credits.future;
+
+finalize send_credits:
+    input r0 as credits.aleo/transfer_private_to_public.future;
+    await r0;

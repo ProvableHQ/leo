@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "486b17c7cb942494fcd98ae511f3d1d95b9fe8897b539795213e98a72ba64839", unrolled_ast = "c64cb533968127b677f2693d4fd81f1ad043931555ed4f89d6cc7c896757c669", ssa_ast = "7bad9a72199aad3ca6b7d3d56e39fd144334bc3ec501a63de49660ab30617892", flattened_ast = "79276b1debf52ead5649bf0fad00e43530c53c6c60ecc9efc8aa973f21260011", destructured_ast = "aaabd0aff98b5bbeb52d31eeaa60a4dd37e9cc7aefa10fcc4003fe99cb72d0f9", inlined_ast = "aaabd0aff98b5bbeb52d31eeaa60a4dd37e9cc7aefa10fcc4003fe99cb72d0f9", dce_ast = "aaabd0aff98b5bbeb52d31eeaa60a4dd37e9cc7aefa10fcc4003fe99cb72d0f9", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Board:
@@ -17,4 +15,21 @@ closure win:
     input r1 as u8;
     assert.eq true true;
     output false as boolean;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Board:
+    foo as u8;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    output r2 as u32.private;
+
+closure win:
+    input r0 as Board;
+    input r1 as u8;
+    assert.eq true true;
+    output false as boolean;

@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370005]: expected : -- found '='
-    --> compiler-test:5:13
+    --> compiler-test:4:13
      |
-   5 |       let f = 1 scalar;
-     |             ^"""]
+   4 |       let f = 1 scalar;
+     |             ^
+DCE_DISABLED:
+Error [EPAR0370005]: expected : -- found '='
+    --> compiler-test:4:13
+     |
+   4 |       let f = 1 scalar;
+     |             ^

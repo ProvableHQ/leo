@@ -1,7 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "bf23785fa21c95d527597d4c592ee39e78a7f8f6cd1cf418ad5b3365017145ba", unrolled_ast = "bf23785fa21c95d527597d4c592ee39e78a7f8f6cd1cf418ad5b3365017145ba", ssa_ast = "f9377742423d8370251ad264e6c9f7fd189a2f7dac9660b0973da6f8b16e974e", flattened_ast = "58642c6499d4d49edf62d776e0689c3dbdb0b0f862a58654f0f17dec00a3fbce", destructured_ast = "d384e790ec5a59524d19f170e95ab24b9e997678d9479c0b03da178b932a344c", inlined_ast = "0e9a89a93981a97659657741310874bfb98307fdfaa34044fbaa49d024766922", dce_ast = "0e9a89a93981a97659657741310874bfb98307fdfaa34044fbaa49d024766922", bytecode = """
+DCE_ENABLED:
 program dependent.aleo;
 
 function t1:
@@ -19,8 +16,7 @@ function t2:
 finalize t2:
     input r0 as u8.public;
     assert.eq 1u8 1u8;
-""", errors = "", warnings = "" },
-    { initial_ast = "dfea6998ade167cd9187af6717d40fe062617cb85f3a28e66fbd905ca60751c1", unrolled_ast = "ff999a76968bfe8d0757bfb093c6199e5975307b2e6e6cad4eebc7760b87fc8b", ssa_ast = "61f821f2c4259894ea98e153b4e132b730a69460daec32dd640af4e4178e65d7", flattened_ast = "6769e1f6e5a79a253911474a834156f915f5e328525abc8011aed3d1ab2e8326", destructured_ast = "75901769d5173d199af23666f84d0184be2ac115a5bd6c51917745433a2a2cdd", inlined_ast = "f8ed80e2a6db33fec15971bae11fd15d599ada037abe5bf26f9a912d272134ec", dce_ast = "f130116c6447a4788e99c44ed24a0d614ded9d036b1c09ae88bd8de99abeaf46", bytecode = """
+// --- Next Program --- //
 import dependent.aleo;
 program test.aleo;
 
@@ -41,5 +37,43 @@ function t2:
 finalize t2:
     input r0 as dependent.aleo/t2.future;
     await r0;
-""", errors = "", warnings = "" },
-] }]]
+
+DCE_DISABLED:
+program dependent.aleo;
+
+function t1:
+    async t1 1u8 into r0;
+    output r0 as dependent.aleo/t1.future;
+
+finalize t1:
+    input r0 as u8.public;
+    assert.eq 1u8 1u8;
+
+function t2:
+    async t2 1u8 into r0;
+    output r0 as dependent.aleo/t2.future;
+
+finalize t2:
+    input r0 as u8.public;
+    assert.eq 1u8 1u8;
+// --- Next Program --- //
+import dependent.aleo;
+program test.aleo;
+
+function t1:
+    call dependent.aleo/t1 into r0;
+    async t1 r0 into r1;
+    output r1 as test.aleo/t1.future;
+
+finalize t1:
+    input r0 as dependent.aleo/t1.future;
+    await r0;
+
+function t2:
+    call dependent.aleo/t2 into r0;
+    async t2 r0 into r1;
+    output r1 as test.aleo/t2.future;
+
+finalize t2:
+    input r0 as dependent.aleo/t2.future;
+    await r0;

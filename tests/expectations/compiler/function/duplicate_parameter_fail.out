@@ -1,10 +1,16 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ['''
+DCE_ENABLED:
 Error [EPAR0370032]: `console` statements are not yet supported.
-    --> compiler-test:5:9
+    --> compiler-test:4:9
      |
-   5 |         console.log("{}", 1u8);
+   4 |         console.log("{}", 1u8);
      |         ^^^^^^^
      |
-     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.''']
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.
+DCE_DISABLED:
+Error [EPAR0370032]: `console` statements are not yet supported.
+    --> compiler-test:4:9
+     |
+   4 |         console.log("{}", 1u8);
+     |         ^^^^^^^
+     |
+     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.

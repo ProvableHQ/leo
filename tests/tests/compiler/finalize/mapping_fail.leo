@@ -1,15 +1,11 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     mapping foo: (u32, u32) => u32;
-    
+
     mapping floo: baz => u8;
 
     mapping floop: foo => foo;
-    
+
     mapping bar: foo => baz;
 
     record RealToken {

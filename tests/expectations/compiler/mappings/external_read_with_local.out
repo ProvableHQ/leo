@@ -1,7 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "dc1d03dc54e9e526d564ecb77dfd3bfccaaea8e50e6f27076bf78b47931b6067", unrolled_ast = "dc1d03dc54e9e526d564ecb77dfd3bfccaaea8e50e6f27076bf78b47931b6067", ssa_ast = "d87ff1d03766455227b3f7bea1f29cb6139451ba41592e04dd5c15f5bbdd083d", flattened_ast = "ec44420e85535934a5d18837ca56e626ed6dde4f522540b6bd9c2d28835eb262", destructured_ast = "78430a9d6a221b00e3536ed905ca961e2c4da9d6c25fa99db15b258087ac642c", inlined_ast = "618f01b70a0450be8e13b9bb10b0b4349a149e262280be5a05d0083f507a5492", dce_ast = "618f01b70a0450be8e13b9bb10b0b4349a149e262280be5a05d0083f507a5492", bytecode = """
+DCE_ENABLED:
 program registry.aleo;
 
 mapping users:
@@ -15,8 +12,7 @@ function register:
 finalize register:
     input r0 as address.public;
     set true into users[r0];
-""", errors = "", warnings = "" },
-    { initial_ast = "23cfd7682c89c74c6fd2f3c7bc3c134ce7c092093063ed4ddf0578f2c8414378", unrolled_ast = "373de2854aaa85fe5b36a51953723d2043dfbbfb57bc060d385f773d95198b4c", ssa_ast = "ddd1a88dcd2ded9cfffd38a7660710eb33e6c4ad9fb1027196ec18e8922e6406", flattened_ast = "36997d2ff0056093157016248f914f3bff1b804854e6f62c7be92c9f7be586b6", destructured_ast = "3af844120e99d7d50f506fccf646db8a135715397f9d18f53cab266adf1d1ce5", inlined_ast = "e2e076fad25ae7559f2ef1f3823fdeb07851f80ec1452dcebd240afb3138a20a", dce_ast = "e2e076fad25ae7559f2ef1f3823fdeb07851f80ec1452dcebd240afb3138a20a", bytecode = """
+// --- Next Program --- //
 import registry.aleo;
 program relay.aleo;
 
@@ -33,5 +29,35 @@ finalize send:
     input r0 as address.public;
     get users[r0] into r1;
     assert.eq r1 true;
-""", errors = "", warnings = "" },
-] }]]
+
+DCE_DISABLED:
+program registry.aleo;
+
+mapping users:
+    key as address.public;
+    value as boolean.public;
+
+function register:
+    async register self.caller into r0;
+    output r0 as registry.aleo/register.future;
+
+finalize register:
+    input r0 as address.public;
+    set true into users[r0];
+// --- Next Program --- //
+import registry.aleo;
+program relay.aleo;
+
+mapping users:
+    key as address.public;
+    value as boolean.public;
+
+function send:
+    input r0 as address.private;
+    async send r0 into r1;
+    output r1 as relay.aleo/send.future;
+
+finalize send:
+    input r0 as address.public;
+    get users[r0] into r1;
+    assert.eq r1 true;

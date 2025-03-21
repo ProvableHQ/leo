@@ -1,0 +1,76 @@
+{
+  "AssociatedFunction": {
+    "variant": {
+      "name": "group",
+      "span": {
+        "lo": 0,
+        "hi": 5
+      },
+      "id": 0
+    },
+    "name": {
+      "name": "to_x_coordinate",
+      "span": {
+        "lo": 7,
+        "hi": 22
+      },
+      "id": 1
+    },
+    "arguments": [
+      {
+        "Identifier": {
+          "name": "a",
+          "span": {
+            "lo": 23,
+            "hi": 24
+          },
+          "id": 2
+        }
+      }
+    ],
+    "span": {
+      "lo": 0,
+      "hi": 25
+    },
+    "id": 3
+  }
+}
+
+{
+  "AssociatedFunction": {
+    "variant": {
+      "name": "group",
+      "span": {
+        "lo": 26,
+        "hi": 31
+      },
+      "id": 0
+    },
+    "name": {
+      "name": "to_y_coordinate",
+      "span": {
+        "lo": 33,
+        "hi": 48
+      },
+      "id": 1
+    },
+    "arguments": [
+      {
+        "Identifier": {
+          "name": "a",
+          "span": {
+            "lo": 49,
+            "hi": 50
+          },
+          "id": 2
+        }
+      }
+    ],
+    "span": {
+      "lo": 26,
+      "hi": 51
+    },
+    "id": 3
+  }
+}
+

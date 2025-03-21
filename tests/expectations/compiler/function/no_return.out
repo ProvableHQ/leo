@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372036]: Function must return a value.
-    --> compiler-test:4:5
+    --> compiler-test:3:5
      |
-   4 |     transition main() -> u8 {}
+   3 |     transition main() -> u8 {}
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372036]: Function must return a value.
+    --> compiler-test:3:5
+     |
+   3 |     transition main() -> u8 {}
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^

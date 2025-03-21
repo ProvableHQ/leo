@@ -24,7 +24,7 @@ pub struct CompilerOptions {
     pub output: OutputOptions,
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct BuildOptions {
     /// Whether to enable dead code elimination.
     pub dce_enabled: bool,
@@ -32,6 +32,12 @@ pub struct BuildOptions {
     pub conditional_block_max_depth: usize,
     /// Whether to disable type checking for nested conditionals.
     pub disable_conditional_branch_type_checking: bool,
+}
+
+impl Default for BuildOptions {
+    fn default() -> Self {
+        Self { dce_enabled: true, conditional_block_max_depth: 0, disable_conditional_branch_type_checking: false }
+    }
 }
 
 #[derive(Clone, Default)]

@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '-'
-    --> compiler-test:7:24
+    --> compiler-test:6:24
      |
-   7 |         return (t.0, t.-1); // Index `t.-1` is invalid.
-     |                        ^"""]
+   6 |         return (t.0, t.-1); // Index `t.-1` is invalid.
+     |                        ^
+DCE_DISABLED:
+Error [EPAR0370009]: unexpected string: expected 'identifier', found '-'
+    --> compiler-test:6:24
+     |
+   6 |         return (t.0, t.-1); // Index `t.-1` is invalid.
+     |                        ^

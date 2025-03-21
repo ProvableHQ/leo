@@ -1,17 +1,15 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372025]: Cannot reach the following statement.
-    --> compiler-test:10:9
+    --> compiler-test:9:9
      |
-  10 |         let double: u32 = x + x;
+   9 |         let double: u32 = x + x;
      |         ^^^^^^^^^^^^^^^^^^^^^^^
      |
      = Remove the unreachable code.
 Error [ETYC0372025]: Cannot reach the following statement.
-    --> compiler-test:11:9
+    --> compiler-test:10:9
      |
-  11 |         return double;
+  10 |         return double;
      |         ^^^^^^^^^^^^^^
      |
      = Remove the unreachable code.
@@ -19,7 +17,27 @@ Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372025]: Cannot reach the following statement.
+    --> compiler-test:9:9
+     |
+   9 |         let double: u32 = x + x;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Remove the unreachable code.
+Error [ETYC0372025]: Cannot reach the following statement.
+    --> compiler-test:10:9
+     |
+  10 |         return double;
+     |         ^^^^^^^^^^^^^^
+     |
+     = Remove the unreachable code.
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

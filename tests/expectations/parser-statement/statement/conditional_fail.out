@@ -1,0 +1,7 @@
+Error [EPAR0370005]: expected : -- found '='
+    --> test_0:1:23
+     |
+   1 | if true {} else let x = 2;
+     |                       ^
+
+

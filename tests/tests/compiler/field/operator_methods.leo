@@ -1,16 +1,12 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
-program test.aleo {    
+program test.aleo {
     transition main(a: field, b: field) -> bool {
        // unary
        let f: field = a.inv();
        let g: field = a.neg();
        let i: field = a.square();
        let j: field = a.square_root();
-    
+
        // binary
        let k: field = a.add(b);
        let m: field = a.div(b);
@@ -22,6 +18,6 @@ program test.aleo {
        let t: field = a.mul(b);
        let w: bool = a.neq(b);
        let z: field = a.pow(b);
-    
+
        return w;
     }}

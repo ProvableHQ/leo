@@ -1,0 +1,325 @@
+{
+  "Conditional": {
+    "condition": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 3,
+          "hi": 4
+        },
+        "id": 0
+      }
+    },
+    "then": {
+      "statements": [
+        {
+          "Return": {
+            "expression": {
+              "Literal": {
+                "Integer": [
+                  "U8",
+                  "0",
+                  {
+                    "span": {
+                      "lo": 18,
+                      "hi": 21
+                    }
+                  },
+                  1
+                ]
+              }
+            },
+            "span": {
+              "lo": 11,
+              "hi": 22
+            },
+            "id": 2
+          }
+        }
+      ],
+      "span": {
+        "lo": 5,
+        "hi": 24
+      },
+      "id": 3
+    },
+    "otherwise": null,
+    "span": {
+      "lo": 0,
+      "hi": 24
+    },
+    "id": 4
+  }
+}
+
+{
+  "Conditional": {
+    "condition": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 29,
+          "hi": 30
+        },
+        "id": 0
+      }
+    },
+    "then": {
+      "statements": [
+        {
+          "Return": {
+            "expression": {
+              "Literal": {
+                "Integer": [
+                  "U8",
+                  "0",
+                  {
+                    "span": {
+                      "lo": 45,
+                      "hi": 48
+                    }
+                  },
+                  1
+                ]
+              }
+            },
+            "span": {
+              "lo": 38,
+              "hi": 49
+            },
+            "id": 2
+          }
+        }
+      ],
+      "span": {
+        "lo": 32,
+        "hi": 51
+      },
+      "id": 3
+    },
+    "otherwise": null,
+    "span": {
+      "lo": 25,
+      "hi": 51
+    },
+    "id": 4
+  }
+}
+
+{
+  "Conditional": {
+    "condition": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 56,
+          "hi": 57
+        },
+        "id": 0
+      }
+    },
+    "then": {
+      "statements": [],
+      "span": {
+        "lo": 59,
+        "hi": 61
+      },
+      "id": 1
+    },
+    "otherwise": {
+      "Block": {
+        "statements": [],
+        "span": {
+          "lo": 67,
+          "hi": 69
+        },
+        "id": 2
+      }
+    },
+    "span": {
+      "lo": 52,
+      "hi": 69
+    },
+    "id": 3
+  }
+}
+
+{
+  "Conditional": {
+    "condition": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 73,
+              "hi": 74
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 75,
+              "hi": 76
+            },
+            "id": 1
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 73,
+          "hi": 76
+        },
+        "id": 2
+      }
+    },
+    "then": {
+      "statements": [],
+      "span": {
+        "lo": 77,
+        "hi": 79
+      },
+      "id": 3
+    },
+    "otherwise": {
+      "Conditional": {
+        "condition": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 88,
+                  "hi": 89
+                },
+                "id": 4
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "z",
+                "span": {
+                  "lo": 90,
+                  "hi": 91
+                },
+                "id": 5
+              }
+            },
+            "op": "Add",
+            "span": {
+              "lo": 88,
+              "hi": 91
+            },
+            "id": 6
+          }
+        },
+        "then": {
+          "statements": [],
+          "span": {
+            "lo": 92,
+            "hi": 94
+          },
+          "id": 7
+        },
+        "otherwise": {
+          "Block": {
+            "statements": [],
+            "span": {
+              "lo": 100,
+              "hi": 102
+            },
+            "id": 8
+          }
+        },
+        "span": {
+          "lo": 85,
+          "hi": 102
+        },
+        "id": 9
+      }
+    },
+    "span": {
+      "lo": 70,
+      "hi": 102
+    },
+    "id": 10
+  }
+}
+
+{
+  "Conditional": {
+    "condition": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 106,
+              "hi": 107
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 108,
+              "hi": 109
+            },
+            "id": 1
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 106,
+          "hi": 109
+        },
+        "id": 2
+      }
+    },
+    "then": {
+      "statements": [
+        {
+          "Return": {
+            "expression": {
+              "Literal": {
+                "Integer": [
+                  "U8",
+                  "0",
+                  {
+                    "span": {
+                      "lo": 123,
+                      "hi": 126
+                    }
+                  },
+                  3
+                ]
+              }
+            },
+            "span": {
+              "lo": 116,
+              "hi": 127
+            },
+            "id": 4
+          }
+        }
+      ],
+      "span": {
+        "lo": 110,
+        "hi": 129
+      },
+      "id": 5
+    },
+    "otherwise": null,
+    "span": {
+      "lo": 103,
+      "hi": 129
+    },
+    "id": 6
+  }
+}
+

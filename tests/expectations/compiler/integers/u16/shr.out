@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "47cd80606c9feb9ccc962dc8f19b8ace90f2d7fcff453169ae16adc282fe0bff", unrolled_ast = "47cd80606c9feb9ccc962dc8f19b8ace90f2d7fcff453169ae16adc282fe0bff", ssa_ast = "c5f671fcf5f29bc97572273cbab3144fa3037b99f099a750eb3c9173dfa8f995", flattened_ast = "81be8316279ebe24c6a54461f16ac9793cf659beaac19b8f8d8f2795b85ece6a", destructured_ast = "e3c9b19325a8011e4e589eda481ef1fe2a3c91797105b1657b2175170b3d2d25", inlined_ast = "e3c9b19325a8011e4e589eda481ef1fe2a3c91797105b1657b2175170b3d2d25", dce_ast = "e3c9b19325a8011e4e589eda481ef1fe2a3c91797105b1657b2175170b3d2d25", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -14,4 +12,18 @@ function main:
     is.eq r6 r2 into r7;
     and r5 r7 into r8;
     output r8 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as u16.private;
+    input r1 as u16.private;
+    input r2 as u16.private;
+    shr r0 2u8 into r3;
+    shr r0 r1 into r4;
+    is.eq r3 r4 into r5;
+    shr r0 2u32 into r6;
+    is.eq r6 r2 into r7;
+    and r5 r7 into r8;
+    output r8 as boolean.private;

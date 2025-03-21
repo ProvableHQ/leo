@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ECMP0376008]: This loop bound could not be determined at compile time.
-    --> compiler-test:11:28
+    --> compiler-test:10:28
      |
-  11 |         for i:u64 in 0u64..amount {
-     |                            ^^^^^^"""]
+  10 |         for i:u64 in 0u64..amount {
+     |                            ^^^^^^
+DCE_DISABLED:
+Error [ECMP0376008]: This loop bound could not be determined at compile time.
+    --> compiler-test:10:28
+     |
+  10 |         for i:u64 in 0u64..amount {
+     |                            ^^^^^^

@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "4fb752e6dbcae759734fab21ea4b4cec732dd4ae5677a01d473fa08e9ba514d7", unrolled_ast = "4fb752e6dbcae759734fab21ea4b4cec732dd4ae5677a01d473fa08e9ba514d7", ssa_ast = "1c7703412df4b55f555e62a0e5f4dd786c610baa94de3a7fd64d3a3704f740e1", flattened_ast = "9cd01122beea88d2863b2b7fc15fbe84c5c1275fb31c655d7afe83e4133e41db", destructured_ast = "3a80bacdbe48b7c91329f8d7d1d6dc486bd89b4c7c93a0c42fd04406bc31c319", inlined_ast = "3a80bacdbe48b7c91329f8d7d1d6dc486bd89b4c7c93a0c42fd04406bc31c319", dce_ast = "410ed21b18000bafc162f7478bdef2e58b7e8b17f9f56551dbbfa8fb1220fce2", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct foo:
@@ -29,4 +27,35 @@ function literal_ops_on_signature:
     input r2 as signature.private;
     ternary r0 r1 r2 into r3;
     output r3 as signature.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+struct foo:
+    a as u8;
+    b as scalar;
+
+function verify_field:
+    input r0 as signature.private;
+    input r1 as address.private;
+    input r2 as field.private;
+    sign.verify r0 r1 r2 into r3;
+    sign.verify r0 r1 r2 into r4;
+    assert.eq r3 r4;
+
+function verify_foo:
+    input r0 as signature.private;
+    input r1 as address.private;
+    input r2 as foo.private;
+    sign.verify r0 r1 r2 into r3;
+    sign.verify r0 r1 r2 into r4;
+    assert.eq r3 r4;
+
+function literal_ops_on_signature:
+    input r0 as boolean.private;
+    input r1 as signature.private;
+    input r2 as signature.private;
+    is.eq r1 r2 into r3;
+    is.neq r1 r2 into r4;
+    ternary r0 r1 r2 into r5;
+    output r5 as signature.private;

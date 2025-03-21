@@ -1,14 +1,23 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372117]: Expected type `[bool; 8]` but type `[bool; 7]` was found.
-    --> compiler-test:5:16
+    --> compiler-test:4:16
      |
-   5 |         return [a, a, a, a, a, a, a];
+   4 |         return [a, a, a, a, a, a, a];
      |                ^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
-    --> compiler-test:9:52
+    --> compiler-test:8:52
      |
-   9 |         return [1u8, 2u8, 3u8, 4u8, 5u8, 6u8, 7u8, 8u32];
+   8 |         return [1u8, 2u8, 3u8, 4u8, 5u8, 6u8, 7u8, 8u32];
      |                                                    ^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected type `[bool; 8]` but type `[bool; 7]` was found.
+    --> compiler-test:4:16
+     |
+   4 |         return [a, a, a, a, a, a, a];
+     |                ^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
+    --> compiler-test:8:52
+     |
+   8 |         return [1u8, 2u8, 3u8, 4u8, 5u8, 6u8, 7u8, 8u32];
+     |                                                    ^^^^

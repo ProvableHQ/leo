@@ -1,16 +1,25 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372112]: A struct must have at least one member.
-    --> compiler-test:4:5
+    --> compiler-test:3:5
      |
-   4 |     struct Bar {}
+   3 |     struct Bar {}
      |     ^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372112]: A struct must have at least one member.
+    --> compiler-test:3:5
+     |
+   3 |     struct Bar {}
+     |     ^^^^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

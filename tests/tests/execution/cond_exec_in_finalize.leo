@@ -1,15 +1,13 @@
 /*
-namespace = "Execute"
-expectation = "Pass"
-[[cases]]
+[case]
 program = "cond_exec_in_finalize.aleo"
 function = "f"
 input = ["1u64", "0u64"]
-[[cases]]
+[case]
 program = "cond_exec_in_finalize.aleo"
 function = "f"
 input = ["1u64", "1u64"]
-[[cases]]
+[case]
 program = "cond_exec_in_finalize.aleo"
 function = "f"
 input = ["1u64", "2u64"]

@@ -1,0 +1,782 @@
+{
+  "Binary": {
+    "left": {
+      "Literal": {
+        "Boolean": [
+          true,
+          {
+            "span": {
+              "lo": 0,
+              "hi": 4
+            }
+          },
+          0
+        ]
+      }
+    },
+    "right": {
+      "Literal": {
+        "Boolean": [
+          false,
+          {
+            "span": {
+              "lo": 8,
+              "hi": 13
+            }
+          },
+          1
+        ]
+      }
+    },
+    "op": "And",
+    "span": {
+      "lo": 0,
+      "hi": 13
+    },
+    "id": 2
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Literal": {
+        "Boolean": [
+          false,
+          {
+            "span": {
+              "lo": 14,
+              "hi": 19
+            }
+          },
+          0
+        ]
+      }
+    },
+    "right": {
+      "Literal": {
+        "Boolean": [
+          true,
+          {
+            "span": {
+              "lo": 21,
+              "hi": 25
+            }
+          },
+          1
+        ]
+      }
+    },
+    "op": "And",
+    "span": {
+      "lo": 14,
+      "hi": 25
+    },
+    "id": 2
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Literal": {
+            "Boolean": [
+              true,
+              {
+                "span": {
+                  "lo": 26,
+                  "hi": 30
+                }
+              },
+              0
+            ]
+          }
+        },
+        "right": {
+          "Literal": {
+            "Boolean": [
+              false,
+              {
+                "span": {
+                  "lo": 32,
+                  "hi": 37
+                }
+              },
+              1
+            ]
+          }
+        },
+        "op": "And",
+        "span": {
+          "lo": 26,
+          "hi": 37
+        },
+        "id": 2
+      }
+    },
+    "right": {
+      "Literal": {
+        "Boolean": [
+          true,
+          {
+            "span": {
+              "lo": 39,
+              "hi": 43
+            }
+          },
+          3
+        ]
+      }
+    },
+    "op": "And",
+    "span": {
+      "lo": 26,
+      "hi": 43
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 46,
+                  "hi": 47
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 52,
+                  "hi": 53
+                },
+                "id": 2
+              }
+            },
+            "op": "BitwiseAnd",
+            "span": {
+              "lo": 46,
+              "hi": 54
+            },
+            "id": 3
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 45,
+          "hi": 54
+        },
+        "id": 4
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 44,
+      "hi": 54
+    },
+    "id": 5
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 55,
+                  "hi": 56
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 61,
+                  "hi": 62
+                },
+                "id": 2
+              }
+            },
+            "op": "BitwiseAnd",
+            "span": {
+              "lo": 55,
+              "hi": 63
+            },
+            "id": 3
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 68,
+              "hi": 69
+            },
+            "id": 5
+          }
+        },
+        "op": "BitwiseAnd",
+        "span": {
+          "lo": 55,
+          "hi": 70
+        },
+        "id": 6
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 75,
+          "hi": 76
+        },
+        "id": 8
+      }
+    },
+    "op": "BitwiseAnd",
+    "span": {
+      "lo": 55,
+      "hi": 77
+    },
+    "id": 9
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 79,
+              "hi": 80
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 85,
+              "hi": 86
+            },
+            "id": 2
+          }
+        },
+        "op": "BitwiseAnd",
+        "span": {
+          "lo": 79,
+          "hi": 87
+        },
+        "id": 3
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 78,
+      "hi": 87
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 90,
+              "hi": 91
+            },
+            "id": 0
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 89,
+          "hi": 91
+        },
+        "id": 1
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 97,
+          "hi": 98
+        },
+        "id": 3
+      }
+    },
+    "op": "BitwiseAnd",
+    "span": {
+      "lo": 89,
+      "hi": 99
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 102,
+              "hi": 103
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 108,
+              "hi": 109
+            },
+            "id": 2
+          }
+        },
+        "op": "BitwiseAnd",
+        "span": {
+          "lo": 102,
+          "hi": 110
+        },
+        "id": 3
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 100,
+      "hi": 110
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 114,
+                  "hi": 115
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 120,
+                  "hi": 121
+                },
+                "id": 2
+              }
+            },
+            "op": "BitwiseAnd",
+            "span": {
+              "lo": 114,
+              "hi": 122
+            },
+            "id": 3
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 113,
+          "hi": 122
+        },
+        "id": 4
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 128,
+          "hi": 129
+        },
+        "id": 6
+      }
+    },
+    "op": "BitwiseAnd",
+    "span": {
+      "lo": 113,
+      "hi": 130
+    },
+    "id": 7
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 132,
+              "hi": 133
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 138,
+              "hi": 139
+            },
+            "id": 2
+          }
+        },
+        "op": "BitwiseAnd",
+        "span": {
+          "lo": 132,
+          "hi": 140
+        },
+        "id": 3
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 131,
+      "hi": 140
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 143,
+              "hi": 144
+            },
+            "id": 0
+          }
+        },
+        "op": "Not",
+        "span": {
+          "lo": 142,
+          "hi": 144
+        },
+        "id": 1
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 150,
+          "hi": 151
+        },
+        "id": 3
+      }
+    },
+    "op": "BitwiseAnd",
+    "span": {
+      "lo": 142,
+      "hi": 152
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 155,
+              "hi": 156
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 161,
+              "hi": 162
+            },
+            "id": 2
+          }
+        },
+        "op": "BitwiseAnd",
+        "span": {
+          "lo": 155,
+          "hi": 163
+        },
+        "id": 3
+      }
+    },
+    "op": "Not",
+    "span": {
+      "lo": 153,
+      "hi": 163
+    },
+    "id": 4
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Unary": {
+        "receiver": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 167,
+                  "hi": 168
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 173,
+                  "hi": 174
+                },
+                "id": 2
+              }
+            },
+            "op": "BitwiseAnd",
+            "span": {
+              "lo": 167,
+              "hi": 175
+            },
+            "id": 3
+          }
+        },
+        "op": "Not",
+        "span": {
+          "lo": 166,
+          "hi": 175
+        },
+        "id": 4
+      }
+    },
+    "right": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 181,
+          "hi": 182
+        },
+        "id": 6
+      }
+    },
+    "op": "BitwiseAnd",
+    "span": {
+      "lo": 166,
+      "hi": 183
+    },
+    "id": 7
+  }
+}
+
+{
+  "Binary": {
+    "left": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 185,
+                  "hi": 186
+                },
+                "id": 0
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 191,
+                  "hi": 192
+                },
+                "id": 2
+              }
+            },
+            "op": "BitwiseAnd",
+            "span": {
+              "lo": 185,
+              "hi": 193
+            },
+            "id": 3
+          }
+        },
+        "right": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 196,
+                  "hi": 197
+                },
+                "id": 4
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 202,
+                  "hi": 203
+                },
+                "id": 6
+              }
+            },
+            "op": "BitwiseAnd",
+            "span": {
+              "lo": 196,
+              "hi": 204
+            },
+            "id": 7
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 185,
+          "hi": 204
+        },
+        "id": 8
+      }
+    },
+    "right": {
+      "Binary": {
+        "left": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 210,
+                  "hi": 211
+                },
+                "id": 10
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 216,
+                  "hi": 217
+                },
+                "id": 12
+              }
+            },
+            "op": "BitwiseAnd",
+            "span": {
+              "lo": 210,
+              "hi": 218
+            },
+            "id": 13
+          }
+        },
+        "right": {
+          "Binary": {
+            "left": {
+              "Identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 221,
+                  "hi": 222
+                },
+                "id": 14
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 227,
+                  "hi": 228
+                },
+                "id": 16
+              }
+            },
+            "op": "BitwiseAnd",
+            "span": {
+              "lo": 221,
+              "hi": 229
+            },
+            "id": 17
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 210,
+          "hi": 229
+        },
+        "id": 18
+      }
+    },
+    "op": "BitwiseAnd",
+    "span": {
+      "lo": 185,
+      "hi": 230
+    },
+    "id": 19
+  }
+}
+

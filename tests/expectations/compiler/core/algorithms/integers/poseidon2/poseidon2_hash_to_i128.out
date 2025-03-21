@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "0ee663e5e2a14641a96f37c88b1a41ba85d0bded4bf2e56d9ad4c10461793e32", unrolled_ast = "99c3a07d12772486171a4fafda7837ad3aeae87b6728b441b47878dfdb709c7f", ssa_ast = "523ac3882eff3971774e2808f49239299f7b7758971ca1e9b87e29a65d7e7b65", flattened_ast = "49bfc0c0c64bddd61631f943bd79ec1727793f35cd389abe0c88018e184ca181", destructured_ast = "0d4b4c4d6b7be9e2eef64fc3b706d8f3825a7abd39c6d8e1d7abdca98e948bf1", inlined_ast = "0d4b4c4d6b7be9e2eef64fc3b706d8f3825a7abd39c6d8e1d7abdca98e948bf1", dce_ast = "7cab988b845c299efc8096adf881f90fbbf2bd564fd63eb53bfd2df9915a2d96", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,5 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.psd2 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i128;
+    hash.psd2 true into r9 as i128;
+    hash.psd2 1field into r10 as i128;
+    hash.psd2 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i128;
+    hash.psd2 r0 into r12 as i128;
+    hash.psd2 r1 into r13 as i128;
+    hash.psd2 r2 into r14 as i128;
+    hash.psd2 r3 into r15 as i128;
+    hash.psd2 1i128 into r16 as i128;
+    hash.psd2 r4 into r17 as i128;
+    hash.psd2 r5 into r18 as i128;
+    hash.psd2 r6 into r19 as i128;
+    hash.psd2 r7 into r20 as i128;
+    hash.psd2 1u128 into r21 as i128;
+    hash.psd2 1scalar into r22 as i128;
     output r8 as i128.private;
-""", errors = "", warnings = "" }] }]]
+    output r9 as i128.private;
+    output r10 as i128.private;
+    output r11 as i128.private;
+    output r12 as i128.private;
+    output r13 as i128.private;
+    output r14 as i128.private;
+    output r15 as i128.private;
+    output r16 as i128.private;
+    output r17 as i128.private;
+    output r18 as i128.private;
+    output r19 as i128.private;
+    output r20 as i128.private;
+    output r21 as i128.private;
+    output r22 as i128.private;
+    output 144383677963018719196707979796700150014i128 as i128.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.psd2 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i128;
+    hash.psd2 true into r9 as i128;
+    hash.psd2 1field into r10 as i128;
+    hash.psd2 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i128;
+    hash.psd2 r0 into r12 as i128;
+    hash.psd2 r1 into r13 as i128;
+    hash.psd2 r2 into r14 as i128;
+    hash.psd2 r3 into r15 as i128;
+    hash.psd2 1i128 into r16 as i128;
+    hash.psd2 r4 into r17 as i128;
+    hash.psd2 r5 into r18 as i128;
+    hash.psd2 r6 into r19 as i128;
+    hash.psd2 r7 into r20 as i128;
+    hash.psd2 1u128 into r21 as i128;
+    hash.psd2 1scalar into r22 as i128;
+    output r8 as i128.private;
+    output r9 as i128.private;
+    output r10 as i128.private;
+    output r11 as i128.private;
+    output r12 as i128.private;
+    output r13 as i128.private;
+    output r14 as i128.private;
+    output r15 as i128.private;
+    output r16 as i128.private;
+    output r17 as i128.private;
+    output r18 as i128.private;
+    output r19 as i128.private;
+    output r20 as i128.private;
+    output r21 as i128.private;
+    output r22 as i128.private;
+    output 144383677963018719196707979796700150014i128 as i128.private;

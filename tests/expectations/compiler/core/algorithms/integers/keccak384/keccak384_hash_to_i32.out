@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "327eadb12a5b3ff6bc86b5704584767ab5d57ce7a6d332e3fcaca0c623fa425a", unrolled_ast = "d764a144dd14796d9c7bcc4673b5a305e4e2e4c7fe273e2899c56e9749efcb4e", ssa_ast = "e9c392017ac19d976aabb3305fcadcd53c25f8bb8edf344f430368bb0029967d", flattened_ast = "ea91f736d127d164148310f76ec13082458f875703d28d9a073ac478c7d319b2", destructured_ast = "6c4f5a4957f7033559aefc4475d6c88787faf0531aff05a9b139266ac7968597", inlined_ast = "6c4f5a4957f7033559aefc4475d6c88787faf0531aff05a9b139266ac7968597", dce_ast = "46e82ee5c6d1aa9e3446ed51614414a8ca289990e9819e6aca094e1059cec619", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,5 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.keccak384 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i32;
+    hash.keccak384 true into r9 as i32;
+    hash.keccak384 1field into r10 as i32;
+    hash.keccak384 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i32;
+    hash.keccak384 r0 into r12 as i32;
+    hash.keccak384 r1 into r13 as i32;
+    hash.keccak384 r2 into r14 as i32;
+    hash.keccak384 r3 into r15 as i32;
+    hash.keccak384 1i128 into r16 as i32;
+    hash.keccak384 r4 into r17 as i32;
+    hash.keccak384 r5 into r18 as i32;
+    hash.keccak384 r6 into r19 as i32;
+    hash.keccak384 r7 into r20 as i32;
+    hash.keccak384 1u128 into r21 as i32;
+    hash.keccak384 1scalar into r22 as i32;
     output r8 as i32.private;
-""", errors = "", warnings = "" }] }]]
+    output r9 as i32.private;
+    output r10 as i32.private;
+    output r11 as i32.private;
+    output r12 as i32.private;
+    output r13 as i32.private;
+    output r14 as i32.private;
+    output r15 as i32.private;
+    output r16 as i32.private;
+    output r17 as i32.private;
+    output r18 as i32.private;
+    output r19 as i32.private;
+    output r20 as i32.private;
+    output r21 as i32.private;
+    output r22 as i32.private;
+    output 1033893828i32 as i32.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.keccak384 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i32;
+    hash.keccak384 true into r9 as i32;
+    hash.keccak384 1field into r10 as i32;
+    hash.keccak384 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i32;
+    hash.keccak384 r0 into r12 as i32;
+    hash.keccak384 r1 into r13 as i32;
+    hash.keccak384 r2 into r14 as i32;
+    hash.keccak384 r3 into r15 as i32;
+    hash.keccak384 1i128 into r16 as i32;
+    hash.keccak384 r4 into r17 as i32;
+    hash.keccak384 r5 into r18 as i32;
+    hash.keccak384 r6 into r19 as i32;
+    hash.keccak384 r7 into r20 as i32;
+    hash.keccak384 1u128 into r21 as i32;
+    hash.keccak384 1scalar into r22 as i32;
+    output r8 as i32.private;
+    output r9 as i32.private;
+    output r10 as i32.private;
+    output r11 as i32.private;
+    output r12 as i32.private;
+    output r13 as i32.private;
+    output r14 as i32.private;
+    output r15 as i32.private;
+    output r16 as i32.private;
+    output r17 as i32.private;
+    output r18 as i32.private;
+    output r19 as i32.private;
+    output r20 as i32.private;
+    output r21 as i32.private;
+    output r22 as i32.private;
+    output 1033893828i32 as i32.private;

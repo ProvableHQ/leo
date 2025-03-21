@@ -35,6 +35,8 @@ impl<'a> Pass for TypeChecker<'a> {
     type Input = (&'a Ast, &'a Handler, &'a mut SymbolTable, &'a TypeTable, NetworkLimits);
     type Output = Result<(StructGraph, CallGraph)>;
 
+    const NAME: &'static str = "TypeChecker";
+
     fn do_pass((ast, handler, symbol_table, type_table, limits): Self::Input) -> Self::Output {
         let mut visitor = TypeChecker::new(symbol_table, type_table, handler, limits);
         visitor.visit_program(ast.as_repr());

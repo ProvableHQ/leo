@@ -41,9 +41,15 @@ workspace = true
 workspace = true
 
 [dev-dependencies.leo-test-framework]
-path = "../../tests/test-framework"
+workspace = true
+
+[dev-dependencies.itertools]
+workspace = true
 
 [dev-dependencies.serde_json]
+workspace = true
+
+[dev-dependencies.serial_test]
 workspace = true
 
 [dev-dependencies.toml]

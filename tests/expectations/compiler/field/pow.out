@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "5e1a097ec64c95de9b05f4a14b5fa47948c889bb0ec971a2b383f7742201905d", unrolled_ast = "5e1a097ec64c95de9b05f4a14b5fa47948c889bb0ec971a2b383f7742201905d", ssa_ast = "b0382b013cdd17b36a8efbc747cd546ee0871eababf3876882e9888506cdd405", flattened_ast = "f7ee6b490d297f4a44bab8e9a6244334659c78efce62e515d9bd0558b5d2ef72", destructured_ast = "01a86f43f2015cbbc88069166f59356366ceed3ccf48d03f436d058c8032253f", inlined_ast = "01a86f43f2015cbbc88069166f59356366ceed3ccf48d03f436d058c8032253f", dce_ast = "01a86f43f2015cbbc88069166f59356366ceed3ccf48d03f436d058c8032253f", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -8,4 +6,12 @@ function main:
     pow -1field 2field into r1;
     is.eq r1 1field into r2;
     output r2 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as field.private;
+    pow -1field 2field into r1;
+    is.eq r1 1field into r2;
+    output r2 as boolean.private;

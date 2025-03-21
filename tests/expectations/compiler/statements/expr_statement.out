@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "eaa9f399bc9592a47c43d90c07ee8813e6a11327a31c9c4a4019ddf49bfd31c2", unrolled_ast = "eaa9f399bc9592a47c43d90c07ee8813e6a11327a31c9c4a4019ddf49bfd31c2", ssa_ast = "c48b683fa808cc5432341d661e4dc5bf46868f1eab6faf1ef3872672db82e25e", flattened_ast = "50240bf96acf482fedfe906c5d7624a9e2e233da8d9381aa09e45a80e7feef8a", destructured_ast = "23bfc473485a70db0fb10caffcc2d98ec5ce3826d018cfe94f137509527514fb", inlined_ast = "7b61fffa9ffdd359e6333f6c51631f7878d97a36708a87165ca9a22bb21b0c07", dce_ast = "7b61fffa9ffdd359e6333f6c51631f7878d97a36708a87165ca9a22bb21b0c07", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 closure foo:
@@ -14,4 +12,18 @@ function main:
     call foo r0 r1;
     add r0 r1 into r2;
     output r2 as u8.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+closure foo:
+    input r0 as u8;
+    input r1 as u8;
+    assert.eq r0 r1;
+
+function main:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    call foo r0 r1;
+    add r0 r1 into r2;
+    output r2 as u8.private;

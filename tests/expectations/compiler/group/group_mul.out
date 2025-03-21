@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "431ec82215281f0ec9e88a5316b91d8ec6616ffc36876b42b194a4666070f790", unrolled_ast = "431ec82215281f0ec9e88a5316b91d8ec6616ffc36876b42b194a4666070f790", ssa_ast = "837ae4bcc2a0c3487c9cc7c01918d9f6f9abfc0d6404e12bc11a331061c8e73a", flattened_ast = "81eaa7f715881ed5d41cbdec90cae708189cfdf5e74b2c2ff1436e78a154efc6", destructured_ast = "da14d48428f4afc323130d509d0d9329a7dafe3d7d9ff5404b67a6e5c145b276", inlined_ast = "da14d48428f4afc323130d509d0d9329a7dafe3d7d9ff5404b67a6e5c145b276", dce_ast = "aefde7e4d28ababb4ec6699c0a5ac06a75e50283f8ba9570fa38b0ec545e6a5d", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -12,4 +10,18 @@ function main:
     mul r0 r4 into r5;
     is.eq r5 r3 into r6;
     output r6 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as scalar.private;
+    input r1 as group.private;
+    input r2 as scalar.private;
+    mul 1817767092074430972953743941103352519057913259183777531581123188265134806220group r0 into r3;
+    mul r0 1817767092074430972953743941103352519057913259183777531581123188265134806220group into r4;
+    mul r1 r0 into r5;
+    mul r0 r1 into r6;
+    mul r0 r6 into r7;
+    is.eq r7 r3 into r8;
+    output r8 as boolean.private;

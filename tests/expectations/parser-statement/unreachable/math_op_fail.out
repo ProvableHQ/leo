@@ -1,0 +1,378 @@
+Error [EPAR0370005]: expected : -- found '='
+    --> test_0:1:7
+     |
+   1 | let x = a ; b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_1:1:7
+     |
+   1 | let x = a import b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_2:1:7
+     |
+   1 | let x = a , b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_3:1:7
+     |
+   1 | let x = a [ b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_4:1:7
+     |
+   1 | let x = a ] b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_5:1:7
+     |
+   1 | let x = a { b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_6:1:7
+     |
+   1 | let x = a } b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_7:1:7
+     |
+   1 | let x = a ( b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_8:1:7
+     |
+   1 | let x = a ) b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_9:1:7
+     |
+   1 | let x = a : b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_10:1:7
+     |
+   1 | let x = a ? b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_11:1:7
+     |
+   1 | let x = a _ b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_12:1:7
+     |
+   1 | let x = a = b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_13:1:7
+     |
+   1 | let x = a ! b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_14:1:7
+     |
+   1 | let x = a .. b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_15:1:7
+     |
+   1 | let x = a console b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_16:1:7
+     |
+   1 | let x = a const b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_17:1:7
+     |
+   1 | let x = a let b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_18:1:7
+     |
+   1 | let x = a for b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_19:1:7
+     |
+   1 | let x = a if b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_20:1:7
+     |
+   1 | let x = a else b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_21:1:7
+     |
+   1 | let x = a i8 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_22:1:7
+     |
+   1 | let x = a i16 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_23:1:7
+     |
+   1 | let x = a i32 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_24:1:7
+     |
+   1 | let x = a i64 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_25:1:7
+     |
+   1 | let x = a i128 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_26:1:7
+     |
+   1 | let x = a u8 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_27:1:7
+     |
+   1 | let x = a u16 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_28:1:7
+     |
+   1 | let x = a u32 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_29:1:7
+     |
+   1 | let x = a u64 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_30:1:7
+     |
+   1 | let x = a u128 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_31:1:7
+     |
+   1 | let x = a & b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_32:1:7
+     |
+   1 | let x = a return b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_33:1:7
+     |
+   1 | let x = a self b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_34:1:7
+     |
+   1 | let x = a Self b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_35:1:7
+     |
+   1 | let x = a true b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_36:1:7
+     |
+   1 | let x = a false b;
+     |       ^
+
+
+Error [EPAR0370005]: expected : -- found '='
+    --> test_37:1:7
+     |
+   1 | let x = a 0 b;
+     |       ^
+
+
+Error [EPAR0370005]: expected <eof> -- found '='
+    --> test_38:1:3
+     |
+   1 | x;=b;
+     |   ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'identifier', found '='
+    --> test_39:1:3
+     |
+   1 | x.=b;
+     |   ^
+
+
+Error [EPAR0370005]: expected ; -- found ','
+    --> test_40:1:2
+     |
+   1 | x,=b; // 43
+     |  ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found '='
+    --> test_41:1:3
+     |
+   1 | x[=b;
+     |   ^
+
+
+Error [EPAR0370005]: expected ; -- found ']'
+    --> test_42:1:2
+     |
+   1 | x]=b;
+     |  ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'identifier', found '='
+    --> test_43:1:3
+     |
+   1 | x{=b;
+     |   ^
+
+
+Error [EPAR0370005]: expected ; -- found '}'
+    --> test_44:1:2
+     |
+   1 | x}=b;
+     |  ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found ';'
+    --> test_45:1:4
+     |
+   1 | x=(;
+     |    ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found ')'
+    --> test_46:1:3
+     |
+   1 | x=);
+     |   ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found ':'
+    --> test_47:1:3
+     |
+   1 | x=:;
+     |   ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found '::'
+    --> test_48:1:3
+     |
+   1 | x=::;
+     |   ^^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found '='
+    --> test_49:1:3
+     |
+   1 | x?=b;
+     |   ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found '='
+    --> test_50:1:4
+     |
+   1 | x!==b;
+     |    ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found '='
+    --> test_51:1:4
+     |
+   1 | x>==b;
+     |    ^
+
+
+Error [EPAR0370009]: unexpected string: expected 'expression', found '='
+    --> test_52:1:4
+     |
+   1 | x<==b;
+     |    ^
+
+
+Error [EPAR0370005]: expected ; -- found '..'
+    --> test_53:1:2
+     |
+   1 | x..=b;
+     |  ^^
+
+

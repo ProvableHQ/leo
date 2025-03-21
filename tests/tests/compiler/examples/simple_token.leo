@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 // This example demonstrates an example of a minting and transferring a token in Leo.
 program test.aleo {

@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 program basic_bank.aleo {
     // A token, issued by a bank.

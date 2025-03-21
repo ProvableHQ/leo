@@ -1,9 +1,5 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     struct S {
         x: (),
         y: u8,

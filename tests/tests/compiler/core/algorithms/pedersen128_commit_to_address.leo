@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
 program test.aleo {
     struct Foo {
@@ -18,7 +14,7 @@ program test.aleo {
         u16_value: u16,
         u32_value: u32,
         u64_value: u64,
-    ) -> bool {
+    ) -> (address, address, address, address, address, address, address, address, address, address, address, address, address, address, ) {
         let addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
         let bool_value: bool = true;
         let field_value: field = 1field;
@@ -29,10 +25,10 @@ program test.aleo {
         // let string_value: string = "helloworld";
 
         // Pedersen128 commit_to_address tests
-        let a: address = Pedersen128::commit_to_address(addr_value, scalar_value);
+        let a: address = Pedersen128::commit_to_address(bool_value, scalar_value);
         let b: address = Pedersen128::commit_to_address(bool_value, scalar_value);
-        let c: address = Pedersen128::commit_to_address(field_value, scalar_value);
-        let d: address = Pedersen128::commit_to_address(group_value, scalar_value);
+        let c: address = Pedersen128::commit_to_address(bool_value, scalar_value);
+        let d: address = Pedersen128::commit_to_address(bool_value, scalar_value);
         let e: address = Pedersen128::commit_to_address(i8_value, scalar_value);
         let f: address = Pedersen128::commit_to_address(i16_value, scalar_value);
         let g: address = Pedersen128::commit_to_address(i32_value, scalar_value);
@@ -41,9 +37,9 @@ program test.aleo {
         let k: address = Pedersen128::commit_to_address(u16_value, scalar_value);
         let l: address = Pedersen128::commit_to_address(u32_value, scalar_value);
         let m: address = Pedersen128::commit_to_address(u64_value, scalar_value);
-        let o: address = Pedersen128::commit_to_address(scalar_value, scalar_value);
+        let o: address = Pedersen128::commit_to_address(bool_value, scalar_value);
         // let j11: address = Pedersen128::commit_to_address(string_value);
-        let p: address = Pedersen128::commit_to_address(Foo { a: 1u32, b: 1u32 }, scalar_value);
+        let p: address = Pedersen128::commit_to_address(bool_value, scalar_value);
 
-        return a == j;
+        return (a, b, c, d, e, f, g, h, j, k, l, m, o, p);
     }}

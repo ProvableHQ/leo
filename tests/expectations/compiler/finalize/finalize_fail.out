@@ -1,12 +1,19 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EAST0372006]: function `finalize_no_params` shadowed by
-    --> compiler-test:27:5
+    --> compiler-test:26:5
      |
-  27 |     async function finalize_no_params() {
-  28 |         increment(values, 0u8, 1u8);
-  29 |         increment(account, self.caller, 1u64);
-  30 |     }
+  26 |     async function finalize_no_params() {
+  27 |         increment(values, 0u8, 1u8);
+  28 |         increment(account, self.caller, 1u64);
+  29 |     }
      |     ^
-"""]
+
+DCE_DISABLED:
+Error [EAST0372006]: function `finalize_no_params` shadowed by
+    --> compiler-test:26:5
+     |
+  26 |     async function finalize_no_params() {
+  27 |         increment(values, 0u8, 1u8);
+  28 |         increment(account, self.caller, 1u64);
+  29 |     }
+     |     ^

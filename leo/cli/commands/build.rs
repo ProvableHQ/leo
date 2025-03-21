@@ -199,18 +199,10 @@ fn compile_leo_file<N: Network>(
     aleo_file_path.push(format!("main.{}", program_id.network()));
 
     // Create a new instance of the Leo compiler.
-    let mut compiler = Compiler::<N>::new(
-        program_name.clone(),
-        program_id.network().to_string(),
-        handler,
-        file_path.clone(),
-        outputs.to_path_buf(),
-        Some(options.into()),
-        stubs,
-    );
+    let mut compiler = Compiler::<N>::new(handler, outputs.to_path_buf(), Some(options.into()), stubs);
 
     // Compile the Leo program into Aleo instructions.
-    let instructions = compiler.compile()?;
+    let instructions = compiler.compile_from_file(file_path)?;
 
     // Write the instructions.
     std::fs::File::create(&aleo_file_path)

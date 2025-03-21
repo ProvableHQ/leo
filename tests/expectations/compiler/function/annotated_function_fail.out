@@ -1,21 +1,35 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372027]: Unknown annotation: `@test`.
-    --> compiler-test:4:5
+    --> compiler-test:3:5
      |
-   4 |     @test
+   3 |     @test
      |     ^^^^^
 Error [ETYC0372027]: Unknown annotation: `@program`.
-    --> compiler-test:9:5
+    --> compiler-test:8:5
      |
-   9 |     @program
+   8 |     @program
      |     ^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372027]: Unknown annotation: `@test`.
+    --> compiler-test:3:5
+     |
+   3 |     @test
+     |     ^^^^^
+Error [ETYC0372027]: Unknown annotation: `@program`.
+    --> compiler-test:8:5
+     |
+   8 |     @program
+     |     ^^^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

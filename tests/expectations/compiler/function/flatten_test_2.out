@@ -1,15 +1,12 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[
-    { compile = [{ initial_ast = "bef00e09abe35ecbf9c2562d8d6eea8ebbf0677855b1c6e9d5191d522777527d", unrolled_ast = "bef00e09abe35ecbf9c2562d8d6eea8ebbf0677855b1c6e9d5191d522777527d", ssa_ast = "75d55ad5f18854de37999df71a9b99ca956938e269a4323b94504750dbfdea52", flattened_ast = "b6f54710b78ee6bd6474c8eddf49802fee44967f4711964e36d1b04459d18def", destructured_ast = "f4e8d5ba318309c01638bb61c727463e562340fdd1151f5c78c475ff27a93667", inlined_ast = "f4e8d5ba318309c01638bb61c727463e562340fdd1151f5c78c475ff27a93667", dce_ast = "87c55c56ec790d6a2de0130dce5f30a9a0f3d77dfe9e1a12c2b8814467d2d11e", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct TokenInfo:
     id as u64;
 
 function add_new_liquidity_token_2:
-""", errors = "", warnings = "" }] },
-    { compile = [{ initial_ast = "82e6e17d2358153abf3750b278f973db78ebc5b8fed0410c88dd0308a66ba659", unrolled_ast = "82e6e17d2358153abf3750b278f973db78ebc5b8fed0410c88dd0308a66ba659", ssa_ast = "8f3f9537b4cd5a5eebd235f30c51aaa5eda60ee2e691b07dafb2a0226cd480a2", flattened_ast = "71a16b8f151cf2c0cf1209ed8dbc6bec3b53737f0b24ecb717653709f9f547d8", destructured_ast = "39cc983542066cd18561022c2a1dbc4365aad55c7cfabf6ed85bbec21e596300", inlined_ast = "39cc983542066cd18561022c2a1dbc4365aad55c7cfabf6ed85bbec21e596300", dce_ast = "39cc983542066cd18561022c2a1dbc4365aad55c7cfabf6ed85bbec21e596300", bytecode = """
+
+DCE_DISABLED:
 program test.aleo;
 
 struct TokenInfo:
@@ -22,5 +19,3 @@ function add_new_liquidity_token_2:
     not r1 into r3;
     ternary r1 r2.id r0.id into r4;
     cast r4 into r5 as TokenInfo;
-""", errors = "", warnings = "" }] },
-]]

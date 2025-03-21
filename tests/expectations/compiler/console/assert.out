@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "ade6a543693f5fa250337f907a2fc60682e91a30041e4429c997a1a64d2a7d21", unrolled_ast = "ade6a543693f5fa250337f907a2fc60682e91a30041e4429c997a1a64d2a7d21", ssa_ast = "a5747ebb11014698806c70ee70fe67c0135f79e4e1ba107766021c56ed7fd839", flattened_ast = "57e78e43ba0a63d8a1539da4bb5039f9cb8d3e53113c98776ea77cbd9bf94d64", destructured_ast = "b86df74b9693e217672eb65197d6289f7d37d9d3efd1eef3f89a6f6e9e2d3e2e", inlined_ast = "b86df74b9693e217672eb65197d6289f7d37d9d3efd1eef3f89a6f6e9e2d3e2e", dce_ast = "b86df74b9693e217672eb65197d6289f7d37d9d3efd1eef3f89a6f6e9e2d3e2e", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 record Token:
@@ -23,4 +21,27 @@ function main:
     assert.neq r2 r4;
     is.eq r0 true into r5;
     output r5 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u64.private;
+
+struct Foo:
+    a as u8;
+
+function main:
+    input r0 as boolean.private;
+    input r1 as Foo.private;
+    input r2 as Token.record;
+    assert.eq r0 true;
+    assert.neq r0 false;
+    assert.eq r0 true;
+    cast 0u8 into r3 as Foo;
+    assert.eq r1 r3;
+    cast aleo1lfapwg53y5enqpt0d8cnef4g8lj7l6g9uhkkma23qyv6jm4ppyfq50regr 0u64 into r4 as Token.record;
+    assert.neq r2 r4;
+    is.eq r0 true into r5;
+    output r5 as boolean.private;

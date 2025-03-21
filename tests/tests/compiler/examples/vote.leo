@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 // The 'vote.leo' program.
 program vote.aleo {

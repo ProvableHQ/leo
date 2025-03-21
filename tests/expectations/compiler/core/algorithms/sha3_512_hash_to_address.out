@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "4299b25233e169f76306393f5ef50d3ee4779f9ba8e5f41ccc9e8c6612b40eb0", unrolled_ast = "c93a4462854e7caca3c8515686e9c26ee5f15b4c655bc50202406374ee5468b2", ssa_ast = "0c53fff0791c212da8429d47b3142c33f5704a84a62ffb1b2f8a9547e7d4c49e", flattened_ast = "e4f2eabf3f6b616adc7bdb52093ddabf157a23c5c2104b517f3e72caa644b034", destructured_ast = "f74df716a233baf3ed143710caddaebed706b82a68a2c6a6eb418f175aaa1872", inlined_ast = "f74df716a233baf3ed143710caddaebed706b82a68a2c6a6eb418f175aaa1872", dce_ast = "f11e540f8037894b2800372f23726faadcbe17beca6b324433246a6d6903fb7b", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -16,5 +14,82 @@ function main:
     input r5 as u16.private;
     input r6 as u32.private;
     input r7 as u64.private;
-    output 1field as field.private;
-""", errors = "", warnings = "" }] }]]
+    hash.sha3_512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as address;
+    hash.sha3_512 true into r9 as address;
+    hash.sha3_512 1field into r10 as address;
+    hash.sha3_512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as address;
+    hash.sha3_512 r0 into r12 as address;
+    hash.sha3_512 r1 into r13 as address;
+    hash.sha3_512 r2 into r14 as address;
+    hash.sha3_512 r3 into r15 as address;
+    hash.sha3_512 1i128 into r16 as address;
+    hash.sha3_512 r4 into r17 as address;
+    hash.sha3_512 r5 into r18 as address;
+    hash.sha3_512 r6 into r19 as address;
+    hash.sha3_512 r7 into r20 as address;
+    hash.sha3_512 1u128 into r21 as address;
+    hash.sha3_512 1scalar into r22 as address;
+    output r8 as address.private;
+    output r9 as address.private;
+    output r10 as address.private;
+    output r11 as address.private;
+    output r12 as address.private;
+    output r13 as address.private;
+    output r14 as address.private;
+    output r15 as address.private;
+    output r16 as address.private;
+    output r17 as address.private;
+    output r18 as address.private;
+    output r19 as address.private;
+    output r20 as address.private;
+    output r21 as address.private;
+    output r22 as address.private;
+    output aleo10f4dsrffpp5w53fay0qvryfqe8kfcs0jh6wj50epsvqzkj97tspq2ml5nj as address.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.sha3_512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as address;
+    hash.sha3_512 true into r9 as address;
+    hash.sha3_512 1field into r10 as address;
+    hash.sha3_512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as address;
+    hash.sha3_512 r0 into r12 as address;
+    hash.sha3_512 r1 into r13 as address;
+    hash.sha3_512 r2 into r14 as address;
+    hash.sha3_512 r3 into r15 as address;
+    hash.sha3_512 1i128 into r16 as address;
+    hash.sha3_512 r4 into r17 as address;
+    hash.sha3_512 r5 into r18 as address;
+    hash.sha3_512 r6 into r19 as address;
+    hash.sha3_512 r7 into r20 as address;
+    hash.sha3_512 1u128 into r21 as address;
+    hash.sha3_512 1scalar into r22 as address;
+    output r8 as address.private;
+    output r9 as address.private;
+    output r10 as address.private;
+    output r11 as address.private;
+    output r12 as address.private;
+    output r13 as address.private;
+    output r14 as address.private;
+    output r15 as address.private;
+    output r16 as address.private;
+    output r17 as address.private;
+    output r18 as address.private;
+    output r19 as address.private;
+    output r20 as address.private;
+    output r21 as address.private;
+    output r22 as address.private;
+    output aleo10f4dsrffpp5w53fay0qvryfqe8kfcs0jh6wj50epsvqzkj97tspq2ml5nj as address.private;

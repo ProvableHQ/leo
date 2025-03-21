@@ -14,24 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::Result;
 use leo_span::{Span, Symbol};
 use snarkvm::console::program::Identifier as IdentifierCore;
 
 use crate::{Node, NodeID, simple_node_impl};
-use serde::{
-    Deserialize,
-    Deserializer,
-    Serialize,
-    Serializer,
-    de::{
-        Visitor,
-        {self},
-    },
-};
+use serde::{Deserialize, Serialize};
 use snarkvm::prelude::Network;
 use std::{
-    collections::BTreeMap,
     fmt,
     hash::{Hash, Hasher},
 };
@@ -41,7 +30,7 @@ use std::{
 /// Attention - When adding or removing fields from this struct,
 /// please remember to update its Serialize and Deserialize implementation
 /// to reflect the new struct instantiation.
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Identifier {
     /// The symbol that the user wrote, e.g., `foo`.
     pub name: Symbol,
@@ -91,69 +80,6 @@ impl Hash for Identifier {
     }
 }
 
-impl Serialize for Identifier {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        // Converts an element that implements Serialize into a string.
-        fn to_json_string<E: Serialize, Error: serde::ser::Error>(element: &E) -> Result<String, Error> {
-            serde_json::to_string(&element).map_err(|e| Error::custom(e.to_string()))
-        }
-
-        // Load the struct elements into a BTreeMap (to preserve serialized ordering of keys).
-        let mut key: BTreeMap<String, String> = BTreeMap::new();
-        key.insert("name".to_string(), self.name.to_string());
-        key.insert("span".to_string(), to_json_string(&self.span)?);
-        key.insert("id".to_string(), to_json_string(&self.id)?);
-
-        // Convert the serialized object into a string for use as a key.
-        serializer.serialize_str(&to_json_string(&key)?)
-    }
-}
-
-impl<'de> Deserialize<'de> for Identifier {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        struct IdentifierVisitor;
-
-        impl Visitor<'_> for IdentifierVisitor {
-            type Value = Identifier;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a string encoding the ast Identifier struct")
-            }
-
-            /// Implementation for recovering a string that serializes Identifier.
-            fn visit_str<E: de::Error>(self, value: &str) -> Result<Self::Value, E> {
-                // Converts a serialized string into an element that implements Deserialize.
-                fn to_json_string<'a, D: Deserialize<'a>, Error: serde::de::Error>(
-                    serialized: &'a str,
-                ) -> Result<D, Error> {
-                    serde_json::from_str::<'a>(serialized).map_err(|e| Error::custom(e.to_string()))
-                }
-
-                // Convert the serialized string into a BTreeMap to recover Identifier.
-                let key: BTreeMap<String, String> = to_json_string(value)?;
-
-                let name = match key.get("name") {
-                    Some(name) => Symbol::intern(name),
-                    None => return Err(E::custom("missing 'name' in serialized Identifier struct")),
-                };
-
-                let span: Span = match key.get("span") {
-                    Some(span) => to_json_string(span)?,
-                    None => return Err(E::custom("missing 'span' in serialized Identifier struct")),
-                };
-
-                let id: NodeID = match key.get("id") {
-                    Some(id) => to_json_string(id)?,
-                    None => return Err(E::custom("missing 'id' in serialized Identifier struct")),
-                };
-
-                Ok(Identifier { name, span, id })
-            }
-        }
-
-        deserializer.deserialize_str(IdentifierVisitor)
-    }
-}
 impl<N: Network> From<&IdentifierCore<N>> for Identifier {
     fn from(id: &IdentifierCore<N>) -> Self {
         Self { name: Symbol::intern(&id.to_string()), span: Default::default(), id: Default::default() }

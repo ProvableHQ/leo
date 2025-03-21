@@ -1,0 +1,31 @@
+[package]
+name = "leo-test-framework"
+version = "2.4.1"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "The testing framework for the Leo programming language"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "compilers", "cryptography" ]
+include = [ "Cargo.toml", "src", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+rust-version = "1.85.1"
+
+[dependencies.leo-errors]
+workspace = true
+
+[dependencies.indexmap]
+workspace = true
+
+[dependencies.itertools]
+workspace = true
+
+[dependencies.walkdir]
+version = "2.5"

@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EAST0372009]: variable `HELLO` shadowed by
-    --> compiler-test:11:23
+    --> compiler-test:10:23
      |
-  11 |                 const HELLO:u8 = 1u8;
+  10 |                 const HELLO:u8 = 1u8;
      |                       ^^^^^
-"""]
+
+DCE_DISABLED:
+Error [EAST0372009]: variable `HELLO` shadowed by
+    --> compiler-test:10:23
+     |
+  10 |                 const HELLO:u8 = 1u8;
+     |                       ^^^^^

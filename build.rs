@@ -75,7 +75,7 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
     println!("cargo:rerun-if-changed=compiler");
     println!("cargo:rerun-if-changed=errors");
     println!("cargo:rerun-if-changed=leo");
-    println!("cargo:rerun-if-changed=tests/test-framework");
+    println!("cargo:rerun-if-changed=test-framework");
     println!("cargo:rerun-if-changed=utils");
 
     // Watch the build script itself

@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "6278235df4cbd43e10b780452c221026eda348af6529b120759ae8970e7149f1", unrolled_ast = "6278235df4cbd43e10b780452c221026eda348af6529b120759ae8970e7149f1", ssa_ast = "0719d73c8452d931a4df68a9c7d7d29f9f5d4448e58d1e401dcb89d24d0d9887", flattened_ast = "13ec98447e34faba6a841cfa27dc1feaeb498d447e77d5c8b279e5f3e0e3c1b6", destructured_ast = "d6a8a4b96e790ea0d641c434d63f75fae5a061131877aeeec79e07d0a0272acf", inlined_ast = "0f64ad36c96c1a164e8fc17e84acd75fcc723c8b724d4c36754d6bea60b36fa1", dce_ast = "4197260cb002d497082d9c3f2613b016a20b159648a192cd6fefa4752f94d32a", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function foo:
@@ -10,4 +8,28 @@ function foo:
 finalize foo:
     rand.chacha into r0 as boolean;
     assert.eq r0 true;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function foo:
+    async foo into r0;
+    output r0 as test.aleo/foo.future;
+
+finalize foo:
+    rand.chacha into r0 as address;
+    rand.chacha into r1 as boolean;
+    rand.chacha into r2 as field;
+    rand.chacha into r3 as group;
+    rand.chacha into r4 as i8;
+    rand.chacha into r5 as i16;
+    rand.chacha into r6 as i32;
+    rand.chacha into r7 as i64;
+    rand.chacha into r8 as i128;
+    rand.chacha into r9 as scalar;
+    rand.chacha into r10 as u8;
+    rand.chacha into r11 as u16;
+    rand.chacha into r12 as u32;
+    rand.chacha into r13 as u64;
+    rand.chacha into r14 as u128;
+    assert.eq r1 true;

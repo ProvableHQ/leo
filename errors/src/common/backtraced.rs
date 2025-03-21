@@ -20,7 +20,7 @@ use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
 use colored::Colorize;
 use derivative::Derivative;
-use leo_span::source_map::is_not_test_framework;
+use leo_span::source_map::is_color;
 
 /// The indent for an error message.
 pub(crate) const INDENT: &str = "    ";
@@ -109,7 +109,7 @@ impl fmt::Display for Backtraced {
         let message = format!("{kind} [{code}]: {message}", message = self.message,);
 
         // To avoid the color enabling characters for comparison with test expectations.
-        if is_not_test_framework() {
+        if is_color() {
             if self.error {
                 write!(f, "{}", message.bold().red())?;
             } else {

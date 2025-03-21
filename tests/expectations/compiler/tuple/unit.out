@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "2744442271ec20dc37bf0b9bf73e39079da06b8c5cdd134e3f5d931a955c8edf", unrolled_ast = "2744442271ec20dc37bf0b9bf73e39079da06b8c5cdd134e3f5d931a955c8edf", ssa_ast = "30a147e3a68369d605926160334191d7b2482a2d2a20869fb20b055d24228d24", flattened_ast = "a5f972bd94a3a6541dd2fbfa42c2d1c5d376c5c5370baab6bf76191335db1ffc", destructured_ast = "c59f06a385e3c8747d1964bc96108fbdd53257966c7f78050403290eb99e1524", inlined_ast = "c59f06a385e3c8747d1964bc96108fbdd53257966c7f78050403290eb99e1524", dce_ast = "c59f06a385e3c8747d1964bc96108fbdd53257966c7f78050403290eb99e1524", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function bar:
@@ -26,4 +24,30 @@ function blaz:
     input r1 as u8.private;
     assert.eq r0 r1;
     assert.eq r1 r0;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function bar:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    assert.eq r0 r1;
+    assert.eq r1 r0;
+
+function baz:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    assert.eq r0 r1;
+    assert.eq r1 r0;
+
+function blar:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    assert.eq r0 r1;
+    assert.eq r1 r0;
+
+function blaz:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    assert.eq r0 r1;
+    assert.eq r1 r0;

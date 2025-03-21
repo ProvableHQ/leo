@@ -122,7 +122,7 @@ impl fmt::Display for Formatted {
         let message = format!("{kind} [{code}]: {message}", message = self.backtrace.message,);
 
         // To avoid the color enabling characters for comparison with test expectations.
-        if std::env::var("LEO_TESTFRAMEWORK").unwrap_or_default().trim().to_owned().is_empty() {
+        if std::env::var("NOCOLOR").unwrap_or_default().trim().to_owned().is_empty() {
             if self.backtrace.error {
                 write!(f, "{}", message.bold().red())?;
             } else {

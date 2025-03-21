@@ -1,22 +1,20 @@
 /*
-namespace = "Execute"
-expectation = "Pass"
-[[cases]]
+[case]
 program = "test.aleo"
 function = "dubble"
 input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[[cases]]
+[case]
 program = "test.aleo"
 function = "dubble"
 input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[[cases]]
+[case]
 program = "test.aleo"
 function = "dubble"
 input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[[cases]]
+[case]
 program = "test.aleo"
 function = "dubble"
 input = []

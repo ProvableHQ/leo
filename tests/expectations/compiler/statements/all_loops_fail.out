@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370009]: unexpected string: expected 'expression', found '='
-    --> compiler-test:16:30
+    --> compiler-test:15:30
      |
-  16 |         for a: u32 in 10u32..=0u32 {
-     |                              ^"""]
+  15 |         for a: u32 in 10u32..=0u32 {
+     |                              ^
+DCE_DISABLED:
+Error [EPAR0370009]: unexpected string: expected 'expression', found '='
+    --> compiler-test:15:30
+     |
+  15 |         for a: u32 in 10u32..=0u32 {
+     |                              ^

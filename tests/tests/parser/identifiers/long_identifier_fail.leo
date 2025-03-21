@@ -1,9 +1,5 @@
-/*
-namespace = "Parse"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     transition main() -> bool {
         return true;
     }

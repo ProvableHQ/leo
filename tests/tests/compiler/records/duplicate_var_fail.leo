@@ -1,9 +1,5 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     record Token {
         // The token owner.
         owner: address,
@@ -12,7 +8,7 @@ program test.aleo {
         // The token amount.
         amount: u64,
     }
-    
+
     function main(zz: bool) -> bool {
         return true;
     }}

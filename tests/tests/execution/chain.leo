@@ -1,19 +1,17 @@
 /*
-namespace = "Execute"
-expectation = "Pass"
-[[cases]]
+[case]
 program = "test.aleo"
 function = "main"
 input = ["1u32"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "main"
 input = ["2u32"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "main"
 input = ["3u32"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "main"
 input = ["4u32"]

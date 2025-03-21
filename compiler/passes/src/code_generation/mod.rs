@@ -34,6 +34,8 @@ impl<'a> Pass for CodeGenerator<'a> {
     type Input = (&'a Ast, &'a SymbolTable, &'a TypeTable, &'a StructGraph, &'a CallGraph, &'a Program);
     type Output = Result<String>;
 
+    const NAME: &'static str = "CodeGenerator";
+
     fn do_pass((ast, symbol_table, type_table, struct_graph, call_graph, program): Self::Input) -> Self::Output {
         let mut generator = Self::new(symbol_table, type_table, struct_graph, call_graph, program);
         let bytecode = generator.visit_program(ast.as_repr());

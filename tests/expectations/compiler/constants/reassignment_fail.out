@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372002]: Cannot assign to const variable `HELLO`
-    --> compiler-test:4:11
+    --> compiler-test:3:11
      |
-   4 |     const HELLO: u8 = 0u8;
+   3 |     const HELLO: u8 = 0u8;
      |           ^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372002]: Cannot assign to const variable `HELLO`
+    --> compiler-test:3:11
+     |
+   3 |     const HELLO: u8 = 0u8;
+     |           ^^^^^

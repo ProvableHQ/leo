@@ -1,0 +1,13 @@
+Error [EPAR0370043]: Digit G invalid in radix 16 (token 0xGA).
+
+
+Error [EPAR0370043]: Digit 2 invalid in radix 2 (token 0b02).
+
+
+Error [EPAR0370043]: Digit 9 invalid in radix 8 (token 0o90).
+
+
+Error [EPAR0370016]: Could not lex the following content: `☺23`.
+
+
+

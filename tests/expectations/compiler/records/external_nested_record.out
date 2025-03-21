@@ -1,7 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "48ce3a7bae5585b65a9e90bff61fab17c1374bca0e87cab1b5c3f2c185f450dc", unrolled_ast = "48ce3a7bae5585b65a9e90bff61fab17c1374bca0e87cab1b5c3f2c185f450dc", ssa_ast = "9d9873ebba8c1fc64e5d39c625ffd8b264d6bde345d3cd701dd6243faf6903bf", flattened_ast = "a42b9d2a4f137f8f99327e1e9de845d738a34d80bef14c83873016cf03dbe7d3", destructured_ast = "215e4b45aaea1abe9dc82e7dea48a703e7b487eddde29eb171fa55f51126395b", inlined_ast = "215e4b45aaea1abe9dc82e7dea48a703e7b487eddde29eb171fa55f51126395b", dce_ast = "215e4b45aaea1abe9dc82e7dea48a703e7b487eddde29eb171fa55f51126395b", bytecode = """
+DCE_ENABLED:
 program child.aleo;
 
 record child_rec:
@@ -9,19 +6,36 @@ record child_rec:
 
 function main:
     input r0 as child_rec.record;
-""", errors = "", warnings = "" },
-    { initial_ast = "3035438b326eef0eacc00dbe4829c09021b73a037709aa7c2a22860e5dd9a26a", unrolled_ast = "b3b45e5d3481e68154563fdc64f460e69fd00395eccb5a319eb5e81ca7f7d3c9", ssa_ast = "2c99491bef8522853d6ea154f28662fc72c590f9f0cc38ee32988178004b528b", flattened_ast = "26fb9d5f36c19e660e52fbce2f7469ae5ad267b62c0bb586e398c1a9a187c8b5", destructured_ast = "8428ca990b5ca795833df4bee4efa235b69f96560f2b9ac088bf7e0ef9a45c21", inlined_ast = "8428ca990b5ca795833df4bee4efa235b69f96560f2b9ac088bf7e0ef9a45c21", dce_ast = "8428ca990b5ca795833df4bee4efa235b69f96560f2b9ac088bf7e0ef9a45c21", bytecode = """
+// --- Next Program --- //
 import child.aleo;
 program inter.aleo;
 
 function use_child:
     input r0 as child.aleo/child_rec.record;
-""", errors = "", warnings = "" },
-    { initial_ast = "a3ac974e10d37be232ec426fe64976ac2e2701d160d8777f4c92e177cf8e3140", unrolled_ast = "e8f62eeaa66db3f359e2965887d4412a182248577aeecbe721e520df7cc8f262", ssa_ast = "e8f62eeaa66db3f359e2965887d4412a182248577aeecbe721e520df7cc8f262", flattened_ast = "992fc3e592c2877917c17d95cda4c49941da939bbc09a8fcd2356f09fcc64dec", destructured_ast = "2a62e891e972abf4d485b73acc2fd39eb970af5cb42590d16b7275f6a7eb5f8c", inlined_ast = "2a62e891e972abf4d485b73acc2fd39eb970af5cb42590d16b7275f6a7eb5f8c", dce_ast = "2a62e891e972abf4d485b73acc2fd39eb970af5cb42590d16b7275f6a7eb5f8c", bytecode = """
+// --- Next Program --- //
 import child.aleo;
 import inter.aleo;
 program parent.aleo;
 
 function main:
-""", errors = "", warnings = "" },
-] }]]
+
+DCE_DISABLED:
+program child.aleo;
+
+record child_rec:
+    owner as address.private;
+
+function main:
+    input r0 as child_rec.record;
+// --- Next Program --- //
+import child.aleo;
+program inter.aleo;
+
+function use_child:
+    input r0 as child.aleo/child_rec.record;
+// --- Next Program --- //
+import child.aleo;
+import inter.aleo;
+program parent.aleo;
+
+function main:

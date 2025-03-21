@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372117]: Expected type `i8` but type `u32` was found.
-    --> compiler-test:11:21
+    --> compiler-test:10:21
      |
-  11 |         let x: i8 = s.f1;
+  10 |         let x: i8 = s.f1;
      |                     ^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected type `i8` but type `u32` was found.
+    --> compiler-test:10:21
+     |
+  10 |         let x: i8 = s.f1;
+     |                     ^^^^

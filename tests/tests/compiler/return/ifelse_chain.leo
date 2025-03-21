@@ -1,11 +1,7 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 // The intent is to test that the amount of code generated
 // is only linear in the number of conditions.
-program test.aleo {    
+program test.aleo {
     transition main(a: field) -> u32 {
         if a == 0field {
             return 0u32;

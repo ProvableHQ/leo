@@ -1,0 +1,42 @@
+{
+  "Expression": {
+    "expression": {
+      "Call": {
+        "function": {
+          "Identifier": {
+            "name": "finalize",
+            "span": {
+              "lo": 0,
+              "hi": 8
+            },
+            "id": 0
+          }
+        },
+        "arguments": [
+          {
+            "Identifier": {
+              "name": "foo",
+              "span": {
+                "lo": 9,
+                "hi": 12
+              },
+              "id": 1
+            }
+          }
+        ],
+        "program": null,
+        "span": {
+          "lo": 0,
+          "hi": 13
+        },
+        "id": 2
+      }
+    },
+    "span": {
+      "lo": 0,
+      "hi": 14
+    },
+    "id": 3
+  }
+}
+

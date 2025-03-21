@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "d7838abbe0ad26b7a8bc6eae9ab9c0f7be4d180426d060f86e4bb158b7f177a0", unrolled_ast = "d7838abbe0ad26b7a8bc6eae9ab9c0f7be4d180426d060f86e4bb158b7f177a0", ssa_ast = "6705159c19f0b4be0aca2274627f3266d6dfe330831f83a1e84ac6aa6d2fd633", flattened_ast = "c46d86e02d31c4d4efb7a1fa68ad631a256082d98215453285ba18c5cf2e1709", destructured_ast = "9d010f2ad1492151a3267c121e189837b47114476963a937b854e5ca1ac6d817", inlined_ast = "fdeec987a632f650bb2b497b811341b1bb19d1d97663811168d4f353a05e01bf", dce_ast = "fdeec987a632f650bb2b497b811341b1bb19d1d97663811168d4f353a05e01bf", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function foo:
@@ -11,4 +9,15 @@ function foo:
 finalize foo:
     input r0 as [boolean; 8u32].public;
     assert.eq true true;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function foo:
+    input r0 as [boolean; 8u32].private;
+    async foo r0 into r1;
+    output r1 as test.aleo/foo.future;
+
+finalize foo:
+    input r0 as [boolean; 8u32].public;
+    assert.eq true true;

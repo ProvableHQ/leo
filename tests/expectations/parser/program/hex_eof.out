@@ -1,8 +1,5 @@
-namespace = "Parse"
-expectation = "Fail"
-outputs = ["""
 Error [EPAR0370005]: expected : -- found '='
-    --> test:4:29
+    --> test:3:29
      |
-   4 |     function main() { let a = 0x}
-     |                             ^"""]
+   3 |     function main() { let a = 0x}
+     |                             ^
