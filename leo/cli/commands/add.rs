@@ -68,7 +68,7 @@ impl Command for LeoAdd {
 
         // Add dependency section to manifest if it doesn't exist.
         let mut dependencies = match (self.clear, manifest.dependencies()) {
-            (false, Some(ref dependencies)) => dependencies
+            (false, Some(dependencies)) => dependencies
                 .iter()
                 .filter_map(|dependency| {
                     // Overwrite old dependencies of the same name.

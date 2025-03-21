@@ -53,7 +53,7 @@ impl Context {
     /// Returns the path of the parent directory to the Leo package.
     pub fn parent_dir(&self) -> Result<PathBuf> {
         match &self.path {
-            Some(ref path) => {
+            Some(path) => {
                 let mut path = path.clone();
                 path.pop();
                 Ok(path)

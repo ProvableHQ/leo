@@ -257,7 +257,7 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 
 // A helper function to display a cost breakdown of the deployment.
 fn deploy_cost_breakdown(
-    name: &String,
+    name: &str,
     base_fee: f64,
     storage_cost: f64,
     synthesis_cost: f64,

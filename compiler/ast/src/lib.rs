@@ -55,12 +55,11 @@ pub use self::statement::*;
 pub mod types;
 pub use self::types::*;
 
-pub mod value;
-
 pub mod stub;
 pub use self::stub::*;
 
-pub use self::value::*;
+mod value;
+pub use value::*;
 
 pub use common::node::*;
 

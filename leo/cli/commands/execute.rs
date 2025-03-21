@@ -460,7 +460,7 @@ fn load_program_from_network<N: Network>(
 
 // A helper function to display a cost breakdown of the execution.
 fn execution_cost_breakdown(
-    name: &String,
+    name: &str,
     base_fee: f64,
     storage_cost: f64,
     finalize_cost: f64,

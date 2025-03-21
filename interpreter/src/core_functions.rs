@@ -124,7 +124,7 @@ pub fn evaluate_core_function(
     macro_rules! maybe_gen {
         () => {
             if let Some(rng) = helper.rng() {
-                rng.gen()
+                rng.r#gen()
             } else {
                 return Ok(None);
             }

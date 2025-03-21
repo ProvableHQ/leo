@@ -64,10 +64,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
 
                 // Replace each input variable with the appropriate parameter.
                 let replace = |identifier: &Identifier| {
-                    parameter_to_argument
-                        .get(&identifier.name)
-                        .cloned()
-                        .unwrap_or_else(|| Expression::Identifier(*identifier))
+                    parameter_to_argument.get(&identifier.name).cloned().unwrap_or(Expression::Identifier(*identifier))
                 };
 
                 let mut inlined_statements =

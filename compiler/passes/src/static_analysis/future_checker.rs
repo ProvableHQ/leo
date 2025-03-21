@@ -44,7 +44,7 @@ struct FutureChecker<'a> {
     handler: &'a Handler,
 }
 
-impl<'a> FutureChecker<'a> {
+impl FutureChecker<'_> {
     fn emit_err(&self, err: StaticAnalyzerError) {
         self.handler.emit_err(err);
     }
