@@ -72,8 +72,9 @@ closure reverse_bits:
     is.eq r66 1u8 into r67;
     xor r65 1u8 into r68;
     ternary r67 r68 r65 into r69;
-    ternary r64 r69 r62 into r70;
-    output r70 as u8;
+    shr r63 1u8 into r70;
+    ternary r64 r69 r62 into r71;
+    output r71 as u8;
 
 function fibonacci:
     input r0 as u8.public;
@@ -223,9 +224,12 @@ function fibonacci:
     shl 1u8 r134 into r143;
     and r2 r143 into r144;
     is.eq r144 0u8 into r145;
-    ternary r145 r142 r139 into r146;
-    ternary r136 r146 r132 into r147;
-    output r147 as u128.private;
+    add r142 r139 into r146;
+    ternary r145 r142 r139 into r147;
+    add r134 1u8 into r148;
+    shr r135 1u8 into r149;
+    ternary r136 r147 r132 into r150;
+    output r150 as u128.private;
 
 DCE_DISABLED:
 program test.aleo;

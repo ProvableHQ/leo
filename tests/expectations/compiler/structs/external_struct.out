@@ -70,8 +70,9 @@ struct Foo:
 
 function create_wrapper:
     call child.aleo/create into r0 r1;
-    output r0 as Foo.private;
-    output r1 as child.aleo/Boo.record;
+    call child.aleo/create into r2 r3;
+    output r2 as Foo.private;
+    output r3 as child.aleo/Boo.record;
 
 function create_another_wrapper:
     call child.aleo/create into r0 r1;
@@ -114,10 +115,11 @@ function main:
 
 function omega_wrapper:
     call parent.aleo/create_another_wrapper into r0 r1 r2 r3;
-    output r0 as Foo.private;
-    output r1 as child.aleo/Boo.record;
-    output r2 as parent.aleo/BooHoo.record;
-    output r3 as Woo.private;
+    call parent.aleo/create_another_wrapper into r4 r5 r6 r7;
+    output r4 as Foo.private;
+    output r5 as child.aleo/Boo.record;
+    output r6 as parent.aleo/BooHoo.record;
+    output r7 as Woo.private;
 
 DCE_DISABLED:
 program child.aleo;

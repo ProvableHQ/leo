@@ -37,6 +37,7 @@ program outer.aleo {
     async transition outer(a: u32) -> Future {
         let f1: Future = mid.aleo/mid(0u32);
         let f2: Future = mid.aleo/mid(1u32);
+        // Allow this call to remain for now.
         mid.aleo/dummy();
         let f:Future = finalize(f1, f2);
         return f;

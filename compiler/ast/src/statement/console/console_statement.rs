@@ -33,13 +33,13 @@ pub struct ConsoleStatement {
 
 impl fmt::Display for ConsoleStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "console.{};", self.function)
+        write!(f, "console.{}", self.function)
     }
 }
 
 impl fmt::Debug for ConsoleStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "console.{};", self.function)
+        write!(f, "console.{}", self.function)
     }
 }
 

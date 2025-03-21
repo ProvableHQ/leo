@@ -33,7 +33,7 @@ pub struct ExpressionStatement {
 
 impl fmt::Display for ExpressionStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{};", self.expression)
+        self.expression.fmt(f)
     }
 }
 

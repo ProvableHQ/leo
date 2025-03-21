@@ -55,6 +55,10 @@ pub struct Compiler<'a, N: Network> {
     type_table: TypeTable,
     /// The stubs for imported programs. Produced by `Retriever` module.
     import_stubs: IndexMap<Symbol, Stub>,
+    /// How many statements were in the AST before DCE?
+    pub statements_before_dce: u32,
+    /// How many statements were in the AST after DCE?
+    pub statements_after_dce: u32,
     // Allows the compiler to be generic over the network.
     phantom: std::marker::PhantomData<N>,
 }
@@ -107,6 +111,8 @@ impl<'a, N: Network> Compiler<'a, N> {
             node_builder,
             assigner,
             import_stubs,
+            statements_before_dce: 0,
+            statements_after_dce: 0,
             type_table,
             phantom: Default::default(),
         }
@@ -277,7 +283,10 @@ impl<'a, N: Network> Compiler<'a, N> {
     /// Runs the dead code elimination pass.
     pub fn dead_code_elimination_pass(&mut self) -> Result<()> {
         if self.compiler_options.build.dce_enabled {
-            self.ast = DeadCodeEliminator::do_pass((std::mem::take(&mut self.ast),))?;
+            let output = DeadCodeEliminator::do_pass((std::mem::take(&mut self.ast), &self.type_table))?;
+            self.ast = output.ast;
+            self.statements_before_dce = output.statements_before;
+            self.statements_after_dce = output.statements_after;
         }
 
         if self.compiler_options.output.dce_ast {

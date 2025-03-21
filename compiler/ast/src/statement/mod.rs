@@ -87,6 +87,10 @@ impl Statement {
 
         if matches!(self, Block(..) | Conditional(..) | Iteration(..)) { "" } else { ";" }
     }
+
+    pub fn is_empty(self: &Statement) -> bool {
+        matches!(self, Statement::Block(block) if block.statements.is_empty())
+    }
 }
 
 impl fmt::Display for Statement {
