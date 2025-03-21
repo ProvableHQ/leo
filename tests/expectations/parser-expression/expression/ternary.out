@@ -1,0 +1,178 @@
+{
+  "Ternary": {
+    "condition": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 0,
+          "hi": 1
+        },
+        "id": 0
+      }
+    },
+    "if_true": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 4,
+          "hi": 5
+        },
+        "id": 1
+      }
+    },
+    "if_false": {
+      "Identifier": {
+        "name": "z",
+        "span": {
+          "lo": 8,
+          "hi": 9
+        },
+        "id": 2
+      }
+    },
+    "span": {
+      "lo": 0,
+      "hi": 9
+    },
+    "id": 3
+  }
+}
+
+{
+  "Ternary": {
+    "condition": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 10,
+          "hi": 11
+        },
+        "id": 0
+      }
+    },
+    "if_true": {
+      "Ternary": {
+        "condition": {
+          "Identifier": {
+            "name": "a",
+            "span": {
+              "lo": 14,
+              "hi": 15
+            },
+            "id": 1
+          }
+        },
+        "if_true": {
+          "Identifier": {
+            "name": "b",
+            "span": {
+              "lo": 18,
+              "hi": 19
+            },
+            "id": 2
+          }
+        },
+        "if_false": {
+          "Identifier": {
+            "name": "c",
+            "span": {
+              "lo": 22,
+              "hi": 23
+            },
+            "id": 3
+          }
+        },
+        "span": {
+          "lo": 14,
+          "hi": 23
+        },
+        "id": 4
+      }
+    },
+    "if_false": {
+      "Identifier": {
+        "name": "z",
+        "span": {
+          "lo": 26,
+          "hi": 27
+        },
+        "id": 5
+      }
+    },
+    "span": {
+      "lo": 10,
+      "hi": 27
+    },
+    "id": 6
+  }
+}
+
+{
+  "Ternary": {
+    "condition": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 28,
+          "hi": 29
+        },
+        "id": 0
+      }
+    },
+    "if_true": {
+      "Identifier": {
+        "name": "y",
+        "span": {
+          "lo": 32,
+          "hi": 33
+        },
+        "id": 1
+      }
+    },
+    "if_false": {
+      "Ternary": {
+        "condition": {
+          "Identifier": {
+            "name": "a",
+            "span": {
+              "lo": 36,
+              "hi": 37
+            },
+            "id": 2
+          }
+        },
+        "if_true": {
+          "Identifier": {
+            "name": "b",
+            "span": {
+              "lo": 40,
+              "hi": 41
+            },
+            "id": 3
+          }
+        },
+        "if_false": {
+          "Identifier": {
+            "name": "c",
+            "span": {
+              "lo": 44,
+              "hi": 45
+            },
+            "id": 4
+          }
+        },
+        "span": {
+          "lo": 36,
+          "hi": 45
+        },
+        "id": 5
+      }
+    },
+    "span": {
+      "lo": 28,
+      "hi": 45
+    },
+    "id": 6
+  }
+}
+

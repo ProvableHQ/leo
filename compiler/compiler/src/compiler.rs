@@ -29,22 +29,20 @@ use leo_span::{Symbol, source_map::FileName, symbol::with_session_globals};
 use snarkvm::prelude::Network;
 
 use indexmap::{IndexMap, IndexSet};
-use sha2::{Digest, Sha256};
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 /// The primary entry point of the Leo compiler.
 #[derive(Clone)]
 pub struct Compiler<'a, N: Network> {
     /// The handler is used for error and warning emissions.
     handler: &'a Handler,
-    /// The path to the main leo file.
-    main_file_path: PathBuf,
     /// The path to where the compiler outputs all generated files.
     output_directory: PathBuf,
     /// The program name,
     pub program_name: String,
-    /// The network name,
-    pub network: String,
     /// The AST for the program.
     pub ast: Ast,
     /// Options configuring compilation.
@@ -62,12 +60,37 @@ pub struct Compiler<'a, N: Network> {
 }
 
 impl<'a, N: Network> Compiler<'a, N> {
+    pub fn parse(&mut self, source: &str, filename: FileName) -> Result<()> {
+        // Register the source in the source map.
+        let source_file = with_session_globals(|s| s.source_map.new_source(source, filename));
+
+        // Use the parser to construct the abstract syntax tree (ast).
+        self.ast =
+            leo_parser::parse_ast::<N>(self.handler, &self.node_builder, &source_file.src, source_file.start_pos)?;
+
+        // If the program is imported, then check that the name of its program scope matches the file name.
+        // Note that parsing enforces that there is exactly one program scope in a file.
+        // TODO: Clean up check.
+        let program_scope = self.ast.ast.program_scopes.values().next().unwrap();
+        self.program_name = program_scope.program_id.name.to_string();
+
+        if self.compiler_options.output.initial_ast {
+            self.write_ast_to_json("initial_ast.json")?;
+        }
+
+        Ok(())
+    }
+
+    pub fn parse_from_file(&mut self, source_file_path: impl AsRef<Path>) -> Result<()> {
+        // Load the program file.
+        let source = fs::read_to_string(&source_file_path)
+            .map_err(|e| CompilerError::file_read_error(source_file_path.as_ref().display().to_string(), e))?;
+        self.parse(&source, FileName::Real(source_file_path.as_ref().into()))
+    }
+
     /// Returns a new Leo compiler.
     pub fn new(
-        program_name: String,
-        network: String,
         handler: &'a Handler,
-        main_file_path: PathBuf,
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
         import_stubs: IndexMap<Symbol, Stub>,
@@ -77,10 +100,8 @@ impl<'a, N: Network> Compiler<'a, N> {
         let type_table = TypeTable::default();
         Self {
             handler,
-            main_file_path,
             output_directory,
-            program_name,
-            network,
+            program_name: Default::default(),
             ast: Ast::new(Program::default()),
             compiler_options: compiler_options.unwrap_or_default(),
             node_builder,
@@ -89,58 +110,6 @@ impl<'a, N: Network> Compiler<'a, N> {
             type_table,
             phantom: Default::default(),
         }
-    }
-
-    /// Returns a SHA256 checksum of the program file.
-    pub fn checksum(&self) -> Result<String> {
-        // Read in the main file as string
-        let unparsed_file = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
-
-        // Hash the file contents
-        let mut hasher = Sha256::new();
-        hasher.update(unparsed_file.as_bytes());
-        let hash = hasher.finalize();
-
-        Ok(format!("{hash:x}"))
-    }
-
-    /// Parses and stores a program file content from a string, constructs a syntax tree, and generates a program.
-    pub fn parse_program_from_string(&mut self, program_string: &str, name: FileName) -> Result<()> {
-        // Register the source (`program_string`) in the source map.
-        let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
-
-        // Use the parser to construct the abstract syntax tree (ast).
-        self.ast = leo_parser::parse_ast::<N>(self.handler, &self.node_builder, &prg_sf.src, prg_sf.start_pos)?;
-
-        // If the program is imported, then check that the name of its program scope matches the file name.
-        // Note that parsing enforces that there is exactly one program scope in a file.
-        // TODO: Clean up check.
-        let program_scope = self.ast.ast.program_scopes.values().next().unwrap();
-        let program_scope_name = format!("{}", program_scope.program_id.name);
-        if program_scope_name != self.program_name {
-            return Err(CompilerError::program_scope_name_does_not_match(
-                program_scope_name,
-                self.program_name.clone(),
-                program_scope.program_id.name.span,
-            )
-            .into());
-        }
-
-        if self.compiler_options.output.initial_ast {
-            self.write_ast_to_json("initial_ast.json")?;
-        }
-
-        Ok(())
-    }
-
-    /// Parses and stores the main program file, constructs a syntax tree, and generates a program.
-    pub fn parse_program(&mut self) -> Result<()> {
-        // Load the program file.
-        let program_string = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| CompilerError::file_read_error(&self.main_file_path, e))?;
-
-        self.parse_program_from_string(&program_string, FileName::Real(self.main_file_path.clone()))
     }
 
     /// Runs the symbol table pass.
@@ -329,7 +298,7 @@ impl<'a, N: Network> Compiler<'a, N> {
     }
 
     /// Runs the compiler stages.
-    pub fn compiler_stages(&mut self) -> Result<(SymbolTable, StructGraph, CallGraph)> {
+    pub fn intermediate_passes(&mut self) -> Result<(SymbolTable, StructGraph, CallGraph)> {
         let mut st = self.symbol_table_pass()?;
 
         let (struct_graph, call_graph) = self.type_checker_pass(&mut st)?;
@@ -352,16 +321,22 @@ impl<'a, N: Network> Compiler<'a, N> {
     }
 
     /// Returns a compiled Leo program.
-    pub fn compile(&mut self) -> Result<String> {
+    pub fn compile(&mut self, source: &str, filename: FileName) -> Result<String> {
         // Parse the program.
-        self.parse_program()?;
+        self.parse(source, filename)?;
         // Copy the dependencies specified in `program.json` into the AST.
         self.add_import_stubs()?;
         // Run the intermediate compiler stages.
-        let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
+        let (symbol_table, struct_graph, call_graph) = self.intermediate_passes()?;
         // Run code generation.
         let bytecode = self.code_generation_pass(&symbol_table, &struct_graph, &call_graph)?;
         Ok(bytecode)
+    }
+
+    pub fn compile_from_file(&mut self, source_file_path: impl AsRef<Path>) -> Result<String> {
+        let source = fs::read_to_string(&source_file_path)
+            .map_err(|e| CompilerError::file_read_error(source_file_path.as_ref().display().to_string(), e))?;
+        self.compile(&source, FileName::Real(source_file_path.as_ref().into()))
     }
 
     /// Writes the AST to a JSON file.

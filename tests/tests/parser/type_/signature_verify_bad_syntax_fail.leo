@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Fail"
-*/
 
 program test.aleo {
     transition baz(s: signature, a: address, v: value) {

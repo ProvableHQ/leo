@@ -1,0 +1,959 @@
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 4,
+          "hi": 5
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "a",
+            "span": {
+              "lo": 12,
+              "hi": 13
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "b",
+            "span": {
+              "lo": 17,
+              "hi": 18
+            },
+            "id": 2
+          }
+        },
+        "op": "Eq",
+        "span": {
+          "lo": 12,
+          "hi": 18
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 0,
+      "hi": 18
+    },
+    "id": 4
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 24,
+          "hi": 25
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "a",
+            "span": {
+              "lo": 32,
+              "hi": 33
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "b",
+            "span": {
+              "lo": 37,
+              "hi": 38
+            },
+            "id": 2
+          }
+        },
+        "op": "Neq",
+        "span": {
+          "lo": 32,
+          "hi": 38
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 20,
+      "hi": 38
+    },
+    "id": 4
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 44,
+          "hi": 45
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "a",
+            "span": {
+              "lo": 52,
+              "hi": 53
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "b",
+            "span": {
+              "lo": 56,
+              "hi": 57
+            },
+            "id": 2
+          }
+        },
+        "op": "Gt",
+        "span": {
+          "lo": 52,
+          "hi": 57
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 40,
+      "hi": 57
+    },
+    "id": 4
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 63,
+          "hi": 64
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "a",
+            "span": {
+              "lo": 71,
+              "hi": 72
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "b",
+            "span": {
+              "lo": 76,
+              "hi": 77
+            },
+            "id": 2
+          }
+        },
+        "op": "Gte",
+        "span": {
+          "lo": 71,
+          "hi": 77
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 59,
+      "hi": 77
+    },
+    "id": 4
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 83,
+          "hi": 84
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "a",
+            "span": {
+              "lo": 91,
+              "hi": 92
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "b",
+            "span": {
+              "lo": 95,
+              "hi": 96
+            },
+            "id": 2
+          }
+        },
+        "op": "Lt",
+        "span": {
+          "lo": 91,
+          "hi": 96
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 79,
+      "hi": 96
+    },
+    "id": 4
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 102,
+          "hi": 103
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "a",
+            "span": {
+              "lo": 110,
+              "hi": 111
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "b",
+            "span": {
+              "lo": 115,
+              "hi": 116
+            },
+            "id": 2
+          }
+        },
+        "op": "Lte",
+        "span": {
+          "lo": 110,
+          "hi": 116
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 98,
+      "hi": 116
+    },
+    "id": 4
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 122,
+          "hi": 123
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "a",
+            "span": {
+              "lo": 130,
+              "hi": 131
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "b",
+            "span": {
+              "lo": 134,
+              "hi": 135
+            },
+            "id": 2
+          }
+        },
+        "op": "Gt",
+        "span": {
+          "lo": 130,
+          "hi": 135
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 118,
+      "hi": 135
+    },
+    "id": 4
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "x_",
+      "span": {
+        "lo": 137,
+        "hi": 139
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 140,
+          "hi": 141
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 137,
+      "hi": 141
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xconsole",
+      "span": {
+        "lo": 143,
+        "hi": 151
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 152,
+          "hi": 153
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 143,
+      "hi": 153
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xconst",
+      "span": {
+        "lo": 155,
+        "hi": 161
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 162,
+          "hi": 163
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 155,
+      "hi": 163
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xlet",
+      "span": {
+        "lo": 165,
+        "hi": 169
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 170,
+          "hi": 171
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 165,
+      "hi": 171
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xfor",
+      "span": {
+        "lo": 173,
+        "hi": 177
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 178,
+          "hi": 179
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 173,
+      "hi": 179
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xif",
+      "span": {
+        "lo": 181,
+        "hi": 184
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 185,
+          "hi": 186
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 181,
+      "hi": 186
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xelse",
+      "span": {
+        "lo": 188,
+        "hi": 193
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 194,
+          "hi": 195
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 188,
+      "hi": 195
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xi8",
+      "span": {
+        "lo": 197,
+        "hi": 200
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 201,
+          "hi": 202
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 197,
+      "hi": 202
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xi16",
+      "span": {
+        "lo": 204,
+        "hi": 208
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 209,
+          "hi": 210
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 204,
+      "hi": 210
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xi32",
+      "span": {
+        "lo": 212,
+        "hi": 216
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 217,
+          "hi": 218
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 212,
+      "hi": 218
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xi64",
+      "span": {
+        "lo": 220,
+        "hi": 224
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 225,
+          "hi": 226
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 220,
+      "hi": 226
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xi128",
+      "span": {
+        "lo": 228,
+        "hi": 233
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 234,
+          "hi": 235
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 228,
+      "hi": 235
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xu8",
+      "span": {
+        "lo": 237,
+        "hi": 240
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 241,
+          "hi": 242
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 237,
+      "hi": 242
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xu16",
+      "span": {
+        "lo": 244,
+        "hi": 248
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 249,
+          "hi": 250
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 244,
+      "hi": 250
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xu32",
+      "span": {
+        "lo": 252,
+        "hi": 256
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 257,
+          "hi": 258
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 252,
+      "hi": 258
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xu64",
+      "span": {
+        "lo": 260,
+        "hi": 264
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 265,
+          "hi": 266
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 260,
+      "hi": 266
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xu128",
+      "span": {
+        "lo": 268,
+        "hi": 273
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 274,
+          "hi": 275
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 268,
+      "hi": 275
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xreturn",
+      "span": {
+        "lo": 277,
+        "hi": 284
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 285,
+          "hi": 286
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 277,
+      "hi": 286
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xtrue",
+      "span": {
+        "lo": 288,
+        "hi": 293
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 294,
+          "hi": 295
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 288,
+      "hi": 295
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "xfalse",
+      "span": {
+        "lo": 297,
+        "hi": 303
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 304,
+          "hi": 305
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 297,
+      "hi": 305
+    },
+    "id": 3
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "name": "x0",
+      "span": {
+        "lo": 307,
+        "hi": 309
+      },
+      "id": 0
+    },
+    "value": {
+      "Identifier": {
+        "name": "b",
+        "span": {
+          "lo": 310,
+          "hi": 311
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 307,
+      "hi": 311
+    },
+    "id": 3
+  }
+}
+

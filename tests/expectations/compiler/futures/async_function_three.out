@@ -1,7 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "30ba21e6e0d57257d456c6039e725a7aea0b98d6bcd42891e7ef4959a12cb563", unrolled_ast = "30ba21e6e0d57257d456c6039e725a7aea0b98d6bcd42891e7ef4959a12cb563", ssa_ast = "aabd8aa725b57fea85c6b94e08fdc1b2b99397744bd214db046b799d3f665795", flattened_ast = "31c8afed2804d3e9bb0748f7dcc8d8182c8ae2d7284ae27d72fe81a34871e14b", destructured_ast = "d41bf9e1b903dbf58854a88561014fc7fcd40340e97f435fd176fcb01473f466", inlined_ast = "149c20d3e8026a45166d68254fe96a5e9f1536298e921af76e68341842c5e801", dce_ast = "149c20d3e8026a45166d68254fe96a5e9f1536298e921af76e68341842c5e801", bytecode = """
+DCE_ENABLED:
 program dependent.aleo;
 
 function t1:
@@ -11,8 +8,7 @@ function t1:
 finalize t1:
     input r0 as u8.public;
     assert.eq 1u8 1u8;
-""", errors = "", warnings = "" },
-    { initial_ast = "19bcaad2991dedd7bd51e94e238811a8e9c6e43334eb3e2bbcb41c56b8b8a2e1", unrolled_ast = "b1e189d72ff47eadb6eb31310f6befb161ca83f53513092a7fd917cfcb203bf4", ssa_ast = "021c05a9c21e6ca570fe5d9ac769c5b27445e5446a1af372be54ddb301ac8a86", flattened_ast = "3a6c20b75c3c695dfcb4321983630fc64532920bdc9877315a3360399f8e938d", destructured_ast = "bdb012dd26318d47973010fc2903f114c628d9da9e9692ff760b5024c7dd56e2", inlined_ast = "a0ea63625e0057bee04dcbec8b683c978feaca311a11decd52517489593261e0", dce_ast = "a0ea63625e0057bee04dcbec8b683c978feaca311a11decd52517489593261e0", bytecode = """
+// --- Next Program --- //
 import dependent.aleo;
 program dependent2.aleo;
 
@@ -24,8 +20,7 @@ function t1:
 finalize t1:
     input r0 as dependent.aleo/t1.future;
     await r0;
-""", errors = "", warnings = "" },
-    { initial_ast = "93006ff67a067debba469c56cc093793be84bf9f36d1a50c0ceaa3d7a98986d7", unrolled_ast = "8405829b094088e34762bae462b469bc45942c937201cc9a8b98865ec18039fb", ssa_ast = "de115ddd2f590789c92dabe16a1f62c0fe16a8825a84545bce55f2ee0d63e0f4", flattened_ast = "bda50e24ecfa7ee739b4aaa194c0bd56f677db0a9b30a08732b4912252866991", destructured_ast = "338537eed4fddf0b28133ad364bff0321cab63aa3874623b898dc07c8ef36bd1", inlined_ast = "bb602e2935f4a4597628528c3196d13c38583e77be32a78b70aa32c5b58e3ea3", dce_ast = "bb602e2935f4a4597628528c3196d13c38583e77be32a78b70aa32c5b58e3ea3", bytecode = """
+// --- Next Program --- //
 import dependent.aleo;
 import dependent2.aleo;
 program test.aleo;
@@ -39,5 +34,40 @@ function t1:
 finalize t1:
     input r0 as dependent2.aleo/t1.future;
     await r0;
-""", errors = "", warnings = "" },
-] }]]
+
+DCE_DISABLED:
+program dependent.aleo;
+
+function t1:
+    async t1 1u8 into r0;
+    output r0 as dependent.aleo/t1.future;
+
+finalize t1:
+    input r0 as u8.public;
+    assert.eq 1u8 1u8;
+// --- Next Program --- //
+import dependent.aleo;
+program dependent2.aleo;
+
+function t1:
+    call dependent.aleo/t1 into r0;
+    async t1 r0 into r1;
+    output r1 as dependent2.aleo/t1.future;
+
+finalize t1:
+    input r0 as dependent.aleo/t1.future;
+    await r0;
+// --- Next Program --- //
+import dependent.aleo;
+import dependent2.aleo;
+program test.aleo;
+
+function t1:
+    call dependent2.aleo/t1 into r0;
+    assert.eq 1u8 r0[0u32][0u32];
+    async t1 r0 into r1;
+    output r1 as test.aleo/t1.future;
+
+finalize t1:
+    input r0 as dependent2.aleo/t1.future;
+    await r0;

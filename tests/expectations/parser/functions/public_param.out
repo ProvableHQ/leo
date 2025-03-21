@@ -1,44 +1,253 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[outputs.imports]
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = []
-mappings = []
-functions = [
-    [
-    "x",
-    { annotations = [], variant = "Function", identifier = '{"id":"2","name":"x","span":"{\"lo\":39,\"hi\":40}"}', id = 11, input = [
-    { identifier = '{"id":"3","name":"x","span":"{\"lo\":41,\"hi\":42}"}', mode = "None", id = 4, type_ = { Integer = "U32" }, span = { lo = 41, hi = 47 } },
-    { identifier = '{"id":"5","name":"y","span":"{\"lo\":56,\"hi\":57}"}', mode = "Public", id = 6, type_ = { Integer = "I32" }, span = { lo = 56, hi = 62 } },
-], output = [{ mode = "None", id = 7, type_ = { Integer = "U8" }, span = { lo = 67, hi = 69 } }], output_type = { Integer = "U8" }, block = { id = 10, statements = [{ Return = { id = 9, expression = { Literal = { Integer = [
-    "U8",
-    "0",
-    { span = { lo = 87, hi = 90 } },
-    8,
-] } }, span = { lo = 80, hi = 91 } } }], span = { lo = 70, hi = 97 } }, span = { lo = 30, hi = 97 } },
-],
-    [
-    "x",
-    { annotations = [], variant = "Function", identifier = '{"id":"12","name":"x","span":"{\"lo\":116,\"hi\":117}"}', id = 21, input = [
-    { identifier = '{"id":"13","name":"x","span":"{\"lo\":125,\"hi\":126}"}', mode = "Public", id = 14, type_ = { Integer = "U32" }, span = { lo = 125, hi = 131 } },
-    { identifier = '{"id":"15","name":"y","span":"{\"lo\":133,\"hi\":134}"}', mode = "None", id = 16, type_ = { Integer = "I32" }, span = { lo = 133, hi = 139 } },
-], output = [{ mode = "None", id = 17, type_ = { Integer = "U8" }, span = { lo = 144, hi = 146 } }], output_type = { Integer = "U8" }, block = { id = 20, statements = [{ Return = { id = 19, expression = { Literal = { Integer = [
-    "U8",
-    "0",
-    { span = { lo = 164, hi = 167 } },
-    18,
-] } }, span = { lo = 157, hi = 168 } } }], span = { lo = 147, hi = 174 } }, span = { lo = 107, hi = 174 } },
-],
-]
-
-[outputs.program_scopes.test.span]
-lo = 2
-hi = 176
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 9,
+            "hi": 13
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "functions": [
+        [
+          "x",
+          {
+            "annotations": [],
+            "variant": "Function",
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 34,
+                "hi": 35
+              },
+              "id": 2
+            },
+            "input": [
+              {
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 36,
+                    "hi": 37
+                  },
+                  "id": 3
+                },
+                "mode": "None",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 36,
+                  "hi": 42
+                },
+                "id": 4
+              },
+              {
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 51,
+                    "hi": 52
+                  },
+                  "id": 5
+                },
+                "mode": "Public",
+                "type_": {
+                  "Integer": "I32"
+                },
+                "span": {
+                  "lo": 51,
+                  "hi": 57
+                },
+                "id": 6
+              }
+            ],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Integer": "U8"
+                },
+                "span": {
+                  "lo": 62,
+                  "hi": 64
+                },
+                "id": 7
+              }
+            ],
+            "output_type": {
+              "Integer": "U8"
+            },
+            "block": {
+              "statements": [
+                {
+                  "Return": {
+                    "expression": {
+                      "Literal": {
+                        "Integer": [
+                          "U8",
+                          "0",
+                          {
+                            "span": {
+                              "lo": 82,
+                              "hi": 85
+                            }
+                          },
+                          8
+                        ]
+                      }
+                    },
+                    "span": {
+                      "lo": 75,
+                      "hi": 86
+                    },
+                    "id": 9
+                  }
+                }
+              ],
+              "span": {
+                "lo": 65,
+                "hi": 92
+              },
+              "id": 10
+            },
+            "span": {
+              "lo": 25,
+              "hi": 92
+            },
+            "id": 11
+          }
+        ],
+        [
+          "x",
+          {
+            "annotations": [],
+            "variant": "Function",
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 107,
+                "hi": 108
+              },
+              "id": 12
+            },
+            "input": [
+              {
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 116,
+                    "hi": 117
+                  },
+                  "id": 13
+                },
+                "mode": "Public",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 116,
+                  "hi": 122
+                },
+                "id": 14
+              },
+              {
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 124,
+                    "hi": 125
+                  },
+                  "id": 15
+                },
+                "mode": "None",
+                "type_": {
+                  "Integer": "I32"
+                },
+                "span": {
+                  "lo": 124,
+                  "hi": 130
+                },
+                "id": 16
+              }
+            ],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Integer": "U8"
+                },
+                "span": {
+                  "lo": 135,
+                  "hi": 137
+                },
+                "id": 17
+              }
+            ],
+            "output_type": {
+              "Integer": "U8"
+            },
+            "block": {
+              "statements": [
+                {
+                  "Return": {
+                    "expression": {
+                      "Literal": {
+                        "Integer": [
+                          "U8",
+                          "0",
+                          {
+                            "span": {
+                              "lo": 155,
+                              "hi": 158
+                            }
+                          },
+                          18
+                        ]
+                      }
+                    },
+                    "span": {
+                      "lo": 148,
+                      "hi": 159
+                    },
+                    "id": 19
+                  }
+                }
+              ],
+              "span": {
+                "lo": 138,
+                "hi": 165
+              },
+              "id": 20
+            },
+            "span": {
+              "lo": 98,
+              "hi": 165
+            },
+            "id": 21
+          }
+        ]
+      ],
+      "span": {
+        "lo": 1,
+        "hi": 167
+      }
+    }
+  }
+}

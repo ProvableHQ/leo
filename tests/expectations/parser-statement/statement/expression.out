@@ -1,0 +1,91 @@
+{
+  "Expression": {
+    "expression": {
+      "Identifier": {
+        "name": "expr",
+        "span": {
+          "lo": 0,
+          "hi": 4
+        },
+        "id": 0
+      }
+    },
+    "span": {
+      "lo": 0,
+      "hi": 5
+    },
+    "id": 1
+  }
+}
+
+{
+  "Expression": {
+    "expression": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 6,
+              "hi": 7
+            },
+            "id": 0
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 8,
+              "hi": 9
+            },
+            "id": 1
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 6,
+          "hi": 9
+        },
+        "id": 2
+      }
+    },
+    "span": {
+      "lo": 6,
+      "hi": 10
+    },
+    "id": 3
+  }
+}
+
+{
+  "Expression": {
+    "expression": {
+      "Call": {
+        "function": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 11,
+              "hi": 12
+            },
+            "id": 0
+          }
+        },
+        "arguments": [],
+        "program": null,
+        "span": {
+          "lo": 11,
+          "hi": 14
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 11,
+      "hi": 15
+    },
+    "id": 2
+  }
+}
+

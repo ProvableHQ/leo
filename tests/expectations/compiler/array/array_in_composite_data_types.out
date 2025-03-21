@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "df75ddc12225ac6a386c0c3eef00e66e0944691fc384b27096c5daf0a103e0ce", unrolled_ast = "df75ddc12225ac6a386c0c3eef00e66e0944691fc384b27096c5daf0a103e0ce", ssa_ast = "17efcebd949d8cb191d3d4c6b00fb71420d2230d3f433e3ba15cbd5edd12760f", flattened_ast = "7892032053def118a7a866cd68eaf4c3e97e0b94cfb08e5271a63277a5289014", destructured_ast = "f442d4bb2ab515fb07ad6241c3eec8d7b72f8852dcff711cf8bd083003d44296", inlined_ast = "f442d4bb2ab515fb07ad6241c3eec8d7b72f8852dcff711cf8bd083003d44296", dce_ast = "f442d4bb2ab515fb07ad6241c3eec8d7b72f8852dcff711cf8bd083003d44296", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 record floo:
@@ -19,4 +17,23 @@ function foo:
     output r0[0u32][0u32] as boolean.private;
     output r2 as bar.private;
     output r4 as floo.record;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+record floo:
+    owner as address.private;
+    data as [u8; 8u32].private;
+
+struct bar:
+    data as [u8; 8u32];
+
+function foo:
+    input r0 as [[boolean; 8u32]; 8u32].private;
+    cast  1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 into r1 as [u8; 8u32];
+    cast r1 into r2 as bar;
+    cast  1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 into r3 as [u8; 8u32];
+    cast self.caller r3 into r4 as floo.record;
+    output r0[0u32][0u32] as boolean.private;
+    output r2 as bar.private;
+    output r4 as floo.record;

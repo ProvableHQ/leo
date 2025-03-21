@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372005]: Unknown function `decrement`
-    --> compiler-test:11:9
+    --> compiler-test:10:9
      |
-  11 |         decrement(amounts, addr, amount);
+  10 |         decrement(amounts, addr, amount);
      |         ^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372005]: Unknown function `decrement`
+    --> compiler-test:10:9
+     |
+  10 |         decrement(amounts, addr, amount);
+     |         ^^^^^^^^^

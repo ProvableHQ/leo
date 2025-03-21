@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 program test.aleo {
     transition baz(foo: u8, bar: u16) -> u8 {

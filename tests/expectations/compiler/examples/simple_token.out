@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "635d1238da365463fdf152e407d7c214c0f484d0298036076b096958c82470ea", unrolled_ast = "635d1238da365463fdf152e407d7c214c0f484d0298036076b096958c82470ea", ssa_ast = "e281e0530389ee868101a2e9fda705465cdd6bac2332f3e4dc654f30986cd729", flattened_ast = "5ae5444585830d7c57d4791962c2c185f9ab0fbda3a98a9521286ca914baef0e", destructured_ast = "1f6c3f205a6488d01ec6a12c4208f5de8d47ab1b039d48786c46a64706a08d66", inlined_ast = "1f6c3f205a6488d01ec6a12c4208f5de8d47ab1b039d48786c46a64706a08d66", dce_ast = "1f6c3f205a6488d01ec6a12c4208f5de8d47ab1b039d48786c46a64706a08d66", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 record Token:
@@ -22,4 +20,26 @@ function transfer:
     cast r1 r2 into r5 as Token.record;
     output r4 as Token.record;
     output r5 as Token.record;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u64.private;
+
+function mint:
+    input r0 as address.private;
+    input r1 as u64.private;
+    cast r0 r1 into r2 as Token.record;
+    output r2 as Token.record;
+
+function transfer:
+    input r0 as Token.record;
+    input r1 as address.private;
+    input r2 as u64.private;
+    sub r0.amount r2 into r3;
+    cast r0.owner r3 into r4 as Token.record;
+    cast r1 r2 into r5 as Token.record;
+    output r4 as Token.record;
+    output r5 as Token.record;

@@ -1,0 +1,14 @@
+Error [EPAR0370040]: Cannot create an external record. Records can only be created in the program that they are defined in.
+    --> test_0:1:8
+     |
+   1 | return credits.aleo/credits { owner: arg1, amount: arg2};
+     |        ^^^^^^^^^^^^^^^^^^^^
+
+
+Error [EPAR0370005]: expected = -- found '.'
+    --> test_1:1:13
+     |
+   1 | let d: board.leo/board = record board.leo/board { tile1: 1u8, tile2: 2u8};
+     |             ^
+
+

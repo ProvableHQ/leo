@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Pass"
-*/
 import hello.aleo;
 program test.aleo {
     async transition main() {

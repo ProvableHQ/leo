@@ -1,10 +1,15 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "80a993e1062726aa3c9ae2a5cc1b96e5190e9d7648a8bc24d6dac8c8ef128200", unrolled_ast = "80a993e1062726aa3c9ae2a5cc1b96e5190e9d7648a8bc24d6dac8c8ef128200", ssa_ast = "c0aa3cad7ae6d50359c7442909c35f3cc07d35da3928acdb3387dc0dea291dd8", flattened_ast = "c15334d70e4f344b876248ac37fd330b03fea10d529500dd31ad018cb7d57c3d", destructured_ast = "a76e84997c325f1eb7f67a2addba2fcb420371574339c853bbf62af82e53651e", inlined_ast = "a76e84997c325f1eb7f67a2addba2fcb420371574339c853bbf62af82e53651e", dce_ast = "a76e84997c325f1eb7f67a2addba2fcb420371574339c853bbf62af82e53651e", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
     input r0 as address.private;
     is.eq r0 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r1;
     output r1 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as address.private;
+    is.eq r0 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r1;
+    output r1 as boolean.private;

@@ -1,16 +1,25 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372008]: The value -1 is not a valid `u16`
-    --> compiler-test:5:22
+    --> compiler-test:4:22
      |
-   5 |         let a: u16 = -1u16;
+   4 |         let a: u16 = -1u16;
      |                      ^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372008]: The value -1 is not a valid `u16`
+    --> compiler-test:4:22
+     |
+   4 |         let a: u16 = -1u16;
+     |                      ^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

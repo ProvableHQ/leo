@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Fail"
-*/
 program comma_separators.aleo {
     struct none {
         x: u8

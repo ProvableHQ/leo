@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 program test.aleo {
     // Battleship boards are represented by 8x8 squares.

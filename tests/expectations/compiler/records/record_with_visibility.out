@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "fb54bacd49c386a9f2fdf1e04c1935a49adb221ebf8e1231b208d1e5ad7d34a3", unrolled_ast = "fb54bacd49c386a9f2fdf1e04c1935a49adb221ebf8e1231b208d1e5ad7d34a3", ssa_ast = "9e0bf1f2b75539cb8cc640c2d8ee93b2e85d57a6dd2b6fae3cfc6ef23fa3d3e5", flattened_ast = "83bbf50cffeed1ce1eba1ba401faaa112297c9adb92f903f60554909e9ba7490", destructured_ast = "c67de2cae375a0007c587f44c91f463e7ca906b93d74000ffbaf88378bb83bde", inlined_ast = "c67de2cae375a0007c587f44c91f463e7ca906b93d74000ffbaf88378bb83bde", dce_ast = "c67de2cae375a0007c587f44c91f463e7ca906b93d74000ffbaf88378bb83bde", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 record Token:
@@ -14,4 +12,18 @@ function main:
     add r0 r1 into r2;
     cast self.caller r2 true into r3 as Token.record;
     output r3 as Token.record;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u64.private;
+    flag as boolean.private;
+
+function main:
+    input r0 as u64.private;
+    input r1 as u64.private;
+    add r0 r1 into r2;
+    cast self.caller r2 true into r3 as Token.record;
+    output r3 as Token.record;

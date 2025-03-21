@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "15e6cfa0a002941d6e566a024c73eacf711728f4fa88256aa2dfbab889c390bf", unrolled_ast = "15e6cfa0a002941d6e566a024c73eacf711728f4fa88256aa2dfbab889c390bf", ssa_ast = "439042b430a6007659848b5a2dd0aa97e838f4899a3a660a65907ff9cbd9e92e", flattened_ast = "ef2aa4c78de976f97a8bf289bddaa5a88e03fd312ec40414879142f69b0ec2c8", destructured_ast = "9713ca2b99a6b629dafb249ab24cbdfeeabe26d06d97e47c2b511b84dc9adbc6", inlined_ast = "9713ca2b99a6b629dafb249ab24cbdfeeabe26d06d97e47c2b511b84dc9adbc6", dce_ast = "3ad33ef0e7dee25f4b12d46d01780732648c164d4e5559693eb0ea2a80b97f7d", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -8,4 +6,25 @@ function main:
     input r1 as field.private;
     is.neq r0 r1 into r2;
     output r2 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as field.private;
+    input r1 as field.private;
+    inv r0 into r2;
+    neg r0 into r3;
+    square r0 into r4;
+    sqrt r0 into r5;
+    add r0 r1 into r6;
+    div r0 r1 into r7;
+    is.eq r0 r1 into r8;
+    gte r0 r1 into r9;
+    gt r0 r1 into r10;
+    lte r0 r1 into r11;
+    lt r0 r1 into r12;
+    mul r0 r1 into r13;
+    is.neq r0 r1 into r14;
+    pow r0 r1 into r15;
+    output r14 as boolean.private;

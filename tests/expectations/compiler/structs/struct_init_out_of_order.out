@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "d3062c616f5d54992e7f53697be7670a54cd8f51b20e061b0fd56d87ccd820c7", unrolled_ast = "d3062c616f5d54992e7f53697be7670a54cd8f51b20e061b0fd56d87ccd820c7", ssa_ast = "8cd5ec225a7ea1398e256f42b74e7052758851fe735b12470f76b1da0b6317af", flattened_ast = "5b2ca99323f96bd66776de8ae0fa235e146f9b3944650bbd027c864e82e24caa", destructured_ast = "d393c845b1c5735936c839f07bc2dfc43878db4aa27b9a9b9bc332928f5acd97", inlined_ast = "d393c845b1c5735936c839f07bc2dfc43878db4aa27b9a9b9bc332928f5acd97", dce_ast = "d393c845b1c5735936c839f07bc2dfc43878db4aa27b9a9b9bc332928f5acd97", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -20,4 +18,24 @@ function main:
     cast r0 r2 into r5 as Bar;
     output r4 as Foo.private;
     output r5 as Bar.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u8;
+    b as u16;
+
+struct Bar:
+    a as u8;
+    b as u8;
+
+function main:
+    input r0 as u8.private;
+    input r1 as u16.private;
+    add r0 r0 into r2;
+    mul r1 r1 into r3;
+    cast r2 r3 into r4 as Foo;
+    cast r0 r2 into r5 as Bar;
+    output r4 as Foo.private;
+    output r5 as Bar.private;

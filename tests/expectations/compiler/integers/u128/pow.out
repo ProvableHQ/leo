@@ -1,17 +1,5 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "98502a5edeced84c8178662883aec6fc047e82b721d77c2131c1e6647b9b78dd", unrolled_ast = "98502a5edeced84c8178662883aec6fc047e82b721d77c2131c1e6647b9b78dd", ssa_ast = "b49d6425cecaebaa8c4da9adb28182e845725663af230066a4f064f5bc45c4f3", flattened_ast = "28f81a5b3ccbb18aba9b838e49305d5817db3def6ee5209b961878a631a1bca6", destructured_ast = "06ec637e249b7bcf52f7fede7395f9a3f42cfe7e989714d12244aa890ec83338", inlined_ast = "06ec637e249b7bcf52f7fede7395f9a3f42cfe7e989714d12244aa890ec83338", dce_ast = "06ec637e249b7bcf52f7fede7395f9a3f42cfe7e989714d12244aa890ec83338", bytecode = """
-program test.aleo;
+DCE_ENABLED:
+Error [EPAR0370016]: Could not lex the following content: `#`.
 
-function main:
-    input r0 as u128.private;
-    input r1 as u128.private;
-    input r2 as u128.private;
-    pow r0 2u8 into r3;
-    pow r0 2u16 into r4;
-    is.eq r3 r4 into r5;
-    pow r0 2u32 into r6;
-    is.eq r6 r2 into r7;
-    and r5 r7 into r8;
-    output r8 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+DCE_DISABLED:
+Error [EPAR0370016]: Could not lex the following content: `#`.

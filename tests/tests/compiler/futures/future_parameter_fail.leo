@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
 program test.aleo {
     async transition first(x: Future) -> Future {

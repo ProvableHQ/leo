@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
 program test.aleo {
     transition bar(a: bool) -> [bool; 8] {

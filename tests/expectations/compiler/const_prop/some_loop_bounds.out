@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "ce69c3c8a0ce330b2be386bb46bfac71784c1e5be1fd19aaba684662c28e83c2", unrolled_ast = "ba6967ab5309f01233def25a0b765f5a7ac97b7d2cae805d35620d70b7b7488b", ssa_ast = "cbb9c5a627a30e969855c02f850d652b7777ce918d8c47a2e4a08e707934b0d3", flattened_ast = "f19f01bbb966ceba59164130ed2e3b595fd0ff4288045f466242adc92b394a1c", destructured_ast = "de86c4dc32dafd6594cac4fe0e0f649abac515c83d0f10b9096dae350ec2d1c0", inlined_ast = "5b42c201d5bf5d87dee12809935a5a770fd4bafd42abd724660f83a192065ed4", dce_ast = "5b42c201d5bf5d87dee12809935a5a770fd4bafd42abd724660f83a192065ed4", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 mapping m:
@@ -18,4 +16,22 @@ finalize main:
     set 4u32 into m[2u32];
     set 5u32 into m[2u32];
     set 5u32 into m[3u32];
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+mapping m:
+    key as u32.public;
+    value as u32.public;
+
+function main:
+    async main into r0;
+    output r0 as test.aleo/main.future;
+
+finalize main:
+    set 3u32 into m[1u32];
+    set 4u32 into m[1u32];
+    set 5u32 into m[1u32];
+    set 4u32 into m[2u32];
+    set 5u32 into m[2u32];
+    set 5u32 into m[3u32];

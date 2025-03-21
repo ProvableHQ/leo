@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "58e472c558d5f9fb661205f1d5eb13cc73cff13376568c6d87801510569bb837", unrolled_ast = "9533c6b2d04967e3b7efb00dc35ee3cafb23e00900c0690d10cac6771d04ef98", ssa_ast = "3c85ed80517acc67c36937f4b89d26c06670aaa04a54fbf8b7c0c67027d6895c", flattened_ast = "dd335d5d2ca524668f8a9109ec5792a52085e2179e78b8737fea6661e011bc07", destructured_ast = "b9d8b21e8e53ac2f6236299e779a9bc70f3a8b4a0203815a9282e55eada204b5", inlined_ast = "b9d8b21e8e53ac2f6236299e779a9bc70f3a8b4a0203815a9282e55eada204b5", dce_ast = "0f0b3d52356b8ace71a998f2a1c39d2baef4235e35133694d3648c3321a768c0", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -16,5 +14,82 @@ function main:
     input r5 as u16.private;
     input r6 as u32.private;
     input r7 as u64.private;
-    output 1field as field.private;
-""", errors = "", warnings = "" }] }]]
+    hash.bhp256 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as address;
+    hash.bhp256 true into r9 as address;
+    hash.bhp256 1field into r10 as address;
+    hash.bhp256 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as address;
+    hash.bhp256 r0 into r12 as address;
+    hash.bhp256 r1 into r13 as address;
+    hash.bhp256 r2 into r14 as address;
+    hash.bhp256 r3 into r15 as address;
+    hash.bhp256 1i128 into r16 as address;
+    hash.bhp256 r4 into r17 as address;
+    hash.bhp256 r5 into r18 as address;
+    hash.bhp256 r6 into r19 as address;
+    hash.bhp256 r7 into r20 as address;
+    hash.bhp256 1u128 into r21 as address;
+    hash.bhp256 1scalar into r22 as address;
+    output r8 as address.private;
+    output r9 as address.private;
+    output r10 as address.private;
+    output r11 as address.private;
+    output r12 as address.private;
+    output r13 as address.private;
+    output r14 as address.private;
+    output r15 as address.private;
+    output r16 as address.private;
+    output r17 as address.private;
+    output r18 as address.private;
+    output r19 as address.private;
+    output r20 as address.private;
+    output r21 as address.private;
+    output r22 as address.private;
+    output aleo10jl9cqanwtneesm4jg9lkmpw83ee0cgrflytdecx2qkk784nvu8q0j04p8 as address.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.bhp256 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as address;
+    hash.bhp256 true into r9 as address;
+    hash.bhp256 1field into r10 as address;
+    hash.bhp256 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as address;
+    hash.bhp256 r0 into r12 as address;
+    hash.bhp256 r1 into r13 as address;
+    hash.bhp256 r2 into r14 as address;
+    hash.bhp256 r3 into r15 as address;
+    hash.bhp256 1i128 into r16 as address;
+    hash.bhp256 r4 into r17 as address;
+    hash.bhp256 r5 into r18 as address;
+    hash.bhp256 r6 into r19 as address;
+    hash.bhp256 r7 into r20 as address;
+    hash.bhp256 1u128 into r21 as address;
+    hash.bhp256 1scalar into r22 as address;
+    output r8 as address.private;
+    output r9 as address.private;
+    output r10 as address.private;
+    output r11 as address.private;
+    output r12 as address.private;
+    output r13 as address.private;
+    output r14 as address.private;
+    output r15 as address.private;
+    output r16 as address.private;
+    output r17 as address.private;
+    output r18 as address.private;
+    output r19 as address.private;
+    output r20 as address.private;
+    output r21 as address.private;
+    output r22 as address.private;
+    output aleo10jl9cqanwtneesm4jg9lkmpw83ee0cgrflytdecx2qkk784nvu8q0j04p8 as address.private;

@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
 program child.aleo {
     mapping count: address => field;

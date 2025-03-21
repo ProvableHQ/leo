@@ -1,3 +1,0 @@
-namespace = "Leo"
-expectation = "Pass"
-outputs = ["1712u32"]

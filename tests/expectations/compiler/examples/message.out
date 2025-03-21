@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "8a97908325ea48a6a70bc68f266be5a853adfc394c5289e2631c032ce6499fbe", unrolled_ast = "8a97908325ea48a6a70bc68f266be5a853adfc394c5289e2631c032ce6499fbe", ssa_ast = "ae653c2befe704df86ea22f8188eeb5b2a549c4d5f71773b8c442b00b01b729d", flattened_ast = "efb2c20e53a04f1e56c5bf3dd72134fde3db7a16c05ead4101ecb7d4c85715a3", destructured_ast = "634add01d3b3b6bcdf8e04a26b62e596d998c5f605afb9d17fbc071d2b14ed10", inlined_ast = "634add01d3b3b6bcdf8e04a26b62e596d998c5f605afb9d17fbc071d2b14ed10", dce_ast = "634add01d3b3b6bcdf8e04a26b62e596d998c5f605afb9d17fbc071d2b14ed10", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Message:
@@ -12,4 +10,16 @@ function main:
     cast r0.first r0.second into r1 as Message;
     add r1.first r1.second into r2;
     output r2 as field.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Message:
+    first as field;
+    second as field;
+
+function main:
+    input r0 as Message.private;
+    cast r0.first r0.second into r1 as Message;
+    add r1.first r1.second into r2;
+    output r2 as field.private;

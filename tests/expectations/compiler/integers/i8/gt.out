@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "b340b8f211e8969baaf58c34762deeffc2ef61bba993468c823acee2f896d81e", unrolled_ast = "b340b8f211e8969baaf58c34762deeffc2ef61bba993468c823acee2f896d81e", ssa_ast = "0130682d0e9861eb5cf9f033533a0a796c537b3429a5002e6cf2d6c1300730ea", flattened_ast = "7b4c28ac41611982ec0b27572820e61d1500badf8b910188ac845b8421f9bf4e", destructured_ast = "f3010d52b92a4a851e4a4e4bd7a79d6ca678bd216a1cd5c49529578c1b8b9539", inlined_ast = "f3010d52b92a4a851e4a4e4bd7a79d6ca678bd216a1cd5c49529578c1b8b9539", dce_ast = "f3010d52b92a4a851e4a4e4bd7a79d6ca678bd216a1cd5c49529578c1b8b9539", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -10,4 +8,14 @@ function main:
     gt r0 r1 into r3;
     is.eq r3 r2 into r4;
     output r4 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i8.private;
+    input r2 as boolean.private;
+    gt r0 r1 into r3;
+    is.eq r3 r2 into r4;
+    output r4 as boolean.private;

@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "9c14e643fd02d50bf6a836cd2972c88520390c14c67c5935ffad772fb6198941", unrolled_ast = "9c14e643fd02d50bf6a836cd2972c88520390c14c67c5935ffad772fb6198941", ssa_ast = "d6dd1c004f5523e40f2ea082d78f7ee419d7436cb467db1f28be2c36138845d9", flattened_ast = "112a68a0024f3eb0ade4c6f1fc07f1a8e305a1084974bd3beccd2d244850adf9", destructured_ast = "3519b80b635b5c65b01f884cc03d9f8c9ea6f92d6b42b204b9745ab77d57ef1e", inlined_ast = "3519b80b635b5c65b01f884cc03d9f8c9ea6f92d6b42b204b9745ab77d57ef1e", dce_ast = "6f3ada171623ac5a79cac02af708e6bdeb9b718c5d101576da3eb237196a65f7", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 record Token:
@@ -32,4 +30,37 @@ function mint_token2:
     ternary r4 r5.amount r6.amount into r8;
     cast r7 r8 into r9 as Token.record;
     output r9 as Token.record;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u64.private;
+
+function mint_token:
+    input r0 as address.private;
+    input r1 as u64.private;
+    input r2 as field.private;
+    hash.psd2 r2 into r3 as field;
+    is.eq 7202470996857839225873911078012225723419856133099120809866608931983814353616field r3 into r4;
+    cast r0 r1 into r5 as Token.record;
+    not r4 into r6;
+    cast r0 0u64 into r7 as Token.record;
+    ternary r4 r5.owner r7.owner into r8;
+    ternary r4 r5.amount r7.amount into r9;
+    cast r8 r9 into r10 as Token.record;
+    output r10 as Token.record;
+
+function mint_token2:
+    input r0 as address.private;
+    input r1 as u64.private;
+    input r2 as field.private;
+    hash.psd2 r2 into r3 as field;
+    is.eq 7202470996857839225873911078012225723419856133099120809866608931983814353616field r3 into r4;
+    cast r0 r1 into r5 as Token.record;
+    cast r0 0u64 into r6 as Token.record;
+    ternary r4 r5.owner r6.owner into r7;
+    ternary r4 r5.amount r6.amount into r8;
+    cast r7 r8 into r9 as Token.record;
+    output r9 as Token.record;

@@ -1,8 +1,5 @@
-namespace = "Parse"
-expectation = "Fail"
-outputs = ["""
 Error [EPAR0370005]: expected : -- found 'a'
-    --> test:4:20
+    --> test:3:20
      |
-   4 |     function f(mut a: u8) {}}
-     |                    ^"""]
+   3 |     function f(mut a: u8) {}}
+     |                    ^

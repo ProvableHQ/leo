@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 program test.aleo {
     mapping data: address => [bool; 8];

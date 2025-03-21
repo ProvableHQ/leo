@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EAST0372015]: There are two definitions of struct `Bar` that do not match.
     --> compiler-test:9:5
      |
@@ -11,4 +9,15 @@ Error [EAST0372015]: There are two definitions of struct `Bar` that do not match
      |     ^
      |
      = Check the import files to see if there are any struct definitions of the same name.
-"""]
+
+DCE_DISABLED:
+Error [EAST0372015]: There are two definitions of struct `Bar` that do not match.
+    --> compiler-test:9:5
+     |
+   9 |     struct Bar {
+  10 |         baz: [Baz; 2],
+  11 |         bog: u32,
+  12 |     }
+     |     ^
+     |
+     = Check the import files to see if there are any struct definitions of the same name.

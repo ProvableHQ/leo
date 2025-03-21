@@ -1,7 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "1099e85d3866b5e46c17fbd0defc0e9276bd79a2a806abcf03a05d329fd235b8", unrolled_ast = "1099e85d3866b5e46c17fbd0defc0e9276bd79a2a806abcf03a05d329fd235b8", ssa_ast = "6d2f612024a5827d0a4901aa088f7250260a6fcb27e5e00700be9632bf5d44a4", flattened_ast = "7938be8570df6d34c4c73c8968f87753ae2ed078d0eea2ac1ed41c5cbdaf1263", destructured_ast = "7773450edceae2516ab3b0462c025b6060b9bcf72e9a02d4c3d09cda18eb2b0d", inlined_ast = "7773450edceae2516ab3b0462c025b6060b9bcf72e9a02d4c3d09cda18eb2b0d", dce_ast = "7773450edceae2516ab3b0462c025b6060b9bcf72e9a02d4c3d09cda18eb2b0d", bytecode = """
+DCE_ENABLED:
 program child.aleo;
 
 struct Two:
@@ -36,8 +33,7 @@ function create:
     cast  r11 into r12 as [Bar; 1u32];
     cast r12 into r13 as Foo;
     output r13 as Foo.private;
-""", errors = "", warnings = "" },
-    { initial_ast = "ed68fb8de079039efdd22cd180a2719e88ad3dd35d18e4523c9cb48fe5511021", unrolled_ast = "6a6de58ca07ca543c3aa961dff48ff0ad4ab8b82233328c36424d95a6e594234", ssa_ast = "c7acfca425601acd6e84aca45f31c8702500d19e857a34bc6377c44e36b2269f", flattened_ast = "f0b3a4b55d76e392ac34293fc1f896132dd3653be72b9f7b94bdd7072406f37b", destructured_ast = "08e0c2417a5a2d4638012e3b1b935773761d60a9d22711a54e598094e65187cb", inlined_ast = "08e0c2417a5a2d4638012e3b1b935773761d60a9d22711a54e598094e65187cb", dce_ast = "efeef454ed942b5eb879d4c6e5a054fe6aae1a7c884157b0c1dadf17850756e2", bytecode = """
+// --- Next Program --- //
 import child.aleo;
 program parent.aleo;
 
@@ -60,5 +56,76 @@ struct Foo:
 function create_wrapper:
     call child.aleo/create into r0;
     output r0 as Foo.private;
-""", errors = "", warnings = "" },
-] }]]
+
+DCE_DISABLED:
+program child.aleo;
+
+struct Two:
+    val1 as u32;
+    val2 as u32;
+
+struct One:
+    two as [Two; 2u32];
+
+struct Baz:
+    one as One;
+
+struct Bar:
+    baz as [Baz; 2u32];
+
+struct Foo:
+    bar as [Bar; 1u32];
+
+function create:
+    cast 1u32 2u32 into r0 as Two;
+    cast 3u32 4u32 into r1 as Two;
+    cast  r0 r1 into r2 as [Two; 2u32];
+    cast r2 into r3 as One;
+    cast r3 into r4 as Baz;
+    cast 5u32 6u32 into r5 as Two;
+    cast 7u32 8u32 into r6 as Two;
+    cast  r5 r6 into r7 as [Two; 2u32];
+    cast r7 into r8 as One;
+    cast r8 into r9 as Baz;
+    cast  r4 r9 into r10 as [Baz; 2u32];
+    cast r10 into r11 as Bar;
+    cast  r11 into r12 as [Bar; 1u32];
+    cast r12 into r13 as Foo;
+    output r13 as Foo.private;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+struct Two:
+    val1 as u32;
+    val2 as u32;
+
+struct One:
+    two as [Two; 2u32];
+
+struct Baz:
+    one as One;
+
+struct Bar:
+    baz as [Baz; 2u32];
+
+struct Foo:
+    bar as [Bar; 1u32];
+
+function create_wrapper:
+    cast 1u32 2u32 into r0 as Two;
+    cast 3u32 4u32 into r1 as Two;
+    cast  r0 r1 into r2 as [Two; 2u32];
+    cast r2 into r3 as One;
+    cast r3 into r4 as Baz;
+    cast 5u32 6u32 into r5 as Two;
+    cast 7u32 8u32 into r6 as Two;
+    cast  r5 r6 into r7 as [Two; 2u32];
+    cast r7 into r8 as One;
+    cast r8 into r9 as Baz;
+    cast  r4 r9 into r10 as [Baz; 2u32];
+    cast r10 into r11 as Bar;
+    cast  r11 into r12 as [Bar; 1u32];
+    cast r12 into r13 as Foo;
+    call child.aleo/create into r14;
+    output r14 as Foo.private;

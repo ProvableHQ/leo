@@ -1,8 +1,5 @@
-namespace = "Parse"
-expectation = "Fail"
-outputs = ["""
 Error [EPAR0370005]: expected 'function', 'transition', or 'inline' -- found '('
-    --> test:4:9
+    --> test:3:9
      |
-   4 |     @foo(?, bar, ?)
-     |         ^"""]
+   3 |     @foo(?, bar, ?)
+     |         ^

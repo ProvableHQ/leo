@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372006]: Call expected `2` args, but got `3`
-    --> compiler-test:8:16
+    --> compiler-test:7:16
      |
-   8 |         return finalize_mint_public(receiver, amount, amount);
+   7 |         return finalize_mint_public(receiver, amount, amount);
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372006]: Call expected `2` args, but got `3`
+    --> compiler-test:7:16
+     |
+   7 |         return finalize_mint_public(receiver, amount, amount);
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,21 +1,35 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was found.
-    --> compiler-test:7:16
+    --> compiler-test:6:16
      |
-   7 |         return x >= sender;
+   6 |         return x >= sender;
      |                ^
 Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was found.
-    --> compiler-test:7:21
+    --> compiler-test:6:21
      |
-   7 |         return x >= sender;
+   6 |         return x >= sender;
      |                     ^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was found.
+    --> compiler-test:6:16
+     |
+   6 |         return x >= sender;
+     |                ^
+Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was found.
+    --> compiler-test:6:21
+     |
+   6 |         return x >= sender;
+     |                     ^^^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372000]: invalid assignment target
-    --> compiler-test:11:9
+    --> compiler-test:10:9
      |
-  11 |         balances[addr] = amount;
-     |         ^^^^^^^^^^^^^^"""]
+  10 |         balances[addr] = amount;
+     |         ^^^^^^^^^^^^^^
+DCE_DISABLED:
+Error [ETYC0372000]: invalid assignment target
+    --> compiler-test:10:9
+     |
+  10 |         balances[addr] = amount;
+     |         ^^^^^^^^^^^^^^

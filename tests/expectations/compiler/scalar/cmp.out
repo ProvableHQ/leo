@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "a78e61ffe9f96a2b37912df7cb750cd52b28c4e567eb28c400e118cc21997f59", unrolled_ast = "a78e61ffe9f96a2b37912df7cb750cd52b28c4e567eb28c400e118cc21997f59", ssa_ast = "059a876416b66570a797ef71a4de754c03902f84cccec1aeba3b39d2f8a05ee8", flattened_ast = "c4e32d2ea99f4d6ed233dc2252c44e4ff27c12412989ba454a6c1fa268e762a7", destructured_ast = "d903b626f4c48bb1e4472b7dd270998e1b9371ecb5b8ca45b67dc837a3602266", inlined_ast = "d903b626f4c48bb1e4472b7dd270998e1b9371ecb5b8ca45b67dc837a3602266", dce_ast = "dcddb607c5a25318174f991bd294d0a604b6c81ea9218ba68083d9b4da8a070f", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -8,4 +6,15 @@ function main:
     input r1 as scalar.private;
     lte r0 r1 into r2;
     output r2 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as scalar.private;
+    input r1 as scalar.private;
+    gt r0 r1 into r2;
+    lt r0 r1 into r3;
+    gte r0 r1 into r4;
+    lte r0 r1 into r5;
+    output r5 as boolean.private;

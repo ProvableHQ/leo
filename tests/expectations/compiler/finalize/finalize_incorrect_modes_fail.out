@@ -1,42 +1,79 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:10:5
+    --> compiler-test:9:5
      |
-  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-  11 |         Mapping::set(account, receiver, amount);
-  12 |     }
+   9 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+  10 |         Mapping::set(account, receiver, amount);
+  11 |     }
      |     ^
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
 Error [ETYC0372032]: An input to an async function must be public.
-    --> compiler-test:10:76
+    --> compiler-test:9:76
      |
-  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+   9 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
      |                                                                            ^^^^^^^^^^^
      |
      = Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.
 Error [ETYC0372038]: A returned value cannot be a constant.
-    --> compiler-test:10:101
+    --> compiler-test:9:101
      |
-  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+   9 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
      |                                                                                                     ^^^
 Error [ETYC0372036]: Function must return a value.
-    --> compiler-test:10:5
+    --> compiler-test:9:5
      |
-  10 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-  11 |         Mapping::set(account, receiver, amount);
-  12 |     }
+   9 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+  10 |         Mapping::set(account, receiver, amount);
+  11 |     }
      |     ^
 Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:18:5
+    --> compiler-test:17:5
      |
-  18 |     async function finalize_mint_public2(public receiver: address, amount: u64) -> u64 {
-  19 |         Mapping::set(account, receiver, amount);
-  20 |         return amount + amount;
-  21 |     }
+  17 |     async function finalize_mint_public2(public receiver: address, amount: u64) -> u64 {
+  18 |         Mapping::set(account, receiver, amount);
+  19 |         return amount + amount;
+  20 |     }
      |     ^
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372106]: An async function is not allowed to return a value.
+    --> compiler-test:9:5
+     |
+   9 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+  10 |         Mapping::set(account, receiver, amount);
+  11 |     }
+     |     ^
+     |
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
+Error [ETYC0372032]: An input to an async function must be public.
+    --> compiler-test:9:76
+     |
+   9 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+     |                                                                            ^^^^^^^^^^^
+     |
+     = Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.
+Error [ETYC0372038]: A returned value cannot be a constant.
+    --> compiler-test:9:101
+     |
+   9 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+     |                                                                                                     ^^^
+Error [ETYC0372036]: Function must return a value.
+    --> compiler-test:9:5
+     |
+   9 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+  10 |         Mapping::set(account, receiver, amount);
+  11 |     }
+     |     ^
+Error [ETYC0372106]: An async function is not allowed to return a value.
+    --> compiler-test:17:5
+     |
+  17 |     async function finalize_mint_public2(public receiver: address, amount: u64) -> u64 {
+  18 |         Mapping::set(account, receiver, amount);
+  19 |         return amount + amount;
+  20 |     }
+     |     ^
+     |
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.

@@ -1,11 +1,17 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EAST0372008]: record `Token` shadowed by
-    --> compiler-test:11:5
+    --> compiler-test:10:5
      |
-  11 |     struct Token { // This struct cannot have the same name as the record defined above it.
-  12 |         x: u32,
-  13 |     }
+  10 |     struct Token { // This struct cannot have the same name as the record defined above it.
+  11 |         x: u32,
+  12 |     }
      |     ^
-"""]
+
+DCE_DISABLED:
+Error [EAST0372008]: record `Token` shadowed by
+    --> compiler-test:10:5
+     |
+  10 |     struct Token { // This struct cannot have the same name as the record defined above it.
+  11 |         x: u32,
+  12 |     }
+     |     ^

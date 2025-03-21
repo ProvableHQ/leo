@@ -1,7 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "b4279a542ff0f97928ab95b69ea9517bc08e99b25a5d3cc9bce11de9ed85d80f", unrolled_ast = "b4279a542ff0f97928ab95b69ea9517bc08e99b25a5d3cc9bce11de9ed85d80f", ssa_ast = "e1b0f0e97b0107428f42f9c61686b9ee2089e1593c981a799b46aba5e3c7aada", flattened_ast = "5ba512ede33da7ee48b2e470a4bf70bf860f230d3e8c7aef5afa3d65c7c7ac3e", destructured_ast = "6d22a42dcb07c87436abae489836243abf1e1fea9bd56d668553e36f77a14ab4", inlined_ast = "1eeba00d75f9334a26ed68bf4227046f1811593f83507f88970740ecaae24796", dce_ast = "1eeba00d75f9334a26ed68bf4227046f1811593f83507f88970740ecaae24796", bytecode = """
+DCE_ENABLED:
 program parent.aleo;
 
 struct TestStruct:
@@ -16,8 +13,7 @@ function init:
 finalize init:
     input r0 as TestStruct.public;
     assert.eq 0u32 0u32;
-""", errors = "", warnings = "" },
-    { initial_ast = "b1348090a951e00cbf76c62d734fa808bfceea5b4169aa6da15a08ff185cbc50", unrolled_ast = "247180b52b593e1e83145ea948686c23c0b32fdda337a60d385ed0e30c6237b5", ssa_ast = "f9b9f4f3a93526a03e4034a81468b7ff5c4a2452930ad130b8ab86cc6daaa01a", flattened_ast = "94204af4776d78a0668023a09594d51f93269683b8bf8d95da2d430d6024aa7e", destructured_ast = "66948904dde4aea800ef42c11605c81e223affc99ef32ebe221dbc3aca0448ec", inlined_ast = "66948904dde4aea800ef42c11605c81e223affc99ef32ebe221dbc3aca0448ec", dce_ast = "66948904dde4aea800ef42c11605c81e223affc99ef32ebe221dbc3aca0448ec", bytecode = """
+// --- Next Program --- //
 import parent.aleo;
 program child.aleo;
 
@@ -27,5 +23,29 @@ struct TestStruct:
 
 function main:
     output 1u32 as u32.private;
-""", errors = "", warnings = "" },
-] }]]
+
+DCE_DISABLED:
+program parent.aleo;
+
+struct TestStruct:
+    data0 as u128;
+    data1 as u128;
+
+function init:
+    cast 0u128 1u128 into r0 as TestStruct;
+    async init r0 into r1;
+    output r1 as parent.aleo/init.future;
+
+finalize init:
+    input r0 as TestStruct.public;
+    assert.eq 0u32 0u32;
+// --- Next Program --- //
+import parent.aleo;
+program child.aleo;
+
+struct TestStruct:
+    data0 as u128;
+    data1 as u128;
+
+function main:
+    output 1u32 as u32.private;

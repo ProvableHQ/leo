@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ESAZ0374010]: Array index 8 out of bounds (array length is 8).
-    --> compiler-test:7:17
+    --> compiler-test:6:17
      |
-   7 |             x = a[i];
+   6 |             x = a[i];
      |                 ^^^^
-"""]
+
+DCE_DISABLED:
+Error [ESAZ0374010]: Array index 8 out of bounds (array length is 8).
+    --> compiler-test:6:17
+     |
+   6 |             x = a[i];
+     |                 ^^^^

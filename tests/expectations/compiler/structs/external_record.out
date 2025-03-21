@@ -1,7 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [
-    { initial_ast = "688dba570636a29b20e0f00772838dd74a74e2b4378bf47a7c026434bbf19aa7", unrolled_ast = "688dba570636a29b20e0f00772838dd74a74e2b4378bf47a7c026434bbf19aa7", ssa_ast = "840b9f69a3f0ebf4449de08ed6437155689d335d7486c0a0b1d56f30666112ff", flattened_ast = "b508196107ecd372ca53bd0faa3cb960ee8b725dc2621f2344cba11a9966ffc4", destructured_ast = "c22d22919d704295ef3717a3d737ebf1afe7bb7bc5206df3955b4731558a1d59", inlined_ast = "c22d22919d704295ef3717a3d737ebf1afe7bb7bc5206df3955b4731558a1d59", dce_ast = "c22d22919d704295ef3717a3d737ebf1afe7bb7bc5206df3955b4731558a1d59", bytecode = """
+DCE_ENABLED:
 program child.aleo;
 
 record A:
@@ -13,8 +10,7 @@ function mint:
     input r1 as u32.private;
     cast r0 r1 into r2 as A.record;
     output r2 as A.record;
-""", errors = "", warnings = "" },
-    { initial_ast = "9f94e48836537273a76806128487075f8cd83f8d14a0543d109f83f9f979d063", unrolled_ast = "5a2107c306f81799bde7a3c477f13a117c247497f9b464be28514922ebc14d8f", ssa_ast = "992241982c3165bfac53f4f931f63e284023ca1b0a0b439816300ad1f3ee0b83", flattened_ast = "a439f6907f9630915b7e78c17e048f00a423c0308530fb594891299d455b086f", destructured_ast = "deb6b9dbdce65132ff33591f0a350d71c0d69e43d93cedf837266f496a3410ff", inlined_ast = "deb6b9dbdce65132ff33591f0a350d71c0d69e43d93cedf837266f496a3410ff", dce_ast = "deb6b9dbdce65132ff33591f0a350d71c0d69e43d93cedf837266f496a3410ff", bytecode = """
+// --- Next Program --- //
 import child.aleo;
 program parent.aleo;
 
@@ -29,8 +25,7 @@ function wrapper_mint:
     cast self.caller r1 into r3 as B.record;
     output r2 as child.aleo/A.record;
     output r3 as B.record;
-""", errors = "", warnings = "" },
-    { initial_ast = "6301fa9e41fecef4bf2b842cb3521b5b792ba97ab09657c426ec75e954e0c015", unrolled_ast = "7f94738eee37928886fa9eae2f3833fc23070338db594d9f02806377f7da7235", ssa_ast = "7e8bb439409b7d57711e59878c47b4f4756bbcd40f919b6c7f1cd4cdc07585d6", flattened_ast = "3ea4681bbc521b7f8463f1f7c7b35f7a13ff878336ac84fcc541cd1c65d75097", destructured_ast = "3a7be02e96479d9683b63a371e0fa220d50616903cdaa86986bd17e39b0387bc", inlined_ast = "3a7be02e96479d9683b63a371e0fa220d50616903cdaa86986bd17e39b0387bc", dce_ast = "3a7be02e96479d9683b63a371e0fa220d50616903cdaa86986bd17e39b0387bc", bytecode = """
+// --- Next Program --- //
 import child.aleo;
 import parent.aleo;
 program grandparent.aleo;
@@ -47,5 +42,48 @@ function double_wrapper_mint:
     output r2 as child.aleo/A.record;
     output r3 as parent.aleo/B.record;
     output r4 as C.record;
-""", errors = "", warnings = "" },
-] }]]
+
+DCE_DISABLED:
+program child.aleo;
+
+record A:
+    owner as address.private;
+    val as u32.private;
+
+function mint:
+    input r0 as address.private;
+    input r1 as u32.private;
+    cast r0 r1 into r2 as A.record;
+    output r2 as A.record;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+record B:
+    owner as address.private;
+    val as u32.private;
+
+function wrapper_mint:
+    input r0 as address.private;
+    input r1 as u32.private;
+    call child.aleo/mint self.caller 1u32 into r2;
+    cast self.caller r1 into r3 as B.record;
+    output r2 as child.aleo/A.record;
+    output r3 as B.record;
+// --- Next Program --- //
+import child.aleo;
+import parent.aleo;
+program grandparent.aleo;
+
+record C:
+    owner as address.private;
+    val as u32.private;
+
+function double_wrapper_mint:
+    input r0 as address.private;
+    input r1 as u32.private;
+    call parent.aleo/wrapper_mint r0 r1 into r2 r3;
+    cast r0 r1 into r4 as C.record;
+    output r2 as child.aleo/A.record;
+    output r3 as parent.aleo/B.record;
+    output r4 as C.record;

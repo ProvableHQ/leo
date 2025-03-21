@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     1 main() {}}

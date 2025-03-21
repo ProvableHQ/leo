@@ -1,55 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:23:16
+DCE_ENABLED:
+Error [EPAR0370005]: expected 'import', 'program' -- found '*'
+    --> compiler-test:1:1
      |
-  23 |         return six(n);
-     |                ^^^^^^
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:27:16
+   1 | */
+     | ^
+DCE_DISABLED:
+Error [EPAR0370005]: expected 'import', 'program' -- found '*'
+    --> compiler-test:1:1
      |
-  27 |         return seven(n) + eight(n);
-     |                ^^^^^^^^
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:27:27
-     |
-  27 |         return seven(n) + eight(n);
-     |                           ^^^^^^^^
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:31:16
-     |
-  31 |         return five(n);
-     |                ^^^^^^^
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:35:16
-     |
-  35 |         return five(n);
-     |                ^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:7:16
-     |
-   7 |         return two(n);
-     |                ^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:11:16
-     |
-  11 |         return three(n) + four(n);
-     |                ^^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:11:27
-     |
-  11 |         return three(n) + four(n);
-     |                           ^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:15:16
-     |
-  15 |         return one(n);
-     |                ^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:19:16
-     |
-  19 |         return one(n);
-     |                ^^^^^^
-Error [ETYC0372059]: Cyclic dependency between functions: `five` --> `six` --> `seven` --> `five`
-"""]
+   1 | */
+     | ^

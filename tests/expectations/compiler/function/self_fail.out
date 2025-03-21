@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372040]: The allowed accesses to `self` are `self.caller` and `self.signer`.
-    --> compiler-test:5:21
+    --> compiler-test:4:21
      |
-   5 |         return self.foo == addr;
+   4 |         return self.foo == addr;
      |                     ^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372040]: The allowed accesses to `self` are `self.caller` and `self.signer`.
+    --> compiler-test:4:21
+     |
+   4 |         return self.foo == addr;
+     |                     ^^^

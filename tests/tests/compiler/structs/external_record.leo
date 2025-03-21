@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 program child.aleo {
     record A {

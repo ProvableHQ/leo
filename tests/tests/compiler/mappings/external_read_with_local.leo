@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 program registry.aleo {
     mapping users: address => bool;

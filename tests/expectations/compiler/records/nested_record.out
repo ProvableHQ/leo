@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "6762a9e9a65cd9d444064be27fa8248d70fe480ea693e4f3450de9fd9aee25ff", unrolled_ast = "6762a9e9a65cd9d444064be27fa8248d70fe480ea693e4f3450de9fd9aee25ff", ssa_ast = "970ccef4355b1f21558c9a64e6e080122c5ef7c2ba3b0d156baa5fe892bd82f0", flattened_ast = "29daf572da0e4685b3ff6ecb043a1d04110251837ccd16aab6f8f0c647d1a4ff", destructured_ast = "0e9e273b3c099cd60ae48987ed1b6851874276b90ea8083384720f9ce62332a3", inlined_ast = "0e9e273b3c099cd60ae48987ed1b6851874276b90ea8083384720f9ce62332a3", dce_ast = "4779007a5eaa6bc917d7279c1e12813a703f0f66290c180ed52415287b6567a9", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Amount:
@@ -22,4 +20,28 @@ function main:
     input r0 as address.private;
     add 1u64 1u64 into r1;
     output r1 as u64.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Amount:
+    amount as u64;
+    amt as u64;
+
+record Token:
+    owner as address.private;
+    amount as Amount.private;
+
+function mint:
+    input r0 as address.private;
+    input r1 as u64.private;
+    cast r1 r1 into r2 as Amount;
+    cast r0 r2 into r3 as Token.record;
+    output r3 as Token.record;
+
+function main:
+    input r0 as address.private;
+    cast 1u64 1u64 into r1 as Amount;
+    cast r0 r1 into r2 as Token.record;
+    add 1u64 1u64 into r3;
+    output r3 as u64.private;

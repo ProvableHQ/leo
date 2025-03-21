@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "7d65fe4ef132718f8720bab343fa99096c9efab3a9c846da11919e36e2f3923b", unrolled_ast = "48f7483869df16ff67e812fa6e0fca998d256031d95577cb56c1211451911871", ssa_ast = "cce26678f38feb695a06b48cfe431ca31a78986c6e663496a03c837d2ba2fa95", flattened_ast = "cb202577476c9f2d1f7252e6bf8d4a339d7b1ceb8a7e0c55d5e6dba9f50b1f0f", destructured_ast = "081a3306cf599d7477014059e32f9245193990e0d717d17ad725c90e8fe151d3", inlined_ast = "081a3306cf599d7477014059e32f9245193990e0d717d17ad725c90e8fe151d3", dce_ast = "0e0ce9264d44bbac4327f7988f33378be3370d617123d34ffe7367838acad0c2", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,7 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     commit.bhp768 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta 1scalar into r8 as group;
-    commit.bhp768 1scalar 1scalar into r9 as group;
-    add r8 r9 into r10;
+    commit.bhp768 true 1scalar into r9 as group;
+    commit.bhp768 1field 1scalar into r10 as group;
+    commit.bhp768 1540945439182663264862696551825005342995406165131907382295858612069623286213group 1scalar into r11 as group;
+    commit.bhp768 r0 1scalar into r12 as group;
+    commit.bhp768 r1 1scalar into r13 as group;
+    commit.bhp768 r2 1scalar into r14 as group;
+    commit.bhp768 r3 1scalar into r15 as group;
+    commit.bhp768 1i128 1scalar into r16 as group;
+    commit.bhp768 r4 1scalar into r17 as group;
+    commit.bhp768 r5 1scalar into r18 as group;
+    commit.bhp768 r6 1scalar into r19 as group;
+    commit.bhp768 r7 1scalar into r20 as group;
+    commit.bhp768 1u128 1scalar into r21 as group;
+    commit.bhp768 1scalar 1scalar into r22 as group;
+    output r8 as group.private;
+    output r9 as group.private;
     output r10 as group.private;
-""", errors = "", warnings = "" }] }]]
+    output r11 as group.private;
+    output r12 as group.private;
+    output r13 as group.private;
+    output r14 as group.private;
+    output r15 as group.private;
+    output r16 as group.private;
+    output r17 as group.private;
+    output r18 as group.private;
+    output r19 as group.private;
+    output r20 as group.private;
+    output r21 as group.private;
+    output r22 as group.private;
+    output 2970939883979773377219657084641959322766787393081684572834510920571600200958group as group.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    commit.bhp768 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta 1scalar into r8 as group;
+    commit.bhp768 true 1scalar into r9 as group;
+    commit.bhp768 1field 1scalar into r10 as group;
+    commit.bhp768 1540945439182663264862696551825005342995406165131907382295858612069623286213group 1scalar into r11 as group;
+    commit.bhp768 r0 1scalar into r12 as group;
+    commit.bhp768 r1 1scalar into r13 as group;
+    commit.bhp768 r2 1scalar into r14 as group;
+    commit.bhp768 r3 1scalar into r15 as group;
+    commit.bhp768 1i128 1scalar into r16 as group;
+    commit.bhp768 r4 1scalar into r17 as group;
+    commit.bhp768 r5 1scalar into r18 as group;
+    commit.bhp768 r6 1scalar into r19 as group;
+    commit.bhp768 r7 1scalar into r20 as group;
+    commit.bhp768 1u128 1scalar into r21 as group;
+    commit.bhp768 1scalar 1scalar into r22 as group;
+    output r8 as group.private;
+    output r9 as group.private;
+    output r10 as group.private;
+    output r11 as group.private;
+    output r12 as group.private;
+    output r13 as group.private;
+    output r14 as group.private;
+    output r15 as group.private;
+    output r16 as group.private;
+    output r17 as group.private;
+    output r18 as group.private;
+    output r19 as group.private;
+    output r20 as group.private;
+    output r21 as group.private;
+    output r22 as group.private;
+    output 2970939883979773377219657084641959322766787393081684572834510920571600200958group as group.private;

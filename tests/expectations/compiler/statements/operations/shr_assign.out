@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "9343134129a96f4a738f1073fbee870da2ea2b92b9e730555b478a2ec7c611ce", unrolled_ast = "9343134129a96f4a738f1073fbee870da2ea2b92b9e730555b478a2ec7c611ce", ssa_ast = "d2d1f07c75bd37da6818ade0a55b9f5f389cdc4bd09f7b78569723fe1211181f", flattened_ast = "5b7ea39d34c9368563c7ff429c8c5d09737e0bc0ca0239c5f4edf08a53489ae8", destructured_ast = "4bdaae7ae8d0d8feaf62785abc29d09eb6381169c3d3fea78c54b7255c89a87a", inlined_ast = "4bdaae7ae8d0d8feaf62785abc29d09eb6381169c3d3fea78c54b7255c89a87a", dce_ast = "4bdaae7ae8d0d8feaf62785abc29d09eb6381169c3d3fea78c54b7255c89a87a", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function unsigned:
@@ -22,4 +20,26 @@ closure signed:
     shr r4 r2 into r5;
     shr r5 r3 into r6;
     output r6 as i8;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function unsigned:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    input r2 as u16.private;
+    input r3 as u32.private;
+    shr r0 r1 into r4;
+    shr r4 r2 into r5;
+    shr r5 r3 into r6;
+    output r6 as u8.private;
+
+closure signed:
+    input r0 as i8;
+    input r1 as u8;
+    input r2 as u16;
+    input r3 as u32;
+    shr r0 r1 into r4;
+    shr r4 r2 into r5;
+    shr r5 r3 into r6;
+    output r6 as i8;

@@ -19,6 +19,8 @@ pub trait Pass {
     type Input;
     type Output;
 
+    const NAME: &str;
+
     /// Runs the compiler pass.
     fn do_pass(input: Self::Input) -> Self::Output;
 }

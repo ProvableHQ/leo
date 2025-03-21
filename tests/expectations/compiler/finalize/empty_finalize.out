@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "45d32cf0414a246717747dc917b07ffe55ff7587589d4c494479e18667e61a03", unrolled_ast = "45d32cf0414a246717747dc917b07ffe55ff7587589d4c494479e18667e61a03", ssa_ast = "67bceb8d833069e2d8b14045114d760f9d7660f1c312bbdd18517c466c8e9043", flattened_ast = "d2fe775419aafee0cc85a2ef8a2831707e16ee7338b9b127c4f80baee3cedb0b", destructured_ast = "554c9d9788f899d9da6c8db96c24d65a856012e0219f2652e89e2ba289dec521", inlined_ast = "84c860688c387ec00e68efe84aa356f1ef545ed66488eb470209704c18ee3dfc", dce_ast = "84c860688c387ec00e68efe84aa356f1ef545ed66488eb470209704c18ee3dfc", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function mint_public:
@@ -13,4 +11,17 @@ finalize mint_public:
     input r0 as address.public;
     input r1 as u64.public;
     assert.eq true true;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function mint_public:
+    input r0 as address.public;
+    input r1 as u64.public;
+    async mint_public r0 r1 into r2;
+    output r2 as test.aleo/mint_public.future;
+
+finalize mint_public:
+    input r0 as address.public;
+    input r1 as u64.public;
+    assert.eq true true;

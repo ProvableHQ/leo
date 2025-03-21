@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
 program test.aleo {
     function calculate_interest(principal: u64, rate: u64, periods: u64) -> u64 {

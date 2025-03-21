@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 // The 'test_dep' program.
 program test_dep.aleo {

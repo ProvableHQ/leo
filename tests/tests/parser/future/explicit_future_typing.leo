@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Pass"
-*/
 program test.aleo {
     async transition main() -> Future<Fn(u32, u32, Future<Fn()>, Future<Fn(u32, Future<Fn(u32, u32)>)>)> {
         let f0: Future<Fn()> = bye.aleo/add();

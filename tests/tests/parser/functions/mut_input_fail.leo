@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     function f(mut a: u8) {}}

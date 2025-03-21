@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372000]: invalid assignment target
-    --> compiler-test:5:9
+    --> compiler-test:4:9
      |
-   5 |         a[0u32] = false;
-     |         ^^^^^^^"""]
+   4 |         a[0u32] = false;
+     |         ^^^^^^^
+DCE_DISABLED:
+Error [ETYC0372000]: invalid assignment target
+    --> compiler-test:4:9
+     |
+   4 |         a[0u32] = false;
+     |         ^^^^^^^

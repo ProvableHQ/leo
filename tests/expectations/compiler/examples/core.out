@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "9cc70b151b055155698599e34a62ba4b0d95e6de0f7f25c14c97219c194c078b", unrolled_ast = "9cc70b151b055155698599e34a62ba4b0d95e6de0f7f25c14c97219c194c078b", ssa_ast = "bdf508b8364d995824f96791833d807670ca645c78c8eae8c8998a8d1e9ad722", flattened_ast = "81ece0645f2c10f1a026b8b9cdb058fd8c5d885666b908736a43cd1db426c68c", destructured_ast = "40cbbe3d15f3ad98c9ab2b208017ac3872623eae3317b83b41b7e05ebfe756a6", inlined_ast = "40cbbe3d15f3ad98c9ab2b208017ac3872623eae3317b83b41b7e05ebfe756a6", dce_ast = "40cbbe3d15f3ad98c9ab2b208017ac3872623eae3317b83b41b7e05ebfe756a6", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -9,4 +7,13 @@ function main:
     hash.psd2 r1 into r2 as field;
     commit.bhp256 r2 1scalar into r3 as field;
     output r3 as field.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as field.private;
+    hash.bhp256 r0 into r1 as field;
+    hash.psd2 r1 into r2 as field;
+    commit.bhp256 r2 1scalar into r3 as field;
+    output r3 as field.private;

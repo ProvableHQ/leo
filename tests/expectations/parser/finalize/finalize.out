@@ -1,39 +1,272 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[outputs.imports]
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = []
-mappings = []
-functions = [
-    [
-    "main",
-    { annotations = [], variant = "AsyncTransition", identifier = '{"id":"2","name":"main","span":"{\"lo\":47,\"hi\":51}"}', input = [], output_type = "Boolean", id = 5, output = [{ mode = "None", type_ = "Boolean", id = 3, span = { lo = 57, hi = 61 } }], block = { statements = [], id = 4, span = { lo = 62, hi = 74 } }, span = { lo = 30, hi = 74 } },
-],
-    [
-    "finalize_main",
-    { annotations = [], variant = "AsyncFunction", identifier = '{"id":"6","name":"finalize_main","span":"{\"lo\":99,\"hi\":112}"}', input = [], output = [], output_type = "Unit", id = 8, block = { statements = [], id = 7, span = { lo = 115, hi = 127 } }, span = { lo = 84, hi = 127 } },
-],
-    [
-    "main",
-    { annotations = [], variant = "Function", identifier = '{"id":"9","name":"main","span":"{\"lo\":146,\"hi\":150}"}', input = [], output_type = "Boolean", id = 12, output = [{ mode = "None", type_ = "Boolean", id = 10, span = { lo = 156, hi = 160 } }], block = { statements = [], id = 11, span = { lo = 161, hi = 173 } }, span = { lo = 137, hi = 173 } },
-],
-    [
-    "main",
-    { annotations = [], variant = "AsyncFunction", identifier = '{"id":"13","name":"main","span":"{\"lo\":193,\"hi\":197}"}', id = 23, input = [
-    { identifier = '{"id":"14","name":"a","span":"{\"lo\":198,\"hi\":199}"}', mode = "None", id = 16, type_ = { Composite = { id = '{"id":"15","name":"foo","span":"{\"lo\":201,\"hi\":204}"}' } }, span = { lo = 198, hi = 204 } },
-    { identifier = '{"id":"17","name":"b","span":"{\"lo\":206,\"hi\":207}"}', mode = "None", id = 19, type_ = { Composite = { id = '{"id":"18","name":"bar","span":"{\"lo\":209,\"hi\":212}"}' } }, span = { lo = 206, hi = 212 } },
-], output = [{ mode = "None", id = 21, type_ = { Composite = { id = '{"id":"20","name":"baz","span":"{\"lo\":217,\"hi\":220}"}' } }, span = { lo = 217, hi = 220 } }], output_type = { Composite = { id = '{"id":"20","name":"baz","span":"{\"lo\":217,\"hi\":220}"}' } }, block = { statements = [], id = 22, span = { lo = 221, hi = 233 } }, span = { lo = 178, hi = 233 } },
-],
-]
-
-[outputs.program_scopes.test.span]
-lo = 2
-hi = 245
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 9,
+            "hi": 13
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "functions": [
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "AsyncTransition",
+            "identifier": {
+              "name": "main",
+              "span": {
+                "lo": 42,
+                "hi": 46
+              },
+              "id": 2
+            },
+            "input": [],
+            "output": [
+              {
+                "mode": "None",
+                "type_": "Boolean",
+                "span": {
+                  "lo": 52,
+                  "hi": 56
+                },
+                "id": 3
+              }
+            ],
+            "output_type": "Boolean",
+            "block": {
+              "statements": [],
+              "span": {
+                "lo": 57,
+                "hi": 65
+              },
+              "id": 4
+            },
+            "span": {
+              "lo": 25,
+              "hi": 65
+            },
+            "id": 5
+          }
+        ],
+        [
+          "finalize_main",
+          {
+            "annotations": [],
+            "variant": "AsyncFunction",
+            "identifier": {
+              "name": "finalize_main",
+              "span": {
+                "lo": 86,
+                "hi": 99
+              },
+              "id": 6
+            },
+            "input": [],
+            "output": [],
+            "output_type": "Unit",
+            "block": {
+              "statements": [],
+              "span": {
+                "lo": 102,
+                "hi": 110
+              },
+              "id": 7
+            },
+            "span": {
+              "lo": 71,
+              "hi": 110
+            },
+            "id": 8
+          }
+        ],
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "Function",
+            "identifier": {
+              "name": "main",
+              "span": {
+                "lo": 125,
+                "hi": 129
+              },
+              "id": 9
+            },
+            "input": [],
+            "output": [
+              {
+                "mode": "None",
+                "type_": "Boolean",
+                "span": {
+                  "lo": 135,
+                  "hi": 139
+                },
+                "id": 10
+              }
+            ],
+            "output_type": "Boolean",
+            "block": {
+              "statements": [],
+              "span": {
+                "lo": 140,
+                "hi": 148
+              },
+              "id": 11
+            },
+            "span": {
+              "lo": 116,
+              "hi": 148
+            },
+            "id": 12
+          }
+        ],
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "AsyncFunction",
+            "identifier": {
+              "name": "main",
+              "span": {
+                "lo": 168,
+                "hi": 172
+              },
+              "id": 13
+            },
+            "input": [
+              {
+                "identifier": {
+                  "name": "a",
+                  "span": {
+                    "lo": 173,
+                    "hi": 174
+                  },
+                  "id": 14
+                },
+                "mode": "None",
+                "type_": {
+                  "Composite": {
+                    "id": {
+                      "name": "foo",
+                      "span": {
+                        "lo": 176,
+                        "hi": 179
+                      },
+                      "id": 15
+                    },
+                    "program": null
+                  }
+                },
+                "span": {
+                  "lo": 173,
+                  "hi": 179
+                },
+                "id": 16
+              },
+              {
+                "identifier": {
+                  "name": "b",
+                  "span": {
+                    "lo": 181,
+                    "hi": 182
+                  },
+                  "id": 17
+                },
+                "mode": "None",
+                "type_": {
+                  "Composite": {
+                    "id": {
+                      "name": "bar",
+                      "span": {
+                        "lo": 184,
+                        "hi": 187
+                      },
+                      "id": 18
+                    },
+                    "program": null
+                  }
+                },
+                "span": {
+                  "lo": 181,
+                  "hi": 187
+                },
+                "id": 19
+              }
+            ],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Composite": {
+                    "id": {
+                      "name": "baz",
+                      "span": {
+                        "lo": 192,
+                        "hi": 195
+                      },
+                      "id": 20
+                    },
+                    "program": null
+                  }
+                },
+                "span": {
+                  "lo": 192,
+                  "hi": 195
+                },
+                "id": 21
+              }
+            ],
+            "output_type": {
+              "Composite": {
+                "id": {
+                  "name": "baz",
+                  "span": {
+                    "lo": 192,
+                    "hi": 195
+                  },
+                  "id": 20
+                },
+                "program": null
+              }
+            },
+            "block": {
+              "statements": [],
+              "span": {
+                "lo": 196,
+                "hi": 204
+              },
+              "id": 22
+            },
+            "span": {
+              "lo": 153,
+              "hi": 204
+            },
+            "id": 23
+          }
+        ]
+      ],
+      "span": {
+        "lo": 1,
+        "hi": 208
+      }
+    }
+  }
+}

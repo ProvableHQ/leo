@@ -1,14 +1,23 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:6:19
+    --> compiler-test:5:19
      |
-   6 |            return adder(a, b);
+   5 |            return adder(a, b);
      |                   ^^^^^^^^^^^
 Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:8:20
+    --> compiler-test:7:20
      |
-   8 |             return subber(a, b);
+   7 |             return subber(a, b);
      |                    ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:5:19
+     |
+   5 |            return adder(a, b);
+     |                   ^^^^^^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:7:20
+     |
+   7 |             return subber(a, b);
+     |                    ^^^^^^^^^^^^

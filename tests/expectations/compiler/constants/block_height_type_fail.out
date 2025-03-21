@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372117]: Expected type `u64` but type `u32` was found.
-    --> compiler-test:5:22
+    --> compiler-test:4:22
      |
-   5 |         let x: u64 = block.height;
+   4 |         let x: u64 = block.height;
      |                      ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected type `u64` but type `u32` was found.
+    --> compiler-test:4:22
+     |
+   4 |         let x: u64 = block.height;
+     |                      ^^^^^^^^^^^^

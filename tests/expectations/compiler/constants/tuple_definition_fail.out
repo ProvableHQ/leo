@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
-    --> compiler-test:4:11
+    --> compiler-test:3:11
      |
-   4 |     const (HELLO,GOODBYE): (u8,u8) = (1u8, 1u8);
-     |           ^"""]
+   3 |     const (HELLO,GOODBYE): (u8,u8) = (1u8, 1u8);
+     |           ^
+DCE_DISABLED:
+Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
+    --> compiler-test:3:11
+     |
+   3 |     const (HELLO,GOODBYE): (u8,u8) = (1u8, 1u8);
+     |           ^

@@ -1,16 +1,25 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372005]: Unknown variable `z`
-    --> compiler-test:5:23
+    --> compiler-test:4:23
      |
-   5 |     \tlet b: u8 = 1u8**z;
+   4 |     	let b: u8 = 1u8**z;
      |                       ^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372005]: Unknown variable `z`
+    --> compiler-test:4:23
+     |
+   4 |     	let b: u8 = 1u8**z;
+     |                       ^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

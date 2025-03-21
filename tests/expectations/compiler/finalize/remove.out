@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "11dd1735204388c8b4d90df755851e94893cbc55aa62001995aec98da49de27a", unrolled_ast = "11dd1735204388c8b4d90df755851e94893cbc55aa62001995aec98da49de27a", ssa_ast = "88e5838249d95d58b93fe22c1188387410402ef8dda2b1590d1112bdc33af863", flattened_ast = "f30df58f30cc0405d760a0be9ef03c1998299d77f66b4b1cb0b28097dc2027ad", destructured_ast = "6cb2bf760b6e19ebc43e277d034f44720c0b6d640b87685791b38537c0730e22", inlined_ast = "65b13d3bb14f6a07b06d6b887793c58a115038ea3d011ec2b9c01f6a4f3c70d2", dce_ast = "65b13d3bb14f6a07b06d6b887793c58a115038ea3d011ec2b9c01f6a4f3c70d2", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 mapping balances:
@@ -20,4 +18,24 @@ finalize foo:
     contains balances[r0] into r2;
     not r2 into r3;
     assert.eq r3 true;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+mapping balances:
+    key as address.public;
+    value as u32.public;
+
+function foo:
+    async foo self.caller into r0;
+    output r0 as test.aleo/foo.future;
+
+finalize foo:
+    input r0 as address.public;
+    set 1u32 into balances[r0];
+    contains balances[r0] into r1;
+    assert.eq r1 true;
+    remove balances[r0];
+    contains balances[r0] into r2;
+    not r2 into r3;
+    assert.eq r3 true;

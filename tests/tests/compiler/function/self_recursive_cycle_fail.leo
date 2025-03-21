@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
 program test.aleo {
     function fib(n: u8) -> u8 {

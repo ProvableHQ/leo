@@ -1,0 +1,305 @@
+{
+  "Iteration": {
+    "variable": {
+      "name": "x",
+      "span": {
+        "lo": 4,
+        "hi": 5
+      },
+      "id": 0
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "start": {
+      "Literal": {
+        "Integer": [
+          "U8",
+          "0",
+          {
+            "span": {
+              "lo": 13,
+              "hi": 16
+            }
+          },
+          1
+        ]
+      }
+    },
+    "stop": {
+      "Literal": {
+        "Integer": [
+          "U8",
+          "7",
+          {
+            "span": {
+              "lo": 18,
+              "hi": 21
+            }
+          },
+          2
+        ]
+      }
+    },
+    "inclusive": false,
+    "block": {
+      "statements": [],
+      "span": {
+        "lo": 22,
+        "hi": 24
+      },
+      "id": 3
+    },
+    "span": {
+      "lo": 0,
+      "hi": 24
+    },
+    "id": 4
+  }
+}
+
+{
+  "Iteration": {
+    "variable": {
+      "name": "x",
+      "span": {
+        "lo": 29,
+        "hi": 30
+      },
+      "id": 0
+    },
+    "type_": {
+      "Integer": "I64"
+    },
+    "start": {
+      "Literal": {
+        "Integer": [
+          "I64",
+          "0",
+          {
+            "span": {
+              "lo": 39,
+              "hi": 43
+            }
+          },
+          1
+        ]
+      }
+    },
+    "stop": {
+      "Literal": {
+        "Integer": [
+          "I64",
+          "7",
+          {
+            "span": {
+              "lo": 45,
+              "hi": 49
+            }
+          },
+          2
+        ]
+      }
+    },
+    "inclusive": false,
+    "block": {
+      "statements": [
+        {
+          "Return": {
+            "expression": {
+              "Literal": {
+                "Integer": [
+                  "U8",
+                  "1",
+                  {
+                    "span": {
+                      "lo": 63,
+                      "hi": 66
+                    }
+                  },
+                  3
+                ]
+              }
+            },
+            "span": {
+              "lo": 56,
+              "hi": 67
+            },
+            "id": 4
+          }
+        }
+      ],
+      "span": {
+        "lo": 50,
+        "hi": 69
+      },
+      "id": 5
+    },
+    "span": {
+      "lo": 25,
+      "hi": 69
+    },
+    "id": 6
+  }
+}
+
+{
+  "Iteration": {
+    "variable": {
+      "name": "x",
+      "span": {
+        "lo": 74,
+        "hi": 75
+      },
+      "id": 0
+    },
+    "type_": "Field",
+    "start": {
+      "Literal": {
+        "Field": [
+          "0",
+          {
+            "span": {
+              "lo": 86,
+              "hi": 92
+            }
+          },
+          1
+        ]
+      }
+    },
+    "stop": {
+      "Literal": {
+        "Integer": [
+          "U8",
+          "99",
+          {
+            "span": {
+              "lo": 94,
+              "hi": 98
+            }
+          },
+          2
+        ]
+      }
+    },
+    "inclusive": false,
+    "block": {
+      "statements": [
+        {
+          "Return": {
+            "expression": {
+              "Literal": {
+                "Integer": [
+                  "U8",
+                  "1",
+                  {
+                    "span": {
+                      "lo": 112,
+                      "hi": 115
+                    }
+                  },
+                  3
+                ]
+              }
+            },
+            "span": {
+              "lo": 105,
+              "hi": 116
+            },
+            "id": 4
+          }
+        }
+      ],
+      "span": {
+        "lo": 99,
+        "hi": 118
+      },
+      "id": 5
+    },
+    "span": {
+      "lo": 70,
+      "hi": 118
+    },
+    "id": 6
+  }
+}
+
+{
+  "Iteration": {
+    "variable": {
+      "name": "x",
+      "span": {
+        "lo": 123,
+        "hi": 124
+      },
+      "id": 0
+    },
+    "type_": "Boolean",
+    "start": {
+      "Literal": {
+        "Integer": [
+          "U8",
+          "0",
+          {
+            "span": {
+              "lo": 134,
+              "hi": 137
+            }
+          },
+          1
+        ]
+      }
+    },
+    "stop": {
+      "Identifier": {
+        "name": "Self",
+        "span": {
+          "lo": 139,
+          "hi": 143
+        },
+        "id": 2
+      }
+    },
+    "inclusive": false,
+    "block": {
+      "statements": [
+        {
+          "Return": {
+            "expression": {
+              "Literal": {
+                "Integer": [
+                  "U8",
+                  "1",
+                  {
+                    "span": {
+                      "lo": 157,
+                      "hi": 160
+                    }
+                  },
+                  3
+                ]
+              }
+            },
+            "span": {
+              "lo": 150,
+              "hi": 161
+            },
+            "id": 4
+          }
+        }
+      ],
+      "span": {
+        "lo": 144,
+        "hi": 163
+      },
+      "id": 5
+    },
+    "span": {
+      "lo": 119,
+      "hi": 163
+    },
+    "id": 6
+  }
+}
+

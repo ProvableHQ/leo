@@ -1,13 +1,10 @@
-namespace = "Parse"
-expectation = "Fail"
-outputs = ["""
 Error [EPAR0370021]: The type of `signature` has no associated function `verify` that takes 3 argument(s).
-    --> test:5:23
+    --> test:4:23
      |
-   5 |         let a: bool = signature.verify(s, a, v);
+   4 |         let a: bool = signature.verify(s, a, v);
      |                       ^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [EPAR0370005]: expected ) -- found ','
-    --> test:6:17
+    --> test:5:17
      |
-   6 |         assert(a, b);
-     |                 ^"""]
+   5 |         assert(a, b);
+     |                 ^

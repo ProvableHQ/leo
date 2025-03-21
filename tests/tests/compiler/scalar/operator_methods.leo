@@ -1,9 +1,5 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
-program test.aleo {    
+program test.aleo {
     transition main(a: scalar, b: scalar) -> bool {
        // binary
        let j: scalar = a.add(b);
@@ -15,6 +11,6 @@ program test.aleo {
        // let t: group = 2group.mul(b);
        // let u: group = a.mul(2group);
        let w: bool = a.neq(b);
-    
+
        return a == b;
     }}

@@ -1,12 +1,17 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372058]: Cyclic dependency between structs: `Bar` --> `Baz` --> `Bar`
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372058]: Cyclic dependency between structs: `Bar` --> `Baz` --> `Bar`
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

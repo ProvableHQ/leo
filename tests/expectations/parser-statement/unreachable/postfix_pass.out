@@ -1,0 +1,825 @@
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 4,
+          "hi": 5
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "aimport",
+        "span": {
+          "lo": 12,
+          "hi": 19
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 0,
+      "hi": 19
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 25,
+          "hi": 26
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "a_",
+        "span": {
+          "lo": 33,
+          "hi": 35
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 21,
+      "hi": 35
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 41,
+          "hi": 42
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "aas",
+        "span": {
+          "lo": 49,
+          "hi": 52
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 37,
+      "hi": 52
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 58,
+          "hi": 59
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "aconsole",
+        "span": {
+          "lo": 66,
+          "hi": 74
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 54,
+      "hi": 74
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 80,
+          "hi": 81
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "aconst",
+        "span": {
+          "lo": 88,
+          "hi": 94
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 76,
+      "hi": 94
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 100,
+          "hi": 101
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "alet",
+        "span": {
+          "lo": 108,
+          "hi": 112
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 96,
+      "hi": 112
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 118,
+          "hi": 119
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "afor",
+        "span": {
+          "lo": 126,
+          "hi": 130
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 114,
+      "hi": 130
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 136,
+          "hi": 137
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "aif",
+        "span": {
+          "lo": 144,
+          "hi": 147
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 132,
+      "hi": 147
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 153,
+          "hi": 154
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "aelse",
+        "span": {
+          "lo": 161,
+          "hi": 166
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 149,
+      "hi": 166
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 172,
+          "hi": 173
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "ai8",
+        "span": {
+          "lo": 180,
+          "hi": 183
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 168,
+      "hi": 183
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 189,
+          "hi": 190
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "ai16",
+        "span": {
+          "lo": 197,
+          "hi": 201
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 185,
+      "hi": 201
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 207,
+          "hi": 208
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "ai32",
+        "span": {
+          "lo": 215,
+          "hi": 219
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 203,
+      "hi": 219
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 225,
+          "hi": 226
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "ai64",
+        "span": {
+          "lo": 233,
+          "hi": 237
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 221,
+      "hi": 237
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 243,
+          "hi": 244
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "ai128",
+        "span": {
+          "lo": 251,
+          "hi": 256
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 239,
+      "hi": 256
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 262,
+          "hi": 263
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "au8",
+        "span": {
+          "lo": 270,
+          "hi": 273
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 258,
+      "hi": 273
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 279,
+          "hi": 280
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "au16",
+        "span": {
+          "lo": 287,
+          "hi": 291
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 275,
+      "hi": 291
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 297,
+          "hi": 298
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "au32",
+        "span": {
+          "lo": 305,
+          "hi": 309
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 293,
+      "hi": 309
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 315,
+          "hi": 316
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "au64",
+        "span": {
+          "lo": 323,
+          "hi": 327
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 311,
+      "hi": 327
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 333,
+          "hi": 334
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "au128",
+        "span": {
+          "lo": 341,
+          "hi": 346
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 329,
+      "hi": 346
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 352,
+          "hi": 353
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "areturn",
+        "span": {
+          "lo": 360,
+          "hi": 367
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 348,
+      "hi": 367
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 373,
+          "hi": 374
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "aself",
+        "span": {
+          "lo": 381,
+          "hi": 386
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 369,
+      "hi": 386
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 392,
+          "hi": 393
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "aSelf",
+        "span": {
+          "lo": 400,
+          "hi": 405
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 388,
+      "hi": 405
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 411,
+          "hi": 412
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "atrue",
+        "span": {
+          "lo": 419,
+          "hi": 424
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 407,
+      "hi": 424
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 430,
+          "hi": 431
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "afalse",
+        "span": {
+          "lo": 438,
+          "hi": 444
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 426,
+      "hi": 444
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 450,
+          "hi": 451
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "a0",
+        "span": {
+          "lo": 458,
+          "hi": 460
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 446,
+      "hi": 460
+    },
+    "id": 2
+  }
+}
+

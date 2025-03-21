@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 program dependent.aleo {
     async function finalize1(x: u8) {
         assert_eq(1u8, 1u8);

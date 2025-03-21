@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "703b5bf9c29f35dec9cc6ef179200ab2aa8c671a9100c1a861804d6a40746764", unrolled_ast = "703b5bf9c29f35dec9cc6ef179200ab2aa8c671a9100c1a861804d6a40746764", ssa_ast = "6ab89c8d7e0715c3004359c98ab4617059558362987a903466d5a4b85a60d1ae", flattened_ast = "2105cbebf12801c301e354daff4be25c56b7c80ab81570d281eb76ea7dffe558", destructured_ast = "7092bdf1e59c269fc066176997091e02cc4a8066654eb5929ed70180464f8a2f", inlined_ast = "ca2490aac56f33c5c07c4cd4130e6dbf1e1737a02059c9eeaffc1d2c6aa63257", dce_ast = "ca2490aac56f33c5c07c4cd4130e6dbf1e1737a02059c9eeaffc1d2c6aa63257", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 mapping amounts:
@@ -18,4 +16,22 @@ finalize increase_self:
     get.or_use amounts[r0] 0u128 into r2;
     add r2 r1 into r3;
     set r3 into amounts[r0];
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+mapping amounts:
+    key as address.public;
+    value as u128.public;
+
+function increase_self:
+    input r0 as u128.private;
+    async increase_self self.caller r0 into r1;
+    output r1 as test.aleo/increase_self.future;
+
+finalize increase_self:
+    input r0 as address.public;
+    input r1 as u128.public;
+    get.or_use amounts[r0] 0u128 into r2;
+    add r2 r1 into r3;
+    set r3 into amounts[r0];

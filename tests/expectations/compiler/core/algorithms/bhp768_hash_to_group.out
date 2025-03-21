@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "e6dd91740087a6e95580093ed6239320aad7ed8d8786852fa49deb253f29c1fe", unrolled_ast = "91e0d48f1f7da03417af2cd02bed5179eba635b846c96f375ee916d7051bb210", ssa_ast = "83da244a28a5ed3613181a901961b02198fe559a9392674e5f9d3ceb4f17aeea", flattened_ast = "afe9e89549093daac1d829cf81dd15ca9614fe40cc276cd8d002622387e1371d", destructured_ast = "bd3a17d9e3e1594349e6b3dc6a92bbbbcaa47cf91e971b68092f709037c39b39", inlined_ast = "bd3a17d9e3e1594349e6b3dc6a92bbbbcaa47cf91e971b68092f709037c39b39", dce_ast = "d0c8d7c15b2d2ab99b7991a3f1f0804dbd1555ff7231c5fdbaf35e91d74144c7", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,7 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.bhp768 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as group;
-    hash.bhp768 1scalar into r9 as group;
-    add r8 r9 into r10;
+    hash.bhp768 true into r9 as group;
+    hash.bhp768 1field into r10 as group;
+    hash.bhp768 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as group;
+    hash.bhp768 r0 into r12 as group;
+    hash.bhp768 r1 into r13 as group;
+    hash.bhp768 r2 into r14 as group;
+    hash.bhp768 r3 into r15 as group;
+    hash.bhp768 1i128 into r16 as group;
+    hash.bhp768 r4 into r17 as group;
+    hash.bhp768 r5 into r18 as group;
+    hash.bhp768 r6 into r19 as group;
+    hash.bhp768 r7 into r20 as group;
+    hash.bhp768 1u128 into r21 as group;
+    hash.bhp768 1scalar into r22 as group;
+    output r8 as group.private;
+    output r9 as group.private;
     output r10 as group.private;
-""", errors = "", warnings = "" }] }]]
+    output r11 as group.private;
+    output r12 as group.private;
+    output r13 as group.private;
+    output r14 as group.private;
+    output r15 as group.private;
+    output r16 as group.private;
+    output r17 as group.private;
+    output r18 as group.private;
+    output r19 as group.private;
+    output r20 as group.private;
+    output r21 as group.private;
+    output r22 as group.private;
+    output 246506324607837276306829477737942718014609328094504694470687562910823788389group as group.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.bhp768 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as group;
+    hash.bhp768 true into r9 as group;
+    hash.bhp768 1field into r10 as group;
+    hash.bhp768 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as group;
+    hash.bhp768 r0 into r12 as group;
+    hash.bhp768 r1 into r13 as group;
+    hash.bhp768 r2 into r14 as group;
+    hash.bhp768 r3 into r15 as group;
+    hash.bhp768 1i128 into r16 as group;
+    hash.bhp768 r4 into r17 as group;
+    hash.bhp768 r5 into r18 as group;
+    hash.bhp768 r6 into r19 as group;
+    hash.bhp768 r7 into r20 as group;
+    hash.bhp768 1u128 into r21 as group;
+    hash.bhp768 1scalar into r22 as group;
+    output r8 as group.private;
+    output r9 as group.private;
+    output r10 as group.private;
+    output r11 as group.private;
+    output r12 as group.private;
+    output r13 as group.private;
+    output r14 as group.private;
+    output r15 as group.private;
+    output r16 as group.private;
+    output r17 as group.private;
+    output r18 as group.private;
+    output r19 as group.private;
+    output r20 as group.private;
+    output r21 as group.private;
+    output r22 as group.private;
+    output 246506324607837276306829477737942718014609328094504694470687562910823788389group as group.private;

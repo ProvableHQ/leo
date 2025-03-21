@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372005]: Unknown variable `users`
     --> compiler-test:8:35
      |
    8 |         let a:bool = Mapping::get(registry.aleo/users, addr);
      |                                   ^^^^^^^^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372005]: Unknown variable `users`
+    --> compiler-test:8:35
+     |
+   8 |         let a:bool = Mapping::get(registry.aleo/users, addr);
+     |                                   ^^^^^^^^^^^^^^^^^^^

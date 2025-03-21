@@ -1,0 +1,35 @@
+Error [EPAR0370005]: expected <eof> -- found 'aas'
+    --> test_0:1:5
+     |
+   1 | foo aas u8
+     |     ^^^
+
+
+Error [EPAR0370005]: expected 'address', 'bool', 'field', 'Future', 'group', 'scalar', 'signature', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '{'
+    --> test_1:1:10
+     |
+   1 | 1u128 as { foo: u8 }
+     |          ^
+
+
+Error [EPAR0370005]: expected <eof> -- found ';'
+    --> test_2:1:14
+     |
+   1 | 3i16 as field;
+     |              ^
+
+
+Error [EPAR0370005]: expected 'address', 'bool', 'field', 'Future', 'group', 'scalar', 'signature', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'bar'
+    --> test_3:1:8
+     |
+   1 | 1u8 as bar;
+     |        ^^^
+
+
+Error [EPAR0370005]: expected <eof> -- found 'asu8'
+    --> test_4:1:5
+     |
+   1 | f00 asu8
+     |     ^^^^
+
+

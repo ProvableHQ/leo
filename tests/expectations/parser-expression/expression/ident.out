@@ -1,0 +1,209 @@
+{
+  "Identifier": {
+    "name": "x",
+    "span": {
+      "lo": 0,
+      "hi": 1
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "X",
+    "span": {
+      "lo": 2,
+      "hi": 3
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "xxx",
+    "span": {
+      "lo": 4,
+      "hi": 7
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "XXX",
+    "span": {
+      "lo": 8,
+      "hi": 11
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "x1",
+    "span": {
+      "lo": 12,
+      "hi": 14
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "xu32",
+    "span": {
+      "lo": 15,
+      "hi": 19
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "testx",
+    "span": {
+      "lo": 20,
+      "hi": 25
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "truex",
+    "span": {
+      "lo": 26,
+      "hi": 31
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "TRUE",
+    "span": {
+      "lo": 32,
+      "hi": 36
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "testX",
+    "span": {
+      "lo": 37,
+      "hi": 42
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "letX",
+    "span": {
+      "lo": 43,
+      "hi": 47
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "constX",
+    "span": {
+      "lo": 48,
+      "hi": 54
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "test_test",
+    "span": {
+      "lo": 55,
+      "hi": 64
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "self",
+    "span": {
+      "lo": 65,
+      "hi": 69
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "Self",
+    "span": {
+      "lo": 70,
+      "hi": 74
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "input",
+    "span": {
+      "lo": 75,
+      "hi": 80
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "selfX",
+    "span": {
+      "lo": 81,
+      "hi": 86
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "SelfX",
+    "span": {
+      "lo": 87,
+      "hi": 92
+    },
+    "id": 0
+  }
+}
+
+{
+  "Identifier": {
+    "name": "inputX",
+    "span": {
+      "lo": 93,
+      "hi": 99
+    },
+    "id": 0
+  }
+}
+

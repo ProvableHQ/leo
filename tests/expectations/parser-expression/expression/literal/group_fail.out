@@ -1,0 +1,7 @@
+Error [EPAR0370004]: Unexpected white space between terms 123 and group
+    --> test_0:1:4
+     |
+   1 | 123 group
+     |    ^
+
+

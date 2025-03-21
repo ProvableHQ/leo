@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "f3b8edfaace5f948258ce134f0159d8dc9c8e7ac8bccef23f33d3c32b6116c11", unrolled_ast = "f3b8edfaace5f948258ce134f0159d8dc9c8e7ac8bccef23f33d3c32b6116c11", ssa_ast = "eff668af0652118745a011f89e0aeec747e7b87f02a6b287998b63647420ab4b", flattened_ast = "0eca0c4f9c1c7d0ee6cbac812c51552fea43d09db4e97bbb855497ad2b929470", destructured_ast = "825ad55cb43b3b0752995b555828cd26348f0f87c527149196f83cc655b67afc", inlined_ast = "825ad55cb43b3b0752995b555828cd26348f0f87c527149196f83cc655b67afc", dce_ast = "825ad55cb43b3b0752995b555828cd26348f0f87c527149196f83cc655b67afc", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Token:
@@ -29,4 +27,33 @@ function matches:
     input r0 as address.private;
     is.eq self.caller r0 into r1;
     output r1 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Token:
+    Owner as address;
+    balance as u128;
+
+struct Bar:
+    a as u128;
+
+struct Baz:
+    a as u128;
+
+mapping balances:
+    key as address.public;
+    value as u128.public;
+
+mapping tokens:
+    key as address.public;
+    value as Token.public;
+
+mapping foo:
+    key as Bar.public;
+    value as Baz.public;
+
+function matches:
+    input r0 as address.private;
+    is.eq self.caller r0 into r1;
+    output r1 as boolean.private;

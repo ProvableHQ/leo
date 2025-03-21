@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "7972f1013003d6c6431df3ef07653e45622af15852ca6315540c42d904a9c73a", unrolled_ast = "e521de8f59fc730ff8426c4cb1e6f5be7ed10b61e87cf013f190fc9b26503833", ssa_ast = "36451eeef7d70428f27ad1192156687896d82f4bc1581013df0db7e6aad8e3fb", flattened_ast = "498f99c803dd6ba28de2b5f2f9b90dd867663680918a7f8ebd4eafb360a9aa96", destructured_ast = "ca26120a558e8d0c67114b55700e60ca80118a5b4ab2c92c1413d275caa74d47", inlined_ast = "ca26120a558e8d0c67114b55700e60ca80118a5b4ab2c92c1413d275caa74d47", dce_ast = "4fb6eff31e6938e420da8d9a689fef38802b0290581669c025ebe8243743b847", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,7 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.sha3_512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as scalar;
-    hash.sha3_512 1scalar into r9 as scalar;
-    add r8 r9 into r10;
+    hash.sha3_512 true into r9 as scalar;
+    hash.sha3_512 1field into r10 as scalar;
+    hash.sha3_512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as scalar;
+    hash.sha3_512 r0 into r12 as scalar;
+    hash.sha3_512 r1 into r13 as scalar;
+    hash.sha3_512 r2 into r14 as scalar;
+    hash.sha3_512 r3 into r15 as scalar;
+    hash.sha3_512 1i128 into r16 as scalar;
+    hash.sha3_512 r4 into r17 as scalar;
+    hash.sha3_512 r5 into r18 as scalar;
+    hash.sha3_512 r6 into r19 as scalar;
+    hash.sha3_512 r7 into r20 as scalar;
+    hash.sha3_512 1u128 into r21 as scalar;
+    hash.sha3_512 1scalar into r22 as scalar;
+    output r8 as scalar.private;
+    output r9 as scalar.private;
     output r10 as scalar.private;
-""", errors = "", warnings = "" }] }]]
+    output r11 as scalar.private;
+    output r12 as scalar.private;
+    output r13 as scalar.private;
+    output r14 as scalar.private;
+    output r15 as scalar.private;
+    output r16 as scalar.private;
+    output r17 as scalar.private;
+    output r18 as scalar.private;
+    output r19 as scalar.private;
+    output r20 as scalar.private;
+    output r21 as scalar.private;
+    output r22 as scalar.private;
+    output 1068488904576833636358941059314424686890059639933799571027290961116634049146scalar as scalar.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.sha3_512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as scalar;
+    hash.sha3_512 true into r9 as scalar;
+    hash.sha3_512 1field into r10 as scalar;
+    hash.sha3_512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as scalar;
+    hash.sha3_512 r0 into r12 as scalar;
+    hash.sha3_512 r1 into r13 as scalar;
+    hash.sha3_512 r2 into r14 as scalar;
+    hash.sha3_512 r3 into r15 as scalar;
+    hash.sha3_512 1i128 into r16 as scalar;
+    hash.sha3_512 r4 into r17 as scalar;
+    hash.sha3_512 r5 into r18 as scalar;
+    hash.sha3_512 r6 into r19 as scalar;
+    hash.sha3_512 r7 into r20 as scalar;
+    hash.sha3_512 1u128 into r21 as scalar;
+    hash.sha3_512 1scalar into r22 as scalar;
+    output r8 as scalar.private;
+    output r9 as scalar.private;
+    output r10 as scalar.private;
+    output r11 as scalar.private;
+    output r12 as scalar.private;
+    output r13 as scalar.private;
+    output r14 as scalar.private;
+    output r15 as scalar.private;
+    output r16 as scalar.private;
+    output r17 as scalar.private;
+    output r18 as scalar.private;
+    output r19 as scalar.private;
+    output r20 as scalar.private;
+    output r21 as scalar.private;
+    output r22 as scalar.private;
+    output 1068488904576833636358941059314424686890059639933799571027290961116634049146scalar as scalar.private;

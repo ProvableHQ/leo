@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
 program test.aleo {
     const (HELLO,GOODBYE): (u8,u8) = (0u8,0u8);

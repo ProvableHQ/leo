@@ -1,10 +1,15 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "a0be5c4a3ba19c61b8da32dfeb2f0b6347fddef9a0699c9f5a0710e7cfecf3c3", unrolled_ast = "69dd680b71c2d211f61dbec62220e9f6072dba6850d148ea35b87302ea9b58e4", ssa_ast = "392f30142c12d875f821c5b09abfdac5abd0d89e4fb998d8999cb99c11b74c64", flattened_ast = "1c37e8ffdc66eb5717a6e855785263c37bde9a9eb8f969dcff8eb4c2d656e8b2", destructured_ast = "4d851bf7c4c58e8401b966e9ba756b31af39affb8edadda1cd2b392efdb3a794", inlined_ast = "4d851bf7c4c58e8401b966e9ba756b31af39affb8edadda1cd2b392efdb3a794", dce_ast = "4d851bf7c4c58e8401b966e9ba756b31af39affb8edadda1cd2b392efdb3a794", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
     input r0 as group.private;
     add r0 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r1;
     output r1 as group.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as group.private;
+    add r0 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r1;
+    output r1 as group.private;

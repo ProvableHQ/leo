@@ -1,9 +1,9 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "e83b32767bd3086cd303de0222ddb8dc63135a4fab88724d51147195cf0370ca", unrolled_ast = "299b957d00f50eacc2ae6eeab9711623f0c27c17d57cdfa4ab280ab40eb47174", ssa_ast = "8c141d6e63e87a27ad3074d9f2d5167e63ee7ca3b3a04aef1c566d6d8a954d4e", flattened_ast = "a3db2e9b49e252e1b33bb047be7b5870967a9f0dec696c7b5b5aedeca7fb4f67", destructured_ast = "c9c29e4939357d2fce58160effd59c5241d648f6454aac9283e11c25a8eb96ec", inlined_ast = "c9c29e4939357d2fce58160effd59c5241d648f6454aac9283e11c25a8eb96ec", dce_ast = "ad5b7455b8987c2b8a9732a2d757b24243806c929e4bad44e96dc73c286b37de", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
     input r0 as u32.private;
     output true as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+Program length exceeds N::MAX_PROGRAM_SIZE.

@@ -1,0 +1,102 @@
+Error [EPAR0370016]: Could not lex the following content: `'a'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'Z'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\"'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\t'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\r'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\0'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\u{F}'`.
+
+Error [EPAR0370016]: Could not lex the following content: `''`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\u{E5}'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'å'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\u{4e0}'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'Ӡ'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\u{2764}'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'❤'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\u{1F622}'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'😭'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\u{10001F}'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x2A'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x7f'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x00'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x01'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x02'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x03'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x04'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x05'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x06'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x07'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x10'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x11'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x12'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x13'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x14'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x15'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x16'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x17'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x20'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x21'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x22'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x23'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x24'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x25'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x26'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x27'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x30'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x31'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x32'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x33'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x34'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x35'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x36'`.
+
+Error [EPAR0370016]: Could not lex the following content: `'\x37'`.
+

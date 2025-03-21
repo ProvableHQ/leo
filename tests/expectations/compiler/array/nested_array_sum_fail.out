@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372117]: Expected an array but type `u32` was found.
-    --> compiler-test:9:29
+    --> compiler-test:8:29
      |
-   9 |                 sum = sum + a[i][j];
+   8 |                 sum = sum + a[i][j];
      |                             ^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected an array but type `u32` was found.
+    --> compiler-test:8:29
+     |
+   8 |                 sum = sum + a[i][j];
+     |                             ^^^^

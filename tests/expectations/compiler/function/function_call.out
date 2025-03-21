@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "8b68fd0f18e8fc74db391751baaa281e3b62ab56208b7d910040d10fb775261a", unrolled_ast = "8b68fd0f18e8fc74db391751baaa281e3b62ab56208b7d910040d10fb775261a", ssa_ast = "bf92ba40384eda2dd61b484f43a8cba2281a3d6139d28bfb1066f89dd83c3168", flattened_ast = "dfa96d1c773da034701c4ec92924c584ee36fda013dfc53c42fa15441e4e74a7", destructured_ast = "64d5f95cde7e015dac29251d35b91e0ba36aada3008086b552511a4e79945de1", inlined_ast = "280ed148f6d4cabd24174b9beb0d9f225a7af6a5e0695c99ad31d6385a78df5e", dce_ast = "33a4023a289f7ae544add1994687ea583f2ada0fb3280ffa47f387882ea96e1d", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 closure adder:
@@ -23,4 +21,28 @@ function main:
     call subber r0 r1 into r4;
     ternary r2 r3 r4 into r5;
     output r5 as u32.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+closure adder:
+    input r0 as u32;
+    input r1 as u32;
+    add r0 r1 into r2;
+    output r2 as u32;
+
+closure subber:
+    input r0 as u32;
+    input r1 as u32;
+    sub r0 r1 into r2;
+    output r2 as u32;
+
+function main:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as boolean.private;
+    call adder r0 r1 into r3;
+    not r2 into r4;
+    call subber r0 r1 into r5;
+    ternary r2 r3 r5 into r6;
+    output r6 as u32.private;

@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Fail"
-*/
 
 program test.eth {
     transition doo(x: u32, y: i32) -> u32 {

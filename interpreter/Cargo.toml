@@ -68,10 +68,10 @@ workspace = true
 version = "0.11.1"
 
 [dev-dependencies.leo-test-framework]
-path = "../tests/test-framework"
+workspace = true
 
 [dev-dependencies.serial_test]
-version = "3.1.1"
+workspace = true
 
 [dev-dependencies.tempfile]
 workspace = true

@@ -1,0 +1,181 @@
+{
+  "Block": {
+    "statements": [],
+    "span": {
+      "lo": 0,
+      "hi": 2
+    },
+    "id": 0
+  }
+}
+
+{
+  "Block": {
+    "statements": [
+      {
+        "Return": {
+          "expression": {
+            "Literal": {
+              "Integer": [
+                "U8",
+                "0",
+                {
+                  "span": {
+                    "lo": 16,
+                    "hi": 19
+                  }
+                },
+                0
+              ]
+            }
+          },
+          "span": {
+            "lo": 9,
+            "hi": 20
+          },
+          "id": 1
+        }
+      }
+    ],
+    "span": {
+      "lo": 3,
+      "hi": 22
+    },
+    "id": 2
+  }
+}
+
+{
+  "Block": {
+    "statements": [
+      {
+        "Block": {
+          "statements": [],
+          "span": {
+            "lo": 24,
+            "hi": 26
+          },
+          "id": 0
+        }
+      }
+    ],
+    "span": {
+      "lo": 23,
+      "hi": 27
+    },
+    "id": 1
+  }
+}
+
+{
+  "Block": {
+    "statements": [
+      {
+        "Block": {
+          "statements": [
+            {
+              "Return": {
+                "expression": {
+                  "Literal": {
+                    "Integer": [
+                      "U8",
+                      "0",
+                      {
+                        "span": {
+                          "lo": 51,
+                          "hi": 54
+                        }
+                      },
+                      0
+                    ]
+                  }
+                },
+                "span": {
+                  "lo": 44,
+                  "hi": 55
+                },
+                "id": 1
+              }
+            }
+          ],
+          "span": {
+            "lo": 34,
+            "hi": 61
+          },
+          "id": 2
+        }
+      }
+    ],
+    "span": {
+      "lo": 28,
+      "hi": 63
+    },
+    "id": 3
+  }
+}
+
+{
+  "Block": {
+    "statements": [
+      {
+        "Conditional": {
+          "condition": {
+            "Identifier": {
+              "name": "x",
+              "span": {
+                "lo": 73,
+                "hi": 74
+              },
+              "id": 0
+            }
+          },
+          "then": {
+            "statements": [
+              {
+                "Return": {
+                  "expression": {
+                    "Literal": {
+                      "Integer": [
+                        "U8",
+                        "0",
+                        {
+                          "span": {
+                            "lo": 92,
+                            "hi": 95
+                          }
+                        },
+                        1
+                      ]
+                    }
+                  },
+                  "span": {
+                    "lo": 85,
+                    "hi": 96
+                  },
+                  "id": 2
+                }
+              }
+            ],
+            "span": {
+              "lo": 75,
+              "hi": 102
+            },
+            "id": 3
+          },
+          "otherwise": null,
+          "span": {
+            "lo": 70,
+            "hi": 102
+          },
+          "id": 4
+        }
+      }
+    ],
+    "span": {
+      "lo": 64,
+      "hi": 104
+    },
+    "id": 5
+  }
+}
+

@@ -1,25 +1,45 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:16:20
+    --> compiler-test:15:20
      |
-  16 |             return foo(n - 1u8) + foo(n - 2u8);
+  15 |             return foo(n - 1u8) + foo(n - 2u8);
      |                    ^^^^^^^^^^^^
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:16:35
+    --> compiler-test:15:35
      |
-  16 |             return foo(n - 1u8) + foo(n - 2u8);
+  15 |             return foo(n - 1u8) + foo(n - 2u8);
      |                                   ^^^^^^^^^^^^
 Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:8:20
+    --> compiler-test:7:20
      |
-   8 |             return fib(n - 1u8) + fib(n - 2u8);
+   7 |             return fib(n - 1u8) + fib(n - 2u8);
      |                    ^^^^^^^^^^^^
 Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:8:35
+    --> compiler-test:7:35
      |
-   8 |             return fib(n - 1u8) + fib(n - 2u8);
+   7 |             return fib(n - 1u8) + fib(n - 2u8);
      |                                   ^^^^^^^^^^^^
 Error [ETYC0372059]: Cyclic dependency between functions: `foo` --> `foo`
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:15:20
+     |
+  15 |             return foo(n - 1u8) + foo(n - 2u8);
+     |                    ^^^^^^^^^^^^
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:15:35
+     |
+  15 |             return foo(n - 1u8) + foo(n - 2u8);
+     |                                   ^^^^^^^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:7:20
+     |
+   7 |             return fib(n - 1u8) + fib(n - 2u8);
+     |                    ^^^^^^^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+    --> compiler-test:7:35
+     |
+   7 |             return fib(n - 1u8) + fib(n - 2u8);
+     |                                   ^^^^^^^^^^^^
+Error [ETYC0372059]: Cyclic dependency between functions: `foo` --> `foo`

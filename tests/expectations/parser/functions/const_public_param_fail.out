@@ -1,8 +1,5 @@
-namespace = "Parse"
-expectation = "Fail"
-outputs = ["""
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'const'
-    --> test:4:24
+    --> test:3:24
      |
-   4 |     function x(x: u32, const public y: i32) {
-     |                        ^^^^^"""]
+   3 |     function x(x: u32, const public y: i32) {
+     |                        ^^^^^

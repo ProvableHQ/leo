@@ -1,11 +1,17 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EAST0372006]: function `foo` shadowed by
-    --> compiler-test:7:5
+    --> compiler-test:6:5
      |
-   7 |     transition foo(a: u8) -> constant u8 {
-   8 |         return a + a;
-   9 |     }
+   6 |     transition foo(a: u8) -> constant u8 {
+   7 |         return a + a;
+   8 |     }
      |     ^
-"""]
+
+DCE_DISABLED:
+Error [EAST0372006]: function `foo` shadowed by
+    --> compiler-test:6:5
+     |
+   6 |     transition foo(a: u8) -> constant u8 {
+   7 |         return a + a;
+   8 |     }
+     |     ^

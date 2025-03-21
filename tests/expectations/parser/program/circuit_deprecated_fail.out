@@ -1,8 +1,5 @@
-namespace = "Parse"
-expectation = "Fail"
-outputs = ["""
 Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', '}' -- found 'circuit'
-    --> test:5:5
+    --> test:4:5
      |
-   5 |     circuit Foo {
-     |     ^^^^^^^"""]
+   4 |     circuit Foo {
+     |     ^^^^^^^

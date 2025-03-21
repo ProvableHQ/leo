@@ -1,25 +1,23 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372026]: Loop body contains a return statement or always returns.
-    --> compiler-test:6:9
+    --> compiler-test:5:9
      |
-   6 |         for i: u32 in 0u32..9u32 {
-   7 |             return false;
-   8 |         }
+   5 |         for i: u32 in 0u32..9u32 {
+   6 |             return false;
+   7 |         }
      |         ^
      |
      = Remove the code in the loop body that always returns.
 Error [ETYC0372026]: Loop body contains a return statement or always returns.
-    --> compiler-test:10:9
+    --> compiler-test:9:9
      |
-  10 |         for i: u32 in 0u32..9u32 {
-  11 |             if (x == 0u32) {
-  12 |                 return false;
-  13 |             } else {
-  14 |                 return true;
-  15 |             }
-  16 |         }
+   9 |         for i: u32 in 0u32..9u32 {
+  10 |             if (x == 0u32) {
+  11 |                 return false;
+  12 |             } else {
+  13 |                 return true;
+  14 |             }
+  15 |         }
      |         ^
      |
      = Remove the code in the loop body that always returns.
@@ -27,7 +25,35 @@ Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {    
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372026]: Loop body contains a return statement or always returns.
+    --> compiler-test:5:9
+     |
+   5 |         for i: u32 in 0u32..9u32 {
+   6 |             return false;
+   7 |         }
+     |         ^
+     |
+     = Remove the code in the loop body that always returns.
+Error [ETYC0372026]: Loop body contains a return statement or always returns.
+    --> compiler-test:9:9
+     |
+   9 |         for i: u32 in 0u32..9u32 {
+  10 |             if (x == 0u32) {
+  11 |                 return false;
+  12 |             } else {
+  13 |                 return true;
+  14 |             }
+  15 |         }
+     |         ^
+     |
+     = Remove the code in the loop body that always returns.
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

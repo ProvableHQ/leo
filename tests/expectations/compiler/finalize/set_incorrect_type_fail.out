@@ -1,59 +1,113 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372031]: A mapping's value cannot be a record
-    --> compiler-test:10:5
+    --> compiler-test:9:5
      |
-  10 |     mapping tokens: address => Token;
+   9 |     mapping tokens: address => Token;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
-    --> compiler-test:17:36
+    --> compiler-test:16:36
      |
-  17 |         Mapping::set(tokens, addr, amount);
+  16 |         Mapping::set(tokens, addr, amount);
      |                                    ^^^^^^
 Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
-    --> compiler-test:18:26
+    --> compiler-test:17:26
      |
-  18 |         tokens.set(addr, amount);
+  17 |         tokens.set(addr, amount);
      |                          ^^^^^^
 Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:19:31
+    --> compiler-test:18:31
      |
-  19 |         Mapping::set(amounts, 1u8, amount);
+  18 |         Mapping::set(amounts, 1u8, amount);
      |                               ^^^
 Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:20:21
+    --> compiler-test:19:21
      |
-  20 |         amounts.set(1u8, amount);
+  19 |         amounts.set(1u8, amount);
      |                     ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:21:37
+    --> compiler-test:20:37
      |
-  21 |         Mapping::set(amounts, addr, 1u8);
+  20 |         Mapping::set(amounts, addr, 1u8);
      |                                     ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:22:27
+    --> compiler-test:21:27
      |
-  22 |         amounts.set(addr, 1u8);
+  21 |         amounts.set(addr, 1u8);
      |                           ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:23:65
+    --> compiler-test:22:65
      |
-  23 |         Mapping::set(tokens, addr, Token { owner: addr, amount: 1u8 });
+  22 |         Mapping::set(tokens, addr, Token { owner: addr, amount: 1u8 });
      |                                                                 ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:24:55
+    --> compiler-test:23:55
      |
-  24 |         tokens.set(addr, Token { owner: addr, amount: 1u8 });
+  23 |         tokens.set(addr, Token { owner: addr, amount: 1u8 });
      |                                                       ^^^
 Error [ETYC0372005]: Unknown variable `foo`
-    --> compiler-test:25:22
+    --> compiler-test:24:22
      |
-  25 |         Mapping::set(foo, addr, amount);
+  24 |         Mapping::set(foo, addr, amount);
      |                      ^^^
 Error [ETYC0372005]: Unknown variable `foo`
-    --> compiler-test:26:9
+    --> compiler-test:25:9
      |
-  26 |         foo.set(addr, amount);
+  25 |         foo.set(addr, amount);
      |         ^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372031]: A mapping's value cannot be a record
+    --> compiler-test:9:5
+     |
+   9 |     mapping tokens: address => Token;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
+    --> compiler-test:16:36
+     |
+  16 |         Mapping::set(tokens, addr, amount);
+     |                                    ^^^^^^
+Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
+    --> compiler-test:17:26
+     |
+  17 |         tokens.set(addr, amount);
+     |                          ^^^^^^
+Error [ETYC0372117]: Expected type `address` but type `u8` was found.
+    --> compiler-test:18:31
+     |
+  18 |         Mapping::set(amounts, 1u8, amount);
+     |                               ^^^
+Error [ETYC0372117]: Expected type `address` but type `u8` was found.
+    --> compiler-test:19:21
+     |
+  19 |         amounts.set(1u8, amount);
+     |                     ^^^
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
+    --> compiler-test:20:37
+     |
+  20 |         Mapping::set(amounts, addr, 1u8);
+     |                                     ^^^
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
+    --> compiler-test:21:27
+     |
+  21 |         amounts.set(addr, 1u8);
+     |                           ^^^
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
+    --> compiler-test:22:65
+     |
+  22 |         Mapping::set(tokens, addr, Token { owner: addr, amount: 1u8 });
+     |                                                                 ^^^
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
+    --> compiler-test:23:55
+     |
+  23 |         tokens.set(addr, Token { owner: addr, amount: 1u8 });
+     |                                                       ^^^
+Error [ETYC0372005]: Unknown variable `foo`
+    --> compiler-test:24:22
+     |
+  24 |         Mapping::set(foo, addr, amount);
+     |                      ^^^
+Error [ETYC0372005]: Unknown variable `foo`
+    --> compiler-test:25:9
+     |
+  25 |         foo.set(addr, amount);
+     |         ^^^

@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
-    --> compiler-test:8:22
+    --> compiler-test:7:22
      |
-   8 |         for i: u8 in START..STOP {
+   7 |         for i: u8 in START..STOP {
      |                      ^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
+    --> compiler-test:7:22
+     |
+   7 |         for i: u8 in START..STOP {
+     |                      ^^^^^

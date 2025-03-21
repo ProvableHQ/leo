@@ -1,0 +1,173 @@
+{
+  "Call": {
+    "function": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 0,
+          "hi": 1
+        },
+        "id": 0
+      }
+    },
+    "arguments": [],
+    "program": null,
+    "span": {
+      "lo": 0,
+      "hi": 3
+    },
+    "id": 1
+  }
+}
+
+{
+  "Call": {
+    "function": {
+      "Identifier": {
+        "name": "X",
+        "span": {
+          "lo": 4,
+          "hi": 5
+        },
+        "id": 0
+      }
+    },
+    "arguments": [],
+    "program": null,
+    "span": {
+      "lo": 4,
+      "hi": 7
+    },
+    "id": 1
+  }
+}
+
+{
+  "Call": {
+    "function": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 8,
+          "hi": 9
+        },
+        "id": 0
+      }
+    },
+    "arguments": [
+      {
+        "Identifier": {
+          "name": "y",
+          "span": {
+            "lo": 10,
+            "hi": 11
+          },
+          "id": 1
+        }
+      }
+    ],
+    "program": null,
+    "span": {
+      "lo": 8,
+      "hi": 12
+    },
+    "id": 2
+  }
+}
+
+{
+  "Call": {
+    "function": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 13,
+          "hi": 14
+        },
+        "id": 0
+      }
+    },
+    "arguments": [
+      {
+        "Identifier": {
+          "name": "y",
+          "span": {
+            "lo": 15,
+            "hi": 16
+          },
+          "id": 1
+        }
+      },
+      {
+        "Identifier": {
+          "name": "z",
+          "span": {
+            "lo": 18,
+            "hi": 19
+          },
+          "id": 2
+        }
+      }
+    ],
+    "program": null,
+    "span": {
+      "lo": 13,
+      "hi": 20
+    },
+    "id": 3
+  }
+}
+
+{
+  "Call": {
+    "function": {
+      "Identifier": {
+        "name": "x",
+        "span": {
+          "lo": 21,
+          "hi": 22
+        },
+        "id": 0
+      }
+    },
+    "arguments": [
+      {
+        "Identifier": {
+          "name": "x",
+          "span": {
+            "lo": 23,
+            "hi": 24
+          },
+          "id": 1
+        }
+      },
+      {
+        "Identifier": {
+          "name": "y",
+          "span": {
+            "lo": 26,
+            "hi": 27
+          },
+          "id": 2
+        }
+      },
+      {
+        "Identifier": {
+          "name": "z",
+          "span": {
+            "lo": 29,
+            "hi": 30
+          },
+          "id": 3
+        }
+      }
+    ],
+    "program": null,
+    "span": {
+      "lo": 21,
+      "hi": 31
+    },
+    "id": 4
+  }
+}
+

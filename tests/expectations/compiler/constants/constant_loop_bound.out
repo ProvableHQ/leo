@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "307b4f5b9ced4d87fb6159b48c1d64cfcd766a331222b85471140309c2b77bd9", unrolled_ast = "049112db4135bdfa98caa5a4b0d731578970b9da73699edada4bc0b8fac8a817", ssa_ast = "d55a3b1208a6bcef0d93cd3b778474b60755a9b79139fa99b62b8fded185df0d", flattened_ast = "cbc7bf529dbdbeff98d8e90d681214a7b2cd3bf029b31581769e73f6c007936a", destructured_ast = "62550ecf90df4c23da161517f8449e4424fdd6b6ceb0217630ddd59dc8ea8088", inlined_ast = "62550ecf90df4c23da161517f8449e4424fdd6b6ceb0217630ddd59dc8ea8088", dce_ast = "62550ecf90df4c23da161517f8449e4424fdd6b6ceb0217630ddd59dc8ea8088", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function foo:
@@ -57,4 +55,61 @@ function foo:
     add r49 18u8 into r50;
     add r50 19u8 into r51;
     output r51 as u8.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function foo:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    input r2 as boolean.private;
+    add 1u8 0u8 into r3;
+    add r3 1u8 into r4;
+    add r4 2u8 into r5;
+    add r5 3u8 into r6;
+    add r6 4u8 into r7;
+    add r7 5u8 into r8;
+    add r8 6u8 into r9;
+    add r9 7u8 into r10;
+    add r10 8u8 into r11;
+    add r11 9u8 into r12;
+    add r12 0u8 into r13;
+    add r13 1u8 into r14;
+    add r14 2u8 into r15;
+    add r15 3u8 into r16;
+    add r16 4u8 into r17;
+    add r17 5u8 into r18;
+    add r18 6u8 into r19;
+    add r19 7u8 into r20;
+    add r20 8u8 into r21;
+    add r21 9u8 into r22;
+    add r22 0u8 into r23;
+    add r23 1u8 into r24;
+    add r24 2u8 into r25;
+    add r25 3u8 into r26;
+    add r26 4u8 into r27;
+    add r27 5u8 into r28;
+    add r28 6u8 into r29;
+    add r29 7u8 into r30;
+    add r30 8u8 into r31;
+    add r31 9u8 into r32;
+    add r32 1u8 into r33;
+    add r33 2u8 into r34;
+    add r34 3u8 into r35;
+    add r35 4u8 into r36;
+    add r36 5u8 into r37;
+    add r37 6u8 into r38;
+    add r38 7u8 into r39;
+    add r39 8u8 into r40;
+    add r40 9u8 into r41;
+    add r41 10u8 into r42;
+    add r42 11u8 into r43;
+    add r43 12u8 into r44;
+    add r44 13u8 into r45;
+    add r45 14u8 into r46;
+    add r46 15u8 into r47;
+    add r47 16u8 into r48;
+    add r48 17u8 into r49;
+    add r49 18u8 into r50;
+    add r50 19u8 into r51;
+    output r51 as u8.private;

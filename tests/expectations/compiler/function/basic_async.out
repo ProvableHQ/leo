@@ -1,18 +1,12 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "c058b8d8ac769c244bca834aab7ee6fea223e8afbc9213fa299a72fdde496ef0", unrolled_ast = "c058b8d8ac769c244bca834aab7ee6fea223e8afbc9213fa299a72fdde496ef0", ssa_ast = "76c12c5581dc673d68c4ee52836b2a79d54718e5902854a942c375017b5a3517", flattened_ast = "1b9f11734885d10f0a2bd69d25e32adc2182f3667c7c7b106d3b60e011f1b347", destructured_ast = "1813cbf63c1ba7b75a78cec7cce47bac4d2c89a1746c8ac204756567895faec7", inlined_ast = "ec9766aba41f5eda0ca916a8ce63b93fc1ee5a795946c02fdb216098f470d76b", dce_ast = "ec9766aba41f5eda0ca916a8ce63b93fc1ee5a795946c02fdb216098f470d76b", bytecode = """
-program test.aleo;
-
-mapping Yo:
-    key as u32.public;
-    value as u32.public;
-
-function main:
-    async main 1u32 1u32 into r0;
-    output r0 as test.aleo/main.future;
-
-finalize main:
-    input r0 as u32.public;
-    input r1 as u32.public;
-    set r1 into Yo[r0];
-""", errors = "", warnings = "" }] }]]
+DCE_ENABLED:
+Error [EPAR0370005]: expected 'import', 'program' -- found '*'
+    --> compiler-test:1:1
+     |
+   1 | */
+     | ^
+DCE_DISABLED:
+Error [EPAR0370005]: expected 'import', 'program' -- found '*'
+    --> compiler-test:1:1
+     |
+   1 | */
+     | ^

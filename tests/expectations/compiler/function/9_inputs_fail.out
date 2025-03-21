@@ -1,8 +1,12 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EPAR0370005]: expected ; -- found '}'
-    --> compiler-test:17:5
+    --> compiler-test:16:5
      |
-  17 |     }}
-     |     ^"""]
+  16 |     }}
+     |     ^
+DCE_DISABLED:
+Error [EPAR0370005]: expected ; -- found '}'
+    --> compiler-test:16:5
+     |
+  16 |     }}
+     |     ^

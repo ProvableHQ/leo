@@ -1,7 +1,5 @@
 /*
-namespace = "Execute"
-expectation = "Pass"
-[[cases]]
+[case]
 program = "four_program.aleo"
 function = "a"
 input = []

@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
 program test.aleo {
     async transition public_adder(public a: u8, public b: u8) -> Future {

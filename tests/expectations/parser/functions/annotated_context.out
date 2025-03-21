@@ -1,38 +1,207 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[outputs.imports]
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = []
-mappings = []
-functions = [
-    [
-    "f",
-    { variant = "Function", identifier = '{"id":"4","name":"f","span":"{\"lo\":52,\"hi\":53}"}', input = [], id = 9, annotations = [{ identifier = '{"id":"2","name":"context","span":"{\"lo\":31,\"hi\":38}"}', id = 3, span = { lo = 30, hi = 38 } }], output = [{ mode = "None", id = 5, type_ = { Integer = "U8" }, span = { lo = 59, hi = 61 } }], output_type = { Integer = "U8" }, block = { id = 8, statements = [{ Return = { id = 7, expression = { Literal = { Integer = [
-    "U8",
-    "1",
-    { span = { lo = 79, hi = 82 } },
-    6,
-] } }, span = { lo = 72, hi = 83 } } }], span = { lo = 62, hi = 89 } }, span = { lo = 43, hi = 89 } },
-],
-    [
-    "g",
-    { variant = "Function", identifier = '{"id":"12","name":"g","span":"{\"lo\":141,\"hi\":142}"}', input = [], id = 17, annotations = [{ identifier = '{"id":"10","name":"context","span":"{\"lo\":100,\"hi\":107}"}', id = 11, span = { lo = 99, hi = 107 } }], output = [{ mode = "None", id = 13, type_ = { Integer = "U8" }, span = { lo = 148, hi = 150 } }], output_type = { Integer = "U8" }, block = { id = 16, statements = [{ Return = { id = 15, expression = { Literal = { Integer = [
-    "U8",
-    "2",
-    { span = { lo = 168, hi = 171 } },
-    14,
-] } }, span = { lo = 161, hi = 172 } } }], span = { lo = 151, hi = 178 } }, span = { lo = 132, hi = 178 } },
-],
-]
-
-[outputs.program_scopes.test.span]
-lo = 2
-hi = 180
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 9,
+            "hi": 13
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "functions": [
+        [
+          "f",
+          {
+            "annotations": [
+              {
+                "identifier": {
+                  "name": "context",
+                  "span": {
+                    "lo": 26,
+                    "hi": 33
+                  },
+                  "id": 2
+                },
+                "span": {
+                  "lo": 25,
+                  "hi": 33
+                },
+                "id": 3
+              }
+            ],
+            "variant": "Function",
+            "identifier": {
+              "name": "f",
+              "span": {
+                "lo": 47,
+                "hi": 48
+              },
+              "id": 4
+            },
+            "input": [],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Integer": "U8"
+                },
+                "span": {
+                  "lo": 54,
+                  "hi": 56
+                },
+                "id": 5
+              }
+            ],
+            "output_type": {
+              "Integer": "U8"
+            },
+            "block": {
+              "statements": [
+                {
+                  "Return": {
+                    "expression": {
+                      "Literal": {
+                        "Integer": [
+                          "U8",
+                          "1",
+                          {
+                            "span": {
+                              "lo": 74,
+                              "hi": 77
+                            }
+                          },
+                          6
+                        ]
+                      }
+                    },
+                    "span": {
+                      "lo": 67,
+                      "hi": 78
+                    },
+                    "id": 7
+                  }
+                }
+              ],
+              "span": {
+                "lo": 57,
+                "hi": 84
+              },
+              "id": 8
+            },
+            "span": {
+              "lo": 38,
+              "hi": 84
+            },
+            "id": 9
+          }
+        ],
+        [
+          "g",
+          {
+            "annotations": [
+              {
+                "identifier": {
+                  "name": "context",
+                  "span": {
+                    "lo": 91,
+                    "hi": 98
+                  },
+                  "id": 10
+                },
+                "span": {
+                  "lo": 90,
+                  "hi": 98
+                },
+                "id": 11
+              }
+            ],
+            "variant": "Function",
+            "identifier": {
+              "name": "g",
+              "span": {
+                "lo": 132,
+                "hi": 133
+              },
+              "id": 12
+            },
+            "input": [],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Integer": "U8"
+                },
+                "span": {
+                  "lo": 139,
+                  "hi": 141
+                },
+                "id": 13
+              }
+            ],
+            "output_type": {
+              "Integer": "U8"
+            },
+            "block": {
+              "statements": [
+                {
+                  "Return": {
+                    "expression": {
+                      "Literal": {
+                        "Integer": [
+                          "U8",
+                          "2",
+                          {
+                            "span": {
+                              "lo": 159,
+                              "hi": 162
+                            }
+                          },
+                          14
+                        ]
+                      }
+                    },
+                    "span": {
+                      "lo": 152,
+                      "hi": 163
+                    },
+                    "id": 15
+                  }
+                }
+              ],
+              "span": {
+                "lo": 142,
+                "hi": 169
+              },
+              "id": 16
+            },
+            "span": {
+              "lo": 123,
+              "hi": 169
+            },
+            "id": 17
+          }
+        ]
+      ],
+      "span": {
+        "lo": 1,
+        "hi": 171
+      }
+    }
+  }
+}

@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 // This test intends to make sure the assertion
 // is not triggered if the early return is taken.

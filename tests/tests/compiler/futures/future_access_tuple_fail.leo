@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 program credits.aleo {
     record credits {
         owner: address,

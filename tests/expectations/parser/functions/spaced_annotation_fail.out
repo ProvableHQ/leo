@@ -1,10 +1,7 @@
-namespace = "Parse"
-expectation = "Fail"
-outputs = ["""
 Error [EPAR0370024]: Illegal spacing in the annotation declaration.
-    --> test:4:5
+    --> test:3:5
      |
-   4 |     @ test
+   3 |     @ test
      |     ^^^^^^
      |
-     = Remove whitespace between the `@` symbol and the identifier."""]
+     = Remove whitespace between the `@` symbol and the identifier.

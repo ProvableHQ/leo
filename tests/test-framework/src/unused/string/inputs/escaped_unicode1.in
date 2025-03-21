@@ -1,5 +1,0 @@
-[main]
-character: char = '\u{F}';
-
-[registers]
-r: char = 'a';

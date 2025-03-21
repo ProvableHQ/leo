@@ -1,5 +1,0 @@
-[main]
-character: char = 'a';
-
-[registers]
-r: char = 'a';

@@ -1,14 +1,23 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372049]: A tuple type cannot contain a tuple.
-    --> compiler-test:4:35
+    --> compiler-test:3:35
      |
-   4 |     transition bar(a: u8) -> (u8, (u8, u8)) {
+   3 |     transition bar(a: u8) -> (u8, (u8, u8)) {
      |                                   ^^^^^^^^
 Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
-    --> compiler-test:5:20
+    --> compiler-test:4:20
      |
-   5 |         return (a, (a + a, a * a));
+   4 |         return (a, (a + a, a * a));
      |                    ^^^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372049]: A tuple type cannot contain a tuple.
+    --> compiler-test:3:35
+     |
+   3 |     transition bar(a: u8) -> (u8, (u8, u8)) {
+     |                                   ^^^^^^^^
+Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
+    --> compiler-test:4:20
+     |
+   4 |         return (a, (a + a, a * a));
+     |                    ^^^^^^^^^^^^^^

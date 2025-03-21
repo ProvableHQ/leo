@@ -179,16 +179,16 @@ pub enum FileName {
 impl fmt::Display for FileName {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Real(x) if is_not_test_framework() => x.display().fmt(f),
+            Self::Real(x) if is_color() => x.display().fmt(f),
             Self::Real(_) => Ok(()),
             Self::Custom(x) => f.write_str(x),
         }
     }
 }
 
-/// Is the env var `LEO_TESTFRAMEWORK` not enabled?
-pub fn is_not_test_framework() -> bool {
-    std::env::var("LEO_TESTFRAMEWORK").unwrap_or_default().trim().to_owned().is_empty()
+/// Is the env var `NOCOLOR` not enabled?
+pub fn is_color() -> bool {
+    std::env::var("NOCOLOR").unwrap_or_default().trim().is_empty()
 }
 
 /// A single source in the [`SourceMap`].

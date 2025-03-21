@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 program token.aleo {
     // On-chain storage of an `account` map, with `address` as the key,

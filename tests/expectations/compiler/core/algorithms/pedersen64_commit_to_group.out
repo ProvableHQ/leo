@@ -1,29 +1,123 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
-Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `address` was found.
-    --> compiler-test:27:52
+DCE_ENABLED:
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:17
      |
-  27 |         let a: group = Pedersen64::commit_to_group(addr_value, scalar_value);
-     |                                                    ^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `field` was found.
-    --> compiler-test:29:52
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                 ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:20
      |
-  29 |         let c: group = Pedersen64::commit_to_group(field_value, scalar_value);
-     |                                                    ^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `group` was found.
-    --> compiler-test:30:52
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                    ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:23
      |
-  30 |         let d: group = Pedersen64::commit_to_group(group_value, scalar_value);
-     |                                                    ^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `scalar` was found.
-    --> compiler-test:37:52
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                       ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:26
      |
-  37 |         let m: group = Pedersen64::commit_to_group(scalar_value, scalar_value);
-     |                                                    ^^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `Foo` was found.
-    --> compiler-test:39:52
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                          ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:29
      |
-  39 |         let n: group = Pedersen64::commit_to_group(Foo { a: 1u16, b: 1u16 }, scalar_value);
-     |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^
-"""]
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                             ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:32
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:35
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                   ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:38
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                      ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:41
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                         ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:44
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                            ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:47
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                               ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:50
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                                  ^
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:17
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                 ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:20
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                    ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:23
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                       ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:26
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                          ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:29
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                             ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:32
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:35
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                   ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:38
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                      ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:41
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                         ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:44
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                            ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:47
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                               ^
+Error [ETYC0372117]: Expected type `bool` but type `group` was found.
+    --> compiler-test:40:50
+     |
+  40 |         return (a, b, c, d, e, f, g, i, j, k, m, n);
+     |                                                  ^

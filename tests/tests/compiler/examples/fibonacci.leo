@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 
 program test.aleo {
     // This calculates the n-th fibonacci number (up to 64th)
@@ -35,15 +31,15 @@ program test.aleo {
 
     function reverse_bits(n: u8) -> u8 {
         let reverse: u8 = 0u8;
- 
+
         for i:u8 in 0u8..8u8 {
             if n > 0u8 {
                 reverse = reverse << 1u8;
-        
+
                 if n & 1u8 == 1u8 {
                     reverse ^= 1u8;
                 }
-        
+
                 n = n >> 1u8;
             }
         }

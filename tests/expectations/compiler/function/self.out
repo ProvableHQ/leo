@@ -1,10 +1,15 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "ad7fc0246dd88eb2f03be2a73c3ed453b122d987f9c2a6b0657f16d16e5273ef", unrolled_ast = "ad7fc0246dd88eb2f03be2a73c3ed453b122d987f9c2a6b0657f16d16e5273ef", ssa_ast = "418ca8ddf12b3a15efc72f936c9c00a9b9a5b57aececb27932ec77470573fc35", flattened_ast = "f3dbd803e77c56be6fd2d0a1c37258d3ebf13099fb20fefe4457b4d793719a06", destructured_ast = "dc1572817136d5a95d4ea911095af473efc9accd08c85b6402290c4cc29a4e3f", inlined_ast = "dc1572817136d5a95d4ea911095af473efc9accd08c85b6402290c4cc29a4e3f", dce_ast = "dc1572817136d5a95d4ea911095af473efc9accd08c85b6402290c4cc29a4e3f", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function matches:
     input r0 as address.private;
     is.eq self.caller r0 into r1;
     output r1 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function matches:
+    input r0 as address.private;
+    is.eq self.caller r0 into r1;
+    output r1 as boolean.private;

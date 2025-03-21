@@ -1,0 +1,757 @@
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 4,
+          "hi": 5
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "expr",
+        "span": {
+          "lo": 12,
+          "hi": 16
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 0,
+      "hi": 16
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 22,
+          "hi": 23
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U16"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 31,
+              "hi": 32
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 33,
+              "hi": 34
+            },
+            "id": 2
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 31,
+          "hi": 34
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 18,
+      "hi": 34
+    },
+    "id": 4
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 40,
+          "hi": 41
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U8"
+    },
+    "value": {
+      "Call": {
+        "function": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 48,
+              "hi": 49
+            },
+            "id": 1
+          }
+        },
+        "arguments": [],
+        "program": null,
+        "span": {
+          "lo": 48,
+          "hi": 51
+        },
+        "id": 2
+      }
+    },
+    "span": {
+      "lo": 36,
+      "hi": 51
+    },
+    "id": 3
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 57,
+          "hi": 58
+        },
+        "id": 0
+      }
+    },
+    "type_": "String",
+    "value": {
+      "Identifier": {
+        "name": "expr",
+        "span": {
+          "lo": 69,
+          "hi": 73
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 53,
+      "hi": 73
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 79,
+          "hi": 80
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "I8"
+    },
+    "value": {
+      "Identifier": {
+        "name": "expr",
+        "span": {
+          "lo": 87,
+          "hi": 91
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 75,
+      "hi": 91
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 97,
+          "hi": 98
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "I16"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 106,
+              "hi": 107
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 108,
+              "hi": 109
+            },
+            "id": 2
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 106,
+          "hi": 109
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 93,
+      "hi": 109
+    },
+    "id": 4
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 115,
+          "hi": 116
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "I8"
+    },
+    "value": {
+      "Call": {
+        "function": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 123,
+              "hi": 124
+            },
+            "id": 1
+          }
+        },
+        "arguments": [],
+        "program": null,
+        "span": {
+          "lo": 123,
+          "hi": 126
+        },
+        "id": 2
+      }
+    },
+    "span": {
+      "lo": 111,
+      "hi": 126
+    },
+    "id": 3
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 132,
+          "hi": 133
+        },
+        "id": 0
+      }
+    },
+    "type_": "String",
+    "value": {
+      "Identifier": {
+        "name": "expr",
+        "span": {
+          "lo": 144,
+          "hi": 148
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 128,
+      "hi": 148
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 154,
+          "hi": 155
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Composite": {
+        "id": {
+          "name": "credits",
+          "span": {
+            "lo": 157,
+            "hi": 164
+          },
+          "id": 1
+        },
+        "program": null
+      }
+    },
+    "value": {
+      "Call": {
+        "function": {
+          "Identifier": {
+            "name": "mint_private",
+            "span": {
+              "lo": 180,
+              "hi": 192
+            },
+            "id": 3
+          }
+        },
+        "arguments": [
+          {
+            "Literal": {
+              "Integer": [
+                "U64",
+                "100",
+                {
+                  "span": {
+                    "lo": 193,
+                    "hi": 199
+                  }
+                },
+                4
+              ]
+            }
+          }
+        ],
+        "program": "credits",
+        "span": {
+          "lo": 167,
+          "hi": 200
+        },
+        "id": 5
+      }
+    },
+    "span": {
+      "lo": 150,
+      "hi": 200
+    },
+    "id": 6
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 206,
+          "hi": 207
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Composite": {
+        "id": {
+          "name": "credits",
+          "span": {
+            "lo": 222,
+            "hi": 229
+          },
+          "id": 2
+        },
+        "program": "credits"
+      }
+    },
+    "value": {
+      "Call": {
+        "function": {
+          "Identifier": {
+            "name": "mint_private",
+            "span": {
+              "lo": 245,
+              "hi": 257
+            },
+            "id": 4
+          }
+        },
+        "arguments": [
+          {
+            "Literal": {
+              "Integer": [
+                "U64",
+                "100",
+                {
+                  "span": {
+                    "lo": 258,
+                    "hi": 264
+                  }
+                },
+                5
+              ]
+            }
+          }
+        ],
+        "program": "credits",
+        "span": {
+          "lo": 232,
+          "hi": 265
+        },
+        "id": 6
+      }
+    },
+    "span": {
+      "lo": 202,
+      "hi": 265
+    },
+    "id": 7
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 271,
+          "hi": 272
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U32"
+    },
+    "value": {
+      "Identifier": {
+        "name": "expr",
+        "span": {
+          "lo": 280,
+          "hi": 284
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 267,
+      "hi": 284
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 290,
+          "hi": 291
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U32"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 299,
+              "hi": 300
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 301,
+              "hi": 302
+            },
+            "id": 2
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 299,
+          "hi": 302
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 286,
+      "hi": 302
+    },
+    "id": 4
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 308,
+          "hi": 309
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U32"
+    },
+    "value": {
+      "Call": {
+        "function": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 317,
+              "hi": 318
+            },
+            "id": 1
+          }
+        },
+        "arguments": [],
+        "program": null,
+        "span": {
+          "lo": 317,
+          "hi": 320
+        },
+        "id": 2
+      }
+    },
+    "span": {
+      "lo": 304,
+      "hi": 320
+    },
+    "id": 3
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 326,
+          "hi": 327
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U32"
+    },
+    "value": {
+      "Identifier": {
+        "name": "expr",
+        "span": {
+          "lo": 335,
+          "hi": 339
+        },
+        "id": 1
+      }
+    },
+    "span": {
+      "lo": 322,
+      "hi": 339
+    },
+    "id": 2
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 345,
+          "hi": 346
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U32"
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 354,
+              "hi": 355
+            },
+            "id": 1
+          }
+        },
+        "right": {
+          "Identifier": {
+            "name": "y",
+            "span": {
+              "lo": 356,
+              "hi": 357
+            },
+            "id": 2
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 354,
+          "hi": 357
+        },
+        "id": 3
+      }
+    },
+    "span": {
+      "lo": 341,
+      "hi": 357
+    },
+    "id": 4
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 363,
+          "hi": 364
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Integer": "U32"
+    },
+    "value": {
+      "Call": {
+        "function": {
+          "Identifier": {
+            "name": "x",
+            "span": {
+              "lo": 372,
+              "hi": 373
+            },
+            "id": 1
+          }
+        },
+        "arguments": [],
+        "program": null,
+        "span": {
+          "lo": 372,
+          "hi": 375
+        },
+        "id": 2
+      }
+    },
+    "span": {
+      "lo": 359,
+      "hi": 375
+    },
+    "id": 3
+  }
+}
+
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 381,
+          "hi": 382
+        },
+        "id": 0
+      }
+    },
+    "type_": "Address",
+    "value": {
+      "Literal": {
+        "Address": [
+          "aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx",
+          {
+            "span": {
+              "lo": 394,
+              "hi": 457
+            }
+          },
+          1
+        ]
+      }
+    },
+    "span": {
+      "lo": 377,
+      "hi": 457
+    },
+    "id": 2
+  }
+}
+

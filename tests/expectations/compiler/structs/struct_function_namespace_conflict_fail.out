@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EAST0372007]: struct `Foo` shadowed by
-    --> compiler-test:8:5
+    --> compiler-test:7:5
      |
-   8 |     function Foo() {}
+   7 |     function Foo() {}
      |     ^^^^^^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [EAST0372007]: struct `Foo` shadowed by
+    --> compiler-test:7:5
+     |
+   7 |     function Foo() {}
+     |     ^^^^^^^^^^^^^^^^^

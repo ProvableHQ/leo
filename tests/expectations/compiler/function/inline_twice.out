@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "f4cc03b7d6b219ce71229b7fa316c9774b6ecd349c41115643dd2566c8724695", unrolled_ast = "f4cc03b7d6b219ce71229b7fa316c9774b6ecd349c41115643dd2566c8724695", ssa_ast = "7a2e5b6017cf40ba52a6cf5159c6eb0310b18010ca1444e69e2229385b37fc32", flattened_ast = "1ff717599c2438b9752c2d9064136af7c04c8d06f7867106c598fe1238a9e134", destructured_ast = "28089d6df5bf04874d1e0432828dc419529d38b5f8db9128bc11d5706d50df9f", inlined_ast = "4bb9e9cc9064f1d806427a52ccd9b1a44e07e352a97f4ca84a0d5639c6f64ce0", dce_ast = "4bb9e9cc9064f1d806427a52ccd9b1a44e07e352a97f4ca84a0d5639c6f64ce0", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function make_move:
@@ -11,4 +9,15 @@ function make_move:
     gt r3 0u32 into r4;
     ternary r4 2u8 1u8 into r5;
     output r5 as u8.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function make_move:
+    input r0 as u32.private;
+    input r1 as u8.private;
+    shl 1u32 r1 into r2;
+    and r0 r2 into r3;
+    gt r3 0u32 into r4;
+    ternary r4 2u8 1u8 into r5;
+    output r5 as u8.private;

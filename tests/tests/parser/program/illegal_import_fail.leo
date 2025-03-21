@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Fail"
-*/
 
 stub credits.aleo {
     transition split(a1: credits, a2: u64) -> (credits, credits) {}

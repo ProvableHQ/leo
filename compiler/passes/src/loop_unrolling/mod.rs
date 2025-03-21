@@ -43,6 +43,8 @@ impl<'a> Pass for Unroller<'a> {
     type Input = (Ast, &'a Handler, &'a NodeBuilder, &'a mut SymbolTable, &'a TypeTable);
     type Output = Result<(Ast, UnrollerOutput)>;
 
+    const NAME: &'static str = "Unroller";
+
     fn do_pass((ast, handler, node_builder, symbol_table, tt): Self::Input) -> Self::Output {
         let mut reconstructor = Self::new(symbol_table, tt, handler, node_builder);
         let program = reconstructor.reconstruct_program(ast.into_repr());

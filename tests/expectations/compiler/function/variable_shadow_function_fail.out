@@ -1,14 +1,23 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [EAST0372006]: function `f1` shadowed by
-    --> compiler-test:9:13
+    --> compiler-test:8:13
      |
-   9 |         let f1: u8 = 1u8;
+   8 |         let f1: u8 = 1u8;
      |             ^^
 Error [ETYC0372005]: Unknown variable `f1`
-    --> compiler-test:10:16
+    --> compiler-test:9:16
      |
-  10 |         return f1;
+   9 |         return f1;
      |                ^^
-"""]
+
+DCE_DISABLED:
+Error [EAST0372006]: function `f1` shadowed by
+    --> compiler-test:8:13
+     |
+   8 |         let f1: u8 = 1u8;
+     |             ^^
+Error [ETYC0372005]: Unknown variable `f1`
+    --> compiler-test:9:16
+     |
+   9 |         return f1;
+     |                ^^

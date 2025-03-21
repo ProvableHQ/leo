@@ -1,7 +1,3 @@
-/*
-namespace = "Compile"
-expectation = "Pass"
-*/
 program test.aleo {
     mapping foo: u32 => u32;
     async transition main_inner(public a: u32, public b: u32) -> Future {

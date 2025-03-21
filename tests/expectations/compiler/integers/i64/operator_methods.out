@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "7f918d40425e8a98388c9b9a284e35c4c4ca78e3e9c7151994d986002e174fde", unrolled_ast = "7f918d40425e8a98388c9b9a284e35c4c4ca78e3e9c7151994d986002e174fde", ssa_ast = "0c916cba841c7c175f314784dd83cf7bee658888bda25ba120196e9d16105c65", flattened_ast = "109a0f14c42e6eb3884c9e06a9e7257da8f82c89517037e874686b868710ca16", destructured_ast = "244b06d696166b56abbd84b4a4ad19b895b158f4f5abd57e6684f96360fe4a47", inlined_ast = "244b06d696166b56abbd84b4a4ad19b895b158f4f5abd57e6684f96360fe4a47", dce_ast = "b4fe5225b90d4fd1a9089c7a60c50520b0a0337db50876d26b27ad147ad93375", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -8,4 +6,51 @@ function main:
     input r1 as i64.private;
     is.eq r0 r1 into r2;
     output r2 as boolean.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as i64.private;
+    input r1 as i64.private;
+    abs r0 into r2;
+    abs.w r0 into r3;
+    neg r0 into r4;
+    not r0 into r5;
+    add r0 r1 into r6;
+    add.w r0 r1 into r7;
+    and r0 r1 into r8;
+    div r0 r1 into r9;
+    div.w r0 r1 into r10;
+    is.eq r0 r1 into r11;
+    gte r0 r1 into r12;
+    gt r0 r1 into r13;
+    lte r0 r1 into r14;
+    lt r0 r1 into r15;
+    mul r0 r1 into r16;
+    mul.w r0 r1 into r17;
+    is.neq r0 r1 into r18;
+    or r0 r1 into r19;
+    pow r0 2u8 into r20;
+    pow r0 2u16 into r21;
+    pow r0 2u32 into r22;
+    pow.w r0 2u8 into r23;
+    pow.w r0 2u16 into r24;
+    pow.w r0 2u32 into r25;
+    shl r0 2u8 into r26;
+    shl r0 2u16 into r27;
+    shl r0 2u32 into r28;
+    shl.w r0 2u8 into r29;
+    shl.w r0 2u16 into r30;
+    shl.w r0 2u32 into r31;
+    shr r0 2u8 into r32;
+    shr r0 2u16 into r33;
+    shr r0 2u32 into r34;
+    shr.w r0 2u8 into r35;
+    shr.w r0 2u16 into r36;
+    shr.w r0 2u32 into r37;
+    xor r0 r1 into r38;
+    rem r0 r1 into r39;
+    rem.w r0 r1 into r40;
+    is.eq r0 r1 into r41;
+    output r41 as boolean.private;

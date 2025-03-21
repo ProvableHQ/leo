@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ELUN0379000]: The loop range must be increasing.
-    --> compiler-test:6:26
+    --> compiler-test:5:26
      |
-   6 |         const STOP: u8 = 0u8;
+   5 |         const STOP: u8 = 0u8;
      |                          ^^^
-"""]
+
+DCE_DISABLED:
+Error [ELUN0379000]: The loop range must be increasing.
+    --> compiler-test:5:26
+     |
+   5 |         const STOP: u8 = 0u8;
+     |                          ^^^

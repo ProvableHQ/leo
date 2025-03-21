@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Fail"
-*/
 
 program relay.aleo {
     mapping users: address => bool;

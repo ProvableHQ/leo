@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "0ef2d560f34ca8b1ee7d9c398eedf9a8776e4976e98a87449d7067bfe65bc6b7", unrolled_ast = "edfb38e7e3d2fc54362ec596cfa8f29467ec6097d5fdc0d525592e5d81e59159", ssa_ast = "abf59a27eb9c326b1958fb9e7ab0b145761dcbd8610a0cebfb42a2c3160d458c", flattened_ast = "9780345d8fa8eaed206e3fa4e3fba6eb684751027aa951820e222a46e78f76b0", destructured_ast = "fb40f2fccd45133dcf50a4ef6700899395d0f13d773d3667d87ecd6cc3245c06", inlined_ast = "fb40f2fccd45133dcf50a4ef6700899395d0f13d773d3667d87ecd6cc3245c06", dce_ast = "b59e4829c4d2284f9c3437b71e9f3ed079013edc5db4f4ffc7afba4373884876", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,5 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.sha3_512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i8;
+    hash.sha3_512 true into r9 as i8;
+    hash.sha3_512 1field into r10 as i8;
+    hash.sha3_512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i8;
+    hash.sha3_512 r0 into r12 as i8;
+    hash.sha3_512 r1 into r13 as i8;
+    hash.sha3_512 r2 into r14 as i8;
+    hash.sha3_512 r3 into r15 as i8;
+    hash.sha3_512 1i128 into r16 as i8;
+    hash.sha3_512 r4 into r17 as i8;
+    hash.sha3_512 r5 into r18 as i8;
+    hash.sha3_512 r6 into r19 as i8;
+    hash.sha3_512 r7 into r20 as i8;
+    hash.sha3_512 1u128 into r21 as i8;
+    hash.sha3_512 1scalar into r22 as i8;
     output r8 as i8.private;
-""", errors = "", warnings = "" }] }]]
+    output r9 as i8.private;
+    output r10 as i8.private;
+    output r11 as i8.private;
+    output r12 as i8.private;
+    output r13 as i8.private;
+    output r14 as i8.private;
+    output r15 as i8.private;
+    output r16 as i8.private;
+    output r17 as i8.private;
+    output r18 as i8.private;
+    output r19 as i8.private;
+    output r20 as i8.private;
+    output r21 as i8.private;
+    output r22 as i8.private;
+    output 122i8 as i8.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.sha3_512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i8;
+    hash.sha3_512 true into r9 as i8;
+    hash.sha3_512 1field into r10 as i8;
+    hash.sha3_512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i8;
+    hash.sha3_512 r0 into r12 as i8;
+    hash.sha3_512 r1 into r13 as i8;
+    hash.sha3_512 r2 into r14 as i8;
+    hash.sha3_512 r3 into r15 as i8;
+    hash.sha3_512 1i128 into r16 as i8;
+    hash.sha3_512 r4 into r17 as i8;
+    hash.sha3_512 r5 into r18 as i8;
+    hash.sha3_512 r6 into r19 as i8;
+    hash.sha3_512 r7 into r20 as i8;
+    hash.sha3_512 1u128 into r21 as i8;
+    hash.sha3_512 1scalar into r22 as i8;
+    output r8 as i8.private;
+    output r9 as i8.private;
+    output r10 as i8.private;
+    output r11 as i8.private;
+    output r12 as i8.private;
+    output r13 as i8.private;
+    output r14 as i8.private;
+    output r15 as i8.private;
+    output r16 as i8.private;
+    output r17 as i8.private;
+    output r18 as i8.private;
+    output r19 as i8.private;
+    output r20 as i8.private;
+    output r21 as i8.private;
+    output r22 as i8.private;
+    output 122i8 as i8.private;

@@ -1,35 +1,33 @@
 /*
-namespace = "Execute"
-expectation = "Pass"
-[[cases]]
+[case]
 program = "test.aleo"
 function = "bar"
 input = ["true", "true", "1u8", "0u8"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "bar"
 input = ["true", "false", "1u8", "1u8"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "bar"
 input = ["false", "true", "2u8", "1u8"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "bar"
 input = ["false", "false", "2u8", "2u8"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "blar"
 input = ["true", "true", "1u8", "0u8"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "blar"
 input = ["true", "false", "1u8", "1u8"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "blar"
 input = ["false", "true", "2u8", "1u8"]
-[[cases]]
+[case]
 program = "test.aleo"
 function = "blar"
 input = ["false", "false", "2u8", "2u8"]

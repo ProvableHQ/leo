@@ -1,59 +1,113 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372031]: A mapping's value cannot be a record
-    --> compiler-test:10:5
+    --> compiler-test:9:5
      |
-  10 |     mapping tokens: address => Token;
+   9 |     mapping tokens: address => Token;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
-    --> compiler-test:17:43
+    --> compiler-test:16:43
      |
-  17 |         Mapping::get_or_use(tokens, addr, amount);
+  16 |         Mapping::get_or_use(tokens, addr, amount);
      |                                           ^^^^^^
 Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
-    --> compiler-test:18:33
+    --> compiler-test:17:33
      |
-  18 |         tokens.get_or_use(addr, amount);
+  17 |         tokens.get_or_use(addr, amount);
      |                                 ^^^^^^
 Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:19:38
+    --> compiler-test:18:38
      |
-  19 |         Mapping::get_or_use(amounts, 1u8, amount);
+  18 |         Mapping::get_or_use(amounts, 1u8, amount);
      |                                      ^^^
 Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:20:28
+    --> compiler-test:19:28
      |
-  20 |         amounts.get_or_use(1u8, amount);
+  19 |         amounts.get_or_use(1u8, amount);
      |                            ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:21:44
+    --> compiler-test:20:44
      |
-  21 |         Mapping::get_or_use(amounts, addr, 1u8);
+  20 |         Mapping::get_or_use(amounts, addr, 1u8);
      |                                            ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:22:34
+    --> compiler-test:21:34
      |
-  22 |         amounts.get_or_use(addr, 1u8);
+  21 |         amounts.get_or_use(addr, 1u8);
      |                                  ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:23:72
+    --> compiler-test:22:72
      |
-  23 |         Mapping::get_or_use(tokens, addr, Token { owner: addr, amount: 1u8 });
+  22 |         Mapping::get_or_use(tokens, addr, Token { owner: addr, amount: 1u8 });
      |                                                                        ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:24:62
+    --> compiler-test:23:62
      |
-  24 |         tokens.get_or_use(addr, Token { owner: addr, amount: 1u8 });
+  23 |         tokens.get_or_use(addr, Token { owner: addr, amount: 1u8 });
      |                                                              ^^^
 Error [ETYC0372005]: Unknown variable `foo`
-    --> compiler-test:25:29
+    --> compiler-test:24:29
      |
-  25 |         Mapping::get_or_use(foo, addr, amount);
+  24 |         Mapping::get_or_use(foo, addr, amount);
      |                             ^^^
 Error [ETYC0372005]: Unknown variable `foo`
-    --> compiler-test:26:9
+    --> compiler-test:25:9
      |
-  26 |         foo.get_or_use(addr, amount);
+  25 |         foo.get_or_use(addr, amount);
      |         ^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372031]: A mapping's value cannot be a record
+    --> compiler-test:9:5
+     |
+   9 |     mapping tokens: address => Token;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
+    --> compiler-test:16:43
+     |
+  16 |         Mapping::get_or_use(tokens, addr, amount);
+     |                                           ^^^^^^
+Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
+    --> compiler-test:17:33
+     |
+  17 |         tokens.get_or_use(addr, amount);
+     |                                 ^^^^^^
+Error [ETYC0372117]: Expected type `address` but type `u8` was found.
+    --> compiler-test:18:38
+     |
+  18 |         Mapping::get_or_use(amounts, 1u8, amount);
+     |                                      ^^^
+Error [ETYC0372117]: Expected type `address` but type `u8` was found.
+    --> compiler-test:19:28
+     |
+  19 |         amounts.get_or_use(1u8, amount);
+     |                            ^^^
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
+    --> compiler-test:20:44
+     |
+  20 |         Mapping::get_or_use(amounts, addr, 1u8);
+     |                                            ^^^
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
+    --> compiler-test:21:34
+     |
+  21 |         amounts.get_or_use(addr, 1u8);
+     |                                  ^^^
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
+    --> compiler-test:22:72
+     |
+  22 |         Mapping::get_or_use(tokens, addr, Token { owner: addr, amount: 1u8 });
+     |                                                                        ^^^
+Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
+    --> compiler-test:23:62
+     |
+  23 |         tokens.get_or_use(addr, Token { owner: addr, amount: 1u8 });
+     |                                                              ^^^
+Error [ETYC0372005]: Unknown variable `foo`
+    --> compiler-test:24:29
+     |
+  24 |         Mapping::get_or_use(foo, addr, amount);
+     |                             ^^^
+Error [ETYC0372005]: Unknown variable `foo`
+    --> compiler-test:25:9
+     |
+  25 |         foo.get_or_use(addr, amount);
+     |         ^^^

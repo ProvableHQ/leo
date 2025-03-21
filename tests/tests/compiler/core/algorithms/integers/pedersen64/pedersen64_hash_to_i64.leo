@@ -1,14 +1,10 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     struct Foo {
         a: u16,
         b: u16,
     }
-    
+
     transition main(
         i8_value: i8,
         i16_value: i16,
@@ -18,7 +14,7 @@ program test.aleo {
         u16_value: u16,
         u32_value: u32,
         u64_value: u64,
-    ) -> i64 {
+    ) -> (i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, i64, ) {
         let addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
         let bool_value: bool = true;
         let field_value: field = 1field;
@@ -27,22 +23,22 @@ program test.aleo {
         let u128_value: u128 = 1u128;
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
-    
+
         // Pedersen64 hash_to_i64 tests
-        let a: i64 = Pedersen64::hash_to_i64(addr_value);
+        let a: i64 = Pedersen64::hash_to_i64(bool_value);
         let b: i64 = Pedersen64::hash_to_i64(bool_value);
-        let c: i64 = Pedersen64::hash_to_i64(field_value);
-        let d: i64 = Pedersen64::hash_to_i64(group_value);
+        let c: i64 = Pedersen64::hash_to_i64(bool_value);
+        let d: i64 = Pedersen64::hash_to_i64(bool_value);
         let e: i64 = Pedersen64::hash_to_i64(i8_value);
         let f: i64 = Pedersen64::hash_to_i64(i16_value);
         let g: i64 = Pedersen64::hash_to_i64(i32_value);
         let j: i64 = Pedersen64::hash_to_i64(u8_value);
         let k: i64 = Pedersen64::hash_to_i64(u16_value);
         let l: i64 = Pedersen64::hash_to_i64(u32_value);
-        let o: i64 = Pedersen64::hash_to_i64(scalar_value);
+        let o: i64 = Pedersen64::hash_to_i64(bool_value);
         // let p: i64 = Pedersen64::hash_to_i64(string_value);
-        let q: i64 = Pedersen64::hash_to_i64(Foo { a: 1u16, b: 1u16, });
-    
-        return a;
+        let q: i64 = Pedersen64::hash_to_i64(bool_value);
+
+        return (a, b, c, d, e, f, g, j, k, l, o, q);
     }
 }

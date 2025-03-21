@@ -1,21 +1,35 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372050]: A struct cannot contain a tuple.
-    --> compiler-test:5:9
+    --> compiler-test:4:9
      |
-   5 |         mem: (u8, u16)
+   4 |         mem: (u8, u16)
      |         ^^^
 Error [ETYC0372050]: A struct cannot contain a tuple.
-    --> compiler-test:9:9
+    --> compiler-test:8:9
      |
-   9 |         mems: (A, A)
+   8 |         mems: (A, A)
      |         ^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:1:1
      |
    1 | 
-   2 | 
-   3 | program test.aleo {
+   2 | program test.aleo {
      | ^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372050]: A struct cannot contain a tuple.
+    --> compiler-test:4:9
+     |
+   4 |         mem: (u8, u16)
+     |         ^^^
+Error [ETYC0372050]: A struct cannot contain a tuple.
+    --> compiler-test:8:9
+     |
+   8 |         mems: (A, A)
+     |         ^^^^
+Error [ETYC0372083]: A program must have at least one transition function.
+    --> compiler-test:1:1
+     |
+   1 | 
+   2 | program test.aleo {
+     | ^^^^^^^^^^^^

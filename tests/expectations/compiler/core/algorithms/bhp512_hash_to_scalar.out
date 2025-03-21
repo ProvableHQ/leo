@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "9f10df28c343bacb8570a8818b84b77b4f7668495d0df66c717adaab1b7d3acb", unrolled_ast = "23abfeb0a56b4f5295d8ec56051ec6401d90f4bac7c6084755c01fdd03efae51", ssa_ast = "cbaefa117a1244599e3b6e52b8dd1d252f920fcfdcc3847c071a63730a2fd2e6", flattened_ast = "43659f53f4779d959fd1c9949ad4739f6cf4d54d0be284b7a7a17251b5587fa4", destructured_ast = "42ec598e5a45aad3338fe6d831327f20ec8da23fe8a06b8736c5125152d3147e", inlined_ast = "42ec598e5a45aad3338fe6d831327f20ec8da23fe8a06b8736c5125152d3147e", dce_ast = "ce2b72fbfa72217f5bab04e4d8441cc08d8cc22bedf80e8ef7281f619711e036", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Foo:
@@ -17,7 +15,81 @@ function main:
     input r6 as u32.private;
     input r7 as u64.private;
     hash.bhp512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as scalar;
-    hash.bhp512 1scalar into r9 as scalar;
-    add r8 r9 into r10;
+    hash.bhp512 true into r9 as scalar;
+    hash.bhp512 1field into r10 as scalar;
+    hash.bhp512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as scalar;
+    hash.bhp512 r0 into r12 as scalar;
+    hash.bhp512 r1 into r13 as scalar;
+    hash.bhp512 r2 into r14 as scalar;
+    hash.bhp512 r3 into r15 as scalar;
+    hash.bhp512 1i128 into r16 as scalar;
+    hash.bhp512 r4 into r17 as scalar;
+    hash.bhp512 r5 into r18 as scalar;
+    hash.bhp512 r6 into r19 as scalar;
+    hash.bhp512 r7 into r20 as scalar;
+    hash.bhp512 1u128 into r21 as scalar;
+    hash.bhp512 1scalar into r22 as scalar;
+    output r8 as scalar.private;
+    output r9 as scalar.private;
     output r10 as scalar.private;
-""", errors = "", warnings = "" }] }]]
+    output r11 as scalar.private;
+    output r12 as scalar.private;
+    output r13 as scalar.private;
+    output r14 as scalar.private;
+    output r15 as scalar.private;
+    output r16 as scalar.private;
+    output r17 as scalar.private;
+    output r18 as scalar.private;
+    output r19 as scalar.private;
+    output r20 as scalar.private;
+    output r21 as scalar.private;
+    output r22 as scalar.private;
+    output 335872929927266048702041873130751785953541046839633754863900904914960971280scalar as scalar.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Foo:
+    a as u128;
+    b as u128;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.bhp512 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as scalar;
+    hash.bhp512 true into r9 as scalar;
+    hash.bhp512 1field into r10 as scalar;
+    hash.bhp512 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as scalar;
+    hash.bhp512 r0 into r12 as scalar;
+    hash.bhp512 r1 into r13 as scalar;
+    hash.bhp512 r2 into r14 as scalar;
+    hash.bhp512 r3 into r15 as scalar;
+    hash.bhp512 1i128 into r16 as scalar;
+    hash.bhp512 r4 into r17 as scalar;
+    hash.bhp512 r5 into r18 as scalar;
+    hash.bhp512 r6 into r19 as scalar;
+    hash.bhp512 r7 into r20 as scalar;
+    hash.bhp512 1u128 into r21 as scalar;
+    hash.bhp512 1scalar into r22 as scalar;
+    output r8 as scalar.private;
+    output r9 as scalar.private;
+    output r10 as scalar.private;
+    output r11 as scalar.private;
+    output r12 as scalar.private;
+    output r13 as scalar.private;
+    output r14 as scalar.private;
+    output r15 as scalar.private;
+    output r16 as scalar.private;
+    output r17 as scalar.private;
+    output r18 as scalar.private;
+    output r19 as scalar.private;
+    output r20 as scalar.private;
+    output r21 as scalar.private;
+    output r22 as scalar.private;
+    output 335872929927266048702041873130751785953541046839633754863900904914960971280scalar as scalar.private;

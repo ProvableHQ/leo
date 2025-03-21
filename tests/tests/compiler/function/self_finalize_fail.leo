@@ -1,9 +1,5 @@
-/*
-namespace = "Compile"
-expectation = "Fail"
-*/
 
-program test.aleo {    
+program test.aleo {
     async transition matches(addr: address) -> (bool, Future) {
         return (self.caller == addr, finalize_matches(self.caller));
     }

@@ -35,6 +35,8 @@ impl<'a> Pass for Destructurer<'a> {
     type Input = (Ast, &'a TypeTable, &'a NodeBuilder, &'a Assigner);
     type Output = Result<Ast>;
 
+    const NAME: &'static str = "Destructurer";
+
     fn do_pass((ast, tt, node_builder, assigner): Self::Input) -> Self::Output {
         let mut reconstructor = Destructurer::new(tt, node_builder, assigner);
         let program = reconstructor.reconstruct_program(ast.into_repr());

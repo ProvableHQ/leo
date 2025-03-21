@@ -1,7 +1,3 @@
-/*
-namespace = "Parse"
-expectation = "Fail"
-*/
 
 stub credits.aleo {
     import battleship.aleo;

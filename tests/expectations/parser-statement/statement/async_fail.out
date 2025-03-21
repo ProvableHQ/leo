@@ -1,0 +1,7 @@
+Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'
+    --> test_0:1:1
+     |
+   1 | async finalize(foo);
+     | ^^^^^
+
+

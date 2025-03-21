@@ -1,25 +1,72 @@
-namespace = "Execute"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "7dd4a95e136e980524f0bf5f9d9126b44bfd51487271d4b5281ea1948321fb85", unrolled_ast = "41063270cf057d2f3966a137e9caf6461000e5c90ee530fd5c655720954bfae1", ssa_ast = "95953311682373d3f1130f6f1632d7d0f60e430cc62d7177c64f4a49689a6119", flattened_ast = "488a6f22ff3ca963c9423c25cb3f0b88bb3c746b245ec5deb7f25cfcd3db3628", destructured_ast = "29f4782fcf26ceea2b66171b1c3d60bb2980da1b9fdfe8500d11786c99d23e7e", inlined_ast = "29f4782fcf26ceea2b66171b1c3d60bb2980da1b9fdfe8500d11786c99d23e7e", dce_ast = "29f4782fcf26ceea2b66171b1c3d60bb2980da1b9fdfe8500d11786c99d23e7e", bytecode = """
-program test.aleo;
-
-record Token:
-    owner as address.private;
-    amount as u64.private;
-    flag as boolean.constant;
-
-function mint:
-    input r0 as address.private;
-    input r1 as u64.private;
-    cast r0 r1 true into r2 as Token.record;
-    output r2 as Token.record;
-""", errors = "", warnings = "" }], execute = [
-    { verified = true, status = "accepted", errors = "", warnings = "", execution = { global_state_root = "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu", proof = "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqpv7w3dzev6sak90ly70mwxydt494x88tuyym6pfw8sr5fy9y0zdkru4j4vvxmudjy4da22mczmzcpqyphrfleuraudqzcyuxf8acjvm2t4ctdd8eqq0rhjrcq9s5hmnzuk977q64mg8lynee7hrf5lm7a2qq7tv3axyrdqjapj4su7k7rjm6rh3k8kmt4n0zjhmwhpm7a2yaq7q6wu3gw2ucnmnqrkdcxna8yjcqt8fujq8t6wdfc20aplwx0pezgzt3q3agw6maprc6dlfmdetk9c4c6ay6hlvw8xf83dx7j36klu4cquyypq6wj78x2p8aqrsqsfanhr3h229jagmptrtpy9hjetf7qsue97ga6scqqgx4lyxd3nqqt9akqry27am87yuyqpsafcsjnuu603jujxtepc70xm0pd3uxwyzp0qv2a7swaan4ys08gvljq2mncsurksxysac8k6hdx7c0jalrc5sf9qjgmc49pw4y4jaxnuca6wqd52mxzeya39gtyjl0py3prut3lj6r98qzwx4v6ar6f9m4mxsrv0nsy9twzh80xnf7xcjur6fjm43j3at5h9nha29l3rq7csdrvp9wkefhzj7q8zueluz0u4n5g8wf6ne5050jslg448x3eca39yg6x7eru79tqzle4lay6v8464hqc3n660j4tlruph9uhvdsugh47f4sl6f0grwk8txvle7whdlcwn8mmvcpu2d3lhv9zmqd06kswypdm5th9h0dw4qt67x4l2l9vpvqs0r7shg7adnezjr8yfrzvqzr387ttvq7c27nrlr2xf78wg0f3726z398v8l4mpvxcquqs4rjn0kffspkxe8u8qhkzcs2fnptc28zkja3wsufee9t5p0us6q6mfsgplsnhq5akyftdnjeatnjfhhqp8fckhu39033367yw7jg0k065882yu0e3pafnsttngwymcmmg9j9e24htqrt2rllrngzd3spdkhefjn878wt3r9t79kn99ygrmd6tlqd3zkw4rpwvvhvc6fw2cy2gl4tp3h3kr6h6f3nrwnyuerhvv2vkt2ly0ch6vtyy33vfzeyap0wp3ud280xrm376ua7sy95d96p438q8lhh5at6e6x0qg3yfs2aqz072s8y8m80y7dh93tqgn57c72md76zrdkuus3t2ax3uedfnskqfqvqqqqqqqqqqpa4q4lhjg8smyty9e8g8cy2zdn6revlv9nu5dt7mndkeh4jgk7nsae2jvtll62q0m8dl9rsjzlwfqqqf66rhr2q6wx5qdutj8g3zvttuv24q9xjslwc68fewd2et4snf6pnreyz768fruazvq06x6p2xj8sqqxek9cqtcwr2dg39ry6e89cmufadcvxmwmc4wl2c37vprhnm40hsjuflplcytsgkpd3fchzy3j8q2cjqtu0vr0arngfwlwj4zj3ch38vj2879wqvguecfkw97nadf7zhsqqqydj89c", transitions = [{ id = "au1sghrqk9s5998jacu40qw6nwpvkxj9wfqlyus2rymu7cm9lewu5psgwe7zf", program = "test.aleo", function = "mint", tpk = "7835567325899127550325463306228588669553911215612671657187814910151824399315group", tcm = "4346953566447634214157280385182045626270093194427104596054934347800656899000field", scm = "976314679729564700856316609545716173163081344239778489091042818470177990760field", inputs = [
-    { type = "private", id = "7855253885486279710229453851594786218259580934362540680646828300595665281202field", value = "ciphertext1qgqf7p64udkc2uzcsemzy2k4p6q0h6arl68ujpmva4dqllyte8wwjrhdnldv5w6c9rxuxz55xge5czjzqrdqhk884hgvzmqlqmlpncldzqwl8x46" },
-    { type = "private", id = "5426061205580372303096592424694483165889188915103920753208915604989483184458field", value = "ciphertext1qyqxqzkt4kvyxgc53dfat7kvmr2z4d4v9q2dyklu2528hq7ehamfsqq8zekty" },
-], outputs = [{ type = "record", id = "5156109004448482223886765801400602131902167907109479580649173486324388601701field", checksum = "6631273458056610182110899788137838579552744841132751630640564497915769728001field", value = "record1qyqsq2ry8wy8gu5g5l9qn4d9gn6ghm3335gd4tax9vp7ezpg6v27urszqgrxzmt0w4h8ggcqqgqspw2flhglu9mjcael80sfn9qu5ru70xjp7lt0e2cceasna3apx6sjq3nxcct8q5qqqqqpqqqhmtc2yyklch49fcfj086pen5u4fa8p8m5ygjnlqy70nmq80fmkrsta4lnt" }] }] } },
-    { verified = true, status = "accepted", errors = "", warnings = "", execution = { global_state_root = "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu", proof = "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq07ttgtczc5ucqcevg9r5pxwahyrnfyc24evqhs4tjngqlv0eduvtm7qmsmfjp2yvl5knkncnvd7gqq80wp8r0gewsnlpjwzwe83ahrmgf0t6rzjja34wk7m7e8fm5syk9csrlrhyrd6kp6kqpfrzgywg35q0uye0u56jdlz74h9vl8afxekgwt7kcfpylk7h3ghkw5aqswx5pp6sq6nnz4q657ss9fj2nywrw26q28dnqdegkln7h439mq4keflhdtgay69tqc4muhpcpchtcu689gslssssc8qd38rk3dt8azal2zl5pry3hg8nvxjx3m9s50rjkx5twkvuf28wkwzelhcfm5k8h7ymd2hyy89wk3dxsed7lw39sldsky6fsp6pydrlfd7jhp2tj58dm9astywz44vpl4fy28dnu3j9mfcvh9ckmd84vmkxhfcquhle8pt9zj2eus83nanlls37wpkp7a7hn3fgpjz3d4tf2dd5nzvqs0k69ukdvwu8qyd8ptvj9z2zt0hz428gxdfhaxqzhr5xslfmytp8uffl8xczuurscum920ly4xuzazdtyxfkxtxhy309uv7ud2z6cfgylxqu7qwdk2zqa03lfxg76a3a746r4zs6a3dwly5aa98ngh4csnfmvykxhje07qdzh4ufqcrrlnx5qmvk46zd8znupc40gjnt3jnrnmsuw56ya2q36r8x5vm0gdkghmu7j9wgpjuhmscrvz8ckc0retftvwdvrvl9ek92ak55lyd4u2ynxz6fx8th4gv4fgzs9wxpwlezj7rx8xhggwvhfds8znqtk2rfuczfmfuq34aju3ppmzgnnj2t7axc48rn3nagf35rc3wq9x63yxkj7d9wkkm6nw2nx8u9q84ds9mrvw0x4q5wrh06m2534hct5v3xusq0kqax9wck983w2krgwk9rm8e2pykm5tu3taek9dchh9vu5rwmtmzwq6y3zm5c6uneaag9dtcf59xhjyqp697ap2xy8klg5qsuxpeps9pcavfyuw42ymqwwqzznlqjp0m4ul2auz2wdf25rhflxgedv2e0n57ea5dney85v57knqfmw37w8rlufzjyr57cpswz7hjpwgdd2lk92vgrfu7ar4umhkvaq5uqwkprnyv4l9txuf2w0wqcsckmn0tx6kjse958z7x4ugjcxjlszqvqqqqqqqqqqptkajeerh5rn5wujx6afstdfll7y2dv0enl5xtkqzrn8ey6u4feue98ctfcv86uw304m8kj6awnqsqq9auk7vac2uyyxt3pafq43zxzcs44s8cdsg57jzsv2ny6ct3ccqnhvapskr2e70vpussa6u628p8cqq9seppd8jkulf6l8le0am00vvrl8z5r0lz0putpkpenq586lu0uqak8ww82g3el8l4tsqfq52ulzzjud9yytfxf7y3e5m20mfn56gjsdrn8nlncaxe7mhjxtk70l4y7ysqqqvyhg5q", transitions = [{ id = "au1q7cn99pj98csjpryjd6fefw6zcyf77e3cpap57d43te85jah7qyq5jdzhc", program = "test.aleo", function = "mint", tpk = "6904969259225128751995976548992869286903312087922998632983110930201370009484group", tcm = "1887301650610134708252289372252548020774617682790454757735490012823528293268field", scm = "3370159836456331654922196424392966409340715478105148393215190674557013391093field", inputs = [
-    { type = "private", id = "6730929765050256935131413115079497253893797874472297867388825716189063567410field", value = "ciphertext1qgqqzq928k2872d66d7k9zkzd0m52kxef9krlkmflhh8aml44gmk6zs3lasm9rt0wcz5xz2fnlvumqh2mxtvka0nvs5v3shjuk8kjy9rqq6gqtd9" },
-    { type = "private", id = "1160054742237664112419375728847164579142461361507682016019441823665217033756field", value = "ciphertext1qyq8tv4faxh7jueaqsa5zf5tz4dfhkkd93y549ptv7086dkd23ersrqncphtw" },
-], outputs = [{ type = "record", id = "2929280752260107947662198927576949125139231236899314499375998902130530917471field", checksum = "5762314365757678834769222473754019500197499076330024014226967001882125847829field", value = "record1qyqspjfrvhsy4afvrrm8768vc6c2rhhvlj89g46te60xyncdshve0lsxqgrxzmt0w4h8ggcqqgqsqk0tn9epcmd5pmd335sd8xj0kmxw3vw5eanw7r6c4dglpxgdvvswq3nxcct8q5qqqqqpqqqsmsycrhpge0gehscgwy4qytq6nheu4rmv35dmgcpe8r253rh6vpslr8g0c" }] }] } },
-] }]]
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au138qwuaxgut2jddwc54h0rmcfpl96pemg559vefe5j5sznlk4q5fqczt9z4",
+      "program": "test.aleo",
+      "function": "mint",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "1380650191883184359545513507435469078777565194432990893176894304650311828152field",
+          "value": "ciphertext1qgqftjn6fw77hw46r2lgfn5h6arlgsld7x5kxgqfr4qfcn5k9kc82yztv9j5v6tyfzagfllf5x4rwfxgswwgrq2dk6583p3j9l3xsfp5qv3ww7qc"
+        },
+        {
+          "type": "private",
+          "id": "3407648648650759315066724972233722925793249868021449000948307705145493104639field",
+          "value": "ciphertext1qyqy2lfsc2dah88qlrwzym9e4m4shdvlv2as6hf44pyjmkul8g6ckzg2u26dt"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "record",
+          "id": "442777356527304088392216453349049463798558102455781414310766192519718278295field",
+          "checksum": "3935675377266392101548203087624296909867394322423363267780988065215521670801field",
+          "value": "record1qyqsq6de5zaspyrm5708kx6xm8r7yaxxc7h0mr9wq7njzwfwgu5meucyqgrxzmt0w4h8ggcqqgqsp0xg49m5dyf5rzmap48d7g4xaygvtysd0c9tpy0t78xa7xsgnqsjq3nxcct8q5qqqqqpqqq5sdt5x2knq958vdfs56xftspucptdayqslctug2kdhllwqt8cvrgmqr07v"
+        }
+      ],
+      "tpk": "5439856664996175558123491253445752049430740378586962347014977944322051374063group",
+      "tcm": "5477099922400112291110256412742178244541159381647730132417214906325070877759field",
+      "scm": "7248467822972217193185747221371805160175136579035576952100764887969273162093field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqyrdkp9twnfkhymuqrart9xhtwvt7ed76jzq6sltm9u6rfcvdgpf89zlx76ups5g4vgac5u48z3fupqyqlrm9ajw5vxlwa2ry73k9ejmcaawf5tfhxmv4gqkxxs30yzqnyrcxqyrg8uc3zu92nwhd2ngvlsqyc5dj5ccss8x9exp2a8gf8dyvm23s4djeqh7gdt6vsmkqadupx5xq7wrkfrpsyvq5u83jmcycq2zqxkl6dhnptng7wqfhjcnhk9e4nt2qamjykkfrecmmg8ydf4e5qsmryrmmlllsqhh8fed54f540rzqpd5ulyhvseklranav8syzr3k08pljdm44thtj32qmx0ny0kpd0rj5lenzpfgcytk95xf35lrjc95gqgkh7wu960s3q4upsrzhtr4r7wsrjs6gtqwmfkzkf28ka22vau6ate00r8gkkr4kjvj0k2rt5jj8sq2c2u4z2m9r9t78gpw0eafzzcp5znpw6e3gqcf7f86xt6uxr3esemyrmxq6npptl9huqlcle9ar7qr5anquzrewc6tt3fztlrx8xhz5h68l4ezkl2l033fk8flr3udqputdsf90k24axwyd78ah8qmsqqq25wezak23xhzk46a95h99ldl5jjnmy86hf23mgmea8m0z3tymundnr40htyqs96zmt7nrumyj7yqqgyx2dpy8x084wfm6q0qqg060whyvmkzmws9eacrv88hds3mvky9d5d7lj0z8kk7akn708rdt3z0ecg84g6uxwtp7vycup9ejvw5ewqgep5ccy8dlu9889qm7euhvgalrgcdh5rlfrqzqytahsfn0rwt4q3h75w5lwjk8aeq5aamxzpecfrptd6fznfe4wdc6vmgmv6r6vtpsj7cgluhehrquek6ukkf3grhj7esdc75tl2exlu8x0avegpuv2aq8cy6jx04puv6euwcuv4rkdp7f637mk6dlw57kpem4qz9jzfug5qgrk4fshpy2nhqa39tzxmwczh4snx5wpxgkn7v09ey5etzwcucp2yxm7ekqqrdktmmc7fdy8un5esf2c9vjyruc8jxtdgpnx3e6xk0ep50uxh4744ch24jnjwphgdwvrseeq78zr6kx07hateq38845gluppcx8urspehmhj78kez0v48qld2vrz5vj3upqcfl8rnel9vh0x9srqvqqqqqqqqqqqygm8njhwr65m00es70hv535agkq0qjpg7xz9utnwck7hutv38wuwfpg6qm3tjsdjzz8aw99a5r9qyqvkkhwr6fzgfclfv2tkl9guxgfgsrknztcf82p4l6389y09rrzp3sx32qxq8tq50ph73hu9p98x8qqqylswma9p7jkr2268crsljrmwp4ja3ad337r5z3zvdfkv4p96rqq266hx2gu238palrpf5f5ps342aww8u2sd23u7eyypmnz5wugey8r2m0fqxusl4j2fq8sh5mxgm9csqqqfeudus"
+}
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1ed9h8ru48tnlsn34mgrj4cp78ze4a6k8dczaks4zk0kl4l4e55zskpmftn",
+      "program": "test.aleo",
+      "function": "mint",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7255606392376538225648790385852621136275577541236753089879900297681295202685field",
+          "value": "ciphertext1qgqrazsl8khe8nd5rzcwmwz6k5jrfpqn0psrgnypdprn4azvc9p05prglyagdqyjxa7hcg32wecqshfe4k2m0q2ah4hj5jhk4cvdfg6xqvaerqc6"
+        },
+        {
+          "type": "private",
+          "id": "7895114780460719663384187509428303685294242476433390866053754846664840790775field",
+          "value": "ciphertext1qyqyspcj6sdm54rjt3r7la047rvwjdzm40ghhnc09yn0m864ym53qqqvgr8gg"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "record",
+          "id": "1620109583307228900201214670461276366446712473862273083120007198075029331409field",
+          "checksum": "5652305364655742042690742700449289866987794017777608162662624627482240999125field",
+          "value": "record1qyqsp3rlk848mde6gt983ekzx8wfxp5xaav9tr430zrswwyeyq8948c9qgrxzmt0w4h8ggcqqgqsqy0e3rxncunpcs9j894lqffzcdh8xt3n3uvyny8p93ay6tuxmhqyq3nxcct8q5qqqqqpqqq445ql0kc8gvwe68pl6d4ghg5c74w4h0qpsa9xkeylw9qxs26lcygc80du4"
+        }
+      ],
+      "tpk": "1517512223505498628250169642378106020703345320013208709416840886342992557603group",
+      "tcm": "37251468356656272243962755670670195115885555610916410180672404787691625967field",
+      "scm": "1270064580373279584861877075332390869976020373956209908963052654918544008455field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq2y8k7vwzua8tj6tlhhkdctkufrd8stnmdz74tl7fu4kedcdz5cta0hxgty579nunhnxjsc99kawcqqx79uqhyerx0z3u2ffcgrf6nhhuna0j83ew7ndjja0ftw722f8vax4tn8dl6kf4w83xpzn4c6nsusqpml054ef9w796qpe92lm42pm4ecdv8mfhxwsfgf7u7akdukt0um9jtpdrypur7kg5af7gruws3h6q8kmw9fzwcdl6zgzngywykepx3cellfyak0c36nfkyctcspsfrruwgpvkgzudt2qvyvsgy5u8wgsyp48xghp9u5tuf9020jthhgrtmyy5dzp7hzm6dd8egsfe76k2fudrr5ys4mncamqdrsvzy9dxve3yqzd00lx0w4w97jfpvtqttmy5pzx53vexj0eumnvg2jrz56w3ugdkl3eeausk0x5p0886e6c66y038qz6tlg2k4xu9w3k7erl424377zxc84djrs8jhc2raqmjceghml03dh62kkk99d704utkczruxxk0kqy64yh0w5g30vnmezqcz2e00ztkwgjd4hy4f9n37mxdva7l040xp2ez6e97k9txh92h0lsguu0dz2qccsf2apkfspuuxhu5425fu7gsa43hcfhkhqtrdzjrwnjzsty5fxnw9mpfahx2yeucus4p97cpwtuqca2sgr4q0clsh84ad2s9tl2c4vqm4sxvgqactjjnddtnwyrpl5zqlcd8d7ntad0ctffqtpshm2klct6xtf6alejtk0f2s007ya2aczmy9s439c5vzkese2m7crftek8wzh0zn5tunx2vpkkklf0xwkc9ph27elueg87uljtwl8ajv86j0fv3vsgfhrz24tre5y62zjuvw82q7fmft8slv28v77axnjps7g0jtc9cfevlak3lx8qc3n5uk2grqdsttlwgyk0plxyze47uhrfqlm6szd4xg4qplkd6ffau2h6can72gyzf7zps4x03frnypclf2ukzmx4txs9p90exj79h888lk8f86lrfupyccn3zh56ncw9tw58f86qj0k3ujwfmt0t9yp0klxx7aww927upqe9d308xfspydy4x65n6yqehwhwjucf80u32f0aqnp4vhktpz9r3pf0tdt288lvwrwwzzewc92hmk8jcc40jv3l64utanxq0w4hayscfqvqqqqqqqqqqqynceunlg3etg9quwpccpauuzx0kv9dn4txwntqpv3mympalnfxjxhxrrftll0unn5cdpdqm7e28qqq08wgfpg3p7gylk2rps5uaqvrc0kdwshjdj9czg7huwragv9q7zzc5c96d4a2lyahe7wcd20qr0scqq8j3trt6eeydm0u0mehwcse5663lwzvzjk6t2cg96fw796rwykd39wtxuhd0k3lu3psgh224vcjx8cz0mjk4zwfp2htyuq2zg3ggr6uxw754pj5fyhsdkfms3emdx3x2qqqqyax3sf"
+}

@@ -1,54 +1,370 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[outputs.imports]
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = []
-mappings = [[
-    "Yo",
-    { identifier = '{"id":"2","name":"Yo","span":"{\"lo\":34,\"hi\":36}"}', id = 3, key_type = { Integer = "U32" }, value_type = { Integer = "U32" }, span = { lo = 26, hi = 49 } },
-]]
-functions = [
-    [
-    "main",
-    { annotations = [], variant = "AsyncTransition", identifier = '{"id":"4","name":"main","span":"{\"lo\":72,\"hi\":76}"}', input = [], id = 15, output = [{ mode = "None", id = 5, type_ = { Future = { inputs = [], is_explicit = false } }, span = { lo = 82, hi = 88 } }], output_type = { Future = { inputs = [], is_explicit = false } }, block = { id = 14, statements = [
-    { Definition = { id = 11, place = { Single = '{"id":"6","name":"f","span":"{\"lo\":103,\"hi\":104}"}' }, type_ = { Future = { inputs = [], is_explicit = false } }, value = { Call = { program = "test", id = 10, arguments = [
-    { Literal = { Integer = [
-    "U32",
-    "1",
-    { span = { lo = 129, hi = 133 } },
-    8,
-] } },
-    { Literal = { Integer = [
-    "U32",
-    "1",
-    { span = { lo = 135, hi = 139 } },
-    9,
-] } },
-], function = { Identifier = '{"id":"7","name":"finalize_main","span":"{\"lo\":115,\"hi\":128}"}' }, span = { lo = 115, hi = 140 } } }, span = { lo = 99, hi = 140 } } },
-    { Return = { id = 13, expression = { Identifier = '{"id":"12","name":"f","span":"{\"lo\":157,\"hi\":158}"}' }, span = { lo = 150, hi = 159 } } },
-], span = { lo = 89, hi = 165 } }, span = { lo = 55, hi = 165 } },
-],
-    [
-    "finalize_main",
-    { annotations = [], variant = "AsyncFunction", identifier = '{"id":"16","name":"finalize_main","span":"{\"lo\":186,\"hi\":199}"}', id = 30, input = [
-    { identifier = '{"id":"17","name":"a","span":"{\"lo\":200,\"hi\":201}"}', mode = "None", id = 18, type_ = { Integer = "U32" }, span = { lo = 200, hi = 205 } },
-    { identifier = '{"id":"19","name":"b","span":"{\"lo\":207,\"hi\":208}"}', mode = "None", id = 20, type_ = { Integer = "U32" }, span = { lo = 207, hi = 212 } },
-], output = [{ mode = "None", id = 21, type_ = { Future = { inputs = [], is_explicit = false } }, span = { lo = 217, hi = 223 } }], output_type = { Future = { inputs = [], is_explicit = false } }, block = { id = 29, statements = [{ Expression = { id = 28, expression = { AssociatedFunction = { variant = '{"id":"22","name":"Mapping","span":"{\"lo\":234,\"hi\":241}"}', name = '{"id":"23","name":"set","span":"{\"lo\":243,\"hi\":246}"}', id = 27, arguments = [
-    { Identifier = '{"id":"24","name":"Yo","span":"{\"lo\":247,\"hi\":249}"}' },
-    { Identifier = '{"id":"25","name":"a","span":"{\"lo\":251,\"hi\":252}"}' },
-    { Identifier = '{"id":"26","name":"b","span":"{\"lo\":254,\"hi\":255}"}' },
-], span = { lo = 234, hi = 256 } } }, span = { lo = 234, hi = 257 } } }], span = { lo = 224, hi = 263 } }, span = { lo = 171, hi = 263 } },
-],
-]
-
-[outputs.program_scopes.test.span]
-lo = 2
-hi = 265
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 9,
+            "hi": 13
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [
+        [
+          "Yo",
+          {
+            "identifier": {
+              "name": "Yo",
+              "span": {
+                "lo": 33,
+                "hi": 35
+              },
+              "id": 2
+            },
+            "key_type": {
+              "Integer": "U32"
+            },
+            "value_type": {
+              "Integer": "U32"
+            },
+            "span": {
+              "lo": 25,
+              "hi": 48
+            },
+            "id": 3
+          }
+        ]
+      ],
+      "functions": [
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "AsyncTransition",
+            "identifier": {
+              "name": "main",
+              "span": {
+                "lo": 71,
+                "hi": 75
+              },
+              "id": 4
+            },
+            "input": [],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Future": {
+                    "inputs": [],
+                    "location": null,
+                    "is_explicit": false
+                  }
+                },
+                "span": {
+                  "lo": 81,
+                  "hi": 87
+                },
+                "id": 5
+              }
+            ],
+            "output_type": {
+              "Future": {
+                "inputs": [],
+                "location": null,
+                "is_explicit": false
+              }
+            },
+            "block": {
+              "statements": [
+                {
+                  "Definition": {
+                    "place": {
+                      "Single": {
+                        "name": "f",
+                        "span": {
+                          "lo": 102,
+                          "hi": 103
+                        },
+                        "id": 6
+                      }
+                    },
+                    "type_": {
+                      "Future": {
+                        "inputs": [],
+                        "location": null,
+                        "is_explicit": false
+                      }
+                    },
+                    "value": {
+                      "Call": {
+                        "function": {
+                          "Identifier": {
+                            "name": "finalize_main",
+                            "span": {
+                              "lo": 114,
+                              "hi": 127
+                            },
+                            "id": 7
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "Literal": {
+                              "Integer": [
+                                "U32",
+                                "1",
+                                {
+                                  "span": {
+                                    "lo": 128,
+                                    "hi": 132
+                                  }
+                                },
+                                8
+                              ]
+                            }
+                          },
+                          {
+                            "Literal": {
+                              "Integer": [
+                                "U32",
+                                "1",
+                                {
+                                  "span": {
+                                    "lo": 134,
+                                    "hi": 138
+                                  }
+                                },
+                                9
+                              ]
+                            }
+                          }
+                        ],
+                        "program": "test",
+                        "span": {
+                          "lo": 114,
+                          "hi": 139
+                        },
+                        "id": 10
+                      }
+                    },
+                    "span": {
+                      "lo": 98,
+                      "hi": 139
+                    },
+                    "id": 11
+                  }
+                },
+                {
+                  "Return": {
+                    "expression": {
+                      "Identifier": {
+                        "name": "f",
+                        "span": {
+                          "lo": 156,
+                          "hi": 157
+                        },
+                        "id": 12
+                      }
+                    },
+                    "span": {
+                      "lo": 149,
+                      "hi": 158
+                    },
+                    "id": 13
+                  }
+                }
+              ],
+              "span": {
+                "lo": 88,
+                "hi": 164
+              },
+              "id": 14
+            },
+            "span": {
+              "lo": 54,
+              "hi": 164
+            },
+            "id": 15
+          }
+        ],
+        [
+          "finalize_main",
+          {
+            "annotations": [],
+            "variant": "AsyncFunction",
+            "identifier": {
+              "name": "finalize_main",
+              "span": {
+                "lo": 185,
+                "hi": 198
+              },
+              "id": 16
+            },
+            "input": [
+              {
+                "identifier": {
+                  "name": "a",
+                  "span": {
+                    "lo": 199,
+                    "hi": 200
+                  },
+                  "id": 17
+                },
+                "mode": "None",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 199,
+                  "hi": 204
+                },
+                "id": 18
+              },
+              {
+                "identifier": {
+                  "name": "b",
+                  "span": {
+                    "lo": 206,
+                    "hi": 207
+                  },
+                  "id": 19
+                },
+                "mode": "None",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 206,
+                  "hi": 211
+                },
+                "id": 20
+              }
+            ],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Future": {
+                    "inputs": [],
+                    "location": null,
+                    "is_explicit": false
+                  }
+                },
+                "span": {
+                  "lo": 216,
+                  "hi": 222
+                },
+                "id": 21
+              }
+            ],
+            "output_type": {
+              "Future": {
+                "inputs": [],
+                "location": null,
+                "is_explicit": false
+              }
+            },
+            "block": {
+              "statements": [
+                {
+                  "Expression": {
+                    "expression": {
+                      "AssociatedFunction": {
+                        "variant": {
+                          "name": "Mapping",
+                          "span": {
+                            "lo": 233,
+                            "hi": 240
+                          },
+                          "id": 22
+                        },
+                        "name": {
+                          "name": "set",
+                          "span": {
+                            "lo": 242,
+                            "hi": 245
+                          },
+                          "id": 23
+                        },
+                        "arguments": [
+                          {
+                            "Identifier": {
+                              "name": "Yo",
+                              "span": {
+                                "lo": 246,
+                                "hi": 248
+                              },
+                              "id": 24
+                            }
+                          },
+                          {
+                            "Identifier": {
+                              "name": "a",
+                              "span": {
+                                "lo": 250,
+                                "hi": 251
+                              },
+                              "id": 25
+                            }
+                          },
+                          {
+                            "Identifier": {
+                              "name": "b",
+                              "span": {
+                                "lo": 253,
+                                "hi": 254
+                              },
+                              "id": 26
+                            }
+                          }
+                        ],
+                        "span": {
+                          "lo": 233,
+                          "hi": 255
+                        },
+                        "id": 27
+                      }
+                    },
+                    "span": {
+                      "lo": 233,
+                      "hi": 256
+                    },
+                    "id": 28
+                  }
+                }
+              ],
+              "span": {
+                "lo": 223,
+                "hi": 262
+              },
+              "id": 29
+            },
+            "span": {
+              "lo": 170,
+              "hi": 262
+            },
+            "id": 30
+          }
+        ]
+      ],
+      "span": {
+        "lo": 1,
+        "hi": 264
+      }
+    }
+  }
+}

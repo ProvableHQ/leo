@@ -1,24 +1,43 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372114]: A struct cannot contain a future.
-    --> compiler-test:7:9
+    --> compiler-test:6:9
      |
-   7 |         member: Future,
+   6 |         member: Future,
      |         ^^^^^^
 Error [ETYC0372031]: A mapping's key cannot be a future
-    --> compiler-test:4:5
+    --> compiler-test:3:5
      |
-   4 |     mapping x: Future => Future;
+   3 |     mapping x: Future => Future;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372031]: A mapping's value cannot be a future
-    --> compiler-test:4:5
+    --> compiler-test:3:5
      |
-   4 |     mapping x: Future => Future;
+   3 |     mapping x: Future => Future;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372115]: An array cannot have a future as an element type.
-    --> compiler-test:12:9
+    --> compiler-test:11:9
      |
-  12 |         let an_array: [Future; 1] = [future];
+  11 |         let an_array: [Future; 1] = [future];
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372114]: A struct cannot contain a future.
+    --> compiler-test:6:9
+     |
+   6 |         member: Future,
+     |         ^^^^^^
+Error [ETYC0372031]: A mapping's key cannot be a future
+    --> compiler-test:3:5
+     |
+   3 |     mapping x: Future => Future;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372031]: A mapping's value cannot be a future
+    --> compiler-test:3:5
+     |
+   3 |     mapping x: Future => Future;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372115]: An array cannot have a future as an element type.
+    --> compiler-test:11:9
+     |
+  11 |         let an_array: [Future; 1] = [future];
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,79 +1,625 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[[outputs.imports.hello]]
-
-[outputs.imports.hello.imports]
-
-[outputs.imports.hello.stubs]
-
-[outputs.imports.hello.program_scopes]
-
-[[outputs.imports.hello]]
-lo = 1
-hi = 19
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"2\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = []
-mappings = []
-functions = [
-    [
-    "main",
-    { annotations = [], variant = "AsyncTransition", identifier = '{"id":"3","name":"main","span":"{\"lo\":61,\"hi\":65}"}', input = [], output = [], output_type = "Unit", id = 10, block = { id = 9, statements = [
-    { Definition = { id = 6, place = { Single = '{"id":"4","name":"x","span":"{\"lo\":82,\"hi\":83}"}' }, type_ = { Integer = "U8" }, value = { Literal = { Integer = [
-    "U8",
-    "1",
-    { span = { lo = 89, hi = 92 } },
-    5,
-] } }, span = { lo = 78, hi = 92 } } },
-    { Return = { id = 8, expression = { Unit = { id = 7, span = { lo = 108, hi = 109 } } }, span = { lo = 102, hi = 109 } } },
-], span = { lo = 68, hi = 115 } }, span = { lo = 44, hi = 115 } },
-],
-    [
-    "finalize_main",
-    { annotations = [], variant = "AsyncFunction", identifier = '{"id":"11","name":"finalize_main","span":"{\"lo\":135,\"hi\":148}"}', input = [], output = [], output_type = "Unit", id = 65, block = { id = 64, statements = [
-    { Expression = { id = 23, expression = { AssociatedFunction = { variant = '{"id":"12","name":"Mapping","span":"{\"lo\":161,\"hi\":168}"}', name = '{"id":"13","name":"set","span":"{\"lo\":170,\"hi\":173}"}', id = 22, arguments = [
-    { Locator = { program = '{"name":"hello","network":"\"{\\\"id\\\":\\\"16\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":180,\\\\\\\"hi\\\\\\\":184}\\\"}\""}', name = "counter", id = 17, span = { lo = 174, hi = 192 } } },
-    { Identifier = '{"id":"18","name":"addr","span":"{\"lo\":194,\"hi\":198}"}' },
-    { Binary = { op = "Add", id = 21, left = { Identifier = '{"id":"19","name":"current_value","span":"{\"lo\":200,\"hi\":213}"}' }, right = { Literal = { Integer = [
-    "U64",
-    "1",
-    { span = { lo = 216, hi = 220 } },
-    20,
-] } }, span = { lo = 200, hi = 220 } } },
-], span = { lo = 161, hi = 221 } } }, span = { lo = 161, hi = 222 } } },
-    { Expression = { id = 32, expression = { AssociatedFunction = { variant = '{"id":"24","name":"Mapping","span":"{\"lo\":231,\"hi\":238}"}', name = '{"id":"25","name":"remove","span":"{\"lo\":240,\"hi\":246}"}', id = 31, arguments = [
-    { Locator = { program = '{"name":"hello","network":"\"{\\\"id\\\":\\\"28\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":253,\\\\\\\"hi\\\\\\\":257}\\\"}\""}', name = "foo", id = 29, span = { lo = 247, hi = 261 } } },
-    { Identifier = '{"id":"30","name":"addr","span":"{\"lo\":263,\"hi\":267}"}' },
-], span = { lo = 231, hi = 268 } } }, span = { lo = 231, hi = 269 } } },
-    { Definition = { id = 42, place = { Single = '{"id":"33","name":"a","span":"{\"lo\":282,\"hi\":283}"}' }, type_ = { Integer = "U32" }, value = { AssociatedFunction = { variant = '{"id":"34","name":"Mapping","span":"{\"lo\":290,\"hi\":297}"}', name = '{"id":"35","name":"get","span":"{\"lo\":299,\"hi\":302}"}', id = 41, arguments = [
-    { Locator = { program = '{"name":"hello","network":"\"{\\\"id\\\":\\\"38\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":309,\\\\\\\"hi\\\\\\\":313}\\\"}\""}', name = "foo", id = 39, span = { lo = 303, hi = 317 } } },
-    { Identifier = '{"id":"40","name":"addr","span":"{\"lo\":319,\"hi\":323}"}' },
-], span = { lo = 290, hi = 324 } } }, span = { lo = 278, hi = 324 } } },
-    { Definition = { id = 53, place = { Single = '{"id":"43","name":"b","span":"{\"lo\":338,\"hi\":339}"}' }, type_ = { Integer = "U32" }, value = { AssociatedFunction = { variant = '{"id":"44","name":"Mapping","span":"{\"lo\":346,\"hi\":353}"}', name = '{"id":"45","name":"get_or_use","span":"{\"lo\":355,\"hi\":365}"}', id = 52, arguments = [
-    { Locator = { program = '{"name":"hello","network":"\"{\\\"id\\\":\\\"48\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":372,\\\\\\\"hi\\\\\\\":376}\\\"}\""}', name = "foo", id = 49, span = { lo = 366, hi = 380 } } },
-    { Identifier = '{"id":"50","name":"addr","span":"{\"lo\":382,\"hi\":386}"}' },
-    { Literal = { Integer = [
-    "U64",
-    "0",
-    { span = { lo = 388, hi = 392 } },
-    51,
-] } },
-], span = { lo = 346, hi = 393 } } }, span = { lo = 334, hi = 393 } } },
-    { Definition = { id = 63, place = { Single = '{"id":"54","name":"c","span":"{\"lo\":407,\"hi\":408}"}' }, type_ = { Integer = "U32" }, value = { AssociatedFunction = { variant = '{"id":"55","name":"Mapping","span":"{\"lo\":415,\"hi\":422}"}', name = '{"id":"56","name":"contains","span":"{\"lo\":424,\"hi\":432}"}', id = 62, arguments = [
-    { Locator = { program = '{"name":"hello","network":"\"{\\\"id\\\":\\\"59\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":439,\\\\\\\"hi\\\\\\\":443}\\\"}\""}', name = "foo", id = 60, span = { lo = 433, hi = 447 } } },
-    { Identifier = '{"id":"61","name":"addr","span":"{\"lo\":449,\"hi\":453}"}' },
-], span = { lo = 415, hi = 454 } } }, span = { lo = 403, hi = 454 } } },
-], span = { lo = 151, hi = 461 } }, span = { lo = 120, hi = 461 } },
-],
-]
-
-[outputs.program_scopes.test.span]
-lo = 20
-hi = 463
+{
+  "imports": {
+    "hello": [
+      {
+        "imports": {},
+        "stubs": {},
+        "program_scopes": {}
+      },
+      {
+        "lo": 0,
+        "hi": 18
+      }
+    ]
+  },
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 27,
+            "hi": 31
+          },
+          "id": 1
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 2
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "functions": [
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "AsyncTransition",
+            "identifier": {
+              "name": "main",
+              "span": {
+                "lo": 60,
+                "hi": 64
+              },
+              "id": 3
+            },
+            "input": [],
+            "output": [],
+            "output_type": "Unit",
+            "block": {
+              "statements": [
+                {
+                  "Definition": {
+                    "place": {
+                      "Single": {
+                        "name": "x",
+                        "span": {
+                          "lo": 81,
+                          "hi": 82
+                        },
+                        "id": 4
+                      }
+                    },
+                    "type_": {
+                      "Integer": "U8"
+                    },
+                    "value": {
+                      "Literal": {
+                        "Integer": [
+                          "U8",
+                          "1",
+                          {
+                            "span": {
+                              "lo": 88,
+                              "hi": 91
+                            }
+                          },
+                          5
+                        ]
+                      }
+                    },
+                    "span": {
+                      "lo": 77,
+                      "hi": 91
+                    },
+                    "id": 6
+                  }
+                },
+                {
+                  "Return": {
+                    "expression": {
+                      "Unit": {
+                        "span": {
+                          "lo": 107,
+                          "hi": 108
+                        },
+                        "id": 7
+                      }
+                    },
+                    "span": {
+                      "lo": 101,
+                      "hi": 108
+                    },
+                    "id": 8
+                  }
+                }
+              ],
+              "span": {
+                "lo": 67,
+                "hi": 114
+              },
+              "id": 9
+            },
+            "span": {
+              "lo": 43,
+              "hi": 114
+            },
+            "id": 10
+          }
+        ],
+        [
+          "finalize_main",
+          {
+            "annotations": [],
+            "variant": "AsyncFunction",
+            "identifier": {
+              "name": "finalize_main",
+              "span": {
+                "lo": 134,
+                "hi": 147
+              },
+              "id": 11
+            },
+            "input": [],
+            "output": [],
+            "output_type": "Unit",
+            "block": {
+              "statements": [
+                {
+                  "Expression": {
+                    "expression": {
+                      "AssociatedFunction": {
+                        "variant": {
+                          "name": "Mapping",
+                          "span": {
+                            "lo": 160,
+                            "hi": 167
+                          },
+                          "id": 12
+                        },
+                        "name": {
+                          "name": "set",
+                          "span": {
+                            "lo": 169,
+                            "hi": 172
+                          },
+                          "id": 13
+                        },
+                        "arguments": [
+                          {
+                            "Locator": {
+                              "program": {
+                                "name": {
+                                  "name": "hello",
+                                  "span": {
+                                    "lo": 173,
+                                    "hi": 178
+                                  },
+                                  "id": 14
+                                },
+                                "network": {
+                                  "name": "aleo",
+                                  "span": {
+                                    "lo": 179,
+                                    "hi": 183
+                                  },
+                                  "id": 16
+                                }
+                              },
+                              "name": "counter",
+                              "span": {
+                                "lo": 173,
+                                "hi": 191
+                              },
+                              "id": 17
+                            }
+                          },
+                          {
+                            "Identifier": {
+                              "name": "addr",
+                              "span": {
+                                "lo": 193,
+                                "hi": 197
+                              },
+                              "id": 18
+                            }
+                          },
+                          {
+                            "Binary": {
+                              "left": {
+                                "Identifier": {
+                                  "name": "current_value",
+                                  "span": {
+                                    "lo": 199,
+                                    "hi": 212
+                                  },
+                                  "id": 19
+                                }
+                              },
+                              "right": {
+                                "Literal": {
+                                  "Integer": [
+                                    "U64",
+                                    "1",
+                                    {
+                                      "span": {
+                                        "lo": 215,
+                                        "hi": 219
+                                      }
+                                    },
+                                    20
+                                  ]
+                                }
+                              },
+                              "op": "Add",
+                              "span": {
+                                "lo": 199,
+                                "hi": 219
+                              },
+                              "id": 21
+                            }
+                          }
+                        ],
+                        "span": {
+                          "lo": 160,
+                          "hi": 220
+                        },
+                        "id": 22
+                      }
+                    },
+                    "span": {
+                      "lo": 160,
+                      "hi": 221
+                    },
+                    "id": 23
+                  }
+                },
+                {
+                  "Expression": {
+                    "expression": {
+                      "AssociatedFunction": {
+                        "variant": {
+                          "name": "Mapping",
+                          "span": {
+                            "lo": 230,
+                            "hi": 237
+                          },
+                          "id": 24
+                        },
+                        "name": {
+                          "name": "remove",
+                          "span": {
+                            "lo": 239,
+                            "hi": 245
+                          },
+                          "id": 25
+                        },
+                        "arguments": [
+                          {
+                            "Locator": {
+                              "program": {
+                                "name": {
+                                  "name": "hello",
+                                  "span": {
+                                    "lo": 246,
+                                    "hi": 251
+                                  },
+                                  "id": 26
+                                },
+                                "network": {
+                                  "name": "aleo",
+                                  "span": {
+                                    "lo": 252,
+                                    "hi": 256
+                                  },
+                                  "id": 28
+                                }
+                              },
+                              "name": "foo",
+                              "span": {
+                                "lo": 246,
+                                "hi": 260
+                              },
+                              "id": 29
+                            }
+                          },
+                          {
+                            "Identifier": {
+                              "name": "addr",
+                              "span": {
+                                "lo": 262,
+                                "hi": 266
+                              },
+                              "id": 30
+                            }
+                          }
+                        ],
+                        "span": {
+                          "lo": 230,
+                          "hi": 267
+                        },
+                        "id": 31
+                      }
+                    },
+                    "span": {
+                      "lo": 230,
+                      "hi": 268
+                    },
+                    "id": 32
+                  }
+                },
+                {
+                  "Definition": {
+                    "place": {
+                      "Single": {
+                        "name": "a",
+                        "span": {
+                          "lo": 281,
+                          "hi": 282
+                        },
+                        "id": 33
+                      }
+                    },
+                    "type_": {
+                      "Integer": "U32"
+                    },
+                    "value": {
+                      "AssociatedFunction": {
+                        "variant": {
+                          "name": "Mapping",
+                          "span": {
+                            "lo": 289,
+                            "hi": 296
+                          },
+                          "id": 34
+                        },
+                        "name": {
+                          "name": "get",
+                          "span": {
+                            "lo": 298,
+                            "hi": 301
+                          },
+                          "id": 35
+                        },
+                        "arguments": [
+                          {
+                            "Locator": {
+                              "program": {
+                                "name": {
+                                  "name": "hello",
+                                  "span": {
+                                    "lo": 302,
+                                    "hi": 307
+                                  },
+                                  "id": 36
+                                },
+                                "network": {
+                                  "name": "aleo",
+                                  "span": {
+                                    "lo": 308,
+                                    "hi": 312
+                                  },
+                                  "id": 38
+                                }
+                              },
+                              "name": "foo",
+                              "span": {
+                                "lo": 302,
+                                "hi": 316
+                              },
+                              "id": 39
+                            }
+                          },
+                          {
+                            "Identifier": {
+                              "name": "addr",
+                              "span": {
+                                "lo": 318,
+                                "hi": 322
+                              },
+                              "id": 40
+                            }
+                          }
+                        ],
+                        "span": {
+                          "lo": 289,
+                          "hi": 323
+                        },
+                        "id": 41
+                      }
+                    },
+                    "span": {
+                      "lo": 277,
+                      "hi": 323
+                    },
+                    "id": 42
+                  }
+                },
+                {
+                  "Definition": {
+                    "place": {
+                      "Single": {
+                        "name": "b",
+                        "span": {
+                          "lo": 337,
+                          "hi": 338
+                        },
+                        "id": 43
+                      }
+                    },
+                    "type_": {
+                      "Integer": "U32"
+                    },
+                    "value": {
+                      "AssociatedFunction": {
+                        "variant": {
+                          "name": "Mapping",
+                          "span": {
+                            "lo": 345,
+                            "hi": 352
+                          },
+                          "id": 44
+                        },
+                        "name": {
+                          "name": "get_or_use",
+                          "span": {
+                            "lo": 354,
+                            "hi": 364
+                          },
+                          "id": 45
+                        },
+                        "arguments": [
+                          {
+                            "Locator": {
+                              "program": {
+                                "name": {
+                                  "name": "hello",
+                                  "span": {
+                                    "lo": 365,
+                                    "hi": 370
+                                  },
+                                  "id": 46
+                                },
+                                "network": {
+                                  "name": "aleo",
+                                  "span": {
+                                    "lo": 371,
+                                    "hi": 375
+                                  },
+                                  "id": 48
+                                }
+                              },
+                              "name": "foo",
+                              "span": {
+                                "lo": 365,
+                                "hi": 379
+                              },
+                              "id": 49
+                            }
+                          },
+                          {
+                            "Identifier": {
+                              "name": "addr",
+                              "span": {
+                                "lo": 381,
+                                "hi": 385
+                              },
+                              "id": 50
+                            }
+                          },
+                          {
+                            "Literal": {
+                              "Integer": [
+                                "U64",
+                                "0",
+                                {
+                                  "span": {
+                                    "lo": 387,
+                                    "hi": 391
+                                  }
+                                },
+                                51
+                              ]
+                            }
+                          }
+                        ],
+                        "span": {
+                          "lo": 345,
+                          "hi": 392
+                        },
+                        "id": 52
+                      }
+                    },
+                    "span": {
+                      "lo": 333,
+                      "hi": 392
+                    },
+                    "id": 53
+                  }
+                },
+                {
+                  "Definition": {
+                    "place": {
+                      "Single": {
+                        "name": "c",
+                        "span": {
+                          "lo": 406,
+                          "hi": 407
+                        },
+                        "id": 54
+                      }
+                    },
+                    "type_": {
+                      "Integer": "U32"
+                    },
+                    "value": {
+                      "AssociatedFunction": {
+                        "variant": {
+                          "name": "Mapping",
+                          "span": {
+                            "lo": 414,
+                            "hi": 421
+                          },
+                          "id": 55
+                        },
+                        "name": {
+                          "name": "contains",
+                          "span": {
+                            "lo": 423,
+                            "hi": 431
+                          },
+                          "id": 56
+                        },
+                        "arguments": [
+                          {
+                            "Locator": {
+                              "program": {
+                                "name": {
+                                  "name": "hello",
+                                  "span": {
+                                    "lo": 432,
+                                    "hi": 437
+                                  },
+                                  "id": 57
+                                },
+                                "network": {
+                                  "name": "aleo",
+                                  "span": {
+                                    "lo": 438,
+                                    "hi": 442
+                                  },
+                                  "id": 59
+                                }
+                              },
+                              "name": "foo",
+                              "span": {
+                                "lo": 432,
+                                "hi": 446
+                              },
+                              "id": 60
+                            }
+                          },
+                          {
+                            "Identifier": {
+                              "name": "addr",
+                              "span": {
+                                "lo": 448,
+                                "hi": 452
+                              },
+                              "id": 61
+                            }
+                          }
+                        ],
+                        "span": {
+                          "lo": 414,
+                          "hi": 453
+                        },
+                        "id": 62
+                      }
+                    },
+                    "span": {
+                      "lo": 402,
+                      "hi": 453
+                    },
+                    "id": 63
+                  }
+                }
+              ],
+              "span": {
+                "lo": 150,
+                "hi": 460
+              },
+              "id": 64
+            },
+            "span": {
+              "lo": 119,
+              "hi": 460
+            },
+            "id": 65
+          }
+        ]
+      ],
+      "span": {
+        "lo": 19,
+        "hi": 462
+      }
+    }
+  }
+}

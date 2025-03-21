@@ -24,3 +24,9 @@ pub use compiler::*;
 
 mod options;
 pub use options::*;
+
+#[cfg(test)]
+mod test_compiler;
+
+#[cfg(test)]
+mod test_execution;

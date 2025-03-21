@@ -1,22 +1,12 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "d221b75fd9b992dfb3d4d26feb93cae446a52e0ae44160650bda6d60b153d4dd", unrolled_ast = "d221b75fd9b992dfb3d4d26feb93cae446a52e0ae44160650bda6d60b153d4dd", ssa_ast = "61e2d8d01ba8b9725fdc93247bea5e58a8c74f6da614ea71d34551f83619c032", flattened_ast = "6a4886113a3ecf0798c225e4ddfa8f59e3955a45b5e91c464995caa8dc0002de", destructured_ast = "07fbaafdb08126600e010c5f9b80ec0056bf124195743a093acb242fbbb49670", inlined_ast = "a7d74eeb4ef9f474a82347c24dd4343942c69ff954b227034e431def19b5fdae", dce_ast = "4a970856f15d5c47cf61d7d1ec5b68d8ce1a274af5e14b28943560db8b987547", bytecode = """
-program test.aleo;
-
-mapping map:
-    key as u32.public;
-    value as u32.public;
-
-function main:
-    async main 1u32 into r0;
-    output r0 as test.aleo/main.future;
-
-finalize main:
-    input r0 as u32.public;
-    is.eq r0 1u32 into r1;
-    branch.eq r1 false to end_then_0_0;
-    set 2u32 into map[2u32];
-    branch.eq true true to end_otherwise_0_1;
-    position end_then_0_0;
-    position end_otherwise_0_1;
-""", errors = "", warnings = "" }] }]]
+DCE_ENABLED:
+Error [EPAR0370005]: expected 'import', 'program' -- found '*'
+    --> compiler-test:1:1
+     |
+   1 | */
+     | ^
+DCE_DISABLED:
+Error [EPAR0370005]: expected 'import', 'program' -- found '*'
+    --> compiler-test:1:1
+     |
+   1 | */
+     | ^

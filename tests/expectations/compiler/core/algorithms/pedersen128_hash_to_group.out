@@ -1,29 +1,81 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
-Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `address` was found.
-    --> compiler-test:29:51
-     |
-  29 |         let a: group = Pedersen128::hash_to_group(addr_value);
-     |                                                   ^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `field` was found.
-    --> compiler-test:31:51
-     |
-  31 |         let c: group = Pedersen128::hash_to_group(field_value);
-     |                                                   ^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `group` was found.
-    --> compiler-test:32:51
-     |
-  32 |         let d: group = Pedersen128::hash_to_group(group_value);
-     |                                                   ^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `scalar` was found.
-    --> compiler-test:41:51
-     |
-  41 |         let o: group = Pedersen128::hash_to_group(scalar_value);
-     |                                                   ^^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `Foo` was found.
-    --> compiler-test:43:51
-     |
-  43 |         let p: group = Pedersen128::hash_to_group(Foo { a: 1u32, b: 1u32 });
-     |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^
-"""]
+DCE_ENABLED:
+program test.aleo;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.ped128 true into r8 as group;
+    hash.ped128 true into r9 as group;
+    hash.ped128 true into r10 as group;
+    hash.ped128 true into r11 as group;
+    hash.ped128 r0 into r12 as group;
+    hash.ped128 r1 into r13 as group;
+    hash.ped128 r2 into r14 as group;
+    hash.ped128 r3 into r15 as group;
+    hash.ped128 r4 into r16 as group;
+    hash.ped128 r5 into r17 as group;
+    hash.ped128 r6 into r18 as group;
+    hash.ped128 r7 into r19 as group;
+    hash.ped128 true into r20 as group;
+    hash.ped128 true into r21 as group;
+    output r8 as group.private;
+    output r9 as group.private;
+    output r10 as group.private;
+    output r11 as group.private;
+    output r12 as group.private;
+    output r13 as group.private;
+    output r14 as group.private;
+    output r15 as group.private;
+    output r16 as group.private;
+    output r17 as group.private;
+    output r18 as group.private;
+    output r19 as group.private;
+    output r20 as group.private;
+    output r21 as group.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.ped128 true into r8 as group;
+    hash.ped128 true into r9 as group;
+    hash.ped128 true into r10 as group;
+    hash.ped128 true into r11 as group;
+    hash.ped128 r0 into r12 as group;
+    hash.ped128 r1 into r13 as group;
+    hash.ped128 r2 into r14 as group;
+    hash.ped128 r3 into r15 as group;
+    hash.ped128 r4 into r16 as group;
+    hash.ped128 r5 into r17 as group;
+    hash.ped128 r6 into r18 as group;
+    hash.ped128 r7 into r19 as group;
+    hash.ped128 true into r20 as group;
+    hash.ped128 true into r21 as group;
+    output r8 as group.private;
+    output r9 as group.private;
+    output r10 as group.private;
+    output r11 as group.private;
+    output r12 as group.private;
+    output r13 as group.private;
+    output r14 as group.private;
+    output r15 as group.private;
+    output r16 as group.private;
+    output r17 as group.private;
+    output r18 as group.private;
+    output r19 as group.private;
+    output r20 as group.private;
+    output r21 as group.private;

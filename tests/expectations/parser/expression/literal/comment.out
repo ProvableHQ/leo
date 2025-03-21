@@ -1,19 +1,34 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[outputs.imports]
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = []
-mappings = []
-functions = []
-
-[outputs.program_scopes.test.span]
-lo = 113
-hi = 235
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 120,
+            "hi": 124
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "functions": [],
+      "span": {
+        "lo": 112,
+        "hi": 193
+      }
+    }
+  }
+}

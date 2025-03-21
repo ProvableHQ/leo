@@ -1,9 +1,13 @@
-namespace = "Compile"
-expectation = "Fail"
-outputs = ["""
+DCE_ENABLED:
 Error [ETYC0372005]: Unknown function `increment`
-    --> compiler-test:11:9
+    --> compiler-test:10:9
      |
-  11 |         increment(amounts, addr, amount);
+  10 |         increment(amounts, addr, amount);
      |         ^^^^^^^^^
-"""]
+
+DCE_DISABLED:
+Error [ETYC0372005]: Unknown function `increment`
+    --> compiler-test:10:9
+     |
+  10 |         increment(amounts, addr, amount);
+     |         ^^^^^^^^^

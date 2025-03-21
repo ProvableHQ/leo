@@ -1,28 +1,101 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[outputs.imports]
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = []
-mappings = [
-    [
-    "balances",
-    { identifier = '{"id":"2","name":"balances","span":"{\"lo\":38,\"hi\":46}"}', key_type = "Address", id = 3, value_type = { Integer = "U128" }, span = { lo = 30, hi = 64 } },
-],
-    [
-    "foo",
-    { identifier = '{"id":"4","name":"foo","span":"{\"lo\":82,\"hi\":85}"}', id = 7, key_type = { Composite = { id = '{"id":"5","name":"bar","span":"{\"lo\":87,\"hi\":90}"}' } }, value_type = { Composite = { id = '{"id":"6","name":"baz","span":"{\"lo\":94,\"hi\":97}"}' } }, span = { lo = 74, hi = 98 } },
-],
-]
-functions = []
-
-[outputs.program_scopes.test.span]
-lo = 2
-hi = 100
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 9,
+            "hi": 13
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [
+        [
+          "balances",
+          {
+            "identifier": {
+              "name": "balances",
+              "span": {
+                "lo": 33,
+                "hi": 41
+              },
+              "id": 2
+            },
+            "key_type": "Address",
+            "value_type": {
+              "Integer": "U128"
+            },
+            "span": {
+              "lo": 25,
+              "hi": 59
+            },
+            "id": 3
+          }
+        ],
+        [
+          "foo",
+          {
+            "identifier": {
+              "name": "foo",
+              "span": {
+                "lo": 73,
+                "hi": 76
+              },
+              "id": 4
+            },
+            "key_type": {
+              "Composite": {
+                "id": {
+                  "name": "bar",
+                  "span": {
+                    "lo": 78,
+                    "hi": 81
+                  },
+                  "id": 5
+                },
+                "program": null
+              }
+            },
+            "value_type": {
+              "Composite": {
+                "id": {
+                  "name": "baz",
+                  "span": {
+                    "lo": 85,
+                    "hi": 88
+                  },
+                  "id": 6
+                },
+                "program": null
+              }
+            },
+            "span": {
+              "lo": 65,
+              "hi": 89
+            },
+            "id": 7
+          }
+        ]
+      ],
+      "functions": [],
+      "span": {
+        "lo": 1,
+        "hi": 91
+      }
+    }
+  }
+}

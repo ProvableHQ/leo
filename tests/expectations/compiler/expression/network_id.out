@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "ad760a62ddcf6370800d4319ce4b0c48832cdf7442c2ad6b2fc244b7d9c8bbd7", unrolled_ast = "ad760a62ddcf6370800d4319ce4b0c48832cdf7442c2ad6b2fc244b7d9c8bbd7", ssa_ast = "cd69c08917d22a0be62e95c32c9f070e2f3737e60277b660b38d7f4c9babc04e", flattened_ast = "aa34f884cf7bef87105253fb066580c2e51ef05ab804a6bc09b00090d3d3dad6", destructured_ast = "4cd81f869b0312ebae31c8d237a61e12772a57ba754bee795572dabe7bb36162", inlined_ast = "74c2d2f76f99c8d685315dbccf6dbf06f63fceaf5a03d37393e492025202c452", dce_ast = "74c2d2f76f99c8d685315dbccf6dbf06f63fceaf5a03d37393e492025202c452", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -13,4 +11,17 @@ finalize main:
     assert.eq 1u16 network.id;
     assert.eq r0 network.id;
     assert.eq network.id network.id;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+function main:
+    input r0 as u16.private;
+    async main r0 into r1;
+    output r1 as test.aleo/main.future;
+
+finalize main:
+    input r0 as u16.public;
+    assert.eq 1u16 network.id;
+    assert.eq r0 network.id;
+    assert.eq network.id network.id;

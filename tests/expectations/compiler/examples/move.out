@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "f9f361a499a57b4b1fb8c43ca7f7bde22c725ead5253582fb44e883bbb58f673", unrolled_ast = "b45bc13becf98eee176a1ba4daa06607df6e706bc32dfae760cd2e6d30fdba07", ssa_ast = "0220e692c43a41f715478cd44b30f1717d85f342e822c440d67fee421266c629", flattened_ast = "564dfcc8180209db85a1d3d364a2ee6c93644b7a5ebb542eef041849596cb973", destructured_ast = "a3a0f9754fb7612a1f12d4d2eb23213f9a58e355afdb815d5fc7aa64cffb96c3", inlined_ast = "a3a0f9754fb7612a1f12d4d2eb23213f9a58e355afdb815d5fc7aa64cffb96c3", dce_ast = "a3a0f9754fb7612a1f12d4d2eb23213f9a58e355afdb815d5fc7aa64cffb96c3", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 record move:
@@ -23,4 +21,27 @@ function start_game:
     input r0 as address.private;
     cast r0 0u64 self.caller r0 0u64 into r1 as move.record;
     output r1 as move.record;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+record move:
+    owner as address.private;
+    incoming_fire_coordinate as u64.private;
+    player_1 as address.private;
+    player_2 as address.private;
+    prev_hit_or_miss as u64.private;
+
+function create_move:
+    input r0 as move.record;
+    input r1 as u64.private;
+    input r2 as u64.private;
+    is.eq r0.player_1 r0.owner into r3;
+    ternary r3 r0.player_2 r0.player_1 into r4;
+    cast r4 r1 r0.player_2 r0.player_1 r2 into r5 as move.record;
+    output r5 as move.record;
+
+function start_game:
+    input r0 as address.private;
+    cast r0 0u64 self.caller r0 0u64 into r1 as move.record;
+    output r1 as move.record;

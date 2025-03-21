@@ -1,6 +1,4 @@
-namespace = "Compile"
-expectation = "Pass"
-outputs = [[{ compile = [{ initial_ast = "9c5e00695b57288eb8cb2f057e6a4a47ca9cc14a2aba9f0ab866f8d8bb12bcb3", unrolled_ast = "9c5e00695b57288eb8cb2f057e6a4a47ca9cc14a2aba9f0ab866f8d8bb12bcb3", ssa_ast = "3b6a51eb1c2ae12fd14fb4b0d7cf616211875766d40a47bb39ad9f88c45dad0a", flattened_ast = "29544d2b06faf1ba35573e9825275465647923b2b3f4708f65c621587639eb6e", destructured_ast = "0287730353ae88f001edfc9273bdc1195e3efd573b307e616c126196370e2fc7", inlined_ast = "562ad2ab27706b5eebf5ce45b5f8563eaa0bcde795b02e7bfd8b0948095f352f", dce_ast = "660c6bad1d100eecb3f9619db9440b5f923c79d477ba3f3e78cf671d92dac5ae", bytecode = """
+DCE_ENABLED:
 program test.aleo;
 
 struct Extra:
@@ -56,4 +54,62 @@ function bar:
     output r23 as u8.private;
     output r24 as u8.private;
     output r29 as Data.private;
-""", errors = "", warnings = "" }] }]]
+
+DCE_DISABLED:
+program test.aleo;
+
+struct Extra:
+    c as u8;
+
+struct Data:
+    a as u8;
+    b as u8;
+    c as Extra;
+
+closure foo:
+    input r0 as u8;
+    input r1 as u8;
+    cast r0 into r2 as Extra;
+    cast r0 r1 r2 into r3 as Data;
+    is.eq r0 r1 into r4;
+    add r0 r1 into r5;
+    sub r0 r1 into r6;
+    ternary r4 r0 r5 into r7;
+    ternary r4 r1 r6 into r8;
+    ternary r4 r3.a r3.a into r9;
+    ternary r4 r3.b r3.b into r10;
+    ternary r4 r3.c.c r3.c.c into r11;
+    cast r11 into r12 as Extra;
+    cast r9 r10 r12 into r13 as Data;
+    output r7 as u8;
+    output r8 as u8;
+    output r13 as Data;
+
+function bar:
+    input r0 as boolean.private;
+    input r1 as boolean.private;
+    input r2 as u8.private;
+    input r3 as u8.private;
+    call foo r2 r3 into r4 r5 r6;
+    call foo r4 r6.c.c into r7 r8 r9;
+    not r0 into r10;
+    call foo r5 r6.b into r11 r12 r13;
+    not r1 into r14;
+    call foo r6.a r5 into r15 r16 r17;
+    ternary r1 r11 r15 into r18;
+    ternary r1 r12 r16 into r19;
+    ternary r1 r13.a r17.a into r20;
+    ternary r1 r13.b r17.b into r21;
+    ternary r1 r13.c.c r17.c.c into r22;
+    cast r22 into r23 as Extra;
+    cast r20 r21 r23 into r24 as Data;
+    ternary r0 r7 r18 into r25;
+    ternary r0 r8 r19 into r26;
+    ternary r0 r9.a r24.a into r27;
+    ternary r0 r9.b r24.b into r28;
+    ternary r0 r9.c.c r24.c.c into r29;
+    cast r29 into r30 as Extra;
+    cast r27 r28 r30 into r31 as Data;
+    output r25 as u8.private;
+    output r26 as u8.private;
+    output r31 as Data.private;

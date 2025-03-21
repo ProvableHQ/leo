@@ -1,33 +1,161 @@
-namespace = "Parse"
-expectation = "Pass"
-
-[[outputs]]
-
-[outputs.imports]
-
-[outputs.stubs]
-
-[outputs.program_scopes.test]
-program_id = '{"name":"test","network":"\"{\\\"id\\\":\\\"1\\\",\\\"name\\\":\\\"aleo\\\",\\\"span\\\":\\\"{\\\\\\\"lo\\\\\\\":0,\\\\\\\"hi\\\\\\\":0}\\\"}\""}'
-consts = []
-structs = []
-mappings = []
-functions = [[
-    "main",
-    { annotations = [], variant = "Function", identifier = '{"id":"2","name":"main","span":"{\"lo\":34,\"hi\":38}"}', output = [], output_type = "Unit", id = 13, input = [{ identifier = '{"id":"3","name":"a","span":"{\"lo\":39,\"hi\":40}"}', mode = "None", type_ = "Address", id = 4, span = { lo = 39, hi = 49 } }], block = { id = 12, statements = [
-    { Assert = { id = 9, variant = { AssertEq = [
-    { Access = { Member = { name = '{"id":"6","name":"id","span":"{\"lo\":79,\"hi\":81}"}', id = 7, inner = { Identifier = '{"id":"5","name":"network","span":"{\"lo\":71,\"hi\":78}"}' }, span = { lo = 71, hi = 81 } } } },
-    { Literal = { Integer = [
-    "U32",
-    "1",
-    { span = { lo = 83, hi = 87 } },
-    8,
-] } },
-] }, span = { lo = 61, hi = 70 } } },
-    { Return = { id = 11, expression = { Identifier = '{"id":"10","name":"a","span":"{\"lo\":105,\"hi\":106}"}' }, span = { lo = 98, hi = 107 } } },
-], span = { lo = 51, hi = 113 } }, span = { lo = 25, hi = 113 } },
-]]
-
-[outputs.program_scopes.test.span]
-lo = 1
-hi = 115
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 8,
+            "hi": 12
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 0,
+            "hi": 0
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "functions": [
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "Function",
+            "identifier": {
+              "name": "main",
+              "span": {
+                "lo": 33,
+                "hi": 37
+              },
+              "id": 2
+            },
+            "input": [
+              {
+                "identifier": {
+                  "name": "a",
+                  "span": {
+                    "lo": 38,
+                    "hi": 39
+                  },
+                  "id": 3
+                },
+                "mode": "None",
+                "type_": "Address",
+                "span": {
+                  "lo": 38,
+                  "hi": 48
+                },
+                "id": 4
+              }
+            ],
+            "output": [],
+            "output_type": "Unit",
+            "block": {
+              "statements": [
+                {
+                  "Assert": {
+                    "variant": {
+                      "AssertEq": [
+                        {
+                          "Access": {
+                            "Member": {
+                              "inner": {
+                                "Identifier": {
+                                  "name": "network",
+                                  "span": {
+                                    "lo": 70,
+                                    "hi": 77
+                                  },
+                                  "id": 5
+                                }
+                              },
+                              "name": {
+                                "name": "id",
+                                "span": {
+                                  "lo": 78,
+                                  "hi": 80
+                                },
+                                "id": 6
+                              },
+                              "span": {
+                                "lo": 70,
+                                "hi": 80
+                              },
+                              "id": 7
+                            }
+                          }
+                        },
+                        {
+                          "Literal": {
+                            "Integer": [
+                              "U32",
+                              "1",
+                              {
+                                "span": {
+                                  "lo": 82,
+                                  "hi": 86
+                                }
+                              },
+                              8
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "span": {
+                      "lo": 60,
+                      "hi": 69
+                    },
+                    "id": 9
+                  }
+                },
+                {
+                  "Return": {
+                    "expression": {
+                      "Identifier": {
+                        "name": "a",
+                        "span": {
+                          "lo": 104,
+                          "hi": 105
+                        },
+                        "id": 10
+                      }
+                    },
+                    "span": {
+                      "lo": 97,
+                      "hi": 106
+                    },
+                    "id": 11
+                  }
+                }
+              ],
+              "span": {
+                "lo": 50,
+                "hi": 112
+              },
+              "id": 12
+            },
+            "span": {
+              "lo": 24,
+              "hi": 112
+            },
+            "id": 13
+          }
+        ]
+      ],
+      "span": {
+        "lo": 0,
+        "hi": 114
+      }
+    }
+  }
+}
