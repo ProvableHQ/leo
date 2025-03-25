@@ -77,10 +77,7 @@
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
 <a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#79" id="79">79</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -134,10 +131,7 @@
 //! }
 //! ```
 
-</span><span class="kw">pub mod </span>assignment_renamer;
-<span class="kw">pub use </span>assignment_renamer::<span class="kw-2">*</span>;
-
-<span class="kw">mod </span>inline_expression;
+</span><span class="kw">mod </span>inline_expression;
 
 <span class="kw">mod </span>inline_statement;
 
@@ -146,17 +140,17 @@
 <span class="kw">pub mod </span>function_inliner;
 <span class="kw">pub use </span>function_inliner::<span class="kw-2">*</span>;
 
-<span class="kw">use crate</span>::{Assigner, CallGraph, Pass, TypeTable};
+<span class="kw">use crate</span>::{CallGraph, Pass, TypeTable};
 
 <span class="kw">use </span>leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
 <span class="kw">use </span>leo_errors::Result;
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Pass <span class="kw">for </span>FunctionInliner&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CallGraph, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Assigner, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable);
+    <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CallGraph, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable);
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Ast&gt;;
 
-    <span class="kw">fn </span>do_pass((ast, node_builder, call_graph, assigner, tt): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span><span class="kw-2">mut </span>reconstructor = FunctionInliner::new(node_builder, call_graph, assigner, tt);
+    <span class="kw">fn </span>do_pass((ast, node_builder, call_graph, tt): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>reconstructor = FunctionInliner::new(node_builder, call_graph, tt);
         <span class="kw">let </span>program = reconstructor.reconstruct_program(ast.into_repr());
 
         <span class="prelude-val">Ok</span>(Ast::new(program))

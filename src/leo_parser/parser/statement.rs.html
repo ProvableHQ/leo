@@ -335,14 +335,7 @@
 <a href="#334" id="334">334</a>
 <a href="#335" id="335">335</a>
 <a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#337" id="337">337</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -360,7 +353,7 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use </span>leo_errors::{ParserError, ParserWarning, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>, TypeCheckerError};
 <span class="kw">use </span>leo_span::sym;
 
 <span class="kw">const </span>ASSIGN_TOKENS: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
@@ -431,9 +424,14 @@
 
     <span class="doccomment">/// Returns an [`AssignStatement`] AST node if the next tokens represent an assignment, otherwise expects an expression statement.
     </span><span class="kw">fn </span>parse_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
-        <span class="kw">let </span>place = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
-
+        <span class="kw">let </span>expression = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
         <span class="kw">if </span><span class="self">self</span>.eat_any(ASSIGN_TOKENS) {
+            <span class="kw">let </span>Expression::Identifier(identifier) = expression <span class="kw">else </span>{
+                <span class="comment">// TODO - We're temporarily making use of a TypeCheckerError; this should go away
+                // and be handled by type checking once more assignment targets are introduced.
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(TypeCheckerError::invalid_assignment_target(expression.span()).into());
+            };
+
             <span class="comment">// Determine the corresponding binary operation for each token, if it exists.
             </span><span class="kw">let </span>operation = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.prev_token.token {
                 Token::Assign =&gt; <span class="prelude-val">None</span>,
@@ -450,17 +448,17 @@
                 Token::BitXorAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Xor),
                 Token::ShrAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Shr),
                 Token::ShlAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Shl),
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"`parse_assign_statement` shouldn't produce this"</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"`parse_assign_statement` shouldn't produce this"</span>),
             };
 
             <span class="kw">let </span>value = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
             <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
             <span class="comment">// Construct the span for the statement.
-            </span><span class="kw">let </span>span = place.span() + value.span();
+            </span><span class="kw">let </span>span = expression.span() + value.span();
 
             <span class="comment">// Construct a copy of the lhs with a unique id.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>left = place.clone();
+            </span><span class="kw">let </span><span class="kw-2">mut </span>left = expression.clone();
             left.set_id(<span class="self">self</span>.node_builder.next_id());
 
             <span class="comment">// Simplify complex assignments into simple assignments.
@@ -476,37 +474,21 @@
                 }),
             };
 
-            <span class="prelude-val">Ok</span>(Statement::Assign(Box::new(AssignStatement { span, place, value, id: <span class="self">self</span>.node_builder.next_id() })))
-        } <span class="kw">else </span>{
-            <span class="comment">// Check for `increment` and `decrement` statements. If found, emit a deprecation warning.
-            </span><span class="kw">if let </span>Expression::Call(call_expression) = <span class="kw-2">&amp;</span>place {
-                <span class="kw">match </span><span class="kw-2">*</span>call_expression.function {
-                    Expression::Identifier(Identifier { name: sym::decrement, .. }) =&gt; {
-                        <span class="self">self</span>.emit_warning(ParserWarning::deprecated(
-                            <span class="string">"decrement"</span>,
-                            <span class="string">"Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings."</span>,
-                            place.span(),
-                        ));
-                    }
-                    Expression::Identifier(Identifier { name: sym::increment, .. }) =&gt; {
-                        <span class="self">self</span>.emit_warning(ParserWarning::deprecated(
-                            <span class="string">"increment"</span>,
-                            <span class="string">"Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings."</span>,
-                            place.span(),
-                        ));
-                    }
-                    <span class="kw">_ </span>=&gt; (),
-                }
-            }
-
-            <span class="comment">// Parse the expression as a statement.
-            </span><span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(Statement::Expression(ExpressionStatement {
-                span: place.span() + end,
-                expression: place,
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(Statement::Assign(Box::new(AssignStatement {
+                span,
+                place: identifier,
+                value,
                 id: <span class="self">self</span>.node_builder.next_id(),
-            }))
+            })));
         }
+
+        <span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(Statement::Expression(ExpressionStatement {
+            span: expression.span() + end,
+            expression,
+            id: <span class="self">self</span>.node_builder.next_id(),
+        }))
     }
 
     <span class="doccomment">/// Returns a [`Block`] AST node if the next tokens represent a block of statements.
@@ -657,18 +639,29 @@
         <span class="prelude-val">Ok</span>(ConstDeclaration { span: decl_span + value.span(), place, type_, value, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
+    <span class="kw">fn </span>parse_definition_place(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DefinitionPlace&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(identifier) = <span class="self">self</span>.eat_identifier() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(DefinitionPlace::Single(identifier));
+        }
+
+        <span class="kw">let </span>(identifiers, <span class="kw">_</span>, <span class="kw">_</span>) = <span class="self">self</span>.parse_paren_comma_list(|p| {
+            <span class="kw">let </span>span = p.token.span;
+
+            <span class="kw">let </span>eaten = p.eat_identifier();
+
+            <span class="kw">if </span>eaten.is_some() { <span class="prelude-val">Ok</span>(eaten) } <span class="kw">else </span>{ <span class="prelude-val">Err</span>(ParserError::expected_identifier(span).into()) }
+        })<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(DefinitionPlace::Multiple(identifiers))
+    }
+
     <span class="doccomment">/// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_definition_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DefinitionStatement&gt; {
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Let)<span class="question-mark">?</span>;
         <span class="kw">let </span>decl_span = <span class="self">self</span>.prev_token.span;
-        <span class="kw">let </span>decl_type = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.prev_token.token {
-            Token::Let =&gt; DeclarationType::Let,
-            <span class="comment">// Note: Reserving for `constant` declarations.
-            </span><span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"parse_definition_statement_ shouldn't produce this"</span>),
-        };
 
         <span class="comment">// Parse variable name and type.
-        </span><span class="kw">let </span>place = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>place = <span class="self">self</span>.parse_definition_place()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
         <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>.<span class="number">0</span>;
 
@@ -676,14 +669,7 @@
         <span class="kw">let </span>value = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(DefinitionStatement {
-            span: decl_span + value.span(),
-            declaration_type: decl_type,
-            place,
-            type_,
-            value,
-            id: <span class="self">self</span>.node_builder.next_id(),
-        })
+        <span class="prelude-val">Ok</span>(DefinitionStatement { span: decl_span + value.span(), place, type_, value, id: <span class="self">self</span>.node_builder.next_id() })
     }
 }
 </code></pre></div></section></main></body></html>

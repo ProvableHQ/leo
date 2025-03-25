@@ -869,7 +869,7 @@
                 span: Default::default(),
                 id: <span class="self">self</span>.node_builder.next_id(),
             };
-            <span class="kw">let </span>statement = <span class="self">self</span>.simple_assign_statement(
+            <span class="kw">let </span>statement = <span class="self">self</span>.simple_definition(
                 place,
                 Expression::Literal(Literal::Boolean(<span class="bool-val">true</span>, Default::default(), <span class="self">self</span>.node_builder.next_id())),
             );
@@ -921,7 +921,7 @@
                 span: Default::default(),
                 id: <span class="self">self</span>.node_builder.next_id(),
             };
-            statements.push(<span class="self">self</span>.simple_assign_statement(place, binary));
+            statements.push(<span class="self">self</span>.simple_definition(place, binary));
 
             <span class="comment">// Make that assigned Identifier the constructed guard.
             </span><span class="self">self</span>.returns[i].<span class="number">0 </span>= ReturnGuard::Constructed { plain: identifier, any_return: place };
@@ -987,7 +987,7 @@
                 span: Default::default(),
                 id: <span class="self">self</span>.node_builder.next_id(),
             };
-            statements.push(<span class="self">self</span>.simple_assign_statement(place, binary));
+            statements.push(<span class="self">self</span>.simple_definition(place, binary));
 
             <span class="comment">// Make that assigned Identifier the constructed guard.
             </span><span class="self">self</span>.condition_stack[i] = Guard::Constructed(place);
@@ -1048,7 +1048,7 @@
                             </span>Expression::Tuple(<span class="kw">_</span>) =&gt; value,
                             <span class="comment">// Otherwise, assign the expression to a variable and return the variable.
                             </span><span class="kw">_ </span>=&gt; {
-                                statements.push(<span class="self">self</span>.simple_assign_statement(place, value));
+                                statements.push(<span class="self">self</span>.simple_definition(place, value));
                                 Expression::Identifier(place)
                             }
                         }
@@ -1065,20 +1065,20 @@
         }
     }
 
-    <span class="doccomment">/// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; (Identifier, Statement) {
+    <span class="doccomment">/// A wrapper around `assigner.unique_simple_definition` that updates `self.structs`.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_simple_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; (Identifier, Statement) {
         <span class="comment">// Create a new variable for the expression.
         </span><span class="kw">let </span>name = <span class="self">self</span>.assigner.unique_symbol(<span class="string">"$var"</span>, <span class="string">"$"</span>);
         <span class="comment">// Construct the lhs of the assignment.
         </span><span class="kw">let </span>place = Identifier { name, span: Default::default(), id: <span class="self">self</span>.node_builder.next_id() };
         <span class="comment">// Construct the assignment statement.
-        </span><span class="kw">let </span>statement = <span class="self">self</span>.simple_assign_statement(place, expr);
+        </span><span class="kw">let </span>statement = <span class="self">self</span>.simple_definition(place, expr);
 
         (place, statement)
     }
 
-    <span class="doccomment">/// A wrapper around `assigner.simple_assign_statement` that tracks the type of the lhs.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lhs: Identifier, rhs: Expression) -&gt; Statement {
+    <span class="doccomment">/// A wrapper around `assigner.simple_definition` that tracks the type of the lhs.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>simple_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lhs: Identifier, rhs: Expression) -&gt; Statement {
         <span class="comment">// Update the type table.
         </span><span class="kw">let </span>type_ = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>rhs.id()) {
             <span class="prelude-val">Some</span>(type_) =&gt; type_,
@@ -1086,7 +1086,7 @@
         };
         <span class="self">self</span>.type_table.insert(lhs.id(), type_);
         <span class="comment">// Construct the statement.
-        </span><span class="self">self</span>.assigner.simple_assign_statement(lhs, rhs, <span class="self">self</span>.node_builder.next_id())
+        </span><span class="self">self</span>.assigner.simple_definition(lhs, rhs, <span class="self">self</span>.node_builder.next_id())
     }
 
     <span class="doccomment">/// Folds a list of return statements into a single return statement and adds the produced statements to the block.
@@ -1140,7 +1140,7 @@
             .map(|i| {
                 <span class="comment">// Create an assignment statement for the first access expression.
                 </span><span class="kw">let </span>(first, stmt) =
-                    <span class="self">self</span>.unique_simple_assign_statement(Expression::Access(AccessExpression::Array(ArrayAccess {
+                    <span class="self">self</span>.unique_simple_definition(Expression::Access(AccessExpression::Array(ArrayAccess {
                         array: Box::new(Expression::Identifier(<span class="kw-2">*</span>first)),
                         index: Box::new(Expression::Literal(Literal::Integer(
                             IntegerType::U32,
@@ -1166,7 +1166,7 @@
                 statements.push(stmt);
                 <span class="comment">// Create an assignment statement for the second access expression.
                 </span><span class="kw">let </span>(second, stmt) =
-                    <span class="self">self</span>.unique_simple_assign_statement(Expression::Access(AccessExpression::Array(ArrayAccess {
+                    <span class="self">self</span>.unique_simple_definition(Expression::Access(AccessExpression::Array(ArrayAccess {
                         array: Box::new(Expression::Identifier(<span class="kw-2">*</span>second)),
                         index: Box::new(Expression::Literal(Literal::Integer(
                             IntegerType::U32,
@@ -1232,7 +1232,7 @@
         </span>statements.extend(stmts);
 
         <span class="comment">// Create a new assignment statement for the array expression.
-        </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(expr);
+        </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_definition(expr);
 
         statements.push(statement);
 
@@ -1255,7 +1255,7 @@
             .map(|Member { identifier, type_, .. }| {
                 <span class="comment">// Create an assignment statement for the first access expression.
                 </span><span class="kw">let </span>(first, stmt) =
-                    <span class="self">self</span>.unique_simple_assign_statement(Expression::Access(AccessExpression::Member(MemberAccess {
+                    <span class="self">self</span>.unique_simple_definition(Expression::Access(AccessExpression::Member(MemberAccess {
                         inner: Box::new(Expression::Identifier(<span class="kw-2">*</span>first)),
                         name: <span class="kw-2">*</span>identifier,
                         span: Default::default(),
@@ -1270,7 +1270,7 @@
                 statements.push(stmt);
                 <span class="comment">// Create an assignment statement for the second access expression.
                 </span><span class="kw">let </span>(second, stmt) =
-                    <span class="self">self</span>.unique_simple_assign_statement(Expression::Access(AccessExpression::Member(MemberAccess {
+                    <span class="self">self</span>.unique_simple_definition(Expression::Access(AccessExpression::Member(MemberAccess {
                         inner: Box::new(Expression::Identifier(<span class="kw-2">*</span>second)),
                         name: <span class="kw-2">*</span>identifier,
                         span: Default::default(),
@@ -1330,7 +1330,7 @@
         </span>statements.extend(stmts);
 
         <span class="comment">// Create a new assignment statement for the struct expression.
-        </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(expr);
+        </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_definition(expr);
 
         statements.push(statement);
 
@@ -1354,7 +1354,7 @@
             .map(|(i, type_)| {
                 <span class="comment">// Create an assignment statement for the first access expression.
                 </span><span class="kw">let </span>(first, stmt) =
-                    <span class="self">self</span>.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
+                    <span class="self">self</span>.unique_simple_definition(Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: Box::new(Expression::Identifier(<span class="kw-2">*</span>first)),
                         index: NonNegativeNumber::from(i),
                         span: Default::default(),
@@ -1369,7 +1369,7 @@
                 statements.push(stmt);
                 <span class="comment">// Create an assignment statement for the second access expression.
                 </span><span class="kw">let </span>(second, stmt) =
-                    <span class="self">self</span>.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
+                    <span class="self">self</span>.unique_simple_definition(Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: Box::new(Expression::Identifier(<span class="kw-2">*</span>second)),
                         index: NonNegativeNumber::from(i),
                         span: Default::default(),
@@ -1425,7 +1425,7 @@
         </span>statements.extend(stmts);
 
         <span class="comment">// Create a new assignment statement for the tuple expression.
-        </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(expr);
+        </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_definition(expr);
 
         statements.push(statement);
 

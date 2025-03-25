@@ -372,12 +372,7 @@
 <a href="#371" id="371">371</a>
 <a href="#372" id="372">372</a>
 <a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
-<a href="#375" id="375">375</a>
-<a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#374" id="374">374</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -393,16 +388,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_ast::{
-    AccessExpression,
-    CoreFunction,
-    Expression,
-    ExpressionReconstructor,
-    Node,
-    StructExpression,
-    TernaryExpression,
-    Type,
-};
+</span><span class="kw">use </span>leo_ast::{CoreFunction, Expression, ExpressionReconstructor, Node, StructExpression, TernaryExpression, Type};
 <span class="kw">use </span>leo_errors::StaticAnalyzerError;
 <span class="kw">use </span>leo_interpreter::{StructContents, Value};
 <span class="kw">use </span>leo_span::sym;
@@ -421,6 +407,12 @@
         <span class="kw">let </span>(new_expr, opt_value) = <span class="kw">match </span>input {
             Expression::Access(access) =&gt; <span class="self">self</span>.reconstruct_access(access),
             Expression::Array(array) =&gt; <span class="self">self</span>.reconstruct_array(array),
+            Expression::AssociatedConstant(associated_constant) =&gt; {
+                <span class="self">self</span>.reconstruct_associated_constant(associated_constant)
+            }
+            Expression::AssociatedFunction(associated_function) =&gt; {
+                <span class="self">self</span>.reconstruct_associated_function(associated_function)
+            }
             Expression::Binary(binary) =&gt; <span class="self">self</span>.reconstruct_binary(binary),
             Expression::Call(call) =&gt; <span class="self">self</span>.reconstruct_call(call),
             Expression::Cast(cast) =&gt; <span class="self">self</span>.reconstruct_cast(cast),
@@ -485,8 +477,6 @@
     <span class="kw">fn </span>reconstruct_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: leo_ast::AccessExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">match </span>input {
             leo_ast::AccessExpression::Array(array) =&gt; <span class="self">self</span>.reconstruct_array_access(array),
-            leo_ast::AccessExpression::AssociatedConstant(constant) =&gt; <span class="self">self</span>.reconstruct_associated_constant(constant),
-            leo_ast::AccessExpression::AssociatedFunction(function) =&gt; <span class="self">self</span>.reconstruct_associated_function(function),
             leo_ast::AccessExpression::Member(member) =&gt; <span class="self">self</span>.reconstruct_member_access(member),
             leo_ast::AccessExpression::Tuple(tuple) =&gt; <span class="self">self</span>.reconstruct_tuple_access(tuple),
         }
@@ -557,7 +547,7 @@
 
     <span class="kw">fn </span>reconstruct_associated_constant(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        input: leo_ast::AssociatedConstant,
+        input: leo_ast::AssociatedConstantExpression,
     ) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// Currently there is only one associated constant.
         </span><span class="kw">let </span>generator = Value::generator();
@@ -567,7 +557,7 @@
 
     <span class="kw">fn </span>reconstruct_associated_function(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        <span class="kw-2">mut </span>input: leo_ast::AssociatedFunction,
+        <span class="kw-2">mut </span>input: leo_ast::AssociatedFunctionExpression,
     ) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">let </span><span class="kw-2">mut </span>values = Vec::new();
         <span class="kw">for </span>argument <span class="kw">in </span>input.arguments.iter_mut() {
@@ -599,7 +589,7 @@
             }
         }
 
-        (Expression::Access(AccessExpression::AssociatedFunction(input)), Default::default())
+        (Expression::AssociatedFunction(input), Default::default())
     }
 
     <span class="kw">fn </span>reconstruct_member_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: leo_ast::MemberAccess) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {

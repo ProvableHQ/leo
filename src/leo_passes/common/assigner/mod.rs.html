@@ -66,7 +66,8 @@
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -82,7 +83,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_ast::{AssignStatement, Expression, Identifier, NodeID, Statement};
+</span><span class="kw">use </span>leo_ast::{DefinitionPlace, DefinitionStatement, Expression, Identifier, NodeID, Statement, Type};
 <span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>std::{cell::RefCell, fmt::Display};
@@ -102,9 +103,9 @@
     }
 
     <span class="doccomment">/// Constructs the assignment statement `place = expr;`.
-    /// This function should be the only place where `AssignStatement`s are constructed.
-    </span><span class="kw">pub fn </span>simple_assign_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, identifier: Identifier, value: Expression, id: NodeID) -&gt; Statement {
-        <span class="self">self</span>.inner.borrow_mut().simple_assign_statement(identifier, value, id)
+    /// This function should be the only place where `DefinitionStatement`s are constructed.
+    </span><span class="kw">pub fn </span>simple_definition(<span class="kw-2">&amp;</span><span class="self">self</span>, identifier: Identifier, value: Expression, id: NodeID) -&gt; Statement {
+        <span class="self">self</span>.inner.borrow_mut().simple_definition(identifier, value, id)
     }
 }
 
@@ -124,14 +125,15 @@
     }
 
     <span class="doccomment">/// Constructs the assignment statement `place = expr;`.
-    /// This function should be the only place where `AssignStatement`s are constructed.
-    </span><span class="kw">fn </span>simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier, value: Expression, id: NodeID) -&gt; Statement {
-        Statement::Assign(Box::new(AssignStatement {
-            place: Expression::Identifier(identifier),
+    /// This function should be the only place where `DefinitionStatement`s are constructed.
+    </span><span class="kw">fn </span>simple_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier, value: Expression, id: NodeID) -&gt; Statement {
+        Statement::Definition(DefinitionStatement {
+            place: DefinitionPlace::Single(identifier),
+            type_: Type::Err,
             value,
             span: Default::default(),
             id,
-        }))
+        })
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1711,11 +1711,7 @@
 <a href="#1710" id="1710">1710</a>
 <a href="#1711" id="1711">1711</a>
 <a href="#1712" id="1712">1712</a>
-<a href="#1713" id="1713">1713</a>
-<a href="#1714" id="1714">1714</a>
-<a href="#1715" id="1715">1715</a>
-<a href="#1716" id="1716">1716</a>
-<a href="#1717" id="1717">1717</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#1713" id="1713">1713</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1740,6 +1736,7 @@
     Block,
     CoreConstant,
     CoreFunction,
+    DefinitionPlace,
     Expression,
     FromStrRadix <span class="kw">as _</span>,
     Function,
@@ -2213,8 +2210,7 @@
             </span>}
             Statement::Assign(assign) <span class="kw">if </span>step == <span class="number">1 </span>=&gt; {
                 <span class="kw">let </span>value = <span class="self">self</span>.values.pop().unwrap();
-                <span class="kw">let </span>Expression::Identifier(id) = <span class="kw-2">&amp;</span>assign.place <span class="kw">else </span>{ <span class="macro">tc_fail!</span>() };
-                <span class="self">self</span>.set_variable(id.name, value);
+                <span class="self">self</span>.set_variable(assign.place.name, value);
                 <span class="bool-val">true
             </span>}
             Statement::Block(block) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">self</span>.step_block(block, <span class="bool-val">false</span>, step)),
@@ -2260,19 +2256,15 @@
             Statement::Definition(definition) <span class="kw">if </span>step == <span class="number">1 </span>=&gt; {
                 <span class="kw">let </span>value = <span class="self">self</span>.pop_value()<span class="question-mark">?</span>;
                 <span class="kw">match </span><span class="kw-2">&amp;</span>definition.place {
-                    Expression::Identifier(id) =&gt; <span class="self">self</span>.set_variable(id.name, value),
-                    Expression::Tuple(tuple) =&gt; {
+                    DefinitionPlace::Single(id) =&gt; <span class="self">self</span>.set_variable(id.name, value),
+                    DefinitionPlace::Multiple(ids) =&gt; {
                         <span class="kw">let </span>Value::Tuple(rhs) = value <span class="kw">else </span>{
                             <span class="macro">tc_fail!</span>();
                         };
-                        <span class="kw">for </span>(name, val) <span class="kw">in </span>tuple.elements.iter().zip(rhs.into_iter()) {
-                            <span class="kw">let </span>Expression::Identifier(id) = name <span class="kw">else </span>{
-                                <span class="macro">tc_fail!</span>();
-                            };
+                        <span class="kw">for </span>(id, val) <span class="kw">in </span>ids.iter().zip(rhs.into_iter()) {
                             <span class="self">self</span>.set_variable(id.name, val);
                         }
                     }
-                    <span class="kw">_ </span>=&gt; <span class="macro">tc_fail!</span>(),
                 }
                 <span class="bool-val">true
             </span>}
@@ -2381,17 +2373,6 @@
                 <span class="kw">let </span>Value::Array(vec_array) = array <span class="kw">else </span>{ <span class="macro">tc_fail!</span>() };
                 <span class="prelude-val">Some</span>(vec_array.get(index_usize).expect_tc(span)<span class="question-mark">?</span>.clone())
             }
-            Expression::Access(AccessExpression::AssociatedConstant(constant)) <span class="kw">if </span>step == <span class="number">0 </span>=&gt; {
-                <span class="kw">let </span>Type::Identifier(type_ident) = constant.ty <span class="kw">else </span>{
-                    <span class="macro">tc_fail!</span>();
-                };
-                <span class="kw">let </span><span class="prelude-val">Some</span>(core_constant) = CoreConstant::from_symbols(type_ident.name, constant.name.name) <span class="kw">else </span>{
-                    <span class="macro">halt!</span>(constant.span(), <span class="string">"Unknown constant {constant}"</span>);
-                };
-                <span class="kw">match </span>core_constant {
-                    CoreConstant::GroupGenerator =&gt; <span class="prelude-val">Some</span>(Value::generator()),
-                }
-            }
             Expression::Access(AccessExpression::Member(access)) =&gt; <span class="kw">match </span><span class="kw-2">&amp;*</span>access.inner {
                 Expression::Identifier(identifier) <span class="kw">if </span>identifier.name == sym::SelfLower =&gt; <span class="kw">match </span>access.name.name {
                     sym::signer =&gt; <span class="prelude-val">Some</span>(Value::Address(<span class="self">self</span>.signer)),
@@ -2426,7 +2407,42 @@
                 }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"we've actually covered all possible patterns above"</span>),
             },
-            Expression::Access(AccessExpression::AssociatedFunction(function)) <span class="kw">if </span>step == <span class="number">0 </span>=&gt; {
+            Expression::Access(AccessExpression::Tuple(tuple_access)) <span class="kw">if </span>step == <span class="number">0 </span>=&gt; {
+                <span class="macro">push!</span>()(<span class="kw-2">&amp;*</span>tuple_access.tuple);
+                <span class="prelude-val">None
+            </span>}
+            Expression::Access(AccessExpression::Tuple(tuple_access)) <span class="kw">if </span>step == <span class="number">1 </span>=&gt; {
+                <span class="kw">let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.values.pop() <span class="kw">else </span>{ <span class="macro">tc_fail!</span>() };
+                <span class="kw">let </span>Value::Tuple(tuple) = value <span class="kw">else </span>{
+                    <span class="macro">halt!</span>(tuple_access.span(), <span class="string">"Type error"</span>);
+                };
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(result) = tuple.get(tuple_access.index.value()) {
+                    <span class="prelude-val">Some</span>(result.clone())
+                } <span class="kw">else </span>{
+                    <span class="macro">halt!</span>(tuple_access.span(), <span class="string">"Tuple index out of range"</span>);
+                }
+            }
+            Expression::Array(array) <span class="kw">if </span>step == <span class="number">0 </span>=&gt; {
+                array.elements.iter().rev().for_each(<span class="macro">push!</span>());
+                <span class="prelude-val">None
+            </span>}
+            Expression::Array(array) <span class="kw">if </span>step == <span class="number">1 </span>=&gt; {
+                <span class="kw">let </span>len = <span class="self">self</span>.values.len();
+                <span class="kw">let </span>array_values = <span class="self">self</span>.values.drain(len - array.elements.len()..).collect();
+                <span class="prelude-val">Some</span>(Value::Array(array_values))
+            }
+            Expression::AssociatedConstant(constant) <span class="kw">if </span>step == <span class="number">0 </span>=&gt; {
+                <span class="kw">let </span>Type::Identifier(type_ident) = constant.ty <span class="kw">else </span>{
+                    <span class="macro">tc_fail!</span>();
+                };
+                <span class="kw">let </span><span class="prelude-val">Some</span>(core_constant) = CoreConstant::from_symbols(type_ident.name, constant.name.name) <span class="kw">else </span>{
+                    <span class="macro">halt!</span>(constant.span(), <span class="string">"Unknown constant {constant}"</span>);
+                };
+                <span class="kw">match </span>core_constant {
+                    CoreConstant::GroupGenerator =&gt; <span class="prelude-val">Some</span>(Value::generator()),
+                }
+            }
+            Expression::AssociatedFunction(function) <span class="kw">if </span>step == <span class="number">0 </span>=&gt; {
                 <span class="kw">let </span><span class="prelude-val">Some</span>(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) <span class="kw">else </span>{
                     <span class="macro">halt!</span>(function.span(), <span class="string">"Unkown core function {function}"</span>);
                 };
@@ -2448,7 +2464,7 @@
                 }
                 <span class="prelude-val">None
             </span>}
-            Expression::Access(AccessExpression::AssociatedFunction(function)) <span class="kw">if </span>step == <span class="number">1 </span>=&gt; {
+            Expression::AssociatedFunction(function) <span class="kw">if </span>step == <span class="number">1 </span>=&gt; {
                 <span class="kw">let </span><span class="prelude-val">Some</span>(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) <span class="kw">else </span>{
                     <span class="macro">halt!</span>(function.span(), <span class="string">"Unkown core function {function}"</span>);
                 };
@@ -2476,36 +2492,12 @@
                     value
                 }
             }
-            Expression::Access(AccessExpression::AssociatedFunction(function)) <span class="kw">if </span>step == <span class="number">2 </span>=&gt; {
+            Expression::AssociatedFunction(function) <span class="kw">if </span>step == <span class="number">2 </span>=&gt; {
                 <span class="kw">let </span><span class="prelude-val">Some</span>(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) <span class="kw">else </span>{
                     <span class="macro">halt!</span>(function.span(), <span class="string">"Unkown core function {function}"</span>);
                 };
                 <span class="macro">assert!</span>(core_function == CoreFunction::FutureAwait);
                 <span class="prelude-val">Some</span>(Value::Unit)
-            }
-            Expression::Access(AccessExpression::Tuple(tuple_access)) <span class="kw">if </span>step == <span class="number">0 </span>=&gt; {
-                <span class="macro">push!</span>()(<span class="kw-2">&amp;*</span>tuple_access.tuple);
-                <span class="prelude-val">None
-            </span>}
-            Expression::Access(AccessExpression::Tuple(tuple_access)) <span class="kw">if </span>step == <span class="number">1 </span>=&gt; {
-                <span class="kw">let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.values.pop() <span class="kw">else </span>{ <span class="macro">tc_fail!</span>() };
-                <span class="kw">let </span>Value::Tuple(tuple) = value <span class="kw">else </span>{
-                    <span class="macro">halt!</span>(tuple_access.span(), <span class="string">"Type error"</span>);
-                };
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(result) = tuple.get(tuple_access.index.value()) {
-                    <span class="prelude-val">Some</span>(result.clone())
-                } <span class="kw">else </span>{
-                    <span class="macro">halt!</span>(tuple_access.span(), <span class="string">"Tuple index out of range"</span>);
-                }
-            }
-            Expression::Array(array) <span class="kw">if </span>step == <span class="number">0 </span>=&gt; {
-                array.elements.iter().rev().for_each(<span class="macro">push!</span>());
-                <span class="prelude-val">None
-            </span>}
-            Expression::Array(array) <span class="kw">if </span>step == <span class="number">1 </span>=&gt; {
-                <span class="kw">let </span>len = <span class="self">self</span>.values.len();
-                <span class="kw">let </span>array_values = <span class="self">self</span>.values.drain(len - array.elements.len()..).collect();
-                <span class="prelude-val">Some</span>(Value::Array(array_values))
             }
             Expression::Binary(binary) <span class="kw">if </span>step == <span class="number">0 </span>=&gt; {
                 <span class="macro">push!</span>()(<span class="kw-2">&amp;</span>binary.right);

@@ -69,7 +69,9 @@
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -95,18 +97,20 @@
     <span class="kw">type </span>AdditionalInput = ();
     <span class="kw">type </span>Output = ();
 
-    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AccessExpression, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">if let </span>AccessExpression::AssociatedFunction(access) = input {
-            <span class="comment">// Get the core function.
-            </span><span class="kw">let </span>core_function = <span class="kw">match </span>CoreFunction::from_symbols(access.variant.name, access.name.name) {
-                <span class="prelude-val">Some</span>(core_function) =&gt; core_function,
-                <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Typechecking guarantees that this function exists."</span>),
-            };
+    <span class="kw">fn </span>visit_associated_function(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;</span>AssociatedFunctionExpression,
+        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+    ) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Get the core function.
+        </span><span class="kw">let </span>core_function = <span class="kw">match </span>CoreFunction::from_symbols(input.variant.name, input.name.name) {
+            <span class="prelude-val">Some</span>(core_function) =&gt; core_function,
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Typechecking guarantees that this function exists."</span>),
+        };
 
-            <span class="comment">// Check that the future was awaited correctly.
-            </span><span class="kw">if </span>core_function == CoreFunction::FutureAwait {
-                <span class="self">self</span>.assert_future_await(<span class="kw-2">&amp;</span>access.arguments.first(), input.span());
-            }
+        <span class="comment">// Check that the future was awaited correctly.
+        </span><span class="kw">if </span>core_function == CoreFunction::FutureAwait {
+            <span class="self">self</span>.assert_future_await(<span class="kw-2">&amp;</span>input.arguments.first(), input.span());
         }
     }
 

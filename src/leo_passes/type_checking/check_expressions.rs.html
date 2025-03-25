@@ -1022,7 +1022,19 @@
 <a href="#1021" id="1021">1021</a>
 <a href="#1022" id="1022">1022</a>
 <a href="#1023" id="1023">1023</a>
-<a href="#1024" id="1024">1024</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1054,6 +1066,12 @@
         <span class="kw">let </span>output = <span class="kw">match </span>input {
             Expression::Access(access) =&gt; <span class="self">self</span>.visit_access(access, additional),
             Expression::Array(array) =&gt; <span class="self">self</span>.visit_array(array, additional),
+            Expression::AssociatedConstant(associated_constant) =&gt; {
+                <span class="self">self</span>.visit_associated_constant(associated_constant, additional)
+            }
+            Expression::AssociatedFunction(associated_function) =&gt; {
+                <span class="self">self</span>.visit_associated_function(associated_function, additional)
+            }
             Expression::Binary(binary) =&gt; <span class="self">self</span>.visit_binary(binary, additional),
             Expression::Call(call) =&gt; <span class="self">self</span>.visit_call(call, additional),
             Expression::Cast(cast) =&gt; <span class="self">self</span>.visit_cast(cast, additional),
@@ -1096,38 +1114,6 @@
 
                 <span class="comment">// Return the element type of the array.
                 </span>element_type.clone()
-            }
-            AccessExpression::AssociatedFunction(access) =&gt; {
-                <span class="comment">// Check core struct name and function.
-                </span><span class="kw">let </span><span class="prelude-val">Some</span>(core_instruction) = <span class="self">self</span>.get_core_function_call(<span class="kw-2">&amp;</span>access.variant, <span class="kw-2">&amp;</span>access.name) <span class="kw">else </span>{
-                    <span class="self">self</span>.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
-                    <span class="kw">return </span>Type::Err;
-                };
-                <span class="comment">// Check that operation is not restricted to finalize blocks.
-                </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant != <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; core_instruction.is_finalize_command() {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
-                }
-
-                <span class="comment">// Get the types of the arguments.
-                </span><span class="kw">let </span>argument_types = access
-                    .arguments
-                    .iter()
-                    .map(|arg| (<span class="self">self</span>.visit_expression(arg, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>), arg.span()))
-                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-
-                <span class="comment">// Check that the types of the arguments are valid.
-                </span><span class="kw">let </span>return_type =
-                    <span class="self">self</span>.check_core_function_call(core_instruction.clone(), <span class="kw-2">&amp;</span>argument_types, input.span());
-
-                <span class="comment">// Check return type if the expected type is known.
-                </span><span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>return_type, expected, input.span());
-
-                <span class="comment">// Await futures here so that can use the argument variable names to lookup.
-                </span><span class="kw">if </span>core_instruction == CoreFunction::FutureAwait &amp;&amp; access.arguments.len() != <span class="number">1 </span>{
-                    <span class="self">self</span>.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
-                }
-
-                return_type
             }
             AccessExpression::Tuple(access) =&gt; {
                 <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>access.tuple, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
@@ -1269,16 +1255,6 @@
                     }
                 }
             }
-            AccessExpression::AssociatedConstant(access) =&gt; {
-                <span class="comment">// Check associated constant type and constant name
-                </span><span class="kw">let </span><span class="prelude-val">Some</span>(core_constant) = <span class="self">self</span>.get_core_constant(<span class="kw-2">&amp;</span>access.ty, <span class="kw-2">&amp;</span>access.name) <span class="kw">else </span>{
-                    <span class="self">self</span>.emit_err(TypeCheckerError::invalid_associated_constant(access, access.span));
-                    <span class="kw">return </span>Type::Err;
-                };
-                <span class="kw">let </span>type_ = core_constant.to_type();
-                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>type_, expected, input.span());
-                type_
-            }
         }
     }
 
@@ -1317,6 +1293,54 @@
         <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>type_, additional, input.span());
 
         type_
+    }
+
+    <span class="kw">fn </span>visit_associated_constant(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;</span>AssociatedConstantExpression,
+        expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+    ) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Check associated constant type and constant name
+        </span><span class="kw">let </span><span class="prelude-val">Some</span>(core_constant) = <span class="self">self</span>.get_core_constant(<span class="kw-2">&amp;</span>input.ty, <span class="kw-2">&amp;</span>input.name) <span class="kw">else </span>{
+            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_associated_constant(input, input.span));
+            <span class="kw">return </span>Type::Err;
+        };
+        <span class="kw">let </span>type_ = core_constant.to_type();
+        <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>type_, expected, input.span());
+        type_
+    }
+
+    <span class="kw">fn </span>visit_associated_function(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;</span>AssociatedFunctionExpression,
+        expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+    ) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Check core struct name and function.
+        </span><span class="kw">let </span><span class="prelude-val">Some</span>(core_instruction) = <span class="self">self</span>.get_core_function_call(<span class="kw-2">&amp;</span>input.variant, <span class="kw-2">&amp;</span>input.name) <span class="kw">else </span>{
+            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_core_function_call(input, input.span()));
+            <span class="kw">return </span>Type::Err;
+        };
+        <span class="comment">// Check that operation is not restricted to finalize blocks.
+        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant != <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; core_instruction.is_finalize_command() {
+            <span class="self">self</span>.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
+        }
+
+        <span class="comment">// Get the types of the arguments.
+        </span><span class="kw">let </span>argument_types =
+            input.arguments.iter().map(|arg| (<span class="self">self</span>.visit_expression(arg, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>), arg.span())).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+
+        <span class="comment">// Check that the types of the arguments are valid.
+        </span><span class="kw">let </span>return_type = <span class="self">self</span>.check_core_function_call(core_instruction.clone(), <span class="kw-2">&amp;</span>argument_types, input.span());
+
+        <span class="comment">// Check return type if the expected type is known.
+        </span><span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>return_type, expected, input.span());
+
+        <span class="comment">// Await futures here so that can use the argument variable names to lookup.
+        </span><span class="kw">if </span>core_instruction == CoreFunction::FutureAwait &amp;&amp; input.arguments.len() != <span class="number">1 </span>{
+            <span class="self">self</span>.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(input.span));
+        }
+
+        return_type
     }
 
     <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>BinaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {

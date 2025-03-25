@@ -194,27 +194,7 @@
 <a href="#193" id="193">193</a>
 <a href="#194" id="194">194</a>
 <a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#196" id="196">196</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -233,13 +213,13 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::DeadCodeEliminator;
 
 <span class="kw">use </span>leo_ast::{
-    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
     Block,
     ConditionalStatement,
     ConsoleStatement,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -250,7 +230,7 @@
     StatementReconstructor,
 };
 
-<span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>DeadCodeEliminator&lt;<span class="lifetime">'_</span>&gt; {
+<span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>DeadCodeEliminator {
     <span class="kw">fn </span>reconstruct_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssertStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// Set the `is_necessary` flag.
         </span><span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
@@ -276,48 +256,9 @@
         (statement, Default::default())
     }
 
-    <span class="doccomment">/// Reconstruct an assignment statement by eliminating any dead code.
-    </span><span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="comment">// Check the lhs of the assignment to see any of variables are used.
-        </span><span class="kw">let </span>lhs_is_used = <span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
-            Expression::Identifier(identifier) =&gt; <span class="self">self</span>.used_variables.contains(<span class="kw-2">&amp;</span>identifier.name),
-            Expression::Tuple(tuple_expression) =&gt; tuple_expression
-                .elements
-                .iter()
-                .map(|element| <span class="kw">match </span>element {
-                    Expression::Identifier(identifier) =&gt; identifier.name,
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
-                        <span class="string">"The previous compiler passes guarantee the tuple elements on the lhs are identifiers."
-                    </span>),
-                })
-                .any(|symbol| <span class="self">self</span>.used_variables.contains(<span class="kw-2">&amp;</span>symbol)),
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
-                <span class="string">"The previous compiler passes guarantee that `place` is either an identifier or tuple of identifiers."
-            </span>),
-        };
-
-        <span class="kw">match </span>lhs_is_used {
-            <span class="comment">// If the lhs is used, then we return the original statement.
-            </span><span class="bool-val">true </span>=&gt; {
-                <span class="comment">// Set the `is_necessary` flag.
-                </span><span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
-
-                <span class="comment">// Visit the statement.
-                </span><span class="kw">let </span>statement = Statement::Assign(Box::new(AssignStatement {
-                    place: input.place,
-                    value: <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>,
-                    span: input.span,
-                    id: input.id,
-                }));
-
-                <span class="comment">// Unset the `is_necessary` flag.
-                </span><span class="self">self</span>.is_necessary = <span class="bool-val">false</span>;
-
-                (statement, Default::default())
-            }
-            <span class="comment">// Otherwise, we can eliminate it.
-            </span><span class="bool-val">false </span>=&gt; (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), Default::default()),
-        }
+    <span class="doccomment">/// Static single assignment removed all assignments.
+    </span><span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="macro">panic!</span>(<span class="string">"`AssignStatement`s should not exist in the AST at this phase of compilation."</span>)
     }
 
     <span class="doccomment">/// Reconstructs the statements inside a basic block, eliminating any dead code.
@@ -335,7 +276,7 @@
     <span class="doccomment">/// Flattening removes conditional statements from the program.
     </span><span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">if </span>!<span class="self">self</span>.is_async {
-            <span class="macro">unreachable!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
+            <span class="macro">panic!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
         } <span class="kw">else </span>{
             (
                 Statement::Conditional(ConditionalStatement {
@@ -360,12 +301,33 @@
 
     <span class="doccomment">/// Parsing guarantees that console statements are not present in the program.
     </span><span class="kw">fn </span>reconstruct_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConsoleStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`ConsoleStatement`s should not be in the AST at this phase of compilation."</span>)
+        <span class="macro">panic!</span>(<span class="string">"`ConsoleStatement`s should not be in the AST at this phase of compilation."</span>)
     }
 
     <span class="doccomment">/// Static single assignment replaces definition statements with assignment statements.
-    </span><span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`DefinitionStatement`s should not exist in the AST at this phase of compilation."</span>)
+    </span><span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="comment">// Check the lhs of the definition to see any of variables are used.
+        </span><span class="kw">let </span>lhs_is_used = <span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
+            DefinitionPlace::Single(identifier) =&gt; <span class="self">self</span>.used_variables.contains(<span class="kw-2">&amp;</span>identifier.name),
+            DefinitionPlace::Multiple(identifiers) =&gt; {
+                identifiers.iter().any(|identifier| <span class="self">self</span>.used_variables.contains(<span class="kw-2">&amp;</span>identifier.name))
+            }
+        };
+
+        <span class="kw">if </span>lhs_is_used {
+            <span class="comment">// Set the `is_necessary` flag.
+            </span><span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
+
+            input.value = <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>;
+
+            <span class="comment">// Unset the `is_necessary` flag.
+            </span><span class="self">self</span>.is_necessary = <span class="bool-val">false</span>;
+
+            (Statement::Definition(input), Default::default())
+        } <span class="kw">else </span>{
+            <span class="comment">// Eliminate it.
+            </span>(Statement::dummy(), Default::default())
+        }
     }
 
     <span class="doccomment">/// Reconstructs expression statements by eliminating any dead code.
@@ -389,13 +351,11 @@
 
                 (statement, Default::default())
             }
-            Expression::Access(AccessExpression::AssociatedFunction(associated_function)) =&gt; {
+            Expression::AssociatedFunction(associated_function) =&gt; {
                 <span class="comment">// Visit the expression.
                 </span>(
                     Statement::Expression(ExpressionStatement {
-                        expression: <span class="self">self
-                            </span>.reconstruct_access(AccessExpression::AssociatedFunction(associated_function))
-                            .<span class="number">0</span>,
+                        expression: <span class="self">self</span>.reconstruct_associated_function(associated_function).<span class="number">0</span>,
                         span: input.span,
                         id: input.id,
                     }),
@@ -404,13 +364,13 @@
             }
             <span class="comment">// Any other expression is dead code, since they do not have side effects.
             // Note: array access expressions will have side effects and need to be handled here.
-            </span><span class="kw">_ </span>=&gt; (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), Default::default()),
+            </span><span class="kw">_ </span>=&gt; (Statement::dummy(), Default::default()),
         }
     }
 
     <span class="doccomment">/// Loop unrolling unrolls and removes iteration statements from the program.
     </span><span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
+        <span class="macro">panic!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
     }
 
     <span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {

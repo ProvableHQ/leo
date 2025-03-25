@@ -153,7 +153,17 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -182,6 +192,12 @@
         <span class="kw">match </span>input {
             Expression::Access(access) =&gt; <span class="self">self</span>.consume_access(access),
             Expression::Array(array) =&gt; <span class="self">self</span>.consume_array(array),
+            Expression::AssociatedConstant(associated_constant) =&gt; {
+                <span class="self">self</span>.consume_associated_constant(associated_constant)
+            }
+            Expression::AssociatedFunction(associated_function) =&gt; {
+                <span class="self">self</span>.consume_associated_function(associated_function)
+            }
             Expression::Binary(binary) =&gt; <span class="self">self</span>.consume_binary(binary),
             Expression::Call(call) =&gt; <span class="self">self</span>.consume_call(call),
             Expression::Cast(cast) =&gt; <span class="self">self</span>.consume_cast(cast),
@@ -198,6 +214,10 @@
     }
 
     <span class="kw">fn </span>consume_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: AccessExpression) -&gt; <span class="self">Self</span>::Output;
+
+    <span class="kw">fn </span>consume_associated_constant(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: AssociatedConstantExpression) -&gt; <span class="self">Self</span>::Output;
+
+    <span class="kw">fn </span>consume_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: AssociatedFunctionExpression) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: ArrayExpression) -&gt; <span class="self">Self</span>::Output;
 

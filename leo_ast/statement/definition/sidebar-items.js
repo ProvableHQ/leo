@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["DeclarationType"],"mod":["declaration_type"],"struct":["DefinitionStatement"]};
+window.SIDEBAR_ITEMS = {"enum":["DefinitionPlace"],"struct":["DefinitionStatement"]};

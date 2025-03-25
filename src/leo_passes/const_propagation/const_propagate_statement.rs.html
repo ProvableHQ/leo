@@ -153,21 +153,7 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#155" id="155">155</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -193,7 +179,6 @@
     ConditionalStatement,
     ConsoleStatement,
     ConstDeclaration,
-    DeclarationType,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -287,20 +272,7 @@
     }
 
     <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>definition: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="kw">let </span>span = definition.span();
-
-        <span class="kw">let </span>(expr, opt_value) = <span class="self">self</span>.reconstruct_expression(definition.value);
-
-        <span class="kw">if </span>definition.declaration_type == DeclarationType::Const {
-            <span class="kw">if </span>opt_value.is_some() {
-                <span class="kw">let </span>Expression::Identifier(id) = <span class="kw-2">&amp;</span>definition.place <span class="kw">else </span>{
-                    <span class="macro">panic!</span>(<span class="string">"Const definitions always have identifiers as the place."</span>);
-                };
-                <span class="self">self</span>.symbol_table.insert_const(<span class="self">self</span>.program, id.name, expr.clone());
-            } <span class="kw">else </span>{
-                <span class="self">self</span>.const_not_evaluated = <span class="prelude-val">Some</span>(span);
-            }
-        }
+        <span class="kw">let </span>(expr, <span class="kw">_</span>) = <span class="self">self</span>.reconstruct_expression(definition.value);
 
         definition.value = expr;
 

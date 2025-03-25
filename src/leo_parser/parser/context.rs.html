@@ -270,11 +270,7 @@
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
 <a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
-<a href="#274" id="274">274</a>
-<a href="#275" id="275">275</a>
-<a href="#276" id="276">276</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#272" id="272">272</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -293,7 +289,7 @@
 </span><span class="kw">use crate</span>::{Token, tokenizer::<span class="kw-2">*</span>};
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_errors::{ParserError, ParserWarning, <span class="prelude-ty">Result</span>, emitter::Handler};
+<span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>, emitter::Handler};
 <span class="kw">use </span>leo_span::{Span, Symbol, symbol::with_session_globals};
 
 <span class="kw">use </span>snarkvm::prelude::{Field, Network};
@@ -402,11 +398,6 @@
         <span class="self">self</span>.handler.emit_err(err);
     }
 
-    <span class="doccomment">/// Emit the warning `warning`.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>emit_warning(<span class="kw-2">&amp;</span><span class="self">self</span>, warning: ParserWarning) {
-        <span class="self">self</span>.handler.emit_warning(warning.into());
-    }
-
     <span class="doccomment">/// Returns true if the next token exists.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>has_next(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         !<span class="macro">matches!</span>(<span class="self">self</span>.token.token, Token::Eof)
@@ -426,6 +417,7 @@
             <span class="self">self</span>.check_identifier(<span class="kw-2">&amp;</span>identifier);
             <span class="kw">return </span><span class="prelude-val">Some</span>(identifier);
         }
+
         <span class="prelude-val">None
     </span>}
 

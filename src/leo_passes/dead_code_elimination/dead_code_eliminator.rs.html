@@ -34,9 +34,7 @@
 <a href="#33" id="33">33</a>
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
-<a href="#36" id="36">36</a>
-<a href="#37" id="37">37</a>
-<a href="#38" id="38">38</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#36" id="36">36</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -52,14 +50,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_ast::NodeBuilder;
-<span class="kw">use </span>leo_span::Symbol;
+</span><span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>indexmap::IndexSet;
 
-<span class="kw">pub struct </span>DeadCodeEliminator&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="doccomment">/// A counter to generate unique node IDs.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder,
+<span class="attr">#[derive(Default)]
+</span><span class="kw">pub struct </span>DeadCodeEliminator {
     <span class="doccomment">/// The set of used variables in the current function body.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) used_variables: IndexSet&lt;Symbol&gt;,
     <span class="doccomment">/// Whether or not the variables are necessary.
@@ -68,10 +64,10 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_async: bool,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DeadCodeEliminator&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>DeadCodeEliminator {
     <span class="doccomment">/// Initializes a new `DeadCodeEliminator`.
-    </span><span class="kw">pub fn </span>new(node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ node_builder, used_variables: Default::default(), is_necessary: <span class="bool-val">false</span>, is_async: <span class="bool-val">false </span>}
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ used_variables: Default::default(), is_necessary: <span class="bool-val">false</span>, is_async: <span class="bool-val">false </span>}
     }
 }
 </code></pre></div></section></main></body></html>

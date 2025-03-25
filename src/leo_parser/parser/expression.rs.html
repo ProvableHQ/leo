@@ -759,7 +759,9 @@
 <a href="#758" id="758">758</a>
 <a href="#759" id="759">759</a>
 <a href="#760" id="760">760</a>
-<a href="#761" id="761">761</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1082,7 +1084,7 @@
         } <span class="kw">else if let </span>(<span class="number">2</span>, <span class="prelude-val">Some</span>(CoreFunction::SignatureVerify)) =
             (args.len(), CoreFunction::from_symbols(sym::signature, method.name))
         {
-            <span class="prelude-val">Ok</span>(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+            <span class="prelude-val">Ok</span>(Expression::AssociatedFunction(AssociatedFunctionExpression {
                 variant: Identifier::new(sym::signature, <span class="self">self</span>.node_builder.next_id()),
                 name: method,
                 arguments: {
@@ -1092,17 +1094,17 @@
                 },
                 span,
                 id: <span class="self">self</span>.node_builder.next_id(),
-            })))
+            }))
         } <span class="kw">else if let </span>(<span class="number">0</span>, <span class="prelude-val">Some</span>(CoreFunction::FutureAwait)) =
             (args.len(), CoreFunction::from_symbols(sym::Future, method.name))
         {
-            <span class="prelude-val">Ok</span>(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+            <span class="prelude-val">Ok</span>(Expression::AssociatedFunction(AssociatedFunctionExpression {
                 variant: Identifier::new(sym::Future, <span class="self">self</span>.node_builder.next_id()),
                 name: method,
                 arguments: <span class="macro">vec!</span>[receiver],
                 span,
                 id: <span class="self">self</span>.node_builder.next_id(),
-            })))
+            }))
         } <span class="kw">else </span>{
             <span class="comment">// Attempt to parse the method call as a mapping operation.
             </span><span class="kw">match </span>(args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {
@@ -1112,7 +1114,7 @@
                 | (<span class="number">1</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingRemove))
                 | (<span class="number">1</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingContains)) =&gt; {
                     <span class="comment">// Found an instance of `&lt;mapping&gt;.get`, `&lt;mapping&gt;.get_or_use`, `&lt;mapping&gt;.set`, `&lt;mapping&gt;.remove`, or `&lt;mapping&gt;.contains`.
-                    </span><span class="prelude-val">Ok</span>(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                    </span><span class="prelude-val">Ok</span>(Expression::AssociatedFunction(AssociatedFunctionExpression {
                         variant: Identifier::new(sym::Mapping, <span class="self">self</span>.node_builder.next_id()),
                         name: method,
                         arguments: {
@@ -1122,7 +1124,7 @@
                         },
                         span,
                         id: <span class="self">self</span>.node_builder.next_id(),
-                    })))
+                    }))
                 }
                 <span class="kw">_ </span>=&gt; {
                     <span class="comment">// Either an invalid unary/binary operator, or more arguments given.
@@ -1147,12 +1149,12 @@
         </span><span class="kw">let </span>member_name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
         <span class="comment">// Check if there are arguments.
-        </span><span class="prelude-val">Ok</span>(Expression::Access(<span class="kw">if </span><span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftParen) {
+        </span><span class="kw">let </span>expression = <span class="kw">if </span><span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftParen) {
             <span class="comment">// Parse the arguments
             </span><span class="kw">let </span>(args, <span class="kw">_</span>, end) = <span class="self">self</span>.parse_expr_tuple()<span class="question-mark">?</span>;
 
             <span class="comment">// Return the associated function.
-            </span>AccessExpression::AssociatedFunction(AssociatedFunction {
+            </span>Expression::AssociatedFunction(AssociatedFunctionExpression {
                 span: module_name.span() + end,
                 variant,
                 name: member_name,
@@ -1161,13 +1163,15 @@
             })
         } <span class="kw">else </span>{
             <span class="comment">// Return the associated constant.
-            </span>AccessExpression::AssociatedConstant(AssociatedConstant {
+            </span>Expression::AssociatedConstant(AssociatedConstantExpression {
                 span: module_name.span() + member_name.span(),
                 ty: Type::Identifier(variant),
                 name: member_name,
                 id: <span class="self">self</span>.node_builder.next_id(),
             })
-        }))
+        };
+
+        <span class="prelude-val">Ok</span>(expression)
     }
 
     <span class="doccomment">/// Parses a tuple of `Expression` AST nodes.

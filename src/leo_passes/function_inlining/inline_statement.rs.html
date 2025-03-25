@@ -117,7 +117,13 @@
 <a href="#116" id="116">116</a>
 <a href="#117" id="117">117</a>
 <a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -140,6 +146,7 @@
     Block,
     ConditionalStatement,
     ConsoleStatement,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -147,32 +154,12 @@
     IterationStatement,
     Statement,
     StatementReconstructor,
+    Type,
 };
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>FunctionInliner&lt;<span class="lifetime">'_</span>&gt; {
-    <span class="doccomment">/// Reconstruct an assignment statement by inlining any function calls.
-    /// This function also segments tuple assignment statements into multiple assignment statements.
-    </span><span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="kw">let </span>(value, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.reconstruct_expression(input.value.clone());
-        <span class="kw">match </span>(input.place, value) {
-            <span class="comment">// If the function call produces a tuple, we need to segment the tuple into multiple assignment statements.
-            </span>(Expression::Tuple(left), Expression::Tuple(right)) <span class="kw">if </span>left.elements.len() == right.elements.len() =&gt; {
-                statements.extend(left.elements.into_iter().zip(right.elements).map(|(lhs, rhs)| {
-                    Statement::Assign(Box::new(AssignStatement {
-                        place: lhs,
-                        value: rhs,
-                        span: Default::default(),
-                        id: <span class="self">self</span>.node_builder.next_id(),
-                    }))
-                }));
-                (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements)
-            }
-
-            (place, value) =&gt; (
-                Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: input.id })),
-                statements,
-            ),
-        }
+    <span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="macro">panic!</span>(<span class="string">"`AssignStatement`s should not exist in the AST at this phase of compilation."</span>)
     }
 
     <span class="doccomment">/// Reconstructs the statements inside a basic block, accumulating any statements produced by function inlining.
@@ -191,7 +178,7 @@
     <span class="doccomment">/// Flattening removes conditional statements from the program.
     </span><span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">if </span>!<span class="self">self</span>.is_async {
-            <span class="macro">unreachable!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
+            <span class="macro">panic!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
         } <span class="kw">else </span>{
             (
                 Statement::Conditional(ConditionalStatement {
@@ -208,12 +195,37 @@
 
     <span class="doccomment">/// Parsing guarantees that console statements are not present in the program.
     </span><span class="kw">fn </span>reconstruct_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConsoleStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`ConsoleStatement`s should not be in the AST at this phase of compilation."</span>)
+        <span class="macro">panic!</span>(<span class="string">"`ConsoleStatement`s should not be in the AST at this phase of compilation."</span>)
     }
 
-    <span class="doccomment">/// Static single assignment replaces definition statements with assignment statements.
-    </span><span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`DefinitionStatement`s should not exist in the AST at this phase of compilation."</span>)
+    <span class="doccomment">/// Reconstruct a definition statement by inlining any function calls.
+    /// This function also segments tuple assignment statements into multiple assignment statements.
+    </span><span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">let </span>(value, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.reconstruct_expression(input.value);
+        <span class="kw">match </span>(input.place, value) {
+            <span class="comment">// If we just inlined the production of a tuple literal, we need multiple definition statements.
+            </span>(DefinitionPlace::Multiple(left), Expression::Tuple(right)) =&gt; {
+                <span class="macro">assert_eq!</span>(left.len(), right.elements.len());
+                <span class="kw">for </span>(identifier, rhs_value) <span class="kw">in </span>left.into_iter().zip(right.elements) {
+                    <span class="kw">let </span>stmt = Statement::Definition(DefinitionStatement {
+                        place: DefinitionPlace::Single(identifier),
+                        type_: Type::Err,
+                        value: rhs_value,
+                        span: Default::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
+                    });
+
+                    statements.push(stmt);
+                }
+                (Statement::dummy(), statements)
+            }
+
+            (place, value) =&gt; {
+                input.value = value;
+                input.place = place;
+                (Statement::Definition(input), statements)
+            }
+        }
     }
 
     <span class="doccomment">/// Reconstructs expression statements by inlining any function calls.
@@ -224,7 +236,7 @@
 
         <span class="comment">// If the resulting expression is a unit expression, return a dummy statement.
         </span><span class="kw">let </span>statement = <span class="kw">match </span>expression {
-            Expression::Unit(<span class="kw">_</span>) =&gt; Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()),
+            Expression::Unit(<span class="kw">_</span>) =&gt; Statement::dummy(),
             <span class="kw">_ </span>=&gt; Statement::Expression(ExpressionStatement { expression, span: input.span, id: input.id }),
         };
 
@@ -233,7 +245,7 @@
 
     <span class="doccomment">/// Loop unrolling unrolls and removes iteration statements from the program.
     </span><span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
+        <span class="macro">panic!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
     }
 }
 </code></pre></div></section></main></body></html>

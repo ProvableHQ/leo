@@ -128,7 +128,10 @@
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -151,7 +154,9 @@
     Composite,
     Function,
     FunctionConsumer,
+    Identifier,
     Member,
+    Node <span class="kw">as _</span>,
     Program,
     ProgramConsumer,
     ProgramScope,
@@ -192,34 +197,35 @@
     <span class="kw">type </span>Output = Function;
 
     <span class="doccomment">/// Reconstructs the `Function`s in the `Program`, while allocating the appropriate `RenameTable`s.
-    </span><span class="kw">fn </span>consume_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: Function) -&gt; <span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>consume_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>function: Function) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// Allocate a `RenameTable` for the function.
         </span><span class="self">self</span>.push();
 
-        <span class="comment">// There is no need to reconstruct `function.inputs`.
-        // However, for each input, we must add each symbol to the rename table.
-        </span><span class="kw">for </span>input_variable <span class="kw">in </span>function.input.iter() {
-            <span class="kw">let </span>identifier = input_variable.identifier();
-            <span class="self">self</span>.rename_table.update(identifier.name, identifier.name, identifier.id);
+        <span class="comment">// For each input, change to a unique name.
+        // Give a unique However, for each input, we must add each symbol to the rename table.
+        </span><span class="kw">for </span>input_variable <span class="kw">in </span>function.input.iter_mut() {
+            <span class="kw">let </span>old_identifier = input_variable.identifier;
+            <span class="kw">let </span>new_symbol = <span class="self">self</span>.assigner.unique_symbol(old_identifier, <span class="string">"$$"</span>);
+            <span class="kw">let </span>new_identifier = Identifier::new(new_symbol, <span class="self">self</span>.node_builder.next_id());
+            input_variable.identifier = new_identifier;
+
+            <span class="comment">// Add the new identifier to the type table.
+            </span><span class="self">self</span>.type_table.insert(new_identifier.id(), input_variable.type_.clone());
+
+            <span class="comment">// Associate the old name with its ID.
+            </span><span class="self">self</span>.rename_table.update(old_identifier.name, old_identifier.name, old_identifier.id);
+
+            <span class="comment">// And make the rename.
+            </span><span class="self">self</span>.rename_table.update(old_identifier.name, new_identifier.name, old_identifier.id);
         }
 
-        <span class="kw">let </span>block =
+        function.block =
             Block { span: function.block.span, id: function.block.id, statements: <span class="self">self</span>.consume_block(function.block) };
 
         <span class="comment">// Remove the `RenameTable` for the function.
         </span><span class="self">self</span>.pop();
 
-        Function {
-            annotations: function.annotations,
-            variant: function.variant,
-            identifier: function.identifier,
-            input: function.input,
-            output: function.output,
-            output_type: function.output_type,
-            block,
-            span: function.span,
-            id: function.id,
-        }
+        function
     }
 }
 

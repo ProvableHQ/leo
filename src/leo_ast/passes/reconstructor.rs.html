@@ -488,7 +488,16 @@
 <a href="#487" id="487">487</a>
 <a href="#488" id="488">488</a>
 <a href="#489" id="489">489</a>
-<a href="#490" id="490">490</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -517,6 +526,12 @@
     <span class="kw">fn </span>reconstruct_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Expression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">match </span>input {
             Expression::Access(access) =&gt; <span class="self">self</span>.reconstruct_access(access),
+            Expression::AssociatedConstant(associated_constant) =&gt; {
+                <span class="self">self</span>.reconstruct_associated_constant(associated_constant)
+            }
+            Expression::AssociatedFunction(associated_function) =&gt; {
+                <span class="self">self</span>.reconstruct_associated_function(associated_function)
+            }
             Expression::Array(array) =&gt; <span class="self">self</span>.reconstruct_array(array),
             Expression::Binary(binary) =&gt; <span class="self">self</span>.reconstruct_binary(binary),
             Expression::Call(call) =&gt; <span class="self">self</span>.reconstruct_call(call),
@@ -536,8 +551,6 @@
     <span class="kw">fn </span>reconstruct_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AccessExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">match </span>input {
             AccessExpression::Array(array) =&gt; <span class="self">self</span>.reconstruct_array_access(array),
-            AccessExpression::AssociatedConstant(constant) =&gt; <span class="self">self</span>.reconstruct_associated_constant(constant),
-            AccessExpression::AssociatedFunction(function) =&gt; <span class="self">self</span>.reconstruct_associated_function(function),
             AccessExpression::Member(member) =&gt; <span class="self">self</span>.reconstruct_member_access(member),
             AccessExpression::Tuple(tuple) =&gt; <span class="self">self</span>.reconstruct_tuple_access(tuple),
         }
@@ -555,27 +568,33 @@
         )
     }
 
-    <span class="kw">fn </span>reconstruct_associated_constant(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssociatedConstant) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+    <span class="kw">fn </span>reconstruct_associated_constant(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: AssociatedConstantExpression,
+    ) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (
-            Expression::Access(AccessExpression::AssociatedConstant(AssociatedConstant {
+            Expression::AssociatedConstant(AssociatedConstantExpression {
                 ty: input.ty,
                 name: input.name,
                 span: input.span,
                 id: input.id,
-            })),
+            }),
             Default::default(),
         )
     }
 
-    <span class="kw">fn </span>reconstruct_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssociatedFunction) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+    <span class="kw">fn </span>reconstruct_associated_function(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: AssociatedFunctionExpression,
+    ) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (
-            Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+            Expression::AssociatedFunction(AssociatedFunctionExpression {
                 variant: input.variant,
                 name: input.name,
                 arguments: input.arguments.into_iter().map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>).collect(),
                 span: input.span,
                 id: input.id,
-            })),
+            }),
             Default::default(),
         )
     }
@@ -848,7 +867,6 @@
     <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
             Statement::Definition(DefinitionStatement {
-                declaration_type: input.declaration_type,
                 place: input.place,
                 type_: input.type_,
                 value: <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>,

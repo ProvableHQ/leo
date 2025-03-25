@@ -227,21 +227,7 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#229" id="229">229</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -266,6 +252,7 @@
     Block,
     ConditionalStatement,
     ConsoleStatement,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionStatement,
@@ -287,7 +274,7 @@
             Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
             Statement::Console(stmt) =&gt; <span class="self">self</span>.visit_console(stmt),
             Statement::Const(<span class="kw">_</span>) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">"`ConstStatement`s should not be in the AST at this phase of compilation."</span>)
+                <span class="macro">panic!</span>(<span class="string">"`ConstStatement`s should not be in the AST at this phase of compilation."</span>)
             }
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
             Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
@@ -375,46 +362,31 @@
         expression_instructions
     }
 
-    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DefinitionStatement) -&gt; String {
-        <span class="comment">// TODO: If SSA is made optional, then conditionally enable codegen for DefinitionStatement
-        // let (operand, expression_instructions) = self.visit_expression(&amp;input.value);
-        // self.variable_mapping.insert(&amp;input.variable_name.name, operand);
-        // expression_instructions
-        </span><span class="macro">unreachable!</span>(<span class="string">"DefinitionStatement's should not exist in SSA form."</span>)
+    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DefinitionStatement) -&gt; String {
+        <span class="kw">match </span>(<span class="kw-2">&amp;</span>input.place, <span class="kw-2">&amp;</span>input.value) {
+            (DefinitionPlace::Single(identifier), <span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span>(operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value);
+                <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>identifier.name, operand);
+                expression_instructions
+            }
+            (DefinitionPlace::Multiple(identifiers), Expression::Call(<span class="kw">_</span>)) =&gt; {
+                <span class="kw">let </span>(operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value);
+                <span class="comment">// Add the destinations to the variable mapping.
+                </span><span class="kw">for </span>(identifier, operand) <span class="kw">in </span>identifiers.iter().zip_eq(operand.split(<span class="string">' '</span>)) {
+                    <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>identifier.name, operand.to_string());
+                }
+                expression_instructions
+            }
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Previous passes should have ensured that a definition with multiple identifiers is a `Call`."</span>),
+        }
     }
 
     <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ExpressionStatement) -&gt; String {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression).<span class="number">1
     </span>}
 
-    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssignStatement) -&gt; String {
-        <span class="kw">match </span>(<span class="kw-2">&amp;</span>input.place, <span class="kw-2">&amp;</span>input.value) {
-            (Expression::Identifier(identifier), <span class="kw">_</span>) =&gt; {
-                <span class="kw">let </span>(operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value);
-                <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>identifier.name, operand);
-                expression_instructions
-            }
-            (Expression::Tuple(tuple), Expression::Call(<span class="kw">_</span>)) =&gt; {
-                <span class="kw">let </span>(operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value);
-                <span class="comment">// Split out the destinations from the tuple.
-                </span><span class="kw">let </span>operands = operand.split(<span class="string">' '</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-                <span class="comment">// Add the destinations to the variable mapping.
-                </span>tuple.elements.iter().zip_eq(operands).for_each(|(element, operand)| {
-                    <span class="kw">match </span>element {
-                        Expression::Identifier(identifier) =&gt; {
-                            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>identifier.name, operand.to_string())
-                        }
-                        <span class="kw">_ </span>=&gt; {
-                            <span class="macro">unreachable!</span>(<span class="string">"Type checking ensures that tuple elements on the lhs are always identifiers."</span>)
-                        }
-                    };
-                });
-                expression_instructions
-            }
-            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(
-                <span class="string">"Code generation for the left-hand side of an assignment is only implemented for `Identifier`s."
-            </span>),
-        }
+    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssignStatement) -&gt; String {
+        <span class="macro">panic!</span>(<span class="string">"AssignStatement's should not exist in SSA form."</span>)
     }
 
     <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConditionalStatement) -&gt; String {

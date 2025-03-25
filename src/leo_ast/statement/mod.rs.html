@@ -251,8 +251,8 @@
 
 <span class="kw">impl </span>Statement {
     <span class="doccomment">/// Returns a dummy statement made from an empty block `{}`.
-    </span><span class="kw">pub fn </span>dummy(span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::Block(Block { statements: Vec::new(), span, id })
+    </span><span class="kw">pub fn </span>dummy() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Block(Block { statements: Vec::new(), span: Default::default(), id: Default::default() })
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>semicolon(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {

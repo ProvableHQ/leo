@@ -245,7 +245,7 @@
                         statements.extend(stmts);
 
                         <span class="kw">let </span>(identifier, statement) =
-                            <span class="self">self</span>.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+                            <span class="self">self</span>.unique_simple_definition(Expression::Ternary(TernaryExpression {
                                 condition: input.condition,
                                 if_true: Box::new(if_true),
                                 if_false: Box::new(if_false),

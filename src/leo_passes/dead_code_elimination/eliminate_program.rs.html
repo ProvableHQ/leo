@@ -61,7 +61,7 @@
 
 <span class="kw">use </span>leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
 
-<span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>DeadCodeEliminator&lt;<span class="lifetime">'_</span>&gt; {
+<span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>DeadCodeEliminator {
     <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Function) -&gt; Function {
         <span class="comment">// Reset the state of the dead code eliminator.
         </span><span class="self">self</span>.used_variables.clear();

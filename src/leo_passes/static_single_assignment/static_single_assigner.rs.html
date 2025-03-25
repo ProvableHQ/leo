@@ -126,8 +126,6 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
     <span class="doccomment">/// The `RenameTable` for the current basic block in the AST
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) rename_table: RenameTable,
-    <span class="doccomment">/// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_lhs: bool,
     <span class="doccomment">/// A struct used to construct (unique) assignment statements.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) assigner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Assigner,
     <span class="doccomment">/// The main program name.
@@ -142,15 +140,7 @@
         type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
         assigner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Assigner,
     ) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            node_builder,
-            symbol_table,
-            type_table,
-            rename_table: RenameTable::new(<span class="prelude-val">None</span>),
-            is_lhs: <span class="bool-val">false</span>,
-            assigner,
-            program: <span class="prelude-val">None</span>,
-        }
+        <span class="self">Self </span>{ node_builder, symbol_table, type_table, rename_table: RenameTable::new(<span class="prelude-val">None</span>), assigner, program: <span class="prelude-val">None </span>}
     }
 
     <span class="doccomment">/// Pushes a new scope, setting the current scope as the new scope's parent.
@@ -165,7 +155,17 @@
         core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.rename_table, <span class="kw-2">*</span>parent)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier, rhs: Expression) -&gt; Statement {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>rename_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>identifier: Identifier) -&gt; Identifier {
+        <span class="comment">// Associate this name with its id.
+        </span><span class="self">self</span>.rename_table.update(identifier.name, identifier.name, identifier.id);
+
+        <span class="kw">let </span>new_name = <span class="self">self</span>.assigner.unique_symbol(identifier.name, <span class="string">"$#"</span>);
+        <span class="self">self</span>.rename_table.update(identifier.name, new_name, identifier.id);
+        identifier.name = new_name;
+        identifier
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>simple_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier, rhs: Expression) -&gt; Statement {
         <span class="comment">// Update the type table.
         </span><span class="kw">let </span>type_ = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>rhs.id()) {
             <span class="prelude-val">Some</span>(type_) =&gt; type_,
@@ -175,13 +175,13 @@
         <span class="comment">// Update the rename table.
         </span><span class="self">self</span>.rename_table.update(identifier.name, identifier.name, identifier.id);
         <span class="comment">// Construct the statement.
-        </span><span class="self">self</span>.assigner.simple_assign_statement(identifier, rhs, <span class="self">self</span>.node_builder.next_id())
+        </span><span class="self">self</span>.assigner.simple_definition(identifier, rhs, <span class="self">self</span>.node_builder.next_id())
     }
 
     <span class="doccomment">/// Constructs a simple assign statement for `expr` with a unique name.
     /// For example, `expr` is transformed into `$var$0 = expr;`.
     /// The lhs is guaranteed to be unique with respect to the `Assigner`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; (Identifier, Statement) {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_simple_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; (Identifier, Statement) {
         <span class="comment">// Create a new variable for the expression.
         </span><span class="kw">let </span>name = <span class="self">self</span>.assigner.unique_symbol(<span class="string">"$var"</span>, <span class="string">"$"</span>);
 
@@ -189,7 +189,7 @@
         </span><span class="kw">let </span>place = Identifier { name, span: Default::default(), id: <span class="self">self</span>.node_builder.next_id() };
 
         <span class="comment">// Construct the statement.
-        </span><span class="kw">let </span>statement = <span class="self">self</span>.simple_assign_statement(place, expr);
+        </span><span class="kw">let </span>statement = <span class="self">self</span>.simple_definition(place, expr);
 
         (place, statement)
     }

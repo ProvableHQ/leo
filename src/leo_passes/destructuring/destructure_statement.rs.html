@@ -227,47 +227,7 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#229" id="229">229</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -290,6 +250,7 @@
     Block,
     ConditionalStatement,
     ConsoleStatement,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -306,174 +267,8 @@
 <span class="kw">use </span>itertools::Itertools;
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>Destructurer&lt;<span class="lifetime">'_</span>&gt; {
-    <span class="doccomment">/// Flattens an assign statement, if necessary.
-    /// Marks variables as structs as necessary.
-    /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
-    /// Otherwise, the statement is returned as is.
-    </span><span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, assign: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="comment">// Flatten the rhs of the assignment.
-        </span><span class="kw">let </span>value = <span class="self">self</span>.reconstruct_expression(assign.value).<span class="number">0</span>;
-        <span class="kw">match </span>(assign.place, value.clone()) {
-            <span class="comment">// If the lhs is an identifier and the rhs is a tuple, then add the tuple to `self.tuples`.
-            // Return a dummy statement in its place.
-            </span>(Expression::Identifier(identifier), Expression::Tuple(tuple)) =&gt; {
-                <span class="self">self</span>.tuples.insert(identifier.name, tuple);
-                <span class="comment">// Note that tuple assignments are removed from the AST.
-                </span>(Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), Default::default())
-            }
-            <span class="comment">// If the lhs is an identifier and the rhs is an identifier that is a tuple, then add it to `self.tuples`.
-            // Return a dummy statement in its place.
-            </span>(Expression::Identifier(lhs_identifier), Expression::Identifier(rhs_identifier))
-                <span class="kw">if </span><span class="self">self</span>.tuples.contains_key(<span class="kw-2">&amp;</span>rhs_identifier.name) =&gt;
-            {
-                <span class="comment">// Lookup the entry in `self.tuples` and add it for the lhs of the assignment.
-                // Note that the `unwrap` is safe since the match arm checks that the entry exists.
-                </span><span class="self">self</span>.tuples.insert(lhs_identifier.name, <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>rhs_identifier.name).unwrap().clone());
-                <span class="comment">// Note that tuple assignments are removed from the AST.
-                </span>(Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), Default::default())
-            }
-            <span class="comment">// If the lhs is an identifier and the rhs is a function call that produces a tuple, then add it to `self.tuples`.
-            </span>(Expression::Identifier(lhs_identifier), Expression::Call(call)) =&gt; {
-                <span class="comment">// Retrieve the entry in the type table for the function call.
-                </span><span class="kw">let </span>value_type = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>call.id()) {
-                    <span class="prelude-val">Some</span>(type_) =&gt; type_,
-                    <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that the type of the rhs is in the type table."</span>),
-                };
-
-                <span class="kw">match </span><span class="kw-2">&amp;</span>value_type {
-                    <span class="comment">// If the function returns a tuple, reconstruct the assignment and add an entry to `self.tuples`.
-                    </span>Type::Tuple(tuple) =&gt; {
-                        <span class="comment">// Create a new tuple expression with unique identifiers for each index of the lhs.
-                        </span><span class="kw">let </span>tuple_expression = TupleExpression {
-                            elements: (<span class="number">0</span>..tuple.length())
-                                .zip_eq(tuple.elements().iter())
-                                .map(|(i, type_)| {
-                                    <span class="comment">// Return the identifier as an expression.
-                                    </span>Expression::Identifier(Identifier::new(
-                                        <span class="self">self</span>.assigner.unique_symbol(lhs_identifier.name, <span class="macro">format!</span>(<span class="string">"$index${i}$"</span>)),
-                                        {
-                                            <span class="comment">// Construct a node ID for the identifier.
-                                            </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
-                                            <span class="comment">// Update the type table with the type.
-                                            </span><span class="self">self</span>.type_table.insert(id, type_.clone());
-                                            id
-                                        },
-                                    ))
-                                })
-                                .collect(),
-                            span: Default::default(),
-                            id: {
-                                <span class="comment">// Construct a node ID for the tuple expression.
-                                </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
-                                <span class="comment">// Update the type table with the type.
-                                </span><span class="self">self</span>.type_table.insert(id, Type::Tuple(tuple.clone()));
-                                id
-                            },
-                        };
-                        <span class="comment">// Add the `tuple_expression` to `self.tuples`.
-                        </span><span class="self">self</span>.tuples.insert(lhs_identifier.name, tuple_expression.clone());
-
-                        <span class="comment">// Update the type table with the type of the tuple expression.
-                        </span><span class="self">self</span>.type_table.insert(tuple_expression.id, Type::Tuple(tuple.clone()));
-
-                        <span class="comment">// Construct a new assignment statement with a tuple expression on the lhs.
-                        </span>(
-                            Statement::Assign(Box::new(AssignStatement {
-                                place: Expression::Tuple(tuple_expression),
-                                value: Expression::Call(call),
-                                span: Default::default(),
-                                id: <span class="self">self</span>.node_builder.next_id(),
-                            })),
-                            Default::default(),
-                        )
-                    }
-                    <span class="comment">// Otherwise, reconstruct the assignment as is.
-                    </span><span class="kw">_ </span>=&gt; (<span class="self">self</span>.simple_assign_statement(lhs_identifier, Expression::Call(call)), Default::default()),
-                }
-            }
-            (Expression::Identifier(identifier), expression) =&gt; {
-                (<span class="self">self</span>.simple_assign_statement(identifier, expression), Default::default())
-            }
-            <span class="comment">// If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
-            </span>(Expression::Tuple(tuple), Expression::Call(call)) =&gt; (
-                Statement::Assign(Box::new(AssignStatement {
-                    place: Expression::Tuple(tuple),
-                    value: Expression::Call(call),
-                    span: Default::default(),
-                    id: <span class="self">self</span>.node_builder.next_id(),
-                })),
-                Default::default(),
-            ),
-            <span class="comment">// If the lhs is a tuple and the rhs is a tuple, create a new assign statement for each tuple element.
-            </span>(Expression::Tuple(lhs_tuple), Expression::Tuple(rhs_tuple)) =&gt; {
-                <span class="kw">let </span>statements = lhs_tuple
-                    .elements
-                    .into_iter()
-                    .zip_eq(rhs_tuple.elements)
-                    .map(|(lhs, rhs)| {
-                        <span class="comment">// Get the type of the rhs.
-                        </span><span class="kw">let </span>type_ = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>lhs.id()) {
-                            <span class="prelude-val">Some</span>(type_) =&gt; type_.clone(),
-                            <span class="prelude-val">None </span>=&gt; {
-                                <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that the type of the lhs is in the type table."</span>)
-                            }
-                        };
-                        <span class="comment">// Set the type of the lhs.
-                        </span><span class="self">self</span>.type_table.insert(rhs.id(), type_);
-                        <span class="comment">// Return the assign statement.
-                        </span>Statement::Assign(Box::new(AssignStatement {
-                            place: lhs,
-                            value: rhs,
-                            span: Default::default(),
-                            id: <span class="self">self</span>.node_builder.next_id(),
-                        }))
-                    })
-                    .collect();
-                (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements)
-            }
-            <span class="comment">// If the lhs is a tuple and the rhs is an identifier that is a tuple, create a new assign statement for each tuple element.
-            </span>(Expression::Tuple(lhs_tuple), Expression::Identifier(identifier))
-                <span class="kw">if </span><span class="self">self</span>.tuples.contains_key(<span class="kw-2">&amp;</span>identifier.name) =&gt;
-            {
-                <span class="comment">// Lookup the entry in `self.tuples`.
-                // Note that the `unwrap` is safe since the match arm checks that the entry exists.
-                </span><span class="kw">let </span>rhs_tuple = <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>identifier.name).unwrap().clone();
-                <span class="comment">// Create a new assign statement for each tuple element.
-                </span><span class="kw">let </span>statements = lhs_tuple
-                    .elements
-                    .into_iter()
-                    .zip_eq(rhs_tuple.elements)
-                    .map(|(lhs, rhs)| {
-                        <span class="comment">// Get the type of the rhs.
-                        </span><span class="kw">let </span>type_ = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>lhs.id()) {
-                            <span class="prelude-val">Some</span>(type_) =&gt; type_.clone(),
-                            <span class="prelude-val">None </span>=&gt; {
-                                <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that the type of the lhs is in the type table."</span>)
-                            }
-                        };
-                        <span class="comment">// Set the type of the lhs.
-                        </span><span class="self">self</span>.type_table.insert(rhs.id(), type_);
-                        <span class="comment">// Return the assign statement.
-                        </span>Statement::Assign(Box::new(AssignStatement {
-                            place: lhs,
-                            value: rhs,
-                            span: Default::default(),
-                            id: <span class="self">self</span>.node_builder.next_id(),
-                        }))
-                    })
-                    .collect();
-                (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements)
-            }
-            <span class="comment">// If the lhs of an assignment is a tuple, then the rhs can be one of the following:
-            //  - A function call that produces a tuple. (handled above)
-            //  - A tuple. (handled above)
-            //  - An identifier that is a tuple. (handled above)
-            //  - A ternary expression that produces a tuple. (handled when the rhs is flattened above)
-            </span>(Expression::Tuple(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">"`Type checking guarantees that the rhs of an assignment to a tuple is a tuple.`"</span>)
-            }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"`AssignStatement`s can only have `Identifier`s or `Tuple`s on the left hand side."</span>),
-        }
+    <span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _assign: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="macro">panic!</span>(<span class="string">"`AssignStatement`s should not exist in the AST at this phase of compilation."</span>)
     }
 
     <span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
@@ -508,19 +303,144 @@
     }
 
     <span class="kw">fn </span>reconstruct_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConsoleStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`ConsoleStatement`s should not be in the AST at this phase of compilation."</span>)
+        <span class="macro">panic!</span>(<span class="string">"`ConsoleStatement`s should not be in the AST at this phase of compilation."</span>)
     }
 
-    <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`DefinitionStatement`s should not exist in the AST at this phase of compilation."</span>)
+    <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, definition: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">use </span>DefinitionPlace::<span class="kw-2">*</span>;
+
+        <span class="kw">let </span>(value, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.reconstruct_expression(definition.value);
+        <span class="kw">let </span>ty = <span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>value.id()).expect(<span class="string">"Expressions should have a type."</span>);
+        <span class="kw">match </span>(definition.place, value, ty) {
+            (Single(identifier), Expression::Tuple(tuple), Type::Tuple(..)) =&gt; {
+                <span class="comment">// Just put the identifier in `self.tuples`. We don't need to keep our definition.
+                </span><span class="self">self</span>.tuples.insert(identifier.name, tuple);
+                (Statement::dummy(), statements)
+            }
+            (Single(identifier), Expression::Identifier(rhs), Type::Tuple(..)) =&gt; {
+                <span class="comment">// Again, just put the identifier in `self.tuples` and we don't need to keep our definition.
+                </span><span class="kw">let </span>tuple_expr = <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>rhs.name).expect(<span class="string">"We should have encountered this tuple by now"</span>);
+                <span class="self">self</span>.tuples.insert(identifier.name, tuple_expr.clone());
+                (Statement::dummy(), statements)
+            }
+            (Single(identifier), Expression::Call(rhs), Type::Tuple(tuple_type)) =&gt; {
+                <span class="comment">// Make new identifiers for each member of the tuple.
+                </span><span class="kw">let </span>identifiers: Vec&lt;Identifier&gt; = (<span class="number">0</span>..tuple_type.elements().len())
+                    .map(|i| {
+                        Identifier::new(
+                            <span class="self">self</span>.assigner.unique_symbol(identifier.name, <span class="macro">format!</span>(<span class="string">"$index${i}$"</span>)),
+                            <span class="self">self</span>.node_builder.next_id(),
+                        )
+                    })
+                    .collect();
+
+                <span class="comment">// Make expressions corresponding to those identifiers.
+                </span><span class="kw">let </span>expressions: Vec&lt;Expression&gt; = identifiers
+                    .iter()
+                    .zip_eq(tuple_type.elements().iter())
+                    .map(|(identifier, type_)| {
+                        <span class="kw">let </span>expr = Expression::Identifier(<span class="kw-2">*</span>identifier);
+                        <span class="self">self</span>.type_table.insert(expr.id(), type_.clone());
+                        expr
+                    })
+                    .collect();
+
+                <span class="comment">// Make a tuple expression.
+                </span><span class="kw">let </span>expr = TupleExpression {
+                    elements: expressions,
+                    span: Default::default(),
+                    id: <span class="self">self</span>.node_builder.next_id(),
+                };
+
+                <span class="comment">// Put it in the type table.
+                </span><span class="self">self</span>.type_table.insert(expr.id(), Type::Tuple(tuple_type));
+
+                <span class="comment">// Put it into `self.tuples`.
+                </span><span class="self">self</span>.tuples.insert(identifier.name, expr);
+
+                <span class="comment">// Define the new variables. We don't need to keep the old definition.
+                </span><span class="kw">let </span>stmt = Statement::Definition(DefinitionStatement {
+                    place: Multiple(identifiers),
+                    type_: Type::Err,
+                    value: Expression::Call(rhs),
+                    span: Default::default(),
+                    id: <span class="self">self</span>.node_builder.next_id(),
+                });
+
+                (stmt, statements)
+            }
+            (Multiple(identifiers), Expression::Tuple(tuple), Type::Tuple(..)) =&gt; {
+                <span class="comment">// Just make a definition for each tuple element.
+                </span><span class="kw">for </span>(identifier, expr) <span class="kw">in </span>identifiers.into_iter().zip_eq(tuple.elements) {
+                    <span class="kw">let </span>stmt = Statement::Definition(DefinitionStatement {
+                        place: Single(identifier),
+                        type_: Type::Err,
+                        value: expr,
+                        span: Default::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
+                    });
+                    statements.push(stmt);
+                }
+
+                <span class="comment">// We don't need to keep the original definition.
+                </span>(Statement::dummy(), statements)
+            }
+            (Multiple(identifiers), Expression::Identifier(identifier), Type::Tuple(..)) =&gt; {
+                <span class="comment">// Again, make a definition for each tuple element.
+                </span><span class="kw">let </span>tuple = <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>identifier.name).expect(<span class="string">"We should have encountered this tuple by now"</span>);
+                <span class="kw">for </span>(identifier, expr) <span class="kw">in </span>identifiers.into_iter().zip_eq(tuple.elements.iter()) {
+                    <span class="kw">let </span>stmt = Statement::Definition(DefinitionStatement {
+                        place: Single(identifier),
+                        type_: Type::Err,
+                        value: expr.clone(),
+                        span: Default::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
+                    });
+                    statements.push(stmt);
+                }
+
+                <span class="comment">// We don't need to keep the original definition.
+                </span>(Statement::dummy(), statements)
+            }
+            (m @ Multiple(..), value @ Expression::Call(..), Type::Tuple(..)) =&gt; {
+                <span class="comment">// Just reconstruct the statement.
+                </span><span class="kw">let </span>stmt = Statement::Definition(DefinitionStatement {
+                    place: m,
+                    type_: Type::Err,
+                    value,
+                    span: definition.span,
+                    id: definition.id,
+                });
+                (stmt, statements)
+            }
+            (<span class="kw">_</span>, Expression::Ternary(..), Type::Tuple(..)) =&gt; {
+                <span class="macro">panic!</span>(<span class="string">"Ternary conditionals of tuple type should have been removed by flattening"</span>);
+            }
+            (<span class="kw">_</span>, <span class="kw">_</span>, Type::Tuple(..)) =&gt; {
+                <span class="macro">panic!</span>(<span class="string">"Expressions of tuple type can only be tuple literals, identifiers, or calls."</span>);
+            }
+            (Single(identifier), rhs, <span class="kw">_</span>) =&gt; {
+                <span class="comment">// This isn't a tuple. Just build the definition again.
+                </span>(
+                    Statement::Definition(DefinitionStatement {
+                        place: Single(identifier),
+                        type_: Type::Err,
+                        value: rhs,
+                        span: Default::default(),
+                        id: definition.id,
+                    }),
+                    statements,
+                )
+            }
+            (Multiple(<span class="kw">_</span>), <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"A definition with multiple identifiers must have tuple type"</span>),
+        }
     }
 
     <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
+        <span class="macro">panic!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
     }
 
-    <span class="doccomment">/// Reconstructs
-    </span><span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+    <span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// Note that SSA guarantees that `input.expression` is either a literal, identifier, or unit expression.
         </span><span class="kw">let </span>expression = <span class="kw">match </span>input.expression {
             <span class="comment">// If the input is an identifier that maps to a tuple, use the tuple expression.

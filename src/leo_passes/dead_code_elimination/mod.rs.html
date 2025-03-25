@@ -136,15 +136,15 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::Pass;
 
-<span class="kw">use </span>leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
+<span class="kw">use </span>leo_ast::{Ast, ProgramReconstructor};
 <span class="kw">use </span>leo_errors::Result;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Pass <span class="kw">for </span>DeadCodeEliminator&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder);
+<span class="kw">impl </span>Pass <span class="kw">for </span>DeadCodeEliminator {
+    <span class="kw">type </span>Input = (Ast,);
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Ast&gt;;
 
-    <span class="kw">fn </span>do_pass((ast, node_builder): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span><span class="kw-2">mut </span>reconstructor = DeadCodeEliminator::new(node_builder);
+    <span class="kw">fn </span>do_pass((ast,): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>reconstructor = DeadCodeEliminator::new();
         <span class="kw">let </span>program = reconstructor.reconstruct_program(ast.into_repr());
 
         <span class="prelude-val">Ok</span>(Ast::new(program))

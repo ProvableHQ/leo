@@ -281,7 +281,26 @@
 <a href="#280" id="280">280</a>
 <a href="#281" id="281">281</a>
 <a href="#282" id="282">282</a>
-<a href="#283" id="283">283</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -334,6 +353,12 @@
         <span class="kw">match </span>input {
             Expression::Access(access) =&gt; <span class="self">self</span>.visit_access(access, additional),
             Expression::Array(array) =&gt; <span class="self">self</span>.visit_array(array, additional),
+            Expression::AssociatedConstant(associated_constant) =&gt; {
+                <span class="self">self</span>.visit_associated_constant(associated_constant, additional)
+            }
+            Expression::AssociatedFunction(associated_function) =&gt; {
+                <span class="self">self</span>.visit_associated_function(associated_function, additional)
+            }
             Expression::Binary(binary) =&gt; <span class="self">self</span>.visit_binary(binary, additional),
             Expression::Call(call) =&gt; <span class="self">self</span>.visit_call(call, additional),
             Expression::Cast(cast) =&gt; <span class="self">self</span>.visit_cast(cast, additional),
@@ -355,18 +380,12 @@
                 <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>array.array, additional);
                 <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>array.index, additional);
             }
-            AccessExpression::AssociatedFunction(function) =&gt; {
-                function.arguments.iter().for_each(|arg| {
-                    <span class="self">self</span>.visit_expression(arg, <span class="kw-2">&amp;</span>Default::default());
-                });
-            }
             AccessExpression::Member(member) =&gt; {
                 <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>member.inner, additional);
             }
             AccessExpression::Tuple(tuple) =&gt; {
                 <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>tuple.tuple, additional);
             }
-            <span class="kw">_ </span>=&gt; {}
         }
 
         Default::default()
@@ -375,6 +394,25 @@
     <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         input.elements.iter().for_each(|expr| {
             <span class="self">self</span>.visit_expression(expr, additional);
+        });
+        Default::default()
+    }
+
+    <span class="kw">fn </span>visit_associated_constant(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        _input: <span class="kw-2">&amp;</span>AssociatedConstantExpression,
+        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+    ) -&gt; <span class="self">Self</span>::Output {
+        Default::default()
+    }
+
+    <span class="kw">fn </span>visit_associated_function(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: <span class="kw-2">&amp;</span>AssociatedFunctionExpression,
+        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+    ) -&gt; <span class="self">Self</span>::Output {
+        input.arguments.iter().for_each(|arg| {
+            <span class="self">self</span>.visit_expression(arg, <span class="kw-2">&amp;</span>Default::default());
         });
         Default::default()
     }

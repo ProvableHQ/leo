@@ -272,7 +272,7 @@
                 <span class="prelude-val">Ok</span>(val_as_u128) =&gt; <span class="prelude-val">Ok</span>(val_as_u128),
                 <span class="prelude-val">Err</span>(err) =&gt; {
                     <span class="self">self</span>.handler.emit_err(err);
-                    <span class="prelude-val">Err</span>(Statement::dummy(input.span, <span class="self">self</span>.node_builder.next_id()))
+                    <span class="prelude-val">Err</span>(Statement::dummy())
                 }
             }
         };

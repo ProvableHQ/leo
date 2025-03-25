@@ -96,7 +96,9 @@
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -115,8 +117,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::DeadCodeEliminator;
 
 <span class="kw">use </span>leo_ast::{
-    AccessExpression,
-    AssociatedFunction,
+    AssociatedFunctionExpression,
     Expression,
     ExpressionReconstructor,
     Identifier,
@@ -125,11 +126,14 @@
 };
 <span class="kw">use </span>leo_span::sym;
 
-<span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>DeadCodeEliminator&lt;<span class="lifetime">'_</span>&gt; {
+<span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>DeadCodeEliminator {
     <span class="kw">type </span>AdditionalOutput = ();
 
     <span class="doccomment">/// Reconstructs the associated function access expression.
-    </span><span class="kw">fn </span>reconstruct_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssociatedFunction) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+    </span><span class="kw">fn </span>reconstruct_associated_function(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: AssociatedFunctionExpression,
+    ) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// If the associated function manipulates a mapping, or a cheat code, mark the statement as necessary.
         </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>input.variant.name, input.name.name) {
             (<span class="kw-2">&amp;</span>sym::Mapping, sym::remove)
@@ -142,13 +146,13 @@
         };
         <span class="comment">// Reconstruct the access expression.
         </span><span class="kw">let </span>result = (
-            Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+            Expression::AssociatedFunction(AssociatedFunctionExpression {
                 variant: input.variant,
                 name: input.name,
                 arguments: input.arguments.into_iter().map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>).collect(),
                 span: input.span,
                 id: input.id,
-            })),
+            }),
             Default::default(),
         );
         <span class="comment">// Unset `self.is_necessary`.

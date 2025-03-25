@@ -398,9 +398,7 @@
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#400" id="400">400</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -422,7 +420,7 @@
     AccessExpression,
     ArrayAccess,
     ArrayExpression,
-    AssociatedFunction,
+    AssociatedFunctionExpression,
     BinaryExpression,
     CallExpression,
     CastExpression,
@@ -453,27 +451,6 @@
     <span class="doccomment">/// Consumes an access expression, accumulating any statements that are generated.
     </span><span class="kw">fn </span>consume_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AccessExpression) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>(expr, <span class="kw-2">mut </span>statements) = <span class="kw">match </span>input {
-            AccessExpression::AssociatedFunction(function) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
-                (
-                    AccessExpression::AssociatedFunction(AssociatedFunction {
-                        variant: function.variant,
-                        name: function.name,
-                        arguments: function
-                            .arguments
-                            .into_iter()
-                            .map(|arg| {
-                                <span class="kw">let </span>(arg, <span class="kw-2">mut </span>stmts) = <span class="self">self</span>.consume_expression(arg);
-                                statements.append(<span class="kw-2">&amp;mut </span>stmts);
-                                arg
-                            })
-                            .collect(),
-                        span: function.span,
-                        id: function.id,
-                    }),
-                    statements,
-                )
-            }
             AccessExpression::Member(member) =&gt; {
                 <span class="comment">// TODO: Create AST node for native access expressions?
                 // If the access expression is of the form `self.&lt;name&gt;`, then don't rename it.
@@ -519,9 +496,8 @@
                     statements,
                 )
             }
-            expr =&gt; (expr, Vec::new()),
         };
-        <span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Access(expr));
+        <span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(Expression::Access(expr));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -543,7 +519,7 @@
             .collect();
 
         <span class="comment">// Construct and accumulate a new assignment statement for the array expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Array(ArrayExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(Expression::Array(ArrayExpression {
             elements,
             span: input.span,
             id: input.id,
@@ -562,8 +538,8 @@
         <span class="comment">// Accumulate any statements produced.
         </span>statements.append(<span class="kw-2">&amp;mut </span>right_statements);
 
-        <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the binary expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Binary(BinaryExpression {
+        <span class="comment">// Construct and accumulate a unique definition statement storing the result of the binary expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(Expression::Binary(BinaryExpression {
             left: Box::new(left_expression),
             right: Box::new(right_expression),
             op: input.op,
@@ -590,8 +566,8 @@
             })
             .collect();
 
-        <span class="comment">// Construct and accumulate a new assignment statement for the call expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Call(CallExpression {
+        <span class="comment">// Construct and accumulate a new definition statement for the call expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(Expression::Call(CallExpression {
             <span class="comment">// Note that we do not rename the function name.
             </span>function: input.function,
             <span class="comment">// Consume the arguments.
@@ -610,8 +586,8 @@
         <span class="comment">// Reconstruct the expression being casted.
         </span><span class="kw">let </span>(expression, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.expression);
 
-        <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the cast expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Cast(CastExpression {
+        <span class="comment">// Construct and accumulate a unique definition statement storing the result of the cast expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(Expression::Cast(CastExpression {
             expression: Box::new(expression),
             type_: input.type_,
             span: input.span,
@@ -686,8 +662,8 @@
             }
         }
 
-        <span class="comment">// Construct and accumulate a new assignment statement for the struct expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Struct(StructExpression {
+        <span class="comment">// Construct and accumulate a new definition statement for the struct expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(Expression::Struct(StructExpression {
             name: input.name,
             span: input.span,
             members: reordered_members,
@@ -698,29 +674,20 @@
         (Expression::Identifier(place), statements)
     }
 
-    <span class="doccomment">/// Produces a new `Identifier` with a unique name.
+    <span class="doccomment">/// Retrieve the new name for this `Identifier`.
+    ///
+    /// Note that this shouldn't be used for `Identifier`s on the lhs of definitions or
+    /// assignments.
     </span><span class="kw">fn </span>consume_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span>name = <span class="kw">match </span><span class="self">self</span>.is_lhs {
-            <span class="comment">// If consuming the left-hand side of a definition or assignment, a new unique name is introduced.
-            </span><span class="bool-val">true </span>=&gt; {
-                <span class="kw">let </span>new_name = <span class="self">self</span>.assigner.unique_symbol(identifier.name, <span class="string">"$"</span>);
-                <span class="self">self</span>.rename_table.update(identifier.name, new_name, identifier.id);
-                new_name
-            }
-            <span class="comment">// Otherwise, we look up the previous name in the `RenameTable`.
-            // Note that we do not panic if the identifier is not found in the rename table.
-            // Variables that do not exist in the rename table are ones that have been introduced during the SSA pass.
-            // These variables are never re-assigned, and will never have an entry in the rename-table.
-            </span><span class="bool-val">false </span>=&gt; <span class="kw-2">*</span><span class="self">self</span>.rename_table.lookup(identifier.name).unwrap_or(<span class="kw-2">&amp;</span>identifier.name),
-        };
-
+        <span class="comment">// If lookup fails, presumably it's the name of a mapping.
+        </span><span class="kw">let </span>name = <span class="kw-2">*</span><span class="self">self</span>.rename_table.lookup(identifier.name).unwrap_or(<span class="kw-2">&amp;</span>identifier.name);
         (Expression::Identifier(Identifier { name, span: identifier.span, id: identifier.id }), Default::default())
     }
 
     <span class="doccomment">/// Consumes and returns the literal without making any modifications.
     </span><span class="kw">fn </span>consume_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Literal) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// Construct and accumulate a new assignment statement for the literal.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Literal(input));
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(Expression::Literal(input));
         (Expression::Identifier(place), <span class="macro">vec!</span>[statement])
     }
 
@@ -743,7 +710,7 @@
         statements.append(<span class="kw-2">&amp;mut </span>if_false_statements);
 
         <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the ternary expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(Expression::Ternary(TernaryExpression {
             condition: Box::new(cond_expr),
             if_true: Box::new(if_true_expr),
             if_false: Box::new(if_false_expr),
@@ -771,7 +738,7 @@
             .collect();
 
         <span class="comment">// Construct and accumulate a new assignment statement for the tuple expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Tuple(TupleExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(Expression::Tuple(TupleExpression {
             elements,
             span: input.span,
             id: input.id,
@@ -787,7 +754,7 @@
         </span><span class="kw">let </span>(receiver, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.receiver);
 
         <span class="comment">// Construct and accumulate a new assignment statement for the unary expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Unary(UnaryExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(Expression::Unary(UnaryExpression {
             op: input.op,
             receiver: Box::new(receiver),
             span: input.span,
@@ -800,6 +767,35 @@
 
     <span class="kw">fn </span>consume_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: UnitExpression) -&gt; <span class="self">Self</span>::Output {
         (Expression::Unit(input), Default::default())
+    }
+
+    <span class="kw">fn </span>consume_associated_constant(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: leo_ast::AssociatedConstantExpression) -&gt; <span class="self">Self</span>::Output {
+        (Expression::AssociatedConstant(input), Default::default())
+    }
+
+    <span class="kw">fn </span>consume_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: leo_ast::AssociatedFunctionExpression) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
+        <span class="kw">let </span>expr = Expression::AssociatedFunction(AssociatedFunctionExpression {
+            variant: input.variant,
+            name: input.name,
+            arguments: input
+                .arguments
+                .into_iter()
+                .map(|arg| {
+                    <span class="kw">let </span>(arg, <span class="kw-2">mut </span>stmts) = <span class="self">self</span>.consume_expression(arg);
+                    statements.append(<span class="kw-2">&amp;mut </span>stmts);
+                    arg
+                })
+                .collect(),
+            span: input.span,
+            id: input.id,
+        });
+
+        <span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(expr);
+
+        statements.push(statement);
+
+        (Expression::Identifier(place), statements)
     }
 }
 </code></pre></div></section></main></body></html>

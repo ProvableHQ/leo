@@ -343,58 +343,7 @@
 <a href="#342" id="342">342</a>
 <a href="#343" id="343">343</a>
 <a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
-<a href="#357" id="357">357</a>
-<a href="#358" id="358">358</a>
-<a href="#359" id="359">359</a>
-<a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
-<a href="#362" id="362">362</a>
-<a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a>
-<a href="#365" id="365">365</a>
-<a href="#366" id="366">366</a>
-<a href="#367" id="367">367</a>
-<a href="#368" id="368">368</a>
-<a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-<a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
-<a href="#375" id="375">375</a>
-<a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
-<a href="#382" id="382">382</a>
-<a href="#383" id="383">383</a>
-<a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
-<a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
-<a href="#392" id="392">392</a>
-<a href="#393" id="393">393</a>
-<a href="#394" id="394">394</a>
-<a href="#395" id="395">395</a>
-<a href="#396" id="396">396</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#345" id="345">345</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -413,16 +362,16 @@
 </span><span class="kw">use crate</span>::{RenameTable, StaticSingleAssigner};
 
 <span class="kw">use </span>leo_ast::{
-    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
-    AssociatedFunction,
+    AssociatedFunctionExpression,
     Block,
     CallExpression,
     ConditionalStatement,
     ConsoleStatement,
     ConstDeclaration,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionConsumer,
@@ -434,13 +383,11 @@
     Statement,
     StatementConsumer,
     TernaryExpression,
-    TupleExpression,
     Type,
 };
 <span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>indexmap::IndexSet;
-<span class="kw">use </span>itertools::Itertools;
 
 <span class="kw">impl </span>StatementConsumer <span class="kw">for </span>StaticSingleAssigner&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">type </span>Output = Vec&lt;Statement&gt;;
@@ -487,14 +434,9 @@
 
         <span class="comment">// Then assign a new unique name to the left-hand-side of the assignment.
         // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
-        </span><span class="self">self</span>.is_lhs = <span class="bool-val">true</span>;
-        <span class="kw">let </span>place = <span class="kw">match </span><span class="self">self</span>.consume_expression(assign.place).<span class="number">0 </span>{
-            Expression::Identifier(identifier) =&gt; identifier,
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Type checking guarantees that the left-hand-side of an assignment is an identifier."</span>),
-        };
-        <span class="self">self</span>.is_lhs = <span class="bool-val">false</span>;
+        </span><span class="kw">let </span>new_place = <span class="self">self</span>.rename_identifier(assign.place);
 
-        statements.push(<span class="self">self</span>.simple_assign_statement(place, value));
+        statements.push(<span class="self">self</span>.simple_definition(new_place, value));
 
         statements
     }
@@ -605,19 +547,16 @@
                 statements.extend(stmts);
 
                 <span class="comment">// Get the ID for the new name of the variable.
-                </span><span class="kw">let </span>id = <span class="kw">match </span><span class="self">self</span>.rename_table.lookup_id(symbol) {
-                    <span class="prelude-val">Some</span>(id) =&gt; <span class="kw-2">*</span>id,
-                    <span class="prelude-val">None </span>=&gt; {
-                        <span class="macro">unreachable!</span>(<span class="string">"The ID for the symbol `{}` should already exist in the rename table."</span>, symbol)
-                    }
-                };
+                </span><span class="kw">let </span>id = <span class="kw-2">*</span><span class="self">self</span>.rename_table.lookup_id(symbol).unwrap_or_else(|| {
+                    <span class="macro">panic!</span>(<span class="string">"The ID for the symbol `{}` should already exist in the rename table."</span>, symbol)
+                });
 
                 <span class="comment">// Update the `RenameTable` with the new name of the variable.
                 </span><span class="self">self</span>.rename_table.update(<span class="kw-2">*</span>(<span class="kw-2">*</span>symbol), new_name, id);
 
                 <span class="comment">// Create a new `AssignStatement` for the phi function.
                 </span><span class="kw">let </span>identifier = Identifier { name: new_name, span: Default::default(), id };
-                <span class="kw">let </span>assignment = <span class="self">self</span>.simple_assign_statement(identifier, value);
+                <span class="kw">let </span>assignment = <span class="self">self</span>.simple_definition(identifier, value);
 
                 <span class="comment">// Store the generated phi function.
                 </span>statements.push(assignment);
@@ -629,7 +568,7 @@
 
     <span class="doccomment">/// Parsing guarantees that console statements are not present in the program.
     </span><span class="kw">fn </span>consume_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConsoleStatement) -&gt; <span class="self">Self</span>::Output {
-        <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that console statements are not present in the program."</span>)
+        <span class="macro">panic!</span>(<span class="string">"Parsing guarantees that console statements are not present in the program."</span>)
     }
 
     <span class="kw">fn </span>consume_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConstDeclaration) -&gt; <span class="self">Self</span>::Output {
@@ -642,75 +581,34 @@
         <span class="comment">// First consume the right-hand-side of the definition.
         </span><span class="kw">let </span>(value, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(definition.value);
 
-        <span class="comment">// Then assign a new unique name to the left-hand-side of the definition.
-        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
-        </span><span class="self">self</span>.is_lhs = <span class="bool-val">true</span>;
         <span class="kw">match </span>definition.place {
-            Expression::Identifier(identifier) =&gt; {
-                <span class="comment">// Add the identifier to the rename table.
-                </span><span class="self">self</span>.rename_table.update(identifier.name, identifier.name, identifier.id);
-                <span class="comment">// Rename the identifier.
-                </span><span class="kw">let </span>identifier = <span class="kw">match </span><span class="self">self</span>.consume_identifier(identifier).<span class="number">0 </span>{
-                    Expression::Identifier(identifier) =&gt; identifier,
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"`self.consume_identifier` will always return an `Identifier`."</span>),
-                };
+            DefinitionPlace::Single(identifier) =&gt; {
+                <span class="kw">let </span>new_identifier = <span class="self">self</span>.rename_identifier(identifier);
                 <span class="comment">// Create a new assignment statement.
-                </span>statements.push(<span class="self">self</span>.simple_assign_statement(identifier, value));
+                </span>statements.push(<span class="self">self</span>.simple_definition(new_identifier, value));
             }
-            Expression::Tuple(tuple) =&gt; {
-                <span class="kw">let </span>elements: Vec&lt;Expression&gt; = tuple.elements.into_iter().map(|element| {
-                    <span class="kw">match </span>element {
-                        Expression::Identifier(identifier) =&gt; {
-                            <span class="comment">// Add the identifier to the rename table.
-                            </span><span class="self">self</span>.rename_table.update(identifier.name, identifier.name, identifier.id);
-                            <span class="comment">// Rename the identifier.
-                            </span><span class="kw">let </span>identifier = <span class="kw">match </span><span class="self">self</span>.consume_identifier(identifier).<span class="number">0 </span>{
-                                Expression::Identifier(identifier) =&gt; identifier,
-                                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"`self.consume_identifier` will always return an `Identifier`."</span>),
-                            };
-                            <span class="comment">// Return the renamed identifier.
-                            </span>Expression::Identifier(identifier)
-                        }
-                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that the tuple elements on the lhs of a `DefinitionStatement` are always be identifiers."</span>),
-                    }
-                }).collect();
+            DefinitionPlace::Multiple(identifiers) =&gt; {
+                <span class="kw">let </span>new_identifiers: Vec&lt;Identifier&gt; =
+                    identifiers.into_iter().map(|identifier| <span class="self">self</span>.rename_identifier(identifier)).collect();
 
-                <span class="comment">// Get the type of `value`.
-                </span><span class="kw">let </span>tuple_type_ = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>value.id()) {
-                    <span class="prelude-val">Some</span>(Type::Tuple(type_)) =&gt; type_,
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that this expression is a tuple."</span>),
-                };
+                <span class="comment">// We don't need to update the type table, as the new identifiers have
+                // the same IDs as the old ones.
 
-                <span class="comment">// Update the type of each element in the tuple.
-                </span><span class="kw">for </span>(element, type_) <span class="kw">in </span>elements.iter().zip_eq(tuple_type_.elements()) {
-                    <span class="self">self</span>.type_table.insert(element.id(), type_.clone());
-                }
+                // Construct the lhs of the assignment.
+                </span><span class="kw">let </span>place = DefinitionPlace::Multiple(new_identifiers);
 
-                <span class="comment">// Construct the lhs of the assignment.
-                </span><span class="kw">let </span>place = Expression::Tuple(TupleExpression {
-                    elements,
-                    span: Default::default(),
-                    id: <span class="self">self</span>.node_builder.next_id(),
-                });
-
-                <span class="comment">// Update the type of the lhs.
-                </span><span class="self">self</span>.type_table.insert(place.id(), Type::Tuple(tuple_type_));
-
-                <span class="comment">// Create the assignment statement.
-                </span><span class="kw">let </span>assignment = Statement::Assign(Box::new(AssignStatement {
+                <span class="comment">// Create the definition.
+                </span><span class="kw">let </span>definition = Statement::Definition(DefinitionStatement {
                     place,
+                    type_: Type::Err,
                     value,
                     span: definition.span,
                     id: definition.id,
-                }));
+                });
 
-                statements.push(assignment);
+                statements.push(definition);
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
-                <span class="string">"Type checking guarantees that the left-hand-side of a `DefinitionStatement` is an identifier or tuple."
-            </span>),
         }
-        <span class="self">self</span>.is_lhs = <span class="bool-val">false</span>;
 
         statements
     }
@@ -749,19 +647,19 @@
                     id: input.id,
                 }));
             }
-            Expression::Access(AccessExpression::AssociatedFunction(associated_function)) =&gt; {
+            Expression::AssociatedFunction(associated_function) =&gt; {
                 <span class="comment">// Process the arguments.
                 </span><span class="kw">let </span>arguments = process_arguments(associated_function.arguments);
                 <span class="comment">// Create and accumulate the new expression statement.
                 // Note that we do not create a new assignment for the associated function; this is necessary for correct code generation.
                 </span>statements.push(Statement::Expression(ExpressionStatement {
-                    expression: Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                    expression: Expression::AssociatedFunction(AssociatedFunctionExpression {
                         variant: associated_function.variant,
                         name: associated_function.name,
                         arguments,
                         span: associated_function.span,
                         id: associated_function.id,
-                    })),
+                    }),
                     span: input.span,
                     id: input.id,
                 }))

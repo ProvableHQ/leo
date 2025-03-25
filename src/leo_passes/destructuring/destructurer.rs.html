@@ -39,19 +39,7 @@
 <a href="#38" id="38">38</a>
 <a href="#39" id="39">39</a>
 <a href="#40" id="40">40</a>
-<a href="#41" id="41">41</a>
-<a href="#42" id="42">42</a>
-<a href="#43" id="43">43</a>
-<a href="#44" id="44">44</a>
-<a href="#45" id="45">45</a>
-<a href="#46" id="46">46</a>
-<a href="#47" id="47">47</a>
-<a href="#48" id="48">48</a>
-<a href="#49" id="49">49</a>
-<a href="#50" id="50">50</a>
-<a href="#51" id="51">51</a>
-<a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#41" id="41">41</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -69,7 +57,7 @@
 
 </span><span class="kw">use crate</span>::{Assigner, TypeTable};
 
-<span class="kw">use </span>leo_ast::{Expression, Identifier, Node, NodeBuilder, Statement, TupleExpression};
+<span class="kw">use </span>leo_ast::{NodeBuilder, TupleExpression};
 <span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>indexmap::IndexMap;
@@ -81,7 +69,7 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder,
     <span class="doccomment">/// A struct used to construct (unique) assignment statements.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) assigner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Assigner,
-    <span class="doccomment">/// A mapping between variables and flattened tuple expressions.
+    <span class="doccomment">/// A mapping between variables and tuple elements.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) tuples: IndexMap&lt;Symbol, TupleExpression&gt;,
     <span class="doccomment">/// Whether or not we are currently traversing an async function block.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_async: bool,
@@ -90,18 +78,6 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Destructurer&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable, node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder, assigner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Assigner) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ type_table, node_builder, assigner, tuples: IndexMap::new(), is_async: <span class="bool-val">false </span>}
-    }
-
-    <span class="doccomment">/// A wrapper around `assigner.simple_assign_statement` that tracks the type of the lhs.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lhs: Identifier, rhs: Expression) -&gt; Statement {
-        <span class="comment">// Update the type table.
-        </span><span class="kw">let </span>type_ = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>rhs.id()) {
-            <span class="prelude-val">Some</span>(type_) =&gt; type_,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that all expressions have a type."</span>),
-        };
-        <span class="self">self</span>.type_table.insert(lhs.id(), type_);
-        <span class="comment">// Construct the statement.
-        </span><span class="self">self</span>.assigner.simple_assign_statement(lhs, rhs, <span class="self">self</span>.node_builder.next_id())
     }
 }
 </code></pre></div></section></main></body></html>

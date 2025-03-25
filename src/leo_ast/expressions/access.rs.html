@@ -75,23 +75,7 @@
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#77" id="77">77</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -118,12 +102,6 @@
 </span><span class="kw">pub enum </span>AccessExpression {
     <span class="doccomment">/// An `array[index]` expression.
     </span>Array(ArrayAccess),
-    <span class="comment">// /// An expression accessing a range of an array.
-    // ArrayRange(ArrayRangeAccess),
-    </span><span class="doccomment">/// Access to an associated variable of a struct e.g `u8::MAX`.
-    </span>AssociatedConstant(AssociatedConstant),
-    <span class="doccomment">/// Access to an associated function of a struct e.g `Pedersen64::hash()`.
-    </span>AssociatedFunction(AssociatedFunction),
     <span class="doccomment">/// An expression accessing a field in a structure, e.g., `struct_var.field`.
     </span>Member(MemberAccess),
     <span class="doccomment">/// Access to a tuple field using its position, e.g., `tuple.1`.
@@ -134,8 +112,6 @@
     <span class="kw">fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
         <span class="kw">match </span><span class="self">self </span>{
             AccessExpression::Array(n) =&gt; n.span(),
-            AccessExpression::AssociatedConstant(n) =&gt; n.span(),
-            AccessExpression::AssociatedFunction(n) =&gt; n.span(),
             AccessExpression::Member(n) =&gt; n.span(),
             AccessExpression::Tuple(n) =&gt; n.span(),
         }
@@ -144,8 +120,6 @@
     <span class="kw">fn </span>set_span(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span) {
         <span class="kw">match </span><span class="self">self </span>{
             AccessExpression::Array(n) =&gt; n.set_span(span),
-            AccessExpression::AssociatedConstant(n) =&gt; n.set_span(span),
-            AccessExpression::AssociatedFunction(n) =&gt; n.set_span(span),
             AccessExpression::Member(n) =&gt; n.set_span(span),
             AccessExpression::Tuple(n) =&gt; n.set_span(span),
         }
@@ -154,8 +128,6 @@
     <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NodeID {
         <span class="kw">match </span><span class="self">self </span>{
             AccessExpression::Array(n) =&gt; n.id(),
-            AccessExpression::AssociatedConstant(n) =&gt; n.id(),
-            AccessExpression::AssociatedFunction(n) =&gt; n.id(),
             AccessExpression::Member(n) =&gt; n.id(),
             AccessExpression::Tuple(n) =&gt; n.id(),
         }
@@ -164,8 +136,6 @@
     <span class="kw">fn </span>set_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID) {
         <span class="kw">match </span><span class="self">self </span>{
             AccessExpression::Array(n) =&gt; n.set_id(id),
-            AccessExpression::AssociatedConstant(n) =&gt; n.set_id(id),
-            AccessExpression::AssociatedFunction(n) =&gt; n.set_id(id),
             AccessExpression::Member(n) =&gt; n.set_id(id),
             AccessExpression::Tuple(n) =&gt; n.set_id(id),
         }
@@ -177,8 +147,6 @@
         <span class="kw">use </span>AccessExpression::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="self">self </span>{
             Array(access) =&gt; access.fmt(f),
-            AssociatedConstant(access) =&gt; access.fmt(f),
-            AssociatedFunction(access) =&gt; access.fmt(f),
             Member(access) =&gt; access.fmt(f),
             Tuple(access) =&gt; access.fmt(f),
         }

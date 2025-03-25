@@ -330,22 +330,7 @@
 <a href="#329" id="329">329</a>
 <a href="#330" id="330">330</a>
 <a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#332" id="332">332</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -410,10 +395,7 @@
     }
 
     <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AssignStatement) {
-        <span class="kw">let </span>Expression::Identifier(var_name) = input.place <span class="kw">else </span>{
-            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
-            <span class="kw">return</span>;
-        };
+        <span class="kw">let </span>var_name = input.place;
 
         <span class="comment">// Lookup the variable in the symbol table and retrieve its type.
         </span><span class="kw">let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.lookup_variable(<span class="self">self</span>.scope_state.program_name.unwrap(), var_name.name) <span class="kw">else </span>{
@@ -555,51 +537,39 @@
 
         <span class="comment">// Insert the variables into the symbol table.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
-            Expression::Identifier(identifier) =&gt; {
+            DefinitionPlace::Single(identifier) =&gt; {
                 <span class="self">self</span>.insert_variable(<span class="prelude-val">Some</span>(inferred_type.clone()), identifier, input.type_.clone(), identifier.span);
             }
-            Expression::Tuple(tuple_expression) =&gt; {
+            DefinitionPlace::Multiple(identifiers) =&gt; {
                 <span class="kw">let </span>tuple_type = <span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
                     Type::Tuple(tuple_type) =&gt; tuple_type,
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
                         <span class="string">"Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
                     </span>),
                 };
-                <span class="kw">if </span>tuple_expression.elements.len() != tuple_type.length() {
+                <span class="kw">if </span>identifiers.len() != tuple_type.length() {
                     <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_tuple_elements(
-                        tuple_expression.elements.len(),
+                        identifiers.len(),
                         tuple_type.length(),
-                        input.place.span(),
+                        input.span(),
                     ));
                 }
 
-                <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..tuple_expression.elements.len() {
+                <span class="kw">for </span>(i, identifier) <span class="kw">in </span>identifiers.iter().enumerate() {
                     <span class="kw">let </span>inferred = <span class="kw">if let </span>Type::Tuple(inferred_tuple) = <span class="kw-2">&amp;</span>inferred_type {
                         inferred_tuple.elements().get(i).cloned().unwrap_or_default()
                     } <span class="kw">else </span>{
                         Type::Err
                     };
-                    <span class="kw">let </span>expr = <span class="kw-2">&amp;</span>tuple_expression.elements[i];
-                    <span class="kw">let </span>identifier = <span class="kw">match </span>expr {
-                        Expression::Identifier(identifier) =&gt; identifier,
-                        <span class="kw">_ </span>=&gt; {
-                            <span class="kw">return </span><span class="self">self
-                                </span>.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
-                        }
-                    };
                     <span class="self">self</span>.insert_variable(<span class="prelude-val">Some</span>(inferred), identifier, tuple_type.elements()[i].clone(), identifier.span);
                 }
             }
-            <span class="kw">_ </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
         }
     }
 
     <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ExpressionStatement) {
         <span class="comment">// Expression statements can only be function calls.
-        </span><span class="kw">if </span>!<span class="macro">matches!</span>(
-            input.expression,
-            Expression::Call(<span class="kw">_</span>) | Expression::Access(AccessExpression::AssociatedFunction(<span class="kw">_</span>))
-        ) {
+        </span><span class="kw">if </span>!<span class="macro">matches!</span>(input.expression, Expression::Call(<span class="kw">_</span>) | Expression::AssociatedFunction(<span class="kw">_</span>)) {
             <span class="self">self</span>.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span()));
         } <span class="kw">else </span>{
             <span class="comment">// Check the expression.

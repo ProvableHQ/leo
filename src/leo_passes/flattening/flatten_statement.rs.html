@@ -356,13 +356,7 @@
 <a href="#355" id="355">355</a>
 <a href="#356" id="356">356</a>
 <a href="#357" id="357">357</a>
-<a href="#358" id="358">358</a>
-<a href="#359" id="359">359</a>
-<a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
-<a href="#362" id="362">362</a>
-<a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#358" id="358">358</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -389,6 +383,7 @@
     Block,
     ConditionalStatement,
     ConsoleStatement,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -477,7 +472,7 @@
                     id
                 },
             });
-            <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(not_guard);
+            <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_definition(not_guard);
             statements.push(statement);
             guards.push(Expression::Identifier(identifier));
         }
@@ -515,7 +510,7 @@
                         id
                     },
                 });
-                <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(binary);
+                <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_definition(binary);
                 statements.push(statement);
                 Expression::Identifier(identifier)
             }
@@ -538,7 +533,7 @@
                 left: Box::new(expression),
                 right: Box::new(guard),
             });
-            <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(binary);
+            <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_definition(binary);
             statements.push(statement);
             expression = Expression::Identifier(identifier);
         }
@@ -552,45 +547,8 @@
         (assert_statement, statements)
     }
 
-    <span class="doccomment">/// Flattens an assign statement, if necessary.
-    /// Marks variables as structs as necessary.
-    /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
-    /// Otherwise, the statement is returned as is.
-    </span><span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, assign: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="comment">// Flatten the rhs of the assignment.
-        </span><span class="kw">let </span>(value, statements) = <span class="self">self</span>.reconstruct_expression(assign.value);
-        <span class="kw">match </span>(assign.place, <span class="kw-2">&amp;</span>value) {
-            (Expression::Identifier(identifier), <span class="kw">_</span>) =&gt; (<span class="self">self</span>.simple_assign_statement(identifier, value), statements),
-            (Expression::Tuple(tuple), expression) =&gt; {
-                <span class="kw">let </span>output_type = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>expression.id()) {
-                    <span class="prelude-val">Some</span>(Type::Tuple(tuple_type)) =&gt; tuple_type.clone(),
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that the output type is a tuple."</span>),
-                };
-
-                tuple.elements.iter().zip_eq(output_type.elements().iter()).for_each(|(identifier, type_)| {
-                    <span class="kw">let </span>identifier = <span class="kw">match </span>identifier {
-                        Expression::Identifier(identifier) =&gt; identifier,
-                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that a tuple element on the lhs is an identifier."</span>),
-                    };
-                    <span class="comment">// Add the type of each identifier to the type table.
-                    </span><span class="self">self</span>.type_table.insert(identifier.id, type_.clone());
-                });
-
-                <span class="comment">// Set the type of the tuple expression.
-                </span><span class="self">self</span>.type_table.insert(tuple.id, Type::Tuple(output_type.clone()));
-
-                (
-                    Statement::Assign(Box::new(AssignStatement {
-                        place: Expression::Tuple(tuple),
-                        value,
-                        span: Default::default(),
-                        id: <span class="self">self</span>.node_builder.next_id(),
-                    })),
-                    statements,
-                )
-            }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"`AssignStatement`s can only have `Identifier`s or `Tuple`s on the left hand side."</span>),
-        }
+    <span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _assign: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="macro">panic!</span>(<span class="string">"`AssignStatement`s should not be in the AST at this phase of compilation"</span>);
     }
 
     <span class="comment">// TODO: Do we want to flatten nested blocks? They do not affect code generation but it would regularize the AST structure.
@@ -619,7 +577,7 @@
             <span class="kw">let </span>otherwise_block = <span class="kw">match </span>conditional.otherwise {
                 <span class="prelude-val">Some</span>(statement) =&gt; <span class="kw">match </span><span class="kw-2">*</span>statement {
                     Statement::Block(block) =&gt; <span class="self">self</span>.reconstruct_block(block).<span class="number">0</span>,
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"SSA guarantees that the `otherwise` is always a `Block`"</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"SSA guarantees that the `otherwise` is always a `Block`"</span>),
                 },
                 <span class="prelude-val">None </span>=&gt; Block { span: Default::default(), statements: Vec::new(), id: <span class="self">self</span>.node_builder.next_id() },
             };
@@ -647,7 +605,7 @@
             },
         };
 
-        statements.push(<span class="self">self</span>.simple_assign_statement(place, conditional.condition.clone()));
+        statements.push(<span class="self">self</span>.simple_definition(place, conditional.condition.clone()));
 
         <span class="comment">// Add condition to the condition stack.
         </span><span class="self">self</span>.condition_stack.push(Guard::Unconstructed(place));
@@ -676,32 +634,62 @@
                     id
                 },
             };
-            statements.push(<span class="self">self</span>.simple_assign_statement(not_place, not_condition));
+            statements.push(<span class="self">self</span>.simple_definition(not_place, not_condition));
             <span class="self">self</span>.condition_stack.push(Guard::Unconstructed(not_place));
 
             <span class="comment">// Reconstruct the otherwise-block and accumulate it constituent statements.
             </span><span class="kw">match </span><span class="kw-2">*</span>statement {
                 Statement::Block(block) =&gt; statements.extend(<span class="self">self</span>.reconstruct_block(block).<span class="number">0</span>.statements),
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"SSA guarantees that the `otherwise` is always a `Block`"</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"SSA guarantees that the `otherwise` is always a `Block`"</span>),
             }
 
             <span class="comment">// Remove the negated condition from the condition stack.
             </span><span class="self">self</span>.condition_stack.pop();
         };
 
-        (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements)
+        (Statement::dummy(), statements)
     }
 
     <span class="kw">fn </span>reconstruct_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConsoleStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`ConsoleStatement`s should not be in the AST at this phase of compilation."</span>)
+        <span class="macro">panic!</span>(<span class="string">"`ConsoleStatement`s should not be in the AST at this phase of compilation."</span>)
     }
 
-    <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _definition: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`DefinitionStatement`s should not exist in the AST at this phase of compilation."</span>)
+    <span class="doccomment">/// Flattens a definition, if necessary.
+    /// Marks variables as structs as necessary.
+    /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
+    /// Otherwise, the statement is returned as is.
+    </span><span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, definition: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="comment">// Flatten the rhs of the assignment.
+        </span><span class="kw">let </span>(value, statements) = <span class="self">self</span>.reconstruct_expression(definition.value);
+        <span class="kw">match </span>(definition.place, <span class="kw-2">&amp;</span>value) {
+            (DefinitionPlace::Single(identifier), <span class="kw">_</span>) =&gt; (<span class="self">self</span>.simple_definition(identifier, value), statements),
+            (DefinitionPlace::Multiple(identifiers), expression) =&gt; {
+                <span class="kw">let </span>output_type = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>expression.id()) {
+                    <span class="prelude-val">Some</span>(Type::Tuple(tuple_type)) =&gt; tuple_type.clone(),
+                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Type checking guarantees that the output type is a tuple."</span>),
+                };
+
+                <span class="kw">for </span>(identifier, type_) <span class="kw">in </span>identifiers.iter().zip_eq(output_type.elements().iter()) {
+                    <span class="comment">// Add the type of each identifier to the type table.
+                    </span><span class="self">self</span>.type_table.insert(identifier.id, type_.clone());
+                }
+
+                (
+                    Statement::Definition(DefinitionStatement {
+                        place: DefinitionPlace::Multiple(identifiers),
+                        type_: Type::Err,
+                        value,
+                        span: Default::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
+                    }),
+                    statements,
+                )
+            }
+        }
     }
 
     <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
+        <span class="macro">panic!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
     }
 
     <span class="doccomment">/// Transforms a return statement into an empty block statement.
@@ -717,13 +705,13 @@
         <span class="kw">let </span>return_guard = guard_identifier.map_or(ReturnGuard::None, ReturnGuard::Unconstructed);
 
         <span class="kw">match </span>input.expression {
-            Expression::Unit(<span class="kw">_</span>) | Expression::Identifier(<span class="kw">_</span>) | Expression::Access(<span class="kw">_</span>) =&gt; {
+            Expression::Unit(<span class="kw">_</span>) | Expression::Identifier(<span class="kw">_</span>) | Expression::AssociatedConstant(<span class="kw">_</span>) =&gt; {
                 <span class="self">self</span>.returns.push((return_guard, input))
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"SSA guarantees that the expression is always an identifier or unit expression."</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"SSA guarantees that the expression is always an identifier or unit expression."</span>),
         };
 
-        (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements.unwrap_or_default())
+        (Statement::dummy(), statements.unwrap_or_default())
     }
 }
 </code></pre></div></section></main></body></html>

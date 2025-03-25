@@ -416,8 +416,7 @@
 <a href="#415" id="415">415</a>
 <a href="#416" id="416">416</a>
 <a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#418" id="418">418</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -713,7 +712,6 @@
             std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast),
             <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
             call_graph,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.assigner,
             <span class="kw-2">&amp;</span><span class="self">self</span>.type_table,
         ))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
@@ -728,7 +726,7 @@
     <span class="doccomment">/// Runs the dead code elimination pass.
     </span><span class="kw">pub fn </span>dead_code_elimination_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span><span class="self">self</span>.compiler_options.build.dce_enabled {
-            <span class="self">self</span>.ast = DeadCodeEliminator::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder))<span class="question-mark">?</span>;
+            <span class="self">self</span>.ast = DeadCodeEliminator::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast),))<span class="question-mark">?</span>;
         }
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.dce_ast {
