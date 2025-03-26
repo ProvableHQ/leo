@@ -65,6 +65,9 @@ impl Command for LeoNew {
             NetworkName::CanaryV0 => Package::initialize::<CanaryV0>(&self.name, &package_path, self.endpoint),
         }?;
 
+        let full_path = package_path.join(&self.name);
+        println!("Created program {} at `{}`.", self.name.bold(), full_path.display());
+
         Ok(())
     }
 }
