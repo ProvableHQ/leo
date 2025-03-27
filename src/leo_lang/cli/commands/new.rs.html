@@ -68,7 +68,10 @@
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -134,6 +137,9 @@
             NetworkName::TestnetV0 =&gt; Package::initialize::&lt;TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>package_path, <span class="self">self</span>.endpoint),
             NetworkName::CanaryV0 =&gt; Package::initialize::&lt;CanaryV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>package_path, <span class="self">self</span>.endpoint),
         }<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>full_path = package_path.join(<span class="kw-2">&amp;</span><span class="self">self</span>.name);
+        <span class="macro">println!</span>(<span class="string">"Created program {} at `{}`."</span>, <span class="self">self</span>.name.bold(), full_path.display());
 
         <span class="prelude-val">Ok</span>(())
     }
