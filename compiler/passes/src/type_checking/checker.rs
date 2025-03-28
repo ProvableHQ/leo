@@ -288,7 +288,7 @@ impl<'a> TypeChecker<'a> {
 
         // Make sure the input is no bigger than 64 bits.
         // Due to overhead in the bitwise representations of types in SnarkVM, 64 bit integers
-        // input more than 64 bits to a hash function.
+        // input more than 64 bits to a hash function, as do all structs and arrays.
         let assert_pedersen_64_bit_input = |type_: &Type, span: Span| {
             if !matches!(
                 type_,
@@ -310,8 +310,12 @@ impl<'a> TypeChecker<'a> {
         };
 
         // Make sure the input is no bigger than 128 bits.
+        //
+        // Due to overhead in the bitwise representations of types in SnarkVM, 128 bit integers
+        // input more than 128 bits to a hash function, as do most structs and arrays. We could
+        // actually allow arrays with a single element of type smaller than 64 bits, but it
+        // seems most understandable to the user to simply disallow composite types entirely.
         let assert_pedersen_128_bit_input = |type_: &Type, span: Span| {
-            // This is presumably a little more conservative than necessary.
             if !matches!(
                 type_,
                 Type::Integer(IntegerType::U8)
