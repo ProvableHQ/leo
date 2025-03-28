@@ -66,7 +66,9 @@ fn handle_run<N: Network>(command: LeoRun, context: Context) -> Result<<LeoRun a
     let mut inputs = command.inputs;
 
     // Compose the `run` command.
-    let mut arguments = vec![SNARKVM_COMMAND.to_string(), command.name];
+    // The argument "--" is the separator, used to make sure snarkvm doesn't try to parse negative
+    // values as CLI flags.
+    let mut arguments = vec![SNARKVM_COMMAND.to_string(), command.name, "--".to_string()];
 
     // Add the inputs to the arguments.
     match command.file {
