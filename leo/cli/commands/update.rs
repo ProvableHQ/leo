@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::cli::helpers::updater::Updater;
+use crate::cli::helpers::updater;
 
 /// Update Leo to the latest version
 #[derive(Debug, Parser)]
@@ -45,12 +45,12 @@ impl Command for LeoUpdate {
         Self: Sized,
     {
         match self.list {
-            true => match Updater::show_available_releases() {
+            true => match updater::show_available_releases() {
                 Ok(output) => tracing::info!("{output}"),
                 Err(error) => tracing::info!("Failed to list the available versions of Leo\n{error}\n"),
             },
             false => {
-                let result = Updater::update_to_latest_release(!self.quiet);
+                let result = updater::update_to_latest_release(!self.quiet);
                 if !self.quiet {
                     match result {
                         Ok(status) => {

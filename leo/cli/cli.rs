@@ -125,8 +125,8 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     }
 
     //  Check for updates. If not forced, it checks once per day.
-    if let Ok(true) = updater::Updater::check_for_updates(false) {
-        let _ = updater::Updater::print_cli();
+    if let Ok(true) = updater::check_for_updates(false) {
+        let _ = updater::print_cli();
     }
 
     // Get custom root folder and create context for it.
