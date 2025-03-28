@@ -30,7 +30,7 @@ pub mod debug;
 pub use debug::LeoDebug;
 
 pub mod deploy;
-pub use deploy::Deploy;
+pub use deploy::LeoDeploy;
 
 pub mod execute;
 pub use execute::LeoExecute;

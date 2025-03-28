@@ -65,7 +65,7 @@ enum Commands {
     #[clap(about = "Deploy a program")]
     Deploy {
         #[clap(flatten)]
-        command: Deploy,
+        command: LeoDeploy,
     },
     #[clap(about = "Query live data from the Aleo network")]
     Query {
