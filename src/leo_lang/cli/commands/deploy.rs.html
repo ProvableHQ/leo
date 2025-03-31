@@ -322,7 +322,7 @@
 
 <span class="doccomment">/// Deploys an Aleo program.
 </span><span class="attr">#[derive(Parser, Debug)]
-</span><span class="kw">pub struct </span>Deploy {
+</span><span class="kw">pub struct </span>LeoDeploy {
     <span class="attr">#[clap(flatten)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) fee_options: FeeOptions,
     <span class="attr">#[clap(long, help = <span class="string">"Disables building of the project before deployment."</span>, default_value = <span class="string">"false"</span>)]
@@ -339,7 +339,7 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) options: BuildOptions,
 }
 
-<span class="kw">impl </span>Command <span class="kw">for </span>Deploy {
+<span class="kw">impl </span>Command <span class="kw">for </span>LeoDeploy {
     <span class="kw">type </span>Input = ();
     <span class="kw">type </span>Output = ();
 
@@ -378,11 +378,11 @@
 
 <span class="comment">// A helper function to handle deployment logic.
 </span><span class="kw">fn </span>handle_deploy&lt;A: Aleo&lt;Network = N, BaseField = N::Field&gt;, N: Network&gt;(
-    command: <span class="kw-2">&amp;</span>Deploy,
+    command: <span class="kw-2">&amp;</span>LeoDeploy,
     context: Context,
     network: NetworkName,
     endpoint: <span class="kw-2">&amp;</span>str,
-) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;Deploy <span class="kw">as </span>Command&gt;::Output&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;LeoDeploy <span class="kw">as </span>Command&gt;::Output&gt; {
     <span class="comment">// Get the program name.
     </span><span class="kw">let </span>project_name = context.open_manifest::&lt;N&gt;()<span class="question-mark">?</span>.program_id().to_string();
 

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["deploy_cost_breakdown","handle_deploy"],"struct":["Deploy"]};
+window.SIDEBAR_ITEMS = {"fn":["deploy_cost_breakdown","handle_deploy"],"struct":["LeoDeploy"]};

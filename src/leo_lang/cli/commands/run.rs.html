@@ -115,7 +115,9 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -183,7 +185,9 @@
     <span class="kw">let </span><span class="kw-2">mut </span>inputs = command.inputs;
 
     <span class="comment">// Compose the `run` command.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[SNARKVM_COMMAND.to_string(), command.name];
+    // The argument "--" is the separator, used to make sure snarkvm doesn't try to parse negative
+    // values as CLI flags.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[SNARKVM_COMMAND.to_string(), command.name, <span class="string">"--"</span>.to_string()];
 
     <span class="comment">// Add the inputs to the arguments.
     </span><span class="kw">match </span>command.file {
