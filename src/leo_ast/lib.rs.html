@@ -192,8 +192,7 @@
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#194" id="194">194</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -250,12 +249,11 @@
 <span class="kw">pub mod </span>types;
 <span class="kw">pub use </span><span class="self">self</span>::types::<span class="kw-2">*</span>;
 
-<span class="kw">pub mod </span>value;
-
 <span class="kw">pub mod </span>stub;
 <span class="kw">pub use </span><span class="self">self</span>::stub::<span class="kw-2">*</span>;
 
-<span class="kw">pub use </span><span class="self">self</span>::value::<span class="kw-2">*</span>;
+<span class="kw">mod </span>value;
+<span class="kw">pub use </span>value::<span class="kw-2">*</span>;
 
 <span class="kw">pub use </span>common::node::<span class="kw-2">*</span>;
 

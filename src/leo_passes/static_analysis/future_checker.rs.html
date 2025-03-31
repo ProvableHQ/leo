@@ -216,7 +216,7 @@
     handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; FutureChecker&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>FutureChecker&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>emit_err(<span class="kw-2">&amp;</span><span class="self">self</span>, err: StaticAnalyzerError) {
         <span class="self">self</span>.handler.emit_err(err);
     }

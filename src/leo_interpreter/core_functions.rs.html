@@ -1286,7 +1286,7 @@
     <span class="macro">macro_rules!</span> maybe_gen {
         () =&gt; {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(rng) = helper.rng() {
-                rng.gen()
+                rng.r#gen()
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
             }

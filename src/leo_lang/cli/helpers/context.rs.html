@@ -247,7 +247,7 @@
     <span class="doccomment">/// Returns the path of the parent directory to the Leo package.
     </span><span class="kw">pub fn </span>parent_dir(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PathBuf&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.path {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) =&gt; {
+            <span class="prelude-val">Some</span>(path) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>path = path.clone();
                 path.pop();
                 <span class="prelude-val">Ok</span>(path)

@@ -94,10 +94,7 @@
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#96" id="96">96</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -163,10 +160,7 @@
 
                 <span class="comment">// Replace each input variable with the appropriate parameter.
                 </span><span class="kw">let </span>replace = |identifier: <span class="kw-2">&amp;</span>Identifier| {
-                    parameter_to_argument
-                        .get(<span class="kw-2">&amp;</span>identifier.name)
-                        .cloned()
-                        .unwrap_or_else(|| Expression::Identifier(<span class="kw-2">*</span>identifier))
+                    parameter_to_argument.get(<span class="kw-2">&amp;</span>identifier.name).cloned().unwrap_or(Expression::Identifier(<span class="kw-2">*</span>identifier))
                 };
 
                 <span class="kw">let </span><span class="kw-2">mut </span>inlined_statements =

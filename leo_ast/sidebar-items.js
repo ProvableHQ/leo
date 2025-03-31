@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["normalize_json_value","remove_key_from_json"],"macro":["simple_node_impl"],"mod":["access","common","expressions","functions","indent_display","mapping","passes","program","statement","struct","stub","types","value"],"struct":["Ast"]};
+window.SIDEBAR_ITEMS = {"enum":["Value"],"fn":["normalize_json_value","remove_key_from_json"],"macro":["simple_node_impl"],"mod":["access","common","expressions","functions","indent_display","mapping","passes","program","statement","struct","stub","types","value"],"struct":["Ast"]};

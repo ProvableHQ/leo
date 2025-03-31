@@ -524,7 +524,7 @@
     cursor: usize,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Widget <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>Prompt {
+<span class="kw">impl </span>Widget <span class="kw">for </span><span class="kw-2">&amp;</span>Prompt {
     <span class="kw">fn </span>render(<span class="self">self</span>, area: Rect, buf: <span class="kw-2">&amp;mut </span>Buffer) {
         <span class="kw">let </span><span class="kw-2">mut </span>plain = || {
             Text::raw(<span class="kw-2">&amp;</span><span class="self">self</span>.current).render(area, buf);

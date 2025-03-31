@@ -1897,28 +1897,28 @@
                 <span class="kw">for </span>value <span class="kw">in </span>rand.operands().iter().map(|op| <span class="self">self</span>.operand_value(op)) {
                     value.write_bits_le(<span class="kw-2">&amp;mut </span>bits);
                 }
-                <span class="kw">let </span>field: Field&lt;TestnetV0&gt; = <span class="self">self</span>.rng.gen();
+                <span class="kw">let </span>field: Field&lt;TestnetV0&gt; = <span class="self">self</span>.rng.r#gen();
                 field.write_bits_le(<span class="kw-2">&amp;mut </span>bits);
                 <span class="kw">let </span>seed_vec = TestnetV0::hash_bhp1024(<span class="kw-2">&amp;</span>bits)<span class="question-mark">?</span>.to_bytes_le()<span class="question-mark">?</span>;
                 <span class="kw">let </span><span class="kw-2">mut </span>seed = [<span class="number">0u8</span>; <span class="number">32</span>];
                 seed.copy_from_slice(<span class="kw-2">&amp;</span>seed_vec[..<span class="number">32</span>]);
                 <span class="kw">let </span><span class="kw-2">mut </span>rng = ChaCha20Rng::from_seed(seed);
                 <span class="kw">let </span>value = <span class="kw">match </span>rand.destination_type() {
-                    LiteralType::Address =&gt; Value::Address(rng.gen()),
-                    LiteralType::Boolean =&gt; Value::Bool(rng.gen()),
-                    LiteralType::Field =&gt; Value::Field(rng.gen()),
-                    LiteralType::Group =&gt; Value::Group(rng.gen()),
-                    LiteralType::I8 =&gt; Value::I8(rng.gen()),
-                    LiteralType::I16 =&gt; Value::I16(rng.gen()),
-                    LiteralType::I32 =&gt; Value::I32(rng.gen()),
-                    LiteralType::I64 =&gt; Value::I64(rng.gen()),
-                    LiteralType::I128 =&gt; Value::I128(rng.gen()),
-                    LiteralType::U8 =&gt; Value::U8(rng.gen()),
-                    LiteralType::U16 =&gt; Value::U16(rng.gen()),
-                    LiteralType::U32 =&gt; Value::U32(rng.gen()),
-                    LiteralType::U64 =&gt; Value::U64(rng.gen()),
-                    LiteralType::U128 =&gt; Value::U128(rng.gen()),
-                    LiteralType::Scalar =&gt; Value::Scalar(rng.gen()),
+                    LiteralType::Address =&gt; Value::Address(rng.r#gen()),
+                    LiteralType::Boolean =&gt; Value::Bool(rng.r#gen()),
+                    LiteralType::Field =&gt; Value::Field(rng.r#gen()),
+                    LiteralType::Group =&gt; Value::Group(rng.r#gen()),
+                    LiteralType::I8 =&gt; Value::I8(rng.r#gen()),
+                    LiteralType::I16 =&gt; Value::I16(rng.r#gen()),
+                    LiteralType::I32 =&gt; Value::I32(rng.r#gen()),
+                    LiteralType::I64 =&gt; Value::I64(rng.r#gen()),
+                    LiteralType::I128 =&gt; Value::I128(rng.r#gen()),
+                    LiteralType::U8 =&gt; Value::U8(rng.r#gen()),
+                    LiteralType::U16 =&gt; Value::U16(rng.r#gen()),
+                    LiteralType::U32 =&gt; Value::U32(rng.r#gen()),
+                    LiteralType::U64 =&gt; Value::U64(rng.r#gen()),
+                    LiteralType::U128 =&gt; Value::U128(rng.r#gen()),
+                    LiteralType::Scalar =&gt; Value::Scalar(rng.r#gen()),
                     LiteralType::Signature =&gt; <span class="macro">halt_no_span!</span>(<span class="string">"Cannot create a random signature"</span>),
                     LiteralType::String =&gt; <span class="macro">halt_no_span!</span>(<span class="string">"Cannot create a random string"</span>),
                 };

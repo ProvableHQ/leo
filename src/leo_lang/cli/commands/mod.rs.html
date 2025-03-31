@@ -661,8 +661,8 @@
 }
 
 <span class="doccomment">/// Determine if the transaction should be broadcast or displayed to user.
-</span><span class="kw">fn </span>handle_broadcast&lt;N: Network&gt;(endpoint: <span class="kw-2">&amp;</span>String, transaction: Transaction&lt;N&gt;, operation: <span class="kw-2">&amp;</span>String) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="macro">println!</span>(<span class="string">"Broadcasting transaction to {}...\n"</span>, endpoint.clone());
+</span><span class="kw">fn </span>handle_broadcast&lt;N: Network&gt;(endpoint: <span class="kw-2">&amp;</span>str, transaction: Transaction&lt;N&gt;, operation: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="macro">println!</span>(<span class="string">"Broadcasting transaction to {}...\n"</span>, endpoint);
     <span class="comment">// Get the transaction id.
     </span><span class="kw">let </span>transaction_id = transaction.id();
 

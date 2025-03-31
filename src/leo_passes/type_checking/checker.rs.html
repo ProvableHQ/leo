@@ -2115,7 +2115,7 @@
             Type::Composite(struct_)
                 <span class="kw">if </span><span class="self">self
                     </span>.lookup_struct(struct_.program.or(<span class="self">self</span>.scope_state.program_name), struct_.id.name)
-                    .map_or(<span class="bool-val">false</span>, |struct_| struct_.is_record) =&gt;
+                    .is_some_and(|struct_| struct_.is_record) =&gt;
             {
                 <span class="self">self</span>.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
             }

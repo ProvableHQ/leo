@@ -911,12 +911,7 @@
 <a href="#910" id="910">910</a>
 <a href="#911" id="911">911</a>
 <a href="#912" id="912">912</a>
-<a href="#913" id="913">913</a>
-<a href="#914" id="914">914</a>
-<a href="#915" id="915">915</a>
-<a href="#916" id="916">916</a>
-<a href="#917" id="917">917</a>
-<a href="#918" id="918">918</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#913" id="913">913</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -944,12 +939,7 @@
     ops::{BitAnd, BitOr, BitXor, Not},
 };
 
-<span class="comment">// TODO: Consider refactoring this module to use the console implementations from snarkVM.
-
-// This is temporary since the currently unused code is used in constant folding.
-</span><span class="attr">#[allow(dead_code)]
-
-</span><span class="comment">// Macro for making implementing unary operations over appropriate types easier.
+<span class="comment">// Macro for making implementing unary operations over appropriate types easier.
 </span><span class="macro">macro_rules!</span> implement_const_unary {
     (
         @overflowing
