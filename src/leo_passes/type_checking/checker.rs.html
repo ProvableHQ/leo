@@ -1244,7 +1244,11 @@
 <a href="#1243" id="1243">1243</a>
 <a href="#1244" id="1244">1244</a>
 <a href="#1245" id="1245">1245</a>
-<a href="#1246" id="1246">1246</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#1246" id="1246">1246</a>
+<a href="#1247" id="1247">1247</a>
+<a href="#1248" id="1248">1248</a>
+<a href="#1249" id="1249">1249</a>
+<a href="#1250" id="1250">1250</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1534,7 +1538,7 @@
 
         <span class="comment">// Make sure the input is no bigger than 64 bits.
         // Due to overhead in the bitwise representations of types in SnarkVM, 64 bit integers
-        // input more than 64 bits to a hash function.
+        // input more than 64 bits to a hash function, as do all structs and arrays.
         </span><span class="kw">let </span>assert_pedersen_64_bit_input = |type_: <span class="kw-2">&amp;</span>Type, span: Span| {
             <span class="kw">if </span>!<span class="macro">matches!</span>(
                 type_,
@@ -1556,9 +1560,13 @@
         };
 
         <span class="comment">// Make sure the input is no bigger than 128 bits.
+        //
+        // Due to overhead in the bitwise representations of types in SnarkVM, 128 bit integers
+        // input more than 128 bits to a hash function, as do most structs and arrays. We could
+        // actually allow arrays with a single element of type smaller than 64 bits, but it
+        // seems most understandable to the user to simply disallow composite types entirely.
         </span><span class="kw">let </span>assert_pedersen_128_bit_input = |type_: <span class="kw-2">&amp;</span>Type, span: Span| {
-            <span class="comment">// This is presumably a little more conservative than necessary.
-            </span><span class="kw">if </span>!<span class="macro">matches!</span>(
+            <span class="kw">if </span>!<span class="macro">matches!</span>(
                 type_,
                 Type::Integer(IntegerType::U8)
                     | Type::Integer(IntegerType::U16)
