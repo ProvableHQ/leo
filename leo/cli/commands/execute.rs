@@ -33,6 +33,7 @@ use snarkvm::{
     cli::LOCALE,
     package::Package as SnarkVMPackage,
     prelude::{
+        ConsensusVersion,
         Identifier,
         Locator,
         Process,
@@ -201,7 +202,7 @@ fn handle_execute<A: Aleo>(
         let is_priority_fee_declared = command.fee_options.priority_fee > 0;
         // Compute the execution.
         let execution = match vm.execute_authorization(authorization, None, Some(query.clone()), rng)? {
-            Transaction::Execute(_, execution, _) => execution,
+            Transaction::Execute(_, _, execution, _) => execution,
             _ => unreachable!("VM::execute_authorization should return a Transaction::Execute"),
         };
 
@@ -218,7 +219,7 @@ fn handle_execute<A: Aleo>(
                 let (base_fee, (storage_cost, finalize_cost)) =
                     // Attempt to get the height of the latest block to determine which version of the execution cost to use.
                     if let Ok(height) = get_latest_block_height(endpoint, &network.to_string(), &context) {
-                        if height < A::Network::CONSENSUS_V2_HEIGHT {
+                        if height < A::Network::CONSENSUS_HEIGHT(ConsensusVersion::V2).unwrap() {
                             execution_cost_v1(&vm.process().read(), &execution)?
                         } else {
                             execution_cost_v2(&vm.process().read(), &execution)?
@@ -296,7 +297,7 @@ fn handle_execute<A: Aleo>(
             false => None,
         };
         // Return the execute transaction.
-        let transaction = Transaction::from_execution(execution, fee)?;
+        let transaction = Transaction::from_execution(*execution, fee)?;
 
         // Broadcast the execution transaction.
         if !command.fee_options.dry_run {

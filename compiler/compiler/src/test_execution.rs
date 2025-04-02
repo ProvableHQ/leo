@@ -186,7 +186,7 @@ fn execution_run_test(test: &str, handler: &Handler, cases: &[Case]) -> Result<S
         handler.extend_if_error(result.map_err(LeoError::Anyhow))?;
 
         // Extract the execution and remove the global state root.
-        let execution = if let Some(Transaction::Execute(_, execution, _)) = execution {
+        let execution = if let Some(Transaction::Execute(_, _, execution, _)) = execution {
             let proof = execution.proof().cloned();
             let transitions = execution.into_transitions();
             Some(Execution::from(transitions, Default::default(), proof).unwrap())
