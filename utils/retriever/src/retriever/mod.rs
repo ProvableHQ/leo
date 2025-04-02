@@ -19,7 +19,7 @@ use crate::{Dependency, Location, LockFileEntry, Manifest, NetworkName, ProgramC
 use leo_ast::Stub;
 use leo_disassembler::disassemble_from_str;
 use leo_errors::UtilError;
-use leo_passes::{DiGraphError, common::DiGraph};
+use leo_passes::{DiGraph, DiGraphError};
 use leo_span::Symbol;
 
 use snarkvm::prelude::{Network, Program};

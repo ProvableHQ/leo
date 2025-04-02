@@ -78,7 +78,7 @@ impl Interpreter {
         let text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))?;
         let filename = FileName::Real(path.to_path_buf());
         let source_file = with_session_globals(|s| s.source_map.new_source(&text, filename));
-        leo_parser::parse_ast::<TestnetV0>(handler, node_builder, &text, source_file.start_pos)
+        leo_parser::parse_ast::<TestnetV0>(handler.clone(), node_builder, &text, source_file.start_pos)
     }
 
     fn new_impl(
@@ -249,7 +249,7 @@ impl Interpreter {
                 let s = s.trim();
                 if s.ends_with(';') {
                     let statement = leo_parser::parse_statement::<TestnetV0>(
-                        &self.handler,
+                        self.handler.clone(),
                         &self.node_builder,
                         s,
                         source_file.start_pos,
@@ -264,7 +264,7 @@ impl Interpreter {
                     self.cursor.frames.push(Frame { step: 0, element: Element::Statement(stmt), user_initiated: true });
                 } else {
                     let expression = leo_parser::parse_expression::<TestnetV0>(
-                        &self.handler,
+                        self.handler.clone(),
                         &self.node_builder,
                         s,
                         source_file.start_pos,

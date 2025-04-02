@@ -14,10 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Pass, SymbolTable, VariableSymbol, VariableType};
+use crate::{CompilerState, Pass, VariableSymbol, VariableType};
 
 use leo_ast::{
-    Ast,
     Composite,
     ExpressionVisitor,
     Function,
@@ -33,16 +32,40 @@ use leo_ast::{
     Type,
     Variant,
 };
-use leo_errors::{AstError, LeoError, Result, emitter::Handler};
+use leo_errors::{AstError, LeoError, Result};
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
 
-pub struct SymbolTableCreator<'a> {
-    /// The `SymbolTable` constructed by this compiler pass.
-    symbol_table: SymbolTable,
-    /// The error handler.
-    handler: &'a Handler,
+/// A pass to fill the SymbolTable.
+///
+/// Only creates the global data - local data will be constructed during type checking.
+pub struct SymbolTableCreation;
+
+impl Pass for SymbolTableCreation {
+    type Input = ();
+    type Output = ();
+
+    const NAME: &'static str = "SymbolTableCreation";
+
+    fn do_pass(_input: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
+        let ast = std::mem::take(&mut state.ast);
+        let mut visitor = SymbolTableCreationVisitor {
+            state,
+            structs: IndexSet::new(),
+            program_name: Symbol::intern(""),
+            is_stub: false,
+        };
+        visitor.visit_program(ast.as_repr());
+        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.ast = ast;
+        Ok(())
+    }
+}
+
+struct SymbolTableCreationVisitor<'a> {
+    /// The state of the compiler.
+    state: &'a mut CompilerState,
     /// The current program name.
     program_name: Symbol,
     /// Whether or not traversing stub.
@@ -51,26 +74,14 @@ pub struct SymbolTableCreator<'a> {
     structs: IndexSet<Symbol>,
 }
 
-impl<'a> SymbolTableCreator<'a> {
-    pub fn new(handler: &'a Handler) -> Self {
-        Self {
-            symbol_table: Default::default(),
-            handler,
-            program_name: Symbol::intern(""),
-            is_stub: false,
-            structs: IndexSet::new(),
-        }
-    }
-}
-
-impl ExpressionVisitor for SymbolTableCreator<'_> {
+impl ExpressionVisitor for SymbolTableCreationVisitor<'_> {
     type AdditionalInput = ();
     type Output = ();
 }
 
-impl StatementVisitor for SymbolTableCreator<'_> {}
+impl StatementVisitor for SymbolTableCreationVisitor<'_> {}
 
-impl ProgramVisitor for SymbolTableCreator<'_> {
+impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set current program name
         self.program_name = input.program_id.name.name;
@@ -90,23 +101,25 @@ impl ProgramVisitor for SymbolTableCreator<'_> {
     fn visit_struct(&mut self, input: &Composite) {
         // Allow up to one local redefinition for each external struct.
         if !input.is_record && !self.structs.insert(input.name()) {
-            return self.handler.emit_err::<LeoError>(AstError::shadowed_struct(input.name(), input.span).into());
+            return self.state.handler.emit_err::<LeoError>(AstError::shadowed_struct(input.name(), input.span).into());
         }
         if input.is_record {
             let program_name = input.external.unwrap_or(self.program_name);
-            if let Err(err) = self.symbol_table.insert_record(Location::new(program_name, input.name()), input.clone())
+            if let Err(err) =
+                self.state.symbol_table.insert_record(Location::new(program_name, input.name()), input.clone())
             {
-                self.handler.emit_err(err);
+                self.state.handler.emit_err(err);
             }
-        } else if let Err(err) = self.symbol_table.insert_struct(self.program_name, input.name(), input.clone()) {
-            self.handler.emit_err(err);
+        } else if let Err(err) = self.state.symbol_table.insert_struct(self.program_name, input.name(), input.clone()) {
+            self.state.handler.emit_err(err);
         }
     }
 
     fn visit_mapping(&mut self, input: &Mapping) {
         // Add the variable associated with the mapping to the symbol table.
-        if let Err(err) =
-            self.symbol_table.insert_global(Location::new(self.program_name, input.identifier.name), VariableSymbol {
+        if let Err(err) = self.state.symbol_table.insert_global(
+            Location::new(self.program_name, input.identifier.name),
+            VariableSymbol {
                 type_: Type::Mapping(MappingType {
                     key: Box::new(input.key_type.clone()),
                     value: Box::new(input.value_type.clone()),
@@ -114,17 +127,17 @@ impl ProgramVisitor for SymbolTableCreator<'_> {
                 }),
                 span: input.span,
                 declaration: VariableType::Mut,
-            })
-        {
-            self.handler.emit_err(err);
+            },
+        ) {
+            self.state.handler.emit_err(err);
         }
     }
 
     fn visit_function(&mut self, input: &Function) {
         if let Err(err) =
-            self.symbol_table.insert_function(Location::new(self.program_name, input.name()), input.clone())
+            self.state.symbol_table.insert_function(Location::new(self.program_name, input.name()), input.clone())
         {
-            self.handler.emit_err(err);
+            self.state.handler.emit_err(err);
         }
     }
 
@@ -140,8 +153,8 @@ impl ProgramVisitor for SymbolTableCreator<'_> {
         // Construct the location for the function.
         let location = Location::new(self.program_name, input.name());
         // Initialize the function symbol.
-        if let Err(err) = self.symbol_table.insert_function(location, Function::from(input.clone())) {
-            self.handler.emit_err(err);
+        if let Err(err) = self.state.symbol_table.insert_function(location, Function::from(input.clone())) {
+            self.state.handler.emit_err(err);
         }
 
         // If the `FunctionStub` is an async transition, attach the finalize logic to the function.
@@ -151,13 +164,13 @@ impl ProgramVisitor for SymbolTableCreator<'_> {
         if matches!(input.variant, Variant::AsyncTransition) {
             // This matches the logic in the disassembler.
             let name = Symbol::intern(&format!("finalize/{}", input.name()));
-            if let Err(err) = self.symbol_table.attach_finalizer(
+            if let Err(err) = self.state.symbol_table.attach_finalizer(
                 location,
                 Location::new(self.program_name, name),
                 Vec::new(),
                 Vec::new(),
             ) {
-                self.handler.emit_err(err);
+                self.state.handler.emit_err(err);
             }
         }
     }
@@ -169,28 +182,13 @@ impl ProgramVisitor for SymbolTableCreator<'_> {
 
         if input.is_record {
             let program_name = input.external.unwrap_or(self.program_name);
-            if let Err(err) = self.symbol_table.insert_record(Location::new(program_name, input.name()), input.clone())
+            if let Err(err) =
+                self.state.symbol_table.insert_record(Location::new(program_name, input.name()), input.clone())
             {
-                self.handler.emit_err(err);
+                self.state.handler.emit_err(err);
             }
-        } else if let Err(err) = self.symbol_table.insert_struct(self.program_name, input.name(), input.clone()) {
-            self.handler.emit_err(err);
+        } else if let Err(err) = self.state.symbol_table.insert_struct(self.program_name, input.name(), input.clone()) {
+            self.state.handler.emit_err(err);
         }
-    }
-}
-
-impl<'a> Pass for SymbolTableCreator<'a> {
-    type Input = (&'a Ast, &'a Handler);
-    type Output = Result<SymbolTable>;
-
-    const NAME: &'static str = "SymbolTableCreator";
-
-    /// Runs the compiler pass.
-    fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut visitor = SymbolTableCreator::new(handler);
-        visitor.visit_program(ast.as_repr());
-        handler.last_err().map_err(|e| *e)?;
-
-        Ok(visitor.symbol_table)
     }
 }

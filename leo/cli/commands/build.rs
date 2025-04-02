@@ -201,7 +201,7 @@ fn compile_leo_file<N: Network>(
     let enable_dce = options.enable_dce;
 
     // Create a new instance of the Leo compiler.
-    let mut compiler = Compiler::<N>::new(handler, outputs.to_path_buf(), Some(options.into()), stubs);
+    let mut compiler = Compiler::<N>::new(handler.clone(), outputs.to_path_buf(), Some(options.into()), stubs);
 
     // Compile the Leo program into Aleo instructions.
     let instructions = compiler.compile_from_file(file_path)?;

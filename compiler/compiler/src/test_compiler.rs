@@ -48,7 +48,7 @@ pub fn whole_compile(
     let options = CompilerOptions { build: BuildOptions { dce_enabled, ..Default::default() }, ..Default::default() };
 
     let mut compiler =
-        Compiler::<TestnetV0>::new(handler, "/fakedirectory-wont-use".into(), Some(options), import_stubs);
+        Compiler::<TestnetV0>::new(handler.clone(), "/fakedirectory-wont-use".into(), Some(options), import_stubs);
 
     let filename = FileName::Custom("compiler-test".into());
 
@@ -96,7 +96,7 @@ fn run_test(test: &str, dce_enabled: bool, handler: &Handler) -> Result<String, 
 fn runner(source: &str) -> String {
     fn run(source: &str, dce_enabled: bool) -> String {
         let buf = BufferEmitter::new();
-        let handler = Handler::new(Box::new(buf.clone()));
+        let handler = Handler::new(buf.clone());
 
         match run_test(source, dce_enabled, &handler) {
             Ok(x) => x,

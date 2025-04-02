@@ -51,30 +51,41 @@
 //! }
 //! ```
 
-mod flatten_expression;
+use crate::Pass;
 
-mod flatten_program;
-
-mod flatten_statement;
-
-pub mod flattener;
-pub use flattener::*;
-
-use crate::{Assigner, Pass, SymbolTable, TypeTable};
-
-use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
+use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
+use leo_span::Symbol;
 
-impl<'a> Pass for Flattener<'a> {
-    type Input = (Ast, &'a SymbolTable, &'a TypeTable, &'a NodeBuilder, &'a Assigner);
-    type Output = Result<Ast>;
+mod expression;
 
-    const NAME: &'static str = "Flattener";
+mod program;
 
-    fn do_pass((ast, symbol_table, type_table, node_builder, assigner): Self::Input) -> Self::Output {
-        let mut reconstructor = Flattener::new(symbol_table, type_table, node_builder, assigner);
-        let program = reconstructor.reconstruct_program(ast.into_repr());
+mod statement;
 
-        Ok(Ast::new(program))
+mod visitor;
+use visitor::*;
+
+pub struct Flattening;
+
+impl Pass for Flattening {
+    type Input = ();
+    type Output = ();
+
+    const NAME: &str = "Flattening";
+
+    fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+        let mut ast = std::mem::take(&mut state.ast);
+        let mut visitor = FlatteningVisitor {
+            state,
+            condition_stack: Vec::new(),
+            returns: Vec::new(),
+            program: Symbol::intern(""),
+            is_async: false,
+        };
+        ast.ast = visitor.reconstruct_program(ast.ast);
+        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.ast = ast;
+        Ok(())
     }
 }

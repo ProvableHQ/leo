@@ -49,40 +49,48 @@
 //! - Unique variable names (provided by SSA)
 //! - Flattened code (provided by the flattening pass)
 
-mod eliminate_expression;
+use crate::Pass;
 
-mod eliminate_statement;
-
-mod eliminate_program;
-
-pub mod dead_code_eliminator;
-pub use dead_code_eliminator::*;
-
-use crate::{Pass, TypeTable};
-
-use leo_ast::{Ast, ProgramReconstructor as _};
+use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
 
-pub struct DeadCodeOutput {
-    pub ast: Ast,
+mod expression;
+
+mod program;
+
+mod statement;
+
+mod visitor;
+use visitor::*;
+
+pub struct DeadCodeEliminatingOutput {
     pub statements_before: u32,
     pub statements_after: u32,
 }
 
-impl<'a> Pass for DeadCodeEliminator<'a> {
-    type Input = (Ast, &'a TypeTable);
-    type Output = Result<DeadCodeOutput>;
+pub struct DeadCodeEliminating;
 
-    const NAME: &'static str = "DeadCodeEliminator";
+impl Pass for DeadCodeEliminating {
+    type Input = ();
+    type Output = DeadCodeEliminatingOutput;
 
-    fn do_pass((ast, type_table): Self::Input) -> Self::Output {
-        let mut reconstructor = DeadCodeEliminator::new(type_table);
-        let program = reconstructor.reconstruct_program(ast.into_repr());
+    const NAME: &str = "DeadCodeEliminating";
 
-        Ok(DeadCodeOutput {
-            ast: Ast::new(program),
-            statements_before: reconstructor.statements_before,
-            statements_after: reconstructor.statements_after,
+    fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+        let mut ast = std::mem::take(&mut state.ast);
+        let mut visitor = DeadCodeEliminatingVisitor {
+            state,
+            used_variables: Default::default(),
+            program_name: Default::default(),
+            statements_before: 0,
+            statements_after: 0,
+        };
+        ast.ast = visitor.reconstruct_program(ast.ast);
+        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.ast = ast;
+        Ok(DeadCodeEliminatingOutput {
+            statements_before: visitor.statements_before,
+            statements_after: visitor.statements_after,
         })
     }
 }

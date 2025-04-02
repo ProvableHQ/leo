@@ -14,32 +14,45 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod generator;
-pub use generator::*;
+use crate::Pass;
 
-mod visit_expressions;
-
-mod visit_program;
-
-mod visit_statements;
-
-mod visit_type;
-
-use crate::{CallGraph, Pass, StructGraph, SymbolTable, TypeTable};
-
-use leo_ast::{Ast, Program};
 use leo_errors::Result;
 
-impl<'a> Pass for CodeGenerator<'a> {
-    type Input = (&'a Ast, &'a SymbolTable, &'a TypeTable, &'a StructGraph, &'a CallGraph, &'a Program);
-    type Output = Result<String>;
+mod expression;
 
-    const NAME: &'static str = "CodeGenerator";
+mod program;
 
-    fn do_pass((ast, symbol_table, type_table, struct_graph, call_graph, program): Self::Input) -> Self::Output {
-        let mut generator = Self::new(symbol_table, type_table, struct_graph, call_graph, program);
-        let bytecode = generator.visit_program(ast.as_repr());
+mod statement;
 
-        Ok(bytecode)
+mod type_;
+
+mod visitor;
+use visitor::*;
+
+pub struct CodeGenerating;
+
+impl Pass for CodeGenerating {
+    type Input = ();
+    type Output = String;
+
+    const NAME: &str = "CodeGenerating";
+
+    fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+        let mut visitor = CodeGeneratingVisitor {
+            state,
+            next_register: 0,
+            current_function: None,
+            variable_mapping: Default::default(),
+            composite_mapping: Default::default(),
+            global_mapping: Default::default(),
+            variant: None,
+            program: &state.ast.ast,
+            program_id: None,
+            finalize_caller: None,
+            next_label: 0,
+            conditional_depth: 0,
+        };
+        let code = visitor.visit_program(visitor.state.ast.as_repr());
+        Ok(code)
     }
 }

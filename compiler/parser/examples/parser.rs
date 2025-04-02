@@ -53,12 +53,18 @@ fn main() -> Result<(), String> {
         Handler::with(|h| {
             let node_builder = NodeBuilder::default();
             let ast = match opt.network.as_str() {
-                "mainnet" => {
-                    leo_parser::parse_ast::<snarkvm::prelude::MainnetV0>(h, &node_builder, &code.src, code.start_pos)
-                }
-                "testnet" => {
-                    leo_parser::parse_ast::<snarkvm::prelude::TestnetV0>(h, &node_builder, &code.src, code.start_pos)
-                }
+                "mainnet" => leo_parser::parse_ast::<snarkvm::prelude::MainnetV0>(
+                    h.clone(),
+                    &node_builder,
+                    &code.src,
+                    code.start_pos,
+                ),
+                "testnet" => leo_parser::parse_ast::<snarkvm::prelude::TestnetV0>(
+                    h.clone(),
+                    &node_builder,
+                    &code.src,
+                    code.start_pos,
+                ),
                 _ => panic!("Invalid network"),
             }?;
             let json = Ast::to_json_string(&ast)?;

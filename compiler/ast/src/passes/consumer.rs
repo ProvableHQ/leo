@@ -65,7 +65,7 @@ pub trait ExpressionConsumer {
     fn consume_struct_init(&mut self, _input: StructExpression) -> Self::Output;
 
     fn consume_err(&mut self, _input: ErrExpression) -> Self::Output {
-        unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
+        panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
     fn consume_identifier(&mut self, _input: Identifier) -> Self::Output;

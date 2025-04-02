@@ -28,7 +28,7 @@ use std::{fmt::Display, marker::PhantomData, mem};
 /// May be converted into a [`Program`] AST by parsing all tokens.
 pub(crate) struct ParserContext<'a, N: Network> {
     /// Handler used to side-channel emit errors from the parser.
-    pub(crate) handler: &'a Handler,
+    pub(crate) handler: Handler,
     /// Counter used to generate unique node ids.
     pub(crate) node_builder: &'a NodeBuilder,
     /// All un-bumped tokens.
@@ -52,7 +52,7 @@ const DUMMY_EOF: SpannedToken = SpannedToken { token: Token::Eof, span: Span::du
 
 impl<'a, N: Network> ParserContext<'a, N> {
     /// Returns a new [`ParserContext`] type given a vector of tokens.
-    pub fn new(handler: &'a Handler, node_builder: &'a NodeBuilder, mut tokens: Vec<SpannedToken>) -> Self {
+    pub fn new(handler: Handler, node_builder: &'a NodeBuilder, mut tokens: Vec<SpannedToken>) -> Self {
         // Strip out comments.
         tokens.retain(|x| !matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)));
         // For performance we reverse so that we get cheap `.pop()`s.
@@ -122,7 +122,7 @@ impl<'a, N: Network> ParserContext<'a, N> {
     }
 
     /// Emit the error `err`.
-    pub(super) fn emit_err(&self, err: ParserError) {
+    pub(super) fn emit_err(&mut self, err: ParserError) {
         self.handler.emit_err(err);
     }
 
@@ -257,7 +257,7 @@ impl<'a, N: Network> ParserContext<'a, N> {
     }
 
     /// Error on identifiers that are longer than SnarkVM allows.
-    pub(crate) fn check_identifier(&self, identifier: &Identifier) {
+    pub(crate) fn check_identifier(&mut self, identifier: &Identifier) {
         let field_capacity_bytes: usize = Field::<N>::SIZE_IN_DATA_BITS / 8;
         let len = with_session_globals(|sg| identifier.name.as_str(sg, |s| s.len()));
         if len > field_capacity_bytes {

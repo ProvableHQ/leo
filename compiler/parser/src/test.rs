@@ -38,11 +38,11 @@ fn run_parse_many_test<T: Serialize>(
     test: &str,
     handler: &Handler,
     test_index: usize,
-    parse: fn(&Handler, &NodeBuilder, &str, BytePos) -> Result<T, LeoError>,
+    parse: fn(Handler, &NodeBuilder, &str, BytePos) -> Result<T, LeoError>,
 ) -> Result<String, ()> {
     let source_map =
         with_session_globals(|s| s.source_map.new_source(test, FileName::Custom(format!("test_{test_index}"))));
-    let result = parse(handler, &Default::default(), &source_map.src, source_map.start_pos);
+    let result = parse(handler.clone(), &Default::default(), &source_map.src, source_map.start_pos);
     let serializable = handler.extend_if_error(result)?;
     let value = serde_json::to_value(&serializable).expect("Serialization failure");
     let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");
@@ -52,12 +52,12 @@ fn run_parse_many_test<T: Serialize>(
 
 fn runner_parse_many_test<'a, T: Serialize>(
     tests: impl Iterator<Item = &'a str>,
-    parse: fn(&Handler, &NodeBuilder, &str, BytePos) -> Result<T, LeoError>,
+    parse: fn(Handler, &NodeBuilder, &str, BytePos) -> Result<T, LeoError>,
 ) -> String {
     create_session_if_not_set_then(|_| {
         let mut output = String::new();
         let buf = BufferEmitter::new();
-        let handler = Handler::new(Box::new(buf.clone()));
+        let handler = Handler::new(buf.clone());
 
         for (i, test) in tests.enumerate() {
             match run_parse_many_test(test, &handler, i, parse) {
@@ -129,7 +129,8 @@ fn parse_statement_tests() {
 
 fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
     let source_file = with_session_globals(|s| s.source_map.new_source(test, FileName::Custom("test".into())));
-    let result = crate::parse_ast::<TestnetV0>(handler, &Default::default(), &source_file.src, source_file.start_pos);
+    let result =
+        crate::parse_ast::<TestnetV0>(handler.clone(), &Default::default(), &source_file.src, source_file.start_pos);
     let ast = handler.extend_if_error(result)?;
     let value = serde_json::to_value(&ast.ast).expect("Serialization failure");
     let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");
@@ -140,7 +141,7 @@ fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
 fn runner_parser_test(test: &str) -> String {
     create_session_if_not_set_then(|_| {
         let buf = BufferEmitter::new();
-        let handler = Handler::new(Box::new(buf.clone()));
+        let handler = Handler::new(buf.clone());
 
         match run_parser_test(test, &handler) {
             Ok(x) => x,

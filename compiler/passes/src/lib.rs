@@ -17,41 +17,41 @@
 #![forbid(unsafe_code)]
 #![doc = include_str!("../README.md")]
 
-pub mod static_analysis;
+mod static_analysis;
 pub use static_analysis::*;
 
-pub mod code_generation;
+mod code_generation;
 pub use code_generation::*;
 
-pub mod common;
+mod common;
 pub use common::*;
 
 mod const_propagation;
 pub use const_propagation::*;
 
-pub mod dead_code_elimination;
+mod dead_code_elimination;
 pub use dead_code_elimination::*;
 
-pub mod destructuring;
+mod destructuring;
 pub use destructuring::*;
 
-pub mod flattening;
+mod flattening;
 pub use flattening::*;
 
-pub mod function_inlining;
+mod function_inlining;
 pub use function_inlining::*;
 
-pub mod loop_unrolling;
-pub use self::loop_unrolling::*;
+mod loop_unrolling;
+pub use loop_unrolling::*;
 
-pub mod pass;
-pub use self::pass::*;
+mod pass;
+pub use pass::*;
 
-pub mod static_single_assignment;
+mod static_single_assignment;
 pub use static_single_assignment::*;
 
 mod symbol_table_creation;
 pub use symbol_table_creation::*;
 
-pub mod type_checking;
+mod type_checking;
 pub use type_checking::*;

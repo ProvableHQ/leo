@@ -52,30 +52,40 @@
 //! }
 //! ```
 
-mod inline_expression;
+use crate::Pass;
 
-mod inline_statement;
-
-mod inline_program;
-
-pub mod function_inliner;
-pub use function_inliner::*;
-
-use crate::{CallGraph, Pass, TypeTable};
-
-use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
+use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
+use leo_span::Symbol;
 
-impl<'a> Pass for FunctionInliner<'a> {
-    type Input = (Ast, &'a NodeBuilder, &'a CallGraph, &'a TypeTable);
-    type Output = Result<Ast>;
+mod expression;
 
-    const NAME: &'static str = "FunctionInliner";
+mod program;
 
-    fn do_pass((ast, node_builder, call_graph, type_table): Self::Input) -> Self::Output {
-        let mut reconstructor = FunctionInliner::new(node_builder, call_graph, type_table);
-        let program = reconstructor.reconstruct_program(ast.into_repr());
+mod statement;
 
-        Ok(Ast::new(program))
+mod visitor;
+use visitor::*;
+
+pub struct FunctionInlining;
+
+impl Pass for FunctionInlining {
+    type Input = ();
+    type Output = ();
+
+    const NAME: &str = "FunctionInlining";
+
+    fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+        let mut ast = std::mem::take(&mut state.ast);
+        let mut visitor = FunctionInliningVisitor {
+            state,
+            reconstructed_functions: Vec::new(),
+            program: Symbol::intern(""),
+            is_async: false,
+        };
+        ast.ast = visitor.reconstruct_program(ast.ast);
+        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.ast = ast;
+        Ok(())
     }
 }

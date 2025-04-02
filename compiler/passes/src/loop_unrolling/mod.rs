@@ -14,45 +14,51 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::Pass;
+
+use leo_ast::ProgramReconstructor;
+use leo_errors::Result;
+use leo_span::{Span, Symbol};
+
 mod duplicate;
 
 mod range_iterator;
-pub(crate) use range_iterator::*;
+use range_iterator::*;
 
-pub mod unroller;
-pub use unroller::*;
+mod statement;
 
-pub mod unroll_program;
+mod program;
 
-pub mod unroll_statement;
+mod visitor;
+use visitor::*;
 
-use crate::{Pass, SymbolTable, TypeTable};
-
-use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
-use leo_errors::{Result, emitter::Handler};
-use leo_span::Span;
-
-pub struct UnrollerOutput {
-    /// If we encountered a loop that was not unrolled, here's it's spanned.
+pub struct UnrollingOutput {
+    /// If we encountered a loop that was not unrolled, here's it's span.
     pub loop_not_unrolled: Option<Span>,
     /// Did we unroll any loop?
     pub loop_unrolled: bool,
 }
 
-impl<'a> Pass for Unroller<'a> {
-    type Input = (Ast, &'a Handler, &'a NodeBuilder, &'a mut SymbolTable, &'a TypeTable);
-    type Output = Result<(Ast, UnrollerOutput)>;
+pub struct Unrolling;
 
-    const NAME: &'static str = "Unroller";
+impl Pass for Unrolling {
+    type Input = ();
+    type Output = UnrollingOutput;
 
-    fn do_pass((ast, handler, node_builder, symbol_table, tt): Self::Input) -> Self::Output {
-        let mut reconstructor = Self::new(symbol_table, tt, handler, node_builder);
-        let program = reconstructor.reconstruct_program(ast.into_repr());
-        handler.last_err().map_err(|e| *e)?;
+    const NAME: &str = "Unrolling";
 
-        Ok((Ast::new(program), UnrollerOutput {
-            loop_not_unrolled: reconstructor.loop_not_unrolled,
-            loop_unrolled: reconstructor.loop_unrolled,
-        }))
+    fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+        let mut ast = std::mem::take(&mut state.ast);
+        let mut visitor = UnrollingVisitor {
+            state,
+            is_unrolling: false,
+            program: Symbol::intern(""),
+            loop_not_unrolled: None,
+            loop_unrolled: false,
+        };
+        ast.ast = visitor.reconstruct_program(ast.ast);
+        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.ast = ast;
+        Ok(UnrollingOutput { loop_not_unrolled: visitor.loop_not_unrolled, loop_unrolled: visitor.loop_unrolled })
     }
 }

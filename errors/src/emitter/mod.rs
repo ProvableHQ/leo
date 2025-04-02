@@ -128,60 +128,39 @@ impl Emitter for BufferEmitter {
     }
 }
 
-/// Contains the actual data for `Handler`.
-/// Modelled this way to afford an API using interior mutability.
-struct HandlerInner {
+/// A handler deals with errors and other compiler output.
+#[derive(Clone)]
+pub struct Handler {
+    inner: Rc<RefCell<HandlerInner>>,
+}
+
+pub struct HandlerInner {
     /// Number of errors emitted thus far.
     err_count: usize,
     /// Number of warnings emitted thus far.
     warn_count: usize,
-    /// The sink through which errors will be emitted.
+    /// The Emitter used.
     emitter: Box<dyn Emitter>,
-}
-
-impl HandlerInner {
-    /// Emit the error `err`.
-    fn emit_err(&mut self, err: LeoError) {
-        self.err_count = self.err_count.saturating_add(1);
-        self.emitter.emit_err(err);
-    }
-
-    /// Gets the last emitted error's exit code.
-    fn last_emitted_err_code(&self) -> Option<i32> {
-        self.emitter.last_emitted_err_code()
-    }
-
-    /// Emit the error `err`.
-    fn emit_warning(&mut self, warning: LeoWarning) {
-        self.warn_count = self.warn_count.saturating_add(1);
-        self.emitter.emit_warning(warning);
-    }
-}
-
-/// A handler deals with errors and other compiler output.
-pub struct Handler {
-    /// The inner handler.
-    /// `RefCell` is used here to avoid `&mut` all over the compiler.
-    inner: RefCell<HandlerInner>,
 }
 
 impl Default for Handler {
     fn default() -> Self {
-        Self::new(Box::new(StderrEmitter { last_error_code: None }))
+        Self::new(StderrEmitter { last_error_code: None })
     }
 }
 
 impl Handler {
     /// Construct a `Handler` using the given `emitter`.
-    pub fn new(emitter: Box<dyn Emitter>) -> Self {
-        let inner = RefCell::new(HandlerInner { err_count: 0, warn_count: 0, emitter });
-        Self { inner }
+    pub fn new<T: 'static + Emitter>(emitter: T) -> Self {
+        Handler {
+            inner: Rc::new(RefCell::new(HandlerInner { err_count: 0, warn_count: 0, emitter: Box::new(emitter) })),
+        }
     }
 
     /// Construct a `Handler` that will append to `buf`.
     pub fn new_with_buf() -> (Self, BufferEmitter) {
         let buf = BufferEmitter::default();
-        let handler = Self::new(Box::new(buf.clone()));
+        let handler = Self::new(buf.clone());
         (handler, buf)
     }
 
@@ -192,22 +171,23 @@ impl Handler {
         handler.extend_if_error(logic(&handler)).map_err(|_| buf.extract_errs())
     }
 
+    /// Gets the last emitted error's exit code.
+    fn last_emitted_err_code(&self) -> Option<i32> {
+        self.inner.borrow().emitter.last_emitted_err_code()
+    }
+
     /// Emit the error `err`.
     pub fn emit_err<E: Into<LeoError>>(&self, err: E) {
-        self.inner.borrow_mut().emit_err(err.into());
+        let mut inner = self.inner.borrow_mut();
+        inner.err_count = inner.err_count.saturating_add(1);
+        inner.emitter.emit_err(err.into());
     }
 
     /// Emit the error `err`.
     pub fn emit_warning(&self, warning: LeoWarning) {
-        self.inner.borrow_mut().emit_warning(warning);
-    }
-
-    /// Emits the error `err`.
-    /// This will immediately abort compilation.
-    pub fn fatal_err(&self, err: LeoError) -> ! {
-        let code = err.exit_code();
-        self.emit_err(err);
-        std::process::exit(code);
+        let mut inner = self.inner.borrow_mut();
+        inner.warn_count = inner.warn_count.saturating_add(1);
+        inner.emitter.emit_warning(warning);
     }
 
     /// The number of errors thus far.
@@ -228,7 +208,7 @@ impl Handler {
     /// Gets the last emitted error's exit code if it exists.
     /// Then exits the program with it if it did exist.
     pub fn last_err(&self) -> Result<(), Box<LeoError>> {
-        if let Some(code) = self.inner.borrow().last_emitted_err_code() {
+        if let Some(code) = self.last_emitted_err_code() {
             Err(Box::new(LeoError::LastErrorCode(code)))
         } else {
             Ok(())
@@ -257,7 +237,7 @@ mod tests {
 
     #[test]
     fn fresh_no_errors() {
-        let handler = Handler::new(Box::new(BufferEmitter::new()));
+        let handler = Handler::new(BufferEmitter::new());
         assert_eq!(handler.err_count(), 0);
         assert!(!handler.had_errors());
     }
