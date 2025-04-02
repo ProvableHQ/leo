@@ -1,6 +1,6 @@
 [package]
 name = "leo-test-framework"
-version = "2.4.1"
+version = "2.5.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The testing framework for the Leo programming language"
 homepage = "https://leo-lang.org"
