@@ -511,7 +511,7 @@
     </span><span class="kw">pub </span>offline: bool,
     <span class="attr">#[clap(long, help = <span class="string">"Enable spans in AST snapshots."</span>)]
     </span><span class="kw">pub </span>enable_ast_spans: bool,
-    <span class="attr">#[clap(long, help = <span class="string">"Enables dead code elimination in the compiler."</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">"Enables dead code elimination in the compiler."</span>, default_value = <span class="string">"true"</span>)]
     </span><span class="kw">pub </span>enable_dce: bool,
     <span class="attr">#[clap(long, help = <span class="string">"Writes all AST snapshots for the different compiler phases."</span>)]
     </span><span class="kw">pub </span>enable_all_ast_snapshots: bool,
@@ -542,7 +542,7 @@
             network: <span class="prelude-val">None</span>,
             non_recursive: <span class="bool-val">false</span>,
             offline: <span class="bool-val">false</span>,
-            enable_dce: <span class="bool-val">false</span>,
+            enable_dce: <span class="bool-val">true</span>,
             enable_all_ast_snapshots: <span class="bool-val">false</span>,
             enable_initial_ast_snapshot: <span class="bool-val">false</span>,
             enable_unrolled_ast_snapshot: <span class="bool-val">false</span>,

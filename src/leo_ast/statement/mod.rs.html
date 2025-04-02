@@ -171,7 +171,11 @@
 <a href="#170" id="170">170</a>
 <a href="#171" id="171">171</a>
 <a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -259,6 +263,10 @@
         <span class="kw">use </span>Statement::<span class="kw-2">*</span>;
 
         <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>, Block(..) | Conditional(..) | Iteration(..)) { <span class="string">"" </span>} <span class="kw">else </span>{ <span class="string">";" </span>}
+    }
+
+    <span class="kw">pub fn </span>is_empty(<span class="self">self</span>: <span class="kw-2">&amp;</span>Statement) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, Statement::Block(block) <span class="kw">if </span>block.statements.is_empty())
     }
 }
 

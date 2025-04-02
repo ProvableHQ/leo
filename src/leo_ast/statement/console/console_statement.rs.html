@@ -79,13 +79,13 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ConsoleStatement {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"console.{};"</span>, <span class="self">self</span>.function)
+        <span class="macro">write!</span>(f, <span class="string">"console.{}"</span>, <span class="self">self</span>.function)
     }
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>ConsoleStatement {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"console.{};"</span>, <span class="self">self</span>.function)
+        <span class="macro">write!</span>(f, <span class="string">"console.{}"</span>, <span class="self">self</span>.function)
     }
 }
 

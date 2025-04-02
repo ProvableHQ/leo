@@ -97,104 +97,7 @@
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#99" id="99">99</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -213,90 +116,42 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::DeadCodeEliminator;
 
 <span class="kw">use </span>leo_ast::{
-    AssertStatement,
-    AssertVariant,
     AssignStatement,
     Block,
-    ConditionalStatement,
     ConsoleStatement,
     DefinitionPlace,
     DefinitionStatement,
-    Expression,
     ExpressionReconstructor,
     ExpressionStatement,
     IterationStatement,
-    ReturnStatement,
     Statement,
     StatementReconstructor,
 };
 
-<span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>DeadCodeEliminator {
-    <span class="kw">fn </span>reconstruct_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssertStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="comment">// Set the `is_necessary` flag.
-        </span><span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
-
-        <span class="comment">// Visit the statement.
-        </span><span class="kw">let </span>statement = Statement::Assert(AssertStatement {
-            variant: <span class="kw">match </span>input.variant {
-                AssertVariant::Assert(expr) =&gt; AssertVariant::Assert(<span class="self">self</span>.reconstruct_expression(expr).<span class="number">0</span>),
-                AssertVariant::AssertEq(left, right) =&gt; {
-                    AssertVariant::AssertEq(<span class="self">self</span>.reconstruct_expression(left).<span class="number">0</span>, <span class="self">self</span>.reconstruct_expression(right).<span class="number">0</span>)
-                }
-                AssertVariant::AssertNeq(left, right) =&gt; {
-                    AssertVariant::AssertNeq(<span class="self">self</span>.reconstruct_expression(left).<span class="number">0</span>, <span class="self">self</span>.reconstruct_expression(right).<span class="number">0</span>)
-                }
-            },
-            span: input.span,
-            id: input.id,
-        });
-
-        <span class="comment">// Unset the `is_necessary` flag.
-        </span><span class="self">self</span>.is_necessary = <span class="bool-val">false</span>;
-
-        (statement, Default::default())
-    }
-
-    <span class="doccomment">/// Static single assignment removed all assignments.
+<span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>DeadCodeEliminator&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="doccomment">/// Reconstruct an assignment statement by eliminating any dead code.
     </span><span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="macro">panic!</span>(<span class="string">"`AssignStatement`s should not exist in the AST at this phase of compilation."</span>)
     }
 
     <span class="doccomment">/// Reconstructs the statements inside a basic block, eliminating any dead code.
     </span><span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="comment">// Don't count empty blocks as statements, as that would be a bit misleading to the user as
+        // to how much the code is being transformed.
+        </span><span class="self">self</span>.statements_before += block.statements.iter().filter(|stmt| !stmt.is_empty()).count() <span class="kw">as </span>u32;
+
         <span class="comment">// Reconstruct each of the statements in reverse.
         </span><span class="kw">let </span><span class="kw-2">mut </span>statements: Vec&lt;Statement&gt; =
             block.statements.into_iter().rev().map(|statement| <span class="self">self</span>.reconstruct_statement(statement).<span class="number">0</span>).collect();
 
+        statements.retain(|stmt| !stmt.is_empty());
+
         <span class="comment">// Reverse the direction of `statements`.
         </span>statements.reverse();
 
+        <span class="self">self</span>.statements_after += statements.len() <span class="kw">as </span>u32;
+
         (Block { statements, span: block.span, id: block.id }, Default::default())
-    }
-
-    <span class="doccomment">/// Flattening removes conditional statements from the program.
-    </span><span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="kw">if </span>!<span class="self">self</span>.is_async {
-            <span class="macro">panic!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
-        } <span class="kw">else </span>{
-            (
-                Statement::Conditional(ConditionalStatement {
-                    then: <span class="self">self</span>.reconstruct_block(input.then).<span class="number">0</span>,
-                    otherwise: input.otherwise.map(|n| Box::new(<span class="self">self</span>.reconstruct_statement(<span class="kw-2">*</span>n).<span class="number">0</span>)),
-                    condition: {
-                        <span class="comment">// Set the `is_necessary` flag.
-                        </span><span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
-                        <span class="kw">let </span>condition = <span class="self">self</span>.reconstruct_expression(input.condition).<span class="number">0</span>;
-                        <span class="comment">// Unset the `is_necessary` flag.
-                        </span><span class="self">self</span>.is_necessary = <span class="bool-val">false</span>;
-
-                        condition
-                    },
-                    span: input.span,
-                    id: input.id,
-                }),
-                Default::default(),
-            )
-        }
     }
 
     <span class="doccomment">/// Parsing guarantees that console statements are not present in the program.
@@ -314,57 +169,13 @@
             }
         };
 
-        <span class="kw">if </span>lhs_is_used {
-            <span class="comment">// Set the `is_necessary` flag.
-            </span><span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
-
-            input.value = <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>;
-
-            <span class="comment">// Unset the `is_necessary` flag.
-            </span><span class="self">self</span>.is_necessary = <span class="bool-val">false</span>;
-
-            (Statement::Definition(input), Default::default())
-        } <span class="kw">else </span>{
-            <span class="comment">// Eliminate it.
+        <span class="kw">if </span>!lhs_is_used &amp;&amp; <span class="self">self</span>.side_effect_free(<span class="kw-2">&amp;</span>input.value) {
+            <span class="comment">// We can eliminate this statement.
             </span>(Statement::dummy(), Default::default())
-        }
-    }
-
-    <span class="doccomment">/// Reconstructs expression statements by eliminating any dead code.
-    </span><span class="kw">fn </span>reconstruct_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ExpressionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="kw">match </span>input.expression {
-            <span class="comment">// If the expression is a function call, then we reconstruct it.
-            // Note that we preserve function calls because they may have side effects.
-            </span>Expression::Call(expression) =&gt; {
-                <span class="comment">// Set the `is_necessary` flag.
-                </span><span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
-
-                <span class="comment">// Visit the expression.
-                </span><span class="kw">let </span>statement = Statement::Expression(ExpressionStatement {
-                    expression: <span class="self">self</span>.reconstruct_call(expression).<span class="number">0</span>,
-                    span: input.span,
-                    id: input.id,
-                });
-
-                <span class="comment">// Unset the `is_necessary` flag.
-                </span><span class="self">self</span>.is_necessary = <span class="bool-val">false</span>;
-
-                (statement, Default::default())
-            }
-            Expression::AssociatedFunction(associated_function) =&gt; {
-                <span class="comment">// Visit the expression.
-                </span>(
-                    Statement::Expression(ExpressionStatement {
-                        expression: <span class="self">self</span>.reconstruct_associated_function(associated_function).<span class="number">0</span>,
-                        span: input.span,
-                        id: input.id,
-                    }),
-                    Default::default(),
-                )
-            }
-            <span class="comment">// Any other expression is dead code, since they do not have side effects.
-            // Note: array access expressions will have side effects and need to be handled here.
-            </span><span class="kw">_ </span>=&gt; (Statement::dummy(), Default::default()),
+        } <span class="kw">else </span>{
+            <span class="comment">// We still need it.
+            </span>input.value = <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>;
+            (Statement::Definition(input), Default::default())
         }
     }
 
@@ -373,21 +184,16 @@
         <span class="macro">panic!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
     }
 
-    <span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="comment">// Set the `is_necessary` flag.
-        </span><span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
-
-        <span class="comment">// Visit the statement.
-        </span><span class="kw">let </span>statement = Statement::Return(ReturnStatement {
-            expression: <span class="self">self</span>.reconstruct_expression(input.expression).<span class="number">0</span>,
-            span: input.span,
-            id: input.id,
-        });
-
-        <span class="comment">// Unset the `is_necessary` flag.
-        </span><span class="self">self</span>.is_necessary = <span class="bool-val">false</span>;
-
-        (statement, Default::default())
+    <span class="kw">fn </span>reconstruct_expression_statement(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        <span class="kw-2">mut </span>input: ExpressionStatement,
+    ) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">if </span><span class="self">self</span>.side_effect_free(<span class="kw-2">&amp;</span>input.expression) {
+            (Statement::dummy(), Default::default())
+        } <span class="kw">else </span>{
+            input.expression = <span class="self">self</span>.reconstruct_expression(input.expression).<span class="number">0</span>;
+            (Statement::Expression(input), Default::default())
+        }
     }
 }
 </code></pre></div></section></main></body></html>

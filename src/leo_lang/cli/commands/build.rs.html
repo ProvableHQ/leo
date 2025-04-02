@@ -213,7 +213,13 @@
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -413,6 +419,8 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>aleo_file_path = build.to_path_buf();
     aleo_file_path.push(<span class="macro">format!</span>(<span class="string">"main.{}"</span>, program_id.network()));
 
+    <span class="kw">let </span>enable_dce = options.enable_dce;
+
     <span class="comment">// Create a new instance of the Leo compiler.
     </span><span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::&lt;N&gt;::new(handler, outputs.to_path_buf(), <span class="prelude-val">Some</span>(options.into()), stubs);
 
@@ -425,6 +433,10 @@
         </span>.write_all(instructions.as_bytes())
         .map_err(CliError::failed_to_load_instructions)<span class="question-mark">?</span>;
 
+    <span class="kw">if </span>enable_dce {
+        <span class="macro">tracing::info!</span>(<span class="string">"    {} statements before dead code elimination."</span>, compiler.statements_before_dce);
+        <span class="macro">tracing::info!</span>(<span class="string">"    {} statements after dead code elimination."</span>, compiler.statements_after_dce);
+    }
     <span class="macro">tracing::info!</span>(<span class="string">"✅ Compiled '{program_name}.aleo' into Aleo instructions"</span>);
     <span class="prelude-val">Ok</span>(())
 }
