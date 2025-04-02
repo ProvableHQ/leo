@@ -280,6 +280,7 @@ create_messages!(
         help: Some("Use `return <expr> then finalize(<args>)` instead.".to_string()),
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     console_statements_are_not_yet_supported {
         args: (),

@@ -1,16 +1,13 @@
 DCE_ENABLED:
-Error [EPAR0370032]: `console` statements are not yet supported.
-    --> compiler-test:4:9
+Error [EAST0372009]: variable `a` shadowed by
+    --> compiler-test:3:29
      |
-   4 |         console.log("{}", 1u8);
-     |         ^^^^^^^
-     |
-     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.
+   3 |     transition main(a: u32, a: u32) -> u32 {
+     |                             ^
+
 DCE_DISABLED:
-Error [EPAR0370032]: `console` statements are not yet supported.
-    --> compiler-test:4:9
+Error [EAST0372009]: variable `a` shadowed by
+    --> compiler-test:3:29
      |
-   4 |         console.log("{}", 1u8);
-     |         ^^^^^^^
-     |
-     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.
+   3 |     transition main(a: u32, a: u32) -> u32 {
+     |                             ^

@@ -17,7 +17,7 @@
 use crate::TypeTable;
 
 use leo_ast::{CoreFunction, Expression, ExpressionVisitor, Function, Node, StatementVisitor, Type};
-use leo_errors::{StaticAnalyzerError, emitter::Handler};
+use leo_errors::{Handler, StaticAnalyzerError};
 
 /// Error if futures are used improperly.
 ///
@@ -87,14 +87,10 @@ impl ExpressionVisitor for FutureChecker<'_> {
         }
 
         match input {
-            Expression::Access(access) => self.visit_access(access, &Position::Misc),
             Expression::Array(array) => self.visit_array(array, &Position::Misc),
-            Expression::AssociatedConstant(associated_constant) => {
-                self.visit_associated_constant(associated_constant, &Position::Misc)
-            }
-            Expression::AssociatedFunction(associated_function) => {
-                self.visit_associated_function(associated_function, &Position::Misc)
-            }
+            Expression::ArrayAccess(access) => self.visit_array_access(access, &Position::Misc),
+            Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, &Position::Misc),
+            Expression::AssociatedFunction(function) => self.visit_associated_function(function, &Position::Misc),
             Expression::Binary(binary) => self.visit_binary(binary, &Position::Misc),
             Expression::Call(call) => self.visit_call(call, &Position::Misc),
             Expression::Cast(cast) => self.visit_cast(cast, &Position::Misc),
@@ -103,28 +99,38 @@ impl ExpressionVisitor for FutureChecker<'_> {
             Expression::Identifier(identifier) => self.visit_identifier(identifier, &Position::Misc),
             Expression::Literal(literal) => self.visit_literal(literal, &Position::Misc),
             Expression::Locator(locator) => self.visit_locator(locator, &Position::Misc),
+            Expression::MemberAccess(access) => self.visit_member_access(access, &Position::Misc),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, &Position::Misc),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
+            Expression::TupleAccess(access) => self.visit_tuple_access(access, &Position::Misc),
             Expression::Unary(unary) => self.visit_unary(unary, &Position::Misc),
             Expression::Unit(unit) => self.visit_unit(unit, &Position::Misc),
         }
     }
 
-    fn visit_access(&mut self, input: &leo_ast::AccessExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        match input {
-            leo_ast::AccessExpression::Array(array) => {
-                self.visit_expression(&array.array, &Position::Misc);
-                self.visit_expression(&array.index, &Position::Misc);
-            }
-            leo_ast::AccessExpression::Member(member) => {
-                self.visit_expression(&member.inner, &Position::Misc);
-            }
-            leo_ast::AccessExpression::Tuple(tuple) => {
-                self.visit_expression(&tuple.tuple, &Position::TupleAccess);
-            }
-        }
+    fn visit_array_access(
+        &mut self,
+        input: &leo_ast::ArrayAccess,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        self.visit_expression(&input.array, &Position::Misc);
+        self.visit_expression(&input.index, &Position::Misc);
+    }
 
-        Default::default()
+    fn visit_member_access(
+        &mut self,
+        input: &leo_ast::MemberAccess,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        self.visit_expression(&input.inner, &Position::Misc);
+    }
+
+    fn visit_tuple_access(
+        &mut self,
+        input: &leo_ast::TupleAccess,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        self.visit_expression(&input.tuple, &Position::TupleAccess);
     }
 
     fn visit_associated_function(

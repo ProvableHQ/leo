@@ -411,7 +411,6 @@ impl Token {
                     "async" => Token::Async,
                     "block" => Token::Block,
                     "bool" => Token::Bool,
-                    "console" => Token::Console,
                     "const" => Token::Const,
                     "constant" => Token::Constant,
                     "else" => Token::Else,

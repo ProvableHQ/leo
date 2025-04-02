@@ -16,17 +16,17 @@
           "Return": {
             "expression": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "0",
-                  {
-                    "span": {
-                      "lo": 18,
-                      "hi": 21
-                    }
-                  },
-                  1
-                ]
+                "span": {
+                  "lo": 18,
+                  "hi": 21
+                },
+                "id": 1,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "0"
+                  ]
+                }
               }
             },
             "span": {
@@ -70,17 +70,17 @@
           "Return": {
             "expression": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "0",
-                  {
-                    "span": {
-                      "lo": 45,
-                      "hi": 48
-                    }
-                  },
-                  1
-                ]
+                "span": {
+                  "lo": 45,
+                  "hi": 48
+                },
+                "id": 1,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "0"
+                  ]
+                }
               }
             },
             "span": {
@@ -287,17 +287,17 @@
           "Return": {
             "expression": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "0",
-                  {
-                    "span": {
-                      "lo": 123,
-                      "hi": 126
-                    }
-                  },
-                  3
-                ]
+                "span": {
+                  "lo": 123,
+                  "hi": 126
+                },
+                "id": 3,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "0"
+                  ]
+                }
               }
             },
             "span": {

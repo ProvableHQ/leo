@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_lang::cli::*;
-use leo_span::symbol::create_session_if_not_set_then;
+use leo_span::create_session_if_not_set_then;
 
 use clap::Parser;
 

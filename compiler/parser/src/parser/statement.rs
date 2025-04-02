@@ -17,7 +17,6 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
-use leo_span::sym;
 
 const ASSIGN_TOKENS: &[Token] = &[
     Token::Assign,
@@ -40,14 +39,13 @@ impl<N: Network> ParserContext<'_, N> {
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {
-            Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
-            Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
-            Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
+            Token::Return => Ok(self.parse_return_statement()?.into()),
+            Token::If => Ok(self.parse_conditional_statement()?.into()),
+            Token::For => Ok(self.parse_loop_statement()?.into()),
             Token::Assert | Token::AssertEq | Token::AssertNeq => Ok(self.parse_assert_statement()?),
-            Token::Let => Ok(Statement::Definition(self.parse_definition_statement()?)),
-            Token::Const => Ok(Statement::Const(self.parse_const_declaration_statement()?)),
-            Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
-            Token::Console => Err(ParserError::console_statements_are_not_yet_supported(self.token.span).into()),
+            Token::Let => Ok(self.parse_definition_statement()?.into()),
+            Token::Const => Ok(self.parse_const_declaration_statement()?.into()),
+            Token::LeftCurly => Ok(self.parse_block()?.into()),
             _ => Ok(self.parse_assign_statement()?),
         }
     }
@@ -82,7 +80,7 @@ impl<N: Network> ParserContext<'_, N> {
         self.expect(&Token::Semicolon)?;
 
         // Return the assertion statement.
-        Ok(Statement::Assert(AssertStatement { variant, span, id: self.node_builder.next_id() }))
+        Ok(AssertStatement { variant, span, id: self.node_builder.next_id() }.into())
     }
 
     /// Returns an [`AssignStatement`] AST node if the next tokens represent an assignment, otherwise expects an expression statement.
@@ -122,30 +120,15 @@ impl<N: Network> ParserContext<'_, N> {
             // For example, `x += 1` becomes `x = x + 1`, while simple assignments like `x = y` remain unchanged.
             let value = match operation {
                 None => value,
-                Some(op) => Expression::Binary(BinaryExpression {
-                    left: Box::new(left),
-                    right: Box::new(value),
-                    op,
-                    span,
-                    id: self.node_builder.next_id(),
-                }),
+                Some(op) => BinaryExpression { left, right: value, op, span, id: self.node_builder.next_id() }.into(),
             };
 
-            return Ok(Statement::Assign(Box::new(AssignStatement {
-                span,
-                place: expression,
-                value,
-                id: self.node_builder.next_id(),
-            })));
+            return Ok(AssignStatement { span, place: expression, value, id: self.node_builder.next_id() }.into());
         }
 
         let end = self.expect(&Token::Semicolon)?;
 
-        Ok(Statement::Expression(ExpressionStatement {
-            span: expression.span() + end,
-            expression,
-            id: self.node_builder.next_id(),
-        }))
+        Ok(ExpressionStatement { span: expression.span() + end, expression, id: self.node_builder.next_id() }.into())
     }
 
     /// Returns a [`Block`] AST node if the next tokens represent a block of statements.
@@ -222,63 +205,11 @@ impl<N: Network> ParserContext<'_, N> {
             variable: ident,
             type_: type_.0,
             start,
-            start_value: Default::default(),
             stop,
-            stop_value: Default::default(),
             inclusive: false,
             block,
             id: self.node_builder.next_id(),
         })
-    }
-
-    /// Returns a [`ConsoleStatement`] AST node if the next tokens represent a console statement.
-    #[allow(dead_code)]
-    fn parse_console_statement(&mut self) -> Result<ConsoleStatement> {
-        let keyword = self.expect(&Token::Console)?;
-        self.expect(&Token::Dot)?;
-        let identifier = self.expect_identifier()?;
-        let (span, function) = match identifier.name {
-            sym::assert => {
-                self.expect(&Token::LeftParen)?;
-                let expr = self.parse_expression()?;
-                self.expect(&Token::RightParen)?;
-                (keyword + expr.span(), ConsoleFunction::Assert(expr))
-            }
-            sym::assert_eq => {
-                self.expect(&Token::LeftParen)?;
-                let left = self.parse_expression()?;
-                self.expect(&Token::Comma)?;
-                let right = self.parse_expression()?;
-                self.expect(&Token::RightParen)?;
-                (left.span() + right.span(), ConsoleFunction::AssertEq(left, right))
-            }
-            sym::assert_neq => {
-                self.expect(&Token::LeftParen)?;
-                let left = self.parse_expression()?;
-                self.expect(&Token::Comma)?;
-                let right = self.parse_expression()?;
-                self.expect(&Token::RightParen)?;
-                (left.span() + right.span(), ConsoleFunction::AssertNeq(left, right))
-            }
-            symbol => {
-                // Not sure what it is, assume it's `log`.
-                self.emit_err(ParserError::unexpected_ident(
-                    symbol,
-                    &["assert", "assert_eq", "assert_neq"],
-                    identifier.span,
-                ));
-                (
-                    Default::default(),
-                    ConsoleFunction::Assert(Expression::Err(ErrExpression {
-                        span: Default::default(),
-                        id: self.node_builder.next_id(),
-                    })),
-                )
-            }
-        };
-        self.expect(&Token::Semicolon)?;
-
-        Ok(ConsoleStatement { span: keyword + span, function, id: self.node_builder.next_id() })
     }
 
     /// Returns a [`ConstDeclaration`] AST node if the next tokens represent a const declaration statement.

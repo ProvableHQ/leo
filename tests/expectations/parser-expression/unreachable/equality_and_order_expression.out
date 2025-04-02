@@ -204,159 +204,152 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_29:1:1
      |
-   1 | if 10 console {}
+   1 | if 10 const {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_30:1:1
      |
-   1 | if 10 const {}
+   1 | if 10 let {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_31:1:1
      |
-   1 | if 10 let {}
+   1 | if 10 for {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_32:1:1
      |
-   1 | if 10 for {}
+   1 | if 10 if {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_33:1:1
      |
-   1 | if 10 if {}
+   1 | if 10 else {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_34:1:1
      |
-   1 | if 10 else {}
+   1 | if 10 i8 {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_35:1:1
      |
-   1 | if 10 i8 {}
+   1 | if 10 i16 {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_36:1:1
      |
-   1 | if 10 i16 {}
+   1 | if 10 i32 {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_37:1:1
      |
-   1 | if 10 i32 {}
+   1 | if 10 i64 {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_38:1:1
      |
-   1 | if 10 i64 {}
+   1 | if 10 i128 {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_39:1:1
      |
-   1 | if 10 i128 {}
+   1 | if 10 u8 {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_40:1:1
      |
-   1 | if 10 u8 {}
+   1 | if 10 u16 {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_41:1:1
      |
-   1 | if 10 u16 {}
+   1 | if 10 u32 {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_42:1:1
      |
-   1 | if 10 u32 {}
+   1 | if 10 u64 {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_43:1:1
      |
-   1 | if 10 u64 {}
+   1 | if 10 u128 {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_44:1:1
      |
-   1 | if 10 u128 {}
+   1 | if 10 & {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_45:1:1
      |
-   1 | if 10 & {}
+   1 | if 10 return {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_46:1:1
      |
-   1 | if 10 return {}
+   1 | if 10 self {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_47:1:1
      |
-   1 | if 10 self {}
+   1 | if 10 Self {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_48:1:1
      |
-   1 | if 10 Self {}
+   1 | if 10 true {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_49:1:1
      |
-   1 | if 10 true {}
-     | ^^
-
-
-Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
-    --> test_50:1:1
-     |
    1 | if 10 false {}
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
-    --> test_51:1:1
+    --> test_50:1:1
      |
    1 | if 10 0 {}
      | ^^

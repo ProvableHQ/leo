@@ -39,13 +39,13 @@ impl ExpressionReconstructor for FunctionInliningVisitor<'_> {
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
         // Type checking guarantees that only functions local to the program scope can be inlined.
         if input.program.unwrap() != self.program {
-            return (Expression::Call(input), Default::default());
+            return (input.into(), Default::default());
         }
 
         // Get the name of the callee function.
-        let function_name = match *input.function {
+        let function_name = match input.function {
             Expression::Identifier(identifier) => identifier.name,
-            _ => unreachable!("Parser guarantees that `input.function` is always an identifier."),
+            _ => panic!("Parser guarantees that `input.function` is always an identifier."),
         };
 
         // Lookup the reconstructed callee function.
@@ -83,14 +83,14 @@ impl ExpressionReconstructor for FunctionInliningVisitor<'_> {
                     _ => {
                         let id = self.state.node_builder.next_id();
                         self.state.type_table.insert(id, Type::Unit);
-                        Expression::Unit(UnitExpression { span: Default::default(), id })
+                        UnitExpression { span: Default::default(), id }.into()
                     }
                 };
 
                 (result, inlined_statements)
             }
             Variant::Function | Variant::AsyncFunction | Variant::Transition | Variant::AsyncTransition => {
-                (Expression::Call(input), Default::default())
+                (input.into(), Default::default())
             }
         }
     }

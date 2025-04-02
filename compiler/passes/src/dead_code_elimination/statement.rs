@@ -19,7 +19,6 @@ use super::DeadCodeEliminatingVisitor;
 use leo_ast::{
     AssignStatement,
     Block,
-    ConsoleStatement,
     DefinitionPlace,
     DefinitionStatement,
     ExpressionReconstructor,
@@ -55,11 +54,6 @@ impl StatementReconstructor for DeadCodeEliminatingVisitor<'_> {
         (Block { statements, span: block.span, id: block.id }, Default::default())
     }
 
-    /// Parsing guarantees that console statements are not present in the program.
-    fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        panic!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
-    }
-
     /// Static single assignment replaces definition statements with assignment statements.
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // Check the lhs of the definition to see any of variables are used.
@@ -76,7 +70,7 @@ impl StatementReconstructor for DeadCodeEliminatingVisitor<'_> {
         } else {
             // We still need it.
             input.value = self.reconstruct_expression(input.value).0;
-            (Statement::Definition(input), Default::default())
+            (input.into(), Default::default())
         }
     }
 
@@ -85,15 +79,14 @@ impl StatementReconstructor for DeadCodeEliminatingVisitor<'_> {
         panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
-    fn reconstruct_expression_statement(
-        &mut self,
-        mut input: ExpressionStatement,
-    ) -> (Statement, Self::AdditionalOutput) {
+    fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
         if self.side_effect_free(&input.expression) {
             (Statement::dummy(), Default::default())
         } else {
-            input.expression = self.reconstruct_expression(input.expression).0;
-            (Statement::Expression(input), Default::default())
+            (
+                ExpressionStatement { expression: self.reconstruct_expression(input.expression).0, ..input }.into(),
+                Default::default(),
+            )
         }
     }
 }

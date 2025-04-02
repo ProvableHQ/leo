@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::{Expression, Node, NodeID, ProgramId, simple_node_impl};
+
 use leo_span::{Span, Symbol};
 
-use crate::{Node, NodeID, ProgramId, simple_node_impl};
 use serde::{Deserialize, Serialize};
 use std::{fmt, hash::Hash};
 
@@ -52,8 +53,15 @@ impl fmt::Display for LocatorExpression {
         write!(f, "{}/{}", self.program, self.name)
     }
 }
+
 impl fmt::Debug for LocatorExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}/{}", self.program, self.name)
+    }
+}
+
+impl From<LocatorExpression> for Expression {
+    fn from(value: LocatorExpression) -> Self {
+        Expression::Locator(value)
     }
 }

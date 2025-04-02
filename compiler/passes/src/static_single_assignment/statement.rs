@@ -18,7 +18,6 @@ use super::SsaFormingVisitor;
 use crate::RenameTable;
 
 use leo_ast::{
-    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
@@ -26,7 +25,6 @@ use leo_ast::{
     Block,
     CallExpression,
     ConditionalStatement,
-    ConsoleStatement,
     ConstDeclaration,
     DefinitionPlace,
     DefinitionStatement,
@@ -79,7 +77,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
         };
 
         // Add the assert statement to the list of produced statements.
-        statements.push(Statement::Assert(AssertStatement { variant, span: input.span, id: input.id }));
+        statements.push(AssertStatement { variant, span: input.span, id: input.id }.into());
 
         statements
     }
@@ -97,10 +95,10 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
 
                 statements.push(self.simple_definition(new_place, value));
             }
-            Expression::Access(AccessExpression::Tuple(tuple)) => {
+            Expression::TupleAccess(tuple) => {
                 assign.value = value;
 
-                let Expression::Identifier(identifier) = &*tuple.tuple else {
+                let Expression::Identifier(identifier) = &tuple.tuple else {
                     panic!("Type checking should have prevented this.");
                 };
 
@@ -108,7 +106,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
 
                 assert!(new_statements.is_empty());
 
-                *tuple.tuple = expression;
+                tuple.tuple = expression;
 
                 statements.push(Statement::Assign(Box::new(assign)));
             }
@@ -186,13 +184,13 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
             // Note that phi functions only need to be instantiated if the variable exists before the `ConditionalStatement`.
             if self.rename_table.lookup(**symbol).is_some() {
                 // Helper to lookup an and create an argument for the phi function.
-                let create_phi_argument = |table: &RenameTable, symbol: Symbol| {
+                let create_phi_argument = |table: &RenameTable, symbol: Symbol| -> Expression {
                     let name =
                         *table.lookup(symbol).unwrap_or_else(|| panic!("Symbol {symbol} should exist in the program."));
                     let id = *table
                         .lookup_id(&name)
                         .unwrap_or_else(|| panic!("Symbol {name} should exist in the rename table."));
-                    Box::new(Expression::Identifier(Identifier { name, span: Default::default(), id }))
+                    Identifier { name, span: Default::default(), id }.into()
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
@@ -205,15 +203,14 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
                 // Create a new node ID for the phi function.
                 let id = self.state.node_builder.next_id();
                 // Update the type of the node ID.
-                let type_ = match self.state.type_table.get(&if_true.id()) {
-                    Some(type_) => type_,
-                    None => panic!("Type checking guarantees that all expressions have a type."),
+                let Some(type_) = self.state.type_table.get(&if_true.id()) else {
+                    panic!("Type checking guarantees that all expressions have a type.");
                 };
                 self.state.type_table.insert(id, type_);
 
                 // Construct a ternary expression for the phi function.
                 let (value, stmts) = self.consume_ternary(TernaryExpression {
-                    condition: Box::new(condition.clone()),
+                    condition: condition.clone(),
                     if_true,
                     if_false,
                     span: Default::default(),
@@ -240,11 +237,6 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
         }
 
         statements
-    }
-
-    /// Parsing guarantees that console statements are not present in the program.
-    fn consume_console(&mut self, _: ConsoleStatement) -> Self::Output {
-        panic!("Parsing guarantees that console statements are not present in the program.")
     }
 
     fn consume_const(&mut self, _: ConstDeclaration) -> Self::Output {
@@ -297,13 +289,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
                 };
 
                 // Create the definition.
-                let definition = Statement::Definition(DefinitionStatement {
-                    place,
-                    type_: Type::Err,
-                    value,
-                    span: definition.span,
-                    id: definition.id,
-                });
+                let definition = DefinitionStatement { place, type_: Type::Err, value, ..definition }.into();
 
                 statements.push(definition);
             }
@@ -334,17 +320,14 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
                 let arguments = process_arguments(call.arguments);
                 // Create and accumulate the new expression statement.
                 // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
-                statements.push(Statement::Expression(ExpressionStatement {
-                    expression: Expression::Call(CallExpression {
-                        function: call.function,
-                        arguments,
-                        program: call.program,
-                        span: call.span,
-                        id: call.id,
-                    }),
-                    span: input.span,
-                    id: input.id,
-                }));
+                statements.push(
+                    ExpressionStatement {
+                        expression: CallExpression { arguments, ..*call }.into(),
+                        span: input.span,
+                        id: input.id,
+                    }
+                    .into(),
+                );
             }
             Expression::AssociatedFunction(associated_function) => {
                 // Process the arguments.
@@ -352,13 +335,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
                 // Create and accumulate the new expression statement.
                 // Note that we do not create a new assignment for the associated function; this is necessary for correct code generation.
                 statements.push(Statement::Expression(ExpressionStatement {
-                    expression: Expression::AssociatedFunction(AssociatedFunctionExpression {
-                        variant: associated_function.variant,
-                        name: associated_function.name,
-                        arguments,
-                        span: associated_function.span,
-                        id: associated_function.id,
-                    }),
+                    expression: AssociatedFunctionExpression { arguments, ..associated_function }.into(),
                     span: input.span,
                     id: input.id,
                 }))

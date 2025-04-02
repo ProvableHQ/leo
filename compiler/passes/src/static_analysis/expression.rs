@@ -28,9 +28,8 @@ impl ExpressionVisitor for StaticAnalyzingVisitor<'_> {
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
         // Get the core function.
-        let core_function = match CoreFunction::from_symbols(input.variant.name, input.name.name) {
-            Some(core_function) => core_function,
-            None => unreachable!("Typechecking guarantees that this function exists."),
+        let Some(core_function) = CoreFunction::from_symbols(input.variant.name, input.name.name) else {
+            panic!("Typechecking guarantees that this function exists.");
         };
 
         // Check that the future was awaited correctly.
@@ -40,8 +39,8 @@ impl ExpressionVisitor for StaticAnalyzingVisitor<'_> {
     }
 
     fn visit_call(&mut self, input: &CallExpression, _: &Self::AdditionalInput) -> Self::Output {
-        let Expression::Identifier(ident) = &*input.function else {
-            unreachable!("Parsing guarantees that a function name is always an identifier.");
+        let Expression::Identifier(ident) = &input.function else {
+            panic!("Parsing guarantees that a function name is always an identifier.");
         };
 
         let caller_program = self.current_program;

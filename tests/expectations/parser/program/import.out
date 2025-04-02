@@ -72,17 +72,17 @@
                     },
                     "value": {
                       "Literal": {
-                        "Integer": [
-                          "U8",
-                          "1",
-                          {
-                            "span": {
-                              "lo": 80,
-                              "hi": 83
-                            }
-                          },
-                          5
-                        ]
+                        "span": {
+                          "lo": 80,
+                          "hi": 83
+                        },
+                        "id": 5,
+                        "variant": {
+                          "Integer": [
+                            "U8",
+                            "1"
+                          ]
+                        }
                       }
                     },
                     "span": {

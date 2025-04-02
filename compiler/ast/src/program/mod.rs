@@ -16,10 +16,10 @@
 
 //! A Leo program consists of import statements and program scopes.
 
-pub mod program_id;
+mod program_id;
 pub use program_id::*;
 
-pub mod program_scope;
+mod program_scope;
 pub use program_scope::*;
 
 use leo_span::{Span, Symbol};

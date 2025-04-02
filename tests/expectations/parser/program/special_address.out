@@ -99,32 +99,30 @@
                           }
                         },
                         {
-                          "Access": {
-                            "Member": {
-                              "inner": {
-                                "Identifier": {
-                                  "name": "self",
-                                  "span": {
-                                    "lo": 109,
-                                    "hi": 113
-                                  },
-                                  "id": 8
-                                }
-                              },
-                              "name": {
-                                "name": "caller",
+                          "MemberAccess": {
+                            "inner": {
+                              "Identifier": {
+                                "name": "self",
                                 "span": {
-                                  "lo": 114,
-                                  "hi": 120
+                                  "lo": 109,
+                                  "hi": 113
                                 },
-                                "id": 9
-                              },
+                                "id": 8
+                              }
+                            },
+                            "name": {
+                              "name": "caller",
                               "span": {
-                                "lo": 109,
+                                "lo": 114,
                                 "hi": 120
                               },
-                              "id": 10
-                            }
+                              "id": 9
+                            },
+                            "span": {
+                              "lo": 109,
+                              "hi": 120
+                            },
+                            "id": 10
                           }
                         }
                       ]
@@ -152,16 +150,14 @@
                         },
                         {
                           "Literal": {
-                            "Address": [
-                              "test.aleo",
-                              {
-                                "span": {
-                                  "lo": 144,
-                                  "hi": 156
-                                }
-                              },
-                              14
-                            ]
+                            "span": {
+                              "lo": 144,
+                              "hi": 156
+                            },
+                            "id": 14,
+                            "variant": {
+                              "Address": "test.aleo"
+                            }
                           }
                         }
                       ]
@@ -189,16 +185,14 @@
                         },
                         {
                           "Literal": {
-                            "Address": [
-                              "hello.aleo",
-                              {
-                                "span": {
-                                  "lo": 180,
-                                  "hi": 185
-                                }
-                              },
-                              18
-                            ]
+                            "span": {
+                              "lo": 180,
+                              "hi": 185
+                            },
+                            "id": 18,
+                            "variant": {
+                              "Address": "hello.aleo"
+                            }
                           }
                         }
                       ]
@@ -214,16 +208,14 @@
                   "Return": {
                     "expression": {
                       "Literal": {
-                        "Address": [
-                          "foo.aleo",
-                          {
-                            "span": {
-                              "lo": 208,
-                              "hi": 211
-                            }
-                          },
-                          21
-                        ]
+                        "span": {
+                          "lo": 208,
+                          "hi": 211
+                        },
+                        "id": 21,
+                        "variant": {
+                          "Address": "foo.aleo"
+                        }
                       }
                     },
                     "span": {

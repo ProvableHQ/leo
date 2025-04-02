@@ -22,7 +22,7 @@ use crate::Type;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CastExpression {
     /// The expression to be casted, e.g.`42u8` in `42u8 as u16`.
-    pub expression: Box<Expression>,
+    pub expression: Expression,
     /// The type to be casted to, e.g. `u16` in `42u8 as u16`.
     pub type_: Type,
     /// Span of the entire cast `42u8 as u16`.
@@ -39,6 +39,12 @@ impl fmt::Display for CastExpression {
             write!(f, "{}", self.expression)?;
         }
         write!(f, " as {}", self.type_)
+    }
+}
+
+impl From<CastExpression> for Expression {
+    fn from(value: CastExpression) -> Self {
+        Expression::Cast(Box::new(value))
     }
 }
 

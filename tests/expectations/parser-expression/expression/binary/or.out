@@ -2,30 +2,26 @@
   "Binary": {
     "left": {
       "Literal": {
-        "Boolean": [
-          true,
-          {
-            "span": {
-              "lo": 0,
-              "hi": 4
-            }
-          },
-          0
-        ]
+        "span": {
+          "lo": 0,
+          "hi": 4
+        },
+        "id": 0,
+        "variant": {
+          "Boolean": true
+        }
       }
     },
     "right": {
       "Literal": {
-        "Boolean": [
-          true,
-          {
-            "span": {
-              "lo": 8,
-              "hi": 12
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 8,
+          "hi": 12
+        },
+        "id": 1,
+        "variant": {
+          "Boolean": true
+        }
       }
     },
     "op": "Or",
@@ -41,30 +37,26 @@
   "Binary": {
     "left": {
       "Literal": {
-        "Boolean": [
-          false,
-          {
-            "span": {
-              "lo": 13,
-              "hi": 18
-            }
-          },
-          0
-        ]
+        "span": {
+          "lo": 13,
+          "hi": 18
+        },
+        "id": 0,
+        "variant": {
+          "Boolean": false
+        }
       }
     },
     "right": {
       "Literal": {
-        "Boolean": [
-          true,
-          {
-            "span": {
-              "lo": 20,
-              "hi": 24
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 20,
+          "hi": 24
+        },
+        "id": 1,
+        "variant": {
+          "Boolean": true
+        }
       }
     },
     "op": "Or",
@@ -82,30 +74,26 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Boolean": [
-              true,
-              {
-                "span": {
-                  "lo": 25,
-                  "hi": 29
-                }
-              },
-              0
-            ]
+            "span": {
+              "lo": 25,
+              "hi": 29
+            },
+            "id": 0,
+            "variant": {
+              "Boolean": true
+            }
           }
         },
         "right": {
           "Literal": {
-            "Boolean": [
-              false,
-              {
-                "span": {
-                  "lo": 31,
-                  "hi": 36
-                }
-              },
-              1
-            ]
+            "span": {
+              "lo": 31,
+              "hi": 36
+            },
+            "id": 1,
+            "variant": {
+              "Boolean": false
+            }
           }
         },
         "op": "Or",
@@ -118,16 +106,14 @@
     },
     "right": {
       "Literal": {
-        "Boolean": [
-          false,
-          {
-            "span": {
-              "lo": 40,
-              "hi": 45
-            }
-          },
-          3
-        ]
+        "span": {
+          "lo": 40,
+          "hi": 45
+        },
+        "id": 3,
+        "variant": {
+          "Boolean": false
+        }
       }
     },
     "op": "Or",
@@ -147,30 +133,26 @@
           "Binary": {
             "left": {
               "Literal": {
-                "Boolean": [
-                  true,
-                  {
-                    "span": {
-                      "lo": 46,
-                      "hi": 50
-                    }
-                  },
-                  0
-                ]
+                "span": {
+                  "lo": 46,
+                  "hi": 50
+                },
+                "id": 0,
+                "variant": {
+                  "Boolean": true
+                }
               }
             },
             "right": {
               "Literal": {
-                "Boolean": [
-                  false,
-                  {
-                    "span": {
-                      "lo": 54,
-                      "hi": 59
-                    }
-                  },
-                  1
-                ]
+                "span": {
+                  "lo": 54,
+                  "hi": 59
+                },
+                "id": 1,
+                "variant": {
+                  "Boolean": false
+                }
               }
             },
             "op": "Or",
@@ -183,16 +165,14 @@
         },
         "right": {
           "Literal": {
-            "Boolean": [
-              true,
-              {
-                "span": {
-                  "lo": 63,
-                  "hi": 67
-                }
-              },
-              3
-            ]
+            "span": {
+              "lo": 63,
+              "hi": 67
+            },
+            "id": 3,
+            "variant": {
+              "Boolean": true
+            }
           }
         },
         "op": "Or",
@@ -205,16 +185,14 @@
     },
     "right": {
       "Literal": {
-        "Boolean": [
-          false,
-          {
-            "span": {
-              "lo": 71,
-              "hi": 76
-            }
-          },
-          5
-        ]
+        "span": {
+          "lo": 71,
+          "hi": 76
+        },
+        "id": 5,
+        "variant": {
+          "Boolean": false
+        }
       }
     },
     "op": "Or",
@@ -232,46 +210,40 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Boolean": [
-              true,
-              {
-                "span": {
-                  "lo": 77,
-                  "hi": 81
-                }
-              },
-              0
-            ]
+            "span": {
+              "lo": 77,
+              "hi": 81
+            },
+            "id": 0,
+            "variant": {
+              "Boolean": true
+            }
           }
         },
         "right": {
           "Binary": {
             "left": {
               "Literal": {
-                "Boolean": [
-                  true,
-                  {
-                    "span": {
-                      "lo": 86,
-                      "hi": 90
-                    }
-                  },
-                  1
-                ]
+                "span": {
+                  "lo": 86,
+                  "hi": 90
+                },
+                "id": 1,
+                "variant": {
+                  "Boolean": true
+                }
               }
             },
             "right": {
               "Literal": {
-                "Boolean": [
-                  false,
-                  {
-                    "span": {
-                      "lo": 94,
-                      "hi": 99
-                    }
-                  },
-                  2
-                ]
+                "span": {
+                  "lo": 94,
+                  "hi": 99
+                },
+                "id": 2,
+                "variant": {
+                  "Boolean": false
+                }
               }
             },
             "op": "Or",
@@ -292,16 +264,14 @@
     },
     "right": {
       "Literal": {
-        "Boolean": [
-          true,
-          {
-            "span": {
-              "lo": 104,
-              "hi": 108
-            }
-          },
-          5
-        ]
+        "span": {
+          "lo": 104,
+          "hi": 108
+        },
+        "id": 5,
+        "variant": {
+          "Boolean": true
+        }
       }
     },
     "op": "Or",

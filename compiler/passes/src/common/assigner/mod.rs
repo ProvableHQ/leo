@@ -58,12 +58,13 @@ impl AssignerInner {
     /// Constructs the definition statement `let place = expr;`.
     /// This function should be the only place where `DefinitionStatement`s are constructed.
     fn simple_definition(&mut self, identifier: Identifier, value: Expression, id: NodeID) -> Statement {
-        Statement::Definition(DefinitionStatement {
+        DefinitionStatement {
             place: DefinitionPlace::Single(identifier),
             type_: Type::Err,
             value,
             span: Default::default(),
             id,
-        })
+        }
+        .into()
     }
 }

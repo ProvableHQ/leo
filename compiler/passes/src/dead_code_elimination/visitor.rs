@@ -16,7 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{AccessExpression, BinaryOperation, Expression, Node as _, Type, UnaryOperation};
+use leo_ast::{BinaryOperation, Expression, Node as _, Type, UnaryOperation};
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexSet;
@@ -44,9 +44,9 @@ impl DeadCodeEliminatingVisitor<'_> {
         let sef = |expr| self.side_effect_free(expr);
 
         match expr {
-            Access(AccessExpression::Array(array)) => sef(&array.array) && sef(&array.index),
-            Access(AccessExpression::Member(mem)) => sef(&mem.inner),
-            Access(AccessExpression::Tuple(tuple)) => sef(&tuple.tuple),
+            ArrayAccess(array) => sef(&array.array) && sef(&array.index),
+            MemberAccess(mem) => sef(&mem.inner),
+            TupleAccess(tuple) => sef(&tuple.tuple),
             Array(array) => array.elements.iter().all(sef),
             AssociatedConstant(_) => true,
             AssociatedFunction(func) => {
@@ -84,7 +84,7 @@ impl DeadCodeEliminatingVisitor<'_> {
                 false
             }
             Struct(struct_) => struct_.members.iter().all(|mem| mem.expression.as_ref().is_none_or(sef)),
-            Ternary(tern) => [&*tern.condition, &*tern.if_true, &*tern.if_false].into_iter().all(sef),
+            Ternary(tern) => [&tern.condition, &tern.if_true, &tern.if_false].into_iter().all(sef),
             Tuple(tuple) => tuple.elements.iter().all(sef),
             Unary(un) => {
                 use UnaryOperation::*;

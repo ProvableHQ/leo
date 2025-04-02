@@ -64,52 +64,52 @@ pub fn value_to_expression(value: &Value, span: Span, node_builder: &NodeBuilder
     let id = node_builder.next_id();
 
     let result = match value {
-        Unit => Expression::Unit(leo_ast::UnitExpression { span, id }),
-        Bool(x) => Expression::Literal(Literal::Boolean(*x, span, id)),
-        U8(x) => Expression::Literal(Literal::Integer(IntegerType::U8, format!("{x}"), span, id)),
-        U16(x) => Expression::Literal(Literal::Integer(IntegerType::U16, format!("{x}"), span, id)),
-        U32(x) => Expression::Literal(Literal::Integer(IntegerType::U32, format!("{x}"), span, id)),
-        U64(x) => Expression::Literal(Literal::Integer(IntegerType::U64, format!("{x}"), span, id)),
-        U128(x) => Expression::Literal(Literal::Integer(IntegerType::U128, format!("{x}"), span, id)),
-        I8(x) => Expression::Literal(Literal::Integer(IntegerType::I8, format!("{x}"), span, id)),
-        I16(x) => Expression::Literal(Literal::Integer(IntegerType::I16, format!("{x}"), span, id)),
-        I32(x) => Expression::Literal(Literal::Integer(IntegerType::I32, format!("{x}"), span, id)),
-        I64(x) => Expression::Literal(Literal::Integer(IntegerType::I64, format!("{x}"), span, id)),
-        I128(x) => Expression::Literal(Literal::Integer(IntegerType::I128, format!("{x}"), span, id)),
-        Address(x) => Expression::Literal(Literal::Address(format!("{x}"), span, id)),
+        Unit => leo_ast::UnitExpression { span, id }.into(),
+        Bool(x) => Literal::boolean(*x, span, id).into(),
+        U8(x) => Literal::integer(IntegerType::U8, format!("{x}"), span, id).into(),
+        U16(x) => Literal::integer(IntegerType::U16, format!("{x}"), span, id).into(),
+        U32(x) => Literal::integer(IntegerType::U32, format!("{x}"), span, id).into(),
+        U64(x) => Literal::integer(IntegerType::U64, format!("{x}"), span, id).into(),
+        U128(x) => Literal::integer(IntegerType::U128, format!("{x}"), span, id).into(),
+        I8(x) => Literal::integer(IntegerType::I8, format!("{x}"), span, id).into(),
+        I16(x) => Literal::integer(IntegerType::I16, format!("{x}"), span, id).into(),
+        I32(x) => Literal::integer(IntegerType::I32, format!("{x}"), span, id).into(),
+        I64(x) => Literal::integer(IntegerType::I64, format!("{x}"), span, id).into(),
+        I128(x) => Literal::integer(IntegerType::I128, format!("{x}"), span, id).into(),
+        Address(x) => Literal::address(format!("{x}"), span, id).into(),
         Group(x) => {
             let mut s = format!("{x}");
             // Strip off the `group` suffix.
             s.truncate(s.len() - 5);
-            Expression::Literal(Literal::Group(s, span, id))
+            Literal::group(s, span, id).into()
         }
         Field(x) => {
             let mut s = format!("{x}");
             // Strip off the `field` suffix.
             s.truncate(s.len() - 5);
-            Expression::Literal(Literal::Field(s, span, id))
+            Literal::field(s, span, id).into()
         }
         Scalar(x) => {
             let mut s = format!("{x}");
             // Strip off the `scalar` suffix.
             s.truncate(s.len() - 6);
-            Expression::Literal(Literal::Scalar(s, span, id))
+            Literal::scalar(s, span, id).into()
         }
         Tuple(x) => {
             let mut elements = Vec::with_capacity(x.len());
             for value in x.iter() {
                 elements.push(value_to_expression(value, span, node_builder)?);
             }
-            Expression::Tuple(TupleExpression { elements, span, id })
+            TupleExpression { elements, span, id }.into()
         }
         Array(x) => {
             let mut elements = Vec::with_capacity(x.len());
             for value in x.iter() {
                 elements.push(value_to_expression(value, span, node_builder)?);
             }
-            Expression::Array(ArrayExpression { elements, span, id })
+            ArrayExpression { elements, span, id }.into()
         }
-        Struct(x) => Expression::Struct(StructExpression {
+        Struct(x) => StructExpression {
             name: Identifier { name: x.name, id: node_builder.next_id(), span },
             members: {
                 let mut members = Vec::with_capacity(x.contents.len());
@@ -126,7 +126,8 @@ pub fn value_to_expression(value: &Value, span: Span, node_builder: &NodeBuilder
             },
             span,
             id,
-        }),
+        }
+        .into(),
         Future(..) => return None,
     };
 

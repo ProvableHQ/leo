@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_span::sym;
 
 use itertools::Itertools as _;
 
@@ -62,34 +61,6 @@ pub struct StructExpression {
     pub id: NodeID,
 }
 
-impl StructExpression {
-    /// Returns true if the record has all required fields and visibility.
-    pub fn check_record(&self) -> bool {
-        let has_member = |symbol| self.members.iter().any(|variable| variable.identifier.name == symbol);
-
-        has_member(sym::owner) && has_member(sym::_nonce)
-    }
-
-    /// Returns the struct as a record interface with visibility.
-    pub fn to_record_string(&self) -> String {
-        format!(
-            "{{{}}}",
-            self.members
-                .iter()
-                .map(|variable| {
-                    // Write default visibility.
-                    if variable.identifier.name == sym::_nonce {
-                        format!("{variable}.public")
-                    } else {
-                        format!("{variable}.private")
-                    }
-                })
-                .collect::<Vec<_>>()
-                .join(", ")
-        )
-    }
-}
-
 impl fmt::Display for StructExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} {{", self.name)?;
@@ -101,6 +72,12 @@ impl fmt::Display for StructExpression {
             write!(f, " ")?;
         }
         write!(f, "}}")
+    }
+}
+
+impl From<StructExpression> for Expression {
+    fn from(value: StructExpression) -> Self {
+        Expression::Struct(value)
     }
 }
 

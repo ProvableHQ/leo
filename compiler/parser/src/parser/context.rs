@@ -17,8 +17,8 @@
 use crate::{Token, tokenizer::*};
 
 use leo_ast::*;
-use leo_errors::{ParserError, Result, emitter::Handler};
-use leo_span::{Span, Symbol, symbol::with_session_globals};
+use leo_errors::{Handler, ParserError, Result};
+use leo_span::{Span, Symbol, with_session_globals};
 
 use snarkvm::prelude::{Field, Network};
 

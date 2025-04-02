@@ -52,7 +52,7 @@ impl ExpressionReconstructor for FlatteningVisitor<'_> {
             });
         }
 
-        (Expression::Struct(StructExpression { name: input.name, members, span: input.span, id: input.id }), statements)
+        (StructExpression { members, ..input }.into(), statements)
     }
 
     /// Reconstructs ternary expressions over arrays, structs, and tuples, accumulating any statements that are generated.
@@ -96,8 +96,8 @@ impl ExpressionReconstructor for FlatteningVisitor<'_> {
             Type::Array(if_true_type) => self.ternary_array(
                 if_true_type,
                 &input.condition,
-                &as_identifier(*input.if_true),
-                &as_identifier(*input.if_false),
+                &as_identifier(input.if_true),
+                &as_identifier(input.if_false),
             ),
             Type::Composite(if_true_type) => {
                 // Get the struct definitions.
@@ -114,8 +114,8 @@ impl ExpressionReconstructor for FlatteningVisitor<'_> {
                 self.ternary_struct(
                     &if_true_type,
                     &input.condition,
-                    &as_identifier(*input.if_true),
-                    &as_identifier(*input.if_false),
+                    &as_identifier(input.if_true),
+                    &as_identifier(input.if_false),
                 )
             }
             Type::Tuple(if_true_type) => {
@@ -125,10 +125,10 @@ impl ExpressionReconstructor for FlatteningVisitor<'_> {
                 // There's nothing to be done - SSA has guaranteed that `if_true` and `if_false` are identifiers,
                 // so there's not even any point in reconstructing them.
 
-                assert!(matches!(&*input.if_true, Expression::Identifier(..)));
-                assert!(matches!(&*input.if_false, Expression::Identifier(..)));
+                assert!(matches!(&input.if_true, Expression::Identifier(..)));
+                assert!(matches!(&input.if_false, Expression::Identifier(..)));
 
-                (Expression::Ternary(input), Default::default())
+                (input.into(), Default::default())
             }
         }
     }

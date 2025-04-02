@@ -18,14 +18,8 @@ use crate::Compiler;
 
 use leo_ast::Stub;
 use leo_disassembler::disassemble_from_str;
-use leo_errors::{
-    LeoError,
-    emitter::{BufferEmitter, Handler},
-};
-use leo_span::{
-    source_map::FileName,
-    symbol::{Symbol, create_session_if_not_set_then},
-};
+use leo_errors::{BufferEmitter, Handler, LeoError};
+use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 
 use aleo_std_storage::StorageMode;
 use snarkvm::{

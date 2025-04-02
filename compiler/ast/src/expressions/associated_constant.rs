@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, NodeID, Type};
+use crate::{Expression, Identifier, Node, NodeID, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -36,6 +36,12 @@ pub struct AssociatedConstantExpression {
 impl fmt::Display for AssociatedConstantExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}::{}", self.ty, self.name)
+    }
+}
+
+impl From<AssociatedConstantExpression> for Expression {
+    fn from(value: AssociatedConstantExpression) -> Self {
+        Expression::AssociatedConstant(value)
     }
 }
 

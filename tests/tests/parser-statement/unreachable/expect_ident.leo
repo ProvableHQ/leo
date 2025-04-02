@@ -57,8 +57,6 @@ x::..
 
 x::as
 
-x::console
-
 x::const
 
 x::let

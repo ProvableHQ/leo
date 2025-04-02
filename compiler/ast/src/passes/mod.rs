@@ -17,13 +17,11 @@
 //! This module contains both a Reducer and Visitor design pattern.
 //! These both iterate over the AST.
 
-// TODO: Move the files in this module into `leo-passes` in a future PR.
-
-pub mod consumer;
+mod consumer;
 pub use consumer::*;
 
-pub mod reconstructor;
+mod reconstructor;
 pub use reconstructor::*;
 
-pub mod visitor;
+mod visitor;
 pub use visitor::*;

@@ -201,162 +201,155 @@ Error [EPAR0370009]: unexpected string: expected 'identifier', found 'as'
      |    ^^
 
 
-Error [EPAR0370009]: unexpected string: expected 'identifier', found 'console'
-    --> test_29:1:4
-     |
-   1 | x::console
-     |    ^^^^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'const'
-    --> test_30:1:4
+    --> test_29:1:4
      |
    1 | x::const
      |    ^^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'let'
-    --> test_31:1:4
+    --> test_30:1:4
      |
    1 | x::let
      |    ^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'for'
-    --> test_32:1:4
+    --> test_31:1:4
      |
    1 | x::for
      |    ^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'if'
-    --> test_33:1:4
+    --> test_32:1:4
      |
    1 | x::if
      |    ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'else'
-    --> test_34:1:4
+    --> test_33:1:4
      |
    1 | x::else
      |    ^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'i8'
-    --> test_35:1:4
+    --> test_34:1:4
      |
    1 | x::i8
      |    ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'i16'
-    --> test_36:1:4
+    --> test_35:1:4
      |
    1 | x::i16
      |    ^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'i32'
-    --> test_37:1:4
+    --> test_36:1:4
      |
    1 | x::i32
      |    ^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'i64'
-    --> test_38:1:4
+    --> test_37:1:4
      |
    1 | x::i64
      |    ^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'i128'
-    --> test_39:1:4
+    --> test_38:1:4
      |
    1 | x::i128
      |    ^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u8'
-    --> test_40:1:4
+    --> test_39:1:4
      |
    1 | x::u8
      |    ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u16'
-    --> test_41:1:4
+    --> test_40:1:4
      |
    1 | x::u16
      |    ^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u32'
-    --> test_42:1:4
+    --> test_41:1:4
      |
    1 | x::u32
      |    ^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u64'
-    --> test_43:1:4
+    --> test_42:1:4
      |
    1 | x::u64
      |    ^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u128'
-    --> test_44:1:4
+    --> test_43:1:4
      |
    1 | x::u128
      |    ^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '&'
-    --> test_45:1:4
+    --> test_44:1:4
      |
    1 | x::&
      |    ^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'return'
-    --> test_46:1:4
+    --> test_45:1:4
      |
    1 | x::return
      |    ^^^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'self'
-    --> test_47:1:4
+    --> test_46:1:4
      |
    1 | x::self
      |    ^^^^
 
 
 Error [EPAR0370005]: expected ; -- found '<eof>'
-    --> test_48:1:4
+    --> test_47:1:4
      |
    1 | x::Self
      |    ^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'true'
-    --> test_49:1:4
+    --> test_48:1:4
      |
    1 | x::true
      |    ^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'false'
-    --> test_50:1:4
+    --> test_49:1:4
      |
    1 | x::false
      |    ^^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '0'
-    --> test_51:1:4
+    --> test_50:1:4
      |
    1 | x::0
      |    ^

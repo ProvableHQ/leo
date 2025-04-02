@@ -58,8 +58,6 @@ program test.aleo {
 
     struct as
 
-    struct console
-
     struct const
 
     struct let

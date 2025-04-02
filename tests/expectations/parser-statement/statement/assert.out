@@ -173,16 +173,14 @@
     "variant": {
       "Assert": {
         "Literal": {
-          "Boolean": [
-            false,
-            {
-              "span": {
-                "lo": 81,
-                "hi": 86
-              }
-            },
-            0
-          ]
+          "span": {
+            "lo": 81,
+            "hi": 86
+          },
+          "id": 0,
+          "variant": {
+            "Boolean": false
+          }
         }
       }
     },

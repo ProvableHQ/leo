@@ -87,7 +87,7 @@ impl fmt::Display for UnaryOperation {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UnaryExpression {
     /// The inner expression `op` is applied to.
-    pub receiver: Box<Expression>,
+    pub receiver: Expression,
     /// The unary operator to apply to `inner`.
     pub op: UnaryOperation,
     /// The span covering `op inner`.
@@ -104,6 +104,12 @@ impl fmt::Display for UnaryExpression {
             write!(f, "{}", self.receiver)?;
         }
         write!(f, ".{}()", self.op)
+    }
+}
+
+impl From<UnaryExpression> for Expression {
+    fn from(value: UnaryExpression) -> Self {
+        Expression::Unary(Box::new(value))
     }
 }
 

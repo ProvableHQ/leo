@@ -166,9 +166,9 @@ impl BinaryOperation {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BinaryExpression {
     /// The left operand of the expression.
-    pub left: Box<Expression>,
+    pub left: Expression,
     /// The right operand of the expression.
-    pub right: Box<Expression>,
+    pub right: Expression,
     /// The operand defining the meaning of the resulting binary expression.
     pub op: BinaryOperation,
     /// The span from `left` to `right`.
@@ -251,6 +251,12 @@ impl BinaryExpression {
             AddWrapped | DivWrapped | Mod | MulWrapped | Nand | Nor | PowWrapped | RemWrapped | ShlWrapped
             | ShrWrapped | SubWrapped => None,
         }
+    }
+}
+
+impl From<BinaryExpression> for Expression {
+    fn from(value: BinaryExpression) -> Self {
+        Expression::Binary(Box::new(value))
     }
 }
 

@@ -124,32 +124,32 @@
                         "arguments": [
                           {
                             "Literal": {
-                              "Integer": [
-                                "U32",
-                                "1",
-                                {
-                                  "span": {
-                                    "lo": 128,
-                                    "hi": 132
-                                  }
-                                },
-                                8
-                              ]
+                              "span": {
+                                "lo": 128,
+                                "hi": 132
+                              },
+                              "id": 8,
+                              "variant": {
+                                "Integer": [
+                                  "U32",
+                                  "1"
+                                ]
+                              }
                             }
                           },
                           {
                             "Literal": {
-                              "Integer": [
-                                "U32",
-                                "1",
-                                {
-                                  "span": {
-                                    "lo": 134,
-                                    "hi": 138
-                                  }
-                                },
-                                9
-                              ]
+                              "span": {
+                                "lo": 134,
+                                "hi": 138
+                              },
+                              "id": 9,
+                              "variant": {
+                                "Integer": [
+                                  "U32",
+                                  "1"
+                                ]
+                              }
                             }
                           }
                         ],

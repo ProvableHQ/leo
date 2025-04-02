@@ -17,7 +17,6 @@
 use super::*;
 
 use leo_ast::{
-    AccessExpression,
     AssertVariant,
     BinaryOperation,
     Block,
@@ -29,6 +28,7 @@ use leo_ast::{
     Function,
     IntegerType,
     Literal,
+    LiteralVariant,
     Statement,
     Type,
     UnaryOperation,
@@ -499,8 +499,8 @@ impl<'a> Cursor<'a> {
                 let value = self.values.pop().unwrap();
                 match &assign.place {
                     Expression::Identifier(name) => self.set_variable(name.name, value),
-                    Expression::Access(AccessExpression::Tuple(tuple_access)) => {
-                        let Expression::Identifier(identifier) = &*tuple_access.tuple else {
+                    Expression::TupleAccess(tuple_access) => {
+                        let Expression::Identifier(identifier) = tuple_access.tuple else {
                             halt!(assign.span(), "tuple assignments must refer to identifiers.");
                         };
                         let mut current_tuple = self.lookup(identifier.name).expect_tc(identifier.span())?;
@@ -540,7 +540,6 @@ impl<'a> Cursor<'a> {
                 false
             }
             Statement::Conditional(_) if step == 2 => true,
-            Statement::Console(_) => todo!(),
             Statement::Const(const_) if step == 0 => {
                 push(&const_.value);
                 false
@@ -648,12 +647,12 @@ impl<'a> Cursor<'a> {
         }
 
         if let Some(value) = match expression {
-            Expression::Access(AccessExpression::Array(array)) if step == 0 => {
-                push!()(&*array.index);
-                push!()(&*array.array);
+            Expression::ArrayAccess(array) if step == 0 => {
+                push!()(&array.index);
+                push!()(&array.array);
                 None
             }
-            Expression::Access(AccessExpression::Array(array)) if step == 1 => {
+            Expression::ArrayAccess(array) if step == 1 => {
                 let span = array.span();
                 let array = self.pop_value()?;
                 let index = self.pop_value()?;
@@ -674,7 +673,7 @@ impl<'a> Cursor<'a> {
                 let Value::Array(vec_array) = array else { tc_fail!() };
                 Some(vec_array.get(index_usize).expect_tc(span)?.clone())
             }
-            Expression::Access(AccessExpression::Member(access)) => match &*access.inner {
+            Expression::MemberAccess(access) => match &access.inner {
                 Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
                     sym::signer => Some(Value::Address(self.signer)),
                     sym::caller => {
@@ -693,7 +692,7 @@ impl<'a> Cursor<'a> {
 
                 // Otherwise, we just have a normal struct member access.
                 _ if step == 0 => {
-                    push!()(&*access.inner);
+                    push!()(&access.inner);
                     None
                 }
                 _ if step == 1 => {
@@ -708,11 +707,11 @@ impl<'a> Cursor<'a> {
                 }
                 _ => unreachable!("we've actually covered all possible patterns above"),
             },
-            Expression::Access(AccessExpression::Tuple(tuple_access)) if step == 0 => {
-                push!()(&*tuple_access.tuple);
+            Expression::TupleAccess(tuple_access) if step == 0 => {
+                push!()(&tuple_access.tuple);
                 None
             }
-            Expression::Access(AccessExpression::Tuple(tuple_access)) if step == 1 => {
+            Expression::TupleAccess(tuple_access) if step == 1 => {
                 let Some(value) = self.values.pop() else { tc_fail!() };
                 let Value::Tuple(tuple) = value else {
                     halt!(tuple_access.span(), "Type error");
@@ -816,7 +815,7 @@ impl<'a> Cursor<'a> {
             }
             Expression::Call(call) if step == 1 => {
                 let len = self.values.len();
-                let (program, name) = match &*call.function {
+                let (program, name) = match &call.function {
                     Expression::Identifier(id) => {
                         let maybe_program = call.program.or_else(|| self.current_program());
                         if let Some(program) = maybe_program {
@@ -842,7 +841,7 @@ impl<'a> Cursor<'a> {
             }
             Expression::Call(_call) if step == 2 => Some(self.pop_value()?),
             Expression::Cast(cast) if step == 0 => {
-                push!()(&*cast.expression);
+                push!()(&cast.expression);
                 None
             }
             Expression::Cast(cast) if step == 1 => {
@@ -888,14 +887,14 @@ impl<'a> Cursor<'a> {
                 Some(Value::Struct(StructContents { name: struct_.name.name, contents }))
             }
             Expression::Ternary(ternary) if step == 0 => {
-                push!()(&*ternary.condition);
+                push!()(&ternary.condition);
                 None
             }
             Expression::Ternary(ternary) if step == 1 => {
                 let condition = self.pop_value()?;
                 match condition {
-                    Value::Bool(true) => push!()(&*ternary.if_true),
-                    Value::Bool(false) => push!()(&*ternary.if_false),
+                    Value::Bool(true) => push!()(&ternary.if_true),
+                    Value::Bool(false) => push!()(&ternary.if_false),
                     _ => halt!(ternary.span(), "Invalid type for ternary expression {ternary}"),
                 }
                 None
@@ -911,7 +910,7 @@ impl<'a> Cursor<'a> {
                 Some(Value::Tuple(tuple_values))
             }
             Expression::Unary(unary) if step == 0 => {
-                push!()(&*unary.receiver);
+                push!()(&unary.receiver);
                 None
             }
             Expression::Unary(unary) if step == 1 => {
@@ -1680,51 +1679,51 @@ pub fn literal_to_value(literal: &Literal) -> Result<Value> {
         format!("{neg}{rest}{suffix}")
     }
 
-    let value = match literal {
-        Literal::Boolean(b, ..) => Value::Bool(*b),
-        Literal::Integer(IntegerType::U8, s, ..) => {
+    let value = match &literal.variant {
+        LiteralVariant::Boolean(b) => Value::Bool(*b),
+        LiteralVariant::Integer(IntegerType::U8, s, ..) => {
             let s = s.replace("_", "");
             Value::U8(u8::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Integer(IntegerType::U16, s, ..) => {
+        LiteralVariant::Integer(IntegerType::U16, s, ..) => {
             let s = s.replace("_", "");
             Value::U16(u16::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Integer(IntegerType::U32, s, ..) => {
+        LiteralVariant::Integer(IntegerType::U32, s, ..) => {
             let s = s.replace("_", "");
             Value::U32(u32::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Integer(IntegerType::U64, s, ..) => {
+        LiteralVariant::Integer(IntegerType::U64, s, ..) => {
             let s = s.replace("_", "");
             Value::U64(u64::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Integer(IntegerType::U128, s, ..) => {
+        LiteralVariant::Integer(IntegerType::U128, s, ..) => {
             let s = s.replace("_", "");
             Value::U128(u128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Integer(IntegerType::I8, s, ..) => {
+        LiteralVariant::Integer(IntegerType::I8, s, ..) => {
             let s = s.replace("_", "");
             Value::I8(i8::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Integer(IntegerType::I16, s, ..) => {
+        LiteralVariant::Integer(IntegerType::I16, s, ..) => {
             let s = s.replace("_", "");
             Value::I16(i16::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Integer(IntegerType::I32, s, ..) => {
+        LiteralVariant::Integer(IntegerType::I32, s, ..) => {
             let s = s.replace("_", "");
             Value::I32(i32::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Integer(IntegerType::I64, s, ..) => {
+        LiteralVariant::Integer(IntegerType::I64, s, ..) => {
             let s = s.replace("_", "");
             Value::I64(i64::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Integer(IntegerType::I128, s, ..) => {
+        LiteralVariant::Integer(IntegerType::I128, s, ..) => {
             let s = s.replace("_", "");
             Value::I128(i128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Field(s, ..) => Value::Field(prepare_snarkvm_string(s, "field").parse().expect_tc(literal.span())?),
-        Literal::Group(s, ..) => Value::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(literal.span())?),
-        Literal::Address(s, ..) => {
+        LiteralVariant::Field(s) => Value::Field(prepare_snarkvm_string(s, "field").parse().expect_tc(literal.span())?),
+        LiteralVariant::Group(s) => Value::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(literal.span())?),
+        LiteralVariant::Address(s) => {
             if s.ends_with(".aleo") {
                 let program_id = ProgramID::from_str(s)?;
                 Value::Address(program_id.to_address()?)
@@ -1732,8 +1731,10 @@ pub fn literal_to_value(literal: &Literal) -> Result<Value> {
                 Value::Address(s.parse().expect_tc(literal.span())?)
             }
         }
-        Literal::Scalar(s, ..) => Value::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span())?),
-        Literal::String(..) => tc_fail!(),
+        LiteralVariant::Scalar(s) => {
+            Value::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span())?)
+        }
+        LiteralVariant::String(..) => tc_fail!(),
     };
 
     Ok(value)

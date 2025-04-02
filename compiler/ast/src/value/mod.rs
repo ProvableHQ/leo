@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{FromStrRadix as _, Identifier, IntegerType, Literal, NodeID, Type};
+use crate::{FromStrRadix as _, Identifier, IntegerType, Literal, LiteralVariant, Type};
 
 use leo_errors::{FlattenError, LeoError, Result, type_name};
 use leo_span::{Span, Symbol};
@@ -859,55 +859,29 @@ impl TryFrom<&Literal> for Value {
 
     /// Converts a literal to a value.
     fn try_from(literal: &Literal) -> Result<Self, Self::Error> {
-        Ok(match literal {
-            Literal::Address(string, span, _) => Self::Address(string.clone(), *span),
-            Literal::Boolean(bool, span, _) => Self::Boolean(*bool, *span),
-            Literal::Field(string, span, _) => Self::Field(string.clone(), *span),
-            Literal::Group(string, span, _) => Self::Group(string.clone(), *span),
-            Literal::Scalar(string, span, _) => Self::Scalar(string.clone(), *span),
-            Literal::String(string, span, _) => Self::String(string.clone(), *span),
-            Literal::Integer(integer_type, raw_string, span, _) => {
+        let span = literal.span;
+        Ok(match &literal.variant {
+            LiteralVariant::Address(string) => Self::Address(string.clone(), span),
+            LiteralVariant::Boolean(bool) => Self::Boolean(*bool, span),
+            LiteralVariant::Field(string) => Self::Field(string.clone(), span),
+            LiteralVariant::Group(string) => Self::Group(string.clone(), span),
+            LiteralVariant::Scalar(string) => Self::Scalar(string.clone(), span),
+            LiteralVariant::String(string) => Self::String(string.clone(), span),
+            LiteralVariant::Integer(integer_type, raw_string) => {
                 let string = raw_string.replace('_', "");
                 match integer_type {
-                    IntegerType::U8 => Self::U8(u8::from_str_by_radix(&string)?, *span),
-                    IntegerType::U16 => Self::U16(u16::from_str_by_radix(&string)?, *span),
-                    IntegerType::U32 => Self::U32(u32::from_str_by_radix(&string)?, *span),
-                    IntegerType::U64 => Self::U64(u64::from_str_by_radix(&string)?, *span),
-                    IntegerType::U128 => Self::U128(u128::from_str_by_radix(&string)?, *span),
-                    IntegerType::I8 => Self::I8(i8::from_str_by_radix(&string)?, *span),
-                    IntegerType::I16 => Self::I16(i16::from_str_by_radix(&string)?, *span),
-                    IntegerType::I32 => Self::I32(i32::from_str_by_radix(&string)?, *span),
-                    IntegerType::I64 => Self::I64(i64::from_str_by_radix(&string)?, *span),
-                    IntegerType::I128 => Self::I128(i128::from_str_by_radix(&string)?, *span),
+                    IntegerType::U8 => Self::U8(u8::from_str_by_radix(&string)?, span),
+                    IntegerType::U16 => Self::U16(u16::from_str_by_radix(&string)?, span),
+                    IntegerType::U32 => Self::U32(u32::from_str_by_radix(&string)?, span),
+                    IntegerType::U64 => Self::U64(u64::from_str_by_radix(&string)?, span),
+                    IntegerType::U128 => Self::U128(u128::from_str_by_radix(&string)?, span),
+                    IntegerType::I8 => Self::I8(i8::from_str_by_radix(&string)?, span),
+                    IntegerType::I16 => Self::I16(i16::from_str_by_radix(&string)?, span),
+                    IntegerType::I32 => Self::I32(i32::from_str_by_radix(&string)?, span),
+                    IntegerType::I64 => Self::I64(i64::from_str_by_radix(&string)?, span),
+                    IntegerType::I128 => Self::I128(i128::from_str_by_radix(&string)?, span),
                 }
             }
         })
-    }
-}
-
-impl Literal {
-    #[allow(unused)]
-    fn from_value(v: Value, id: NodeID) -> Self {
-        use Value::*;
-        match v {
-            Input(_, _) => todo!("We need to test if this is hittable"),
-            Address(v, span) => Literal::Address(v, span, id),
-            Boolean(v, span) => Literal::Boolean(v, span, id),
-            Struct(_ident, _values) => todo!("We need to test if this is hittable"),
-            Field(v, span) => Literal::Field(v, span, id),
-            Group(v, span) => Literal::Group(v, span, id),
-            I8(v, span) => Literal::Integer(IntegerType::I8, v.to_string(), span, id),
-            I16(v, span) => Literal::Integer(IntegerType::I16, v.to_string(), span, id),
-            I32(v, span) => Literal::Integer(IntegerType::I32, v.to_string(), span, id),
-            I64(v, span) => Literal::Integer(IntegerType::I64, v.to_string(), span, id),
-            I128(v, span) => Literal::Integer(IntegerType::I128, v.to_string(), span, id),
-            U8(v, span) => Literal::Integer(IntegerType::U8, v.to_string(), span, id),
-            U16(v, span) => Literal::Integer(IntegerType::U16, v.to_string(), span, id),
-            U32(v, span) => Literal::Integer(IntegerType::U32, v.to_string(), span, id),
-            U64(v, span) => Literal::Integer(IntegerType::U64, v.to_string(), span, id),
-            U128(v, span) => Literal::Integer(IntegerType::U128, v.to_string(), span, id),
-            Scalar(v, span) => Literal::Scalar(v, span, id),
-            String(v, span) => Literal::String(v, span, id),
-        }
     }
 }

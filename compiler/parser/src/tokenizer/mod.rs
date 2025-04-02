@@ -28,7 +28,7 @@ pub(crate) mod lexer;
 pub(crate) use self::lexer::*;
 
 use leo_errors::Result;
-use leo_span::span::{BytePos, Pos, Span};
+use leo_span::{BytePos, Pos, Span};
 use std::iter;
 
 /// Creates a new vector of spanned tokens from a given file path and source code text.
@@ -64,7 +64,7 @@ pub(crate) fn tokenize_iter(mut input: &str, mut lo: BytePos) -> impl '_ + Itera
 #[cfg(test)]
 mod tests {
     use super::*;
-    use leo_span::{source_map::FileName, symbol::create_session_if_not_set_then};
+    use leo_span::{create_session_if_not_set_then, source_map::FileName};
     use std::fmt::Write;
 
     #[test]
@@ -125,7 +125,6 @@ mod tests {
     u32
     u16
     u8
-    console
     !
     !=
     &&
@@ -169,7 +168,7 @@ mod tests {
 
             assert_eq!(
                 output,
-                r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" test_ident 12345 address as assert assert_eq assert_neq async bool const else false field for function Future group i128 i64 i32 i16 i8 if in inline input let mut private program public return scalar self signature string struct test transition true u128 u64 u32 u16 u8 console ! != && ( ) * ** + , - -> => _ . .. / : ; < <= = == > >= [ ] { { } } || ? @ // test
+                r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" test_ident 12345 address as assert assert_eq assert_neq async bool const else false field for function Future group i128 i64 i32 i16 i8 if in inline input let mut private program public return scalar self signature string struct test transition true u128 u64 u32 u16 u8 ! != && ( ) * ** + , - -> => _ . .. / : ; < <= = == > >= [ ] { { } } || ? @ // test
  /* test */ // "#
             );
         });

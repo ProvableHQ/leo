@@ -242,7 +242,6 @@ symbols! {
     assert_eq,
     assert_neq,
     caller,
-    console,
     Const: "const",
     constant,
     decrement,

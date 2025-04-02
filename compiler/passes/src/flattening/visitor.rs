@@ -17,7 +17,6 @@
 use crate::CompilerState;
 
 use leo_ast::{
-    AccessExpression,
     ArrayAccess,
     ArrayExpression,
     ArrayType,
@@ -129,7 +128,7 @@ impl FlatteningVisitor<'_> {
             };
             let statement = self.simple_definition(
                 place,
-                Expression::Literal(Literal::Boolean(true, Default::default(), self.state.node_builder.next_id())),
+                Literal::boolean(true, Default::default(), self.state.node_builder.next_id()).into(),
             );
             return Some((place, vec![statement]));
         }
@@ -157,21 +156,15 @@ impl FlatteningVisitor<'_> {
                 unreachable!("We're always at an index where previous guards were Constructed.");
             };
 
-            let identifier_expression = Expression::Identifier(identifier);
-            let previous_expression = Expression::Identifier(previous_identifier);
-
             // Construct an Or of the two expressions.
-            let binary = Expression::Binary(BinaryExpression {
+            let binary = BinaryExpression {
                 op: BinaryOperation::Or,
-                left: Box::new(previous_expression),
-                right: Box::new(identifier_expression),
+                left: previous_identifier.into(),
+                right: identifier.into(),
                 span: Default::default(),
-                id: {
-                    let id = self.state.node_builder.next_id();
-                    self.state.type_table.insert(id, Type::Boolean);
-                    id
-                },
-            });
+                id: self.state.node_builder.next_id(),
+            };
+            self.state.type_table.insert(binary.id(), Type::Boolean);
 
             // Assign that Or to a new Identifier.
             let place = Identifier {
@@ -179,7 +172,7 @@ impl FlatteningVisitor<'_> {
                 span: Default::default(),
                 id: self.state.node_builder.next_id(),
             };
-            statements.push(self.simple_definition(place, binary));
+            statements.push(self.simple_definition(place, binary.into()));
 
             // Make that assigned Identifier the constructed guard.
             self.returns[i].0 = ReturnGuard::Constructed { plain: identifier, any_return: place };
@@ -221,23 +214,16 @@ impl FlatteningVisitor<'_> {
             }
 
             let previous = self.condition_stack[i - 1].identifier();
-            let identifier_expression = Expression::Identifier(identifier);
-            let previous_expression = Expression::Identifier(previous);
 
             // Construct an And of the two expressions.
-            let binary = Expression::Binary(BinaryExpression {
+            let binary = BinaryExpression {
                 op: BinaryOperation::And,
-                left: Box::new(previous_expression),
-                right: Box::new(identifier_expression),
+                left: previous.into(),
+                right: identifier.into(),
                 span: Default::default(),
-                id: {
-                    // Create a new node ID for the binary expression.
-                    let id = self.state.node_builder.next_id();
-                    // Set the type of the node ID.
-                    self.state.type_table.insert(id, Type::Boolean);
-                    id
-                },
-            });
+                id: self.state.node_builder.next_id(),
+            };
+            self.state.type_table.insert(binary.id(), Type::Boolean);
 
             // Assign that And to a new Identifier.
             let place = Identifier {
@@ -245,7 +231,7 @@ impl FlatteningVisitor<'_> {
                 span: Default::default(),
                 id: self.state.node_builder.next_id(),
             };
-            statements.push(self.simple_definition(place, binary));
+            statements.push(self.simple_definition(place, binary.into()));
 
             // Make that assigned Identifier the constructed guard.
             self.condition_stack[i] = Guard::Constructed(place);
@@ -280,35 +266,28 @@ impl FlatteningVisitor<'_> {
                             span: Default::default(),
                             id: self.state.node_builder.next_id(),
                         };
-                        let (value, stmts) = self.reconstruct_ternary(TernaryExpression {
-                            id: {
-                                // Create a new node ID for the ternary expression.
-                                let id = self.state.node_builder.next_id();
-                                // Get the type of the node ID.
-                                let type_ = match self.state.type_table.get(&if_true.id()) {
-                                    Some(type_) => type_,
-                                    None => unreachable!("Type checking guarantees that all expressions have a type."),
-                                };
-                                // Set the type of the node ID.
-                                self.state.type_table.insert(id, type_);
-                                id
-                            },
-                            condition: Box::new(guard),
-                            if_true: Box::new(if_true),
-                            if_false: Box::new(if_false),
+                        let Some(type_) = self.state.type_table.get(&if_true.id()) else {
+                            panic!("Type checking guarantees that all expressions have a type.");
+                        };
+                        let ternary = TernaryExpression {
+                            condition: guard,
+                            if_true,
+                            if_false,
                             span: Default::default(),
-                        });
+                            id: self.state.node_builder.next_id(),
+                        };
+                        self.state.type_table.insert(ternary.id(), type_);
+                        let (value, stmts) = self.reconstruct_ternary(ternary);
                         statements.extend(stmts);
 
-                        match &value {
+                        if let Expression::Tuple(..) = &value {
                             // If the expression is a tuple, then use it directly.
                             // This must be done to ensure that intermediate tuple assignments are not created.
-                            Expression::Tuple(_) => value,
+                            value
+                        } else {
                             // Otherwise, assign the expression to a variable and return the variable.
-                            _ => {
-                                statements.push(self.simple_definition(place, value));
-                                Expression::Identifier(place)
-                            }
+                            statements.push(self.simple_definition(place, value));
+                            place.into()
                         }
                     };
 
@@ -365,23 +344,43 @@ impl FlatteningVisitor<'_> {
             block.statements.extend(stmts);
 
             // Add the `ReturnStatement` to the end of the block.
-            block.statements.push(Statement::Return(ReturnStatement {
-                expression,
-                span: Default::default(),
-                id: self.state.node_builder.next_id(),
-            }));
+            block.statements.push(
+                ReturnStatement { expression, span: Default::default(), id: self.state.node_builder.next_id() }.into(),
+            );
         }
         // Otherwise, push a dummy return statement to the end of the block.
         else {
-            block.statements.push(Statement::Return(ReturnStatement {
-                expression: {
-                    let id = self.state.node_builder.next_id();
-                    Expression::Unit(UnitExpression { span: Default::default(), id })
-                },
-                span: Default::default(),
-                id: self.state.node_builder.next_id(),
-            }));
+            block.statements.push(
+                ReturnStatement {
+                    expression: UnitExpression { span: Default::default(), id: self.state.node_builder.next_id() }
+                        .into(),
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                }
+                .into(),
+            );
         }
+    }
+
+    // For use in `ternary_array`.
+    fn make_array_access_definition(
+        &mut self,
+        i: usize,
+        identifier: Identifier,
+        array_type: &ArrayType,
+    ) -> (Identifier, Statement) {
+        let index =
+            Literal::integer(IntegerType::U32, i.to_string(), Default::default(), self.state.node_builder.next_id());
+        self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
+        let access: Expression = ArrayAccess {
+            array: identifier.into(),
+            index: index.into(),
+            span: Default::default(),
+            id: self.state.node_builder.next_id(),
+        }
+        .into();
+        self.state.type_table.insert(access.id(), array_type.element_type().clone());
+        self.unique_simple_definition(access)
     }
 
     pub fn ternary_array(
@@ -397,74 +396,25 @@ impl FlatteningVisitor<'_> {
         let elements = (0..array.length())
             .map(|i| {
                 // Create an assignment statement for the first access expression.
-                let (first, stmt) =
-                    self.unique_simple_definition(Expression::Access(AccessExpression::Array(ArrayAccess {
-                        array: Box::new(Expression::Identifier(*first)),
-                        index: Box::new(Expression::Literal(Literal::Integer(
-                            IntegerType::U32,
-                            i.to_string(),
-                            Default::default(),
-                            {
-                                // Create a new node ID for the literal.
-                                let id = self.state.node_builder.next_id();
-                                // Set the type of the node ID.
-                                self.state.type_table.insert(id, Type::Integer(IntegerType::U32));
-                                id
-                            },
-                        ))),
-                        span: Default::default(),
-                        id: {
-                            // Create a new node ID for the access expression.
-                            let id = self.state.node_builder.next_id();
-                            // Set the type of the node ID.
-                            self.state.type_table.insert(id, array.element_type().clone());
-                            id
-                        },
-                    })));
+                let (first, stmt) = self.make_array_access_definition(i, *first, array);
                 statements.push(stmt);
                 // Create an assignment statement for the second access expression.
-                let (second, stmt) =
-                    self.unique_simple_definition(Expression::Access(AccessExpression::Array(ArrayAccess {
-                        array: Box::new(Expression::Identifier(*second)),
-                        index: Box::new(Expression::Literal(Literal::Integer(
-                            IntegerType::U32,
-                            i.to_string(),
-                            Default::default(),
-                            {
-                                // Create a new node ID for the literal.
-                                let id = self.state.node_builder.next_id();
-                                // Set the type of the node ID.
-                                self.state.type_table.insert(id, Type::Integer(IntegerType::U32));
-                                id
-                            },
-                        ))),
-                        span: Default::default(),
-                        id: {
-                            // Create a new node ID for the access expression.
-                            let id = self.state.node_builder.next_id();
-                            // Set the type of the node ID.
-                            self.state.type_table.insert(id, array.element_type().clone());
-                            id
-                        },
-                    })));
+                let (second, stmt) = self.make_array_access_definition(i, *second, array);
                 statements.push(stmt);
 
                 // Recursively reconstruct the ternary expression.
-                let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
-                    condition: Box::new(condition.clone()),
+                let ternary = TernaryExpression {
+                    condition: condition.clone(),
                     // Access the member of the first expression.
-                    if_true: Box::new(Expression::Identifier(first)),
+                    if_true: first.into(),
                     // Access the member of the second expression.
-                    if_false: Box::new(Expression::Identifier(second)),
+                    if_false: second.into(),
                     span: Default::default(),
-                    id: {
-                        // Create a new node ID for the ternary expression.
-                        let id = self.state.node_builder.next_id();
-                        // Set the type of the node ID.
-                        self.state.type_table.insert(id, array.element_type().clone());
-                        id
-                    },
-                });
+                    id: self.state.node_builder.next_id(),
+                };
+                self.state.type_table.insert(ternary.id(), array.element_type().clone());
+
+                let (expression, stmts) = self.reconstruct_ternary(ternary);
 
                 // Accumulate any statements generated.
                 statements.extend(stmts);
@@ -494,7 +444,21 @@ impl FlatteningVisitor<'_> {
 
         statements.push(statement);
 
-        (Expression::Identifier(identifier), statements)
+        (identifier.into(), statements)
+    }
+
+    // For use in `ternary_struct`.
+    fn make_struct_access_definition(
+        &mut self,
+        inner: Identifier,
+        name: Identifier,
+        type_: Type,
+    ) -> (Identifier, Statement) {
+        let expr: Expression =
+            MemberAccess { inner: inner.into(), name, span: Default::default(), id: self.state.node_builder.next_id() }
+                .into();
+        self.state.type_table.insert(expr.id(), type_);
+        self.unique_simple_definition(expr)
     }
 
     pub fn ternary_struct(
@@ -511,52 +475,20 @@ impl FlatteningVisitor<'_> {
             .members
             .iter()
             .map(|Member { identifier, type_, .. }| {
-                // Create an assignment statement for the first access expression.
-                let (first, stmt) =
-                    self.unique_simple_definition(Expression::Access(AccessExpression::Member(MemberAccess {
-                        inner: Box::new(Expression::Identifier(*first)),
-                        name: *identifier,
-                        span: Default::default(),
-                        id: {
-                            // Create a new node ID for the access expression.
-                            let id = self.state.node_builder.next_id();
-                            // Set the type of the node ID.
-                            self.state.type_table.insert(id, type_.clone());
-                            id
-                        },
-                    })));
+                let (first, stmt) = self.make_struct_access_definition(*first, *identifier, type_.clone());
                 statements.push(stmt);
-                // Create an assignment statement for the second access expression.
-                let (second, stmt) =
-                    self.unique_simple_definition(Expression::Access(AccessExpression::Member(MemberAccess {
-                        inner: Box::new(Expression::Identifier(*second)),
-                        name: *identifier,
-                        span: Default::default(),
-                        id: {
-                            // Create a new node ID for the access expression.
-                            let id = self.state.node_builder.next_id();
-                            // Set the type of the node ID.
-                            self.state.type_table.insert(id, type_.clone());
-                            id
-                        },
-                    })));
+                let (second, stmt) = self.make_struct_access_definition(*second, *identifier, type_.clone());
                 statements.push(stmt);
                 // Recursively reconstruct the ternary expression.
-                let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
-                    condition: Box::new(condition.clone()),
-                    // Access the member of the first expression.
-                    if_true: Box::new(Expression::Identifier(first)),
-                    // Access the member of the second expression.
-                    if_false: Box::new(Expression::Identifier(second)),
+                let ternary = TernaryExpression {
+                    condition: condition.clone(),
+                    if_true: first.into(),
+                    if_false: second.into(),
                     span: Default::default(),
-                    id: {
-                        // Create a new node ID for the ternary expression.
-                        let id = self.state.node_builder.next_id();
-                        // Set the type of the node ID.
-                        self.state.type_table.insert(id, type_.clone());
-                        id
-                    },
-                });
+                    id: self.state.node_builder.next_id(),
+                };
+                self.state.type_table.insert(ternary.id(), type_.clone());
+                let (expression, stmts) = self.reconstruct_ternary(ternary);
 
                 // Accumulate any statements generated.
                 statements.extend(stmts);
@@ -593,7 +525,7 @@ impl FlatteningVisitor<'_> {
 
         statements.push(statement);
 
-        (Expression::Identifier(identifier), statements)
+        (identifier.into(), statements)
     }
 
     pub fn ternary_tuple(
@@ -606,18 +538,12 @@ impl FlatteningVisitor<'_> {
         let make_access = |base_expression: &Expression, i: usize, ty: Type, slf: &mut Self| -> Expression {
             match base_expression {
                 expr @ Expression::Identifier(..) => {
-                    Expression::Access(AccessExpression::Tuple(TupleAccess {
-                        tuple: Box::new(expr.clone()),
-                        index: NonNegativeNumber::from(i),
-                        span: Default::default(),
-                        id: {
-                            // Create a new node ID for the access expression.
-                            let id = slf.state.node_builder.next_id();
-                            // Set the type of the node ID.
-                            slf.state.type_table.insert(id, ty);
-                            id
-                        },
-                    }))
+                    // Create a new node ID for the access expression.
+                    let id = slf.state.node_builder.next_id();
+                    // Set the type of the node ID.
+                    slf.state.type_table.insert(id, ty);
+                    TupleAccess { tuple: expr.clone(), index: NonNegativeNumber::from(i), span: Default::default(), id }
+                        .into()
                 }
 
                 Expression::Tuple(tuple_expr) => tuple_expr.elements[i].clone(),
@@ -644,21 +570,15 @@ impl FlatteningVisitor<'_> {
                 statements.push(stmt);
 
                 // Recursively reconstruct the ternary expression.
-                let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
-                    condition: Box::new(condition.clone()),
-                    // Access the member of the first expression.
-                    if_true: Box::new(Expression::Identifier(first)),
-                    // Access the member of the second expression.
-                    if_false: Box::new(Expression::Identifier(second)),
+                let ternary = TernaryExpression {
+                    condition: condition.clone(),
+                    if_true: first.into(),
+                    if_false: second.into(),
                     span: Default::default(),
-                    id: {
-                        // Create a new node ID for the ternary expression.
-                        let id = self.state.node_builder.next_id();
-                        // Set the type of the node ID.
-                        self.state.type_table.insert(id, type_.clone());
-                        id
-                    },
-                });
+                    id: self.state.node_builder.next_id(),
+                };
+                self.state.type_table.insert(ternary.id(), type_.clone());
+                let (expression, stmts) = self.reconstruct_ternary(ternary);
 
                 // Accumulate any statements generated.
                 statements.extend(stmts);
@@ -690,7 +610,7 @@ impl FlatteningVisitor<'_> {
 
             statements.push(statement);
 
-            (Expression::Identifier(identifier), statements)
+            (identifier.into(), statements)
         } else {
             // Just use the tuple we just made.
             (expr, statements)

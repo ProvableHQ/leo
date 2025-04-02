@@ -22,8 +22,8 @@
 use crate::{Token, tokenizer::*};
 
 use leo_ast::*;
-use leo_errors::{ParserError, Result, emitter::Handler};
-use leo_span::{Span, span::BytePos};
+use leo_errors::{Handler, ParserError, Result};
+use leo_span::{BytePos, Span};
 
 use snarkvm::prelude::Network;
 

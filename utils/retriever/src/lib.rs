@@ -23,7 +23,7 @@ pub use program_context::*;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use leo_span::{Symbol, symbol::create_session_if_not_set_then};
+    use leo_span::{Symbol, create_session_if_not_set_then};
 
     use aleo_std::aleo_dir;
 

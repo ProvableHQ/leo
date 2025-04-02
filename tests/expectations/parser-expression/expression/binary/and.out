@@ -2,30 +2,26 @@
   "Binary": {
     "left": {
       "Literal": {
-        "Boolean": [
-          true,
-          {
-            "span": {
-              "lo": 0,
-              "hi": 4
-            }
-          },
-          0
-        ]
+        "span": {
+          "lo": 0,
+          "hi": 4
+        },
+        "id": 0,
+        "variant": {
+          "Boolean": true
+        }
       }
     },
     "right": {
       "Literal": {
-        "Boolean": [
-          false,
-          {
-            "span": {
-              "lo": 8,
-              "hi": 13
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 8,
+          "hi": 13
+        },
+        "id": 1,
+        "variant": {
+          "Boolean": false
+        }
       }
     },
     "op": "And",
@@ -41,30 +37,26 @@
   "Binary": {
     "left": {
       "Literal": {
-        "Boolean": [
-          false,
-          {
-            "span": {
-              "lo": 14,
-              "hi": 19
-            }
-          },
-          0
-        ]
+        "span": {
+          "lo": 14,
+          "hi": 19
+        },
+        "id": 0,
+        "variant": {
+          "Boolean": false
+        }
       }
     },
     "right": {
       "Literal": {
-        "Boolean": [
-          true,
-          {
-            "span": {
-              "lo": 21,
-              "hi": 25
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 21,
+          "hi": 25
+        },
+        "id": 1,
+        "variant": {
+          "Boolean": true
+        }
       }
     },
     "op": "And",
@@ -82,30 +74,26 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Boolean": [
-              true,
-              {
-                "span": {
-                  "lo": 26,
-                  "hi": 30
-                }
-              },
-              0
-            ]
+            "span": {
+              "lo": 26,
+              "hi": 30
+            },
+            "id": 0,
+            "variant": {
+              "Boolean": true
+            }
           }
         },
         "right": {
           "Literal": {
-            "Boolean": [
-              false,
-              {
-                "span": {
-                  "lo": 32,
-                  "hi": 37
-                }
-              },
-              1
-            ]
+            "span": {
+              "lo": 32,
+              "hi": 37
+            },
+            "id": 1,
+            "variant": {
+              "Boolean": false
+            }
           }
         },
         "op": "And",
@@ -118,16 +106,14 @@
     },
     "right": {
       "Literal": {
-        "Boolean": [
-          true,
-          {
-            "span": {
-              "lo": 39,
-              "hi": 43
-            }
-          },
-          3
-        ]
+        "span": {
+          "lo": 39,
+          "hi": 43
+        },
+        "id": 3,
+        "variant": {
+          "Boolean": true
+        }
       }
     },
     "op": "And",

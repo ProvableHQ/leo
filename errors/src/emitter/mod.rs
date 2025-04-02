@@ -233,7 +233,7 @@ impl Handler {
 mod tests {
     use super::*;
     use crate::ParserError;
-    use leo_span::{Span, symbol::create_session_if_not_set_then};
+    use leo_span::{Span, create_session_if_not_set_then};
 
     #[test]
     fn fresh_no_errors() {

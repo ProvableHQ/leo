@@ -49,13 +49,8 @@ impl Pass for Unrolling {
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let mut ast = std::mem::take(&mut state.ast);
-        let mut visitor = UnrollingVisitor {
-            state,
-            is_unrolling: false,
-            program: Symbol::intern(""),
-            loop_not_unrolled: None,
-            loop_unrolled: false,
-        };
+        let mut visitor =
+            UnrollingVisitor { state, program: Symbol::intern(""), loop_not_unrolled: None, loop_unrolled: false };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err().map_err(|e| *e)?;
         visitor.state.ast = ast;

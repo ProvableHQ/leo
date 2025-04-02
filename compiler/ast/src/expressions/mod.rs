@@ -20,8 +20,8 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-mod access;
-pub use access::*;
+mod array_access;
+pub use array_access::*;
 
 mod associated_constant;
 pub use associated_constant::*;
@@ -41,17 +41,23 @@ pub use call::*;
 mod cast;
 pub use cast::*;
 
-mod struct_init;
-pub use struct_init::*;
-
 mod err;
 pub use err::*;
+
+mod member_access;
+pub use member_access::*;
+
+mod struct_init;
+pub use struct_init::*;
 
 mod ternary;
 pub use ternary::*;
 
 mod tuple;
 pub use tuple::*;
+
+mod tuple_access;
+pub use tuple_access::*;
 
 mod unary;
 pub use unary::*;
@@ -68,8 +74,8 @@ pub use locator::*;
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
-    /// A struct access expression, e.g. `Foo.bar`.
-    Access(AccessExpression),
+    /// An array access, e.g. `arr[i]`.
+    ArrayAccess(Box<ArrayAccess>),
     /// An associated constant; e.g., `group::GEN`.
     AssociatedConstant(AssociatedConstantExpression),
     /// An associated function; e.g., `BHP256::hash_to_field`.
@@ -77,11 +83,11 @@ pub enum Expression {
     /// An array expression, e.g., `[true, false, true, false]`.
     Array(ArrayExpression),
     /// A binary expression, e.g., `42 + 24`.
-    Binary(BinaryExpression),
+    Binary(Box<BinaryExpression>),
     /// A call expression, e.g., `my_fun(args)`.
-    Call(CallExpression),
+    Call(Box<CallExpression>),
     /// A cast expression, e.g., `42u32 as u8`.
-    Cast(CastExpression),
+    Cast(Box<CastExpression>),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
     Err(ErrExpression),
@@ -91,14 +97,18 @@ pub enum Expression {
     Literal(Literal),
     /// A locator expression, e.g., `hello.aleo/foo`.
     Locator(LocatorExpression),
+    /// An access of a struct member, e.g. `struc.member`.
+    MemberAccess(Box<MemberAccess>),
     /// An expression constructing a struct like `Foo { bar: 42, baz }`.
     Struct(StructExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
-    Ternary(TernaryExpression),
+    Ternary(Box<TernaryExpression>),
     /// A tuple expression e.g., `(foo, 42, true)`.
     Tuple(TupleExpression),
+    /// A tuple access expression e.g., `foo.2`.
+    TupleAccess(Box<TupleAccess>),
     /// An unary expression.
-    Unary(UnaryExpression),
+    Unary(Box<UnaryExpression>),
     /// A unit expression e.g. `()`
     Unit(UnitExpression),
 }
@@ -113,7 +123,7 @@ impl Node for Expression {
     fn span(&self) -> Span {
         use Expression::*;
         match self {
-            Access(n) => n.span(),
+            ArrayAccess(n) => n.span(),
             Array(n) => n.span(),
             AssociatedConstant(n) => n.span(),
             AssociatedFunction(n) => n.span(),
@@ -124,9 +134,11 @@ impl Node for Expression {
             Identifier(n) => n.span(),
             Literal(n) => n.span(),
             Locator(n) => n.span(),
+            MemberAccess(n) => n.span(),
             Struct(n) => n.span(),
             Ternary(n) => n.span(),
             Tuple(n) => n.span(),
+            TupleAccess(n) => n.span(),
             Unary(n) => n.span(),
             Unit(n) => n.span(),
         }
@@ -135,20 +147,22 @@ impl Node for Expression {
     fn set_span(&mut self, span: Span) {
         use Expression::*;
         match self {
-            Access(n) => n.set_span(span),
+            ArrayAccess(n) => n.set_span(span),
             Array(n) => n.set_span(span),
             AssociatedConstant(n) => n.set_span(span),
             AssociatedFunction(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
+            Err(n) => n.set_span(span),
             Identifier(n) => n.set_span(span),
             Literal(n) => n.set_span(span),
             Locator(n) => n.set_span(span),
-            Err(n) => n.set_span(span),
+            MemberAccess(n) => n.set_span(span),
             Struct(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
             Tuple(n) => n.set_span(span),
+            TupleAccess(n) => n.set_span(span),
             Unary(n) => n.set_span(span),
             Unit(n) => n.set_span(span),
         }
@@ -157,8 +171,8 @@ impl Node for Expression {
     fn id(&self) -> NodeID {
         use Expression::*;
         match self {
-            Access(n) => n.id(),
             Array(n) => n.id(),
+            ArrayAccess(n) => n.id(),
             AssociatedConstant(n) => n.id(),
             AssociatedFunction(n) => n.id(),
             Binary(n) => n.id(),
@@ -167,10 +181,12 @@ impl Node for Expression {
             Identifier(n) => n.id(),
             Literal(n) => n.id(),
             Locator(n) => n.id(),
+            MemberAccess(n) => n.id(),
             Err(n) => n.id(),
             Struct(n) => n.id(),
             Ternary(n) => n.id(),
             Tuple(n) => n.id(),
+            TupleAccess(n) => n.id(),
             Unary(n) => n.id(),
             Unit(n) => n.id(),
         }
@@ -179,8 +195,8 @@ impl Node for Expression {
     fn set_id(&mut self, id: NodeID) {
         use Expression::*;
         match self {
-            Access(n) => n.set_id(id),
             Array(n) => n.set_id(id),
+            ArrayAccess(n) => n.set_id(id),
             AssociatedConstant(n) => n.set_id(id),
             AssociatedFunction(n) => n.set_id(id),
             Binary(n) => n.set_id(id),
@@ -189,10 +205,12 @@ impl Node for Expression {
             Identifier(n) => n.set_id(id),
             Literal(n) => n.set_id(id),
             Locator(n) => n.set_id(id),
+            MemberAccess(n) => n.set_id(id),
             Err(n) => n.set_id(id),
             Struct(n) => n.set_id(id),
             Ternary(n) => n.set_id(id),
             Tuple(n) => n.set_id(id),
+            TupleAccess(n) => n.set_id(id),
             Unary(n) => n.set_id(id),
             Unit(n) => n.set_id(id),
         }
@@ -203,8 +221,8 @@ impl fmt::Display for Expression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use Expression::*;
         match &self {
-            Access(n) => n.fmt(f),
             Array(n) => n.fmt(f),
+            ArrayAccess(n) => n.fmt(f),
             AssociatedConstant(n) => n.fmt(f),
             AssociatedFunction(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
@@ -214,9 +232,11 @@ impl fmt::Display for Expression {
             Identifier(n) => n.fmt(f),
             Literal(n) => n.fmt(f),
             Locator(n) => n.fmt(f),
+            MemberAccess(n) => n.fmt(f),
             Struct(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
             Tuple(n) => n.fmt(f),
+            TupleAccess(n) => n.fmt(f),
             Unary(n) => n.fmt(f),
             Unit(n) => n.fmt(f),
         }
@@ -237,8 +257,8 @@ impl Expression {
             Binary(e) => e.precedence(),
             Cast(_) => 12,
             Ternary(_) => 14,
-            Access(_)
-            | Array(_)
+            Array(_)
+            | ArrayAccess(_)
             | AssociatedConstant(_)
             | AssociatedFunction(_)
             | Call(_)
@@ -246,8 +266,10 @@ impl Expression {
             | Identifier(_)
             | Literal(_)
             | Locator(_)
+            | MemberAccess(_)
             | Struct(_)
             | Tuple(_)
+            | TupleAccess(_)
             | Unary(_)
             | Unit(_) => 20,
         }

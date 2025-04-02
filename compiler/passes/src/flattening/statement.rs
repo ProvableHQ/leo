@@ -24,7 +24,6 @@ use leo_ast::{
     BinaryOperation,
     Block,
     ConditionalStatement,
-    ConsoleStatement,
     DefinitionPlace,
     DefinitionStatement,
     Expression,
@@ -65,7 +64,7 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
 
         // If we are traversing an async function, then we can return the assert as it.
         if self.is_async {
-            return (Statement::Assert(input), statements);
+            return (input.into(), statements);
         }
 
         // Flatten the arguments of the assert statement.
@@ -102,9 +101,9 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
 
             // The not_guard is true if we didn't follow the condition chain
             // that led to this assertion.
-            let not_guard = Expression::Unary(UnaryExpression {
+            let not_guard = UnaryExpression {
                 op: UnaryOperation::Not,
-                receiver: Box::new(Expression::Identifier(guard)),
+                receiver: guard.into(),
                 span: Default::default(),
                 id: {
                     // Create a new node ID for the unary expression.
@@ -113,20 +112,21 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
                     self.state.type_table.insert(id, Type::Boolean);
                     id
                 },
-            });
+            }
+            .into();
             let (identifier, statement) = self.unique_simple_definition(not_guard);
             statements.push(statement);
-            guards.push(Expression::Identifier(identifier));
+            guards.push(identifier.into());
         }
 
         // We also need to guard against early returns.
         if let Some((guard, guard_statements)) = self.construct_early_return_guard() {
-            guards.push(Expression::Identifier(guard));
+            guards.push(guard.into());
             statements.extend(guard_statements);
         }
 
         if guards.is_empty() {
-            return (Statement::Assert(assert), statements);
+            return (assert.into(), statements);
         }
 
         let is_eq = matches!(assert.variant, AssertVariant::AssertEq(..));
@@ -139,22 +139,17 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
 
             // For `assert_eq` or `assert_neq`, construct a new expression.
             AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
-                let binary = Expression::Binary(BinaryExpression {
-                    left: Box::new(left),
+                let binary = BinaryExpression {
+                    left,
+                    right,
                     op: if is_eq { BinaryOperation::Eq } else { BinaryOperation::Neq },
-                    right: Box::new(right),
                     span: Default::default(),
-                    id: {
-                        // Create a new node ID.
-                        let id = self.state.node_builder.next_id();
-                        // Update the type table.
-                        self.state.type_table.insert(id, Type::Boolean);
-                        id
-                    },
-                });
-                let (identifier, statement) = self.unique_simple_definition(binary);
+                    id: self.state.node_builder.next_id(),
+                };
+                self.state.type_table.insert(binary.id, Type::Boolean);
+                let (identifier, statement) = self.unique_simple_definition(binary.into());
                 statements.push(statement);
-                Expression::Identifier(identifier)
+                identifier.into()
             }
         };
 
@@ -162,29 +157,20 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
         // (ie, we either didn't follow the condition chain that led to this assert, or else we took an
         // early return).
         for guard in guards.into_iter() {
-            let binary = Expression::Binary(BinaryExpression {
+            let binary = BinaryExpression {
+                left: expression,
+                right: guard,
                 op: BinaryOperation::Or,
                 span: Default::default(),
-                id: {
-                    // Create a new node ID.
-                    let id = self.state.node_builder.next_id();
-                    // Update the type table.
-                    self.state.type_table.insert(id, Type::Boolean);
-                    id
-                },
-                left: Box::new(expression),
-                right: Box::new(guard),
-            });
-            let (identifier, statement) = self.unique_simple_definition(binary);
+                id: self.state.node_builder.next_id(),
+            };
+            self.state.type_table.insert(binary.id(), Type::Boolean);
+            let (identifier, statement) = self.unique_simple_definition(binary.into());
             statements.push(statement);
-            expression = Expression::Identifier(identifier);
+            expression = identifier.into();
         }
 
-        let assert_statement = Statement::Assert(AssertStatement {
-            span: input.span,
-            id: input.id,
-            variant: AssertVariant::Assert(expression),
-        });
+        let assert_statement = AssertStatement { variant: AssertVariant::Assert(expression), ..input }.into();
 
         (assert_statement, statements)
     }
@@ -227,13 +213,12 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
             };
 
             return (
-                Statement::Conditional(ConditionalStatement {
-                    condition: conditional.condition,
+                ConditionalStatement {
                     then: then_block,
-                    otherwise: Some(Box::new(Statement::Block(otherwise_block))),
-                    span: conditional.span,
-                    id: conditional.id,
-                }),
+                    otherwise: Some(Box::new(otherwise_block.into())),
+                    ..conditional
+                }
+                .into(),
                 statements,
             );
         }
@@ -263,12 +248,13 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
         // Consume the otherwise-block and flatten its constituent statements into the current block.
         if let Some(statement) = conditional.otherwise {
             // Apply Not to the condition, assign it, and put it on the condition stack.
-            let not_condition = Expression::Unary(UnaryExpression {
+            let not_condition = UnaryExpression {
                 op: UnaryOperation::Not,
-                receiver: Box::new(conditional.condition.clone()),
+                receiver: conditional.condition.clone(),
                 span: conditional.condition.span(),
                 id: conditional.condition.id(),
-            });
+            }
+            .into();
             let not_place = Identifier {
                 name: self.state.assigner.unique_symbol("condition", "$"),
                 span: Default::default(),
@@ -294,10 +280,6 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
         (Statement::dummy(), statements)
     }
 
-    fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        panic!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
-    }
-
     /// Flattens a definition, if necessary.
     /// Marks variables as structs as necessary.
     /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
@@ -319,13 +301,14 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
                 }
 
                 (
-                    Statement::Definition(DefinitionStatement {
+                    DefinitionStatement {
                         place: DefinitionPlace::Multiple(identifiers),
                         type_: Type::Err,
                         value,
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
-                    }),
+                    }
+                    .into(),
                     statements,
                 )
             }
@@ -343,7 +326,7 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
 
         // If we are traversing an async function, return as is.
         if self.is_async {
-            return (Statement::Return(input), Default::default());
+            return (input.into(), Default::default());
         }
         // Construct the associated guard.
         let (guard_identifier, statements) = self.construct_guard().unzip();

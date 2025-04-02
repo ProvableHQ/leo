@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node, NodeID, Type};
+use crate::{Expression, Identifier, Node, NodeID, Statement, Type};
+
 use leo_span::Span;
 
 use itertools::Itertools as _;
@@ -59,6 +60,12 @@ impl fmt::Display for DefinitionStatement {
         } else {
             write!(f, "let {}: {} = {}", self.place, self.type_, self.value)
         }
+    }
+}
+
+impl From<DefinitionStatement> for Statement {
+    fn from(value: DefinitionStatement) -> Self {
+        Statement::Definition(value)
     }
 }
 

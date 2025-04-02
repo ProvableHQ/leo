@@ -14,16 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_span::{Span, Symbol};
-use snarkvm::console::program::Identifier as IdentifierCore;
+use crate::{Expression, Node, NodeID, simple_node_impl};
 
-use crate::{Node, NodeID, simple_node_impl};
-use serde::{Deserialize, Serialize};
-use snarkvm::prelude::Network;
+use leo_span::{Span, Symbol};
+
+use snarkvm::{console::program::Identifier as IdentifierCore, prelude::Network};
 use std::{
     fmt,
     hash::{Hash, Hasher},
 };
+
+use serde::{Deserialize, Serialize};
 
 /// An identifier in a program.
 ///
@@ -83,5 +84,11 @@ impl Hash for Identifier {
 impl<N: Network> From<&IdentifierCore<N>> for Identifier {
     fn from(id: &IdentifierCore<N>) -> Self {
         Self { name: Symbol::intern(&id.to_string()), span: Default::default(), id: Default::default() }
+    }
+}
+
+impl From<Identifier> for Expression {
+    fn from(value: Identifier) -> Self {
+        Expression::Identifier(value)
     }
 }

@@ -18,7 +18,7 @@ use super::TypeCheckingVisitor;
 use crate::VariableType;
 
 use leo_ast::*;
-use leo_errors::{TypeCheckerError, emitter::Handler};
+use leo_errors::{Handler, TypeCheckerError};
 use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
@@ -26,10 +26,8 @@ use itertools::Itertools as _;
 impl TypeCheckingVisitor<'_> {
     pub fn visit_expression_assign(&mut self, input: &Expression) -> Type {
         let output = match input {
-            Expression::Access(access @ AccessExpression::Tuple(tuple_access))
-                if matches!(&*tuple_access.tuple, Expression::Identifier(..)) =>
-            {
-                self.visit_access_general(access, true, &None)
+            Expression::TupleAccess(tuple_access) if matches!(&tuple_access.tuple, Expression::Identifier(..)) => {
+                self.visit_access_general(input, true, &None)
             }
             Expression::Identifier(x) => self.visit_identifier_assign(x),
             _ => {
@@ -45,12 +43,12 @@ impl TypeCheckingVisitor<'_> {
 
     /// Whether we're on the LHS of an assign or not, much of what we need to do is the same,
     /// so we'll just write one function to take care of both cases.
-    fn visit_access_general(&mut self, input: &AccessExpression, assign: bool, expected: &Option<Type>) -> Type {
+    fn visit_access_general(&mut self, input: &Expression, assign: bool, expected: &Option<Type>) -> Type {
         let visit_next = |slf: &mut Self, expr: &Expression| -> Type {
             if assign { slf.visit_expression_assign(expr) } else { slf.visit_expression(expr, &None) }
         };
         match input {
-            AccessExpression::Array(access) => {
+            Expression::ArrayAccess(access) => {
                 // Check that the expression is an array.
                 let this_type = visit_next(self, &access.array);
                 self.assert_array_type(&this_type, access.array.span());
@@ -73,7 +71,7 @@ impl TypeCheckingVisitor<'_> {
                 // Return the element type of the array.
                 element_type.clone()
             }
-            AccessExpression::Tuple(access) => {
+            Expression::TupleAccess(access) => {
                 let type_ = visit_next(self, &access.tuple);
 
                 match type_ {
@@ -122,9 +120,9 @@ impl TypeCheckingVisitor<'_> {
                     }
                 }
             }
-            AccessExpression::Member(access) => {
+            Expression::MemberAccess(access) => {
                 if !assign {
-                    match *access.inner {
+                    match access.inner {
                         // If the access expression is of the form `self.<name>`, then check the <name> is valid.
                         Expression::Identifier(identifier) if identifier.name == sym::SelfLower => {
                             match access.name.name {
@@ -219,6 +217,7 @@ impl TypeCheckingVisitor<'_> {
                     }
                 }
             }
+            _ => panic!("This function should only be called on accesses."),
         }
     }
 
@@ -258,14 +257,10 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_expression(&mut self, input: &Expression, additional: &Self::AdditionalInput) -> Self::Output {
         let output = match input {
-            Expression::Access(access) => self.visit_access(access, additional),
             Expression::Array(array) => self.visit_array(array, additional),
-            Expression::AssociatedConstant(associated_constant) => {
-                self.visit_associated_constant(associated_constant, additional)
-            }
-            Expression::AssociatedFunction(associated_function) => {
-                self.visit_associated_function(associated_function, additional)
-            }
+            Expression::ArrayAccess(_) => self.visit_access_general(input, false, additional),
+            Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, additional),
+            Expression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
@@ -274,18 +269,16 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::Locator(locator) => self.visit_locator(locator, additional),
+            Expression::MemberAccess(_) => self.visit_access_general(input, false, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
+            Expression::TupleAccess(_) => self.visit_access_general(input, false, additional),
             Expression::Unary(unary) => self.visit_unary(unary, additional),
             Expression::Unit(unit) => self.visit_unit(unit, additional),
         };
         // Add the expression and its associated type to the symbol table.
         self.state.type_table.insert(input.id(), output.clone());
         output
-    }
-
-    fn visit_access(&mut self, input: &AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        self.visit_access_general(input, false, expected)
     }
 
     fn visit_array(&mut self, input: &ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
@@ -597,8 +590,8 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_call(&mut self, input: &CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         // Get the function symbol.
-        let Expression::Identifier(ident) = &*input.function else {
-            unreachable!("Parsing guarantees that a function name is always an identifier.");
+        let Expression::Identifier(ident) = &input.function else {
+            panic!("Parsing guarantees that a function name is always an identifier.");
         };
 
         let callee_program = input.program.or(self.scope_state.program_name).unwrap();
@@ -692,13 +685,14 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             // Extract information about futures that are being consumed.
             if func.variant == Variant::AsyncFunction && matches!(expected.type_(), Type::Future(_)) {
                 // Consume the future.
-                let option_name = match argument {
-                    Expression::Identifier(id) => Some(id.name),
-                    Expression::Access(AccessExpression::Tuple(tuple_access)) => {
-                        if let Expression::Identifier(id) = &*tuple_access.tuple { Some(id.name) } else { None }
-                    }
-                    _ => None,
-                };
+                let option_name =
+                    match argument {
+                        Expression::Identifier(id) => Some(id.name),
+                        Expression::TupleAccess(tuple_access) => {
+                            if let Expression::Identifier(id) = &tuple_access.tuple { Some(id.name) } else { None }
+                        }
+                        _ => None,
+                    };
 
                 if let Some(name) = option_name {
                     match self.scope_state.futures.shift_remove(&name) {
@@ -712,9 +706,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 }
 
                 match argument {
-                    Expression::Identifier(_)
-                    | Expression::Call(_)
-                    | Expression::Access(AccessExpression::Tuple(_)) => {
+                    Expression::Identifier(_) | Expression::Call(_) | Expression::TupleAccess(_) => {
                         match self.scope_state.call_location {
                             Some(location) => {
                                 // Get the external program and function name.
@@ -739,7 +731,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
 
         // Add the call to the call graph.
         let Some(caller_name) = self.scope_state.function else {
-            unreachable!("`self.function` is set every time a function is visited.");
+            panic!("`self.function` is set every time a function is visited.");
         };
 
         // Don't add external functions to call graph. Since imports are acyclic, these can never produce a cycle.
@@ -899,51 +891,51 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             }
         }
 
-        let type_ = match input {
-            Literal::Address(_, _, _) => Type::Address,
-            Literal::Boolean(_, _, _) => Type::Boolean,
-            Literal::Field(_, _, _) => Type::Field,
-            Literal::Integer(IntegerType::U8, string, ..) => {
+        let type_ = match &input.variant {
+            LiteralVariant::Address(..) => Type::Address,
+            LiteralVariant::Boolean(..) => Type::Boolean,
+            LiteralVariant::Field(..) => Type::Field,
+            LiteralVariant::Integer(IntegerType::U8, string) => {
                 parse_integer_literal::<u8>(&self.state.handler, string, input.span(), "u8");
                 Type::Integer(IntegerType::U8)
             }
-            Literal::Integer(IntegerType::U16, string, ..) => {
+            LiteralVariant::Integer(IntegerType::U16, string) => {
                 parse_integer_literal::<u16>(&self.state.handler, string, input.span(), "u16");
                 Type::Integer(IntegerType::U16)
             }
-            Literal::Integer(IntegerType::U32, string, ..) => {
+            LiteralVariant::Integer(IntegerType::U32, string) => {
                 parse_integer_literal::<u32>(&self.state.handler, string, input.span(), "u32");
                 Type::Integer(IntegerType::U32)
             }
-            Literal::Integer(IntegerType::U64, string, ..) => {
+            LiteralVariant::Integer(IntegerType::U64, string) => {
                 parse_integer_literal::<u64>(&self.state.handler, string, input.span(), "u64");
                 Type::Integer(IntegerType::U64)
             }
-            Literal::Integer(IntegerType::U128, string, ..) => {
+            LiteralVariant::Integer(IntegerType::U128, string) => {
                 parse_integer_literal::<u128>(&self.state.handler, string, input.span(), "u128");
                 Type::Integer(IntegerType::U128)
             }
-            Literal::Integer(IntegerType::I8, string, ..) => {
+            LiteralVariant::Integer(IntegerType::I8, string) => {
                 parse_integer_literal::<i8>(&self.state.handler, string, input.span(), "i8");
                 Type::Integer(IntegerType::I8)
             }
-            Literal::Integer(IntegerType::I16, string, ..) => {
+            LiteralVariant::Integer(IntegerType::I16, string) => {
                 parse_integer_literal::<i16>(&self.state.handler, string, input.span(), "i16");
                 Type::Integer(IntegerType::I16)
             }
-            Literal::Integer(IntegerType::I32, string, ..) => {
+            LiteralVariant::Integer(IntegerType::I32, string) => {
                 parse_integer_literal::<i32>(&self.state.handler, string, input.span(), "i32");
                 Type::Integer(IntegerType::I32)
             }
-            Literal::Integer(IntegerType::I64, string, ..) => {
+            LiteralVariant::Integer(IntegerType::I64, string) => {
                 parse_integer_literal::<i64>(&self.state.handler, string, input.span(), "i64");
                 Type::Integer(IntegerType::I64)
             }
-            Literal::Integer(IntegerType::I128, string, ..) => {
+            LiteralVariant::Integer(IntegerType::I128, string) => {
                 parse_integer_literal::<i128>(&self.state.handler, string, input.span(), "i128");
                 Type::Integer(IntegerType::I128)
             }
-            Literal::Group(s, ..) => {
+            LiteralVariant::Group(s) => {
                 // Get rid of leading - and 0 and see if it parses
                 let s = s.trim_start_matches('-').trim_start_matches('0');
                 if !s.is_empty()
@@ -953,8 +945,8 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 }
                 Type::Group
             }
-            Literal::Scalar(..) => Type::Scalar,
-            Literal::String(..) => {
+            LiteralVariant::Scalar(..) => Type::Scalar,
+            LiteralVariant::String(..) => {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));
                 Type::String
             }

@@ -16,7 +16,6 @@
 
 use leo_ast::{
     Block,
-    Expression,
     ExpressionReconstructor,
     IterationStatement,
     Literal,
@@ -28,7 +27,7 @@ use leo_ast::{
     Value,
 };
 
-use leo_errors::loop_unroller::LoopUnrollerError;
+use leo_errors::LoopUnrollerError;
 use leo_span::{Span, Symbol};
 
 use super::{Clusivity, LoopBound, RangeIterator};
@@ -36,8 +35,6 @@ use crate::CompilerState;
 
 pub struct UnrollingVisitor<'a> {
     pub state: &'a mut CompilerState,
-    /// Are we in the midst of unrolling a loop?
-    pub is_unrolling: bool,
     /// The current program name.
     pub program: Symbol,
     /// If we've encountered a loop that was not unrolled, here's it's spanned.
@@ -60,10 +57,12 @@ impl UnrollingVisitor<'_> {
     }
 
     /// Unrolls an IterationStatement.
-    pub fn unroll_iteration_statement<I: LoopBound>(&mut self, input: IterationStatement) -> Statement {
-        let start: Value = input.start_value.borrow().as_ref().expect("Failed to get start value").clone();
-        let stop: Value = input.stop_value.borrow().as_ref().expect("Failed to get stop value").clone();
-
+    pub fn unroll_iteration_statement<I: LoopBound>(
+        &mut self,
+        input: IterationStatement,
+        start: Value,
+        stop: Value,
+    ) -> Statement {
         // Closure to check that the constant values are valid u128.
         // We already know these are integers since loop unrolling occurs after type checking.
         let cast_to_number = |v: Value| -> Result<I, Statement> {
@@ -89,22 +88,17 @@ impl UnrollingVisitor<'_> {
 
         let new_block_id = self.state.node_builder.next_id();
 
+        let iter =
+            RangeIterator::new(start, stop, if input.inclusive { Clusivity::Inclusive } else { Clusivity::Exclusive });
+
         // Create a block statement to replace the iteration statement.
         self.in_scope(new_block_id, |slf| {
-            Statement::Block(Block {
+            Block {
                 span: input.span,
-                statements: match input.inclusive {
-                    true => {
-                        let iter = RangeIterator::new(start, stop, Clusivity::Inclusive);
-                        iter.map(|iteration_count| slf.unroll_single_iteration(&input, iteration_count)).collect()
-                    }
-                    false => {
-                        let iter = RangeIterator::new(start, stop, Clusivity::Exclusive);
-                        iter.map(|iteration_count| slf.unroll_single_iteration(&input, iteration_count)).collect()
-                    }
-                },
+                statements: iter.map(|iteration_count| slf.unroll_single_iteration(&input, iteration_count)).collect(),
                 id: new_block_id,
-            })
+            }
+            .into()
         })
     }
 
@@ -123,22 +117,17 @@ impl UnrollingVisitor<'_> {
         };
 
         self.in_scope(outer_block_id, |slf| {
-            let value = Literal::Integer(*integer_type, iteration_count.to_string(), Default::default(), const_id);
+            let value = Literal::integer(*integer_type, iteration_count.to_string(), Default::default(), const_id);
 
             // Add the loop variable as a constant for the current scope.
-            slf.state.symbol_table.insert_const(slf.program, input.variable.name, Expression::Literal(value));
+            slf.state.symbol_table.insert_const(slf.program, input.variable.name, value.into());
 
             let duplicated_body =
                 super::duplicate::duplicate(input.block.clone(), &mut slf.state.symbol_table, &slf.state.node_builder);
 
-            let prior_is_unrolling = slf.is_unrolling;
-            slf.is_unrolling = true;
+            let result = slf.reconstruct_block(duplicated_body).0.into();
 
-            let result = Statement::Block(slf.reconstruct_block(duplicated_body).0);
-
-            slf.is_unrolling = prior_is_unrolling;
-
-            Statement::Block(Block { statements: vec![result], span: input.span(), id: outer_block_id })
+            Block { statements: vec![result], span: input.span(), id: outer_block_id }.into()
         })
     }
 }

@@ -22,7 +22,6 @@ use leo_ast::{
     AssignStatement,
     Block,
     ConditionalStatement,
-    ConsoleStatement,
     DefinitionPlace,
     DefinitionStatement,
     Expression,
@@ -43,7 +42,6 @@ impl CodeGeneratingVisitor<'_> {
             Statement::Assign(stmt) => self.visit_assign(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
-            Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Const(_) => {
                 panic!("`ConstStatement`s should not be in the AST at this phase of compilation.")
             }
@@ -216,10 +214,6 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_iteration(&mut self, _input: &IterationStatement) -> String {
         panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
-    }
-
-    fn visit_console(&mut self, _: &ConsoleStatement) -> String {
-        panic!("Parsing guarantees that `ConsoleStatement`s are not present in the AST.")
     }
 
     pub(crate) fn visit_block(&mut self, input: &Block) -> String {

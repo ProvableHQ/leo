@@ -16,7 +16,7 @@
 
 use crate::Program;
 
-use leo_span::{Symbol, symbol::with_session_globals};
+use leo_span::{Symbol, with_session_globals};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};

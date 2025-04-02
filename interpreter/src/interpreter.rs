@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_errors::{CompilerError, InterpreterHalt, LeoError, Result, emitter::Handler};
+use leo_errors::{CompilerError, Handler, InterpreterHalt, LeoError, Result};
 
 /// Contains the state of interpretation, in the form of the `Cursor`,
 /// as well as information needed to interact with the user, like

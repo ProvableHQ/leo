@@ -18,46 +18,46 @@
 use crate::LeoMessageCode;
 
 /// Contains the AST error definitions.
-pub mod ast;
+mod ast;
 pub use self::ast::*;
 
 /// Contains the CLI error definitions.
-pub mod cli;
+mod cli;
 pub use self::cli::*;
 
 /// Contains the Compiler error definitions.
-pub mod compiler;
+mod compiler;
 pub use self::compiler::*;
 
 /// Contains the Flattener error definitions.
-pub mod flattener;
+mod flattener;
 pub use self::flattener::*;
 
 /// Contains the Loop Unroller error definitions.
-pub mod loop_unroller;
+mod loop_unroller;
 pub use self::loop_unroller::*;
 
-pub mod interpreter_halt;
+mod interpreter_halt;
 pub use self::interpreter_halt::*;
 
 /// Contains the Package error definitions.
-pub mod package;
+mod package;
 pub use self::package::*;
 
 /// Contains the Parser error definitions.
-pub mod parser;
+mod parser;
 pub use self::parser::*;
 
 /// Contains the Static Analyzer error definitions.
-pub mod static_analyzer;
+mod static_analyzer;
 pub use self::static_analyzer::*;
 
 /// Contains the Type Checker error definitions.
-pub mod type_checker;
+mod type_checker;
 pub use self::type_checker::*;
 
 /// Contains the Utils error definitions.
-pub mod utils;
+mod utils;
 pub use self::utils::*;
 
 /// The LeoError type that contains all sub error types.

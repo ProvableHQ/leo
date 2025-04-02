@@ -17,8 +17,8 @@
 #![forbid(unsafe_code)]
 
 use leo_ast::{Ast, NodeBuilder};
-use leo_errors::emitter::Handler;
-use leo_span::symbol::create_session_if_not_set_then;
+use leo_errors::Handler;
+use leo_span::create_session_if_not_set_then;
 
 use clap::Parser;
 use std::{
