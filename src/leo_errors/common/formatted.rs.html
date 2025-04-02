@@ -314,7 +314,7 @@
         <span class="kw">let </span>message = <span class="macro">format!</span>(<span class="string">"{kind} [{code}]: {message}"</span>, message = <span class="self">self</span>.backtrace.message,);
 
         <span class="comment">// To avoid the color enabling characters for comparison with test expectations.
-        </span><span class="kw">if </span>std::env::var(<span class="string">"LEO_TESTFRAMEWORK"</span>).unwrap_or_default().trim().to_owned().is_empty() {
+        </span><span class="kw">if </span>std::env::var(<span class="string">"NOCOLOR"</span>).unwrap_or_default().trim().to_owned().is_empty() {
             <span class="kw">if </span><span class="self">self</span>.backtrace.error {
                 <span class="macro">write!</span>(f, <span class="string">"{}"</span>, message.bold().red())<span class="question-mark">?</span>;
             } <span class="kw">else </span>{

@@ -42,7 +42,9 @@
 <a href="#41" id="41">41</a>
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
-<a href="#44" id="44">44</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#44" id="44">44</a>
+<a href="#45" id="45">45</a>
+<a href="#46" id="46">46</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -78,6 +80,8 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Pass <span class="kw">for </span>Destructurer&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Assigner);
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Ast&gt;;
+
+    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"Destructurer"</span>;
 
     <span class="kw">fn </span>do_pass((ast, tt, node_builder, assigner): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span><span class="kw-2">mut </span>reconstructor = Destructurer::new(tt, node_builder, assigner);

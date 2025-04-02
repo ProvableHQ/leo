@@ -626,16 +626,16 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>FileName {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Real(x) <span class="kw">if </span>is_not_test_framework() =&gt; x.display().fmt(f),
+            <span class="self">Self</span>::Real(x) <span class="kw">if </span>is_color() =&gt; x.display().fmt(f),
             <span class="self">Self</span>::Real(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
             <span class="self">Self</span>::Custom(x) =&gt; f.write_str(x),
         }
     }
 }
 
-<span class="doccomment">/// Is the env var `LEO_TESTFRAMEWORK` not enabled?
-</span><span class="kw">pub fn </span>is_not_test_framework() -&gt; bool {
-    std::env::var(<span class="string">"LEO_TESTFRAMEWORK"</span>).unwrap_or_default().trim().to_owned().is_empty()
+<span class="doccomment">/// Is the env var `NOCOLOR` not enabled?
+</span><span class="kw">pub fn </span>is_color() -&gt; bool {
+    std::env::var(<span class="string">"NOCOLOR"</span>).unwrap_or_default().trim().is_empty()
 }
 
 <span class="doccomment">/// A single source in the [`SourceMap`].

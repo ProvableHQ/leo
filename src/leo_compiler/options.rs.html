@@ -53,7 +53,13 @@
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -79,7 +85,7 @@
     </span><span class="kw">pub </span>output: OutputOptions,
 }
 
-<span class="attr">#[derive(Clone, Default)]
+<span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>BuildOptions {
     <span class="doccomment">/// Whether to enable dead code elimination.
     </span><span class="kw">pub </span>dce_enabled: bool,
@@ -87,6 +93,12 @@
     </span><span class="kw">pub </span>conditional_block_max_depth: usize,
     <span class="doccomment">/// Whether to disable type checking for nested conditionals.
     </span><span class="kw">pub </span>disable_conditional_branch_type_checking: bool,
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>BuildOptions {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ dce_enabled: <span class="bool-val">true</span>, conditional_block_max_depth: <span class="number">0</span>, disable_conditional_branch_type_checking: <span class="bool-val">false </span>}
+    }
 }
 
 <span class="attr">#[derive(Clone, Default)]

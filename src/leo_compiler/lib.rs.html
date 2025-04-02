@@ -24,7 +24,13 @@
 <a href="#23" id="23">23</a>
 <a href="#24" id="24">24</a>
 <a href="#25" id="25">25</a>
-<a href="#26" id="26">26</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -50,4 +56,10 @@
 
 <span class="kw">mod </span>options;
 <span class="kw">pub use </span>options::<span class="kw-2">*</span>;
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>test_compiler;
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>test_execution;
 </code></pre></div></section></main></body></html>

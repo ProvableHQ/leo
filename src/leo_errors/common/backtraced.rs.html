@@ -175,7 +175,7 @@
 <span class="kw">use </span>color_backtrace::{BacktracePrinter, Verbosity};
 <span class="kw">use </span>colored::Colorize;
 <span class="kw">use </span>derivative::Derivative;
-<span class="kw">use </span>leo_span::source_map::is_not_test_framework;
+<span class="kw">use </span>leo_span::source_map::is_color;
 
 <span class="doccomment">/// The indent for an error message.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>INDENT: <span class="kw-2">&amp;</span>str = <span class="string">"    "</span>;
@@ -264,7 +264,7 @@
         <span class="kw">let </span>message = <span class="macro">format!</span>(<span class="string">"{kind} [{code}]: {message}"</span>, message = <span class="self">self</span>.message,);
 
         <span class="comment">// To avoid the color enabling characters for comparison with test expectations.
-        </span><span class="kw">if </span>is_not_test_framework() {
+        </span><span class="kw">if </span>is_color() {
             <span class="kw">if </span><span class="self">self</span>.error {
                 <span class="macro">write!</span>(f, <span class="string">"{}"</span>, message.bold().red())<span class="question-mark">?</span>;
             } <span class="kw">else </span>{

@@ -74,7 +74,9 @@
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -142,6 +144,8 @@
 <span class="kw">impl </span>Pass <span class="kw">for </span>DeadCodeEliminator {
     <span class="kw">type </span>Input = (Ast,);
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Ast&gt;;
+
+    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"DeadCodeEliminator"</span>;
 
     <span class="kw">fn </span>do_pass((ast,): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span><span class="kw-2">mut </span>reconstructor = DeadCodeEliminator::new();

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["PROGRAM_DELIMITER"],"enum":["ParseType"],"fn":["get_benches","is_env_var_set","run_tests","set_hook","take_hook"],"struct":["Test","TestCases"],"trait":["Namespace","Runner"]};

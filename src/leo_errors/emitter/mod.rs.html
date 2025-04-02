@@ -291,13 +291,7 @@
 <a href="#290" id="290">290</a>
 <a href="#291" id="291">291</a>
 <a href="#292" id="292">292</a>
-<a href="#293" id="293">293</a>
-<a href="#294" id="294">294</a>
-<a href="#295" id="295">295</a>
-<a href="#296" id="296">296</a>
-<a href="#297" id="297">297</a>
-<a href="#298" id="298">298</a>
-<a href="#299" id="299">299</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#293" id="293">293</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -316,8 +310,9 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::LeoWarning;
 
 <span class="kw">use </span><span class="kw">super</span>::LeoError;
-<span class="kw">use </span>core::{default::Default, fmt};
-<span class="kw">use </span>std::{cell::RefCell, rc::Rc};
+
+<span class="kw">use </span>itertools::Itertools <span class="kw">as _</span>;
+<span class="kw">use </span>std::{cell::RefCell, fmt, rc::Rc};
 
 <span class="doccomment">/// Types that are sinks for compiler errors.
 </span><span class="kw">pub trait </span>Emitter {
@@ -381,14 +376,7 @@
 
 <span class="kw">impl</span>&lt;T: fmt::Display&gt; fmt::Display <span class="kw">for </span>Buffer&lt;T&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.<span class="number">0</span>.iter();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = iter.next() {
-            x.fmt(f)<span class="question-mark">?</span>;
-        }
-        <span class="kw">for </span>x <span class="kw">in </span>iter {
-            f.write_fmt(<span class="macro">format_args!</span>(<span class="string">"\n{x}"</span>))<span class="question-mark">?</span>;
-        }
-        <span class="prelude-val">Ok</span>(())
+        <span class="self">self</span>.<span class="number">0</span>.iter().format(<span class="string">"\n"</span>).fmt(f)
     }
 }
 

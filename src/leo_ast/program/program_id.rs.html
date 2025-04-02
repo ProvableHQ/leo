@@ -50,66 +50,7 @@
 <a href="#49" id="49">49</a>
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
-<a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a>
-<a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#52" id="52">52</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -129,12 +70,11 @@
 
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>leo_span::Symbol;
-<span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer, de, de::Visitor};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>snarkvm::{console::program::ProgramID, prelude::Network};
-<span class="kw">use </span>std::collections::BTreeMap;
 
 <span class="doccomment">/// An identifier for a program that is eventually deployed to the network.
-</span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+</span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>ProgramId {
     <span class="doccomment">/// The name of the program.
     </span><span class="kw">pub </span>name: Identifier,
@@ -145,64 +85,6 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>ProgramId {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"{}.{}"</span>, <span class="self">self</span>.name, <span class="self">self</span>.network)
-    }
-}
-
-<span class="kw">impl </span>Serialize <span class="kw">for </span>ProgramId {
-    <span class="kw">fn </span>serialize&lt;S: Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-        <span class="comment">// Converts an element that implements Serialize into a string.
-        </span><span class="kw">fn </span>to_json_string&lt;E: Serialize, Error: serde::ser::Error&gt;(element: <span class="kw-2">&amp;</span>E) -&gt; <span class="prelude-ty">Result</span>&lt;String, Error&gt; {
-            serde_json::to_string(<span class="kw-2">&amp;</span>element).map_err(|e| Error::custom(e.to_string()))
-        }
-
-        <span class="comment">// Load the struct elements into a BTreeMap (to preserve serialized ordering of keys).
-        </span><span class="kw">let </span><span class="kw-2">mut </span>key: BTreeMap&lt;String, String&gt; = BTreeMap::new();
-        key.insert(<span class="string">"name"</span>.to_string(), <span class="self">self</span>.name.to_string());
-        key.insert(<span class="string">"network"</span>.to_string(), to_json_string(<span class="kw-2">&amp;</span><span class="self">self</span>.network)<span class="question-mark">?</span>);
-
-        <span class="comment">// Convert the serialized object into a string for use as a key.
-        </span>serializer.serialize_str(<span class="kw-2">&amp;</span>to_json_string(<span class="kw-2">&amp;</span>key)<span class="question-mark">?</span>)
-    }
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>ProgramId {
-    <span class="kw">fn </span>deserialize&lt;D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
-        <span class="kw">struct </span>ProgramIdVisitor;
-
-        <span class="kw">impl </span>Visitor&lt;<span class="lifetime">'_</span>&gt; <span class="kw">for </span>ProgramIdVisitor {
-            <span class="kw">type </span>Value = ProgramId;
-
-            <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-                formatter.write_str(<span class="string">"a string encoding the ast ProgramId struct"</span>)
-            }
-
-            <span class="doccomment">/// Implementation for recovering a string that serializes Identifier.
-            </span><span class="kw">fn </span>visit_str&lt;E: de::Error&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt; {
-                <span class="comment">// Converts a serialized string into an element that implements Deserialize.
-                </span><span class="kw">fn </span>to_json_string&lt;<span class="lifetime">'a</span>, D: Deserialize&lt;<span class="lifetime">'a</span>&gt;, Error: serde::de::Error&gt;(
-                    serialized: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
-                ) -&gt; <span class="prelude-ty">Result</span>&lt;D, Error&gt; {
-                    serde_json::from_str::&lt;<span class="lifetime">'a</span>&gt;(serialized).map_err(|e| Error::custom(e.to_string()))
-                }
-
-                <span class="comment">// Convert the serialized string into a BTreeMap to recover ProgramId.
-                </span><span class="kw">let </span>key: BTreeMap&lt;String, String&gt; = to_json_string(value)<span class="question-mark">?</span>;
-
-                <span class="kw">let </span>name: Identifier = <span class="kw">match </span>key.get(<span class="string">"name"</span>) {
-                    <span class="prelude-val">Some</span>(name) =&gt; to_json_string(name)<span class="question-mark">?</span>,
-                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(E::custom(<span class="string">"missing 'name' in serialized ProgramId struct"</span>)),
-                };
-
-                <span class="kw">let </span>network: Identifier = <span class="kw">match </span>key.get(<span class="string">"network"</span>) {
-                    <span class="prelude-val">Some</span>(network) =&gt; to_json_string(network)<span class="question-mark">?</span>,
-                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(E::custom(<span class="string">"missing 'network' in serialized ProgramId struct"</span>)),
-                };
-
-                <span class="prelude-val">Ok</span>(ProgramId { name, network })
-            }
-        }
-
-        deserializer.deserialize_str(ProgramIdVisitor)
     }
 }
 

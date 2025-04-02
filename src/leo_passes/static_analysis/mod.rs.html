@@ -44,7 +44,9 @@
 <a href="#43" id="43">43</a>
 <a href="#44" id="44">44</a>
 <a href="#45" id="45">45</a>
-<a href="#46" id="46">46</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#46" id="46">46</a>
+<a href="#47" id="47">47</a>
+<a href="#48" id="48">48</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -83,6 +85,8 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; Pass <span class="kw">for </span>StaticAnalyzer&lt;<span class="lifetime">'a</span>, N&gt; {
     <span class="kw">type </span>Input = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Ast, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>SymbolTable, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable, usize, bool);
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;()&gt;;
+
+    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"StaticAnalyzer"</span>;
 
     <span class="kw">fn </span>do_pass((ast, handler, symbol_table, tt, max_depth, await_checking): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span><span class="kw-2">mut </span>visitor = StaticAnalyzer::&lt;N&gt;::new(symbol_table, tt, handler, max_depth, await_checking);

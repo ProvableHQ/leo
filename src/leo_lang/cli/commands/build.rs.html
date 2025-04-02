@@ -213,15 +213,7 @@
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<a href="#215" id="215">215</a></pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -422,18 +414,10 @@
     aleo_file_path.push(<span class="macro">format!</span>(<span class="string">"main.{}"</span>, program_id.network()));
 
     <span class="comment">// Create a new instance of the Leo compiler.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::&lt;N&gt;::new(
-        program_name.clone(),
-        program_id.network().to_string(),
-        handler,
-        file_path.clone(),
-        outputs.to_path_buf(),
-        <span class="prelude-val">Some</span>(options.into()),
-        stubs,
-    );
+    </span><span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::&lt;N&gt;::new(handler, outputs.to_path_buf(), <span class="prelude-val">Some</span>(options.into()), stubs);
 
     <span class="comment">// Compile the Leo program into Aleo instructions.
-    </span><span class="kw">let </span>instructions = compiler.compile()<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>instructions = compiler.compile_from_file(file_path)<span class="question-mark">?</span>;
 
     <span class="comment">// Write the instructions.
     </span>std::fs::File::create(<span class="kw-2">&amp;</span>aleo_file_path)
