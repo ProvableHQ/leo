@@ -40,7 +40,7 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
                 .into_iter()
                 .map(|(i, c)| match self.reconstruct_const(c) {
                     (Statement::Const(declaration), _) => (i, declaration),
-                    _ => unreachable!("`reconstruct_const` can only return `Statement::Const`"),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
             span: input.span,
@@ -62,7 +62,7 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
             .map(|(guard, statement)| match guard {
                 ReturnGuard::None => (None, statement),
                 ReturnGuard::Unconstructed(plain) | ReturnGuard::Constructed { plain, .. } => {
-                    (Some(Expression::Identifier(plain)), statement)
+                    (Some(plain.into()), statement)
                 }
             })
             .collect();

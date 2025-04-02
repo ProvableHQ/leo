@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, NodeID};
+use crate::{Expression, Node, NodeID, Statement};
+
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -38,6 +39,12 @@ impl fmt::Display for ReturnStatement {
         } else {
             write!(f, "return {}", self.expression)
         }
+    }
+}
+
+impl From<ReturnStatement> for Statement {
+    fn from(value: ReturnStatement) -> Self {
+        Statement::Return(value)
     }
 }
 

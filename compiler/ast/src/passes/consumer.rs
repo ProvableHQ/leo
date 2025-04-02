@@ -25,30 +25,32 @@ pub trait ExpressionConsumer {
 
     fn consume_expression(&mut self, input: Expression) -> Self::Output {
         match input {
-            Expression::Access(access) => self.consume_access(access),
             Expression::Array(array) => self.consume_array(array),
-            Expression::AssociatedConstant(associated_constant) => {
-                self.consume_associated_constant(associated_constant)
-            }
-            Expression::AssociatedFunction(associated_function) => {
-                self.consume_associated_function(associated_function)
-            }
-            Expression::Binary(binary) => self.consume_binary(binary),
-            Expression::Call(call) => self.consume_call(call),
-            Expression::Cast(cast) => self.consume_cast(cast),
+            Expression::ArrayAccess(access) => self.consume_array_access(*access),
+            Expression::AssociatedConstant(constant) => self.consume_associated_constant(constant),
+            Expression::AssociatedFunction(function) => self.consume_associated_function(function),
+            Expression::Binary(binary) => self.consume_binary(*binary),
+            Expression::Call(call) => self.consume_call(*call),
+            Expression::Cast(cast) => self.consume_cast(*cast),
             Expression::Struct(struct_) => self.consume_struct_init(struct_),
             Expression::Err(err) => self.consume_err(err),
             Expression::Identifier(identifier) => self.consume_identifier(identifier),
             Expression::Literal(value) => self.consume_literal(value),
             Expression::Locator(locator) => self.consume_locator(locator),
-            Expression::Ternary(ternary) => self.consume_ternary(ternary),
+            Expression::MemberAccess(access) => self.consume_member_access(*access),
+            Expression::Ternary(ternary) => self.consume_ternary(*ternary),
             Expression::Tuple(tuple) => self.consume_tuple(tuple),
-            Expression::Unary(unary) => self.consume_unary(unary),
+            Expression::TupleAccess(access) => self.consume_tuple_access(*access),
+            Expression::Unary(unary) => self.consume_unary(*unary),
             Expression::Unit(unit) => self.consume_unit(unit),
         }
     }
 
-    fn consume_access(&mut self, _input: AccessExpression) -> Self::Output;
+    fn consume_array_access(&mut self, _input: ArrayAccess) -> Self::Output;
+
+    fn consume_member_access(&mut self, _input: MemberAccess) -> Self::Output;
+
+    fn consume_tuple_access(&mut self, _input: TupleAccess) -> Self::Output;
 
     fn consume_associated_constant(&mut self, _input: AssociatedConstantExpression) -> Self::Output;
 
@@ -93,7 +95,6 @@ pub trait StatementConsumer {
             Statement::Assign(stmt) => self.consume_assign(*stmt),
             Statement::Block(stmt) => self.consume_block(stmt),
             Statement::Conditional(stmt) => self.consume_conditional(stmt),
-            Statement::Console(stmt) => self.consume_console(stmt),
             Statement::Const(stmt) => self.consume_const(stmt),
             Statement::Definition(stmt) => self.consume_definition(stmt),
             Statement::Expression(stmt) => self.consume_expression_statement(stmt),
@@ -109,8 +110,6 @@ pub trait StatementConsumer {
     fn consume_block(&mut self, input: Block) -> Self::Output;
 
     fn consume_conditional(&mut self, input: ConditionalStatement) -> Self::Output;
-
-    fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output;
 
     fn consume_const(&mut self, input: ConstDeclaration) -> Self::Output;
 

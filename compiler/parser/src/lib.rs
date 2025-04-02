@@ -24,7 +24,7 @@
 #![doc = include_str!("../README.md")]
 
 pub(crate) mod tokenizer;
-use leo_span::span::BytePos;
+use leo_span::BytePos;
 pub use tokenizer::KEYWORD_TOKENS;
 pub(crate) use tokenizer::*;
 
@@ -32,7 +32,7 @@ pub mod parser;
 pub use parser::*;
 
 use leo_ast::{Ast, NodeBuilder};
-use leo_errors::{Result, emitter::Handler};
+use leo_errors::{Handler, Result};
 
 use snarkvm::prelude::Network;
 

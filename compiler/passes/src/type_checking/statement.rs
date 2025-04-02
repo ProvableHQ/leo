@@ -36,7 +36,6 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
             Statement::Assign(stmt) => self.visit_assign(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
-            Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Const(stmt) => self.visit_const(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
@@ -113,10 +112,6 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
         self.scope_state.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
         // Restore the previous `is_conditional` flag.
         self.scope_state.is_conditional = previous_is_conditional;
-    }
-
-    fn visit_console(&mut self, _: &ConsoleStatement) {
-        unreachable!("Parsing guarantees that console statements are not present in the AST.");
     }
 
     fn visit_const(&mut self, input: &ConstDeclaration) {

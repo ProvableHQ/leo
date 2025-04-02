@@ -13,32 +13,32 @@
     },
     "start": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "0",
-          {
-            "span": {
-              "lo": 13,
-              "hi": 16
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 13,
+          "hi": 16
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "U8",
+            "0"
+          ]
+        }
       }
     },
     "stop": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "7",
-          {
-            "span": {
-              "lo": 18,
-              "hi": 21
-            }
-          },
-          2
-        ]
+        "span": {
+          "lo": 18,
+          "hi": 21
+        },
+        "id": 2,
+        "variant": {
+          "Integer": [
+            "U8",
+            "7"
+          ]
+        }
       }
     },
     "inclusive": false,
@@ -73,32 +73,32 @@
     },
     "start": {
       "Literal": {
-        "Integer": [
-          "I64",
-          "0",
-          {
-            "span": {
-              "lo": 39,
-              "hi": 43
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 39,
+          "hi": 43
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "I64",
+            "0"
+          ]
+        }
       }
     },
     "stop": {
       "Literal": {
-        "Integer": [
-          "I64",
-          "7",
-          {
-            "span": {
-              "lo": 45,
-              "hi": 49
-            }
-          },
-          2
-        ]
+        "span": {
+          "lo": 45,
+          "hi": 49
+        },
+        "id": 2,
+        "variant": {
+          "Integer": [
+            "I64",
+            "7"
+          ]
+        }
       }
     },
     "inclusive": false,
@@ -108,17 +108,17 @@
           "Return": {
             "expression": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "1",
-                  {
-                    "span": {
-                      "lo": 63,
-                      "hi": 66
-                    }
-                  },
-                  3
-                ]
+                "span": {
+                  "lo": 63,
+                  "hi": 66
+                },
+                "id": 3,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "1"
+                  ]
+                }
               }
             },
             "span": {
@@ -156,31 +156,29 @@
     "type_": "Field",
     "start": {
       "Literal": {
-        "Field": [
-          "0",
-          {
-            "span": {
-              "lo": 86,
-              "hi": 92
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 86,
+          "hi": 92
+        },
+        "id": 1,
+        "variant": {
+          "Field": "0"
+        }
       }
     },
     "stop": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "99",
-          {
-            "span": {
-              "lo": 94,
-              "hi": 98
-            }
-          },
-          2
-        ]
+        "span": {
+          "lo": 94,
+          "hi": 98
+        },
+        "id": 2,
+        "variant": {
+          "Integer": [
+            "U8",
+            "99"
+          ]
+        }
       }
     },
     "inclusive": false,
@@ -190,17 +188,17 @@
           "Return": {
             "expression": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "1",
-                  {
-                    "span": {
-                      "lo": 112,
-                      "hi": 115
-                    }
-                  },
-                  3
-                ]
+                "span": {
+                  "lo": 112,
+                  "hi": 115
+                },
+                "id": 3,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "1"
+                  ]
+                }
               }
             },
             "span": {
@@ -238,17 +236,17 @@
     "type_": "Boolean",
     "start": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "0",
-          {
-            "span": {
-              "lo": 134,
-              "hi": 137
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 134,
+          "hi": 137
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "U8",
+            "0"
+          ]
+        }
       }
     },
     "stop": {
@@ -268,17 +266,17 @@
           "Return": {
             "expression": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "1",
-                  {
-                    "span": {
-                      "lo": 157,
-                      "hi": 160
-                    }
-                  },
-                  3
-                ]
+                "span": {
+                  "lo": 157,
+                  "hi": 160
+                },
+                "id": 3,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "1"
+                  ]
+                }
               }
             },
             "span": {

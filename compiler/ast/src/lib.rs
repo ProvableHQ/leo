@@ -22,40 +22,37 @@
 
 #![allow(ambiguous_glob_reexports)]
 
-pub mod access;
-pub use self::access::*;
-
-pub mod r#struct;
+mod r#struct;
 pub use self::r#struct::*;
 
 pub mod common;
 pub use self::common::*;
 
-pub mod expressions;
+mod expressions;
 pub use self::expressions::*;
 
-pub mod functions;
+mod functions;
 pub use self::functions::*;
 
 mod indent_display;
 use indent_display::*;
 
-pub mod mapping;
+mod mapping;
 pub use self::mapping::*;
 
-pub mod passes;
+mod passes;
 pub use self::passes::*;
 
-pub mod program;
+mod program;
 pub use self::program::*;
 
-pub mod statement;
+mod statement;
 pub use self::statement::*;
 
-pub mod types;
+mod types;
 pub use self::types::*;
 
-pub mod stub;
+mod stub;
 pub use self::stub::*;
 
 mod value;

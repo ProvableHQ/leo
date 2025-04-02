@@ -2,32 +2,32 @@
   "Binary": {
     "left": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "1",
-          {
-            "span": {
-              "lo": 0,
-              "hi": 3
-            }
-          },
-          0
-        ]
+        "span": {
+          "lo": 0,
+          "hi": 3
+        },
+        "id": 0,
+        "variant": {
+          "Integer": [
+            "U8",
+            "1"
+          ]
+        }
       }
     },
     "right": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "1",
-          {
-            "span": {
-              "lo": 6,
-              "hi": 9
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 6,
+          "hi": 9
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "U8",
+            "1"
+          ]
+        }
       }
     },
     "op": "Add",
@@ -43,32 +43,32 @@
   "Binary": {
     "left": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "2",
-          {
-            "span": {
-              "lo": 10,
-              "hi": 13
-            }
-          },
-          0
-        ]
+        "span": {
+          "lo": 10,
+          "hi": 13
+        },
+        "id": 0,
+        "variant": {
+          "Integer": [
+            "U8",
+            "2"
+          ]
+        }
       }
     },
     "right": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "3",
-          {
-            "span": {
-              "lo": 14,
-              "hi": 17
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 14,
+          "hi": 17
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "U8",
+            "3"
+          ]
+        }
       }
     },
     "op": "Add",
@@ -86,32 +86,32 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "1",
-              {
-                "span": {
-                  "lo": 18,
-                  "hi": 21
-                }
-              },
-              0
-            ]
+            "span": {
+              "lo": 18,
+              "hi": 21
+            },
+            "id": 0,
+            "variant": {
+              "Integer": [
+                "U8",
+                "1"
+              ]
+            }
           }
         },
         "right": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "2",
-              {
-                "span": {
-                  "lo": 24,
-                  "hi": 27
-                }
-              },
-              1
-            ]
+            "span": {
+              "lo": 24,
+              "hi": 27
+            },
+            "id": 1,
+            "variant": {
+              "Integer": [
+                "U8",
+                "2"
+              ]
+            }
           }
         },
         "op": "Add",
@@ -124,17 +124,17 @@
     },
     "right": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "3",
-          {
-            "span": {
-              "lo": 30,
-              "hi": 33
-            }
-          },
-          3
-        ]
+        "span": {
+          "lo": 30,
+          "hi": 33
+        },
+        "id": 3,
+        "variant": {
+          "Integer": [
+            "U8",
+            "3"
+          ]
+        }
       }
     },
     "op": "Add",
@@ -152,32 +152,32 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "1",
-              {
-                "span": {
-                  "lo": 34,
-                  "hi": 37
-                }
-              },
-              0
-            ]
+            "span": {
+              "lo": 34,
+              "hi": 37
+            },
+            "id": 0,
+            "variant": {
+              "Integer": [
+                "U8",
+                "1"
+              ]
+            }
           }
         },
         "right": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "2",
-              {
-                "span": {
-                  "lo": 40,
-                  "hi": 43
-                }
-              },
-              1
-            ]
+            "span": {
+              "lo": 40,
+              "hi": 43
+            },
+            "id": 1,
+            "variant": {
+              "Integer": [
+                "U8",
+                "2"
+              ]
+            }
           }
         },
         "op": "Mul",
@@ -192,32 +192,32 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "3",
-              {
-                "span": {
-                  "lo": 46,
-                  "hi": 49
-                }
-              },
-              3
-            ]
+            "span": {
+              "lo": 46,
+              "hi": 49
+            },
+            "id": 3,
+            "variant": {
+              "Integer": [
+                "U8",
+                "3"
+              ]
+            }
           }
         },
         "right": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "4",
-              {
-                "span": {
-                  "lo": 52,
-                  "hi": 55
-                }
-              },
-              4
-            ]
+            "span": {
+              "lo": 52,
+              "hi": 55
+            },
+            "id": 4,
+            "variant": {
+              "Integer": [
+                "U8",
+                "4"
+              ]
+            }
           }
         },
         "op": "Mul",
@@ -243,32 +243,32 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "1",
-              {
-                "span": {
-                  "lo": 56,
-                  "hi": 59
-                }
-              },
-              0
-            ]
+            "span": {
+              "lo": 56,
+              "hi": 59
+            },
+            "id": 0,
+            "variant": {
+              "Integer": [
+                "U8",
+                "1"
+              ]
+            }
           }
         },
         "right": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "2",
-              {
-                "span": {
-                  "lo": 62,
-                  "hi": 65
-                }
-              },
-              1
-            ]
+            "span": {
+              "lo": 62,
+              "hi": 65
+            },
+            "id": 1,
+            "variant": {
+              "Integer": [
+                "U8",
+                "2"
+              ]
+            }
           }
         },
         "op": "Add",
@@ -281,17 +281,17 @@
     },
     "right": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "3",
-          {
-            "span": {
-              "lo": 68,
-              "hi": 71
-            }
-          },
-          3
-        ]
+        "span": {
+          "lo": 68,
+          "hi": 71
+        },
+        "id": 3,
+        "variant": {
+          "Integer": [
+            "U8",
+            "3"
+          ]
+        }
       }
     },
     "op": "Sub",
@@ -311,32 +311,32 @@
           "Binary": {
             "left": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "1",
-                  {
-                    "span": {
-                      "lo": 72,
-                      "hi": 75
-                    }
-                  },
-                  0
-                ]
+                "span": {
+                  "lo": 72,
+                  "hi": 75
+                },
+                "id": 0,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "1"
+                  ]
+                }
               }
             },
             "right": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "2",
-                  {
-                    "span": {
-                      "lo": 78,
-                      "hi": 81
-                    }
-                  },
-                  1
-                ]
+                "span": {
+                  "lo": 78,
+                  "hi": 81
+                },
+                "id": 1,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "2"
+                  ]
+                }
               }
             },
             "op": "Mul",
@@ -351,32 +351,32 @@
           "Binary": {
             "left": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "3",
-                  {
-                    "span": {
-                      "lo": 84,
-                      "hi": 87
-                    }
-                  },
-                  3
-                ]
+                "span": {
+                  "lo": 84,
+                  "hi": 87
+                },
+                "id": 3,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "3"
+                  ]
+                }
               }
             },
             "right": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "4",
-                  {
-                    "span": {
-                      "lo": 90,
-                      "hi": 93
-                    }
-                  },
-                  4
-                ]
+                "span": {
+                  "lo": 90,
+                  "hi": 93
+                },
+                "id": 4,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "4"
+                  ]
+                }
               }
             },
             "op": "Mul",
@@ -399,32 +399,32 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "5",
-              {
-                "span": {
-                  "lo": 96,
-                  "hi": 99
-                }
-              },
-              7
-            ]
+            "span": {
+              "lo": 96,
+              "hi": 99
+            },
+            "id": 7,
+            "variant": {
+              "Integer": [
+                "U8",
+                "5"
+              ]
+            }
           }
         },
         "right": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "6",
-              {
-                "span": {
-                  "lo": 102,
-                  "hi": 105
-                }
-              },
-              8
-            ]
+            "span": {
+              "lo": 102,
+              "hi": 105
+            },
+            "id": 8,
+            "variant": {
+              "Integer": [
+                "U8",
+                "6"
+              ]
+            }
           }
         },
         "op": "Mul",

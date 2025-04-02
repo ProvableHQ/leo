@@ -22,9 +22,9 @@ use crate::{AstSnapshots, CompilerOptions};
 
 pub use leo_ast::Ast;
 use leo_ast::Stub;
-use leo_errors::{CompilerError, Result, emitter::Handler};
+use leo_errors::{CompilerError, Handler, Result};
 use leo_passes::*;
-use leo_span::{Symbol, source_map::FileName, symbol::with_session_globals};
+use leo_span::{Symbol, source_map::FileName, with_session_globals};
 
 use snarkvm::prelude::Network;
 

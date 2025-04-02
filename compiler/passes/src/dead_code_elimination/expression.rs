@@ -24,7 +24,7 @@ impl ExpressionReconstructor for DeadCodeEliminatingVisitor<'_> {
     // Use and reconstruct an identifier.
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
         self.used_variables.insert(input.name);
-        (Expression::Identifier(input), Default::default())
+        (input.into(), Default::default())
     }
 
     // We need to make sure we hit identifiers, so do our own traversal
@@ -42,6 +42,6 @@ impl ExpressionReconstructor for DeadCodeEliminatingVisitor<'_> {
             }
         }
 
-        (Expression::Struct(input), Default::default())
+        (input.into(), Default::default())
     }
 }

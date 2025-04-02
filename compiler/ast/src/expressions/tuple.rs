@@ -18,8 +18,6 @@ use super::*;
 
 use itertools::Itertools as _;
 
-// TODO: Consider a restricted interface for constructing a tuple expression.
-
 /// A tuple expression, e.g., `(foo, false, 42)`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TupleExpression {
@@ -35,6 +33,12 @@ pub struct TupleExpression {
 impl fmt::Display for TupleExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({})", self.elements.iter().format(", "))
+    }
+}
+
+impl From<TupleExpression> for Expression {
+    fn from(value: TupleExpression) -> Self {
+        Expression::Tuple(value)
     }
 }
 

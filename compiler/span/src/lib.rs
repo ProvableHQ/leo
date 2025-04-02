@@ -17,12 +17,10 @@
 #![forbid(unsafe_code)]
 #![recursion_limit = "256"]
 
-pub mod symbol;
-pub use symbol::{Symbol, sym};
+mod symbol;
+pub use symbol::{Symbol, create_session_if_not_set_then, sym, with_session_globals};
 
-pub mod span;
-pub use span::Span;
-
-pub mod span_json;
+mod span;
+pub use span::{BytePos, Pos, Span};
 
 pub mod source_map;

@@ -66,47 +66,45 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "Access": {
-                            "Member": {
-                              "inner": {
-                                "Identifier": {
-                                  "name": "network",
-                                  "span": {
-                                    "lo": 70,
-                                    "hi": 77
-                                  },
-                                  "id": 5
-                                }
-                              },
-                              "name": {
-                                "name": "id",
+                          "MemberAccess": {
+                            "inner": {
+                              "Identifier": {
+                                "name": "network",
                                 "span": {
-                                  "lo": 78,
-                                  "hi": 80
+                                  "lo": 70,
+                                  "hi": 77
                                 },
-                                "id": 6
-                              },
+                                "id": 5
+                              }
+                            },
+                            "name": {
+                              "name": "id",
                               "span": {
-                                "lo": 70,
+                                "lo": 78,
                                 "hi": 80
                               },
-                              "id": 7
-                            }
+                              "id": 6
+                            },
+                            "span": {
+                              "lo": 70,
+                              "hi": 80
+                            },
+                            "id": 7
                           }
                         },
                         {
                           "Literal": {
-                            "Integer": [
-                              "U32",
-                              "1",
-                              {
-                                "span": {
-                                  "lo": 82,
-                                  "hi": 86
-                                }
-                              },
-                              8
-                            ]
+                            "span": {
+                              "lo": 82,
+                              "hi": 86
+                            },
+                            "id": 8,
+                            "variant": {
+                              "Integer": [
+                                "U32",
+                                "1"
+                              ]
+                            }
                           }
                         }
                       ]

@@ -96,7 +96,7 @@ pub fn disassemble_from_str<N: Network>(name: &str, program: &str) -> Result<Stu
 #[cfg(test)]
 mod tests {
     use super::*;
-    use leo_span::symbol::create_session_if_not_set_then;
+    use leo_span::create_session_if_not_set_then;
     use snarkvm::synthesizer::program::Program;
     use std::fs;
 

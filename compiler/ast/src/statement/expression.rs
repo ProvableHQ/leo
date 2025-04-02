@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, NodeID};
+use crate::{Expression, Node, NodeID, Statement};
+
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -34,6 +35,12 @@ pub struct ExpressionStatement {
 impl fmt::Display for ExpressionStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.expression.fmt(f)
+    }
+}
+
+impl From<ExpressionStatement> for Statement {
+    fn from(value: ExpressionStatement) -> Self {
+        Statement::Expression(value)
     }
 }
 

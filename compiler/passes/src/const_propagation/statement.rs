@@ -22,7 +22,6 @@ use leo_ast::{
     AssignStatement,
     Block,
     ConditionalStatement,
-    ConsoleStatement,
     ConstDeclaration,
     DefinitionStatement,
     Expression,
@@ -34,17 +33,6 @@ use leo_ast::{
     Statement,
     StatementReconstructor,
 };
-
-fn empty_statement() -> Statement {
-    Statement::Block(Block { statements: Vec::new(), span: Default::default(), id: Default::default() })
-}
-
-fn is_empty_statement(stmt: &Statement) -> bool {
-    let Statement::Block(block) = stmt else {
-        return false;
-    };
-    block.statements.is_empty()
-}
 
 impl StatementReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_assert(&mut self, mut input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
@@ -62,21 +50,20 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
             }
         };
 
-        (Statement::Assert(input), None)
+        (input.into(), None)
     }
 
-    fn reconstruct_assign(&mut self, mut assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        assign.value = self.reconstruct_expression(assign.value).0;
-        (Statement::Assign(Box::new(assign)), None)
+    fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        (AssignStatement { value: self.reconstruct_expression(assign.value).0, ..assign }.into(), None)
     }
 
     fn reconstruct_block(&mut self, mut block: Block) -> (Block, Self::AdditionalOutput) {
         self.in_scope(block.id(), |slf| {
             block.statements.retain_mut(|statement| {
-                let bogus_statement = empty_statement();
+                let bogus_statement = Statement::dummy();
                 let this_statement = std::mem::replace(statement, bogus_statement);
                 *statement = slf.reconstruct_statement(this_statement).0;
-                !is_empty_statement(statement)
+                !statement.is_empty()
             });
             (block, None)
         })
@@ -96,10 +83,6 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
         (Statement::Conditional(conditional), None)
     }
 
-    fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
-    }
-
     fn reconstruct_const(&mut self, mut input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
         let span = input.span();
 
@@ -116,12 +99,8 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
         (Statement::Const(input), None)
     }
 
-    fn reconstruct_definition(&mut self, mut definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        let (expr, _) = self.reconstruct_expression(definition.value);
-
-        definition.value = expr;
-
-        (Statement::Definition(definition), None)
+    fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        (DefinitionStatement { value: self.reconstruct_expression(definition.value).0, ..definition }.into(), None)
     }
 
     fn reconstruct_expression_statement(
@@ -133,23 +112,28 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
         if matches!(&input.expression, Expression::Unit(..) | Expression::Literal(..)) {
             // We were able to evaluate this at compile time, but we need to get rid of this statement as
             // we can't have expression statements that aren't calls.
-            (empty_statement(), Default::default())
+            (Statement::dummy(), Default::default())
         } else {
-            (Statement::Expression(input), Default::default())
+            (input.into(), Default::default())
         }
     }
 
-    fn reconstruct_iteration(&mut self, mut iteration: IterationStatement) -> (Statement, Self::AdditionalOutput) {
-        iteration.start = self.reconstruct_expression(iteration.start).0;
-        iteration.stop = self.reconstruct_expression(iteration.stop).0;
-        self.in_scope(iteration.id(), |slf| {
-            iteration.block = slf.reconstruct_block(iteration.block).0;
-            (Statement::Iteration(Box::new(iteration)), None)
+    fn reconstruct_iteration(&mut self, iteration: IterationStatement) -> (Statement, Self::AdditionalOutput) {
+        let id = iteration.id();
+        let start = self.reconstruct_expression(iteration.start).0;
+        let stop = self.reconstruct_expression(iteration.stop).0;
+        self.in_scope(id, |slf| {
+            (
+                IterationStatement { start, stop, block: slf.reconstruct_block(iteration.block).0, ..iteration }.into(),
+                None,
+            )
         })
     }
 
-    fn reconstruct_return(&mut self, mut input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
-        input.expression = self.reconstruct_expression(input.expression).0;
-        (Statement::Return(input), Default::default())
+    fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
+        (
+            ReturnStatement { expression: self.reconstruct_expression(input.expression).0, ..input }.into(),
+            Default::default(),
+        )
     }
 }

@@ -379,17 +379,17 @@
                       "Binary": {
                         "left": {
                           "Literal": {
-                            "Integer": [
-                              "U8",
-                              "1",
-                              {
-                                "span": {
-                                  "lo": 261,
-                                  "hi": 264
-                                }
-                              },
-                              36
-                            ]
+                            "span": {
+                              "lo": 261,
+                              "hi": 264
+                            },
+                            "id": 36,
+                            "variant": {
+                              "Integer": [
+                                "U8",
+                                "1"
+                              ]
+                            }
                           }
                         },
                         "right": {

@@ -17,7 +17,6 @@
 use super::DestructuringVisitor;
 
 use leo_ast::{
-    AccessExpression,
     ArrayAccess,
     Expression,
     ExpressionReconstructor,
@@ -39,29 +38,26 @@ impl ExpressionReconstructor for DestructuringVisitor<'_> {
 
     /// Replaces a tuple access expression with the appropriate expression.
     fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
-        let Expression::Identifier(identifier) = input.tuple.as_ref() else {
+        let Expression::Identifier(identifier) = &input.tuple else {
             panic!("SSA guarantees that subexpressions are identifiers or literals.");
         };
 
         // Look up the expression in the tuple map.
         match self.tuples.get(&identifier.name).and_then(|tuple_names| tuple_names.get(input.index.value())) {
-            Some(id) => (Expression::Identifier(*id), Default::default()),
+            Some(id) => ((*id).into(), Default::default()),
             None => {
                 if !matches!(self.state.type_table.get(&identifier.id), Some(Type::Future(_))) {
                     panic!("Type checking guarantees that all tuple accesses are declared and indices are valid.");
                 }
 
-                let expr = Expression::Access(AccessExpression::Array(ArrayAccess {
-                    array: Box::new(Expression::Identifier(*identifier)),
-                    index: Box::new(Expression::Literal(Literal::Integer(
-                        IntegerType::U32,
-                        input.index.to_string(),
-                        input.span,
-                        Default::default(),
-                    ))),
+                let expr = ArrayAccess {
+                    array: (*identifier).into(),
+                    index: Literal::integer(IntegerType::U32, input.index.to_string(), input.span, Default::default())
+                        .into(),
                     span: input.span,
                     id: input.id,
-                }));
+                }
+                .into();
 
                 (expr, Default::default())
             }
@@ -83,8 +79,8 @@ impl ExpressionReconstructor for DestructuringVisitor<'_> {
                 };
 
                 // We'll be reusing `input.condition`, so assign it to a variable.
-                let cond = if let Expression::Identifier(..) = *input.condition {
-                    *input.condition
+                let cond = if let Expression::Identifier(..) = input.condition {
+                    input.condition
                 } else {
                     let place = Identifier::new(
                         self.state.assigner.unique_symbol("cond", "$$"),
@@ -93,7 +89,7 @@ impl ExpressionReconstructor for DestructuringVisitor<'_> {
 
                     let definition = self.state.assigner.simple_definition(
                         place,
-                        *input.condition,
+                        input.condition,
                         self.state.node_builder.next_id(),
                     );
 
@@ -117,13 +113,14 @@ impl ExpressionReconstructor for DestructuringVisitor<'_> {
                         self.state.node_builder.next_id(),
                     );
 
-                    let expression = Expression::Ternary(TernaryExpression {
-                        condition: Box::new(cond.clone()),
-                        if_true: Box::new(lhs),
-                        if_false: Box::new(rhs),
+                    let expression: Expression = TernaryExpression {
+                        condition: cond.clone(),
+                        if_true: lhs,
+                        if_false: rhs,
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
-                    });
+                    }
+                    .into();
 
                     self.state.type_table.insert(identifier.id(), ty.clone());
                     self.state.type_table.insert(expression.id(), ty.clone());
@@ -135,15 +132,12 @@ impl ExpressionReconstructor for DestructuringVisitor<'_> {
                     );
 
                     statements.push(definition);
-                    elements.push(Expression::Identifier(identifier));
+                    elements.push(identifier.into());
                 }
 
-                // Now rebuild the tuple from the variables we just created.
-                let expr = Expression::Tuple(TupleExpression {
-                    elements,
-                    span: Default::default(),
-                    id: self.state.node_builder.next_id(),
-                });
+                let expr: Expression =
+                    TupleExpression { elements, span: Default::default(), id: self.state.node_builder.next_id() }
+                        .into();
 
                 self.state.type_table.insert(expr.id(), Type::Tuple(tuple_type.clone()));
 
@@ -151,9 +145,7 @@ impl ExpressionReconstructor for DestructuringVisitor<'_> {
             }
             (if_true, if_false) => {
                 // This isn't a tuple. Just rebuild it and otherwise leave it alone.
-                *input.if_true = if_true;
-                *input.if_false = if_false;
-                (Expression::Ternary(input), statements)
+                (TernaryExpression { if_true, if_false, ..input }.into(), statements)
             }
         }
     }

@@ -328,32 +328,32 @@
                         "arguments": [
                           {
                             "Literal": {
-                              "Integer": [
-                                "U32",
-                                "1",
-                                {
-                                  "span": {
-                                    "lo": 360,
-                                    "hi": 364
-                                  }
-                                },
-                                16
-                              ]
+                              "span": {
+                                "lo": 360,
+                                "hi": 364
+                              },
+                              "id": 16,
+                              "variant": {
+                                "Integer": [
+                                  "U32",
+                                  "1"
+                                ]
+                              }
                             }
                           },
                           {
                             "Literal": {
-                              "Integer": [
-                                "U32",
-                                "1",
-                                {
-                                  "span": {
-                                    "lo": 366,
-                                    "hi": 370
-                                  }
-                                },
-                                17
-                              ]
+                              "span": {
+                                "lo": 366,
+                                "hi": 370
+                              },
+                              "id": 17,
+                              "variant": {
+                                "Integer": [
+                                  "U32",
+                                  "1"
+                                ]
+                              }
                             }
                           },
                           {

@@ -16,17 +16,17 @@
         "Return": {
           "expression": {
             "Literal": {
-              "Integer": [
-                "U8",
-                "0",
-                {
-                  "span": {
-                    "lo": 16,
-                    "hi": 19
-                  }
-                },
-                0
-              ]
+              "span": {
+                "lo": 16,
+                "hi": 19
+              },
+              "id": 0,
+              "variant": {
+                "Integer": [
+                  "U8",
+                  "0"
+                ]
+              }
             }
           },
           "span": {
@@ -77,17 +77,17 @@
               "Return": {
                 "expression": {
                   "Literal": {
-                    "Integer": [
-                      "U8",
-                      "0",
-                      {
-                        "span": {
-                          "lo": 51,
-                          "hi": 54
-                        }
-                      },
-                      0
-                    ]
+                    "span": {
+                      "lo": 51,
+                      "hi": 54
+                    },
+                    "id": 0,
+                    "variant": {
+                      "Integer": [
+                        "U8",
+                        "0"
+                      ]
+                    }
                   }
                 },
                 "span": {
@@ -135,17 +135,17 @@
                 "Return": {
                   "expression": {
                     "Literal": {
-                      "Integer": [
-                        "U8",
-                        "0",
-                        {
-                          "span": {
-                            "lo": 92,
-                            "hi": 95
-                          }
-                        },
-                        1
-                      ]
+                      "span": {
+                        "lo": 92,
+                        "hi": 95
+                      },
+                      "id": 1,
+                      "variant": {
+                        "Integer": [
+                          "U8",
+                          "0"
+                        ]
+                      }
                     }
                   },
                   "span": {

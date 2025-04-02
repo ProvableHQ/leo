@@ -360,17 +360,17 @@
         "arguments": [
           {
             "Literal": {
-              "Integer": [
-                "U64",
-                "100",
-                {
-                  "span": {
-                    "lo": 193,
-                    "hi": 199
-                  }
-                },
-                4
-              ]
+              "span": {
+                "lo": 193,
+                "hi": 199
+              },
+              "id": 4,
+              "variant": {
+                "Integer": [
+                  "U64",
+                  "100"
+                ]
+              }
             }
           }
         ],
@@ -430,17 +430,17 @@
         "arguments": [
           {
             "Literal": {
-              "Integer": [
-                "U64",
-                "100",
-                {
-                  "span": {
-                    "lo": 258,
-                    "hi": 264
-                  }
-                },
-                5
-              ]
+              "span": {
+                "lo": 258,
+                "hi": 264
+              },
+              "id": 5,
+              "variant": {
+                "Integer": [
+                  "U64",
+                  "100"
+                ]
+              }
             }
           }
         ],
@@ -735,16 +735,14 @@
     "type_": "Address",
     "value": {
       "Literal": {
-        "Address": [
-          "aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx",
-          {
-            "span": {
-              "lo": 394,
-              "hi": 457
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 394,
+          "hi": 457
+        },
+        "id": 1,
+        "variant": {
+          "Address": "aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx"
+        }
       }
     },
     "span": {

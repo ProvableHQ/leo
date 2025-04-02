@@ -17,7 +17,6 @@
 use super::CodeGeneratingVisitor;
 
 use leo_ast::{
-    AccessExpression,
     ArrayAccess,
     ArrayExpression,
     AssociatedConstantExpression,
@@ -30,6 +29,7 @@ use leo_ast::{
     Expression,
     Identifier,
     Literal,
+    LiteralVariant,
     Location,
     LocatorExpression,
     MemberAccess,
@@ -51,8 +51,8 @@ use std::fmt::Write as _;
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_expression(&mut self, input: &Expression) -> (String, String) {
         match input {
-            Expression::Access(expr) => self.visit_access(expr),
             Expression::Array(expr) => self.visit_array(expr),
+            Expression::ArrayAccess(expr) => self.visit_array_access(expr),
             Expression::AssociatedConstant(expr) => self.visit_associated_constant(expr),
             Expression::AssociatedFunction(expr) => self.visit_associated_function(expr),
             Expression::Binary(expr) => self.visit_binary(expr),
@@ -63,8 +63,10 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Identifier(expr) => self.visit_identifier(expr),
             Expression::Literal(expr) => self.visit_value(expr),
             Expression::Locator(expr) => self.visit_locator(expr),
+            Expression::MemberAccess(expr) => self.visit_member_access(expr),
             Expression::Ternary(expr) => self.visit_ternary(expr),
             Expression::Tuple(expr) => self.visit_tuple(expr),
+            Expression::TupleAccess(_) => panic!("Tuple accesses should not appear in the AST at this point."),
             Expression::Unary(expr) => self.visit_unary(expr),
             Expression::Unit(expr) => self.visit_unit(expr),
         }
@@ -303,8 +305,10 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_array_access(&mut self, input: &ArrayAccess) -> (String, String) {
         let (array_operand, _) = self.visit_expression(&input.array);
-        let index_operand = match input.index.as_ref() {
-            Expression::Literal(Literal::Integer(_, string, _, _)) => format!("{}u32", string),
+        let index_operand = match &input.index {
+            Expression::Literal(Literal { variant: LiteralVariant::Integer(_, string), .. }) => {
+                format!("{}u32", string)
+            }
             _ => panic!("Array indices must be integer literals"),
         };
         let array_access = format!("{}[{}]", array_operand, index_operand);
@@ -502,16 +506,6 @@ impl CodeGeneratingVisitor<'_> {
         instructions.push_str(&instruction);
 
         (destination, instructions)
-    }
-
-    fn visit_access(&mut self, input: &AccessExpression) -> (String, String) {
-        match input {
-            AccessExpression::Array(array) => self.visit_array_access(array),
-            AccessExpression::Member(access) => self.visit_member_access(access),
-            AccessExpression::Tuple(_) => {
-                panic!("Tuple access should not be in the AST at this phase of compilation.")
-            }
-        }
     }
 
     fn visit_call(&mut self, input: &CallExpression) -> (String, String) {

@@ -33,8 +33,7 @@ pub struct StaticAnalyzingVisitor<'a> {
 }
 
 impl StaticAnalyzingVisitor<'_> {
-    /// Emits a type checker error.
-    pub(crate) fn emit_err(&self, err: StaticAnalyzerError) {
+    pub fn emit_err(&self, err: StaticAnalyzerError) {
         self.state.handler.emit_err(err);
     }
 
@@ -44,7 +43,7 @@ impl StaticAnalyzingVisitor<'_> {
     }
 
     /// Type checks the awaiting of a future.
-    pub(crate) fn assert_future_await(&mut self, future: &Option<&Expression>, span: Span) {
+    pub fn assert_future_await(&mut self, future: &Option<&Expression>, span: Span) {
         // Make sure that it is an identifier expression.
         let future_variable = match future {
             Some(Expression::Identifier(name)) => name,
@@ -76,7 +75,7 @@ impl StaticAnalyzingVisitor<'_> {
 
     /// Assert that an async call is a "simple" one.
     /// Simple is defined as an async transition function which does not return a `Future` that itself takes a `Future` as an argument.
-    pub(crate) fn assert_simple_async_transition_call(&mut self, program: Symbol, function_name: Symbol, span: Span) {
+    pub fn assert_simple_async_transition_call(&mut self, program: Symbol, function_name: Symbol, span: Span) {
         let func_symbol = self
             .state
             .symbol_table

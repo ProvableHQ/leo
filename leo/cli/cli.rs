@@ -156,7 +156,7 @@ mod tests {
         cli::{Commands, test_helpers},
         run_with_args,
     };
-    use leo_span::symbol::create_session_if_not_set_then;
+    use leo_span::create_session_if_not_set_then;
     use serial_test::serial;
     use std::env::temp_dir;
 
@@ -317,7 +317,7 @@ mod tests {
 #[cfg(test)]
 mod test_helpers {
     use crate::cli::{CLI, LeoAdd, LeoNew, cli::Commands, run_with_args};
-    use leo_span::symbol::create_session_if_not_set_then;
+    use leo_span::create_session_if_not_set_then;
     use std::path::Path;
 
     const NETWORK: &str = "mainnet";

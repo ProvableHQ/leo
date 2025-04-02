@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, NodeID};
+use crate::{Expression, Node, NodeID, Statement};
 
 use leo_span::Span;
 
@@ -50,6 +50,12 @@ impl fmt::Display for AssertStatement {
             AssertVariant::AssertEq(ref expr1, ref expr2) => write!(f, "assert_eq({expr1}, {expr2})"),
             AssertVariant::AssertNeq(ref expr1, ref expr2) => write!(f, "assert_neq({expr1}, {expr2})"),
         }
+    }
+}
+
+impl From<AssertStatement> for Statement {
+    fn from(value: AssertStatement) -> Self {
+        Statement::Assert(value)
     }
 }
 

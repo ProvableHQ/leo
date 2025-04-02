@@ -41,4 +41,10 @@ impl fmt::Display for Block {
     }
 }
 
+impl From<Block> for Statement {
+    fn from(value: Block) -> Self {
+        Statement::Block(value)
+    }
+}
+
 crate::simple_node_impl!(Block);

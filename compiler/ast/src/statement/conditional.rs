@@ -59,4 +59,10 @@ impl fmt::Display for ConditionalStatement {
     }
 }
 
+impl From<ConditionalStatement> for Statement {
+    fn from(value: ConditionalStatement) -> Self {
+        Statement::Conditional(value)
+    }
+}
+
 crate::simple_node_impl!(ConditionalStatement);

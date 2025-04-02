@@ -166,150 +166,141 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found 'as'
      | ^^
 
 
-Error [EPAR0370032]: `console` statements are not yet supported.
-    --> test_24:1:1
-     |
-   1 | console x = 10u8;
-     | ^^^^^^^
-     |
-     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.
-
-
 Error [EPAR0370005]: expected : -- found '='
-    --> test_25:1:7
+    --> test_24:1:7
      |
    1 | for x = 10u8;
      |       ^
 
 
 Error [EPAR0370005]: expected { -- found '='
-    --> test_26:1:6
+    --> test_25:1:6
      |
    1 | if x = 10u8;
      |      ^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'else'
-    --> test_27:1:1
+    --> test_26:1:1
      |
    1 | else x = 10u8;
      | ^^^^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_28:1:4
+    --> test_27:1:4
      |
    1 | i8 x = 10u8;
      |    ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_29:1:5
+    --> test_28:1:5
      |
    1 | i16 x = 10u8;
      |     ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_30:1:5
+    --> test_29:1:5
      |
    1 | i32 x = 10u8;
      |     ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_31:1:5
+    --> test_30:1:5
      |
    1 | i64 x = 10u8;
      |     ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_32:1:6
+    --> test_31:1:6
      |
    1 | i128 x = 10u8;
      |      ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_33:1:4
+    --> test_32:1:4
      |
    1 | u8 x = 10u8;
      |    ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_34:1:5
+    --> test_33:1:5
      |
    1 | u16 x = 10u8;
      |     ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_35:1:5
+    --> test_34:1:5
      |
    1 | u32 x = 10u8;
      |     ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_36:1:5
+    --> test_35:1:5
      |
    1 | u64 x = 10u8;
      |     ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_37:1:6
+    --> test_36:1:6
      |
    1 | u128 x = 10u8;
      |      ^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found '&'
-    --> test_38:1:1
+    --> test_37:1:1
      |
    1 | & x = 10u8;
      | ^
 
 
 Error [EPAR0370005]: expected ; -- found '='
-    --> test_39:1:10
+    --> test_38:1:10
      |
    1 | return x = 10u8;
      |          ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_40:1:6
+    --> test_39:1:6
      |
    1 | self x = 10u8;
      |      ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_41:1:6
+    --> test_40:1:6
      |
    1 | Self x = 10u8;
      |      ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_42:1:6
+    --> test_41:1:6
      |
    1 | true x = 10u8;
      |      ^
 
 
 Error [EPAR0370005]: expected ; -- found 'x'
-    --> test_43:1:7
+    --> test_42:1:7
      |
    1 | false x = 10u8;
      |       ^
 
 
 Error [EPAR0370017]: Could not parse the implicit value: 0.
-    --> test_44:1:1
+    --> test_43:1:1
      |
    1 | 0 x = 10u8;
      | ^

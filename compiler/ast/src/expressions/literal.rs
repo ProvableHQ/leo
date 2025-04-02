@@ -20,93 +20,81 @@ use super::*;
 
 /// A literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Literal {
-    // todo: deserialize values here
+pub struct Literal {
+    pub span: Span,
+    pub id: NodeID,
+    pub variant: LiteralVariant,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum LiteralVariant {
     /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9` or `hello.aleo`.
-    Address(String, #[serde(with = "leo_span::span_json")] Span, NodeID),
+    Address(String),
     /// A boolean literal, either `true` or `false`.
-    Boolean(bool, #[serde(with = "leo_span::span_json")] Span, NodeID),
+    Boolean(bool),
     /// A field literal, e.g., `42field`.
     /// A signed number followed by the keyword `field`.
-    Field(String, #[serde(with = "leo_span::span_json")] Span, NodeID),
+    Field(String),
     /// A group literal, eg `42group`.
-    Group(String, #[serde(with = "leo_span::span_json")] Span, NodeID),
+    Group(String),
     /// An integer literal, e.g., `42`.
-    Integer(IntegerType, String, #[serde(with = "leo_span::span_json")] Span, NodeID),
+    Integer(IntegerType, String),
     /// A scalar literal, e.g. `1scalar`.
     /// An unsigned number followed by the keyword `scalar`.
-    Scalar(String, #[serde(with = "leo_span::span_json")] Span, NodeID),
+    Scalar(String),
     /// A string literal, e.g., `"foobar"`.
-    String(String, #[serde(with = "leo_span::span_json")] Span, NodeID),
+    String(String),
+}
+
+impl fmt::Display for LiteralVariant {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match &self {
+            Self::Address(address) => write!(f, "{address}"),
+            Self::Boolean(boolean) => write!(f, "{boolean}"),
+            Self::Field(field) => write!(f, "{field}field"),
+            Self::Group(group) => write!(f, "{group}group"),
+            Self::Integer(type_, value) => write!(f, "{value}{type_}"),
+            Self::Scalar(scalar) => write!(f, "{scalar}scalar"),
+            Self::String(string) => write!(f, "\"{string}\""),
+        }
+    }
 }
 
 impl fmt::Display for Literal {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match &self {
-            Self::Address(address, _, _) => write!(f, "{address}"),
-            Self::Boolean(boolean, _, _) => write!(f, "{boolean}"),
-            Self::Field(field, _, _) => write!(f, "{field}field"),
-            Self::Group(group, _, _) => write!(f, "{group}group"),
-            Self::Integer(type_, value, _, _) => write!(f, "{value}{type_}"),
-            Self::Scalar(scalar, _, _) => write!(f, "{scalar}scalar"),
-            Self::String(string, _, _) => write!(f, "\"{string}\""),
-        }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.variant.fmt(f)
     }
 }
 
-impl Node for Literal {
-    fn span(&self) -> Span {
-        match &self {
-            Self::Address(_, span, _)
-            | Self::Boolean(_, span, _)
-            | Self::Field(_, span, _)
-            | Self::Group(_, span, _)
-            | Self::Integer(_, _, span, _)
-            | Self::Scalar(_, span, _)
-            | Self::String(_, span, _) => *span,
-        }
-    }
-
-    fn set_span(&mut self, new_span: Span) {
-        match self {
-            Self::Address(_, span, _)
-            | Self::Boolean(_, span, _)
-            | Self::Field(_, span, _)
-            | Self::Integer(_, _, span, _)
-            | Self::Group(_, span, _)
-            | Self::Scalar(_, span, _)
-            | Self::String(_, span, _) => *span = new_span,
-        }
-    }
-
-    fn id(&self) -> NodeID {
-        match &self {
-            Self::Address(_, _, id)
-            | Self::Boolean(_, _, id)
-            | Self::Field(_, _, id)
-            | Self::Group(_, _, id)
-            | Self::Integer(_, _, _, id)
-            | Self::Scalar(_, _, id)
-            | Self::String(_, _, id) => *id,
-        }
-    }
-
-    fn set_id(&mut self, id: NodeID) {
-        match self {
-            Self::Address(_, _, old_id)
-            | Self::Boolean(_, _, old_id)
-            | Self::Field(_, _, old_id)
-            | Self::Group(_, _, old_id)
-            | Self::Integer(_, _, _, old_id)
-            | Self::Scalar(_, _, old_id)
-            | Self::String(_, _, old_id) => *old_id = id,
-        }
-    }
-}
+crate::simple_node_impl!(Literal);
 
 struct DisplayDecimal<'a>(&'a Literal);
 
 impl Literal {
+    pub fn field(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Field(s), span, id }
+    }
+
+    pub fn group(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Group(s), span, id }
+    }
+
+    pub fn address(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Address(s), span, id }
+    }
+
+    pub fn scalar(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Scalar(s), span, id }
+    }
+
+    pub fn boolean(s: bool, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Boolean(s), span, id }
+    }
+
+    pub fn integer(integer_type: IntegerType, s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Integer(integer_type, s), span, id }
+    }
+
     /// For displaying a literal as decimal, regardless of the radix in which it was parsed.
     ///
     /// In particular this is useful for outputting .aleo files.
@@ -131,12 +119,12 @@ impl fmt::Display for DisplayDecimal<'_> {
             format!("{neg}{rest}{suffix}")
         }
 
-        match &self.0 {
-            Literal::Address(address, _, _) => write!(f, "{address}"),
-            Literal::Boolean(boolean, _, _) => write!(f, "{boolean}"),
-            Literal::Field(field, _, _) => write!(f, "{}", prepare_snarkvm_string(field, "field")),
-            Literal::Group(group, _, _) => write!(f, "{}", prepare_snarkvm_string(group, "group")),
-            Literal::Integer(type_, value, _, _) => {
+        match &self.0.variant {
+            LiteralVariant::Address(address) => write!(f, "{address}"),
+            LiteralVariant::Boolean(boolean) => write!(f, "{boolean}"),
+            LiteralVariant::Field(field) => write!(f, "{}", prepare_snarkvm_string(field, "field")),
+            LiteralVariant::Group(group) => write!(f, "{}", prepare_snarkvm_string(group, "group")),
+            LiteralVariant::Integer(type_, value) => {
                 let string = value.replace('_', "");
                 if value.starts_with('-') {
                     let v = i128::from_str_by_radix(&string).expect("Failed to parse integer?");
@@ -146,9 +134,15 @@ impl fmt::Display for DisplayDecimal<'_> {
                     write!(f, "{v}{type_}")
                 }
             }
-            Literal::Scalar(scalar, _, _) => write!(f, "{}", prepare_snarkvm_string(scalar, "scalar")),
-            Literal::String(string, _, _) => write!(f, "\"{string}\""),
+            LiteralVariant::Scalar(scalar) => write!(f, "{}", prepare_snarkvm_string(scalar, "scalar")),
+            LiteralVariant::String(string) => write!(f, "\"{string}\""),
         }
+    }
+}
+
+impl From<Literal> for Expression {
+    fn from(value: Literal) -> Self {
+        Expression::Literal(value)
     }
 }
 

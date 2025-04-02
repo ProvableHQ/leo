@@ -346,71 +346,64 @@ Error [EPAR0370016]: Could not lex the following content: `~`.
 
 
 
-Error [EPAR0370009]: unexpected string: expected 'expression', found 'console'
-    --> test_60:1:1
-     |
-   1 | console
-     | ^^^^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'
-    --> test_61:1:1
+    --> test_60:1:1
      |
    1 | constant
      | ^^^^^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'else'
-    --> test_62:1:1
+    --> test_61:1:1
      |
    1 | else
      | ^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'for'
-    --> test_63:1:1
+    --> test_62:1:1
      |
    1 | for
      | ^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'function'
-    --> test_64:1:1
+    --> test_63:1:1
      |
    1 | function
      | ^^^^^^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
-    --> test_65:1:1
+    --> test_64:1:1
      |
    1 | if
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'in'
-    --> test_66:1:1
+    --> test_65:1:1
      |
    1 | in
      | ^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'let'
-    --> test_67:1:1
+    --> test_66:1:1
      |
    1 | let
      | ^^^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found '&'
-    --> test_68:1:1
+    --> test_67:1:1
      |
    1 | &
      | ^
 
 
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'return'
-    --> test_69:1:1
+    --> test_68:1:1
      |
    1 | return
      | ^^^^^^

@@ -31,4 +31,10 @@ impl fmt::Display for UnitExpression {
     }
 }
 
+impl From<UnitExpression> for Expression {
+    fn from(value: UnitExpression) -> Self {
+        Expression::Unit(value)
+    }
+}
+
 crate::simple_node_impl!(UnitExpression);

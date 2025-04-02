@@ -31,4 +31,10 @@ impl fmt::Display for ErrExpression {
     }
 }
 
+impl From<ErrExpression> for Expression {
+    fn from(value: ErrExpression) -> Self {
+        Expression::Err(value)
+    }
+}
+
 crate::simple_node_impl!(ErrExpression);

@@ -42,4 +42,10 @@ impl fmt::Display for AssociatedFunctionExpression {
     }
 }
 
+impl From<AssociatedFunctionExpression> for Expression {
+    fn from(value: AssociatedFunctionExpression) -> Self {
+        Expression::AssociatedFunction(value)
+    }
+}
+
 crate::simple_node_impl!(AssociatedFunctionExpression);

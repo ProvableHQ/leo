@@ -24,7 +24,7 @@ use itertools::Itertools as _;
 pub struct CallExpression {
     /// An expression evaluating to a callable function,
     /// either a member of a structure or a free function.
-    pub function: Box<Expression>, // todo: make this identifier?
+    pub function: Expression, // todo: make this identifier?
     /// Expressions for the arguments passed to the functions parameters.
     pub arguments: Vec<Expression>,
     /// The name of the parent program call, e.g.`bar` in `bar.aleo`.
@@ -38,6 +38,12 @@ pub struct CallExpression {
 impl fmt::Display for CallExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}({})", self.function, self.arguments.iter().format(", "))
+    }
+}
+
+impl From<CallExpression> for Expression {
+    fn from(value: CallExpression) -> Self {
+        Expression::Call(Box::new(value))
     }
 }
 

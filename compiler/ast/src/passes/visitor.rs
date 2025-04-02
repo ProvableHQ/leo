@@ -49,14 +49,10 @@ pub trait ExpressionVisitor {
 
     fn visit_expression(&mut self, input: &Expression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
-            Expression::Access(access) => self.visit_access(access, additional),
             Expression::Array(array) => self.visit_array(array, additional),
-            Expression::AssociatedConstant(associated_constant) => {
-                self.visit_associated_constant(associated_constant, additional)
-            }
-            Expression::AssociatedFunction(associated_function) => {
-                self.visit_associated_function(associated_function, additional)
-            }
+            Expression::ArrayAccess(access) => self.visit_array_access(access, additional),
+            Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, additional),
+            Expression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
@@ -65,27 +61,28 @@ pub trait ExpressionVisitor {
             Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::Locator(locator) => self.visit_locator(locator, additional),
+            Expression::MemberAccess(access) => self.visit_member_access(access, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
+            Expression::TupleAccess(access) => self.visit_tuple_access(access, additional),
             Expression::Unary(unary) => self.visit_unary(unary, additional),
             Expression::Unit(unit) => self.visit_unit(unit, additional),
         }
     }
 
-    fn visit_access(&mut self, input: &AccessExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        match input {
-            AccessExpression::Array(array) => {
-                self.visit_expression(&array.array, additional);
-                self.visit_expression(&array.index, additional);
-            }
-            AccessExpression::Member(member) => {
-                self.visit_expression(&member.inner, additional);
-            }
-            AccessExpression::Tuple(tuple) => {
-                self.visit_expression(&tuple.tuple, additional);
-            }
-        }
+    fn visit_array_access(&mut self, input: &ArrayAccess, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.array, additional);
+        self.visit_expression(&input.index, additional);
+        Default::default()
+    }
 
+    fn visit_member_access(&mut self, input: &MemberAccess, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.inner, additional);
+        Default::default()
+    }
+
+    fn visit_tuple_access(&mut self, input: &TupleAccess, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.tuple, additional);
         Default::default()
     }
 
@@ -190,7 +187,6 @@ pub trait StatementVisitor: ExpressionVisitor {
             Statement::Assign(stmt) => self.visit_assign(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
-            Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Const(stmt) => self.visit_const(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
@@ -223,22 +219,6 @@ pub trait StatementVisitor: ExpressionVisitor {
         if let Some(stmt) = input.otherwise.as_ref() {
             self.visit_statement(stmt);
         }
-    }
-
-    fn visit_console(&mut self, input: &ConsoleStatement) {
-        match &input.function {
-            ConsoleFunction::Assert(expr) => {
-                self.visit_expression(expr, &Default::default());
-            }
-            ConsoleFunction::AssertEq(left, right) => {
-                self.visit_expression(left, &Default::default());
-                self.visit_expression(right, &Default::default());
-            }
-            ConsoleFunction::AssertNeq(left, right) => {
-                self.visit_expression(left, &Default::default());
-                self.visit_expression(right, &Default::default());
-            }
-        };
     }
 
     fn visit_const(&mut self, input: &ConstDeclaration) {

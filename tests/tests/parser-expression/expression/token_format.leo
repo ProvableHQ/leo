@@ -119,8 +119,6 @@ char ~
 
 input ~
 
-console
-
 constant
 
 else

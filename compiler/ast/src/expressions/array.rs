@@ -35,4 +35,10 @@ impl fmt::Display for ArrayExpression {
     }
 }
 
+impl From<ArrayExpression> for Expression {
+    fn from(value: ArrayExpression) -> Self {
+        Expression::Array(value)
+    }
+}
+
 crate::simple_node_impl!(ArrayExpression);

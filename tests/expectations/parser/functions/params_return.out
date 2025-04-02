@@ -100,17 +100,17 @@
                   "Return": {
                     "expression": {
                       "Literal": {
-                        "Integer": [
-                          "U8",
-                          "0",
-                          {
-                            "span": {
-                              "lo": 76,
-                              "hi": 79
-                            }
-                          },
-                          8
-                        ]
+                        "span": {
+                          "lo": 76,
+                          "hi": 79
+                        },
+                        "id": 8,
+                        "variant": {
+                          "Integer": [
+                            "U8",
+                            "0"
+                          ]
+                        }
                       }
                     },
                     "span": {

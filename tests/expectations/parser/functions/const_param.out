@@ -100,17 +100,17 @@
                   "Return": {
                     "expression": {
                       "Literal": {
-                        "Integer": [
-                          "U8",
-                          "0",
-                          {
-                            "span": {
-                              "lo": 84,
-                              "hi": 87
-                            }
-                          },
-                          8
-                        ]
+                        "span": {
+                          "lo": 84,
+                          "hi": 87
+                        },
+                        "id": 8,
+                        "variant": {
+                          "Integer": [
+                            "U8",
+                            "0"
+                          ]
+                        }
                       }
                     },
                     "span": {
@@ -209,17 +209,17 @@
                   "Return": {
                     "expression": {
                       "Literal": {
-                        "Integer": [
-                          "U8",
-                          "0",
-                          {
-                            "span": {
-                              "lo": 159,
-                              "hi": 162
-                            }
-                          },
-                          18
-                        ]
+                        "span": {
+                          "lo": 159,
+                          "hi": 162
+                        },
+                        "id": 18,
+                        "variant": {
+                          "Integer": [
+                            "U8",
+                            "0"
+                          ]
+                        }
                       }
                     },
                     "span": {

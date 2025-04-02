@@ -1,16 +1,17 @@
 DCE_ENABLED:
-Error [EPAR0370032]: `console` statements are not yet supported.
-    --> compiler-test:4:9
+Error [EAST0372006]: function `main` shadowed by
+    --> compiler-test:7:5
      |
-   4 |         console.log("{}", 1u8);
-     |         ^^^^^^^
-     |
-     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.
+   7 |     function main(y: bool) -> bool {
+   8 |         return y;
+   9 |     }
+     |     ^
+
 DCE_DISABLED:
-Error [EPAR0370032]: `console` statements are not yet supported.
-    --> compiler-test:4:9
+Error [EAST0372006]: function `main` shadowed by
+    --> compiler-test:7:5
      |
-   4 |         console.log("{}", 1u8);
-     |         ^^^^^^^
-     |
-     = Consider using `assert`, `assert_eq`, or `assert_neq` instead.
+   7 |     function main(y: bool) -> bool {
+   8 |         return y;
+   9 |     }
+     |     ^

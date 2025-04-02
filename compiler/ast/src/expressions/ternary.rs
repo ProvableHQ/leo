@@ -20,11 +20,11 @@ use super::*;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TernaryExpression {
     /// The condition determining which branch to pick.
-    pub condition: Box<Expression>,
+    pub condition: Expression,
     /// The branch the expression evaluates to if `condition` evaluates to true.
-    pub if_true: Box<Expression>,
+    pub if_true: Expression,
     /// The branch the expression evaluates to if `condition` evaluates to false.
-    pub if_false: Box<Expression>,
+    pub if_false: Expression,
     /// The span from `condition` to `if_false`.
     pub span: Span,
     /// The ID of the node.
@@ -48,6 +48,12 @@ impl fmt::Display for TernaryExpression {
         }
 
         Ok(())
+    }
+}
+
+impl From<TernaryExpression> for Expression {
+    fn from(value: TernaryExpression) -> Self {
+        Expression::Ternary(Box::new(value))
     }
 }
 

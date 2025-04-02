@@ -17,7 +17,7 @@
 use crate::{Assigner, CallGraph, StructGraph, SymbolTable, TypeTable};
 
 use leo_ast::{Ast, NodeBuilder};
-use leo_errors::{Result, emitter::Handler};
+use leo_errors::{Handler, Result};
 
 /// Contains data share by many compiler passes.
 #[derive(Default)]

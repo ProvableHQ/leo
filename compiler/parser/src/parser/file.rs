@@ -288,7 +288,7 @@ impl<N: Network> ParserContext<'_, N> {
     }
 
     /// Returns an [`Input`] AST node if the next tokens represent a function input.
-    fn parse_input(&mut self) -> Result<functions::Input> {
+    fn parse_input(&mut self) -> Result<Input> {
         let mode = self.parse_mode()?;
         let name = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
@@ -296,7 +296,7 @@ impl<N: Network> ParserContext<'_, N> {
         let (type_, type_span) = self.parse_type()?;
         let span = name.span() + type_span;
 
-        Ok(functions::Input { identifier: name, mode, type_, span, id: self.node_builder.next_id() })
+        Ok(Input { identifier: name, mode, type_, span, id: self.node_builder.next_id() })
     }
 
     /// Returns an [`Output`] AST node if the next tokens represent a function output.

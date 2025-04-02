@@ -14,7 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{CoreFunction, Expression, ExpressionReconstructor, Node, StructExpression, TernaryExpression, Type};
+use leo_ast::{
+    ArrayAccess,
+    BinaryExpression,
+    CastExpression,
+    CoreFunction,
+    Expression,
+    ExpressionReconstructor,
+    MemberAccess,
+    Node,
+    StructExpression,
+    TernaryExpression,
+    TupleAccess,
+    Type,
+    UnaryExpression,
+};
 use leo_errors::StaticAnalyzerError;
 use leo_interpreter::{StructContents, Value};
 use leo_span::sym;
@@ -29,25 +43,23 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         let old_id = input.id();
         let (new_expr, opt_value) = match input {
-            Expression::Access(access) => self.reconstruct_access(access),
             Expression::Array(array) => self.reconstruct_array(array),
-            Expression::AssociatedConstant(associated_constant) => {
-                self.reconstruct_associated_constant(associated_constant)
-            }
-            Expression::AssociatedFunction(associated_function) => {
-                self.reconstruct_associated_function(associated_function)
-            }
-            Expression::Binary(binary) => self.reconstruct_binary(binary),
-            Expression::Call(call) => self.reconstruct_call(call),
-            Expression::Cast(cast) => self.reconstruct_cast(cast),
+            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
+            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
+            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
+            Expression::Binary(binary) => self.reconstruct_binary(*binary),
+            Expression::Call(call) => self.reconstruct_call(*call),
+            Expression::Cast(cast) => self.reconstruct_cast(*cast),
             Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
             Expression::Err(err) => self.reconstruct_err(err),
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Locator(locator) => self.reconstruct_locator(locator),
-            Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
+            Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
+            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
-            Expression::Unary(unary) => self.reconstruct_unary(unary),
+            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
+            Expression::Unary(unary) => self.reconstruct_unary(*unary),
             Expression::Unit(unit) => self.reconstruct_unit(unit),
         };
 
@@ -77,45 +89,40 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
                 name: input.name.name,
                 contents: input.members.iter().map(|mem| mem.identifier.name).zip(values).collect(),
             });
-            (Expression::Struct(input), Some(value))
+            (input.into(), Some(value))
         } else {
-            (Expression::Struct(input), None)
+            (input.into(), None)
         }
     }
 
-    fn reconstruct_ternary(&mut self, mut input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (cond, cond_value) = self.reconstruct_expression(*input.condition);
+    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
+        let (cond, cond_value) = self.reconstruct_expression(input.condition);
 
         match cond_value {
-            Some(Value::Bool(true)) => self.reconstruct_expression(*input.if_true),
-            Some(Value::Bool(false)) => self.reconstruct_expression(*input.if_false),
-            _ => {
-                *input.condition = cond;
-                *input.if_true = self.reconstruct_expression(*input.if_true).0;
-                *input.if_false = self.reconstruct_expression(*input.if_false).0;
-                (Expression::Ternary(input), None)
-            }
+            Some(Value::Bool(true)) => self.reconstruct_expression(input.if_true),
+            Some(Value::Bool(false)) => self.reconstruct_expression(input.if_false),
+            _ => (
+                TernaryExpression {
+                    condition: cond,
+                    if_true: self.reconstruct_expression(input.if_true).0,
+                    if_false: self.reconstruct_expression(input.if_false).0,
+                    ..input
+                }
+                .into(),
+                None,
+            ),
         }
     }
 
-    fn reconstruct_access(&mut self, input: leo_ast::AccessExpression) -> (Expression, Self::AdditionalOutput) {
-        match input {
-            leo_ast::AccessExpression::Array(array) => self.reconstruct_array_access(array),
-            leo_ast::AccessExpression::Member(member) => self.reconstruct_member_access(member),
-            leo_ast::AccessExpression::Tuple(tuple) => self.reconstruct_tuple_access(tuple),
-        }
-    }
-
-    fn reconstruct_array_access(&mut self, mut input: leo_ast::ArrayAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
-        let (array_expr, value_opt) = self.reconstruct_expression(*input.array);
-        *input.array = array_expr;
-        let (index_expr, opt_value) = self.reconstruct_expression(*input.index);
-        *input.index = index_expr;
+        let array_id = input.array.id();
+        let (array, value_opt) = self.reconstruct_expression(input.array);
+        let (index, opt_value) = self.reconstruct_expression(input.index);
         if let Some(value) = opt_value {
             // We can perform compile time bounds checking.
 
-            let ty = self.state.type_table.get(&input.array.id());
+            let ty = self.state.type_table.get(&array_id);
             let Some(Type::Array(array_ty)) = ty else {
                 panic!("Type checking guaranteed that this is an array.");
             };
@@ -164,9 +171,9 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
                 );
             }
         } else {
-            self.array_index_not_evaluated = Some(input.index.span());
+            self.array_index_not_evaluated = Some(index.span());
         }
-        (Expression::Access(leo_ast::AccessExpression::Array(input)), None)
+        (ArrayAccess { array, index, ..input }.into(), None)
     }
 
     fn reconstruct_associated_constant(
@@ -213,15 +220,13 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             }
         }
 
-        (Expression::AssociatedFunction(input), Default::default())
+        (input.into(), Default::default())
     }
 
-    fn reconstruct_member_access(&mut self, mut input: leo_ast::MemberAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
-        let (expr, value_opt) = self.reconstruct_expression(*input.inner);
-        *input.inner = expr;
+        let (inner, value_opt) = self.reconstruct_expression(input.inner);
         let member_name = input.name.name;
-        let expr_result = Expression::Access(leo_ast::AccessExpression::Member(input));
         if let Some(Value::Struct(contents)) = value_opt {
             let value_result =
                 contents.contents.get(&member_name).expect("Type checking guarantees the member exists.");
@@ -231,14 +236,13 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
                 Some(value_result.clone()),
             )
         } else {
-            (expr_result, None)
+            (MemberAccess { inner, ..input }.into(), None)
         }
     }
 
-    fn reconstruct_tuple_access(&mut self, mut input: leo_ast::TupleAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
-        let (expr, value_opt) = self.reconstruct_expression(*input.tuple);
-        *input.tuple = expr;
+        let (tuple, value_opt) = self.reconstruct_expression(input.tuple);
         if let Some(Value::Tuple(tuple)) = value_opt {
             let value_result = tuple.get(input.index.value()).expect("Type checking checked bounds.");
             (
@@ -246,7 +250,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
                 Some(value_result.clone()),
             )
         } else {
-            (Expression::Access(leo_ast::AccessExpression::Tuple(input)), None)
+            (TupleAccess { tuple, ..input }.into(), None)
         }
     }
 
@@ -260,17 +264,17 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             *element = new_element;
         });
         if values.len() == input.elements.len() {
-            (Expression::Array(input), Some(Value::Array(values)))
+            (input.into(), Some(Value::Array(values)))
         } else {
-            (Expression::Array(input), None)
+            (input.into(), None)
         }
     }
 
-    fn reconstruct_binary(&mut self, mut input: leo_ast::BinaryExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_binary(&mut self, input: leo_ast::BinaryExpression) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
 
-        let (lhs_expr, lhs_opt_value) = self.reconstruct_expression(*input.left);
-        let (rhs_expr, rhs_opt_value) = self.reconstruct_expression(*input.right);
+        let (left, lhs_opt_value) = self.reconstruct_expression(input.left);
+        let (right, rhs_opt_value) = self.reconstruct_expression(input.right);
 
         if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
@@ -284,23 +288,20 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             }
         }
 
-        *input.left = lhs_expr;
-        *input.right = rhs_expr;
-
-        (Expression::Binary(input), None)
+        (BinaryExpression { left, right, ..input }.into(), None)
     }
 
     fn reconstruct_call(&mut self, mut input: leo_ast::CallExpression) -> (Expression, Self::AdditionalOutput) {
         input.arguments.iter_mut().for_each(|arg| {
             *arg = self.reconstruct_expression(std::mem::take(arg)).0;
         });
-        (Expression::Call(input), Default::default())
+        (input.into(), Default::default())
     }
 
-    fn reconstruct_cast(&mut self, mut input: leo_ast::CastExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_cast(&mut self, input: leo_ast::CastExpression) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
 
-        let (expr, opt_value) = self.reconstruct_expression(*input.expression);
+        let (expr, opt_value) = self.reconstruct_expression(input.expression);
 
         if let Some(value) = opt_value {
             if let Some(cast_value) = value.cast(&input.type_) {
@@ -310,8 +311,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
                 self.emit_err(StaticAnalyzerError::compile_time_cast(value, &input.type_, span));
             }
         }
-        *input.expression = expr;
-        (Expression::Cast(input), None)
+        (CastExpression { expression: expr, ..input }.into(), None)
     }
 
     fn reconstruct_err(&mut self, _input: leo_ast::ErrExpression) -> (Expression, Self::AdditionalOutput) {
@@ -327,16 +327,16 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             }
         }
 
-        (Expression::Identifier(input), None)
+        (input.into(), None)
     }
 
     fn reconstruct_literal(&mut self, input: leo_ast::Literal) -> (Expression, Self::AdditionalOutput) {
         let value = leo_interpreter::literal_to_value(&input).expect("Should work");
-        (Expression::Literal(input), Some(value))
+        (input.into(), Some(value))
     }
 
     fn reconstruct_locator(&mut self, input: leo_ast::LocatorExpression) -> (Expression, Self::AdditionalOutput) {
-        (Expression::Locator(input), Default::default())
+        (input.into(), Default::default())
     }
 
     fn reconstruct_tuple(&mut self, mut input: leo_ast::TupleExpression) -> (Expression, Self::AdditionalOutput) {
@@ -351,11 +351,11 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
 
         let opt_value = if values.len() == input.elements.len() { Some(Value::Tuple(values)) } else { None };
 
-        (Expression::Tuple(input), opt_value)
+        (input.into(), opt_value)
     }
 
-    fn reconstruct_unary(&mut self, mut input: leo_ast::UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (expr, opt_value) = self.reconstruct_expression(*input.receiver);
+    fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
+        let (receiver, opt_value) = self.reconstruct_expression(input.receiver);
         let span = input.span;
 
         if let Some(value) = opt_value {
@@ -368,11 +368,10 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
                 Err(err) => self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span)),
             }
         }
-        *input.receiver = expr;
-        (Expression::Unary(input), None)
+        (UnaryExpression { receiver, ..input }.into(), None)
     }
 
     fn reconstruct_unit(&mut self, input: leo_ast::UnitExpression) -> (Expression, Self::AdditionalOutput) {
-        (Expression::Unit(input), None)
+        (input.into(), None)
     }
 }

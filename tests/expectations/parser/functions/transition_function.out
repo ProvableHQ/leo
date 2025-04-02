@@ -100,17 +100,17 @@
                   "Return": {
                     "expression": {
                       "Literal": {
-                        "Integer": [
-                          "U32",
-                          "0",
-                          {
-                            "span": {
-                              "lo": 80,
-                              "hi": 84
-                            }
-                          },
-                          8
-                        ]
+                        "span": {
+                          "lo": 80,
+                          "hi": 84
+                        },
+                        "id": 8,
+                        "variant": {
+                          "Integer": [
+                            "U32",
+                            "0"
+                          ]
+                        }
                       }
                     },
                     "span": {

@@ -29,8 +29,6 @@ let x = a ! b;
 
 let x = a .. b;
 
-let x = a console b;
-
 let x = a const b;
 
 let x = a let b;

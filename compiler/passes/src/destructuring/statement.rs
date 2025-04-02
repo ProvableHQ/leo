@@ -17,11 +17,9 @@
 use super::DestructuringVisitor;
 
 use leo_ast::{
-    AccessExpression,
     AssignStatement,
     Block,
     ConditionalStatement,
-    ConsoleStatement,
     DefinitionPlace,
     DefinitionStatement,
     Expression,
@@ -63,12 +61,13 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
 
                     // Again, make an assignment for each identifier.
                     for (identifier, rhs_identifier) in identifiers.iter().zip_eq(rhs_identifiers) {
-                        let stmt = Statement::Assign(Box::new(AssignStatement {
-                            place: Expression::Identifier(*identifier),
-                            value: Expression::Identifier(*rhs_identifier),
+                        let stmt = AssignStatement {
+                            place: (*identifier).into(),
+                            value: (*rhs_identifier).into(),
                             id: self.state.node_builder.next_id(),
                             span: Default::default(),
-                        }));
+                        }
+                        .into();
 
                         statements.push(stmt);
                     }
@@ -76,14 +75,14 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
                     (Statement::dummy(), statements)
                 } else {
                     assign.value = value;
-                    (Statement::Assign(Box::new(assign)), statements)
+                    (assign.into(), statements)
                 }
             }
 
-            Expression::Access(AccessExpression::Tuple(access)) => {
+            Expression::TupleAccess(access) => {
                 // We're assigning to a tuple member. Again, Aleo VM doesn't know about tuples,
                 // so we'll need to handle this.
-                let Expression::Identifier(identifier) = &*access.tuple else {
+                let Expression::Identifier(identifier) = &access.tuple else {
                     panic!("SSA should have ensured this is an identifier.");
                 };
 
@@ -93,19 +92,20 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
                 let identifier = tuple_ids[access.index.value()];
 
                 // So just assign to the variable.
-                let assign = Statement::Assign(Box::new(AssignStatement {
+                let assign = AssignStatement {
                     place: Expression::Identifier(identifier),
                     value,
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
-                }));
+                }
+                .into();
 
                 (assign, statements)
             }
 
             _ => {
                 assign.value = value;
-                (Statement::Assign(Box::new(assign)), statements)
+                (assign.into(), statements)
             }
         }
     }
@@ -120,7 +120,7 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
             statements.push(reconstructed_statement);
         }
 
-        (Block { span: block.span, statements, id: self.state.node_builder.next_id() }, Default::default())
+        (Block { statements, ..block }, Default::default())
     }
 
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
@@ -132,11 +132,7 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
             statements.extend(statements3);
             Box::new(expr)
         });
-        (Statement::Conditional(ConditionalStatement { condition, then, otherwise, ..input }), statements)
-    }
-
-    fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        panic!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
+        (ConditionalStatement { condition, then, otherwise, ..input }.into(), statements)
     }
 
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
@@ -164,13 +160,14 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
 
                 for (identifier, rhs_identifier, ty) in izip!(&identifiers, rhs_identifiers, tuple_type.elements()) {
                     // Make a definition for each.
-                    let stmt = Statement::Definition(DefinitionStatement {
+                    let stmt = DefinitionStatement {
                         place: Single(*identifier),
                         type_: ty.clone(),
                         value: Expression::Identifier(*rhs_identifier),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
-                    });
+                    }
+                    .into();
                     statements.push(stmt);
 
                     // Put each into the type table.
@@ -187,13 +184,14 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
 
                 for (identifier, expr, ty) in izip!(&identifiers, tuple.elements, tuple_type.elements()) {
                     // Make a definition for each.
-                    let stmt = Statement::Definition(DefinitionStatement {
+                    let stmt = DefinitionStatement {
                         place: Single(*identifier),
                         type_: ty.clone(),
                         value: expr,
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
-                    });
+                    }
+                    .into();
                     statements.push(stmt);
 
                     // Put each into the type table.
@@ -227,13 +225,14 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
             (Multiple(identifiers), Expression::Tuple(tuple), Type::Tuple(..)) => {
                 // Just make a definition for each tuple element.
                 for (identifier, expr) in identifiers.into_iter().zip_eq(tuple.elements) {
-                    let stmt = Statement::Definition(DefinitionStatement {
+                    let stmt = DefinitionStatement {
                         place: Single(identifier),
                         type_: Type::Err,
                         value: expr,
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
-                    });
+                    }
+                    .into();
                     statements.push(stmt);
                 }
 
@@ -244,13 +243,14 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
                 // Again, make a definition for each tuple element.
                 let rhs_identifiers = self.tuples.get(&rhs.name).expect("We should have encountered this tuple by now");
                 for (identifier, rhs_identifier) in identifiers.into_iter().zip_eq(rhs_identifiers.iter()) {
-                    let stmt = Statement::Definition(DefinitionStatement {
+                    let stmt = DefinitionStatement {
                         place: Single(identifier),
                         type_: Type::Err,
                         value: Expression::Identifier(*rhs_identifier),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
-                    });
+                    }
+                    .into();
                     statements.push(stmt);
                 }
 
@@ -259,27 +259,24 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
             }
             (m @ Multiple(..), value @ Expression::Call(..), Type::Tuple(..)) => {
                 // Just reconstruct the statement.
-                let stmt = Statement::Definition(DefinitionStatement {
-                    place: m,
-                    type_: Type::Err,
-                    value,
-                    span: definition.span,
-                    id: definition.id,
-                });
+                let stmt =
+                    DefinitionStatement { place: m, type_: Type::Err, value, span: definition.span, id: definition.id }
+                        .into();
                 (stmt, statements)
             }
             (_, _, Type::Tuple(..)) => {
                 panic!("Expressions of tuple type can only be tuple literals, identifiers, or calls.");
             }
-            (Single(identifier), rhs, _) => {
+            (s @ Single(..), rhs, _) => {
                 // This isn't a tuple. Just build the definition again.
-                let stmt = Statement::Definition(DefinitionStatement {
-                    place: Single(identifier),
+                let stmt = DefinitionStatement {
+                    place: s,
                     type_: Type::Err,
                     value: rhs,
                     span: Default::default(),
                     id: definition.id,
-                });
+                }
+                .into();
                 (stmt, statements)
             }
             (Multiple(_), _, _) => panic!("A definition with multiple identifiers must have tuple type"),
@@ -290,9 +287,8 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
         panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
-    fn reconstruct_return(&mut self, mut input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
+    fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
         let (expression, statements) = self.reconstruct_expression_tuple(input.expression);
-        input.expression = expression;
-        (Statement::Return(input), statements)
+        (ReturnStatement { expression, ..input }.into(), statements)
     }
 }

@@ -14,26 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod array;
+mod array;
 pub use array::*;
 
-pub mod core_constant;
+mod core_constant;
 pub use core_constant::*;
 
-pub mod future;
+mod future;
 pub use future::*;
 
-pub mod integer_type;
+mod integer_type;
 pub use integer_type::*;
 
-pub mod mapping;
+mod mapping;
 pub use mapping::*;
 
-pub mod struct_type;
+mod struct_type;
 pub use struct_type::*;
 
-pub mod tuple;
+mod tuple;
 pub use tuple::*;
 
-pub mod type_;
+mod type_;
 pub use type_::*;

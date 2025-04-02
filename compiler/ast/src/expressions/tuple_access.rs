@@ -14,29 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node, NodeID};
+use crate::{Expression, Node, NodeID, NonNegativeNumber};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A struct member access expression `inner.name` to some structure with *named members*.
+/// A tuple access expression, e.g., `tuple.index`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct MemberAccess {
-    /// The inner struct that is being accessed.
-    pub inner: Box<Expression>,
-    /// The name of the struct member to access.
-    pub name: Identifier,
-    /// The span covering all of `inner.name`.
+pub struct TupleAccess {
+    /// An expression evaluating to some tuple type, e.g., `(5, 2)`.
+    pub tuple: Expression,
+    /// The index to access in the tuple expression. E.g., `0` for `(5, 2)` would yield `5`.
+    pub index: NonNegativeNumber,
+    /// The span for the entire expression `tuple.index`.
     pub span: Span,
     /// The ID of the node.
     pub id: NodeID,
 }
 
-impl fmt::Display for MemberAccess {
+impl fmt::Display for TupleAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.inner, self.name)
+        write!(f, "{}.{}", self.tuple, self.index)
     }
 }
 
-crate::simple_node_impl!(MemberAccess);
+impl From<TupleAccess> for Expression {
+    fn from(value: TupleAccess) -> Self {
+        Expression::TupleAccess(Box::new(value))
+    }
+}
+
+crate::simple_node_impl!(TupleAccess);

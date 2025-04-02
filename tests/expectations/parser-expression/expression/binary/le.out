@@ -2,32 +2,32 @@
   "Binary": {
     "left": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "1",
-          {
-            "span": {
-              "lo": 0,
-              "hi": 3
-            }
-          },
-          0
-        ]
+        "span": {
+          "lo": 0,
+          "hi": 3
+        },
+        "id": 0,
+        "variant": {
+          "Integer": [
+            "U8",
+            "1"
+          ]
+        }
       }
     },
     "right": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "1",
-          {
-            "span": {
-              "lo": 7,
-              "hi": 10
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 7,
+          "hi": 10
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "U8",
+            "1"
+          ]
+        }
       }
     },
     "op": "Lte",
@@ -43,32 +43,32 @@
   "Binary": {
     "left": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "2",
-          {
-            "span": {
-              "lo": 11,
-              "hi": 14
-            }
-          },
-          0
-        ]
+        "span": {
+          "lo": 11,
+          "hi": 14
+        },
+        "id": 0,
+        "variant": {
+          "Integer": [
+            "U8",
+            "2"
+          ]
+        }
       }
     },
     "right": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "3",
-          {
-            "span": {
-              "lo": 18,
-              "hi": 21
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 18,
+          "hi": 21
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "U8",
+            "3"
+          ]
+        }
       }
     },
     "op": "Lte",
@@ -86,32 +86,32 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "1",
-              {
-                "span": {
-                  "lo": 22,
-                  "hi": 25
-                }
-              },
-              0
-            ]
+            "span": {
+              "lo": 22,
+              "hi": 25
+            },
+            "id": 0,
+            "variant": {
+              "Integer": [
+                "U8",
+                "1"
+              ]
+            }
           }
         },
         "right": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "2",
-              {
-                "span": {
-                  "lo": 28,
-                  "hi": 31
-                }
-              },
-              1
-            ]
+            "span": {
+              "lo": 28,
+              "hi": 31
+            },
+            "id": 1,
+            "variant": {
+              "Integer": [
+                "U8",
+                "2"
+              ]
+            }
           }
         },
         "op": "Add",
@@ -126,32 +126,32 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "3",
-              {
-                "span": {
-                  "lo": 35,
-                  "hi": 38
-                }
-              },
-              3
-            ]
+            "span": {
+              "lo": 35,
+              "hi": 38
+            },
+            "id": 3,
+            "variant": {
+              "Integer": [
+                "U8",
+                "3"
+              ]
+            }
           }
         },
         "right": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "4",
-              {
-                "span": {
-                  "lo": 41,
-                  "hi": 44
-                }
-              },
-              4
-            ]
+            "span": {
+              "lo": 41,
+              "hi": 44
+            },
+            "id": 4,
+            "variant": {
+              "Integer": [
+                "U8",
+                "4"
+              ]
+            }
           }
         },
         "op": "Add",

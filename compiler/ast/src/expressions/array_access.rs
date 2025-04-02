@@ -24,9 +24,9 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ArrayAccess {
     /// An expression evaluating to some array type, e.g., `[false, true]`.
-    pub array: Box<Expression>,
+    pub array: Expression,
     /// The index to access in the array expression. E.g., `0` for `[false, true]` would yield `false`.
-    pub index: Box<Expression>,
+    pub index: Expression,
     /// The span for the entire expression `foo[index]`.
     pub span: Span,
     /// The ID of the node.
@@ -36,6 +36,12 @@ pub struct ArrayAccess {
 impl fmt::Display for ArrayAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}[{}]", self.array, self.index)
+    }
+}
+
+impl From<ArrayAccess> for Expression {
+    fn from(value: ArrayAccess) -> Self {
+        Expression::ArrayAccess(Box::new(value))
     }
 }
 

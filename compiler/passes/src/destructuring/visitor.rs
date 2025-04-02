@@ -59,11 +59,9 @@ impl DestructuringVisitor<'_> {
                 let elements: Vec<Expression> =
                     identifiers.iter().map(|identifier| Expression::Identifier(*identifier)).collect();
 
-                let tuple = Expression::Tuple(TupleExpression {
-                    elements,
-                    span: Default::default(),
-                    id: self.state.node_builder.next_id(),
-                });
+                let tuple: Expression =
+                    TupleExpression { elements, span: Default::default(), id: self.state.node_builder.next_id() }
+                        .into();
 
                 self.state.type_table.insert(tuple.id(), Type::Tuple(tuple_type.clone()));
 

@@ -17,7 +17,6 @@
 use super::SsaFormingVisitor;
 
 use leo_ast::{
-    AccessExpression,
     ArrayAccess,
     ArrayExpression,
     AssociatedFunctionExpression,
@@ -48,59 +47,36 @@ use indexmap::IndexMap;
 impl ExpressionConsumer for SsaFormingVisitor<'_> {
     type Output = (Expression, Vec<Statement>);
 
-    /// Consumes an access expression, accumulating any statements that are generated.
-    fn consume_access(&mut self, input: AccessExpression) -> Self::Output {
-        let (expr, mut statements) = match input {
-            AccessExpression::Member(member) => {
-                // TODO: Create AST node for native access expressions?
-                // If the access expression is of the form `self.<name>`, then don't rename it.
-                if let Expression::Identifier(Identifier { name, .. }) = *member.inner {
-                    if name == sym::SelfLower {
-                        return (Expression::Access(AccessExpression::Member(member)), Vec::new());
-                    }
-                }
+    fn consume_array_access(&mut self, input: ArrayAccess) -> Self::Output {
+        let (array, mut statements) = self.consume_expression(input.array);
+        let access = ArrayAccess { array, ..input }.into();
+        let (place, statement) = self.unique_simple_definition(access);
+        statements.push(statement);
+        (place.into(), statements)
+    }
 
-                let (expr, statements) = self.consume_expression(*member.inner);
-                (
-                    AccessExpression::Member(MemberAccess {
-                        inner: Box::new(expr),
-                        name: member.name,
-                        span: member.span,
-                        id: member.id,
-                    }),
-                    statements,
-                )
+    fn consume_member_access(&mut self, input: MemberAccess) -> Self::Output {
+        // If the access expression is of the form `self.<name>`, then don't rename it.
+        if let Expression::Identifier(Identifier { name, .. }) = input.inner {
+            if name == sym::SelfLower {
+                return (input.into(), Vec::new());
             }
-            AccessExpression::Tuple(tuple) => {
-                let (expr, statements) = self.consume_expression(*tuple.tuple);
-                (
-                    AccessExpression::Tuple(TupleAccess {
-                        tuple: Box::new(expr),
-                        index: tuple.index,
-                        span: tuple.span,
-                        id: tuple.id,
-                    }),
-                    statements,
-                )
-            }
-            AccessExpression::Array(input) => {
-                let (array, statements) = self.consume_expression(*input.array);
+        }
 
-                (
-                    AccessExpression::Array(ArrayAccess {
-                        array: Box::new(array),
-                        index: input.index,
-                        span: input.span,
-                        id: input.id,
-                    }),
-                    statements,
-                )
-            }
-        };
-        let (place, statement) = self.unique_simple_definition(Expression::Access(expr));
+        let (inner, mut statements) = self.consume_expression(input.inner);
+        let access = MemberAccess { inner, ..input }.into();
+        let (place, statement) = self.unique_simple_definition(access);
         statements.push(statement);
 
-        (Expression::Identifier(place), statements)
+        (place.into(), statements)
+    }
+
+    fn consume_tuple_access(&mut self, input: TupleAccess) -> Self::Output {
+        let (tuple, mut statements) = self.consume_expression(input.tuple);
+        let access = TupleAccess { tuple, ..input }.into();
+        let (place, statement) = self.unique_simple_definition(access);
+        statements.push(statement);
+        (place.into(), statements)
     }
 
     /// Consumes an array expression, accumulating any statements that are generated.
@@ -119,36 +95,26 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             .collect();
 
         // Construct and accumulate a new assignment statement for the array expression.
-        let (place, statement) = self.unique_simple_definition(Expression::Array(ArrayExpression {
-            elements,
-            span: input.span,
-            id: input.id,
-        }));
+        let (place, statement) = self.unique_simple_definition(ArrayExpression { elements, ..input }.into());
         statements.push(statement);
 
-        (Expression::Identifier(place), statements)
+        (place.into(), statements)
     }
 
     /// Consumes a binary expression, accumulating any statements that are generated.
     fn consume_binary(&mut self, input: BinaryExpression) -> Self::Output {
         // Reconstruct the lhs of the binary expression.
-        let (left_expression, mut statements) = self.consume_expression(*input.left);
+        let (left, mut statements) = self.consume_expression(input.left);
         // Reconstruct the rhs of the binary expression.
-        let (right_expression, mut right_statements) = self.consume_expression(*input.right);
+        let (right, mut right_statements) = self.consume_expression(input.right);
         // Accumulate any statements produced.
         statements.append(&mut right_statements);
 
         // Construct and accumulate a unique definition statement storing the result of the binary expression.
-        let (place, statement) = self.unique_simple_definition(Expression::Binary(BinaryExpression {
-            left: Box::new(left_expression),
-            right: Box::new(right_expression),
-            op: input.op,
-            span: input.span,
-            id: input.id,
-        }));
+        let (place, statement) = self.unique_simple_definition(BinaryExpression { left, right, ..input }.into());
         statements.push(statement);
 
-        (Expression::Identifier(place), statements)
+        (place.into(), statements)
     }
 
     /// Consumes a call expression without visiting the function name, accumulating any statements that are generated.
@@ -167,35 +133,29 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             .collect();
 
         // Construct and accumulate a new definition statement for the call expression.
-        let (place, statement) = self.unique_simple_definition(Expression::Call(CallExpression {
-            // Note that we do not rename the function name.
-            function: input.function,
-            // Consume the arguments.
-            arguments,
-            program: input.program,
-            span: input.span,
-            id: input.id,
-        }));
+        let (place, statement) = self.unique_simple_definition(
+            CallExpression {
+                // Note that we do not rename the function name.
+                arguments,
+                ..input
+            }
+            .into(),
+        );
         statements.push(statement);
 
-        (Expression::Identifier(place), statements)
+        (place.into(), statements)
     }
 
     /// Consumes a cast expression, accumulating any statements that are generated.
     fn consume_cast(&mut self, input: CastExpression) -> Self::Output {
         // Reconstruct the expression being casted.
-        let (expression, mut statements) = self.consume_expression(*input.expression);
+        let (expression, mut statements) = self.consume_expression(input.expression);
 
         // Construct and accumulate a unique definition statement storing the result of the cast expression.
-        let (place, statement) = self.unique_simple_definition(Expression::Cast(CastExpression {
-            expression: Box::new(expression),
-            type_: input.type_,
-            span: input.span,
-            id: input.id,
-        }));
+        let (place, statement) = self.unique_simple_definition(CastExpression { expression, ..input }.into());
         statements.push(statement);
 
-        (Expression::Identifier(place), statements)
+        (place.into(), statements)
     }
 
     /// Consumes a struct initialization expression with renamed variables, accumulating any statements that are generated.
@@ -264,15 +224,11 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         }
 
         // Construct and accumulate a new definition statement for the struct expression.
-        let (place, statement) = self.unique_simple_definition(Expression::Struct(StructExpression {
-            name: input.name,
-            span: input.span,
-            members: reordered_members,
-            id: input.id,
-        }));
+        let (place, statement) =
+            self.unique_simple_definition(StructExpression { members: reordered_members, ..input }.into());
         statements.push(statement);
 
-        (Expression::Identifier(place), statements)
+        (place.into(), statements)
     }
 
     /// Retrieve the new name for this `Identifier`.
@@ -282,45 +238,41 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
     fn consume_identifier(&mut self, identifier: Identifier) -> Self::Output {
         // If lookup fails, either it's the name of a mapping or we didn't rename it.
         let name = *self.rename_table.lookup(identifier.name).unwrap_or(&identifier.name);
-        (Expression::Identifier(Identifier { name, span: identifier.span, id: identifier.id }), Default::default())
+        (Identifier { name, span: identifier.span, id: identifier.id }.into(), Default::default())
     }
 
     /// Consumes and returns the literal without making any modifications.
     fn consume_literal(&mut self, input: Literal) -> Self::Output {
         // Construct and accumulate a new assignment statement for the literal.
         let (place, statement) = self.unique_simple_definition(Expression::Literal(input));
-        (Expression::Identifier(place), vec![statement])
+        (place.into(), vec![statement])
     }
 
     /// Consumes and returns the locator expression without making any modifications
     fn consume_locator(&mut self, input: LocatorExpression) -> Self::Output {
-        (Expression::Locator(input), Vec::new())
+        (input.into(), Vec::new())
     }
 
     /// Consumes a ternary expression, accumulating any statements that are generated.
     fn consume_ternary(&mut self, input: TernaryExpression) -> Self::Output {
         // Reconstruct the condition of the ternary expression.
-        let (cond_expr, mut statements) = self.consume_expression(*input.condition);
+        let (cond_expr, mut statements) = self.consume_expression(input.condition);
         // Reconstruct the if-true case of the ternary expression.
-        let (if_true_expr, mut if_true_statements) = self.consume_expression(*input.if_true);
+        let (if_true_expr, if_true_statements) = self.consume_expression(input.if_true);
         // Reconstruct the if-false case of the ternary expression.
-        let (if_false_expr, mut if_false_statements) = self.consume_expression(*input.if_false);
+        let (if_false_expr, if_false_statements) = self.consume_expression(input.if_false);
 
         // Accumulate any statements produced.
-        statements.append(&mut if_true_statements);
-        statements.append(&mut if_false_statements);
+        statements.extend(if_true_statements);
+        statements.extend(if_false_statements);
 
         // Construct and accumulate a unique assignment statement storing the result of the ternary expression.
-        let (place, statement) = self.unique_simple_definition(Expression::Ternary(TernaryExpression {
-            condition: Box::new(cond_expr),
-            if_true: Box::new(if_true_expr),
-            if_false: Box::new(if_false_expr),
-            span: input.span,
-            id: input.id,
-        }));
+        let (place, statement) = self.unique_simple_definition(
+            TernaryExpression { condition: cond_expr, if_true: if_true_expr, if_false: if_false_expr, ..input }.into(),
+        );
         statements.push(statement);
 
-        (Expression::Identifier(place), statements)
+        (place.into(), statements)
     }
 
     /// Consumes a tuple expression, accumulating any statements that are generated
@@ -339,46 +291,34 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             .collect();
 
         // Construct and accumulate a new assignment statement for the tuple expression.
-        let (place, statement) = self.unique_simple_definition(Expression::Tuple(TupleExpression {
-            elements,
-            span: input.span,
-            id: input.id,
-        }));
+        let (place, statement) =
+            self.unique_simple_definition(TupleExpression { elements, span: input.span, id: input.id }.into());
         statements.push(statement);
 
-        (Expression::Identifier(place), statements)
+        (place.into(), statements)
     }
 
     /// Consumes a unary expression, accumulating any statements that are generated.
     fn consume_unary(&mut self, input: UnaryExpression) -> Self::Output {
         // Reconstruct the operand of the unary expression.
-        let (receiver, mut statements) = self.consume_expression(*input.receiver);
-
+        let (receiver, mut statements) = self.consume_expression(input.receiver);
         // Construct and accumulate a new assignment statement for the unary expression.
-        let (place, statement) = self.unique_simple_definition(Expression::Unary(UnaryExpression {
-            op: input.op,
-            receiver: Box::new(receiver),
-            span: input.span,
-            id: input.id,
-        }));
+        let (place, statement) = self.unique_simple_definition(UnaryExpression { receiver, ..input }.into());
         statements.push(statement);
-
-        (Expression::Identifier(place), statements)
+        (place.into(), statements)
     }
 
     fn consume_unit(&mut self, input: UnitExpression) -> Self::Output {
-        (Expression::Unit(input), Default::default())
+        (input.into(), Default::default())
     }
 
     fn consume_associated_constant(&mut self, input: leo_ast::AssociatedConstantExpression) -> Self::Output {
-        (Expression::AssociatedConstant(input), Default::default())
+        (input.into(), Default::default())
     }
 
     fn consume_associated_function(&mut self, input: leo_ast::AssociatedFunctionExpression) -> Self::Output {
         let mut statements = Vec::new();
-        let expr = Expression::AssociatedFunction(AssociatedFunctionExpression {
-            variant: input.variant,
-            name: input.name,
+        let expr = AssociatedFunctionExpression {
             arguments: input
                 .arguments
                 .into_iter()
@@ -388,14 +328,14 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
                     arg
                 })
                 .collect(),
-            span: input.span,
-            id: input.id,
-        });
+            ..input
+        }
+        .into();
 
         let (place, statement) = self.unique_simple_definition(expr);
 
         statements.push(statement);
 
-        (Expression::Identifier(place), statements)
+        (place.into(), statements)
     }
 }

@@ -47,8 +47,6 @@ _ x = 10u8;
 
 as x = 10u8;
 
-console x = 10u8;
-
 for x = 10u8;
 
 if x = 10u8;

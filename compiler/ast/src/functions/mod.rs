@@ -14,22 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod annotation;
+mod annotation;
 pub use annotation::*;
 
-pub mod core_function;
+mod core_function;
 pub use core_function::*;
 
-pub mod variant;
+mod variant;
 pub use variant::*;
 
-pub mod input;
+mod input;
 pub use input::*;
 
-pub mod output;
+mod output;
 pub use output::*;
 
-pub mod mode;
+mod mode;
 pub use mode::*;
 
 use crate::{Block, FunctionStub, Identifier, Indent, Node, NodeID, TupleType, Type};

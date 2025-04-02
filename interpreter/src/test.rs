@@ -16,7 +16,7 @@
 
 use crate::{Interpreter, InterpreterAction};
 
-use leo_span::symbol::create_session_if_not_set_then;
+use leo_span::create_session_if_not_set_then;
 
 use snarkvm::prelude::{Address, PrivateKey, TestnetV0};
 

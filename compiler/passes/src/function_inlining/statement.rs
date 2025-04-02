@@ -20,7 +20,6 @@ use leo_ast::{
     AssignStatement,
     Block,
     ConditionalStatement,
-    ConsoleStatement,
     DefinitionPlace,
     DefinitionStatement,
     Expression,
@@ -56,21 +55,17 @@ impl StatementReconstructor for FunctionInliningVisitor<'_> {
             panic!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
         } else {
             (
-                Statement::Conditional(ConditionalStatement {
+                ConditionalStatement {
                     condition: self.reconstruct_expression(input.condition).0,
                     then: self.reconstruct_block(input.then).0,
                     otherwise: input.otherwise.map(|n| Box::new(self.reconstruct_statement(*n).0)),
                     span: input.span,
                     id: input.id,
-                }),
+                }
+                .into(),
                 Default::default(),
             )
         }
-    }
-
-    /// Parsing guarantees that console statements are not present in the program.
-    fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        panic!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
     /// Reconstruct a definition statement by inlining any function calls.
@@ -82,13 +77,14 @@ impl StatementReconstructor for FunctionInliningVisitor<'_> {
             (DefinitionPlace::Multiple(left), Expression::Tuple(right)) => {
                 assert_eq!(left.len(), right.elements.len());
                 for (identifier, rhs_value) in left.into_iter().zip(right.elements) {
-                    let stmt = Statement::Definition(DefinitionStatement {
+                    let stmt = DefinitionStatement {
                         place: DefinitionPlace::Single(identifier),
                         type_: Type::Err,
                         value: rhs_value,
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
-                    });
+                    }
+                    .into();
 
                     statements.push(stmt);
                 }
@@ -98,7 +94,7 @@ impl StatementReconstructor for FunctionInliningVisitor<'_> {
             (place, value) => {
                 input.value = value;
                 input.place = place;
-                (Statement::Definition(input), statements)
+                (input.into(), statements)
             }
         }
     }
@@ -112,7 +108,7 @@ impl StatementReconstructor for FunctionInliningVisitor<'_> {
         // If the resulting expression is a unit expression, return a dummy statement.
         let statement = match expression {
             Expression::Unit(_) => Statement::dummy(),
-            _ => Statement::Expression(ExpressionStatement { expression, span: input.span, id: input.id }),
+            _ => ExpressionStatement { expression, ..input }.into(),
         };
 
         (statement, additional_statements)

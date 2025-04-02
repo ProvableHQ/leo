@@ -2,32 +2,32 @@
   "Binary": {
     "left": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "1",
-          {
-            "span": {
-              "lo": 0,
-              "hi": 3
-            }
-          },
-          0
-        ]
+        "span": {
+          "lo": 0,
+          "hi": 3
+        },
+        "id": 0,
+        "variant": {
+          "Integer": [
+            "U8",
+            "1"
+          ]
+        }
       }
     },
     "right": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "1",
-          {
-            "span": {
-              "lo": 7,
-              "hi": 10
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 7,
+          "hi": 10
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "U8",
+            "1"
+          ]
+        }
       }
     },
     "op": "Neq",
@@ -43,32 +43,32 @@
   "Binary": {
     "left": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "2",
-          {
-            "span": {
-              "lo": 11,
-              "hi": 14
-            }
-          },
-          0
-        ]
+        "span": {
+          "lo": 11,
+          "hi": 14
+        },
+        "id": 0,
+        "variant": {
+          "Integer": [
+            "U8",
+            "2"
+          ]
+        }
       }
     },
     "right": {
       "Literal": {
-        "Integer": [
-          "U8",
-          "3",
-          {
-            "span": {
-              "lo": 16,
-              "hi": 19
-            }
-          },
-          1
-        ]
+        "span": {
+          "lo": 16,
+          "hi": 19
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "U8",
+            "3"
+          ]
+        }
       }
     },
     "op": "Neq",
@@ -86,32 +86,32 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "1",
-              {
-                "span": {
-                  "lo": 20,
-                  "hi": 23
-                }
-              },
-              0
-            ]
+            "span": {
+              "lo": 20,
+              "hi": 23
+            },
+            "id": 0,
+            "variant": {
+              "Integer": [
+                "U8",
+                "1"
+              ]
+            }
           }
         },
         "right": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "2",
-              {
-                "span": {
-                  "lo": 26,
-                  "hi": 29
-                }
-              },
-              1
-            ]
+            "span": {
+              "lo": 26,
+              "hi": 29
+            },
+            "id": 1,
+            "variant": {
+              "Integer": [
+                "U8",
+                "2"
+              ]
+            }
           }
         },
         "op": "Lt",
@@ -126,32 +126,32 @@
       "Binary": {
         "left": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "3",
-              {
-                "span": {
-                  "lo": 33,
-                  "hi": 36
-                }
-              },
-              3
-            ]
+            "span": {
+              "lo": 33,
+              "hi": 36
+            },
+            "id": 3,
+            "variant": {
+              "Integer": [
+                "U8",
+                "3"
+              ]
+            }
           }
         },
         "right": {
           "Literal": {
-            "Integer": [
-              "U8",
-              "4",
-              {
-                "span": {
-                  "lo": 39,
-                  "hi": 42
-                }
-              },
-              4
-            ]
+            "span": {
+              "lo": 39,
+              "hi": 42
+            },
+            "id": 4,
+            "variant": {
+              "Integer": [
+                "U8",
+                "4"
+              ]
+            }
           }
         },
         "op": "Lt",
@@ -179,32 +179,32 @@
           "Binary": {
             "left": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "1",
-                  {
-                    "span": {
-                      "lo": 43,
-                      "hi": 46
-                    }
-                  },
-                  0
-                ]
+                "span": {
+                  "lo": 43,
+                  "hi": 46
+                },
+                "id": 0,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "1"
+                  ]
+                }
               }
             },
             "right": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "2",
-                  {
-                    "span": {
-                      "lo": 49,
-                      "hi": 52
-                    }
-                  },
-                  1
-                ]
+                "span": {
+                  "lo": 49,
+                  "hi": 52
+                },
+                "id": 1,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "2"
+                  ]
+                }
               }
             },
             "op": "Lt",
@@ -219,32 +219,32 @@
           "Binary": {
             "left": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "3",
-                  {
-                    "span": {
-                      "lo": 56,
-                      "hi": 59
-                    }
-                  },
-                  3
-                ]
+                "span": {
+                  "lo": 56,
+                  "hi": 59
+                },
+                "id": 3,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "3"
+                  ]
+                }
               }
             },
             "right": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "4",
-                  {
-                    "span": {
-                      "lo": 62,
-                      "hi": 65
-                    }
-                  },
-                  4
-                ]
+                "span": {
+                  "lo": 62,
+                  "hi": 65
+                },
+                "id": 4,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "4"
+                  ]
+                }
               }
             },
             "op": "Lt",
@@ -269,32 +269,32 @@
           "Binary": {
             "left": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "3",
-                  {
-                    "span": {
-                      "lo": 69,
-                      "hi": 72
-                    }
-                  },
-                  7
-                ]
+                "span": {
+                  "lo": 69,
+                  "hi": 72
+                },
+                "id": 7,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "3"
+                  ]
+                }
               }
             },
             "right": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "4",
-                  {
-                    "span": {
-                      "lo": 75,
-                      "hi": 78
-                    }
-                  },
-                  8
-                ]
+                "span": {
+                  "lo": 75,
+                  "hi": 78
+                },
+                "id": 8,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "4"
+                  ]
+                }
               }
             },
             "op": "Lt",
@@ -309,32 +309,32 @@
           "Binary": {
             "left": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "5",
-                  {
-                    "span": {
-                      "lo": 82,
-                      "hi": 85
-                    }
-                  },
-                  10
-                ]
+                "span": {
+                  "lo": 82,
+                  "hi": 85
+                },
+                "id": 10,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "5"
+                  ]
+                }
               }
             },
             "right": {
               "Literal": {
-                "Integer": [
-                  "U8",
-                  "6",
-                  {
-                    "span": {
-                      "lo": 88,
-                      "hi": 91
-                    }
-                  },
-                  11
-                ]
+                "span": {
+                  "lo": 88,
+                  "hi": 91
+                },
+                "id": 11,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "6"
+                  ]
+                }
               }
             },
             "op": "Lt",

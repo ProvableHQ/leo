@@ -28,7 +28,6 @@ if 10 <= {}
 if 10 > {}
 if 10 .. {}
 if 10 as {}
-if 10 console {}
 if 10 const {}
 if 10 let {}
 if 10 for {}

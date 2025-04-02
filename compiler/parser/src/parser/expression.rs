@@ -68,26 +68,21 @@ impl<N: Network> ParserContext<'_, N> {
             let if_true = self.parse_expression()?;
             self.expect(&Token::Colon)?;
             let if_false = self.parse_expression()?;
-            expr = Expression::Ternary(TernaryExpression {
+            expr = TernaryExpression {
                 span: expr.span() + if_false.span(),
-                condition: Box::new(expr),
-                if_true: Box::new(if_true),
-                if_false: Box::new(if_false),
+                condition: expr,
+                if_true,
+                if_false,
                 id: self.node_builder.next_id(),
-            });
+            }
+            .into();
         }
         Ok(expr)
     }
 
     /// Constructs a binary expression `left op right`.
     fn bin_expr(node_builder: &NodeBuilder, left: Expression, right: Expression, op: BinaryOperation) -> Expression {
-        Expression::Binary(BinaryExpression {
-            span: left.span() + right.span(),
-            op,
-            left: Box::new(left),
-            right: Box::new(right),
-            id: node_builder.next_id(),
-        })
+        BinaryExpression { span: left.span() + right.span(), op, left, right, id: node_builder.next_id() }.into()
     }
 
     /// Parses a left-associative binary expression `<left> token <right>` using `f` for left/right.
@@ -245,12 +240,7 @@ impl<N: Network> ParserContext<'_, N> {
         if self.eat(&Token::As) {
             let (type_, end_span) = self.parse_primitive_type()?;
             let span = expr.span() + end_span;
-            expr = Expression::Cast(CastExpression {
-                expression: Box::new(expr),
-                type_,
-                span,
-                id: self.node_builder.next_id(),
-            });
+            expr = CastExpression { expression: expr, type_, span, id: self.node_builder.next_id() }.into();
         }
 
         Ok(expr)
@@ -271,10 +261,12 @@ impl<N: Network> ParserContext<'_, N> {
 
         // Try to construct a negative literal.
         if let UnaryOperation::Negate = op {
-            use Literal::*;
-            if let Expression::Literal(
-                Integer(_, string, span, _) | Field(string, span, _) | Group(string, span, _) | Scalar(string, span, _),
-            ) = &mut inner
+            use LiteralVariant::*;
+            if let Expression::Literal(Literal {
+                variant: Integer(_, string) | Field(string) | Group(string) | Scalar(string),
+                span,
+                ..
+            }) = &mut inner
             {
                 if !string.starts_with('-') {
                     // The operation was a negation and the literal was not already negative, so fold it in.
@@ -285,12 +277,8 @@ impl<N: Network> ParserContext<'_, N> {
             }
         }
 
-        Ok(Expression::Unary(UnaryExpression {
-            span: token_span + inner.span(),
-            op,
-            receiver: Box::new(inner),
-            id: self.node_builder.next_id(),
-        }))
+        Ok(UnaryExpression { span: token_span + inner.span(), op, receiver: inner, id: self.node_builder.next_id() }
+            .into())
     }
 
     // TODO: Parse method call expressions directly and later put them into a canonical form.
@@ -303,45 +291,39 @@ impl<N: Network> ParserContext<'_, N> {
 
         if let (true, Some(op)) = (args.is_empty(), UnaryOperation::from_symbol(method.name)) {
             // Found an unary operator and the argument list is empty.
-            Ok(Expression::Unary(UnaryExpression {
-                span,
-                op,
-                receiver: Box::new(receiver),
-                id: self.node_builder.next_id(),
-            }))
+            Ok(UnaryExpression { span, op, receiver, id: self.node_builder.next_id() }.into())
         } else if let (1, Some(op)) = (args.len(), BinaryOperation::from_symbol(method.name)) {
             // Found a binary operator and the argument list contains a single argument.
-            Ok(Expression::Binary(BinaryExpression {
+            Ok(BinaryExpression {
                 span,
                 op,
-                left: Box::new(receiver),
-                right: Box::new(args.swap_remove(0)),
+                left: receiver,
+                right: args.swap_remove(0),
                 id: self.node_builder.next_id(),
-            }))
+            }
+            .into())
         } else if let (2, Some(CoreFunction::SignatureVerify)) =
             (args.len(), CoreFunction::from_symbols(sym::signature, method.name))
         {
-            Ok(Expression::AssociatedFunction(AssociatedFunctionExpression {
+            Ok(AssociatedFunctionExpression {
                 variant: Identifier::new(sym::signature, self.node_builder.next_id()),
                 name: method,
-                arguments: {
-                    let mut arguments = vec![receiver];
-                    arguments.extend(args);
-                    arguments
-                },
+                arguments: std::iter::once(receiver).chain(args).collect(),
                 span,
                 id: self.node_builder.next_id(),
-            }))
+            }
+            .into())
         } else if let (0, Some(CoreFunction::FutureAwait)) =
             (args.len(), CoreFunction::from_symbols(sym::Future, method.name))
         {
-            Ok(Expression::AssociatedFunction(AssociatedFunctionExpression {
+            Ok(AssociatedFunctionExpression {
                 variant: Identifier::new(sym::Future, self.node_builder.next_id()),
                 name: method,
                 arguments: vec![receiver],
                 span,
                 id: self.node_builder.next_id(),
-            }))
+            }
+            .into())
         } else {
             // Attempt to parse the method call as a mapping operation.
             match (args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {
@@ -351,22 +333,19 @@ impl<N: Network> ParserContext<'_, N> {
                 | (1, Some(CoreFunction::MappingRemove))
                 | (1, Some(CoreFunction::MappingContains)) => {
                     // Found an instance of `<mapping>.get`, `<mapping>.get_or_use`, `<mapping>.set`, `<mapping>.remove`, or `<mapping>.contains`.
-                    Ok(Expression::AssociatedFunction(AssociatedFunctionExpression {
+                    Ok(AssociatedFunctionExpression {
                         variant: Identifier::new(sym::Mapping, self.node_builder.next_id()),
                         name: method,
-                        arguments: {
-                            let mut arguments = vec![receiver];
-                            arguments.extend(args);
-                            arguments
-                        },
+                        arguments: std::iter::once(receiver).chain(args).collect(),
                         span,
                         id: self.node_builder.next_id(),
-                    }))
+                    }
+                    .into())
                 }
                 _ => {
                     // Either an invalid unary/binary operator, or more arguments given.
                     self.emit_err(ParserError::invalid_method_call(receiver, method, args.len(), span));
-                    Ok(Expression::Err(ErrExpression { span, id: self.node_builder.next_id() }))
+                    Ok(ErrExpression { span, id: self.node_builder.next_id() }.into())
                 }
             }
         }
@@ -391,21 +370,23 @@ impl<N: Network> ParserContext<'_, N> {
             let (args, _, end) = self.parse_expr_tuple()?;
 
             // Return the associated function.
-            Expression::AssociatedFunction(AssociatedFunctionExpression {
+            AssociatedFunctionExpression {
                 span: module_name.span() + end,
                 variant,
                 name: member_name,
                 arguments: args,
                 id: self.node_builder.next_id(),
-            })
+            }
+            .into()
         } else {
             // Return the associated constant.
-            Expression::AssociatedConstant(AssociatedConstantExpression {
+            AssociatedConstantExpression {
                 span: module_name.span() + member_name.span(),
                 ty: Type::Identifier(variant),
                 name: member_name,
                 id: self.node_builder.next_id(),
-            })
+            }
+            .into()
         };
 
         Ok(expression)
@@ -443,7 +424,7 @@ impl<N: Network> ParserContext<'_, N> {
         // If there is no parenthesis, then it is a locator.
         if self.token.token != Token::LeftParen {
             // Parse an external resource locator.
-            return Ok(Expression::Locator(LocatorExpression {
+            return Ok(LocatorExpression {
                 program: ProgramId {
                     name: program,
                     network: Identifier { name: sym::aleo, span: network_span, id: self.node_builder.next_id() },
@@ -451,19 +432,21 @@ impl<N: Network> ParserContext<'_, N> {
                 name: name.name,
                 span: expr.span() + name.span(),
                 id: self.node_builder.next_id(),
-            }));
+            }
+            .into());
         }
 
         // Parse the function call.
         let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
 
-        Ok(Expression::Call(CallExpression {
+        Ok(CallExpression {
             span: expr.span() + span,
-            function: Box::new(Expression::Identifier(name)),
+            function: name.into(),
             program: Some(program.name),
             arguments,
             id: self.node_builder.next_id(),
-        }))
+        }
+        .into())
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent an
@@ -484,12 +467,7 @@ impl<N: Network> ParserContext<'_, N> {
                 if self.check_int() {
                     // Eat a tuple member access.
                     let (index, span) = self.eat_whole_number()?;
-                    expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
-                        tuple: Box::new(expr),
-                        index,
-                        span,
-                        id: self.node_builder.next_id(),
-                    }))
+                    expr = TupleAccess { tuple: expr, index, span, id: self.node_builder.next_id() }.into();
                 } else if self.eat(&Token::Leo) {
                     return Err(ParserError::only_aleo_external_calls(expr.span()).into());
                 } else if self.eat(&Token::Aleo) {
@@ -501,11 +479,8 @@ impl<N: Network> ParserContext<'_, N> {
                             self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()))
                         }
 
-                        expr = Expression::Literal(Literal::Address(
-                            format!("{}.aleo", expr),
-                            expr.span(),
-                            self.node_builder.next_id(),
-                        ))
+                        expr =
+                            Literal::address(format!("{expr}.aleo"), expr.span(), self.node_builder.next_id()).into();
                     }
                 } else {
                     // Parse instances of `self.address`.
@@ -514,11 +489,12 @@ impl<N: Network> ParserContext<'_, N> {
                             let span = self.expect(&Token::Address)?;
                             // Convert `self.address` to the current program name. TODO: Move this conversion to canonicalization pass when the new pass is added.
                             // Note that the unwrap is safe as in order to get to this stage of parsing a program name must have already been parsed.
-                            return Ok(Expression::Literal(Literal::Address(
+                            return Ok(Literal::address(
                                 format!("{}.aleo", self.program_name.unwrap()),
                                 expr.span() + span,
                                 self.node_builder.next_id(),
-                            )));
+                            )
+                            .into());
                         }
                     }
 
@@ -530,12 +506,14 @@ impl<N: Network> ParserContext<'_, N> {
                         expr = self.parse_method_call_expression(expr, name)?
                     } else {
                         // Eat a struct member access.
-                        expr = Expression::Access(AccessExpression::Member(MemberAccess {
-                            span: expr.span() + name.span(),
-                            inner: Box::new(expr),
+                        let expr_span = expr.span();
+                        expr = MemberAccess {
+                            inner: expr,
                             name,
+                            span: expr_span + name.span(),
                             id: self.node_builder.next_id(),
-                        }))
+                        }
+                        .into();
                     }
                 }
             } else if self.eat(&Token::DoubleColon) {
@@ -546,12 +524,9 @@ impl<N: Network> ParserContext<'_, N> {
                 let index = self.parse_expression()?;
                 // Eat the closing bracket.
                 let span = self.expect(&Token::RightSquare)?;
-                expr = Expression::Access(AccessExpression::Array(ArrayAccess {
-                    span: expr.span() + span,
-                    array: Box::new(expr),
-                    index: Box::new(index),
-                    id: self.node_builder.next_id(),
-                }))
+                let expr_span = expr.span();
+                expr =
+                    ArrayAccess { array: expr, index, span: expr_span + span, id: self.node_builder.next_id() }.into();
             } else if self.check(&Token::LeftParen) {
                 // Check that the expression is an identifier.
                 if !matches!(expr, Expression::Identifier(_)) {
@@ -559,13 +534,14 @@ impl<N: Network> ParserContext<'_, N> {
                 }
                 // Parse a function call that's by itself.
                 let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
-                expr = Expression::Call(CallExpression {
+                expr = CallExpression {
                     span: expr.span() + span,
-                    function: Box::new(expr),
+                    function: expr,
                     program: self.program_name,
                     arguments,
                     id: self.node_builder.next_id(),
-                });
+                }
+                .into();
             }
             // Stop parsing the postfix expression unless a dot or square bracket follows.
             if !(self.check(&Token::Dot) || self.check(&Token::LeftSquare)) {
@@ -593,7 +569,7 @@ impl<N: Network> ParserContext<'_, N> {
             _ => {
                 // Otherwise, return a tuple expression.
                 // Note: This is the only place where `TupleExpression` is constructed in the parser.
-                Ok(Expression::Tuple(TupleExpression { elements, span, id: self.node_builder.next_id() }))
+                Ok(TupleExpression { elements, span, id: self.node_builder.next_id() }.into())
             }
         }
     }
@@ -607,7 +583,7 @@ impl<N: Network> ParserContext<'_, N> {
             true => Err(ParserError::array_must_have_at_least_one_element("expression", span).into()),
             // Otherwise, return an array expression.
             // Note: This is the only place where `ArrayExpression` is constructed in the parser.
-            false => Ok(Expression::Array(ArrayExpression { elements, span, id: self.node_builder.next_id() })),
+            false => Ok(ArrayExpression { elements, span, id: self.node_builder.next_id() }.into()),
         }
     }
 
@@ -633,12 +609,8 @@ impl<N: Network> ParserContext<'_, N> {
         let (members, _, end) =
             self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| p.parse_struct_member().map(Some))?;
 
-        Ok(Expression::Struct(StructExpression {
-            span: identifier.span + end,
-            name: identifier,
-            members,
-            id: self.node_builder.next_id(),
-        }))
+        Ok(StructExpression { span: identifier.span + end, name: identifier, members, id: self.node_builder.next_id() }
+            .into())
     }
 
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
@@ -672,6 +644,7 @@ impl<N: Network> ParserContext<'_, N> {
                 let suffix_span = self.token.span;
                 let full_span = span + suffix_span;
                 let assert_no_whitespace = |x| assert_no_whitespace(span, suffix_span, &value, x);
+
                 match self.eat_any(INT_TYPES).then_some(&self.prev_token.token) {
                     // Hex, octal, binary literal on a noninteger is an error.
                     Some(Token::Field) | Some(Token::Group) | Some(Token::Scalar)
@@ -687,37 +660,37 @@ impl<N: Network> ParserContext<'_, N> {
                     // Literal followed by `field`, e.g., `42field`.
                     Some(Token::Field) => {
                         assert_no_whitespace("field")?;
-                        Expression::Literal(Literal::Field(value, full_span, self.node_builder.next_id()))
+                        Literal::field(value, full_span, self.node_builder.next_id()).into()
                     }
                     // Literal followed by `group`, e.g., `42group`.
                     Some(Token::Group) => {
                         assert_no_whitespace("group")?;
-                        Expression::Literal(Literal::Group(value, full_span, self.node_builder.next_id()))
+                        Literal::group(value, full_span, self.node_builder.next_id()).into()
                     }
                     // Literal followed by `scalar` e.g., `42scalar`.
                     Some(Token::Scalar) => {
                         assert_no_whitespace("scalar")?;
-                        Expression::Literal(Literal::Scalar(value, full_span, self.node_builder.next_id()))
+                        Literal::scalar(value, full_span, self.node_builder.next_id()).into()
                     }
                     // Literal followed by other type suffix, e.g., `42u8`.
                     Some(suffix) => {
                         assert_no_whitespace(&suffix.to_string())?;
                         let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
-                        Expression::Literal(Literal::Integer(int_ty, value, full_span, self.node_builder.next_id()))
+                        Literal::integer(int_ty, value, full_span, self.node_builder.next_id()).into()
                     }
                     None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
                 }
             }
-            Token::True => Expression::Literal(Literal::Boolean(true, span, self.node_builder.next_id())),
-            Token::False => Expression::Literal(Literal::Boolean(false, span, self.node_builder.next_id())),
+            Token::True => Literal::boolean(true, span, self.node_builder.next_id()).into(),
+            Token::False => Literal::boolean(false, span, self.node_builder.next_id()).into(),
             Token::AddressLit(address_string) => {
                 if address_string.parse::<Address<N>>().is_err() {
                     self.emit_err(ParserError::invalid_address_lit(&address_string, span));
                 }
-                Expression::Literal(Literal::Address(address_string, span, self.node_builder.next_id()))
+                Literal::address(address_string, span, self.node_builder.next_id()).into()
             }
             Token::StaticString(value) => {
-                Expression::Literal(Literal::String(value, span, self.node_builder.next_id()))
+                Literal { span, id: self.node_builder.next_id(), variant: LiteralVariant::String(value) }.into()
             }
             Token::Identifier(name) => {
                 let ident = Identifier { name, span, id: self.node_builder.next_id() };
@@ -726,21 +699,13 @@ impl<N: Network> ParserContext<'_, N> {
                     // Enforce struct or record type later at type checking.
                     self.parse_struct_init_expression(ident)?
                 } else {
-                    Expression::Identifier(ident)
+                    ident.into()
                 }
             }
-            Token::SelfLower => {
-                Expression::Identifier(Identifier { name: sym::SelfLower, span, id: self.node_builder.next_id() })
-            }
-            Token::Block => {
-                Expression::Identifier(Identifier { name: sym::block, span, id: self.node_builder.next_id() })
-            }
-            Token::Future => {
-                Expression::Identifier(Identifier { name: sym::Future, span, id: self.node_builder.next_id() })
-            }
-            Token::Network => {
-                Expression::Identifier(Identifier { name: sym::network, span, id: self.node_builder.next_id() })
-            }
+            Token::SelfLower => Identifier { name: sym::SelfLower, span, id: self.node_builder.next_id() }.into(),
+            Token::Block => Identifier { name: sym::block, span, id: self.node_builder.next_id() }.into(),
+            Token::Future => Identifier { name: sym::Future, span, id: self.node_builder.next_id() }.into(),
+            Token::Network => Identifier { name: sym::network, span, id: self.node_builder.next_id() }.into(),
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),
                 span,

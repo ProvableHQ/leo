@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{Expression::Literal, Type::Integer, *};
-use leo_errors::loop_unroller::LoopUnrollerError;
+use leo_errors::LoopUnrollerError;
 
 use super::UnrollingVisitor;
 
@@ -29,11 +29,11 @@ impl StatementReconstructor for UnrollingVisitor<'_> {
     }
 
     fn reconstruct_const(&mut self, input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
-        (Statement::Const(input), Default::default())
+        (input.into(), Default::default())
     }
 
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        (Statement::Definition(input), Default::default())
+        (input.into(), Default::default())
     }
 
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
@@ -50,39 +50,41 @@ impl StatementReconstructor for UnrollingVisitor<'_> {
             return (Statement::Iteration(Box::new(input)), Default::default());
         };
 
-        input.start_value.replace(Some(Value::try_from(start_lit).unwrap()));
-        input.stop_value.replace(Some(Value::try_from(stop_lit).unwrap()));
+        // These unwraps work because these literals were either found during parsing and validated
+        // during type checking or else created during const folding.
+        let start_value = Value::try_from(start_lit).unwrap();
+        let stop_value = Value::try_from(stop_lit).unwrap();
 
         // Ensure loop bounds are increasing. This cannot be done in the type checker because constant propagation must happen first.
-        if match (input.type_.clone(), input.start_value.borrow().as_ref(), input.stop_value.borrow().as_ref()) {
-            (Integer(IntegerType::I8), Some(Value::I8(lower_bound, _)), Some(Value::I8(upper_bound, _))) => {
+        if match (input.type_.clone(), &start_value, &stop_value) {
+            (Integer(IntegerType::I8), Value::I8(lower_bound, _), Value::I8(upper_bound, _)) => {
                 lower_bound >= upper_bound
             }
-            (Integer(IntegerType::I16), Some(Value::I16(lower_bound, _)), Some(Value::I16(upper_bound, _))) => {
+            (Integer(IntegerType::I16), Value::I16(lower_bound, _), Value::I16(upper_bound, _)) => {
                 lower_bound >= upper_bound
             }
-            (Integer(IntegerType::I32), Some(Value::I32(lower_bound, _)), Some(Value::I32(upper_bound, _))) => {
+            (Integer(IntegerType::I32), Value::I32(lower_bound, _), Value::I32(upper_bound, _)) => {
                 lower_bound >= upper_bound
             }
-            (Integer(IntegerType::I64), Some(Value::I64(lower_bound, _)), Some(Value::I64(upper_bound, _))) => {
+            (Integer(IntegerType::I64), Value::I64(lower_bound, _), Value::I64(upper_bound, _)) => {
                 lower_bound >= upper_bound
             }
-            (Integer(IntegerType::I128), Some(Value::I128(lower_bound, _)), Some(Value::I128(upper_bound, _))) => {
+            (Integer(IntegerType::I128), Value::I128(lower_bound, _), Value::I128(upper_bound, _)) => {
                 lower_bound >= upper_bound
             }
-            (Integer(IntegerType::U8), Some(Value::U8(lower_bound, _)), Some(Value::U8(upper_bound, _))) => {
+            (Integer(IntegerType::U8), Value::U8(lower_bound, _), Value::U8(upper_bound, _)) => {
                 lower_bound >= upper_bound
             }
-            (Integer(IntegerType::U16), Some(Value::U16(lower_bound, _)), Some(Value::U16(upper_bound, _))) => {
+            (Integer(IntegerType::U16), Value::U16(lower_bound, _), Value::U16(upper_bound, _)) => {
                 lower_bound >= upper_bound
             }
-            (Integer(IntegerType::U32), Some(Value::U32(lower_bound, _)), Some(Value::U32(upper_bound, _))) => {
+            (Integer(IntegerType::U32), Value::U32(lower_bound, _), Value::U32(upper_bound, _)) => {
                 lower_bound >= upper_bound
             }
-            (Integer(IntegerType::U64), Some(Value::U64(lower_bound, _)), Some(Value::U64(upper_bound, _))) => {
+            (Integer(IntegerType::U64), Value::U64(lower_bound, _), Value::U64(upper_bound, _)) => {
                 lower_bound >= upper_bound
             }
-            (Integer(IntegerType::U128), Some(Value::U128(lower_bound, _)), Some(Value::U128(upper_bound, _))) => {
+            (Integer(IntegerType::U128), Value::U128(lower_bound, _), Value::U128(upper_bound, _)) => {
                 lower_bound >= upper_bound
             }
             _ => panic!("Type checking guarantees that the loop bounds have same type as loop variable."),
@@ -92,6 +94,6 @@ impl StatementReconstructor for UnrollingVisitor<'_> {
 
         self.loop_unrolled = true;
 
-        (self.unroll_iteration_statement::<i128>(input), Default::default())
+        (self.unroll_iteration_statement::<i128>(input, start_value, stop_value), Default::default())
     }
 }

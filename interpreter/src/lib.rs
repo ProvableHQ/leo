@@ -16,7 +16,7 @@
 
 use leo_ast::{Ast, Node as _, NodeBuilder};
 use leo_errors::{InterpreterHalt, LeoError, Result};
-use leo_span::{Span, source_map::FileName, symbol::with_session_globals};
+use leo_span::{Span, source_map::FileName, with_session_globals};
 
 use snarkvm::prelude::{Program, TestnetV0};
 
