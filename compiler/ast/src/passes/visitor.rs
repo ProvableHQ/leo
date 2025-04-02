@@ -143,7 +143,7 @@ pub trait ExpressionVisitor {
     }
 
     fn visit_err(&mut self, _input: &ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
+        panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
     fn visit_identifier(&mut self, _input: &Identifier, _additional: &Self::AdditionalInput) -> Self::Output {

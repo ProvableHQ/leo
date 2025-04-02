@@ -17,32 +17,48 @@
 mod future_checker;
 
 mod await_checker;
+use self::await_checker::AwaitChecker;
 
-pub mod analyze_expression;
+mod expression;
 
-pub mod analyze_program;
+mod statement;
 
-pub mod analyze_statement;
+mod program;
 
-pub mod analyzer;
-pub use analyzer::*;
+mod visitor;
+use visitor::*;
 
-use crate::{Pass, SymbolTable, TypeTable};
+use crate::Pass;
 
-use leo_ast::{Ast, ProgramVisitor};
-use leo_errors::{Result, emitter::Handler};
+use leo_ast::ProgramVisitor;
+use leo_errors::Result;
+use leo_span::Symbol;
 
-use snarkvm::prelude::Network;
+pub struct StaticAnalysisInput {
+    pub max_depth: usize,
+    pub conditional_branch_type_checking: bool,
+}
 
-impl<'a, N: Network> Pass for StaticAnalyzer<'a, N> {
-    type Input = (&'a Ast, &'a Handler, &'a SymbolTable, &'a TypeTable, usize, bool);
-    type Output = Result<()>;
+pub struct StaticAnalysis;
 
-    const NAME: &'static str = "StaticAnalyzer";
+impl Pass for StaticAnalysis {
+    type Input = StaticAnalysisInput;
+    type Output = ();
 
-    fn do_pass((ast, handler, symbol_table, tt, max_depth, await_checking): Self::Input) -> Self::Output {
-        let mut visitor = StaticAnalyzer::<N>::new(symbol_table, tt, handler, max_depth, await_checking);
+    const NAME: &str = "StaticAnalysis";
+
+    fn do_pass(input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+        let ast = std::mem::take(&mut state.ast);
+        let mut visitor = StaticAnalysisVisitor {
+            state,
+            await_checker: AwaitChecker::new(input.max_depth, input.conditional_branch_type_checking),
+            current_program: Symbol::intern(""),
+            variant: None,
+            non_async_external_call_seen: false,
+        };
         visitor.visit_program(ast.as_repr());
-        handler.last_err().map_err(|e| *e)
+        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.ast = ast;
+        Ok(())
     }
 }

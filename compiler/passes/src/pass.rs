@@ -14,7 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// A compiler pass consuming `Self::Input` and returning `Self::Output`.
+use crate::{Assigner, CallGraph, StructGraph, SymbolTable, TypeTable};
+
+use leo_ast::{Ast, NodeBuilder};
+use leo_errors::{Result, emitter::Handler};
+
+#[derive(Default)]
+pub struct CompilerState {
+    pub ast: Ast,
+    pub handler: Handler,
+    pub type_table: TypeTable,
+    pub node_builder: NodeBuilder,
+    pub assigner: Assigner,
+    pub symbol_table: SymbolTable,
+    pub struct_graph: StructGraph,
+    pub call_graph: CallGraph,
+}
+
+/// A compiler pass.
+///
+/// Every pass has access to `CompilerState`, and may also specify
+/// an `Input` and `Output`.
 pub trait Pass {
     type Input;
     type Output;
@@ -22,5 +42,5 @@ pub trait Pass {
     const NAME: &str;
 
     /// Runs the compiler pass.
-    fn do_pass(input: Self::Input) -> Self::Output;
+    fn do_pass(input: Self::Input, state: &mut CompilerState) -> Result<Self::Output>;
 }

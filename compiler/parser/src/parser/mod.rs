@@ -40,7 +40,7 @@ pub(super) mod type_;
 
 /// Creates a new program from a given file path and source code text.
 pub fn parse<N: Network>(
-    handler: &Handler,
+    handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
     start_pos: BytePos,
@@ -51,7 +51,7 @@ pub fn parse<N: Network>(
 }
 
 pub fn parse_expression<N: Network>(
-    handler: &Handler,
+    handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
     start_pos: BytePos,
@@ -67,7 +67,7 @@ pub fn parse_expression<N: Network>(
 }
 
 pub fn parse_statement<N: Network>(
-    handler: &Handler,
+    handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
     start_pos: BytePos,

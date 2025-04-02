@@ -17,30 +17,39 @@
 //! The destructuring pass traverses the AST and destructures tuples into individual variables.
 //! This pass assumes that tuples have a depth of 1, which is ensured by the type checking pass.
 
-mod destructure_expression;
+use crate::Pass;
 
-mod destructure_program;
+use leo_ast::ProgramReconstructor as _;
 
-mod destructure_statement;
-
-pub mod destructurer;
-pub use destructurer::*;
-
-use crate::{Assigner, Pass, TypeTable};
-
-use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
 use leo_errors::Result;
 
-impl<'a> Pass for Destructurer<'a> {
-    type Input = (Ast, &'a TypeTable, &'a NodeBuilder, &'a Assigner);
-    type Output = Result<Ast>;
+mod expression;
 
-    const NAME: &'static str = "Destructurer";
+mod program;
 
-    fn do_pass((ast, tt, node_builder, assigner): Self::Input) -> Self::Output {
-        let mut reconstructor = Destructurer::new(tt, node_builder, assigner);
-        let program = reconstructor.reconstruct_program(ast.into_repr());
+mod statement;
 
-        Ok(Ast::new(program))
+mod visitor;
+use visitor::*;
+
+/// A pass to rewrite tuple creation and accesses into other code.
+///
+/// This pass must be run after SSA, because it depends on identifiers being unique.
+/// It must be run before flattening, because flattening cannot handle assignment statements.
+pub struct Destructuring;
+
+impl Pass for Destructuring {
+    type Input = ();
+    type Output = ();
+
+    const NAME: &str = "Destructuring";
+
+    fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+        let mut ast = std::mem::take(&mut state.ast);
+        let mut visitor = DestructuringVisitor { state, tuples: Default::default(), is_async: false };
+        ast.ast = visitor.reconstruct_program(ast.ast);
+        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.ast = ast;
+        Ok(())
     }
 }

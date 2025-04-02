@@ -14,23 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod assigner;
+mod assigner;
 pub use assigner::*;
 
-pub mod tree_node;
+mod tree_node;
 pub use tree_node::ConditionalTreeNode;
 
-pub mod graph;
+mod graph;
 pub use graph::*;
 
-pub mod rename_table;
+mod rename_table;
 pub use rename_table::*;
 
-pub mod replacer;
+mod replacer;
 pub use replacer::*;
 
-pub mod symbol_table;
+mod symbol_table;
 pub use symbol_table::*;
 
-pub mod type_table;
+mod type_table;
 pub use type_table::*;

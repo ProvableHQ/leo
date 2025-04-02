@@ -55,7 +55,8 @@ pub fn whole_compile(
     handler: &Handler,
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<(String, String), LeoError> {
-    let mut compiler = Compiler::<TestnetV0>::new(handler, "/fakedirectory-wont-use".into(), None, import_stubs);
+    let mut compiler =
+        Compiler::<TestnetV0>::new(handler.clone(), "/fakedirectory-wont-use".into(), None, import_stubs);
 
     let filename = FileName::Custom("execution-test".into());
 
@@ -215,7 +216,7 @@ fn execution_run_test(test: &str, handler: &Handler, buf: &BufferEmitter, cases:
 
 fn execution_runner(source: &str) -> String {
     let buf = BufferEmitter::new();
-    let handler = Handler::new(Box::new(buf.clone()));
+    let handler = Handler::new(buf.clone());
 
     let mut cases = Vec::<Case>::new();
 

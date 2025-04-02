@@ -41,7 +41,7 @@ mod test;
 
 /// Creates a new AST from a given file path and source code text.
 pub fn parse_ast<N: Network>(
-    handler: &Handler,
+    handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
     start_pos: BytePos,

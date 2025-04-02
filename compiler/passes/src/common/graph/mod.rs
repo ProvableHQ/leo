@@ -41,7 +41,7 @@ pub enum DiGraphError<N: Node> {
 }
 
 /// A directed graph.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct DiGraph<N: Node> {
     /// The set of nodes in the graph.
     nodes: IndexSet<N>,

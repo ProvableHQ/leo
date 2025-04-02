@@ -195,7 +195,7 @@ pub trait ExpressionReconstructor {
     }
 
     fn reconstruct_err(&mut self, _input: ErrExpression) -> (Expression, Self::AdditionalOutput) {
-        unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
+        panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
@@ -457,7 +457,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .into_iter()
                 .map(|(i, c)| match self.reconstruct_const(c) {
                     (Statement::Const(declaration), _) => (i, declaration),
-                    _ => unreachable!("`reconstruct_const` can only return `Statement::Const`"),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
             span: input.span,
