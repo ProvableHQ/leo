@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_ast::Stub;
-use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
+use leo_compiler::{AstSnapshots, Compiler, CompilerOptions, OutputOptions};
 use leo_errors::{CliError, UtilError};
 use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
 use leo_retriever::{Manifest, NetworkName, Retriever};
@@ -38,7 +38,7 @@ use std::{
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
-        let mut out_options = Self {
+        Self {
             build: leo_compiler::BuildOptions {
                 dce_enabled: options.enable_dce,
                 conditional_block_max_depth: options.conditional_block_max_depth,
@@ -46,26 +46,14 @@ impl From<BuildOptions> for CompilerOptions {
             },
             output: OutputOptions {
                 ast_spans_enabled: options.enable_ast_spans,
-                initial_ast: options.enable_initial_ast_snapshot,
-                unrolled_ast: options.enable_unrolled_ast_snapshot,
-                ssa_ast: options.enable_ssa_ast_snapshot,
-                flattened_ast: options.enable_flattened_ast_snapshot,
-                destructured_ast: options.enable_destructured_ast_snapshot,
-                inlined_ast: options.enable_inlined_ast_snapshot,
-                dce_ast: options.enable_dce_ast_snapshot,
+                ast_snapshots: if options.enable_all_ast_snapshots {
+                    AstSnapshots::All
+                } else {
+                    AstSnapshots::Some(options.ast_snapshots.into_iter().collect())
+                },
+                initial_ast: options.enable_all_ast_snapshots | options.enable_initial_ast_snapshot,
             },
-        };
-        if options.enable_all_ast_snapshots {
-            out_options.output.initial_ast = true;
-            out_options.output.unrolled_ast = true;
-            out_options.output.ssa_ast = true;
-            out_options.output.flattened_ast = true;
-            out_options.output.destructured_ast = true;
-            out_options.output.inlined_ast = true;
-            out_options.output.dce_ast = true;
         }
-
-        out_options
     }
 }
 

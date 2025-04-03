@@ -18,7 +18,7 @@
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 
-use crate::CompilerOptions;
+use crate::{AstSnapshots, CompilerOptions};
 
 pub use leo_ast::Ast;
 use leo_ast::Stub;
@@ -74,7 +74,8 @@ impl<N: Network> Compiler<N> {
         self.program_name = program_scope.program_id.name.to_string();
 
         if self.compiler_options.output.initial_ast {
-            self.write_ast_to_json("initial_ast.json")?;
+            self.write_ast_to_json("initial.json")?;
+            self.write_ast("initial.ast")?;
         }
 
         Ok(())
@@ -106,41 +107,51 @@ impl<N: Network> Compiler<N> {
         }
     }
 
+    fn do_pass<P: Pass>(&mut self, input: P::Input) -> Result<P::Output> {
+        let output = P::do_pass(input, &mut self.state)?;
+
+        let write = match &self.compiler_options.output.ast_snapshots {
+            AstSnapshots::All => true,
+            AstSnapshots::Some(passes) => passes.contains(P::NAME),
+        };
+
+        if write {
+            self.write_ast_to_json(&format!("{}.json", P::NAME))?;
+            self.write_ast(&format!("{}.ast", P::NAME))?;
+        }
+
+        Ok(output)
+    }
+
     /// Runs the compiler stages.
     pub fn intermediate_passes(&mut self) -> Result<()> {
-        SymbolTableCreation::do_pass((), &mut self.state)?;
+        self.do_pass::<SymbolTableCreation>(())?;
 
-        TypeChecking::do_pass(
-            TypeCheckingInput {
-                max_array_elements: N::MAX_ARRAY_ELEMENTS,
-                max_mappings: N::MAX_MAPPINGS,
-                max_functions: N::MAX_FUNCTIONS,
-            },
-            &mut self.state,
-        )?;
+        self.do_pass::<TypeChecking>(TypeCheckingInput {
+            max_array_elements: N::MAX_ARRAY_ELEMENTS,
+            max_mappings: N::MAX_MAPPINGS,
+            max_functions: N::MAX_FUNCTIONS,
+        })?;
 
-        StaticAnalyzing::do_pass(
-            StaticAnalyzingInput {
-                max_depth: self.compiler_options.build.conditional_block_max_depth,
-                conditional_branch_type_checking: !self.compiler_options.build.disable_conditional_branch_type_checking,
-            },
-            &mut self.state,
-        )?;
+        self.do_pass::<StaticAnalyzing>(StaticAnalyzingInput {
+            max_depth: self.compiler_options.build.conditional_block_max_depth,
+            conditional_branch_type_checking: !self.compiler_options.build.disable_conditional_branch_type_checking,
+        })?;
 
-        ConstPropagationAndUnrolling::do_pass((), &mut self.state)?;
+        self.do_pass::<ConstPropagationAndUnrolling>(())?;
 
-        SsaForming::do_pass(SsaFormingInput { rename_defs: true }, &mut self.state)?;
+        self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: true })?;
 
-        Destructuring::do_pass((), &mut self.state)?;
+        self.do_pass::<Destructuring>(())?;
 
-        SsaForming::do_pass(SsaFormingInput { rename_defs: false }, &mut self.state)?;
+        self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
 
-        Flattening::do_pass((), &mut self.state)?;
+        self.do_pass::<Flattening>(())?;
 
-        FunctionInlining::do_pass((), &mut self.state)?;
+        self.do_pass::<FunctionInlining>(())?;
 
         if self.compiler_options.build.dce_enabled {
-            let output = DeadCodeEliminating::do_pass((), &mut self.state)?;
+            let output = self.do_pass::<DeadCodeEliminating>(())?;
             self.statements_before_dce = output.statements_before;
             self.statements_after_dce = output.statements_after;
         }
@@ -181,6 +192,15 @@ impl<N: Network> Compiler<N> {
                 &["_span", "span"],
             )?;
         }
+        Ok(())
+    }
+
+    /// Writes the AST to a file (Leo syntax, not JSON).
+    fn write_ast(&self, file_suffix: &str) -> Result<()> {
+        let filename = format!("{}.{file_suffix}", self.program_name);
+        let full_filename = self.output_directory.join(&filename);
+        let contents = self.state.ast.ast.to_string();
+        fs::write(&full_filename, contents).map_err(|e| CompilerError::failed_ast_file(full_filename.display(), e))?;
         Ok(())
     }
 
