@@ -53,7 +53,12 @@ impl fmt::Display for DefinitionPlace {
 
 impl fmt::Display for DefinitionStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "let {}: {} = {}", self.place, self.type_, self.value)
+        // For an Err type (as produced by many passes), don't write the type to reduce verbosity.
+        if let Type::Err = self.type_ {
+            write!(f, "let {} = {}", self.place, self.value)
+        } else {
+            write!(f, "let {}: {} = {}", self.place, self.type_, self.value)
+        }
     }
 }
 

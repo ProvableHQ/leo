@@ -105,4 +105,11 @@ create_messages!(
         msg: format!("The const propagation and loop unrolling passes ran {bound} times without reaching a fixed point."),
         help: Some("This should only happen with a pathological Leo program containing numerous nested loops or nested operations. Otherwise, this may be a bug in the Leo compiler.".to_string()),
     }
+
+    @backtraced
+    failed_ast_file {
+        args: (filename: impl Display, error: impl Display),
+        msg: format!("Failed to write AST to file {filename}: {error}."),
+        help: None,
+    }
 );

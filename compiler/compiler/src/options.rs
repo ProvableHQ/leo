@@ -16,6 +16,8 @@
 
 // NOTE: If compiler passes are made optional, pass preconditions and invariants may not necessarily hold true.
 
+use std::collections::HashSet;
+
 #[derive(Clone, Default)]
 pub struct CompilerOptions {
     /// Build options.
@@ -40,22 +42,24 @@ impl Default for BuildOptions {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Debug)]
+pub enum AstSnapshots {
+    All,
+    Some(HashSet<String>),
+}
+
+impl Default for AstSnapshots {
+    fn default() -> Self {
+        AstSnapshots::Some(Default::default())
+    }
+}
+
+#[derive(Clone, Debug, Default)]
 pub struct OutputOptions {
     /// Whether spans are enabled in the output ASTs.
     pub ast_spans_enabled: bool,
-    /// If enabled writes the AST after parsing.
+
+    pub ast_snapshots: AstSnapshots,
+
     pub initial_ast: bool,
-    /// If enabled writes the AST after loop unrolling.
-    pub unrolled_ast: bool,
-    /// If enabled writes the AST after static single assignment.
-    pub ssa_ast: bool,
-    /// If enabled writes the AST after flattening.
-    pub flattened_ast: bool,
-    /// If enabled writes the AST after destructuring.
-    pub destructured_ast: bool,
-    /// If enabled writes the AST after inlining.
-    pub inlined_ast: bool,
-    /// If enabled writes the AST after dead code elimination.
-    pub dce_ast: bool,
 }
