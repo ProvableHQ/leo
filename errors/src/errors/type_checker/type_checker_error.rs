@@ -29,7 +29,7 @@ create_messages!(
     invalid_assignment_target {
         args: (target: impl Display),
         msg: format!("Invalid assignment target: {target}."),
-        help: Some("Valid assignment targets are identifiers or tuple accesses of identifiers.".to_string()),
+        help: Some("Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.".to_string()),
     }
 
     /// For when the user tries to assign to a const input.
@@ -995,5 +995,12 @@ create_messages!(
         help: Some(
             "Ensure that the async function is not called with multiple times with incompatible types.".to_string()
         ),
+    }
+
+    @formatted
+    cannot_reassign_mapping {
+        args: (var: impl Display),
+        msg: format!("Cannot assign to the mapping `{var}`."),
+        help: None,
     }
 );

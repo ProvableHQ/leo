@@ -1,0 +1,344 @@
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au19hv8vtedmaapaqze2s3ykgs5qmykx032qtpcrxg94dyytjjgzsfqt2crrk",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "7161795930049971169569564086564462477714562519043818302369253078250077061225field",
+          "value": "false"
+        },
+        {
+          "type": "public",
+          "id": "7414358241962990101713897701189020777888963001555793527318826296016897795932field",
+          "value": "false"
+        },
+        {
+          "type": "public",
+          "id": "378917078298943912725305404233856796945746297300011183628376719134097710718field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "5949878443785841705684172241580017921513629756918053832286088834788573218926field",
+          "value": "[\n  [\n    1u32,\n    2u32\n  ],\n  [\n    30u32,\n    4u32\n  ]\n]"
+        }
+      ],
+      "tpk": "5729162727296776602562966001764035262200688158181815476649618893682251440408group",
+      "tcm": "7626499539019280699818483131555768799896484803820669606067088653565749353502field",
+      "scm": "3597752676216311372673676166968159292972999522412495920365331668384210190152field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqfw4jgyqya8p7m06aj88a0shxucvnfhxz4qjqz4c3fzqajmp4uug080m87wlj2dw7nffj0wh573cvqq8xfa6enr05t3ncyl4qsn7d6nkwv0hgy8wm3d0a57prwnw3gej4cef96j7vd5vmg6dv3z2h7f6xqpqz42d04uwwkhmtxtwaynpynxujeqqttevsyajvss9hy2m42z74yg22d5guzzxqanh40v50wwz2tdcqrqqdxywaq0j9f3qzjmutk66n5djjs9rkteycephez0cdwxfgl2z4mgjkmz3zgqnmxhs7grt8t2gvqrda4ywuet5nexj30p376xsuv4ec8rgtekrhu6gn24exnelhgumllf7c5csmj0kcu5g5pete4pp3srfvlwvxghk3ywr3swfh8xckz5r8k7e0wac2pegp808jn3mlaf07vd56kjcunguu8tv5tspl7hyzlqrjfpkekte564lmcjy7q2kq27psr3278q20e4t3yn4hf97lsp48m2c6vxlr4u6gllp4n4wv4mc0vuqzsf4h3jk5h28ghn20uv436dwx76hqp2r2qle0q2pc65cmf3k08hph78gjnux4rtv84ans57jrwycqcex8kvqxr98qp5sy5nccg3k748a3kkg2fz5h6jgaf7u4zakcjvz5yld7cgj0k47tknlm87faea8yq9cyj65e0esnz0xr3zpxs2tcp2fgjdh06eycjxm8q79y9ja6rrqrkka2kurw9unrdd85wl9gm6rvemysq4lp7x7jupen0673dlrhvzz28rqj54ajlvg0szswp0lukeq6mpxc8xte7j6d9z3xjtrrkt5n7z9wke260sslvlz73rkwxhcf4wkqttt4qf7mhx47xrk05hhjequ7q0yy40vvphlj3x22u2kfgl8g03zkls3z3uwdagmhpnzz7dw4h8nqqvz5n30uezftfckand2wyuyf6sw9clyx9kwwm77ed4m4df7mmfcrm08segc3n3a0td83wuqt9s0hpjshqjvz53d5dz3h3jefs2lt37p9tfsrwaas542ugnfuzh80qsnmcwzqch69gwu908nzvhqclqrstqvkpww34y65a4ckuqexnulmg4hpshppdf67veh4fxc6xle5g6r6seur3wcv2qm4y756r9fccmmaz5l92erk59xm0jsrh78e4aw0ppnstqvqqqqqqqqqqquzllhl06zwf080he9q9ucn7d32kvyhmvkj4vzjraupqc5zvfs8mxyyhd0uz443ks8k05xt6ve65qyq0ahd9pw9dfp7wdd8akd64w2ghk5n4qqcx2j8ruffqhwdkuhg986x7fd7p9s7xq7ttdfl72mqnm5sqqynwa7z4r9j086muzjdz58rwp3rqtr3375aezrtwme7z0tvwrurquncfukzyhhe4rman8kf8rr9fyq0hjvlnma36yhmk4a0f9zkk65qnrf7prnul4ep3k27vxjdzg75yqqqq5j9ke5"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1yd2pu4aawqp63ly33ayma5js5q9my9qzy0z2w0hr9v3xdlvjcurs3xt6nz",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "6353978259249252148097351870643815326744089324216670059544959664875463926112field",
+          "value": "false"
+        },
+        {
+          "type": "public",
+          "id": "7756629334008426757341262135749444231140947369326077858530125265301553192991field",
+          "value": "false"
+        },
+        {
+          "type": "public",
+          "id": "5278070410140302251387256885270161651689156697952196311222180073782756395042field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "7104292754263336268787913277804714208377570766101960876315208749592674464386field",
+          "value": "[\n  [\n    1000u32,\n    2000u32\n  ],\n  [\n    30u32,\n    4u32\n  ]\n]"
+        }
+      ],
+      "tpk": "2057891701169966765020406006407641269107206674855090514620578017063314139818group",
+      "tcm": "3057231814691947503178859612526095111352602383093700491288640467872284977560field",
+      "scm": "3827819408660121032691426797199400131857436578985447815182268643157486791395field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqxfexq3cfpyuzuvhcs3ffesphjewry6vhx0mtczwr2r7dl42umq9lyjh58l6wlvx3vcptphgph6qyqqy8tfw344runhkqwh3v8j6vva8kq5ezu7ke5aj5yhptduqewxs6ztj28mhzvgnupdrp39knc3l2x7qdrk3kdflrrz0yc0e90rahyq5uk9qnp70rx99kywqj7q9hveyvqhqwgdzdzmqwkyepmz48mttwgvyqv7crcckpsqvzkgn25ns7fpe5zlluu85wl0x4e3zfsne8t37xhv5exg2cjpwtz8jwh0cnll5qgz3vq8d6ul50xfaf7ww8jn9kff0ksrdmd3x8apeglzg5lcet3v40a799alx0mdx33ttc98nh38njl0r6qp6vznc4gldkre8rh890mxha9amjg25nss08jm3kuq4mqe6qlgsu3m977unxzsj4gxykzc0kff9xnsph2g84l2atppsn862tcgpjw492mpsaxhlja9yc8924wfelynm8cjaykxnhddws3rjtfh30wmz6mnqphnp387plyp8rvdfhqt3r0h6adrhtpvhzm5yqxhhpylkftxt226slqr9cndvl6wmn7s9wzdnguysqg090hxt235wxftrzdx3y26xclw5h86cxk4gxzrdlqa8d73c9cuh7j358xztvqeh7hkfj3cml6r2yqmww0cvwkvgswcneyql94283g4dqaxlnndkx2qqn6ahf7p8gaecrnjuahfcqyp2z4ha0k96vkgthmgjk82yw5ye696y6fesff5q82zrjhnkg7q2ac7y9vr4l85gsemzqkrftkzxn8luu8etzd8vefu990px73el6fd7lenfv7kxqgam5d0l02c5afall8sptyp9hevgu5zmuqs42z30c6sdmags00t8m2xpgwx5carc3g0vzpz9hn4pxat5sx59qfm86qdrtxp7c290t6tjsfd30eqkajr32thl9ea7cq2pgzamf2dqzczxvx7u73vl256wd9w0meh5xft9gcwsnhq3enjkvnnwd8hjk5xzkkvemtavvhyewn2a2d72rx42tn94e5hg03wqk7sfvn6sjkwqrrqfcc5qk6c8j8e0a3uneekxct0r346amhqwntepvcl0xvnsn6yywsalsu8nm0nazsgrpj75wkjkevfv5n5pcm5a7ms7gv5a3c6mu9hnssqvqqqqqqqqqqpqmmevla0namh800yvdpfehpkcswl8gal62p6tmkd93rzee8mad5vj0c8amr8ka7y3d7t4sy9h7fqqqw23akjww3lrssaf4jdrsap8ut0xulhy3c67gdzakwwvkjvx9drmr033lfz6dfk4x0h90xdhuchyupqxx5wv4xuuzp4rlsh35g3qlsfawsnvusk9atercczkldugzslyns3e25ywp4e9w68zmccr2fyl55lc2re820l02eaat8pkudgqjapyw9krh9n6dgkgj528qecn9svp8kqqqqvttyaf"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1cgez6sf33mqpggdmdw0jyqe0as3a9ga85sffp7c6lr0kncncucgs9j6j8t",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "726335533941705571057942047893474405742940741990447962705425032547632930201field",
+          "value": "false"
+        },
+        {
+          "type": "public",
+          "id": "4249434860371979085894155357274597044928175137631443262454486354925022354177field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "2207812125498749594295099761242917260956547070351690740722291926432275914560field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "2345163691237449035449887944802961375051871461703465793801564100270403720070field",
+          "value": "[\n  [\n    100u32,\n    200u32\n  ],\n  [\n    30u32,\n    4u32\n  ]\n]"
+        }
+      ],
+      "tpk": "1589235873560947657500666602047055439178032829924334340168663742280118848397group",
+      "tcm": "2624090711172262298260125487961592250579755910835339366771390574212137636451field",
+      "scm": "7800625061087589016983462822264530274522967927599544947789830663800271010901field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq9w3pak9ey6mfca5crvmam5deyazza98lf472g9xm5yfmsrkxrta6av3cxtv98ewfg5vwxg37hdxqpqx58w37594u5f9g0t0ee9qlz9ud9dfu3kazapd08cp7c75mapz5fas8xy0jj0ehuaqv899z0y44z3q9mg87kzw9xdns3ulfeavvt452ypqccgy5pv8hv65xzanjmkzntvcay2dgyj0vyzsmd2vfjx4p73sq8u7v0c7shde3la6lhywt99zjttu9gsn9z8q99r60wsekrsuau7h9qq5stc2jgq4lzp032nr6pqdgqw7muyrvgd3p9r0mq42ca2m5f5lsnaht40rpy5hccy926smwzrpllxdyy5qh5dhmsvfzvp448rcnsq780tv2ull2a3k8vmwyatsaepgep087uz5vrywdk42fw8ekmkpad7y982c2vs6g43yjd9pk2hw3yqq7lape3qefs2sdk0u9llsfyxq5ckcj4ysppegp5pgv7xmuad3tw4meusa4uy0sxcwz3yqsl3rytnqqva9cc5fkf49z0t0gxt2ehwyyg2wmrw7xpuap2q5ahv7s887dkzamlwnw5welsyqh5syekcj7ju5qt9tgq3fut403qsfc3x9vnkc7fhjgrn3vl0rxfm2fhh72c9ew4m32f0wpyc2f3524y49nlrt03uuvp32x73yqkt0l7ndr84zxm8xxnz3crs2an6u3xzxgaalartc3t9q93r8rl3djrcltzjxrqf7ace49pegznj0xptsw687pax8g3e0wd7rfm5gmzz7mexm8nd2l34g09fnyflvnavyty6adrkxmg7m2zkq8mqjqsehwnz0c8l0g2uxwac0fnqxwmy2jtj9qnlpde7wgz9d9f6feq2wsfmx3qvlv34h3tdxe0ga5l3qanfvp3j422fkhvevye6524c7gx0eltnspg8gv0cpzdhyykrrqge2se32393cf5cgkpplv2rcfnsyzkg4x37c5vh652rzkdf5x0gxp9fxfdve79vn3ye8f7nue4g53dgrlsep4z3a8nhlf3ngzwmt3gkkpt0h886umusqx5cckjnxjl4a06pz70je5h2xqy07cfe38m30nfgnmpcvcfa4lr5p3f2zddgqeyl4sq0vld8vqvpaet7xsq7f86zl0y5hgh99pkev8j0rrut05hg20hercpqvqqqqqqqqqqp4ksrlh4q9rfdkg7cntfz2whdyfpd2urk86rj2w55swa037tcfk245mrrtkmgwgmn4wc86qc5hlsqqqdd6uxz00hh4uqlf3ea73q493tl7a2u5u0elt2ymfqvaleaqwuhcxrw6sfqmge4wkf3n7kfy9ja7cqqxww3nns6w6awkcgczg5vu6hxy7xn7cxu80l7k9dsynllm9yrgtqy87hghdt4u6upkmekkvq40u30k34fpal805q0htjpm7ufdn7es86y8e7x5gyewgazm87l672v8r0qyqqxewcvz"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1596x4ua9nz5kkdvulctk6me3m8rj2pd2aua6jdgs272eyza8xsrsjey755",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "3439173267952458790941303118909698575866693471791067488431980373205245409129field",
+          "value": "false"
+        },
+        {
+          "type": "public",
+          "id": "5259068287150353867327981103411620463561050957775854924014567931168200571410field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "235073664434048118815130083464543147234678523194664376969829084602849633318field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "5638793166072177122690720177517189438296726403934062539007513952680732072766field",
+          "value": "[\n  [\n    1000u32,\n    2000u32\n  ],\n  [\n    30u32,\n    4u32\n  ]\n]"
+        }
+      ],
+      "tpk": "3069672554016249994683040075406112402885946659071248263177322500852761081770group",
+      "tcm": "351930336807388354120102483219420721184226245510628403373609706477158217830field",
+      "scm": "1058747778431148351956304731903486460080026168162200723973490010638753163090field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqd3al8kj3erfqjgdk9a9t5c2w920tp9na8hq6khnudphhkrn0dry6cqudptrepjg2l5hjx8d7mmqgpqyax9a7td90ndg5qqdstcn3htpsydrtr8m6h675x9hkjd9wfnlfetp2pld92pkfua2cxsxvccksn7qtznmyvmrvfmvnyrfrxgca2ngvmfjles70td6kesw9z0mr9vnjmflhurenywvfaeet9csfxr4qq5jqzfy3geuntc75xvd4qqcxjrt7c7mfy5r57rm24qwu6ntnwdfraefae6xsltzhjnumhwsk5tewuvv5qjg800z2hd49pnxhwl7q42q9rsk0mrma6jsl40mm8zmhfd94m0kpj8u52glq9n6vz4xstxc89dlpqptcrz6xwk65l4q9swwug2959a8dd2s87sk00ysu9t7fgf69n26645jpac5a9lgz52747pywnsf3rs8prp2fc9mseunqasuh74wm3dgk783tr3x6xe97eq3j2qlxefq7ghgr2ars9h8c3s45slkcznv5jpqz8q4jm0xywtdquk8zvvyk97ychzvdw0y92dxjg6hnf03q2pvkuvj8v0jq268qg5jgpd2pclztk22q0a68jycnq0860h8a8n8x7tl680ekayvnuml9l4u4y4367v0jzrt89xy8cxgptwzex3gp0tnjyjdvqhqkrzwyq9mzuuj3qcq3dwkzfctw0dcq47rpz60nnxwsv7jwz9v9m4dzl3ne7cmtptpmatryrspgkcgqpg60phgvf6dzp3s7x90w6jzvzn6tv7lxzxr3f8qtxd8d4f6avvrer92c5xy88gdx74u708gntzpf6r6p2t3y4gm2nacaeyuhfxr4dhskh7j7se2zdvqdq84ds9hzscxtt3myzfenrhweewm0gz3hhgwm8ael8my9c9dj0t5869act2wsshu84ced85tvezewmu7k436h0r4xjpakrfm9m3clc5255wxl32crfc6yelpxsk53vn9c6yx7ejk4qfrj2zxwz24ussp32cyfme8thzyz5zntlamgmfq69kyd4v427eh4mz5phr9vctk7x53ke6psgcut7zg8ch3jks95tjlgq6fujvwjqvuxyvk47sdua0a4c2aqupwrpwhfqmqf88t4ckwg5929c7h0rtyakmam9a7af5tt7ndl8hsszqle489q3qvqqqqqqqqqqqa9tve9tft6q5gm5gd0u7pnvgg5u5ywx5l64e8u7hnt4n39gd0chkn7xpjddulp46ckxj2qnnf7asqqvmhpq05mmutxnarpsph0ehjcga278q8h69u8cucqut77p2pypd0c7ucm6p4d4nqldlmt3s9herwsqq8njuuevqaf4yqc4dp065ed4t4jx2h4xh7rf0f0rxc3dns3pmt8qq9k47u5q53wc9rypq4zshkmrguc5rln96e24ljp73ku9s3kh0nkq2w63mwq2rhhn4659zv9gs7lnqqqqgv4dmy"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1y5dh35npty9sagkcdnvh3sglxkldg7prjc6t883szup8dzpgqvrqnf4zp7",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "257816229072815123725813327319704843010641459519459670853040559880529868661field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "1736451368321364986488499954576127387061928182333294235482497176699390651994field",
+          "value": "false"
+        },
+        {
+          "type": "public",
+          "id": "6181302830733010447428496167953913175131646272502918230232470749917019955837field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "5161686379528335060220828190934364643549271036130060347604588741194466312440field",
+          "value": "[\n  [\n    10u32,\n    20u32\n  ],\n  [\n    3u32,\n    4u32\n  ]\n]"
+        }
+      ],
+      "tpk": "1543518955771979192469022707138421657716819267162085828925575830354278760233group",
+      "tcm": "6661043699973179354625953252747411082979233109089572287486237052043282183512field",
+      "scm": "5163735917514895325972307135729272814152204888391212302749533002231353573439field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqq6kf5hes37dy2l0lmgqhxf660ck0hnwlvg08vtwamkgyqgh0c3g9a0u7j98jl7v93lra60qrxjmspqy6htzfn84xnulvs5xz83kdn0yrlqdcfx8tt8g4jr4lf56xsr3932f3ypakk2zp28pqct9trtkryfqxwvlt4udl4klsatmj0gmyqq56tvftkqm7pphegn0h573f2wdc9jw37al6hy2wtemxwtskfhuw9msqt6guuh0aztgn3afg0h6d9lq7t9r70yqksn28rk2225r48sapq99p9yzqye35lkeneqxh9ev8d8myqvwrqsd6xg8afj462nxhecntp9ax7egctxgnv43gt7nls8yww4lrrccly3tuh57rml7wechpesfmgp64smf655cyvhl9cw8qq0ymuqqy3t6hxjyem96xtlyx83s5gvh6yv8p7z4tf3cyahya8c0h9ulj2qp9vdr8jj2032mfnyt2q4seqel8rd5gu4cn2t59n4hefhwlep5t3ldxqlcaul8trq4hlzejdkwlk8qtk4x045tglg4fpk5zc276g7mzn3mz0n2qp4hwcwz364c0f45f9q2cltqvvf97z6h445c063nldpqqapnpapnx0tx9chhevjryyk3nhnlmshfzupvcyg538wr35a95vvzaxrxly42tzelpl39f8h937rxcp89crfcavptl5ekftqcj829z7yh20ya4ywldg6jerrm6vt0v99sg8fygupdnklk3wzhne96hee44w3fnwyz6x86ruu48326j0vc962qz4z2njn6r52vh46dd6vngfqyhv52patcdtq64zh8zc82h75mccz80rgp4jft8jgj9us5s62d5wk8ux29xx6tmjdefedss7r0wh6s8q02g7u79ua02am0ykfatjhx0j95w6nf7jug2fsy8mkp522l87kygsq8dyx6nyt6pq6psr0cf0nxsaycygp64w8pj5hzxj63qnzpcvpy92ze40h3cqlhxfpd02n8mmtl04yjlc5hj6cufddhgn8j0g44rn6yqp69la9l9ne6zk4uchrvgwuhrepwfdn4mgdqc98qc5zlyd9ymapmakuyxcuxan7kc8g2ptgelrnfnpjvg8eguyaeqauezu93lv86pppxczuzx3qphtqphjkat9kh5gmqjrpmmcytlux957kyt799dy2hcxqvqqqqqqqqqqq29yvxh9t7n94kutw0h73fw0gpp0u5u50dwca6pxckgf9c2lffg828pxnh9y3zv53qxzdryrkw4cqqqgts23m2l6kmj9n5qwsredg7a4e64lavgtyul8hpzxn2cjfj3eupufarckup23scfj4sqfw5uusa5qqx472r4erhqfanexzpelvuh0lp7na8ythmddkwswp8s0f4vpp7rs365ku4a4l6fcz92sk64vmhyxz5ul90f5gesjheguc58qxgsr9afyq9mqn6zswknedv97tsrmansqsyqqv6r3d2"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au164k6ccdt69gwuszktdudfzlyzhjgap63k8zw5atfup25fdfw9yyq3rcyn3",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "2649175873085642219027510171407711727589222290673860370232338646567072143839field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "5336219870604904856828469134948671816405727392257369506958289005397290498014field",
+          "value": "false"
+        },
+        {
+          "type": "public",
+          "id": "241483894114369009304671215939648226349331675450581337766738670987691222199field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "2148054274148766955860957151226844059317814321168562234963108531287231430118field",
+          "value": "[\n  [\n    1000u32,\n    2000u32\n  ],\n  [\n    3u32,\n    4u32\n  ]\n]"
+        }
+      ],
+      "tpk": "2144120544744618342220194830914262338763758371891392846189796652498756382973group",
+      "tcm": "4953961538325935912174084690886768451936547327773265063848219971040545047420field",
+      "scm": "25048360403880983854921146745027728262518739336627549881257800292358918781field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq0c0mrcfg5jtwrq7xqfuatymaslyw6h0uzqaudc72esuqp9afh3ymj0wcm0ulhp8uzypegmn4nqq5pqy8w8zfkr64wynvyjkhdpl9lxfr42873n0vn52qptwpgf60uqmudcy29vcw2gnutw6cmxt3cqfghhqv6msx86a9s058fszdkw92vkqrwejadmdj53j3pysknas6am9f42542r59px95pr7km3e3sc823zqqwqsv4wk8r0p3y0s9wqxrqmvehssqylqtu7vkdp4nrkht5k95fy87cmxxn7u3m3dnkl5gutxw8apcp86p2ghqsmkynghufpyzkxjdrtypqk5kj5kzchqht97xm9staqjtlzkxrddnmwrecjatp8q5u4aegqgc4afeku9m6cy4d7qnjlunkcsykxm432f0mtqcfuyuwlvt8hvc6u2r3ta9hveyfp77u0z2vkfxlqp4vwqwmune9f4ya3gls92n92w58deld3dnqhcr3c9k6hxj3wr0wkwx2hgmq36h2wa264lrww34zhq2tfzdqhrtvdakv5g03clzchwksp6yx9k48269lam77xugjg88ylepkuhn09enwsy3zqcultwd4dyqs82s6ea5avrca7rwc6z8ztax0s0dssqpmtgp7834z07qgrvz8s6jvg00fytpytg4al02u238wdhvqh57y5t8nz4qfapt0x7xa6sptpsespwvg7gcg89z27n4m7vn38qzskqmf9ty6nqntkyu7svw23tf8evgy0zll3cgl4exr29duc37s6qq6yq0dzyeuphynnnelntpsp5x9hdsamxp6gvxyathaklh6vqempyxwwhzdv2j4plstyp8cqe3ynlj8v2qms2tf52s3w5mc2z9j5u5q5wxdz4c5a3vqk2gk89espylldrdr7xqn2pmg8fxmxymv56j6srqs77jq6kylqfn28pxavw0l26gn894492d4pr5xy5yzxzd0smahnsg027fqn5v6zztm29ttlruxwakzf6mq7ftcy6gu0wwytengl2w6sru4zv9nxnf3g65dc4m42gaqmkk0cule8mcesr9ywlyl30xqq7slqcdra6ljgtrjeza3kvvxmt9xrzekp42v2szuujuehpgrdhjn76js57dv6lwc2gr2kymjufl9twxr2mwtg39dr5067xq7hs0qz9mqccgsqvqqqqqqqqqqpfhuen20xnk86vnwsa8nvqyu6dcz3f45sa98hmvpx4qnjggkjzntdefnvw4ajdr59kp59rl78uuesqq97q8juxduqqprnxlyk9jdn54kjm9gt907stupgteh4520a3ufv0s5yalxjrlz2vkkkxlcd00nt2gpq9k3f78v0tk7tlxwn7fjtnesr8ddle62kaeevnxp829llan06ptschnq9atxg76xk3xf2kh5rjmmw6he5ven4eyh7quyh7c6q0arf3xpmuu24nn7chwluw9sxz7xx0ygsyqqryv06d"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1h2wq0jc72z5vgacl27s9pamndsxqwcw00hc4240sv7ngnhj52ygstpypvp",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "7928945156211541086419100083056642748740192461913307881725309132475163221692field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "4002245210244558389746650779890144092470227822652990408483581258605289304434field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "5192994989833189030324547873585738810909841194815550796981893690062558806281field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "1260795996600378108702080675940751456037124421474867281545231822090493947001field",
+          "value": "[\n  [\n    100u32,\n    200u32\n  ],\n  [\n    3u32,\n    4u32\n  ]\n]"
+        }
+      ],
+      "tpk": "3352923785146005146922009128391645840940840351852546297839275221556564597362group",
+      "tcm": "3116254743444197704938454700094035820072854123356969428821338444633166358059field",
+      "scm": "2419303199421148824897202168338668997806659918471495430564967974744577899226field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq8xt2fkx3dzfx2hrqgmfwlswf8wehzvdg7d3thcd99q303lks3xrxhgwxtqrvr0l8fnnvssjjsyp5pq9xg7hghu7eutxgtkmq3z9dd4hcn50hpgmfysese9twpu8mxjjj7srrc9t9ekc6h84dlmu48ud347q2wjnhclda6e5z9udzd3f74ynkzzqkvyrqc7gpawwlxfslte63jsx5vpq4qr2ucjm93gjl7g58zjxq0dfvc8np80pykmcpa3n67hga46005q263qhhla44auna5hd7x606xnaerf2lvhhff6qh3yqeefggq5ju6m0k2f5ulcer2h2nc829srzf27x8rvanpmj09wv687jk05ldye8mgzq4zpxesj22mwx2llf6sq2vyqdsd3dhl47fk00y6vl9f3ek6sghmmrf3u3p6fay2gya69z2wfmcrsdyqy62rz806n4r45hpuq9u48xee6e6r266q66lzd4wzwj6h70gcv8ethjga3keduwtn83sj355xu0lvpum3yxcn775h7aef3qgtfswgr9x4kqflgst9rudq7c7prlnqgk5f4gqf5glcsvukwgan52ttj0we5ylpt5x8rqcu7tv05vqn63adttcgdkgnqgvvzz09lnqnmma38yukcxuw0lgazwqzx702g3jn7p3cp7dyllc3460hdgdrfxqqrl3ls7zetew88rp6ac700q4592qz5a437ra9qqnqc3x6ya2z6sxegamkplvecsewup57xnxj5qsvtt9m9hr8k5s2c4uh3wgkklewqrmnkjz3p8a72q7zz3e58hkxlk9nte23grxc00lez3u0lwtjqxgaqgx50mcdrx76yqn9k0a8g2txegl5ykagd4uegzgq3vqgyqaf00sqjdy5l2jng9nwwxgfe0wcd7msvmc64d508y6zqcv96g62nymt6ncxv5ju8lk7c2s88qt03tk3rzhddx6knzqudjxfwwc3aerpgpv9gvg7zvxv75qndq6u4j784nfkhp88762esfvnhm6dstvu9vwrszg8krz8sxllrs00lclujv3udm76had09h5umt9yq3ywegr53tulufddpu06k5pkqn9949rcygdqd9fn6mpjqe9f8k80q0fypf23dwcggrzqsn75z5jvxf46xdep87df4wppft9yv8pf6hxprtv3lty5uy0h68gsqvqqqqqqqqqqpvmaac9g3sd0qv9cpmvmnnd6uefq05dv8t9sjg6hg2m2ql6sl8r9les0tgc3lypxep86pjd2nfpxsyqp5x567ullqdns9nux8ueumvhzxy0j5czdu3agmqjmufny5q9r24lecsxng85m0ahmrzd5eh2q2ruqqxshprdt8nw554ywc84vh480d8drc6fjnuz3yzptudtg0y2jrwasunnf2jhqmkj5m8lvpnq6zgzkvrjjfteus2hpdhql4h8flhejanx7rv3ls2wghlwj5c6s990xm85jsyqqj856qw"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1te4pr46rrvy2lz3dzjqy2k2lf2wy8rst3mu5rf5m78fgtyq65syqev8qs0",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "5791481862893787290080880729095954170629075106976324317446600785268312929322field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "4659194716994834864054939226637609527591572242469638516636119452161407959717field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "3803056604836668326019056192281781943394951981028964455522575088520060761116field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "8102979928656722868971478523442312102786852378931771678807177682019285991662field",
+          "value": "[\n  [\n    1000u32,\n    2000u32\n  ],\n  [\n    3u32,\n    4u32\n  ]\n]"
+        }
+      ],
+      "tpk": "6293778976723045621850306539479407159434821415624331872386831962086793517552group",
+      "tcm": "8298591198215860467672480431223466187943448403824315245934817212933422294964field",
+      "scm": "3077701414201635301355991756819052903994024524280746903996070159912874260469field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu",
+  "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqvqqdls55zmx9vr9cr6ye4eyyvehmnx49rvx5kjky3hjx2h9m8p29rtmcd3naka639tl4aw0stq8uqq8h6prfjdvjquwsh3uqk62c8q3ysj0kgxy20vqta24qzs2vdwrw2cvxweyc4xux3pe06dqw5ezka5qztkprc5hjvymyu4sfl7dk4qg5gqsstfg53l93h8q09uvcmujxh0nwxakgvz58dgq6ymexs6q63fsq2tljent67z76yd2nkte3nryac2q0jdlghv2ld0ult0f6f77cya4a4hp27xalmcwfj8y2589jtsqsqu2r6zammq4pn66yyy5vh4le590df2x6af9s7cw5uzqtcr3f2eq2ftapd6s3x5ucy6mq9jkqjhyksp27z9nqve223qn4jfmfjge59ej9ddhtxpwvmys2l9r2kvvs9zmdjgpkjmxaw4qyaghaly6tj3at3s8nrpqqz2rhp29dzm6zf97tvjxnwj3q5dwtsgre7qtj7lhazgkyzmf2yvsa4p2y0lp9hchhxtcyakqqte2r4z0plszxgftvexpdjn9vvrrkzd8mkerzlcfhmkevan0uld93p2n0pccn7gq4fp5wm8zly0cq0tuw9vvd3yyaxt8h34u7egqdqm4s6keaejkf32xmcndf6lxs545q8fc3hu0d8g09c68dvhert7cqpc973aukfjpjjrhntshdy8ca9wlnhazcyva2r6dvzeaj2dhk50v9yl6uwzflqkf9gtp0h0d9q6p9hw5xh5w6vfp54v2tkgyv73c39qyvcngmauu2qw5982f0lxfnmx8h962zx64mhgkhweckyp6yyjwwnp2ly2gyj8xvt39evmuzrnf2mrxnfaxnpmvygsu6ylcmkhzlgx3ssnpxkdqs9cqmnjqd96cqdpvn5mnzx3xgmtchlqrts7md0x2shsjsqkjs3w3mxsv7fz4e3la3gqn0y9ny6gzhlfjhgwhjhvcdur2z5hc86pwzjn56ldvy6kg53928njpfy6lc2ya9g3s00ydx2qlxyvpvsqzrzzj5wprfa2vtx63ghlc2hpgkxgf4v2wdv9zm9jhzmsh49wl0nzxw23smufamz229fcdmfrvs6mx23hpegcpgdfrw5ah3edqj4k0kse8tw49hrmystj72yya42wtstlpwfn0cqm5nvw2hdl7exxdvxv4cjqvqqqqqqqqqqqclu2ekr6ysm0uke2hx7dae9vx202gp29tqhed4tvkdq55z53c4078l9t58354qvv3gf3a4ljuwlsqqvdzadku5p9w2hhgn9vfp7tualdmje20xs7r0gs2lad4vxdns29j7a5vszejm0fy8twtx2h57eqzypqxcwt7f3cvke2juj84dxjwu3yt2cpc24vmutq84u25urwwjt00zq28l77jc2l3zee6degezjxk5d3498dsaswgkkvwwpuevpwggrgs48du2yy9pmgr5w4hnwh626ahccqqqqvap2t8"
+}
+

@@ -58,3 +58,6 @@ pub use symbol_table_creation::*;
 
 mod type_checking;
 pub use type_checking::*;
+
+mod write_transforming;
+pub use write_transforming::*;

@@ -21,9 +21,7 @@ use leo_ast::{
     AssertStatement,
     AssertVariant,
     AssignStatement,
-    AssociatedFunctionExpression,
     Block,
-    CallExpression,
     ConditionalStatement,
     ConstDeclaration,
     DefinitionPlace,
@@ -51,14 +49,14 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
     fn consume_assert(&mut self, input: AssertStatement) -> Self::Output {
         let (variant, mut statements) = match input.variant {
             AssertVariant::Assert(expr) => {
-                let (expr, statements) = self.consume_expression(expr);
+                let (expr, statements) = self.consume_expression_and_define(expr);
                 (AssertVariant::Assert(expr), statements)
             }
             AssertVariant::AssertEq(left, right) => {
                 // Reconstruct the lhs of the binary expression.
-                let (left, mut statements) = self.consume_expression(left);
+                let (left, mut statements) = self.consume_expression_and_define(left);
                 // Reconstruct the rhs of the binary expression.
-                let (right, right_statements) = self.consume_expression(right);
+                let (right, right_statements) = self.consume_expression_and_define(right);
                 // Accumulate any statements produced.
                 statements.extend(right_statements);
 
@@ -66,9 +64,9 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
             }
             AssertVariant::AssertNeq(left, right) => {
                 // Reconstruct the lhs of the binary expression.
-                let (left, mut statements) = self.consume_expression(left);
+                let (left, mut statements) = self.consume_expression_and_define(left);
                 // Reconstruct the rhs of the binary expression.
-                let (right, right_statements) = self.consume_expression(right);
+                let (right, right_statements) = self.consume_expression_and_define(right);
                 // Accumulate any statements produced.
                 statements.extend(right_statements);
 
@@ -77,42 +75,42 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
         };
 
         // Add the assert statement to the list of produced statements.
-        statements.push(AssertStatement { variant, span: input.span, id: input.id }.into());
+        statements.push(AssertStatement { variant, ..input }.into());
 
         statements
     }
 
     /// Consume all `AssignStatement`s, renaming as necessary.
     fn consume_assign(&mut self, mut assign: AssignStatement) -> Self::Output {
-        // First consume the right-hand-side of the assignment.
         let (value, mut statements) = self.consume_expression(assign.value);
+        if let Expression::Identifier(name) = assign.place {
+            // Then assign a new unique name to the left-hand-side of the assignment.
+            // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
+            let new_place = self.rename_identifier(name);
 
-        match &mut assign.place {
-            Expression::Identifier(name) => {
-                // Then assign a new unique name to the left-hand-side of the assignment.
-                // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
-                let new_place = self.rename_identifier(*name);
-
-                statements.push(self.simple_definition(new_place, value));
+            statements.push(self.simple_definition(new_place, value));
+            statements
+        } else {
+            // It must be a sequence of accesses ending in an identifier.
+            // All we need to do is consume that identifier to possibly get a new name.
+            let mut place = &mut assign.place;
+            loop {
+                match place {
+                    Expression::ArrayAccess(array_access) => place = &mut array_access.array,
+                    Expression::MemberAccess(member_access) => place = &mut member_access.inner,
+                    Expression::TupleAccess(tuple_access) => place = &mut tuple_access.tuple,
+                    expr @ Expression::Identifier(..) => {
+                        let (new_expr, statements2) = self.consume_expression(std::mem::take(expr));
+                        *expr = new_expr;
+                        statements.extend(statements2);
+                        assign.value = value;
+                        statements.push(assign.into());
+                        return statements;
+                    }
+                    _ => panic!("Type checking should have ensured this is not possible."),
+                }
             }
-            Expression::TupleAccess(tuple) => {
-                assign.value = value;
-
-                let Expression::Identifier(identifier) = &tuple.tuple else {
-                    panic!("Type checking should have prevented this.");
-                };
-
-                let (expression, new_statements) = self.consume_identifier(*identifier);
-
-                assert!(new_statements.is_empty());
-
-                tuple.tuple = expression;
-
-                statements.push(Statement::Assign(Box::new(assign)));
-            }
-            _ => panic!("Type checking should have prevented this."),
         }
-        statements
     }
 
     /// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.
@@ -129,7 +127,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
     ///   - `if b { x = x + 1 }` remains the same.
     fn consume_conditional(&mut self, conditional: ConditionalStatement) -> Self::Output {
         // Simplify the condition and add it into the rename table.
-        let (condition, mut statements) = self.consume_expression(conditional.condition);
+        let (condition, mut statements) = self.consume_expression_and_define(conditional.condition);
 
         // Instantiate a `RenameTable` for the then-block.
         self.push();
@@ -166,13 +164,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
         let else_table = self.pop();
 
         // Add reconstructed conditional statement to the list of produced statements.
-        statements.push(Statement::Conditional(ConditionalStatement {
-            span: conditional.span,
-            id: conditional.id,
-            condition: condition.clone(),
-            then,
-            otherwise,
-        }));
+        statements.push(ConditionalStatement { condition: condition.clone(), then, otherwise, ..conditional }.into());
 
         // Compute the write set for the variables written in the then-block or otherwise-block.
         let if_write_set: IndexSet<&Symbol> = IndexSet::from_iter(if_table.local_names());
@@ -225,9 +217,9 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
                 });
 
                 // Update the `RenameTable` with the new name of the variable.
-                self.rename_table.update(*(*symbol), new_name, id);
+                self.rename_table.update(**symbol, new_name, id);
 
-                // Create a new `AssignStatement` for the phi function.
+                // Create a new `DefinitionStatement` for the phi function.
                 let identifier = Identifier { name: new_name, span: Default::default(), id };
                 let assignment = self.simple_definition(identifier, value);
 
@@ -299,55 +291,13 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
     }
 
     /// Consumes the expressions associated with `ExpressionStatement`, returning the simplified `ExpressionStatement`.
-    fn consume_expression_statement(&mut self, input: ExpressionStatement) -> Self::Output {
-        let mut statements = Vec::new();
-
-        // Helper to process the arguments of a function call, accumulating any statements produced.
-        let mut process_arguments = |arguments: Vec<Expression>| {
-            arguments
-                .into_iter()
-                .map(|argument| {
-                    let (argument, mut stmts) = self.consume_expression(argument);
-                    statements.append(&mut stmts);
-                    argument
-                })
-                .collect::<Vec<_>>()
-        };
-
-        match input.expression {
-            Expression::Call(call) => {
-                // Process the arguments.
-                let arguments = process_arguments(call.arguments);
-                // Create and accumulate the new expression statement.
-                // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
-                statements.push(
-                    ExpressionStatement {
-                        expression: CallExpression { arguments, ..*call }.into(),
-                        span: input.span,
-                        id: input.id,
-                    }
-                    .into(),
-                );
-            }
-            Expression::AssociatedFunction(associated_function) => {
-                // Process the arguments.
-                let arguments = process_arguments(associated_function.arguments);
-                // Create and accumulate the new expression statement.
-                // Note that we do not create a new assignment for the associated function; this is necessary for correct code generation.
-                statements.push(Statement::Expression(ExpressionStatement {
-                    expression: AssociatedFunctionExpression { arguments, ..associated_function }.into(),
-                    span: input.span,
-                    id: input.id,
-                }))
-            }
-
-            _ => panic!("Type checking guarantees that expression statements are always function calls."),
-        }
-
+    fn consume_expression_statement(&mut self, mut input: ExpressionStatement) -> Self::Output {
+        let (expr, mut statements) = self.consume_expression(input.expression);
+        input.expression = expr;
+        statements.push(input.into());
         statements
     }
 
-    // TODO: Error message
     fn consume_iteration(&mut self, _input: IterationStatement) -> Self::Output {
         panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
@@ -359,16 +309,16 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
             // Leave tuple expressions alone.
             let mut statements = Vec::new();
             for element in tuple_expr.elements.iter_mut() {
-                let (new_element, new_statements) = self.consume_expression(std::mem::take(element));
+                let (new_element, new_statements) = self.consume_expression_and_define(std::mem::take(element));
                 *element = new_element;
                 statements.extend(new_statements);
             }
-            statements.push(Statement::Return(input));
+            statements.push(input.into());
             statements
         } else {
-            let (expression, mut statements) = self.consume_expression(input.expression);
+            let (expression, mut statements) = self.consume_expression_and_define(input.expression);
             input.expression = expression;
-            statements.push(Statement::Return(input));
+            statements.push(input.into());
             statements
         }
     }

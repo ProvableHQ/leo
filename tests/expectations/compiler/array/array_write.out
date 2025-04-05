@@ -1,0 +1,329 @@
+DCE_ENABLED:
+program test.aleo;
+
+record R:
+    owner as address.private;
+    x as u8.private;
+
+struct S:
+    x as u8;
+    y as u32;
+
+struct T:
+    x as u8;
+    y as [S; 3u32];
+    z as S;
+
+function simple_struct:
+    input r0 as S.private;
+    add r0.y 2u32 into r1;
+    cast 1u8 r1 into r2 as S;
+    output r2 as S.private;
+
+function nested:
+    input r0 as [[[boolean; 2u32]; 2u32]; 2u32].private;
+    cast true false into r1 as [boolean; 2u32];
+    cast true r0[0u32][0u32][1u32] into r2 as [boolean; 2u32];
+    cast r2 r0[0u32][1u32] into r3 as [[boolean; 2u32]; 2u32];
+    cast r0[1u32][0u32] r1 into r4 as [[boolean; 2u32]; 2u32];
+    cast r3 r4 into r5 as [[[boolean; 2u32]; 2u32]; 2u32];
+    output r5 as [[[boolean; 2u32]; 2u32]; 2u32].private;
+
+function nested2:
+    input r0 as S.private;
+    input r1 as T.private;
+    add r0.y 1u32 into r2;
+    cast r0.x r2 into r3 as S;
+    cast r0.x r2 into r4 as S;
+    cast r0.x r2 into r5 as S;
+    cast 1u8 r1.y[0u32].y into r6 as S;
+    cast r6 r4 r1.y[2u32] into r7 as [S; 3u32];
+    cast r1.x r7 r3 into r8 as T;
+    output r5 as S.private;
+    output r8 as T.private;
+
+function with_tuples:
+    input r0 as S.private;
+    input r1 as T.private;
+    cast 1u8 r0.y into r2 as S;
+    cast r1.y[0u32] r0 r1.y[2u32] into r3 as [S; 3u32];
+    cast r1.x r3 r1.z into r4 as T;
+    output r2 as S.private;
+    output r4 as T.private;
+
+function in_conditional:
+    input r0 as T.private;
+    input r1 as boolean.private;
+    cast 2u8 3u32 into r2 as S;
+    ternary r1 1u8 r0.x into r3;
+    ternary r1 r0.z.x r2.x into r4;
+    ternary r1 r0.z.y r2.y into r5;
+    cast r4 r5 into r6 as S;
+    cast r3 r0.y r6 into r7 as T;
+    output r7 as T.private;
+
+function f_record:
+    async f_record 1u8 into r0;
+    cast self.caller 1u8 into r1 as R.record;
+    cast r1.owner 2u8 into r2 as R.record;
+    output r2 as R.record;
+    output r0 as test.aleo/f_record.future;
+
+finalize f_record:
+    input r0 as u8.public;
+    assert.eq r0 r0;
+
+function in_loops:
+    input r0 as [u8; 8u32].private;
+    lt r0[0u32] r0[1u32] into r1;
+    ternary r1 r0[1u32] r0[0u32] into r2;
+    ternary r1 r0[0u32] r0[1u32] into r3;
+    lt r3 r0[2u32] into r4;
+    ternary r4 r0[2u32] r3 into r5;
+    ternary r4 r3 r0[2u32] into r6;
+    lt r6 r0[3u32] into r7;
+    ternary r7 r0[3u32] r6 into r8;
+    ternary r7 r6 r0[3u32] into r9;
+    lt r9 r0[4u32] into r10;
+    ternary r10 r0[4u32] r9 into r11;
+    ternary r10 r9 r0[4u32] into r12;
+    lt r12 r0[5u32] into r13;
+    ternary r13 r0[5u32] r12 into r14;
+    ternary r13 r12 r0[5u32] into r15;
+    lt r15 r0[6u32] into r16;
+    ternary r16 r0[6u32] r15 into r17;
+    ternary r16 r15 r0[6u32] into r18;
+    lt r18 r0[7u32] into r19;
+    ternary r19 r0[7u32] r18 into r20;
+    ternary r19 r18 r0[7u32] into r21;
+    lt r2 r5 into r22;
+    ternary r22 r5 r2 into r23;
+    ternary r22 r2 r5 into r24;
+    lt r24 r8 into r25;
+    ternary r25 r8 r24 into r26;
+    ternary r25 r24 r8 into r27;
+    lt r27 r11 into r28;
+    ternary r28 r11 r27 into r29;
+    ternary r28 r27 r11 into r30;
+    lt r30 r14 into r31;
+    ternary r31 r14 r30 into r32;
+    ternary r31 r30 r14 into r33;
+    lt r33 r17 into r34;
+    ternary r34 r17 r33 into r35;
+    ternary r34 r33 r17 into r36;
+    lt r36 r20 into r37;
+    ternary r37 r20 r36 into r38;
+    ternary r37 r36 r20 into r39;
+    lt r23 r26 into r40;
+    ternary r40 r26 r23 into r41;
+    ternary r40 r23 r26 into r42;
+    lt r42 r29 into r43;
+    ternary r43 r29 r42 into r44;
+    ternary r43 r42 r29 into r45;
+    lt r45 r32 into r46;
+    ternary r46 r32 r45 into r47;
+    ternary r46 r45 r32 into r48;
+    lt r48 r35 into r49;
+    ternary r49 r35 r48 into r50;
+    ternary r49 r48 r35 into r51;
+    lt r51 r38 into r52;
+    ternary r52 r38 r51 into r53;
+    ternary r52 r51 r38 into r54;
+    lt r41 r44 into r55;
+    ternary r55 r44 r41 into r56;
+    ternary r55 r41 r44 into r57;
+    lt r57 r47 into r58;
+    ternary r58 r47 r57 into r59;
+    ternary r58 r57 r47 into r60;
+    lt r60 r50 into r61;
+    ternary r61 r50 r60 into r62;
+    ternary r61 r60 r50 into r63;
+    lt r63 r53 into r64;
+    ternary r64 r53 r63 into r65;
+    ternary r64 r63 r53 into r66;
+    lt r56 r59 into r67;
+    ternary r67 r59 r56 into r68;
+    ternary r67 r56 r59 into r69;
+    lt r69 r62 into r70;
+    ternary r70 r62 r69 into r71;
+    ternary r70 r69 r62 into r72;
+    lt r72 r65 into r73;
+    ternary r73 r65 r72 into r74;
+    ternary r73 r72 r65 into r75;
+    lt r68 r71 into r76;
+    ternary r76 r71 r68 into r77;
+    ternary r76 r68 r71 into r78;
+    lt r78 r74 into r79;
+    ternary r79 r74 r78 into r80;
+    ternary r79 r78 r74 into r81;
+    lt r77 r80 into r82;
+    ternary r82 r80 r77 into r83;
+    ternary r82 r77 r80 into r84;
+    cast r83 r84 r81 r75 r66 r54 r39 r21 into r85 as [u8; 8u32];
+    output r85 as [u8; 8u32].private;
+
+DCE_DISABLED:
+program test.aleo;
+
+record R:
+    owner as address.private;
+    x as u8.private;
+
+struct S:
+    x as u8;
+    y as u32;
+
+struct T:
+    x as u8;
+    y as [S; 3u32];
+    z as S;
+
+function simple_struct:
+    input r0 as S.private;
+    add r0.y 2u32 into r1;
+    cast 1u8 r1 into r2 as S;
+    output r2 as S.private;
+
+function nested:
+    input r0 as [[[boolean; 2u32]; 2u32]; 2u32].private;
+    cast true false into r1 as [boolean; 2u32];
+    cast true r0[0u32][0u32][1u32] into r2 as [boolean; 2u32];
+    cast r2 r0[0u32][1u32] into r3 as [[boolean; 2u32]; 2u32];
+    cast r0[1u32][0u32] r1 into r4 as [[boolean; 2u32]; 2u32];
+    cast r3 r4 into r5 as [[[boolean; 2u32]; 2u32]; 2u32];
+    output r5 as [[[boolean; 2u32]; 2u32]; 2u32].private;
+
+function nested2:
+    input r0 as S.private;
+    input r1 as T.private;
+    add r0.y 1u32 into r2;
+    cast r0.x r2 into r3 as S;
+    cast r0.x r2 into r4 as S;
+    cast r0.x r2 into r5 as S;
+    cast 1u8 r1.y[0u32].y into r6 as S;
+    cast r6 r4 r1.y[2u32] into r7 as [S; 3u32];
+    cast r1.x r7 r3 into r8 as T;
+    output r5 as S.private;
+    output r8 as T.private;
+
+function with_tuples:
+    input r0 as S.private;
+    input r1 as T.private;
+    cast r1.x r1.y r0 into r2 as T;
+    cast 1u8 r0.y into r3 as S;
+    cast r1.y[0u32] r0 r1.y[2u32] into r4 as [S; 3u32];
+    cast r1.x r4 r1.z into r5 as T;
+    output r3 as S.private;
+    output r5 as T.private;
+
+function in_conditional:
+    input r0 as T.private;
+    input r1 as boolean.private;
+    not r1 into r2;
+    cast 2u8 3u32 into r3 as S;
+    ternary r1 1u8 r0.x into r4;
+    ternary r1 r0.z.x r3.x into r5;
+    ternary r1 r0.z.y r3.y into r6;
+    cast r5 r6 into r7 as S;
+    cast r4 r0.y r7 into r8 as T;
+    output r8 as T.private;
+
+function f_record:
+    async f_record 1u8 into r0;
+    cast self.caller 1u8 into r1 as R.record;
+    cast r1.owner 2u8 into r2 as R.record;
+    output r2 as R.record;
+    output r0 as test.aleo/f_record.future;
+
+finalize f_record:
+    input r0 as u8.public;
+    assert.eq r0 r0;
+
+function in_loops:
+    input r0 as [u8; 8u32].private;
+    lt r0[0u32] r0[1u32] into r1;
+    ternary r1 r0[1u32] r0[0u32] into r2;
+    ternary r1 r0[0u32] r0[1u32] into r3;
+    lt r3 r0[2u32] into r4;
+    ternary r4 r0[2u32] r3 into r5;
+    ternary r4 r3 r0[2u32] into r6;
+    lt r6 r0[3u32] into r7;
+    ternary r7 r0[3u32] r6 into r8;
+    ternary r7 r6 r0[3u32] into r9;
+    lt r9 r0[4u32] into r10;
+    ternary r10 r0[4u32] r9 into r11;
+    ternary r10 r9 r0[4u32] into r12;
+    lt r12 r0[5u32] into r13;
+    ternary r13 r0[5u32] r12 into r14;
+    ternary r13 r12 r0[5u32] into r15;
+    lt r15 r0[6u32] into r16;
+    ternary r16 r0[6u32] r15 into r17;
+    ternary r16 r15 r0[6u32] into r18;
+    lt r18 r0[7u32] into r19;
+    ternary r19 r0[7u32] r18 into r20;
+    ternary r19 r18 r0[7u32] into r21;
+    lt r2 r5 into r22;
+    ternary r22 r5 r2 into r23;
+    ternary r22 r2 r5 into r24;
+    lt r24 r8 into r25;
+    ternary r25 r8 r24 into r26;
+    ternary r25 r24 r8 into r27;
+    lt r27 r11 into r28;
+    ternary r28 r11 r27 into r29;
+    ternary r28 r27 r11 into r30;
+    lt r30 r14 into r31;
+    ternary r31 r14 r30 into r32;
+    ternary r31 r30 r14 into r33;
+    lt r33 r17 into r34;
+    ternary r34 r17 r33 into r35;
+    ternary r34 r33 r17 into r36;
+    lt r36 r20 into r37;
+    ternary r37 r20 r36 into r38;
+    ternary r37 r36 r20 into r39;
+    lt r23 r26 into r40;
+    ternary r40 r26 r23 into r41;
+    ternary r40 r23 r26 into r42;
+    lt r42 r29 into r43;
+    ternary r43 r29 r42 into r44;
+    ternary r43 r42 r29 into r45;
+    lt r45 r32 into r46;
+    ternary r46 r32 r45 into r47;
+    ternary r46 r45 r32 into r48;
+    lt r48 r35 into r49;
+    ternary r49 r35 r48 into r50;
+    ternary r49 r48 r35 into r51;
+    lt r51 r38 into r52;
+    ternary r52 r38 r51 into r53;
+    ternary r52 r51 r38 into r54;
+    lt r41 r44 into r55;
+    ternary r55 r44 r41 into r56;
+    ternary r55 r41 r44 into r57;
+    lt r57 r47 into r58;
+    ternary r58 r47 r57 into r59;
+    ternary r58 r57 r47 into r60;
+    lt r60 r50 into r61;
+    ternary r61 r50 r60 into r62;
+    ternary r61 r60 r50 into r63;
+    lt r63 r53 into r64;
+    ternary r64 r53 r63 into r65;
+    ternary r64 r63 r53 into r66;
+    lt r56 r59 into r67;
+    ternary r67 r59 r56 into r68;
+    ternary r67 r56 r59 into r69;
+    lt r69 r62 into r70;
+    ternary r70 r62 r69 into r71;
+    ternary r70 r69 r62 into r72;
+    lt r72 r65 into r73;
+    ternary r73 r65 r72 into r74;
+    ternary r73 r72 r65 into r75;
+    lt r68 r71 into r76;
+    ternary r76 r71 r68 into r77;
+    ternary r76 r68 r71 into r78;
+    lt r78 r74 into r79;
+    ternary r79 r74 r78 into r80;
+    ternary r79 r78 r74 into r81;
+    lt r77 r80 into r82;
+    ternary r82 r80 r77 into r83;
+    ternary r82 r77 r80 into r84;
+    cast r83 r84 r81 r75 r66 r54 r39 r21 into r85 as [u8; 8u32];
+    output r85 as [u8; 8u32].private;
