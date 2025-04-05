@@ -68,22 +68,23 @@ impl FunctionConsumer for SsaFormingVisitor<'_> {
         // Allocate a `RenameTable` for the function.
         self.push();
 
-        // For each input, change to a unique name.
-        // Give a unique However, for each input, we must add each symbol to the rename table.
-        for input_variable in function.input.iter_mut() {
-            let old_identifier = input_variable.identifier;
-            let new_symbol = self.state.assigner.unique_symbol(old_identifier, "$$");
-            let new_identifier = Identifier::new(new_symbol, self.state.node_builder.next_id());
-            input_variable.identifier = new_identifier;
+        if self.rename_defs {
+            // For each input, change to a unique name.
+            for input_variable in function.input.iter_mut() {
+                let old_identifier = input_variable.identifier;
+                let new_symbol = self.state.assigner.unique_symbol(old_identifier, "$$");
+                let new_identifier = Identifier::new(new_symbol, self.state.node_builder.next_id());
+                input_variable.identifier = new_identifier;
 
-            // Add the new identifier to the type table.
-            self.state.type_table.insert(new_identifier.id(), input_variable.type_.clone());
+                // Add the new identifier to the type table.
+                self.state.type_table.insert(new_identifier.id(), input_variable.type_.clone());
 
-            // Associate the old name with its ID.
-            self.rename_table.update(old_identifier.name, old_identifier.name, old_identifier.id);
+                // Associate the old name with its ID.
+                self.rename_table.update(old_identifier.name, old_identifier.name, old_identifier.id);
 
-            // And make the rename.
-            self.rename_table.update(old_identifier.name, new_identifier.name, old_identifier.id);
+                // And make the rename.
+                self.rename_table.update(old_identifier.name, new_identifier.name, old_identifier.id);
+            }
         }
 
         function.block =

@@ -146,6 +146,10 @@ impl<N: Network> Compiler<N> {
 
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
 
+        self.do_pass::<WriteTransforming>(())?;
+
+        self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
+
         self.do_pass::<Flattening>(())?;
 
         self.do_pass::<FunctionInlining>(())?;

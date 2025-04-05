@@ -54,7 +54,9 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        (AssignStatement { value: self.reconstruct_expression(assign.value).0, ..assign }.into(), None)
+        let value = self.reconstruct_expression(assign.value).0;
+        let place = self.reconstruct_expression(assign.place).0;
+        (AssignStatement { value, place, ..assign }.into(), None)
     }
 
     fn reconstruct_block(&mut self, mut block: Block) -> (Block, Self::AdditionalOutput) {

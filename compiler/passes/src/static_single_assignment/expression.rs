@@ -44,15 +44,26 @@ use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
 
+impl SsaFormingVisitor<'_> {
+    /// Consume this expression and assign it to a variable (unless it's already an Identifier).
+    pub fn consume_expression_and_define(&mut self, input: Expression) -> (Expression, Vec<Statement>) {
+        let (expr, mut statements) = self.consume_expression(input);
+        if matches!(expr, Expression::Identifier(..) | Expression::Unit(..) | Expression::Err(..)) {
+            (expr, statements)
+        } else {
+            let (place, statement) = self.unique_simple_definition(expr);
+            statements.push(statement);
+            (place.into(), statements)
+        }
+    }
+}
+
 impl ExpressionConsumer for SsaFormingVisitor<'_> {
     type Output = (Expression, Vec<Statement>);
 
     fn consume_array_access(&mut self, input: ArrayAccess) -> Self::Output {
-        let (array, mut statements) = self.consume_expression(input.array);
-        let access = ArrayAccess { array, ..input }.into();
-        let (place, statement) = self.unique_simple_definition(access);
-        statements.push(statement);
-        (place.into(), statements)
+        let (array, statements) = self.consume_expression_and_define(input.array);
+        (ArrayAccess { array, ..input }.into(), statements)
     }
 
     fn consume_member_access(&mut self, input: MemberAccess) -> Self::Output {
@@ -63,20 +74,13 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             }
         }
 
-        let (inner, mut statements) = self.consume_expression(input.inner);
-        let access = MemberAccess { inner, ..input }.into();
-        let (place, statement) = self.unique_simple_definition(access);
-        statements.push(statement);
-
-        (place.into(), statements)
+        let (inner, statements) = self.consume_expression_and_define(input.inner);
+        (MemberAccess { inner, ..input }.into(), statements)
     }
 
     fn consume_tuple_access(&mut self, input: TupleAccess) -> Self::Output {
-        let (tuple, mut statements) = self.consume_expression(input.tuple);
-        let access = TupleAccess { tuple, ..input }.into();
-        let (place, statement) = self.unique_simple_definition(access);
-        statements.push(statement);
-        (place.into(), statements)
+        let (tuple, statements) = self.consume_expression_and_define(input.tuple);
+        (TupleAccess { tuple, ..input }.into(), statements)
     }
 
     /// Consumes an array expression, accumulating any statements that are generated.
@@ -88,33 +92,25 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             .elements
             .into_iter()
             .map(|element| {
-                let (element, mut stmts) = self.consume_expression(element);
+                let (element, mut stmts) = self.consume_expression_and_define(element);
                 statements.append(&mut stmts);
                 element
             })
             .collect();
 
-        // Construct and accumulate a new assignment statement for the array expression.
-        let (place, statement) = self.unique_simple_definition(ArrayExpression { elements, ..input }.into());
-        statements.push(statement);
-
-        (place.into(), statements)
+        (ArrayExpression { elements, ..input }.into(), statements)
     }
 
     /// Consumes a binary expression, accumulating any statements that are generated.
     fn consume_binary(&mut self, input: BinaryExpression) -> Self::Output {
         // Reconstruct the lhs of the binary expression.
-        let (left, mut statements) = self.consume_expression(input.left);
+        let (left, mut statements) = self.consume_expression_and_define(input.left);
         // Reconstruct the rhs of the binary expression.
-        let (right, mut right_statements) = self.consume_expression(input.right);
+        let (right, mut right_statements) = self.consume_expression_and_define(input.right);
         // Accumulate any statements produced.
         statements.append(&mut right_statements);
 
-        // Construct and accumulate a unique definition statement storing the result of the binary expression.
-        let (place, statement) = self.unique_simple_definition(BinaryExpression { left, right, ..input }.into());
-        statements.push(statement);
-
-        (place.into(), statements)
+        (BinaryExpression { left, right, ..input }.into(), statements)
     }
 
     /// Consumes a call expression without visiting the function name, accumulating any statements that are generated.
@@ -126,36 +122,28 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             .arguments
             .into_iter()
             .map(|argument| {
-                let (argument, mut stmts) = self.consume_expression(argument);
+                let (argument, mut stmts) = self.consume_expression_and_define(argument);
                 statements.append(&mut stmts);
                 argument
             })
             .collect();
 
-        // Construct and accumulate a new definition statement for the call expression.
-        let (place, statement) = self.unique_simple_definition(
+        (
             CallExpression {
                 // Note that we do not rename the function name.
                 arguments,
                 ..input
             }
             .into(),
-        );
-        statements.push(statement);
-
-        (place.into(), statements)
+            statements,
+        )
     }
 
     /// Consumes a cast expression, accumulating any statements that are generated.
     fn consume_cast(&mut self, input: CastExpression) -> Self::Output {
         // Reconstruct the expression being casted.
-        let (expression, mut statements) = self.consume_expression(input.expression);
-
-        // Construct and accumulate a unique definition statement storing the result of the cast expression.
-        let (place, statement) = self.unique_simple_definition(CastExpression { expression, ..input }.into());
-        statements.push(statement);
-
-        (place.into(), statements)
+        let (expression, statements) = self.consume_expression_and_define(input.expression);
+        (CastExpression { expression, ..input }.into(), statements)
     }
 
     /// Consumes a struct initialization expression with renamed variables, accumulating any statements that are generated.
@@ -167,24 +155,16 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             .members
             .into_iter()
             .map(|arg| {
-                let (expression, mut stmts) = match &arg.expression.is_some() {
-                    // If the expression is None, then `arg` is a `StructVariableInitializer` of the form `<id>,`.
-                    // In this case, we must consume the identifier and produce an initializer of the form `<id>: <renamed_id>`.
-                    false => self.consume_identifier(arg.identifier),
-                    // If expression is `Some(..)`, then `arg is a `StructVariableInitializer` of the form `<id>: <expr>,`.
-                    // In this case, we must consume the expression.
-                    true => self.consume_expression(arg.expression.unwrap()),
+                let (expression, mut stmts) = if let Some(expr) = arg.expression {
+                    self.consume_expression_and_define(expr)
+                } else {
+                    self.consume_identifier(arg.identifier)
                 };
                 // Accumulate any statements produced.
                 statements.append(&mut stmts);
 
                 // Return the new member.
-                StructVariableInitializer {
-                    identifier: arg.identifier,
-                    expression: Some(expression),
-                    span: arg.span,
-                    id: arg.id,
-                }
+                StructVariableInitializer { expression: Some(expression), ..arg }
             })
             .collect();
 
@@ -223,12 +203,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             }
         }
 
-        // Construct and accumulate a new definition statement for the struct expression.
-        let (place, statement) =
-            self.unique_simple_definition(StructExpression { members: reordered_members, ..input }.into());
-        statements.push(statement);
-
-        (place.into(), statements)
+        (StructExpression { members: reordered_members, ..input }.into(), statements)
     }
 
     /// Retrieve the new name for this `Identifier`.
@@ -238,14 +213,12 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
     fn consume_identifier(&mut self, identifier: Identifier) -> Self::Output {
         // If lookup fails, either it's the name of a mapping or we didn't rename it.
         let name = *self.rename_table.lookup(identifier.name).unwrap_or(&identifier.name);
-        (Identifier { name, span: identifier.span, id: identifier.id }.into(), Default::default())
+        (Identifier { name, ..identifier }.into(), Default::default())
     }
 
     /// Consumes and returns the literal without making any modifications.
     fn consume_literal(&mut self, input: Literal) -> Self::Output {
-        // Construct and accumulate a new assignment statement for the literal.
-        let (place, statement) = self.unique_simple_definition(Expression::Literal(input));
-        (place.into(), vec![statement])
+        (input.into(), Default::default())
     }
 
     /// Consumes and returns the locator expression without making any modifications
@@ -256,23 +229,20 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
     /// Consumes a ternary expression, accumulating any statements that are generated.
     fn consume_ternary(&mut self, input: TernaryExpression) -> Self::Output {
         // Reconstruct the condition of the ternary expression.
-        let (cond_expr, mut statements) = self.consume_expression(input.condition);
+        let (cond_expr, mut statements) = self.consume_expression_and_define(input.condition);
         // Reconstruct the if-true case of the ternary expression.
-        let (if_true_expr, if_true_statements) = self.consume_expression(input.if_true);
+        let (if_true_expr, if_true_statements) = self.consume_expression_and_define(input.if_true);
         // Reconstruct the if-false case of the ternary expression.
-        let (if_false_expr, if_false_statements) = self.consume_expression(input.if_false);
+        let (if_false_expr, if_false_statements) = self.consume_expression_and_define(input.if_false);
 
         // Accumulate any statements produced.
         statements.extend(if_true_statements);
         statements.extend(if_false_statements);
 
-        // Construct and accumulate a unique assignment statement storing the result of the ternary expression.
-        let (place, statement) = self.unique_simple_definition(
+        (
             TernaryExpression { condition: cond_expr, if_true: if_true_expr, if_false: if_false_expr, ..input }.into(),
-        );
-        statements.push(statement);
-
-        (place.into(), statements)
+            statements,
+        )
     }
 
     /// Consumes a tuple expression, accumulating any statements that are generated
@@ -284,28 +254,20 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             .elements
             .into_iter()
             .map(|element| {
-                let (element, mut stmts) = self.consume_expression(element);
+                let (element, mut stmts) = self.consume_expression_and_define(element);
                 statements.append(&mut stmts);
                 element
             })
             .collect();
 
-        // Construct and accumulate a new assignment statement for the tuple expression.
-        let (place, statement) =
-            self.unique_simple_definition(TupleExpression { elements, span: input.span, id: input.id }.into());
-        statements.push(statement);
-
-        (place.into(), statements)
+        (TupleExpression { elements, ..input }.into(), statements)
     }
 
     /// Consumes a unary expression, accumulating any statements that are generated.
     fn consume_unary(&mut self, input: UnaryExpression) -> Self::Output {
         // Reconstruct the operand of the unary expression.
-        let (receiver, mut statements) = self.consume_expression(input.receiver);
-        // Construct and accumulate a new assignment statement for the unary expression.
-        let (place, statement) = self.unique_simple_definition(UnaryExpression { receiver, ..input }.into());
-        statements.push(statement);
-        (place.into(), statements)
+        let (receiver, statements) = self.consume_expression_and_define(input.receiver);
+        (UnaryExpression { receiver, ..input }.into(), statements)
     }
 
     fn consume_unit(&mut self, input: UnitExpression) -> Self::Output {
@@ -323,7 +285,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
                 .arguments
                 .into_iter()
                 .map(|arg| {
-                    let (arg, mut stmts) = self.consume_expression(arg);
+                    let (arg, mut stmts) = self.consume_expression_and_define(arg);
                     statements.append(&mut stmts);
                     arg
                 })
@@ -332,10 +294,6 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         }
         .into();
 
-        let (place, statement) = self.unique_simple_definition(expr);
-
-        statements.push(statement);
-
-        (place.into(), statements)
+        (expr, statements)
     }
 }

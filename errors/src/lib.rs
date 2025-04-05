@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+#![recursion_limit = "256"]
 #![forbid(unsafe_code)]
 #![deny(clippy::all)]
 #![doc = include_str!("../README.md")]

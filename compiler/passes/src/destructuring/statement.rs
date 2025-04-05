@@ -37,75 +37,88 @@ use leo_span::Symbol;
 use itertools::{Itertools as _, izip};
 
 impl StatementReconstructor for DestructuringVisitor<'_> {
+    /// Modify assignments to tuples to become assignments to the corresponding variables.
+    ///
+    /// There are two cases we handle:
+    /// 1. An assignment to a tuple x, like `x = rhs;`.
+    ///    This we need to transform into individual assignments
+    ///    `x_i = rhs_i;`
+    ///    of the variables corresponding to members of `x` and `rhs`.
+    /// 2. An assignment to a tuple member, like `x.2[i].member = rhs;`.
+    ///    This we need to change into
+    ///    `x_2[i].member = rhs;`
+    ///    where `x_2` is the variable corresponding to `x.2`.
     fn reconstruct_assign(&mut self, mut assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         let (value, mut statements) = self.reconstruct_expression(assign.value);
 
-        match assign.place {
-            Expression::Identifier(identifier) => {
-                if let Type::Tuple(tuple_type) =
-                    self.state.type_table.get(&value.id()).expect("Expressions should have types.")
-                {
-                    // It's a variable of tuple type. Aleo VM doesn't know about tuples, so
-                    // we'll need to handle this.
-                    let new_symbol = self.state.assigner.unique_symbol(identifier, "##");
-                    let new_identifier = Identifier::new(new_symbol, self.state.node_builder.next_id());
-                    self.state.type_table.insert(new_identifier.id(), Type::Tuple(tuple_type.clone()));
+        if let Expression::Identifier(identifier) = assign.place {
+            if let Type::Tuple(..) = self.state.type_table.get(&value.id()).expect("Expressions should have types.") {
+                // This is the first case, assigning to a variable of tuple type.
+                let identifiers = self.tuples.get(&identifier.name).expect("Tuple should have been encountered.");
 
-                    let identifiers = self.tuples.get(&identifier.name).expect("Tuple should have been encountered.");
-
-                    let Expression::Identifier(rhs) = value else {
-                        panic!("SSA should have ensured this is an identifier.");
-                    };
-
-                    let rhs_identifiers = self.tuples.get(&rhs.name).expect("Tuple should have been encountered.");
-
-                    // Again, make an assignment for each identifier.
-                    for (identifier, rhs_identifier) in identifiers.iter().zip_eq(rhs_identifiers) {
-                        let stmt = AssignStatement {
-                            place: (*identifier).into(),
-                            value: (*rhs_identifier).into(),
-                            id: self.state.node_builder.next_id(),
-                            span: Default::default(),
-                        }
-                        .into();
-
-                        statements.push(stmt);
-                    }
-
-                    (Statement::dummy(), statements)
-                } else {
-                    assign.value = value;
-                    (assign.into(), statements)
-                }
-            }
-
-            Expression::TupleAccess(access) => {
-                // We're assigning to a tuple member. Again, Aleo VM doesn't know about tuples,
-                // so we'll need to handle this.
-                let Expression::Identifier(identifier) = &access.tuple else {
+                let Expression::Identifier(rhs) = value else {
                     panic!("SSA should have ensured this is an identifier.");
                 };
 
-                let tuple_ids = self.tuples.get(&identifier.name).expect("Tuple should have been encountered.");
+                let rhs_identifiers = self.tuples.get(&rhs.name).expect("Tuple should have been encountered.");
 
-                // This is the correspondig variable name of the member we're assigning to.
-                let identifier = tuple_ids[access.index.value()];
+                // Again, make an assignment for each identifier.
+                for (&identifier, &rhs_identifier) in identifiers.iter().zip_eq(rhs_identifiers) {
+                    let stmt = AssignStatement {
+                        place: identifier.into(),
+                        value: rhs_identifier.into(),
+                        id: self.state.node_builder.next_id(),
+                        span: Default::default(),
+                    }
+                    .into();
 
-                // So just assign to the variable.
-                let assign = AssignStatement {
-                    place: Expression::Identifier(identifier),
-                    value,
-                    span: Default::default(),
-                    id: self.state.node_builder.next_id(),
+                    statements.push(stmt);
                 }
-                .into();
 
-                (assign, statements)
+                // We don't need the original assignment, just the ones we've created.
+                return (Statement::dummy(), statements);
             }
+        }
 
-            _ => {
-                assign.value = value;
-                (assign.into(), statements)
+        // We need to check for case 2, so we loop and see if we find a tuple access.
+
+        assign.value = value;
+        let mut place = &mut assign.place;
+
+        loop {
+            match place {
+                Expression::TupleAccess(access) => {
+                    // We're assigning to a tuple member, case 2 mentioned above.
+                    let Expression::Identifier(identifier) = &access.tuple else {
+                        panic!("SSA should have ensured this is an identifier.");
+                    };
+
+                    let tuple_ids = self.tuples.get(&identifier.name).expect("Tuple should have been encountered.");
+
+                    // This is the corresponding variable name of the member we're assigning to.
+                    let identifier = tuple_ids[access.index.value()];
+
+                    *place = identifier.into();
+
+                    return (assign.into(), statements);
+                }
+
+                Expression::ArrayAccess(access) => {
+                    // We need to investigate the array, as maybe it's inside a tuple access, like `tupl.0[1u8]`.
+                    place = &mut access.array;
+                }
+
+                Expression::MemberAccess(access) => {
+                    // We need to investigate the struct, as maybe it's inside a tuple access, like `tupl.0.mem`.
+                    place = &mut access.inner;
+                }
+
+                Expression::Identifier(..) => {
+                    // There was no tuple access, so this is neither case 1 nor 2; there's nothing to do.
+                    return (assign.into(), statements);
+                }
+
+                _ => panic!("Type checking should have prevented this."),
             }
         }
     }
@@ -117,7 +130,9 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
         for statement in block.statements {
             let (reconstructed_statement, additional_statements) = self.reconstruct_statement(statement);
             statements.extend(additional_statements);
-            statements.push(reconstructed_statement);
+            if !reconstructed_statement.is_empty() {
+                statements.push(reconstructed_statement);
+            }
         }
 
         (Block { statements, ..block }, Default::default())
