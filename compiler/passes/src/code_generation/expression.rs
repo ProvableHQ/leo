@@ -43,9 +43,8 @@ use leo_ast::{
     Variant,
 };
 use leo_span::sym;
-use std::borrow::Borrow;
 
-use std::fmt::Write as _;
+use std::{borrow::Borrow, fmt::Write as _};
 
 /// Implement the necessary methods to visit nodes in the AST.
 impl CodeGeneratingVisitor<'_> {
@@ -169,15 +168,13 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_array(&mut self, input: &ArrayExpression) -> (String, String) {
-        let (expression_operands, mut instructions) =
-            input.elements.iter().map(|expr| self.visit_expression(expr)).fold(
-                (String::new(), String::new()),
-                |(mut operands, mut instructions), (operand, operand_instructions)| {
-                    operands.push_str(&format!(" {operand}"));
-                    instructions.push_str(&operand_instructions);
-                    (operands, instructions)
-                },
-            );
+        let mut expression_operands = String::new();
+        let mut instructions = String::new();
+        for (operand, operand_instructions) in input.elements.iter().map(|expr| self.visit_expression(expr)) {
+            let space = if expression_operands.is_empty() { "" } else { " " };
+            write!(&mut expression_operands, "{space}{operand}").unwrap();
+            instructions.push_str(&operand_instructions);
+        }
 
         // Construct the destination register.
         let destination_register = format!("r{}", self.next_register);
@@ -185,9 +182,8 @@ impl CodeGeneratingVisitor<'_> {
         self.next_register += 1;
 
         // Get the array type.
-        let array_type = match self.state.type_table.get(&input.id) {
-            Some(Type::Array(array_type)) => Type::Array(array_type),
-            _ => panic!("All types should be known at this phase of compilation"),
+        let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
+            panic!("All types should be known at this phase of compilation");
         };
         let array_type: String = Self::visit_type(&array_type);
 

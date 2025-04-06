@@ -3,7 +3,7 @@ program test.aleo;
 
 function bar:
     input r0 as boolean.private;
-    cast  r0 r0 r0 r0 r0 r0 r0 r0 into r1 as [boolean; 8u32];
+    cast r0 r0 r0 r0 r0 r0 r0 r0 into r1 as [boolean; 8u32];
     output r1 as [boolean; 8u32].private;
 
 DCE_DISABLED:
@@ -11,5 +11,5 @@ program test.aleo;
 
 function bar:
     input r0 as boolean.private;
-    cast  r0 r0 r0 r0 r0 r0 r0 r0 into r1 as [boolean; 8u32];
+    cast r0 r0 r0 r0 r0 r0 r0 r0 into r1 as [boolean; 8u32];
     output r1 as [boolean; 8u32].private;

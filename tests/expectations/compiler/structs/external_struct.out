@@ -24,17 +24,17 @@ struct Foo:
 function create:
     cast 1u32 2u32 into r0 as Two;
     cast 3u32 4u32 into r1 as Two;
-    cast  r0 r1 into r2 as [Two; 2u32];
+    cast r0 r1 into r2 as [Two; 2u32];
     cast r2 into r3 as One;
     cast r3 into r4 as Baz;
     cast 5u32 6u32 into r5 as Two;
     cast 7u32 8u32 into r6 as Two;
-    cast  r5 r6 into r7 as [Two; 2u32];
+    cast r5 r6 into r7 as [Two; 2u32];
     cast r7 into r8 as One;
     cast r8 into r9 as Baz;
-    cast  r4 r9 into r10 as [Baz; 2u32];
+    cast r4 r9 into r10 as [Baz; 2u32];
     cast r10 into r11 as Bar;
-    cast  r11 into r12 as [Bar; 1u32];
+    cast r11 into r12 as [Bar; 1u32];
     cast r12 into r13 as Foo;
     cast self.caller 10u32 into r14 as Boo.record;
     output r13 as Foo.private;
@@ -147,17 +147,17 @@ struct Foo:
 function create:
     cast 1u32 2u32 into r0 as Two;
     cast 3u32 4u32 into r1 as Two;
-    cast  r0 r1 into r2 as [Two; 2u32];
+    cast r0 r1 into r2 as [Two; 2u32];
     cast r2 into r3 as One;
     cast r3 into r4 as Baz;
     cast 5u32 6u32 into r5 as Two;
     cast 7u32 8u32 into r6 as Two;
-    cast  r5 r6 into r7 as [Two; 2u32];
+    cast r5 r6 into r7 as [Two; 2u32];
     cast r7 into r8 as One;
     cast r8 into r9 as Baz;
-    cast  r4 r9 into r10 as [Baz; 2u32];
+    cast r4 r9 into r10 as [Baz; 2u32];
     cast r10 into r11 as Bar;
-    cast  r11 into r12 as [Bar; 1u32];
+    cast r11 into r12 as [Bar; 1u32];
     cast r12 into r13 as Foo;
     cast self.caller 10u32 into r14 as Boo.record;
     output r13 as Foo.private;
@@ -194,17 +194,17 @@ struct Foo:
 function create_wrapper:
     cast 1u32 2u32 into r0 as Two;
     cast 3u32 4u32 into r1 as Two;
-    cast  r0 r1 into r2 as [Two; 2u32];
+    cast r0 r1 into r2 as [Two; 2u32];
     cast r2 into r3 as One;
     cast r3 into r4 as Baz;
     cast 5u32 6u32 into r5 as Two;
     cast 7u32 8u32 into r6 as Two;
-    cast  r5 r6 into r7 as [Two; 2u32];
+    cast r5 r6 into r7 as [Two; 2u32];
     cast r7 into r8 as One;
     cast r8 into r9 as Baz;
-    cast  r4 r9 into r10 as [Baz; 2u32];
+    cast r4 r9 into r10 as [Baz; 2u32];
     cast r10 into r11 as Bar;
-    cast  r11 into r12 as [Bar; 1u32];
+    cast r11 into r12 as [Bar; 1u32];
     cast r12 into r13 as Foo;
     call child.aleo/create into r14 r15;
     call child.aleo/create into r16 r17;
@@ -214,17 +214,17 @@ function create_wrapper:
 function create_another_wrapper:
     cast 1u32 2u32 into r0 as Two;
     cast 3u32 4u32 into r1 as Two;
-    cast  r0 r1 into r2 as [Two; 2u32];
+    cast r0 r1 into r2 as [Two; 2u32];
     cast r2 into r3 as One;
     cast r3 into r4 as Baz;
     cast 5u32 6u32 into r5 as Two;
     cast 7u32 8u32 into r6 as Two;
-    cast  r5 r6 into r7 as [Two; 2u32];
+    cast r5 r6 into r7 as [Two; 2u32];
     cast r7 into r8 as One;
     cast r8 into r9 as Baz;
-    cast  r4 r9 into r10 as [Baz; 2u32];
+    cast r4 r9 into r10 as [Baz; 2u32];
     cast r10 into r11 as Bar;
-    cast  r11 into r12 as [Bar; 1u32];
+    cast r11 into r12 as [Bar; 1u32];
     cast r12 into r13 as Foo;
     call child.aleo/create into r14 r15;
     cast 1u32 2u32 into r16 as Woo;
