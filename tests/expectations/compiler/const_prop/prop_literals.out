@@ -8,7 +8,7 @@ function f2:
     output 0field as field.private;
 
 function f3:
-    cast  aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r0 as [address; 2u32];
+    cast aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r0 as [address; 2u32];
     output r0 as [address; 2u32].private;
 
 DCE_DISABLED:
@@ -21,5 +21,5 @@ function f2:
     output 0field as field.private;
 
 function f3:
-    cast  aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r0 as [address; 2u32];
+    cast aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r0 as [address; 2u32];
     output r0 as [address; 2u32].private;
