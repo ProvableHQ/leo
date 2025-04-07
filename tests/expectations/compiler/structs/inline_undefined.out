@@ -12,11 +12,10 @@ Error [ETYC0372005]: Unknown struct or record `Foo`
    4 |         let a: Foo = Foo { };
      |                      ^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372017]: The type `Foo` is not found in the current scope.
@@ -32,8 +31,7 @@ Error [ETYC0372005]: Unknown struct or record `Foo`
    4 |         let a: Foo = Foo { };
      |                      ^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

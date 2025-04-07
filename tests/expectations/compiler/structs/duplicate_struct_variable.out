@@ -8,11 +8,10 @@ Error [ETYC0372015]: Struct Bar defined with more than one member with the same 
    6 |     }
      |     ^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372015]: Struct Bar defined with more than one member with the same name.
@@ -24,8 +23,7 @@ Error [ETYC0372015]: Struct Bar defined with more than one member with the same 
    6 |     }
      |     ^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

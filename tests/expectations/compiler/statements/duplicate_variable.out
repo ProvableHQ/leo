@@ -5,11 +5,10 @@ Error [EAST0372009]: variable `x` shadowed by
    5 |       	let x: bool = true;
      |            ^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [EAST0372009]: variable `x` shadowed by
@@ -18,8 +17,7 @@ Error [EAST0372009]: variable `x` shadowed by
    5 |       	let x: bool = true;
      |            ^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

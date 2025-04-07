@@ -7,11 +7,10 @@ Error [ETYC0372120]: Received types `group` and `group` for the operation `*`.
      |
      = Valid operands are two integers of the same type, two fields, or a scalar and a group.
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372120]: Received types `group` and `group` for the operation `*`.
@@ -22,8 +21,7 @@ Error [ETYC0372120]: Received types `group` and `group` for the operation `*`.
      |
      = Valid operands are two integers of the same type, two fields, or a scalar and a group.
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

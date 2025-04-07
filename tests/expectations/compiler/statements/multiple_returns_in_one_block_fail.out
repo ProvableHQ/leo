@@ -14,11 +14,10 @@ Error [ETYC0372025]: Cannot reach the following statement.
      |
      = Remove the unreachable code.
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372025]: Cannot reach the following statement.
@@ -36,8 +35,7 @@ Error [ETYC0372025]: Cannot reach the following statement.
      |
      = Remove the unreachable code.
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

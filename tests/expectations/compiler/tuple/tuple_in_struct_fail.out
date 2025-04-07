@@ -10,11 +10,10 @@ Error [ETYC0372050]: A struct cannot contain a tuple.
    8 |         mems: (A, A)
      |         ^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372050]: A struct cannot contain a tuple.
@@ -28,8 +27,7 @@ Error [ETYC0372050]: A struct cannot contain a tuple.
    8 |         mems: (A, A)
      |         ^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

@@ -5,11 +5,10 @@ Error [ETYC0372117]: Expected type `field` but type `scalar` was found.
    4 |         return a.square_root(); // square root not supported for scalar types.
      |                ^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372117]: Expected type `field` but type `scalar` was found.
@@ -18,8 +17,7 @@ Error [ETYC0372117]: Expected type `field` but type `scalar` was found.
    4 |         return a.square_root(); // square root not supported for scalar types.
      |                ^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

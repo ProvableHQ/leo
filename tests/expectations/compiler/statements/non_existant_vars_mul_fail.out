@@ -10,11 +10,10 @@ Error [ETYC0372005]: Unknown variable `z`
    4 |     	let b: u8 = x*z;
      |                    ^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372005]: Unknown variable `x`
@@ -28,8 +27,7 @@ Error [ETYC0372005]: Unknown variable `z`
    4 |     	let b: u8 = x*z;
      |                    ^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

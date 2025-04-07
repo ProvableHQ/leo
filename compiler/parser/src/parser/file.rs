@@ -17,6 +17,7 @@
 use super::*;
 
 use leo_errors::{ParserError, Result};
+use leo_span::{Symbol, sym};
 
 impl<N: Network> ParserContext<'_, N> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
@@ -105,11 +106,13 @@ impl<N: Network> ParserContext<'_, N> {
         self.expect(&Token::Dot)?;
 
         // Parse the program network, which must be `aleo`, otherwise throw parser error.
-        self.expect(&Token::Aleo).map_err(|_| ParserError::invalid_network(self.token.span))?;
+        let network_span = self.expect(&Token::Aleo).map_err(|_| ParserError::invalid_network(self.token.span))?;
 
         // Construct the program id.
-        let program_id =
-            ProgramId { name, network: Identifier::new(Symbol::intern("aleo"), self.node_builder.next_id()) };
+        let program_id = ProgramId {
+            name,
+            network: Identifier { name: sym::aleo, id: self.node_builder.next_id(), span: network_span },
+        };
 
         // Parse `{`.
         self.expect(&Token::LeftCurly)?;
@@ -386,5 +389,3 @@ impl<N: Network> ParserContext<'_, N> {
         ))
     }
 }
-
-use leo_span::{Symbol, sym};

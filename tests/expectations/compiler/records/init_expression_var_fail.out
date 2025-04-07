@@ -18,11 +18,10 @@ Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
   19 |         let t: Token = mint(x, c);
      |                        ^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
@@ -44,8 +43,7 @@ Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
   19 |         let t: Token = mint(x, c);
      |                        ^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

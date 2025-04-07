@@ -26,11 +26,10 @@ Error [ETYC0372005]: Unknown variable `test`
    4 |         return test;
      |                ^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372017]: The type `Board` is not found in the current scope.
@@ -60,8 +59,7 @@ Error [ETYC0372005]: Unknown variable `test`
    4 |         return test;
      |                ^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

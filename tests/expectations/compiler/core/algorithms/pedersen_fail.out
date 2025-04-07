@@ -10,11 +10,10 @@ Error [ETYC0372117]: Expected type `group` but type `field` was found.
    4 |         let a: group = Pedersen64::hash_to_field(1u128); // Pedersen64 hash_to_field returns a field type
      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `u128` was found.
@@ -28,8 +27,7 @@ Error [ETYC0372117]: Expected type `group` but type `field` was found.
    4 |         let a: group = Pedersen64::hash_to_field(1u128); // Pedersen64 hash_to_field returns a field type
      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

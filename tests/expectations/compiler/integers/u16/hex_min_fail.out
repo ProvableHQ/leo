@@ -5,11 +5,10 @@ Error [ETYC0372008]: The value -0x1 is not a valid `u16`
    4 |         let a: u16 = -0x1u16;
      |                      ^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372008]: The value -0x1 is not a valid `u16`
@@ -18,8 +17,7 @@ Error [ETYC0372008]: The value -0x1 is not a valid `u16`
    4 |         let a: u16 = -0x1u16;
      |                      ^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
