@@ -70,11 +70,10 @@ Error [ETYC0372008]: The value -1 is not a valid `u8`
   10 |         let h: u8 = -a ** -1u8;
      |                           ^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
@@ -148,8 +147,7 @@ Error [ETYC0372008]: The value -1 is not a valid `u8`
   10 |         let h: u8 = -a ** -1u8;
      |                           ^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

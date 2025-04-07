@@ -12,11 +12,10 @@ Error [ETYC0372016]: Record Token defined with more than one variable with the s
   10 |     }
      |     ^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372016]: Record Token defined with more than one variable with the same name.
@@ -32,8 +31,7 @@ Error [ETYC0372016]: Record Token defined with more than one variable with the s
   10 |     }
      |     ^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^

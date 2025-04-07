@@ -60,11 +60,10 @@ Error [ETYC0372034]: `Mapping::get` must be inside an async function block.
   15 |         Mapping::get(values, 0u8);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 Warning [WTYC0372002]: The async function `finalize_finalize_no_params` is never called by an async transition.
     --> compiler-test:18:5
      |
@@ -135,11 +134,10 @@ Error [ETYC0372034]: `Mapping::get` must be inside an async function block.
   15 |         Mapping::get(values, 0u8);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 Warning [WTYC0372002]: The async function `finalize_finalize_no_params` is never called by an async transition.
     --> compiler-test:18:5
      |

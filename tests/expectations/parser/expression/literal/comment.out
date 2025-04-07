@@ -15,8 +15,8 @@
         "network": {
           "name": "aleo",
           "span": {
-            "lo": 0,
-            "hi": 0
+            "lo": 125,
+            "hi": 129
           },
           "id": 1
         }

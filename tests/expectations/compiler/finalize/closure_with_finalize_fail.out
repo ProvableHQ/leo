@@ -52,11 +52,10 @@ Error [ETYC0372005]: Unknown variable `account`
   21 |         Mapping::set(account, receiver, amount);
      |                      ^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372110]: A `transition` cannot return a future.
@@ -112,8 +111,7 @@ Error [ETYC0372005]: Unknown variable `account`
   21 |         Mapping::set(account, receiver, amount);
      |                      ^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:1:1
+    --> compiler-test:2:9
      |
-   1 | 
    2 | program test.aleo {
-     | ^^^^^^^^^^^^
+     |         ^^^^^^^^^
