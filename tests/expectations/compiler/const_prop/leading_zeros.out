@@ -1,0 +1,35 @@
+DCE_ENABLED:
+program test.aleo;
+
+function a:
+    output 2field as field.private;
+
+function b:
+    output 288246391group as group.private;
+
+function c:
+    output 2scalar as scalar.private;
+
+function d:
+    output 2i8 as i8.private;
+
+function e:
+    output 1field as field.private;
+
+DCE_DISABLED:
+program test.aleo;
+
+function a:
+    output 2field as field.private;
+
+function b:
+    output 288246391group as group.private;
+
+function c:
+    output 2scalar as scalar.private;
+
+function d:
+    output 2i8 as i8.private;
+
+function e:
+    output 1field as field.private;
