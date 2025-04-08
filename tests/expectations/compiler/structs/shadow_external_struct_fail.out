@@ -3,8 +3,11 @@ Error [EAST0372015]: There are two definitions of struct `Bar` that do not match
     --> compiler-test:9:5
      |
    9 |     struct Bar {
+     |     ^^^^^^^^^^^^
   10 |         baz: [Baz; 2],
+     |         ^^^^^^^^^^^^^^
   11 |         bog: u32,
+     |         ^^^^^^^^^
   12 |     }
      |     ^
      |
@@ -15,8 +18,11 @@ Error [EAST0372015]: There are two definitions of struct `Bar` that do not match
     --> compiler-test:9:5
      |
    9 |     struct Bar {
+     |     ^^^^^^^^^^^^
   10 |         baz: [Baz; 2],
+     |         ^^^^^^^^^^^^^^
   11 |         bog: u32,
+     |         ^^^^^^^^^
   12 |     }
      |     ^
      |

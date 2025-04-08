@@ -4,6 +4,7 @@ Error [EPAR0370005]: expected , -- found ')'
      |
    5 |         assert_eq(a == 1u8);
      |                           ^
+
 DCE_DISABLED:
 Error [EPAR0370005]: expected , -- found ')'
     --> compiler-test:5:27

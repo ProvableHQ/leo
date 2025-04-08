@@ -16,7 +16,6 @@
 
 #![recursion_limit = "256"]
 #![forbid(unsafe_code)]
-#![deny(clippy::all)]
 #![doc = include_str!("../README.md")]
 
 #[macro_use]

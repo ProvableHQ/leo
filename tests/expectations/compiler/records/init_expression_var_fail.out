@@ -8,10 +8,13 @@ Error [ETYC0372013]: Struct initialization expression for `Token` is missing mem
     --> compiler-test:11:16
      |
   11 |         return Token {
+     |                ^^^^^^^
   12 |             sender: r0, // This variable should be named `owner`.
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   13 |             amount: r1,
+     |             ^^^^^^^^^^^
   14 |         };
-     |          ^^^^^^
+     |         ^
 Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
     --> compiler-test:19:24
      |
@@ -33,10 +36,13 @@ Error [ETYC0372013]: Struct initialization expression for `Token` is missing mem
     --> compiler-test:11:16
      |
   11 |         return Token {
+     |                ^^^^^^^
   12 |             sender: r0, // This variable should be named `owner`.
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   13 |             amount: r1,
+     |             ^^^^^^^^^^^
   14 |         };
-     |          ^^^^^^
+     |         ^
 Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
     --> compiler-test:19:24
      |

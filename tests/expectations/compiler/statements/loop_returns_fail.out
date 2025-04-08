@@ -3,7 +3,9 @@ Error [ETYC0372026]: Loop body contains a return statement or always returns.
     --> compiler-test:5:9
      |
    5 |         for i: u32 in 0u32..9u32 {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
    6 |             return false;
+     |             ^^^^^^^^^^^^^
    7 |         }
      |         ^
      |
@@ -12,11 +14,17 @@ Error [ETYC0372026]: Loop body contains a return statement or always returns.
     --> compiler-test:9:9
      |
    9 |         for i: u32 in 0u32..9u32 {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
   10 |             if (x == 0u32) {
+     |             ^^^^^^^^^^^^^^^^
   11 |                 return false;
+     |                 ^^^^^^^^^^^^^
   12 |             } else {
+     |             ^^^^^^^^
   13 |                 return true;
+     |                 ^^^^^^^^^^^^
   14 |             }
+     |             ^
   15 |         }
      |         ^
      |
@@ -32,7 +40,9 @@ Error [ETYC0372026]: Loop body contains a return statement or always returns.
     --> compiler-test:5:9
      |
    5 |         for i: u32 in 0u32..9u32 {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
    6 |             return false;
+     |             ^^^^^^^^^^^^^
    7 |         }
      |         ^
      |
@@ -41,11 +51,17 @@ Error [ETYC0372026]: Loop body contains a return statement or always returns.
     --> compiler-test:9:9
      |
    9 |         for i: u32 in 0u32..9u32 {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
   10 |             if (x == 0u32) {
+     |             ^^^^^^^^^^^^^^^^
   11 |                 return false;
+     |                 ^^^^^^^^^^^^^
   12 |             } else {
+     |             ^^^^^^^^
   13 |                 return true;
+     |                 ^^^^^^^^^^^^
   14 |             }
+     |             ^
   15 |         }
      |         ^
      |

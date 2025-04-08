@@ -4,6 +4,7 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found '='
      |
   15 |         for a: u32 in 10u32..=0u32 {
      |                              ^
+
 DCE_DISABLED:
 Error [EPAR0370009]: unexpected string: expected 'expression', found '='
     --> compiler-test:15:30

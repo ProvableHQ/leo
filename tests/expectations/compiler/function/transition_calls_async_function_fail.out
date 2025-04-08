@@ -17,11 +17,17 @@ Error [ETYC0372088]: An async transition must call an async function.
     --> compiler-test:8:3
      |
    8 |   async transition finish(a: u64, b: u64) {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    9 |     if (b == 0u64) {
+     |     ^^^^^^^^^^^^^^^^
   10 |       assert_eq(b, 0u64);
+     |       ^^^^^^^^^^^^^^^^^^^
   11 |     } else {
+     |     ^^^^^^^^
   12 |       assert_eq(a / b, 1u64);
+     |       ^^^^^^^^^^^^^^^^^^^^^^^
   13 |     }
+     |     ^
   14 |   }
      |   ^
      |
@@ -46,11 +52,17 @@ Error [ETYC0372088]: An async transition must call an async function.
     --> compiler-test:8:3
      |
    8 |   async transition finish(a: u64, b: u64) {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    9 |     if (b == 0u64) {
+     |     ^^^^^^^^^^^^^^^^
   10 |       assert_eq(b, 0u64);
+     |       ^^^^^^^^^^^^^^^^^^^
   11 |     } else {
+     |     ^^^^^^^^
   12 |       assert_eq(a / b, 1u64);
+     |       ^^^^^^^^^^^^^^^^^^^^^^^
   13 |     }
+     |     ^
   14 |   }
      |   ^
      |

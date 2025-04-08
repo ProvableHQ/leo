@@ -4,6 +4,7 @@ Error [ECMP0376008]: This loop bound could not be determined at compile time.
      |
   11 |             for j: u32 in SOME+1u32..STOP+a {
      |                                      ^^^^^^
+
 DCE_DISABLED:
 Error [ECMP0376008]: This loop bound could not be determined at compile time.
     --> compiler-test:11:38

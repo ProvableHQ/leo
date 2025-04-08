@@ -320,7 +320,7 @@ impl<N: Network> ParserContext<'_, N> {
 
         // TODO: Verify that this check is sound.
         // Check that there is no whitespace or comments in between the `@` symbol and identifier.
-        match identifier.span.hi.0 - start.lo.0 > 1 + identifier.name.to_string().len() as u32 {
+        match identifier.span.hi - start.lo > 1 + identifier.name.to_string().len() as u32 {
             true => Err(ParserError::space_in_annotation(span).into()),
             false => Ok(Annotation { identifier, span, id: self.node_builder.next_id() }),
         }

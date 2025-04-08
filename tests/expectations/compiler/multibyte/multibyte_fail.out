@@ -1,0 +1,13 @@
+DCE_ENABLED:
+Error [EPAR0370005]: expected : -- found '='
+    --> compiler-test:30:29
+     |
+  30 |                    let swap = arr[j];
+     |                             ^
+
+DCE_DISABLED:
+Error [EPAR0370005]: expected : -- found '='
+    --> compiler-test:30:29
+     |
+  30 |                    let swap = arr[j];
+     |                             ^

@@ -3,19 +3,13 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
      |
    1 | return
      | ^^^^^^
-
-
 Error [EPAR0370017]: Could not parse the implicit value: 5.
     --> test_1:1:8
      |
    1 | return 5
      |        ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'if'
     --> test_2:2:1
      |
    2 | if x {}
      | ^^
-
-

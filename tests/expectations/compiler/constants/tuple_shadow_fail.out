@@ -4,6 +4,7 @@ Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
      |
    3 |     const (HELLO,GOODBYE): (u8,u8) = (0u8,0u8);
      |           ^
+
 DCE_DISABLED:
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
     --> compiler-test:3:11

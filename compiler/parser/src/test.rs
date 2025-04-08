@@ -18,7 +18,7 @@ use crate::tokenizer;
 
 use leo_ast::NodeBuilder;
 use leo_errors::{BufferEmitter, Handler, LeoError};
-use leo_span::{BytePos, create_session_if_not_set_then, source_map::FileName, with_session_globals};
+use leo_span::{create_session_if_not_set_then, source_map::FileName, with_session_globals};
 
 use snarkvm::prelude::TestnetV0;
 
@@ -31,11 +31,11 @@ fn run_parse_many_test<T: Serialize>(
     test: &str,
     handler: &Handler,
     test_index: usize,
-    parse: fn(Handler, &NodeBuilder, &str, BytePos) -> Result<T, LeoError>,
+    parse: fn(Handler, &NodeBuilder, &str, u32) -> Result<T, LeoError>,
 ) -> Result<String, ()> {
     let source_map =
         with_session_globals(|s| s.source_map.new_source(test, FileName::Custom(format!("test_{test_index}"))));
-    let result = parse(handler.clone(), &Default::default(), &source_map.src, source_map.start_pos);
+    let result = parse(handler.clone(), &Default::default(), &source_map.src, source_map.absolute_start);
     let serializable = handler.extend_if_error(result)?;
     let value = serde_json::to_value(&serializable).expect("Serialization failure");
     let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");
@@ -45,7 +45,7 @@ fn run_parse_many_test<T: Serialize>(
 
 fn runner_parse_many_test<'a, T: Serialize>(
     tests: impl Iterator<Item = &'a str>,
-    parse: fn(Handler, &NodeBuilder, &str, BytePos) -> Result<T, LeoError>,
+    parse: fn(Handler, &NodeBuilder, &str, u32) -> Result<T, LeoError>,
 ) -> String {
     create_session_if_not_set_then(|_| {
         let mut output = String::new();
@@ -55,7 +55,7 @@ fn runner_parse_many_test<'a, T: Serialize>(
         for (i, test) in tests.enumerate() {
             match run_parse_many_test(test, &handler, i, parse) {
                 Ok(s) => writeln!(output, "{s}").unwrap(),
-                Err(()) => writeln!(output, "{}\n{}\n", buf.extract_errs(), buf.extract_warnings()).unwrap(),
+                Err(()) => write!(output, "{}{}", buf.extract_errs(), buf.extract_warnings()).unwrap(),
             }
         }
 
@@ -74,7 +74,7 @@ fn runner_tokenizer_test(test: &str) -> String {
         for (i, test) in tests.enumerate() {
             let source_map =
                 with_session_globals(|s| s.source_map.new_source(test, FileName::Custom(format!("test_{i}"))));
-            match tokenizer::tokenize(&source_map.src, source_map.start_pos) {
+            match tokenizer::tokenize(&source_map.src, source_map.absolute_start) {
                 Ok(tokens) => writeln!(output, "{}", tokens.iter().format(", ")).unwrap(),
                 Err(error) => writeln!(output, "{error}").unwrap(),
             }
@@ -122,8 +122,12 @@ fn parse_statement_tests() {
 
 fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
     let source_file = with_session_globals(|s| s.source_map.new_source(test, FileName::Custom("test".into())));
-    let result =
-        crate::parse_ast::<TestnetV0>(handler.clone(), &Default::default(), &source_file.src, source_file.start_pos);
+    let result = crate::parse_ast::<TestnetV0>(
+        handler.clone(),
+        &Default::default(),
+        &source_file.src,
+        source_file.absolute_start,
+    );
     let ast = handler.extend_if_error(result)?;
     let value = serde_json::to_value(&ast.ast).expect("Serialization failure");
     let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");

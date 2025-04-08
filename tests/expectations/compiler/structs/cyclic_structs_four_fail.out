@@ -4,6 +4,7 @@ Error [EPAR0370005]: expected ; -- found ','
      |
    8 |         baz: [Baz, 2],
      |                  ^
+
 DCE_DISABLED:
 Error [EPAR0370005]: expected ; -- found ','
     --> compiler-test:8:18

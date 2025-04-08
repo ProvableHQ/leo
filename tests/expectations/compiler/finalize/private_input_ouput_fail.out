@@ -4,6 +4,7 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'
      |
    4 |         async finalize_foo(a);
      |         ^^^^^
+
 DCE_DISABLED:
 Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'
     --> compiler-test:4:9

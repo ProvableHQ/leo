@@ -111,18 +111,18 @@ impl fmt::Display for Backtraced {
         // To avoid the color enabling characters for comparison with test expectations.
         if is_color() {
             if self.error {
-                write!(f, "{}", message.bold().red())?;
+                writeln!(f, "{}", message.bold().red())?;
             } else {
-                write!(f, "{}", message.bold().yellow())?;
+                writeln!(f, "{}", message.bold().yellow())?;
             }
         } else {
-            write!(f, "{message}")?;
+            writeln!(f, "{message}")?;
         };
 
         if let Some(help) = &self.help {
             write!(
                 f,
-                "\n{INDENT     } |\n\
+                "{INDENT     } |\n\
             {INDENT     } = {help}",
             )?;
         }

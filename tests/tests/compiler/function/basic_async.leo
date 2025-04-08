@@ -1,4 +1,3 @@
-*/
 
 program test.aleo {
     mapping Yo: u32 => u32;

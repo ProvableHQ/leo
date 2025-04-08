@@ -57,13 +57,13 @@ fn main() -> Result<(), String> {
                     h.clone(),
                     &node_builder,
                     &code.src,
-                    code.start_pos,
+                    code.absolute_start,
                 ),
                 "testnet" => leo_parser::parse_ast::<snarkvm::prelude::TestnetV0>(
                     h.clone(),
                     &node_builder,
                     &code.src,
-                    code.start_pos,
+                    code.absolute_start,
                 ),
                 _ => panic!("Invalid network"),
             }?;

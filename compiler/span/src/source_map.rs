@@ -24,7 +24,8 @@
 //! within the address space covered by the sequence of sources;
 //! the source file is determined from the position.
 
-use crate::span::{BytePos, CharPos, Pos, Span};
+use crate::span::Span;
+
 use std::{
     cell::RefCell,
     fmt,
@@ -74,93 +75,35 @@ impl SourceMap {
     }
 
     /// Find the index for the source file containing `pos`.
-    fn find_source_file_index(&self, pos: BytePos) -> Option<usize> {
+    fn find_source_file_index(&self, pos: u32) -> Option<usize> {
         self.inner
             .borrow()
             .source_files
-            .binary_search_by_key(&pos, |file| file.start_pos)
+            .binary_search_by_key(&pos, |file| file.absolute_start)
             .map_or_else(|p| p.checked_sub(1), Some)
     }
 
     /// Find the source file containing `pos`.
-    pub fn find_source_file(&self, pos: BytePos) -> Option<Rc<SourceFile>> {
+    pub fn find_source_file(&self, pos: u32) -> Option<Rc<SourceFile>> {
         Some(self.inner.borrow().source_files[self.find_source_file_index(pos)?].clone())
-    }
-
-    /// Finds line column info about a given `pos`.
-    fn find_line_col(&self, pos: BytePos) -> Option<LineCol> {
-        let source_file = self.find_source_file(pos)?;
-        let (line, col) = source_file.lookup_file_pos(pos);
-        Some(LineCol { source_file, line, col })
-    }
-
-    /// Retrieves the location (source file, lines, columns) on the given span.
-    pub fn span_to_location(&self, sp: Span) -> Option<SpanLocation> {
-        let lo = self.find_line_col(sp.lo)?;
-        let hi = self.find_line_col(sp.hi)?;
-        Some(SpanLocation {
-            source_file: lo.source_file,
-            line_start: lo.line,
-            line_stop: hi.line,
-            col_start: lo.col.to_usize() + 1,
-            col_stop: hi.col.to_usize() + 1,
-        })
-    }
-
-    /// Returns a displayable representation of the `span` as a string.
-    pub fn span_to_string(&self, span: Span) -> String {
-        let loc = match self.span_to_location(span) {
-            None => return "no-location".to_string(),
-            Some(l) => l,
-        };
-
-        if loc.line_start == loc.line_stop {
-            format!("{}:{}-{}", loc.line_start, loc.col_start, loc.col_stop)
-        } else {
-            format!("{}:{}-{}:{}", loc.line_start, loc.col_start, loc.line_stop, loc.col_stop)
-        }
     }
 
     /// Returns the source contents that is spanned by `span`.
     pub fn contents_of_span(&self, span: Span) -> Option<String> {
-        let begin = self.find_source_file(span.lo)?;
-        let end = self.find_source_file(span.hi)?;
-        assert_eq!(begin.start_pos, end.start_pos);
-        Some(begin.contents_of_span(span))
-    }
-
-    /// Returns the source contents of the lines that `span` is within.
-    ///
-    /// That is, if the span refers to `x = 4` in the source code:
-    ///
-    /// > ```text
-    /// > // Line 1
-    /// > let x
-    /// >     = 4;
-    /// > // Line 4
-    /// > ```
-    ///
-    /// then the contents on lines 2 and 3 are returned.
-    pub fn line_contents_of_span(&self, span: Span) -> Option<String> {
-        let begin = self.find_source_file(span.lo)?;
-        let end = self.find_source_file(span.hi)?;
-        assert_eq!(begin.start_pos, end.start_pos);
-
-        let idx_lo = begin.lookup_line(span.lo).unwrap_or(0);
-        let idx_hi = begin.lookup_line(span.hi).unwrap_or(0) + 1;
-        let lo_line_pos = begin.lines[idx_lo];
-        let hi_line_pos = if idx_hi < begin.lines.len() { begin.lines[idx_hi] } else { begin.end_pos };
-        Some(begin.contents_of_span(Span::new(lo_line_pos, hi_line_pos)))
+        let source_file1 = self.find_source_file(span.lo)?;
+        let source_file2 = self.find_source_file(span.hi)?;
+        assert_eq!(source_file1.absolute_start, source_file2.absolute_start);
+        Some(source_file1.contents_of_span(span).to_string())
     }
 }
 
 impl SourceMapInner {
     /// Attempt reserving address space for `size` number of bytes.
-    fn try_allocate_address_space(&mut self, size: u32) -> Option<BytePos> {
+    fn try_allocate_address_space(&mut self, size: u32) -> Option<u32> {
         let current = self.used_address_space;
         // By adding one, we can distinguish between files, even when they are empty.
         self.used_address_space = current.checked_add(size)?.checked_add(1)?;
-        Some(BytePos(current))
+        Some(current)
     }
 }
 
@@ -198,114 +141,125 @@ pub struct SourceFile {
     /// The complete source code.
     pub src: String,
     /// The start position of this source in the `SourceMap`.
-    pub start_pos: BytePos,
+    pub absolute_start: u32,
     /// The end position of this source in the `SourceMap`.
-    pub end_pos: BytePos,
-    /// Locations of line beginnings in the source code.
-    lines: Vec<BytePos>,
-    /// Locations of multi-byte characters in the source code.
-    multibyte_chars: Vec<MultiByteChar>,
+    pub absolute_end: u32,
 }
 
 impl SourceFile {
-    /// Creates a new `SourceFile` given the file `name`,
-    /// source contents, and the `start_pos`ition.
-    ///
-    /// This position is used for analysis purposes.
-    fn new(name: FileName, mut src: String, start_pos: BytePos) -> Self {
-        normalize_src(&mut src);
-        let end_pos = start_pos + BytePos::from_usize(src.len());
-        let (lines, multibyte_chars) = analyze_source_file(&src, start_pos);
-        Self { name, src, start_pos, end_pos, lines, multibyte_chars }
+    /// Creates a new `SourceFile`.
+    fn new(name: FileName, src: String, absolute_start: u32) -> Self {
+        let absolute_end = absolute_start + src.len() as u32;
+        Self { name, src, absolute_start, absolute_end }
     }
 
-    /// Converts an absolute `BytePos` to a `CharPos` relative to the `SourceFile`.
-    fn bytepos_to_file_charpos(&self, bpos: BytePos) -> CharPos {
-        // The number of extra bytes due to multibyte chars in the `SourceFile`.
-        let mut total_extra_bytes = 0;
-
-        for mbc in self.multibyte_chars.iter() {
-            if mbc.pos < bpos {
-                // Every character is at least one byte, so we only
-                // count the actual extra bytes.
-                total_extra_bytes += mbc.bytes as u32 - 1;
-                // We should never see a byte position in the middle of a
-                // character.
-                assert!(bpos.to_u32() >= mbc.pos.to_u32() + mbc.bytes as u32);
-            } else {
-                break;
-            }
-        }
-
-        assert!(self.start_pos.to_u32() + total_extra_bytes <= bpos.to_u32());
-        CharPos(bpos.to_usize() - self.start_pos.to_usize() - total_extra_bytes as usize)
-    }
-
-    /// Finds the line containing the given position. The return value is the
-    /// index into the `lines` array of this `SourceFile`, not the 1-based line
-    /// number. If the source file is empty or the position is located before the
-    /// first line, `None` is returned.
-    fn lookup_line(&self, pos: BytePos) -> Option<usize> {
-        match self.lines.binary_search(&pos) {
-            Ok(idx) => Some(idx),
-            Err(0) => None,
-            Err(idx) => Some(idx - 1),
-        }
-    }
-
-    /// Looks up the file's (1-based) line number and (0-based `CharPos`) column offset, for a
-    /// given `BytePos`.
-    fn lookup_file_pos(&self, pos: BytePos) -> (usize, CharPos) {
-        let chpos = self.bytepos_to_file_charpos(pos);
-        match self.lookup_line(pos) {
-            Some(a) => {
-                let line = a + 1; // Line numbers start at 1
-                let linebpos = self.lines[a];
-                let linechpos = self.bytepos_to_file_charpos(linebpos);
-                let col = chpos - linechpos;
-                assert!(chpos >= linechpos);
-                (line, col)
-            }
-            None => (0, chpos),
-        }
+    /// Converts an absolute offset to a file-relative offset
+    pub fn relative_offset(&self, absolute_offset: u32) -> u32 {
+        assert!(self.absolute_start <= absolute_offset);
+        assert!(absolute_offset <= self.absolute_end);
+        absolute_offset - self.absolute_start
     }
 
     /// Returns contents of a `span` assumed to be within the given file.
-    fn contents_of_span(&self, span: Span) -> String {
-        let begin_pos = self.bytepos_to_file_charpos(span.lo).to_usize();
-        let end_pos = self.bytepos_to_file_charpos(span.hi).to_usize();
-        String::from_utf8_lossy(&self.src.as_bytes()[begin_pos..end_pos]).into_owned()
+    pub fn contents_of_span(&self, span: Span) -> &str {
+        let start = self.relative_offset(span.lo);
+        let end = self.relative_offset(span.hi);
+        &self.src[start as usize..end as usize]
+    }
+
+    pub fn line_col(&self, absolute_offset: u32) -> (u32, u32) {
+        let relative_offset = self.relative_offset(absolute_offset);
+        let mut current_offset = 0u32;
+
+        for (i, line) in self.src.split('\n').enumerate() {
+            let end_of_line = current_offset + line.len() as u32;
+            if relative_offset <= end_of_line {
+                let chars = self.src[current_offset as usize..relative_offset as usize].chars().count();
+                return (i as u32, chars as u32);
+            }
+            current_offset = end_of_line + 1;
+        }
+
+        panic!("Can't happen.");
+    }
+
+    pub fn line_contents(&self, span: Span) -> LineContents<'_> {
+        let start = self.relative_offset(span.lo) as usize;
+        let end = self.relative_offset(span.hi) as usize;
+
+        let line_start = self.src[..=start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+        let line_end = self.src[end..].find('\n').map(|x| x + end).unwrap_or(self.src.len());
+
+        LineContents {
+            line: self.src[..line_start].lines().count(),
+            contents: &self.src[line_start..line_end],
+            start: start.saturating_sub(line_start),
+            end: end.saturating_sub(line_start),
+        }
     }
 }
 
-/// Detailed information on a `Span`.
-pub struct SpanLocation {
-    pub source_file: Rc<SourceFile>,
-    pub line_start: usize,
-    pub line_stop: usize,
-    pub col_start: usize,
-    pub col_stop: usize,
+pub struct LineContents<'a> {
+    pub contents: &'a str,
+    pub line: usize,
+    pub start: usize,
+    pub end: usize,
 }
 
-impl SpanLocation {
-    /// Returns a dummy location.
-    pub fn dummy() -> Self {
-        let dummy = "<dummy>".to_owned();
-        let span = Span::dummy();
-        Self {
-            source_file: Rc::new(SourceFile {
-                name: FileName::Custom(dummy.clone()),
-                src: dummy,
-                start_pos: span.lo,
-                end_pos: span.hi,
-                lines: Vec::new(),
-                multibyte_chars: Vec::new(),
-            }),
-            line_start: 0,
-            line_stop: 0,
-            col_start: 0,
-            col_stop: 0,
+impl fmt::Display for LineContents<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        const INDENT: &str = "    ";
+
+        let mut current_underline = String::new();
+        let mut line = self.line;
+        let mut line_beginning = true;
+        let mut underline_started = false;
+
+        writeln!(f, "{INDENT} |")?;
+
+        for (i, c) in self.contents.chars().enumerate() {
+            if line_beginning {
+                write!(
+                    f,
+                    "{line:width$} | ",
+                    // Report lines starting from 1.
+                    line = line + 1,
+                    width = INDENT.len()
+                )?;
+            }
+            if c == '\n' {
+                writeln!(f)?;
+                // Output the underline, without trailing whitespace.
+                let underline = current_underline.trim_end();
+                if !underline.is_empty() {
+                    writeln!(f, "{INDENT} | {underline}")?;
+                }
+                underline_started = false;
+                current_underline.clear();
+                line += 1;
+                line_beginning = true;
+            } else {
+                line_beginning = false;
+                if c != '\r' {
+                    write!(f, "{c}")?;
+                    if self.start <= i && i < self.end && (underline_started || !c.is_whitespace()) {
+                        underline_started = true;
+                        current_underline.push('^');
+                    } else {
+                        current_underline.push(' ');
+                    }
+                }
+            }
         }
+
+        // If the text didn't end in a newline, we may still
+        // need to output an underline.
+        let underline = current_underline.trim_end();
+        if !underline.is_empty() {
+            writeln!(f, "\n{INDENT} | {underline}")?;
+        }
+
+        Ok(())
     }
 }
 
@@ -313,135 +267,8 @@ impl SpanLocation {
 pub struct LineCol {
     /// Information on the original source.
     pub source_file: Rc<SourceFile>,
-    /// The 1-based line number.
-    pub line: usize,
-    /// The (0-based) column offset into the line.
-    pub col: CharPos,
-}
-
-/// Normalizes the source code and records the normalizations.
-fn normalize_src(src: &mut String) {
-    remove_bom(src);
-    normalize_newlines(src);
-}
-
-/// Removes UTF-8 BOM, if any.
-fn remove_bom(src: &mut String) {
-    if src.starts_with('\u{feff}') {
-        src.drain(..3);
-    }
-}
-
-/// Replaces `\r\n` with `\n` in-place in `src`.
-///
-/// Isolated carriage returns are left alone.
-fn normalize_newlines(src: &mut String) {
-    if !src.as_bytes().contains(&b'\r') {
-        return;
-    }
-
-    // We replace `\r\n` with `\n` in-place, which doesn't break utf-8 encoding.
-    // While we *can* call `as_mut_vec` and do surgery on the live string
-    // directly, let's rather steal the contents of `src`. This makes the code
-    // safe even if a panic occurs.
-
-    let mut buf = std::mem::take(src).into_bytes();
-    let mut gap_len = 0;
-    let mut tail = buf.as_mut_slice();
-    loop {
-        let idx = match find_crlf(&tail[gap_len..]) {
-            None => tail.len(),
-            Some(idx) => idx + gap_len,
-        };
-        tail.copy_within(gap_len..idx, 0);
-        tail = &mut tail[idx - gap_len..];
-        if tail.len() == gap_len {
-            break;
-        }
-        gap_len += 1;
-    }
-
-    // Account for removed `\r`.
-    // After `buf.truncate(..)`, `buf` is guaranteed to contain utf-8 again.
-    let new_len = buf.len() - gap_len;
-    buf.truncate(new_len);
-    *src = String::from_utf8(buf).unwrap();
-
-    fn find_crlf(src: &[u8]) -> Option<usize> {
-        let mut search_idx = 0;
-        while let Some(idx) = find_cr(&src[search_idx..]) {
-            if src[search_idx..].get(idx + 1) != Some(&b'\n') {
-                search_idx += idx + 1;
-                continue;
-            }
-            return Some(search_idx + idx);
-        }
-        None
-    }
-
-    fn find_cr(src: &[u8]) -> Option<usize> {
-        src.iter().position(|&b| b == b'\r')
-    }
-}
-
-/// Identifies an offset of a multi-byte character in a `SourceFile`.
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
-struct MultiByteChar {
-    /// The absolute offset of the character in the `SourceMap`.
-    pub pos: BytePos,
-    /// The number of bytes, `>= 2`.
-    pub bytes: u8,
-}
-
-/// Finds all newlines, multi-byte characters, and non-narrow characters in a
-/// SourceFile.
-///
-/// This function will use an SSE2 enhanced implementation if hardware support
-/// is detected at runtime.
-fn analyze_source_file(src: &str, source_file_start_pos: BytePos) -> (Vec<BytePos>, Vec<MultiByteChar>) {
-    let mut lines = vec![source_file_start_pos];
-    let mut multi_byte_chars = vec![];
-
-    let mut i = 0;
-    let src_bytes = src.as_bytes();
-
-    while i < src.len() {
-        let byte = src_bytes[i];
-
-        // How much to advance to get to the next UTF-8 char in the string.
-        let mut char_len = 1;
-
-        let pos = BytePos::from_usize(i) + source_file_start_pos;
-
-        if let b'\n' = byte {
-            lines.push(pos + BytePos(1));
-        } else if byte >= 127 {
-            // The slow path:
-            // This is either ASCII control character "DEL" or the beginning of
-            // a multibyte char. Just decode to `char`.
-            let c = (src[i..]).chars().next().unwrap();
-            char_len = c.len_utf8();
-
-            if char_len > 1 {
-                assert!((2..=4).contains(&char_len));
-                let bytes = char_len as u8;
-                let mbc = MultiByteChar { pos, bytes };
-                multi_byte_chars.push(mbc);
-            }
-        }
-
-        i += char_len;
-    }
-
-    // The code above optimistically registers a new line *after* each \n it encounters.
-    // If that point is already outside the source_file, remove it again.
-    if let Some(&last_line_start) = lines.last() {
-        let source_file_end = source_file_start_pos + BytePos::from_usize(src.len());
-        assert!(source_file_end >= last_line_start);
-        if last_line_start == source_file_end {
-            lines.pop();
-        }
-    }
-
-    (lines, multi_byte_chars)
+    /// The line number.
+    pub line: u32,
+    /// The column offset into the line.
+    pub col: u32,
 }

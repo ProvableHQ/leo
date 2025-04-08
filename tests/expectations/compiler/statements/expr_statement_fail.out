@@ -18,7 +18,9 @@ Error [ETYC0372053]: An expression statement must be a function call.
     --> compiler-test:12:9
      |
   12 |         Foo {
+     |         ^^^^^
   13 |             a: a,
+     |             ^^^^^
   14 |         };
      |         ^^
 Error [ETYC0372053]: An expression statement must be a function call.
@@ -62,7 +64,9 @@ Error [ETYC0372053]: An expression statement must be a function call.
     --> compiler-test:12:9
      |
   12 |         Foo {
+     |         ^^^^^
   13 |             a: a,
+     |             ^^^^^
   14 |         };
      |         ^^
 Error [ETYC0372053]: An expression statement must be a function call.

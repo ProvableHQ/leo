@@ -23,7 +23,7 @@ use crate::{Token, tokenizer::*};
 
 use leo_ast::*;
 use leo_errors::{Handler, ParserError, Result};
-use leo_span::{BytePos, Span};
+use leo_span::Span;
 
 use snarkvm::prelude::Network;
 
@@ -43,7 +43,7 @@ pub fn parse<N: Network>(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
-    start_pos: BytePos,
+    start_pos: u32,
 ) -> Result<Program> {
     let mut tokens = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
 
@@ -54,7 +54,7 @@ pub fn parse_expression<N: Network>(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
-    start_pos: BytePos,
+    start_pos: u32,
 ) -> Result<Expression> {
     let mut context = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
 
@@ -70,7 +70,7 @@ pub fn parse_statement<N: Network>(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
-    start_pos: BytePos,
+    start_pos: u32,
 ) -> Result<Statement> {
     let mut context = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
 

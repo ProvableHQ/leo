@@ -21,6 +21,6 @@ mod symbol;
 pub use symbol::{Symbol, create_session_if_not_set_then, sym, with_session_globals};
 
 mod span;
-pub use span::{BytePos, Pos, Span};
+pub use span::Span;
 
 pub mod source_map;

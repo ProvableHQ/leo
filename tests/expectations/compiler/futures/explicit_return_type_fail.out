@@ -3,7 +3,9 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:9:5
      |
    9 |     async function finalize() -> Future {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   10 |         Mapping::set(foo, 1u32, 1u32);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |     }
      |     ^
      |
@@ -19,7 +21,9 @@ Error [ETYC0372036]: Function must return a value.
     --> compiler-test:9:5
      |
    9 |     async function finalize() -> Future {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   10 |         Mapping::set(foo, 1u32, 1u32);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |     }
      |     ^
 
@@ -28,7 +32,9 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:9:5
      |
    9 |     async function finalize() -> Future {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   10 |         Mapping::set(foo, 1u32, 1u32);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |     }
      |     ^
      |
@@ -44,6 +50,8 @@ Error [ETYC0372036]: Function must return a value.
     --> compiler-test:9:5
      |
    9 |     async function finalize() -> Future {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   10 |         Mapping::set(foo, 1u32, 1u32);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |     }
      |     ^
