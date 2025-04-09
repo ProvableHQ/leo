@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::StaticAnalysisVisitor;
+use super::StaticAnalyzingVisitor;
 use crate::ConditionalTreeNode;
 
 use leo_ast::*;
 
-impl StatementVisitor for StaticAnalysisVisitor<'_> {
+impl StatementVisitor for StaticAnalyzingVisitor<'_> {
     fn visit_conditional(&mut self, input: &ConditionalStatement) {
         self.visit_expression(&input.condition, &Default::default());
 

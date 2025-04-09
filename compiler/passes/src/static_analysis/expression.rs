@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::StaticAnalysisVisitor;
+use super::StaticAnalyzingVisitor;
 
 use leo_ast::*;
 
-impl ExpressionVisitor for StaticAnalysisVisitor<'_> {
+impl ExpressionVisitor for StaticAnalyzingVisitor<'_> {
     type AdditionalInput = ();
     type Output = ();
 
