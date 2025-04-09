@@ -34,22 +34,22 @@ use leo_ast::ProgramVisitor;
 use leo_errors::Result;
 use leo_span::Symbol;
 
-pub struct StaticAnalysisInput {
+pub struct StaticAnalyzingInput {
     pub max_depth: usize,
     pub conditional_branch_type_checking: bool,
 }
 
-pub struct StaticAnalysis;
+pub struct StaticAnalyzing;
 
-impl Pass for StaticAnalysis {
-    type Input = StaticAnalysisInput;
+impl Pass for StaticAnalyzing {
+    type Input = StaticAnalyzingInput;
     type Output = ();
 
-    const NAME: &str = "StaticAnalysis";
+    const NAME: &str = "StaticAnalyzing";
 
     fn do_pass(input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
-        let mut visitor = StaticAnalysisVisitor {
+        let mut visitor = StaticAnalyzingVisitor {
             state,
             await_checker: AwaitChecker::new(input.max_depth, input.conditional_branch_type_checking),
             current_program: Symbol::intern(""),

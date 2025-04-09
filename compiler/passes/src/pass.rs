@@ -19,15 +19,24 @@ use crate::{Assigner, CallGraph, StructGraph, SymbolTable, TypeTable};
 use leo_ast::{Ast, NodeBuilder};
 use leo_errors::{Result, emitter::Handler};
 
+/// Contains data share by many compiler passes.
 #[derive(Default)]
 pub struct CompilerState {
+    /// The Abstract Syntax Tree.
     pub ast: Ast,
+    /// The error Handler.
     pub handler: Handler,
+    /// Maps node IDs to types.
     pub type_table: TypeTable,
+    /// Creates incrementing node IDs.
     pub node_builder: NodeBuilder,
+    /// Creates unique symbols and definitions.
     pub assigner: Assigner,
+    /// Contains data about the variables and other entities in the program.
     pub symbol_table: SymbolTable,
+    /// A graph of which structs refer to each other.
     pub struct_graph: StructGraph,
+    /// A graph of which functions call each other.
     pub call_graph: CallGraph,
 }
 

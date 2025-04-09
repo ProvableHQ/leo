@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::StaticAnalysisVisitor;
+use super::StaticAnalyzingVisitor;
 
 use leo_ast::{Type, *};
 use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
 
-impl ProgramVisitor for StaticAnalysisVisitor<'_> {
+impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set the current program name.
         self.current_program = input.program_id.name.name;

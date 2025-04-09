@@ -29,6 +29,9 @@ pub use common::*;
 mod const_propagation;
 pub use const_propagation::*;
 
+mod const_propagation_and_unrolling;
+pub use const_propagation_and_unrolling::*;
+
 mod dead_code_elimination;
 pub use dead_code_elimination::*;
 

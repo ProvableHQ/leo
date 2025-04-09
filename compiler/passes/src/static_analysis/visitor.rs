@@ -20,7 +20,7 @@ use leo_ast::*;
 use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
 use leo_span::{Span, Symbol};
 
-pub struct StaticAnalysisVisitor<'a> {
+pub struct StaticAnalyzingVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// Struct to store the state relevant to checking all futures are awaited.
     pub await_checker: AwaitChecker,
@@ -32,7 +32,7 @@ pub struct StaticAnalysisVisitor<'a> {
     pub non_async_external_call_seen: bool,
 }
 
-impl StaticAnalysisVisitor<'_> {
+impl StaticAnalyzingVisitor<'_> {
     /// Emits a type checker error.
     pub(crate) fn emit_err(&self, err: StaticAnalyzerError) {
         self.state.handler.emit_err(err);
