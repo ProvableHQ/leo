@@ -1,35 +1,53 @@
 DCE_ENABLED:
 program test.aleo;
 
-function a:
-    output 2field as field.private;
+function field_tr:
+    output 0field as field.private;
 
-function b:
-    output 288246391group as group.private;
+function field_tr2:
+    output -1field as field.private;
 
-function c:
-    output 2scalar as scalar.private;
+function group_tr:
+    output 0group as group.private;
 
-function d:
-    output 2i8 as i8.private;
+function group_tr2:
+    output -288246391group as group.private;
 
-function e:
-    output 1field as field.private;
+function scalar_tr:
+    output 2111115437357092606062206234695386632838870926408408195193685246394721360380scalar as scalar.private;
+
+function scalar_tr2:
+    output -2111115437357092606062206234695386632838870926408408195193685246394721360384scalar as scalar.private;
+
+function i8_tr:
+    output -2i8 as i8.private;
+
+function i8_tr2:
+    output -3i8 as i8.private;
 
 DCE_DISABLED:
 program test.aleo;
 
-function a:
-    output 2field as field.private;
+function field_tr:
+    output 0field as field.private;
 
-function b:
-    output 288246391group as group.private;
+function field_tr2:
+    output -1field as field.private;
 
-function c:
-    output 2scalar as scalar.private;
+function group_tr:
+    output 0group as group.private;
 
-function d:
-    output 2i8 as i8.private;
+function group_tr2:
+    output -288246391group as group.private;
 
-function e:
-    output 1field as field.private;
+function scalar_tr:
+    output 2111115437357092606062206234695386632838870926408408195193685246394721360380scalar as scalar.private;
+
+function scalar_tr2:
+    output -2111115437357092606062206234695386632838870926408408195193685246394721360384scalar as scalar.private;
+
+function i8_tr:
+    output -2i8 as i8.private;
+
+function i8_tr2:
+    output -3i8 as i8.private;

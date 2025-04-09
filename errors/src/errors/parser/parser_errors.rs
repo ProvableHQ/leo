@@ -129,6 +129,7 @@ create_messages!(
     }
 
     /// When an integer is started with a leading zero.
+    // TODO This error is unused. Remove it in a future version.
     @backtraced
     lexer_expected_valid_escaped_char {
     args: (input: impl Display),

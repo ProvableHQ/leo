@@ -876,11 +876,11 @@ impl ExpressionVisitor for TypeChecker<'_> {
                 Type::Integer(IntegerType::I128)
             }
             Literal::Group(s, ..) => {
-                let mut s = s.trim_start_matches('0');
-                if s.is_empty() {
-                    s = "0";
-                }
-                if format!("{s}group").parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>().is_err() {
+                // Get rid of leading - and 0 and see if it parses
+                let s = s.trim_start_matches('-').trim_start_matches('0');
+                if !s.is_empty()
+                    && format!("{s}group").parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>().is_err()
+                {
                     self.emit_err(TypeCheckerError::invalid_int_value(s, "group", input.span()));
                 }
                 Type::Group
