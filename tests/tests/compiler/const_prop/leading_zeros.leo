@@ -2,31 +2,37 @@
 // group, field, and scalar elements with leading zeros
 // were not being parsed correctly.
 program test.aleo {
-    const F1: field = 01field;
-    const F2: field = 001field;
-    const F3: field = 0field;
-    const F4: field = -0field;
-    const F5: field = -001field;
-    const F6: field = -1field;
+    const F1: field = 008444461749428370424248824938781546531375899335154063827935233455917409239041field;
+    const F2: field = 008444461749428370424248824938781546531375899335154063827935233455917409239043field;
+    const F3: field = -008444461749428370424248824938781546531375899335154063827935233455917409239043field;
+    const F4: field = 008444461749428370424248824938781546531375899335154063827935233455917409239039field;
+    const F5: field = -008444461749428370424248824938781546531375899335154063827935233455917409239039field;
+    const F6: field = 01field;
+    const F7: field = 000field;
 
     transition field_tr() -> field {
-        return F1 + F2 + F3 + F4 + F5 + F6;
+        return F1 + F2 + F3 + F4 + F5 + F6 + F7;
     }
 
     transition field_tr2() -> field {
-        return F5;
+        return F3;
     }
 
-    const G1: group = 00288246391group;
-    const G2: group = -00288246391group;
-    const G3: group = 000group;
+    const G1: group = 008444461749428370424248824938781546531375899335154063827935233455917409239041group;
+    const G2: group = 008444461749428370424248824938781546531375899335154063827935233455917409239043group;
+    const G3: group = -008444461749428370424248824938781546531375899335154063827935233455917409239043group;
+    const G4: group = 008444461749428370424248824938781546531375899335154063827935233455917409239039group;
+    const G5: group = -008444461749428370424248824938781546531375899335154063827935233455917409239039group;
+    const G6: group = 000group;
+    const G7: group = 00288246391group;
+    const G8: group = -00288246391group;
 
     transition group_tr() -> group {
-        return G1 + G2 + G3;
+        return G1 + G2 + G3 + G4 + G5 + G6 + G7 + G8;
     }
 
     transition group_tr2() -> group {
-        return G2;
+        return G3;
     }
 
     const S1: scalar = 0scalar;
