@@ -875,162 +875,171 @@
 <a href=#875 id=875 data-nosnippet>875</a>                parse_integer_literal::&lt;i128&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"i128"</span>);
 <a href=#876 id=876 data-nosnippet>876</a>                Type::Integer(IntegerType::I128)
 <a href=#877 id=877 data-nosnippet>877</a>            }
-<a href=#878 id=878 data-nosnippet>878</a>            Literal::Group(..) =&gt; Type::Group,
-<a href=#879 id=879 data-nosnippet>879</a>            Literal::Scalar(..) =&gt; Type::Scalar,
-<a href=#880 id=880 data-nosnippet>880</a>            Literal::String(..) =&gt; {
-<a href=#881 id=881 data-nosnippet>881</a>                <span class="self">self</span>.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));
-<a href=#882 id=882 data-nosnippet>882</a>                Type::String
-<a href=#883 id=883 data-nosnippet>883</a>            }
-<a href=#884 id=884 data-nosnippet>884</a>        };
-<a href=#885 id=885 data-nosnippet>885</a>
-<a href=#886 id=886 data-nosnippet>886</a>        <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>type_, expected, input.span());
-<a href=#887 id=887 data-nosnippet>887</a>
-<a href=#888 id=888 data-nosnippet>888</a>        type_
-<a href=#889 id=889 data-nosnippet>889</a>    }
-<a href=#890 id=890 data-nosnippet>890</a>
-<a href=#891 id=891 data-nosnippet>891</a>    <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>LocatorExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#892 id=892 data-nosnippet>892</a>        <span class="kw">let </span>maybe_var = <span class="self">self</span>.symbol_table.lookup_global(Location::new(input.program.name.name, input.name)).cloned();
-<a href=#893 id=893 data-nosnippet>893</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = maybe_var {
-<a href=#894 id=894 data-nosnippet>894</a>            <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>var.type_, expected, input.span());
-<a href=#895 id=895 data-nosnippet>895</a>            var.type_
-<a href=#896 id=896 data-nosnippet>896</a>        } <span class="kw">else </span>{
-<a href=#897 id=897 data-nosnippet>897</a>            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"variable"</span>, input.name, input.span()));
-<a href=#898 id=898 data-nosnippet>898</a>            Type::Err
-<a href=#899 id=899 data-nosnippet>899</a>        }
-<a href=#900 id=900 data-nosnippet>900</a>    }
-<a href=#901 id=901 data-nosnippet>901</a>
-<a href=#902 id=902 data-nosnippet>902</a>    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TernaryExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#903 id=903 data-nosnippet>903</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
-<a href=#904 id=904 data-nosnippet>904</a>
-<a href=#905 id=905 data-nosnippet>905</a>        <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_true, expected);
-<a href=#906 id=906 data-nosnippet>906</a>        <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_false, expected);
-<a href=#907 id=907 data-nosnippet>907</a>
-<a href=#908 id=908 data-nosnippet>908</a>        <span class="kw">if </span>t1 == Type::Err || t2 == Type::Err {
-<a href=#909 id=909 data-nosnippet>909</a>            Type::Err
-<a href=#910 id=910 data-nosnippet>910</a>        } <span class="kw">else if </span>!<span class="self">self</span>.eq_user(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2) {
-<a href=#911 id=911 data-nosnippet>911</a>            <span class="self">self</span>.emit_err(TypeCheckerError::ternary_branch_mismatch(t1, t2, input.span()));
-<a href=#912 id=912 data-nosnippet>912</a>            Type::Err
-<a href=#913 id=913 data-nosnippet>913</a>        } <span class="kw">else </span>{
-<a href=#914 id=914 data-nosnippet>914</a>            t1
-<a href=#915 id=915 data-nosnippet>915</a>        }
-<a href=#916 id=916 data-nosnippet>916</a>    }
-<a href=#917 id=917 data-nosnippet>917</a>
-<a href=#918 id=918 data-nosnippet>918</a>    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#919 id=919 data-nosnippet>919</a>        <span class="comment">// Check the expected tuple types if they are known.
-<a href=#920 id=920 data-nosnippet>920</a>        </span><span class="kw">let </span><span class="prelude-val">Some</span>(Type::Tuple(expected_types)) = expected <span class="kw">else </span>{
-<a href=#921 id=921 data-nosnippet>921</a>            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_tuple(input.span()));
-<a href=#922 id=922 data-nosnippet>922</a>            <span class="kw">return </span>Type::Err;
-<a href=#923 id=923 data-nosnippet>923</a>        };
-<a href=#924 id=924 data-nosnippet>924</a>
-<a href=#925 id=925 data-nosnippet>925</a>        <span class="comment">// Check actual length is equal to expected length.
-<a href=#926 id=926 data-nosnippet>926</a>        </span><span class="kw">if </span>expected_types.length() != input.elements.len() {
-<a href=#927 id=927 data-nosnippet>927</a>            <span class="self">self</span>.emit_err(TypeCheckerError::incorrect_tuple_length(
-<a href=#928 id=928 data-nosnippet>928</a>                expected_types.length(),
-<a href=#929 id=929 data-nosnippet>929</a>                input.elements.len(),
-<a href=#930 id=930 data-nosnippet>930</a>                input.span(),
-<a href=#931 id=931 data-nosnippet>931</a>            ));
-<a href=#932 id=932 data-nosnippet>932</a>        }
+<a href=#878 id=878 data-nosnippet>878</a>            Literal::Group(s, ..) =&gt; {
+<a href=#879 id=879 data-nosnippet>879</a>                <span class="comment">// Get rid of leading - and 0 and see if it parses
+<a href=#880 id=880 data-nosnippet>880</a>                </span><span class="kw">let </span>s = s.trim_start_matches(<span class="string">'-'</span>).trim_start_matches(<span class="string">'0'</span>);
+<a href=#881 id=881 data-nosnippet>881</a>                <span class="kw">if </span>!s.is_empty()
+<a href=#882 id=882 data-nosnippet>882</a>                    &amp;&amp; <span class="macro">format!</span>(<span class="string">"{s}group"</span>).parse::&lt;snarkvm::prelude::Group&lt;snarkvm::prelude::TestnetV0&gt;&gt;().is_err()
+<a href=#883 id=883 data-nosnippet>883</a>                {
+<a href=#884 id=884 data-nosnippet>884</a>                    <span class="self">self</span>.emit_err(TypeCheckerError::invalid_int_value(s, <span class="string">"group"</span>, input.span()));
+<a href=#885 id=885 data-nosnippet>885</a>                }
+<a href=#886 id=886 data-nosnippet>886</a>                Type::Group
+<a href=#887 id=887 data-nosnippet>887</a>            }
+<a href=#888 id=888 data-nosnippet>888</a>            Literal::Scalar(..) =&gt; Type::Scalar,
+<a href=#889 id=889 data-nosnippet>889</a>            Literal::String(..) =&gt; {
+<a href=#890 id=890 data-nosnippet>890</a>                <span class="self">self</span>.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));
+<a href=#891 id=891 data-nosnippet>891</a>                Type::String
+<a href=#892 id=892 data-nosnippet>892</a>            }
+<a href=#893 id=893 data-nosnippet>893</a>        };
+<a href=#894 id=894 data-nosnippet>894</a>
+<a href=#895 id=895 data-nosnippet>895</a>        <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>type_, expected, input.span());
+<a href=#896 id=896 data-nosnippet>896</a>
+<a href=#897 id=897 data-nosnippet>897</a>        type_
+<a href=#898 id=898 data-nosnippet>898</a>    }
+<a href=#899 id=899 data-nosnippet>899</a>
+<a href=#900 id=900 data-nosnippet>900</a>    <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>LocatorExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#901 id=901 data-nosnippet>901</a>        <span class="kw">let </span>maybe_var = <span class="self">self</span>.symbol_table.lookup_global(Location::new(input.program.name.name, input.name)).cloned();
+<a href=#902 id=902 data-nosnippet>902</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = maybe_var {
+<a href=#903 id=903 data-nosnippet>903</a>            <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>var.type_, expected, input.span());
+<a href=#904 id=904 data-nosnippet>904</a>            var.type_
+<a href=#905 id=905 data-nosnippet>905</a>        } <span class="kw">else </span>{
+<a href=#906 id=906 data-nosnippet>906</a>            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"variable"</span>, input.name, input.span()));
+<a href=#907 id=907 data-nosnippet>907</a>            Type::Err
+<a href=#908 id=908 data-nosnippet>908</a>        }
+<a href=#909 id=909 data-nosnippet>909</a>    }
+<a href=#910 id=910 data-nosnippet>910</a>
+<a href=#911 id=911 data-nosnippet>911</a>    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TernaryExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#912 id=912 data-nosnippet>912</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
+<a href=#913 id=913 data-nosnippet>913</a>
+<a href=#914 id=914 data-nosnippet>914</a>        <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_true, expected);
+<a href=#915 id=915 data-nosnippet>915</a>        <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_false, expected);
+<a href=#916 id=916 data-nosnippet>916</a>
+<a href=#917 id=917 data-nosnippet>917</a>        <span class="kw">if </span>t1 == Type::Err || t2 == Type::Err {
+<a href=#918 id=918 data-nosnippet>918</a>            Type::Err
+<a href=#919 id=919 data-nosnippet>919</a>        } <span class="kw">else if </span>!<span class="self">self</span>.eq_user(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2) {
+<a href=#920 id=920 data-nosnippet>920</a>            <span class="self">self</span>.emit_err(TypeCheckerError::ternary_branch_mismatch(t1, t2, input.span()));
+<a href=#921 id=921 data-nosnippet>921</a>            Type::Err
+<a href=#922 id=922 data-nosnippet>922</a>        } <span class="kw">else </span>{
+<a href=#923 id=923 data-nosnippet>923</a>            t1
+<a href=#924 id=924 data-nosnippet>924</a>        }
+<a href=#925 id=925 data-nosnippet>925</a>    }
+<a href=#926 id=926 data-nosnippet>926</a>
+<a href=#927 id=927 data-nosnippet>927</a>    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#928 id=928 data-nosnippet>928</a>        <span class="comment">// Check the expected tuple types if they are known.
+<a href=#929 id=929 data-nosnippet>929</a>        </span><span class="kw">let </span><span class="prelude-val">Some</span>(Type::Tuple(expected_types)) = expected <span class="kw">else </span>{
+<a href=#930 id=930 data-nosnippet>930</a>            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_tuple(input.span()));
+<a href=#931 id=931 data-nosnippet>931</a>            <span class="kw">return </span>Type::Err;
+<a href=#932 id=932 data-nosnippet>932</a>        };
 <a href=#933 id=933 data-nosnippet>933</a>
-<a href=#934 id=934 data-nosnippet>934</a>        <span class="kw">for </span>(expr, expected) <span class="kw">in </span>input.elements.iter().zip(expected_types.elements().iter()) {
-<a href=#935 id=935 data-nosnippet>935</a>            <span class="kw">if </span><span class="macro">matches!</span>(expr, Expression::Tuple(<span class="kw">_</span>)) {
-<a href=#936 id=936 data-nosnippet>936</a>                <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))
-<a href=#937 id=937 data-nosnippet>937</a>            }
-<a href=#938 id=938 data-nosnippet>938</a>
-<a href=#939 id=939 data-nosnippet>939</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.clone()));
-<a href=#940 id=940 data-nosnippet>940</a>        }
-<a href=#941 id=941 data-nosnippet>941</a>
-<a href=#942 id=942 data-nosnippet>942</a>        Type::Tuple(expected_types.clone())
-<a href=#943 id=943 data-nosnippet>943</a>    }
-<a href=#944 id=944 data-nosnippet>944</a>
-<a href=#945 id=945 data-nosnippet>945</a>    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>UnaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#946 id=946 data-nosnippet>946</a>        <span class="kw">let </span>assert_signed_int = |slf: <span class="kw-2">&amp;mut </span><span class="self">Self</span>, type_: <span class="kw-2">&amp;</span>Type| {
-<a href=#947 id=947 data-nosnippet>947</a>            <span class="kw">if </span>!<span class="macro">matches!</span>(
-<a href=#948 id=948 data-nosnippet>948</a>                type_,
-<a href=#949 id=949 data-nosnippet>949</a>                Type::Err
-<a href=#950 id=950 data-nosnippet>950</a>                    | Type::Integer(IntegerType::I8)
-<a href=#951 id=951 data-nosnippet>951</a>                    | Type::Integer(IntegerType::I16)
-<a href=#952 id=952 data-nosnippet>952</a>                    | Type::Integer(IntegerType::I32)
-<a href=#953 id=953 data-nosnippet>953</a>                    | Type::Integer(IntegerType::I64)
-<a href=#954 id=954 data-nosnippet>954</a>                    | Type::Integer(IntegerType::I128)
-<a href=#955 id=955 data-nosnippet>955</a>            ) {
-<a href=#956 id=956 data-nosnippet>956</a>                slf.emit_err(TypeCheckerError::type_should_be2(type_, <span class="string">"a signed integer"</span>, input.span()));
-<a href=#957 id=957 data-nosnippet>957</a>            }
-<a href=#958 id=958 data-nosnippet>958</a>        };
-<a href=#959 id=959 data-nosnippet>959</a>
-<a href=#960 id=960 data-nosnippet>960</a>        <span class="kw">let </span>ty = <span class="kw">match </span>input.op {
-<a href=#961 id=961 data-nosnippet>961</a>            UnaryOperation::Abs =&gt; {
-<a href=#962 id=962 data-nosnippet>962</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-<a href=#963 id=963 data-nosnippet>963</a>                assert_signed_int(<span class="self">self</span>, <span class="kw-2">&amp;</span>type_);
-<a href=#964 id=964 data-nosnippet>964</a>                type_
-<a href=#965 id=965 data-nosnippet>965</a>            }
-<a href=#966 id=966 data-nosnippet>966</a>            UnaryOperation::AbsWrapped =&gt; {
-<a href=#967 id=967 data-nosnippet>967</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-<a href=#968 id=968 data-nosnippet>968</a>                assert_signed_int(<span class="self">self</span>, <span class="kw-2">&amp;</span>type_);
-<a href=#969 id=969 data-nosnippet>969</a>                type_
-<a href=#970 id=970 data-nosnippet>970</a>            }
-<a href=#971 id=971 data-nosnippet>971</a>            UnaryOperation::Double =&gt; {
-<a href=#972 id=972 data-nosnippet>972</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-<a href=#973 id=973 data-nosnippet>973</a>                <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>type_, Type::Err | Type::Field | Type::Group) {
-<a href=#974 id=974 data-nosnippet>974</a>                    <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be2(<span class="kw-2">&amp;</span>type_, <span class="string">"a field or group"</span>, input.span()));
-<a href=#975 id=975 data-nosnippet>975</a>                }
-<a href=#976 id=976 data-nosnippet>976</a>                type_
-<a href=#977 id=977 data-nosnippet>977</a>            }
-<a href=#978 id=978 data-nosnippet>978</a>            UnaryOperation::Inverse =&gt; {
-<a href=#979 id=979 data-nosnippet>979</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-<a href=#980 id=980 data-nosnippet>980</a>                <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>type_, <span class="kw-2">&amp;</span>Type::Field, input.span());
-<a href=#981 id=981 data-nosnippet>981</a>                type_
-<a href=#982 id=982 data-nosnippet>982</a>            }
-<a href=#983 id=983 data-nosnippet>983</a>            UnaryOperation::Negate =&gt; {
-<a href=#984 id=984 data-nosnippet>984</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-<a href=#985 id=985 data-nosnippet>985</a>                <span class="kw">if </span>!<span class="macro">matches!</span>(
-<a href=#986 id=986 data-nosnippet>986</a>                    <span class="kw-2">&amp;</span>type_,
-<a href=#987 id=987 data-nosnippet>987</a>                    Type::Err
-<a href=#988 id=988 data-nosnippet>988</a>                        | Type::Integer(IntegerType::I8)
-<a href=#989 id=989 data-nosnippet>989</a>                        | Type::Integer(IntegerType::I16)
-<a href=#990 id=990 data-nosnippet>990</a>                        | Type::Integer(IntegerType::I32)
-<a href=#991 id=991 data-nosnippet>991</a>                        | Type::Integer(IntegerType::I64)
-<a href=#992 id=992 data-nosnippet>992</a>                        | Type::Integer(IntegerType::I128)
-<a href=#993 id=993 data-nosnippet>993</a>                        | Type::Group
-<a href=#994 id=994 data-nosnippet>994</a>                        | Type::Field
-<a href=#995 id=995 data-nosnippet>995</a>                ) {
-<a href=#996 id=996 data-nosnippet>996</a>                    <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be2(
-<a href=#997 id=997 data-nosnippet>997</a>                        <span class="kw-2">&amp;</span>type_,
-<a href=#998 id=998 data-nosnippet>998</a>                        <span class="string">"a signed integer, group, or field"</span>,
-<a href=#999 id=999 data-nosnippet>999</a>                        input.receiver.span(),
-<a href=#1000 id=1000 data-nosnippet>1000</a>                    ));
-<a href=#1001 id=1001 data-nosnippet>1001</a>                }
-<a href=#1002 id=1002 data-nosnippet>1002</a>                type_
-<a href=#1003 id=1003 data-nosnippet>1003</a>            }
-<a href=#1004 id=1004 data-nosnippet>1004</a>            UnaryOperation::Not =&gt; {
-<a href=#1005 id=1005 data-nosnippet>1005</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-<a href=#1006 id=1006 data-nosnippet>1006</a>                <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>type_, Type::Err | Type::Boolean | Type::Integer(<span class="kw">_</span>)) {
-<a href=#1007 id=1007 data-nosnippet>1007</a>                    <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be2(<span class="kw-2">&amp;</span>type_, <span class="string">"a bool or integer"</span>, input.span()));
-<a href=#1008 id=1008 data-nosnippet>1008</a>                }
-<a href=#1009 id=1009 data-nosnippet>1009</a>                type_
-<a href=#1010 id=1010 data-nosnippet>1010</a>            }
-<a href=#1011 id=1011 data-nosnippet>1011</a>            UnaryOperation::Square =&gt; {
-<a href=#1012 id=1012 data-nosnippet>1012</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-<a href=#1013 id=1013 data-nosnippet>1013</a>                <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>type_, <span class="kw-2">&amp;</span>Type::Field, input.span());
-<a href=#1014 id=1014 data-nosnippet>1014</a>                type_
-<a href=#1015 id=1015 data-nosnippet>1015</a>            }
-<a href=#1016 id=1016 data-nosnippet>1016</a>            UnaryOperation::SquareRoot =&gt; {
-<a href=#1017 id=1017 data-nosnippet>1017</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-<a href=#1018 id=1018 data-nosnippet>1018</a>                <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>type_, <span class="kw-2">&amp;</span>Type::Field, input.span());
-<a href=#1019 id=1019 data-nosnippet>1019</a>                type_
-<a href=#1020 id=1020 data-nosnippet>1020</a>            }
-<a href=#1021 id=1021 data-nosnippet>1021</a>            UnaryOperation::ToXCoordinate | UnaryOperation::ToYCoordinate =&gt; {
-<a href=#1022 id=1022 data-nosnippet>1022</a>                <span class="kw">let </span>_operand_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Group));
-<a href=#1023 id=1023 data-nosnippet>1023</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>Type::Field, destination, input.span());
-<a href=#1024 id=1024 data-nosnippet>1024</a>                Type::Field
-<a href=#1025 id=1025 data-nosnippet>1025</a>            }
-<a href=#1026 id=1026 data-nosnippet>1026</a>        };
-<a href=#1027 id=1027 data-nosnippet>1027</a>
-<a href=#1028 id=1028 data-nosnippet>1028</a>        <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>ty, destination, input.span());
-<a href=#1029 id=1029 data-nosnippet>1029</a>
-<a href=#1030 id=1030 data-nosnippet>1030</a>        ty
-<a href=#1031 id=1031 data-nosnippet>1031</a>    }
-<a href=#1032 id=1032 data-nosnippet>1032</a>
-<a href=#1033 id=1033 data-nosnippet>1033</a>    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#1034 id=1034 data-nosnippet>1034</a>        Type::Unit
-<a href=#1035 id=1035 data-nosnippet>1035</a>    }
-<a href=#1036 id=1036 data-nosnippet>1036</a>}</code></pre></div></section></main></body></html>
+<a href=#934 id=934 data-nosnippet>934</a>        <span class="comment">// Check actual length is equal to expected length.
+<a href=#935 id=935 data-nosnippet>935</a>        </span><span class="kw">if </span>expected_types.length() != input.elements.len() {
+<a href=#936 id=936 data-nosnippet>936</a>            <span class="self">self</span>.emit_err(TypeCheckerError::incorrect_tuple_length(
+<a href=#937 id=937 data-nosnippet>937</a>                expected_types.length(),
+<a href=#938 id=938 data-nosnippet>938</a>                input.elements.len(),
+<a href=#939 id=939 data-nosnippet>939</a>                input.span(),
+<a href=#940 id=940 data-nosnippet>940</a>            ));
+<a href=#941 id=941 data-nosnippet>941</a>        }
+<a href=#942 id=942 data-nosnippet>942</a>
+<a href=#943 id=943 data-nosnippet>943</a>        <span class="kw">for </span>(expr, expected) <span class="kw">in </span>input.elements.iter().zip(expected_types.elements().iter()) {
+<a href=#944 id=944 data-nosnippet>944</a>            <span class="kw">if </span><span class="macro">matches!</span>(expr, Expression::Tuple(<span class="kw">_</span>)) {
+<a href=#945 id=945 data-nosnippet>945</a>                <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))
+<a href=#946 id=946 data-nosnippet>946</a>            }
+<a href=#947 id=947 data-nosnippet>947</a>
+<a href=#948 id=948 data-nosnippet>948</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.clone()));
+<a href=#949 id=949 data-nosnippet>949</a>        }
+<a href=#950 id=950 data-nosnippet>950</a>
+<a href=#951 id=951 data-nosnippet>951</a>        Type::Tuple(expected_types.clone())
+<a href=#952 id=952 data-nosnippet>952</a>    }
+<a href=#953 id=953 data-nosnippet>953</a>
+<a href=#954 id=954 data-nosnippet>954</a>    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>UnaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#955 id=955 data-nosnippet>955</a>        <span class="kw">let </span>assert_signed_int = |slf: <span class="kw-2">&amp;mut </span><span class="self">Self</span>, type_: <span class="kw-2">&amp;</span>Type| {
+<a href=#956 id=956 data-nosnippet>956</a>            <span class="kw">if </span>!<span class="macro">matches!</span>(
+<a href=#957 id=957 data-nosnippet>957</a>                type_,
+<a href=#958 id=958 data-nosnippet>958</a>                Type::Err
+<a href=#959 id=959 data-nosnippet>959</a>                    | Type::Integer(IntegerType::I8)
+<a href=#960 id=960 data-nosnippet>960</a>                    | Type::Integer(IntegerType::I16)
+<a href=#961 id=961 data-nosnippet>961</a>                    | Type::Integer(IntegerType::I32)
+<a href=#962 id=962 data-nosnippet>962</a>                    | Type::Integer(IntegerType::I64)
+<a href=#963 id=963 data-nosnippet>963</a>                    | Type::Integer(IntegerType::I128)
+<a href=#964 id=964 data-nosnippet>964</a>            ) {
+<a href=#965 id=965 data-nosnippet>965</a>                slf.emit_err(TypeCheckerError::type_should_be2(type_, <span class="string">"a signed integer"</span>, input.span()));
+<a href=#966 id=966 data-nosnippet>966</a>            }
+<a href=#967 id=967 data-nosnippet>967</a>        };
+<a href=#968 id=968 data-nosnippet>968</a>
+<a href=#969 id=969 data-nosnippet>969</a>        <span class="kw">let </span>ty = <span class="kw">match </span>input.op {
+<a href=#970 id=970 data-nosnippet>970</a>            UnaryOperation::Abs =&gt; {
+<a href=#971 id=971 data-nosnippet>971</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+<a href=#972 id=972 data-nosnippet>972</a>                assert_signed_int(<span class="self">self</span>, <span class="kw-2">&amp;</span>type_);
+<a href=#973 id=973 data-nosnippet>973</a>                type_
+<a href=#974 id=974 data-nosnippet>974</a>            }
+<a href=#975 id=975 data-nosnippet>975</a>            UnaryOperation::AbsWrapped =&gt; {
+<a href=#976 id=976 data-nosnippet>976</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+<a href=#977 id=977 data-nosnippet>977</a>                assert_signed_int(<span class="self">self</span>, <span class="kw-2">&amp;</span>type_);
+<a href=#978 id=978 data-nosnippet>978</a>                type_
+<a href=#979 id=979 data-nosnippet>979</a>            }
+<a href=#980 id=980 data-nosnippet>980</a>            UnaryOperation::Double =&gt; {
+<a href=#981 id=981 data-nosnippet>981</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+<a href=#982 id=982 data-nosnippet>982</a>                <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>type_, Type::Err | Type::Field | Type::Group) {
+<a href=#983 id=983 data-nosnippet>983</a>                    <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be2(<span class="kw-2">&amp;</span>type_, <span class="string">"a field or group"</span>, input.span()));
+<a href=#984 id=984 data-nosnippet>984</a>                }
+<a href=#985 id=985 data-nosnippet>985</a>                type_
+<a href=#986 id=986 data-nosnippet>986</a>            }
+<a href=#987 id=987 data-nosnippet>987</a>            UnaryOperation::Inverse =&gt; {
+<a href=#988 id=988 data-nosnippet>988</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+<a href=#989 id=989 data-nosnippet>989</a>                <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>type_, <span class="kw-2">&amp;</span>Type::Field, input.span());
+<a href=#990 id=990 data-nosnippet>990</a>                type_
+<a href=#991 id=991 data-nosnippet>991</a>            }
+<a href=#992 id=992 data-nosnippet>992</a>            UnaryOperation::Negate =&gt; {
+<a href=#993 id=993 data-nosnippet>993</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+<a href=#994 id=994 data-nosnippet>994</a>                <span class="kw">if </span>!<span class="macro">matches!</span>(
+<a href=#995 id=995 data-nosnippet>995</a>                    <span class="kw-2">&amp;</span>type_,
+<a href=#996 id=996 data-nosnippet>996</a>                    Type::Err
+<a href=#997 id=997 data-nosnippet>997</a>                        | Type::Integer(IntegerType::I8)
+<a href=#998 id=998 data-nosnippet>998</a>                        | Type::Integer(IntegerType::I16)
+<a href=#999 id=999 data-nosnippet>999</a>                        | Type::Integer(IntegerType::I32)
+<a href=#1000 id=1000 data-nosnippet>1000</a>                        | Type::Integer(IntegerType::I64)
+<a href=#1001 id=1001 data-nosnippet>1001</a>                        | Type::Integer(IntegerType::I128)
+<a href=#1002 id=1002 data-nosnippet>1002</a>                        | Type::Group
+<a href=#1003 id=1003 data-nosnippet>1003</a>                        | Type::Field
+<a href=#1004 id=1004 data-nosnippet>1004</a>                ) {
+<a href=#1005 id=1005 data-nosnippet>1005</a>                    <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be2(
+<a href=#1006 id=1006 data-nosnippet>1006</a>                        <span class="kw-2">&amp;</span>type_,
+<a href=#1007 id=1007 data-nosnippet>1007</a>                        <span class="string">"a signed integer, group, or field"</span>,
+<a href=#1008 id=1008 data-nosnippet>1008</a>                        input.receiver.span(),
+<a href=#1009 id=1009 data-nosnippet>1009</a>                    ));
+<a href=#1010 id=1010 data-nosnippet>1010</a>                }
+<a href=#1011 id=1011 data-nosnippet>1011</a>                type_
+<a href=#1012 id=1012 data-nosnippet>1012</a>            }
+<a href=#1013 id=1013 data-nosnippet>1013</a>            UnaryOperation::Not =&gt; {
+<a href=#1014 id=1014 data-nosnippet>1014</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+<a href=#1015 id=1015 data-nosnippet>1015</a>                <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>type_, Type::Err | Type::Boolean | Type::Integer(<span class="kw">_</span>)) {
+<a href=#1016 id=1016 data-nosnippet>1016</a>                    <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be2(<span class="kw-2">&amp;</span>type_, <span class="string">"a bool or integer"</span>, input.span()));
+<a href=#1017 id=1017 data-nosnippet>1017</a>                }
+<a href=#1018 id=1018 data-nosnippet>1018</a>                type_
+<a href=#1019 id=1019 data-nosnippet>1019</a>            }
+<a href=#1020 id=1020 data-nosnippet>1020</a>            UnaryOperation::Square =&gt; {
+<a href=#1021 id=1021 data-nosnippet>1021</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+<a href=#1022 id=1022 data-nosnippet>1022</a>                <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>type_, <span class="kw-2">&amp;</span>Type::Field, input.span());
+<a href=#1023 id=1023 data-nosnippet>1023</a>                type_
+<a href=#1024 id=1024 data-nosnippet>1024</a>            }
+<a href=#1025 id=1025 data-nosnippet>1025</a>            UnaryOperation::SquareRoot =&gt; {
+<a href=#1026 id=1026 data-nosnippet>1026</a>                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+<a href=#1027 id=1027 data-nosnippet>1027</a>                <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>type_, <span class="kw-2">&amp;</span>Type::Field, input.span());
+<a href=#1028 id=1028 data-nosnippet>1028</a>                type_
+<a href=#1029 id=1029 data-nosnippet>1029</a>            }
+<a href=#1030 id=1030 data-nosnippet>1030</a>            UnaryOperation::ToXCoordinate | UnaryOperation::ToYCoordinate =&gt; {
+<a href=#1031 id=1031 data-nosnippet>1031</a>                <span class="kw">let </span>_operand_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Group));
+<a href=#1032 id=1032 data-nosnippet>1032</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>Type::Field, destination, input.span());
+<a href=#1033 id=1033 data-nosnippet>1033</a>                Type::Field
+<a href=#1034 id=1034 data-nosnippet>1034</a>            }
+<a href=#1035 id=1035 data-nosnippet>1035</a>        };
+<a href=#1036 id=1036 data-nosnippet>1036</a>
+<a href=#1037 id=1037 data-nosnippet>1037</a>        <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>ty, destination, input.span());
+<a href=#1038 id=1038 data-nosnippet>1038</a>
+<a href=#1039 id=1039 data-nosnippet>1039</a>        ty
+<a href=#1040 id=1040 data-nosnippet>1040</a>    }
+<a href=#1041 id=1041 data-nosnippet>1041</a>
+<a href=#1042 id=1042 data-nosnippet>1042</a>    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#1043 id=1043 data-nosnippet>1043</a>        Type::Unit
+<a href=#1044 id=1044 data-nosnippet>1044</a>    }
+<a href=#1045 id=1045 data-nosnippet>1045</a>}</code></pre></div></section></main></body></html>
