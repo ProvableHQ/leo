@@ -1653,6 +1653,19 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value) -> Result<V
 }
 
 pub fn literal_to_value(literal: &Literal) -> Result<Value> {
+    // SnarkVM will not parse fields, groups, or scalars with
+    // leading zeros, so we strip them out.
+    fn prepare_snarkvm_string(s: &str, suffix: &str) -> String {
+        // If there's a `-`, separate it from the rest of the string.
+        let (neg, rest) = s.strip_prefix("-").map(|rest| ("-", rest)).unwrap_or(("", s));
+        // Remove leading zeros.
+        let mut rest = rest.trim_start_matches('0');
+        if rest.is_empty() {
+            rest = "0";
+        }
+        format!("{neg}{rest}{suffix}")
+    }
+
     let value = match literal {
         Literal::Boolean(b, ..) => Value::Bool(*b),
         Literal::Integer(IntegerType::U8, s, ..) => {
@@ -1695,8 +1708,8 @@ pub fn literal_to_value(literal: &Literal) -> Result<Value> {
             let s = s.replace("_", "");
             Value::I128(i128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
         }
-        Literal::Field(s, ..) => Value::Field(format!("{s}field").parse().expect_tc(literal.span())?),
-        Literal::Group(s, ..) => Value::Group(format!("{s}group").parse().expect_tc(literal.span())?),
+        Literal::Field(s, ..) => Value::Field(prepare_snarkvm_string(s, "field").parse().expect_tc(literal.span())?),
+        Literal::Group(s, ..) => Value::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(literal.span())?),
         Literal::Address(s, ..) => {
             if s.ends_with(".aleo") {
                 let program_id = ProgramID::from_str(s)?;
@@ -1705,7 +1718,7 @@ pub fn literal_to_value(literal: &Literal) -> Result<Value> {
                 Value::Address(s.parse().expect_tc(literal.span())?)
             }
         }
-        Literal::Scalar(s, ..) => Value::Scalar(format!("{s}scalar").parse().expect_tc(literal.span())?),
+        Literal::Scalar(s, ..) => Value::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span())?),
         Literal::String(..) => tc_fail!(),
     };
 

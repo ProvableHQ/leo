@@ -117,22 +117,26 @@ impl Literal {
 
 impl fmt::Display for DisplayDecimal<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // This function is duplicated in `interpreter/src/cursor.rs`,
+        // but there's not really a great place to put a common implementation
+        // right now.
+        fn prepare_snarkvm_string(s: &str, suffix: &str) -> String {
+            // If there's a `-`, separate it from the rest of the string.
+            let (neg, rest) = s.strip_prefix("-").map(|rest| ("-", rest)).unwrap_or(("", s));
+            // Remove leading zeros.
+            let mut rest = rest.trim_start_matches('0');
+            if rest.is_empty() {
+                rest = "0";
+            }
+            format!("{neg}{rest}{suffix}")
+        }
+
         match &self.0 {
             Literal::Address(address, _, _) => write!(f, "{address}"),
             Literal::Boolean(boolean, _, _) => write!(f, "{boolean}"),
-            Literal::Field(field, _, _) => write!(f, "{field}field"),
-            Literal::Group(group, _, _) => write!(f, "{group}group"),
+            Literal::Field(field, _, _) => write!(f, "{}", prepare_snarkvm_string(field, "field")),
+            Literal::Group(group, _, _) => write!(f, "{}", prepare_snarkvm_string(group, "group")),
             Literal::Integer(type_, value, _, _) => {
-                if !value.starts_with("0x")
-                    && !value.starts_with("-0x")
-                    && !value.starts_with("0b")
-                    && !value.starts_with("-0b")
-                    && !value.starts_with("0o")
-                    && !value.starts_with("-0o")
-                {
-                    // It's already decimal.
-                    return write!(f, "{value}{type_}");
-                }
                 let string = value.replace('_', "");
                 if value.starts_with('-') {
                     let v = i128::from_str_by_radix(&string).expect("Failed to parse integer?");
@@ -142,7 +146,7 @@ impl fmt::Display for DisplayDecimal<'_> {
                     write!(f, "{v}{type_}")
                 }
             }
-            Literal::Scalar(scalar, _, _) => write!(f, "{scalar}scalar"),
+            Literal::Scalar(scalar, _, _) => write!(f, "{}", prepare_snarkvm_string(scalar, "scalar")),
             Literal::String(string, _, _) => write!(f, "\"{string}\""),
         }
     }

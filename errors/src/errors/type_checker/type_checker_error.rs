@@ -104,6 +104,7 @@ create_messages!(
     }
 
     /// For when an integer is not in a valid range.
+    /// Also repurposing for when a group value is not valid.
     @formatted
     invalid_int_value {
         args: (value: impl Display, type_: impl Display),

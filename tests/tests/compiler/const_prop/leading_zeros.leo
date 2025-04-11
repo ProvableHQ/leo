@@ -1,0 +1,64 @@
+// As of commit c16c7bf72ac04622b822db834c4d80da4a48f225,
+// group, field, and scalar elements with leading zeros
+// were not being parsed correctly.
+program test.aleo {
+    const F1: field = 008444461749428370424248824938781546531375899335154063827935233455917409239041field;
+    const F2: field = 008444461749428370424248824938781546531375899335154063827935233455917409239043field;
+    const F3: field = -008444461749428370424248824938781546531375899335154063827935233455917409239043field;
+    const F4: field = 008444461749428370424248824938781546531375899335154063827935233455917409239039field;
+    const F5: field = -008444461749428370424248824938781546531375899335154063827935233455917409239039field;
+    const F6: field = 01field;
+    const F7: field = 000field;
+
+    transition field_tr() -> field {
+        return F1 + F2 + F3 + F4 + F5 + F6 + F7;
+    }
+
+    transition field_tr2() -> field {
+        return F3;
+    }
+
+    const G1: group = 008444461749428370424248824938781546531375899335154063827935233455917409239041group;
+    const G2: group = 008444461749428370424248824938781546531375899335154063827935233455917409239043group;
+    const G3: group = -008444461749428370424248824938781546531375899335154063827935233455917409239043group;
+    const G4: group = 008444461749428370424248824938781546531375899335154063827935233455917409239039group;
+    const G5: group = -008444461749428370424248824938781546531375899335154063827935233455917409239039group;
+    const G6: group = 000group;
+    const G7: group = 00288246391group;
+    const G8: group = -00288246391group;
+
+    transition group_tr() -> group {
+        return G1 + G2 + G3 + G4 + G5 + G6 + G7 + G8;
+    }
+
+    transition group_tr2() -> group {
+        return G3;
+    }
+
+    const S1: scalar = 0scalar;
+    const S2: scalar = 00scalar;
+    const S3: scalar = 001scalar;
+    const S4: scalar = -0003scalar;
+    const S5: scalar = -0002111115437357092606062206234695386632838870926408408195193685246394721360384scalar;
+
+    transition scalar_tr() -> scalar {
+        return S1 + S2 + S3 + S4 + S5;
+    }
+
+    transition scalar_tr2() -> scalar {
+        return S5;
+    }
+
+    const I1: i8 = 0i8;
+    const I2: i8 = 00i8;
+    const I3: i8 = 001i8;
+    const I4: i8 = -0003i8;
+
+    transition i8_tr() -> i8 {
+        return I1 + I2 + I3 + I4;
+    }
+
+    transition i8_tr2() -> i8 {
+        return I4;
+    }
+}

@@ -2,7 +2,7 @@ DCE_ENABLED:
 Error [ETYC0372120]: Received types `group` and `group` for the operation `*`.
     --> compiler-test:4:16
      |
-   4 |         return 1group * a;
+   4 |         return 0group * a;
      |                ^^^^^^^^^^
      |
      = Valid operands are two integers of the same type, two fields, or a scalar and a group.
@@ -16,7 +16,7 @@ DCE_DISABLED:
 Error [ETYC0372120]: Received types `group` and `group` for the operation `*`.
     --> compiler-test:4:16
      |
-   4 |         return 1group * a;
+   4 |         return 0group * a;
      |                ^^^^^^^^^^
      |
      = Valid operands are two integers of the same type, two fields, or a scalar and a group.

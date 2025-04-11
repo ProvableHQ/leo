@@ -875,7 +875,16 @@ impl ExpressionVisitor for TypeChecker<'_> {
                 parse_integer_literal::<i128>(self.handler, string, input.span(), "i128");
                 Type::Integer(IntegerType::I128)
             }
-            Literal::Group(..) => Type::Group,
+            Literal::Group(s, ..) => {
+                // Get rid of leading - and 0 and see if it parses
+                let s = s.trim_start_matches('-').trim_start_matches('0');
+                if !s.is_empty()
+                    && format!("{s}group").parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>().is_err()
+                {
+                    self.emit_err(TypeCheckerError::invalid_int_value(s, "group", input.span()));
+                }
+                Type::Group
+            }
             Literal::Scalar(..) => Type::Scalar,
             Literal::String(..) => {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));
