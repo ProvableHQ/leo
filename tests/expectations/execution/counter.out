@@ -1,3 +1,40 @@
+program test.aleo;
+
+mapping counter:
+    key as address.public;
+    value as u64.public;
+
+function dubble:
+    async dubble self.caller into r0;
+    output r0 as test.aleo/dubble.future;
+
+finalize dubble:
+    input r0 as address.public;
+    get.or_use counter[r0] 235u64 into r1;
+    add r1 1u64 into r2;
+    set r2 into counter[r0];
+    get counter[r0] into r3;
+    add r3 1u64 into r4;
+    set r4 into counter[r0];
+
+function unsafe_increment:
+    async unsafe_increment self.caller into r0;
+    output r0 as test.aleo/unsafe_increment.future;
+
+finalize unsafe_increment:
+    input r0 as address.public;
+    get counter[r0] into r1;
+    add r1 1u64 into r2;
+    add r2 1u64 into r3;
+    add r3 1u64 into r4;
+    add r4 1u64 into r5;
+    add r5 1u64 into r6;
+    add r6 1u64 into r7;
+    add r7 1u64 into r8;
+    add r8 1u64 into r9;
+    add r9 1u64 into r10;
+    add r10 1u64 into r11;
+    set r11 into counter[r0];
 verified: false
 status: aborted
 errors:

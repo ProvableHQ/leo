@@ -1,3 +1,17 @@
+program test.aleo;
+
+function main:
+    input r0 as group.private;
+    cast r0 into r1 as group.x;
+    cast r0 into r2 as field;
+    cast r0 into r3 as group.x;
+    assert.eq r1 r2;
+    assert.eq r1 r3;
+    cast r0 into r4 as group.y;
+    cast r0 into r5 as group.y;
+    assert.eq r4 r5;
+    output r1 as field.private;
+    output r4 as field.private;
 verified: true
 status: accepted
 errors:

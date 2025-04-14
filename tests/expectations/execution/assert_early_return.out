@@ -1,3 +1,12 @@
+program test.aleo;
+
+function main:
+    input r0 as u32.private;
+    lt r0 5u32 into r1;
+    or false r1 into r2;
+    assert.eq r2 true;
+    ternary r1 true true into r3;
+    output r3 as boolean.private;
 verified: true
 status: accepted
 errors:

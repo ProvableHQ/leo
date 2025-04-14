@@ -1,3 +1,23 @@
+program test.aleo;
+
+struct foo:
+    data as field;
+
+function main:
+    input r0 as boolean.private;
+    input r1 as group.private;
+    input r2 as address.private;
+    cast r1 into r3 as field;
+    cast r3 into r4 as foo;
+    cast 1field into r5 as foo;
+    cast r2 into r6 as field;
+    cast r6 into r7 as foo;
+    ternary r0 r4.data r4.data into r8;
+    cast r8 into r9 as foo;
+    ternary r0 r5.data r7.data into r10;
+    cast r10 into r11 as foo;
+    output r9 as foo.private;
+    output r11 as foo.private;
 verified: true
 status: accepted
 errors:

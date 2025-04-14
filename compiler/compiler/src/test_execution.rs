@@ -38,6 +38,7 @@ use snarkvm::{
 };
 
 use indexmap::IndexMap;
+use itertools::Itertools as _;
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
 use serial_test::serial;
 use std::{fmt::Write as _, str::FromStr};
@@ -96,6 +97,8 @@ fn execution_run_test(test: &str, handler: &Handler, buf: &BufferEmitter, cases:
     // Initialize a `Ledger`. This should always succeed.
     let ledger = Ledger::<TestnetV0, ConsensusMemory<TestnetV0>>::load(genesis_block, StorageMode::Production).unwrap();
 
+    let mut bytecodes = Vec::<String>::new();
+
     // Compile each source file separately.
     for source in sources {
         let (bytecode, program_name) = handler.extend_if_error(whole_compile(source, handler, import_stubs.clone()))?;
@@ -141,9 +144,11 @@ fn execution_run_test(test: &str, handler: &Handler, buf: &BufferEmitter, cases:
         if block.transactions().num_accepted() != 1 {
             return Ok("Deployment transaction not accepted.".into());
         }
+
+        bytecodes.push(bytecode);
     }
 
-    let mut output = String::new();
+    let mut output = bytecodes.iter().format(&format!("{}\n", PROGRAM_DELIMITER)).to_string();
 
     for case in cases {
         if !ledger.vm().contains_program(&ProgramID::from_str(&case.program).unwrap()) {
