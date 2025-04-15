@@ -14,7 +14,7 @@
 <a href=#14 id=14 data-nosnippet>14</a>// You should have received a copy of the GNU General Public License
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{Expression, Identifier, Node, NodeID};
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{Expression, Node, NodeID};
 <a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>leo_span::Span;
 <a href=#19 id=19 data-nosnippet>19</a>
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -24,8 +24,8 @@
 <a href=#24 id=24 data-nosnippet>24</a>/// Note that there is no operation associated with the assignment.
 <a href=#25 id=25 data-nosnippet>25</a></span><span class="attr">#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 <a href=#26 id=26 data-nosnippet>26</a></span><span class="kw">pub struct </span>AssignStatement {
-<a href=#27 id=27 data-nosnippet>27</a>    <span class="doccomment">/// The identifier to assign to.
-<a href=#28 id=28 data-nosnippet>28</a>    </span><span class="kw">pub </span>place: Identifier,
+<a href=#27 id=27 data-nosnippet>27</a>    <span class="doccomment">/// The place to assign to.
+<a href=#28 id=28 data-nosnippet>28</a>    </span><span class="kw">pub </span>place: Expression,
 <a href=#29 id=29 data-nosnippet>29</a>    <span class="doccomment">/// The value to assign to the `assignee`.
 <a href=#30 id=30 data-nosnippet>30</a>    </span><span class="kw">pub </span>value: Expression,
 <a href=#31 id=31 data-nosnippet>31</a>    <span class="doccomment">/// The span, excluding the semicolon.

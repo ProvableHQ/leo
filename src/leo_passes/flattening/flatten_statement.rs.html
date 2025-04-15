@@ -337,22 +337,24 @@
 <a href=#337 id=337 data-nosnippet>337</a>    <span class="doccomment">/// Transforms a return statement into an empty block statement.
 <a href=#338 id=338 data-nosnippet>338</a>    /// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.
 <a href=#339 id=339 data-nosnippet>339</a>    </span><span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#340 id=340 data-nosnippet>340</a>        <span class="comment">// If we are traversing an async function, return as is.
-<a href=#341 id=341 data-nosnippet>341</a>        </span><span class="kw">if </span><span class="self">self</span>.is_async {
-<a href=#342 id=342 data-nosnippet>342</a>            <span class="kw">return </span>(Statement::Return(input), Default::default());
-<a href=#343 id=343 data-nosnippet>343</a>        }
-<a href=#344 id=344 data-nosnippet>344</a>        <span class="comment">// Construct the associated guard.
-<a href=#345 id=345 data-nosnippet>345</a>        </span><span class="kw">let </span>(guard_identifier, statements) = <span class="self">self</span>.construct_guard().unzip();
-<a href=#346 id=346 data-nosnippet>346</a>
-<a href=#347 id=347 data-nosnippet>347</a>        <span class="kw">let </span>return_guard = guard_identifier.map_or(ReturnGuard::None, ReturnGuard::Unconstructed);
+<a href=#340 id=340 data-nosnippet>340</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
+<a href=#341 id=341 data-nosnippet>341</a>
+<a href=#342 id=342 data-nosnippet>342</a>        <span class="comment">// If we are traversing an async function, return as is.
+<a href=#343 id=343 data-nosnippet>343</a>        </span><span class="kw">if </span><span class="self">self</span>.is_async {
+<a href=#344 id=344 data-nosnippet>344</a>            <span class="kw">return </span>(Statement::Return(input), Default::default());
+<a href=#345 id=345 data-nosnippet>345</a>        }
+<a href=#346 id=346 data-nosnippet>346</a>        <span class="comment">// Construct the associated guard.
+<a href=#347 id=347 data-nosnippet>347</a>        </span><span class="kw">let </span>(guard_identifier, statements) = <span class="self">self</span>.construct_guard().unzip();
 <a href=#348 id=348 data-nosnippet>348</a>
-<a href=#349 id=349 data-nosnippet>349</a>        <span class="kw">match </span>input.expression {
-<a href=#350 id=350 data-nosnippet>350</a>            Expression::Unit(<span class="kw">_</span>) | Expression::Identifier(<span class="kw">_</span>) | Expression::AssociatedConstant(<span class="kw">_</span>) =&gt; {
-<a href=#351 id=351 data-nosnippet>351</a>                <span class="self">self</span>.returns.push((return_guard, input))
-<a href=#352 id=352 data-nosnippet>352</a>            }
-<a href=#353 id=353 data-nosnippet>353</a>            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"SSA guarantees that the expression is always an identifier or unit expression."</span>),
-<a href=#354 id=354 data-nosnippet>354</a>        };
+<a href=#349 id=349 data-nosnippet>349</a>        <span class="kw">let </span>return_guard = guard_identifier.map_or(ReturnGuard::None, ReturnGuard::Unconstructed);
+<a href=#350 id=350 data-nosnippet>350</a>
+<a href=#351 id=351 data-nosnippet>351</a>        <span class="kw">let </span>is_tuple_ids = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input.expression, Tuple(tuple_expr) <span class="kw">if </span>tuple_expr .elements.iter() .all(|expr| <span class="macro">matches!</span>(expr, Identifier(<span class="kw">_</span>))));
+<a href=#352 id=352 data-nosnippet>352</a>        <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input.expression, Unit(<span class="kw">_</span>) | Identifier(<span class="kw">_</span>) | AssociatedConstant(<span class="kw">_</span>)) &amp;&amp; !is_tuple_ids {
+<a href=#353 id=353 data-nosnippet>353</a>            <span class="macro">panic!</span>(<span class="string">"SSA guarantees that the expression is always an identifier, unit expression, or tuple literal."</span>)
+<a href=#354 id=354 data-nosnippet>354</a>        }
 <a href=#355 id=355 data-nosnippet>355</a>
-<a href=#356 id=356 data-nosnippet>356</a>        (Statement::dummy(), statements.unwrap_or_default())
-<a href=#357 id=357 data-nosnippet>357</a>    }
-<a href=#358 id=358 data-nosnippet>358</a>}</code></pre></div></section></main></body></html>
+<a href=#356 id=356 data-nosnippet>356</a>        <span class="self">self</span>.returns.push((return_guard, input));
+<a href=#357 id=357 data-nosnippet>357</a>
+<a href=#358 id=358 data-nosnippet>358</a>        (Statement::dummy(), statements.unwrap_or_default())
+<a href=#359 id=359 data-nosnippet>359</a>    }
+<a href=#360 id=360 data-nosnippet>360</a>}</code></pre></div></section></main></body></html>
