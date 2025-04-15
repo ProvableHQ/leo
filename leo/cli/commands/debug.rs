@@ -14,16 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_package::{Package, ProgramData};
+
+use snarkvm::prelude::TestnetV0;
+
 use std::{fs, path::PathBuf};
-
-use snarkvm::prelude::{Network, ProgramID, TestnetV0};
-
-#[cfg(not(feature = "only_testnet"))]
-use snarkvm::prelude::{CanaryV0, MainnetV0};
-
-use leo_errors::UtilError;
-use leo_retriever::{Manifest, NetworkName, Retriever};
-use leo_span::Symbol;
 
 use super::*;
 
@@ -44,7 +39,7 @@ pub struct LeoDebug {
 }
 
 impl Command for LeoDebug {
-    type Input = <LeoBuild as Command>::Output;
+    type Input = Option<Package>;
     type Output = ();
 
     fn log_span(&self) -> Span {
@@ -53,71 +48,37 @@ impl Command for LeoDebug {
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         if self.paths.is_empty() {
-            (LeoBuild { options: self.compiler_options.clone() }).execute(context)
+            let package = LeoBuild { options: self.compiler_options.clone() }.execute(context)?;
+            Ok(Some(package))
         } else {
-            Ok(())
+            Ok(None)
         }
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Parse the network.
-        let network = NetworkName::try_from(context.get_network(&self.compiler_options.network)?)?;
-        match network {
-            NetworkName::TestnetV0 => handle_debug::<TestnetV0>(&self, context),
-            NetworkName::MainnetV0 => {
-                #[cfg(feature = "only_testnet")]
-                panic!("Mainnet chosen with only_testnet feature");
-                #[cfg(not(feature = "only_testnet"))]
-                return handle_debug::<MainnetV0>(&self, context);
-            }
-            NetworkName::CanaryV0 => {
-                #[cfg(feature = "only_testnet")]
-                panic!("Canary chosen with only_testnet feature");
-                #[cfg(not(feature = "only_testnet"))]
-                return handle_debug::<CanaryV0>(&self, context);
-            }
-        }
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+        handle_debug(&self, context, input)
     }
 }
 
-fn handle_debug<N: Network>(command: &LeoDebug, context: Context) -> Result<()> {
+fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) -> Result<()> {
     if command.paths.is_empty() {
-        // Get the package path.
-        let package_path = context.dir()?;
-        let home_path = context.home()?;
-
-        // Get the program id.
-        let manifest = Manifest::read_from_dir(&package_path)?;
-        let program_id = ProgramID::<N>::from_str(manifest.program())?;
+        let package = package.unwrap();
 
         // Get the private key.
         let private_key = context.get_private_key(&None)?;
         let address = Address::try_from(&private_key)?;
 
         // Retrieve all local dependencies in post order
-        let main_sym = Symbol::intern(&program_id.name().to_string());
-        let mut retriever = Retriever::<N>::new(
-            main_sym,
-            &package_path,
-            &home_path,
-            context.get_endpoint(&command.compiler_options.endpoint)?.to_string(),
-        )
-        .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
-        let mut local_dependencies =
-            retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
-
-        // Push the main program at the end of the list.
-        local_dependencies.push(main_sym);
-
-        let paths: Vec<PathBuf> = local_dependencies
-            .into_iter()
-            .map(|dependency| {
-                let base_path = retriever.get_context(&dependency).full_path();
-                base_path.join("src/main.leo")
+        let local_dependency_paths: Vec<PathBuf> = package
+            .programs
+            .iter()
+            .flat_map(|program| match &program.data {
+                ProgramData::SourcePath(path) => Some(path.clone()),
+                ProgramData::Bytecode(..) => None,
             })
             .collect();
 
-        let imports_directory = package_path.join("build/imports");
+        let imports_directory = package.imports_directory();
 
         let aleo_paths: Vec<PathBuf> = if let Ok(dir) = fs::read_dir(imports_directory) {
             dir.flat_map(|maybe_filename| maybe_filename.ok())
@@ -131,7 +92,10 @@ fn handle_debug<N: Network>(command: &LeoDebug, context: Context) -> Result<()> 
             Vec::new()
         };
 
-        leo_interpreter::interpret(&paths, &aleo_paths, address, command.block_height, command.tui)
+        // No need to keep this around while the interpreter runs.
+        std::mem::drop(package);
+
+        leo_interpreter::interpret(&local_dependency_paths, &aleo_paths, address, command.block_height, command.tui)
     } else {
         let private_key: PrivateKey<TestnetV0> = PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY)?;
         let address = Address::try_from(&private_key)?;

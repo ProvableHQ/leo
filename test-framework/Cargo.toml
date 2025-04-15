@@ -28,4 +28,4 @@ workspace = true
 workspace = true
 
 [dependencies.walkdir]
-version = "2.5"
+workspace = true

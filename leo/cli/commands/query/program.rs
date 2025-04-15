@@ -17,7 +17,6 @@
 use super::*;
 
 use clap::Parser;
-use leo_package::package::Package;
 
 /// Query program source code and live mapping values.
 #[derive(Parser, Debug)]
@@ -49,11 +48,12 @@ impl Command for LeoProgram {
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         // Check that the program name is valid.
-        let program = check_valid_program_name(self.name);
+        let program = if self.name.ends_with(".aleo") { self.name.clone() } else { format!("{}.aleo", self.name) };
+        if !leo_package::is_valid_aleo_name(&program) {
+            return Err(CliError::invalid_program_name(program).into());
+        }
         // Build custom url to fetch from based on the flags and user's input.
         let url = if let Some(mapping_info) = self.mapping_value {
-            // Check that the mapping name is valid.
-            Package::is_aleo_name_valid(&mapping_info[0]);
             format!("program/{}/mapping/{}/{}", program, mapping_info[0], mapping_info[1])
         } else if self.mappings {
             format!("program/{}/mappings", program)

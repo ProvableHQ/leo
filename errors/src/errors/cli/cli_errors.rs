@@ -320,4 +320,11 @@ create_messages!(
         msg: format!("Failed to render table.\nError: {error}"),
         help: None,
     }
+
+    @backtraced
+    invalid_program_name {
+        args: (name: impl Display),
+        msg: format!("Invalid program name `{name}`"),
+        help: None,
+    }
 );

@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_retriever::NetworkName;
+use leo_package::NetworkName;
 use snarkvm::{
     cli::Run as SnarkVMRun,
     prelude::{CanaryV0, MainnetV0, Network, Parser as SnarkVMParser, TestnetV0},
@@ -52,7 +52,7 @@ impl Command for LeoRun {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(context.get_network(&self.compiler_options.network)?)?;
+        let network = context.get_network(&self.compiler_options.network)?.parse()?;
         match network {
             NetworkName::MainnetV0 => handle_run::<MainnetV0>(self, context),
             NetworkName::TestnetV0 => handle_run::<TestnetV0>(self, context),
@@ -89,16 +89,16 @@ fn handle_run<N: Network>(command: LeoRun, context: Context) -> Result<<LeoRun a
                 return Err(PackageError::failed_to_read_input_file(path.display()).into());
             }
             // Convert the values to strings.
-            let mut inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::<Vec<String>>();
+            let inputs_from_file = values.iter().map(|value| value.to_string());
             // Add the inputs from the file to the arguments.
-            arguments.append(&mut inputs_from_file);
+            arguments.extend(inputs_from_file);
         }
         None => arguments.append(&mut inputs),
     }
 
     // Open the Leo build/ directory
     let path = context.dir()?;
-    let build_directory = BuildDirectory::open(&path)?;
+    let build_directory = path.join(leo_package::BUILD_DIRECTORY);
 
     // Change the cwd to the Leo build/ directory to compile aleo files.
     std::env::set_current_dir(&build_directory)

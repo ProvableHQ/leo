@@ -19,22 +19,14 @@ use super::*;
 use leo_ast::Stub;
 use leo_compiler::{AstSnapshots, Compiler, CompilerOptions, OutputOptions};
 use leo_errors::{CliError, UtilError};
-use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
-use leo_retriever::{Manifest, NetworkName, Retriever};
+use leo_package::{Manifest, NetworkName, Package};
 use leo_span::Symbol;
 
-use snarkvm::{
-    package::Package,
-    prelude::{MainnetV0, Network, ProgramID, TestnetV0},
-};
+use snarkvm::prelude::{MainnetV0, Network, TestnetV0};
 
 use indexmap::IndexMap;
 use snarkvm::prelude::CanaryV0;
-use std::{
-    io::Write,
-    path::{Path, PathBuf},
-    str::FromStr,
-};
+use std::path::Path;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -66,7 +58,7 @@ pub struct LeoBuild {
 
 impl Command for LeoBuild {
     type Input = ();
-    type Output = ();
+    type Output = Package;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -78,7 +70,7 @@ impl Command for LeoBuild {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(context.get_network(&self.options.network)?)?;
+        let network: NetworkName = context.get_network(&self.options.network)?.parse()?;
         match network {
             NetworkName::MainnetV0 => handle_build::<MainnetV0>(&self, context),
             NetworkName::TestnetV0 => handle_build::<TestnetV0>(&self, context),
@@ -89,121 +81,104 @@ impl Command for LeoBuild {
 
 // A helper function to handle the build command.
 fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Command>::Output> {
-    // Get the package path.
     let package_path = context.dir()?;
     let home_path = context.home()?;
 
-    // Get the program id.
-    let manifest = Manifest::read_from_dir(&package_path)?;
-    let program_id = ProgramID::<N>::from_str(manifest.program())?;
+    let package = leo_package::Package::from_directory(&package_path, &home_path)?;
 
-    // Clear and recreate the build directory.
-    let build_directory = package_path.join("build");
-    if build_directory.exists() {
-        std::fs::remove_dir_all(&build_directory).map_err(CliError::build_error)?;
+    let outputs_directory = package.outputs_directory();
+    let build_directory = package.build_directory();
+    let imports_directory = package.imports_directory();
+    let source_directory = package.source_directory();
+    let main_source_path = source_directory.join("main.leo");
+
+    for dir in [&outputs_directory, &build_directory, &imports_directory] {
+        std::fs::create_dir_all(dir).map_err(|err| {
+            UtilError::util_file_io_error(format_args!("Couldn't create directory {}", dir.display()), err)
+        })?;
     }
-    Package::create(&build_directory, &program_id).map_err(CliError::build_error)?;
 
-    // Initialize error handler
+    // Initialize error handler.
     let handler = Handler::default();
 
-    // Retrieve all local dependencies in post order
-    let main_sym = Symbol::intern(&program_id.name().to_string());
-    let mut retriever = Retriever::<N>::new(
-        main_sym,
-        &package_path,
-        &home_path,
-        context.get_endpoint(&command.options.endpoint)?.to_string(),
-    )
-    .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
-    let mut local_dependencies =
-        retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+    let mut stubs: IndexMap<Symbol, Stub> = IndexMap::new();
 
-    // Push the main program at the end of the list to be compiled after all of its dependencies have been processed
-    local_dependencies.push(main_sym);
-
-    // Recursive build will recursively compile all local dependencies. Can disable to save compile time.
-    let recursive_build = !command.options.non_recursive;
-
-    // Loop through all local dependencies and compile them in order
-    for dependency in local_dependencies.into_iter() {
-        if recursive_build || dependency == main_sym {
-            // Get path to the local project
-            let (local_path, stubs) = retriever.prepare_local(dependency)?;
-
-            // Create the outputs directory.
-            let local_outputs_directory = OutputsDirectory::create(&local_path)?;
-
-            // Open the build directory.
-            let local_build_directory = BuildDirectory::create(&local_path)?;
-
-            // Fetch paths to all .leo files in the source directory.
-            let local_source_files = SourceDirectory::files(&local_path)?;
-
-            // Check the source files.
-            SourceDirectory::check_files(&local_source_files)?;
-
-            // Compile all .leo files into .aleo files.
-            for file_path in local_source_files {
-                compile_leo_file(
-                    file_path,
-                    &ProgramID::<N>::try_from(format!("{}.aleo", dependency))
-                        .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
-                    &local_outputs_directory,
-                    &local_build_directory,
+    for program in package.programs.iter() {
+        let (bytecode, build_path) = match &program.data {
+            leo_package::ProgramData::Bytecode(bytecode) => {
+                // This was a network dependency, and we've downloaded its bytecode.
+                (bytecode.clone(), imports_directory.join(format!("{}.aleo", program.name)))
+            }
+            leo_package::ProgramData::SourcePath(path) => {
+                // This is a local dependency, so we must compile it.
+                let build_path = if path == &main_source_path {
+                    build_directory.join("main.aleo")
+                } else {
+                    imports_directory.join(format!("{}.aleo", program.name))
+                };
+                let bytecode = compile_leo_file::<N>(
+                    path,
+                    program.name,
+                    &outputs_directory,
                     &handler,
                     command.options.clone(),
                     stubs.clone(),
                 )?;
+                (bytecode, build_path)
             }
-        }
+        };
 
-        // Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
-        retriever.process_local(dependency, recursive_build)?;
+        // Write the .aleo file.
+        std::fs::write(build_path, &bytecode).map_err(CliError::failed_to_load_instructions)?;
+
+        // Track the Stub.
+        let stub = leo_disassembler::disassemble_from_str::<N>(program.name, &bytecode)?;
+        stubs.insert(program.name, stub);
     }
 
-    // `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
-    Package::<N>::open(&build_directory).map_err(CliError::failed_to_execute_build)?;
+    // SnarkVM expects to find a `program.json` file in the build directory, so make
+    // a bogus one.
+    let build_manifest_path = build_directory.join(leo_package::MANIFEST_FILENAME);
+    let fake_manifest = Manifest {
+        program: package.manifest.program.clone(),
+        version: "0.1.0".to_string(),
+        description: String::new(),
+        license: String::new(),
+        dependencies: None,
+    };
+    fake_manifest.write_to_file(build_manifest_path)?;
 
-    Ok(())
+    Ok(package)
 }
 
-/// Compiles a Leo file in the `src/` directory.
+/// Compiles a Leo file. Writes and returns the compiled bytecode.
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_file<N: Network>(
-    file_path: PathBuf,
-    program_id: &ProgramID<N>,
-    outputs: &Path,
-    build: &Path,
+    source_file_path: &Path,
+    program_name: Symbol,
+    output_path: &Path,
     handler: &Handler,
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
-) -> Result<()> {
-    // Construct program name from the program_id found in `package.json`.
-    let program_name = program_id.name().to_string();
-
-    // Create the path to the Aleo file.
-    let mut aleo_file_path = build.to_path_buf();
-    aleo_file_path.push(format!("main.{}", program_id.network()));
-
+) -> Result<String> {
     let enable_dce = options.enable_dce;
 
     // Create a new instance of the Leo compiler.
-    let mut compiler = Compiler::<N>::new(handler.clone(), outputs.to_path_buf(), Some(options.into()), stubs);
+    let mut compiler = Compiler::<N>::new(
+        Some(program_name.to_string()),
+        handler.clone(),
+        output_path.to_path_buf(),
+        Some(options.into()),
+        stubs,
+    );
 
     // Compile the Leo program into Aleo instructions.
-    let instructions = compiler.compile_from_file(file_path)?;
-
-    // Write the instructions.
-    std::fs::File::create(&aleo_file_path)
-        .map_err(CliError::failed_to_load_instructions)?
-        .write_all(instructions.as_bytes())
-        .map_err(CliError::failed_to_load_instructions)?;
+    let bytecode = compiler.compile_from_file(source_file_path)?;
 
     if enable_dce {
         tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
         tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
     }
     tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
-    Ok(())
+    Ok(bytecode)
 }

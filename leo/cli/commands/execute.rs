@@ -15,6 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+
+use leo_package::NetworkName;
+
 use aleo_std::StorageMode;
 use clap::Parser;
 use snarkvm::{
@@ -25,7 +28,6 @@ use std::collections::HashMap;
 
 use crate::cli::query::QueryCommands;
 use dialoguer::{Confirm, theme::ColorfulTheme};
-use leo_retriever::NetworkName;
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
@@ -75,7 +77,7 @@ pub struct LeoExecute {
 }
 
 impl Command for LeoExecute {
-    type Input = <LeoBuild as Command>::Output;
+    type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
@@ -84,15 +86,15 @@ impl Command for LeoExecute {
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         // No need to build if we are executing an external program.
-        if self.program.is_some() || self.no_build {
-            return Ok(());
+        if self.program.is_none() && !self.no_build {
+            LeoBuild { options: self.compiler_options.clone() }.execute(context)?;
         }
-        (LeoBuild { options: self.compiler_options.clone() }).execute(context)
+        Ok(())
     }
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(context.get_network(&self.compiler_options.network)?)?;
+        let network: NetworkName = context.get_network(&self.compiler_options.network)?.parse()?;
         let endpoint = context.get_endpoint(&self.compiler_options.endpoint)?;
         match network {
             NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context, network, &endpoint),
@@ -163,7 +165,7 @@ fn handle_execute<A: Aleo>(
         // Get the program name.
         let program_name = match (command.program.clone(), command.local) {
             (Some(name), true) => {
-                let local = context.open_manifest::<A::Network>()?.program_id().name().to_string();
+                let local = context.open_manifest()?.program.clone();
                 // Throw error if local name doesn't match the specified name.
                 if name == local {
                     local
@@ -172,7 +174,7 @@ fn handle_execute<A: Aleo>(
                 }
             }
             (Some(name), false) => name.clone(),
-            (None, true) => context.open_manifest::<A::Network>()?.program_id().name().to_string(),
+            (None, true) => context.open_manifest()?.program.clone(),
             (None, false) => return Err(PackageError::missing_on_chain_program_name().into()),
         };
 

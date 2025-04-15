@@ -56,7 +56,6 @@ pub use update::LeoUpdate;
 use super::*;
 use crate::cli::helpers::context::*;
 use leo_errors::{CliError, Handler, PackageError, Result};
-use leo_package::{build::*, outputs::OutputsDirectory, package::*};
 use snarkvm::prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey, block::Transaction};
 
 use clap::Parser;

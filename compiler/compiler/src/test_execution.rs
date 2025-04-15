@@ -55,13 +55,13 @@ pub fn whole_compile(
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<(String, String), LeoError> {
     let mut compiler =
-        Compiler::<CurrentNetwork>::new(handler.clone(), "/fakedirectory-wont-use".into(), None, import_stubs);
+        Compiler::<CurrentNetwork>::new(None, handler.clone(), "/fakedirectory-wont-use".into(), None, import_stubs);
 
     let filename = FileName::Custom("execution-test".into());
 
     let bytecode = compiler.compile(source, filename)?;
 
-    Ok((bytecode, compiler.program_name))
+    Ok((bytecode, compiler.program_name.unwrap()))
 }
 
 // Execution test configuration.

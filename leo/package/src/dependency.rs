@@ -15,44 +15,27 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Location, NetworkName};
-use leo_span::Symbol;
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-// Information required to retrieve external program
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+/// Information about a dependency, as represented in the `program.json` manifest.
+#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Dependency {
-    name: String,
-    location: Location,
-    network: Option<NetworkName>,
-    path: Option<PathBuf>,
+    /// The name of the program. As this corresponds to what appears in `program.json`,
+    /// it should have the ".aleo" suffix.
+    pub name: String,
+    /// Network or local dependency? Note that this isn't really used, as `network`
+    /// and `path` provide us this information.
+    pub location: Location,
+    /// For a network dependency, which network?
+    pub network: Option<NetworkName>,
+    /// For a local dependency, where is its package?
+    pub path: Option<PathBuf>,
 }
 
 impl Dependency {
     pub fn new(name: String, location: Location, network: Option<NetworkName>, path: Option<PathBuf>) -> Self {
         Self { name, location, network, path }
-    }
-
-    pub fn name(&self) -> &String {
-        &self.name
-    }
-
-    pub fn location(&self) -> &Location {
-        &self.location
-    }
-
-    pub fn network(&self) -> &Option<NetworkName> {
-        &self.network
-    }
-
-    pub fn path(&self) -> &Option<PathBuf> {
-        &self.path
-    }
-}
-
-impl From<&Dependency> for Symbol {
-    fn from(context: &Dependency) -> Self {
-        Symbol::intern(&context.name.clone()[..context.name.len() - 5])
     }
 }

@@ -56,6 +56,10 @@ impl<N: Node> DiGraph<N> {
         Self { nodes, edges: IndexMap::new() }
     }
 
+    pub fn add_node(&mut self, node: N) {
+        self.nodes.insert(node);
+    }
+
     /// Adds an edge to the graph.
     pub fn add_edge(&mut self, from: N, to: N) {
         // Add `from` and `to` to the set of nodes if they are not already in the set.

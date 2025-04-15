@@ -42,7 +42,6 @@ members = [
   "leo/package",
   "test-framework",
   "utils/disassembler",
-  "utils/retriever"
 ]
 
 [workspace.dependencies.leo-ast]
@@ -79,10 +78,6 @@ version = "2.5.0"
 
 [workspace.dependencies.leo-span]
 path = "./compiler/span"
-version = "2.5.0"
-
-[workspace.dependencies.leo-retriever]
-path = "./utils/retriever"
 version = "2.5.0"
 
 [workspace.dependencies.leo-test-framework]
@@ -138,6 +133,12 @@ features = [ "preserve_order" ]
 [workspace.dependencies.tracing]
 version = "0.1"
 
+[workspace.dependencies.ureq]
+version = "2.10.1"
+
+[workspace.dependencies.walkdir]
+version = "2.5"
+
 [lib]
 path = "leo/lib.rs"
 
@@ -155,12 +156,14 @@ only_testnet = [ ]
 dialoguer = "0.11.0"
 num-format = "0.4.4"
 text-tables = "0.3.1"
-ureq = "2.10.1"
 
 [dependencies.leo-ast]
 workspace = true
 
 [dependencies.leo-compiler]
+workspace = true
+
+[dependencies.leo-disassembler]
 workspace = true
 
 [dependencies.leo-errors]
@@ -173,9 +176,6 @@ workspace = true
 workspace = true
 
 [dependencies.leo-span]
-workspace = true
-
-[dependencies.leo-retriever]
 workspace = true
 
 [dependencies.aleo-std]
@@ -239,6 +239,12 @@ version = "0.28.1"
 [dependencies.rpassword]
 version = "7.3.1"
 
+[dependencies.ureq]
+workspace = true
+
+[dependencies.walkdir]
+workspace = true
+
 [target."cfg(windows)".dependencies.ansi_term]
 version = "0.12.1"
 
@@ -249,7 +255,7 @@ version = "0.11.2"
 version = "0.2.0"
 
 [build-dependencies.walkdir]
-version = "2"
+workspace = true
 
 [profile.release]
 opt-level = 3

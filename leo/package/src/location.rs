@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod ast_snapshot;
-pub use self::ast_snapshot::*;
+use serde::{Deserialize, Serialize};
 
-pub mod circuit;
-pub use self::circuit::*;
-
-pub mod checksum;
-pub use self::checksum::*;
-
-pub mod directory;
-pub use directory::*;
-
-pub static MAIN_ALEO_FILE_NAME: &str = "main.aleo";
+// Retrievable locations for an external program.
+#[derive(Debug, Default, Clone, std::cmp::Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub enum Location {
+    #[default]
+    #[serde(rename = "network")]
+    Network,
+    #[serde(rename = "local")]
+    Local,
+    #[serde(rename = "git")]
+    Git,
+}
