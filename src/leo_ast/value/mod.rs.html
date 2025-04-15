@@ -78,8 +78,8 @@
 <a href=#78 id=78 data-nosnippet>78</a>                        <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>(<span class="macro-nonterminal">$logic</span>(v.into(), span)<span class="question-mark">?</span>, span))
 <a href=#79 id=79 data-nosnippet>79</a>                    },
 <a href=#80 id=80 data-nosnippet>80</a>                )+
-<a href=#81 id=81 data-nosnippet>81</a>                <span class="comment">// Unreachable because type checking should have already caught this and errored out.
-<a href=#82 id=82 data-nosnippet>82</a>                </span>s =&gt; <span class="macro">unreachable!</span>(<span class="string">"Const operation not supported {}.{}()"</span>, type_name(<span class="kw-2">&amp;</span>s), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>))
+<a href=#81 id=81 data-nosnippet>81</a>                <span class="comment">// Type checking should have already caught this and errored out.
+<a href=#82 id=82 data-nosnippet>82</a>                </span>s =&gt; <span class="macro">panic!</span>(<span class="string">"Const operation not supported {}.{}()"</span>, type_name(<span class="kw-2">&amp;</span>s), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>))
 <a href=#83 id=83 data-nosnippet>83</a>            }
 <a href=#84 id=84 data-nosnippet>84</a>        }
 <a href=#85 id=85 data-nosnippet>85</a>    };

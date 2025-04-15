@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["Pass"]};
+window.SIDEBAR_ITEMS = {"struct":["CompilerState"],"trait":["Pass"]};

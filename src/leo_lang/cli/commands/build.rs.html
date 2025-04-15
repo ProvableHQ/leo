@@ -201,7 +201,7 @@
 <a href=#201 id=201 data-nosnippet>201</a>    <span class="kw">let </span>enable_dce = options.enable_dce;
 <a href=#202 id=202 data-nosnippet>202</a>
 <a href=#203 id=203 data-nosnippet>203</a>    <span class="comment">// Create a new instance of the Leo compiler.
-<a href=#204 id=204 data-nosnippet>204</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::&lt;N&gt;::new(handler, outputs.to_path_buf(), <span class="prelude-val">Some</span>(options.into()), stubs);
+<a href=#204 id=204 data-nosnippet>204</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::&lt;N&gt;::new(handler.clone(), outputs.to_path_buf(), <span class="prelude-val">Some</span>(options.into()), stubs);
 <a href=#205 id=205 data-nosnippet>205</a>
 <a href=#206 id=206 data-nosnippet>206</a>    <span class="comment">// Compile the Leo program into Aleo instructions.
 <a href=#207 id=207 data-nosnippet>207</a>    </span><span class="kw">let </span>instructions = compiler.compile_from_file(file_path)<span class="question-mark">?</span>;

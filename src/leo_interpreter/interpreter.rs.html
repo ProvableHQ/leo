@@ -78,7 +78,7 @@
 <a href=#78 id=78 data-nosnippet>78</a>        <span class="kw">let </span>text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))<span class="question-mark">?</span>;
 <a href=#79 id=79 data-nosnippet>79</a>        <span class="kw">let </span>filename = FileName::Real(path.to_path_buf());
 <a href=#80 id=80 data-nosnippet>80</a>        <span class="kw">let </span>source_file = with_session_globals(|s| s.source_map.new_source(<span class="kw-2">&amp;</span>text, filename));
-<a href=#81 id=81 data-nosnippet>81</a>        leo_parser::parse_ast::&lt;TestnetV0&gt;(handler, node_builder, <span class="kw-2">&amp;</span>text, source_file.start_pos)
+<a href=#81 id=81 data-nosnippet>81</a>        leo_parser::parse_ast::&lt;TestnetV0&gt;(handler.clone(), node_builder, <span class="kw-2">&amp;</span>text, source_file.start_pos)
 <a href=#82 id=82 data-nosnippet>82</a>    }
 <a href=#83 id=83 data-nosnippet>83</a>
 <a href=#84 id=84 data-nosnippet>84</a>    <span class="kw">fn </span>new_impl(
@@ -249,7 +249,7 @@
 <a href=#249 id=249 data-nosnippet>249</a>                <span class="kw">let </span>s = s.trim();
 <a href=#250 id=250 data-nosnippet>250</a>                <span class="kw">if </span>s.ends_with(<span class="string">';'</span>) {
 <a href=#251 id=251 data-nosnippet>251</a>                    <span class="kw">let </span>statement = leo_parser::parse_statement::&lt;TestnetV0&gt;(
-<a href=#252 id=252 data-nosnippet>252</a>                        <span class="kw-2">&amp;</span><span class="self">self</span>.handler,
+<a href=#252 id=252 data-nosnippet>252</a>                        <span class="self">self</span>.handler.clone(),
 <a href=#253 id=253 data-nosnippet>253</a>                        <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
 <a href=#254 id=254 data-nosnippet>254</a>                        s,
 <a href=#255 id=255 data-nosnippet>255</a>                        source_file.start_pos,
@@ -264,7 +264,7 @@
 <a href=#264 id=264 data-nosnippet>264</a>                    </span><span class="self">self</span>.cursor.frames.push(Frame { step: <span class="number">0</span>, element: Element::Statement(stmt), user_initiated: <span class="bool-val">true </span>});
 <a href=#265 id=265 data-nosnippet>265</a>                } <span class="kw">else </span>{
 <a href=#266 id=266 data-nosnippet>266</a>                    <span class="kw">let </span>expression = leo_parser::parse_expression::&lt;TestnetV0&gt;(
-<a href=#267 id=267 data-nosnippet>267</a>                        <span class="kw-2">&amp;</span><span class="self">self</span>.handler,
+<a href=#267 id=267 data-nosnippet>267</a>                        <span class="self">self</span>.handler.clone(),
 <a href=#268 id=268 data-nosnippet>268</a>                        <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
 <a href=#269 id=269 data-nosnippet>269</a>                        s,
 <a href=#270 id=270 data-nosnippet>270</a>                        source_file.start_pos,

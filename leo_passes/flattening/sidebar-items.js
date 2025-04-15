@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["flatten_expression","flatten_program","flatten_statement","flattener"]};
+window.SIDEBAR_ITEMS = {"mod":["expression","program","statement","visitor"],"struct":["Flattening"]};

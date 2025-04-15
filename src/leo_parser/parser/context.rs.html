@@ -28,7 +28,7 @@
 <a href=#28 id=28 data-nosnippet>28</a>/// May be converted into a [`Program`] AST by parsing all tokens.
 <a href=#29 id=29 data-nosnippet>29</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ParserContext&lt;<span class="lifetime">'a</span>, N: Network&gt; {
 <a href=#30 id=30 data-nosnippet>30</a>    <span class="doccomment">/// Handler used to side-channel emit errors from the parser.
-<a href=#31 id=31 data-nosnippet>31</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
+<a href=#31 id=31 data-nosnippet>31</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: Handler,
 <a href=#32 id=32 data-nosnippet>32</a>    <span class="doccomment">/// Counter used to generate unique node ids.
 <a href=#33 id=33 data-nosnippet>33</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder,
 <a href=#34 id=34 data-nosnippet>34</a>    <span class="doccomment">/// All un-bumped tokens.
@@ -52,7 +52,7 @@
 <a href=#52 id=52 data-nosnippet>52</a>
 <a href=#53 id=53 data-nosnippet>53</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, N: Network&gt; ParserContext&lt;<span class="lifetime">'a</span>, N&gt; {
 <a href=#54 id=54 data-nosnippet>54</a>    <span class="doccomment">/// Returns a new [`ParserContext`] type given a vector of tokens.
-<a href=#55 id=55 data-nosnippet>55</a>    </span><span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler, node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder, <span class="kw-2">mut </span>tokens: Vec&lt;SpannedToken&gt;) -&gt; <span class="self">Self </span>{
+<a href=#55 id=55 data-nosnippet>55</a>    </span><span class="kw">pub fn </span>new(handler: Handler, node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder, <span class="kw-2">mut </span>tokens: Vec&lt;SpannedToken&gt;) -&gt; <span class="self">Self </span>{
 <a href=#56 id=56 data-nosnippet>56</a>        <span class="comment">// Strip out comments.
 <a href=#57 id=57 data-nosnippet>57</a>        </span>tokens.retain(|x| !<span class="macro">matches!</span>(x.token, Token::CommentLine(<span class="kw">_</span>) | Token::CommentBlock(<span class="kw">_</span>)));
 <a href=#58 id=58 data-nosnippet>58</a>        <span class="comment">// For performance we reverse so that we get cheap `.pop()`s.
@@ -122,7 +122,7 @@
 <a href=#122 id=122 data-nosnippet>122</a>    }
 <a href=#123 id=123 data-nosnippet>123</a>
 <a href=#124 id=124 data-nosnippet>124</a>    <span class="doccomment">/// Emit the error `err`.
-<a href=#125 id=125 data-nosnippet>125</a>    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>emit_err(<span class="kw-2">&amp;</span><span class="self">self</span>, err: ParserError) {
+<a href=#125 id=125 data-nosnippet>125</a>    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>emit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, err: ParserError) {
 <a href=#126 id=126 data-nosnippet>126</a>        <span class="self">self</span>.handler.emit_err(err);
 <a href=#127 id=127 data-nosnippet>127</a>    }
 <a href=#128 id=128 data-nosnippet>128</a>
@@ -257,7 +257,7 @@
 <a href=#257 id=257 data-nosnippet>257</a>    }
 <a href=#258 id=258 data-nosnippet>258</a>
 <a href=#259 id=259 data-nosnippet>259</a>    <span class="doccomment">/// Error on identifiers that are longer than SnarkVM allows.
-<a href=#260 id=260 data-nosnippet>260</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_identifier(<span class="kw-2">&amp;</span><span class="self">self</span>, identifier: <span class="kw-2">&amp;</span>Identifier) {
+<a href=#260 id=260 data-nosnippet>260</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: <span class="kw-2">&amp;</span>Identifier) {
 <a href=#261 id=261 data-nosnippet>261</a>        <span class="kw">let </span>field_capacity_bytes: usize = Field::&lt;N&gt;::SIZE_IN_DATA_BITS / <span class="number">8</span>;
 <a href=#262 id=262 data-nosnippet>262</a>        <span class="kw">let </span>len = with_session_globals(|sg| identifier.name.as_str(sg, |s| s.len()));
 <a href=#263 id=263 data-nosnippet>263</a>        <span class="kw">if </span>len &gt; field_capacity_bytes {

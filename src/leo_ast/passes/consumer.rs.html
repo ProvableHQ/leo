@@ -65,7 +65,7 @@
 <a href=#65 id=65 data-nosnippet>65</a>    <span class="kw">fn </span>consume_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: StructExpression) -&gt; <span class="self">Self</span>::Output;
 <a href=#66 id=66 data-nosnippet>66</a>
 <a href=#67 id=67 data-nosnippet>67</a>    <span class="kw">fn </span>consume_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: ErrExpression) -&gt; <span class="self">Self</span>::Output {
-<a href=#68 id=68 data-nosnippet>68</a>        <span class="macro">unreachable!</span>(<span class="string">"`ErrExpression`s should not be in the AST at this phase of compilation."</span>)
+<a href=#68 id=68 data-nosnippet>68</a>        <span class="macro">panic!</span>(<span class="string">"`ErrExpression`s should not be in the AST at this phase of compilation."</span>)
 <a href=#69 id=69 data-nosnippet>69</a>    }
 <a href=#70 id=70 data-nosnippet>70</a>
 <a href=#71 id=71 data-nosnippet>71</a>    <span class="kw">fn </span>consume_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: Identifier) -&gt; <span class="self">Self</span>::Output;

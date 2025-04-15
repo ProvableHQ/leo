@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["const_propagate_expression","const_propagate_program","const_propagate_statement","const_propagator"],"struct":["ConstPropagatorOutput"]};
+window.SIDEBAR_ITEMS = {"mod":["expression","program","statement","visitor"],"struct":["ConstPropagation","ConstPropagationOutput"]};

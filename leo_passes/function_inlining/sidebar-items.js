@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["function_inliner","inline_expression","inline_program","inline_statement"]};
+window.SIDEBAR_ITEMS = {"mod":["expression","program","statement","visitor"],"struct":["FunctionInlining"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["VariableType"],"fn":["eq_struct"],"mod":["symbols"],"struct":["Finalizer","FunctionSymbol","LocalTable","LocalTableInner","SymbolTable","VariableSymbol"]};
+window.SIDEBAR_ITEMS = {"fn":["eq_struct"],"mod":["symbols"],"struct":["LocalTable","LocalTableInner","SymbolTable"]};

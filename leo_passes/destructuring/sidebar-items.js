@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["destructure_expression","destructure_program","destructure_statement","destructurer"]};
+window.SIDEBAR_ITEMS = {"mod":["expression","program","statement","visitor"],"struct":["Destructuring"]};

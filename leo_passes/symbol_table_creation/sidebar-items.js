@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["SymbolTableCreator"]};
+window.SIDEBAR_ITEMS = {"struct":["SymbolTableCreation","SymbolTableCreationVisitor"]};

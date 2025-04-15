@@ -49,40 +49,48 @@
 <a href=#49 id=49 data-nosnippet>49</a>//! - Unique variable names (provided by SSA)
 <a href=#50 id=50 data-nosnippet>50</a>//! - Flattened code (provided by the flattening pass)
 <a href=#51 id=51 data-nosnippet>51</a>
-<a href=#52 id=52 data-nosnippet>52</a></span><span class="kw">mod </span>eliminate_expression;
+<a href=#52 id=52 data-nosnippet>52</a></span><span class="kw">use </span><span class="kw">crate</span>::Pass;
 <a href=#53 id=53 data-nosnippet>53</a>
-<a href=#54 id=54 data-nosnippet>54</a><span class="kw">mod </span>eliminate_statement;
-<a href=#55 id=55 data-nosnippet>55</a>
-<a href=#56 id=56 data-nosnippet>56</a><span class="kw">mod </span>eliminate_program;
-<a href=#57 id=57 data-nosnippet>57</a>
-<a href=#58 id=58 data-nosnippet>58</a><span class="kw">pub mod </span>dead_code_eliminator;
-<a href=#59 id=59 data-nosnippet>59</a><span class="kw">pub use </span>dead_code_eliminator::<span class="kw-2">*</span>;
+<a href=#54 id=54 data-nosnippet>54</a><span class="kw">use </span>leo_ast::ProgramReconstructor <span class="kw">as _</span>;
+<a href=#55 id=55 data-nosnippet>55</a><span class="kw">use </span>leo_errors::Result;
+<a href=#56 id=56 data-nosnippet>56</a>
+<a href=#57 id=57 data-nosnippet>57</a><span class="kw">mod </span>expression;
+<a href=#58 id=58 data-nosnippet>58</a>
+<a href=#59 id=59 data-nosnippet>59</a><span class="kw">mod </span>program;
 <a href=#60 id=60 data-nosnippet>60</a>
-<a href=#61 id=61 data-nosnippet>61</a><span class="kw">use crate</span>::{Pass, TypeTable};
+<a href=#61 id=61 data-nosnippet>61</a><span class="kw">mod </span>statement;
 <a href=#62 id=62 data-nosnippet>62</a>
-<a href=#63 id=63 data-nosnippet>63</a><span class="kw">use </span>leo_ast::{Ast, ProgramReconstructor <span class="kw">as _</span>};
-<a href=#64 id=64 data-nosnippet>64</a><span class="kw">use </span>leo_errors::Result;
+<a href=#63 id=63 data-nosnippet>63</a><span class="kw">mod </span>visitor;
+<a href=#64 id=64 data-nosnippet>64</a><span class="kw">use </span>visitor::<span class="kw-2">*</span>;
 <a href=#65 id=65 data-nosnippet>65</a>
-<a href=#66 id=66 data-nosnippet>66</a><span class="kw">pub struct </span>DeadCodeOutput {
-<a href=#67 id=67 data-nosnippet>67</a>    <span class="kw">pub </span>ast: Ast,
-<a href=#68 id=68 data-nosnippet>68</a>    <span class="kw">pub </span>statements_before: u32,
-<a href=#69 id=69 data-nosnippet>69</a>    <span class="kw">pub </span>statements_after: u32,
-<a href=#70 id=70 data-nosnippet>70</a>}
-<a href=#71 id=71 data-nosnippet>71</a>
-<a href=#72 id=72 data-nosnippet>72</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Pass <span class="kw">for </span>DeadCodeEliminator&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#73 id=73 data-nosnippet>73</a>    <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable);
-<a href=#74 id=74 data-nosnippet>74</a>    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;DeadCodeOutput&gt;;
-<a href=#75 id=75 data-nosnippet>75</a>
-<a href=#76 id=76 data-nosnippet>76</a>    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"DeadCodeEliminator"</span>;
-<a href=#77 id=77 data-nosnippet>77</a>
-<a href=#78 id=78 data-nosnippet>78</a>    <span class="kw">fn </span>do_pass((ast, type_table): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
-<a href=#79 id=79 data-nosnippet>79</a>        <span class="kw">let </span><span class="kw-2">mut </span>reconstructor = DeadCodeEliminator::new(type_table);
-<a href=#80 id=80 data-nosnippet>80</a>        <span class="kw">let </span>program = reconstructor.reconstruct_program(ast.into_repr());
-<a href=#81 id=81 data-nosnippet>81</a>
-<a href=#82 id=82 data-nosnippet>82</a>        <span class="prelude-val">Ok</span>(DeadCodeOutput {
-<a href=#83 id=83 data-nosnippet>83</a>            ast: Ast::new(program),
-<a href=#84 id=84 data-nosnippet>84</a>            statements_before: reconstructor.statements_before,
-<a href=#85 id=85 data-nosnippet>85</a>            statements_after: reconstructor.statements_after,
-<a href=#86 id=86 data-nosnippet>86</a>        })
-<a href=#87 id=87 data-nosnippet>87</a>    }
-<a href=#88 id=88 data-nosnippet>88</a>}</code></pre></div></section></main></body></html>
+<a href=#66 id=66 data-nosnippet>66</a><span class="kw">pub struct </span>DeadCodeEliminatingOutput {
+<a href=#67 id=67 data-nosnippet>67</a>    <span class="kw">pub </span>statements_before: u32,
+<a href=#68 id=68 data-nosnippet>68</a>    <span class="kw">pub </span>statements_after: u32,
+<a href=#69 id=69 data-nosnippet>69</a>}
+<a href=#70 id=70 data-nosnippet>70</a>
+<a href=#71 id=71 data-nosnippet>71</a><span class="kw">pub struct </span>DeadCodeEliminating;
+<a href=#72 id=72 data-nosnippet>72</a>
+<a href=#73 id=73 data-nosnippet>73</a><span class="kw">impl </span>Pass <span class="kw">for </span>DeadCodeEliminating {
+<a href=#74 id=74 data-nosnippet>74</a>    <span class="kw">type </span>Input = ();
+<a href=#75 id=75 data-nosnippet>75</a>    <span class="kw">type </span>Output = DeadCodeEliminatingOutput;
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span>str = <span class="string">"DeadCodeEliminating"</span>;
+<a href=#78 id=78 data-nosnippet>78</a>
+<a href=#79 id=79 data-nosnippet>79</a>    <span class="kw">fn </span>do_pass(_input: <span class="self">Self</span>::Input, state: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::CompilerState) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+<a href=#80 id=80 data-nosnippet>80</a>        <span class="kw">let </span><span class="kw-2">mut </span>ast = std::mem::take(<span class="kw-2">&amp;mut </span>state.ast);
+<a href=#81 id=81 data-nosnippet>81</a>        <span class="kw">let </span><span class="kw-2">mut </span>visitor = DeadCodeEliminatingVisitor {
+<a href=#82 id=82 data-nosnippet>82</a>            state,
+<a href=#83 id=83 data-nosnippet>83</a>            used_variables: Default::default(),
+<a href=#84 id=84 data-nosnippet>84</a>            program_name: Default::default(),
+<a href=#85 id=85 data-nosnippet>85</a>            statements_before: <span class="number">0</span>,
+<a href=#86 id=86 data-nosnippet>86</a>            statements_after: <span class="number">0</span>,
+<a href=#87 id=87 data-nosnippet>87</a>        };
+<a href=#88 id=88 data-nosnippet>88</a>        ast.ast = visitor.reconstruct_program(ast.ast);
+<a href=#89 id=89 data-nosnippet>89</a>        visitor.state.handler.last_err().map_err(|e| <span class="kw-2">*</span>e)<span class="question-mark">?</span>;
+<a href=#90 id=90 data-nosnippet>90</a>        visitor.state.ast = ast;
+<a href=#91 id=91 data-nosnippet>91</a>        <span class="prelude-val">Ok</span>(DeadCodeEliminatingOutput {
+<a href=#92 id=92 data-nosnippet>92</a>            statements_before: visitor.statements_before,
+<a href=#93 id=93 data-nosnippet>93</a>            statements_after: visitor.statements_after,
+<a href=#94 id=94 data-nosnippet>94</a>        })
+<a href=#95 id=95 data-nosnippet>95</a>    }
+<a href=#96 id=96 data-nosnippet>96</a>}</code></pre></div></section></main></body></html>
