@@ -58,12 +58,13 @@
 <a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// Constructs the definition statement `let place = expr;`.
 <a href=#59 id=59 data-nosnippet>59</a>    /// This function should be the only place where `DefinitionStatement`s are constructed.
 <a href=#60 id=60 data-nosnippet>60</a>    </span><span class="kw">fn </span>simple_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier, value: Expression, id: NodeID) -&gt; Statement {
-<a href=#61 id=61 data-nosnippet>61</a>        Statement::Definition(DefinitionStatement {
+<a href=#61 id=61 data-nosnippet>61</a>        DefinitionStatement {
 <a href=#62 id=62 data-nosnippet>62</a>            place: DefinitionPlace::Single(identifier),
 <a href=#63 id=63 data-nosnippet>63</a>            type_: Type::Err,
 <a href=#64 id=64 data-nosnippet>64</a>            value,
 <a href=#65 id=65 data-nosnippet>65</a>            span: Default::default(),
 <a href=#66 id=66 data-nosnippet>66</a>            id,
-<a href=#67 id=67 data-nosnippet>67</a>        })
-<a href=#68 id=68 data-nosnippet>68</a>    }
-<a href=#69 id=69 data-nosnippet>69</a>}</code></pre></div></section></main></body></html>
+<a href=#67 id=67 data-nosnippet>67</a>        }
+<a href=#68 id=68 data-nosnippet>68</a>        .into()
+<a href=#69 id=69 data-nosnippet>69</a>    }
+<a href=#70 id=70 data-nosnippet>70</a>}</code></pre></div></section></main></body></html>

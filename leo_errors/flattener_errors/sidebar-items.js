@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FlattenError"],"fn":["type_name"]};

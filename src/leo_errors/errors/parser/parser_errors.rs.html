@@ -280,104 +280,105 @@
 <a href=#280 id=280 data-nosnippet>280</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Use `return &lt;expr&gt; then finalize(&lt;args&gt;)` instead."</span>.to_string()),
 <a href=#281 id=281 data-nosnippet>281</a>    }
 <a href=#282 id=282 data-nosnippet>282</a>
-<a href=#283 id=283 data-nosnippet>283</a>    @formatted
-<a href=#284 id=284 data-nosnippet>284</a>    console_statements_are_not_yet_supported {
-<a href=#285 id=285 data-nosnippet>285</a>        args: (),
-<a href=#286 id=286 data-nosnippet>286</a>        msg: <span class="macro">format!</span>(<span class="string">"`console` statements are not yet supported."</span>),
-<a href=#287 id=287 data-nosnippet>287</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Consider using `assert`, `assert_eq`, or `assert_neq` instead."</span>.to_string()),
-<a href=#288 id=288 data-nosnippet>288</a>    }
-<a href=#289 id=289 data-nosnippet>289</a>
-<a href=#290 id=290 data-nosnippet>290</a>    <span class="doccomment">/// Enforce that tuple index must not have leading 0, or underscore in between digits
-<a href=#291 id=291 data-nosnippet>291</a>    </span>@formatted
-<a href=#292 id=292 data-nosnippet>292</a>    tuple_index_must_be_whole_number {
-<a href=#293 id=293 data-nosnippet>293</a>        args: (found: <span class="kw">impl </span>Display),
-<a href=#294 id=294 data-nosnippet>294</a>        msg: <span class="macro">format!</span>(<span class="string">"expected no underscores or leading zeros -- found '{found}'"</span>),
-<a href=#295 id=295 data-nosnippet>295</a>        help: <span class="prelude-val">None</span>,
-<a href=#296 id=296 data-nosnippet>296</a>    }
-<a href=#297 id=297 data-nosnippet>297</a>
-<a href=#298 id=298 data-nosnippet>298</a>    @formatted
-<a href=#299 id=299 data-nosnippet>299</a>    array_must_have_at_least_one_element {
-<a href=#300 id=300 data-nosnippet>300</a>        args: (kind: <span class="kw">impl </span>Display),
-<a href=#301 id=301 data-nosnippet>301</a>        msg: <span class="macro">format!</span>(<span class="string">"An array {kind} must have at least one element."</span>),
-<a href=#302 id=302 data-nosnippet>302</a>        help: <span class="prelude-val">None</span>,
-<a href=#303 id=303 data-nosnippet>303</a>    }
-<a href=#304 id=304 data-nosnippet>304</a>
-<a href=#305 id=305 data-nosnippet>305</a>    @formatted
-<a href=#306 id=306 data-nosnippet>306</a>    invalid_external_type {
-<a href=#307 id=307 data-nosnippet>307</a>        args: (),
-<a href=#308 id=308 data-nosnippet>308</a>        msg: <span class="macro">format!</span>(<span class="string">"Invalid external type."</span>),
-<a href=#309 id=309 data-nosnippet>309</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External type should have the form `&lt;program&gt;.aleo/&lt;record&gt;`. For example `bank.aleo/loan`"</span>.to_string()),
-<a href=#310 id=310 data-nosnippet>310</a>    }
-<a href=#311 id=311 data-nosnippet>311</a>
-<a href=#312 id=312 data-nosnippet>312</a>    @formatted
-<a href=#313 id=313 data-nosnippet>313</a>    cannot_declare_external_struct {
-<a href=#314 id=314 data-nosnippet>314</a>        args: (),
-<a href=#315 id=315 data-nosnippet>315</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot declare external struct."</span>),
-<a href=#316 id=316 data-nosnippet>316</a>        help: <span class="prelude-val">None</span>,
-<a href=#317 id=317 data-nosnippet>317</a>    }
-<a href=#318 id=318 data-nosnippet>318</a>
-<a href=#319 id=319 data-nosnippet>319</a>    @formatted
-<a href=#320 id=320 data-nosnippet>320</a>    external_type_cannot_be_used_inside_function {
-<a href=#321 id=321 data-nosnippet>321</a>        args: (program: <span class="kw">impl </span>Display, file_type: <span class="kw">impl </span>Display),
-<a href=#322 id=322 data-nosnippet>322</a>        msg: <span class="macro">format!</span>(<span class="string">"External types cannot be used inside function (only as input/output types) -- found exported type from '{program}.{file_type}'."</span>),
-<a href=#323 id=323 data-nosnippet>323</a>        help: <span class="prelude-val">None</span>,
-<a href=#324 id=324 data-nosnippet>324</a>    }
-<a href=#325 id=325 data-nosnippet>325</a>
-<a href=#326 id=326 data-nosnippet>326</a>    <span class="doccomment">/// Enforce that cannot use import in program scope
-<a href=#327 id=327 data-nosnippet>327</a>    </span>@formatted
-<a href=#328 id=328 data-nosnippet>328</a>    cannot_import_inside_program_body {
-<a href=#329 id=329 data-nosnippet>329</a>        args: (),
-<a href=#330 id=330 data-nosnippet>330</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot use import inside program body."</span>),
-<a href=#331 id=331 data-nosnippet>331</a>        help: <span class="prelude-val">None</span>,
-<a href=#332 id=332 data-nosnippet>332</a>    }
-<a href=#333 id=333 data-nosnippet>333</a>
-<a href=#334 id=334 data-nosnippet>334</a>    @formatted
-<a href=#335 id=335 data-nosnippet>335</a>    only_aleo_external_calls {
-<a href=#336 id=336 data-nosnippet>336</a>        args: (),
-<a href=#337 id=337 data-nosnippet>337</a>        msg: <span class="macro">format!</span>(<span class="string">"Only external calls to `.aleo` programs are supported."</span>),
-<a href=#338 id=338 data-nosnippet>338</a>        help: <span class="prelude-val">None</span>,
-<a href=#339 id=339 data-nosnippet>339</a>    }
-<a href=#340 id=340 data-nosnippet>340</a>
-<a href=#341 id=341 data-nosnippet>341</a>    @formatted
-<a href=#342 id=342 data-nosnippet>342</a>    cannot_define_external_record {
-<a href=#343 id=343 data-nosnippet>343</a>        args: (),
-<a href=#344 id=344 data-nosnippet>344</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot create an external record. Records can only be created in the program that they are defined in."</span>),
-<a href=#345 id=345 data-nosnippet>345</a>        help: <span class="prelude-val">None</span>,
-<a href=#346 id=346 data-nosnippet>346</a>    }
-<a href=#347 id=347 data-nosnippet>347</a>
-<a href=#348 id=348 data-nosnippet>348</a>    <span class="doccomment">/// For when the parser encountered a member declaration not followed by a comma.
-<a href=#349 id=349 data-nosnippet>349</a>    </span>@formatted
-<a href=#350 id=350 data-nosnippet>350</a>    comma_expected_after_member {
-<a href=#351 id=351 data-nosnippet>351</a>        args: (),
-<a href=#352 id=352 data-nosnippet>352</a>        msg: <span class="string">"Each member declaration in a struct or record must be followed by a comma (except the last)."</span>,
-<a href=#353 id=353 data-nosnippet>353</a>        help: <span class="prelude-val">None</span>,
-<a href=#354 id=354 data-nosnippet>354</a>    }
-<a href=#355 id=355 data-nosnippet>355</a>
-<a href=#356 id=356 data-nosnippet>356</a>    @formatted
-<a href=#357 id=357 data-nosnippet>357</a>    hexbin_literal_nonintegers {
-<a href=#358 id=358 data-nosnippet>358</a>        args: (),
-<a href=#359 id=359 data-nosnippet>359</a>        msg: <span class="macro">format!</span>(<span class="string">"Hex, octal, and binary literals may only be used for integer types."</span>),
-<a href=#360 id=360 data-nosnippet>360</a>        help: <span class="prelude-val">None</span>,
-<a href=#361 id=361 data-nosnippet>361</a>    }
-<a href=#362 id=362 data-nosnippet>362</a>
-<a href=#363 id=363 data-nosnippet>363</a>    @backtraced
-<a href=#364 id=364 data-nosnippet>364</a>    wrong_digit_for_radix {
-<a href=#365 id=365 data-nosnippet>365</a>        args: (digit: char, radix: u32, token: String),
-<a href=#366 id=366 data-nosnippet>366</a>        msg: <span class="macro">format!</span>(<span class="string">"Digit {digit} invalid in radix {radix} (token {token})."</span>),
-<a href=#367 id=367 data-nosnippet>367</a>        help: <span class="prelude-val">None</span>,
-<a href=#368 id=368 data-nosnippet>368</a>    }
-<a href=#369 id=369 data-nosnippet>369</a>
-<a href=#370 id=370 data-nosnippet>370</a>    @formatted
-<a href=#371 id=371 data-nosnippet>371</a>    identifier_too_long {
-<a href=#372 id=372 data-nosnippet>372</a>        args: (ident: <span class="kw">impl </span>Display, length: usize, max_length: usize),
-<a href=#373 id=373 data-nosnippet>373</a>        msg: <span class="macro">format!</span>(<span class="string">"Identifier {ident} is too long ({length} bytes; maximum is {max_length})"</span>),
-<a href=#374 id=374 data-nosnippet>374</a>        help: <span class="prelude-val">None</span>,
-<a href=#375 id=375 data-nosnippet>375</a>    }
-<a href=#376 id=376 data-nosnippet>376</a>
-<a href=#377 id=377 data-nosnippet>377</a>    @formatted
-<a href=#378 id=378 data-nosnippet>378</a>    expected_identifier {
-<a href=#379 id=379 data-nosnippet>379</a>        args: (),
-<a href=#380 id=380 data-nosnippet>380</a>        msg: <span class="macro">format!</span>(<span class="string">"Expected an identifier."</span>),
-<a href=#381 id=381 data-nosnippet>381</a>        help: <span class="prelude-val">None</span>,
-<a href=#382 id=382 data-nosnippet>382</a>    }
-<a href=#383 id=383 data-nosnippet>383</a>);</code></pre></div></section></main></body></html>
+<a href=#283 id=283 data-nosnippet>283</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
+<a href=#284 id=284 data-nosnippet>284</a>    </span>@formatted
+<a href=#285 id=285 data-nosnippet>285</a>    console_statements_are_not_yet_supported {
+<a href=#286 id=286 data-nosnippet>286</a>        args: (),
+<a href=#287 id=287 data-nosnippet>287</a>        msg: <span class="macro">format!</span>(<span class="string">"`console` statements are not yet supported."</span>),
+<a href=#288 id=288 data-nosnippet>288</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Consider using `assert`, `assert_eq`, or `assert_neq` instead."</span>.to_string()),
+<a href=#289 id=289 data-nosnippet>289</a>    }
+<a href=#290 id=290 data-nosnippet>290</a>
+<a href=#291 id=291 data-nosnippet>291</a>    <span class="doccomment">/// Enforce that tuple index must not have leading 0, or underscore in between digits
+<a href=#292 id=292 data-nosnippet>292</a>    </span>@formatted
+<a href=#293 id=293 data-nosnippet>293</a>    tuple_index_must_be_whole_number {
+<a href=#294 id=294 data-nosnippet>294</a>        args: (found: <span class="kw">impl </span>Display),
+<a href=#295 id=295 data-nosnippet>295</a>        msg: <span class="macro">format!</span>(<span class="string">"expected no underscores or leading zeros -- found '{found}'"</span>),
+<a href=#296 id=296 data-nosnippet>296</a>        help: <span class="prelude-val">None</span>,
+<a href=#297 id=297 data-nosnippet>297</a>    }
+<a href=#298 id=298 data-nosnippet>298</a>
+<a href=#299 id=299 data-nosnippet>299</a>    @formatted
+<a href=#300 id=300 data-nosnippet>300</a>    array_must_have_at_least_one_element {
+<a href=#301 id=301 data-nosnippet>301</a>        args: (kind: <span class="kw">impl </span>Display),
+<a href=#302 id=302 data-nosnippet>302</a>        msg: <span class="macro">format!</span>(<span class="string">"An array {kind} must have at least one element."</span>),
+<a href=#303 id=303 data-nosnippet>303</a>        help: <span class="prelude-val">None</span>,
+<a href=#304 id=304 data-nosnippet>304</a>    }
+<a href=#305 id=305 data-nosnippet>305</a>
+<a href=#306 id=306 data-nosnippet>306</a>    @formatted
+<a href=#307 id=307 data-nosnippet>307</a>    invalid_external_type {
+<a href=#308 id=308 data-nosnippet>308</a>        args: (),
+<a href=#309 id=309 data-nosnippet>309</a>        msg: <span class="macro">format!</span>(<span class="string">"Invalid external type."</span>),
+<a href=#310 id=310 data-nosnippet>310</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External type should have the form `&lt;program&gt;.aleo/&lt;record&gt;`. For example `bank.aleo/loan`"</span>.to_string()),
+<a href=#311 id=311 data-nosnippet>311</a>    }
+<a href=#312 id=312 data-nosnippet>312</a>
+<a href=#313 id=313 data-nosnippet>313</a>    @formatted
+<a href=#314 id=314 data-nosnippet>314</a>    cannot_declare_external_struct {
+<a href=#315 id=315 data-nosnippet>315</a>        args: (),
+<a href=#316 id=316 data-nosnippet>316</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot declare external struct."</span>),
+<a href=#317 id=317 data-nosnippet>317</a>        help: <span class="prelude-val">None</span>,
+<a href=#318 id=318 data-nosnippet>318</a>    }
+<a href=#319 id=319 data-nosnippet>319</a>
+<a href=#320 id=320 data-nosnippet>320</a>    @formatted
+<a href=#321 id=321 data-nosnippet>321</a>    external_type_cannot_be_used_inside_function {
+<a href=#322 id=322 data-nosnippet>322</a>        args: (program: <span class="kw">impl </span>Display, file_type: <span class="kw">impl </span>Display),
+<a href=#323 id=323 data-nosnippet>323</a>        msg: <span class="macro">format!</span>(<span class="string">"External types cannot be used inside function (only as input/output types) -- found exported type from '{program}.{file_type}'."</span>),
+<a href=#324 id=324 data-nosnippet>324</a>        help: <span class="prelude-val">None</span>,
+<a href=#325 id=325 data-nosnippet>325</a>    }
+<a href=#326 id=326 data-nosnippet>326</a>
+<a href=#327 id=327 data-nosnippet>327</a>    <span class="doccomment">/// Enforce that cannot use import in program scope
+<a href=#328 id=328 data-nosnippet>328</a>    </span>@formatted
+<a href=#329 id=329 data-nosnippet>329</a>    cannot_import_inside_program_body {
+<a href=#330 id=330 data-nosnippet>330</a>        args: (),
+<a href=#331 id=331 data-nosnippet>331</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot use import inside program body."</span>),
+<a href=#332 id=332 data-nosnippet>332</a>        help: <span class="prelude-val">None</span>,
+<a href=#333 id=333 data-nosnippet>333</a>    }
+<a href=#334 id=334 data-nosnippet>334</a>
+<a href=#335 id=335 data-nosnippet>335</a>    @formatted
+<a href=#336 id=336 data-nosnippet>336</a>    only_aleo_external_calls {
+<a href=#337 id=337 data-nosnippet>337</a>        args: (),
+<a href=#338 id=338 data-nosnippet>338</a>        msg: <span class="macro">format!</span>(<span class="string">"Only external calls to `.aleo` programs are supported."</span>),
+<a href=#339 id=339 data-nosnippet>339</a>        help: <span class="prelude-val">None</span>,
+<a href=#340 id=340 data-nosnippet>340</a>    }
+<a href=#341 id=341 data-nosnippet>341</a>
+<a href=#342 id=342 data-nosnippet>342</a>    @formatted
+<a href=#343 id=343 data-nosnippet>343</a>    cannot_define_external_record {
+<a href=#344 id=344 data-nosnippet>344</a>        args: (),
+<a href=#345 id=345 data-nosnippet>345</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot create an external record. Records can only be created in the program that they are defined in."</span>),
+<a href=#346 id=346 data-nosnippet>346</a>        help: <span class="prelude-val">None</span>,
+<a href=#347 id=347 data-nosnippet>347</a>    }
+<a href=#348 id=348 data-nosnippet>348</a>
+<a href=#349 id=349 data-nosnippet>349</a>    <span class="doccomment">/// For when the parser encountered a member declaration not followed by a comma.
+<a href=#350 id=350 data-nosnippet>350</a>    </span>@formatted
+<a href=#351 id=351 data-nosnippet>351</a>    comma_expected_after_member {
+<a href=#352 id=352 data-nosnippet>352</a>        args: (),
+<a href=#353 id=353 data-nosnippet>353</a>        msg: <span class="string">"Each member declaration in a struct or record must be followed by a comma (except the last)."</span>,
+<a href=#354 id=354 data-nosnippet>354</a>        help: <span class="prelude-val">None</span>,
+<a href=#355 id=355 data-nosnippet>355</a>    }
+<a href=#356 id=356 data-nosnippet>356</a>
+<a href=#357 id=357 data-nosnippet>357</a>    @formatted
+<a href=#358 id=358 data-nosnippet>358</a>    hexbin_literal_nonintegers {
+<a href=#359 id=359 data-nosnippet>359</a>        args: (),
+<a href=#360 id=360 data-nosnippet>360</a>        msg: <span class="macro">format!</span>(<span class="string">"Hex, octal, and binary literals may only be used for integer types."</span>),
+<a href=#361 id=361 data-nosnippet>361</a>        help: <span class="prelude-val">None</span>,
+<a href=#362 id=362 data-nosnippet>362</a>    }
+<a href=#363 id=363 data-nosnippet>363</a>
+<a href=#364 id=364 data-nosnippet>364</a>    @backtraced
+<a href=#365 id=365 data-nosnippet>365</a>    wrong_digit_for_radix {
+<a href=#366 id=366 data-nosnippet>366</a>        args: (digit: char, radix: u32, token: String),
+<a href=#367 id=367 data-nosnippet>367</a>        msg: <span class="macro">format!</span>(<span class="string">"Digit {digit} invalid in radix {radix} (token {token})."</span>),
+<a href=#368 id=368 data-nosnippet>368</a>        help: <span class="prelude-val">None</span>,
+<a href=#369 id=369 data-nosnippet>369</a>    }
+<a href=#370 id=370 data-nosnippet>370</a>
+<a href=#371 id=371 data-nosnippet>371</a>    @formatted
+<a href=#372 id=372 data-nosnippet>372</a>    identifier_too_long {
+<a href=#373 id=373 data-nosnippet>373</a>        args: (ident: <span class="kw">impl </span>Display, length: usize, max_length: usize),
+<a href=#374 id=374 data-nosnippet>374</a>        msg: <span class="macro">format!</span>(<span class="string">"Identifier {ident} is too long ({length} bytes; maximum is {max_length})"</span>),
+<a href=#375 id=375 data-nosnippet>375</a>        help: <span class="prelude-val">None</span>,
+<a href=#376 id=376 data-nosnippet>376</a>    }
+<a href=#377 id=377 data-nosnippet>377</a>
+<a href=#378 id=378 data-nosnippet>378</a>    @formatted
+<a href=#379 id=379 data-nosnippet>379</a>    expected_identifier {
+<a href=#380 id=380 data-nosnippet>380</a>        args: (),
+<a href=#381 id=381 data-nosnippet>381</a>        msg: <span class="macro">format!</span>(<span class="string">"Expected an identifier."</span>),
+<a href=#382 id=382 data-nosnippet>382</a>        help: <span class="prelude-val">None</span>,
+<a href=#383 id=383 data-nosnippet>383</a>    }
+<a href=#384 id=384 data-nosnippet>384</a>);</code></pre></div></section></main></body></html>

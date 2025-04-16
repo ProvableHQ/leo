@@ -156,7 +156,7 @@
 <a href=#156 id=156 data-nosnippet>156</a>        cli::{Commands, test_helpers},
 <a href=#157 id=157 data-nosnippet>157</a>        run_with_args,
 <a href=#158 id=158 data-nosnippet>158</a>    };
-<a href=#159 id=159 data-nosnippet>159</a>    <span class="kw">use </span>leo_span::symbol::create_session_if_not_set_then;
+<a href=#159 id=159 data-nosnippet>159</a>    <span class="kw">use </span>leo_span::create_session_if_not_set_then;
 <a href=#160 id=160 data-nosnippet>160</a>    <span class="kw">use </span>serial_test::serial;
 <a href=#161 id=161 data-nosnippet>161</a>    <span class="kw">use </span>std::env::temp_dir;
 <a href=#162 id=162 data-nosnippet>162</a>
@@ -317,7 +317,7 @@
 <a href=#317 id=317 data-nosnippet>317</a><span class="attr">#[cfg(test)]
 <a href=#318 id=318 data-nosnippet>318</a></span><span class="kw">mod </span>test_helpers {
 <a href=#319 id=319 data-nosnippet>319</a>    <span class="kw">use </span><span class="kw">crate</span>::cli::{CLI, LeoAdd, LeoNew, cli::Commands, run_with_args};
-<a href=#320 id=320 data-nosnippet>320</a>    <span class="kw">use </span>leo_span::symbol::create_session_if_not_set_then;
+<a href=#320 id=320 data-nosnippet>320</a>    <span class="kw">use </span>leo_span::create_session_if_not_set_then;
 <a href=#321 id=321 data-nosnippet>321</a>    <span class="kw">use </span>std::path::Path;
 <a href=#322 id=322 data-nosnippet>322</a>
 <a href=#323 id=323 data-nosnippet>323</a>    <span class="kw">const </span>NETWORK: <span class="kw-2">&amp;</span>str = <span class="string">"mainnet"</span>;

@@ -14,7 +14,7 @@
 <a href=#14 id=14 data-nosnippet>14</a>// You should have received a copy of the GNU General Public License
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{Expression, Node, NodeID};
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{Expression, Node, NodeID, Statement};
 <a href=#18 id=18 data-nosnippet>18</a>
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_span::Span;
 <a href=#20 id=20 data-nosnippet>20</a>
@@ -53,4 +53,10 @@
 <a href=#53 id=53 data-nosnippet>53</a>    }
 <a href=#54 id=54 data-nosnippet>54</a>}
 <a href=#55 id=55 data-nosnippet>55</a>
-<a href=#56 id=56 data-nosnippet>56</a><span class="macro">crate::simple_node_impl!</span>(AssertStatement);</code></pre></div></section></main></body></html>
+<a href=#56 id=56 data-nosnippet>56</a><span class="kw">impl </span>From&lt;AssertStatement&gt; <span class="kw">for </span>Statement {
+<a href=#57 id=57 data-nosnippet>57</a>    <span class="kw">fn </span>from(value: AssertStatement) -&gt; <span class="self">Self </span>{
+<a href=#58 id=58 data-nosnippet>58</a>        Statement::Assert(value)
+<a href=#59 id=59 data-nosnippet>59</a>    }
+<a href=#60 id=60 data-nosnippet>60</a>}
+<a href=#61 id=61 data-nosnippet>61</a>
+<a href=#62 id=62 data-nosnippet>62</a><span class="macro">crate::simple_node_impl!</span>(AssertStatement);</code></pre></div></section></main></body></html>

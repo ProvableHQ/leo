@@ -288,7 +288,7 @@
 <a href=#288 id=288 data-nosnippet>288</a>    }
 <a href=#289 id=289 data-nosnippet>289</a>
 <a href=#290 id=290 data-nosnippet>290</a>    <span class="doccomment">/// Returns an [`Input`] AST node if the next tokens represent a function input.
-<a href=#291 id=291 data-nosnippet>291</a>    </span><span class="kw">fn </span>parse_input(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;functions::Input&gt; {
+<a href=#291 id=291 data-nosnippet>291</a>    </span><span class="kw">fn </span>parse_input(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Input&gt; {
 <a href=#292 id=292 data-nosnippet>292</a>        <span class="kw">let </span>mode = <span class="self">self</span>.parse_mode()<span class="question-mark">?</span>;
 <a href=#293 id=293 data-nosnippet>293</a>        <span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 <a href=#294 id=294 data-nosnippet>294</a>        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
@@ -296,7 +296,7 @@
 <a href=#296 id=296 data-nosnippet>296</a>        <span class="kw">let </span>(type_, type_span) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
 <a href=#297 id=297 data-nosnippet>297</a>        <span class="kw">let </span>span = name.span() + type_span;
 <a href=#298 id=298 data-nosnippet>298</a>
-<a href=#299 id=299 data-nosnippet>299</a>        <span class="prelude-val">Ok</span>(functions::Input { identifier: name, mode, type_, span, id: <span class="self">self</span>.node_builder.next_id() })
+<a href=#299 id=299 data-nosnippet>299</a>        <span class="prelude-val">Ok</span>(Input { identifier: name, mode, type_, span, id: <span class="self">self</span>.node_builder.next_id() })
 <a href=#300 id=300 data-nosnippet>300</a>    }
 <a href=#301 id=301 data-nosnippet>301</a>
 <a href=#302 id=302 data-nosnippet>302</a>    <span class="doccomment">/// Returns an [`Output`] AST node if the next tokens represent a function output.

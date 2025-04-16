@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["identifier","imported_modules","location","node","node_builder","positive_number","static_string"]};
+window.SIDEBAR_ITEMS = {"fn":["deserialize","serialize"],"mod":["identifier","imported_modules","location","node","node_builder","positive_number","static_string"],"struct":["Identifier","Location","NodeBuilder","NodeBuilderInner","NonNegativeNumber","StaticString"]};

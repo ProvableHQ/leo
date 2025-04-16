@@ -52,7 +52,7 @@
 <a href=#52 id=52 data-nosnippet>52</a>            });
 <a href=#53 id=53 data-nosnippet>53</a>        }
 <a href=#54 id=54 data-nosnippet>54</a>
-<a href=#55 id=55 data-nosnippet>55</a>        (Expression::Struct(StructExpression { name: input.name, members, span: input.span, id: input.id }), statements)
+<a href=#55 id=55 data-nosnippet>55</a>        (StructExpression { members, ..input }.into(), statements)
 <a href=#56 id=56 data-nosnippet>56</a>    }
 <a href=#57 id=57 data-nosnippet>57</a>
 <a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// Reconstructs ternary expressions over arrays, structs, and tuples, accumulating any statements that are generated.
@@ -96,8 +96,8 @@
 <a href=#96 id=96 data-nosnippet>96</a>            Type::Array(if_true_type) =&gt; <span class="self">self</span>.ternary_array(
 <a href=#97 id=97 data-nosnippet>97</a>                if_true_type,
 <a href=#98 id=98 data-nosnippet>98</a>                <span class="kw-2">&amp;</span>input.condition,
-<a href=#99 id=99 data-nosnippet>99</a>                <span class="kw-2">&amp;</span>as_identifier(<span class="kw-2">*</span>input.if_true),
-<a href=#100 id=100 data-nosnippet>100</a>                <span class="kw-2">&amp;</span>as_identifier(<span class="kw-2">*</span>input.if_false),
+<a href=#99 id=99 data-nosnippet>99</a>                <span class="kw-2">&amp;</span>as_identifier(input.if_true),
+<a href=#100 id=100 data-nosnippet>100</a>                <span class="kw-2">&amp;</span>as_identifier(input.if_false),
 <a href=#101 id=101 data-nosnippet>101</a>            ),
 <a href=#102 id=102 data-nosnippet>102</a>            Type::Composite(if_true_type) =&gt; {
 <a href=#103 id=103 data-nosnippet>103</a>                <span class="comment">// Get the struct definitions.
@@ -114,8 +114,8 @@
 <a href=#114 id=114 data-nosnippet>114</a>                <span class="self">self</span>.ternary_struct(
 <a href=#115 id=115 data-nosnippet>115</a>                    <span class="kw-2">&amp;</span>if_true_type,
 <a href=#116 id=116 data-nosnippet>116</a>                    <span class="kw-2">&amp;</span>input.condition,
-<a href=#117 id=117 data-nosnippet>117</a>                    <span class="kw-2">&amp;</span>as_identifier(<span class="kw-2">*</span>input.if_true),
-<a href=#118 id=118 data-nosnippet>118</a>                    <span class="kw-2">&amp;</span>as_identifier(<span class="kw-2">*</span>input.if_false),
+<a href=#117 id=117 data-nosnippet>117</a>                    <span class="kw-2">&amp;</span>as_identifier(input.if_true),
+<a href=#118 id=118 data-nosnippet>118</a>                    <span class="kw-2">&amp;</span>as_identifier(input.if_false),
 <a href=#119 id=119 data-nosnippet>119</a>                )
 <a href=#120 id=120 data-nosnippet>120</a>            }
 <a href=#121 id=121 data-nosnippet>121</a>            Type::Tuple(if_true_type) =&gt; {
@@ -125,10 +125,10 @@
 <a href=#125 id=125 data-nosnippet>125</a>                <span class="comment">// There's nothing to be done - SSA has guaranteed that `if_true` and `if_false` are identifiers,
 <a href=#126 id=126 data-nosnippet>126</a>                // so there's not even any point in reconstructing them.
 <a href=#127 id=127 data-nosnippet>127</a>
-<a href=#128 id=128 data-nosnippet>128</a>                </span><span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;*</span>input.if_true, Expression::Identifier(..)));
-<a href=#129 id=129 data-nosnippet>129</a>                <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;*</span>input.if_false, Expression::Identifier(..)));
+<a href=#128 id=128 data-nosnippet>128</a>                </span><span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input.if_true, Expression::Identifier(..)));
+<a href=#129 id=129 data-nosnippet>129</a>                <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input.if_false, Expression::Identifier(..)));
 <a href=#130 id=130 data-nosnippet>130</a>
-<a href=#131 id=131 data-nosnippet>131</a>                (Expression::Ternary(input), Default::default())
+<a href=#131 id=131 data-nosnippet>131</a>                (input.into(), Default::default())
 <a href=#132 id=132 data-nosnippet>132</a>            }
 <a href=#133 id=133 data-nosnippet>133</a>        }
 <a href=#134 id=134 data-nosnippet>134</a>    }

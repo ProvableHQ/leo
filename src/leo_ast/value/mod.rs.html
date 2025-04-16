@@ -14,7 +14,7 @@
 <a href=#14 id=14 data-nosnippet>14</a>// You should have received a copy of the GNU General Public License
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{FromStrRadix <span class="kw">as _</span>, Identifier, IntegerType, Literal, NodeID, Type};
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{FromStrRadix <span class="kw">as _</span>, Identifier, IntegerType, Literal, LiteralVariant, Type};
 <a href=#18 id=18 data-nosnippet>18</a>
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_errors::{FlattenError, LeoError, <span class="prelude-ty">Result</span>, type_name};
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>leo_span::{Span, Symbol};
@@ -859,55 +859,29 @@
 <a href=#859 id=859 data-nosnippet>859</a>
 <a href=#860 id=860 data-nosnippet>860</a>    <span class="doccomment">/// Converts a literal to a value.
 <a href=#861 id=861 data-nosnippet>861</a>    </span><span class="kw">fn </span>try_from(literal: <span class="kw-2">&amp;</span>Literal) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-<a href=#862 id=862 data-nosnippet>862</a>        <span class="prelude-val">Ok</span>(<span class="kw">match </span>literal {
-<a href=#863 id=863 data-nosnippet>863</a>            Literal::Address(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Address(string.clone(), <span class="kw-2">*</span>span),
-<a href=#864 id=864 data-nosnippet>864</a>            Literal::Boolean(bool, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Boolean(<span class="kw-2">*</span>bool, <span class="kw-2">*</span>span),
-<a href=#865 id=865 data-nosnippet>865</a>            Literal::Field(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Field(string.clone(), <span class="kw-2">*</span>span),
-<a href=#866 id=866 data-nosnippet>866</a>            Literal::Group(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Group(string.clone(), <span class="kw-2">*</span>span),
-<a href=#867 id=867 data-nosnippet>867</a>            Literal::Scalar(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Scalar(string.clone(), <span class="kw-2">*</span>span),
-<a href=#868 id=868 data-nosnippet>868</a>            Literal::String(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::String(string.clone(), <span class="kw-2">*</span>span),
-<a href=#869 id=869 data-nosnippet>869</a>            Literal::Integer(integer_type, raw_string, span, <span class="kw">_</span>) =&gt; {
-<a href=#870 id=870 data-nosnippet>870</a>                <span class="kw">let </span>string = raw_string.replace(<span class="string">'_'</span>, <span class="string">""</span>);
-<a href=#871 id=871 data-nosnippet>871</a>                <span class="kw">match </span>integer_type {
-<a href=#872 id=872 data-nosnippet>872</a>                    IntegerType::U8 =&gt; <span class="self">Self</span>::U8(u8::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-<a href=#873 id=873 data-nosnippet>873</a>                    IntegerType::U16 =&gt; <span class="self">Self</span>::U16(u16::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-<a href=#874 id=874 data-nosnippet>874</a>                    IntegerType::U32 =&gt; <span class="self">Self</span>::U32(u32::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-<a href=#875 id=875 data-nosnippet>875</a>                    IntegerType::U64 =&gt; <span class="self">Self</span>::U64(u64::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-<a href=#876 id=876 data-nosnippet>876</a>                    IntegerType::U128 =&gt; <span class="self">Self</span>::U128(u128::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-<a href=#877 id=877 data-nosnippet>877</a>                    IntegerType::I8 =&gt; <span class="self">Self</span>::I8(i8::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-<a href=#878 id=878 data-nosnippet>878</a>                    IntegerType::I16 =&gt; <span class="self">Self</span>::I16(i16::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-<a href=#879 id=879 data-nosnippet>879</a>                    IntegerType::I32 =&gt; <span class="self">Self</span>::I32(i32::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-<a href=#880 id=880 data-nosnippet>880</a>                    IntegerType::I64 =&gt; <span class="self">Self</span>::I64(i64::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-<a href=#881 id=881 data-nosnippet>881</a>                    IntegerType::I128 =&gt; <span class="self">Self</span>::I128(i128::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-<a href=#882 id=882 data-nosnippet>882</a>                }
-<a href=#883 id=883 data-nosnippet>883</a>            }
-<a href=#884 id=884 data-nosnippet>884</a>        })
-<a href=#885 id=885 data-nosnippet>885</a>    }
-<a href=#886 id=886 data-nosnippet>886</a>}
-<a href=#887 id=887 data-nosnippet>887</a>
-<a href=#888 id=888 data-nosnippet>888</a><span class="kw">impl </span>Literal {
-<a href=#889 id=889 data-nosnippet>889</a>    <span class="attr">#[allow(unused)]
-<a href=#890 id=890 data-nosnippet>890</a>    </span><span class="kw">fn </span>from_value(v: Value, id: NodeID) -&gt; <span class="self">Self </span>{
-<a href=#891 id=891 data-nosnippet>891</a>        <span class="kw">use </span>Value::<span class="kw-2">*</span>;
-<a href=#892 id=892 data-nosnippet>892</a>        <span class="kw">match </span>v {
-<a href=#893 id=893 data-nosnippet>893</a>            Input(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(<span class="string">"We need to test if this is hittable"</span>),
-<a href=#894 id=894 data-nosnippet>894</a>            Address(v, span) =&gt; Literal::Address(v, span, id),
-<a href=#895 id=895 data-nosnippet>895</a>            Boolean(v, span) =&gt; Literal::Boolean(v, span, id),
-<a href=#896 id=896 data-nosnippet>896</a>            Struct(_ident, _values) =&gt; <span class="macro">todo!</span>(<span class="string">"We need to test if this is hittable"</span>),
-<a href=#897 id=897 data-nosnippet>897</a>            Field(v, span) =&gt; Literal::Field(v, span, id),
-<a href=#898 id=898 data-nosnippet>898</a>            Group(v, span) =&gt; Literal::Group(v, span, id),
-<a href=#899 id=899 data-nosnippet>899</a>            I8(v, span) =&gt; Literal::Integer(IntegerType::I8, v.to_string(), span, id),
-<a href=#900 id=900 data-nosnippet>900</a>            I16(v, span) =&gt; Literal::Integer(IntegerType::I16, v.to_string(), span, id),
-<a href=#901 id=901 data-nosnippet>901</a>            I32(v, span) =&gt; Literal::Integer(IntegerType::I32, v.to_string(), span, id),
-<a href=#902 id=902 data-nosnippet>902</a>            I64(v, span) =&gt; Literal::Integer(IntegerType::I64, v.to_string(), span, id),
-<a href=#903 id=903 data-nosnippet>903</a>            I128(v, span) =&gt; Literal::Integer(IntegerType::I128, v.to_string(), span, id),
-<a href=#904 id=904 data-nosnippet>904</a>            U8(v, span) =&gt; Literal::Integer(IntegerType::U8, v.to_string(), span, id),
-<a href=#905 id=905 data-nosnippet>905</a>            U16(v, span) =&gt; Literal::Integer(IntegerType::U16, v.to_string(), span, id),
-<a href=#906 id=906 data-nosnippet>906</a>            U32(v, span) =&gt; Literal::Integer(IntegerType::U32, v.to_string(), span, id),
-<a href=#907 id=907 data-nosnippet>907</a>            U64(v, span) =&gt; Literal::Integer(IntegerType::U64, v.to_string(), span, id),
-<a href=#908 id=908 data-nosnippet>908</a>            U128(v, span) =&gt; Literal::Integer(IntegerType::U128, v.to_string(), span, id),
-<a href=#909 id=909 data-nosnippet>909</a>            Scalar(v, span) =&gt; Literal::Scalar(v, span, id),
-<a href=#910 id=910 data-nosnippet>910</a>            String(v, span) =&gt; Literal::String(v, span, id),
-<a href=#911 id=911 data-nosnippet>911</a>        }
-<a href=#912 id=912 data-nosnippet>912</a>    }
-<a href=#913 id=913 data-nosnippet>913</a>}</code></pre></div></section></main></body></html>
+<a href=#862 id=862 data-nosnippet>862</a>        <span class="kw">let </span>span = literal.span;
+<a href=#863 id=863 data-nosnippet>863</a>        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="kw-2">&amp;</span>literal.variant {
+<a href=#864 id=864 data-nosnippet>864</a>            LiteralVariant::Address(string) =&gt; <span class="self">Self</span>::Address(string.clone(), span),
+<a href=#865 id=865 data-nosnippet>865</a>            LiteralVariant::Boolean(bool) =&gt; <span class="self">Self</span>::Boolean(<span class="kw-2">*</span>bool, span),
+<a href=#866 id=866 data-nosnippet>866</a>            LiteralVariant::Field(string) =&gt; <span class="self">Self</span>::Field(string.clone(), span),
+<a href=#867 id=867 data-nosnippet>867</a>            LiteralVariant::Group(string) =&gt; <span class="self">Self</span>::Group(string.clone(), span),
+<a href=#868 id=868 data-nosnippet>868</a>            LiteralVariant::Scalar(string) =&gt; <span class="self">Self</span>::Scalar(string.clone(), span),
+<a href=#869 id=869 data-nosnippet>869</a>            LiteralVariant::String(string) =&gt; <span class="self">Self</span>::String(string.clone(), span),
+<a href=#870 id=870 data-nosnippet>870</a>            LiteralVariant::Integer(integer_type, raw_string) =&gt; {
+<a href=#871 id=871 data-nosnippet>871</a>                <span class="kw">let </span>string = raw_string.replace(<span class="string">'_'</span>, <span class="string">""</span>);
+<a href=#872 id=872 data-nosnippet>872</a>                <span class="kw">match </span>integer_type {
+<a href=#873 id=873 data-nosnippet>873</a>                    IntegerType::U8 =&gt; <span class="self">Self</span>::U8(u8::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, span),
+<a href=#874 id=874 data-nosnippet>874</a>                    IntegerType::U16 =&gt; <span class="self">Self</span>::U16(u16::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, span),
+<a href=#875 id=875 data-nosnippet>875</a>                    IntegerType::U32 =&gt; <span class="self">Self</span>::U32(u32::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, span),
+<a href=#876 id=876 data-nosnippet>876</a>                    IntegerType::U64 =&gt; <span class="self">Self</span>::U64(u64::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, span),
+<a href=#877 id=877 data-nosnippet>877</a>                    IntegerType::U128 =&gt; <span class="self">Self</span>::U128(u128::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, span),
+<a href=#878 id=878 data-nosnippet>878</a>                    IntegerType::I8 =&gt; <span class="self">Self</span>::I8(i8::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, span),
+<a href=#879 id=879 data-nosnippet>879</a>                    IntegerType::I16 =&gt; <span class="self">Self</span>::I16(i16::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, span),
+<a href=#880 id=880 data-nosnippet>880</a>                    IntegerType::I32 =&gt; <span class="self">Self</span>::I32(i32::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, span),
+<a href=#881 id=881 data-nosnippet>881</a>                    IntegerType::I64 =&gt; <span class="self">Self</span>::I64(i64::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, span),
+<a href=#882 id=882 data-nosnippet>882</a>                    IntegerType::I128 =&gt; <span class="self">Self</span>::I128(i128::from_str_by_radix(<span class="kw-2">&amp;</span>string)<span class="question-mark">?</span>, span),
+<a href=#883 id=883 data-nosnippet>883</a>                }
+<a href=#884 id=884 data-nosnippet>884</a>            }
+<a href=#885 id=885 data-nosnippet>885</a>        })
+<a href=#886 id=886 data-nosnippet>886</a>    }
+<a href=#887 id=887 data-nosnippet>887</a>}</code></pre></div></section></main></body></html>

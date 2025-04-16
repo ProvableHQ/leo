@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Literal"],"macro":["implement_from_str_radix"],"struct":["DisplayDecimal"],"trait":["FromStrRadix"]};
+window.SIDEBAR_ITEMS = {"enum":["LiteralVariant"],"macro":["implement_from_str_radix"],"struct":["DisplayDecimal","Literal"],"trait":["FromStrRadix"]};

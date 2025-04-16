@@ -15,7 +15,7 @@
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span>leo_ast::{Expression::Literal, Type::Integer, <span class="kw-2">*</span>};
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>leo_errors::loop_unroller::LoopUnrollerError;
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>leo_errors::LoopUnrollerError;
 <a href=#19 id=19 data-nosnippet>19</a>
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span><span class="kw">super</span>::UnrollingVisitor;
 <a href=#21 id=21 data-nosnippet>21</a>
@@ -29,11 +29,11 @@
 <a href=#29 id=29 data-nosnippet>29</a>    }
 <a href=#30 id=30 data-nosnippet>30</a>
 <a href=#31 id=31 data-nosnippet>31</a>    <span class="kw">fn </span>reconstruct_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConstDeclaration) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#32 id=32 data-nosnippet>32</a>        (Statement::Const(input), Default::default())
+<a href=#32 id=32 data-nosnippet>32</a>        (input.into(), Default::default())
 <a href=#33 id=33 data-nosnippet>33</a>    }
 <a href=#34 id=34 data-nosnippet>34</a>
 <a href=#35 id=35 data-nosnippet>35</a>    <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#36 id=36 data-nosnippet>36</a>        (Statement::Definition(input), Default::default())
+<a href=#36 id=36 data-nosnippet>36</a>        (input.into(), Default::default())
 <a href=#37 id=37 data-nosnippet>37</a>    }
 <a href=#38 id=38 data-nosnippet>38</a>
 <a href=#39 id=39 data-nosnippet>39</a>    <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
@@ -50,48 +50,50 @@
 <a href=#50 id=50 data-nosnippet>50</a>            <span class="kw">return </span>(Statement::Iteration(Box::new(input)), Default::default());
 <a href=#51 id=51 data-nosnippet>51</a>        };
 <a href=#52 id=52 data-nosnippet>52</a>
-<a href=#53 id=53 data-nosnippet>53</a>        input.start_value.replace(<span class="prelude-val">Some</span>(Value::try_from(start_lit).unwrap()));
-<a href=#54 id=54 data-nosnippet>54</a>        input.stop_value.replace(<span class="prelude-val">Some</span>(Value::try_from(stop_lit).unwrap()));
-<a href=#55 id=55 data-nosnippet>55</a>
-<a href=#56 id=56 data-nosnippet>56</a>        <span class="comment">// Ensure loop bounds are increasing. This cannot be done in the type checker because constant propagation must happen first.
-<a href=#57 id=57 data-nosnippet>57</a>        </span><span class="kw">if match </span>(input.type_.clone(), input.start_value.borrow().as_ref(), input.stop_value.borrow().as_ref()) {
-<a href=#58 id=58 data-nosnippet>58</a>            (Integer(IntegerType::I8), <span class="prelude-val">Some</span>(Value::I8(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::I8(upper_bound, <span class="kw">_</span>))) =&gt; {
-<a href=#59 id=59 data-nosnippet>59</a>                lower_bound &gt;= upper_bound
-<a href=#60 id=60 data-nosnippet>60</a>            }
-<a href=#61 id=61 data-nosnippet>61</a>            (Integer(IntegerType::I16), <span class="prelude-val">Some</span>(Value::I16(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::I16(upper_bound, <span class="kw">_</span>))) =&gt; {
-<a href=#62 id=62 data-nosnippet>62</a>                lower_bound &gt;= upper_bound
-<a href=#63 id=63 data-nosnippet>63</a>            }
-<a href=#64 id=64 data-nosnippet>64</a>            (Integer(IntegerType::I32), <span class="prelude-val">Some</span>(Value::I32(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::I32(upper_bound, <span class="kw">_</span>))) =&gt; {
-<a href=#65 id=65 data-nosnippet>65</a>                lower_bound &gt;= upper_bound
-<a href=#66 id=66 data-nosnippet>66</a>            }
-<a href=#67 id=67 data-nosnippet>67</a>            (Integer(IntegerType::I64), <span class="prelude-val">Some</span>(Value::I64(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::I64(upper_bound, <span class="kw">_</span>))) =&gt; {
-<a href=#68 id=68 data-nosnippet>68</a>                lower_bound &gt;= upper_bound
-<a href=#69 id=69 data-nosnippet>69</a>            }
-<a href=#70 id=70 data-nosnippet>70</a>            (Integer(IntegerType::I128), <span class="prelude-val">Some</span>(Value::I128(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::I128(upper_bound, <span class="kw">_</span>))) =&gt; {
-<a href=#71 id=71 data-nosnippet>71</a>                lower_bound &gt;= upper_bound
-<a href=#72 id=72 data-nosnippet>72</a>            }
-<a href=#73 id=73 data-nosnippet>73</a>            (Integer(IntegerType::U8), <span class="prelude-val">Some</span>(Value::U8(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::U8(upper_bound, <span class="kw">_</span>))) =&gt; {
-<a href=#74 id=74 data-nosnippet>74</a>                lower_bound &gt;= upper_bound
-<a href=#75 id=75 data-nosnippet>75</a>            }
-<a href=#76 id=76 data-nosnippet>76</a>            (Integer(IntegerType::U16), <span class="prelude-val">Some</span>(Value::U16(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::U16(upper_bound, <span class="kw">_</span>))) =&gt; {
-<a href=#77 id=77 data-nosnippet>77</a>                lower_bound &gt;= upper_bound
-<a href=#78 id=78 data-nosnippet>78</a>            }
-<a href=#79 id=79 data-nosnippet>79</a>            (Integer(IntegerType::U32), <span class="prelude-val">Some</span>(Value::U32(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::U32(upper_bound, <span class="kw">_</span>))) =&gt; {
-<a href=#80 id=80 data-nosnippet>80</a>                lower_bound &gt;= upper_bound
-<a href=#81 id=81 data-nosnippet>81</a>            }
-<a href=#82 id=82 data-nosnippet>82</a>            (Integer(IntegerType::U64), <span class="prelude-val">Some</span>(Value::U64(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::U64(upper_bound, <span class="kw">_</span>))) =&gt; {
-<a href=#83 id=83 data-nosnippet>83</a>                lower_bound &gt;= upper_bound
-<a href=#84 id=84 data-nosnippet>84</a>            }
-<a href=#85 id=85 data-nosnippet>85</a>            (Integer(IntegerType::U128), <span class="prelude-val">Some</span>(Value::U128(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::U128(upper_bound, <span class="kw">_</span>))) =&gt; {
-<a href=#86 id=86 data-nosnippet>86</a>                lower_bound &gt;= upper_bound
-<a href=#87 id=87 data-nosnippet>87</a>            }
-<a href=#88 id=88 data-nosnippet>88</a>            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Type checking guarantees that the loop bounds have same type as loop variable."</span>),
-<a href=#89 id=89 data-nosnippet>89</a>        } {
-<a href=#90 id=90 data-nosnippet>90</a>            <span class="self">self</span>.emit_err(LoopUnrollerError::loop_range_decreasing(input.stop.span()));
-<a href=#91 id=91 data-nosnippet>91</a>        }
-<a href=#92 id=92 data-nosnippet>92</a>
-<a href=#93 id=93 data-nosnippet>93</a>        <span class="self">self</span>.loop_unrolled = <span class="bool-val">true</span>;
+<a href=#53 id=53 data-nosnippet>53</a>        <span class="comment">// These unwraps work because these literals were either found during parsing and validated
+<a href=#54 id=54 data-nosnippet>54</a>        // during type checking or else created during const folding.
+<a href=#55 id=55 data-nosnippet>55</a>        </span><span class="kw">let </span>start_value = Value::try_from(start_lit).unwrap();
+<a href=#56 id=56 data-nosnippet>56</a>        <span class="kw">let </span>stop_value = Value::try_from(stop_lit).unwrap();
+<a href=#57 id=57 data-nosnippet>57</a>
+<a href=#58 id=58 data-nosnippet>58</a>        <span class="comment">// Ensure loop bounds are increasing. This cannot be done in the type checker because constant propagation must happen first.
+<a href=#59 id=59 data-nosnippet>59</a>        </span><span class="kw">if match </span>(input.type_.clone(), <span class="kw-2">&amp;</span>start_value, <span class="kw-2">&amp;</span>stop_value) {
+<a href=#60 id=60 data-nosnippet>60</a>            (Integer(IntegerType::I8), Value::I8(lower_bound, <span class="kw">_</span>), Value::I8(upper_bound, <span class="kw">_</span>)) =&gt; {
+<a href=#61 id=61 data-nosnippet>61</a>                lower_bound &gt;= upper_bound
+<a href=#62 id=62 data-nosnippet>62</a>            }
+<a href=#63 id=63 data-nosnippet>63</a>            (Integer(IntegerType::I16), Value::I16(lower_bound, <span class="kw">_</span>), Value::I16(upper_bound, <span class="kw">_</span>)) =&gt; {
+<a href=#64 id=64 data-nosnippet>64</a>                lower_bound &gt;= upper_bound
+<a href=#65 id=65 data-nosnippet>65</a>            }
+<a href=#66 id=66 data-nosnippet>66</a>            (Integer(IntegerType::I32), Value::I32(lower_bound, <span class="kw">_</span>), Value::I32(upper_bound, <span class="kw">_</span>)) =&gt; {
+<a href=#67 id=67 data-nosnippet>67</a>                lower_bound &gt;= upper_bound
+<a href=#68 id=68 data-nosnippet>68</a>            }
+<a href=#69 id=69 data-nosnippet>69</a>            (Integer(IntegerType::I64), Value::I64(lower_bound, <span class="kw">_</span>), Value::I64(upper_bound, <span class="kw">_</span>)) =&gt; {
+<a href=#70 id=70 data-nosnippet>70</a>                lower_bound &gt;= upper_bound
+<a href=#71 id=71 data-nosnippet>71</a>            }
+<a href=#72 id=72 data-nosnippet>72</a>            (Integer(IntegerType::I128), Value::I128(lower_bound, <span class="kw">_</span>), Value::I128(upper_bound, <span class="kw">_</span>)) =&gt; {
+<a href=#73 id=73 data-nosnippet>73</a>                lower_bound &gt;= upper_bound
+<a href=#74 id=74 data-nosnippet>74</a>            }
+<a href=#75 id=75 data-nosnippet>75</a>            (Integer(IntegerType::U8), Value::U8(lower_bound, <span class="kw">_</span>), Value::U8(upper_bound, <span class="kw">_</span>)) =&gt; {
+<a href=#76 id=76 data-nosnippet>76</a>                lower_bound &gt;= upper_bound
+<a href=#77 id=77 data-nosnippet>77</a>            }
+<a href=#78 id=78 data-nosnippet>78</a>            (Integer(IntegerType::U16), Value::U16(lower_bound, <span class="kw">_</span>), Value::U16(upper_bound, <span class="kw">_</span>)) =&gt; {
+<a href=#79 id=79 data-nosnippet>79</a>                lower_bound &gt;= upper_bound
+<a href=#80 id=80 data-nosnippet>80</a>            }
+<a href=#81 id=81 data-nosnippet>81</a>            (Integer(IntegerType::U32), Value::U32(lower_bound, <span class="kw">_</span>), Value::U32(upper_bound, <span class="kw">_</span>)) =&gt; {
+<a href=#82 id=82 data-nosnippet>82</a>                lower_bound &gt;= upper_bound
+<a href=#83 id=83 data-nosnippet>83</a>            }
+<a href=#84 id=84 data-nosnippet>84</a>            (Integer(IntegerType::U64), Value::U64(lower_bound, <span class="kw">_</span>), Value::U64(upper_bound, <span class="kw">_</span>)) =&gt; {
+<a href=#85 id=85 data-nosnippet>85</a>                lower_bound &gt;= upper_bound
+<a href=#86 id=86 data-nosnippet>86</a>            }
+<a href=#87 id=87 data-nosnippet>87</a>            (Integer(IntegerType::U128), Value::U128(lower_bound, <span class="kw">_</span>), Value::U128(upper_bound, <span class="kw">_</span>)) =&gt; {
+<a href=#88 id=88 data-nosnippet>88</a>                lower_bound &gt;= upper_bound
+<a href=#89 id=89 data-nosnippet>89</a>            }
+<a href=#90 id=90 data-nosnippet>90</a>            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Type checking guarantees that the loop bounds have same type as loop variable."</span>),
+<a href=#91 id=91 data-nosnippet>91</a>        } {
+<a href=#92 id=92 data-nosnippet>92</a>            <span class="self">self</span>.emit_err(LoopUnrollerError::loop_range_decreasing(input.stop.span()));
+<a href=#93 id=93 data-nosnippet>93</a>        }
 <a href=#94 id=94 data-nosnippet>94</a>
-<a href=#95 id=95 data-nosnippet>95</a>        (<span class="self">self</span>.unroll_iteration_statement::&lt;i128&gt;(input), Default::default())
-<a href=#96 id=96 data-nosnippet>96</a>    }
-<a href=#97 id=97 data-nosnippet>97</a>}</code></pre></div></section></main></body></html>
+<a href=#95 id=95 data-nosnippet>95</a>        <span class="self">self</span>.loop_unrolled = <span class="bool-val">true</span>;
+<a href=#96 id=96 data-nosnippet>96</a>
+<a href=#97 id=97 data-nosnippet>97</a>        (<span class="self">self</span>.unroll_iteration_statement::&lt;i128&gt;(input, start_value, stop_value), Default::default())
+<a href=#98 id=98 data-nosnippet>98</a>    }
+<a href=#99 id=99 data-nosnippet>99</a>}</code></pre></div></section></main></body></html>

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Statement"],"mod":["assert","assign","block","conditional","console","const_","definition","expression","iteration","return_"]};
+window.SIDEBAR_ITEMS = {"enum":["Statement"],"mod":["assert","assign","block","conditional","const_","definition","expression","iteration","return_"]};

@@ -20,11 +20,11 @@
 <a href=#20 id=20 data-nosnippet>20</a></span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 <a href=#21 id=21 data-nosnippet>21</a></span><span class="kw">pub struct </span>TernaryExpression {
 <a href=#22 id=22 data-nosnippet>22</a>    <span class="doccomment">/// The condition determining which branch to pick.
-<a href=#23 id=23 data-nosnippet>23</a>    </span><span class="kw">pub </span>condition: Box&lt;Expression&gt;,
+<a href=#23 id=23 data-nosnippet>23</a>    </span><span class="kw">pub </span>condition: Expression,
 <a href=#24 id=24 data-nosnippet>24</a>    <span class="doccomment">/// The branch the expression evaluates to if `condition` evaluates to true.
-<a href=#25 id=25 data-nosnippet>25</a>    </span><span class="kw">pub </span>if_true: Box&lt;Expression&gt;,
+<a href=#25 id=25 data-nosnippet>25</a>    </span><span class="kw">pub </span>if_true: Expression,
 <a href=#26 id=26 data-nosnippet>26</a>    <span class="doccomment">/// The branch the expression evaluates to if `condition` evaluates to false.
-<a href=#27 id=27 data-nosnippet>27</a>    </span><span class="kw">pub </span>if_false: Box&lt;Expression&gt;,
+<a href=#27 id=27 data-nosnippet>27</a>    </span><span class="kw">pub </span>if_false: Expression,
 <a href=#28 id=28 data-nosnippet>28</a>    <span class="doccomment">/// The span from `condition` to `if_false`.
 <a href=#29 id=29 data-nosnippet>29</a>    </span><span class="kw">pub </span>span: Span,
 <a href=#30 id=30 data-nosnippet>30</a>    <span class="doccomment">/// The ID of the node.
@@ -51,4 +51,10 @@
 <a href=#51 id=51 data-nosnippet>51</a>    }
 <a href=#52 id=52 data-nosnippet>52</a>}
 <a href=#53 id=53 data-nosnippet>53</a>
-<a href=#54 id=54 data-nosnippet>54</a><span class="macro">crate::simple_node_impl!</span>(TernaryExpression);</code></pre></div></section></main></body></html>
+<a href=#54 id=54 data-nosnippet>54</a><span class="kw">impl </span>From&lt;TernaryExpression&gt; <span class="kw">for </span>Expression {
+<a href=#55 id=55 data-nosnippet>55</a>    <span class="kw">fn </span>from(value: TernaryExpression) -&gt; <span class="self">Self </span>{
+<a href=#56 id=56 data-nosnippet>56</a>        Expression::Ternary(Box::new(value))
+<a href=#57 id=57 data-nosnippet>57</a>    }
+<a href=#58 id=58 data-nosnippet>58</a>}
+<a href=#59 id=59 data-nosnippet>59</a>
+<a href=#60 id=60 data-nosnippet>60</a><span class="macro">crate::simple_node_impl!</span>(TernaryExpression);</code></pre></div></section></main></body></html>

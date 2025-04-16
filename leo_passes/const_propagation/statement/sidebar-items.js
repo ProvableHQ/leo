@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["empty_statement","is_empty_statement"]};
+window.SIDEBAR_ITEMS = {};

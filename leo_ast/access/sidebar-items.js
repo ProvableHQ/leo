@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["array_access","member_access","tuple_access"],"struct":["ArrayAccess","MemberAccess","TupleAccess"]};

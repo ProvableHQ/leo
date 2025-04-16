@@ -40,7 +40,7 @@
 <a href=#40 id=40 data-nosnippet>40</a>                .into_iter()
 <a href=#41 id=41 data-nosnippet>41</a>                .map(|(i, c)| <span class="kw">match </span><span class="self">self</span>.reconstruct_const(c) {
 <a href=#42 id=42 data-nosnippet>42</a>                    (Statement::Const(declaration), <span class="kw">_</span>) =&gt; (i, declaration),
-<a href=#43 id=43 data-nosnippet>43</a>                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"`reconstruct_const` can only return `Statement::Const`"</span>),
+<a href=#43 id=43 data-nosnippet>43</a>                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"`reconstruct_const` can only return `Statement::Const`"</span>),
 <a href=#44 id=44 data-nosnippet>44</a>                })
 <a href=#45 id=45 data-nosnippet>45</a>                .collect(),
 <a href=#46 id=46 data-nosnippet>46</a>            span: input.span,
@@ -62,7 +62,7 @@
 <a href=#62 id=62 data-nosnippet>62</a>            .map(|(guard, statement)| <span class="kw">match </span>guard {
 <a href=#63 id=63 data-nosnippet>63</a>                ReturnGuard::None =&gt; (<span class="prelude-val">None</span>, statement),
 <a href=#64 id=64 data-nosnippet>64</a>                ReturnGuard::Unconstructed(plain) | ReturnGuard::Constructed { plain, .. } =&gt; {
-<a href=#65 id=65 data-nosnippet>65</a>                    (<span class="prelude-val">Some</span>(Expression::Identifier(plain)), statement)
+<a href=#65 id=65 data-nosnippet>65</a>                    (<span class="prelude-val">Some</span>(plain.into()), statement)
 <a href=#66 id=66 data-nosnippet>66</a>                }
 <a href=#67 id=67 data-nosnippet>67</a>            })
 <a href=#68 id=68 data-nosnippet>68</a>            .collect();

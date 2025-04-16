@@ -87,7 +87,7 @@
 <a href=#87 id=87 data-nosnippet>87</a></span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 <a href=#88 id=88 data-nosnippet>88</a></span><span class="kw">pub struct </span>UnaryExpression {
 <a href=#89 id=89 data-nosnippet>89</a>    <span class="doccomment">/// The inner expression `op` is applied to.
-<a href=#90 id=90 data-nosnippet>90</a>    </span><span class="kw">pub </span>receiver: Box&lt;Expression&gt;,
+<a href=#90 id=90 data-nosnippet>90</a>    </span><span class="kw">pub </span>receiver: Expression,
 <a href=#91 id=91 data-nosnippet>91</a>    <span class="doccomment">/// The unary operator to apply to `inner`.
 <a href=#92 id=92 data-nosnippet>92</a>    </span><span class="kw">pub </span>op: UnaryOperation,
 <a href=#93 id=93 data-nosnippet>93</a>    <span class="doccomment">/// The span covering `op inner`.
@@ -107,4 +107,10 @@
 <a href=#107 id=107 data-nosnippet>107</a>    }
 <a href=#108 id=108 data-nosnippet>108</a>}
 <a href=#109 id=109 data-nosnippet>109</a>
-<a href=#110 id=110 data-nosnippet>110</a><span class="macro">crate::simple_node_impl!</span>(UnaryExpression);</code></pre></div></section></main></body></html>
+<a href=#110 id=110 data-nosnippet>110</a><span class="kw">impl </span>From&lt;UnaryExpression&gt; <span class="kw">for </span>Expression {
+<a href=#111 id=111 data-nosnippet>111</a>    <span class="kw">fn </span>from(value: UnaryExpression) -&gt; <span class="self">Self </span>{
+<a href=#112 id=112 data-nosnippet>112</a>        Expression::Unary(Box::new(value))
+<a href=#113 id=113 data-nosnippet>113</a>    }
+<a href=#114 id=114 data-nosnippet>114</a>}
+<a href=#115 id=115 data-nosnippet>115</a>
+<a href=#116 id=116 data-nosnippet>116</a><span class="macro">crate::simple_node_impl!</span>(UnaryExpression);</code></pre></div></section></main></body></html>
