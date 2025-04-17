@@ -40,7 +40,7 @@ impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         Self {
             build: leo_compiler::BuildOptions {
-                dce_enabled: options.enable_dce,
+                dce_enabled: !options.disable_dce,
                 conditional_block_max_depth: options.conditional_block_max_depth,
                 disable_conditional_branch_type_checking: options.disable_conditional_branch_type_checking,
             },

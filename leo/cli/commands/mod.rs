@@ -139,12 +139,23 @@ pub struct BuildOptions {
     pub(crate) network: Option<String>,
     #[clap(long, help = "Does not recursively compile dependencies.")]
     pub non_recursive: bool,
-    #[clap(long, help = "Enables offline mode.")]
+    #[clap(long, help = "Enable offline mode.")]
     pub offline: bool,
     #[clap(long, help = "Enable spans in AST snapshots.")]
     pub enable_ast_spans: bool,
-    #[clap(long, help = "Enables dead code elimination in the compiler.", default_value = "true")]
+    #[clap(
+        long,
+        help = "As dead code elimination is now the default, this option does nothing and is provided only for backwards compatibility.",
+        default_value = "true"
+    )]
     pub enable_dce: bool,
+    #[clap(
+        long,
+        help = "Disable dead code elimination in the compiler.",
+        default_value = "false",
+        conflicts_with = "enable_dce"
+    )]
+    pub disable_dce: bool,
     #[clap(long, help = "Max depth to type check nested conditionals.", default_value = "10")]
     pub conditional_block_max_depth: usize,
     #[clap(long, help = "Disable type checking of nested conditional branches in finalize scope.")]
@@ -166,6 +177,7 @@ impl Default for BuildOptions {
             offline: false,
             enable_ast_spans: false,
             enable_dce: true,
+            disable_dce: false,
             conditional_block_max_depth: 10,
             disable_conditional_branch_type_checking: false,
             enable_initial_ast_snapshot: false,
