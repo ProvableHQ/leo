@@ -57,6 +57,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoRun,
     },
+    #[clap(about = "Test a Leo program")]
+    Test {
+        #[clap(flatten)]
+        command: LeoTest,
+    },
     #[clap(about = "Execute a program with input variables")]
     Execute {
         #[clap(flatten)]
@@ -143,6 +148,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
+        Commands::Test { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
         Commands::Remove { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
@@ -412,6 +418,7 @@ function external_nested_function:
                     local: None,
                     network: NETWORK.to_string(),
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(project_directory.clone()),
@@ -524,6 +531,7 @@ program child.aleo {
                     local: Some(parent_directory.clone()),
                     network: NETWORK.to_string(),
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
@@ -539,6 +547,7 @@ program child.aleo {
                     local: Some(child_directory.clone()),
                     network: NETWORK.to_string(),
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
@@ -554,6 +563,7 @@ program child.aleo {
                     local: Some(child_directory.clone()),
                     network: NETWORK.to_string(),
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(parent_directory.clone()),
@@ -696,6 +706,7 @@ program outer.aleo {
                     local: Some(inner_1_directory.clone()),
                     network: NETWORK.to_string(),
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -711,6 +722,7 @@ program outer.aleo {
                     local: Some(inner_2_directory.clone()),
                     network: NETWORK.to_string(),
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -883,6 +895,7 @@ program outer_2.aleo {
                     local: Some(inner_1_directory.clone()),
                     network: NETWORK.to_string(),
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -898,6 +911,7 @@ program outer_2.aleo {
                     local: Some(inner_2_directory.clone()),
                     network: NETWORK.to_string(),
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(outer_directory.clone()),

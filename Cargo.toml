@@ -84,6 +84,9 @@ version = "2.5.0"
 path = "./test-framework"
 version = "2.5.0"
 
+[workspace.dependencies.anyhow]
+version = "1.0"
+
 [workspace.dependencies.aleo-std]
 version = "0.1.24"
 default-features = false
@@ -181,7 +184,13 @@ workspace = true
 [dependencies.leo-package]
 workspace = true
 
+[dependencies.leo-parser]
+workspace = true
+
 [dependencies.leo-span]
+workspace = true
+
+[dependencies.anyhow]
 workspace = true
 
 [dependencies.aleo-std]

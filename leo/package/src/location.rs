@@ -17,13 +17,19 @@
 use serde::{Deserialize, Serialize};
 
 // Retrievable locations for an external program.
-#[derive(Debug, Default, Clone, std::cmp::Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum Location {
+    /// A dependency already deployed on the network.
     #[default]
     #[serde(rename = "network")]
     Network,
+    /// A dependency found on the local filesystem.
     #[serde(rename = "local")]
     Local,
+    /// A dependency in the `tests` directory - a test.
+    #[serde(rename = "test")]
+    Test,
+    /// Unused.
     #[serde(rename = "git")]
     Git,
 }

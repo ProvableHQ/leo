@@ -137,7 +137,7 @@ impl<N: Network> ParserContext<'_, N> {
                     let (id, mapping) = self.parse_mapping()?;
                     mappings.push((id, mapping));
                 }
-                Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline => {
+                Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline | Token::Script => {
                     let (id, function) = self.parse_function()?;
 
                     // Partition into transitions and functions so that we don't have to sort later.
@@ -159,6 +159,7 @@ impl<N: Network> ParserContext<'_, N> {
                         Token::Function,
                         Token::Transition,
                         Token::Inline,
+                        Token::Script,
                         Token::RightCurly,
                     ])
                     .into());
@@ -316,14 +317,47 @@ impl<N: Network> ParserContext<'_, N> {
             }
             _ => self.expect_identifier()?,
         };
-        let span = start + identifier.span;
+        let mut span = start + identifier.span;
 
         // TODO: Verify that this check is sound.
         // Check that there is no whitespace or comments in between the `@` symbol and identifier.
-        match identifier.span.hi - start.lo > 1 + identifier.name.to_string().len() as u32 {
-            true => Err(ParserError::space_in_annotation(span).into()),
-            false => Ok(Annotation { identifier, span, id: self.node_builder.next_id() }),
+        if identifier.span.hi - start.lo > 1 + identifier.name.to_string().len() as u32 {
+            return Err(ParserError::space_in_annotation(span).into());
         }
+
+        let mut map = IndexMap::new();
+
+        if self.eat(&Token::LeftParen) {
+            loop {
+                let key = self.expect_identifier()?;
+                self.expect(&Token::Assign)?;
+                if let Token::StaticString(s) = &self.token.token {
+                    map.insert(key.name, s.clone());
+                    self.bump();
+                } else {
+                    return Err(ParserError::unexpected(&self.token.token, "a string", self.token.span).into());
+                }
+
+                match &self.token.token {
+                    Token::Comma => {
+                        self.bump();
+                        if let Token::RightParen = &self.token.token {
+                            span = span + self.token.span;
+                            self.bump();
+                            break;
+                        }
+                    }
+                    Token::RightParen => {
+                        span = span + self.token.span;
+                        self.bump();
+                        break;
+                    }
+                    _ => return Err(ParserError::unexpected(&self.token.token, ", or )", self.token.span).into()),
+                }
+            }
+        }
+
+        Ok(Annotation { identifier, span, id: self.node_builder.next_id(), map })
     }
 
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
@@ -341,6 +375,7 @@ impl<N: Network> ParserContext<'_, N> {
         // Parse `<variant> IDENT`, where `<variant>` is `function`, `transition`, or `inline`.
         let (variant, start) = match self.token.token.clone() {
             Token::Inline => (Variant::Inline, self.expect(&Token::Inline)?),
+            Token::Script => (Variant::Script, self.expect(&Token::Script)?),
             Token::Function => {
                 (if is_async { Variant::AsyncFunction } else { Variant::Function }, self.expect(&Token::Function)?)
             }

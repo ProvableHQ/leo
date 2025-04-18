@@ -14,43 +14,46 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod add;
+mod add;
 pub use add::LeoAdd;
 
-pub mod account;
+mod account;
 pub use account::Account;
 
-pub mod build;
+mod build;
 pub use build::LeoBuild;
 
-pub mod clean;
+mod clean;
 pub use clean::LeoClean;
 
-pub mod debug;
+mod debug;
 pub use debug::LeoDebug;
 
-pub mod deploy;
+mod deploy;
 pub use deploy::LeoDeploy;
 
-pub mod execute;
+mod execute;
 pub use execute::LeoExecute;
 
 pub mod query;
 pub use query::LeoQuery;
 
-pub mod new;
+mod new;
 pub use new::LeoNew;
 
-// pub mod node;
+// mod node;
 // pub use node::Node;
 
-pub mod remove;
+mod remove;
 pub use remove::LeoRemove;
 
-pub mod run;
+mod run;
 pub use run::LeoRun;
 
-pub mod update;
+mod test;
+pub use test::LeoTest;
+
+mod update;
 pub use update::LeoUpdate;
 
 use super::*;
@@ -150,6 +153,8 @@ pub struct BuildOptions {
     pub enable_all_ast_snapshots: bool,
     #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1..)]
     pub ast_snapshots: Vec<String>,
+    #[clap(long, help = "Build tests along with the main program and dependencies.")]
+    pub build_tests: bool,
 }
 
 impl Default for BuildOptions {
@@ -164,6 +169,7 @@ impl Default for BuildOptions {
             enable_initial_ast_snapshot: false,
             enable_all_ast_snapshots: false,
             ast_snapshots: Vec::new(),
+            build_tests: false,
         }
     }
 }

@@ -25,12 +25,11 @@ pub struct Dependency {
     /// The name of the program. As this corresponds to what appears in `program.json`,
     /// it should have the ".aleo" suffix.
     pub name: String,
-    /// Network or local dependency? Note that this isn't really used, as `network`
-    /// and `path` provide us this information.
+    /// Network, local, or test dependency?
     pub location: Location,
     /// For a network dependency, which network?
     pub network: Option<NetworkName>,
-    /// For a local dependency, where is its package?
+    /// For a local dependency, where is its package? Or, for a test, where is its source file?
     pub path: Option<PathBuf>,
 }
 

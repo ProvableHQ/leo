@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected 'function', 'transition', or 'inline' -- found '('
-    --> test:3:9
+Error [EPAR0370009]: unexpected string: expected 'identifier', found '?'
+    --> test:3:10
      |
    3 |     @foo(?, bar, ?)
-     |         ^
+     |          ^
