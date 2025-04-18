@@ -1745,6 +1745,7 @@ name = "leo-compiler"
 version = "2.5.0"
 dependencies = [
  "aleo-std-storage",
+ "anyhow",
  "indexmap 2.9.0",
  "itertools 0.13.0",
  "leo-ast",
@@ -1823,6 +1824,7 @@ version = "2.5.0"
 dependencies = [
  "aleo-std",
  "ansi_term",
+ "anyhow",
  "backtrace",
  "clap",
  "colored",
@@ -1836,6 +1838,7 @@ dependencies = [
  "leo-errors",
  "leo-interpreter",
  "leo-package",
+ "leo-parser",
  "leo-span",
  "num-format",
  "rand",
@@ -1861,6 +1864,7 @@ dependencies = [
 name = "leo-package"
 version = "2.5.0"
 dependencies = [
+ "anyhow",
  "indexmap 2.9.0",
  "leo-disassembler",
  "leo-errors",

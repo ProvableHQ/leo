@@ -569,7 +569,7 @@ create_messages!(
     @formatted
     operation_must_be_in_finalize_block {
         args: (),
-        msg: format!("This operation can only be used in an async function block."),
+        msg: format!("This operation can only be used in an async function."),
         help: None,
     }
 
@@ -878,7 +878,7 @@ create_messages!(
     @formatted
     only_async_transition_can_return_future {
         args: (),
-        msg: "A `transition` cannot return a future.".to_string(),
+        msg: "Only `async transition` can return a future.".to_string(),
         help: Some("Use an `async transition` instead.".to_string()),
     }
 
@@ -1001,6 +1001,27 @@ create_messages!(
     cannot_reassign_mapping {
         args: (var: impl Display),
         msg: format!("Cannot assign to the mapping `{var}`."),
+        help: None,
+    }
+
+    @formatted
+    interpret_in_non_test {
+        args: (func: impl Display),
+        msg: format!("`interpret` {func} appears in a non-test program."),
+        help: Some("Move this to a test program, or replace it with a function or transition".to_string()),
+    }
+
+    @formatted
+    non_interpret_calls_interpret {
+        args: (call: impl Display),
+        msg: format!("`interpret` {call} is called by a non-`interpret`."),
+        help: None,
+    }
+
+    @formatted
+    annotation_error {
+        args: (message: impl Display),
+        msg: format!("Invalid annotation: {message}."),
         help: None,
     }
 );

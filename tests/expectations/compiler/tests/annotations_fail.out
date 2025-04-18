@@ -1,0 +1,143 @@
+DCE_ENABLED:
+Error [ETYC0372128]: Invalid annotation: Test annotation @interpreted_test appears outside of tests.
+    --> compiler-test:3:5
+     |
+   3 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Annotation @interpreted_test appears on non-interpret function.
+    --> compiler-test:3:5
+     |
+   3 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @native_test appears outside of tests.
+    --> compiler-test:11:5
+     |
+  11 |     @native_test(private_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @should_fail appears outside of tests.
+    --> compiler-test:15:5
+     |
+  15 |     @should_fail
+     |     ^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Annotation @should_fail appears without either @native_test or @interpreted_test.
+    --> compiler-test:15:5
+     |
+  15 |     @should_fail
+     |     ^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @native_test appears outside of tests.
+    --> compiler-test:20:5
+     |
+  20 |     @native_test
+     |     ^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @should_fail appears outside of tests.
+    --> compiler-test:19:5
+     |
+  19 |     @should_fail
+     |     ^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Invalid key `bogus_key` for annotation @native_test.
+    --> compiler-test:24:5
+     |
+  24 |     @native_test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @native_test appears outside of tests.
+    --> compiler-test:24:5
+     |
+  24 |     @native_test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @interpreted_test appears outside of tests.
+    --> compiler-test:7:5
+     |
+   7 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Duplicate annotation @interpreted_test.
+    --> compiler-test:28:5
+     |
+  28 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @interpreted_test appears outside of tests.
+    --> compiler-test:28:5
+     |
+  28 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @interpreted_test appears outside of tests.
+    --> compiler-test:33:5
+     |
+  33 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: A test function cannot have inputs.
+    --> compiler-test:34:20
+     |
+  34 |     interpret foo8(x: u8) -> u8 {
+     |                    ^^^^^
+
+DCE_DISABLED:
+Error [ETYC0372128]: Invalid annotation: Test annotation @interpreted_test appears outside of tests.
+    --> compiler-test:3:5
+     |
+   3 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Annotation @interpreted_test appears on non-interpret function.
+    --> compiler-test:3:5
+     |
+   3 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @native_test appears outside of tests.
+    --> compiler-test:11:5
+     |
+  11 |     @native_test(private_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @should_fail appears outside of tests.
+    --> compiler-test:15:5
+     |
+  15 |     @should_fail
+     |     ^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Annotation @should_fail appears without either @native_test or @interpreted_test.
+    --> compiler-test:15:5
+     |
+  15 |     @should_fail
+     |     ^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @native_test appears outside of tests.
+    --> compiler-test:20:5
+     |
+  20 |     @native_test
+     |     ^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @should_fail appears outside of tests.
+    --> compiler-test:19:5
+     |
+  19 |     @should_fail
+     |     ^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Invalid key `bogus_key` for annotation @native_test.
+    --> compiler-test:24:5
+     |
+  24 |     @native_test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @native_test appears outside of tests.
+    --> compiler-test:24:5
+     |
+  24 |     @native_test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @interpreted_test appears outside of tests.
+    --> compiler-test:7:5
+     |
+   7 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Duplicate annotation @interpreted_test.
+    --> compiler-test:28:5
+     |
+  28 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @interpreted_test appears outside of tests.
+    --> compiler-test:28:5
+     |
+  28 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: Test annotation @interpreted_test appears outside of tests.
+    --> compiler-test:33:5
+     |
+  33 |     @interpreted_test
+     |     ^^^^^^^^^^^^^^^^^
+Error [ETYC0372128]: Invalid annotation: A test function cannot have inputs.
+    --> compiler-test:34:20
+     |
+  34 |     interpret foo8(x: u8) -> u8 {
+     |                    ^^^^^

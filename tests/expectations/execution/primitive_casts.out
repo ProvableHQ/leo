@@ -496,7 +496,7 @@ null
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -599,7 +599,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -692,7 +692,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -790,7 +790,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -893,7 +893,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -996,7 +996,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -1099,7 +1099,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -1202,7 +1202,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -1305,7 +1305,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -1408,7 +1408,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -1511,7 +1511,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -1614,7 +1614,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -1717,7 +1717,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -1820,7 +1820,7 @@ warnings:
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [

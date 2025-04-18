@@ -14,21 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![forbid(unsafe_code)]
-#![allow(clippy::module_inception)]
-#![allow(clippy::upper_case_acronyms)]
-#![doc = include_str!("../README.md")]
+use crate::CompilerState;
 
-mod compiler;
-pub use compiler::*;
+use leo_ast::Variant;
+use leo_span::Symbol;
 
-mod options;
-pub use options::*;
-
-pub mod run_with_ledger;
-
-#[cfg(test)]
-mod test_compiler;
-
-#[cfg(test)]
-mod test_execution;
+pub struct ProcessingInterpretVisitor<'a> {
+    pub state: &'a mut CompilerState,
+    pub current_variant: Variant,
+    pub program_name: Symbol,
+}

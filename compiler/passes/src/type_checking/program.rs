@@ -19,7 +19,7 @@ use crate::DiGraphError;
 
 use leo_ast::{Type, *};
 use leo_errors::TypeCheckerError;
-use leo_span::sym;
+use leo_span::{Symbol, sym};
 
 use std::collections::HashSet;
 
@@ -241,15 +241,88 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_function(&mut self, function: &Function) {
-        // Check that the function's annotations are valid.
-        // Note that Leo does not natively support any specific annotations.
-        for annotation in function.annotations.iter() {
-            // TODO: Change to compiler warning.
-            self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
-        }
-
         // Set type checker variables for function variant details.
         self.scope_state.initialize_function_state(function.variant);
+
+        // Check that the function's annotations are valid.
+
+        for annotation in function.annotations.iter() {
+            if !matches!(annotation.identifier.name, sym::native_test | sym::interpreted_test | sym::should_fail) {
+                self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
+            }
+        }
+
+        let get = |symbol: Symbol| -> &Annotation {
+            function.annotations.iter().find(|ann| ann.identifier.name == symbol).unwrap()
+        };
+
+        let check_annotation = |symbol: Symbol, allowed_keys: &[Symbol]| -> bool {
+            let count = function.annotations.iter().filter(|ann| ann.identifier.name == symbol).count();
+            if count > 0 {
+                let annotation = get(symbol);
+                for key in annotation.map.keys() {
+                    if !allowed_keys.contains(key) {
+                        self.emit_err(TypeCheckerError::annotation_error(
+                            format_args!("Invalid key `{key}` for annotation @{symbol}"),
+                            annotation.span,
+                        ));
+                    }
+                }
+                if count > 1 {
+                    self.emit_err(TypeCheckerError::annotation_error(
+                        format_args!("Duplicate annotation @{symbol}"),
+                        annotation.span,
+                    ));
+                }
+            }
+            count > 0
+        };
+
+        let has_native_test = check_annotation(sym::native_test, &[sym::private_key]);
+        let has_interpreted_test = check_annotation(sym::interpreted_test, &[]);
+        let has_should_fail = check_annotation(sym::should_fail, &[]);
+
+        if has_native_test && !self.state.is_test {
+            self.emit_err(TypeCheckerError::annotation_error(
+                format_args!("Test annotation @native_test appears outside of tests"),
+                get(sym::native_test).span,
+            ));
+        }
+
+        if has_interpreted_test && !self.state.is_test {
+            self.emit_err(TypeCheckerError::annotation_error(
+                format_args!("Test annotation @interpreted_test appears outside of tests"),
+                get(sym::interpreted_test).span,
+            ));
+        }
+
+        if has_should_fail && !self.state.is_test {
+            self.emit_err(TypeCheckerError::annotation_error(
+                format_args!("Test annotation @should_fail appears outside of tests"),
+                get(sym::should_fail).span,
+            ));
+        }
+
+        if has_should_fail && !has_native_test && !has_interpreted_test {
+            self.emit_err(TypeCheckerError::annotation_error(
+                format_args!("Annotation @should_fail appears without either @native_test or @interpreted_test"),
+                get(sym::should_fail).span,
+            ));
+        }
+
+        if has_interpreted_test && self.scope_state.variant != Some(Variant::Interpret) {
+            self.emit_err(TypeCheckerError::annotation_error(
+                format_args!("Annotation @interpreted_test appears on non-interpret function"),
+                get(sym::interpreted_test).span,
+            ));
+        }
+
+        if (has_interpreted_test || has_native_test) && !function.input.is_empty() {
+            self.emit_err(TypeCheckerError::annotation_error(
+                "A test function cannot have inputs",
+                function.input[0].span,
+            ));
+        }
 
         self.in_conditional_scope(|slf| {
             slf.in_scope(function.id, |slf| {
