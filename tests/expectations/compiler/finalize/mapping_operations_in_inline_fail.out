@@ -1,5 +1,5 @@
 DCE_ENABLED:
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:7:9
      |
    7 |         Mapping::set(values, 0u8, 1u8);
@@ -9,7 +9,7 @@ Error [ETYC0372034]: `Mapping::set` must be inside an async function block.
      |
    7 |         Mapping::set(values, 0u8, 1u8);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:8:9
      |
    8 |         Mapping::get_or_use(account, self.caller, 1u64);
@@ -19,7 +19,7 @@ Error [ETYC0372034]: `Mapping::get_or` must be inside an async function block.
      |
    8 |         Mapping::get_or_use(account, self.caller, 1u64);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:9:9
      |
    9 |         Mapping::get(values, 1u8);
@@ -29,7 +29,7 @@ Error [ETYC0372034]: `Mapping::get` must be inside an async function block.
      |
    9 |         Mapping::get(values, 1u8);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:13:9
      |
   13 |         Mapping::set(values, 0u8, 1u8);
@@ -39,7 +39,7 @@ Error [ETYC0372034]: `Mapping::set` must be inside an async function block.
      |
   13 |         Mapping::set(values, 0u8, 1u8);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:14:9
      |
   14 |         Mapping::get_or_use(account, self.caller, 1u64);
@@ -49,7 +49,7 @@ Error [ETYC0372034]: `Mapping::get_or` must be inside an async function block.
      |
   14 |         Mapping::get_or_use(account, self.caller, 1u64);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:15:9
      |
   15 |         Mapping::get(values, 0u8);
@@ -77,7 +77,7 @@ Warning [WTYC0372002]: The async function `finalize_finalize_no_params` is never
      |     ^
 
 DCE_DISABLED:
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:7:9
      |
    7 |         Mapping::set(values, 0u8, 1u8);
@@ -87,7 +87,7 @@ Error [ETYC0372034]: `Mapping::set` must be inside an async function block.
      |
    7 |         Mapping::set(values, 0u8, 1u8);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:8:9
      |
    8 |         Mapping::get_or_use(account, self.caller, 1u64);
@@ -97,7 +97,7 @@ Error [ETYC0372034]: `Mapping::get_or` must be inside an async function block.
      |
    8 |         Mapping::get_or_use(account, self.caller, 1u64);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:9:9
      |
    9 |         Mapping::get(values, 1u8);
@@ -107,7 +107,7 @@ Error [ETYC0372034]: `Mapping::get` must be inside an async function block.
      |
    9 |         Mapping::get(values, 1u8);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:13:9
      |
   13 |         Mapping::set(values, 0u8, 1u8);
@@ -117,7 +117,7 @@ Error [ETYC0372034]: `Mapping::set` must be inside an async function block.
      |
   13 |         Mapping::set(values, 0u8, 1u8);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:14:9
      |
   14 |         Mapping::get_or_use(account, self.caller, 1u64);
@@ -127,7 +127,7 @@ Error [ETYC0372034]: `Mapping::get_or` must be inside an async function block.
      |
   14 |         Mapping::get_or_use(account, self.caller, 1u64);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:15:9
      |
   15 |         Mapping::get(values, 0u8);

@@ -176,6 +176,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
             Variant::Function => format!("\nclosure {}:\n", function.identifier),
             Variant::AsyncFunction => format!("\nfinalize {}:\n", self.finalize_caller.unwrap()),
             Variant::Inline => return String::new(),
+            Variant::Script => panic!("script should not appear in native code"),
         };
 
         let mut futures = futures.iter();

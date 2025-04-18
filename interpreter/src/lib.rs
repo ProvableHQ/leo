@@ -14,12 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Ast, Node as _, NodeBuilder};
+use leo_ast::{Ast, CallExpression, ExpressionStatement, Identifier, Node as _, NodeBuilder, Statement};
 use leo_errors::{InterpreterHalt, LeoError, Result};
-use leo_span::{Span, source_map::FileName, with_session_globals};
+use leo_span::{Span, Symbol, source_map::FileName, sym, with_session_globals};
 
 use snarkvm::prelude::{Program, TestnetV0};
 
+use indexmap::IndexMap;
 use std::{
     collections::HashMap,
     fmt::{Display, Write as _},
@@ -38,7 +39,7 @@ pub use core_functions::{CoreFunctionHelper, evaluate_core_function};
 
 mod cursor;
 use cursor::*;
-pub use cursor::{evaluate_binary, evaluate_unary, literal_to_value};
+pub use cursor::{GlobalId, evaluate_binary, evaluate_unary, literal_to_value};
 
 mod interpreter;
 use interpreter::*;
@@ -123,6 +124,115 @@ fn parse_breakpoint(s: &str) -> Option<Breakpoint> {
     None
 }
 
+pub struct TestFunction {
+    pub program: String,
+    pub function: String,
+    pub should_fail: bool,
+    pub private_key: Option<String>,
+}
+
+/// Run interpreter tests and return data about native tests.
+// It's slightly goofy to have this function responsible for both of these tasks, but
+// it's expedient as the `Interpreter` will already parse all the files and collect
+// all the functions with annotations.
+#[allow(clippy::type_complexity)]
+pub fn find_and_run_tests(
+    leo_filenames: &[PathBuf],
+    aleo_filenames: &[PathBuf],
+    signer: SvmAddress,
+    block_height: u32,
+    match_str: &str,
+) -> Result<(Vec<TestFunction>, IndexMap<GlobalId, Result<()>>)> {
+    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, signer, block_height)?;
+
+    let mut native_test_functions = Vec::new();
+
+    let private_key_symbol = Symbol::intern("private_key");
+
+    let mut result = IndexMap::new();
+
+    for (id, function) in interpreter.cursor.functions.clone().into_iter() {
+        // Only Leo functions may be tests.
+        let FunctionVariant::Leo(function) = function else {
+            continue;
+        };
+
+        let should_fail = function.annotations.iter().any(|annotation| annotation.identifier.name == sym::should_fail);
+
+        let str_matches = || id.to_string().contains(match_str);
+
+        // If this function is not annotated with @test, skip it.
+        let Some(annotation) = function.annotations.iter().find(|annotation| annotation.identifier.name == sym::test)
+        else {
+            continue;
+        };
+
+        // If the name doesn't match, skip it.
+        if !str_matches() {
+            continue;
+        }
+
+        assert!(function.input.is_empty(), "Type checking should ensure test functions have no inputs.");
+
+        if function.variant.is_transition() {
+            // It's a native test; just store it and move on.
+            let private_key = annotation.map.get(&private_key_symbol).cloned();
+            native_test_functions.push(TestFunction {
+                program: id.program.to_string(),
+                function: id.name.to_string(),
+                should_fail,
+                private_key,
+            });
+            continue;
+        }
+
+        assert!(function.variant.is_script(), "Type checking should ensure test functions are transitions or scripts.");
+
+        let call = CallExpression {
+            function: Identifier::new(function.identifier.name, interpreter.node_builder.next_id()).into(),
+            arguments: Vec::new(),
+            program: Some(id.program),
+            span: Default::default(),
+            id: interpreter.node_builder.next_id(),
+        };
+
+        let statement: Statement = ExpressionStatement {
+            expression: call.into(),
+            span: Default::default(),
+            id: interpreter.node_builder.next_id(),
+        }
+        .into();
+
+        interpreter.cursor.frames.push(Frame {
+            step: 0,
+            element: Element::Statement(statement),
+            user_initiated: false,
+        });
+
+        let run_result = interpreter.cursor.over();
+
+        match (run_result, should_fail) {
+            (Ok(..), true) => {
+                result.insert(
+                    id,
+                    Err(InterpreterHalt::new("Test succeeded when failure was expected.".to_string()).into()),
+                );
+            }
+            (Ok(..), false) => {
+                result.insert(id, Ok(()));
+            }
+            (Err(..), true) => {
+                result.insert(id, Ok(()));
+            }
+            (Err(err), false) => {
+                result.insert(id, Err(err));
+            }
+        }
+    }
+
+    Ok((native_test_functions, result))
+}
+
 /// Load all the Leo source files indicated and open the interpreter
 /// to commands from the user.
 pub fn interpret(
@@ -132,7 +242,7 @@ pub fn interpret(
     block_height: u32,
     tui: bool,
 ) -> Result<()> {
-    let mut interpreter = Interpreter::new(leo_filenames.iter(), aleo_filenames.iter(), signer, block_height)?;
+    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, signer, block_height)?;
 
     let mut user_interface: Box<dyn Ui> =
         if tui { Box::new(ratatui_ui::RatatuiUi::new()) } else { Box::new(dialoguer_input::DialoguerUi::new()) };

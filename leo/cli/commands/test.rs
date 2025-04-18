@@ -1,0 +1,212 @@
+// Copyright (C) 2019-2025 Provable Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use super::*;
+
+use leo_compiler::run_with_ledger;
+use leo_package::{Package, ProgramData};
+use leo_span::Symbol;
+
+use snarkvm::prelude::TestnetV0;
+
+use colored::Colorize as _;
+use indexmap::IndexSet;
+use std::{fs, path::PathBuf};
+
+/// Test a leo program.
+#[derive(Parser, Debug)]
+pub struct LeoTest {
+    #[clap(
+        name = "TEST_NAME",
+        help = "If specified, run only tests whose qualified name matches against this string.",
+        default_value = ""
+    )]
+    pub(crate) test_name: String,
+
+    #[clap(flatten)]
+    pub(crate) compiler_options: BuildOptions,
+}
+
+impl Command for LeoTest {
+    type Input = <LeoBuild as Command>::Output;
+    type Output = ();
+
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Leo")
+    }
+
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
+        let mut options = self.compiler_options.clone();
+        options.build_tests = true;
+        (LeoBuild { options }).execute(context)
+    }
+
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+        handle_test(self, context, input)
+    }
+}
+
+fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<()> {
+    // Get the private key.
+    let private_key = context.get_private_key::<TestnetV0>(&None)?;
+    let address = Address::try_from(&private_key)?;
+
+    // Get the paths of all local dependencies.
+    let leo_paths: Vec<PathBuf> = package
+        .programs
+        .iter()
+        .flat_map(|program| match &program.data {
+            ProgramData::SourcePath(path) => Some(path.clone()),
+            ProgramData::Bytecode(..) => None,
+        })
+        .collect();
+    let local_dependency_symbols: IndexSet<Symbol> = package
+        .programs
+        .iter()
+        .flat_map(|program| match &program.data {
+            ProgramData::SourcePath(..) => {
+                // It's a local dependency.
+                Some(program.name)
+            }
+            ProgramData::Bytecode(..) => {
+                // It's a network dependency.
+                None
+            }
+        })
+        .collect();
+    let imports_directory = package.imports_directory();
+
+    // Get the paths to .aleo files in `imports` - but filter out the ones corresponding to local dependencies.
+    let aleo_paths: Vec<PathBuf> = imports_directory
+        .read_dir()
+        .ok()
+        .into_iter()
+        .flatten()
+        .flat_map(|maybe_filename| maybe_filename.ok())
+        .filter(|entry| entry.file_type().ok().map(|filetype| filetype.is_file()).unwrap_or(false))
+        .flat_map(|entry| {
+            let path = entry.path();
+            if let Some(filename) = leo_package::filename_no_aleo_extension(&path) {
+                let symbol = Symbol::intern(filename);
+                if local_dependency_symbols.contains(&symbol) { None } else { Some(path) }
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    let (native_test_functions, interpreter_result) =
+        leo_interpreter::find_and_run_tests(&leo_paths, &aleo_paths, address, 0u32, &command.test_name)?;
+
+    // Now for native tests.
+
+    let program_name = package.manifest.program.strip_suffix(".aleo").unwrap();
+    let program_name_symbol = Symbol::intern(program_name);
+    let build_directory = package.build_directory();
+
+    let credits = Symbol::intern("credits");
+
+    // Get bytecode and name for all programs, either directly or from the filesystem if they were compiled.
+    let programs: Vec<run_with_ledger::Program> = package
+        .programs
+        .iter()
+        .filter_map(|program| {
+            // Skip credits.aleo so we don't try to deploy it again.
+            if program.name == credits {
+                return None;
+            }
+            let bytecode = match &program.data {
+                ProgramData::Bytecode(c) => c.clone(),
+                ProgramData::SourcePath(..) => {
+                    // This was not a network dependency, so get its bytecode from the filesystem.
+                    let aleo_path = if program.name == program_name_symbol {
+                        build_directory.join("main.aleo")
+                    } else {
+                        imports_directory.join(format!("{}.aleo", program.name))
+                    };
+                    fs::read_to_string(&aleo_path)
+                        .unwrap_or_else(|e| panic!("Failed to read Aleo file at {}: {}", aleo_path.display(), e))
+                }
+            };
+            Some(run_with_ledger::Program { bytecode, name: program.name.to_string() })
+        })
+        .collect();
+
+    let should_fails: Vec<bool> = native_test_functions.iter().map(|test_function| test_function.should_fail).collect();
+    let cases: Vec<run_with_ledger::Case> = native_test_functions
+        .into_iter()
+        .map(|test_function| run_with_ledger::Case {
+            program_name: format!("{}.aleo", test_function.program),
+            function: test_function.function,
+            private_key: test_function.private_key,
+            input: Vec::new(),
+        })
+        .collect();
+
+    let (handler, buf) = Handler::new_with_buf();
+
+    let outcomes = run_with_ledger::run_with_ledger(
+        &run_with_ledger::Config { seed: 0, min_height: 1, programs },
+        &cases,
+        &handler,
+        &buf,
+    )?;
+
+    let native_results: Vec<Option<String>> = outcomes
+        .into_iter()
+        .zip(should_fails)
+        .map(|(outcome, should_fail)| match (&outcome.status, should_fail) {
+            (run_with_ledger::Status::Accepted, false) => None,
+            (run_with_ledger::Status::Accepted, true) => Some("Test succeeded when failure was expected.".to_string()),
+            (_, true) => None,
+            (_, false) => Some(format!("{} -- {}", outcome.status, outcome.errors)),
+        })
+        .collect();
+
+    // All tests are run. Report results.
+    let total = interpreter_result.iter().count() + native_results.len();
+    let total_passed = interpreter_result.iter().filter(|(_, test_result)| matches!(test_result, Ok(()))).count()
+        + native_results.iter().filter(|x| x.is_none()).count();
+
+    if total == 0 {
+        println!("No tests run.");
+        Ok(())
+    } else {
+        println!("{total_passed} / {total} tests passed.");
+        let failed = "FAILED".bold().red();
+        let passed = "PASSED".bold().green();
+        for (id, id_result) in interpreter_result.iter() {
+            // Wasteful to make this, but fill will work.
+            let str_id = format!("{id}");
+            if let Err(err) = id_result {
+                println!("{failed}: {str_id:<30} | {err}");
+            } else {
+                println!("{passed}: {str_id}");
+            }
+        }
+
+        for (case, case_result) in cases.iter().zip(native_results) {
+            let str_id = format!("{}/{}", case.program_name, case.function);
+            if let Some(err_str) = case_result {
+                println!("{failed}: {str_id:<30} | {err_str}");
+            } else {
+                println!("{passed}: {str_id}");
+            }
+        }
+
+        Ok(())
+    }
+}

@@ -31,6 +31,7 @@ pub struct Program {
     pub name: Symbol,
     pub data: ProgramData,
     pub dependencies: IndexSet<Dependency>,
+    pub is_test: bool,
 }
 
 impl Program {
@@ -70,7 +71,46 @@ impl Program {
         Ok(Program {
             name,
             data: ProgramData::SourcePath(source_path),
-            dependencies: manifest.dependencies.unwrap_or_default().into_iter().collect(),
+            dependencies: manifest
+                .dependencies
+                .unwrap_or_default()
+                .into_iter()
+                .map(|dependency| canonicalize_dependency_path_relative_to(path, dependency))
+                .collect::<Result<IndexSet<_>, _>>()?,
+            is_test: false,
+        })
+    }
+
+    /// Given the path to the source file of a test, create a `Program`.
+    ///
+    /// Unlike `Program::from_path`, the path is to the source file,
+    /// and the name of the program is determined from the filename.
+    ///
+    /// `main_program` must be provided since every test is dependent on it.
+    pub fn from_path_test<P: AsRef<Path>>(source_path: P, main_program: Dependency) -> Result<Self> {
+        Self::from_path_test_impl(source_path.as_ref(), main_program)
+    }
+
+    fn from_path_test_impl(source_path: &Path, main_program: Dependency) -> Result<Self> {
+        let name = filename_no_leo_extension(source_path)
+            .ok_or_else(|| PackageError::failed_path(source_path.display(), ""))?;
+        let package_directory = source_path.parent().and_then(|parent| parent.parent()).ok_or_else(|| {
+            UtilError::failed_to_open_file(format_args!("Failed to find package for test {}", source_path.display()))
+        })?;
+        let manifest = Manifest::read_from_file(package_directory.join(MANIFEST_FILENAME))?;
+        let mut dependencies = manifest
+            .dev_dependencies
+            .unwrap_or_default()
+            .into_iter()
+            .map(|dependency| canonicalize_dependency_path_relative_to(package_directory, dependency))
+            .collect::<Result<IndexSet<_>, _>>()?;
+        dependencies.insert(main_program);
+
+        Ok(Program {
+            name: Symbol::intern(name),
+            data: ProgramData::SourcePath(source_path.to_path_buf()),
+            dependencies,
+            is_test: true,
         })
     }
 
@@ -125,6 +165,20 @@ impl Program {
             })
             .collect();
 
-        Ok(Program { name, data: ProgramData::Bytecode(bytecode), dependencies })
+        Ok(Program { name, data: ProgramData::Bytecode(bytecode), dependencies, is_test: false })
     }
+}
+
+/// If `dependency` has a relative path, assume it's relative to `base` and canonicalize it.
+///
+/// This needs to be done when collecting local dependencies from manifests which
+/// may be located at different places on the file system.
+fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
+    if let Some(path) = &mut dependency.path {
+        if !path.is_absolute() {
+            let joined = base.join(&path);
+            *path = joined.canonicalize().map_err(|e| PackageError::failed_path(joined.display(), e))?;
+        }
+    }
+    Ok(dependency)
 }

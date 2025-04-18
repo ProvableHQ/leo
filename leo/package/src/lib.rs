@@ -28,8 +28,10 @@
 //! ├── outputs
 //! │   ├── program.TypeChecking.ast
 //! │   └── program.TypeChecking.json
-//! └── src
-//!     └── main.leo
+//! ├── src
+//! │   └── main.leo
+//! └── tests
+//!     └── test_something.leo
 //!
 //! The file `program.json` is a manifest containing the program name, version, description,
 //! and license, together with information about its dependencies.
@@ -43,6 +45,8 @@
 //! # use leo_package::{NetworkName, Package};
 //! let path = Package::initialize("my_package", "path/to/parent", NetworkName::TestnetV0, "http://localhost:3030").unwrap();
 //! ```
+//!
+//! `tests` is where unit test files may be placed.
 //!
 //! Given an existing directory with such a structure, a `Package` may be created from it with
 //! `Package::from_directory`:
@@ -63,9 +67,10 @@
 
 #![forbid(unsafe_code)]
 
+use leo_errors::{PackageError, Result, UtilError};
 use leo_span::Symbol;
 
-use leo_errors::{PackageError, Result, UtilError};
+use std::path::Path;
 
 mod dependency;
 pub use dependency::*;
@@ -86,7 +91,7 @@ mod package;
 pub use package::*;
 
 mod program;
-use program::*;
+pub use program::*;
 
 pub const SOURCE_DIRECTORY: &str = "src";
 
@@ -97,6 +102,8 @@ pub const IMPORTS_DIRECTORY: &str = "build/imports";
 pub const OUTPUTS_DIRECTORY: &str = "outputs";
 
 pub const BUILD_DIRECTORY: &str = "build";
+
+pub const TESTS_DIRECTORY: &str = "tests";
 
 pub const TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
 
@@ -167,4 +174,16 @@ pub fn verify_valid_program(name: &str, program: &str) -> Result<(), UtilError> 
         Ok(_) => Ok(()),
         Err(_) => Err(UtilError::snarkvm_parsing_error(name)),
     }
+}
+
+pub fn filename_no_leo_extension(path: &Path) -> Option<&str> {
+    filename_no_extension(path, ".leo")
+}
+
+pub fn filename_no_aleo_extension(path: &Path) -> Option<&str> {
+    filename_no_extension(path, ".aleo")
+}
+
+fn filename_no_extension<'a>(path: &'a Path, extension: &'static str) -> Option<&'a str> {
+    path.file_name().and_then(|os_str| os_str.to_str()).and_then(|s| s.strip_suffix(extension))
 }

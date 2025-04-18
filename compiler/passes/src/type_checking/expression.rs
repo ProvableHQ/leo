@@ -365,7 +365,9 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         };
         // Check that operation is not restricted to finalize blocks.
-        if self.scope_state.variant != Some(Variant::AsyncFunction) && core_instruction.is_finalize_command() {
+        if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
+            && core_instruction.is_finalize_command()
+        {
             self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
         }
 
@@ -776,7 +778,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             }
 
             // Can only call async functions and external async transitions from an async transition body.
-            if self.scope_state.variant != Some(Variant::AsyncTransition) {
+            if !matches!(self.scope_state.variant, Some(Variant::AsyncTransition) | Some(Variant::Script)) {
                 self.emit_err(TypeCheckerError::async_call_can_only_be_done_from_async_transition(input.span));
             }
 
@@ -784,6 +786,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             if self.scope_state.has_called_finalize {
                 self.emit_err(TypeCheckerError::must_call_async_function_once(input.span));
             }
+
             // Check that all futures consumed.
             if !self.scope_state.futures.is_empty() {
                 self.emit_err(TypeCheckerError::not_all_futures_consumed(
