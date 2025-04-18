@@ -236,6 +236,14 @@ symbols! {
     False: "false",
     True: "true",
 
+    // annotations
+    interpreted_test,
+    should_fail,
+    native_test,
+
+    // annotation keys
+    private_key,
+
     // general keywords
     As: "as",
     assert,
@@ -254,6 +262,7 @@ symbols! {
     increment,
     inline,
     input,
+    interpret,
     Let: "let",
     leo,
     main,

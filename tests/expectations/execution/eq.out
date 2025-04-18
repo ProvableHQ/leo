@@ -14,7 +14,7 @@ null
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [
@@ -58,7 +58,7 @@ null
 
 verified: true
 status: accepted
-errors: 
+errors:
 warnings:
 {
   "transitions": [

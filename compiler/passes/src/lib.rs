@@ -50,6 +50,9 @@ pub use loop_unrolling::*;
 mod pass;
 pub use pass::*;
 
+mod processing_interpret;
+pub use processing_interpret::*;
+
 mod static_single_assignment;
 pub use static_single_assignment::*;
 

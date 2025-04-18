@@ -10,7 +10,7 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
      |     ^
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
-Error [ETYC0372110]: A `transition` cannot return a future.
+Error [ETYC0372110]: Only `async transition` can return a future.
     --> compiler-test:9:34
      |
    9 |     async function finalize() -> Future {
@@ -39,7 +39,7 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
      |     ^
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
-Error [ETYC0372110]: A `transition` cannot return a future.
+Error [ETYC0372110]: Only `async transition` can return a future.
     --> compiler-test:9:34
      |
    9 |     async function finalize() -> Future {

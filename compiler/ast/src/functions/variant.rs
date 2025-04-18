@@ -16,7 +16,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Functions are always one of five variants.
+/// Functions are always one of six variants.
 /// A transition function is permitted the ability to manipulate records.
 /// An asynchronous transition function is a transition function that calls an asynchronous function.
 /// A regular function is not permitted to manipulate records.
@@ -30,6 +30,7 @@ pub enum Variant {
     Transition,
     AsyncTransition,
     AsyncFunction,
+    Interpret,
 }
 
 impl Variant {
@@ -46,6 +47,11 @@ impl Variant {
     /// Returns true if the variant is a function.
     pub fn is_function(self) -> bool {
         matches!(self, Variant::AsyncFunction | Variant::Function)
+    }
+
+    /// Is this an `interpret`?
+    pub fn is_interpret(self) -> bool {
+        matches!(self, Variant::Interpret)
     }
 
     /// Returns true if the variant is an async function.

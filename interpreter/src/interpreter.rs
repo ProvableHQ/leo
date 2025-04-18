@@ -22,13 +22,13 @@ use leo_errors::{CompilerError, Handler, InterpreterHalt, LeoError, Result};
 /// as well as information needed to interact with the user, like
 /// the breakpoints.
 pub struct Interpreter {
-    pub cursor: Cursor<'static>,
+    pub cursor: Cursor,
     actions: Vec<InterpreterAction>,
     handler: Handler,
-    node_builder: NodeBuilder,
+    pub node_builder: NodeBuilder,
     breakpoints: Vec<Breakpoint>,
     pub watchpoints: Vec<Watchpoint>,
-    saved_cursors: Vec<Cursor<'static>>,
+    saved_cursors: Vec<Cursor>,
     filename_to_program: HashMap<PathBuf, String>,
     parsed_inputs: u32,
 }
@@ -89,7 +89,7 @@ impl Interpreter {
     ) -> Result<Self> {
         let handler = Handler::default();
         let node_builder = Default::default();
-        let mut cursor: Cursor<'_> = Cursor::new(
+        let mut cursor: Cursor = Cursor::new(
             true, // really_async
             signer,
             block_height,
@@ -97,12 +97,10 @@ impl Interpreter {
         let mut filename_to_program = HashMap::new();
         for path in leo_source_files {
             let ast = Self::get_ast(path, &handler, &node_builder)?;
-            // TODO: This leak is silly.
-            let ast = Box::leak(Box::new(ast));
             for (&program, scope) in ast.ast.program_scopes.iter() {
                 filename_to_program.insert(path.to_path_buf(), program.to_string());
                 for (name, function) in scope.functions.iter() {
-                    cursor.functions.insert(GlobalId { program, name: *name }, FunctionVariant::Leo(function));
+                    cursor.functions.insert(GlobalId { program, name: *name }, FunctionVariant::Leo(function.clone()));
                 }
 
                 for (name, composite) in scope.structs.iter() {
@@ -119,7 +117,7 @@ impl Interpreter {
                 for (name, const_declaration) in scope.consts.iter() {
                     cursor.frames.push(Frame {
                         step: 0,
-                        element: Element::Expression(&const_declaration.value),
+                        element: Element::Expression(const_declaration.value.clone()),
                         user_initiated: false,
                     });
                     cursor.over()?;
@@ -131,8 +129,6 @@ impl Interpreter {
 
         for path in aleo_source_files {
             let aleo_program = Self::get_aleo_program(path)?;
-            // TODO: Another goofy leak.
-            let aleo_program = Box::leak(Box::new(aleo_program));
             let program = snarkvm_identifier_to_symbol(aleo_program.id().name());
             filename_to_program.insert(path.to_path_buf(), program.to_string());
 
@@ -157,14 +153,14 @@ impl Interpreter {
             for (name, function) in aleo_program.functions().iter() {
                 cursor.functions.insert(
                     GlobalId { program, name: snarkvm_identifier_to_symbol(name) },
-                    FunctionVariant::AleoFunction(function),
+                    FunctionVariant::AleoFunction(function.clone()),
                 );
             }
 
             for (name, closure) in aleo_program.closures().iter() {
                 cursor.functions.insert(
                     GlobalId { program, name: snarkvm_identifier_to_symbol(name) },
-                    FunctionVariant::AleoClosure(closure),
+                    FunctionVariant::AleoClosure(closure.clone()),
                 );
             }
         }
@@ -257,11 +253,12 @@ impl Interpreter {
                     .map_err(|_e| {
                         LeoError::InterpreterHalt(InterpreterHalt::new("failed to parse statement".into()))
                     })?;
-                    // TODO: This leak is silly.
-                    let stmt = Box::leak(Box::new(statement));
-
                     // The spans of the code the user wrote at the REPL are meaningless, so get rid of them.
-                    self.cursor.frames.push(Frame { step: 0, element: Element::Statement(stmt), user_initiated: true });
+                    self.cursor.frames.push(Frame {
+                        step: 0,
+                        element: Element::Statement(statement),
+                        user_initiated: true,
+                    });
                 } else {
                     let expression = leo_parser::parse_expression::<TestnetV0>(
                         self.handler.clone(),
@@ -272,13 +269,10 @@ impl Interpreter {
                     .map_err(|e| {
                         LeoError::InterpreterHalt(InterpreterHalt::new(format!("Failed to parse expression: {e}")))
                     })?;
-                    // TODO: This leak is silly.
-                    let expr = Box::leak(Box::new(expression));
-
                     // The spans of the code the user wrote at the REPL are meaningless, so get rid of them.
                     self.cursor.frames.push(Frame {
                         step: 0,
-                        element: Element::Expression(expr),
+                        element: Element::Expression(expression),
                         user_initiated: true,
                     });
                 };
@@ -347,17 +341,17 @@ impl Interpreter {
             }
         }
 
-        Some(match self.cursor.frames.last()?.element {
+        Some(match &self.cursor.frames.last()?.element {
             Element::Statement(statement) => format!("{statement}"),
             Element::Expression(expression) => format!("{expression}"),
             Element::Block { block, .. } => format!("{block}"),
             Element::DelayedCall(gid) => format!("Delayed call to {gid}"),
-            Element::AleoExecution { context, instruction_index, .. } => match context {
-                AleoContext::Closure(closure) => closure.instructions().get(instruction_index).map(|i| format!("{i}")),
+            Element::AleoExecution { context, instruction_index, .. } => match &**context {
+                AleoContext::Closure(closure) => closure.instructions().get(*instruction_index).map(|i| format!("{i}")),
                 AleoContext::Function(function) => {
-                    function.instructions().get(instruction_index).map(|i| format!("{i}"))
+                    function.instructions().get(*instruction_index).map(|i| format!("{i}"))
                 }
-                AleoContext::Finalize(finalize) => finalize.commands().get(instruction_index).map(|i| format!("{i}")),
+                AleoContext::Finalize(finalize) => finalize.commands().get(*instruction_index).map(|i| format!("{i}")),
             }
             .unwrap_or_else(|| "...".to_string()),
         })
@@ -391,7 +385,7 @@ impl Interpreter {
             let mut start: usize = 0usize;
             let mut stop: usize = 0usize;
 
-            match context {
+            match &**context {
                 AleoContext::Closure(closure) => {
                     writeln!(&mut result, "closure {}", closure.name()).expect("write shouldn't fail");
                     write_all(closure.inputs().iter(), usize::MAX, &mut result, &mut 0usize, &mut 0usize);

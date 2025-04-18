@@ -43,6 +43,7 @@ pub fn whole_compile(
 
     let mut compiler = Compiler::<TestnetV0>::new(
         None,
+        /* is_test (a Leo test) */ false,
         handler.clone(),
         "/fakedirectory-wont-use".into(),
         Some(options),
