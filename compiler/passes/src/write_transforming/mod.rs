@@ -49,9 +49,9 @@ use visitor::*;
 /// s_b_1 = 4u8;
 /// return S { a: s_a, b: [s_b_0, s_b_1] };
 ///
-/// The pass requires that the AST is in SSA form and that tuples have been
-/// destructured. Since the pass will create new assignments, `SsaForming` must
-/// be run again afterwards.
+/// The pass requires that the AST is in SSA form (so that sub-expressions are always
+/// variables or literals) and that tuples have been destructured.
+/// Since the pass will create new assignments, `SsaForming` must be run again afterwards.
 ///
 /// A note on the semantics of the language as implemented by this pass:
 /// assignments and definitions in essence copy structs and arrays. Thus if we do

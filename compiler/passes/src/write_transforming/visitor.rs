@@ -31,8 +31,8 @@ use leo_span::Symbol;
 
 use indexmap::IndexMap;
 
-/// This visitor associates a variable each member of a struct or array whose members
-/// are written to. Whenever a member of the struct or array is written to, we change the
+/// This visitor associates a variable for each member of a struct or array that is
+/// written to. Whenever a member of the struct or array is written to, we change the
 /// assignment to access the variable instead. Whenever the struct or array itself
 /// is accessed, we first rebuild the struct or array from its variables.
 pub struct WriteTransformingVisitor<'a> {
