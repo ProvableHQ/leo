@@ -51,6 +51,8 @@ pub struct ConstPropagationOutput {
 /// whose arguments are consts or literals will be subject to constant folding.
 /// The ternary conditional operator will also be folded if its condition is
 /// a constant or literal.
+///
+/// This includes the LHS of assignment statements which include array indices.
 pub struct ConstPropagation;
 
 impl Pass for ConstPropagation {

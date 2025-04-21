@@ -92,6 +92,8 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
             statements
         } else {
             // It must be a sequence of accesses ending in an identifier.
+            // This loop will iterate until the identifier is reached.
+            // For example, `some_identifier[i].member` -> `some_identifier[i]` -> `some_identifier`.
             // All we need to do is consume that identifier to possibly get a new name.
             let mut place = &mut assign.place;
             loop {

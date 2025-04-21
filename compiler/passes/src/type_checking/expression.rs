@@ -80,6 +80,7 @@ impl TypeCheckingVisitor<'_> {
     }
 
     fn visit_member_access_general(&mut self, input: &MemberAccess, assign: bool, expected: &Option<Type>) -> Type {
+        // Handler member access expressions that correspond to valid operands in AVM code.
         if !assign {
             match input.inner {
                 // If the access expression is of the form `self.<name>`, then check the <name> is valid.

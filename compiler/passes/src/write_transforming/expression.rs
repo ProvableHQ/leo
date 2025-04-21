@@ -171,7 +171,7 @@ impl ExpressionReconstructor for WriteTransformingVisitor<'_> {
     }
 
     fn reconstruct_tuple_access(&mut self, _input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
-        panic!("`TupleAccess` should not be in the ASt at this point.");
+        panic!("`TupleAccess` should not be in the AST at this point.");
     }
 
     fn reconstruct_array(&mut self, mut input: ArrayExpression) -> (Expression, Self::AdditionalOutput) {

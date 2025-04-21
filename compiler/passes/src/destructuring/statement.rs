@@ -86,6 +86,7 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
         let mut place = &mut assign.place;
 
         loop {
+            // Loop through the places in the assignment to the top-level expression until an identifier or tuple access is reached.
             match place {
                 Expression::TupleAccess(access) => {
                     // We're assigning to a tuple member, case 2 mentioned above.
