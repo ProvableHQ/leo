@@ -312,6 +312,43 @@ mod tests {
             run_with_args(run).expect("Failed to execute `leo run`");
         });
     }
+
+    #[test]
+    #[serial]
+    fn negative_inputs_run_test() {
+        // Set current directory to temporary directory
+        let temp_dir = temp_dir();
+        let project_name = "simple_test";
+        let project_directory = temp_dir.join(project_name);
+
+        // Remove it if it already exists
+        if project_directory.exists() {
+            std::fs::remove_dir_all(project_directory.clone()).unwrap();
+        }
+
+        // Create file structure
+        test_helpers::simple_test(&temp_dir);
+
+        // Run program
+        let run = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Run {
+                command: crate::cli::commands::LeoRun {
+                    name: "sum".to_string(),
+                    inputs: vec!["-1i32".to_string(), "-2i32".to_string()],
+                    compiler_options: Default::default(),
+                    file: None,
+                },
+            },
+            path: Some(project_directory.clone()),
+            home: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(run).expect("Failed to execute `leo run`");
+        });
+    }
 }
 
 #[cfg(test)]
@@ -322,6 +359,46 @@ mod test_helpers {
 
     const NETWORK: &str = "mainnet";
     const ENDPOINT: &str = "https://api.explorer.provable.com/v1";
+
+    pub(crate) fn simple_test(temp_dir: &Path) {
+        let name = "simple_test";
+
+        // Remove it if it already exists
+        let project_directory = temp_dir.join(name);
+        if project_directory.exists() {
+            std::fs::remove_dir_all(project_directory.clone()).unwrap();
+        }
+
+        // Create a new Leo project
+        let new = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New {
+                command: LeoNew {
+                    name: name.to_string(),
+                    network: NETWORK.to_string(),
+                    endpoint: ENDPOINT.to_string(),
+                },
+            },
+            path: Some(project_directory.clone()),
+            home: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(new).expect("Failed to execute `leo new`");
+        });
+
+        // `simple_test.aleo` program
+        let program_str = "
+program simple_test.aleo {
+    transition sum(a: i32, b: i32) -> i32 {
+        return a + b;
+    }
+}
+";
+        // Overwrite `src/main.leo` file
+        std::fs::write(project_directory.join("src").join("main.leo"), program_str).unwrap();
+    }
 
     pub(crate) fn sample_nested_package(temp_dir: &Path) {
         let name = "nested";
@@ -348,7 +425,7 @@ mod test_helpers {
         };
 
         create_session_if_not_set_then(|_| {
-            run_with_args(new).expect("Failed to execute `leo run`");
+            run_with_args(new).expect("Failed to execute `leo new`");
         });
 
         // `nested.aleo` program

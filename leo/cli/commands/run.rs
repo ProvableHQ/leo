@@ -28,7 +28,7 @@ pub struct LeoRun {
     #[clap(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     pub(crate) name: String,
 
-    #[clap(name = "INPUTS", help = "The inputs to the program.")]
+    #[clap(name = "INPUTS", help = "The inputs to the program.", allow_hyphen_values = true)]
     pub(crate) inputs: Vec<String>,
 
     #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
