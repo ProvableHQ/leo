@@ -24,6 +24,7 @@ use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 use aleo_std_storage::StorageMode;
 use snarkvm::{
     prelude::{
+        Address,
         Execution,
         Ledger,
         PrivateKey,
@@ -160,6 +161,26 @@ fn execution_run_test(test: &str, handler: &Handler, buf: &BufferEmitter, cases:
             .as_ref()
             .map(|key| PrivateKey::from_str(key).expect("Failed to parse private key."))
             .unwrap_or(genesis_private_key);
+
+        if private_key != genesis_private_key {
+            let recipient = Address::try_from(private_key).expect("Unable to convert private key to address");
+            let transaction = ledger
+                .vm()
+                .execute(
+                    &genesis_private_key,
+                    ("credits.aleo", "transfer_public"),
+                    [&recipient.to_string(), "1_000_000_000_000u64"].into_iter(),
+                    None,
+                    0,
+                    None,
+                    &mut rng,
+                )
+                .expect("transfer_public transaction failed");
+            let block = ledger
+                .prepare_advance_to_next_beacon_block(&private_key, vec![], vec![], vec![transaction], &mut rng)
+                .expect("prepare_advance_to_next_beacon_block");
+            ledger.advance_to_next_block(&block).expect("advance");
+        }
 
         let mut execution = None;
         let mut verified = false;

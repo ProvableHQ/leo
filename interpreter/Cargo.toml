@@ -22,10 +22,10 @@ rust-version = "1.85.1"
 workspace = true
 
 [dependencies.snarkvm-circuit]
-version = "1.0.0"
+workspace = true
 
 [dependencies.snarkvm-synthesizer-program]
-version = "1.0.0"
+workspace = true
 
 [dependencies.leo-ast]
 workspace = true
