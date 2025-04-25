@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372117]: Expected type `u32` but type `(address => bool)` was found.
-    --> compiler-test:6:22
-     |
-   6 |         let a: u32 = relay.aleo/users;
-     |                      ^^^^^^^^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372117]: Expected type `u32` but type `(address => bool)` was found.
     --> compiler-test:6:22
      |

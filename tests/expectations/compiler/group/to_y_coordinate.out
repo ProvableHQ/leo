@@ -1,16 +1,6 @@
-DCE_ENABLED:
 program test.aleo;
 
 function main:
     input r0 as group.private;
     cast r0 into r1 as group.y;
     output r1 as field.private;
-
-DCE_DISABLED:
-program test.aleo;
-
-function main:
-    input r0 as group.private;
-    cast r0 into r1 as group.x;
-    cast r0 into r2 as group.y;
-    output r2 as field.private;

@@ -1,16 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372008]: The value 2147483648 is not a valid `i32`
-    --> compiler-test:4:22
-     |
-   4 |         let a: i32 = 2147483648i32;
-     |                      ^^^^^^^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372008]: The value 2147483648 is not a valid `i32`
     --> compiler-test:4:22
      |

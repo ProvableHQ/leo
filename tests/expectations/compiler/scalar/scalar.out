@@ -1,13 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function main:
-    input r0 as scalar.private;
-    add 1scalar r0 into r1;
-    is.eq r1 0scalar into r2;
-    output r2 as boolean.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 function main:

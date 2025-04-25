@@ -1,13 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372023]: Tuples must be explicitly typed in Leo
-    --> compiler-test:6:23
-     |
-   6 |         const B: u8 = ((1u8,1u8),1u8);
-     |                       ^^^^^^^^^^^^^^^
-     |
-     = The function definition must match the function return statement
-
-DCE_DISABLED:
 Error [ETYC0372023]: Tuples must be explicitly typed in Leo
     --> compiler-test:6:23
      |

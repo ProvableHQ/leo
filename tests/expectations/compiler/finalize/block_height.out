@@ -1,16 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function matches:
-    input r0 as u32.private;
-    async matches r0 into r1;
-    output r1 as test.aleo/matches.future;
-
-finalize matches:
-    input r0 as u32.public;
-    assert.eq r0 block.height;
-
-DCE_DISABLED:
 program test.aleo;
 
 function matches:

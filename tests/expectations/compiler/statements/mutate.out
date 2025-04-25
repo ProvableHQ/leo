@@ -1,4 +1,3 @@
-DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -10,18 +9,3 @@ function main:
     is.eq r2 0u32 into r5;
     ternary r3 r4 r5 into r6;
     output r6 as boolean.private;
-
-DCE_DISABLED:
-program test.aleo;
-
-function main:
-    input r0 as u32.private;
-    is.eq r0 3u32 into r1;
-    not r1 into r2;
-    ternary r1 1u32 0u32 into r3;
-    is.eq r0 3u32 into r4;
-    is.eq r3 1u32 into r5;
-    not r4 into r6;
-    is.eq r3 0u32 into r7;
-    ternary r4 r5 r7 into r8;
-    output r8 as boolean.private;

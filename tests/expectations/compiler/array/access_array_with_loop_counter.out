@@ -1,14 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function foo:
-    input r0 as [boolean; 4u32].private;
-    assert.eq r0[0u32] true;
-    assert.eq r0[1u32] true;
-    assert.eq r0[2u32] true;
-    assert.eq r0[3u32] true;
-
-DCE_DISABLED:
 program test.aleo;
 
 function foo:

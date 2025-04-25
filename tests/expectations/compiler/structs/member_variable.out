@@ -1,17 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-struct Foo:
-    x as u32;
-
-function main:
-    input r0 as boolean.private;
-    cast 1u32 into r1 as Foo;
-    is.eq r1.x 1u32 into r2;
-    is.eq r2 r0 into r3;
-    output r3 as boolean.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 struct Foo:

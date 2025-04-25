@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372047]: The number of transitions exceeds the maximum. snarkVM allows up to 31 transitions within a single program.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372047]: The number of transitions exceeds the maximum. snarkVM allows up to 31 transitions within a single program.
     --> compiler-test:2:9
      |

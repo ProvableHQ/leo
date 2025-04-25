@@ -1,4 +1,3 @@
-DCE_ENABLED:
 program test.aleo;
 
 struct foo:
@@ -27,35 +26,3 @@ function literal_ops_on_signature:
     input r2 as signature.private;
     ternary r0 r1 r2 into r3;
     output r3 as signature.private;
-
-DCE_DISABLED:
-program test.aleo;
-
-struct foo:
-    a as u8;
-    b as scalar;
-
-function verify_field:
-    input r0 as signature.private;
-    input r1 as address.private;
-    input r2 as field.private;
-    sign.verify r0 r1 r2 into r3;
-    sign.verify r0 r1 r2 into r4;
-    assert.eq r3 r4;
-
-function verify_foo:
-    input r0 as signature.private;
-    input r1 as address.private;
-    input r2 as foo.private;
-    sign.verify r0 r1 r2 into r3;
-    sign.verify r0 r1 r2 into r4;
-    assert.eq r3 r4;
-
-function literal_ops_on_signature:
-    input r0 as boolean.private;
-    input r1 as signature.private;
-    input r2 as signature.private;
-    is.eq r1 r2 into r3;
-    is.neq r1 r2 into r4;
-    ternary r0 r1 r2 into r5;
-    output r5 as signature.private;

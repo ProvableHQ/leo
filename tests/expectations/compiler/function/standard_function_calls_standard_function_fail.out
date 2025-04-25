@@ -1,21 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:5:19
-     |
-   5 |            return adder(a, b);
-     |                   ^^^^^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
-    --> compiler-test:7:20
-     |
-   7 |             return subber(a, b);
-     |                    ^^^^^^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
     --> compiler-test:5:19
      |

@@ -1,20 +1,3 @@
-DCE_ENABLED:
-Error [EAST0372007]: struct `bar` shadowed by
-    --> compiler-test:4:5
-     |
-   4 |     mapping bar: u8 => u8;
-     |     ^^^^^^^^^^^^^^^^^^^^^^
-Error [EAST0372007]: struct `bar` shadowed by
-    --> compiler-test:6:5
-     |
-   6 |     transition bar(a: u8) -> u8 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   7 |         return a + 1u8;
-     |         ^^^^^^^^^^^^^^^
-   8 |     }
-     |     ^
-
-DCE_DISABLED:
 Error [EAST0372007]: struct `bar` shadowed by
     --> compiler-test:4:5
      |

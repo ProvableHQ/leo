@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372079]: An array cannot have a record as an element type
-    --> compiler-test:8:20
-     |
-   8 |     transition foo(a: [bar; 8]) -> u8 {
-     |                    ^^^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372079]: An array cannot have a record as an element type
     --> compiler-test:8:20
      |

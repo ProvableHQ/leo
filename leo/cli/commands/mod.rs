@@ -133,7 +133,7 @@ pub trait Command {
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
-#[derive(Parser, Clone, Debug)]
+#[derive(Parser, Clone, Debug, Default)]
 pub struct BuildOptions {
     #[clap(long, help = "Endpoint to retrieve network state from. Overrides setting in `.env`.")]
     pub endpoint: Option<String>,
@@ -145,8 +145,6 @@ pub struct BuildOptions {
     pub offline: bool,
     #[clap(long, help = "Enable spans in AST snapshots.")]
     pub enable_ast_spans: bool,
-    #[clap(long, help = "Enables dead code elimination in the compiler.", default_value = "true")]
-    pub enable_dce: bool,
     #[clap(long, help = "Write an AST snapshot immediately after parsing.")]
     pub enable_initial_ast_snapshot: bool,
     #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
@@ -155,23 +153,6 @@ pub struct BuildOptions {
     pub ast_snapshots: Vec<String>,
     #[clap(long, help = "Build tests along with the main program and dependencies.")]
     pub build_tests: bool,
-}
-
-impl Default for BuildOptions {
-    fn default() -> Self {
-        Self {
-            endpoint: None,
-            network: None,
-            non_recursive: false,
-            offline: false,
-            enable_ast_spans: false,
-            enable_dce: true,
-            enable_initial_ast_snapshot: false,
-            enable_all_ast_snapshots: false,
-            ast_snapshots: Vec::new(),
-            build_tests: false,
-        }
-    }
 }
 
 /// On Chain Execution Options to set preferences for keys, fees and networks.

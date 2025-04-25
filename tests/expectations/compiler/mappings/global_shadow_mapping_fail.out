@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [EAST0372009]: variable `one` shadowed by
-    --> compiler-test:5:5
-     |
-   5 |     mapping one: field => field;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-DCE_DISABLED:
 Error [EAST0372009]: variable `one` shadowed by
     --> compiler-test:5:5
      |

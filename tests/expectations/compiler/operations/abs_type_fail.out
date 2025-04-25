@@ -1,16 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372117]: Expected a signed integer but type `u16` was found.
-    --> compiler-test:4:24
-     |
-   4 |         return (true ? 1u16.abs() : 2u16.abs()) as u8;
-     |                        ^^^^^^^^^^
-Error [ETYC0372117]: Expected a signed integer but type `u16` was found.
-    --> compiler-test:4:37
-     |
-   4 |         return (true ? 1u16.abs() : 2u16.abs()) as u8;
-     |                                     ^^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372117]: Expected a signed integer but type `u16` was found.
     --> compiler-test:4:24
      |

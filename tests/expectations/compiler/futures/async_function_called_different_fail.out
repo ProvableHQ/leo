@@ -1,13 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372124]: Cannot access argument `0` from future.
-    --> compiler-test:7:23
-     |
-   7 |         let x: u8 = f.0;
-     |                       ^
-     |
-     = Ensure that the async function is not called with multiple times with incompatible types.
-
-DCE_DISABLED:
 Error [ETYC0372124]: Cannot access argument `0` from future.
     --> compiler-test:7:23
      |

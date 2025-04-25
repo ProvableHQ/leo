@@ -1,13 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372017]: The type `Bar` is not found in the current scope.
-    --> compiler-test:5:9
-     |
-   5 |         bar: Bar,
-     |         ^^^^^^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
-
-DCE_DISABLED:
 Error [ETYC0372017]: The type `Bar` is not found in the current scope.
     --> compiler-test:5:9
      |

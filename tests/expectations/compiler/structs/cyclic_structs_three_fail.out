@@ -1,12 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372058]: Cyclic dependency between structs: `One` --> `Two` --> `Three` --> `One`
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372058]: Cyclic dependency between structs: `One` --> `Two` --> `Three` --> `One`
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
