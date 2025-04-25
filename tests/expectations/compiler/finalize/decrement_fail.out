@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372005]: Unknown function `decrement`
-    --> compiler-test:10:9
-     |
-  10 |         decrement(amounts, addr, amount);
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372005]: Unknown function `decrement`
     --> compiler-test:10:9
      |

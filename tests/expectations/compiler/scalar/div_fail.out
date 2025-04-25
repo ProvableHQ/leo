@@ -1,21 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372117]: Expected a field or integer but type `scalar` was found.
-    --> compiler-test:4:16
-     |
-   4 |         return a / b; // division not supported for scalar types.
-     |                ^
-Error [ETYC0372117]: Expected a field or integer but type `scalar` was found.
-    --> compiler-test:4:20
-     |
-   4 |         return a / b; // division not supported for scalar types.
-     |                    ^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372117]: Expected a field or integer but type `scalar` was found.
     --> compiler-test:4:16
      |

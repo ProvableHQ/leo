@@ -1,4 +1,3 @@
-DCE_ENABLED:
 program test.aleo;
 
 struct TokenInfo:
@@ -35,45 +34,3 @@ function add_new_token_2:
 finalize add_new_token_2:
     cast 0u64 into r0 as TokenInfo;
     get.or_use token_name_to_info[0field] r0 into r1;
-
-DCE_DISABLED:
-program test.aleo;
-
-struct TokenInfo:
-    id as u64;
-
-mapping token_name_to_info:
-    key as field.public;
-    value as TokenInfo.public;
-
-function add_new_token:
-    async add_new_token into r0;
-    output r0 as test.aleo/add_new_token.future;
-
-finalize add_new_token:
-    branch.eq false false to end_then_0_0;
-    branch.eq true true to end_otherwise_0_1;
-    position end_then_0_0;
-    position end_otherwise_0_1;
-    branch.eq false false to end_then_0_2;
-    branch.eq true false to end_then_1_4;
-    branch.eq true true to end_otherwise_1_5;
-    position end_then_1_4;
-    position end_otherwise_1_5;
-    cast 0u64 into r0 as TokenInfo;
-    set r0 into token_name_to_info[0field];
-    branch.eq true true to end_otherwise_0_3;
-    position end_then_0_2;
-    position end_otherwise_0_3;
-
-function add_new_token_2:
-    async add_new_token_2 into r0;
-    output r0 as test.aleo/add_new_token_2.future;
-
-finalize add_new_token_2:
-    cast 0u64 into r0 as TokenInfo;
-    get.or_use token_name_to_info[0field] r0 into r1;
-    is.eq r1.id 0u64 into r2;
-    cast 10u64 into r3 as TokenInfo;
-    ternary r2 r3.id r1.id into r4;
-    cast r4 into r5 as TokenInfo;

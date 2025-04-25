@@ -1,25 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function foo:
-    input r0 as [boolean; 8u32].private;
-    output true as boolean.private;
-
-function bar:
-    input r0 as [boolean; 8u32].private;
-    output r0 as [boolean; 8u32].private;
-
-closure baz:
-    input r0 as [boolean; 8u32];
-    assert.eq r0[0u32] true;
-    output true as boolean;
-
-closure qux:
-    input r0 as [boolean; 8u32];
-    assert.eq r0[0u32] true;
-    output r0 as [boolean; 8u32];
-
-DCE_DISABLED:
 program test.aleo;
 
 function foo:

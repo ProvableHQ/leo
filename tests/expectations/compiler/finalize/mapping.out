@@ -1,34 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-struct Token:
-    Owner as address;
-    balance as u128;
-
-struct Bar:
-    a as u128;
-
-struct Baz:
-    a as u128;
-
-mapping balances:
-    key as address.public;
-    value as u128.public;
-
-mapping tokens:
-    key as address.public;
-    value as Token.public;
-
-mapping foo:
-    key as Bar.public;
-    value as Baz.public;
-
-function matches:
-    input r0 as address.private;
-    is.eq self.caller r0 into r1;
-    output r1 as boolean.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 struct Token:

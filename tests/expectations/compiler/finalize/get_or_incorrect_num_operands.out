@@ -1,21 +1,3 @@
-DCE_ENABLED:
-Error [EPAR0370021]: The type of `tokens` has no associated function `get_or_use` that takes 3 argument(s).
-    --> compiler-test:17:9
-     |
-  17 |         tokens.get_or_use(addr, amount, 1u128);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370021]: The type of `amounts` has no associated function `get_or_use` that takes 1 argument(s).
-    --> compiler-test:19:9
-     |
-  19 |         amounts.get_or_use(1u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370021]: The type of `amounts` has no associated function `get_or_use` that takes 0 argument(s).
-    --> compiler-test:21:9
-     |
-  21 |         amounts.get_or_use();
-     |         ^^^^^^^^^^^^^^^^^^^^
-
-DCE_DISABLED:
 Error [EPAR0370021]: The type of `tokens` has no associated function `get_or_use` that takes 3 argument(s).
     --> compiler-test:17:9
      |

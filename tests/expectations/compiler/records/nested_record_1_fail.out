@@ -1,18 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372030]: A struct or record cannot contain another record.
-    --> compiler-test:10:9
-     |
-  10 |         foo: Foo,
-     |         ^^^
-     |
-     = Remove the record `Foo` from `Token`.
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372030]: A struct or record cannot contain another record.
     --> compiler-test:10:9
      |

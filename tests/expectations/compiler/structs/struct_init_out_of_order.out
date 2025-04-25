@@ -1,25 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-struct Foo:
-    a as u8;
-    b as u16;
-
-struct Bar:
-    a as u8;
-    b as u8;
-
-function main:
-    input r0 as u8.private;
-    input r1 as u16.private;
-    add r0 r0 into r2;
-    mul r1 r1 into r3;
-    cast r2 r3 into r4 as Foo;
-    cast r0 r2 into r5 as Bar;
-    output r4 as Foo.private;
-    output r5 as Bar.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 struct Foo:

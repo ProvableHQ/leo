@@ -1,26 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:10:5
-     |
-  10 |     async function fin_mint(public receiver: address, public amount: u64) -> u64 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 |         Mapping::set(account, receiver, amount);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  12 |     }
-     |     ^
-     |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
-Error [ETYC0372036]: Function must return a value.
-    --> compiler-test:10:5
-     |
-  10 |     async function fin_mint(public receiver: address, public amount: u64) -> u64 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 |         Mapping::set(account, receiver, amount);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  12 |     }
-     |     ^
-
-DCE_DISABLED:
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:10:5
      |

@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_ast::Stub;
-use leo_compiler::{AstSnapshots, Compiler, CompilerOptions, OutputOptions};
+use leo_compiler::{AstSnapshots, Compiler, CompilerOptions};
 use leo_errors::{CliError, UtilError};
 use leo_package::{Manifest, NetworkName, Package};
 use leo_span::Symbol;
@@ -31,16 +31,13 @@ use std::path::Path;
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         Self {
-            build: leo_compiler::BuildOptions { dce_enabled: options.enable_dce },
-            output: OutputOptions {
-                ast_spans_enabled: options.enable_ast_spans,
-                ast_snapshots: if options.enable_all_ast_snapshots {
-                    AstSnapshots::All
-                } else {
-                    AstSnapshots::Some(options.ast_snapshots.into_iter().collect())
-                },
-                initial_ast: options.enable_all_ast_snapshots | options.enable_initial_ast_snapshot,
+            ast_spans_enabled: options.enable_ast_spans,
+            ast_snapshots: if options.enable_all_ast_snapshots {
+                AstSnapshots::All
+            } else {
+                AstSnapshots::Some(options.ast_snapshots.into_iter().collect())
             },
+            initial_ast: options.enable_all_ast_snapshots | options.enable_initial_ast_snapshot,
         }
     }
 }
@@ -164,8 +161,6 @@ fn compile_leo_file<N: Network>(
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
 ) -> Result<String> {
-    let enable_dce = options.enable_dce;
-
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::<N>::new(
         Some(program_name.to_string()),
@@ -179,10 +174,9 @@ fn compile_leo_file<N: Network>(
     // Compile the Leo program into Aleo instructions.
     let bytecode = compiler.compile_from_file(source_file_path)?;
 
-    if enable_dce {
-        tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
-        tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
-    }
+    tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
+    tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
+
     tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
     Ok(bytecode)
 }

@@ -1,15 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function main:
-    input r0 as u32.private;
-    add r0 1u32 into r1;
-    add r1 1u32 into r2;
-    add r2 1u32 into r3;
-    add r3 1u32 into r4;
-    output r4 as u32.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 function main:

@@ -1,14 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-struct bar:
-    data as u8;
-
-function foo:
-    input r0 as [bar; 8u32].private;
-    output r0[0u32].data as u8.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 struct bar:

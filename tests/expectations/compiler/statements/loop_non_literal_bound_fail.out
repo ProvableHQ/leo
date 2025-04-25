@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ECMP0376008]: This loop bound could not be determined at compile time.
-    --> compiler-test:10:28
-     |
-  10 |         for i:u64 in 0u64..amount {
-     |                            ^^^^^^
-
-DCE_DISABLED:
 Error [ECMP0376008]: This loop bound could not be determined at compile time.
     --> compiler-test:10:28
      |

@@ -1,24 +1,7 @@
-DCE_ENABLED:
 program test.aleo;
 
 function main:
     input r0 as boolean.private;
     input r1 as boolean.private;
     not r0 into r2;
-    output r2 as boolean.private;
-
-DCE_DISABLED:
-program test.aleo;
-
-function main:
-    input r0 as boolean.private;
-    input r1 as boolean.private;
-    not r0 into r2;
-    and r0 r1 into r3;
-    is.eq r0 r1 into r4;
-    nand r0 r1 into r5;
-    is.neq r0 r1 into r6;
-    nor r0 r1 into r7;
-    or r0 r1 into r8;
-    xor r0 r1 into r9;
     output r2 as boolean.private;
