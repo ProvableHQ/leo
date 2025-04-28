@@ -495,11 +495,31 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                 match &input.name {
                     // Generate code for `Progaam::checksum`
                     Identifier { name: sym::checksum, .. } => {
-                        (format!("{}/checksum", arguments[0].replace("\"", "")), String::new())
+                        // Get the program ID from the first argument.
+                        let program_id = ProgramID::<N>::from_str(&arguments[0].replace("\"", ""))
+                            .expect("Type checking guarantees that the program name is valid");
+                        // If the program name matches the current program ID, then use `checksum`, otherwise fully qualify the operand.
+                        let operand = match program_id.to_string()
+                            == self.program_id.expect("The program ID is set before traversing the program").to_string()
+                        {
+                            true => "checksum".to_string(),
+                            false => format!("{program_id}/checksum"),
+                        };
+                        (operand, String::new())
                     }
                     // Generate code for `Program::edition`
                     Identifier { name: sym::edition, .. } => {
-                        (format!("{}/edition", arguments[0].replace("\"", "")), String::new())
+                        // Get the program ID from the first argument.
+                        let program_id = &ProgramID::<N>::from_str(&arguments[0].replace("\"", ""))
+                            .expect("Type checking guarantees that the program name is valid");
+                        // If the program name matches the current program ID, then use `edition`, otherwise fully qualify the operand.
+                        let operand = match program_id.to_string()
+                            == self.program_id.expect("The program ID is set before traversing the program").to_string()
+                        {
+                            true => "edition".to_string(),
+                            false => format!("{program_id}/edition"),
+                        };
+                        (operand, String::new())
                     }
                     // Generate code for `Program::name_to_address`
                     Identifier { name: sym::name_to_address, .. } => {
