@@ -128,6 +128,7 @@ pub fn value_to_expression(value: &Value, span: Span, node_builder: &NodeBuilder
             id,
         }
         .into(),
+        String(x) => Literal::string(x.clone(), span, id).into(),
         Future(..) => return None,
     };
 

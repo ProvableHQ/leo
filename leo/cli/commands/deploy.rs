@@ -193,7 +193,7 @@ fn handle_deploy<N: Network>(
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
-            print_deployment_stats(&program_id.to_string(), deployment, priority_fee)?;
+            print_deployment_stats(&vm, &program_id.to_string(), deployment, priority_fee)?;
             // Check if the number of variables and constraints are within the limits.
             if deployment.num_combined_variables()? > N::MAX_DEPLOYMENT_VARIABLES {
                 return Err(CliError::variable_limit_exceeded(program_id, N::MAX_DEPLOYMENT_VARIABLES, network).into());
@@ -400,6 +400,7 @@ fn print_deployment_plan<N: Network>(
 }
 
 fn print_deployment_stats<N: Network>(
+    vm: &VM<N, ConsensusMemory<N>>,
     program_id: &str,
     deployment: &Deployment<N>,
     priority_fee: Option<u64>,
@@ -412,7 +413,7 @@ fn print_deployment_stats<N: Network>(
     let variables = deployment.num_combined_variables()?;
     let constraints = deployment.num_combined_constraints()?;
 
-    let (base_fee, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(deployment)?;
+    let (base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) = deployment_cost(&vm.process().read(), deployment)?;
 
     // Compute final fee
     let priority_fee_value = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;
@@ -434,6 +435,7 @@ fn print_deployment_stats<N: Network>(
         [program_id, "Cost (credits)"],
         ["Transaction Storage", &format!("{:.6}", storage_cost as f64 / 1_000_000.0)],
         ["Program Synthesis", &format!("{:.6}", synthesis_cost as f64 / 1_000_000.0)],
+        ["Constructor", &format!("{:.6}", constructor_cost as f64 / 1_000_000.0)],
         ["Namespace", &format!("{:.6}", namespace_cost as f64 / 1_000_000.0)],
         ["Priority Fee", &format!("{:.6}", priority_fee_value)],
         ["Total", &format!("{:.6}", total_fee)],

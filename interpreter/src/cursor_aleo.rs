@@ -184,6 +184,8 @@ impl Cursor<'_> {
             }
             Operand::BlockHeight => Value::U32(self.block_height),
             Operand::NetworkID => todo!(),
+            Operand::Checksum(_) => todo!("Look up the program in the global namespace and get its checksum"),
+            Operand::Edition(_) => todo!("Look up the program in the global namespace and get its edition"),
         }
     }
 
@@ -1025,6 +1027,8 @@ fn value_to_snarkvm_literal(value: Value) -> Literal<TestnetV0> {
         Value::Field(x) => Literal::Field(x),
         Value::Scalar(x) => Literal::Scalar(x),
         Value::Address(x) => Literal::Address(x),
-        Value::Array(_) | Value::Tuple(_) | Value::Unit | Value::Future(_) | Value::Struct(_) => tc_fail!(),
+        Value::Array(_) | Value::Tuple(_) | Value::Unit | Value::Future(_) | Value::Struct(_) | Value::String(_) => {
+            tc_fail!()
+        }
     }
 }

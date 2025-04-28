@@ -493,10 +493,18 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
             }
             sym::ProgramCore => {
                 match &input.name {
-                    // Generate code for `Program::address`
-                    Identifier { name: sym::address, .. } => {
+                    // Generate code for `Progaam::checksum`
+                    Identifier { name: sym::checksum, .. } => {
+                        (format!("{}/checksum", arguments[0].replace("\"", "")), String::new())
+                    }
+                    // Generate code for `Program::edition`
+                    Identifier { name: sym::edition, .. } => {
+                        (format!("{}/edition", arguments[0].replace("\"", "")), String::new())
+                    }
+                    // Generate code for `Program::name_to_address`
+                    Identifier { name: sym::name_to_address, .. } => {
                         // Parse the argument string as a snarkVM address.
-                        let program_id = ProgramID::<N>::from_str(&arguments[0])
+                        let program_id = ProgramID::<N>::from_str(&arguments[0].replace("\"", ""))
                             .expect("Type checking guarantees that the program name is valid");
                         // Convert the program ID into an address.
                         let address = program_id.to_address().expect(
@@ -505,10 +513,6 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                         // Return the address as a string.
                         (format!("{address}"), String::new())
                     }
-                    // Generate code for `Progaam::checksum`
-                    Identifier { name: sym::checksum, .. } => (format!("{}/checksum", arguments[0]), String::new()),
-                    // Generate code for `Program::edition`
-                    Identifier { name: sym::edition, .. } => (format!("{}/edition", arguments[0]), String::new()),
                     // No other variants are allowed.
                     _ => panic!("The only associated methods of `Program` are `address`, `checksum`, and `edition`"),
                 }

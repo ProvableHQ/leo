@@ -120,7 +120,7 @@ pub enum Value {
     Address(SvmAddress),
     Future(Future),
     Struct(StructContents),
-    // String(()),
+    String(String),
 }
 
 impl fmt::Display for Value {
@@ -179,7 +179,7 @@ impl fmt::Display for Value {
             Address(x) => write!(f, "{x}"),
             Future(future) => write!(f, "{future}"),
             // Signature(x) => write!(f, "{x}"),
-            // String(_) => todo!(),
+            String(x) => write!(f, "{x}"),
         }
     }
 }

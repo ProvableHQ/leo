@@ -801,62 +801,47 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
                 Type::Boolean
             }
             CoreFunction::FutureAwait => Type::Unit,
-            CoreFunction::ProgramAddress => {
-                // Check that the argument is a string.
-                self.assert_type(&arguments[0].0, &Type::String, arguments[0].1.span());
-                // Verify that the argument is a valid program ID.
-                if let Expression::Literal(Literal { variant: LiteralVariant::String(program_id_string), .. }) =
-                    &arguments[0].1
-                {
-                    // Check that the program ID is valid.
-                    if let Err(e) = ProgramID::<N>::from_str(program_id_string) {
-                        self.emit_err(TypeCheckerError::unable_to_parse_string(
-                            program_id_string,
-                            "address",
-                            e,
-                            arguments[0].1.span(),
-                        ));
-                    }
-                }
-                Type::Address
-            }
             CoreFunction::ProgramChecksum => {
-                // Check that the argument is a string.
-                self.assert_type(&arguments[0].0, &Type::String, arguments[0].1.span());
+                // Get the argument type, expression, and span.
+                let (type_, expression) = &arguments[0];
+                let span = expression.span();
+                // Verify that the argument is a string.
+                self.assert_type(type_, &Type::String, span);
                 // Verify that the argument is a valid program ID.
-                if let Expression::Literal(Literal { variant: LiteralVariant::String(program_id_string), .. }) =
-                    &arguments[0].1
-                {
-                    // Check that the program ID is valid.
-                    if let Err(e) = ProgramID::<N>::from_str(program_id_string) {
-                        self.emit_err(TypeCheckerError::unable_to_parse_string(
-                            program_id_string,
-                            "address",
-                            e,
-                            arguments[0].1.span(),
-                        ));
-                    }
-                }
+                self.assert_and_return_program_id(expression);
+                // Return the type.
                 Type::Array(ArrayType::new(Type::Integer(IntegerType::U8), NonNegativeNumber::from(32)))
             }
             CoreFunction::ProgramEdition => {
-                // Check that the argument is a string.
-                self.assert_type(&arguments[0].0, &Type::String, arguments[0].1.span());
+                // Get the argument type, expression, and span.
+                let (type_, expression) = &arguments[0];
+                let span = expression.span();
+                // Verify that the argument is a string.
+                self.assert_type(type_, &Type::String, span);
                 // Verify that the argument is a valid program ID.
-                if let Expression::Literal(Literal { variant: LiteralVariant::String(program_id_string), .. }) =
-                    &arguments[0].1
-                {
-                    // Check that the program ID is valid.
-                    if let Err(e) = ProgramID::<N>::from_str(program_id_string) {
-                        self.emit_err(TypeCheckerError::unable_to_parse_string(
-                            program_id_string,
-                            "address",
-                            e,
-                            arguments[0].1.span(),
+                self.assert_and_return_program_id(expression);
+                // Return the type.
+                Type::Integer(IntegerType::U16)
+            }
+            CoreFunction::ProgramNameToAddress => {
+                // Get the argument type, expression, and span.
+                let (type_, expression) = &arguments[0];
+                let span = expression.span();
+                // Verify that the argument is a string.
+                self.assert_type(type_, &Type::String, span);
+                // Verify that the argument is a valid program ID.
+                if let Some(program_id) = self.assert_and_return_program_id(expression) {
+                    // Attempt to convert the program ID into an address.
+                    if let Err(e) = program_id.to_address() {
+                        // Emit an error if the conversion fails.
+                        self.emit_err(TypeCheckerError::custom_error(
+                            format!("Failed to convert program ID into address: {e}"),
+                            span,
                         ));
                     }
                 }
-                Type::Integer(IntegerType::U16)
+                // Return the type.
+                Type::Address
             }
             CoreFunction::CheatCodePrintMapping => {
                 self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
@@ -1255,6 +1240,26 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span))
         } else if self.scope_state.variant != Some(Variant::AsyncFunction) && finalize_op {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
+        }
+    }
+
+    // Asserts that an expression is a valid program ID and returns the program ID.
+    fn assert_and_return_program_id(&mut self, expression: &Expression) -> Option<ProgramID<N>> {
+        if let Expression::Literal(Literal { variant: LiteralVariant::String(program_id_string), .. }) = expression {
+            // Check that the program ID is valid and return it.
+            match ProgramID::<N>::from_str(program_id_string) {
+                Ok(program_id) => Some(program_id),
+                Err(e) => {
+                    self.emit_err(TypeCheckerError::custom_error(
+                        format!("Unable to parse string literal as program ID: {e}"),
+                        expression.span(),
+                    ));
+                    None
+                }
+            }
+        } else {
+            self.emit_err(TypeCheckerError::custom_error("Expected a string literal".to_string(), expression.span()));
+            None
         }
     }
 }

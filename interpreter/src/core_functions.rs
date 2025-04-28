@@ -1156,9 +1156,18 @@ pub fn evaluate_core_function(
         }
         CoreFunction::SignatureVerify => todo!(),
         CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),
-        CoreFunction::ProgramAddress => todo!(),
-        CoreFunction::ProgramChecksum => todo!(),
-        CoreFunction::ProgramEdition => todo!(),
+        CoreFunction::ProgramChecksum => {
+            // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its checksum.
+            return Ok(None);
+        }
+        CoreFunction::ProgramEdition => {
+            // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its edition.
+            return Ok(None);
+        }
+        CoreFunction::ProgramNameToAddress => {
+            // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its address.
+            return Ok(None);
+        }
     };
 
     Ok(Some(value))

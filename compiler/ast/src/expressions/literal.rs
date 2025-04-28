@@ -95,6 +95,10 @@ impl Literal {
         Literal { variant: LiteralVariant::Integer(integer_type, s), span, id }
     }
 
+    pub fn string(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::String(s), span, id }
+    }
+
     /// For displaying a literal as decimal, regardless of the radix in which it was parsed.
     ///
     /// In particular this is useful for outputting .aleo files.

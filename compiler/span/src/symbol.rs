@@ -281,6 +281,7 @@ symbols! {
     id,
     checksum,
     edition,
+    name_to_address,
 }
 
 /// An interned string.

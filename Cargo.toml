@@ -110,7 +110,10 @@ default-features = false
 version = "1.11.1"
 
 [workspace.dependencies.snarkvm]
-version = "=1.5.0"
+#version = "=1.5.0"
+git = "https://github.com/ProvableHQ/snarkVM.git"
+branch = "feat/program-updatability"
+
 
 [workspace.dependencies.serde]
 version = "1.0.214"

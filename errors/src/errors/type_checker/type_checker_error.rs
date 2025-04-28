@@ -1005,9 +1005,9 @@ create_messages!(
     }
 
     @formatted
-    unable_to_parse_string {
-        args: (string: impl Display, target: impl Display, e: impl Display),
-        msg: format!("Unable to parse `{string}` as `{target}`: {e}"),
+    custom_error {
+        args: (msg: impl Display),
+        msg: msg.to_string(),
         help: None,
     }
 );

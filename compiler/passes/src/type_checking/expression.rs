@@ -969,10 +969,7 @@ impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
                 Type::Group
             }
             LiteralVariant::Scalar(..) => Type::Scalar,
-            LiteralVariant::String(..) => {
-                self.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));
-                Type::String
-            }
+            LiteralVariant::String(..) => Type::String,
         };
 
         self.maybe_assert_type(&type_, expected, input.span());

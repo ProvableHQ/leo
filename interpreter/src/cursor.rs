@@ -1734,7 +1734,7 @@ pub fn literal_to_value(literal: &Literal) -> Result<Value> {
         LiteralVariant::Scalar(s) => {
             Value::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span())?)
         }
-        LiteralVariant::String(..) => tc_fail!(),
+        LiteralVariant::String(s) => Value::String(s.clone()),
     };
 
     Ok(value)
