@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::CodeGeneratingVisitor;
+use super::*;
 
 use leo_ast::{
     AssertStatement,
@@ -35,7 +35,7 @@ use leo_ast::{
 
 use itertools::Itertools;
 
-impl CodeGeneratingVisitor<'_> {
+impl<N: Network> CodeGeneratingVisitor<'_, N> {
     fn visit_statement(&mut self, input: &Statement) -> String {
         match input {
             Statement::Assert(stmt) => self.visit_assert(stmt),

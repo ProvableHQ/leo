@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::TypeCheckingVisitor;
+use super::*;
 use crate::DiGraphError;
 
 use leo_ast::{Type, *};
@@ -23,7 +23,7 @@ use leo_span::sym;
 
 use std::collections::HashSet;
 
-impl ProgramVisitor for TypeCheckingVisitor<'_> {
+impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
     fn visit_program(&mut self, input: &Program) {
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {

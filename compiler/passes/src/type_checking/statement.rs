@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::TypeCheckingVisitor;
+use super::*;
 use crate::{VariableSymbol, VariableType};
 
 use leo_ast::{
@@ -23,7 +23,7 @@ use leo_ast::{
 };
 use leo_errors::TypeCheckerError;
 
-impl StatementVisitor for TypeCheckingVisitor<'_> {
+impl<N: Network> StatementVisitor for TypeCheckingVisitor<'_, N> {
     fn visit_statement(&mut self, input: &Statement) {
         // No statements can follow a return statement.
         if self.scope_state.has_return {

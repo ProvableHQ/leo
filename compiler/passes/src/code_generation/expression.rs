@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::CodeGeneratingVisitor;
+use super::*;
 
 use leo_ast::{
     ArrayAccess,
@@ -43,11 +43,12 @@ use leo_ast::{
     Variant,
 };
 use leo_span::sym;
+use snarkvm::prelude::{Network, ProgramID};
 
-use std::{borrow::Borrow, fmt::Write as _};
+use std::{borrow::Borrow, fmt::Write as _, str::FromStr};
 
 /// Implement the necessary methods to visit nodes in the AST.
-impl CodeGeneratingVisitor<'_> {
+impl<N: Network> CodeGeneratingVisitor<'_, N> {
     pub fn visit_expression(&mut self, input: &Expression) -> (String, String) {
         match input {
             Expression::Array(expr) => self.visit_array(expr),
@@ -443,7 +444,7 @@ impl CodeGeneratingVisitor<'_> {
                             .expect("failed to write to string");
                         (destination_register, instruction)
                     }
-                    _ => panic!("The only associated methods of group are to_x_coordinate and to_y_coordinate"),
+                    _ => panic!("The only associated methods of `group` are `to_x_coordinate` and `to_y_coordinate`"),
                 }
             }
             sym::ChaCha => {
@@ -489,6 +490,28 @@ impl CodeGeneratingVisitor<'_> {
                 let mut instruction = "    await".to_string();
                 writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
                 (String::new(), instruction)
+            }
+            sym::ProgramCore => {
+                match &input.name {
+                    // Generate code for `Program::address`
+                    Identifier { name: sym::address, .. } => {
+                        // Parse the argument string as a snarkVM address.
+                        let program_id = ProgramID::<N>::from_str(&arguments[0])
+                            .expect("Type checking guarantees that the program name is valid");
+                        // Convert the program ID into an address.
+                        let address = program_id.to_address().expect(
+                            "Type checking guarantees that the program ID can be converted into a valid address",
+                        );
+                        // Return the address as a string.
+                        (format!("{address}"), String::new())
+                    }
+                    // Generate code for `Progaam::checksum`
+                    Identifier { name: sym::checksum, .. } => (format!("{}/checksum", arguments[0]), String::new()),
+                    // Generate code for `Program::edition`
+                    Identifier { name: sym::edition, .. } => (format!("{}/edition", arguments[0]), String::new()),
+                    // No other variants are allowed.
+                    _ => panic!("The only associated methods of `Program` are `address`, `checksum`, and `edition`"),
+                }
             }
             sym::CheatCode => {
                 (String::new(), String::new())

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::CodeGeneratingVisitor;
+use super::*;
 
 use leo_ast::{Composite, Function, Location, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
 use leo_span::{Symbol, sym};
@@ -24,7 +24,7 @@ use std::fmt::Write as _;
 
 const EXPECT_STR: &str = "Failed to write code";
 
-impl<'a> CodeGeneratingVisitor<'a> {
+impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
     pub fn visit_program(&mut self, input: &'a Program) -> String {
         // Accumulate instructions into a program string.
         let mut program_string = String::new();

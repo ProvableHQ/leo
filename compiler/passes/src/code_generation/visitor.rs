@@ -19,9 +19,11 @@ use crate::CompilerState;
 use leo_ast::{Function, Program, ProgramId, Variant};
 use leo_span::Symbol;
 
+use snarkvm::prelude::Network;
+
 use indexmap::IndexMap;
 
-pub struct CodeGeneratingVisitor<'a> {
+pub struct CodeGeneratingVisitor<'a, N: Network> {
     pub state: &'a CompilerState,
     /// A counter to track the next available register.
     pub next_register: u64,
@@ -47,4 +49,5 @@ pub struct CodeGeneratingVisitor<'a> {
     pub next_label: u64,
     /// The depth of the current conditional block.
     pub conditional_depth: u64,
+    pub _phantom: std::marker::PhantomData<N>,
 }

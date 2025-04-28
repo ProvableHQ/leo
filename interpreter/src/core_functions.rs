@@ -1156,6 +1156,9 @@ pub fn evaluate_core_function(
         }
         CoreFunction::SignatureVerify => todo!(),
         CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),
+        CoreFunction::ProgramAddress => todo!(),
+        CoreFunction::ProgramChecksum => todo!(),
+        CoreFunction::ProgramEdition => todo!(),
     };
 
     Ok(Some(value))

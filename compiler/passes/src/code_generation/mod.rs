@@ -18,6 +18,8 @@ use crate::Pass;
 
 use leo_errors::Result;
 
+use snarkvm::prelude::Network;
+
 mod expression;
 
 mod program;
@@ -29,16 +31,18 @@ mod type_;
 mod visitor;
 use visitor::*;
 
-pub struct CodeGenerating;
+pub struct CodeGenerating<N: Network> {
+    phantom: std::marker::PhantomData<N>,
+}
 
-impl Pass for CodeGenerating {
+impl<N: Network> Pass for CodeGenerating<N> {
     type Input = ();
     type Output = String;
 
     const NAME: &str = "CodeGenerating";
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut visitor = CodeGeneratingVisitor {
+        let mut visitor = CodeGeneratingVisitor::<N> {
             state,
             next_register: 0,
             current_function: None,
@@ -51,6 +55,7 @@ impl Pass for CodeGenerating {
             finalize_caller: None,
             next_label: 0,
             conditional_depth: 0,
+            _phantom: Default::default(),
         };
         let code = visitor.visit_program(visitor.state.ast.as_repr());
         Ok(code)

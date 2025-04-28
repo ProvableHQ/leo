@@ -273,11 +273,14 @@ symbols! {
     owner,
     _nonce,
     program,
+    ProgramCore: "Program",
     stub,
     block,
     height,
     network,
     id,
+    checksum,
+    edition,
 }
 
 /// An interned string.

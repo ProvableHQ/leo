@@ -136,7 +136,7 @@ impl<N: Network> Compiler<N> {
     pub fn intermediate_passes(&mut self) -> Result<()> {
         self.do_pass::<SymbolTableCreation>(())?;
 
-        self.do_pass::<TypeChecking>(TypeCheckingInput {
+        self.do_pass::<TypeChecking<N>>(TypeCheckingInput {
             max_array_elements: N::MAX_ARRAY_ELEMENTS,
             max_mappings: N::MAX_MAPPINGS,
             max_functions: N::MAX_FUNCTIONS,
@@ -181,7 +181,7 @@ impl<N: Network> Compiler<N> {
         // Run the intermediate compiler stages.
         self.intermediate_passes()?;
         // Run code generation.
-        let bytecode = CodeGenerating::do_pass((), &mut self.state)?;
+        let bytecode = CodeGenerating::<N>::do_pass((), &mut self.state)?;
         Ok(bytecode)
     }
 

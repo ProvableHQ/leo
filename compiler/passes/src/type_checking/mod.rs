@@ -31,6 +31,8 @@ use crate::{CallGraph, CompilerState, Pass, StructGraph};
 use leo_ast::ProgramVisitor;
 use leo_errors::Result;
 
+use snarkvm::prelude::Network;
+
 use indexmap::{IndexMap, IndexSet};
 
 /// Specify network limits for type checking.
@@ -43,9 +45,11 @@ pub struct TypeCheckingInput {
 /// A pass to check types.
 ///
 /// Also constructs the struct graph, call graph, and local symbol table data.
-pub struct TypeChecking;
+pub struct TypeChecking<N: Network> {
+    phantom: std::marker::PhantomData<N>,
+}
 
-impl Pass for TypeChecking {
+impl<N: Network> Pass for TypeChecking<N> {
     type Input = TypeCheckingInput;
     type Output = ();
 
@@ -66,7 +70,7 @@ impl Pass for TypeChecking {
         state.struct_graph = StructGraph::new(struct_names);
         state.call_graph = CallGraph::new(function_names);
 
-        let mut visitor = TypeCheckingVisitor {
+        let mut visitor = TypeCheckingVisitor::<N> {
             state,
             scope_state: ScopeState::new(),
             async_function_input_types: IndexMap::new(),
@@ -74,6 +78,7 @@ impl Pass for TypeChecking {
             used_structs: IndexSet::new(),
             conditional_scopes: Vec::new(),
             limits: input,
+            phantom: Default::default(),
         };
         visitor.visit_program(ast.as_repr());
         visitor.state.handler.last_err().map_err(|e| *e)?;

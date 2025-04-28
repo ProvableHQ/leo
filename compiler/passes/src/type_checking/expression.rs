@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::TypeCheckingVisitor;
+use super::*;
 use crate::VariableType;
 
 use leo_ast::*;
@@ -23,7 +23,7 @@ use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
 
-impl TypeCheckingVisitor<'_> {
+impl<N: Network> TypeCheckingVisitor<'_, N> {
     pub fn visit_expression_assign(&mut self, input: &Expression) -> Type {
         let ty = match input {
             Expression::ArrayAccess(array_access) => self.visit_array_access_general(array_access, true, &None),
@@ -256,7 +256,7 @@ impl TypeCheckingVisitor<'_> {
     }
 }
 
-impl ExpressionVisitor for TypeCheckingVisitor<'_> {
+impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
     type AdditionalInput = Option<Type>;
     type Output = Type;
 
@@ -366,11 +366,11 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
         }
 
         // Get the types of the arguments.
-        let argument_types =
-            input.arguments.iter().map(|arg| (self.visit_expression(arg, &None), arg.span())).collect::<Vec<_>>();
+        let arguments_with_types =
+            input.arguments.iter().map(|arg| (self.visit_expression(arg, &None), arg)).collect::<Vec<_>>();
 
         // Check that the types of the arguments are valid.
-        let return_type = self.check_core_function_call(core_instruction.clone(), &argument_types, input.span());
+        let return_type = self.check_core_function_call(core_instruction.clone(), &arguments_with_types, input.span());
 
         // Check return type if the expected type is known.
         self.maybe_assert_type(&return_type, expected, input.span());

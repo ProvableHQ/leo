@@ -290,6 +290,10 @@ pub enum CoreFunction {
     SignatureVerify,
     FutureAwait,
 
+    ProgramAddress,
+    ProgramChecksum,
+    ProgramEdition,
+
     CheatCodePrintMapping,
     CheatCodeSetBlockHeight,
 }
@@ -566,6 +570,10 @@ impl CoreFunction {
 
             (sym::group, sym::to_x_coordinate) => Self::GroupToXCoordinate,
             (sym::group, sym::to_y_coordinate) => Self::GroupToYCoordinate,
+
+            (sym::ProgramCore, sym::address) => Self::ProgramAddress,
+            (sym::ProgramCore, sym::checksum) => Self::ProgramChecksum,
+            (sym::ProgramCore, sym::edition) => Self::ProgramEdition,
 
             (sym::signature, sym::verify) => Self::SignatureVerify,
             (sym::Future, sym::Await) => Self::FutureAwait,
@@ -851,6 +859,10 @@ impl CoreFunction {
             Self::SignatureVerify => 3,
             Self::FutureAwait => 1,
 
+            Self::ProgramAddress => 1,
+            Self::ProgramChecksum => 1,
+            Self::ProgramEdition => 1,
+
             Self::CheatCodePrintMapping => 1,
             Self::CheatCodeSetBlockHeight => 1,
         }
@@ -1111,6 +1123,9 @@ impl CoreFunction {
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
             | CoreFunction::SignatureVerify
+            | CoreFunction::ProgramAddress
+            | CoreFunction::ProgramChecksum
+            | CoreFunction::ProgramEdition
             | CoreFunction::CheatCodePrintMapping
             | CoreFunction::CheatCodeSetBlockHeight => false,
         }

@@ -1003,4 +1003,11 @@ create_messages!(
         msg: format!("Cannot assign to the mapping `{var}`."),
         help: None,
     }
+
+    @formatted
+    unable_to_parse_string {
+        args: (string: impl Display, target: impl Display, e: impl Display),
+        msg: format!("Unable to parse `{string}` as `{target}`: {e}"),
+        help: None,
+    }
 );
