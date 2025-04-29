@@ -166,7 +166,7 @@ pub fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::
 /// one under the following rules:
 /// 1. Remove empty object mappings from JSON arrays
 /// 2. If there are two elements in a JSON array and one is an empty object
-///     mapping and the other is not, then lift up the one that isn't
+///    mapping and the other is not, then lift up the one that isn't
 pub fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
     match value {
         serde_json::Value::Array(vec) => {
