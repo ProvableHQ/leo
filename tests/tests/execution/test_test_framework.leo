@@ -1,0 +1,19 @@
+/*
+seed = 123456789
+min_height = 10
+
+[case]
+program = "test.aleo"
+function = "check_starting_height"
+input = ["10u32"]
+*/
+
+program test.aleo {
+    async transition check_starting_height(height: u32) -> Future {
+        return check_starting_height_(height);
+    }
+
+    async function check_starting_height_(height: u32) {
+        assert_eq(block.height, height);
+    }
+}

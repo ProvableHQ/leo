@@ -24,7 +24,9 @@ use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 use aleo_std_storage::StorageMode;
 use snarkvm::{
     prelude::{
+        Address,
         Execution,
+        Itertools,
         Ledger,
         PrivateKey,
         Process,
@@ -32,15 +34,21 @@ use snarkvm::{
         TestnetV0,
         Transaction,
         VM,
+        Value,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
     synthesizer::program::ProgramCore,
 };
 
 use indexmap::IndexMap;
-use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
+use rand_chacha::{
+    ChaCha20Rng,
+    rand_core::{OsRng, RngCore, SeedableRng as _},
+};
 use serial_test::serial;
 use std::{fmt::Write as _, str::FromStr};
+
+pub type CurrentNetwork = TestnetV0;
 
 pub const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
 
@@ -50,7 +58,7 @@ pub fn whole_compile(
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<(String, String), LeoError> {
     let mut compiler =
-        Compiler::<TestnetV0>::new(handler.clone(), "/fakedirectory-wont-use".into(), None, import_stubs);
+        Compiler::<CurrentNetwork>::new(handler.clone(), "/fakedirectory-wont-use".into(), None, import_stubs);
 
     let filename = FileName::Custom("execution-test".into());
 
@@ -59,8 +67,15 @@ pub fn whole_compile(
     Ok((bytecode, compiler.program_name))
 }
 
-// Execution tests.
+// Execution test configuration.
+#[derive(Debug, Default)]
+struct Config {
+    pub seed: Option<u64>,
+    pub min_height: Option<u32>,
+    pub sources: Vec<String>,
+}
 
+// Execution test cases.
 #[derive(Debug, Default)]
 struct Case {
     program: String,
@@ -69,15 +84,16 @@ struct Case {
     input: Vec<String>,
 }
 
-fn execution_run_test(test: &str, handler: &Handler, buf: &BufferEmitter, cases: &[Case]) -> Result<String, ()> {
+fn execution_run_test(config: Config, handler: &Handler, buf: &BufferEmitter, cases: &[Case]) -> Result<String, ()> {
     // Initialize a `Process`. This should always succeed.
-    let process = Process::<TestnetV0>::load().unwrap();
+    let process = Process::<CurrentNetwork>::load().unwrap();
 
     // Initialize an rng.
-    let mut rng = ChaCha20Rng::seed_from_u64(1234567890);
-
-    // Split the test content into individual source strings based on the program delimiter.
-    let sources: Vec<&str> = test.split(PROGRAM_DELIMITER).collect();
+    let mut rng = &mut ChaCha20Rng::seed_from_u64(config.seed.unwrap_or_else(|| {
+        let mut seed = [0u8; 8];
+        OsRng.try_fill_bytes(&mut seed).unwrap();
+        u64::from_le_bytes(seed)
+    }));
 
     let mut import_stubs = IndexMap::new();
 
@@ -85,7 +101,7 @@ fn execution_run_test(test: &str, handler: &Handler, buf: &BufferEmitter, cases:
     let mut process = process.clone();
 
     // Initialize a `VM`. This should always succeed.
-    let vm = VM::<TestnetV0, ConsensusMemory<TestnetV0>>::from(ConsensusStore::open(None).unwrap()).unwrap();
+    let vm = VM::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::from(ConsensusStore::open(None).unwrap()).unwrap();
 
     // Initialize a genesis private key.
     let genesis_private_key = PrivateKey::new(&mut rng).unwrap();
@@ -94,10 +110,12 @@ fn execution_run_test(test: &str, handler: &Handler, buf: &BufferEmitter, cases:
     let genesis_block = vm.genesis_beacon(&genesis_private_key, &mut rng).unwrap();
 
     // Initialize a `Ledger`. This should always succeed.
-    let ledger = Ledger::<TestnetV0, ConsensusMemory<TestnetV0>>::load(genesis_block, StorageMode::Production).unwrap();
+    let ledger =
+        Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Production)
+            .unwrap();
 
-    // Compile each source file separately.
-    for source in sources {
+    // Compile and deploy each source file separately.
+    for source in &config.sources {
         let (bytecode, program_name) = handler.extend_if_error(whole_compile(source, handler, import_stubs.clone()))?;
 
         // Parse the bytecode as an Aleo program.
@@ -109,8 +127,9 @@ fn execution_run_test(test: &str, handler: &Handler, buf: &BufferEmitter, cases:
         handler.extend_if_error(process.add_program(&aleo_program).map_err(LeoError::Anyhow))?;
 
         // Add the bytecode to the import stubs.
-        let stub = handler
-            .extend_if_error(disassemble_from_str::<TestnetV0>(&program_name, &bytecode).map_err(|err| err.into()))?;
+        let stub = handler.extend_if_error(
+            disassemble_from_str::<CurrentNetwork>(&program_name, &bytecode).map_err(|err| err.into()),
+        )?;
         import_stubs.insert(Symbol::intern(&program_name), stub);
 
         if handler.err_count() != 0 || handler.warning_count() != 0 {
@@ -143,8 +162,59 @@ fn execution_run_test(test: &str, handler: &Handler, buf: &BufferEmitter, cases:
         }
     }
 
-    let mut output = String::new();
+    // Fund each private key used in the test cases with 1M ALEO.
+    let transactions = cases
+        .iter()
+        .filter_map(|case| case.private_key.as_ref())
+        .map(|key| {
+            // Parse the private key.
+            let private_key = PrivateKey::<CurrentNetwork>::from_str(key).expect("Failed to parse private key.");
+            // Convert the private key to an address.
+            let address = Address::try_from(private_key).expect("Failed to convert private key to address.");
+            // Generate the transaction.
+            ledger
+                .vm()
+                .execute(
+                    &genesis_private_key,
+                    ("credits.aleo", "transfer_public"),
+                    [
+                        Value::from_str(&format!("{address}")).expect("Failed to parse recipient address"),
+                        Value::from_str("1_000_000_000_000u64").expect("Failed to parse amount"),
+                    ]
+                    .iter(),
+                    None,
+                    0u64,
+                    None,
+                    rng,
+                )
+                .expect("Failed to generate funding transaction")
+        })
+        .collect_vec();
 
+    // Create a block with the funding transactions.
+    let block = ledger
+        .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], transactions, &mut rng)
+        .expect("Failed to prepare advance to next beacon block");
+    // Assert that no transactions were aborted or rejected.
+    assert!(block.aborted_transaction_ids().is_empty());
+    assert_eq!(block.transactions().num_rejected(), 0);
+    // Advance the ledger to the next block.
+    ledger.advance_to_next_block(&block).expect("Failed to advance to next block");
+
+    // Advance the ledger with empty blocks until the specified height.
+    let target_height = config.min_height.unwrap_or(1);
+    let current_height = ledger.vm().block_store().current_block_height();
+    let num_blocks = target_height.saturating_sub(current_height).saturating_sub(1);
+    for _ in 0..num_blocks {
+        let block = ledger
+            .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![], &mut rng)
+            .expect("Failed to prepare advance to next beacon block");
+        ledger.advance_to_next_block(&block).expect("Failed to advance to next block");
+    }
+
+    println!("Current height: {}", ledger.vm().block_store().current_block_height());
+
+    let mut output = String::new();
     for case in cases {
         if !ledger.vm().contains_program(&ProgramID::from_str(&case.program).unwrap()) {
             return Ok(format!("Program {} doesn't exist.", case.program));
@@ -212,6 +282,7 @@ fn execution_runner(source: &str) -> String {
     let buf = BufferEmitter::new();
     let handler = Handler::new(buf.clone());
 
+    let mut config = Config::default();
     let mut cases = Vec::<Case>::new();
 
     // Captures quote-delimited strings.
@@ -229,10 +300,18 @@ fn execution_runner(source: &str) -> String {
         } else if let Some(rest) = line.strip_prefix("input = ") {
             // Get quote-delimited strings.
             cases.last_mut().unwrap().input = re_input.captures_iter(rest).map(|s| s[1].to_string()).collect();
+        } else if let Some(rest) = line.strip_prefix("seed = ") {
+            config.seed = Some(rest.parse::<u64>().unwrap());
+        } else if let Some(rest) = line.strip_prefix("min_height = ") {
+            config.min_height = Some(rest.parse::<u32>().unwrap());
         }
     }
 
-    create_session_if_not_set_then(|_| match execution_run_test(source, &handler, &buf, &cases) {
+    // Parse the sources and add them to the config.
+    let sources = source.split(PROGRAM_DELIMITER).map(|s| s.trim().to_string()).collect::<Vec<_>>();
+    config.sources = sources;
+
+    create_session_if_not_set_then(|_| match execution_run_test(config, &handler, &buf, &cases) {
         Ok(s) => s,
         Err(()) => format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
     })
