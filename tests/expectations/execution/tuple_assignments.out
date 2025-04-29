@@ -1,3 +1,31 @@
+program test.aleo;
+
+function main:
+    input r0 as u64.private;
+    input r1 as u64.private;
+    input r2 as u64.private;
+    input r3 as u64.private;
+    input r4 as boolean.private;
+    input r5 as boolean.private;
+    input r6 as boolean.private;
+    ternary r5 100u64 r0 into r7;
+    ternary r5 200u64 r1 into r8;
+    ternary r5 r2 300u64 into r9;
+    ternary r5 500u64 r0 into r10;
+    ternary r5 600u64 r2 into r11;
+    ternary r5 r1 700u64 into r12;
+    ternary r6 r10 r0 into r13;
+    ternary r6 r11 r2 into r14;
+    ternary r6 r12 r1 into r15;
+    ternary r6 r3 800u64 into r16;
+    ternary r4 r7 r13 into r17;
+    ternary r4 r8 r15 into r18;
+    ternary r4 r9 r14 into r19;
+    ternary r4 400u64 r16 into r20;
+    output r17 as u64.public;
+    output r18 as u64.public;
+    output r19 as u64.public;
+    output r20 as u64.public;
 verified: true
 status: accepted
 errors:

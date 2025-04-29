@@ -1,3 +1,22 @@
+program metadata.aleo;
+
+function is_block_height:
+    input r0 as u32.private;
+    async is_block_height r0 into r1;
+    output r1 as metadata.aleo/is_block_height.future;
+
+finalize is_block_height:
+    input r0 as u32.public;
+    assert.eq r0 block.height;
+
+function is_network_id:
+    input r0 as u16.private;
+    async is_network_id r0 into r1;
+    output r1 as metadata.aleo/is_network_id.future;
+
+finalize is_network_id:
+    input r0 as u16.public;
+    assert.eq r0 network.id;
 verified: true
 status: rejected
 errors:

@@ -1,3 +1,112 @@
+program zero_program.aleo;
+
+mapping counts:
+    key as address.public;
+    value as u64.public;
+
+function c:
+    async c self.signer into r0;
+    output r0 as zero_program.aleo/c.future;
+
+finalize c:
+    input r0 as address.public;
+    get.or_use counts[r0] 0u64 into r1;
+    add r1 1u64 into r2;
+    set r2 into counts[r0];
+// --- Next Program --- //
+program one_program.aleo;
+
+mapping counts:
+    key as address.public;
+    value as u64.public;
+
+function d:
+    async d self.signer into r0;
+    output r0 as one_program.aleo/d.future;
+
+finalize d:
+    input r0 as address.public;
+    get.or_use counts[r0] 0u64 into r1;
+    add r1 1u64 into r2;
+    set r2 into counts[r0];
+// --- Next Program --- //
+import zero_program.aleo;
+import one_program.aleo;
+program two_program.aleo;
+
+mapping counts:
+    key as address.public;
+    value as u64.public;
+
+function b:
+    call zero_program.aleo/c into r0;
+    call one_program.aleo/d into r1;
+    async b r0 r1 self.signer into r2;
+    output r2 as two_program.aleo/b.future;
+
+finalize b:
+    input r0 as zero_program.aleo/c.future;
+    input r1 as one_program.aleo/d.future;
+    input r2 as address.public;
+    await r0;
+    await r1;
+    get.or_use counts[r2] 0u64 into r3;
+    add r3 1u64 into r4;
+    set r4 into counts[r2];
+// --- Next Program --- //
+import zero_program.aleo;
+import one_program.aleo;
+import two_program.aleo;
+program three_program.aleo;
+
+mapping counts:
+    key as address.public;
+    value as u64.public;
+
+function e:
+    call two_program.aleo/b into r0;
+    call one_program.aleo/d into r1;
+    call zero_program.aleo/c into r2;
+    async e r0 r1 r2 self.signer into r3;
+    output r3 as three_program.aleo/e.future;
+
+finalize e:
+    input r0 as two_program.aleo/b.future;
+    input r1 as one_program.aleo/d.future;
+    input r2 as zero_program.aleo/c.future;
+    input r3 as address.public;
+    await r0;
+    await r1;
+    await r2;
+    get.or_use counts[r3] 0u64 into r4;
+    add r4 1u64 into r5;
+    set r5 into counts[r3];
+// --- Next Program --- //
+import zero_program.aleo;
+import one_program.aleo;
+import two_program.aleo;
+import three_program.aleo;
+program four_program.aleo;
+
+mapping counts:
+    key as address.public;
+    value as u64.public;
+
+function a:
+    call two_program.aleo/b into r0;
+    call three_program.aleo/e into r1;
+    async a r0 r1 self.signer into r2;
+    output r2 as four_program.aleo/a.future;
+
+finalize a:
+    input r0 as two_program.aleo/b.future;
+    input r1 as three_program.aleo/e.future;
+    input r2 as address.public;
+    await r0;
+    await r1;
+    get.or_use counts[r2] 0u64 into r3;
+    add r3 1u64 into r4;
+    set r4 into counts[r2];
 verified: true
 status: accepted
 errors:
