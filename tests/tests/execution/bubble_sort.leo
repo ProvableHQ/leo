@@ -1,4 +1,6 @@
 /*
+seed = 123456789
+
 [case]
 program = "bubble_sort.aleo"
 function = "sort"

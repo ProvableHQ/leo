@@ -1,4 +1,6 @@
 /*
+seed = 1234567890
+
 [case]
 program = "test.aleo"
 function = "address_cast"

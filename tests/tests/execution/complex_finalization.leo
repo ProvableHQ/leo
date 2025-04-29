@@ -1,4 +1,6 @@
 /*
+seed = 123456789
+
 [case]
 program = "four_program.aleo"
 function = "a"

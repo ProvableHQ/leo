@@ -1,4 +1,6 @@
 /*
+seed = 123456789
+
 [case]
 program = "metadata.aleo"
 function = "is_block_height"

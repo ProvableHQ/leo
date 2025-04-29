@@ -1,4 +1,6 @@
 /*
+seed = 123456789
+
 [case]
 program = "test.aleo"
 function = "sum_manually"
