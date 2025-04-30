@@ -281,6 +281,7 @@ symbols! {
     id,
     checksum,
     edition,
+    program_owner,
     name_to_address,
 }
 

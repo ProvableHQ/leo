@@ -823,6 +823,17 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
                 // Return the type.
                 Type::Integer(IntegerType::U16)
             }
+            CoreFunction::ProgramOwner => {
+                // Get the argument type, expression, and span.
+                let (type_, expression) = &arguments[0];
+                let span = expression.span();
+                // Verify that the argument is a string.
+                self.assert_type(type_, &Type::String, span);
+                // Verify that the argument is a valid program ID.
+                self.assert_and_return_program_id(expression);
+                // Return the type.
+                Type::Address
+            }
             CoreFunction::ProgramNameToAddress => {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];

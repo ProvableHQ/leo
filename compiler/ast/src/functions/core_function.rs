@@ -292,6 +292,7 @@ pub enum CoreFunction {
 
     ProgramChecksum,
     ProgramEdition,
+    ProgramOwner,
     ProgramNameToAddress,
 
     CheatCodePrintMapping,
@@ -573,6 +574,7 @@ impl CoreFunction {
 
             (sym::ProgramCore, sym::checksum) => Self::ProgramChecksum,
             (sym::ProgramCore, sym::edition) => Self::ProgramEdition,
+            (sym::ProgramCore, sym::program_owner) => Self::ProgramOwner,
             (sym::ProgramCore, sym::name_to_address) => Self::ProgramNameToAddress,
 
             (sym::signature, sym::verify) => Self::SignatureVerify,
@@ -861,6 +863,7 @@ impl CoreFunction {
 
             Self::ProgramChecksum => 1,
             Self::ProgramEdition => 1,
+            Self::ProgramOwner => 1,
             Self::ProgramNameToAddress => 1,
 
             Self::CheatCodePrintMapping => 1,
@@ -891,7 +894,8 @@ impl CoreFunction {
             | CoreFunction::ChaChaRandScalar
             | CoreFunction::MappingSet
             | CoreFunction::MappingRemove
-            | CoreFunction::MappingContains => true,
+            | CoreFunction::MappingContains
+            | CoreFunction::ProgramOwner => true,
             CoreFunction::BHP256CommitToAddress
             | CoreFunction::BHP256CommitToField
             | CoreFunction::BHP256CommitToGroup
