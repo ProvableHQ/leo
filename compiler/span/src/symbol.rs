@@ -283,6 +283,7 @@ symbols! {
     edition,
     program_owner,
     name_to_address,
+    constructor
 }
 
 /// An interned string.

@@ -413,6 +413,7 @@ impl Token {
                     "bool" => Token::Bool,
                     "const" => Token::Const,
                     "constant" => Token::Constant,
+                    "constructor" => Token::Constructor,
                     "else" => Token::Else,
                     "false" => Token::False,
                     "field" => Token::Field,
