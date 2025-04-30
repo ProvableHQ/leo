@@ -41,10 +41,7 @@ use snarkvm::{
 };
 
 use indexmap::IndexMap;
-use rand_chacha::{
-    ChaCha20Rng,
-    rand_core::{OsRng, RngCore, SeedableRng as _},
-};
+use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
 use serial_test::serial;
 use std::{fmt::Write as _, str::FromStr};
 
@@ -89,11 +86,7 @@ fn execution_run_test(config: Config, handler: &Handler, buf: &BufferEmitter, ca
     let process = Process::<CurrentNetwork>::load().unwrap();
 
     // Initialize an rng.
-    let mut rng = &mut ChaCha20Rng::seed_from_u64(config.seed.unwrap_or_else(|| {
-        let mut seed = [0u8; 8];
-        OsRng.try_fill_bytes(&mut seed).unwrap();
-        u64::from_le_bytes(seed)
-    }));
+    let mut rng = &mut ChaCha20Rng::seed_from_u64(config.seed.unwrap_or(1234567890));
 
     let mut import_stubs = IndexMap::new();
 
