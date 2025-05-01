@@ -320,7 +320,7 @@
 <a href=#320 id=320 data-nosnippet>320</a>
 <a href=#321 id=321 data-nosnippet>321</a>        <span class="comment">// TODO: Verify that this check is sound.
 <a href=#322 id=322 data-nosnippet>322</a>        // Check that there is no whitespace or comments in between the `@` symbol and identifier.
-<a href=#323 id=323 data-nosnippet>323</a>        </span><span class="kw">match </span>identifier.span.hi.<span class="number">0 </span>- start.lo.<span class="number">0 </span>&gt; <span class="number">1 </span>+ identifier.name.to_string().len() <span class="kw">as </span>u32 {
+<a href=#323 id=323 data-nosnippet>323</a>        </span><span class="kw">match </span>identifier.span.hi - start.lo &gt; <span class="number">1 </span>+ identifier.name.to_string().len() <span class="kw">as </span>u32 {
 <a href=#324 id=324 data-nosnippet>324</a>            <span class="bool-val">true </span>=&gt; <span class="prelude-val">Err</span>(ParserError::space_in_annotation(span).into()),
 <a href=#325 id=325 data-nosnippet>325</a>            <span class="bool-val">false </span>=&gt; <span class="prelude-val">Ok</span>(Annotation { identifier, span, id: <span class="self">self</span>.node_builder.next_id() }),
 <a href=#326 id=326 data-nosnippet>326</a>        }

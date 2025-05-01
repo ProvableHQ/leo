@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["FileName"],"fn":["analyze_source_file","is_color","normalize_newlines","normalize_src","remove_bom"],"struct":["LineCol","MultiByteChar","SourceFile","SourceMap","SourceMapInner","SpanLocation"]};
+window.SIDEBAR_ITEMS = {"enum":["FileName"],"fn":["is_color"],"struct":["LineCol","LineContents","SourceFile","SourceMap","SourceMapInner"]};

@@ -78,7 +78,7 @@
 <a href=#78 id=78 data-nosnippet>78</a>        <span class="kw">let </span>text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))<span class="question-mark">?</span>;
 <a href=#79 id=79 data-nosnippet>79</a>        <span class="kw">let </span>filename = FileName::Real(path.to_path_buf());
 <a href=#80 id=80 data-nosnippet>80</a>        <span class="kw">let </span>source_file = with_session_globals(|s| s.source_map.new_source(<span class="kw-2">&amp;</span>text, filename));
-<a href=#81 id=81 data-nosnippet>81</a>        leo_parser::parse_ast::&lt;TestnetV0&gt;(handler.clone(), node_builder, <span class="kw-2">&amp;</span>text, source_file.start_pos)
+<a href=#81 id=81 data-nosnippet>81</a>        leo_parser::parse_ast::&lt;TestnetV0&gt;(handler.clone(), node_builder, <span class="kw-2">&amp;</span>text, source_file.absolute_start)
 <a href=#82 id=82 data-nosnippet>82</a>    }
 <a href=#83 id=83 data-nosnippet>83</a>
 <a href=#84 id=84 data-nosnippet>84</a>    <span class="kw">fn </span>new_impl(
@@ -252,7 +252,7 @@
 <a href=#252 id=252 data-nosnippet>252</a>                        <span class="self">self</span>.handler.clone(),
 <a href=#253 id=253 data-nosnippet>253</a>                        <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
 <a href=#254 id=254 data-nosnippet>254</a>                        s,
-<a href=#255 id=255 data-nosnippet>255</a>                        source_file.start_pos,
+<a href=#255 id=255 data-nosnippet>255</a>                        source_file.absolute_start,
 <a href=#256 id=256 data-nosnippet>256</a>                    )
 <a href=#257 id=257 data-nosnippet>257</a>                    .map_err(|_e| {
 <a href=#258 id=258 data-nosnippet>258</a>                        LeoError::InterpreterHalt(InterpreterHalt::new(<span class="string">"failed to parse statement"</span>.into()))
@@ -267,7 +267,7 @@
 <a href=#267 id=267 data-nosnippet>267</a>                        <span class="self">self</span>.handler.clone(),
 <a href=#268 id=268 data-nosnippet>268</a>                        <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
 <a href=#269 id=269 data-nosnippet>269</a>                        s,
-<a href=#270 id=270 data-nosnippet>270</a>                        source_file.start_pos,
+<a href=#270 id=270 data-nosnippet>270</a>                        source_file.absolute_start,
 <a href=#271 id=271 data-nosnippet>271</a>                    )
 <a href=#272 id=272 data-nosnippet>272</a>                    .map_err(|e| {
 <a href=#273 id=273 data-nosnippet>273</a>                        LeoError::InterpreterHalt(InterpreterHalt::new(<span class="macro">format!</span>(<span class="string">"Failed to parse expression: {e}"</span>)))
@@ -420,8 +420,8 @@
 <a href=#420 id=420 data-nosnippet>420</a>            }
 <a href=#421 id=421 data-nosnippet>421</a>            with_session_globals(|s| {
 <a href=#422 id=422 data-nosnippet>422</a>                <span class="kw">let </span>source_file = s.source_map.find_source_file(span.lo)<span class="question-mark">?</span>;
-<a href=#423 id=423 data-nosnippet>423</a>                <span class="kw">let </span>first_span = Span::new(source_file.start_pos, span.lo);
-<a href=#424 id=424 data-nosnippet>424</a>                <span class="kw">let </span>last_span = Span::new(span.hi, source_file.end_pos);
+<a href=#423 id=423 data-nosnippet>423</a>                <span class="kw">let </span>first_span = Span::new(source_file.absolute_start, span.lo);
+<a href=#424 id=424 data-nosnippet>424</a>                <span class="kw">let </span>last_span = Span::new(span.hi, source_file.absolute_end);
 <a href=#425 id=425 data-nosnippet>425</a>                <span class="kw">let </span><span class="kw-2">mut </span>result = String::new();
 <a href=#426 id=426 data-nosnippet>426</a>                result.push_str(<span class="kw-2">&amp;</span>s.source_map.contents_of_span(first_span)<span class="question-mark">?</span>);
 <a href=#427 id=427 data-nosnippet>427</a>                <span class="kw">let </span>start = result.len();
@@ -435,11 +435,11 @@
 <a href=#435 id=435 data-nosnippet>435</a>
 <a href=#436 id=436 data-nosnippet>436</a>    <span class="kw">fn </span>current_program_and_line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(String, usize)&gt; {
 <a href=#437 id=437 data-nosnippet>437</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = <span class="self">self</span>.current_span() {
-<a href=#438 id=438 data-nosnippet>438</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(location) = with_session_globals(|s| s.source_map.span_to_location(span)) {
-<a href=#439 id=439 data-nosnippet>439</a>                <span class="kw">let </span>line = location.line_start;
-<a href=#440 id=440 data-nosnippet>440</a>                <span class="kw">if let </span>FileName::Real(name) = <span class="kw-2">&amp;</span>location.source_file.name {
+<a href=#438 id=438 data-nosnippet>438</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo)) {
+<a href=#439 id=439 data-nosnippet>439</a>                <span class="kw">let </span>(line, <span class="kw">_</span>) = source_file.line_col(span.lo);
+<a href=#440 id=440 data-nosnippet>440</a>                <span class="kw">if let </span>FileName::Real(name) = <span class="kw-2">&amp;</span>source_file.name {
 <a href=#441 id=441 data-nosnippet>441</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>(program) = <span class="self">self</span>.filename_to_program.get(name) {
-<a href=#442 id=442 data-nosnippet>442</a>                        <span class="kw">return </span><span class="prelude-val">Some</span>((program.clone(), line));
+<a href=#442 id=442 data-nosnippet>442</a>                        <span class="kw">return </span><span class="prelude-val">Some</span>((program.clone(), line <span class="kw">as </span>usize + <span class="number">1</span>));
 <a href=#443 id=443 data-nosnippet>443</a>                    }
 <a href=#444 id=444 data-nosnippet>444</a>                }
 <a href=#445 id=445 data-nosnippet>445</a>            }

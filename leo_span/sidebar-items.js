@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["create_session_if_not_set_then","with_session_globals"],"mod":["source_map","span","sym","symbol"],"struct":["BytePos","Span","Symbol"],"trait":["Pos"]};
+window.SIDEBAR_ITEMS = {"fn":["create_session_if_not_set_then","with_session_globals"],"mod":["source_map","span","sym","symbol"],"struct":["Span","Symbol"]};
