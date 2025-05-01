@@ -4,6 +4,7 @@ Error [EPAR0370005]: expected : -- found '='
      |
    4 |         let i = 1 u16;
      |               ^
+
 DCE_DISABLED:
 Error [EPAR0370005]: expected : -- found '='
     --> compiler-test:4:15

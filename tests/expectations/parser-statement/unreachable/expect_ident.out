@@ -3,355 +3,253 @@ Error [EPAR0370009]: unexpected string: expected 'identifier', found ';'
      |
    1 | x::;
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '.'
     --> test_1:1:4
      |
    1 | x::.
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'import'
     --> test_2:1:4
      |
    1 | x::import
      |    ^^^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found ','
     --> test_3:1:4
      |
    1 | x::,
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '*'
     --> test_4:1:4
      |
    1 | x::*
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '+'
     --> test_5:1:4
      |
    1 | x::+
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '-'
     --> test_6:1:4
      |
    1 | x::-
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '/'
     --> test_7:1:4
      |
    1 | x::/
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '['
     --> test_8:1:4
      |
    1 | x::[
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found ']'
     --> test_9:1:4
      |
    1 | x::]
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '{'
     --> test_10:1:4
      |
    1 | x::{
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '}'
     --> test_11:1:4
      |
    1 | x::}
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
     --> test_12:1:4
      |
    1 | x::(
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found ')'
     --> test_13:1:4
      |
    1 | x::)
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found ':'
     --> test_14:1:4
      |
    1 | x:::
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '::'
     --> test_15:1:4
      |
    1 | x::::
      |    ^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '?'
     --> test_16:1:4
      |
    1 | x::?
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '_'
     --> test_17:1:4
      |
    1 | x::_
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '='
     --> test_18:1:4
      |
    1 | x::=
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '=='
     --> test_19:1:4
      |
    1 | x::==
      |    ^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '!'
     --> test_20:1:4
      |
    1 | x::!
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '!='
     --> test_21:1:4
      |
    1 | x::!=
      |    ^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '>'
     --> test_22:1:4
      |
    1 | x::>
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '>='
     --> test_23:1:4
      |
    1 | x::>=
      |    ^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '<'
     --> test_24:1:4
      |
    1 | x::<
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '<='
     --> test_25:1:4
      |
    1 | x::<=
      |    ^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '>'
     --> test_26:1:4
      |
    1 | x::>
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '..'
     --> test_27:1:4
      |
    1 | x::..
      |    ^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'as'
     --> test_28:1:4
      |
    1 | x::as
      |    ^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'const'
     --> test_29:1:4
      |
    1 | x::const
      |    ^^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'let'
     --> test_30:1:4
      |
    1 | x::let
      |    ^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'for'
     --> test_31:1:4
      |
    1 | x::for
      |    ^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'if'
     --> test_32:1:4
      |
    1 | x::if
      |    ^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'else'
     --> test_33:1:4
      |
    1 | x::else
      |    ^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'i8'
     --> test_34:1:4
      |
    1 | x::i8
      |    ^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'i16'
     --> test_35:1:4
      |
    1 | x::i16
      |    ^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'i32'
     --> test_36:1:4
      |
    1 | x::i32
      |    ^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'i64'
     --> test_37:1:4
      |
    1 | x::i64
      |    ^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'i128'
     --> test_38:1:4
      |
    1 | x::i128
      |    ^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u8'
     --> test_39:1:4
      |
    1 | x::u8
      |    ^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u16'
     --> test_40:1:4
      |
    1 | x::u16
      |    ^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u32'
     --> test_41:1:4
      |
    1 | x::u32
      |    ^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u64'
     --> test_42:1:4
      |
    1 | x::u64
      |    ^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u128'
     --> test_43:1:4
      |
    1 | x::u128
      |    ^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '&'
     --> test_44:1:4
      |
    1 | x::&
      |    ^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'return'
     --> test_45:1:4
      |
    1 | x::return
      |    ^^^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'self'
     --> test_46:1:4
      |
    1 | x::self
      |    ^^^^
-
-
 Error [EPAR0370005]: expected ; -- found '<eof>'
     --> test_47:1:4
      |
    1 | x::Self
      |    ^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'true'
     --> test_48:1:4
      |
    1 | x::true
      |    ^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'false'
     --> test_49:1:4
      |
    1 | x::false
      |    ^^^^^
-
-
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '0'
     --> test_50:1:4
      |
    1 | x::0
      |    ^
-
-

@@ -16,7 +16,7 @@
 
 use crate::{Backtraced, INDENT};
 
-use leo_span::{Span, source_map::SpanLocation, with_session_globals};
+use leo_span::{Span, with_session_globals};
 
 use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
@@ -88,33 +88,11 @@ impl Formatted {
 
 impl fmt::Display for Formatted {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let underline = |mut start: usize, mut end: usize| -> String {
-            if start > end {
-                std::mem::swap(&mut start, &mut end)
-            }
-
-            let mut underline = String::new();
-
-            for _ in 0..start {
-                underline.push(' ');
-                end -= 1;
-            }
-
-            for _ in 0..end {
-                underline.push('^');
-            }
-
-            underline
+        let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) else {
+            return write!(f, "Can't find source file");
         };
 
-        let (loc, contents) = with_session_globals(|s| {
-            (
-                s.source_map.span_to_location(self.span).unwrap_or_else(SpanLocation::dummy),
-                s.source_map.line_contents_of_span(self.span).unwrap_or_else(|| "<contents unavailable>".to_owned()),
-            )
-        });
-
-        let underlined = underline(loc.col_start, loc.col_stop);
+        let line_contents = source_file.line_contents(self.span);
 
         let (kind, code) =
             if self.backtrace.error { ("Error", self.error_code()) } else { ("Warning", self.warning_code()) };
@@ -124,41 +102,33 @@ impl fmt::Display for Formatted {
         // To avoid the color enabling characters for comparison with test expectations.
         if std::env::var("NOCOLOR").unwrap_or_default().trim().to_owned().is_empty() {
             if self.backtrace.error {
-                write!(f, "{}", message.bold().red())?;
+                writeln!(f, "{}", message.bold().red())?;
             } else {
-                write!(f, "{}", message.bold().yellow())?;
+                writeln!(f, "{}", message.bold().yellow())?;
             }
         } else {
-            write!(f, "{message}")?;
+            writeln!(f, "{message}")?;
         };
 
-        write!(
+        writeln!(
             f,
-            "\n{indent     }--> {path}:{line_start}:{start}\n\
-            {indent     } |\n",
+            "{indent     }--> {path}:{line_start}:{start}",
             indent = INDENT,
-            path = &loc.source_file.name,
-            line_start = loc.line_start,
-            start = loc.col_start,
+            path = &source_file.name,
+            // Report lines starting from line 1.
+            line_start = line_contents.line + 1,
+            // And columns - comments in some old code claims to report columns indexing from 0,
+            // but that doesn't appear to have been true.
+            start = line_contents.start + 1,
         )?;
 
-        for (line_no, line) in contents.lines().enumerate() {
-            writeln!(
-                f,
-                "{line_no:width$} | {text}",
-                width = INDENT.len(),
-                line_no = loc.line_start + line_no,
-                text = line,
-            )?;
-        }
-
-        write!(f, "{INDENT     } |{underlined}",)?;
+        write!(f, "{line_contents}")?;
 
         if let Some(help) = &self.backtrace.help {
-            write!(
+            writeln!(
                 f,
-                "\n{INDENT     } |\n\
-            {INDENT     } = {help}",
+                "{INDENT     } |\n\
+                {INDENT     } = {help}",
             )?;
         }
 

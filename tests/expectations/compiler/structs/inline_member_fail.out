@@ -4,6 +4,7 @@ Error [EPAR0370017]: Could not parse the implicit value: 1.
      |
    8 |         let y: u8 = 1;
      |                     ^
+
 DCE_DISABLED:
 Error [EPAR0370017]: Could not parse the implicit value: 1.
     --> compiler-test:8:21

@@ -6,6 +6,7 @@ Warning [WSAZ0374003]: The future `f2` is not awaited in the order in which they
      |         ^^
      |
      = While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+
 DCE_DISABLED:
 Warning [WSAZ0374003]: The future `f2` is not awaited in the order in which they were passed in to the `async` function.
     --> compiler-test:13:9

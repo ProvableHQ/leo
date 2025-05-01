@@ -3,7 +3,9 @@ Error [EAST0372006]: function `f1` shadowed by
     --> compiler-test:9:5
      |
    9 |     function f1(a: u8) -> u8 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
   10 |         return a * 100u8;
+     |         ^^^^^^^^^^^^^^^^^
   11 |     }
      |     ^
 
@@ -12,6 +14,8 @@ Error [EAST0372006]: function `f1` shadowed by
     --> compiler-test:9:5
      |
    9 |     function f1(a: u8) -> u8 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
   10 |         return a * 100u8;
+     |         ^^^^^^^^^^^^^^^^^
   11 |     }
      |     ^

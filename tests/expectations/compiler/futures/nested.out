@@ -3,8 +3,11 @@ Warning [WSAZ0374002]: The type checker has exceeded the max depth of nested con
     --> compiler-test:24:9
      |
   24 |         if a == 2u32 {
+     |         ^^^^^^^^^^^^^^
   25 |             //f2.await();
+     |             ^^^^^^^^^^^^^
   26 |             Mapping::set(ayo, 1u32, 1u32);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   27 |         }
      |         ^
      |
@@ -13,30 +16,46 @@ Warning [WSAZ0374000]: Not all paths through the function await all futures. 1/2
     --> compiler-test:17:5
      |
   17 |     async function finalize_main(f: Future, f2: Future, a: u32) {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   18 |         // f.await();
+     |         ^^^^^^^^^^^^^
   19 |         if a == 1u32 {
+     |         ^^^^^^^^^^^^^^
   20 |             Future::await(f);
+     |             ^^^^^^^^^^^^^^^^^
   21 |             f2.await();
+     |             ^^^^^^^^^^^
   22 |         }
+     |         ^
   23 | 
   24 |         if a == 2u32 {
+     |         ^^^^^^^^^^^^^^
   25 |             //f2.await();
+     |             ^^^^^^^^^^^^^
   26 |             Mapping::set(ayo, 1u32, 1u32);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   27 |         }
+     |         ^
   28 | 
   29 |         let total: u32 = f.0 + f2.0;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   30 |         Mapping::set(ayo, 1u32, total);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   31 |     }
      |     ^
      |
      = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+
 DCE_DISABLED:
 Warning [WSAZ0374002]: The type checker has exceeded the max depth of nested conditional blocks: 0.
     --> compiler-test:24:9
      |
   24 |         if a == 2u32 {
+     |         ^^^^^^^^^^^^^^
   25 |             //f2.await();
+     |             ^^^^^^^^^^^^^
   26 |             Mapping::set(ayo, 1u32, 1u32);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   27 |         }
      |         ^
      |
@@ -45,19 +64,31 @@ Warning [WSAZ0374000]: Not all paths through the function await all futures. 1/2
     --> compiler-test:17:5
      |
   17 |     async function finalize_main(f: Future, f2: Future, a: u32) {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   18 |         // f.await();
+     |         ^^^^^^^^^^^^^
   19 |         if a == 1u32 {
+     |         ^^^^^^^^^^^^^^
   20 |             Future::await(f);
+     |             ^^^^^^^^^^^^^^^^^
   21 |             f2.await();
+     |             ^^^^^^^^^^^
   22 |         }
+     |         ^
   23 | 
   24 |         if a == 2u32 {
+     |         ^^^^^^^^^^^^^^
   25 |             //f2.await();
+     |             ^^^^^^^^^^^^^
   26 |             Mapping::set(ayo, 1u32, 1u32);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   27 |         }
+     |         ^
   28 | 
   29 |         let total: u32 = f.0 + f2.0;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   30 |         Mapping::set(ayo, 1u32, total);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   31 |     }
      |     ^
      |

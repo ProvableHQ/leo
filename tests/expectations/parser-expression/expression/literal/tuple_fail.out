@@ -3,19 +3,13 @@ Error [EPAR0370029]: A tuple expression must have at least two elements.
      |
    1 | ()
      | ^^
-
-
 Error [EPAR0370029]: A tuple expression must have at least two elements.
     --> test_1:1:1
      |
    1 | (1u32,)
      | ^^^^^^^
-
-
 Error [EPAR0370029]: A tuple expression must have at least two elements.
     --> test_2:1:1
      |
    1 | (1field,)
      | ^^^^^^^^^
-
-

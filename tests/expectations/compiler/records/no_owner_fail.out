@@ -3,8 +3,11 @@ Error [ETYC0372019]: The `record` type requires the variable `owner: address`.
     --> compiler-test:4:5
      |
    4 |     record Token {
+     |     ^^^^^^^^^^^^^^
    5 |         // The token amount.
+     |         ^^^^^^^^^^^^^^^^^^^^
    6 |         amount: u64,
+     |         ^^^^^^^^^^^^
    7 |     }
      |     ^
 Error [ETYC0372083]: A program must have at least one transition function.
@@ -18,8 +21,11 @@ Error [ETYC0372019]: The `record` type requires the variable `owner: address`.
     --> compiler-test:4:5
      |
    4 |     record Token {
+     |     ^^^^^^^^^^^^^^
    5 |         // The token amount.
+     |         ^^^^^^^^^^^^^^^^^^^^
    6 |         amount: u64,
+     |         ^^^^^^^^^^^^
    7 |     }
      |     ^
 Error [ETYC0372083]: A program must have at least one transition function.

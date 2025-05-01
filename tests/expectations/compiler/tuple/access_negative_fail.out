@@ -4,6 +4,7 @@ Error [EPAR0370009]: unexpected string: expected 'identifier', found '-'
      |
    6 |         return (t.0, t.-1); // Index `t.-1` is invalid.
      |                        ^
+
 DCE_DISABLED:
 Error [EPAR0370009]: unexpected string: expected 'identifier', found '-'
     --> compiler-test:6:24

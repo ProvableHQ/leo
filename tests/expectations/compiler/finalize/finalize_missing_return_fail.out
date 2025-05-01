@@ -3,7 +3,9 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:10:5
      |
   10 |     async function fin_mint(public receiver: address, public amount: u64) -> u64 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |         Mapping::set(account, receiver, amount);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |     }
      |     ^
      |
@@ -12,7 +14,9 @@ Error [ETYC0372036]: Function must return a value.
     --> compiler-test:10:5
      |
   10 |     async function fin_mint(public receiver: address, public amount: u64) -> u64 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |         Mapping::set(account, receiver, amount);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |     }
      |     ^
 
@@ -21,7 +25,9 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:10:5
      |
   10 |     async function fin_mint(public receiver: address, public amount: u64) -> u64 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |         Mapping::set(account, receiver, amount);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |     }
      |     ^
      |
@@ -30,6 +36,8 @@ Error [ETYC0372036]: Function must return a value.
     --> compiler-test:10:5
      |
   10 |     async function fin_mint(public receiver: address, public amount: u64) -> u64 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |         Mapping::set(account, receiver, amount);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |     }
      |     ^

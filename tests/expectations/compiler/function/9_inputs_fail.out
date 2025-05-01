@@ -4,6 +4,7 @@ Error [EPAR0370005]: expected ; -- found '}'
      |
   16 |     }}
      |     ^
+
 DCE_DISABLED:
 Error [EPAR0370005]: expected ; -- found '}'
     --> compiler-test:16:5

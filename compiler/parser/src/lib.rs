@@ -24,7 +24,6 @@
 #![doc = include_str!("../README.md")]
 
 pub(crate) mod tokenizer;
-use leo_span::BytePos;
 pub use tokenizer::KEYWORD_TOKENS;
 pub(crate) use tokenizer::*;
 
@@ -44,7 +43,7 @@ pub fn parse_ast<N: Network>(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
-    start_pos: BytePos,
+    start_pos: u32,
 ) -> Result<Ast> {
     Ok(Ast::new(parse::<N>(handler, node_builder, source, start_pos)?))
 }

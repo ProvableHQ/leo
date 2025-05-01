@@ -4,6 +4,7 @@ Error [EPAR0370005]: expected : -- found '='
      |
    9 |         let err = a.y;
      |                 ^
+
 DCE_DISABLED:
 Error [EPAR0370005]: expected : -- found '='
     --> compiler-test:9:17

@@ -16,7 +16,6 @@
 
 //! Defines the `Span` type used to track where code comes from.
 
-use core::ops::{Add, Sub};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -27,22 +26,22 @@ use crate::symbol::with_session_globals;
 #[derive(Copy, Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Span {
     /// The start (low) position of the span, inclusive.
-    pub lo: BytePos,
+    pub lo: u32,
     /// The end (high) position of the span, exclusive.
     /// The length of the span is `hi - lo`.
-    pub hi: BytePos,
+    pub hi: u32,
 }
 
 impl Span {
     /// Generate a new span from the `start`ing and `end`ing positions.
-    pub fn new(start: BytePos, end: BytePos) -> Self {
+    pub fn new(start: u32, end: u32) -> Self {
         Self { lo: start, hi: end }
     }
 
     /// Generates a dummy span with all defaults.
     /// Should only be used in temporary situations.
     pub const fn dummy() -> Self {
-        Self { lo: BytePos(0), hi: BytePos(0) }
+        Self { lo: 0, hi: 0 }
     }
 
     /// Is the span a dummy?
@@ -53,7 +52,16 @@ impl Span {
 
 impl fmt::Display for Span {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        with_session_globals(|s| write!(f, "{}", s.source_map.span_to_string(*self)))
+        with_session_globals(|s| {
+            let source_file = s.source_map.find_source_file(self.lo).unwrap();
+            let (start_line, start_col) = source_file.line_col(self.lo);
+            let (end_line, end_col) = source_file.line_col(self.hi);
+            if start_line == end_line {
+                write!(f, "{}:{}-{}", start_line + 1, start_col + 1, end_col + 1)
+            } else {
+                write!(f, "{}:{}-{}:{}", start_line + 1, start_col + 1, end_line + 1, end_col + 1)
+            }
+        })
     }
 }
 
@@ -76,86 +84,4 @@ impl std::ops::Add for Span {
         let hi = self.hi.max(other.hi);
         Self::new(lo, hi)
     }
-}
-
-// _____________________________________________________________________________
-// Pos, BytePos, CharPos
-//
-
-/// Offsets (i.e. positions), in some units (e.g. bytes or characters),
-/// with conversions between unsigned integers.
-pub trait Pos {
-    fn from_usize(n: usize) -> Self;
-    fn to_usize(&self) -> usize;
-    fn from_u32(n: u32) -> Self;
-    fn to_u32(&self) -> u32;
-}
-
-/// Generate one-component tuple structs that implement the [`Pos`] trait.
-macro_rules! impl_pos {
-    (
-        $(
-            $(#[$attr:meta])*
-            $vis:vis struct $ident:ident($inner_vis:vis $inner_ty:ty);
-        )*
-    ) => {
-        $(
-            $(#[$attr])*
-            $vis struct $ident($inner_vis $inner_ty);
-
-            impl Pos for $ident {
-                #[inline(always)]
-                fn from_usize(n: usize) -> $ident {
-                    $ident(n as $inner_ty)
-                }
-
-                #[inline(always)]
-                fn to_usize(&self) -> usize {
-                    self.0 as usize
-                }
-
-                #[inline(always)]
-                fn from_u32(n: u32) -> $ident {
-                    $ident(n as $inner_ty)
-                }
-
-                #[inline(always)]
-                fn to_u32(&self) -> u32 {
-                    self.0 as u32
-                }
-            }
-
-            impl Add for $ident {
-                type Output = $ident;
-
-                #[inline(always)]
-                fn add(self, rhs: $ident) -> $ident {
-                    $ident(self.0 + rhs.0)
-                }
-            }
-
-            impl Sub for $ident {
-                type Output = $ident;
-
-                #[inline(always)]
-                fn sub(self, rhs: $ident) -> $ident {
-                    $ident(self.0 - rhs.0)
-                }
-            }
-        )*
-    };
-}
-
-impl_pos! {
-    /// A byte offset.
-    #[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Debug, Serialize, Deserialize, Default)]
-    pub struct BytePos(pub u32);
-
-    /// A character offset.
-    ///
-    /// Because of multibyte UTF-8 characters,
-    /// a byte offset is not equivalent to a character offset.
-    /// The [`SourceMap`] will convert [`BytePos`] values to `CharPos` values as necessary.
-    #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
-    pub struct CharPos(pub usize);
 }

@@ -3,26 +3,18 @@ Error [EPAR0370005]: expected ; -- found 'finalize'
      |
    1 | return then finalize;
      |             ^^^^^^^^
-
-
 Error [EPAR0370005]: expected ; -- found 'finalize'
     --> test_1:1:13
      |
    1 | return then finalize();
      |             ^^^^^^^^
-
-
 Error [EPAR0370005]: expected ; -- found 'finalize'
     --> test_2:1:13
      |
    1 | return then finalize(foo);
      |             ^^^^^^^^
-
-
 Error [EPAR0370005]: expected ; -- found 'finalize'
     --> test_3:1:13
      |
    1 | return then finalize(foo, bar);
      |             ^^^^^^^^
-
-

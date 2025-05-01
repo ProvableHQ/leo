@@ -78,7 +78,7 @@ impl Interpreter {
         let text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))?;
         let filename = FileName::Real(path.to_path_buf());
         let source_file = with_session_globals(|s| s.source_map.new_source(&text, filename));
-        leo_parser::parse_ast::<TestnetV0>(handler.clone(), node_builder, &text, source_file.start_pos)
+        leo_parser::parse_ast::<TestnetV0>(handler.clone(), node_builder, &text, source_file.absolute_start)
     }
 
     fn new_impl(
@@ -252,7 +252,7 @@ impl Interpreter {
                         self.handler.clone(),
                         &self.node_builder,
                         s,
-                        source_file.start_pos,
+                        source_file.absolute_start,
                     )
                     .map_err(|_e| {
                         LeoError::InterpreterHalt(InterpreterHalt::new("failed to parse statement".into()))
@@ -267,7 +267,7 @@ impl Interpreter {
                         self.handler.clone(),
                         &self.node_builder,
                         s,
-                        source_file.start_pos,
+                        source_file.absolute_start,
                     )
                     .map_err(|e| {
                         LeoError::InterpreterHalt(InterpreterHalt::new(format!("Failed to parse expression: {e}")))
@@ -420,8 +420,8 @@ impl Interpreter {
             }
             with_session_globals(|s| {
                 let source_file = s.source_map.find_source_file(span.lo)?;
-                let first_span = Span::new(source_file.start_pos, span.lo);
-                let last_span = Span::new(span.hi, source_file.end_pos);
+                let first_span = Span::new(source_file.absolute_start, span.lo);
+                let last_span = Span::new(span.hi, source_file.absolute_end);
                 let mut result = String::new();
                 result.push_str(&s.source_map.contents_of_span(first_span)?);
                 let start = result.len();
@@ -435,11 +435,11 @@ impl Interpreter {
 
     fn current_program_and_line(&self) -> Option<(String, usize)> {
         if let Some(span) = self.current_span() {
-            if let Some(location) = with_session_globals(|s| s.source_map.span_to_location(span)) {
-                let line = location.line_start;
-                if let FileName::Real(name) = &location.source_file.name {
+            if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo)) {
+                let (line, _) = source_file.line_col(span.lo);
+                if let FileName::Real(name) = &source_file.name {
                     if let Some(program) = self.filename_to_program.get(name) {
-                        return Some((program.clone(), line));
+                        return Some((program.clone(), line as usize + 1));
                     }
                 }
             }

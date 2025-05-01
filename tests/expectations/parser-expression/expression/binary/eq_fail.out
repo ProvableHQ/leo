@@ -3,5 +3,3 @@ Error [EPAR0370017]: Could not parse the implicit value: 1.
      |
    1 | 1 == 2 == 3
      | ^
-
-

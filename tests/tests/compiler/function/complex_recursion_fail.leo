@@ -1,5 +1,3 @@
-*/
-
 
 program test.aleo {
 

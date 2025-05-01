@@ -28,18 +28,18 @@ pub(crate) mod lexer;
 pub(crate) use self::lexer::*;
 
 use leo_errors::Result;
-use leo_span::{BytePos, Pos, Span};
+use leo_span::Span;
 use std::iter;
 
 /// Creates a new vector of spanned tokens from a given file path and source code text.
-pub(crate) fn tokenize(input: &str, start_pos: BytePos) -> Result<Vec<SpannedToken>> {
+pub(crate) fn tokenize(input: &str, start_pos: u32) -> Result<Vec<SpannedToken>> {
     tokenize_iter(input, start_pos).collect()
 }
 
 /// Yields spanned tokens from the given source code text.
 ///
 /// The `lo` byte position determines where spans will start.
-pub(crate) fn tokenize_iter(mut input: &str, mut lo: BytePos) -> impl '_ + Iterator<Item = Result<SpannedToken>> {
+pub(crate) fn tokenize_iter(mut input: &str, mut lo: u32) -> impl '_ + Iterator<Item = Result<SpannedToken>> {
     iter::from_fn(move || {
         while !input.is_empty() {
             let (token_len, token) = match Token::eat(input) {
@@ -48,7 +48,7 @@ pub(crate) fn tokenize_iter(mut input: &str, mut lo: BytePos) -> impl '_ + Itera
             };
             input = &input[token_len..];
 
-            let span = Span::new(lo, lo + BytePos::from_usize(token_len));
+            let span = Span::new(lo, lo + token_len as u32);
             lo = span.hi;
 
             match token {
@@ -160,7 +160,7 @@ mod tests {
     /* test */
     //"#;
             let sf = s.source_map.new_source(raw, FileName::Custom("test".into()));
-            let tokens = tokenize(&sf.src, sf.start_pos).unwrap();
+            let tokens = tokenize(&sf.src, sf.absolute_start).unwrap();
             let mut output = String::new();
             for SpannedToken { token, .. } in tokens.iter() {
                 write!(output, "{token} ").expect("failed to write string");
@@ -190,7 +190,7 @@ ppp            test
 
             let sm = &s.source_map;
             let sf = sm.new_source(raw, FileName::Custom("test".into()));
-            let tokens = tokenize(&sf.src, sf.start_pos).unwrap();
+            let tokens = tokenize(&sf.src, sf.absolute_start).unwrap();
             let mut line_indices = vec![0];
             for (i, c) in raw.chars().enumerate() {
                 if c == '\n' {

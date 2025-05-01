@@ -3,9 +3,13 @@ Error [EAST0372007]: struct `s1` shadowed by
     --> compiler-test:8:5
      |
    8 |     struct s1 {
+     |     ^^^^^^^^^^^
    9 |         f1: u32,
+     |         ^^^^^^^^
   10 |         f2: u32,
+     |         ^^^^^^^^
   11 |         f3: u32
+     |         ^^^^^^^
   12 |     }
      |     ^
 
@@ -14,8 +18,12 @@ Error [EAST0372007]: struct `s1` shadowed by
     --> compiler-test:8:5
      |
    8 |     struct s1 {
+     |     ^^^^^^^^^^^
    9 |         f1: u32,
+     |         ^^^^^^^^
   10 |         f2: u32,
+     |         ^^^^^^^^
   11 |         f3: u32
+     |         ^^^^^^^
   12 |     }
      |     ^

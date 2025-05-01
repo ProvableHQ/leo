@@ -4,6 +4,7 @@ Error [EPAR0370029]: A tuple expression must have at least two elements.
      |
    8 |         return (b,);
      |                ^^^^
+
 DCE_DISABLED:
 Error [EPAR0370029]: A tuple expression must have at least two elements.
     --> compiler-test:8:16

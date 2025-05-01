@@ -64,7 +64,7 @@ impl<N: Network> Compiler<N> {
             self.state.handler.clone(),
             &self.state.node_builder,
             &source_file.src,
-            source_file.start_pos,
+            source_file.absolute_start,
         )?;
 
         // If the program is imported, then check that the name of its program scope matches the file name.

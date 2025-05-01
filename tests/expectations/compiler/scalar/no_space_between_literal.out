@@ -4,6 +4,7 @@ Error [EPAR0370005]: expected : -- found '='
      |
    4 |       let f = 1 scalar;
      |             ^
+
 DCE_DISABLED:
 Error [EPAR0370005]: expected : -- found '='
     --> compiler-test:4:13

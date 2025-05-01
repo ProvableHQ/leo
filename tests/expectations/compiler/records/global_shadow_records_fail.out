@@ -3,10 +3,15 @@ Error [EAST0372008]: record `Token` shadowed by
     --> compiler-test:7:5
      |
    7 |     record Token {
+     |     ^^^^^^^^^^^^^^
    8 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
    9 |         amount: u64,
+     |         ^^^^^^^^^^^^
   10 |         arg1: u64,
+     |         ^^^^^^^^^^
   11 |         arg2: u64,
+     |         ^^^^^^^^^^
   12 |     }
      |     ^
 
@@ -15,9 +20,14 @@ Error [EAST0372008]: record `Token` shadowed by
     --> compiler-test:7:5
      |
    7 |     record Token {
+     |     ^^^^^^^^^^^^^^
    8 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
    9 |         amount: u64,
+     |         ^^^^^^^^^^^^
   10 |         arg1: u64,
+     |         ^^^^^^^^^^
   11 |         arg2: u64,
+     |         ^^^^^^^^^^
   12 |     }
      |     ^

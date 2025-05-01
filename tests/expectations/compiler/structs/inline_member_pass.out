@@ -4,6 +4,7 @@ Error [EPAR0370009]: unexpected string: expected 'identifier', found 'let'
      |
    7 |     function main(let x: u8, y: bool) -> bool {
      |                   ^^^
+
 DCE_DISABLED:
 Error [EPAR0370009]: unexpected string: expected 'identifier', found 'let'
     --> compiler-test:7:19

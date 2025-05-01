@@ -22,7 +22,9 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:11:5
      |
   11 |     async function finalize_bar(a: u8, b: u8) -> u8 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |         return a + b;
+     |         ^^^^^^^^^^^^^
   13 |     }
      |     ^
      |
@@ -81,7 +83,9 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:11:5
      |
   11 |     async function finalize_bar(a: u8, b: u8) -> u8 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |         return a + b;
+     |         ^^^^^^^^^^^^^
   13 |     }
      |     ^
      |

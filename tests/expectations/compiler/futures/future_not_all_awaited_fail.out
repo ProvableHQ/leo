@@ -3,11 +3,17 @@ Error [ESAZ0374001]: The following futures were never awaited: f4
     --> compiler-test:12:5
      |
   12 |     async function finalize_foo(f0: Future, f1: Future, f2: Future, f3: Future, f4: Future, f5: Future) {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   13 |         f1.await();
+     |         ^^^^^^^^^^^
   14 |         f2.await();
+     |         ^^^^^^^^^^^
   15 |         f3.await();
+     |         ^^^^^^^^^^^
   16 |         f0.await();
+     |         ^^^^^^^^^^^
   17 |         f5.await();
+     |         ^^^^^^^^^^^
   18 |     }
      |     ^
      |
@@ -40,16 +46,23 @@ Warning [WSAZ0374003]: The future `f5` is not awaited in the order in which they
      |         ^^
      |
      = While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+
 DCE_DISABLED:
 Error [ESAZ0374001]: The following futures were never awaited: f4
     --> compiler-test:12:5
      |
   12 |     async function finalize_foo(f0: Future, f1: Future, f2: Future, f3: Future, f4: Future, f5: Future) {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   13 |         f1.await();
+     |         ^^^^^^^^^^^
   14 |         f2.await();
+     |         ^^^^^^^^^^^
   15 |         f3.await();
+     |         ^^^^^^^^^^^
   16 |         f0.await();
+     |         ^^^^^^^^^^^
   17 |         f5.await();
+     |         ^^^^^^^^^^^
   18 |     }
      |     ^
      |

@@ -68,10 +68,14 @@ Warning [WTYC0372002]: The async function `finalize_finalize_no_params` is never
     --> compiler-test:18:5
      |
   18 |     async function finalize_finalize_no_params() {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   19 |         foo();
+     |         ^^^^^^
   20 |         bar();
+     |         ^^^^^^
   21 |     }
      |     ^
+
 DCE_DISABLED:
 Error [ETYC0372067]: This operation can only be used in an async function block.
     --> compiler-test:7:9
@@ -142,7 +146,10 @@ Warning [WTYC0372002]: The async function `finalize_finalize_no_params` is never
     --> compiler-test:18:5
      |
   18 |     async function finalize_finalize_no_params() {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   19 |         foo();
+     |         ^^^^^^
   20 |         bar();
+     |         ^^^^^^
   21 |     }
      |     ^

@@ -79,11 +79,21 @@ impl<T> Buffer<T> {
     pub fn last_entry(&self) -> Option<&T> {
         self.0.last()
     }
+
+    // How many items in the buffer?
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    // Is the buffer empty?
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
 }
 
 impl<T: fmt::Display> fmt::Display for Buffer<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.iter().format("\n").fmt(f)
+        self.0.iter().format("").fmt(f)
     }
 }
 
@@ -245,8 +255,6 @@ mod tests {
     #[test]
     fn buffer_works() {
         create_session_if_not_set_then(|_| {
-            let count_err = |s: String| s.lines().filter(|l| l.contains("Error")).count();
-
             let res: Result<(), _> = Handler::with(|h| {
                 let s = Span::default();
                 assert_eq!(h.err_count(), 0);
@@ -257,7 +265,7 @@ mod tests {
                 Err(ParserError::spread_in_array_init(s).into())
             });
 
-            assert_eq!(count_err(res.unwrap_err().to_string()), 3);
+            assert_eq!(res.unwrap_err().len(), 3);
 
             let res: Result<(), _> = Handler::with(|h| {
                 let s = Span::default();
@@ -265,7 +273,7 @@ mod tests {
                 h.emit_err(ParserError::unexpected_eof(s));
                 Ok(())
             });
-            assert_eq!(count_err(res.unwrap_err().to_string()), 2);
+            assert_eq!(res.unwrap_err().len(), 2);
 
             Handler::with(|_| Ok(())).unwrap();
         })

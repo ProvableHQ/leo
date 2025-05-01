@@ -3,5 +3,3 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'
      |
    1 | async finalize(foo);
      | ^^^^^
-
-
