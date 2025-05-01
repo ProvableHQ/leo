@@ -16,19 +16,18 @@
 
 use super::*;
 use leo_errors::UtilError;
-use leo_package::root::Env;
+use leo_package::{Env, NetworkName};
+
+#[cfg(not(feature = "only_testnet"))]
+use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
     console::program::{Signature, ToFields, Value},
-    prelude::{Address, PrivateKey, ViewKey},
+    prelude::{Address, Network, PrivateKey, TestnetV0, ViewKey},
 };
 
 use crossterm::ExecutableCommand;
-use leo_retriever::NetworkName;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
-#[cfg(not(feature = "only_testnet"))]
-use snarkvm::prelude::{CanaryV0, MainnetV0};
-use snarkvm::prelude::{Network, TestnetV0};
 use std::{
     io::{self, Read, Write},
     path::PathBuf,
@@ -133,45 +132,49 @@ impl Command for Account {
         match self {
             Account::New { seed, write, discreet, network, endpoint } => {
                 // Parse the network.
-                let network = NetworkName::try_from(network.as_str())?;
+                let network: NetworkName = network.parse()?;
                 match network {
-                    NetworkName::TestnetV0 => generate_new_account::<TestnetV0>(seed, write, discreet, &ctx, endpoint),
+                    NetworkName::TestnetV0 => {
+                        generate_new_account::<TestnetV0>(network, seed, write, discreet, &ctx, endpoint)
+                    }
                     NetworkName::MainnetV0 => {
                         #[cfg(feature = "only_testnet")]
                         panic!("Mainnet chosen with only_testnet feature");
                         #[cfg(not(feature = "only_testnet"))]
-                        generate_new_account::<MainnetV0>(seed, write, discreet, &ctx, endpoint)
+                        generate_new_account::<MainnetV0>(network, seed, write, discreet, &ctx, endpoint)
                     }
                     NetworkName::CanaryV0 => {
                         #[cfg(feature = "only_testnet")]
                         panic!("Canary chosen with only_testnet feature");
                         #[cfg(not(feature = "only_testnet"))]
-                        generate_new_account::<CanaryV0>(seed, write, discreet, &ctx, endpoint)
+                        generate_new_account::<CanaryV0>(network, seed, write, discreet, &ctx, endpoint)
                     }
                 }?
             }
             Account::Import { private_key, write, discreet, network, endpoint } => {
                 // Parse the network.
-                let network = NetworkName::try_from(network.as_str())?;
+                let network: NetworkName = network.parse()?;
                 match network {
-                    NetworkName::TestnetV0 => import_account::<TestnetV0>(private_key, write, discreet, &ctx, endpoint),
+                    NetworkName::TestnetV0 => {
+                        import_account::<TestnetV0>(network, private_key, write, discreet, &ctx, endpoint)
+                    }
                     NetworkName::MainnetV0 => {
                         #[cfg(feature = "only_testnet")]
                         panic!("Mainnet chosen with only_testnet feature");
                         #[cfg(not(feature = "only_testnet"))]
-                        import_account::<MainnetV0>(private_key, write, discreet, &ctx, endpoint)
+                        import_account::<MainnetV0>(network, private_key, write, discreet, &ctx, endpoint)
                     }
                     NetworkName::CanaryV0 => {
                         #[cfg(feature = "only_testnet")]
                         panic!("Canary chosen with only_testnet feature");
                         #[cfg(not(feature = "only_testnet"))]
-                        import_account::<CanaryV0>(private_key, write, discreet, &ctx, endpoint)
+                        import_account::<CanaryV0>(network, private_key, write, discreet, &ctx, endpoint)
                     }
                 }?
             }
             Self::Sign { message, raw, private_key, private_key_file, network } => {
                 // Parse the network.
-                let network = NetworkName::try_from(network.as_str())?;
+                let network: NetworkName = network.parse()?;
                 let result = match network {
                     NetworkName::TestnetV0 => sign_message::<TestnetV0>(message, raw, private_key, private_key_file),
                     NetworkName::MainnetV0 => {
@@ -191,7 +194,7 @@ impl Command for Account {
             }
             Self::Verify { address, signature, message, raw, network } => {
                 // Parse the network.
-                let network = NetworkName::try_from(network.as_str())?;
+                let network: NetworkName = network.parse()?;
                 let result = match network {
                     NetworkName::TestnetV0 => verify_message::<TestnetV0>(address, signature, message, raw),
                     NetworkName::MainnetV0 => {
@@ -218,6 +221,7 @@ impl Command for Account {
 
 // Generate a new account.
 fn generate_new_account<N: Network>(
+    network: NetworkName,
     seed: Option<u64>,
     write: bool,
     discreet: bool,
@@ -238,13 +242,14 @@ fn generate_new_account<N: Network>(
 
     // Save key data to .env file.
     if write {
-        write_to_env_file(private_key, ctx, endpoint)?;
+        write_to_env_file(network, private_key, ctx, endpoint)?;
     }
     Ok(())
 }
 
 // Import an account.
 fn import_account<N: Network>(
+    network: NetworkName,
     private_key: Option<String>,
     write: bool,
     discreet: bool,
@@ -272,7 +277,7 @@ fn import_account<N: Network>(
 
     // Save key data to .env file.
     if write {
-        write_to_env_file::<N>(priv_key, ctx, endpoint)?;
+        write_to_env_file::<N>(network, priv_key, ctx, endpoint)?;
     }
 
     Ok(())
@@ -382,9 +387,16 @@ pub(crate) fn verify_message<N: Network>(
 }
 
 // Write the network and private key to the .env file in project directory.
-fn write_to_env_file<N: Network>(private_key: PrivateKey<N>, ctx: &Context, endpoint: String) -> Result<()> {
+fn write_to_env_file<N: Network>(
+    network: NetworkName,
+    private_key: PrivateKey<N>,
+    ctx: &Context,
+    endpoint: String,
+) -> Result<()> {
     let program_dir = ctx.dir()?;
-    Env::<N>::new(Some(private_key), endpoint)?.write_to(&program_dir)?;
+    let env = Env { network, private_key: private_key.to_string(), endpoint };
+    let env_path = program_dir.join(leo_package::ENV_FILENAME);
+    env.write_to_file(env_path)?;
     tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());
     Ok(())
 }

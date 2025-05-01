@@ -15,22 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use aleo_std;
-use leo_errors::{CliError, PackageError, Result};
-use leo_package::build::{BUILD_DIRECTORY_NAME, BuildDirectory};
-use leo_retriever::LockFileEntry;
-
-use snarkvm::file::Manifest;
+use leo_errors::{CliError, Result};
+use leo_package::Manifest;
 
 use aleo_std::aleo_dir;
-use indexmap::IndexMap;
 use snarkvm::prelude::{Network, PrivateKey};
-use std::{
-    env::current_dir,
-    fs::File,
-    io::Write,
-    path::{Path, PathBuf},
-    str::FromStr,
-};
+use std::{env::current_dir, path::PathBuf, str::FromStr};
 
 /// Project context, manifest, current directory etc
 /// All the info that is relevant in most of the commands
@@ -78,68 +68,12 @@ impl Context {
         }
     }
 
-    /// Returns the package name as a String.
-    /// Opens the manifest file `program.json` and creates the build directory if it doesn't exist.
-    pub fn open_manifest<N: Network>(&self) -> Result<Manifest<N>> {
-        // Open the manifest file.
+    /// Opens the manifest file `program.json`.
+    pub fn open_manifest(&self) -> Result<Manifest> {
         let path = self.dir()?;
-        let manifest = Manifest::<N>::open(&path).map_err(PackageError::failed_to_open_manifest)?;
-
-        // Lookup the program id.
-        // let program_id = manifest.program_id();
-
-        // Create the Leo build/ directory if it doesn't exist.
-        let build_path = path.join(Path::new(BUILD_DIRECTORY_NAME));
-        if !build_path.exists() {
-            BuildDirectory::create(&build_path)?;
-        }
-
-        // Mirror the program.json file in the Leo build/ directory for Aleo SDK compilation.
-
-        // Read the manifest file to string.
-        let manifest_string =
-            std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_read_manifest)?;
-
-        // Construct the file path.
-        let build_manifest_path = build_path.join(Manifest::<N>::file_name());
-
-        // Write the file.
-        File::create(build_manifest_path)
-            .map_err(PackageError::failed_to_create_manifest)?
-            .write_all(manifest_string.as_bytes())
-            .map_err(PackageError::failed_to_write_manifest)?;
-
-        // Get package name from program id.
+        let manifest_path = path.join(leo_package::MANIFEST_FILENAME);
+        let manifest = Manifest::read_from_file(manifest_path)?;
         Ok(manifest)
-    }
-
-    /// Returns a post ordering of the local dependencies.
-    /// Found by reading the lock file `leo.lock`.
-    pub fn local_dependency_paths(&self) -> Result<Vec<(String, PathBuf)>> {
-        let path = self.dir()?;
-        let lock_path = path.join("leo.lock");
-
-        // If there is no lock file can assume no local dependencies
-        if !lock_path.exists() {
-            return Ok(Vec::new());
-        }
-
-        let contents = std::fs::read_to_string(&lock_path)
-            .map_err(|err| PackageError::failed_to_read_file(lock_path.to_str().unwrap(), err))?;
-
-        let entry_map: IndexMap<String, Vec<LockFileEntry>> =
-            toml::from_str(&contents).map_err(PackageError::failed_to_deserialize_lock_file)?;
-
-        let lock_entries = entry_map.get("package").ok_or_else(PackageError::invalid_lock_file_formatting)?;
-
-        let list: Vec<(String, PathBuf)> = lock_entries
-            .iter()
-            .filter_map(|entry| {
-                entry.path().map(|local_path| (entry.name().to_string(), local_path.clone().join("build")))
-            })
-            .collect();
-
-        Ok(list)
     }
 
     /// Returns the private key from the .env file specified in the directory.

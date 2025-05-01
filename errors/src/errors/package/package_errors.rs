@@ -166,8 +166,8 @@ create_messages!(
     /// For when creating the source directory failed.
     @backtraced
     failed_to_create_source_directory {
-        args: (error: impl ErrorArg),
-        msg: format!("Failed creating source directory {error}."),
+        args: (path: impl Display, error: impl ErrorArg),
+        msg: format!("Failed creating source directory at `{path}`: {error}."),
         help: None,
     }
 
@@ -322,8 +322,8 @@ create_messages!(
 
     @backtraced
     source_directory_can_contain_only_one_file {
-        args: (),
-        msg: "The `src/` directory can contain only one file and must be named `main.leo`.".to_string(),
+        args: (directory: impl Display),
+        msg: format!("The `{directory}` source directory can contain only one file which must be named `main.leo`."),
         help: None,
     }
 
@@ -431,5 +431,33 @@ create_messages!(
         args: (path: impl Display),
         msg: format!("Failed to load leo project at path {path}"),
         help: Some("Make sure that the path is correct and that the project exists.".to_string()),
+    }
+
+    @backtraced
+    conflicting_dependency {
+        args: (dependency: impl Display),
+        msg: format!("Conflicting data for dependency {dependency}."),
+        help: None,
+    }
+
+    @backtraced
+    conflicting_manifest {
+        args: (expected_name: impl Display, manifest_name: impl Display),
+        msg: format!("Expected to find program {expected_name}, but manifest found for program {manifest_name}."),
+        help: None,
+    }
+
+    @backtraced
+    invalid_network_name {
+        args: (name: impl Display),
+        msg: format!("Invalid network name {name} in manifest `program.json`."),
+        help: None,
+    }
+
+    @backtraced
+    failed_path {
+        args: (path: impl Display, err: impl Display),
+        msg: format!("Cannot find path `{path}`: {err}."),
+        help: None,
     }
 );

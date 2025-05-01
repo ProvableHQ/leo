@@ -41,14 +41,19 @@ pub fn whole_compile(
 ) -> Result<(String, String), LeoError> {
     let options = CompilerOptions { build: BuildOptions { dce_enabled, ..Default::default() }, ..Default::default() };
 
-    let mut compiler =
-        Compiler::<TestnetV0>::new(handler.clone(), "/fakedirectory-wont-use".into(), Some(options), import_stubs);
+    let mut compiler = Compiler::<TestnetV0>::new(
+        None,
+        handler.clone(),
+        "/fakedirectory-wont-use".into(),
+        Some(options),
+        import_stubs,
+    );
 
     let filename = FileName::Custom("compiler-test".into());
 
     let bytecode = compiler.compile(source, filename)?;
 
-    Ok((bytecode, compiler.program_name))
+    Ok((bytecode, compiler.program_name.unwrap()))
 }
 
 fn run_test(test: &str, dce_enabled: bool, handler: &Handler) -> Result<String, ()> {

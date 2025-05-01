@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_errors::{LeoError, Result, UtilError};
-use leo_package::package::Package;
 
 // A valid hash is 61 characters long, with preface "ab1" and all characters lowercase or numbers.
 pub fn is_valid_hash(hash: &str) -> Result<(), LeoError> {
@@ -76,16 +75,5 @@ pub fn is_valid_field(field: &str) -> Result<String, LeoError> {
         Ok(field.to_string())
     } else {
         Err(UtilError::invalid_field(field).into())
-    }
-}
-
-// Checks if the string is a valid program name in Aleo.
-pub fn check_valid_program_name(name: String) -> String {
-    if name.ends_with(".aleo") {
-        Package::is_aleo_name_valid(&name[0..name.len() - 5]);
-        name
-    } else {
-        Package::is_aleo_name_valid(&name);
-        format!("{}.aleo", name)
     }
 }

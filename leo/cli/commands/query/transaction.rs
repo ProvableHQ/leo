@@ -55,7 +55,10 @@ impl Command for LeoTransaction {
             format!("find/transactionID/{transition}")
         } else if let Some(program) = self.from_program {
             // Check that the program name is valid.
-            format!("find/transactionID/deployment/{}", check_valid_program_name(program))
+            if !leo_package::is_valid_aleo_name(&program) {
+                return Err(CliError::invalid_program_name(program).into());
+            }
+            format!("find/transactionID/deployment/{}", program)
         } else if let Some(id) = self.id {
             is_valid_transaction_id(&id)?;
             if self.confirmed { format!("transaction/confirmed/{}", id) } else { format!("transaction/{}", id) }

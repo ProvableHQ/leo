@@ -15,10 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use aleo_std::StorageMode;
-use dialoguer::{Confirm, theme::ColorfulTheme};
-use leo_retriever::NetworkName;
-use num_format::{Locale, ToFormattedString};
+
+use leo_package::{NetworkName, Package, ProgramData};
+
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
     ledger::query::Query as SnarkVMQuery,
@@ -36,6 +35,10 @@ use snarkvm::{
     circuit::{AleoCanaryV0, AleoV0},
     prelude::{CanaryV0, MainnetV0},
 };
+
+use aleo_std::StorageMode;
+use dialoguer::{Confirm, theme::ColorfulTheme};
+use num_format::{Locale, ToFormattedString};
 use std::path::PathBuf;
 use text_tables;
 
@@ -59,7 +62,7 @@ pub struct LeoDeploy {
 }
 
 impl Command for LeoDeploy {
-    type Input = ();
+    type Input = Option<Package>;
     type Output = ();
 
     fn log_span(&self) -> Span {
@@ -67,29 +70,33 @@ impl Command for LeoDeploy {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        if !self.no_build {
-            (LeoBuild { options: self.options.clone() }).execute(context)?;
+        if self.no_build {
+            Ok(None)
+        } else {
+            let package = LeoBuild { options: self.options.clone() }.execute(context)?;
+            Ok(Some(package))
         }
-        Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = NetworkName::try_from(context.get_network(&self.options.network)?)?;
+        let network: NetworkName = context.get_network(&self.options.network)?.parse()?;
         let endpoint = context.get_endpoint(&self.options.endpoint)?;
         match network {
-            NetworkName::TestnetV0 => handle_deploy::<AleoTestnetV0, TestnetV0>(&self, context, network, &endpoint),
+            NetworkName::TestnetV0 => {
+                handle_deploy::<AleoTestnetV0, TestnetV0>(&self, context, network, &endpoint, input)
+            }
             NetworkName::MainnetV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Mainnet chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                return handle_deploy::<AleoV0, MainnetV0>(&self, context, network, &endpoint);
+                return handle_deploy::<AleoV0, MainnetV0>(&self, context, network, &endpoint, input);
             }
             NetworkName::CanaryV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Canary chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                return handle_deploy::<AleoCanaryV0, CanaryV0>(&self, context, network, &endpoint);
+                return handle_deploy::<AleoCanaryV0, CanaryV0>(&self, context, network, &endpoint, input);
             }
         }
     }
@@ -101,9 +108,10 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
     context: Context,
     network: NetworkName,
     endpoint: &str,
+    package: Option<Package>,
 ) -> Result<<LeoDeploy as Command>::Output> {
     // Get the program name.
-    let project_name = context.open_manifest::<N>()?.program_id().to_string();
+    let project_name = context.open_manifest()?.program.clone();
 
     // Get the private key.
     let private_key = context.get_private_key(&command.fee_options.private_key)?;
@@ -114,13 +122,25 @@ fn handle_deploy<A: Aleo<Network = N, BaseField = N::Field>, N: Network>(
 
     let mut all_paths: Vec<(String, PathBuf)> = Vec::new();
 
-    // Extract post-ordered list of local dependencies' paths from `leo.lock`.
+    // Extract post-ordered list of local dependencies' paths.
     if command.recursive {
         // Cannot combine with private fee.
         if command.fee_options.record.is_some() {
             return Err(CliError::recursive_deploy_with_record().into());
         }
-        all_paths = context.local_dependency_paths()?;
+        let package = if let Some(package) = package {
+            package
+        } else {
+            Package::from_directory(context.dir()?, context.home()?)?
+        };
+        all_paths = package
+            .programs
+            .iter()
+            .flat_map(|program| match &program.data {
+                ProgramData::Bytecode(..) => None,
+                ProgramData::SourcePath(path) => Some((program.name.to_string(), path.clone())),
+            })
+            .collect();
     }
 
     // Add the parent program to be deployed last.

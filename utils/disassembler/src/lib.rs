@@ -23,7 +23,7 @@ use snarkvm::{
     synthesizer::program::{CommandTrait, InstructionTrait, Program, ProgramCore},
 };
 
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
     program: ProgramCore<N, Instruction, Command>,
@@ -86,10 +86,10 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
     }
 }
 
-pub fn disassemble_from_str<N: Network>(name: &str, program: &str) -> Result<Stub, UtilError> {
+pub fn disassemble_from_str<N: Network>(name: impl fmt::Display, program: &str) -> Result<Stub, UtilError> {
     match Program::<N>::from_str(program) {
         Ok(p) => Ok(disassemble(p)),
-        Err(_) => Err(UtilError::snarkvm_parsing_error(name, Default::default())),
+        Err(_) => Err(UtilError::snarkvm_parsing_error(name)),
     }
 }
 

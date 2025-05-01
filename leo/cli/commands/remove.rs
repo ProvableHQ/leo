@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_retriever::{Dependency, Manifest};
+use leo_package::Manifest;
 
 /// Remove a dependency from the current package.
 #[derive(Parser, Debug)]
@@ -47,64 +47,42 @@ impl Command for LeoRemove {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
 
-        // TODO: Dedup with Add Command. Requires merging utils/retriever/program_context with leo/package as both involve modifying the manifest.
-        // Deserialize the manifest.
-        let program_data: String = std::fs::read_to_string(path.join("program.json"))
-            .map_err(|err| PackageError::failed_to_read_file(path.to_str().unwrap(), err))?;
-        let manifest: Manifest = serde_json::from_str(&program_data)
-            .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))?;
+        let manifest_path = path.join(leo_package::MANIFEST_FILENAME);
+        let mut manifest = Manifest::read_from_file(&manifest_path)?;
 
-        let dependencies: Vec<Dependency> = if !self.all {
-            // Note that this unwrap is safe since `name` is required if `all` is `false`.
-            let name: String = self.name.unwrap().clone();
+        let mut dependencies = manifest.dependencies.unwrap_or_default();
 
-            let mut found_match = false;
-            let dep = match manifest.dependencies() {
-                Some(dependencies) => dependencies
-                    .iter()
-                    .filter_map(|dependency| {
-                        if dependency.name() == &name {
-                            found_match = true;
-                            let msg = match (dependency.path(), dependency.network()) {
-                                (Some(local_path), _) => format!(
-                                    "local dependency to `{}` from path `{}`",
-                                    name,
-                                    local_path.to_str().unwrap().replace('\"', "")
-                                ),
-                                (_, Some(network)) => {
-                                    format!("network dependency to `{}` from network `{}`", name, network)
-                                }
-                                _ => format!("git dependency to `{name}`"),
-                            };
-                            tracing::warn!("✅ Successfully removed the {msg}.");
-                            None
-                        } else {
-                            Some(dependency.clone())
-                        }
-                    })
-                    .collect(),
-                _ => Vec::new(),
-            };
-
-            // Throw error if no match is found.
-            if !found_match {
+        if self.all {
+            dependencies = Vec::new();
+        } else {
+            let name =
+                self.name.map(|name| if name.ends_with(".aleo") { name } else { format!("{name}.aleo") }).unwrap();
+            let original_len = dependencies.len();
+            let mut new_deps = Vec::with_capacity(original_len);
+            for dependency in dependencies.into_iter() {
+                if dependency.name == name {
+                    if let Some(local_path) = &dependency.path {
+                        tracing::warn!(
+                            "✅ Successfully removed the local dependency {} from path {}.",
+                            dependency.name,
+                            local_path.display()
+                        );
+                    } else {
+                        tracing::warn!("✅ Successfully removed the network dependency {}.", dependency.name,);
+                    }
+                } else {
+                    new_deps.push(dependency);
+                }
+            }
+            if new_deps.len() == original_len {
                 return Err(PackageError::dependency_not_found(name).into());
             }
+            dependencies = new_deps;
+        }
 
-            dep
-        } else {
-            Vec::new()
-        };
+        manifest.dependencies = Some(dependencies);
 
-        // Update the manifest file.
-        let new_manifest = Manifest::new(
-            manifest.program(),
-            manifest.version(),
-            manifest.description(),
-            manifest.license(),
-            Some(dependencies),
-        );
-        new_manifest.write_to_dir(&path)?;
+        manifest.write_to_file(&manifest_path)?;
 
         Ok(())
     }

@@ -46,10 +46,7 @@ workspace = true
 path = "../../utils/disassembler"
 
 [dev-dependencies.leo-package]
-path = "../../leo/package"
-
-[dev-dependencies.leo-retriever]
-path = "../../utils/retriever"
+workspace = true
 
 [dev-dependencies.leo-test-framework]
 workspace = true

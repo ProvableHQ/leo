@@ -18,13 +18,22 @@ license = "GPL-3.0"
 edition = "2024"
 rust-version = "1.85.1"
 
+[dependencies.leo-disassembler]
+workspace = true
+
 [dependencies.leo-errors]
 workspace = true
 
-[dependencies.leo-retriever]
+[dependencies.leo-passes]
+workspace = true
+
+[dependencies.leo-span]
 workspace = true
 
 [dependencies.snarkvm]
+workspace = true
+
+[dependencies.indexmap]
 workspace = true
 
 [dependencies.rand]
@@ -33,14 +42,11 @@ workspace = true
 [dependencies.serde]
 workspace = true
 
+[dependencies.serde_json]
+workspace = true
+
 [dependencies.tracing]
 workspace = true
 
-[dev-dependencies.snarkvm]
+[dependencies.ureq]
 workspace = true
-
-[features]
-default = [ "manifest_refactors" ]
-manifest_refactors = [ "manifest_refactor_project", "manifest_refactor_remote" ]
-manifest_refactor_project = [ ]
-manifest_refactor_remote = [ ]

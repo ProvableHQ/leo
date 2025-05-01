@@ -15,9 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_errors::{CliError, LeoError};
+
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 // Retrievable networks for an external program
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
@@ -40,30 +41,15 @@ impl NetworkName {
     }
 }
 
-impl TryFrom<&str> for NetworkName {
-    type Error = LeoError;
+impl FromStr for NetworkName {
+    type Err = LeoError;
 
-    fn try_from(network: &str) -> Result<Self, LeoError> {
-        match network {
+    fn from_str(s: &str) -> Result<Self, LeoError> {
+        match s {
             "testnet" => Ok(NetworkName::TestnetV0),
             "mainnet" => Ok(NetworkName::MainnetV0),
             "canary" => Ok(NetworkName::CanaryV0),
-            _ => Err(LeoError::CliError(CliError::invalid_network_name(network))),
-        }
-    }
-}
-impl TryFrom<String> for NetworkName {
-    type Error = LeoError;
-
-    fn try_from(network: String) -> Result<Self, LeoError> {
-        if network == "testnet" {
-            Ok(NetworkName::TestnetV0)
-        } else if network == "mainnet" {
-            Ok(NetworkName::MainnetV0)
-        } else if network == "canary" {
-            Ok(NetworkName::CanaryV0)
-        } else {
-            Err(LeoError::CliError(CliError::invalid_network_name(&network)))
+            _ => Err(LeoError::CliError(CliError::invalid_network_name(s))),
         }
     }
 }

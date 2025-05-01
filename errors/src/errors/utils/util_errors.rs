@@ -26,7 +26,7 @@ create_messages!(
     code_mask: 10000i32,
     code_prefix: "UTL",
 
-    @formatted
+    @backtraced
     util_file_io_error {
         args: (msg: impl Display, err: impl ErrorArg),
         msg: format!("File system io error: {msg}. Error: {err}"),
@@ -47,14 +47,14 @@ create_messages!(
         help: None,
     }
 
-    @formatted
+    @backtraced
     snarkvm_parsing_error {
         args: (name: impl Display),
         msg: format!("Failed to parse the source file for `{name}.aleo` into a valid Aleo program."),
         help: None,
     }
 
-    @formatted
+    @backtraced
     circular_dependency_error {
         args: (),
         msg: "Circular dependency detected".to_string(),

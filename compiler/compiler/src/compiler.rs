@@ -39,12 +39,12 @@ pub struct Compiler<N: Network> {
     /// The path to where the compiler outputs all generated files.
     output_directory: PathBuf,
     /// The program name,
-    pub program_name: String,
+    pub program_name: Option<String>,
     /// Options configuring compilation.
     compiler_options: CompilerOptions,
     /// State.
     state: CompilerState,
-    /// The stubs for imported programs. Produced by `Retriever` module.
+    /// The stubs for imported programs.
     import_stubs: IndexMap<Symbol, Stub>,
     /// How many statements were in the AST before DCE?
     pub statements_before_dce: u32,
@@ -67,11 +67,19 @@ impl<N: Network> Compiler<N> {
             source_file.absolute_start,
         )?;
 
-        // If the program is imported, then check that the name of its program scope matches the file name.
+        // Check that the name of its program scope matches the expected name.
         // Note that parsing enforces that there is exactly one program scope in a file.
-        // TODO: Clean up check.
         let program_scope = self.state.ast.ast.program_scopes.values().next().unwrap();
-        self.program_name = program_scope.program_id.name.to_string();
+        if self.program_name.is_none() {
+            self.program_name = Some(program_scope.program_id.name.to_string());
+        } else if self.program_name != Some(program_scope.program_id.name.to_string()) {
+            return Err(CompilerError::program_name_should_match_file_name(
+                program_scope.program_id.name,
+                self.program_name.as_ref().unwrap(),
+                program_scope.program_id.name.span,
+            )
+            .into());
+        }
 
         if self.compiler_options.output.initial_ast {
             self.write_ast_to_json("initial.json")?;
@@ -90,6 +98,7 @@ impl<N: Network> Compiler<N> {
 
     /// Returns a new Leo compiler.
     pub fn new(
+        expected_program_name: Option<String>,
         handler: Handler,
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
@@ -98,7 +107,7 @@ impl<N: Network> Compiler<N> {
         Self {
             state: CompilerState { handler, ..Default::default() },
             output_directory,
-            program_name: Default::default(),
+            program_name: expected_program_name,
             compiler_options: compiler_options.unwrap_or_default(),
             import_stubs,
             statements_before_dce: 0,
@@ -167,7 +176,7 @@ impl<N: Network> Compiler<N> {
     pub fn compile(&mut self, source: &str, filename: FileName) -> Result<String> {
         // Parse the program.
         self.parse(source, filename)?;
-        // Copy the dependencies specified in `program.json` into the AST.
+        // Merge the stubs into the AST.
         self.add_import_stubs()?;
         // Run the intermediate compiler stages.
         self.intermediate_passes()?;
@@ -186,13 +195,14 @@ impl<N: Network> Compiler<N> {
     fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
         // Remove `Span`s if they are not enabled.
         if self.compiler_options.output.ast_spans_enabled {
-            self.state
-                .ast
-                .to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
+            self.state.ast.to_json_file(
+                self.output_directory.clone(),
+                &format!("{}.{file_suffix}", self.program_name.as_ref().unwrap()),
+            )?;
         } else {
             self.state.ast.to_json_file_without_keys(
                 self.output_directory.clone(),
-                &format!("{}.{file_suffix}", self.program_name),
+                &format!("{}.{file_suffix}", self.program_name.as_ref().unwrap()),
                 &["_span", "span"],
             )?;
         }
@@ -201,47 +211,45 @@ impl<N: Network> Compiler<N> {
 
     /// Writes the AST to a file (Leo syntax, not JSON).
     fn write_ast(&self, file_suffix: &str) -> Result<()> {
-        let filename = format!("{}.{file_suffix}", self.program_name);
+        let filename = format!("{}.{file_suffix}", self.program_name.as_ref().unwrap());
         let full_filename = self.output_directory.join(&filename);
         let contents = self.state.ast.ast.to_string();
         fs::write(&full_filename, contents).map_err(|e| CompilerError::failed_ast_file(full_filename.display(), e))?;
         Ok(())
     }
 
-    /// Merges the dependencies defined in `program.json` with the dependencies imported in `.leo` file
+    /// Merge the imported stubs which are dependencies of the current program into the AST
+    /// in topological order.
     pub fn add_import_stubs(&mut self) -> Result<()> {
-        // Create a list of both the explicit dependencies specified in the `.leo` file, as well as the implicit ones derived from those dependencies.
-        let (mut unexplored, mut explored): (IndexSet<Symbol>, IndexSet<Symbol>) =
-            (self.state.ast.ast.imports.keys().cloned().collect(), IndexSet::new());
-        while !unexplored.is_empty() {
-            let mut current_dependencies: IndexSet<Symbol> = IndexSet::new();
-            for program_name in unexplored.iter() {
-                if let Some(stub) = self.import_stubs.get(program_name) {
-                    // Add the program to the explored set
-                    explored.insert(*program_name);
-                    for dependency in stub.imports.iter() {
-                        // If dependency is already explored then don't need to re-explore it
-                        if explored.insert(dependency.name.name) {
-                            current_dependencies.insert(dependency.name.name);
-                        }
-                    }
-                } else {
-                    return Err(CompilerError::imported_program_not_found(
-                        self.program_name.clone(),
-                        *program_name,
-                        self.state.ast.ast.imports[program_name].1,
-                    )
-                    .into());
-                }
-            }
+        let mut explored = IndexSet::<Symbol>::new();
+        let mut to_explore: Vec<Symbol> = self.state.ast.ast.imports.keys().cloned().collect();
 
-            // Create next batch to explore
-            unexplored = current_dependencies;
+        while let Some(import) = to_explore.pop() {
+            explored.insert(import);
+            if let Some(stub) = self.import_stubs.get(&import) {
+                for new_import_id in stub.imports.iter() {
+                    if !explored.contains(&new_import_id.name.name) {
+                        to_explore.push(new_import_id.name.name);
+                    }
+                }
+            } else {
+                return Err(CompilerError::imported_program_not_found(
+                    self.program_name.as_ref().unwrap(),
+                    import,
+                    self.state.ast.ast.imports[&import].1,
+                )
+                .into());
+            }
         }
 
-        // Combine the dependencies from `program.json` and `.leo` file while preserving the post-order
-        self.state.ast.ast.stubs =
-            self.import_stubs.clone().into_iter().filter(|(program_name, _)| explored.contains(program_name)).collect();
+        // Iterate in the order of `import_stubs` to make sure they
+        // stay topologically sorted.
+        self.state.ast.ast.stubs = self
+            .import_stubs
+            .iter()
+            .filter(|(symbol, _stub)| explored.contains(*symbol))
+            .map(|(symbol, stub)| (*symbol, stub.clone()))
+            .collect();
         Ok(())
     }
 }

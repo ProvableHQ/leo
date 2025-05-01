@@ -1753,7 +1753,6 @@ dependencies = [
  "leo-package",
  "leo-parser",
  "leo-passes",
- "leo-retriever",
  "leo-span",
  "leo-test-framework",
  "rand_chacha",
@@ -1833,10 +1832,10 @@ dependencies = [
  "indexmap 2.9.0",
  "leo-ast",
  "leo-compiler",
+ "leo-disassembler",
  "leo-errors",
  "leo-interpreter",
  "leo-package",
- "leo-retriever",
  "leo-span",
  "num-format",
  "rand",
@@ -1862,12 +1861,17 @@ dependencies = [
 name = "leo-package"
 version = "2.5.0"
 dependencies = [
+ "indexmap 2.9.0",
+ "leo-disassembler",
  "leo-errors",
- "leo-retriever",
+ "leo-passes",
+ "leo-span",
  "rand",
  "serde",
+ "serde_json",
  "snarkvm",
  "tracing",
+ "ureq",
 ]
 
 [[package]]
@@ -1902,26 +1906,6 @@ dependencies = [
  "serde",
  "serde_json",
  "snarkvm",
-]
-
-[[package]]
-name = "leo-retriever"
-version = "2.5.0"
-dependencies = [
- "aleo-std",
- "indexmap 2.9.0",
- "leo-ast",
- "leo-disassembler",
- "leo-errors",
- "leo-passes",
- "leo-span",
- "serde",
- "serde_json",
- "serial_test",
- "sha2",
- "snarkvm",
- "toml 0.8.20",
- "ureq",
 ]
 
 [[package]]
