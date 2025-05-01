@@ -16,6 +16,7 @@
 
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Location {
@@ -26,5 +27,11 @@ pub struct Location {
 impl Location {
     pub fn new(program: Symbol, name: Symbol) -> Location {
         Location { program, name }
+    }
+}
+
+impl Display for Location {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}/{}", self.program, self.name)
     }
 }

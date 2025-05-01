@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_ast::Location;
 use leo_span::Symbol;
 
 use indexmap::{IndexMap, IndexSet};
@@ -23,7 +24,7 @@ use std::{fmt::Debug, hash::Hash};
 pub type StructGraph = DiGraph<Symbol>;
 
 /// A call graph.
-pub type CallGraph = DiGraph<Symbol>;
+pub type CallGraph = DiGraph<Location>;
 
 /// An import dependency graph.
 pub type ImportGraph = DiGraph<Symbol>;
@@ -32,6 +33,7 @@ pub type ImportGraph = DiGraph<Symbol>;
 pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
 
 impl Node for Symbol {}
+impl Node for Location {}
 
 /// Errors in directed graph operations.
 #[derive(Debug)]
@@ -41,13 +43,19 @@ pub enum DiGraphError<N: Node> {
 }
 
 /// A directed graph.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DiGraph<N: Node> {
     /// The set of nodes in the graph.
     nodes: IndexSet<N>,
     /// The directed edges in the graph.
     /// Each entry in the map is a node in the graph, and the set of nodes that it points to.
     edges: IndexMap<N, IndexSet<N>>,
+}
+
+impl<N: Node> Default for DiGraph<N> {
+    fn default() -> Self {
+        Self { nodes: IndexSet::new(), edges: IndexMap::new() }
+    }
 }
 
 impl<N: Node> DiGraph<N> {

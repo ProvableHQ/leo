@@ -691,7 +691,6 @@ impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
         }
 
         // Check function argument types.
-        self.scope_state.is_call = true;
         let (mut input_futures, mut inferred_finalize_inputs) = (Vec::new(), Vec::new());
         for (expected, argument) in func.input.iter().zip(input.arguments.iter()) {
             // Get the type of the expression. If the type is not known, do not attempt to attempt any further inference.
@@ -744,16 +743,22 @@ impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
                 inferred_finalize_inputs.push(ty);
             }
         }
-        self.scope_state.is_call = false;
 
-        // Add the call to the call graph.
         let Some(caller_name) = self.scope_state.function else {
             panic!("`self.function` is set every time a function is visited.");
         };
 
-        // Don't add external functions to call graph. Since imports are acyclic, these can never produce a cycle.
-        if input.program.unwrap() == self.scope_state.program_name.unwrap() {
-            self.state.call_graph.add_edge(caller_name, ident.name);
+        // If we are traversing a constructor, don't add it to the call graph.
+        // Constructors cannot be invoked directly and thus are allways source nodes in the graph.
+        // Note that external calls are added to the call graph because program upgradability enables import cycles.
+        if !self.scope_state.is_constructor {
+            let caller_program =
+                self.scope_state.program_name.expect("`program_name` is always set before traversing a program scope");
+            let caller_function =
+                self.scope_state.function.expect("`function` is always set before traversing a function scope");
+            let caller = Location::new(caller_program, caller_function);
+            let callee = Location::new(callee_program, ident.name);
+            self.state.call_graph.add_edge(caller, callee);
         }
 
         if func.variant.is_transition()

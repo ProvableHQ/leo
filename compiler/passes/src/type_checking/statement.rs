@@ -253,6 +253,22 @@ impl<N: Network> StatementVisitor for TypeCheckingVisitor<'_, N> {
     }
 
     fn visit_return(&mut self, input: &ReturnStatement) {
+        // If we are currently traversing a constructor, assert that the return type is a unit type.
+        if self.scope_state.is_constructor {
+            // Set the `has_return` flag.
+            self.scope_state.has_return = true;
+            // Get the type of the expression.
+            let type_ = self.visit_expression(&input.expression, &None);
+            // Check that the type is a unit type.
+            if type_ != Type::Unit {
+                return self.emit_err(TypeCheckerError::custom_error(
+                    "A constructor cannot return a concrete value",
+                    input.span(),
+                ));
+            }
+            return;
+        } // Otherwise, handle the case where we are traversing a function.
+
         let func_name = self.scope_state.function.unwrap();
         let func_symbol = self
             .state

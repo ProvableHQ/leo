@@ -19,7 +19,7 @@ use crate::{Assigner, CallGraph, StructGraph, SymbolTable, TypeTable};
 use leo_ast::{Ast, NodeBuilder};
 use leo_errors::{Handler, Result};
 
-/// Contains data share by many compiler passes.
+/// Contains data shared by many compiler passes.
 #[derive(Default)]
 pub struct CompilerState {
     /// The Abstract Syntax Tree.

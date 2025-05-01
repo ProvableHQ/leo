@@ -18,7 +18,6 @@ use crate::{CompilerState, Pass, VariableSymbol, VariableType};
 
 use leo_ast::{
     Composite,
-    Constructor,
     ExpressionVisitor,
     Function,
     FunctionStub,
@@ -132,10 +131,6 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         ) {
             self.state.handler.emit_err(err);
         }
-    }
-
-    fn visit_constructor(&mut self, input: &Constructor) {
-        todo!()
     }
 
     fn visit_function(&mut self, input: &Function) {

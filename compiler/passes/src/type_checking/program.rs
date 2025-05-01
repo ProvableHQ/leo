@@ -82,6 +82,13 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
             }
         }
 
+        // Typecheck the constructor.
+        // Note: Constructors are required for all programs once they are supported in the AVM.
+        //  However, we do not require them to exist to ensure backwards compatibility with existing programs.
+        if let Some(constructor) = &input.constructor {
+            self.visit_constructor(constructor);
+        }
+
         // Check that the call graph does not have any cycles.
         if let Err(DiGraphError::CycleDetected(path)) = self.state.call_graph.post_order() {
             self.emit_err(TypeCheckerError::cyclic_function_dependency(path));
@@ -240,11 +247,9 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
         }
     }
 
-    fn visit_constructor(&mut self, _input: &Constructor) {
-        todo!()
-    }
-
     fn visit_function(&mut self, function: &Function) {
+        // Reset the scope state.
+        self.scope_state.reset();
         // Check that the function's annotations are valid.
         // Note that Leo does not natively support any specific annotations.
         for annotation in function.annotations.iter() {
@@ -252,15 +257,12 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
             self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
         }
 
-        // Set type checker variables for function variant details.
-        self.scope_state.initialize_function_state(function.variant);
+        // Set the scope state before traversing the function.
+        self.scope_state.variant = Some(function.variant);
 
         self.in_conditional_scope(|slf| {
             slf.in_scope(function.id, |slf| {
                 function.input.iter().for_each(|input| slf.insert_symbol_conditional_scope(input.identifier.name));
-
-                // The function's body does not have a return statement.
-                slf.scope_state.has_return = false;
 
                 // Store the name of the function.
                 slf.scope_state.function = Some(function.name());
@@ -285,6 +287,20 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
         if self.scope_state.variant == Some(Variant::AsyncTransition) && !self.scope_state.has_called_finalize {
             self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
         }
+    }
+
+    fn visit_constructor(&mut self, constructor: &Constructor) {
+        // Reset the scope state.
+        self.scope_state.reset();
+        // Set the scope state before traversing the constructor.
+        self.scope_state.variant = Some(Variant::AsyncFunction);
+        self.scope_state.is_constructor = true;
+        // Traverse the constructor.
+        self.in_conditional_scope(|slf| {
+            slf.in_scope(constructor.id, |slf| {
+                slf.visit_block(&constructor.block);
+            })
+        });
     }
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {

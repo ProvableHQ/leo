@@ -379,7 +379,7 @@ create_messages!(
     @formatted
     can_only_call_inline_function {
         args: (),
-        msg: format!("Only `inline` can be called from a `function` or `inline`."),
+        msg: format!("A `constructor`, `function`, or `inline` can only call an `inline`."),
         help: None,
     }
 

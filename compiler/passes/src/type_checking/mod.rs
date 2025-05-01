@@ -62,7 +62,7 @@ impl<N: Network> Pass for TypeChecking<N> {
             .map(|(loc, _)| loc.name)
             .chain(state.symbol_table.iter_structs().map(|(name, _)| name))
             .collect();
-        let function_names = state.symbol_table.iter_functions().map(|(loc, _)| loc.name).collect();
+        let function_names = state.symbol_table.iter_functions().map(|(name, _)| name).collect();
 
         let ast = std::mem::take(&mut state.ast);
 

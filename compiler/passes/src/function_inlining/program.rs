@@ -34,14 +34,14 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
         let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
 
         // Reconstruct and accumulate each of the functions in post-order.
-        for function_name in &order {
+        for function_name in order.iter().map(|location| location.name) {
             // None: If `function_name` is not in `input.functions`, then it must be an external function.
             // TODO: Check that this is indeed an external function. Requires a redesign of the symbol table.
-            if let Some(function) = function_map.shift_remove(function_name) {
+            if let Some(function) = function_map.shift_remove(&function_name) {
                 // Reconstruct the function.
                 let reconstructed_function = self.reconstruct_function(function);
                 // Add the reconstructed function to the mapping.
-                self.reconstructed_functions.push((*function_name, reconstructed_function));
+                self.reconstructed_functions.push((function_name, reconstructed_function));
             }
         }
         // This is a sanity check to ensure that functions in the program scope have been processed.

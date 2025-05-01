@@ -27,18 +27,18 @@ pub struct ScopeState {
     pub(crate) has_return: bool,
     /// Current program name.
     pub(crate) program_name: Option<Symbol>,
-    /// Whether or not we are currently traversing a stub.
+    /// Whether we are currently traversing a stub.
     pub(crate) is_stub: bool,
     /// The futures that must be propagated to an async function.
     pub(crate) futures: IndexMap<Symbol, Location>,
     /// Whether the finalize caller has called the finalize function.
     pub(crate) has_called_finalize: bool,
-    /// Whether currently traversing a conditional statement.
+    /// Whether we are currently traversing a conditional statement.
     pub(crate) is_conditional: bool,
-    /// Whether the current function is a call.
-    pub(crate) is_call: bool,
     /// Location of most recent external call that produced a future.
     pub(crate) call_location: Option<Location>,
+    /// Whether we are currently traversing a constructor.
+    pub(crate) is_constructor: bool,
 }
 
 impl ScopeState {
@@ -53,16 +53,22 @@ impl ScopeState {
             futures: IndexMap::new(),
             has_called_finalize: false,
             is_conditional: false,
-            is_call: false,
             call_location: None,
+            is_constructor: false,
         }
     }
 
-    /// Initialize state variables for new function.
-    pub fn initialize_function_state(&mut self, variant: Variant) {
-        self.variant = Some(variant);
+    /// Resets the scope state to a valid starting state, before traversing a function or constructor.
+    pub fn reset(&mut self) {
+        self.function = None;
+        self.variant = None;
+        self.has_return = false;
+        self.is_stub = true;
+        self.futures.clear();
         self.has_called_finalize = false;
-        self.futures = IndexMap::new();
+        self.is_conditional = false;
+        self.call_location = None;
+        self.is_constructor = false;
     }
 
     /// Get the current location.
