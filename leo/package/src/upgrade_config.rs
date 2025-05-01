@@ -18,19 +18,17 @@ use serde::{Deserialize, Deserializer, Serialize, de, de::Visitor};
 use std::fmt;
 
 /// The `UpgradeConfig` defines the upgrade mechanism for a Leo program.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(tag = "mode", rename_all = "lowercase")]
 pub enum UpgradeConfig {
+    #[default]
     Disabled,
     Admin,
     Custom,
-    Checksum { mapping: MappingTarget, key: String },
-}
-
-impl Default for UpgradeConfig {
-    fn default() -> Self {
-        UpgradeConfig::Disabled
-    }
+    Checksum {
+        mapping: MappingTarget,
+        key: String,
+    },
 }
 
 /// The `MappingTarget` defines the location at which the expected checksum is stored for the program.
@@ -47,7 +45,7 @@ impl<'de> Deserialize<'de> for MappingTarget {
     {
         struct MappingTargetVisitor;
 
-        impl<'de> Visitor<'de> for MappingTargetVisitor {
+        impl Visitor<'_> for MappingTargetVisitor {
             type Value = MappingTarget;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
