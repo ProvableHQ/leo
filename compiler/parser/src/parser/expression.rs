@@ -484,18 +484,19 @@ impl<N: Network> ParserContext<'_, N> {
                     }
                 } else {
                     // Parse instances of `self.address`.
-                    if let Expression::Identifier(id) = expr {
-                        if id.name == sym::SelfLower && self.token.token == Token::Address {
-                            let span = self.expect(&Token::Address)?;
-                            // Convert `self.address` to the current program name. TODO: Move this conversion to canonicalization pass when the new pass is added.
-                            // Note that the unwrap is safe as in order to get to this stage of parsing a program name must have already been parsed.
-                            return Ok(Literal::address(
-                                format!("{}.aleo", self.program_name.unwrap()),
-                                expr.span() + span,
-                                self.node_builder.next_id(),
-                            )
-                            .into());
+                    // This needs to be handled as a special case because `address` is a keyword in Leo,
+                    if self.token.token == Token::Address {
+                        // Eat the address token.
+                        let span = self.expect(&Token::Address)?;
+                        // Return a member access expression.
+                        expr = MemberAccess {
+                            span: expr.span() + span,
+                            inner: expr,
+                            name: Identifier { name: sym::address, span, id: self.node_builder.next_id() },
+                            id: self.node_builder.next_id(),
                         }
+                        .into();
+                        continue
                     }
 
                     // Parse identifier name.

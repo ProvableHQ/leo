@@ -86,9 +86,29 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
                 // If the access expression is of the form `self.<name>`, then check the <name> is valid.
                 Expression::Identifier(identifier) if identifier.name == sym::SelfLower => {
                     match input.name.name {
+                        sym::address => {
+                            return Type::Address;
+                        }
                         sym::caller => {
                             // Check that the operation is not invoked in a `finalize` block.
                             self.check_access_allowed("self.caller", false, input.name.span());
+                            return Type::Address;
+                        }
+                        sym::checksum => {
+                            return Type::Array(ArrayType::new(
+                                Type::Integer(IntegerType::U8),
+                                NonNegativeNumber::from(32),
+                            ));
+                        }
+                        sym::edition => {
+                            return Type::Integer(IntegerType::U16);
+                        }
+                        sym::id => {
+                            return Type::Address;
+                        }
+                        sym::program_owner => {
+                            // Check that the operation is only invoked in a `finalize` block.
+                            self.check_access_allowed("self.program_owner", true, input.name.span());
                             return Type::Address;
                         }
                         sym::signer => {

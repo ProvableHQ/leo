@@ -9,17 +9,17 @@ Error [ETYC0372043]: Cannot call a local transition function from a transition f
      |
   15 |             return foo(n - 1u8) + foo(n - 2u8);
      |                                   ^^^^^^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
     --> compiler-test:7:20
      |
    7 |             return fib(n - 1u8) + fib(n - 2u8);
      |                    ^^^^^^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
     --> compiler-test:7:35
      |
    7 |             return fib(n - 1u8) + fib(n - 2u8);
      |                                   ^^^^^^^^^^^^
-Error [ETYC0372059]: Cyclic dependency between functions: `foo` --> `foo`
+Error [ETYC0372059]: Cyclic dependency between functions: `test/foo` --> `test/foo`
 
 DCE_DISABLED:
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
@@ -32,14 +32,14 @@ Error [ETYC0372043]: Cannot call a local transition function from a transition f
      |
   15 |             return foo(n - 1u8) + foo(n - 2u8);
      |                                   ^^^^^^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
     --> compiler-test:7:20
      |
    7 |             return fib(n - 1u8) + fib(n - 2u8);
      |                    ^^^^^^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
     --> compiler-test:7:35
      |
    7 |             return fib(n - 1u8) + fib(n - 2u8);
      |                                   ^^^^^^^^^^^^
-Error [ETYC0372059]: Cyclic dependency between functions: `foo` --> `foo`
+Error [ETYC0372059]: Cyclic dependency between functions: `test/foo` --> `test/foo`

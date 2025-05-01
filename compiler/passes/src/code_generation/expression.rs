@@ -314,6 +314,24 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
     }
 
     fn visit_member_access(&mut self, input: &MemberAccess) -> (String, String) {
+        // Handle `self.address`, `self.checksum`, `self.edition`, and `self.owner`.
+        if let Expression::Identifier(Identifier { name: sym::SelfLower, .. }) = input.inner.borrow() {
+            // Get the current program ID.
+            let program_id = self.program_id.expect("Program ID should be set before traversing the program");
+
+            match input.name.name {
+                // Return the program ID directly.
+                sym::address | sym::id => {
+                    return (program_id.to_string(), String::new());
+                }
+                // Return the appropriate snarkVM operand.
+                name @ (sym::checksum | sym::edition | sym::owner) => {
+                    return (format!("{program_id}/{name}"), String::new());
+                }
+                _ => panic!("The only members of `self` are `address`, `checksum`, `edition`, and `owner`"),
+            }
+        }
+
         let (inner_expr, _) = self.visit_expression(&input.inner);
         let member_access = format!("{}.{}", inner_expr, input.name);
 
