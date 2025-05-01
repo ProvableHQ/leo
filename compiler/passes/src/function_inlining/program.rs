@@ -19,6 +19,7 @@ use leo_ast::{Constructor, Function, ProgramReconstructor, ProgramScope, Stateme
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
+use snarkvm::prelude::Itertools;
 
 impl ProgramReconstructor for FunctionInliningVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
@@ -28,20 +29,25 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
         // Get the post-order ordering of the call graph.
         // Note that the post-order always contains all nodes in the call graph.
         // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
-        let order = self.state.call_graph.post_order().unwrap();
+        let order = self.state.call_graph.post_order().unwrap().into_iter().filter_map(|location| {
+            match location.program == self.program {
+                true => Some(location.name),
+                false => None,
+            }
+        }).collect_vec();
 
-        // Construct map to provide faster lookup of functions
+        // Construct map to provide faster lookup of functions.
         let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
-
+        
         // Reconstruct and accumulate each of the functions in post-order.
-        for function_name in order.iter().map(|location| location.name) {
+        for function_name in &order {
             // None: If `function_name` is not in `input.functions`, then it must be an external function.
             // TODO: Check that this is indeed an external function. Requires a redesign of the symbol table.
-            if let Some(function) = function_map.shift_remove(&function_name) {
+            if let Some(function) = function_map.shift_remove(function_name) {
                 // Reconstruct the function.
                 let reconstructed_function = self.reconstruct_function(function);
                 // Add the reconstructed function to the mapping.
-                self.reconstructed_functions.push((function_name, reconstructed_function));
+                self.reconstructed_functions.push((*function_name, reconstructed_function));
             }
         }
         // This is a sanity check to ensure that functions in the program scope have been processed.

@@ -1,0 +1,13 @@
+DCE_ENABLED:
+Error [EPAR0370046]: A program can only have one constructor.
+    --> compiler-test:9:5
+     |
+   9 |     async constructor() {
+     |     ^^^^^
+
+DCE_DISABLED:
+Error [EPAR0370046]: A program can only have one constructor.
+    --> compiler-test:9:5
+     |
+   9 |     async constructor() {
+     |     ^^^^^

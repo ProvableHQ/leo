@@ -314,7 +314,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
     }
 
     fn visit_member_access(&mut self, input: &MemberAccess) -> (String, String) {
-        // Handle `self.address`, `self.checksum`, `self.edition`, and `self.owner`.
+        // Handle `self.address`, `self.checksum`, `self.edition`, `self.id`, and `self.owner`.
         if let Expression::Identifier(Identifier { name: sym::SelfLower, .. }) = input.inner.borrow() {
             // Get the current program ID.
             let program_id = self.program_id.expect("Program ID should be set before traversing the program");
@@ -511,7 +511,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
             }
             sym::ProgramCore => {
                 match input.name.name {
-                    // Generate code for `Progaam::checksum`, Program::edition, and Program::owner
+                    // Generate code for `Program::checksum`, `Program::edition`, and `Program::owner`
                     name @ (sym::checksum | sym::edition | sym::program_owner) => {
                         // Get the program ID from the first argument.
                         let program_id = ProgramID::<N>::from_str(&arguments[0].replace("\"", ""))

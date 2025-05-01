@@ -110,8 +110,9 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
     }
 
     fn visit_stub(&mut self, input: &Stub) {
-        // Set the current program name.
+        // Set the scope state.
         self.scope_state.program_name = Some(input.stub_id.name.name);
+        self.scope_state.is_stub = true;
 
         // Cannot have constant declarations in stubs.
         if !input.consts.is_empty() {
@@ -293,6 +294,7 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
         // Reset the scope state.
         self.scope_state.reset();
         // Set the scope state before traversing the constructor.
+        self.scope_state.function = Some(sym::constructor);
         self.scope_state.variant = Some(Variant::AsyncFunction);
         self.scope_state.is_constructor = true;
         // Traverse the constructor.

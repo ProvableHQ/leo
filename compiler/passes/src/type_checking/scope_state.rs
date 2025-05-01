@@ -49,7 +49,7 @@ impl ScopeState {
             variant: None,
             has_return: false,
             program_name: None,
-            is_stub: true,
+            is_stub: false,
             futures: IndexMap::new(),
             has_called_finalize: false,
             is_conditional: false,
@@ -63,7 +63,7 @@ impl ScopeState {
         self.function = None;
         self.variant = None;
         self.has_return = false;
-        self.is_stub = true;
+        self.is_stub = false;
         self.futures.clear();
         self.has_called_finalize = false;
         self.is_conditional = false;

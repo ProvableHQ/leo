@@ -1,0 +1,41 @@
+DCE_ENABLED:
+Error [ETYC0372113]: Cannot define a function with no parameters.
+    --> compiler-test:3:5
+     |
+   3 |     function foo() {
+     |     ^^^^^^^^^^^^^^^^
+   4 |         assert_eq(true, true);
+     |         ^^^^^^^^^^^^^^^^^^^^^^
+   5 |     }
+     |     ^
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
+    --> compiler-test:10:9
+     |
+  10 |         foo();
+     |         ^^^^^
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
+    --> compiler-test:11:9
+     |
+  11 |         bar();
+     |         ^^^^^
+
+DCE_DISABLED:
+Error [ETYC0372113]: Cannot define a function with no parameters.
+    --> compiler-test:3:5
+     |
+   3 |     function foo() {
+     |     ^^^^^^^^^^^^^^^^
+   4 |         assert_eq(true, true);
+     |         ^^^^^^^^^^^^^^^^^^^^^^
+   5 |     }
+     |     ^
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
+    --> compiler-test:10:9
+     |
+  10 |         foo();
+     |         ^^^^^
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
+    --> compiler-test:11:9
+     |
+  11 |         bar();
+     |         ^^^^^

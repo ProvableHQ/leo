@@ -158,18 +158,21 @@ impl<N: Network> ParserContext<'_, N> {
                 }
                 Token::RightCurly => break,
                 _ => {
-                    return Err(Self::unexpected_item(&self.token, &[
-                        Token::Const,
-                        Token::Struct,
-                        Token::Record,
-                        Token::Mapping,
-                        Token::At,
-                        Token::Async,
-                        Token::Function,
-                        Token::Transition,
-                        Token::Inline,
-                        Token::RightCurly,
-                    ])
+                    return Err(Self::unexpected_item(
+                        &self.token,
+                        &[
+                            Token::Const,
+                            Token::Struct,
+                            Token::Record,
+                            Token::Mapping,
+                            Token::At,
+                            Token::Async,
+                            Token::Function,
+                            Token::Transition,
+                            Token::Inline,
+                            Token::RightCurly,
+                        ],
+                    )
                     .into());
                 }
             }
@@ -244,14 +247,17 @@ impl<N: Network> ParserContext<'_, N> {
         // Only provide a program name for records.
         let external = if is_record { self.program_name } else { None };
 
-        Ok((struct_name.name, Composite {
-            identifier: struct_name,
-            members,
-            external,
-            is_record,
-            span: start + end,
-            id: self.node_builder.next_id(),
-        }))
+        Ok((
+            struct_name.name,
+            Composite {
+                identifier: struct_name,
+                members,
+                external,
+                is_record,
+                span: start + end,
+                id: self.node_builder.next_id(),
+            },
+        ))
     }
 
     /// Parses a mapping declaration, e.g. `mapping balances: address => u128`.
@@ -263,13 +269,10 @@ impl<N: Network> ParserContext<'_, N> {
         self.expect(&Token::BigArrow)?;
         let (value_type, _) = self.parse_type()?;
         let end = self.expect(&Token::Semicolon)?;
-        Ok((identifier.name, Mapping {
-            identifier,
-            key_type,
-            value_type,
-            span: start + end,
-            id: self.node_builder.next_id(),
-        }))
+        Ok((
+            identifier.name,
+            Mapping { identifier, key_type, value_type, span: start + end, id: self.node_builder.next_id() },
+        ))
     }
 
     // TODO: Return a span associated with the mode.
@@ -405,6 +408,10 @@ impl<N: Network> ParserContext<'_, N> {
         let start = self.expect(&Token::Async)?;
         // Parse the `constructor` keyword.
         let _ = self.expect(&Token::Constructor)?;
+        // Parse the opening parenthesis.
+        let _ = self.expect(&Token::LeftParen)?;
+        // Parse the closing parenthesis.
+        let _ = self.expect(&Token::RightParen)?;
         // Parse the constructor body, which must be a block.
         let block = self.parse_block()?;
 
