@@ -297,6 +297,10 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
         self.scope_state.function = Some(sym::constructor);
         self.scope_state.variant = Some(Variant::AsyncFunction);
         self.scope_state.is_constructor = true;
+        // Check that the block is not empty.
+        if constructor.block.statements.is_empty() {
+            self.emit_err(TypeCheckerError::custom_error("A constructor cannot be empty", constructor.span));
+        }
         // Traverse the constructor.
         self.in_conditional_scope(|slf| {
             slf.in_scope(constructor.id, |slf| {

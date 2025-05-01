@@ -1,23 +1,12 @@
 DCE_ENABLED:
-Error [ETYC0372005]: Unknown variable `self`
-    --> compiler-test:5:42
-     |
-   5 |         assert_eq(Program::program_owner(self), aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
-     |                                          ^^^^
-Error [ETYC0372126]: Expected a string literal
-    --> compiler-test:5:42
-     |
-   5 |         assert_eq(Program::program_owner(self), aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
-     |                                          ^^^^
+Failed to parse string. Remaining invalid string is: "constructor:
+    assert.eq program_owner aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    assert.eq test.aleo/program_owner aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
 
+"
 DCE_DISABLED:
-Error [ETYC0372005]: Unknown variable `self`
-    --> compiler-test:5:42
-     |
-   5 |         assert_eq(Program::program_owner(self), aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
-     |                                          ^^^^
-Error [ETYC0372126]: Expected a string literal
-    --> compiler-test:5:42
-     |
-   5 |         assert_eq(Program::program_owner(self), aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
-     |                                          ^^^^
+Failed to parse string. Remaining invalid string is: "constructor:
+    assert.eq program_owner aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    assert.eq test.aleo/program_owner aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+
+"

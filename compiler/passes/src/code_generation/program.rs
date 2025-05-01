@@ -245,7 +245,19 @@ impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
     }
 
     fn visit_constructor(&mut self, constructor: &'a Constructor) -> String {
-        todo!();
+        // Initialize the state of `self` with the appropriate values before visiting `constructor`.
+        self.next_register = 0;
+        self.variable_mapping = IndexMap::new();
+        self.variant = Some(Variant::AsyncFunction);
+        // TODO: Figure out a better way to initialize.
+        self.variable_mapping.insert(sym::SelfLower, "self".to_string());
+        self.variable_mapping.insert(sym::block, "block".to_string());
+        self.variable_mapping.insert(sym::network, "network".to_string());
+
+        // Construct the body of the constructor.
+        let block_string = self.visit_block(&constructor.block);
+        // Return the constructor string.
+        format!("\nconstructor:\n{block_string}\n")
     }
 
     fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {

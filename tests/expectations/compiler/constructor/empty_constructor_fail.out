@@ -1,0 +1,13 @@
+DCE_ENABLED:
+Error [ETYC0372126]: A constructor cannot be empty
+    --> compiler-test:4:5
+     |
+   4 |     async constructor() {}
+     |     ^^^^^^^^^^^^^^^^^^^^^^
+
+DCE_DISABLED:
+Error [ETYC0372126]: A constructor cannot be empty
+    --> compiler-test:4:5
+     |
+   4 |     async constructor() {}
+     |     ^^^^^^^^^^^^^^^^^^^^^^
