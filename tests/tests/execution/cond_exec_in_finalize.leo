@@ -1,4 +1,6 @@
 /*
+seed = 123456789
+
 [case]
 program = "cond_exec_in_finalize.aleo"
 function = "f"
