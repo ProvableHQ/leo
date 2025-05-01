@@ -128,6 +128,7 @@ impl Package {
             description: String::new(),
             license: "MIT".to_string(),
             dependencies: None,
+            upgrade: Default::default(),
         };
 
         let manifest_path = full_path.join(MANIFEST_FILENAME);

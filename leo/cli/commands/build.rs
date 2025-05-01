@@ -147,6 +147,7 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
         description: String::new(),
         license: String::new(),
         dependencies: None,
+        upgrade: Default::default(),
     };
     fake_manifest.write_to_file(build_manifest_path)?;
 
