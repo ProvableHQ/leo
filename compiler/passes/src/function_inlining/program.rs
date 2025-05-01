@@ -29,16 +29,21 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
         // Get the post-order ordering of the call graph.
         // Note that the post-order always contains all nodes in the call graph.
         // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
-        let order = self.state.call_graph.post_order().unwrap().into_iter().filter_map(|location| {
-            match location.program == self.program {
+        let order = self
+            .state
+            .call_graph
+            .post_order()
+            .unwrap()
+            .into_iter()
+            .filter_map(|location| match location.program == self.program {
                 true => Some(location.name),
                 false => None,
-            }
-        }).collect_vec();
+            })
+            .collect_vec();
 
         // Construct map to provide faster lookup of functions.
         let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
-        
+
         // Reconstruct and accumulate each of the functions in post-order.
         for function_name in &order {
             // None: If `function_name` is not in `input.functions`, then it must be an external function.
