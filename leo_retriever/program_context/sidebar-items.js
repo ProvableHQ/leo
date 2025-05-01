@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["dependency","location","lock_file_entry","manifest","network_name"],"struct":["ProgramContext"]};

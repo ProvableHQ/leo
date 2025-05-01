@@ -23,7 +23,7 @@
 <a href=#23 id=23 data-nosnippet>23</a>    synthesizer::program::{CommandTrait, InstructionTrait, Program, ProgramCore},
 <a href=#24 id=24 data-nosnippet>24</a>};
 <a href=#25 id=25 data-nosnippet>25</a>
-<a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span>std::str::FromStr;
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span>std::{fmt, str::FromStr};
 <a href=#27 id=27 data-nosnippet>27</a>
 <a href=#28 id=28 data-nosnippet>28</a><span class="kw">pub fn </span>disassemble&lt;N: Network, Instruction: InstructionTrait&lt;N&gt;, Command: CommandTrait&lt;N&gt;&gt;(
 <a href=#29 id=29 data-nosnippet>29</a>    program: ProgramCore&lt;N, Instruction, Command&gt;,
@@ -86,10 +86,10 @@
 <a href=#86 id=86 data-nosnippet>86</a>    }
 <a href=#87 id=87 data-nosnippet>87</a>}
 <a href=#88 id=88 data-nosnippet>88</a>
-<a href=#89 id=89 data-nosnippet>89</a><span class="kw">pub fn </span>disassemble_from_str&lt;N: Network&gt;(name: <span class="kw-2">&amp;</span>str, program: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Stub, UtilError&gt; {
+<a href=#89 id=89 data-nosnippet>89</a><span class="kw">pub fn </span>disassemble_from_str&lt;N: Network&gt;(name: <span class="kw">impl </span>fmt::Display, program: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Stub, UtilError&gt; {
 <a href=#90 id=90 data-nosnippet>90</a>    <span class="kw">match </span>Program::&lt;N&gt;::from_str(program) {
 <a href=#91 id=91 data-nosnippet>91</a>        <span class="prelude-val">Ok</span>(p) =&gt; <span class="prelude-val">Ok</span>(disassemble(p)),
-<a href=#92 id=92 data-nosnippet>92</a>        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(UtilError::snarkvm_parsing_error(name, Default::default())),
+<a href=#92 id=92 data-nosnippet>92</a>        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(UtilError::snarkvm_parsing_error(name)),
 <a href=#93 id=93 data-nosnippet>93</a>    }
 <a href=#94 id=94 data-nosnippet>94</a>}
 <a href=#95 id=95 data-nosnippet>95</a>

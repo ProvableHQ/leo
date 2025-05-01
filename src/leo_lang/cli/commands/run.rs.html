@@ -16,7 +16,7 @@
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#18 id=18 data-nosnippet>18</a>
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_retriever::NetworkName;
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_package::NetworkName;
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>snarkvm::{
 <a href=#21 id=21 data-nosnippet>21</a>    cli::Run <span class="kw">as </span>SnarkVMRun,
 <a href=#22 id=22 data-nosnippet>22</a>    prelude::{CanaryV0, MainnetV0, Network, Parser <span class="kw">as </span>SnarkVMParser, TestnetV0},
@@ -52,7 +52,7 @@
 <a href=#52 id=52 data-nosnippet>52</a>
 <a href=#53 id=53 data-nosnippet>53</a>    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
 <a href=#54 id=54 data-nosnippet>54</a>        <span class="comment">// Parse the network.
-<a href=#55 id=55 data-nosnippet>55</a>        </span><span class="kw">let </span>network = NetworkName::try_from(context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.compiler_options.network)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+<a href=#55 id=55 data-nosnippet>55</a>        </span><span class="kw">let </span>network = context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.compiler_options.network)<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>;
 <a href=#56 id=56 data-nosnippet>56</a>        <span class="kw">match </span>network {
 <a href=#57 id=57 data-nosnippet>57</a>            NetworkName::MainnetV0 =&gt; handle_run::&lt;MainnetV0&gt;(<span class="self">self</span>, context),
 <a href=#58 id=58 data-nosnippet>58</a>            NetworkName::TestnetV0 =&gt; handle_run::&lt;TestnetV0&gt;(<span class="self">self</span>, context),
@@ -89,16 +89,16 @@
 <a href=#89 id=89 data-nosnippet>89</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::failed_to_read_input_file(path.display()).into());
 <a href=#90 id=90 data-nosnippet>90</a>            }
 <a href=#91 id=91 data-nosnippet>91</a>            <span class="comment">// Convert the values to strings.
-<a href=#92 id=92 data-nosnippet>92</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::&lt;Vec&lt;String&gt;&gt;();
+<a href=#92 id=92 data-nosnippet>92</a>            </span><span class="kw">let </span>inputs_from_file = values.iter().map(|value| value.to_string());
 <a href=#93 id=93 data-nosnippet>93</a>            <span class="comment">// Add the inputs from the file to the arguments.
-<a href=#94 id=94 data-nosnippet>94</a>            </span>arguments.append(<span class="kw-2">&amp;mut </span>inputs_from_file);
+<a href=#94 id=94 data-nosnippet>94</a>            </span>arguments.extend(inputs_from_file);
 <a href=#95 id=95 data-nosnippet>95</a>        }
 <a href=#96 id=96 data-nosnippet>96</a>        <span class="prelude-val">None </span>=&gt; arguments.append(<span class="kw-2">&amp;mut </span>inputs),
 <a href=#97 id=97 data-nosnippet>97</a>    }
 <a href=#98 id=98 data-nosnippet>98</a>
 <a href=#99 id=99 data-nosnippet>99</a>    <span class="comment">// Open the Leo build/ directory
 <a href=#100 id=100 data-nosnippet>100</a>    </span><span class="kw">let </span>path = context.dir()<span class="question-mark">?</span>;
-<a href=#101 id=101 data-nosnippet>101</a>    <span class="kw">let </span>build_directory = BuildDirectory::open(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
+<a href=#101 id=101 data-nosnippet>101</a>    <span class="kw">let </span>build_directory = path.join(leo_package::BUILD_DIRECTORY);
 <a href=#102 id=102 data-nosnippet>102</a>
 <a href=#103 id=103 data-nosnippet>103</a>    <span class="comment">// Change the cwd to the Leo build/ directory to compile aleo files.
 <a href=#104 id=104 data-nosnippet>104</a>    </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>build_directory)

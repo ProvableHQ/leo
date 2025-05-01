@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"static":["ENV_FILENAME"],"struct":["Env"]};

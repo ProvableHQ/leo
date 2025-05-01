@@ -55,14 +55,17 @@
 <a href=#55 id=55 data-nosnippet>55</a>            <span class="macro">format!</span>(<span class="string">"find/transactionID/{transition}"</span>)
 <a href=#56 id=56 data-nosnippet>56</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(program) = <span class="self">self</span>.from_program {
 <a href=#57 id=57 data-nosnippet>57</a>            <span class="comment">// Check that the program name is valid.
-<a href=#58 id=58 data-nosnippet>58</a>            </span><span class="macro">format!</span>(<span class="string">"find/transactionID/deployment/{}"</span>, check_valid_program_name(program))
-<a href=#59 id=59 data-nosnippet>59</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.id {
-<a href=#60 id=60 data-nosnippet>60</a>            is_valid_transaction_id(<span class="kw-2">&amp;</span>id)<span class="question-mark">?</span>;
-<a href=#61 id=61 data-nosnippet>61</a>            <span class="kw">if </span><span class="self">self</span>.confirmed { <span class="macro">format!</span>(<span class="string">"transaction/confirmed/{}"</span>, id) } <span class="kw">else </span>{ <span class="macro">format!</span>(<span class="string">"transaction/{}"</span>, id) }
-<a href=#62 id=62 data-nosnippet>62</a>        } <span class="kw">else </span>{
-<a href=#63 id=63 data-nosnippet>63</a>            <span class="macro">unreachable!</span>(<span class="string">"All command paths covered."</span>)
-<a href=#64 id=64 data-nosnippet>64</a>        };
-<a href=#65 id=65 data-nosnippet>65</a>
-<a href=#66 id=66 data-nosnippet>66</a>        <span class="prelude-val">Ok</span>(url)
-<a href=#67 id=67 data-nosnippet>67</a>    }
-<a href=#68 id=68 data-nosnippet>68</a>}</code></pre></div></section></main></body></html>
+<a href=#58 id=58 data-nosnippet>58</a>            </span><span class="kw">if </span>!leo_package::is_valid_aleo_name(<span class="kw-2">&amp;</span>program) {
+<a href=#59 id=59 data-nosnippet>59</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::invalid_program_name(program).into());
+<a href=#60 id=60 data-nosnippet>60</a>            }
+<a href=#61 id=61 data-nosnippet>61</a>            <span class="macro">format!</span>(<span class="string">"find/transactionID/deployment/{}"</span>, program)
+<a href=#62 id=62 data-nosnippet>62</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.id {
+<a href=#63 id=63 data-nosnippet>63</a>            is_valid_transaction_id(<span class="kw-2">&amp;</span>id)<span class="question-mark">?</span>;
+<a href=#64 id=64 data-nosnippet>64</a>            <span class="kw">if </span><span class="self">self</span>.confirmed { <span class="macro">format!</span>(<span class="string">"transaction/confirmed/{}"</span>, id) } <span class="kw">else </span>{ <span class="macro">format!</span>(<span class="string">"transaction/{}"</span>, id) }
+<a href=#65 id=65 data-nosnippet>65</a>        } <span class="kw">else </span>{
+<a href=#66 id=66 data-nosnippet>66</a>            <span class="macro">unreachable!</span>(<span class="string">"All command paths covered."</span>)
+<a href=#67 id=67 data-nosnippet>67</a>        };
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a>        <span class="prelude-val">Ok</span>(url)
+<a href=#70 id=70 data-nosnippet>70</a>    }
+<a href=#71 id=71 data-nosnippet>71</a>}</code></pre></div></section></main></body></html>

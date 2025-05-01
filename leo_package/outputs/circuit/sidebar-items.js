@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"static":["CIRCUIT_FILE_EXTENSION"],"struct":["CircuitFile"]};

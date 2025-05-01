@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"static":["BUILD_DIRECTORY_NAME"],"struct":["BuildDirectory"]};

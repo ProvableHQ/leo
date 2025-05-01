@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Package"]};
+window.SIDEBAR_ITEMS = {"enum":["ProgramData"],"fn":["main_template"],"struct":["Package"]};

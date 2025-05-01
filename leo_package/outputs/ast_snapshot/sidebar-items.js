@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Snapshot"],"static":["AST_SNAPSHOT_FILE_EXTENSION"],"struct":["SnapshotFile"]};
