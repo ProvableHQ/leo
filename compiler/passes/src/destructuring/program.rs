@@ -19,16 +19,6 @@ use super::DestructuringVisitor;
 use leo_ast::{Constructor, Function, ProgramReconstructor, StatementReconstructor};
 
 impl ProgramReconstructor for DestructuringVisitor<'_> {
-    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
-        // Set the `is_async` flag before reconstructing the block.
-        self.is_async = true;
-        // Reconstruct the block.
-        let block = self.reconstruct_block(input.block).0;
-        // Reset the `is_async` flag.
-        self.is_async = false;
-        Constructor { block, ..input }
-    }
-
     fn reconstruct_function(&mut self, input: Function) -> Function {
         // Set the `is_async` flag before reconstructing the block.
         self.is_async = input.variant.is_async_function();
@@ -37,5 +27,15 @@ impl ProgramReconstructor for DestructuringVisitor<'_> {
         // Reset the `is_async` flag.
         self.is_async = false;
         Function { block, ..input }
+    }
+
+    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
+        // Set the `is_async` flag before reconstructing the block.
+        self.is_async = true;
+        // Reconstruct the block.
+        let block = self.reconstruct_block(input.block).0;
+        // Reset the `is_async` flag.
+        self.is_async = false;
+        Constructor { block, ..input }
     }
 }

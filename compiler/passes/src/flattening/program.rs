@@ -33,10 +33,6 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
         self.program = input.program_id.name.name;
         ProgramScope {
             program_id: input.program_id,
-            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
-            mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
-            constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
-            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             consts: input
                 .consts
                 .into_iter()
@@ -45,33 +41,12 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
+            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
         }
-    }
-
-    /// Flattens a constructor's body.
-    fn reconstruct_constructor(&mut self, constructor: Constructor) -> Constructor {
-        // A constructor is always async.
-        self.is_async = true;
-
-        // Flatten the function body.
-        let mut block = self.reconstruct_block(constructor.block).0;
-
-        // Fold the return statements into the block.
-        let returns = std::mem::take(&mut self.returns);
-        let expression_returns: Vec<(Option<Expression>, ReturnStatement)> = returns
-            .into_iter()
-            .map(|(guard, statement)| match guard {
-                ReturnGuard::None => (None, statement),
-                ReturnGuard::Unconstructed(plain) | ReturnGuard::Constructed { plain, .. } => {
-                    (Some(plain.into()), statement)
-                }
-            })
-            .collect();
-
-        self.fold_returns(&mut block, expression_returns);
-
-        Constructor { block, span: constructor.span, id: constructor.id }
     }
 
     /// Flattens a function's body
@@ -107,5 +82,30 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
             span: function.span,
             id: function.id,
         }
+    }
+
+    /// Flattens a constructor's body.
+    fn reconstruct_constructor(&mut self, constructor: Constructor) -> Constructor {
+        // A constructor is always async.
+        self.is_async = true;
+
+        // Flatten the function body.
+        let mut block = self.reconstruct_block(constructor.block).0;
+
+        // Fold the return statements into the block.
+        let returns = std::mem::take(&mut self.returns);
+        let expression_returns: Vec<(Option<Expression>, ReturnStatement)> = returns
+            .into_iter()
+            .map(|(guard, statement)| match guard {
+                ReturnGuard::None => (None, statement),
+                ReturnGuard::Unconstructed(plain) | ReturnGuard::Constructed { plain, .. } => {
+                    (Some(plain.into()), statement)
+                }
+            })
+            .collect();
+
+        self.fold_returns(&mut block, expression_returns);
+
+        Constructor { block, span: constructor.span, id: constructor.id }
     }
 }

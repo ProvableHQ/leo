@@ -19,14 +19,6 @@ use super::WriteTransformingVisitor;
 use leo_ast::{Constructor, Function, ProgramReconstructor, StatementReconstructor as _};
 
 impl ProgramReconstructor for WriteTransformingVisitor<'_> {
-    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
-        let mut statements = Vec::new();
-        let mut block = self.reconstruct_block(input.block).0;
-        statements.extend(block.statements);
-        block.statements = statements;
-        Constructor { block, ..input }
-    }
-
     fn reconstruct_function(&mut self, input: Function) -> Function {
         // Since the input parameters may be structs or arrays that are written to,
         // we may need to define variable members.
@@ -40,10 +32,19 @@ impl ProgramReconstructor for WriteTransformingVisitor<'_> {
         Function { block, ..input }
     }
 
+    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
+        let mut statements = Vec::new();
+        let mut block = self.reconstruct_block(input.block).0;
+        statements.extend(block.statements);
+        block.statements = statements;
+        Constructor { block, ..input }
+    }
+
     fn reconstruct_program_scope(&mut self, input: leo_ast::ProgramScope) -> leo_ast::ProgramScope {
         self.program = input.program_id.name.name;
         leo_ast::ProgramScope {
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             ..input
         }
     }

@@ -33,10 +33,10 @@ pub struct ProgramScope {
     pub structs: Vec<(Symbol, Composite)>,
     /// A vector of mapping definitions.
     pub mappings: Vec<(Symbol, Mapping)>,
-    /// An optional constructor.
-    pub constructor: Option<Constructor>,
     /// A vector of function definitions.
     pub functions: Vec<(Symbol, Function)>,
+    /// An optional constructor.
+    pub constructor: Option<Constructor>,
     /// The span associated with the program scope.
     pub span: Span,
 }

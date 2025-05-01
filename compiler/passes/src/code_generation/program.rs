@@ -111,6 +111,12 @@ impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
             }
         }
 
+        // If the constructor exists, visit it and produce an Aleo constructor.
+        if let Some(constructor) = program_scope.constructor.as_ref() {
+            // Generate code for the constructor.
+            program_string.push_str(&self.visit_constructor(constructor));
+        }
+
         program_string
     }
 
@@ -166,10 +172,6 @@ impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
         }
 
         output_string
-    }
-
-    fn visit_constructor(&mut self, constructor: &'a Constructor) -> String {
-        todo!();
     }
 
     fn visit_function_with(&mut self, function: &'a Function, futures: &[Location]) -> String {
@@ -240,6 +242,10 @@ impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
 
     fn visit_function(&mut self, function: &'a Function) -> String {
         self.visit_function_with(function, &[])
+    }
+
+    fn visit_constructor(&mut self, constructor: &'a Constructor) -> String {
+        todo!();
     }
 
     fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {

@@ -65,22 +65,6 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
         }
     }
 
-    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
-        Constructor {
-            block: {
-                // Set the `is_async` flag before reconstructing the block.
-                self.is_async = true;
-                // Reconstruct the block.
-                let block = self.reconstruct_block(input.block).0;
-                // Reset the `is_async` flag.
-                self.is_async = false;
-                block
-            },
-            span: input.span,
-            id: input.id,
-        }
-    }
-
     fn reconstruct_function(&mut self, input: Function) -> Function {
         Function {
             annotations: input.annotations,
@@ -92,6 +76,22 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
             block: {
                 // Set the `is_async` flag before reconstructing the block.
                 self.is_async = input.variant.is_async_function();
+                // Reconstruct the block.
+                let block = self.reconstruct_block(input.block).0;
+                // Reset the `is_async` flag.
+                self.is_async = false;
+                block
+            },
+            span: input.span,
+            id: input.id,
+        }
+    }
+
+    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
+        Constructor {
+            block: {
+                // Set the `is_async` flag before reconstructing the block.
+                self.is_async = true;
                 // Reconstruct the block.
                 let block = self.reconstruct_block(input.block).0;
                 // Reset the `is_async` flag.

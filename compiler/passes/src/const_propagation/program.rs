@@ -41,20 +41,24 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
             *f = self.reconstruct_function(std::mem::take(f));
         }
 
-        input
-    }
+        if let Some(c) = input.constructor.as_mut() {
+            *c = self.reconstruct_constructor(std::mem::take(c));
+        }
 
-    fn reconstruct_constructor(&mut self, mut constructor: Constructor) -> Constructor {
-        self.in_scope(constructor.id(), |slf| {
-            constructor.block = slf.reconstruct_block(constructor.block).0;
-            constructor
-        })
+        input
     }
 
     fn reconstruct_function(&mut self, mut function: Function) -> Function {
         self.in_scope(function.id(), |slf| {
             function.block = slf.reconstruct_block(function.block).0;
             function
+        })
+    }
+
+    fn reconstruct_constructor(&mut self, mut constructor: Constructor) -> Constructor {
+        self.in_scope(constructor.id(), |slf| {
+            constructor.block = slf.reconstruct_block(constructor.block).0;
+            constructor
         })
     }
 }

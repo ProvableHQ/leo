@@ -139,6 +139,10 @@ impl<N: Network> ParserContext<'_, N> {
                     mappings.push((id, mapping));
                 }
                 Token::Async if self.look_ahead(1, |t| &t.token) == &Token::Constructor => {
+                    // If a constructor already exists, return an error.
+                    if constructor.is_some() {
+                        return Err(ParserError::multiple_constructors(self.token.span).into());
+                    }
                     let constructor_ = self.parse_constructor()?;
                     constructor = Some(constructor_);
                 }
@@ -332,18 +336,6 @@ impl<N: Network> ParserContext<'_, N> {
         }
     }
 
-    /// Returns a `Constructor` AST node if the next tokens represent a constructor.
-    fn parse_constructor(&mut self) -> Result<Constructor> {
-        // Parse the `async` keyword.
-        let start = self.expect(&Token::Async)?;
-        // Parse the `constructor` keyword.
-        let _ = self.expect(&Token::Constructor)?;
-        // Parse the constructor body, which must be a block.
-        let block = self.parse_block()?;
-
-        Ok(Constructor { span: start + block.span, block, id: self.node_builder.next_id() })
-    }
-
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     fn parse_function(&mut self) -> Result<(Symbol, Function)> {
@@ -405,5 +397,17 @@ impl<N: Network> ParserContext<'_, N> {
             name.name,
             Function::new(annotations, variant, name, inputs, output, block, span, self.node_builder.next_id()),
         ))
+    }
+
+    /// Returns a `Constructor` AST node if the next tokens represent a constructor.
+    fn parse_constructor(&mut self) -> Result<Constructor> {
+        // Parse the `async` keyword.
+        let start = self.expect(&Token::Async)?;
+        // Parse the `constructor` keyword.
+        let _ = self.expect(&Token::Constructor)?;
+        // Parse the constructor body, which must be a block.
+        let block = self.parse_block()?;
+
+        Ok(Constructor { span: start + block.span, block, id: self.node_builder.next_id() })
     }
 }
