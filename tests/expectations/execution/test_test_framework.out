@@ -1,3 +1,13 @@
+program test.aleo;
+
+function check_starting_height:
+    input r0 as u32.private;
+    async check_starting_height r0 into r1;
+    output r1 as test.aleo/check_starting_height.future;
+
+finalize check_starting_height:
+    input r0 as u32.public;
+    assert.eq block.height r0;
 verified: true
 status: accepted
 errors:

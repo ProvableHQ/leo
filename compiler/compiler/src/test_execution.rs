@@ -107,6 +107,8 @@ fn execution_run_test(config: Config, handler: &Handler, buf: &BufferEmitter, ca
         Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Production)
             .unwrap();
 
+    let mut bytecodes = Vec::<String>::new();
+
     // Compile and deploy each source file separately.
     for source in &config.sources {
         let (bytecode, program_name) = handler.extend_if_error(whole_compile(source, handler, import_stubs.clone()))?;
@@ -153,6 +155,8 @@ fn execution_run_test(config: Config, handler: &Handler, buf: &BufferEmitter, ca
         if block.transactions().num_accepted() != 1 {
             return Ok("Deployment transaction not accepted.".into());
         }
+
+        bytecodes.push(bytecode);
     }
 
     // Fund each private key used in the test cases with 1M ALEO.
@@ -205,9 +209,7 @@ fn execution_run_test(config: Config, handler: &Handler, buf: &BufferEmitter, ca
         ledger.advance_to_next_block(&block).expect("Failed to advance to next block");
     }
 
-    println!("Current height: {}", ledger.vm().block_store().current_block_height());
-
-    let mut output = String::new();
+    let mut output = bytecodes.iter().format(&format!("{}\n", PROGRAM_DELIMITER)).to_string();
     for case in cases {
         if !ledger.vm().contains_program(&ProgramID::from_str(&case.program).unwrap()) {
             return Ok(format!("Program {} doesn't exist.", case.program));
