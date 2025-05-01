@@ -166,7 +166,7 @@
 <a href=#166 id=166 data-nosnippet>166</a>/// one under the following rules:
 <a href=#167 id=167 data-nosnippet>167</a>/// 1. Remove empty object mappings from JSON arrays
 <a href=#168 id=168 data-nosnippet>168</a>/// 2. If there are two elements in a JSON array and one is an empty object
-<a href=#169 id=169 data-nosnippet>169</a>///     mapping and the other is not, then lift up the one that isn't
+<a href=#169 id=169 data-nosnippet>169</a>///    mapping and the other is not, then lift up the one that isn't
 <a href=#170 id=170 data-nosnippet>170</a></span><span class="kw">pub fn </span>normalize_json_value(value: serde_json::Value) -&gt; serde_json::Value {
 <a href=#171 id=171 data-nosnippet>171</a>    <span class="kw">match </span>value {
 <a href=#172 id=172 data-nosnippet>172</a>        serde_json::Value::Array(vec) =&gt; {
