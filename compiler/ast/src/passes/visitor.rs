@@ -272,6 +272,8 @@ pub trait ProgramVisitor: StatementVisitor {
 
     fn visit_mapping(&mut self, _input: &Mapping) {}
 
+    fn visit_constructor(&mut self, _input: &Constructor) {}
+
     fn visit_function(&mut self, input: &Function) {
         self.visit_block(&input.block);
     }

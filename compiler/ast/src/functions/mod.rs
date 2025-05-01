@@ -62,13 +62,42 @@ pub struct Function {
     pub id: NodeID,
 }
 
-impl PartialEq for Function {
-    fn eq(&self, other: &Self) -> bool {
-        self.identifier == other.identifier
+impl fmt::Display for Function {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.variant {
+            Variant::Inline => write!(f, "inline ")?,
+            Variant::Function => write!(f, "function ")?,
+            Variant::AsyncFunction => write!(f, "async function ")?,
+            Variant::Transition => write!(f, "transition ")?,
+            Variant::AsyncTransition => write!(f, "asyc transition ")?,
+        }
+        write!(f, "{}({})", self.identifier, self.input.iter().format(", "))?;
+
+        match self.output.len() {
+            0 => {}
+            1 => {
+                if !matches!(self.output[0].type_, Type::Unit) {
+                    write!(f, " -> {}", self.output[0])?;
+                }
+            }
+            _ => {
+                write!(f, " -> ({})", self.output.iter().format(", "))?;
+            }
+        }
+
+        writeln!(f, " {{")?;
+        for stmt in self.block.statements.iter() {
+            writeln!(f, "{}{}", Indent(stmt), stmt.semicolon())?;
+        }
+        write!(f, "}}")
     }
 }
 
-impl Eq for Function {}
+impl fmt::Debug for Function {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
+    }
+}
 
 impl Function {
     /// Initialize a new function.
@@ -98,6 +127,14 @@ impl Function {
     }
 }
 
+impl PartialEq for Function {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier == other.identifier
+    }
+}
+
+impl Eq for Function {}
+
 impl From<FunctionStub> for Function {
     fn from(function: FunctionStub) -> Self {
         Self {
@@ -111,43 +148,6 @@ impl From<FunctionStub> for Function {
             span: function.span,
             id: function.id,
         }
-    }
-}
-
-impl fmt::Debug for Function {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self)
-    }
-}
-
-impl fmt::Display for Function {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.variant {
-            Variant::Inline => write!(f, "inline ")?,
-            Variant::Function => write!(f, "function ")?,
-            Variant::AsyncFunction => write!(f, "async function ")?,
-            Variant::Transition => write!(f, "transition ")?,
-            Variant::AsyncTransition => write!(f, "asyc transition ")?,
-        }
-        write!(f, "{}({})", self.identifier, self.input.iter().format(", "))?;
-
-        match self.output.len() {
-            0 => {}
-            1 => {
-                if !matches!(self.output[0].type_, Type::Unit) {
-                    write!(f, " -> {}", self.output[0])?;
-                }
-            }
-            _ => {
-                write!(f, " -> ({})", self.output.iter().format(", "))?;
-            }
-        }
-
-        writeln!(f, " {{")?;
-        for stmt in self.block.statements.iter() {
-            writeln!(f, "{}{}", Indent(stmt), stmt.semicolon())?;
-        }
-        write!(f, "}}")
     }
 }
 

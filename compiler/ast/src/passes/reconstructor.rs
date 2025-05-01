@@ -341,6 +341,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
             program_id: input.program_id,
             structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
+            constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             consts: input
                 .consts
@@ -352,6 +353,10 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .collect(),
             span: input.span,
         }
+    }
+
+    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
+        Constructor { block: self.reconstruct_block(input.block).0, span: input.span, id: input.id }
     }
 
     fn reconstruct_function(&mut self, input: Function) -> Function {

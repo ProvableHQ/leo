@@ -19,6 +19,8 @@ use super::SsaFormingVisitor;
 use leo_ast::{
     Block,
     Composite,
+    Constructor,
+    ConstructorConsumer,
     Function,
     FunctionConsumer,
     Identifier,
@@ -57,6 +59,26 @@ impl StructConsumer for SsaFormingVisitor<'_> {
                 Composite { members, ..struct_ }
             }
         }
+    }
+}
+
+impl ConstructorConsumer for SsaFormingVisitor<'_> {
+    type Output = Constructor;
+
+    /// Reconstructs the `Constructor` in the `Program`, while allocating the appropriate `RenameTable`s.
+    fn consume_constructor(&mut self, mut constructor: Constructor) -> Self::Output {
+        // Allocate a `RenameTable` for the constructor.
+        self.push();
+        // Rename the constructor's block.
+        constructor.block = Block {
+            span: constructor.block.span,
+            id: constructor.block.id,
+            statements: self.consume_block(constructor.block),
+        };
+        // Remove the `RenameTable` for the constructor.
+        self.pop();
+
+        constructor
     }
 }
 
@@ -106,6 +128,7 @@ impl ProgramScopeConsumer for SsaFormingVisitor<'_> {
             program_id: input.program_id,
             structs: input.structs.into_iter().map(|(i, s)| (i, self.consume_struct(s))).collect(),
             mappings: input.mappings,
+            constructor: input.constructor.map(|c| self.consume_constructor(c)),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
             consts: input.consts,
             span: input.span,

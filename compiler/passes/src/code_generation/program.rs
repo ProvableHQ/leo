@@ -16,7 +16,19 @@
 
 use super::*;
 
-use leo_ast::{Composite, Function, Location, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
+use leo_ast::{
+    Composite,
+    Constructor,
+    Function,
+    Location,
+    Mapping,
+    Member,
+    Mode,
+    Program,
+    ProgramScope,
+    Type,
+    Variant,
+};
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
@@ -154,6 +166,10 @@ impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
         }
 
         output_string
+    }
+
+    fn visit_constructor(&mut self, constructor: &'a Constructor) -> String {
+        todo!();
     }
 
     fn visit_function_with(&mut self, function: &'a Function, futures: &[Location]) -> String {

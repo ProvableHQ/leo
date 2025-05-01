@@ -16,7 +16,15 @@
 
 use super::ConstPropagationVisitor;
 
-use leo_ast::{Function, Node, ProgramReconstructor, ProgramScope, Statement, StatementReconstructor as _};
+use leo_ast::{
+    Constructor,
+    Function,
+    Node,
+    ProgramReconstructor,
+    ProgramScope,
+    Statement,
+    StatementReconstructor as _,
+};
 
 impl ProgramReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_program_scope(&mut self, mut input: ProgramScope) -> ProgramScope {
@@ -34,6 +42,13 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
         }
 
         input
+    }
+
+    fn reconstruct_constructor(&mut self, mut constructor: Constructor) -> Constructor {
+        self.in_scope(constructor.id(), |slf| {
+            constructor.block = slf.reconstruct_block(constructor.block).0;
+            constructor
+        })
     }
 
     fn reconstruct_function(&mut self, mut function: Function) -> Function {

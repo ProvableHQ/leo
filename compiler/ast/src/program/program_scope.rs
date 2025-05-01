@@ -16,7 +16,7 @@
 
 //! A Leo program scope consists of struct, function, and mapping definitions.
 
-use crate::{Composite, ConstDeclaration, Function, Indent, Mapping, ProgramId, Stub};
+use crate::{Composite, ConstDeclaration, Constructor, Function, Indent, Mapping, ProgramId, Stub};
 
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
@@ -27,12 +27,14 @@ use std::fmt;
 pub struct ProgramScope {
     /// The program id of the program scope.
     pub program_id: ProgramId,
-    /// A vector of const definitions
+    /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// A vector of struct definitions.
     pub structs: Vec<(Symbol, Composite)>,
     /// A vector of mapping definitions.
     pub mappings: Vec<(Symbol, Mapping)>,
+    /// An optional constructor.
+    pub constructor: Option<Constructor>,
     /// A vector of function definitions.
     pub functions: Vec<(Symbol, Function)>,
     /// The span associated with the program scope.
@@ -43,6 +45,7 @@ impl From<Stub> for ProgramScope {
     fn from(stub: Stub) -> Self {
         Self {
             program_id: stub.stub_id,
+            constructor: None,
             consts: stub.consts,
             structs: stub.structs,
             mappings: stub.mappings,
@@ -61,6 +64,9 @@ impl fmt::Display for ProgramScope {
         writeln!(f, "program {} {{", self.program_id)?;
         for (_, const_decl) in self.consts.iter() {
             writeln!(f, "{};", Indent(const_decl))?;
+        }
+        if let Some(constructor) = &self.constructor {
+            writeln!(f, "{}", Indent(constructor))?;
         }
         for (_, struct_) in self.structs.iter() {
             writeln!(f, "{}", Indent(struct_))?;

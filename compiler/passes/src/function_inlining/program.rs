@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::FunctionInliningVisitor;
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor};
+use leo_ast::{Constructor, Function, ProgramReconstructor, ProgramScope, StatementReconstructor};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -47,6 +47,10 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
         // This is a sanity check to ensure that functions in the program scope have been processed.
         assert!(function_map.is_empty(), "All functions in the program scope should have been processed.");
 
+        // Reconstruct the constructor.
+        // Note: This must be done after the functions have been reconstructed to ensure that every callee function has been inlined.
+        let constructor = input.constructor.map(|constructor| self.reconstruct_constructor(constructor));
+
         // Note that this intentionally clears `self.reconstructed_functions` for the next program scope.
         let functions = core::mem::take(&mut self.reconstructed_functions).into_iter().collect();
 
@@ -54,9 +58,26 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
             program_id: input.program_id,
             structs: input.structs,
             mappings: input.mappings,
+            constructor,
             functions,
             consts: input.consts,
             span: input.span,
+        }
+    }
+
+    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
+        Constructor {
+            block: {
+                // Set the `is_async` flag before reconstructing the block.
+                self.is_async = true;
+                // Reconstruct the block.
+                let block = self.reconstruct_block(input.block).0;
+                // Reset the `is_async` flag.
+                self.is_async = false;
+                block
+            },
+            span: input.span,
+            id: input.id,
         }
     }
 

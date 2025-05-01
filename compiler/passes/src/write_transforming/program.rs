@@ -16,9 +16,17 @@
 
 use super::WriteTransformingVisitor;
 
-use leo_ast::{Function, ProgramReconstructor, StatementReconstructor as _};
+use leo_ast::{Constructor, Function, ProgramReconstructor, StatementReconstructor as _};
 
 impl ProgramReconstructor for WriteTransformingVisitor<'_> {
+    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
+        let mut statements = Vec::new();
+        let mut block = self.reconstruct_block(input.block).0;
+        statements.extend(block.statements);
+        block.statements = statements;
+        Constructor { block, ..input }
+    }
+
     fn reconstruct_function(&mut self, input: Function) -> Function {
         // Since the input parameters may be structs or arrays that are written to,
         // we may need to define variable members.

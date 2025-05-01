@@ -16,16 +16,22 @@
 
 use super::DeadCodeEliminatingVisitor;
 
-use leo_ast::{Function, ProgramReconstructor, StatementReconstructor as _};
+use leo_ast::{Constructor, Function, ProgramReconstructor, StatementReconstructor as _};
 
 impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
+    fn reconstruct_constructor(&mut self, mut input: Constructor) -> Constructor {
+        // Reset the state of the dead code eliminator.
+        self.used_variables.clear();
+        // Traverse the constructor body.
+        input.block = self.reconstruct_block(input.block).0;
+        input
+    }
+
     fn reconstruct_function(&mut self, mut input: Function) -> Function {
         // Reset the state of the dead code eliminator.
         self.used_variables.clear();
-
         // Traverse the function body.
         input.block = self.reconstruct_block(input.block).0;
-
         input
     }
 

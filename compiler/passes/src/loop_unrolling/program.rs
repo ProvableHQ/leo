@@ -37,6 +37,14 @@ impl ProgramReconstructor for UnrollingVisitor<'_> {
         }
     }
 
+    // Reconstruct the constructor body, entering the associated scopes as needed.
+    fn reconstruct_constructor(&mut self, constructor: Constructor) -> Constructor {
+        self.in_scope(constructor.id(), |slf| Constructor {
+            block: slf.reconstruct_block(constructor.block).0,
+            ..constructor
+        })
+    }
+
     // Reconstruct the function body, entering the associated scopes as needed.
     fn reconstruct_function(&mut self, function: Function) -> Function {
         self.in_scope(function.id(), |slf| Function { block: slf.reconstruct_block(function.block).0, ..function })

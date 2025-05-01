@@ -122,6 +122,7 @@ impl<N: Network> ParserContext<'_, N> {
         let (mut transitions, mut functions) = (Vec::new(), Vec::new());
         let mut structs: Vec<(Symbol, Composite)> = Vec::new();
         let mut mappings: Vec<(Symbol, Mapping)> = Vec::new();
+        let mut constructor = None;
 
         while self.has_next() {
             match &self.token.token {
@@ -136,6 +137,10 @@ impl<N: Network> ParserContext<'_, N> {
                 Token::Mapping => {
                     let (id, mapping) = self.parse_mapping()?;
                     mappings.push((id, mapping));
+                }
+                Token::Async if self.look_ahead(1, |t| &t.token) == &Token::Constructor => {
+                    let constructor_ = self.parse_constructor()?;
+                    constructor = Some(constructor_);
                 }
                 Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline => {
                     let (id, function) = self.parse_function()?;
@@ -172,9 +177,10 @@ impl<N: Network> ParserContext<'_, N> {
         Ok(ProgramScope {
             program_id,
             consts,
-            functions: [transitions, functions].concat(),
             structs,
             mappings,
+            constructor,
+            functions: [transitions, functions].concat(),
             span: start + end,
         })
     }
@@ -324,6 +330,18 @@ impl<N: Network> ParserContext<'_, N> {
             true => Err(ParserError::space_in_annotation(span).into()),
             false => Ok(Annotation { identifier, span, id: self.node_builder.next_id() }),
         }
+    }
+
+    /// Returns a `Constructor` AST node if the next tokens represent a constructor.
+    fn parse_constructor(&mut self) -> Result<Constructor> {
+        // Parse the `async` keyword.
+        let start = self.expect(&Token::Async)?;
+        // Parse the `constructor` keyword.
+        let _ = self.expect(&Token::Constructor)?;
+        // Parse the constructor body, which must be a block.
+        let block = self.parse_block()?;
+
+        Ok(Constructor { span: start + block.span, block, id: self.node_builder.next_id() })
     }
 
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name

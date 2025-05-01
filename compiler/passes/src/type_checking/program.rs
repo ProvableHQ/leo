@@ -240,6 +240,10 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
         }
     }
 
+    fn visit_constructor(&mut self, _input: &Constructor) {
+        todo!()
+    }
+
     fn visit_function(&mut self, function: &Function) {
         // Check that the function's annotations are valid.
         // Note that Leo does not natively support any specific annotations.
