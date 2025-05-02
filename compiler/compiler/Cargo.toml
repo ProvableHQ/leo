@@ -24,6 +24,9 @@ workspace = true
 [dependencies.leo-errors]
 workspace = true
 
+[dependencies.leo-package]
+workspace = true
+
 [dependencies.leo-passes]
 workspace = true
 

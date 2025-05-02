@@ -19,6 +19,7 @@ use crate::{BuildOptions, Compiler, CompilerOptions};
 use leo_ast::Stub;
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
+use leo_package::Manifest;
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 
 use snarkvm::{
@@ -41,12 +42,23 @@ pub fn whole_compile(
 ) -> Result<(String, String), LeoError> {
     let options = CompilerOptions { build: BuildOptions { dce_enabled, ..Default::default() }, ..Default::default() };
 
+    // Define the test manifest.
+    let manifest = Manifest {
+        program: "thisnamedoesntmatter.aleo".to_string(),
+        version: "0.1.0".to_string(),
+        description: String::new(),
+        license: String::new(),
+        dependencies: None,
+        upgrade: None,
+    };
+
     let mut compiler = Compiler::<TestnetV0>::new(
         None,
         handler.clone(),
         "/fakedirectory-wont-use".into(),
         Some(options),
         import_stubs,
+        manifest,
     );
 
     let filename = FileName::Custom("compiler-test".into());

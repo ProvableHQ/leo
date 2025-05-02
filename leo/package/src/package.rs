@@ -128,7 +128,7 @@ impl Package {
             description: String::new(),
             license: "MIT".to_string(),
             dependencies: None,
-            upgrade: Default::default(),
+            upgrade: Some(UpgradeConfig::Disabled),
         };
 
         let manifest_path = full_path.join(MANIFEST_FILENAME);
@@ -292,6 +292,14 @@ program {name}.aleo {{
     transition main(public a: u32, b: u32) -> u32 {{
         let c: u32 = a + b;
         return c;
+    }}
+    
+    // This is the constructor for the program.
+    // It is called when the program is deployed or upgraded.
+    // It is currently configured to **prevent** upgrades.
+    // To learn more about how to configure the constructor, refer to <TODO>.
+    async constructor() {{
+        assert_eq(self.edition, 0u16);
     }}
 }}
 "#

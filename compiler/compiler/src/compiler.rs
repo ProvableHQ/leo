@@ -23,6 +23,7 @@ use crate::{AstSnapshots, CompilerOptions};
 pub use leo_ast::Ast;
 use leo_ast::Stub;
 use leo_errors::{CompilerError, Handler, Result};
+use leo_package::Manifest;
 use leo_passes::*;
 use leo_span::{Symbol, source_map::FileName, with_session_globals};
 
@@ -50,6 +51,8 @@ pub struct Compiler<N: Network> {
     pub statements_before_dce: u32,
     /// How many statements were in the AST after DCE?
     pub statements_after_dce: u32,
+    /// The manifest associated with the program.
+    pub manifest: Manifest,
     // Allows the compiler to be generic over the network.
     phantom: std::marker::PhantomData<N>,
 }
@@ -103,6 +106,7 @@ impl<N: Network> Compiler<N> {
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
         import_stubs: IndexMap<Symbol, Stub>,
+        manifest: Manifest,
     ) -> Self {
         Self {
             state: CompilerState { handler, ..Default::default() },
@@ -112,6 +116,7 @@ impl<N: Network> Compiler<N> {
             import_stubs,
             statements_before_dce: 0,
             statements_after_dce: 0,
+            manifest,
             phantom: Default::default(),
         }
     }
