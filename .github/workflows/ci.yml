@@ -35,7 +35,8 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --locked --profile ci --features only_testnet
+          # Don't run tests in parallel because codecov with rayon will blow the stack.
+          args: --all --locked --profile ci --features only_testnet,leo-test-framework/no_parallel
         env:
           CARGO_INCREMENTAL: "0"
 

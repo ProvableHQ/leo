@@ -16,11 +16,10 @@
 
 //! This is a simple test framework for the Leo compiler.
 
-use std::{
-    collections::{HashMap, HashSet},
-    fs,
-    path::PathBuf,
-};
+#[cfg(not(feature = "no_parallel"))]
+use rayon::prelude::*;
+
+use std::{fs, path::PathBuf};
 use walkdir::WalkDir;
 
 enum TestFailure {
@@ -60,80 +59,105 @@ pub fn run_tests(category: &str, runner: fn(&str) -> String) {
     let filter_string = std::env::var("TEST_FILTER").unwrap_or_default();
     let rewrite_expectations = std::env::var("REWRITE_EXPECTATIONS").is_ok();
 
-    let mut test_failures = HashMap::<String, TestFailure>::new();
-    let mut test_successes = HashSet::<String>::new();
-    let mut test_writes = HashSet::<String>::new();
+    struct TestResult {
+        failure: Option<TestFailure>,
+        name: PathBuf,
+        wrote: bool,
+    }
 
-    for entry in WalkDir::new(&tests_dir).into_iter().flatten() {
-        let path = entry.path();
-        let path_string = path.display().to_string();
+    let paths: Vec<PathBuf> = WalkDir::new(&tests_dir)
+        .into_iter()
+        .flatten()
+        .filter_map(|entry| {
+            let path = entry.path();
 
-        if path.to_str().is_none() {
-            panic!("Path not unicode: {path_string}.");
-        };
+            if path.to_str().is_none() {
+                panic!("Path not unicode: {}.", path.display());
+            };
 
-        if !path_string.contains(&filter_string) || !path_string.ends_with(".leo") {
-            continue;
-        }
+            let path_str = path.to_str().unwrap();
 
-        let contents = fs::read_to_string(path).unwrap_or_else(|e| panic!("Failed to read file {path_string}: {e}."));
+            if !path_str.contains(&filter_string) || !path_str.ends_with(".leo") {
+                return None;
+            }
 
+            Some(path.into())
+        })
+        .collect();
+
+    let run_test = |path: &PathBuf| -> TestResult {
+        let contents =
+            fs::read_to_string(path).unwrap_or_else(|e| panic!("Failed to read file {}: {e}.", path.display()));
         let result_output = std::panic::catch_unwind(|| runner(&contents));
-
         if let Err(payload) = result_output {
             let s1 = payload.downcast_ref::<&str>().map(|s| s.to_string());
             let s2 = payload.downcast_ref::<String>().cloned();
             let s = s1.or(s2).unwrap_or_else(|| "Unknown panic payload".to_string());
 
-            test_failures.insert(path_string, TestFailure::Panicked(s));
-            continue;
+            return TestResult { failure: Some(TestFailure::Panicked(s)), name: path.clone(), wrote: false };
         }
-
         let output = result_output.unwrap();
 
         let mut expectation_path: PathBuf = expectations_dir.join(path.strip_prefix(&tests_dir).unwrap());
         expectation_path.set_extension("out");
 
+        // It may not be ideal to the the IO below in parallel, but I'm thinking it likely won't matter.
         if rewrite_expectations || !expectation_path.exists() {
             fs::write(&expectation_path, &output)
                 .unwrap_or_else(|e| panic!("Failed to write file {}: {e}.", expectation_path.display()));
-            test_writes.insert(path_string);
+            TestResult { failure: None, name: path.clone(), wrote: true }
         } else {
             let expected = fs::read_to_string(&expectation_path)
                 .unwrap_or_else(|e| panic!("Failed to read file {}: {e}.", expectation_path.display()));
             if output == expected {
-                test_successes.insert(path_string);
+                TestResult { failure: None, name: path.clone(), wrote: false }
             } else {
-                test_failures.insert(path_string, TestFailure::Mismatch { got: output, expected });
+                TestResult {
+                    failure: Some(TestFailure::Mismatch { got: output, expected }),
+                    name: path.clone(),
+                    wrote: false,
+                }
+            }
+        }
+    };
+
+    #[cfg(feature = "no_parallel")]
+    let results: Vec<TestResult> = paths.iter().map(run_test).collect();
+
+    #[cfg(not(feature = "no_parallel"))]
+    let results: Vec<TestResult> = paths.par_iter().map(run_test).collect();
+
+    println!("Ran {} tests.", results.len());
+
+    let failure_count = results.iter().filter(|test_result| test_result.failure.is_some()).count();
+
+    if failure_count != 0 {
+        eprintln!("{failure_count}/{} tests failed.", results.len());
+    }
+
+    let writes = results.iter().filter(|test_result| test_result.wrote).count();
+
+    for test_result in results.iter() {
+        if let Some(test_failure) = &test_result.failure {
+            eprintln!("FAILURE: {}:", test_result.name.display());
+            match test_failure {
+                TestFailure::Panicked(s) => eprintln!("Rust panic:\n{s}"),
+                TestFailure::Mismatch { got, expected } => {
+                    eprintln!("\ngot:\n{got}\nexpected:\n{expected}\n")
+                }
             }
         }
     }
 
-    let total_tests = test_successes.len() + test_failures.len() + test_writes.len();
-
-    println!("Ran {total_tests} tests.");
-
-    if !test_failures.is_empty() {
-        eprintln!("{}/{} tests failed.", test_failures.len(), total_tests);
+    if writes != 0 {
+        println!("Wrote {}/{} expectation files for tests:", writes, results.len());
     }
 
-    for (test_path, test_failure) in test_failures.iter() {
-        eprintln!("FAILURE: {test_path}:");
-        match test_failure {
-            TestFailure::Panicked(s) => eprintln!("Rust panic:\n{s}"),
-            TestFailure::Mismatch { got, expected } => {
-                eprintln!("\ngot:\n{got}\nexpected:\n{expected}\n")
-            }
+    for test_result in results.iter() {
+        if test_result.wrote {
+            println!("{}", test_result.name.display());
         }
     }
 
-    if !test_writes.is_empty() {
-        println!("Wrote {}/{} expectation files for tests:", test_writes.len(), total_tests);
-    }
-
-    for test_path in test_writes.iter() {
-        println!("{test_path}");
-    }
-
-    assert!(test_failures.is_empty());
+    assert!(failure_count == 0);
 }
