@@ -256,8 +256,12 @@ impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
 
         // Construct the body of the constructor.
         let block_string = self.visit_block(&constructor.block);
-        // Return the constructor string.
-        format!("\nconstructor:\n{block_string}\n")
+        // Constructor the constructor string.
+        let constructor = format!("\nconstructor:\n{block_string}\n");
+        // Check that the constructor is well-formed.
+        check_snarkvm_constructor::<N>(&constructor, self.state.upgrade_config.as_ref())
+            .expect("Constructors are checked for well-formedness during static analysis");
+        constructor
     }
 
     fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {

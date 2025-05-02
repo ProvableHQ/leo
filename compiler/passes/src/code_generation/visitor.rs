@@ -16,12 +16,22 @@
 
 use crate::CompilerState;
 
-use leo_ast::{Function, Program, ProgramId, Variant};
+use leo_ast::{
+    Function,
+    Program,
+    ProgramId,
+    Variant,
+    snarkvm_admin_constructor,
+    snarkvm_checksum_constructor,
+    snarkvm_noupgrade_constructor,
+};
+use leo_package::UpgradeConfig;
 use leo_span::Symbol;
 
-use snarkvm::prelude::Network;
+use snarkvm::prelude::{Network, ensure};
 
 use indexmap::IndexMap;
+use std::str::FromStr;
 
 pub struct CodeGeneratingVisitor<'a, N: Network> {
     pub state: &'a CompilerState,
@@ -50,4 +60,31 @@ pub struct CodeGeneratingVisitor<'a, N: Network> {
     /// The depth of the current conditional block.
     pub conditional_depth: u64,
     pub _phantom: std::marker::PhantomData<N>,
+}
+
+/// This function checks whether or not the constructor is well-formed.
+/// If an upgrade configuration is provided, it checks that the constructor matches the configuration.
+pub(crate) fn check_snarkvm_constructor<N: Network>(
+    actual: &str,
+    upgrade_config: Option<&UpgradeConfig>,
+) -> snarkvm::prelude::Result<()> {
+    use snarkvm::synthesizer::program::Constructor as SVMConstructor;
+    // Parse the constructor as a snarkVM constructor.
+    let actual = SVMConstructor::<N>::from_str(actual)?;
+    // Parse the expected constructor.
+    if let Some(config) = upgrade_config {
+        let expected_constructor_string = match &config {
+            UpgradeConfig::Admin { address } => snarkvm_admin_constructor(address),
+            UpgradeConfig::Checksum { mapping, key } => snarkvm_checksum_constructor(mapping, key),
+            UpgradeConfig::NoUpgrade => snarkvm_noupgrade_constructor(),
+            UpgradeConfig::Custom => {
+                // Return, since there is no expected constructor.
+                return Ok(());
+            }
+        };
+        let expected = SVMConstructor::<N>::from_str(&expected_constructor_string)?;
+        // Check that the expected constructor matches the given constructor.
+        ensure!(actual == expected, "Constructor mismatch: expected {}, got {}", expected, actual)
+    }
+    Ok(())
 }
