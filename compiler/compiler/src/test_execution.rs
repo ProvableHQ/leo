@@ -19,7 +19,6 @@ use crate::Compiler;
 use leo_ast::Stub;
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
-use leo_package::Manifest;
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 
 use aleo_std_storage::StorageMode;
@@ -55,23 +54,13 @@ pub fn whole_compile(
     handler: &Handler,
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<(String, String), LeoError> {
-    // Define the test manifest.
-    let manifest = Manifest {
-        program: "thisnamedoesntmatter.aleo".to_string(),
-        version: "0.1.0".to_string(),
-        description: String::new(),
-        license: String::new(),
-        dependencies: None,
-        upgrade: None,
-    };
-
     let mut compiler = Compiler::<CurrentNetwork>::new(
         None,
         handler.clone(),
         "/fakedirectory-wont-use".into(),
         None,
         import_stubs,
-        manifest,
+        None,
     );
 
     let filename = FileName::Custom("execution-test".into());

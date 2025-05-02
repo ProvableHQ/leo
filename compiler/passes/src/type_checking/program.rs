@@ -15,9 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::DiGraphError;
 
-use leo_ast::{Type, *};
+use leo_ast::{DiGraphError, Type, *};
 use leo_errors::TypeCheckerError;
 use leo_span::sym;
 

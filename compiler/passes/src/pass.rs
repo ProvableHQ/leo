@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, CallGraph, StructGraph, SymbolTable, TypeTable};
+use crate::{Assigner, SymbolTable, TypeTable};
 
-use leo_ast::{Ast, NodeBuilder};
+use leo_ast::{Ast, CallGraph, NodeBuilder, StructGraph};
 use leo_errors::{Handler, Result};
+use leo_package::UpgradeConfig;
 
 /// Contains data shared by many compiler passes.
 #[derive(Default)]
@@ -38,6 +39,8 @@ pub struct CompilerState {
     pub struct_graph: StructGraph,
     /// A graph of which functions call each other.
     pub call_graph: CallGraph,
+    /// An optional upgrade config.
+    pub upgrade_config: Option<UpgradeConfig>,
 }
 
 /// A compiler pass.

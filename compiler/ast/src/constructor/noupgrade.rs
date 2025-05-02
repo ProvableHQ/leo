@@ -14,20 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod assigner;
-pub use assigner::*;
+/// This is the required Leo constructor code for a program that is not upgradable.
+pub fn leo_noupgrade_constructor() -> String {
+    r"
+async constructor() {
+    assert_eq(self.edition, 0u16);
+}
+"
+    .to_string()
+}
 
-mod tree_node;
-pub use tree_node::ConditionalTreeNode;
-
-mod rename_table;
-pub use rename_table::*;
-
-mod replacer;
-pub use replacer::*;
-
-mod symbol_table;
-pub use symbol_table::*;
-
-mod type_table;
-pub use type_table::*;
+/// This is the expected snarkVM constructor bytecode for a program that is not upgradable.
+pub fn snarkvm_noupgrade_constructor() -> String {
+    r"
+constructor:
+    assert.eq edition 0u16;
+"
+    .to_string()
+}

@@ -19,7 +19,7 @@ use super::*;
 use leo_ast::Stub;
 use leo_compiler::{AstSnapshots, Compiler, CompilerOptions, OutputOptions};
 use leo_errors::{CliError, UtilError};
-use leo_package::{Manifest, NetworkName, Package};
+use leo_package::{Manifest, NetworkName, Package, UpgradeConfig};
 use leo_span::Symbol;
 
 use snarkvm::prelude::{MainnetV0, Network, TestnetV0};
@@ -127,7 +127,7 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
                     &handler,
                     command.options.clone(),
                     stubs.clone(),
-                    manifest,
+                    manifest.upgrade,
                 )?;
                 (bytecode, build_path)
             }
@@ -166,7 +166,7 @@ fn compile_leo_file<N: Network>(
     handler: &Handler,
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
-    manifest: Manifest,
+    upgrade_config: Option<UpgradeConfig>,
 ) -> Result<String> {
     let enable_dce = options.enable_dce;
 
@@ -177,7 +177,7 @@ fn compile_leo_file<N: Network>(
         output_path.to_path_buf(),
         Some(options.into()),
         stubs,
-        manifest,
+        upgrade_config,
     );
 
     // Compile the Leo program into Aleo instructions.

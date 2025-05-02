@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::Location;
+use crate::Location;
 use leo_span::Symbol;
 
 use indexmap::{IndexMap, IndexSet};
@@ -30,21 +30,21 @@ pub type CallGraph = DiGraph<Location>;
 pub type ImportGraph = DiGraph<Symbol>;
 
 /// A node in a graph.
-pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
+pub trait GraphNode: Copy + 'static + Eq + PartialEq + Debug + Hash {}
 
-impl Node for Symbol {}
-impl Node for Location {}
+impl GraphNode for Symbol {}
+impl GraphNode for Location {}
 
 /// Errors in directed graph operations.
 #[derive(Debug)]
-pub enum DiGraphError<N: Node> {
+pub enum DiGraphError<N: GraphNode> {
     /// An error that is emitted when a cycle is detected in the directed graph. Contains the path of the cycle.
     CycleDetected(Vec<N>),
 }
 
 /// A directed graph.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct DiGraph<N: Node> {
+pub struct DiGraph<N: GraphNode> {
     /// The set of nodes in the graph.
     nodes: IndexSet<N>,
     /// The directed edges in the graph.
@@ -52,13 +52,13 @@ pub struct DiGraph<N: Node> {
     edges: IndexMap<N, IndexSet<N>>,
 }
 
-impl<N: Node> Default for DiGraph<N> {
+impl<N: GraphNode> Default for DiGraph<N> {
     fn default() -> Self {
         Self { nodes: IndexSet::new(), edges: IndexMap::new() }
     }
 }
 
-impl<N: Node> DiGraph<N> {
+impl<N: GraphNode> DiGraph<N> {
     /// Initializes a new `DiGraph` from a vector of source nodes.
     pub fn new(nodes: IndexSet<N>) -> Self {
         Self { nodes, edges: IndexMap::new() }
@@ -169,9 +169,9 @@ impl<N: Node> DiGraph<N> {
 mod test {
     use super::*;
 
-    impl Node for u32 {}
+    impl GraphNode for u32 {}
 
-    fn check_post_order<N: Node>(graph: &DiGraph<N>, expected: &[N]) {
+    fn check_post_order<N: GraphNode>(graph: &DiGraph<N>, expected: &[N]) {
         let result = graph.post_order();
         assert!(result.is_ok());
 

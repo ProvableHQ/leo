@@ -26,9 +26,9 @@ mod visitor;
 use visitor::*;
 
 use self::scope_state::ScopeState;
-use crate::{CallGraph, CompilerState, Pass, StructGraph};
+use crate::{CompilerState, Pass};
 
-use leo_ast::ProgramVisitor;
+use leo_ast::{CallGraph, ProgramVisitor, StructGraph};
 use leo_errors::Result;
 
 use snarkvm::prelude::Network;

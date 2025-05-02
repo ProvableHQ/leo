@@ -18,13 +18,13 @@ license = "GPL-3.0"
 edition = "2024"
 rust-version = "1.85.1"
 
+[dependencies.leo-ast]
+workspace = true
+
 [dependencies.leo-disassembler]
 workspace = true
 
 [dependencies.leo-errors]
-workspace = true
-
-[dependencies.leo-passes]
 workspace = true
 
 [dependencies.leo-span]

@@ -14,20 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod assigner;
-pub use assigner::*;
+/// This is the required Leo constructor code for a program that is only upgradable by a fixed admin.
+pub fn leo_admin_constructor(admin: impl std::fmt::Display) -> String {
+    format!(
+        r"
+async constructor() {{
+    assert_eq(self.owner, {admin});
+}}
+"
+    )
+}
 
-mod tree_node;
-pub use tree_node::ConditionalTreeNode;
-
-mod rename_table;
-pub use rename_table::*;
-
-mod replacer;
-pub use replacer::*;
-
-mod symbol_table;
-pub use symbol_table::*;
-
-mod type_table;
-pub use type_table::*;
+/// This is the expected snarkVM constructor bytecode for a program that is only upgradable by a fixed admin.
+pub fn snarkvm_admin_constructor(admin: impl std::fmt::Display) -> String {
+    format!(
+        r"
+constructor:
+    assert.eq owner {admin};
+"
+    )
+}

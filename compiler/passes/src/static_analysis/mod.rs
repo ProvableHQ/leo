@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod future_checker;
-
 mod await_checker;
 use self::await_checker::AwaitChecker;
+
+mod future_checker;
+
+mod constructor_checker;
 
 mod expression;
 
@@ -26,6 +28,7 @@ mod statement;
 mod program;
 
 mod visitor;
+use snarkvm::prelude::Network;
 use visitor::*;
 
 use crate::Pass;
@@ -39,9 +42,11 @@ pub struct StaticAnalyzingInput {
     pub conditional_branch_type_checking: bool,
 }
 
-pub struct StaticAnalyzing;
+pub struct StaticAnalyzing<N: Network> {
+    _phantom: std::marker::PhantomData<N>,
+}
 
-impl Pass for StaticAnalyzing {
+impl<N: Network> Pass for StaticAnalyzing<N> {
     type Input = StaticAnalyzingInput;
     type Output = ();
 
@@ -49,12 +54,13 @@ impl Pass for StaticAnalyzing {
 
     fn do_pass(input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
-        let mut visitor = StaticAnalyzingVisitor {
+        let mut visitor = StaticAnalyzingVisitor::<N> {
             state,
             await_checker: AwaitChecker::new(input.max_depth, input.conditional_branch_type_checking),
             current_program: Symbol::intern(""),
             variant: None,
             non_async_external_call_seen: false,
+            _phantom: Default::default(),
         };
         visitor.visit_program(ast.as_repr());
         visitor.state.handler.last_err().map_err(|e| *e)?;

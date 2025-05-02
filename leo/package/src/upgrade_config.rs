@@ -21,21 +21,32 @@ use std::fmt;
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(tag = "mode", rename_all = "lowercase")]
 pub enum UpgradeConfig {
-    #[default]
-    Disabled,
-    Admin,
+    Admin {
+        address: String,
+    },
     Custom,
     Checksum {
         mapping: MappingTarget,
         key: String,
     },
+    #[default]
+    NoUpgrade,
 }
 
 /// The `MappingTarget` defines the location at which the expected checksum is stored for the program.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MappingTarget {
     Local(String),
-    External { program_id: String, identifier: String },
+    External { program_id: String, name: String },
+}
+
+impl std::fmt::Display for MappingTarget {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MappingTarget::Local(name) => write!(f, "{name}"),
+            MappingTarget::External { program_id, name } => write!(f, "{program_id}/{name}"),
+        }
+    }
 }
 
 impl<'de> Deserialize<'de> for MappingTarget {
@@ -56,11 +67,11 @@ impl<'de> Deserialize<'de> for MappingTarget {
             where
                 E: de::Error,
             {
-                if let Some((program, ident)) = value.split_once('/') {
+                if let Some((program, name)) = value.split_once('/') {
                     if !program.ends_with(".aleo") {
                         return Err(E::custom("program ID must end with '.aleo'"));
                     }
-                    Ok(MappingTarget::External { program_id: program.to_string(), identifier: ident.to_string() })
+                    Ok(MappingTarget::External { program_id: program.to_string(), name: name.to_string() })
                 } else {
                     Ok(MappingTarget::Local(value.to_string()))
                 }
@@ -78,9 +89,7 @@ impl Serialize for MappingTarget {
     {
         match self {
             MappingTarget::Local(s) => serializer.serialize_str(s),
-            MappingTarget::External { program_id, identifier } => {
-                serializer.serialize_str(&format!("{}/{}", program_id, identifier))
-            }
+            MappingTarget::External { program_id, name } => serializer.serialize_str(&format!("{program_id}/{name}")),
         }
     }
 }

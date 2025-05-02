@@ -19,7 +19,9 @@ use crate::ConditionalTreeNode;
 
 use leo_ast::*;
 
-impl StatementVisitor for StaticAnalyzingVisitor<'_> {
+use snarkvm::prelude::Network;
+
+impl<N: Network> StatementVisitor for StaticAnalyzingVisitor<'_, N> {
     fn visit_conditional(&mut self, input: &ConditionalStatement) {
         self.visit_expression(&input.condition, &Default::default());
 

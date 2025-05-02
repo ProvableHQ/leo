@@ -400,7 +400,7 @@ impl<N: Network> ParserContext<'_, N> {
     }
 
     /// Returns a `Constructor` AST node if the next tokens represent a constructor.
-    fn parse_constructor(&mut self) -> Result<Constructor> {
+    pub(crate) fn parse_constructor(&mut self) -> Result<Constructor> {
         // Parse the `async` keyword.
         let start = self.expect(&Token::Async)?;
         // Parse the `constructor` keyword.

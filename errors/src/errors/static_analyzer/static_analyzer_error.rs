@@ -101,4 +101,11 @@ create_messages!(
         msg: format!("Array index {index} out of bounds (array length is {len})."),
         help: None,
     }
+
+    @formatted
+    custom_error {
+        args: (msg: impl Display),
+        msg: format!("{msg}"),
+        help: None,
+    }
 );

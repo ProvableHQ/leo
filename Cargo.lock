@@ -1862,9 +1862,9 @@ name = "leo-package"
 version = "2.5.0"
 dependencies = [
  "indexmap 2.9.0",
+ "leo-ast",
  "leo-disassembler",
  "leo-errors",
- "leo-passes",
  "leo-span",
  "rand",
  "serde",
@@ -1901,6 +1901,8 @@ dependencies = [
  "leo-ast",
  "leo-errors",
  "leo-interpreter",
+ "leo-package",
+ "leo-parser",
  "leo-span",
  "num-traits",
  "serde",
