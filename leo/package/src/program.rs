@@ -86,7 +86,7 @@ impl Program {
         Self::from_path_test_impl(source_path.as_ref(), main_program)
     }
 
-    pub fn from_path_test_impl(source_path: &Path, main_program: Dependency) -> Result<Self> {
+    fn from_path_test_impl(source_path: &Path, main_program: Dependency) -> Result<Self> {
         let name = filename_no_leo_extension(source_path)
             .ok_or_else(|| PackageError::failed_path(source_path.display(), ""))?;
         let package_directory = source_path.parent().and_then(|parent| parent.parent()).ok_or_else(|| {
