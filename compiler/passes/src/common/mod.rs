@@ -17,8 +17,8 @@
 mod assigner;
 pub use assigner::*;
 
-mod tree_node;
-pub use tree_node::ConditionalTreeNode;
+mod normalizer;
+pub use normalizer::*;
 
 mod rename_table;
 pub use rename_table::*;
@@ -28,6 +28,9 @@ pub use replacer::*;
 
 mod symbol_table;
 pub use symbol_table::*;
+
+mod tree_node;
+pub use tree_node::ConditionalTreeNode;
 
 mod type_table;
 pub use type_table::*;

@@ -1,12 +1,16 @@
+/*
+upgrade = { "mode": "checksum", "mapping": "expected_checksum", "key": "true" } 
+*/
+
 program test.aleo {
 
-    mapping expected: bool => [u8; u32];
+    mapping expected_checksum: bool => [u8; 32];
 
     transition foo() {}
 
     async constructor() {
         if self.edition > 0u16 {
-            let expected: [u8; 32] = expected.get(true);
+            let expected: [u8; 32] = Mapping::get(expected_checksum, true);
             assert_eq(self.checksum, expected);
         }
     }

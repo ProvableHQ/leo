@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::Normalizer;
+
 use super::visitor::StaticAnalyzingVisitor;
 
 use leo_ast::{
@@ -24,6 +26,7 @@ use leo_ast::{
     Node,
     NodeBuilder,
     NonNegativeNumber,
+    ProgramReconstructor,
     Type,
     leo_admin_constructor,
     leo_checksum_constructor,
@@ -55,9 +58,10 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
         // Construct the expected constructor.
         let expected = parse_constructor::<N>(&leo_admin_constructor(address));
         // Check that the expected constructor matches the given constructor.
-        if constructor != &expected {
+        if constructors_match(constructor, &expected) {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
-                constructor_error_message("admin", expected),
+                constructor_error_message("admin"),
+                Some(constructor_help_message(expected)),
                 constructor.span(),
             ));
         }
@@ -67,9 +71,9 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
     fn check_checksum_constructor(&self, constructor: &Constructor, mapping: &MappingTarget, key: &str) {
         // Get the location of the mapping.
         let location = match mapping {
-            MappingTarget::Local(name) => Location::new(self.current_program, Symbol::intern(&name)),
+            MappingTarget::Local(name) => Location::new(self.current_program, Symbol::intern(name)),
             MappingTarget::External { program_id, name } => {
-                Location::new(Symbol::intern(&program_id), Symbol::intern(&name))
+                Location::new(Symbol::intern(program_id), Symbol::intern(name))
             }
         };
         // Get the type of the key used to index the mapping.
@@ -77,7 +81,8 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
             Ok(literal) => get_type_from_snarkvm_literal(&literal),
             Err(_) => {
                 self.state.handler.emit_err(StaticAnalyzerError::custom_error(
-                    format!("The key '{key}' is not a valid snarkVM literal."),
+                    format!("The key '{key}' is not a valid."),
+                    Some("Use a valid literal expression for the key. The literal cannot be a struct or array."),
                     constructor.span(),
                 ));
                 return;
@@ -104,15 +109,17 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
                     "Could not find a mapping {}/{} with key type {} and value type `[u8; 32]` for the 'checksum' upgrade configuration.",
                     location.program, location.name, key_type
                 ),
+                Some("Ensure that the correct program is imported and that the mapping exists."),
                 constructor.span(),
             ));
         }
         // Construct the expected constructor.
         let expected = parse_constructor::<N>(&leo_checksum_constructor(mapping, key));
         // Check that the expected constructor matches the given constructor.
-        if constructor != &expected {
+        if constructors_match(constructor, &expected) {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
-                constructor_error_message("checksum", expected),
+                constructor_error_message("checksum"),
+                Some(constructor_help_message(expected)),
                 constructor.span(),
             ));
         }
@@ -129,9 +136,10 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
         // Construct the expected constructor.
         let expected = parse_constructor::<N>(&leo_noupgrade_constructor());
         // Check that the expected constructor matches the given constructor.
-        if constructor != &expected {
+        if constructors_match(constructor, &expected) {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
-                constructor_error_message("no upgrade", expected),
+                constructor_error_message("no upgrade"),
+                Some(constructor_help_message(expected)),
                 constructor.span(),
             ));
         }
@@ -150,11 +158,14 @@ fn parse_constructor<N: Network>(constructor_string: &str) -> Constructor {
 }
 
 // A helper function to provide an error message if the constructor is not well formed.
-fn constructor_error_message(mode: impl Display, expected: impl Display) -> String {
+fn constructor_error_message(mode: impl Display) -> String {
+    format!("The constructor is not well-formed for the '{mode}' upgrade configuration.")
+}
+
+// A helper function to provide a help message if the constructor is not well formed.
+fn constructor_help_message(expected: impl Display) -> String {
     format!(
         r"
-The constructor is not well formed for the '{mode}' upgrade configuration.
-
 The expected constructor is:
 ```
 {expected}
@@ -186,4 +197,17 @@ fn get_type_from_snarkvm_literal<N: Network>(literal: &Literal<N>) -> Type {
         Literal::U128(_) => Type::Integer(IntegerType::U128),
         Literal::Signature(_) => Type::Signature,
     }
+}
+
+// A helper function to determine if two constructors match.
+fn constructors_match(constructor1: &Constructor, constructor2: &Constructor) -> bool {
+    // Clone the two constructors.
+    let constructor1 = constructor1.clone();
+    let constructor2 = constructor2.clone();
+    // Normalize them by removing the spans and NodeIDs.
+    let mut normalizer = Normalizer;
+    let constructor1 = normalizer.reconstruct_constructor(constructor1);
+    let constructor2 = normalizer.reconstruct_constructor(constructor2);
+    // Check if the two constructors are equal.
+    constructor1 == constructor2
 }

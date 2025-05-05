@@ -109,10 +109,11 @@ default-features = false
 [workspace.dependencies.regex]
 version = "1.11.1"
 
-[workspace.dependencies.snarkvm]
+[workspace.dependencies.snarkvm] 
 #version = "=1.5.0"
-git = "https://github.com/ProvableHQ/snarkVM.git"
-branch = "feat/program-updatability"
+#git = "https://github.com/ProvableHQ/snarkVM.git"
+git = "ssh://git@github.com/ProvableHQ/snarkVM-staging.git"
+branch = "feat/owner-operand"
 
 
 [workspace.dependencies.serde]

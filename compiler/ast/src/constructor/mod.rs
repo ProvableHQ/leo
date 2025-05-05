@@ -30,7 +30,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A constructor definition.
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Constructor {
     /// The body of the function.
     pub block: Block,
@@ -42,7 +42,7 @@ pub struct Constructor {
 
 impl fmt::Display for Constructor {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "async constructor() {{")?;
+        writeln!(f, "async constructor() {{")?;
         for stmt in self.block.statements.iter() {
             writeln!(f, "{}{}", Indent(stmt), stmt.semicolon())?;
         }
@@ -55,13 +55,5 @@ impl fmt::Debug for Constructor {
         write!(f, "{}", self)
     }
 }
-
-impl PartialEq for Constructor {
-    fn eq(&self, other: &Self) -> bool {
-        self.block == other.block
-    }
-}
-
-impl Eq for Constructor {}
 
 crate::simple_node_impl!(Constructor);

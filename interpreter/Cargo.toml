@@ -21,14 +21,6 @@ rust-version = "1.85.1"
 [dependencies.snarkvm]
 workspace = true
 
-[dependencies.snarkvm-circuit]
-git = "https://github.com/ProvableHQ/snarkVM.git"
-branch = "feat/program-updatability"
-
-[dependencies.snarkvm-synthesizer-program]
-git = "https://github.com/ProvableHQ/snarkVM.git"
-branch = "feat/program-updatability"
-
 [dependencies.leo-ast]
 workspace = true
 

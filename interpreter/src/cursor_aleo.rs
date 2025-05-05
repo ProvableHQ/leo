@@ -34,9 +34,12 @@ use snarkvm::{
         ToBytes as _,
         integers::Integer,
     },
-    synthesizer::{Command, Instruction},
+    synthesizer::{
+        Command,
+        Instruction,
+        program::{CallOperator, CastType, Operand},
+    },
 };
-use snarkvm_synthesizer_program::{CallOperator, CastType, Operand};
 
 use rand::Rng as _;
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
@@ -186,6 +189,7 @@ impl Cursor<'_> {
             Operand::NetworkID => todo!(),
             Operand::Checksum(_) => todo!("Look up the program in the global namespace and get its checksum"),
             Operand::Edition(_) => todo!("Look up the program in the global namespace and get its edition"),
+            Operand::ProgramOwner(_) => todo!("Prompt user if not set"),
         }
     }
 

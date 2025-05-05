@@ -21,7 +21,7 @@ pub fn leo_checksum_constructor(mapping: impl std::fmt::Display, key: impl std::
         r"
 async constructor() {{
     if self.edition > 0u16 {{
-        let expected: [u8; 32] = {mapping}.get({key});
+        let expected: [u8; 32] = Mapping::get({mapping}, {key});
         assert_eq(self.checksum, expected);
     }}
 }}

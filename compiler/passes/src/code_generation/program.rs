@@ -28,7 +28,11 @@ use leo_ast::{
     ProgramScope,
     Type,
     Variant,
+    snarkvm_admin_constructor,
+    snarkvm_checksum_constructor,
+    snarkvm_noupgrade_constructor,
 };
+use leo_package::UpgradeConfig;
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
@@ -254,10 +258,17 @@ impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
         self.variable_mapping.insert(sym::block, "block".to_string());
         self.variable_mapping.insert(sym::network, "network".to_string());
 
-        // Construct the body of the constructor.
-        let block_string = self.visit_block(&constructor.block);
-        // Constructor the constructor string.
-        let constructor = format!("\nconstructor:\n{block_string}\n");
+        // Construct the constructor.
+        // If the constructor is one of the standard constructors, use the hardcoded defaults.
+        let constructor =
+            match self.state.upgrade_config.as_ref().expect(
+                "The static analyzer guarantees that if a constructor is provided, then so is an upgrade config",
+            ) {
+                UpgradeConfig::Admin { address } => snarkvm_admin_constructor(address),
+                UpgradeConfig::Checksum { mapping, key } => snarkvm_checksum_constructor(mapping, key),
+                UpgradeConfig::Custom => format!("constructor:\n{}\n", self.visit_block(&constructor.block)),
+                UpgradeConfig::NoUpgrade => snarkvm_noupgrade_constructor(),
+            };
         // Check that the constructor is well-formed.
         check_snarkvm_constructor::<N>(&constructor, self.state.upgrade_config.as_ref())
             .expect("Constructors are checked for well-formedness during static analysis");

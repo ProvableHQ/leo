@@ -104,8 +104,8 @@ create_messages!(
 
     @formatted
     custom_error {
-        args: (msg: impl Display),
+        args: (msg: impl Display, help: Option<impl Display>),
         msg: format!("{msg}"),
-        help: None,
+        help: help.map(|h| h.to_string()),
     }
 );

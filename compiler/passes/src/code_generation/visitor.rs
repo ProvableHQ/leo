@@ -70,7 +70,7 @@ pub(crate) fn check_snarkvm_constructor<N: Network>(
 ) -> snarkvm::prelude::Result<()> {
     use snarkvm::synthesizer::program::Constructor as SVMConstructor;
     // Parse the constructor as a snarkVM constructor.
-    let actual = SVMConstructor::<N>::from_str(actual)?;
+    let actual = SVMConstructor::<N>::from_str(actual.trim())?;
     // Parse the expected constructor.
     if let Some(config) = upgrade_config {
         let expected_constructor_string = match &config {
@@ -82,7 +82,7 @@ pub(crate) fn check_snarkvm_constructor<N: Network>(
                 return Ok(());
             }
         };
-        let expected = SVMConstructor::<N>::from_str(&expected_constructor_string)?;
+        let expected = SVMConstructor::<N>::from_str(expected_constructor_string.trim())?;
         // Check that the expected constructor matches the given constructor.
         ensure!(actual == expected, "Constructor mismatch: expected {}, got {}", expected, actual)
     }
