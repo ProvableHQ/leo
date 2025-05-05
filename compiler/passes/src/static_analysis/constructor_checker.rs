@@ -17,19 +17,25 @@
 use super::visitor::StaticAnalyzingVisitor;
 
 use leo_ast::{
+    ArrayType,
     Constructor,
+    IntegerType,
+    Location,
     Node,
     NodeBuilder,
+    NonNegativeNumber,
+    Type,
     leo_admin_constructor,
     leo_checksum_constructor,
     leo_noupgrade_constructor,
 };
 use leo_errors::{BufferEmitter, Handler, StaticAnalyzerError};
 use leo_package::{MappingTarget, UpgradeConfig};
+use leo_span::Symbol;
 
-use snarkvm::prelude::Network;
+use snarkvm::prelude::{Literal, Network};
 
-use std::fmt::Display;
+use std::{fmt::Display, str::FromStr};
 
 impl<N: Network> StaticAnalyzingVisitor<'_, N> {
     /// Checks that the declared constructor matches the configuration.
@@ -59,6 +65,48 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
 
     // Checks that a `Checksum` constructor is well formed.
     fn check_checksum_constructor(&self, constructor: &Constructor, mapping: &MappingTarget, key: &str) {
+        // Get the location of the mapping.
+        let location = match mapping {
+            MappingTarget::Local(name) => Location::new(self.current_program, Symbol::intern(&name)),
+            MappingTarget::External { program_id, name } => {
+                Location::new(Symbol::intern(&program_id), Symbol::intern(&name))
+            }
+        };
+        // Get the type of the key used to index the mapping.
+        let key_type: Type = match Literal::<N>::from_str(key) {
+            Ok(literal) => get_type_from_snarkvm_literal(&literal),
+            Err(_) => {
+                self.state.handler.emit_err(StaticAnalyzerError::custom_error(
+                    format!("The key '{key}' is not a valid snarkVM literal."),
+                    constructor.span(),
+                ));
+                return;
+            }
+        };
+        // Check that the mapping exists, the key type is correct, and the value type is `[u8; 32]`.
+        let is_valid = self
+            .state
+            .symbol_table
+            .lookup_global(location)
+            .map(|variable| match variable.type_ {
+                Type::Mapping(ref mapping_type) => {
+                    mapping_type.key.as_ref() == &key_type
+                        && mapping_type.value.as_ref()
+                            == &Type::Array(ArrayType::new(Type::Integer(IntegerType::U8), NonNegativeNumber::from(32)))
+                }
+                _ => false,
+            })
+            .unwrap_or(false);
+        // Report an error if the mapping is not valid.
+        if !is_valid {
+            self.state.handler.emit_err(StaticAnalyzerError::custom_error(
+                format!(
+                    "Could not find a mapping {}/{} with key type {} and value type `[u8; 32]` for the 'checksum' upgrade configuration.",
+                    location.program, location.name, key_type
+                ),
+                constructor.span(),
+            ));
+        }
         // Construct the expected constructor.
         let expected = parse_constructor::<N>(&leo_checksum_constructor(mapping, key));
         // Check that the expected constructor matches the given constructor.
@@ -115,4 +163,27 @@ The expected constructor is:
 For more information, please refer to the documentation: TODO
     "
     )
+}
+
+// A helper function to get the type from a snarkVM literal.
+fn get_type_from_snarkvm_literal<N: Network>(literal: &Literal<N>) -> Type {
+    match literal {
+        Literal::Field(_) => Type::Field,
+        Literal::Group(_) => Type::Group,
+        Literal::Address(_) => Type::Address,
+        Literal::Scalar(_) => Type::Scalar,
+        Literal::Boolean(_) => Type::Boolean,
+        Literal::String(_) => Type::String,
+        Literal::I8(_) => Type::Integer(IntegerType::I8),
+        Literal::I16(_) => Type::Integer(IntegerType::I16),
+        Literal::I32(_) => Type::Integer(IntegerType::I32),
+        Literal::I64(_) => Type::Integer(IntegerType::I64),
+        Literal::I128(_) => Type::Integer(IntegerType::I128),
+        Literal::U8(_) => Type::Integer(IntegerType::U8),
+        Literal::U16(_) => Type::Integer(IntegerType::U16),
+        Literal::U32(_) => Type::Integer(IntegerType::U32),
+        Literal::U64(_) => Type::Integer(IntegerType::U64),
+        Literal::U128(_) => Type::Integer(IntegerType::U128),
+        Literal::Signature(_) => Type::Signature,
+    }
 }
