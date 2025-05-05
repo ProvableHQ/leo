@@ -128,7 +128,7 @@ impl fmt::Display for Function {
             Variant::AsyncFunction => write!(f, "async function ")?,
             Variant::Transition => write!(f, "transition ")?,
             Variant::AsyncTransition => write!(f, "async transition ")?,
-            Variant::Interpret => write!(f, "inteprret ")?,
+            Variant::Interpret => write!(f, "interpret ")?,
         }
         write!(f, "{}({})", self.identifier, self.input.iter().format(", "))?;
 

@@ -30,6 +30,8 @@ pub enum Variant {
     Transition,
     AsyncTransition,
     AsyncFunction,
+    /// `interpret` can only appear in test files, and is used for
+    /// tests which are interpreted rather than run on snarkvm using a Ledger and VM.
     Interpret,
 }
 
