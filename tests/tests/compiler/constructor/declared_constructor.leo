@@ -1,3 +1,7 @@
+/*
+upgrade = { "mode": "custom" }
+*/
+
 program test.aleo {
     mapping expected: bool => [u8; 32];
     mapping admin: bool => address;

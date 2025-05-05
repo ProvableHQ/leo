@@ -1,3 +1,7 @@
+/*
+upgrade = { "mode": "noupgrade" }
+*/
+
 program test.aleo {
     transition foo() {}
     

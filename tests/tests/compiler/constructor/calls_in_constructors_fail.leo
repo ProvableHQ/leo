@@ -1,3 +1,7 @@
+/*
+upgrade = { "mode": "custom" }
+*/
+
 program test.aleo {
     
     function foo(a: bool) {

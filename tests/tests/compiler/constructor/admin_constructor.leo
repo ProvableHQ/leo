@@ -1,3 +1,7 @@
+/*
+upgrade = { "mode": "admin" }
+*/
+
 program test.aleo {
     transition foo() {}
     

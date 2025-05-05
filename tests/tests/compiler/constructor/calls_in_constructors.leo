@@ -1,3 +1,7 @@
+/*
+upgrade = { "mode": "custom" }
+*/
+
 program test.aleo {
     mapping foo: u8 => u8;
 

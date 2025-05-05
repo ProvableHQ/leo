@@ -26,6 +26,7 @@ use leo_ast::{
     Node,
     NodeBuilder,
     NonNegativeNumber,
+    ProgramId,
     ProgramReconstructor,
     Type,
     leo_admin_constructor,
@@ -36,7 +37,7 @@ use leo_errors::{BufferEmitter, Handler, StaticAnalyzerError};
 use leo_package::{MappingTarget, UpgradeConfig};
 use leo_span::Symbol;
 
-use snarkvm::prelude::{Literal, Network};
+use snarkvm::prelude::{Literal, Network, ProgramID};
 
 use std::{fmt::Display, str::FromStr};
 
@@ -73,7 +74,19 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
         let location = match mapping {
             MappingTarget::Local(name) => Location::new(self.current_program, Symbol::intern(name)),
             MappingTarget::External { program_id, name } => {
-                Location::new(Symbol::intern(program_id), Symbol::intern(name))
+                // Parse the program ID.
+                let program_id: ProgramId = match ProgramID::<N>::from_str(program_id) {
+                    Ok(program_id) => (&program_id).into(),
+                    Err(_) => {
+                        self.state.handler.emit_err(StaticAnalyzerError::custom_error(
+                            format!("The program ID '{program_id}' is not a valid program ID."),
+                            Option::<String>::None,
+                            constructor.span(),
+                        ));
+                        return;
+                    }
+                };
+                Location::new(program_id.name.name, Symbol::intern(name))
             }
         };
         // Get the type of the key used to index the mapping.
