@@ -1,0 +1,47 @@
+DCE_ENABLED:
+Error [ESAZ0374011]: The constructor is not well-formed for the 'noupgrade' upgrade configuration.
+    --> compiler-test:8:5
+     |
+   8 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+   9 |         assert_eq(self.edition, 0u16);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 |         assert_eq(self.edition, 0u16);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |     }
+     |     ^
+     |
+     = 
+The expected constructor is:
+```
+async constructor() {
+    assert_eq(self.edition, 0u16);
+}
+```
+
+For more information, please refer to the documentation: TODO
+    
+
+DCE_DISABLED:
+Error [ESAZ0374011]: The constructor is not well-formed for the 'noupgrade' upgrade configuration.
+    --> compiler-test:8:5
+     |
+   8 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+   9 |         assert_eq(self.edition, 0u16);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 |         assert_eq(self.edition, 0u16);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |     }
+     |     ^
+     |
+     = 
+The expected constructor is:
+```
+async constructor() {
+    assert_eq(self.edition, 0u16);
+}
+```
+
+For more information, please refer to the documentation: TODO
+    

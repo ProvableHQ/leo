@@ -1,0 +1,21 @@
+DCE_ENABLED:
+Error [ESAZ0374011]: A constructor was specified in the program but no upgrade configuration was provided in the `program.json`.
+    --> compiler-test:4:5
+     |
+   4 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+   5 |         assert_eq(true, true);
+     |         ^^^^^^^^^^^^^^^^^^^^^^
+   6 |     }
+     |     ^
+
+DCE_DISABLED:
+Error [ESAZ0374011]: A constructor was specified in the program but no upgrade configuration was provided in the `program.json`.
+    --> compiler-test:4:5
+     |
+   4 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+   5 |         assert_eq(true, true);
+     |         ^^^^^^^^^^^^^^^^^^^^^^
+   6 |     }
+     |     ^

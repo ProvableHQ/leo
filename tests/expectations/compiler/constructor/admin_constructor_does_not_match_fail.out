@@ -1,0 +1,47 @@
+DCE_ENABLED:
+Error [ESAZ0374011]: The constructor is not well-formed for the 'admin' upgrade configuration.
+    --> compiler-test:8:5
+     |
+   8 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+   9 |         assert_eq(self.program_owner, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 |         assert_eq(self.program_owner, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |     }
+     |     ^
+     |
+     = 
+The expected constructor is:
+```
+async constructor() {
+    assert_eq(self.program_owner, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
+}
+```
+
+For more information, please refer to the documentation: TODO
+    
+
+DCE_DISABLED:
+Error [ESAZ0374011]: The constructor is not well-formed for the 'admin' upgrade configuration.
+    --> compiler-test:8:5
+     |
+   8 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+   9 |         assert_eq(self.program_owner, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 |         assert_eq(self.program_owner, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |     }
+     |     ^
+     |
+     = 
+The expected constructor is:
+```
+async constructor() {
+    assert_eq(self.program_owner, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
+}
+```
+
+For more information, please refer to the documentation: TODO
+    

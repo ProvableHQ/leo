@@ -14,18 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Expression, ExpressionReconstructor, Node, ProgramReconstructor, Statement, StatementReconstructor};
+use leo_ast::{
+    AssociatedFunctionExpression,
+    Block,
+    Constructor,
+    DefinitionPlace,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    LocatorExpression,
+    MemberAccess,
+    Node,
+    ProgramId,
+    ProgramReconstructor,
+    Statement,
+    StatementReconstructor,
+};
 
 /// A `Normalizer` normalizes all NodeID and Span values in the AST.
+/// Note: This implementation is **NOT** complete and only normalizes up to `Constructor`.
 pub struct Normalizer;
 
 impl ExpressionReconstructor for Normalizer {
     type AdditionalOutput = ();
 
-    fn reconstruct_expression(&mut self, mut input: Expression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         // Set the ID and span to 0.
-        input.set_id(0);
-        input.set_span(Default::default());
+        let input = normalize_node(input);
         // Reconstructo the sub-expressions.
         match input {
             Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
@@ -48,13 +63,60 @@ impl ExpressionReconstructor for Normalizer {
             Expression::Unit(unit) => self.reconstruct_unit(unit),
         }
     }
+
+    fn reconstruct_associated_function(
+        &mut self,
+        input: AssociatedFunctionExpression,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (
+            AssociatedFunctionExpression {
+                arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
+                name: {
+                    let mut name = input.name;
+                    name.set_id(0);
+                    name.set_span(Default::default());
+                    name
+                },
+                variant: normalize_node(input.variant),
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_locator(&mut self, input: LocatorExpression) -> (Expression, Self::AdditionalOutput) {
+        let input = normalize_node(input);
+        (
+            LocatorExpression {
+                program: ProgramId {
+                    name: normalize_node(input.program.name),
+                    network: normalize_node(input.program.network),
+                },
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
+        (
+            MemberAccess {
+                inner: self.reconstruct_expression(input.inner).0,
+                name: normalize_node(input.name),
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
+    }
 }
 
 impl StatementReconstructor for Normalizer {
-    fn reconstruct_statement(&mut self, mut input: leo_ast::Statement) -> (leo_ast::Statement, Self::AdditionalOutput) {
+    fn reconstruct_statement(&mut self, input: leo_ast::Statement) -> (leo_ast::Statement, Self::AdditionalOutput) {
         // Set the ID and span to 0.
-        input.set_id(0);
-        input.set_span(Default::default());
+        let input = normalize_node(input);
         // Reconstruct the sub-components.
         match input {
             Statement::Assert(assert) => self.reconstruct_assert(assert),
@@ -71,6 +133,46 @@ impl StatementReconstructor for Normalizer {
             Statement::Return(stmt) => self.reconstruct_return(stmt),
         }
     }
+
+    fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
+        let input = normalize_node(input);
+        (
+            Block {
+                statements: input.statements.into_iter().map(|s| self.reconstruct_statement(s).0).collect(),
+                ..input
+            },
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        (
+            DefinitionStatement {
+                value: self.reconstruct_expression(input.value).0,
+                place: match input.place {
+                    DefinitionPlace::Single(identifier) => DefinitionPlace::Single(normalize_node(identifier)),
+                    DefinitionPlace::Multiple(identifiers) => DefinitionPlace::Multiple(
+                        identifiers.into_iter().map(|identifier| normalize_node(identifier)).collect(),
+                    ),
+                },
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
+    }
 }
 
-impl ProgramReconstructor for Normalizer {}
+impl ProgramReconstructor for Normalizer {
+    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
+        let input = normalize_node(input);
+        Constructor { block: self.reconstruct_block(input.block).0, span: input.span, id: input.id }
+    }
+}
+
+// A helper function to normalize a `Node`.
+fn normalize_node<N: Node>(mut node: N) -> N {
+    node.set_id(0);
+    node.set_span(Default::default());
+    node
+}

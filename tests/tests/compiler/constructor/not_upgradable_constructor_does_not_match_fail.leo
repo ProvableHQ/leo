@@ -7,5 +7,6 @@ program test.aleo {
     
     async constructor() {
         assert_eq(self.edition, 0u16);
+        assert_eq(self.edition, 0u16);
     }
 }

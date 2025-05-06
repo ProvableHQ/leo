@@ -1,23 +1,23 @@
 DCE_ENABLED:
 Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
-    --> compiler-test:10:9
+    --> compiler-test:14:9
      |
-  10 |         foo(true);
+  14 |         foo(true);
      |         ^^^^^^^^^
 Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
-    --> compiler-test:11:9
+    --> compiler-test:15:9
      |
-  11 |         bar();
+  15 |         bar();
      |         ^^^^^
 
 DCE_DISABLED:
 Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
-    --> compiler-test:10:9
+    --> compiler-test:14:9
      |
-  10 |         foo(true);
+  14 |         foo(true);
      |         ^^^^^^^^^
 Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
-    --> compiler-test:11:9
+    --> compiler-test:15:9
      |
-  11 |         bar();
+  15 |         bar();
      |         ^^^^^

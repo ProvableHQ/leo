@@ -266,7 +266,7 @@ impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
             ) {
                 UpgradeConfig::Admin { address } => snarkvm_admin_constructor(address),
                 UpgradeConfig::Checksum { mapping, key } => snarkvm_checksum_constructor(mapping, key),
-                UpgradeConfig::Custom => format!("constructor:\n{}\n", self.visit_block(&constructor.block)),
+                UpgradeConfig::Custom => format!("\nconstructor:\n{}\n", self.visit_block(&constructor.block)),
                 UpgradeConfig::NoUpgrade => snarkvm_noupgrade_constructor(),
             };
         // Check that the constructor is well-formed.

@@ -32,6 +32,14 @@ impl<N: Network> ProgramVisitor for StaticAnalyzingVisitor<'_, N> {
         input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
+        } else {
+            if self.state.upgrade_config.is_some() {
+                self.state.handler.emit_err(StaticAnalyzerError::custom_error(
+                    "An upgrade configuration was provided, but no constructor was found.",
+                    Option::<String>::None,
+                    input.span,
+                ));
+            }
         }
     }
 

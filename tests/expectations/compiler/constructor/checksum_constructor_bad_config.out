@@ -1,0 +1,95 @@
+DCE_ENABLED:
+Error [ESAZ0374011]: Could not find a mapping `test/expected_checksu` with key type `bool` and value type `[u8; 32]` for the 'checksum' upgrade configuration.
+    --> compiler-test:11:5
+     |
+  11 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+  12 |         if self.edition > 0u16 {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^
+  13 |             let expected: [u8; 32] = Mapping::get(expected_checksum, true);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 |             assert_eq(self.checksum, expected);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  15 |         }
+     |         ^
+  16 |     }
+     |     ^
+     |
+     = Ensure that the correct program is imported and that the mapping exists.
+Error [ESAZ0374011]: The constructor is not well-formed for the 'checksum' upgrade configuration.
+    --> compiler-test:11:5
+     |
+  11 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+  12 |         if self.edition > 0u16 {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^
+  13 |             let expected: [u8; 32] = Mapping::get(expected_checksum, true);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 |             assert_eq(self.checksum, expected);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  15 |         }
+     |         ^
+  16 |     }
+     |     ^
+     |
+     = 
+The expected constructor is:
+```
+async constructor() {
+    if self.edition > 0u16 {
+        let expected: [u8; 32] = Mapping::get(expected_checksu, true);
+        assert_eq(self.checksum, expected);
+    }
+}
+```
+
+For more information, please refer to the documentation: TODO
+    
+
+DCE_DISABLED:
+Error [ESAZ0374011]: Could not find a mapping `test/expected_checksu` with key type `bool` and value type `[u8; 32]` for the 'checksum' upgrade configuration.
+    --> compiler-test:11:5
+     |
+  11 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+  12 |         if self.edition > 0u16 {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^
+  13 |             let expected: [u8; 32] = Mapping::get(expected_checksum, true);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 |             assert_eq(self.checksum, expected);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  15 |         }
+     |         ^
+  16 |     }
+     |     ^
+     |
+     = Ensure that the correct program is imported and that the mapping exists.
+Error [ESAZ0374011]: The constructor is not well-formed for the 'checksum' upgrade configuration.
+    --> compiler-test:11:5
+     |
+  11 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+  12 |         if self.edition > 0u16 {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^
+  13 |             let expected: [u8; 32] = Mapping::get(expected_checksum, true);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 |             assert_eq(self.checksum, expected);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  15 |         }
+     |         ^
+  16 |     }
+     |     ^
+     |
+     = 
+The expected constructor is:
+```
+async constructor() {
+    if self.edition > 0u16 {
+        let expected: [u8; 32] = Mapping::get(expected_checksu, true);
+        assert_eq(self.checksum, expected);
+    }
+}
+```
+
+For more information, please refer to the documentation: TODO
+    

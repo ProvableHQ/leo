@@ -19,7 +19,7 @@ pub fn leo_admin_constructor(admin: impl std::fmt::Display) -> String {
     format!(
         r"
 async constructor() {{
-    assert_eq(self.owner, {admin});
+    assert_eq(self.program_owner, {admin});
 }}
 "
     )
@@ -30,7 +30,7 @@ pub fn snarkvm_admin_constructor(admin: impl std::fmt::Display) -> String {
     format!(
         r"
 constructor:
-    assert.eq owner {admin};
+    assert.eq program_owner {admin};
 "
     )
 }

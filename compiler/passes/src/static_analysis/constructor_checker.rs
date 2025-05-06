@@ -37,7 +37,7 @@ use leo_errors::{BufferEmitter, Handler, StaticAnalyzerError};
 use leo_package::{MappingTarget, UpgradeConfig};
 use leo_span::Symbol;
 
-use snarkvm::prelude::{Literal, Network, ProgramID};
+use snarkvm::prelude::{Address, Literal, Network, ProgramID};
 
 use std::{fmt::Display, str::FromStr};
 
@@ -51,15 +51,29 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
                 UpgradeConfig::Custom => self.check_custom_constructor(constructor),
                 UpgradeConfig::NoUpgrade => self.check_noupgrade_constructor(constructor),
             }
+        } else {
+            self.state.handler.emit_err(StaticAnalyzerError::custom_error(
+                "A constructor was specified in the program but no upgrade configuration was provided in the `program.json`.",
+                Option::<String>::None,
+                constructor.span(),
+            ));
         }
     }
 
     // Checks that an `Admin` constructor is well formed.
     fn check_admin_constructor(&self, constructor: &Constructor, address: &str) {
+        // Verify that the address is valid.
+        if let Err(_) = Address::<N>::from_str(address) {
+            self.state.handler.emit_err(StaticAnalyzerError::custom_error(
+                format!("'{address}' is not an address"),
+                Option::<String>::None,
+                constructor.span(),
+            ));
+        }
         // Construct the expected constructor.
         let expected = parse_constructor::<N>(&leo_admin_constructor(address));
         // Check that the expected constructor matches the given constructor.
-        if constructors_match(constructor, &expected) {
+        if !constructors_match(constructor, &expected) {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
                 constructor_error_message("admin"),
                 Some(constructor_help_message(expected)),
@@ -119,7 +133,7 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
         if !is_valid {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
                 format!(
-                    "Could not find a mapping {}/{} with key type {} and value type `[u8; 32]` for the 'checksum' upgrade configuration.",
+                    "Could not find a mapping `{}/{}` with key type `{}` and value type `[u8; 32]` for the 'checksum' upgrade configuration.",
                     location.program, location.name, key_type
                 ),
                 Some("Ensure that the correct program is imported and that the mapping exists."),
@@ -129,7 +143,7 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
         // Construct the expected constructor.
         let expected = parse_constructor::<N>(&leo_checksum_constructor(mapping, key));
         // Check that the expected constructor matches the given constructor.
-        if constructors_match(constructor, &expected) {
+        if !constructors_match(constructor, &expected) {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
                 constructor_error_message("checksum"),
                 Some(constructor_help_message(expected)),
@@ -149,9 +163,9 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
         // Construct the expected constructor.
         let expected = parse_constructor::<N>(&leo_noupgrade_constructor());
         // Check that the expected constructor matches the given constructor.
-        if constructors_match(constructor, &expected) {
+        if !constructors_match(constructor, &expected) {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
-                constructor_error_message("no upgrade"),
+                constructor_error_message("noupgrade"),
                 Some(constructor_help_message(expected)),
                 constructor.span(),
             ));
