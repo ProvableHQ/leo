@@ -151,9 +151,9 @@ impl StatementReconstructor for Normalizer {
                 value: self.reconstruct_expression(input.value).0,
                 place: match input.place {
                     DefinitionPlace::Single(identifier) => DefinitionPlace::Single(normalize_node(identifier)),
-                    DefinitionPlace::Multiple(identifiers) => DefinitionPlace::Multiple(
-                        identifiers.into_iter().map(|identifier| normalize_node(identifier)).collect(),
-                    ),
+                    DefinitionPlace::Multiple(identifiers) => {
+                        DefinitionPlace::Multiple(identifiers.into_iter().map(normalize_node).collect())
+                    }
                 },
                 ..input
             }

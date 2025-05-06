@@ -63,9 +63,9 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
     // Checks that an `Admin` constructor is well formed.
     fn check_admin_constructor(&self, constructor: &Constructor, address: &str) {
         // Verify that the address is valid.
-        if let Err(_) = Address::<N>::from_str(address) {
+        if let Err(e) = Address::<N>::from_str(address) {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
-                format!("'{address}' is not an address"),
+                format!("'{address}' is not a valid address: {e}"),
                 Option::<String>::None,
                 constructor.span(),
             ));
