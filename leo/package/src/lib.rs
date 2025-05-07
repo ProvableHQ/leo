@@ -39,14 +39,16 @@
 //!
 //! Such a directory structure, together with a `.gitignore` file, may be created
 //! on the file system using `Package::initialize`.
-//! ```norun
-//! let path = Package::("my_package", "path/to/parent", NetworkName::TestnetV0, "http://localhost:3030")?;
+//! ```no_run
+//! # use leo_package::{NetworkName, Package};
+//! let path = Package::initialize("my_package", "path/to/parent", NetworkName::TestnetV0, "http://localhost:3030").unwrap();
 //! ```
 //!
 //! Given an existing directory with such a structure, a `Package` may be created from it with
 //! `Package::from_directory`:
-//! ```norun
-//! let package = Package::from_directory("path/to/package", "/home/me/.aleo")?;
+//! ```no_run
+//! # use leo_package::Package;
+//! let package = Package::from_directory("path/to/package", "/home/me/.aleo").unwrap();
 //! ```
 //! This will read the manifest and env file and keep their data in `package.manifest` and `package.env`.
 //! It will also process dependencies and store them in topological order in `package.programs`. This processing
