@@ -39,7 +39,7 @@ pub fn whole_compile(
     handler: &Handler,
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<(String, String), LeoError> {
-    let options = CompilerOptions { build: BuildOptions { dce_enabled, ..Default::default() }, ..Default::default() };
+    let options = CompilerOptions { build: BuildOptions { dce_enabled }, ..Default::default() };
 
     let mut compiler = Compiler::<TestnetV0>::new(
         None,

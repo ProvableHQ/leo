@@ -142,10 +142,7 @@ impl<N: Network> Compiler<N> {
             max_functions: N::MAX_FUNCTIONS,
         })?;
 
-        self.do_pass::<StaticAnalyzing>(StaticAnalyzingInput {
-            max_depth: self.compiler_options.build.conditional_block_max_depth,
-            conditional_branch_type_checking: !self.compiler_options.build.disable_conditional_branch_type_checking,
-        })?;
+        self.do_pass::<StaticAnalyzing>(())?;
 
         self.do_pass::<ConstPropagationAndUnrolling>(())?;
 

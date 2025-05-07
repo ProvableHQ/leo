@@ -1,18 +1,5 @@
 DCE_ENABLED:
-Warning [WSAZ0374002]: The type checker has exceeded the max depth of nested conditional blocks: 0.
-    --> compiler-test:24:9
-     |
-  24 |         if a == 2u32 {
-     |         ^^^^^^^^^^^^^^
-  25 |             //f2.await();
-     |             ^^^^^^^^^^^^^
-  26 |             Mapping::set(ayo, 1u32, 1u32);
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  27 |         }
-     |         ^
-     |
-     = Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.
-Warning [WSAZ0374000]: Not all paths through the function await all futures. 1/2 paths contain at least one future that is never awaited.
+Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
     --> compiler-test:17:5
      |
   17 |     async function finalize_main(f: Future, f2: Future, a: u32) {
@@ -148,20 +135,7 @@ finalize main:
     await r0;
 
 DCE_DISABLED:
-Warning [WSAZ0374002]: The type checker has exceeded the max depth of nested conditional blocks: 0.
-    --> compiler-test:24:9
-     |
-  24 |         if a == 2u32 {
-     |         ^^^^^^^^^^^^^^
-  25 |             //f2.await();
-     |             ^^^^^^^^^^^^^
-  26 |             Mapping::set(ayo, 1u32, 1u32);
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  27 |         }
-     |         ^
-     |
-     = Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.
-Warning [WSAZ0374000]: Not all paths through the function await all futures. 1/2 paths contain at least one future that is never awaited.
+Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
     --> compiler-test:17:5
      |
   17 |     async function finalize_main(f: Future, f2: Future, a: u32) {

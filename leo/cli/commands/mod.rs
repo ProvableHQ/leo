@@ -144,10 +144,6 @@ pub struct BuildOptions {
     pub enable_ast_spans: bool,
     #[clap(long, help = "Enables dead code elimination in the compiler.", default_value = "true")]
     pub enable_dce: bool,
-    #[clap(long, help = "Max depth to type check nested conditionals.", default_value = "10")]
-    pub conditional_block_max_depth: usize,
-    #[clap(long, help = "Disable type checking of nested conditional branches in finalize scope.")]
-    pub disable_conditional_branch_type_checking: bool,
     #[clap(long, help = "Write an AST snapshot immediately after parsing.")]
     pub enable_initial_ast_snapshot: bool,
     #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
@@ -165,8 +161,6 @@ impl Default for BuildOptions {
             offline: false,
             enable_ast_spans: false,
             enable_dce: true,
-            conditional_block_max_depth: 10,
-            disable_conditional_branch_type_checking: false,
             enable_initial_ast_snapshot: false,
             enable_all_ast_snapshots: false,
             ast_snapshots: Vec::new(),

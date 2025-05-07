@@ -26,28 +26,20 @@ pub struct AwaitChecker {
     pub(crate) to_await: Vec<ConditionalTreeNode>,
     /// Statically updated set of futures to await.
     pub(crate) static_to_await: IndexSet<Symbol>,
-    /// Whether or not to do full tree search for await checking.
-    pub(crate) enabled: bool,
-    /// Maximum nesting depth to search for await checking.
-    pub(crate) max_depth: usize,
 }
 
 impl AwaitChecker {
     /// Initializes a new `AwaitChecker`.
-    pub fn new(max_depth: usize, enabled: bool) -> Self {
-        Self { to_await: Vec::new(), static_to_await: IndexSet::new(), enabled, max_depth }
+    pub fn new() -> Self {
+        Self { to_await: Vec::new(), static_to_await: IndexSet::new() }
     }
 
     /// Remove from list.
     /// Returns `true` if there was a path where the future was not awaited in the order of the input list.
     pub fn remove(&mut self, id: &Identifier) -> bool {
         // Can assume in finalize block.
-        let is_not_first = if self.enabled {
-            // Remove from dynamic list.
-            self.to_await.iter_mut().any(|node| node.remove_element(&id.name))
-        } else {
-            false
-        };
+        // Remove from dynamic list.
+        let is_not_first = self.to_await.iter_mut().any(|node| node.remove_element(&id.name));
 
         // Remove from static list.
         self.static_to_await.shift_remove(&id.name);
@@ -69,16 +61,12 @@ impl AwaitChecker {
     pub fn create_then_scope(
         &mut self,
         is_finalize: bool,
-        input: Span,
+        _input: Span,
     ) -> Result<Vec<ConditionalTreeNode>, StaticAnalyzerWarning> {
-        if is_finalize && self.enabled {
+        if is_finalize {
             let mut current_nodes = Vec::new();
             // Extend all paths by one node to represent the upcoming `then` branch.
             for node in self.to_await.iter() {
-                // Error if exceed maximum depth.
-                if node.depth > self.max_depth {
-                    return Err(StaticAnalyzerWarning::max_conditional_block_depth_exceeded(self.max_depth, input));
-                }
                 // Extend current path.
                 current_nodes.push(node.clone().create_child());
             }
@@ -97,12 +85,12 @@ impl AwaitChecker {
         parent_nodes: Vec<ConditionalTreeNode>,
     ) -> Vec<ConditionalTreeNode> {
         // Check if a nested conditional statement signaled their existence.
-        if is_finalize && self.enabled { core::mem::replace(&mut self.to_await, parent_nodes) } else { Vec::new() }
+        if is_finalize { core::mem::replace(&mut self.to_await, parent_nodes) } else { Vec::new() }
     }
 
     /// Exit scope for conditional statement at current depth.
     pub fn exit_statement_scope(&mut self, is_finalize: bool, then_nodes: Vec<ConditionalTreeNode>) {
-        if is_finalize && self.enabled {
+        if is_finalize {
             // Merge together the current set of nodes (from `otherwise` branch) with `then` nodes.
             self.to_await.extend(then_nodes);
         }

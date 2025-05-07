@@ -31,11 +31,7 @@ use std::path::Path;
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         Self {
-            build: leo_compiler::BuildOptions {
-                dce_enabled: options.enable_dce,
-                conditional_block_max_depth: options.conditional_block_max_depth,
-                disable_conditional_branch_type_checking: options.disable_conditional_branch_type_checking,
-            },
+            build: leo_compiler::BuildOptions { dce_enabled: options.enable_dce },
             output: OutputOptions {
                 ast_spans_enabled: options.enable_ast_spans,
                 ast_snapshots: if options.enable_all_ast_snapshots {
