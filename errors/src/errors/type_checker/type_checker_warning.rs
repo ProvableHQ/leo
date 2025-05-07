@@ -46,6 +46,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO: This warning is unused, remove it in the future.
     @formatted
     max_conditional_block_depth_exceeded {
         args: (max: impl Display),
