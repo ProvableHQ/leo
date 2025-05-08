@@ -157,6 +157,13 @@ pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
     }
 }
 
+/// Fetch the given program from the network and return the program as a string.
+pub fn fetch_program_from_network(name: &str, network: &str, endpoint: &str) -> Result<String, UtilError> {
+    let url = format!("{endpoint}/{network}/programs/{name}");
+    let program = fetch_from_network(&url)?;
+    Ok(program)
+}
+
 // Verify that a fetched program is valid aleo instructions.
 pub fn verify_valid_program(name: &str, program: &str) -> Result<(), UtilError> {
     use snarkvm::prelude::{Program, TestnetV0};
