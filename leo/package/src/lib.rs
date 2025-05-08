@@ -158,7 +158,7 @@ pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
 }
 
 /// Fetch the given program from the network and return the program as a string.
-pub fn fetch_program_from_network(name: &str, network: &str, endpoint: &str) -> Result<String, UtilError> {
+pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkName) -> Result<String, UtilError> {
     let url = format!("{endpoint}/{network}/program/{name}");
     let program = fetch_from_network(&url)?;
     Ok(program)

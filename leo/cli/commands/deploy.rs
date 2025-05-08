@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_package::{Manifest, NetworkName, Package, ProgramData};
+use leo_package::{Manifest, NetworkName, Package, ProgramData, fetch_program_from_network};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
@@ -34,6 +34,7 @@ use snarkvm::{
 
 use aleo_std::StorageMode;
 use colored::*;
+use snarkvm::prelude::ProgramID;
 use std::path::PathBuf;
 use text_tables;
 
@@ -46,7 +47,7 @@ pub struct LeoDeploy {
     pub(crate) action: TransactionAction,
     #[clap(flatten)]
     pub(crate) env_override: EnvOptions,
-    #[clap(long, help = "Time in seconds to wait between consecutive deployments.", default_value = "15")]
+    #[clap(long, help = "Seconds to wait between consecutive deployments.", default_value = "15")]
     pub(crate) wait: u64,
     #[clap(flatten)]
     pub(crate) options: BuildOptions,
@@ -114,12 +115,14 @@ fn handle_deploy<N: Network>(
     let source_directory = package.source_directory();
 
     // Get the programs and optional manifests for all the programs.
-    let programs_and_manifests: Vec<(String, String, Option<Manifest>)> = package
+    let programs_and_manifests = package
         .programs
         .into_iter()
         .map(|program| {
+            let program_id = ProgramID::<N>::from_str(&format!("{}.aleo", program.name))
+                .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
             match &program.data {
-                ProgramData::Bytecode(bytecode) => Ok((program.name.to_string(), bytecode.clone(), None)),
+                ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.clone(), None)),
                 ProgramData::SourcePath(path) => {
                     // Get the path to the built bytecode.
                     let bytecode_path = if path.as_path() == source_directory.join("main.leo") {
@@ -141,7 +144,7 @@ fn handle_deploy<N: Network>(
                     let package = Package::from_directory_no_graph(&path, home)
                         .map_err(|e| CliError::custom(format!("Failed to load package at {}: {e}", path.display())))?;
                     // Return the bytecode and the manifest.
-                    Ok((program.name.to_string(), bytecode, Some(package.manifest.clone())))
+                    Ok((program_id, bytecode, Some(package.manifest.clone())))
                 }
             }
         })
@@ -179,13 +182,13 @@ fn handle_deploy<N: Network>(
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
-    for (program_name, program_bytecode, manifest, _, priority_fee, fee_record) in tasks {
+    for (program_id, program_bytecode, manifest, _, priority_fee, fee_record) in tasks {
         // Parse the program bytecode.
         let program = Program::<N>::from_str(&program_bytecode)
             .map_err(|e| CliError::custom(format!("Failed to parse program bytecode: {e}")))?;
-        // If the program is a local depdency, generate a deployment transaction.
+        // If the program is a local dependency, generate a deployment transaction.
         if manifest.is_some() {
-            println!("📦 Creating deployment transaction for '{}'...\n", &program_name.bold());
+            println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
             // Generate the transaction.
             let transaction = vm
                 .deploy(&private_key, &program, fee_record, priority_fee.unwrap_or(0), Some(query.clone()), rng)
@@ -193,20 +196,18 @@ fn handle_deploy<N: Network>(
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
-            print_deployment_stats(&program_name, deployment, priority_fee)?;
+            print_deployment_stats(&program_id.to_string(), deployment, priority_fee)?;
             // Check if the number of variables and constraints are within the limits.
             if deployment.num_combined_variables()? > N::MAX_DEPLOYMENT_VARIABLES {
-                return Err(
-                    CliError::variable_limit_exceeded(program_name, N::MAX_DEPLOYMENT_VARIABLES, network).into()
-                );
+                return Err(CliError::variable_limit_exceeded(program_id, N::MAX_DEPLOYMENT_VARIABLES, network).into());
             }
             if deployment.num_combined_constraints()? > N::MAX_DEPLOYMENT_CONSTRAINTS {
                 return Err(
-                    CliError::constraint_limit_exceeded(program_name, N::MAX_DEPLOYMENT_CONSTRAINTS, network).into()
+                    CliError::constraint_limit_exceeded(program_id, N::MAX_DEPLOYMENT_CONSTRAINTS, network).into()
                 );
             }
             // Save the transaction.
-            transactions.push((program_name, transaction));
+            transactions.push((program_id, transaction));
         }
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
@@ -242,8 +243,13 @@ fn handle_deploy<N: Network>(
 
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
-        for (program_name, transaction) in transactions.iter() {
-            println!("📡 Broadcasting deployment for {program_name}...");
+        for (program_id, transaction) in transactions.iter() {
+            println!("📡 Broadcasting deployment for {program_id}...");
+            // Check if the program exists on the network.
+            if fetch_program_from_network(&program_id.to_string(), &endpoint, network).is_ok() {
+                println!("⚠️ The program '{}' already exists on the network. Skipping deployment.", program_id);
+                continue;
+            }
             // Get and confirm the fee with the user.
             let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
             if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.fee_options.yes)? {
@@ -254,7 +260,7 @@ fn handle_deploy<N: Network>(
             let response = handle_broadcast(
                 &format!("{}/{}/transaction/broadcast", endpoint, network),
                 transaction,
-                program_name,
+                &program_id.to_string(),
             )?;
             match response.status() {
                 200 => println!(
@@ -285,7 +291,7 @@ fn print_deployment_plan<N: Network>(
     address: &Address<N>,
     endpoint: &str,
     network: &NetworkName,
-    tasks: &[(String, String, Option<Manifest>, Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>)],
+    tasks: &[(ProgramID<N>, String, Option<Manifest>, Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>)],
     action: &TransactionAction,
 ) {
     use text_tables::render;
@@ -310,6 +316,7 @@ fn print_deployment_plan<N: Network>(
         vec![["Program".to_string(), "Base Fee".to_string(), "Priority Fee".to_string(), "Fee Record".to_string()]];
 
     for (name, _, _, _, priority_fee, record) in local.iter() {
+        let name = name.to_string();
         // Base fees are not used at the moment, so we can ignore them.
         let base_fee = "auto".to_string();
         let priority_fee = priority_fee.map_or("0".into(), |v| v.to_string());
@@ -318,7 +325,7 @@ fn print_deployment_plan<N: Network>(
             false => "no (public fee)".to_string(),
         };
 
-        table.push([name.clone(), base_fee, priority_fee, record]);
+        table.push([name, base_fee, priority_fee, record]);
     }
 
     let mut buf = Vec::new();
@@ -355,7 +362,7 @@ fn print_deployment_plan<N: Network>(
 }
 
 fn print_deployment_stats<N: Network>(
-    program_name: &str,
+    program_id: &str,
     deployment: &Deployment<N>,
     priority_fee: Option<u64>,
 ) -> Result<()> {
@@ -375,7 +382,7 @@ fn print_deployment_stats<N: Network>(
     let total_fee = base_fee_value + priority_fee_value;
 
     // Print summary
-    println!("\n{} {}", "📊 Deployment Stats for".bold(), program_name.bold());
+    println!("\n{} {}", "📊 Deployment Stats for".bold(), program_id.bold());
     println!(
         "Total Variables:   {:>10}\nTotal Constraints: {:>10}\n",
         variables.to_formatted_string(&Locale::en),
@@ -383,10 +390,10 @@ fn print_deployment_stats<N: Network>(
     );
 
     // Print cost breakdown inline
-    println!("Base deployment cost for '{}' is {:.6} credits.\n", program_name.bold(), base_fee_value);
+    println!("Base deployment cost for '{}' is {:.6} credits.\n", program_id.bold(), base_fee_value);
 
     let data = [
-        [program_name, "Cost (credits)"],
+        [program_id, "Cost (credits)"],
         ["Transaction Storage", &format!("{:.6}", storage_cost as f64 / 1_000_000.0)],
         ["Program Synthesis", &format!("{:.6}", synthesis_cost as f64 / 1_000_000.0)],
         ["Namespace", &format!("{:.6}", namespace_cost as f64 / 1_000_000.0)],
