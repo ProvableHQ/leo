@@ -29,6 +29,7 @@ pub struct Dependency {
     /// and `path` provide us this information.
     pub location: Location,
     /// For a network dependency, which network?
+    /// Note: This field has been removed from the manifest, but we keep it here for backwards compatibility.
     pub network: Option<NetworkName>,
     /// For a local dependency, where is its package?
     pub path: Option<PathBuf>,
