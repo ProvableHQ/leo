@@ -413,7 +413,8 @@ fn print_deployment_stats<N: Network>(
     let variables = deployment.num_combined_variables()?;
     let constraints = deployment.num_combined_constraints()?;
 
-    let (base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) = deployment_cost(&vm.process().read(), deployment)?;
+    let (base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
+        deployment_cost(&vm.process().read(), deployment)?;
 
     // Compute final fee
     let priority_fee_value = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;

@@ -6,7 +6,7 @@ Error [ETYC0372110]: A `transition` cannot return a future.
      |                                   ^^^^^^
      |
      = Use an `async transition` instead.
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
     --> compiler-test:4:16
      |
    4 |         return finalize_bar(a, b);
@@ -36,7 +36,7 @@ Error [ETYC0372110]: A `transition` cannot return a future.
      |                                                             ^^^^^^
      |
      = Use an `async transition` instead.
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
     --> compiler-test:17:16
      |
   17 |         return finalize_mint(receiver, amount);
@@ -67,7 +67,7 @@ Error [ETYC0372110]: A `transition` cannot return a future.
      |                                   ^^^^^^
      |
      = Use an `async transition` instead.
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
     --> compiler-test:4:16
      |
    4 |         return finalize_bar(a, b);
@@ -97,7 +97,7 @@ Error [ETYC0372110]: A `transition` cannot return a future.
      |                                                             ^^^^^^
      |
      = Use an `async transition` instead.
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
     --> compiler-test:17:16
      |
   17 |         return finalize_mint(receiver, amount);

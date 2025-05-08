@@ -496,7 +496,7 @@ impl<N: Network> ParserContext<'_, N> {
                             id: self.node_builder.next_id(),
                         }
                         .into();
-                        continue
+                        continue;
                     }
 
                     // Parse identifier name.
