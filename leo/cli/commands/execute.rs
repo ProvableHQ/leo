@@ -362,14 +362,17 @@ fn handle_execute<A: Aleo>(
         let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
         let total_cost = *fee.amount()?;
         if fee.is_fee_public() {
-            check_balance(
-                &private_key,
-                &endpoint,
-                &network.to_string(),
-                &context,
-                total_cost,
-                command.fee_options.yes,
-            )?;
+            let public_balance =
+                get_public_balance(&private_key, &endpoint, &network.to_string(), &context)? as f64 / 1_000_000.0;
+            println!("     💰Your current public balance is {public_balance} credits.\n");
+            if public_balance < total_cost as f64 {
+                return Err(PackageError::insufficient_balance(address, public_balance, total_cost).into());
+            } else {
+                confirm(
+                    &format!("      This transaction will cost you {public_balance} credits. Do you want to proceed?"),
+                    command.fee_options.yes,
+                )?;
+            }
         }
         // Broadcast the transaction to the network.
         println!("      📡 Broadcasting execution for {program_name}...");

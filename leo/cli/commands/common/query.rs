@@ -24,15 +24,13 @@ use ureq::Response;
 
 /// Utilities for querying the network.
 // Note: Minimize the number of prints in these utilities to avoid formatting inconsistencies.
-// TODO (@d0cd) Remove prints.
-pub fn check_balance<N: Network>(
+/// A helper function to query the public balance of an address.
+pub fn get_public_balance<N: Network>(
     private_key: &PrivateKey<N>,
     endpoint: &str,
     network: &str,
     context: &Context,
-    total_cost: u64,
-    skip_confirmation: bool,
-) -> Result<()> {
+) -> Result<u64> {
     // Derive the account address.
     let address = Address::<N>::try_from(ViewKey::try_from(private_key)?)?;
     // Query the public balance of the address on the `account` mapping from `credits.aleo`.
@@ -51,19 +49,7 @@ pub fn check_balance<N: Network>(
     // Remove the last 3 characters since they represent the `u64` suffix.
     public_balance.truncate(public_balance.len() - 3);
     // Make sure the balance is valid.
-    let balance = if let Ok(credits) = public_balance.parse::<u64>() {
-        credits
-    } else {
-        return Err(CliError::invalid_balance(address).into());
-    };
-    // Compare balance.
-    if balance < total_cost {
-        Err(PackageError::insufficient_balance(address, public_balance, total_cost).into())
-    } else {
-        println!("      Your current public balance is {} credits.\n", balance as f64 / 1_000_000.0);
-        confirm("       This transaction will cost {} credits, do you want to continue?", skip_confirmation)?;
-        Ok(())
-    }
+    public_balance.parse::<u64>().map_err(|_| CliError::invalid_balance(address).into())
 }
 
 // A helper function to query for the latest block height.
