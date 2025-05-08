@@ -316,7 +316,7 @@ mod tests {
 
 #[cfg(test)]
 mod test_helpers {
-    use crate::cli::{CLI, LeoAdd, LeoNew, cli::Commands, run_with_args};
+    use crate::cli::{CLI, LeoAdd, LeoNew, add::DependencySource, cli::Commands, run_with_args};
     use leo_span::create_session_if_not_set_then;
     use std::path::Path;
 
@@ -409,8 +409,7 @@ function external_nested_function:
             command: Commands::Add {
                 command: LeoAdd {
                     name: "nested_example_layer_0".to_string(),
-                    local: None,
-                    network: NETWORK.to_string(),
+                    source: DependencySource { local: None, network: true },
                     clear: false,
                 },
             },
@@ -521,8 +520,7 @@ program child.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "parent".to_string(),
-                    local: Some(parent_directory.clone()),
-                    network: NETWORK.to_string(),
+                    source: DependencySource { local: Some(parent_directory.clone()), network: false },
                     clear: false,
                 },
             },
@@ -536,8 +534,7 @@ program child.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
-                    local: Some(child_directory.clone()),
-                    network: NETWORK.to_string(),
+                    source: DependencySource { local: Some(child_directory.clone()), network: false },
                     clear: false,
                 },
             },
@@ -551,8 +548,7 @@ program child.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
-                    local: Some(child_directory.clone()),
-                    network: NETWORK.to_string(),
+                    source: DependencySource { local: Some(child_directory.clone()), network: false },
                     clear: false,
                 },
             },
@@ -693,8 +689,7 @@ program outer.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
-                    local: Some(inner_1_directory.clone()),
-                    network: NETWORK.to_string(),
+                    source: DependencySource { local: Some(inner_1_directory.clone()), network: false },
                     clear: false,
                 },
             },
@@ -708,8 +703,7 @@ program outer.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
-                    local: Some(inner_2_directory.clone()),
-                    network: NETWORK.to_string(),
+                    source: DependencySource { local: Some(inner_2_directory.clone()), network: false },
                     clear: false,
                 },
             },
@@ -880,8 +874,7 @@ program outer_2.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
-                    local: Some(inner_1_directory.clone()),
-                    network: NETWORK.to_string(),
+                    source: DependencySource { local: Some(inner_1_directory.clone()), network: false },
                     clear: false,
                 },
             },
@@ -895,8 +888,7 @@ program outer_2.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
-                    local: Some(inner_2_directory.clone()),
-                    network: NETWORK.to_string(),
+                    source: DependencySource { local: Some(inner_2_directory.clone()), network: false },
                     clear: false,
                 },
             },
