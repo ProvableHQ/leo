@@ -16,11 +16,11 @@
 
 use crate::{Location, NetworkName};
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de, ser::SerializeStruct};
 use std::path::PathBuf;
 
 /// Information about a dependency, as represented in the `program.json` manifest.
-#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub struct Dependency {
     /// The name of the program. As this corresponds to what appears in `program.json`,
     /// it should have the ".aleo" suffix.
@@ -37,5 +37,64 @@ pub struct Dependency {
 impl Dependency {
     pub fn new(name: String, location: Location, network: Option<NetworkName>, path: Option<PathBuf>) -> Self {
         Self { name, location, network, path }
+    }
+}
+
+impl Serialize for Dependency {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("Dependency", 3)?;
+        state.serialize_field("name", &self.name)?;
+        match self.location {
+            Location::Network => {
+                state.serialize_field("location", "network")?;
+            }
+            Location::Local => {
+                state.serialize_field("location", "local")?;
+                if let Some(path) = &self.path {
+                    state.serialize_field("path", &path)?;
+                }
+            }
+        }
+        state.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for Dependency {
+    fn deserialize<D>(deserializer: D) -> Result<Dependency, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct RawDependency {
+            name: String,
+            location: Option<String>,
+            network: Option<String>,
+            path: Option<PathBuf>,
+        }
+
+        let raw = RawDependency::deserialize(deserializer)?;
+
+        let location = match raw.location.as_deref() {
+            Some("network") => Location::Network,
+            Some("local") => Location::Local,
+            None => {
+                // Infer location based on fields (for backward compatibility)
+                if raw.path.is_some() { Location::Local } else { Location::Network }
+            }
+            Some(other) => return Err(de::Error::unknown_variant(other, &["network", "local"])),
+        };
+
+        let network = match raw.network.as_deref() {
+            Some("testnet") => Some(NetworkName::TestnetV0),
+            Some("mainnet") => Some(NetworkName::MainnetV0),
+            Some("canary") => Some(NetworkName::CanaryV0),
+            None => None,
+            Some(other) => return Err(de::Error::unknown_variant(other, &["testnet", "mainnet", "canary"])),
+        };
+
+        Ok(Dependency { name: raw.name, location, network, path: raw.path })
     }
 }

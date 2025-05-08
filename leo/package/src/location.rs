@@ -24,6 +24,4 @@ pub enum Location {
     Network,
     #[serde(rename = "local")]
     Local,
-    #[serde(rename = "git")]
-    Git,
 }
