@@ -247,8 +247,11 @@ fn handle_deploy<N: Network>(
             println!("📡 Broadcasting deployment for {program_id}...");
             // Check if the program exists on the network.
             if fetch_program_from_network(&program_id.to_string(), &endpoint, network).is_ok() {
-                println!("⚠️ The program '{}' already exists on the network. Skipping deployment.", program_id);
-                continue;
+                println!("⚠️ The program '{}' already exists on the network.", program_id);
+                if confirm("Do you want to skip deploying this program?", command.fee_options.yes)? {
+                    println!("✅ Skipping deployment for '{}'.", program_id);
+                    continue;
+                }
             }
             // Get and confirm the fee with the user.
             let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
