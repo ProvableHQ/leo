@@ -110,7 +110,7 @@ pub fn parse_delimited_list_with_default<T>(
 ) -> Result<Vec<Option<T>>> {
     let mut parsed = Vec::new();
     for element in list.unwrap_or_default().split('|') {
-        if element == "default" || element == "" {
+        if element == "default" || element.is_empty() {
             parsed.push(None);
         } else {
             let element = parser(element)?;
@@ -136,6 +136,7 @@ fn parse_record<N: Network>(private_key: &PrivateKey<N>, record: &str) -> Result
 }
 
 /// Parses a list of records delimited by `|` into a vector of `Option<Record<N, Plaintext<N>>>`.
+#[allow(clippy::type_complexity)]
 fn parse_fee_records<N: Network>(
     private_key: &PrivateKey<N>,
     list: Option<String>,
@@ -153,6 +154,7 @@ fn parse_amounts(list: Option<String>) -> Result<Vec<Option<u64>>> {
 }
 
 // A helper function to construct fee options for `k` transactions.
+#[allow(clippy::type_complexity)]
 pub fn parse_fee_options<N: Network>(
     private_key: &PrivateKey<N>,
     fee_options: &FeeOptions,

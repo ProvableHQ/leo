@@ -16,13 +16,11 @@
 
 use crate::cli::query::{LeoBlock, LeoProgram};
 use indexmap::IndexMap;
-use snarkvm::prelude::Program;
+use snarkvm::prelude::{Program, ProgramID};
 
 use super::*;
 
 use ureq::Response;
-
-/// Utilities for querying the network.
 
 /// A helper function to query the public balance of an address.
 pub fn get_public_balance<N: Network>(
@@ -53,6 +51,7 @@ pub fn get_public_balance<N: Network>(
 }
 
 // A helper function to query for the latest block height.
+#[allow(dead_code)]
 pub fn get_latest_block_height(endpoint: &str, network: &str, context: &Context) -> Result<u32> {
     // Query the latest block height.
     let height = LeoQuery {
@@ -126,10 +125,10 @@ pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>
 /// Loads a program and all its imports from the network, using an iterative DFS.
 pub fn load_programs_from_network<N: Network>(
     context: &Context,
-    program_id: &str,
+    program_id: ProgramID<N>,
     network: &str,
     endpoint: &str,
-) -> Result<Vec<(String, Program<N>)>> {
+) -> Result<Vec<(ProgramID<N>, Program<N>)>> {
     use snarkvm::prelude::Program;
     use std::collections::HashSet;
 
@@ -138,12 +137,12 @@ pub fn load_programs_from_network<N: Network>(
     // Maintains the insertion order of loaded programs.
     let mut programs = IndexMap::new();
     // Stack of program IDs to process (DFS traversal).
-    let mut stack = vec![program_id.to_string()];
+    let mut stack = vec![program_id];
 
     // Loop until all programs and their dependencies are visited.
     while let Some(current_id) = stack.pop() {
         // Skip if we've already loaded this program.
-        if !visited.insert(current_id.clone()) {
+        if !visited.insert(current_id) {
             continue;
         }
 
@@ -152,7 +151,11 @@ pub fn load_programs_from_network<N: Network>(
             endpoint: Some(endpoint.to_string()),
             network: Some(network.to_string()),
             command: QueryCommands::Program {
-                command: query::LeoProgram { name: current_id.clone(), mappings: false, mapping_value: None },
+                command: query::LeoProgram {
+                    name: current_id.clone().to_string(),
+                    mappings: false,
+                    mapping_value: None,
+                },
             },
         }
         .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
@@ -163,11 +166,11 @@ pub fn load_programs_from_network<N: Network>(
 
         // Queue all imported programs for future processing.
         for import_id in program.imports().keys() {
-            stack.push(import_id.to_string());
+            stack.push(*import_id);
         }
 
         // Add the program to our ordered set.
-        programs.insert(current_id.clone(), program);
+        programs.insert(current_id, program);
     }
 
     // Return all loaded programs in insertion order.

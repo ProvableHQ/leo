@@ -20,6 +20,7 @@ use leo_package::{NetworkName, Package, ProgramData};
 
 use aleo_std::StorageMode;
 use clap::Parser;
+use colored::*;
 use snarkvm::prelude::{Execution, Network};
 use std::{convert::TryFrom, path::PathBuf};
 
@@ -172,7 +173,7 @@ fn handle_execute<A: Aleo>(
     };
 
     // Parse the program name as a `ProgramID`.
-    ProgramID::<A::Network>::from_str(&program_name)
+    let program_id = ProgramID::<A::Network>::from_str(&program_name)
         .map_err(|e| CliError::custom(format!("Failed to parse program name: {e}")))?;
     // Parse the function name as an `Identifier`.
     let function_id = Identifier::<A::Network>::from_str(&function_name)
@@ -191,8 +192,10 @@ fn handle_execute<A: Aleo>(
             .iter()
             .clone()
             .map(|program| {
+                let program_id = ProgramID::<A::Network>::from_str(&format!("{}.aleo", program.name))
+                    .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
                 match &program.data {
-                    ProgramData::Bytecode(bytecode) => Ok((program.name.to_string(), bytecode.to_string())),
+                    ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string())),
                     ProgramData::SourcePath(path) => {
                         // Get the path to the built bytecode.
                         let bytecode_path = if path.as_path() == source_directory.join("main.leo") {
@@ -205,7 +208,7 @@ fn handle_execute<A: Aleo>(
                             CliError::custom(format!("Failed to read bytecode at {}: {e}", bytecode_path.display()))
                         })?;
                         // Return the bytecode and the manifest.
-                        Ok((program.name.to_string(), bytecode))
+                        Ok((program_id, bytecode))
                     }
                 }
             })
@@ -215,7 +218,7 @@ fn handle_execute<A: Aleo>(
     };
 
     // Parse the program strings into AVM programs.
-    let mut programs: Vec<(String, snarkvm::prelude::Program<A::Network>)> = programs
+    let mut programs = programs
         .into_iter()
         .map(|(name, bytecode)| {
             // Parse the program.
@@ -227,12 +230,12 @@ fn handle_execute<A: Aleo>(
         .collect::<Result<Vec<_>>>()?;
 
     // Determine whether the program is local or remote.
-    let is_local = programs.iter().any(|(name, _)| name == &program_name);
+    let is_local = programs.iter().any(|(name, _)| name == &program_id);
 
     // If the program is local, then check that the function exists.
     if is_local {
         let program =
-            &programs.iter().find(|(name, _)| name == &program_name).expect("Program should exist since it is local").1;
+            &programs.iter().find(|(name, _)| name == &program_id).expect("Program should exist since it is local").1;
         if !program.contains_function(&function_id) {
             return Err(CliError::custom(format!(
                 "Function `{function_name}` does not exist in program `{program_name}`."
@@ -307,7 +310,7 @@ fn handle_execute<A: Aleo>(
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
         println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
-        programs = load_programs_from_network(&context, &program_name, &network.to_string(), &endpoint)?;
+        programs = load_programs_from_network(&context, program_id, &network.to_string(), &endpoint)?;
     };
 
     // Add the programs to the VM.
@@ -362,31 +365,21 @@ fn handle_execute<A: Aleo>(
 
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
-        // If the fee is a public fee, check the balance of the private key.
+        println!("📡 Broadcasting execution for {program_name}...");
+        // Get and confirm the fee with the user.
         let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
-        let total_cost = *fee.amount()?;
-        if fee.is_fee_public() {
-            let public_balance =
-                get_public_balance(&private_key, &endpoint, &network.to_string(), &context)? as f64 / 1_000_000.0;
-            println!("💰Your current public balance is {public_balance} credits.\n");
-            if public_balance < total_cost as f64 {
-                return Err(PackageError::insufficient_balance(address, public_balance, total_cost).into());
-            } else {
-                confirm(
-                    &format!("This transaction will cost you {public_balance} credits. Do you want to proceed?"),
-                    command.fee_options.yes,
-                )?;
-            }
+        if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.fee_options.yes)? {
+            println!("❌ Execution aborted.");
+            return Ok(());
         }
         // Broadcast the transaction to the network.
-        println!("📡 Broadcasting execution for {program_name}...");
         let response =
             handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), &transaction, &program_name)?;
         match response.status() {
             200 => println!(
-                "✅ Successfully broadcast execution with transaction ID '{}' and fee ID '{}'!",
-                transaction.id(),
-                fee.id()
+                "✅ Successfully broadcast execution with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
+                transaction.id().to_string().bold().yellow(),
+                fee.id().to_string().bold().yellow()
             ),
             _ => {
                 let error_message =
@@ -400,6 +393,7 @@ fn handle_execute<A: Aleo>(
 }
 
 /// Pretty-print the execution plan in a readable format.
+#[allow(clippy::too_many_arguments)]
 fn print_execution_plan<N: Network>(
     private_key: &PrivateKey<N>,
     address: &Address<N>,
@@ -412,13 +406,12 @@ fn print_execution_plan<N: Network>(
     fee_record: bool,
     action: &TransactionAction,
 ) {
-    use colored::*;
     println!("\n{}", "🚀 Execution Plan Summary".bold().underline());
     println!("{}", "──────────────────────────────────────────────".dimmed());
 
     println!("{}", "🔧 Configuration:".bold());
-    println!("  {:16}{}", "Private Key:", format!("{}...", &private_key.to_string()[..12]).yellow());
-    println!("  {:16}{}", "Address:", address.to_string().yellow());
+    println!("  {:16}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
+    println!("  {:16}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
     println!("  {:16}{}", "Endpoint:", endpoint.yellow());
     println!("  {:16}{}", "Network:", network.to_string().yellow());
 

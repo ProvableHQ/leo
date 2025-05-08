@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use leo_package::NetworkName;
 
 /// Asks the user to confirm an action, with an optional `--yes` override.
 pub fn confirm(prompt: &str, skip_confirmation: bool) -> Result<bool> {
@@ -22,9 +23,38 @@ pub fn confirm(prompt: &str, skip_confirmation: bool) -> Result<bool> {
         return Ok(true);
     }
 
-    Confirm::with_theme(&ColorfulTheme::default())
+    let result = Confirm::with_theme(&ColorfulTheme::default())
         .with_prompt(prompt)
         .default(false)
         .interact()
-        .map_err(|e| CliError::custom(format!("Failed to prompt user: {e}")).into())
+        .map_err(|e| CliError::custom(format!("Failed to prompt user: {e}")).into());
+
+    // Print a newline for better formatting.
+    println!();
+
+    result
+}
+
+/// Asks the user to confirm a fee.
+pub fn confirm_fee<N: Network>(
+    fee: &snarkvm::prelude::Fee<N>,
+    private_key: &PrivateKey<N>,
+    address: &Address<N>,
+    endpoint: &str,
+    network: NetworkName,
+    context: &Context,
+    skip: bool,
+) -> Result<bool> {
+    // Get the fee amount.
+    let total_cost = (*fee.amount()? as f64) / 1_000_000.0;
+    if fee.is_fee_public() {
+        let public_balance =
+            get_public_balance(private_key, endpoint, &network.to_string(), context)? as f64 / 1_000_000.0;
+        println!("💰Your current public balance is {public_balance} credits.\n");
+        if public_balance < total_cost {
+            return Err(PackageError::insufficient_balance(address, public_balance, total_cost).into());
+        }
+    }
+    // Confirm the transaction.
+    confirm(&format!("This transaction will cost you {total_cost} credits. Do you want to proceed?"), skip)
 }

@@ -33,6 +33,7 @@ use snarkvm::{
 };
 
 use aleo_std::StorageMode;
+use colored::*;
 use std::path::PathBuf;
 use text_tables;
 
@@ -242,26 +243,14 @@ fn handle_deploy<N: Network>(
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
         for (program_name, transaction) in transactions.iter() {
-            // If the fee is a public fee, check the balance of the private key.
+            println!("📡 Broadcasting deployment for {program_name}...");
+            // Get and confirm the fee with the user.
             let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
-            let total_cost = *fee.amount()?;
-            if fee.is_fee_public() {
-                let public_balance =
-                    get_public_balance(&private_key, &endpoint, &network.to_string(), &context)? as f64 / 1_000_000.0;
-                println!("     💰Your current public balance is {public_balance} credits.\n");
-                if public_balance < total_cost as f64 {
-                    return Err(PackageError::insufficient_balance(address, public_balance, total_cost).into());
-                } else {
-                    confirm(
-                        &format!(
-                            "      This transaction will cost you {public_balance} credits. Do you want to proceed?"
-                        ),
-                        command.fee_options.yes,
-                    )?;
-                }
+            if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.fee_options.yes)? {
+                println!("❌ Deployment aborted.");
+                return Ok(());
             }
             // Broadcast the transaction to the network.
-            println!("📡 Broadcasting deployment for {program_name}...");
             let response = handle_broadcast(
                 &format!("{}/{}/transaction/broadcast", endpoint, network),
                 transaction,
@@ -269,9 +258,9 @@ fn handle_deploy<N: Network>(
             )?;
             match response.status() {
                 200 => println!(
-                    "      ✅ Successfully broadcast deployment with transaction ID '{}' and fee ID '{}'!",
-                    transaction.id(),
-                    fee.id()
+                    "✅ Successfully broadcast deployment with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
+                    transaction.id().to_string().bold().yellow(),
+                    fee.id().to_string().bold().yellow()
                 ),
                 _ => {
                     let error_message = response
@@ -281,7 +270,8 @@ fn handle_deploy<N: Network>(
                 }
             }
             // Wait between successive deployments to prevent out of order deployments.
-            println!("⏲️ Waiting for {} seconds to allow the deployment to confirm...", command.wait)
+            println!("⏲️ Waiting for {} seconds to allow the deployment to confirm...\n", command.wait);
+            std::thread::sleep(std::time::Duration::from_secs(command.wait));
         }
     }
 
@@ -289,6 +279,7 @@ fn handle_deploy<N: Network>(
 }
 
 /// Pretty-print the deployment plan in a readable format.
+#[allow(clippy::type_complexity)]
 fn print_deployment_plan<N: Network>(
     private_key: &PrivateKey<N>,
     address: &Address<N>,
@@ -297,7 +288,6 @@ fn print_deployment_plan<N: Network>(
     tasks: &[(String, String, Option<Manifest>, Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>)],
     action: &TransactionAction,
 ) {
-    use colored::*;
     use text_tables::render;
 
     // Break down the tasks into the local and remote dependencies.
@@ -387,7 +377,7 @@ fn print_deployment_stats<N: Network>(
     // Print summary
     println!("\n{} {}", "📊 Deployment Stats for".bold(), program_name.bold());
     println!(
-        "Total Variables:   {:>10}\n      Total Constraints: {:>10}\n",
+        "Total Variables:   {:>10}\nTotal Constraints: {:>10}\n",
         variables.to_formatted_string(&Locale::en),
         constraints.to_formatted_string(&Locale::en)
     );
