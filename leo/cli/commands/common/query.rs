@@ -23,7 +23,7 @@ use super::*;
 use ureq::Response;
 
 /// Utilities for querying the network.
-// Note: Minimize the number of prints in these utilities to avoid formatting inconsistencies.
+
 /// A helper function to query the public balance of an address.
 pub fn get_public_balance<N: Network>(
     private_key: &PrivateKey<N>,
@@ -171,5 +171,5 @@ pub fn load_programs_from_network<N: Network>(
     }
 
     // Return all loaded programs in insertion order.
-    Ok(programs.into_iter().collect())
+    Ok(programs.into_iter().rev().collect())
 }

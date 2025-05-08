@@ -179,7 +179,7 @@ fn handle_execute<A: Aleo>(
         .map_err(|e| CliError::custom(format!("Failed to parse function name: {e}")))?;
 
     // Get all the dependencies in the package if it exists.
-    // Get the programs and optional manifests for all of the programs.
+    // Get the programs and optional manifests for all programs.
     let programs = if let Some(package) = &package {
         package
             .programs
@@ -205,7 +205,7 @@ fn handle_execute<A: Aleo>(
     };
 
     // Parse the program strings into AVM programs.
-    let programs: Vec<(String, snarkvm::prelude::Program<A::Network>)> = programs
+    let mut programs: Vec<(String, snarkvm::prelude::Program<A::Network>)> = programs
         .into_iter()
         .map(|(name, bytecode)| {
             // Parse the program.
@@ -294,14 +294,10 @@ fn handle_execute<A: Aleo>(
     let query = SnarkVMQuery::from(&endpoint);
 
     // If the program is not local, then download it and its dependencies for the network.
-    // Note: The depdenencies are downloaded in "pre-order" (parent before child).
-    let programs = if is_local {
-        programs
-    } else {
+    // Note: The dependencies are downloaded in "post-order" (child before parent).
+    if !is_local {
         println!("      ⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
-        let mut programs = load_programs_from_network(&context, &program_name, &network.to_string(), &endpoint)?;
-        programs.reverse();
-        programs
+        programs = load_programs_from_network(&context, &program_name, &network.to_string(), &endpoint)?;
     };
 
     // Add the programs to the VM.
@@ -309,8 +305,6 @@ fn handle_execute<A: Aleo>(
     for (_, program) in programs {
         vm.process().write().add_program(&program)?;
     }
-
-    // Parse the inputs.
 
     // Execute the program and produce a transaction.
     let transaction = vm.execute(
