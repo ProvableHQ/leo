@@ -110,7 +110,7 @@ pub fn parse_delimited_list_with_default<T>(
 ) -> Result<Vec<Option<T>>> {
     let mut parsed = Vec::new();
     for element in list.unwrap_or_default().split('|') {
-        if element == "default" {
+        if element == "default" || element == "" {
             parsed.push(None);
         } else {
             let element = parser(element)?;

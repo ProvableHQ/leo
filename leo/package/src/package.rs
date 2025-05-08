@@ -169,7 +169,7 @@ impl Package {
 
         let path = path.canonicalize().map_err(|err| map_err(path, err))?;
 
-        let env = Env::read_from_file_or_environment(path.join(ENV_FILENAME))?;
+        let env = Env::read_from_file_or_environment(path.join(ENV_FILENAME), home_path)?;
 
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
 

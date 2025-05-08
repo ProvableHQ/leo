@@ -39,9 +39,37 @@ impl Env {
         fs::write(path, contents).map_err(PackageError::io_error_env_file)
     }
 
-    pub fn read_from_file_or_environment<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let contents = std::fs::read_to_string(&path)
-            .map_err(|e| PackageError::failed_to_read_file(path.as_ref().display(), e))?;
+    pub fn read_from_file_or_environment<P1: AsRef<Path>, P2: AsRef<Path>>(
+        start_path: P1,
+        home_path: P2,
+    ) -> Result<Self> {
+        // Read the `.env` file from the given path.
+        // If the file does not exist, then attempt to read it from its parent recursively until
+        // there are no more parent directories.
+        // If it still does not exist, then attempt to read it from the home path.
+        let mut dir_path = start_path.as_ref().to_path_buf();
+        dir_path.pop();
+        let mut path = dir_path.join(ENV_FILENAME);
+        // Recursively check parent directories for the `.env` file if it does not exist.
+        while !path.exists() && dir_path.pop() {
+            path = dir_path.join(ENV_FILENAME);
+        }
+        // Attempt the home path.
+        if !path.exists() {
+            path = home_path.as_ref().join(ENV_FILENAME);
+        }
+        // Read the `.env` file.
+        let contents = fs::read_to_string(&path).map_err(|_| {
+            PackageError::failed_to_read_file(
+                path.display(),
+                format!(
+                    "Could not find a `.env` file in heirarchy of {} or in the home directory {}",
+                    start_path.as_ref().display(),
+                    home_path.as_ref().display()
+                ),
+            )
+        })?;
+
         let mut network: Option<String> = None;
         let mut private_key: Option<String> = None;
         let mut endpoint: Option<String> = None;

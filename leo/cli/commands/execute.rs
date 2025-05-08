@@ -181,6 +181,11 @@ fn handle_execute<A: Aleo>(
     // Get all the dependencies in the package if it exists.
     // Get the programs and optional manifests for all programs.
     let programs = if let Some(package) = &package {
+        // Get the package directories.
+        let build_directory = package.build_directory();
+        let imports_directory = package.imports_directory();
+        let source_directory = package.source_directory();
+        // Get the program names and their bytecode.
         package
             .programs
             .iter()
@@ -189,11 +194,16 @@ fn handle_execute<A: Aleo>(
                 match &program.data {
                     ProgramData::Bytecode(bytecode) => Ok((program.name.to_string(), bytecode.to_string())),
                     ProgramData::SourcePath(path) => {
-                        // Define the path to the program's bytecode.
-                        let path = path.join("build/main.aleo");
+                        // Get the path to the built bytecode.
+                        let bytecode_path = if path.as_path() == source_directory.join("main.leo") {
+                            build_directory.join("main.aleo")
+                        } else {
+                            imports_directory.join(format!("{}.aleo", program.name))
+                        };
                         // Fetch the bytecode.
-                        let bytecode = std::fs::read_to_string(&path)
-                            .map_err(|e| CliError::custom(format!("Failed to read bytecode: {e}")))?;
+                        let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {
+                            CliError::custom(format!("Failed to read bytecode at {}: {e}", bytecode_path.display()))
+                        })?;
                         // Return the bytecode and the manifest.
                         Ok((program.name.to_string(), bytecode))
                     }
@@ -296,12 +306,12 @@ fn handle_execute<A: Aleo>(
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
-        println!("      ⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
+        println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
         programs = load_programs_from_network(&context, &program_name, &network.to_string(), &endpoint)?;
     };
 
     // Add the programs to the VM.
-    println!("      Adding programs to the VM ...");
+    println!("Adding programs to the VM ...");
     for (_, program) in programs {
         vm.process().write().add_program(&program)?;
     }
@@ -332,7 +342,7 @@ fn handle_execute<A: Aleo>(
     if command.action.print {
         let transaction_json = serde_json::to_string_pretty(&transaction)
             .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
-        println!("      🖨️ Printing execution for {program_name}\n{transaction_json}");
+        println!("🖨️ Printing execution for {program_name}\n{transaction_json}");
     }
 
     // If the `save` option is set, save the execution transaction to a file in the specified directory.
@@ -343,7 +353,7 @@ fn handle_execute<A: Aleo>(
         std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
         // Save the transaction to a file.
         let file_path = PathBuf::from(path).join(format!("{program_name}.execution.json"));
-        println!("      💾 Saving execution for {program_name} at {}", file_path.display());
+        println!("💾 Saving execution for {program_name} at {}", file_path.display());
         let transaction_json = serde_json::to_string_pretty(&transaction)
             .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
         std::fs::write(file_path, transaction_json)
@@ -358,30 +368,30 @@ fn handle_execute<A: Aleo>(
         if fee.is_fee_public() {
             let public_balance =
                 get_public_balance(&private_key, &endpoint, &network.to_string(), &context)? as f64 / 1_000_000.0;
-            println!("     💰Your current public balance is {public_balance} credits.\n");
+            println!("💰Your current public balance is {public_balance} credits.\n");
             if public_balance < total_cost as f64 {
                 return Err(PackageError::insufficient_balance(address, public_balance, total_cost).into());
             } else {
                 confirm(
-                    &format!("      This transaction will cost you {public_balance} credits. Do you want to proceed?"),
+                    &format!("This transaction will cost you {public_balance} credits. Do you want to proceed?"),
                     command.fee_options.yes,
                 )?;
             }
         }
         // Broadcast the transaction to the network.
-        println!("      📡 Broadcasting execution for {program_name}...");
+        println!("📡 Broadcasting execution for {program_name}...");
         let response =
             handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), &transaction, &program_name)?;
         match response.status() {
             200 => println!(
-                "      ✅ Successfully broadcast execution with transaction ID '{}' and fee ID '{}'!",
+                "✅ Successfully broadcast execution with transaction ID '{}' and fee ID '{}'!",
                 transaction.id(),
                 fee.id()
             ),
             _ => {
                 let error_message =
                     response.into_string().map_err(|e| CliError::custom(format!("Failed to read response: {e}")))?;
-                println!("      ❌ Failed to broadcast execution: {}", error_message);
+                println!("❌ Failed to broadcast execution: {}", error_message);
             }
         }
     }
@@ -421,18 +431,24 @@ fn print_execution_plan<N: Network>(
     println!("  {:16}{}", "Priority Fee:", format!("{} μcredits", priority_fee).green());
     println!("  {:16}{}", "Fee Record:", if fee_record { "yes" } else { "no (public fee)" });
 
-    println!("\n{}", "⚙️  Actions:".bold());
+    println!("\n{}", "⚙️ Actions:".bold());
     if !is_local {
         println!("  - Program and its dependencies will be downloaded from the network.");
     }
     if action.print {
         println!("  - Transaction will be printed to the console.");
+    } else {
+        println!("  - Transaction will NOT be printed to the console.");
     }
     if let Some(path) = &action.save {
         println!("  - Transaction will be saved to {}", path.bold());
+    } else {
+        println!("  - Transaction will NOT be saved to a file.");
     }
     if action.broadcast {
         println!("  - Transaction will be broadcast to {}", endpoint.bold());
+    } else {
+        println!("  - Transaction will NOT be broadcast to the network.");
     }
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }
@@ -461,7 +477,7 @@ fn print_execution_stats<N: Network>(
 
     // Print summary
     println!("\n{} {}", "📊 Execution Stats for".bold(), program_name.bold());
-    println!("      Base execution cost for '{}' is {:.6} credits.\n", program_name.bold(), base_fee_value);
+    println!("Base execution cost for '{}' is {:.6} credits.\n", program_name.bold(), base_fee_value);
 
     let data = [
         [program_name, "Cost (credits)"],
@@ -473,7 +489,7 @@ fn print_execution_stats<N: Network>(
 
     let mut out = Vec::new();
     render(&mut out, data).map_err(CliError::table_render_failed)?;
-    println!("      {}", std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
+    println!("{}", std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
 
     Ok(())
 }

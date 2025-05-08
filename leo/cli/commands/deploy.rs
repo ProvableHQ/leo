@@ -98,35 +98,47 @@ fn handle_deploy<N: Network>(
     package: Package,
 ) -> Result<<LeoDeploy as Command>::Output> {
     // Get the private key and associated address, accounting for overrides.
-    let private_key_string = command.env_override.private_key.clone().unwrap_or(package.env.private_key);
+    let private_key_string = command.env_override.private_key.clone().unwrap_or(package.env.private_key.clone());
     let private_key = PrivateKey::<N>::from_str(&private_key_string)
         .map_err(|e| CliError::custom(format!("Failed to parse private key: {e}")))?;
     let address =
         Address::try_from(&private_key).map_err(|e| CliError::custom(format!("Failed to parse address: {e}")))?;
 
     // Get the endpoint, accounting for overrides.
-    let endpoint = command.env_override.endpoint.clone().unwrap_or(package.env.endpoint);
+    let endpoint = command.env_override.endpoint.clone().unwrap_or(package.env.endpoint.clone());
 
-    // Get the programs and optional manifests for all of the programs.
+    // Get the package directories.
+    let build_directory = package.build_directory();
+    let imports_directory = package.imports_directory();
+    let source_directory = package.source_directory();
+
+    // Get the programs and optional manifests for all the programs.
     let programs_and_manifests: Vec<(String, String, Option<Manifest>)> = package
         .programs
         .into_iter()
-        .clone()
         .map(|program| {
-            match program.data {
-                ProgramData::Bytecode(bytecode) => Ok((program.name.to_string(), bytecode, None)),
+            match &program.data {
+                ProgramData::Bytecode(bytecode) => Ok((program.name.to_string(), bytecode.clone(), None)),
                 ProgramData::SourcePath(path) => {
-                    // Define the path to the program's bytecode.
-                    let path = path.join("build/main.aleo");
+                    // Get the path to the built bytecode.
+                    let bytecode_path = if path.as_path() == source_directory.join("main.leo") {
+                        build_directory.join("main.aleo")
+                    } else {
+                        imports_directory.join(format!("{}.aleo", program.name))
+                    };
                     // Fetch the bytecode.
-                    let bytecode = std::fs::read_to_string(&path)
-                        .map_err(|e| CliError::custom(format!("Failed to read bytecode: {e}")))?;
+                    let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {
+                        CliError::custom(format!("Failed to read bytecode at {}: {e}", bytecode_path.display()))
+                    })?;
                     // Get the package from the directory.
+                    let mut path = path.clone();
+                    path.pop();
+                    path.pop();
                     let home = context
                         .home()
                         .map_err(|e| CliError::custom(format!("Failed to find the Aleo home directory: {e}")))?;
                     let package = Package::from_directory_no_graph(&path, home)
-                        .map_err(|e| CliError::custom(format!("Failed to load package at {:?}: {e}", path)))?;
+                        .map_err(|e| CliError::custom(format!("Failed to load package at {}: {e}", path.display())))?;
                     // Return the bytecode and the manifest.
                     Ok((program.name.to_string(), bytecode, Some(package.manifest.clone())))
                 }
@@ -172,7 +184,7 @@ fn handle_deploy<N: Network>(
             .map_err(|e| CliError::custom(format!("Failed to parse program bytecode: {e}")))?;
         // If the program is a local depdency, generate a deployment transaction.
         if manifest.is_some() {
-            println!("      📦 Creating deployment transaction for '{}'...\n", &program_name.bold());
+            println!("📦 Creating deployment transaction for '{}'...\n", &program_name.bold());
             // Generate the transaction.
             let transaction = vm
                 .deploy(&private_key, &program, fee_record, priority_fee.unwrap_or(0), Some(query.clone()), rng)
@@ -206,7 +218,7 @@ fn handle_deploy<N: Network>(
             // Pretty-print the transaction.
             let transaction_json = serde_json::to_string_pretty(transaction)
                 .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
-            println!("      🖨️ Printing deployment for {program_name}\n{transaction_json}")
+            println!("🖨️ Printing deployment for {program_name}\n{transaction_json}")
         }
     }
 
@@ -219,7 +231,7 @@ fn handle_deploy<N: Network>(
         for (program_name, transaction) in transactions.iter() {
             // Save the transaction to a file.
             let file_path = PathBuf::from(path).join(format!("{program_name}.deployment.json"));
-            println!("      💾 Saving deployment for {program_name} at {}", file_path.display());
+            println!("💾 Saving deployment for {program_name} at {}", file_path.display());
             let transaction_json = serde_json::to_string_pretty(transaction)
                 .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
             std::fs::write(file_path, transaction_json)
@@ -249,7 +261,7 @@ fn handle_deploy<N: Network>(
                 }
             }
             // Broadcast the transaction to the network.
-            println!("      📡 Broadcasting deployment for {program_name}...");
+            println!("📡 Broadcasting deployment for {program_name}...");
             let response = handle_broadcast(
                 &format!("{}/{}/transaction/broadcast", endpoint, network),
                 transaction,
@@ -265,11 +277,11 @@ fn handle_deploy<N: Network>(
                     let error_message = response
                         .into_string()
                         .map_err(|e| CliError::custom(format!("Failed to read response: {e}")))?;
-                    println!("      ❌ Failed to broadcast deployment: {}", error_message);
+                    println!("❌ Failed to broadcast deployment: {}", error_message);
                 }
             }
             // Wait between successive deployments to prevent out of order deployments.
-            println!("      ⏲️ Waiting for {} seconds to allow the deployment to confirm...", command.wait)
+            println!("⏲️ Waiting for {} seconds to allow the deployment to confirm...", command.wait)
         }
     }
 
@@ -291,13 +303,13 @@ fn print_deployment_plan<N: Network>(
     // Break down the tasks into the local and remote dependencies.
     let (local, remote) = tasks.iter().partition::<Vec<_>, _>(|(_, _, manifest, _, _, _)| manifest.is_some());
 
-    println!("\n{}", "🛠️  Deployment Plan Summary".bold().underline());
+    println!("\n{}", "🛠️  Deployment Plan Summary".bold());
     println!("{}", "──────────────────────────────────────────────".dimmed());
 
     // Config
     println!("{}", "🔧 Configuration:".bold());
-    println!("  {:16}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..12]).yellow());
-    println!("  {:16}{}", "Address:".cyan(), address.to_string().yellow());
+    println!("  {:16}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
+    println!("  {:16}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
     println!("  {:16}{}", "Endpoint:".cyan(), endpoint.yellow());
     println!("  {:16}{}", "Network:".cyan(), network.to_string().yellow());
 
@@ -333,15 +345,21 @@ fn print_deployment_plan<N: Network>(
     }
 
     // Actions
-    println!("\n{}", "⚙️  Actions:".bold());
+    println!("{}", "⚙️ Actions:".bold());
     if action.print {
         println!("  - Your transaction(s) will be printed to the console.");
+    } else {
+        println!("  - Your transaction(s) will NOT be printed to the console.");
     }
     if let Some(path) = &action.save {
         println!("  - Your transaction(s) will be saved to {}", path.bold());
+    } else {
+        println!("  - Your transaction(s) will NOT be saved to a file.");
     }
     if action.broadcast {
         println!("  - Your transaction(s) will be broadcast to {}", endpoint.bold());
+    } else {
+        println!("  - Your transaction(s) will NOT be broadcast to the network.");
     }
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }
@@ -369,13 +387,13 @@ fn print_deployment_stats<N: Network>(
     // Print summary
     println!("\n{} {}", "📊 Deployment Stats for".bold(), program_name.bold());
     println!(
-        "      Total Variables:   {:>10}\n      Total Constraints: {:>10}\n",
+        "Total Variables:   {:>10}\n      Total Constraints: {:>10}\n",
         variables.to_formatted_string(&Locale::en),
         constraints.to_formatted_string(&Locale::en)
     );
 
     // Print cost breakdown inline
-    println!("      Base deployment cost for '{}' is {:.6} credits.\n", program_name.bold(), base_fee_value);
+    println!("Base deployment cost for '{}' is {:.6} credits.\n", program_name.bold(), base_fee_value);
 
     let data = [
         [program_name, "Cost (credits)"],
@@ -388,7 +406,7 @@ fn print_deployment_stats<N: Network>(
 
     let mut out = Vec::new();
     render(&mut out, data).map_err(CliError::table_render_failed)?;
-    println!("      {}", std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
+    println!("{}", std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
 
     Ok(())
 }

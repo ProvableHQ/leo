@@ -238,7 +238,7 @@ create_messages!(
     /// For when file could not be read.
     @backtraced
     failed_to_read_file {
-        args: (path: impl Display, error: impl ErrorArg),
+        args: (path: impl Display, error: impl Display),
         msg: format!("failed to read file: {path}, error: {error}"),
         help: None,
     }
