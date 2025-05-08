@@ -121,7 +121,7 @@ impl Program {
             .keys()
             .map(|program_id| {
                 let name = program_id.to_string();
-                Dependency { name, location: Location::Network, network: Some(network), path: None }
+                Dependency { name, location: Location::Network, path: None }
             })
             .collect();
 

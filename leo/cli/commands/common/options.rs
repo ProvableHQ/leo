@@ -85,39 +85,40 @@ pub struct FeeOptions {
     pub(crate) yes: bool,
     #[clap(
         long,
-        help = "[UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation."
+        help = "[UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.",
+        value_delimiter = '|',
+        value_parser = parse_amount
     )]
-    pub(crate) base_fees: Option<String>,
+    pub(crate) base_fees: Vec<Option<u64>>,
     #[clap(
         long,
-        help = "Priority fee in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to 0."
+        help = "Priority fee in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to 0.",
+        value_delimiter = '|',
+        value_parser = parse_amount
     )]
-    pub(crate) priority_fees: Option<String>,
+    pub(crate) priority_fees: Vec<Option<u64>>,
     #[clap(
         short,
         help = "Records to pay for fees privately, delimited by '|', and used in order. The fees must either be valid plaintext, ciphertext, or `default`. Defaults to public fees.",
-        long
+        long,
+        value_delimiter = '|',
+        value_parser = parse_record_string,
     )]
-    fee_records: Option<String>,
+    fee_records: Vec<Option<String>>,
     #[clap(long, help = "Consensus version to use for the transaction.")]
     pub(crate) consensus_version: Option<u8>,
 }
 
-/// Parses a list delimited by `|` into a vector of `Option<T>`.
-pub fn parse_delimited_list_with_default<T>(
-    list: Option<String>,
-    parser: impl Fn(&str) -> Result<T>,
-) -> Result<Vec<Option<T>>> {
-    let mut parsed = Vec::new();
-    for element in list.unwrap_or_default().split('|') {
-        if element == "default" || element.is_empty() {
-            parsed.push(None);
-        } else {
-            let element = parser(element)?;
-            parsed.push(Some(element));
-        }
-    }
-    Ok(parsed)
+// A helper function to parse amounts, which can either be a `u64` or `default`.
+fn parse_amount(s: &str) -> Result<Option<u64>, String> {
+    let trimmed = s.trim();
+    if trimmed == "default" { Ok(None) } else { trimmed.parse::<u64>().map_err(|e| e.to_string()).map(Some) }
+}
+
+// A helper function to parse record strings, which can either be a string or `default`.
+fn parse_record_string(s: &str) -> Result<Option<String>, String> {
+    let trimmed = s.trim();
+    if trimmed == "default" { Ok(None) } else { Ok(Some(trimmed.to_string())) }
 }
 
 /// Parses the record string. If the string is a ciphertext, then attempt to decrypt it. Lifted from snarkOS.
@@ -135,24 +136,6 @@ fn parse_record<N: Network>(private_key: &PrivateKey<N>, record: &str) -> Result
     }
 }
 
-/// Parses a list of records delimited by `|` into a vector of `Option<Record<N, Plaintext<N>>>`.
-#[allow(clippy::type_complexity)]
-fn parse_fee_records<N: Network>(
-    private_key: &PrivateKey<N>,
-    list: Option<String>,
-) -> Result<Vec<Option<Record<N, Plaintext<N>>>>> {
-    let parser = |record: &str| -> Result<Record<N, Plaintext<N>>> { parse_record(private_key, record) };
-    parse_delimited_list_with_default(list, parser)
-}
-
-/// Parses a list of amounts delimited by `|` into a vector of `Option<u64>`.
-fn parse_amounts(list: Option<String>) -> Result<Vec<Option<u64>>> {
-    let parser = |amount: &str| -> Result<u64> {
-        amount.parse::<u64>().map_err(|_| CliError::custom("Failed to parse fee amount '{amount}' as u64").into())
-    };
-    parse_delimited_list_with_default(list, parser)
-}
-
 // A helper function to construct fee options for `k` transactions.
 #[allow(clippy::type_complexity)]
 pub fn parse_fee_options<N: Network>(
@@ -161,11 +144,12 @@ pub fn parse_fee_options<N: Network>(
     k: usize,
 ) -> Result<Vec<(Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>)>> {
     // Parse the base fees.
-    let base_fees = parse_amounts(fee_options.base_fees.clone())?;
+    let base_fees = fee_options.base_fees.clone();
     // Parse the priority fees.
-    let priority_fees = parse_amounts(fee_options.priority_fees.clone())?;
+    let priority_fees = fee_options.priority_fees.clone();
     // Parse the fee records.
-    let fee_records = parse_fee_records(private_key, fee_options.fee_records.clone())?;
+    let parse_record = |record: &Option<String>| record.as_ref().map(|r| parse_record::<N>(private_key, r)).transpose();
+    let fee_records = fee_options.fee_records.iter().map(parse_record).collect::<Result<Vec<_>>>()?;
 
     // Pad the vectors to length `k`.
     let base_fees = base_fees.into_iter().chain(iter::repeat(None)).take(k);

@@ -180,12 +180,8 @@ impl Package {
 
             let mut digraph = DiGraph::<Symbol>::new(Default::default());
 
-            let first_dependency = Dependency {
-                name: manifest.program.clone(),
-                location: Location::Local,
-                network: None,
-                path: Some(path.clone()),
-            };
+            let first_dependency =
+                Dependency { name: manifest.program.clone(), location: Location::Local, path: Some(path.clone()) };
 
             Self::graph_build(&home_path, env.network, &env.endpoint, first_dependency, &mut map, &mut digraph)?;
 

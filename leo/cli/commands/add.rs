@@ -71,7 +71,6 @@ impl Command for LeoAdd {
         let new_dependency = Dependency {
             name: name.clone(),
             location: if self.source.local.is_some() { Location::Local } else { Location::Network },
-            network: None,
             path: self.source.local.clone(),
         };
 
