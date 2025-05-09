@@ -30,10 +30,12 @@ pub struct Dependency {
     pub location: Location,
     /// For a local dependency, where is its package?
     pub path: Option<PathBuf>,
+    /// For a network dependency, what is its edition?
+    pub edition: Option<u16>,
 }
 
 impl Dependency {
-    pub fn new(name: String, location: Location, path: Option<PathBuf>) -> Self {
-        Self { name, location, path }
+    pub fn new(name: String, location: Location, path: Option<PathBuf>, edition: Option<u16>) -> Self {
+        Self { name, location, path, edition }
     }
 }

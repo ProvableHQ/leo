@@ -86,7 +86,7 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
     let package_path = context.dir()?;
     let home_path = context.home()?;
 
-    let package = leo_package::Package::from_directory(&package_path, &home_path)?;
+    let package = Package::from_directory(&package_path, &home_path)?;
 
     let outputs_directory = package.outputs_directory();
     let build_directory = package.build_directory();

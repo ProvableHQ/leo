@@ -30,12 +30,14 @@ pub struct Program {
     // The name of the program (no ".aleo" suffix).
     pub name: Symbol,
     pub data: ProgramData,
+    pub edition: Option<u16>,
     pub dependencies: IndexSet<Dependency>,
 }
 
 impl Program {
     /// Given the location `path` of a local Leo package, read the filesystem
     /// to obtain a `Program`.
+    /// Note: Local programs do not have an edition since the edition is assigned on deployment to the network.
     pub fn from_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
         Self::from_path_impl(name, path.as_ref())
     }
@@ -70,23 +72,27 @@ impl Program {
         Ok(Program {
             name,
             data: ProgramData::SourcePath(source_path),
+            edition: None,
             dependencies: manifest.dependencies.unwrap_or_default().into_iter().collect(),
         })
     }
 
     /// Given an Aleo program on a network, fetch it to build a `Program`.
+    /// If no edition is found, the latest edition is pulled from the network.
     pub fn fetch<P: AsRef<Path>>(
         name: Symbol,
+        edition: Option<u16>,
         home_path: P,
         network: NetworkName,
         endpoint: &str,
         use_cache: bool,
     ) -> Result<Self> {
-        Self::fetch_impl(name, home_path.as_ref(), network, endpoint, use_cache)
+        Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, use_cache)
     }
 
     fn fetch_impl(
         name: Symbol,
+        edition: Option<u16>,
         home_path: &Path,
         network: NetworkName,
         endpoint: &str,
@@ -94,7 +100,23 @@ impl Program {
     ) -> Result<Self> {
         // It's not a local program; let's check the cache.
         let cache_directory = home_path.join(format!("registry/{network}"));
-        let full_cache_path = cache_directory.join(format!("{name}.aleo"));
+
+        // If the edition is not specified, then query the network for the latest edition.
+        let edition = match edition {
+            Some(edition) => edition,
+            None => {
+                let url = format!("{endpoint}/{network}/program/{name}.aleo/latest_edition");
+                let contents = fetch_from_network(&url)?;
+                contents.parse::<u16>().map_err(|e| {
+                    UtilError::failed_to_retrieve_from_endpoint(
+                        format!("Failed to parse edition as u16: {e}"),
+                        Default::default(),
+                    )
+                })?
+            }
+        };
+
+        let full_cache_path = cache_directory.join(format!("{name}.aleo/{edition}"));
 
         let bytecode = if full_cache_path.exists() && use_cache {
             // Great; apparently this file is already cached.
@@ -106,7 +128,7 @@ impl Program {
             })?
         } else {
             // We need to fetch it from the network.
-            let url = format!("{endpoint}/{network}/program/{name}.aleo");
+            let url = format!("{endpoint}/{network}/program/{name}.aleo/{edition}");
             let contents = fetch_from_network(&url)?;
 
             // Make sure the cache directory exists.
@@ -133,10 +155,10 @@ impl Program {
             .keys()
             .map(|program_id| {
                 let name = program_id.to_string();
-                Dependency { name, location: Location::Network, path: None }
+                Dependency { name, location: Location::Network, path: None, edition: Some(edition) }
             })
             .collect();
 
-        Ok(Program { name, data: ProgramData::Bytecode(bytecode), dependencies })
+        Ok(Program { name, data: ProgramData::Bytecode(bytecode), edition: Some(edition), dependencies })
     }
 }

@@ -181,8 +181,12 @@ impl Package {
 
             let mut digraph = DiGraph::<Symbol>::new(Default::default());
 
-            let first_dependency =
-                Dependency { name: manifest.program.clone(), location: Location::Local, path: Some(path.clone()) };
+            let first_dependency = Dependency {
+                name: manifest.program.clone(),
+                location: Location::Local,
+                path: Some(path.clone()),
+                edition: None,
+            };
 
             Self::graph_build(&home_path, env.network, &env.endpoint, first_dependency, &mut map, &mut digraph)?;
 
@@ -213,7 +217,10 @@ impl Package {
                 // the one we already have.
                 let existing_dep = &occupied.get().0;
                 assert_eq!(new.name, existing_dep.name);
-                if new.location != existing_dep.location || new.path != existing_dep.path {
+                if new.location != existing_dep.location
+                    || new.path != existing_dep.path
+                    || new.edition != existing_dep.edition
+                {
                     return Err(PackageError::conflicting_dependency(format_args!("{name_symbol}.aleo")).into());
                 }
                 return Ok(());
@@ -224,7 +231,7 @@ impl Package {
                     Program::from_path(name_symbol, path.clone())?
                 } else {
                     // It's a network dependency.
-                    Program::fetch(name_symbol, home_path, network, endpoint, true)?
+                    Program::fetch(name_symbol, new.edition, home_path, network, endpoint, true)?
                 };
 
                 vacant.insert((new, program.clone()));
@@ -244,23 +251,28 @@ impl Package {
         Ok(())
     }
 
-    /// Get the program ID, program, and optional manifest for all programs in the package.
+    /// Get the program ID, program, optional edition, and optional manifest for all programs in the package.
     /// This method assumes that the package has already been built (`leo build` has been run).
     #[allow(clippy::type_complexity)]
     pub fn get_programs_and_manifests<P: AsRef<Path>>(
         &self,
         home_path: P,
-    ) -> Result<Vec<(String, String, Option<Manifest>)>> {
+    ) -> Result<Vec<(String, String, Option<u16>, Option<Manifest>)>> {
         self.get_programs_and_manifests_impl(home_path.as_ref())
     }
 
     #[allow(clippy::type_complexity)]
-    fn get_programs_and_manifests_impl(&self, home_path: &Path) -> Result<Vec<(String, String, Option<Manifest>)>> {
+    fn get_programs_and_manifests_impl(
+        &self,
+        home_path: &Path,
+    ) -> Result<Vec<(String, String, Option<u16>, Option<Manifest>)>> {
         self.programs
             .iter()
             .map(|program| {
                 match &program.data {
-                    ProgramData::Bytecode(bytecode) => Ok((program.name.to_string(), bytecode.clone(), None)),
+                    ProgramData::Bytecode(bytecode) => {
+                        Ok((program.name.to_string(), bytecode.clone(), program.edition, None))
+                    }
                     ProgramData::SourcePath(path) => {
                         // Get the path to the built bytecode.
                         let bytecode_path = if path.as_path() == self.source_directory().join("main.leo") {
@@ -277,7 +289,7 @@ impl Package {
                         path.pop();
                         let package = Package::from_directory_no_graph(&path, home_path)?;
                         // Return the bytecode and the manifest.
-                        Ok((program.name.to_string(), bytecode, Some(package.manifest.clone())))
+                        Ok((program.name.to_string(), bytecode, program.edition, Some(package.manifest.clone())))
                     }
                 }
             })

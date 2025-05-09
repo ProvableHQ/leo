@@ -152,6 +152,7 @@ pub fn load_programs_from_network<N: Network>(
         // Fetch the program source from the network.
         let ProgramData::Bytecode(program_src) = leo_package::Program::fetch(
             Symbol::intern(&current_id.name().to_string()),
+            None,
             &context.home()?,
             network,
             endpoint,

@@ -118,7 +118,7 @@ fn handle_deploy<N: Network>(
     let programs_and_manifests = package
         .get_programs_and_manifests(context.home()?)?
         .into_iter()
-        .map(|(program_name, program_string, manifest)| {
+        .map(|(program_name, program_string, _, manifest)| {
             // Parse the program ID from the program name.
             let program_id = ProgramID::<N>::from_str(&format!("{}.aleo", program_name))
                 .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
@@ -188,7 +188,7 @@ fn handle_deploy<N: Network>(
             println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
             // If the program contains an upgrade config, confirm with the user that they want to proceed.
             if let Some(upgrade) = &manifest.expect("Local program should have a manifest").upgrade {
-                if !confirm_upgrade_mechanism(&program, upgrade, command.fee_options.yes)? {
+                if !confirm_upgrade_mechanism(&program, upgrade, command.extra.yes)? {
                     println!("❌ Deployment aborted.");
                     return Ok(());
                 }
@@ -314,7 +314,6 @@ fn confirm_upgrade_mechanism<N: Network>(program: &Program<N>, upgrade: &Upgrade
             );
         }
     }
-
     confirm("Do you want to proceed?", yes)
 }
 

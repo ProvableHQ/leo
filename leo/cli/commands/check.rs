@@ -81,30 +81,31 @@ fn handle_check<N: Network>(
     let programs_and_manifests = package
         .get_programs_and_manifests(&home_path)?
         .into_iter()
-        .map(|(program_name, program_string, manifest)| {
+        .map(|(program_name, program_string, edition, manifest)| {
             // Parse the program ID from the program name.
             let program_id = ProgramID::<N>::from_str(&format!("{}.aleo", program_name))
                 .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
             // Parse the program bytecode.
             let bytecode = Program::<N>::from_str(&program_string)
                 .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
-            Ok((program_id, (bytecode, manifest)))
+            Ok((program_id, (bytecode, edition, manifest)))
         })
         .collect::<Result<IndexMap<_, _>>>()?;
 
     // Split the programs in the package into local and network dependencies.
     let (_, remote) =
-        programs_and_manifests.into_iter().partition::<IndexMap<_, _>, _>(|(_, (_, manifest))| manifest.is_some());
+        programs_and_manifests.into_iter().partition::<IndexMap<_, _>, _>(|(_, (_, _, manifest))| manifest.is_some());
 
     // Check that the all the remote programs exist on the network.
-    for (program_id, (local_program, _)) in remote {
+    for (program_id, (local_program, edition, _)) in remote {
         // Get the latest version of the program from the network.
         match leo_package::Program::fetch(
             Symbol::intern(&program_id.name().to_string()),
+           None,
             &home_path,
             network,
             &endpoint,
-            true,
+            false,
         ) {
             Ok(program) => {
                 let ProgramData::Bytecode(bytecode) = &program.data else {
@@ -118,6 +119,17 @@ fn handle_check<N: Network>(
                         "The dependency `{}` has been does not match the local one. The local copy has been updated to match the remote one.",
                         program_id
                     ));
+                }
+                // Check if the edition is the latest.
+                let latest_edition = program.edition.expect("Fetched programs must have an edition");
+                match edition {
+                    Some(edition) if edition != latest_edition => {
+                        errors.push(format!("The dependency '{program_id}' is on edition '{edition}', while the latest edition is '{latest_edition}'. Please update your `program.json`"));
+                    }
+                    None => {
+                        errors.push(format!("The dependency '{program_id}' has no edition, while the edition is {latest_edition}. Please update your `program.json`"));
+                    }
+                    _ => {} // Do nothing if the editions match.
                 }
             }
             Err(err) => {

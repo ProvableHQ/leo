@@ -72,6 +72,7 @@ impl Command for LeoAdd {
             name: name.clone(),
             location: if self.source.local.is_some() { Location::Local } else { Location::Network },
             path: self.source.local.clone(),
+            edition: None,
         };
 
         if let Some(matched_dep) =
@@ -79,11 +80,11 @@ impl Command for LeoAdd {
         {
             if let Some(path) = &matched_dep.path {
                 tracing::warn!(
-                    "⚠️  Program `{name}` already exists as a local dependency at `{}`. Overwriting.",
+                    "⚠️ Program `{name}` already exists as a local dependency at `{}`. Overwriting.",
                     path.display()
                 );
             } else {
-                tracing::warn!("⚠️  Program `{name}` already exists as a network dependency. Overwriting.");
+                tracing::warn!("⚠️ Program `{name}` already exists as a network dependency. Overwriting.");
             }
             *matched_dep = new_dependency;
         } else {
