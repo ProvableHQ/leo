@@ -69,7 +69,11 @@ pub struct EnvOptions {
     pub(crate) private_key: Option<String>,
     #[clap(long, help = "The network to deploy to. Overrides the `NETWORK` in the .env file.")]
     pub(crate) network: Option<String>,
-    #[clap(long, help = "The endpoint to deploy to. Overrides the `ENDPOINT` in the .env file.")]
+    #[clap(
+        long,
+        help = "The endpoint to deploy to. Overrides the `ENDPOINT` in the .env file.",
+        default_value = "https://api.explorer.provable.com/v1"
+    )]
     pub(crate) endpoint: Option<String>,
 }
 
