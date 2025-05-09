@@ -22,6 +22,7 @@ use super::*;
 
 use leo_package::{NetworkName, ProgramData};
 use leo_span::Symbol;
+
 use ureq::Response;
 
 /// A helper function to query the public balance of an address.

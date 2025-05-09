@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_package::{Manifest, NetworkName, Package, fetch_program_from_network};
+use leo_package::{Manifest, NetworkName, Package, UpgradeConfig, fetch_program_from_network};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
@@ -277,19 +277,20 @@ fn handle_deploy<N: Network>(
 }
 
 /// Check the tasks to warn the user about any potential issues.
-/// Only local programs are checked.
 /// The following properties are checked:
 /// - If the transaction is to be broadcast:
 ///     - The program does not exist on the network.
-/// - The program's external dependencies are the latest version.
+///     - If the consensus version is less than V5, the program does not use V5 features.
+///     - If the consensus version is V5 or greater, the program contains a constructor.
 fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
     tasks: &[DeploymentTask<N>],
     action: &TransactionAction,
+    consensus_version: ConsensusVersion,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
-    for (program_id, _, manifest, _, _, _) in tasks {
+    for (program_id, program, manifest, _, _, _) in tasks {
         if manifest.is_none() || !action.broadcast {
             continue;
         }
@@ -297,6 +298,17 @@ fn check_tasks_for_warnings<N: Network>(
         if fetch_program_from_network(&program_id.to_string(), endpoint, network).is_ok() {
             warnings.push(format!(
                 "The program '{}' already exists on the network. The deployment will likely fail.",
+                program_id
+            ));
+        }
+        // Check if the program uses V5 features.
+        if consensus_version < ConsensusVersion::V5 && program.contains_v5_syntax() {
+            warnings.push(format!("The program '{}' uses V5 features but the consensus version is less than V5. The deployment will likely fail", program_id));
+        }
+        // Check if the program contains a constructor.
+        if consensus_version >= ConsensusVersion::V5 && !program.contains_constructor() {
+            warnings.push(format!(
+                "The program '{}' does not contain a constructor. The deployment will likely fail",
                 program_id
             ));
         }
@@ -333,11 +345,25 @@ fn print_deployment_plan<N: Network>(
     // Tasks
     println!("\n{}", "📦 Deployment Tasks:".bold());
 
-    let mut table =
-        vec![["Program".to_string(), "Base Fee".to_string(), "Priority Fee".to_string(), "Fee Record".to_string()]];
+    let mut table = vec![[
+        "Program".to_string(),
+        "Upgrade".to_string(),
+        "Base Fee".to_string(),
+        "Priority Fee".to_string(),
+        "Fee Record".to_string(),
+    ]];
 
-    for (name, _, _, _, priority_fee, record) in tasks.iter() {
+    for (name, _, manifest, _, priority_fee, record) in tasks.iter() {
         let name = name.to_string();
+        // Get the upgrade mode specified in the manifest.
+        let manifest = manifest.as_ref().expect("Local program should have a manifest");
+        let upgrade = match manifest.upgrade {
+            None => "none".to_string(),
+            Some(UpgradeConfig::Admin { .. }) => "admin".to_string(),
+            Some(UpgradeConfig::Checksum { .. }) => "checksum".to_string(),
+            Some(UpgradeConfig::Custom) => "custom".to_string(),
+            Some(UpgradeConfig::NoUpgrade) => "no upgrade".to_string(),
+        };
         // Base fees are not used at the moment, so we can ignore them.
         let base_fee = "auto".to_string();
         let priority_fee = priority_fee.map_or("0".into(), |v| v.to_string());
@@ -346,7 +372,7 @@ fn print_deployment_plan<N: Network>(
             false => "no (public fee)".to_string(),
         };
 
-        table.push([name, base_fee, priority_fee, record]);
+        table.push([name, upgrade, base_fee, priority_fee, record]);
     }
 
     let mut buf = Vec::new();
@@ -389,7 +415,7 @@ fn print_deployment_plan<N: Network>(
     }
 
     // Warnings
-    let warnings = check_tasks_for_warnings(endpoint, *network, tasks, action);
+    let warnings = check_tasks_for_warnings(endpoint, *network, tasks, action, consensus_version);
     if !warnings.is_empty() {
         println!("\n{}", "⚠️ Warnings:".bold().red());
         for warning in warnings {
