@@ -1,0 +1,28 @@
+Error [ETYC0372131]: Cannot assign to type `test0.aleo/R` or a member thereof.
+    --> compiler-test:12:13
+     |
+  12 |             r1 = test0.aleo/foo();
+     |             ^^
+     |
+     = External record types and tuples containing them may not be assigned to.
+Error [ETYC0372131]: Cannot assign to type `(test0.aleo/R, test0.aleo/R)` or a member thereof.
+    --> compiler-test:20:13
+     |
+  20 |             tupl.0 = test0.aleo/foo();
+     |             ^^^^
+     |
+     = External record types and tuples containing them may not be assigned to.
+Error [ETYC0372131]: Cannot assign to type `test0.aleo/R` or a member thereof.
+    --> compiler-test:20:18
+     |
+  20 |             tupl.0 = test0.aleo/foo();
+     |                  ^
+     |
+     = External record types and tuples containing them may not be assigned to.
+Error [ETYC0372131]: Cannot assign to type `test0.aleo/R` or a member thereof.
+    --> compiler-test:27:9
+     |
+  27 |         r.x = x;
+     |         ^
+     |
+     = External record types and tuples containing them may not be assigned to.

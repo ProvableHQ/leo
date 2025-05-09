@@ -51,6 +51,7 @@ impl Pass for CodeGenerating {
             finalize_caller: None,
             next_label: 0,
             conditional_depth: 0,
+            internal_record_inputs: Default::default(),
         };
         let code = visitor.visit_program(visitor.state.ast.as_repr());
         Ok(code)

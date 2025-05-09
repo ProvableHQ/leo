@@ -613,4 +613,64 @@ impl CodeGeneratingVisitor<'_> {
     fn visit_unit(&mut self, _input: &UnitExpression) -> (String, String) {
         panic!("`UnitExpression`s should not be visited during code generation.")
     }
+
+    pub fn clone_register(&mut self, register: &str, typ: &Type) -> (String, String) {
+        let new_reg = format!("r{}", self.next_register);
+        self.next_register += 1;
+        match typ {
+            Type::Address
+            | Type::Boolean
+            | Type::Field
+            | Type::Group
+            | Type::Scalar
+            | Type::Signature
+            | Type::Integer(_) => {
+                // These types can be cloned just by casting them to themselves.
+                let instruction = format!("    cast {register} into {new_reg} as {typ};\n");
+                (new_reg, instruction)
+            }
+
+            Type::Array(array_type) => {
+                // We need to cast the old array's members into the new array.
+                let mut instruction = "    cast ".to_string();
+                for i in 0..array_type.length() {
+                    write!(&mut instruction, "{register}[{i}u32] ").unwrap();
+                }
+                writeln!(&mut instruction, "into {new_reg} as {};", Self::visit_type(typ)).unwrap();
+                (new_reg, instruction)
+            }
+
+            Type::Composite(comp_ty) => {
+                // We need to cast the old struct or record's members into the new one.
+                let program = comp_ty.program.unwrap_or(self.program_id.unwrap().name.name);
+                let location = Location::new(program, comp_ty.id.name);
+                let comp = self
+                    .state
+                    .symbol_table
+                    .lookup_record(location)
+                    .or_else(|| self.state.symbol_table.lookup_struct(comp_ty.id.name))
+                    .unwrap();
+                let mut instruction = "    cast ".to_string();
+                for member in &comp.members {
+                    write!(&mut instruction, "{register}.{} ", member.identifier.name).unwrap();
+                }
+                writeln!(
+                    &mut instruction,
+                    "into {new_reg} as {};",
+                    // We call `..with_visibility` just so we get the `.record` appended if it's a record.
+                    self.visit_type_with_visibility(typ, leo_ast::Mode::None)
+                )
+                .unwrap();
+                (new_reg, instruction)
+            }
+
+            Type::Mapping(..)
+            | Type::Future(..)
+            | Type::Tuple(..)
+            | Type::Identifier(..)
+            | Type::String
+            | Type::Unit
+            | Type::Err => panic!("Objects of type {typ} cannot be cloned."),
+        }
+    }
 }

@@ -1031,4 +1031,17 @@ create_messages!(
         msg: format!("Invalid annotation: {message}."),
         help: None,
     }
+    @formatted
+    ternary_over_external_records {
+        args: (ty: impl Display),
+        msg: format!("Cannot apply ternary conditional to type `{ty}`."),
+        help: Some("Ternary conditionals may not contain an external record type.".to_string()),
+    }
+
+    @formatted
+    assignment_to_external_record {
+        args: (ty: impl Display),
+        msg: format!("Cannot assign to type `{ty}` or a member thereof."),
+        help: Some("External record types and tuples containing them may not be assigned to.".to_string()),
+    }
 );

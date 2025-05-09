@@ -101,13 +101,12 @@ impl ExpressionReconstructor for FlatteningVisitor<'_> {
             ),
             Type::Composite(if_true_type) => {
                 // Get the struct definitions.
+                let program = if_true_type.program.unwrap_or(self.program);
                 let if_true_type = self
                     .state
                     .symbol_table
                     .lookup_struct(if_true_type.id.name)
-                    .or_else(|| {
-                        self.state.symbol_table.lookup_record(Location::new(self.program, if_true_type.id.name))
-                    })
+                    .or_else(|| self.state.symbol_table.lookup_record(Location::new(program, if_true_type.id.name)))
                     .expect("This definition should exist")
                     .clone();
 

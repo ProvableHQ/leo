@@ -9,7 +9,8 @@ function transfer_private_to_public:
     input r1 as address.private;
     input r2 as u64.private;
     async transfer_private_to_public into r3;
-    output r0 as credits.record;
+    cast r0.owner r0.amount into r4 as credits.record;
+    output r4 as credits.record;
     output r3 as credits.aleo/transfer_private_to_public.future;
 
 finalize transfer_private_to_public:
