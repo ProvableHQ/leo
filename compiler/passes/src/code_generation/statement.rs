@@ -33,7 +33,9 @@ use leo_ast::{
     Type,
 };
 
-use itertools::Itertools;
+use indexmap::IndexSet;
+use itertools::Itertools as _;
+use std::fmt::Write as _;
 
 impl CodeGeneratingVisitor<'_> {
     fn visit_statement(&mut self, input: &Statement) -> String {
@@ -84,51 +86,63 @@ impl CodeGeneratingVisitor<'_> {
             return String::new();
         }
 
-        let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
-        // Get the output type of the function.
-        let output = self.current_function.unwrap().output.iter();
-        // If the operand string is empty, initialize an empty vector.
-        let operand_strings = match operand.is_empty() {
-            true => vec![],
-            false => operand.split(' ').collect_vec(),
-        };
+        let mut instructions = String::new();
+        let mut operands = IndexSet::with_capacity(self.current_function.unwrap().output.len());
 
-        let mut future_output = String::new();
-        let mut instructions = operand_strings
-            .iter()
-            .zip_eq(output)
-            .map(|(operand, output)| {
-                // Transitions outputs with no mode are private.
-                // Note that this unwrap is safe because we set the variant before traversing the function.
-                let visibility = match (self.variant.unwrap().is_transition(), output.mode) {
-                    (true, Mode::None) => Mode::Private,
-                    (_, mode) => mode,
-                };
+        if let Expression::Tuple(tuple) = &input.expression {
+            // Now tuples only appear in return position, so let's handle this
+            // ourselves.
+            let outputs = &self.current_function.unwrap().output;
+            assert_eq!(tuple.elements.len(), outputs.len());
 
-                if let Type::Future(_) = output.type_ {
-                    future_output = format!(
-                        "    output {} as {}.aleo/{}.future;\n",
-                        operand,
-                        self.program_id.unwrap().name,
-                        self.current_function.unwrap().identifier,
-                    );
-                    String::new()
+            for (expr, output) in tuple.elements.iter().zip(outputs) {
+                let (operand, op_instructions) = self.visit_expression(expr);
+                instructions.push_str(&op_instructions);
+                if self.internal_record_inputs.contains(&operand) || operands.contains(&operand) {
+                    // We can't output an internal record we received as input.
+                    // We also can't output the same value twice.
+                    // Either way, clone it.
+                    let (new_operand, new_instr) = self.clone_register(&operand, &output.type_);
+                    instructions.push_str(&new_instr);
+                    operands.insert(new_operand);
                 } else {
-                    format!(
-                        "    output {} as {};\n",
-                        operand,
-                        self.visit_type_with_visibility(&output.type_, visibility)
-                    )
+                    operands.insert(operand);
                 }
-            })
-            .join("");
+            }
+        } else {
+            // Not a tuple - only one output.
+            let (operand, op_instructions) = self.visit_expression(&input.expression);
+            instructions = op_instructions;
+            operands.insert(operand);
+        }
 
-        // Insert future output at the end.
-        instructions.push_str(&future_output);
+        for (operand, output) in operands.iter().zip(&self.current_function.unwrap().output) {
+            // Transitions outputs with no mode are private.
+            let visibility = match (self.variant.unwrap().is_transition(), output.mode) {
+                (true, Mode::None) => Mode::Private,
+                (_, mode) => mode,
+            };
+            if let Type::Future(_) = output.type_ {
+                writeln!(
+                    &mut instructions,
+                    "    output {} as {}.aleo/{}.future;",
+                    operand,
+                    self.program_id.unwrap().name,
+                    self.current_function.unwrap().identifier,
+                )
+                .unwrap();
+            } else {
+                writeln!(
+                    &mut instructions,
+                    "    output {} as {};",
+                    operand,
+                    self.visit_type_with_visibility(&output.type_, visibility)
+                )
+                .unwrap();
+            }
+        }
 
-        expression_instructions.push_str(&instructions);
-
-        expression_instructions
+        instructions
     }
 
     fn visit_definition(&mut self, input: &DefinitionStatement) -> String {

@@ -36,6 +36,20 @@ impl TypeCheckingVisitor<'_> {
             }
         };
 
+        // Prohibit assignment to an external record or a member thereof.
+        // This is necessary as an assignment in a conditional branch would become a
+        // ternary, which can't happen.
+        if self.is_external_record(&ty) {
+            self.emit_err(TypeCheckerError::assignment_to_external_record(&ty, input.span()));
+        }
+
+        // Similarly prohibit assignment to a tuple with an external record member.
+        if let Type::Tuple(tuple) = &ty {
+            if tuple.elements().iter().any(|ty| self.is_external_record(ty)) {
+                self.emit_err(TypeCheckerError::assignment_to_external_record(&ty, input.span()));
+            }
+        }
+
         // Prohibit reassignment of futures.
         if let Type::Future(..) = ty {
             self.emit_err(TypeCheckerError::cannot_reassign_future_variable(input, input.span()));
@@ -1030,14 +1044,28 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
         let t1 = self.visit_expression(&input.if_true, expected);
         let t2 = self.visit_expression(&input.if_false, expected);
 
-        if t1 == Type::Err || t2 == Type::Err {
+        let typ = if t1 == Type::Err || t2 == Type::Err {
             Type::Err
         } else if !self.eq_user(&t1, &t2) {
             self.emit_err(TypeCheckerError::ternary_branch_mismatch(t1, t2, input.span()));
             Type::Err
         } else {
             t1
+        };
+
+        // Make sure this isn't an external record type - won't work as we can't construct it.
+        if self.is_external_record(&typ) {
+            self.emit_err(TypeCheckerError::ternary_over_external_records(&typ, input.span));
         }
+
+        // None of its members may be external record types either.
+        if let Type::Tuple(tuple) = &typ {
+            if tuple.elements().iter().any(|ty| self.is_external_record(ty)) {
+                self.emit_err(TypeCheckerError::ternary_over_external_records(&typ, input.span));
+            }
+        }
+
+        typ
     }
 
     fn visit_tuple(&mut self, input: &TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
