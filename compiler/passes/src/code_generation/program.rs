@@ -185,8 +185,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         // Construct and append the input declarations of the function.
         for input in function.input.iter() {
-            let register_string = format!("r{}", self.next_register);
-            self.next_register += 1;
+            let register_string = self.next_register();
 
             // Track all internal record inputs.
             if let Type::Composite(comp) = &input.type_ {
