@@ -51,3 +51,10 @@ pub struct CodeGeneratingVisitor<'a> {
     /// This is necessary as if we output them, we need to clone them.
     pub internal_record_inputs: IndexSet<String>,
 }
+
+impl CodeGeneratingVisitor<'_> {
+    pub fn next_register(&mut self) -> String {
+        self.next_register += 1;
+        format!("r{}", self.next_register - 1)
+    }
+}

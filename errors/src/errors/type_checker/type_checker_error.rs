@@ -1031,6 +1031,7 @@ create_messages!(
         msg: format!("Invalid annotation: {message}."),
         help: None,
     }
+
     @formatted
     ternary_over_external_records {
         args: (ty: impl Display),
