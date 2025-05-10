@@ -227,7 +227,7 @@ create_messages!(
     invalid_network_name {
         args: (network: impl Display),
         msg: format!("Invalid network name: {network}"),
-        help: Some("Valid network names are `testnet` and `mainnet`.".to_string()),
+        help: Some("Valid network names are `testnet`, `mainnet`, and `canary`.".to_string()),
     }
 
     @backtraced
@@ -325,6 +325,13 @@ create_messages!(
     invalid_program_name {
         args: (name: impl Display),
         msg: format!("Invalid program name `{name}`"),
+        help: None,
+    }
+
+    @backtraced
+    custom {
+        args: (msg: impl Display),
+        msg: format!("{msg}"),
         help: None,
     }
 );

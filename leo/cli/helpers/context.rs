@@ -24,6 +24,7 @@ use std::{env::current_dir, path::PathBuf, str::FromStr};
 
 /// Project context, manifest, current directory etc
 /// All the info that is relevant in most of the commands
+// TODO: Make `path` and `home` not pub, to prevent misuse through direct access.
 #[derive(Clone)]
 pub struct Context {
     /// Path at which the command is called, None when default

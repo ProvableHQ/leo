@@ -237,7 +237,7 @@ impl Package {
 
         let path = path.canonicalize().map_err(|err| map_err(path, err))?;
 
-        let env = Env::read_from_file_or_environment(path.join(ENV_FILENAME))?;
+        let env = Env::read_from_file_or_environment(path.join(ENV_FILENAME), home_path)?;
 
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
 
@@ -248,12 +248,8 @@ impl Package {
 
             let mut digraph = DiGraph::<Symbol>::new(Default::default());
 
-            let first_dependency = Dependency {
-                name: manifest.program.clone(),
-                location: Location::Local,
-                network: None,
-                path: Some(path.clone()),
-            };
+            let first_dependency =
+                Dependency { name: manifest.program.clone(), location: Location::Local, path: Some(path.clone()) };
 
             let test_dependencies: Vec<Dependency> = if with_tests {
                 let tests_directory = path.join(TESTS_DIRECTORY);
@@ -262,7 +258,6 @@ impl Package {
                         // We just made sure it has a ".leo" extension.
                         name: format!("{}.aleo", crate::filename_no_leo_extension(&path).unwrap()),
                         location: Location::Test,
-                        network: None,
                         path: Some(path.to_path_buf()),
                     })
                     .collect();

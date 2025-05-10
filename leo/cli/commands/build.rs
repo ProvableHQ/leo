@@ -90,6 +90,12 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
         leo_package::Package::from_directory(&package_path, &home_path)?
     };
 
+    // Warn the user if the program already exists on the network.
+    let main_program_name = &package.manifest.program;
+    if leo_package::fetch_program_from_network(main_program_name, &package.env.endpoint, package.env.network).is_ok() {
+        tracing::warn!("⚠️ The program '{main_program_name}' already exists on the network.");
+    }
+
     let outputs_directory = package.outputs_directory();
     let build_directory = package.build_directory();
     let imports_directory = package.imports_directory();
