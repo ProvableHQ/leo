@@ -9,7 +9,7 @@ program test_dep.aleo {
 
     async transition main_dep(a:u32) -> (yeets, Future<Fn(u32, u32)>) {
         let f: Future<Fn(u32, u32)> = finalize_main_dep(a, 1u32);
-        let l: yeets = yeets {owner: self.caller, val: 1u32};
+        let l: yeets = yeets {owner: self.signer, val: 1u32};
         return (l, f);
     }
 
@@ -20,7 +20,7 @@ program test_dep.aleo {
 
     async transition main_dep_2(a:u32) -> (yeets, Future<Fn()>) {
         let f: Future<Fn()> = finalize_main_dep_2();
-        let l: yeets = yeets {owner: self.caller, val: 1u32};
+        let l: yeets = yeets {owner: self.signer, val: 1u32};
         return (l, f);
     }
 

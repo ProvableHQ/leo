@@ -52,4 +52,11 @@ create_messages!(
         msg: format!("The type checker has exceeded the max depth of nested conditional blocks: {max}."),
         help: Some("Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.".to_string()),
     }
+
+    @formatted
+    caller_as_record_owner {
+        args: (record_name: impl Display),
+        msg: format!("`self.caller` used as the owner of record `{record_name}`"),
+        help: Some("`self.caller` may refer to a program address, which cannot spend records.".to_string()),
+    }
 );

@@ -18,7 +18,7 @@ program parent.aleo {
         val: u32,
     }
     transition wrapper_mint(owner: address, val: u32) ->  (child.aleo/A, B) {
-        return (child.aleo/mint(self.caller, 1u32), B {owner: self.caller, val: val});
+        return (child.aleo/mint(self.caller, 1u32), B {owner: self.signer, val: val});
     }
 }
 

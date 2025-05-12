@@ -82,7 +82,8 @@ fn run_test(test: &str, dce_enabled: bool, handler: &Handler) -> Result<String, 
             .extend_if_error(disassemble_from_str::<TestnetV0>(&program_name, &bytecode).map_err(|err| err.into()))?;
         import_stubs.insert(Symbol::intern(&program_name), stub);
 
-        if handler.err_count() != 0 || handler.warning_count() != 0 {
+        // Only error out if there are errors. Warnings are okay but we still want to print them later.
+        if handler.err_count() != 0 {
             return Err(());
         }
 
@@ -98,7 +99,7 @@ fn runner(source: &str) -> String {
         let handler = Handler::new(buf.clone());
 
         match run_test(source, dce_enabled, &handler) {
-            Ok(x) => x,
+            Ok(x) => format!("{}{}", buf.extract_warnings(), x),
             Err(()) => format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
         }
     }
