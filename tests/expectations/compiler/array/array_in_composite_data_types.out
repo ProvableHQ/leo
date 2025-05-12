@@ -13,7 +13,7 @@ function foo:
     cast 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 into r1 as [u8; 8u32];
     cast r1 into r2 as bar;
     cast 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 into r3 as [u8; 8u32];
-    cast self.caller r3 into r4 as floo.record;
+    cast self.signer r3 into r4 as floo.record;
     output r0[0u32][0u32] as boolean.private;
     output r2 as bar.private;
     output r4 as floo.record;
@@ -33,7 +33,7 @@ function foo:
     cast 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 into r1 as [u8; 8u32];
     cast r1 into r2 as bar;
     cast 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 into r3 as [u8; 8u32];
-    cast self.caller r3 into r4 as floo.record;
+    cast self.signer r3 into r4 as floo.record;
     output r0[0u32][0u32] as boolean.private;
     output r2 as bar.private;
     output r4 as floo.record;

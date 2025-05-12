@@ -45,7 +45,7 @@ program test.aleo {
             e = inline_and_eliminate(a, b);
         }
         let f: dummy = dummy {
-            owner: self.caller,
+            owner: self.signer,
             data: e,
         };
         return a + b;

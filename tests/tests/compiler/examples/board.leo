@@ -26,7 +26,7 @@ program test.aleo {
         opponent: address,
     ) -> board_state {
         return board_state {
-            owner: self.caller,
+            owner: self.signer,
             hits_and_misses: 0u64,
             played_tiles: 0u64,
             ships,

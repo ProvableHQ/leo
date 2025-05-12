@@ -10,6 +10,6 @@ program test.aleo {
     }
 
     transition main(a: u64, b:u64) -> Token {
-        return Token { owner: self.caller, amount: a, gates: b};
+        return Token { owner: self.signer, amount: a, gates: b};
     }
 }

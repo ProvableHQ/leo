@@ -9,7 +9,7 @@ record Token:
 function main:
     input r0 as u64.private;
     input r1 as u64.private;
-    cast self.caller r0 r1 into r2 as Token.record;
+    cast self.signer r0 r1 into r2 as Token.record;
     output r2 as Token.record;
 
 DCE_DISABLED:
@@ -23,5 +23,5 @@ record Token:
 function main:
     input r0 as u64.private;
     input r1 as u64.private;
-    cast self.caller r0 r1 into r2 as Token.record;
+    cast self.signer r0 r1 into r2 as Token.record;
     output r2 as Token.record;

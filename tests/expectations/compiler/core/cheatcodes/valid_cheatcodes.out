@@ -12,7 +12,7 @@ mapping Yo:
 function main_dep:
     input r0 as u32.private;
     async main_dep r0 1u32 into r1;
-    cast self.caller 1u32 into r2 as yeets.record;
+    cast self.signer 1u32 into r2 as yeets.record;
     output r2 as yeets.record;
     output r1 as test_dep.aleo/main_dep.future;
 
@@ -52,7 +52,7 @@ mapping Yo:
 function main_dep:
     input r0 as u32.private;
     async main_dep r0 1u32 into r1;
-    cast self.caller 1u32 into r2 as yeets.record;
+    cast self.signer 1u32 into r2 as yeets.record;
     output r2 as yeets.record;
     output r1 as test_dep.aleo/main_dep.future;
 

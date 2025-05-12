@@ -18,7 +18,7 @@ use super::TypeCheckingVisitor;
 use crate::VariableType;
 
 use leo_ast::*;
-use leo_errors::{Handler, TypeCheckerError};
+use leo_errors::{Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
@@ -885,6 +885,25 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             } else {
                 self.emit_err(TypeCheckerError::missing_struct_member(struct_.identifier, identifier, input.span()));
             };
+        }
+
+        if struct_.is_record {
+            // Records where the `owner` is `self.caller` can be problematic because `self.caller` can be a program
+            // address and programs can't spend records. Emit a warning in this case.
+            //
+            // Multiple occurences of `owner` here is an error but that should be flagged somewhere else.
+            input.members.iter().filter(|init| init.identifier.name == sym::owner).for_each(|init| {
+                if let Some(Expression::MemberAccess(access)) = &init.expression {
+                    if let MemberAccess {
+                        inner: Expression::Identifier(Identifier { name: sym::SelfLower, .. }),
+                        name: Identifier { name: sym::caller, .. },
+                        ..
+                    } = &**access
+                    {
+                        self.emit_warning(TypeCheckerWarning::caller_as_record_owner(input.name, access.span()));
+                    }
+                }
+            });
         }
 
         type_
