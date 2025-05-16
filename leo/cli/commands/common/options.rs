@@ -178,14 +178,17 @@ pub fn get_consensus_version<N: Network>(
         Some(3) => Ok(ConsensusVersion::V3),
         Some(4) => Ok(ConsensusVersion::V4),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
-        None => get_latest_block_height(endpoint, network, context)
-            .and_then(|current_block_height| Ok(N::CONSENSUS_VERSION(current_block_height)?))
-            .map_err(|_| {
-                CliError::custom(
-                    "Failed to get consensus version. Please provide a version to use via `--consensus_version`",
-                )
-                .into()
-            }),
+        None => {
+            println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
+            get_latest_block_height(endpoint, network, context)
+                .and_then(|current_block_height| Ok(N::CONSENSUS_VERSION(current_block_height)?))
+                .map_err(|_| {
+                    CliError::custom(
+                        "Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus_version`",
+                    )
+                        .into()
+                })
+        }
         Some(version) => Err(CliError::custom(format!("Invalid consensus version: {version}")).into()),
     }
 }
