@@ -169,7 +169,7 @@ impl Package {
 
         let path = path.canonicalize().map_err(|err| map_err(path, err))?;
 
-        let env = Env::read_from_file_or_environment(path.join(ENV_FILENAME), home_path)?;
+        let env = Env::read_from_file_or_environment(&path)?;
 
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
 
@@ -241,6 +241,46 @@ impl Package {
         }
 
         Ok(())
+    }
+
+    /// Get the program ID, program, and optional manifest for all programs in the package.
+    /// This method assumes that the package has already been built (`leo build` has been run).
+    #[allow(clippy::type_complexity)]
+    pub fn get_programs_and_manifests<P: AsRef<Path>>(
+        &self,
+        home_path: P,
+    ) -> Result<Vec<(String, String, Option<Manifest>)>> {
+        self.get_programs_and_manifests_impl(home_path.as_ref())
+    }
+
+    #[allow(clippy::type_complexity)]
+    fn get_programs_and_manifests_impl(&self, home_path: &Path) -> Result<Vec<(String, String, Option<Manifest>)>> {
+        self.programs
+            .iter()
+            .map(|program| {
+                match &program.data {
+                    ProgramData::Bytecode(bytecode) => Ok((program.name.to_string(), bytecode.clone(), None)),
+                    ProgramData::SourcePath(path) => {
+                        // Get the path to the built bytecode.
+                        let bytecode_path = if path.as_path() == self.source_directory().join("main.leo") {
+                            self.build_directory().join("main.aleo")
+                        } else {
+                            self.imports_directory().join(format!("{}.aleo", program.name))
+                        };
+                        // Fetch the bytecode.
+                        let bytecode = std::fs::read_to_string(&bytecode_path)
+                            .map_err(|e| PackageError::failed_to_read_file(bytecode_path.display(), e))?;
+                        // Get the package from the directory.
+                        let mut path = path.clone();
+                        path.pop();
+                        path.pop();
+                        let package = Package::from_directory_no_graph(&path, home_path)?;
+                        // Return the bytecode and the manifest.
+                        Ok((program.name.to_string(), bytecode, Some(package.manifest.clone())))
+                    }
+                }
+            })
+            .collect::<Result<Vec<_>>>()
     }
 }
 

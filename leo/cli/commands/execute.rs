@@ -59,7 +59,9 @@ pub struct LeoExecute {
     #[clap(flatten)]
     pub(crate) env_override: EnvOptions,
     #[clap(flatten)]
-    compiler_options: BuildOptions,
+    pub(crate) extra: ExtraOptions,
+    #[clap(flatten)]
+    build_options: BuildOptions,
     #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
     file: Option<String>,
 }
@@ -78,8 +80,13 @@ impl Command for LeoExecute {
         // Get the path to the home directory.
         let home_path = context.home()?;
         // If the current directory is a valid Leo package, then build it.
-        if let Ok(package) = Package::from_directory(path, home_path) {
-            LeoBuild { options: self.compiler_options.clone() }.execute(context.clone())?;
+        if let Ok(package) = Package::from_directory_no_graph(path, home_path) {
+            LeoCheck {
+                env_override: self.env_override.clone(),
+                extra: self.extra.clone(),
+                build_options: self.build_options.clone(),
+            }
+            .execute(context)?;
             // Return the package.
             Ok(Some(package))
         } else {
@@ -89,21 +96,7 @@ impl Command for LeoExecute {
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Get the network, accounting for overrides.
-        let network = match &self.env_override.network {
-            Some(network_string) => {
-                NetworkName::from_str(network_string).map_err(|_| CliError::invalid_network_name(network_string))?
-            }
-            // Use the `network` from the package if we are in a Leo package.
-            None => match &input {
-                Some(package) => package.env.network,
-                None => {
-                    return Err(CliError::custom(
-                        "Could not find a valid network via an `.env` file or `--network` CLI option.".to_string(),
-                    )
-                    .into());
-                }
-            },
-        };
+        let network = context.get_network(&self.env_override.network)?.parse()?;
         // Handle each network with the appropriate parameterization.
         match network {
             NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context, network, input),
@@ -131,28 +124,12 @@ fn handle_execute<A: Aleo>(
     package: Option<Package>,
 ) -> Result<<LeoExecute as Command>::Output> {
     // Get the private key and associated address, accounting for overrides.
-    let Some(private_key_string) =
-        command.env_override.private_key.clone().or(package.as_ref().map(|package| package.env.private_key.clone()))
-    else {
-        return Err(CliError::custom(
-            "Could not find a valid private key via an `.env` file or `--private-key` CLI option.".to_string(),
-        )
-        .into());
-    };
-    let private_key = PrivateKey::<A::Network>::from_str(&private_key_string)
-        .map_err(|e| CliError::custom(format!("Failed to parse private key: {e}")))?;
+    let private_key = context.get_private_key(&command.env_override.private_key)?;
     let address = Address::<A::Network>::try_from(&private_key)
         .map_err(|e| CliError::custom(format!("Failed to parse address: {e}")))?;
 
     // Get the endpoint, accounting for overrides.
-    let Some(endpoint) =
-        command.env_override.endpoint.clone().or(package.as_ref().map(|package| package.env.endpoint.clone()))
-    else {
-        return Err(CliError::custom(
-            "Could not find a valid endpoint via an `.env` file or `--endpoint` CLI option.".to_string(),
-        )
-        .into());
-    };
+    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
 
     // Parse the <NAME> into an optional program name and a function name.
     // If only a function name is provided, then use the program name from the package.
@@ -267,15 +244,8 @@ fn handle_execute<A: Aleo>(
         parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
 
     // Get the consensus version.
-    let consensus_version = match command.fee_options.consensus_version {
-        Some(1) => ConsensusVersion::V1,
-        Some(2) => ConsensusVersion::V2,
-        Some(3) => ConsensusVersion::V3,
-        Some(4) => ConsensusVersion::V4,
-        Some(5) => ConsensusVersion::V4,
-        None => ConsensusVersion::V4,
-        Some(version) => return Err(CliError::custom(format!("Invalid consensus version: {version}")).into()),
-    };
+    let consensus_version =
+        get_consensus_version::<A::Network>(&command.extra.consensus_version, &endpoint, network, &context)?;
 
     // Print the execution plan.
     print_execution_plan::<A::Network>(
@@ -289,10 +259,11 @@ fn handle_execute<A: Aleo>(
         priority_fee.unwrap_or(0),
         record.is_some(),
         &command.action,
+        consensus_version,
     );
 
     // Prompt the user to confirm the plan.
-    if !confirm("Do you want to proceed with execution?", command.fee_options.yes)? {
+    if !confirm("Do you want to proceed with execution?", command.extra.yes)? {
         println!("❌ Execution aborted.");
         return Ok(());
     }
@@ -310,7 +281,7 @@ fn handle_execute<A: Aleo>(
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
         println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
-        programs = load_programs_from_network(&context, program_id, &network.to_string(), &endpoint)?;
+        programs = load_programs_from_network(&context, program_id, network, &endpoint)?;
     };
 
     // Add the programs to the VM.
@@ -368,7 +339,7 @@ fn handle_execute<A: Aleo>(
         println!("📡 Broadcasting execution for {program_name}...");
         // Get and confirm the fee with the user.
         let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
-        if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.fee_options.yes)? {
+        if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.extra.yes)? {
             println!("❌ Execution aborted.");
             return Ok(());
         }
@@ -405,6 +376,7 @@ fn print_execution_plan<N: Network>(
     priority_fee: u64,
     fee_record: bool,
     action: &TransactionAction,
+    consensus_version: ConsensusVersion,
 ) {
     println!("\n{}", "🚀 Execution Plan Summary".bold().underline());
     println!("{}", "──────────────────────────────────────────────".dimmed());
@@ -414,6 +386,7 @@ fn print_execution_plan<N: Network>(
     println!("  {:16}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
     println!("  {:16}{}", "Endpoint:", endpoint.yellow());
     println!("  {:16}{}", "Network:", network.to_string().yellow());
+    println!("  {:16}{}", "Consensus Version:", (consensus_version as u8).to_string().yellow());
 
     println!("\n{}", "🎯 Execution Target:".bold());
     println!("  {:16}{}", "Program:", program_name.cyan());

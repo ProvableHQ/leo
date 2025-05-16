@@ -15,15 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use leo_package::NetworkName;
+use snarkvm::prelude::ConsensusVersion;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug)]
 pub struct BuildOptions {
-    #[clap(long, help = "Endpoint to retrieve network state from. Overrides setting in `.env`.")]
-    pub endpoint: Option<String>,
-    #[clap(long, help = "Network to broadcast to. Overrides setting in `.env`.")]
-    pub(crate) network: Option<String>,
     #[clap(long, help = "Does not recursively compile dependencies.")]
     pub non_recursive: bool,
     #[clap(long, help = "Enables offline mode.")]
@@ -47,8 +45,6 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            endpoint: None,
-            network: None,
             non_recursive: false,
             offline: false,
             enable_ast_spans: false,
@@ -63,30 +59,19 @@ impl Default for BuildOptions {
 }
 
 /// Overrides for the `.env` file.
-#[derive(Parser, Clone, Debug)]
+#[derive(Parser, Clone, Debug, Default)]
 pub struct EnvOptions {
     #[clap(long, help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` in the `.env` file.")]
     pub(crate) private_key: Option<String>,
     #[clap(long, help = "The network to deploy to. Overrides the `NETWORK` in the .env file.")]
     pub(crate) network: Option<String>,
-    #[clap(
-        long,
-        help = "The endpoint to deploy to. Overrides the `ENDPOINT` in the .env file.",
-        default_value = "https://api.explorer.provable.com/v1"
-    )]
+    #[clap(long, help = "The endpoint to deploy to. Overrides the `ENDPOINT` in the .env file.")]
     pub(crate) endpoint: Option<String>,
 }
 
 /// The fee options for the transactions.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct FeeOptions {
-    #[clap(
-        short,
-        long,
-        help = "Don't ask for confirmation. DO NOT SET THIS FLAG UNLESS YOU KNOW WHAT YOU ARE DOING",
-        default_value = "false"
-    )]
-    pub(crate) yes: bool,
     #[clap(
         long,
         help = "[UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.",
@@ -109,8 +94,6 @@ pub struct FeeOptions {
         value_parser = parse_record_string,
     )]
     fee_records: Vec<Option<String>>,
-    #[clap(long, help = "Consensus version to use for the transaction.")]
-    pub(crate) consensus_version: Option<u8>,
 }
 
 // A helper function to parse amounts, which can either be a `u64` or `default`.
@@ -161,6 +144,50 @@ pub fn parse_fee_options<N: Network>(
     let fee_records = fee_records.into_iter().chain(iter::repeat(None)).take(k);
 
     Ok(base_fees.zip(priority_fees).zip(fee_records).map(|((x, y), z)| (x, y, z)).collect())
+}
+
+/// Additional options that are common across a number of commands.
+#[derive(Parser, Clone, Debug, Default)]
+pub struct ExtraOptions {
+    #[clap(
+        short,
+        long,
+        help = "Don't ask for confirmation. DO NOT SET THIS FLAG UNLESS YOU KNOW WHAT YOU ARE DOING",
+        default_value = "false"
+    )]
+    pub(crate) yes: bool,
+    #[clap(
+        long,
+        help = "Consensus version to use. If one is provided, the CLI will attempt to determine it from the latest block."
+    )]
+    pub(crate) consensus_version: Option<u8>,
+}
+
+// A helper function to get the consensus version from the fee options.
+// If a consensus version is not provided, then attempt to query the current block height and use it to determine the version.
+pub fn get_consensus_version<N: Network>(
+    consensus_version: &Option<u8>,
+    endpoint: &str,
+    network: NetworkName,
+    context: &Context,
+) -> Result<ConsensusVersion> {
+    // Get the consensus version.
+    match consensus_version {
+        Some(1) => Ok(ConsensusVersion::V1),
+        Some(2) => Ok(ConsensusVersion::V2),
+        Some(3) => Ok(ConsensusVersion::V3),
+        Some(4) => Ok(ConsensusVersion::V4),
+        // If none is provided, then attempt to query the current block height and use it to determine the version.
+        None => get_latest_block_height(endpoint, network, context)
+            .and_then(|current_block_height| Ok(N::CONSENSUS_VERSION(current_block_height)?))
+            .map_err(|_| {
+                CliError::custom(
+                    "Failed to get consensus version. Please provide a version to use via `--consensus_version`",
+                )
+                .into()
+            }),
+        Some(version) => Err(CliError::custom(format!("Invalid consensus version: {version}")).into()),
+    }
 }
 
 /// What to do with a transaction produced by the CLI.

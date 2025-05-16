@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_package::{Manifest, NetworkName, Package, ProgramData, fetch_program_from_network};
+use leo_package::{Manifest, NetworkName, Package, fetch_program_from_network};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
@@ -34,9 +34,12 @@ use snarkvm::{
 
 use aleo_std::StorageMode;
 use colored::*;
-use snarkvm::prelude::ProgramID;
+use snarkvm::prelude::{ConsensusVersion, ProgramID};
 use std::path::PathBuf;
 use text_tables;
+
+type DeploymentTask<N> =
+    (ProgramID<N>, Program<N>, Option<Manifest>, Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>);
 
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]
@@ -47,10 +50,14 @@ pub struct LeoDeploy {
     pub(crate) action: TransactionAction,
     #[clap(flatten)]
     pub(crate) env_override: EnvOptions,
+    #[clap(flatten)]
+    pub(crate) extra: ExtraOptions,
     #[clap(long, help = "Seconds to wait between consecutive deployments.", default_value = "15")]
     pub(crate) wait: u64,
+    #[clap(long, help = "Skips deployment of any program that contains one of the given substrings.")]
+    pub(crate) skip: Vec<String>,
     #[clap(flatten)]
-    pub(crate) options: BuildOptions,
+    pub(crate) build_options: BuildOptions,
 }
 
 impl Command for LeoDeploy {
@@ -62,17 +69,17 @@ impl Command for LeoDeploy {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        LeoBuild { options: self.options.clone() }.execute(context)
+        LeoCheck {
+            env_override: self.env_override.clone(),
+            extra: self.extra.clone(),
+            build_options: self.build_options.clone(),
+        }
+        .execute(context)
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Get the network, accounting for overrides.
-        let network = match &self.env_override.network {
-            Some(network_string) => {
-                NetworkName::from_str(network_string).map_err(|_| CliError::invalid_network_name(network_string))?
-            }
-            None => input.env.network,
-        };
+        let network = context.get_network(&self.env_override.network)?.parse()?;
         // Handle each network with the appropriate parameterization.
         match network {
             NetworkName::TestnetV0 => handle_deploy::<TestnetV0>(&self, context, network, input),
@@ -100,53 +107,25 @@ fn handle_deploy<N: Network>(
     package: Package,
 ) -> Result<<LeoDeploy as Command>::Output> {
     // Get the private key and associated address, accounting for overrides.
-    let private_key_string = command.env_override.private_key.clone().unwrap_or(package.env.private_key.clone());
-    let private_key = PrivateKey::<N>::from_str(&private_key_string)
-        .map_err(|e| CliError::custom(format!("Failed to parse private key: {e}")))?;
+    let private_key = context.get_private_key(&command.env_override.private_key)?;
     let address =
         Address::try_from(&private_key).map_err(|e| CliError::custom(format!("Failed to parse address: {e}")))?;
 
     // Get the endpoint, accounting for overrides.
-    let endpoint = command.env_override.endpoint.clone().unwrap_or(package.env.endpoint.clone());
-
-    // Get the package directories.
-    let build_directory = package.build_directory();
-    let imports_directory = package.imports_directory();
-    let source_directory = package.source_directory();
+    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
 
     // Get the programs and optional manifests for all the programs.
     let programs_and_manifests = package
-        .programs
+        .get_programs_and_manifests(context.home()?)?
         .into_iter()
-        .map(|program| {
-            let program_id = ProgramID::<N>::from_str(&format!("{}.aleo", program.name))
+        .map(|(program_name, program_string, manifest)| {
+            // Parse the program ID from the program name.
+            let program_id = ProgramID::<N>::from_str(&format!("{}.aleo", program_name))
                 .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
-            match &program.data {
-                ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.clone(), None)),
-                ProgramData::SourcePath(path) => {
-                    // Get the path to the built bytecode.
-                    let bytecode_path = if path.as_path() == source_directory.join("main.leo") {
-                        build_directory.join("main.aleo")
-                    } else {
-                        imports_directory.join(format!("{}.aleo", program.name))
-                    };
-                    // Fetch the bytecode.
-                    let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {
-                        CliError::custom(format!("Failed to read bytecode at {}: {e}", bytecode_path.display()))
-                    })?;
-                    // Get the package from the directory.
-                    let mut path = path.clone();
-                    path.pop();
-                    path.pop();
-                    let home = context
-                        .home()
-                        .map_err(|e| CliError::custom(format!("Failed to find the Aleo home directory: {e}")))?;
-                    let package = Package::from_directory_no_graph(&path, home)
-                        .map_err(|e| CliError::custom(format!("Failed to load package at {}: {e}", path.display())))?;
-                    // Return the bytecode and the manifest.
-                    Ok((program_id, bytecode, Some(package.manifest.clone())))
-                }
-            }
+            // Parse the program bytecode.
+            let bytecode = Program::<N>::from_str(&program_string)
+                .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+            Ok((program_id, bytecode, manifest))
         })
         .collect::<Result<Vec<_>>>()?;
 
@@ -162,11 +141,32 @@ fn handle_deploy<N: Network>(
         })
         .collect::<Vec<_>>();
 
+    // Split the tasks into local and remote dependencies.
+    let (local, remote) = tasks.into_iter().partition::<Vec<_>, _>(|(_, _, manifest, _, _, _)| manifest.is_some());
+
+    // Split the local tasks into those that should be skipped and those that should not.
+    let (skipped, tasks): (Vec<_>, Vec<_>) = local
+        .into_iter()
+        .partition(|(program_id, _, _, _, _, _)| command.skip.iter().any(|skip| program_id.to_string().contains(skip)));
+
+    // Get the consensus version.
+    let consensus_version = get_consensus_version::<N>(&command.extra.consensus_version, &endpoint, network, &context)?;
+
     // Print a summary of the deployment plan.
-    print_deployment_plan(&private_key, &address, &endpoint, &network, &tasks, &command.action);
+    print_deployment_plan(
+        &private_key,
+        &address,
+        &endpoint,
+        &network,
+        &tasks,
+        &skipped,
+        &remote,
+        &command.action,
+        consensus_version,
+    );
 
     // Prompt the user to confirm the plan.
-    if !confirm("Do you want to proceed with deployment?", command.fee_options.yes)? {
+    if !confirm("Do you want to proceed with deployment?", command.extra.yes)? {
         println!("❌ Deployment aborted.");
         return Ok(());
     }
@@ -182,10 +182,7 @@ fn handle_deploy<N: Network>(
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
-    for (program_id, program_bytecode, manifest, _, priority_fee, fee_record) in tasks {
-        // Parse the program bytecode.
-        let program = Program::<N>::from_str(&program_bytecode)
-            .map_err(|e| CliError::custom(format!("Failed to parse program bytecode: {e}")))?;
+    for (program_id, program, manifest, _, priority_fee, fee_record) in tasks {
         // If the program is a local dependency, generate a deployment transaction.
         if manifest.is_some() {
             println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
@@ -245,17 +242,9 @@ fn handle_deploy<N: Network>(
     if command.action.broadcast {
         for (program_id, transaction) in transactions.iter() {
             println!("📡 Broadcasting deployment for {program_id}...");
-            // Check if the program exists on the network.
-            if fetch_program_from_network(&program_id.to_string(), &endpoint, network).is_ok() {
-                println!("⚠️ The program '{}' already exists on the network.", program_id);
-                if confirm("Do you want to skip deploying this program?", command.fee_options.yes)? {
-                    println!("✅ Skipping deployment for '{}'.", program_id);
-                    continue;
-                }
-            }
             // Get and confirm the fee with the user.
             let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
-            if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.fee_options.yes)? {
+            if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.extra.yes)? {
                 println!("❌ Deployment aborted.");
                 return Ok(());
             }
@@ -287,20 +276,50 @@ fn handle_deploy<N: Network>(
     Ok(())
 }
 
+/// Check the tasks to warn the user about any potential issues.
+/// Only local programs are checked.
+/// The following properties are checked:
+/// - If the transaction is to be broadcast:
+///     - The program does not exist on the network.
+///     - If the consensus version is less than V5, the program does not use V5 features.
+///     - If the consensus version is V5 or greater, the program contains a constructor.
+/// - The program's external dependencies are the latest version.
+fn check_tasks_for_warnings<N: Network>(
+    endpoint: &str,
+    network: NetworkName,
+    tasks: &[DeploymentTask<N>],
+    action: &TransactionAction,
+) -> Vec<String> {
+    let mut warnings = Vec::new();
+    for (program_id, _, manifest, _, _, _) in tasks {
+        if manifest.is_none() || !action.broadcast {
+            continue;
+        }
+        // Check if the program exists on the network.
+        if fetch_program_from_network(&program_id.to_string(), endpoint, network).is_ok() {
+            warnings.push(format!(
+                "The program '{}' already exists on the network. The deployment will likely fail.",
+                program_id
+            ));
+        }
+    }
+    warnings
+}
+
 /// Pretty-print the deployment plan in a readable format.
-#[allow(clippy::type_complexity)]
+#[allow(clippy::too_many_arguments)]
 fn print_deployment_plan<N: Network>(
     private_key: &PrivateKey<N>,
     address: &Address<N>,
     endpoint: &str,
     network: &NetworkName,
-    tasks: &[(ProgramID<N>, String, Option<Manifest>, Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>)],
+    tasks: &[DeploymentTask<N>],
+    skipped: &[DeploymentTask<N>],
+    remote: &[DeploymentTask<N>],
     action: &TransactionAction,
+    consensus_version: ConsensusVersion,
 ) {
     use text_tables::render;
-
-    // Break down the tasks into the local and remote dependencies.
-    let (local, remote) = tasks.iter().partition::<Vec<_>, _>(|(_, _, manifest, _, _, _)| manifest.is_some());
 
     println!("\n{}", "🛠️  Deployment Plan Summary".bold());
     println!("{}", "──────────────────────────────────────────────".dimmed());
@@ -311,6 +330,7 @@ fn print_deployment_plan<N: Network>(
     println!("  {:16}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
     println!("  {:16}{}", "Endpoint:".cyan(), endpoint.yellow());
     println!("  {:16}{}", "Network:".cyan(), network.to_string().yellow());
+    println!("  {:16}{}", "Consensus Version:".cyan(), (consensus_version as u8).to_string().yellow());
 
     // Tasks
     println!("\n{}", "📦 Deployment Tasks:".bold());
@@ -318,7 +338,7 @@ fn print_deployment_plan<N: Network>(
     let mut table =
         vec![["Program".to_string(), "Base Fee".to_string(), "Priority Fee".to_string(), "Fee Record".to_string()]];
 
-    for (name, _, _, _, priority_fee, record) in local.iter() {
+    for (name, _, _, _, priority_fee, record) in tasks.iter() {
         let name = name.to_string();
         // Base fees are not used at the moment, so we can ignore them.
         let base_fee = "auto".to_string();
@@ -336,6 +356,14 @@ fn print_deployment_plan<N: Network>(
     println!("{}", std::str::from_utf8(&buf).expect("utf8 fail"));
 
     // Skipped programs
+    if !skipped.is_empty() {
+        println!("{}", "🚫 Skipped Programs:".bold().red());
+        for (symbol, _, _, _, _, _) in skipped {
+            println!("  - {}", symbol.to_string().dimmed());
+        }
+    }
+
+    // Remote dependencies
     if !remote.is_empty() {
         println!("{}", "🌐 Remote Dependencies:".bold().red());
         println!("{}", "(Leo will not generate transactions for these programs):".bold().red());
@@ -360,6 +388,15 @@ fn print_deployment_plan<N: Network>(
         println!("  - Your transaction(s) will be broadcast to {}", endpoint.bold());
     } else {
         println!("  - Your transaction(s) will NOT be broadcast to the network.");
+    }
+
+    // Warnings
+    let warnings = check_tasks_for_warnings(endpoint, *network, tasks, action);
+    if !warnings.is_empty() {
+        println!("\n{}", "⚠️ Warnings:".bold().red());
+        for warning in warnings {
+            println!("  - {}", warning.dimmed());
+        }
     }
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }

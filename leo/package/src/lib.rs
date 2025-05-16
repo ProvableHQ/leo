@@ -84,7 +84,7 @@ mod package;
 pub use package::*;
 
 mod program;
-use program::*;
+pub use program::Program;
 
 pub const SOURCE_DIRECTORY: &str = "src";
 
