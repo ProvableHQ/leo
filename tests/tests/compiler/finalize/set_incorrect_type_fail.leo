@@ -1,6 +1,6 @@
 
 program test.aleo {
-    record Token {
+    struct Token {
         owner: address,
         amount: u128,
     }
