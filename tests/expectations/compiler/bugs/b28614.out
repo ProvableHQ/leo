@@ -1,0 +1,43 @@
+DCE_ENABLED:
+Error [ETYC0372117]: Expected type `u32` but type `address` was found.
+    --> compiler-test:3:22
+     |
+   3 |         let x: u32 = self.caller;
+     |                      ^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `u8` but type `address` was found.
+    --> compiler-test:4:21
+     |
+   4 |         let y: u8 = self.caller;
+     |                     ^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `u8` but type `address` was found.
+    --> compiler-test:7:13
+     |
+   7 |         z = self.caller;
+     |             ^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `field` but type `address` was found.
+    --> compiler-test:10:13
+     |
+  10 |         w = self.signer;
+     |             ^^^^^^^^^^^
+
+DCE_DISABLED:
+Error [ETYC0372117]: Expected type `u32` but type `address` was found.
+    --> compiler-test:3:22
+     |
+   3 |         let x: u32 = self.caller;
+     |                      ^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `u8` but type `address` was found.
+    --> compiler-test:4:21
+     |
+   4 |         let y: u8 = self.caller;
+     |                     ^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `u8` but type `address` was found.
+    --> compiler-test:7:13
+     |
+   7 |         z = self.caller;
+     |             ^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `field` but type `address` was found.
+    --> compiler-test:10:13
+     |
+  10 |         w = self.signer;
+     |             ^^^^^^^^^^^
