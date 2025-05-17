@@ -101,7 +101,7 @@ fn handle_check<N: Network>(
         // Get the latest version of the program from the network.
         match leo_package::Program::fetch(
             Symbol::intern(&program_id.name().to_string()),
-           None,
+            None,
             &home_path,
             network,
             &endpoint,
