@@ -223,7 +223,7 @@ impl Package {
                     Program::from_path(name_symbol, path.clone())?
                 } else {
                     // It's a network dependency.
-                    Program::fetch(name_symbol, home_path, network, endpoint)?
+                    Program::fetch(name_symbol, home_path, network, endpoint, true)?
                 };
 
                 vacant.insert((new, program.clone()));

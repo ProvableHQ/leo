@@ -154,6 +154,7 @@ pub fn load_programs_from_network<N: Network>(
             &context.home()?,
             network,
             endpoint,
+            false,
         )
         .map_err(|_| CliError::custom(format!("Failed to fetch program source for ID: {current_id}")))?
         .data

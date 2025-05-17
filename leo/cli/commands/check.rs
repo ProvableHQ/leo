@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_errors::CliError;
-use leo_package::{NetworkName, Package};
+use leo_package::{NetworkName, Package, ProgramData};
 use leo_span::Symbol;
 
 use snarkvm::prelude::{MainnetV0, Network, Program, ProgramID, TestnetV0};
@@ -49,33 +49,33 @@ impl Command for LeoCheck {
         LeoBuild { options: self.build_options.clone(), env_override: self.env_override.clone() }.execute(context)
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, package: Self::Input) -> Result<Self::Output> {
         // Parse the network.
         let network: NetworkName = context.get_network(&self.env_override.network)?.parse()?;
         match network {
-            NetworkName::MainnetV0 => handle_check::<MainnetV0>(&self, context),
-            NetworkName::TestnetV0 => handle_check::<TestnetV0>(&self, context),
-            NetworkName::CanaryV0 => handle_check::<CanaryV0>(&self, context),
+            NetworkName::MainnetV0 => handle_check::<MainnetV0>(&self, context, package),
+            NetworkName::TestnetV0 => handle_check::<TestnetV0>(&self, context, package),
+            NetworkName::CanaryV0 => handle_check::<CanaryV0>(&self, context, package),
         }
     }
 }
 
 // A helper function to handle the check command.
-fn handle_check<N: Network>(command: &LeoCheck, context: Context) -> Result<<LeoCheck as Command>::Output> {
-    let package_path = context.dir()?;
+fn handle_check<N: Network>(
+    command: &LeoCheck,
+    context: Context,
+    package: Package,
+) -> Result<<LeoCheck as Command>::Output> {
     let home_path = context.home()?;
 
-    // Load the package from the directory.
-    let package = Package::from_directory(&package_path, &home_path)?;
-
     // Get the network, accounting for overrides.
-    let network = context.get_network(&command.env_override.network)?.parse()?;
+    let network: NetworkName = context.get_network(&command.env_override.network)?.parse()?;
 
     // Get the endpoint, accounting for overrides.
-    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
+    let endpoint: String = context.get_endpoint(&command.env_override.endpoint)?;
 
     // Accumulate errors.
-    let mut errors = Vec::new();
+    let mut errors = Vec::<String>::new();
 
     // Get the programs and optional manifests for all the programs.
     let programs_and_manifests = package
@@ -96,14 +96,34 @@ fn handle_check<N: Network>(command: &LeoCheck, context: Context) -> Result<<Leo
     let (_, remote) =
         programs_and_manifests.into_iter().partition::<IndexMap<_, _>, _>(|(_, (_, manifest))| manifest.is_some());
 
-    // Check that the editions of all the remote programs exist on the network.
-    for (program_id, (_, _)) in remote {
+    // Check that the all the remote programs exist on the network.
+    for (program_id, (local_program, _)) in remote {
         // Get the latest version of the program from the network.
-        if let Err(err) =
-            leo_package::Program::fetch(Symbol::intern(&program_id.name().to_string()), &home_path, network, &endpoint)
-        {
-            errors.push(format!("Could not find remote dependency '{program_id}' on the network: {err}"));
-            continue;
+        match leo_package::Program::fetch(
+            Symbol::intern(&program_id.name().to_string()),
+            &home_path,
+            network,
+            &endpoint,
+            true,
+        ) {
+            Ok(program) => {
+                let ProgramData::Bytecode(bytecode) = &program.data else {
+                    panic!("Expected bytecode when fetching a remote program");
+                };
+                // Check that the program source code matches the one in the package.
+                let remote_program = Program::<N>::from_str(bytecode)
+                    .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+                if local_program != remote_program {
+                    errors.push(format!(
+                        "The dependency `{}` has been does not match the local one. The local copy has been updated to match the remote one.",
+                        program_id
+                    ));
+                }
+            }
+            Err(err) => {
+                errors.push(format!("Could not find remote dependency '{program_id}' on the network: {err}"));
+                continue;
+            }
         }
     }
 

@@ -75,16 +75,28 @@ impl Program {
     }
 
     /// Given an Aleo program on a network, fetch it to build a `Program`.
-    pub fn fetch<P: AsRef<Path>>(name: Symbol, home_path: P, network: NetworkName, endpoint: &str) -> Result<Self> {
-        Self::fetch_impl(name, home_path.as_ref(), network, endpoint)
+    pub fn fetch<P: AsRef<Path>>(
+        name: Symbol,
+        home_path: P,
+        network: NetworkName,
+        endpoint: &str,
+        use_cache: bool,
+    ) -> Result<Self> {
+        Self::fetch_impl(name, home_path.as_ref(), network, endpoint, use_cache)
     }
 
-    fn fetch_impl(name: Symbol, home_path: &Path, network: NetworkName, endpoint: &str) -> Result<Self> {
+    fn fetch_impl(
+        name: Symbol,
+        home_path: &Path,
+        network: NetworkName,
+        endpoint: &str,
+        use_cache: bool,
+    ) -> Result<Self> {
         // It's not a local program; let's check the cache.
         let cache_directory = home_path.join(format!("registry/{network}"));
         let full_cache_path = cache_directory.join(format!("{name}.aleo"));
 
-        let bytecode = if full_cache_path.exists() {
+        let bytecode = if full_cache_path.exists() && use_cache {
             // Great; apparently this file is already cached.
             std::fs::read_to_string(&full_cache_path).map_err(|e| {
                 UtilError::util_file_io_error(
