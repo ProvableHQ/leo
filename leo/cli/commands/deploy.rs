@@ -281,8 +281,6 @@ fn handle_deploy<N: Network>(
 /// The following properties are checked:
 /// - If the transaction is to be broadcast:
 ///     - The program does not exist on the network.
-///     - If the consensus version is less than V5, the program does not use V5 features.
-///     - If the consensus version is V5 or greater, the program contains a constructor.
 /// - The program's external dependencies are the latest version.
 fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
