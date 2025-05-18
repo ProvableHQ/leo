@@ -616,6 +616,7 @@
           }
         ]
       ],
+      "constructor": null,
       "span": {
         "lo": 19,
         "hi": 462

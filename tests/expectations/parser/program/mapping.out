@@ -92,6 +92,7 @@
         ]
       ],
       "functions": [],
+      "constructor": null,
       "span": {
         "lo": 1,
         "hi": 91
