@@ -119,7 +119,10 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
                     imports_directory.join(format!("{}.aleo", program.name))
                 };
                 // Load the manifest in local dependency.
-                let manifest = Manifest::read_from_file(path.with_extension(leo_package::MANIFEST_FILENAME))?;
+                let mut manifest_path = path.clone();
+                manifest_path.pop();
+                manifest_path.pop();
+                let manifest = Manifest::read_from_file(manifest_path.join(leo_package::MANIFEST_FILENAME))?;
                 let bytecode = compile_leo_file::<N>(
                     path,
                     program.name,

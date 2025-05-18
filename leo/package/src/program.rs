@@ -116,8 +116,7 @@ impl Program {
             }
         };
 
-        let full_cache_path = cache_directory.join(format!("{name}.aleo/{edition}"));
-
+        let full_cache_path = cache_directory.join(format!("{name}/{edition}/{name}.aleo"));
         let bytecode = if full_cache_path.exists() && use_cache {
             // Great; apparently this file is already cached.
             std::fs::read_to_string(&full_cache_path).map_err(|e| {
@@ -128,7 +127,7 @@ impl Program {
             })?
         } else {
             // We need to fetch it from the network.
-            let url = format!("{endpoint}/{network}/program/{name}.aleo/{edition}");
+            let url = format!("{endpoint}/{network}/program/{name}/{edition}/{name}.aleo");
             let contents = fetch_from_network(&url)?;
 
             // Make sure the cache directory exists.

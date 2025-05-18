@@ -40,6 +40,14 @@ pub struct DependencySource {
 
     #[clap(short = 'n', long, help = "Whether the dependency is on a live network.", group = "source")]
     pub(crate) network: bool,
+
+    #[clap(
+        short = 'e',
+        long,
+        help = "The expected edition of the program. DO NOT USE THIS UNLESS YOU KNOW WHAT YOU ARE DOING.",
+        group = "source"
+    )]
+    pub(crate) edition: Option<u16>,
 }
 
 impl Command for LeoAdd {
@@ -72,7 +80,7 @@ impl Command for LeoAdd {
             name: name.clone(),
             location: if self.source.local.is_some() { Location::Local } else { Location::Network },
             path: self.source.local.clone(),
-            edition: None,
+            edition: self.source.edition,
         };
 
         if let Some(matched_dep) =

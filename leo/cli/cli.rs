@@ -363,6 +363,10 @@ program nested.aleo {
         let c: u32 = nested_example_layer_0.aleo/main(a, b);
         return c;
     }
+
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }
 }
 ";
         // `nested_example_layer_0.aleo` program
@@ -413,7 +417,7 @@ function external_nested_function:
             command: Commands::Add {
                 command: LeoAdd {
                     name: "nested_example_layer_0".to_string(),
-                    source: DependencySource { local: None, network: true },
+                    source: DependencySource { local: None, network: true, edition: Some(0) },
                     clear: false,
                 },
             },
@@ -425,12 +429,21 @@ function external_nested_function:
             run_with_args(add).expect("Failed to execute `leo add`");
         });
 
-        // Add custom `.aleo` directory
+        // Add custom `.aleo` directory with the appropriate cache entries.
         let registry = temp_dir.join(".aleo").join("registry").join("mainnet");
         std::fs::create_dir_all(&registry).unwrap();
-        std::fs::write(registry.join("nested_example_layer_0.aleo"), nested_example_layer_0).unwrap();
-        std::fs::write(registry.join("nested_example_layer_1.aleo"), nested_example_layer_1).unwrap();
-        std::fs::write(registry.join("nested_example_layer_2.aleo"), nested_example_layer_2).unwrap();
+
+        let dir = registry.join("nested_example_layer_0").join("0");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("nested_example_layer_0.aleo"), nested_example_layer_0).unwrap();
+
+        let dir = registry.join("nested_example_layer_1").join("0");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("nested_example_layer_1.aleo"), nested_example_layer_1).unwrap();
+
+        let dir = registry.join("nested_example_layer_2").join("0");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("nested_example_layer_2.aleo"), nested_example_layer_2).unwrap();
     }
 
     pub(crate) fn sample_grandparent_package(temp_dir: &Path) {
@@ -493,6 +506,10 @@ program grandparent.aleo {
     transition double_wrapper_mint(owner: address, val: u32) -> child.aleo/A {
         return parent.aleo/wrapper_mint(owner, val);
     }
+
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }
 }
 ";
         let parent_program = "
@@ -501,6 +518,11 @@ program parent.aleo {
     transition wrapper_mint(owner: address, val: u32) ->  child.aleo/A {
         return child.aleo/mint(owner, val);
     }
+
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }
+    
 }
 ";
 
@@ -514,6 +536,10 @@ program child.aleo {
     transition mint(owner: address, val: u32) -> A {
         return A {owner: owner, val: val};
     }
+
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }
 }
 ";
 
@@ -524,7 +550,7 @@ program child.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "parent".to_string(),
-                    source: DependencySource { local: Some(parent_directory.clone()), network: false },
+                    source: DependencySource { local: Some(parent_directory.clone()), network: false, edition: None },
                     clear: false,
                 },
             },
@@ -538,7 +564,7 @@ program child.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
-                    source: DependencySource { local: Some(child_directory.clone()), network: false },
+                    source: DependencySource { local: Some(child_directory.clone()), network: false, edition: None },
                     clear: false,
                 },
             },
@@ -552,7 +578,7 @@ program child.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
-                    source: DependencySource { local: Some(child_directory.clone()), network: false },
+                    source: DependencySource { local: Some(child_directory.clone()), network: false, edition: None },
                     clear: false,
                 },
             },
@@ -654,6 +680,10 @@ program outer.aleo {
         let rec_2:inner_2.aleo/inner_1_record = inner_2.aleo/inner_1_main(1u32,1u32);
         return (rec_1, rec_2, inner_1_record {owner: aleo14tnetva3xfvemqyg5ujzvr0qfcaxdanmgjx2wsuh2xrpvc03uc9s623ps7, arg1: 1u32, arg2: 1u32, arg3: 1u32});
     }
+
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }
 }";
         let inner_1_program = "program inner_1.aleo {
     mapping inner_1_mapping: u32 => u32;
@@ -671,6 +701,10 @@ program outer.aleo {
             val: c.arg1,
         };
     }
+
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }
 }";
         let inner_2_program = "program inner_2.aleo {
     mapping inner_2_mapping: u32 => u32;
@@ -685,6 +719,10 @@ program outer.aleo {
             val: a,
         };
     }
+
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }
 }";
         // Add dependencies `outer/program.json`
         let add_outer_dependency_1 = CLI {
@@ -693,7 +731,7 @@ program outer.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
-                    source: DependencySource { local: Some(inner_1_directory.clone()), network: false },
+                    source: DependencySource { local: Some(inner_1_directory.clone()), network: false, edition: None },
                     clear: false,
                 },
             },
@@ -707,7 +745,7 @@ program outer.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
-                    source: DependencySource { local: Some(inner_2_directory.clone()), network: false },
+                    source: DependencySource { local: Some(inner_2_directory.clone()), network: false, edition: None },
                     clear: false,
                 },
             },
@@ -820,6 +858,9 @@ program outer_2.aleo {
 
         return (h, j);
     }
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }
 }
 ";
         let inner_1_program = "program inner_1.aleo {
@@ -838,6 +879,9 @@ program outer_2.aleo {
     transition main_2(a:Foo)->u32{
         return a.a;
     }
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }   
 }";
         let inner_2_program = "program inner_2.aleo {
     struct Foo {
@@ -870,6 +914,9 @@ program outer_2.aleo {
     transition Goo_creator() -> Goo {
         return Goo {a:100u32, b:1u32, c:1u32};
     }
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }
 }";
         // Add dependencies `outer_2/program.json`
         let add_outer_dependency_1 = CLI {
@@ -878,7 +925,7 @@ program outer_2.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
-                    source: DependencySource { local: Some(inner_1_directory.clone()), network: false },
+                    source: DependencySource { local: Some(inner_1_directory.clone()), network: false, edition: None },
                     clear: false,
                 },
             },
@@ -892,7 +939,7 @@ program outer_2.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
-                    source: DependencySource { local: Some(inner_2_directory.clone()), network: false },
+                    source: DependencySource { local: Some(inner_2_directory.clone()), network: false, edition: None },
                     clear: false,
                 },
             },
