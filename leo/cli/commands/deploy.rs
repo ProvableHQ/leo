@@ -34,7 +34,7 @@ use snarkvm::{
 
 use aleo_std::StorageMode;
 use colored::*;
-use snarkvm::prelude::{ConsensusVersion, ProgramID};
+use snarkvm::prelude::{ConsensusVersion, ProgramID, Stack};
 use std::path::PathBuf;
 use text_tables;
 
@@ -56,6 +56,8 @@ pub struct LeoDeploy {
     pub(crate) wait: u64,
     #[clap(long, help = "Skips deployment of any program that contains one of the given substrings.")]
     pub(crate) skip: Vec<String>,
+    #[clap(long, help = "Whether the deployment is an upgrade.")]
+    pub(crate) upgrade: bool,
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
 }
@@ -87,13 +89,13 @@ impl Command for LeoDeploy {
                 #[cfg(feature = "only_testnet")]
                 panic!("Mainnet chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                return handle_deploy::<MainnetV0>(&self, context, network, input);
+                handle_deploy::<MainnetV0>(&self, context, network, input)
             }
             NetworkName::CanaryV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Canary chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                return handle_deploy::<CanaryV0>(&self, context, network, input);
+                handle_deploy::<CanaryV0>(&self, context, network, input)
             }
         }
     }
@@ -161,8 +163,8 @@ fn handle_deploy<N: Network>(
         &tasks,
         &skipped,
         &remote,
-        &command.action,
         consensus_version,
+        command,
     );
 
     // Prompt the user to confirm the plan.
@@ -320,34 +322,63 @@ fn confirm_upgrade_mechanism<N: Network>(program: &Program<N>, upgrade: &Upgrade
 /// Check the tasks to warn the user about any potential issues.
 /// The following properties are checked:
 /// - If the transaction is to be broadcast:
-///     - The program does not exist on the network.
-///     - If the consensus version is less than V5, the program does not use V5 features.
-///     - If the consensus version is V5 or greater, the program contains a constructor.
+///     - If the upgrade flag is not set, the program does not exist on the network.
+///     - If the upgrade flag is set, the program exists on the network and the new program is a valid upgrade.
+///     - If the consensus version is less than V7, the program does not use V7 features.
+///     - If the consensus version is V7 or greater, the program contains a constructor.
 fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
     tasks: &[DeploymentTask<N>],
-    action: &TransactionAction,
     consensus_version: ConsensusVersion,
+    command: &LeoDeploy,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
     for (program_id, program, manifest, _, _, _) in tasks {
-        if manifest.is_none() || !action.broadcast {
+        if manifest.is_none() || !command.action.broadcast {
             continue;
         }
-        // Check if the program exists on the network.
-        if fetch_program_from_network(&program_id.to_string(), endpoint, network).is_ok() {
-            warnings.push(format!(
-                "The program '{}' already exists on the network. The deployment will likely fail.",
-                program_id
-            ));
+        // If the upgrade flag is not set, check that the program exists on the network.
+        if !command.upgrade {
+            if fetch_program_from_network(&program_id.to_string(), endpoint, network).is_ok() {
+                warnings.push(format!(
+                    "The program '{}' already exists on the network. The deployment will likely fail.",
+                    program_id
+                ));
+            }
         }
-        // Check if the program uses V5 features.
-        if consensus_version < ConsensusVersion::V5 && program.contains_v5_syntax() {
-            warnings.push(format!("The program '{}' uses V5 features but the consensus version is less than V5. The deployment will likely fail", program_id));
+        // Otherwise, check that the program is a valid upgrade.
+        else {
+            // Check if the program exists on the network.
+            if let Ok(remote_program) = fetch_program_from_network(&program_id.to_string(), endpoint, network) {
+                // Parse the program.
+                let remote_program = match Program::<N>::from_str(&remote_program) {
+                    Ok(program) => program,
+                    Err(e) => {
+                        warnings.push(format!("Could not parse '{program_id}' from the network. Error: {e}",));
+                        continue;
+                    }
+                };
+                // Check if the program is a valid upgrade.
+                if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, program) {
+                    warnings.push(format!(
+                        "The program '{program_id}' is not a valid upgrade. The deployment will likely fail. Error: {e}",
+                    ));
+                }
+            } else {
+                warnings.push(format!(
+                    "The program '{}' does not exist on the network. The upgrade will likely fail.",
+                    program_id
+                ));
+            }
+        }
+
+        // Check if the program uses V7 features.
+        if consensus_version < ConsensusVersion::V7 && program.contains_v7_syntax() {
+            warnings.push(format!("The program '{}' uses V7 features but the consensus version is less than V7. The deployment will likely fail", program_id));
         }
         // Check if the program contains a constructor.
-        if consensus_version >= ConsensusVersion::V5 && !program.contains_constructor() {
+        if consensus_version >= ConsensusVersion::V7 && !program.contains_constructor() {
             warnings.push(format!(
                 "The program '{}' does not contain a constructor. The deployment will likely fail",
                 program_id
@@ -367,8 +398,8 @@ fn print_deployment_plan<N: Network>(
     tasks: &[DeploymentTask<N>],
     skipped: &[DeploymentTask<N>],
     remote: &[DeploymentTask<N>],
-    action: &TransactionAction,
     consensus_version: ConsensusVersion,
+    command: &LeoDeploy,
 ) {
     use text_tables::render;
 
@@ -439,24 +470,24 @@ fn print_deployment_plan<N: Network>(
 
     // Actions
     println!("{}", "⚙️ Actions:".bold());
-    if action.print {
+    if command.action.print {
         println!("  - Your transaction(s) will be printed to the console.");
     } else {
         println!("  - Your transaction(s) will NOT be printed to the console.");
     }
-    if let Some(path) = &action.save {
+    if let Some(path) = &command.action.save {
         println!("  - Your transaction(s) will be saved to {}", path.bold());
     } else {
         println!("  - Your transaction(s) will NOT be saved to a file.");
     }
-    if action.broadcast {
+    if command.action.broadcast {
         println!("  - Your transaction(s) will be broadcast to {}", endpoint.bold());
     } else {
         println!("  - Your transaction(s) will NOT be broadcast to the network.");
     }
 
     // Warnings
-    let warnings = check_tasks_for_warnings(endpoint, *network, tasks, action, consensus_version);
+    let warnings = check_tasks_for_warnings(endpoint, *network, tasks, consensus_version, command);
     if !warnings.is_empty() {
         println!("\n{}", "⚠️ Warnings:".bold().red());
         for warning in warnings {

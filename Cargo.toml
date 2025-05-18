@@ -85,7 +85,7 @@ path = "./test-framework"
 version = "2.5.0"
 
 [workspace.dependencies.aleo-std]
-version = "0.1.24"
+version = "1.0.1"
 default-features = false
 
 [workspace.dependencies.colored]
@@ -111,9 +111,9 @@ version = "1.11.1"
 
 [workspace.dependencies.snarkvm] 
 #version = "=1.5.0"
-#git = "https://github.com/ProvableHQ/snarkVM.git"
-git = "ssh://git@github.com/ProvableHQ/snarkVM-staging.git"
-branch = "feat/owner-operand"
+git = "https://github.com/ProvableHQ/snarkVM.git"
+branch = "feat/program-owner-operand+staging"
+#rev = "edf035d"
 
 
 [workspace.dependencies.serde]

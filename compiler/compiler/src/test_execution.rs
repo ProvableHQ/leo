@@ -21,7 +21,7 @@ use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 
-use aleo_std_storage::StorageMode;
+use aleo_std::StorageMode;
 use snarkvm::{
     prelude::{
         Address,
@@ -100,7 +100,7 @@ fn execution_run_test(config: Config, handler: &Handler, buf: &BufferEmitter, ca
     let mut process = process.clone();
 
     // Initialize a `VM`. This should always succeed.
-    let vm = VM::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::from(ConsensusStore::open(None).unwrap()).unwrap();
+    let vm = VM::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::from(ConsensusStore::open(0).unwrap()).unwrap();
 
     // Initialize a genesis private key.
     let genesis_private_key = PrivateKey::new(&mut rng).unwrap();

@@ -45,6 +45,9 @@ workspace = true
 [dependencies.indexmap]
 workspace = true
 
+[dev-dependencies.aleo-std]
+workspace = true
+
 [dev-dependencies.leo-disassembler]
 path = "../../utils/disassembler"
 
@@ -53,10 +56,6 @@ workspace = true
 
 [dev-dependencies.leo-test-framework]
 workspace = true
-
-[dev-dependencies.aleo-std-storage]
-version = "0.1.7"
-default-features = false
 
 [dev-dependencies.itertools]
 workspace = true
