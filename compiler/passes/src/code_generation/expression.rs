@@ -326,6 +326,13 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                 }
                 // Return the appropriate snarkVM operand.
                 name @ (sym::checksum | sym::edition | sym::program_owner) => {
+                    // If the program does not match the current program ID, then fully qualify the operand.
+                    if program_id.to_string()
+                        == self.program_id.expect("The program ID is set before traversing the program").to_string()
+                    {
+                        return (name.to_string(), String::new());
+                    }
+                    // Otherwise, use the name directly.
                     return (format!("{program_id}/{name}"), String::new());
                 }
                 _ => {} // Do nothing as `self.signer` and `self.caller` are handled below.
