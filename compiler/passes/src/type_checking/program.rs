@@ -21,7 +21,8 @@ use leo_ast::{Type, *};
 use leo_errors::TypeCheckerError;
 use leo_span::{Symbol, sym};
 
-use std::collections::HashSet;
+use itertools::Itertools;
+use std::collections::{BTreeMap, HashSet};
 
 impl ProgramVisitor for TypeCheckingVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
@@ -44,8 +45,32 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {
+        let program_name = input.program_id.name;
+
+        // Ensure that the program name is legal, i.e., it does not contain the keyword `aleo`
+        check_name(&self.state.handler, program_name, "program");
+
         // Set the current program name.
-        self.scope_state.program_name = Some(input.program_id.name.name);
+        self.scope_state.program_name = Some(program_name.name);
+
+        // Collect a map from record names to their spans
+        let record_info: BTreeMap<String, leo_span::Span> = input
+            .structs
+            .iter()
+            .filter(|(_, c)| c.is_record)
+            .map(|(_, r)| (r.name().to_string(), r.identifier.span))
+            .collect();
+
+        // Check if any record name is a prefix for another record name. We don't really collect all possible prefixes
+        // here but only adjacent ones. That is, if we have records `Foo`, `FooBar`, and `FooBarBaz`, we only emit
+        // errors for `Foo/FooBar` and for `FooBar/FooBarBaz` but not for `Foo/FooBarBaz`.
+        for ((prev_name, _), (curr_name, curr_span)) in record_info.iter().tuple_windows() {
+            if curr_name.starts_with(prev_name) {
+                self.state
+                    .handler
+                    .emit_err(TypeCheckerError::record_prefixed_by_other_record(curr_name, prev_name, *curr_span));
+            }
+        }
 
         // Typecheck each const definition, and append to symbol table.
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
@@ -136,6 +161,15 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         // For records, enforce presence of the `owner: Address` member.
         if input.is_record {
+            // Ensure that the record name is legal, i.e., it does not contain the keyword `aleo`
+            check_name(&self.state.handler, input.identifier, "record");
+
+            // Ensure that the names of the record entries are all legal, i.e., they do not contain the
+            // keyword `aleo`
+            input.members.iter().for_each(|member| {
+                check_name(&self.state.handler, member.identifier, "record entry");
+            });
+
             let check_has_field =
                 |need, expected_ty: Type| match input.members.iter().find_map(|Member { identifier, type_, .. }| {
                     (identifier.name == need).then_some((identifier, type_))
@@ -388,5 +422,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_struct_stub(&mut self, input: &Composite) {
         self.visit_struct(input);
+    }
+}
+
+fn check_name(handler: &leo_errors::Handler, name: Identifier, item_type: &str) {
+    if name.to_string().contains(&sym::aleo.to_string()) {
+        handler.emit_err(TypeCheckerError::illegal_name(name, item_type, sym::aleo, name.span));
     }
 }

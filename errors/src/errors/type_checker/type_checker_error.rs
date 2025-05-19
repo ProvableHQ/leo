@@ -1044,4 +1044,18 @@ create_messages!(
         msg: format!("Cannot assign to type `{ty}` or a member thereof."),
         help: Some("External record types and tuples containing them may not be assigned to.".to_string()),
     }
+
+    @formatted
+    illegal_name {
+        args: (item_name: impl Display, item_type: impl Display, keyword: impl Display),
+        msg: format!("`{item_name}` is an invalid {item_type} name. A {item_type} cannot have \"{keyword}\" in its name."),
+        help: None,
+    }
+
+    @formatted
+    record_prefixed_by_other_record {
+        args: (r1: impl Display, r2: impl Display),
+        msg: format!("Record name `{r1}` is prefixed by the record name `{r2}`. Record names must not be prefixes of other record names."),
+        help: None,
+    }
 );
