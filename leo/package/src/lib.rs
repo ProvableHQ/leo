@@ -161,6 +161,7 @@ pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
 }
 
 /// Fetch the given program from the network and return the program as a string.
+// TODO (@d0cd) Unify with `leo_package::Program::fetch`.
 pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkName) -> Result<String, UtilError> {
     let url = format!("{endpoint}/{network}/program/{name}");
     let program = fetch_from_network(&url)?;

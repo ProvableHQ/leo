@@ -102,6 +102,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoUpdate,
     },
+    #[clap(about = "Upgrade the program on a network")]
+    Upgrade {
+        #[clap(flatten)]
+        command: LeoUpgrade,
+    },
 }
 
 pub fn handle_error<T>(res: Result<T>) -> T {
@@ -146,6 +151,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Execute { command } => command.try_execute(context),
         Commands::Remove { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
+        Commands::Upgrade { command } => command.try_execute(context),
     }
 }
 

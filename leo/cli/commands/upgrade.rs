@@ -16,34 +16,28 @@
 
 use super::*;
 
-use leo_package::{Manifest, NetworkName, Package, UpgradeConfig, fetch_program_from_network};
+use leo_package::{NetworkName, Package, fetch_program_from_network};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
     ledger::query::Query as SnarkVMQuery,
     prelude::{
-        Deployment,
         Program,
         TestnetV0,
         VM,
-        deployment_cost,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
 
 use aleo_std::StorageMode;
 use colored::*;
-use snarkvm::prelude::{ConsensusVersion, ProgramID};
+use snarkvm::prelude::{ConsensusVersion, ProgramID, Stack};
 use std::path::PathBuf;
-use text_tables;
 
-pub(crate) type DeploymentTask<N> =
-    (ProgramID<N>, Program<N>, Option<Manifest>, Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>);
-
-/// Deploys an Aleo program.
+/// Upgrades an Aleo program.
 #[derive(Parser, Debug)]
-pub struct LeoDeploy {
+pub struct LeoUpgrade {
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
     #[clap(flatten)]
@@ -60,7 +54,7 @@ pub struct LeoDeploy {
     pub(crate) build_options: BuildOptions,
 }
 
-impl Command for LeoDeploy {
+impl Command for LeoUpgrade {
     type Input = Package;
     type Output = ();
 
@@ -82,26 +76,26 @@ impl Command for LeoDeploy {
         let network = context.get_network(&self.env_override.network)?.parse()?;
         // Handle each network with the appropriate parameterization.
         match network {
-            NetworkName::TestnetV0 => handle_deploy::<TestnetV0>(&self, context, network, input),
+            NetworkName::TestnetV0 => handle_upgrade::<TestnetV0>(&self, context, network, input),
             NetworkName::MainnetV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Mainnet chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                handle_deploy::<MainnetV0>(&self, context, network, input)
+                handle_upgrade::<MainnetV0>(&self, context, network, input)
             }
             NetworkName::CanaryV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Canary chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                handle_deploy::<CanaryV0>(&self, context, network, input)
+                handle_upgrade::<CanaryV0>(&self, context, network, input)
             }
         }
     }
 }
 
-// A helper function to handle deployment logic.
-fn handle_deploy<N: Network>(
-    command: &LeoDeploy,
+// A helper function to handle upgrade logic.
+fn handle_upgrade<N: Network>(
+    command: &LeoUpgrade,
     context: Context,
     network: NetworkName,
     package: Package,
@@ -128,6 +122,9 @@ fn handle_deploy<N: Network>(
             Ok((program_id, bytecode, manifest))
         })
         .collect::<Result<Vec<_>>>()?;
+
+    // Get all of the program IDs.
+    let program_ids = programs_and_manifests.iter().map(|(program_id, _, _)| program_id).copied().collect::<Vec<_>>();
 
     // Parse the fee options.
     let fee_options = parse_fee_options(&private_key, &command.fee_options, programs_and_manifests.len())?;
@@ -163,12 +160,12 @@ fn handle_deploy<N: Network>(
         &remote,
         &check_tasks_for_warnings(&endpoint, network, &tasks, consensus_version, command),
         consensus_version,
-        command,
+        &command.into(),
     );
 
     // Prompt the user to confirm the plan.
-    if !confirm("Do you want to proceed with deployment?", command.extra.yes)? {
-        println!("❌ Deployment aborted.");
+    if !confirm("Do you want to proceed with upgrade?", command.extra.yes)? {
+        println!("❌ Upgrade aborted.");
         return Ok(());
     }
 
@@ -177,6 +174,18 @@ fn handle_deploy<N: Network>(
 
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
+
+    // Load all of the programs from the network into the VM.
+    for program_id in program_ids {
+        // Load the program from the network.
+        let bytecode = fetch_program_from_network(&program_id.to_string(), &endpoint, network)
+            .map_err(|e| CliError::custom(format!("Failed to fetch program from network: {e}")))?;
+        // Parse the program bytecode.
+        let program =
+            Program::<N>::from_str(&bytecode).map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+        // Add the program to the VM.
+        vm.process().write().add_program(&program)?;
+    }
 
     // Specify the query
     let query = SnarkVMQuery::from(&endpoint);
@@ -187,13 +196,6 @@ fn handle_deploy<N: Network>(
         // If the program is a local dependency, generate a deployment transaction.
         if manifest.is_some() {
             println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
-            // If the program contains an upgrade config, confirm with the user that they want to proceed.
-            if let Some(upgrade) = &manifest.expect("Local program should have a manifest").upgrade {
-                if !confirm_upgrade_mechanism(&program, upgrade, command.extra.yes)? {
-                    println!("❌ Deployment aborted.");
-                    return Ok(());
-                }
-            }
             // Generate the transaction.
             let transaction = vm
                 .deploy(&private_key, &program, fee_record, priority_fee.unwrap_or(0), Some(query.clone()), rng)
@@ -284,44 +286,10 @@ fn handle_deploy<N: Network>(
     Ok(())
 }
 
-/// If the program contains an upgrade mechanism, prompt the user to confirm that they want to proceed.
-fn confirm_upgrade_mechanism<N: Network>(program: &Program<N>, upgrade: &UpgradeConfig, yes: bool) -> Result<bool> {
-    match upgrade {
-        UpgradeConfig::Admin { address } => {
-            println!(
-                "ANYONE with access to the private key for '{}' can upgrade '{}'.",
-                program.id().to_string().bold(),
-                address.to_string().bold()
-            );
-            println!("You MUST ensure that the key is securely stored and operated.");
-        }
-        UpgradeConfig::Checksum { mapping, key } => {
-            println!(
-                "Every upgrade for '{}' will be verified against the checksum stored at '{}' using the key '{}'.",
-                program.id().to_string().bold(),
-                mapping.to_string().bold(),
-                key
-            );
-            println!("You MUST ensure that this entry in the mapping cannot be misused.")
-        }
-        UpgradeConfig::Custom => {
-            println!("'{}' uses a custom constructor for upgrades.", program.id().to_string().bold());
-            println!("You MUST ensure that the constructor logic is thoroughly tested and audited.");
-        }
-        UpgradeConfig::NoUpgrade => {
-            println!(
-                "'{}' does not allow upgrades and CANNOT be changed after deployment.",
-                program.id().to_string().bold()
-            );
-        }
-    }
-    confirm("Do you want to proceed?", yes)
-}
-
 /// Check the tasks to warn the user about any potential issues.
 /// The following properties are checked:
 /// - If the transaction is to be broadcast:
-///     - The program does not exist on the network.
+///     - The program exists on the network and the new program is a valid upgrade.
 ///     - If the consensus version is less than V7, the program does not use V7 features.
 ///     - If the consensus version is V7 or greater, the program contains a constructor.
 fn check_tasks_for_warnings<N: Network>(
@@ -329,20 +297,37 @@ fn check_tasks_for_warnings<N: Network>(
     network: NetworkName,
     tasks: &[DeploymentTask<N>],
     consensus_version: ConsensusVersion,
-    command: &LeoDeploy,
+    command: &LeoUpgrade,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
     for (program_id, program, manifest, _, _, _) in tasks {
         if manifest.is_none() || !command.action.broadcast {
             continue;
         }
-        // If the upgrade flag is not set, check that the program exists on the network.
-        if fetch_program_from_network(&program_id.to_string(), endpoint, network).is_ok() {
+
+        // Check if the program exists on the network.
+        if let Ok(remote_program) = fetch_program_from_network(&program_id.to_string(), endpoint, network) {
+            // Parse the program.
+            let remote_program = match Program::<N>::from_str(&remote_program) {
+                Ok(program) => program,
+                Err(e) => {
+                    warnings.push(format!("Could not parse '{program_id}' from the network. Error: {e}",));
+                    continue;
+                }
+            };
+            // Check if the program is a valid upgrade.
+            if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, program) {
+                warnings.push(format!(
+                    "The program '{program_id}' is not a valid upgrade. The deployment will likely fail. Error: {e}",
+                ));
+            }
+        } else {
             warnings.push(format!(
-                "The program '{}' already exists on the network. The deployment will likely fail.",
+                "The program '{}' does not exist on the network. The upgrade will likely fail.",
                 program_id
             ));
         }
+
         // Check if the program uses V7 features.
         if consensus_version < ConsensusVersion::V7 && program.contains_v7_syntax() {
             warnings.push(format!("The program '{}' uses V7 features but the consensus version is less than V7. The deployment will likely fail", program_id));
@@ -358,161 +343,17 @@ fn check_tasks_for_warnings<N: Network>(
     warnings
 }
 
-/// Pretty-print the deployment plan in a readable format.
-#[allow(clippy::too_many_arguments)]
-pub(crate) fn print_deployment_plan<N: Network>(
-    private_key: &PrivateKey<N>,
-    address: &Address<N>,
-    endpoint: &str,
-    network: &NetworkName,
-    tasks: &[DeploymentTask<N>],
-    skipped: &[DeploymentTask<N>],
-    remote: &[DeploymentTask<N>],
-    warnings: &[String],
-    consensus_version: ConsensusVersion,
-    command: &LeoDeploy,
-) {
-    use text_tables::render;
-
-    println!("\n{}", "🛠️  Deployment Plan Summary".bold());
-    println!("{}", "──────────────────────────────────────────────".dimmed());
-
-    // Config
-    println!("{}", "🔧 Configuration:".bold());
-    println!("  {:16}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
-    println!("  {:16}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
-    println!("  {:16}{}", "Endpoint:".cyan(), endpoint.yellow());
-    println!("  {:16}{}", "Network:".cyan(), network.to_string().yellow());
-    println!("  {:16}{}", "Consensus Version:".cyan(), (consensus_version as u8).to_string().yellow());
-
-    // Tasks
-    println!("\n{}", "📦 Deployment Tasks:".bold());
-
-    let mut table = vec![[
-        "Program".to_string(),
-        "Upgrade".to_string(),
-        "Base Fee".to_string(),
-        "Priority Fee".to_string(),
-        "Fee Record".to_string(),
-    ]];
-
-    for (name, _, manifest, _, priority_fee, record) in tasks.iter() {
-        let name = name.to_string();
-        // Get the upgrade mode specified in the manifest.
-        let manifest = manifest.as_ref().expect("Local program should have a manifest");
-        let upgrade = match manifest.upgrade {
-            None => "none".to_string(),
-            Some(UpgradeConfig::Admin { .. }) => "admin".to_string(),
-            Some(UpgradeConfig::Checksum { .. }) => "checksum".to_string(),
-            Some(UpgradeConfig::Custom) => "custom".to_string(),
-            Some(UpgradeConfig::NoUpgrade) => "no upgrade".to_string(),
-        };
-        // Base fees are not used at the moment, so we can ignore them.
-        let base_fee = "auto".to_string();
-        let priority_fee = priority_fee.map_or("0".into(), |v| v.to_string());
-        let record = match record.is_some() {
-            true => "yes".to_string(),
-            false => "no (public fee)".to_string(),
-        };
-
-        table.push([name, upgrade, base_fee, priority_fee, record]);
-    }
-
-    let mut buf = Vec::new();
-    render(&mut buf, table).expect("table render failed");
-    println!("{}", std::str::from_utf8(&buf).expect("utf8 fail"));
-
-    // Skipped programs
-    if !skipped.is_empty() {
-        println!("{}", "🚫 Skipped Programs:".bold().red());
-        for (symbol, _, _, _, _, _) in skipped {
-            println!("  - {}", symbol.to_string().dimmed());
+// Convert the `LeoUpgrade` into a `LeoDeploy` command.
+impl From<&LeoUpgrade> for LeoDeploy {
+    fn from(upgrade: &LeoUpgrade) -> Self {
+        Self {
+            fee_options: upgrade.fee_options.clone(),
+            action: upgrade.action.clone(),
+            env_override: upgrade.env_override.clone(),
+            extra: upgrade.extra.clone(),
+            wait: upgrade.wait,
+            skip: upgrade.skip.clone(),
+            build_options: upgrade.build_options.clone(),
         }
     }
-
-    // Remote dependencies
-    if !remote.is_empty() {
-        println!("{}", "🌐 Remote Dependencies:".bold().red());
-        println!("{}", "(Leo will not generate transactions for these programs):".bold().red());
-        for (symbol, _, _, _, _, _) in remote {
-            println!("  - {}", symbol.to_string().dimmed());
-        }
-    }
-
-    // Actions
-    println!("{}", "⚙️ Actions:".bold());
-    if command.action.print {
-        println!("  - Your transaction(s) will be printed to the console.");
-    } else {
-        println!("  - Your transaction(s) will NOT be printed to the console.");
-    }
-    if let Some(path) = &command.action.save {
-        println!("  - Your transaction(s) will be saved to {}", path.bold());
-    } else {
-        println!("  - Your transaction(s) will NOT be saved to a file.");
-    }
-    if command.action.broadcast {
-        println!("  - Your transaction(s) will be broadcast to {}", endpoint.bold());
-    } else {
-        println!("  - Your transaction(s) will NOT be broadcast to the network.");
-    }
-
-    // Warnings
-    if !warnings.is_empty() {
-        println!("\n{}", "⚠️ Warnings:".bold().red());
-        for warning in warnings {
-            println!("  - {}", warning.dimmed());
-        }
-    }
-    println!("{}", "──────────────────────────────────────────────\n".dimmed());
-}
-
-pub(crate) fn print_deployment_stats<N: Network>(
-    vm: &VM<N, ConsensusMemory<N>>,
-    program_id: &str,
-    deployment: &Deployment<N>,
-    priority_fee: Option<u64>,
-) -> Result<()> {
-    use colored::*;
-    use num_format::{Locale, ToFormattedString};
-    use text_tables::render;
-
-    // Extract stats
-    let variables = deployment.num_combined_variables()?;
-    let constraints = deployment.num_combined_constraints()?;
-
-    let (base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
-        deployment_cost(&vm.process().read(), deployment)?;
-
-    // Compute final fee
-    let priority_fee_value = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;
-    let base_fee_value = base_fee as f64 / 1_000_000.0;
-    let total_fee = base_fee_value + priority_fee_value;
-
-    // Print summary
-    println!("\n{} {}", "📊 Deployment Stats for".bold(), program_id.bold());
-    println!(
-        "Total Variables:   {:>10}\nTotal Constraints: {:>10}\n",
-        variables.to_formatted_string(&Locale::en),
-        constraints.to_formatted_string(&Locale::en)
-    );
-
-    // Print cost breakdown inline
-    println!("Base deployment cost for '{}' is {:.6} credits.\n", program_id.bold(), base_fee_value);
-
-    let data = [
-        [program_id, "Cost (credits)"],
-        ["Transaction Storage", &format!("{:.6}", storage_cost as f64 / 1_000_000.0)],
-        ["Program Synthesis", &format!("{:.6}", synthesis_cost as f64 / 1_000_000.0)],
-        ["Constructor", &format!("{:.6}", constructor_cost as f64 / 1_000_000.0)],
-        ["Namespace", &format!("{:.6}", namespace_cost as f64 / 1_000_000.0)],
-        ["Priority Fee", &format!("{:.6}", priority_fee_value)],
-        ["Total", &format!("{:.6}", total_fee)],
-    ];
-
-    let mut out = Vec::new();
-    render(&mut out, data).map_err(CliError::table_render_failed)?;
-    println!("{}", std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
-
-    Ok(())
 }
