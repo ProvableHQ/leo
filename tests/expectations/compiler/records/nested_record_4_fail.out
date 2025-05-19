@@ -6,22 +6,22 @@ Error [ETYC0372050]: A record cannot contain a tuple.
 Error [ETYC0372050]: A struct cannot contain a tuple.
     --> compiler-test:9:9
      |
-   9 |         bar: (Token, Token),
+   9 |         bar: (Token2, Token2),
      |         ^^^
 Error [ETYC0372030]: A struct or record cannot contain another record.
     --> compiler-test:9:9
      |
-   9 |         bar: (Token, Token),
+   9 |         bar: (Token2, Token2),
      |         ^^^
      |
-     = Remove the record `Token` from `Bar`.
+     = Remove the record `Token2` from `Bar`.
 Error [ETYC0372030]: A struct or record cannot contain another record.
     --> compiler-test:9:9
      |
-   9 |         bar: (Token, Token),
+   9 |         bar: (Token2, Token2),
      |         ^^^
      |
-     = Remove the record `Token` from `Bar`.
+     = Remove the record `Token2` from `Bar`.
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |
