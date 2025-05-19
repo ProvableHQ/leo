@@ -22,13 +22,13 @@ finalize set_expected:
     set r1 into expected[true];
 
 constructor:
-    gt test.aleo/edition 0u16 into r0;
+    gt edition 0u16 into r0;
     branch.eq r0 false to end_then_0_0;
     get expected[true] into r1;
-    assert.eq r1 test.aleo/checksum;
+    assert.eq r1 checksum;
     branch.eq true true to end_otherwise_0_1;
     position end_then_0_0;
-    set test.aleo/program_owner into admin[true];
+    set program_owner into admin[true];
     position end_otherwise_0_1;
 
 
@@ -56,12 +56,12 @@ finalize set_expected:
     set r1 into expected[true];
 
 constructor:
-    gt test.aleo/edition 0u16 into r0;
+    gt edition 0u16 into r0;
     branch.eq r0 false to end_then_0_0;
     get expected[true] into r1;
-    assert.eq r1 test.aleo/checksum;
+    assert.eq r1 checksum;
     branch.eq true true to end_otherwise_0_1;
     position end_then_0_0;
-    set test.aleo/program_owner into admin[true];
+    set program_owner into admin[true];
     position end_otherwise_0_1;
 
