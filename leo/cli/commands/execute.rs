@@ -422,6 +422,8 @@ fn print_execution_plan<N: Network>(
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }
 
+/// Pretty‑print execution statistics without a table, using the same UI
+/// conventions as `print_deployment_plan`.
 fn print_execution_stats<N: Network>(
     vm: &VM<N, ConsensusMemory<N>>,
     program_name: &str,
@@ -430,35 +432,30 @@ fn print_execution_stats<N: Network>(
     consensus_version: ConsensusVersion,
 ) -> Result<()> {
     use colored::*;
-    use text_tables::render;
 
-    // Compute the execution cost using the VM's process.
+    // ── Gather cost components ────────────────────────────────────────────
     let (base_fee, (storage_cost, execution_cost)) = if consensus_version == ConsensusVersion::V1 {
         execution_cost_v1(&vm.process().read(), execution)?
     } else {
         execution_cost_v2(&vm.process().read(), execution)?
     };
 
-    // Convert microcredits to credits
-    let base_fee_value = base_fee as f64 / 1_000_000.0;
-    let priority_fee_value = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;
-    let total_fee = base_fee_value + priority_fee_value;
+    let base_cr = base_fee as f64 / 1_000_000.0;
+    let prio_cr = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;
+    let total_cr = base_cr + prio_cr;
 
-    // Print summary
-    println!("\n{} {}", "📊 Execution Stats for".bold(), program_name.bold());
-    println!("Base execution cost for '{}' is {:.6} credits.\n", program_name.bold(), base_fee_value);
+    // ── Header ────────────────────────────────────────────────────────────
+    println!("\n{} {}", "📊 Execution Summary for".bold(), program_name.bold());
+    println!("{}", "──────────────────────────────────────────────".dimmed());
 
-    let data = [
-        [program_name, "Cost (credits)"],
-        ["Transaction Storage", &format!("{:.6}", storage_cost as f64 / 1_000_000.0)],
-        ["On-chain Execution", &format!("{:.6}", execution_cost as f64 / 1_000_000.0)],
-        ["Priority Fee", &format!("{:.6}", priority_fee_value)],
-        ["Total", &format!("{:.6}", total_fee)],
-    ];
+    // ── Cost breakdown ────────────────────────────────────────────────────
+    println!("{}", "💰 Cost Breakdown (credits)".bold());
+    println!("  {:22}{}{:.6}", "Transaction Storage:".cyan(), "".yellow(), storage_cost as f64 / 1_000_000.0);
+    println!("  {:22}{}{:.6}", "On‑chain Execution:".cyan(), "".yellow(), execution_cost as f64 / 1_000_000.0);
+    println!("  {:22}{}{:.6}", "Priority Fee:".cyan(), "".yellow(), prio_cr);
+    println!("  {:22}{}{:.6}", "Total Fee:".cyan(), "".yellow(), total_cr);
 
-    let mut out = Vec::new();
-    render(&mut out, data).map_err(CliError::table_render_failed)?;
-    println!("{}", std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
-
+    // ── Footer rule ───────────────────────────────────────────────────────
+    println!("{}", "──────────────────────────────────────────────".dimmed());
     Ok(())
 }

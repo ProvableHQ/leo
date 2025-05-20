@@ -1852,7 +1852,6 @@ dependencies = [
  "snarkvm",
  "sys-info",
  "test_dir",
- "text-tables",
  "toml 0.8.20",
  "tracing",
  "tracing-subscriber",
@@ -4176,12 +4175,6 @@ checksum = "1fc19daf9fc57fadcf740c4abaaa0cd08d9ce22a2a0629aaf6cbd9ae4b80683a"
 dependencies = [
  "rand",
 ]
-
-[[package]]
-name = "text-tables"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dc41925991e82af3c3e21e25a9aad92e72930af57fbcc4b07867a18d1cd0459"
 
 [[package]]
 name = "thiserror"
