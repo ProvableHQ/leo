@@ -250,8 +250,9 @@ impl<N: Network> ParserContext<'_, N> {
 
         // Parse variable name and type.
         let place = self.parse_definition_place()?;
-        self.expect(&Token::Colon)?;
-        let type_ = self.parse_type()?.0;
+
+        // The type annotation is optional
+        let type_ = if self.eat(&Token::Colon) { Some(self.parse_type()?.0) } else { None };
 
         self.expect(&Token::Assign)?;
         let value = self.parse_expression()?;

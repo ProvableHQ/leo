@@ -1,5 +1,7 @@
-Error [EPAR0370005]: expected : -- found '='
-    --> compiler-test:9:17
+Error [ETYC0372018]: Variable y is not a member of struct Foo {
+    x: u32,
+}.
+    --> compiler-test:9:21
      |
    9 |         let err = a.y;
-     |                 ^
+     |                     ^

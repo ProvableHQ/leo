@@ -1,13 +1,13 @@
 
 program test.aleo {
 
-    function foo() -> field {
+    inline foo(x: u32) -> field {
         return myGlobal;
     }
 
-    function main() -> field {
+    transition main() -> field {
         let myGlobal = 42field;
-        let err = foo();
+        let err = foo(3u32);
 
         return err;
     }

@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected : -- found '='
-    --> compiler-test:4:16
+Error [EAST0372009]: variable `hi` shadowed by
+    --> compiler-test:4:13
      |
    4 |         let hi = 2u8;
-     |                ^
+     |             ^^

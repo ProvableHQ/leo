@@ -1,0 +1,45 @@
+Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
+    --> compiler-test:4:22
+     |
+   4 |         let t0 = (x, (y, z));
+     |                      ^^^^^^
+Error [ETYC0372117]: Expected u32 but type `(u32, u32)` was found.
+    --> compiler-test:5:23
+     |
+   5 |         let t1: u32 = (x, y);
+     |                       ^^^^^^
+Error [ETYC0372022]: Expected a tuple of length `2` found length `3`
+    --> compiler-test:6:30
+     |
+   6 |         let t2: (u32, u32) = (x, y, z);
+     |                              ^^^^^^^^^
+Error [ETYC0372049]: A tuple type cannot contain a tuple.
+    --> compiler-test:7:9
+     |
+   7 |         let t3: (u32, (u32, u32)) = (x, (y, z));
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
+    --> compiler-test:7:41
+     |
+   7 |         let t3: (u32, (u32, u32)) = (x, (y, z));
+     |                                         ^^^^^^
+Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
+    --> compiler-test:8:33
+     |
+   8 |         let t4: (u32, u8) = (x, y);
+     |                                 ^
+Error [ETYC0372072]: Expected a tuple with 3 elements, found one with 2 elements
+    --> compiler-test:9:9
+     |
+   9 |         let (a, b) = (x, y, z);
+     |         ^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372117]: Expected u32 but type `(u32, u32)` was found.
+    --> compiler-test:10:27
+     |
+  10 |         let (a, b): u32 = (x, y);
+     |                           ^^^^^^
+Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
+    --> compiler-test:11:37
+     |
+  11 |         let (a, b): (u32, u8) = (x, y);
+     |                                     ^

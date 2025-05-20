@@ -1,46 +1,46 @@
 
-let mut x = expr;
+let x = expr;
 
-let mut x = ();
+let x = ();
 
-let mut x = x+y;
+let x = x+y;
 
-let mut x = (x,y);
+let x = (x,y);
 
-let mut x = x();
-
-
-constant mut x = expr;
-
-constant mut x = ();
-
-constant mut x = x+y;
-
-constant mut x = (x,y);
-
-constant mut x = x();
+let x = x();
 
 
-let mut x: u32 = expr;
+const x = expr;
 
-let mut x: u32 = ();
+const x = ();
 
-let mut x: u32 = x+y;
+const x = x+y;
 
-let mut x: u32 = (x,y);
+const x = (x,y);
 
-let mut x: u32 = x();
+const x = x();
 
 
-constant mut x: u32 = expr;
+let x: u32 = expr;
 
-constant mut x: u32 = ();
+let x: u32 = ();
 
-constant mut x: u32 = x+y;
+let x: u32 = x+y;
 
-constant mut x: u32 = (x,y);
+let x: u32 = (x,y);
 
-constant mut x: u32 = x();
+let x: u32 = x();
+
+
+const x: u32 = expr;
+
+const x: u32 = ();
+
+const x: u32 = x+y;
+
+const x: u32 = (x,y);
+
+const x: u32 = x();
 
 
 let (x,y,,) = ();
@@ -52,9 +52,9 @@ let (x,,y) = ();
 let x: [u8; (2,,)] = [[0,0], [0,0]];
 
 
-let x: constant = expr;
+let x: const = expr;
 
-constant x: let = expr;
+const x: let = expr;
 
 let
 
