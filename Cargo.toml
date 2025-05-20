@@ -112,6 +112,12 @@ version = "1.11.1"
 [workspace.dependencies.snarkvm]
 version = "=1.5.0"
 
+[workspace.dependencies.snarkvm-circuit]
+version = "=1.5.0"
+
+[workspace.dependencies.snarkvm-synthesizer-program]
+version = "=1.5.0"
+
 [workspace.dependencies.serde]
 version = "1.0.214"
 features = [ "derive", "rc" ]
@@ -274,6 +280,14 @@ debug-assertions = false
 opt-level = 2
 lto = "off"
 incremental = true
+
+# snarkVM has a lot of verbose output if debug assertions are on. They'll already be off
+# in release builds; let's turn them off in dev builds too. Theoretically we should be
+# able to turn them off only in snarkvm, like this:
+# [profile.dev.package.snarkvm]
+# debug-assertions = false
+# But that doesn't seem to work, so just do it here.
+debug-assertions = false
 
 [profile.test]
 opt-level = 2

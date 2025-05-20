@@ -64,7 +64,7 @@ function in_conditional:
 
 function f_record:
     async f_record 1u8 into r0;
-    cast self.caller 1u8 into r1 as R.record;
+    cast self.signer 1u8 into r1 as R.record;
     cast r1.owner 2u8 into r2 as R.record;
     output r2 as R.record;
     output r0 as test.aleo/f_record.future;
@@ -230,7 +230,7 @@ function in_conditional:
 
 function f_record:
     async f_record 1u8 into r0;
-    cast self.caller 1u8 into r1 as R.record;
+    cast self.signer 1u8 into r1 as R.record;
     cast r1.owner 2u8 into r2 as R.record;
     output r2 as R.record;
     output r0 as test.aleo/f_record.future;

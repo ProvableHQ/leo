@@ -63,7 +63,7 @@ program test.aleo {
     async transition f_record() -> (R, Future) {
         let fut: Future = f_finalize(1u8);
         let r: R = R {
-            owner: self.caller,
+            owner: self.signer,
             x: 1u8,
         };
         r.x = 2u8;

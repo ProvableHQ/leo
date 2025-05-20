@@ -41,6 +41,6 @@ function foo:
     is.eq r0 r1 into r4;
     mul r0 r1 into r5;
     ternary r4 r5 0u8 into r6;
-    cast self.caller r6 into r7 as dummy.record;
+    cast self.signer r6 into r7 as dummy.record;
     add r0 r1 into r8;
     output r8 as u8.private;

@@ -1003,4 +1003,11 @@ create_messages!(
         msg: format!("Cannot assign to the mapping `{var}`."),
         help: None,
     }
+
+    @formatted
+    records_not_allowed_inside_finalize {
+        args: (),
+        msg: format!("records cannot be instantiated in an async function context."),
+        help: None,
+    }
 );

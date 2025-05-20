@@ -36,7 +36,7 @@ function create:
     cast r10 into r11 as Bar;
     cast r11 into r12 as [Bar; 1u32];
     cast r12 into r13 as Foo;
-    cast self.caller 10u32 into r14 as Boo.record;
+    cast self.signer 10u32 into r14 as Boo.record;
     output r13 as Foo.private;
     output r14 as Boo.record;
 // --- Next Program --- //
@@ -77,7 +77,7 @@ function create_wrapper:
 function create_another_wrapper:
     call child.aleo/create into r0 r1;
     cast 1u32 2u32 into r2 as Woo;
-    cast self.caller 10u32 r2 into r3 as BooHoo.record;
+    cast self.signer 10u32 r2 into r3 as BooHoo.record;
     cast 3u32 4u32 into r4 as Woo;
     output r0 as Foo.private;
     output r1 as child.aleo/Boo.record;
@@ -159,7 +159,7 @@ function create:
     cast r10 into r11 as Bar;
     cast r11 into r12 as [Bar; 1u32];
     cast r12 into r13 as Foo;
-    cast self.caller 10u32 into r14 as Boo.record;
+    cast self.signer 10u32 into r14 as Boo.record;
     output r13 as Foo.private;
     output r14 as Boo.record;
 // --- Next Program --- //
@@ -228,7 +228,7 @@ function create_another_wrapper:
     cast r12 into r13 as Foo;
     call child.aleo/create into r14 r15;
     cast 1u32 2u32 into r16 as Woo;
-    cast self.caller 10u32 r16 into r17 as BooHoo.record;
+    cast self.signer 10u32 r16 into r17 as BooHoo.record;
     cast 3u32 4u32 into r18 as Woo;
     output r14 as Foo.private;
     output r15 as child.aleo/Boo.record;

@@ -9,7 +9,7 @@ mapping num_winners:
     value as u8.public;
 
 function play:
-    cast self.caller into r0 as Ticket.record;
+    cast self.signer into r0 as Ticket.record;
     async play into r1;
     output r0 as Ticket.record;
     output r1 as lottery.aleo/play.future;
@@ -36,7 +36,7 @@ mapping num_winners:
     value as u8.public;
 
 function play:
-    cast self.caller into r0 as Ticket.record;
+    cast self.signer into r0 as Ticket.record;
     async play into r1;
     output r0 as Ticket.record;
     output r1 as lottery.aleo/play.future;

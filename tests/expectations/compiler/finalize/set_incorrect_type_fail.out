@@ -1,9 +1,4 @@
 DCE_ENABLED:
-Error [ETYC0372031]: A mapping's value cannot be a record
-    --> compiler-test:9:5
-     |
-   9 |     mapping tokens: address => Token;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
     --> compiler-test:16:36
      |
@@ -56,11 +51,6 @@ Error [ETYC0372005]: Unknown variable `foo`
      |         ^^^
 
 DCE_DISABLED:
-Error [ETYC0372031]: A mapping's value cannot be a record
-    --> compiler-test:9:5
-     |
-   9 |     mapping tokens: address => Token;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
     --> compiler-test:16:36
      |

@@ -22,7 +22,7 @@ function wrapper_mint:
     input r0 as address.private;
     input r1 as u32.private;
     call child.aleo/mint self.caller 1u32 into r2;
-    cast self.caller r1 into r3 as B.record;
+    cast self.signer r1 into r3 as B.record;
     output r2 as child.aleo/A.record;
     output r3 as B.record;
 // --- Next Program --- //
@@ -67,7 +67,7 @@ function wrapper_mint:
     input r0 as address.private;
     input r1 as u32.private;
     call child.aleo/mint self.caller 1u32 into r2;
-    cast self.caller r1 into r3 as B.record;
+    cast self.signer r1 into r3 as B.record;
     output r2 as child.aleo/A.record;
     output r3 as B.record;
 // --- Next Program --- //

@@ -33,9 +33,9 @@ mapping disagree_votes:
 
 function propose:
     input r0 as ProposalInfo.public;
-    assert.eq self.caller r0.proposer;
+    assert.eq self.signer r0.proposer;
     hash.bhp256 r0.title into r1 as field;
-    cast self.caller r1 r0 into r2 as Proposal.record;
+    cast self.signer r1 r0 into r2 as Proposal.record;
     async propose r1 into r3;
     output r2 as Proposal.record;
     output r3 as vote.aleo/propose.future;
@@ -115,9 +115,9 @@ mapping disagree_votes:
 
 function propose:
     input r0 as ProposalInfo.public;
-    assert.eq self.caller r0.proposer;
+    assert.eq self.signer r0.proposer;
     hash.bhp256 r0.title into r1 as field;
-    cast self.caller r1 r0 into r2 as Proposal.record;
+    cast self.signer r1 r0 into r2 as Proposal.record;
     async propose r1 into r3;
     output r2 as Proposal.record;
     output r3 as vote.aleo/propose.future;

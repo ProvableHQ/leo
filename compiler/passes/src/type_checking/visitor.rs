@@ -792,6 +792,10 @@ impl TypeCheckingVisitor<'_> {
             CoreFunction::ChaChaRandU64 => Type::Integer(IntegerType::U64),
             CoreFunction::ChaChaRandU128 => Type::Integer(IntegerType::U128),
             CoreFunction::SignatureVerify => {
+                // Check that the third argument is not a mapping nor a tuple. We have to do this
+                // before the other checks below to appease the borrow checker
+                assert_not_mapping_tuple_unit(&arguments[2].0, arguments[2].1);
+
                 // Check that the first argument is a signature.
                 self.assert_type(&arguments[0].0, &Type::Signature, arguments[0].1);
                 // Check that the second argument is an address.

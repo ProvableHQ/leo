@@ -24,7 +24,7 @@ record Token:
 
 function mint_private:
     async mint_private into r0;
-    cast self.caller 100u64 into r1 as Token.record;
+    cast self.signer 100u64 into r1 as Token.record;
     output r1 as Token.record;
     output r0 as multi_token_support_program.aleo/mint_private.future;
 
@@ -77,7 +77,7 @@ record Token:
 
 function mint_private:
     async mint_private into r0;
-    cast self.caller 100u64 into r1 as Token.record;
+    cast self.signer 100u64 into r1 as Token.record;
     output r1 as Token.record;
     output r0 as multi_token_support_program.aleo/mint_private.future;
 

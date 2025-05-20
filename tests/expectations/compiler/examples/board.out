@@ -13,7 +13,7 @@ record board_state:
 function new_board_state:
     input r0 as u64.private;
     input r1 as address.private;
-    cast self.caller 0u64 0u64 r0 self.caller r1 false into r2 as board_state.record;
+    cast self.signer 0u64 0u64 r0 self.caller r1 false into r2 as board_state.record;
     output r2 as board_state.record;
 
 function start_board:
@@ -57,7 +57,7 @@ record board_state:
 function new_board_state:
     input r0 as u64.private;
     input r1 as address.private;
-    cast self.caller 0u64 0u64 r0 self.caller r1 false into r2 as board_state.record;
+    cast self.signer 0u64 0u64 r0 self.caller r1 false into r2 as board_state.record;
     output r2 as board_state.record;
 
 function start_board:
