@@ -121,7 +121,7 @@ impl DestructuringVisitor<'_> {
 
         Statement::Definition(DefinitionStatement {
             place: DefinitionPlace::Multiple(new_identifiers),
-            type_: Type::Tuple(tuple_type.clone()),
+            type_: Some(Type::Tuple(tuple_type.clone())),
             value: expression,
             span: Default::default(),
             id: self.state.node_builder.next_id(),

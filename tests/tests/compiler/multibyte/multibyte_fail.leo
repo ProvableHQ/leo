@@ -27,7 +27,7 @@ program bubblesort.aleo {
            for j: u8 in 0u8..7u8-i {
                // Move the smaller elements forward
                if arr[j+1u8] < arr[j] {
-                   let swap = arr[j];
+                   let swap: = arr[j];
                    // let swap = arr[j];
                    arr[j] = arr[j+1u8];
                    arr[j+1u8] = swap;

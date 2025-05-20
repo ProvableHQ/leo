@@ -1,5 +1,4 @@
-Error [EPAR0370005]: expected : -- found '='
-    --> compiler-test:4:15
+Error [EPAR0370004]: Unexpected white space between terms 1 and i128
+    --> compiler-test:4:18
      |
    4 |         let i = 1 i128;
-     |               ^

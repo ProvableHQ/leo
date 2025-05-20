@@ -67,7 +67,7 @@ impl WriteTransformingVisitor<'_> {
                 self.state.type_table.insert(access.id(), self.state.type_table.get(&member.id()).unwrap().clone());
                 let def = DefinitionStatement {
                     place: DefinitionPlace::Single(member),
-                    type_: Type::Err,
+                    type_: None,
                     value: access.into(),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
@@ -88,7 +88,7 @@ impl WriteTransformingVisitor<'_> {
                 self.state.type_table.insert(access.id(), self.state.type_table.get(&member.id()).unwrap().clone());
                 let def = DefinitionStatement {
                     place: DefinitionPlace::Single(member),
-                    type_: Type::Err,
+                    type_: None,
                     value: access.into(),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),

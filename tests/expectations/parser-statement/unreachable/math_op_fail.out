@@ -1,188 +1,183 @@
-Error [EPAR0370005]: expected : -- found '='
-    --> test_0:1:7
+Error [EPAR0370005]: expected <eof> -- found 'b'
+    --> test_0:1:13
      |
    1 | let x = a ; b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_1:1:7
+     |             ^
+Error [EPAR0370005]: expected ; -- found 'import'
+    --> test_1:1:11
      |
    1 | let x = a import b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_2:1:7
+     |           ^^^^^^
+Error [EPAR0370005]: expected ; -- found ','
+    --> test_2:1:11
      |
    1 | let x = a , b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_3:1:7
+     |           ^
+Error [EPAR0370005]: expected ] -- found ';'
+    --> test_3:1:14
      |
    1 | let x = a [ b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_4:1:7
+     |              ^
+Error [EPAR0370005]: expected ; -- found ']'
+    --> test_4:1:11
      |
    1 | let x = a ] b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_5:1:7
+     |           ^
+Error [EPAR0370005]: expected } -- found ';'
+    --> test_5:1:14
      |
    1 | let x = a { b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_6:1:7
+     |              ^
+Error [EPAR0370005]: expected ; -- found '}'
+    --> test_6:1:11
      |
    1 | let x = a } b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_7:1:7
+     |           ^
+Error [EPAR0370005]: expected ) -- found ';'
+    --> test_7:1:14
      |
    1 | let x = a ( b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_8:1:7
+     |              ^
+Error [EPAR0370005]: expected ; -- found ')'
+    --> test_8:1:11
      |
    1 | let x = a ) b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_9:1:7
+     |           ^
+Error [EPAR0370005]: expected ; -- found ':'
+    --> test_9:1:11
      |
    1 | let x = a : b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_10:1:7
+     |           ^
+Error [EPAR0370005]: expected : -- found ';'
+    --> test_10:1:14
      |
    1 | let x = a ? b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_11:1:7
+     |              ^
+Error [EPAR0370005]: expected ; -- found '_'
+    --> test_11:1:11
      |
    1 | let x = a _ b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_12:1:7
+     |           ^
+Error [EPAR0370005]: expected ; -- found '='
+    --> test_12:1:11
      |
    1 | let x = a = b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_13:1:7
+     |           ^
+Error [EPAR0370005]: expected ; -- found '!'
+    --> test_13:1:11
      |
    1 | let x = a ! b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_14:1:7
+     |           ^
+Error [EPAR0370005]: expected ; -- found '..'
+    --> test_14:1:11
      |
    1 | let x = a .. b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_15:1:7
+     |           ^^
+Error [EPAR0370005]: expected ; -- found 'const'
+    --> test_15:1:11
      |
    1 | let x = a const b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_16:1:7
+     |           ^^^^^
+Error [EPAR0370005]: expected ; -- found 'let'
+    --> test_16:1:11
      |
    1 | let x = a let b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_17:1:7
+     |           ^^^
+Error [EPAR0370005]: expected ; -- found 'for'
+    --> test_17:1:11
      |
    1 | let x = a for b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_18:1:7
+     |           ^^^
+Error [EPAR0370005]: expected ; -- found 'if'
+    --> test_18:1:11
      |
    1 | let x = a if b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_19:1:7
+     |           ^^
+Error [EPAR0370005]: expected ; -- found 'else'
+    --> test_19:1:11
      |
    1 | let x = a else b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_20:1:7
+     |           ^^^^
+Error [EPAR0370005]: expected ; -- found 'i8'
+    --> test_20:1:11
      |
    1 | let x = a i8 b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_21:1:7
+     |           ^^
+Error [EPAR0370005]: expected ; -- found 'i16'
+    --> test_21:1:11
      |
    1 | let x = a i16 b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_22:1:7
+     |           ^^^
+Error [EPAR0370005]: expected ; -- found 'i32'
+    --> test_22:1:11
      |
    1 | let x = a i32 b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_23:1:7
+     |           ^^^
+Error [EPAR0370005]: expected ; -- found 'i64'
+    --> test_23:1:11
      |
    1 | let x = a i64 b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_24:1:7
+     |           ^^^
+Error [EPAR0370005]: expected ; -- found 'i128'
+    --> test_24:1:11
      |
    1 | let x = a i128 b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_25:1:7
+     |           ^^^^
+Error [EPAR0370005]: expected ; -- found 'u8'
+    --> test_25:1:11
      |
    1 | let x = a u8 b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_26:1:7
+     |           ^^
+Error [EPAR0370005]: expected ; -- found 'u16'
+    --> test_26:1:11
      |
    1 | let x = a u16 b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_27:1:7
+     |           ^^^
+Error [EPAR0370005]: expected ; -- found 'u32'
+    --> test_27:1:11
      |
    1 | let x = a u32 b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_28:1:7
+     |           ^^^
+Error [EPAR0370005]: expected ; -- found 'u64'
+    --> test_28:1:11
      |
    1 | let x = a u64 b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_29:1:7
+     |           ^^^
+Error [EPAR0370005]: expected ; -- found 'u128'
+    --> test_29:1:11
      |
    1 | let x = a u128 b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_30:1:7
-     |
-   1 | let x = a & b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_31:1:7
+     |           ^^^^
+Error [EPAR0370005]: expected ; -- found 'return'
+    --> test_31:1:11
      |
    1 | let x = a return b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_32:1:7
+     |           ^^^^^^
+Error [EPAR0370005]: expected ; -- found 'self'
+    --> test_32:1:11
      |
    1 | let x = a self b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_33:1:7
+     |           ^^^^
+Error [EPAR0370005]: expected ; -- found 'Self'
+    --> test_33:1:11
      |
    1 | let x = a Self b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_34:1:7
+     |           ^^^^
+Error [EPAR0370005]: expected ; -- found 'true'
+    --> test_34:1:11
      |
    1 | let x = a true b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_35:1:7
+     |           ^^^^
+Error [EPAR0370005]: expected ; -- found 'false'
+    --> test_35:1:11
      |
    1 | let x = a false b;
-     |       ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_36:1:7
+     |           ^^^^^
+Error [EPAR0370005]: expected ; -- found '0'
+    --> test_36:1:11
      |
    1 | let x = a 0 b;
-     |       ^
+     |           ^
 Error [EPAR0370005]: expected <eof> -- found '='
     --> test_37:1:3
      |

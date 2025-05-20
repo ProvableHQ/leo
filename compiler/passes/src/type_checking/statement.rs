@@ -149,13 +149,15 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_definition(&mut self, input: &DefinitionStatement) {
-        // Check that the type of the definition is defined.
-        self.assert_type_is_valid(&input.type_, input.span);
+        // Check that the type annotation of the definition is valid, if provided.
+        if let Some(ty) = &input.type_ {
+            self.assert_type_is_valid(ty, input.span);
+        }
 
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is a singleton tuple, return an error.
-            Type::Tuple(tuple) => match tuple.length() {
+            Some(Type::Tuple(tuple)) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
                 _ => {
                     for type_ in tuple.elements() {
@@ -165,7 +167,7 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
                     }
                 }
             },
-            Type::Mapping(_) | Type::Err => unreachable!(
+            Some(Type::Mapping(_)) | Some(Type::Err) => unreachable!(
                 "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             ),
             // Otherwise, the type is valid.
@@ -173,20 +175,32 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
         }
 
         // Check the expression on the right-hand side.
-        let inferred_type = self.visit_expression(&input.value, &Some(input.type_.clone()));
+        let inferred_type = self.visit_expression(&input.value, &input.type_);
 
         // Insert the variables into the symbol table.
         match &input.place {
             DefinitionPlace::Single(identifier) => {
-                self.insert_variable(Some(inferred_type.clone()), identifier, input.type_.clone(), identifier.span);
+                self.insert_variable(
+                    Some(inferred_type.clone()),
+                    identifier,
+                    // If no type annotation is provided, then just use `inferred_type`.
+                    input.type_.clone().unwrap_or(inferred_type),
+                    identifier.span,
+                );
             }
             DefinitionPlace::Multiple(identifiers) => {
-                let tuple_type = match &input.type_ {
-                    Type::Tuple(tuple_type) => tuple_type,
-                    _ => unreachable!(
-                        "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
-                    ),
+                // Get the tuple type either from `input.type_` or from `inferred_type`.
+                let tuple_type = match (&input.type_, inferred_type.clone()) {
+                    (Some(Type::Tuple(tuple_type)), _) => tuple_type.clone(),
+                    (None, Type::Tuple(tuple_type)) => tuple_type.clone(),
+                    _ => {
+                        // This is an error but should have been emitted earlier. Just exit here.
+                        return;
+                    }
                 };
+
+                // Ensure the number of identifiers we're defining is the same as the number of tuple elements, as
+                // indicated by `tuple_type`
                 if identifiers.len() != tuple_type.length() {
                     return self.emit_err(TypeCheckerError::incorrect_num_tuple_elements(
                         identifiers.len(),
@@ -195,6 +209,7 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
                     ));
                 }
 
+                // Now just insert each tuple element as a separate variable
                 for (i, identifier) in identifiers.iter().enumerate() {
                     let inferred = if let Type::Tuple(inferred_tuple) = &inferred_type {
                         inferred_tuple.elements().get(i).cloned().unwrap_or_default()

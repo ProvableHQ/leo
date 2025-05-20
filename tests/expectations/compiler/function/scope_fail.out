@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected : -- found '='
-    --> compiler-test:9:22
+Error [ETYC0372005]: Unknown variable `myGlobal`
+    --> compiler-test:5:16
      |
-   9 |         let myGlobal = 42field;
-     |                      ^
+   5 |         return myGlobal;
+     |                ^^^^^^^^

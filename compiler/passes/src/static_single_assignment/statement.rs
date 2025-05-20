@@ -36,7 +36,6 @@ use leo_ast::{
     Statement,
     StatementConsumer,
     TernaryExpression,
-    Type,
 };
 use leo_span::Symbol;
 
@@ -283,7 +282,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
                 };
 
                 // Create the definition.
-                let definition = DefinitionStatement { place, type_: Type::Err, value, ..definition }.into();
+                let definition = DefinitionStatement { place, type_: None, value, ..definition }.into();
 
                 statements.push(definition);
             }
