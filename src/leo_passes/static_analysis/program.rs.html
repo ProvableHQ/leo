@@ -71,7 +71,7 @@
 <a href=#71 id=71 data-nosnippet>71</a>                        .join(<span class="string">", "</span>),
 <a href=#72 id=72 data-nosnippet>72</a>                    function.span(),
 <a href=#73 id=73 data-nosnippet>73</a>                ));
-<a href=#74 id=74 data-nosnippet>74</a>            } <span class="kw">else if </span><span class="self">self</span>.await_checker.enabled &amp;&amp; !<span class="self">self</span>.await_checker.to_await.is_empty() {
+<a href=#74 id=74 data-nosnippet>74</a>            } <span class="kw">else if </span>!<span class="self">self</span>.await_checker.to_await.is_empty() {
 <a href=#75 id=75 data-nosnippet>75</a>                <span class="comment">// Tally up number of paths that are unawaited and number of paths that are awaited more than once.
 <a href=#76 id=76 data-nosnippet>76</a>                </span><span class="kw">let </span>(num_paths_unawaited, num_paths_duplicate_awaited, num_perfect) =
 <a href=#77 id=77 data-nosnippet>77</a>                    <span class="self">self</span>.await_checker.to_await.iter().fold((<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>), |(unawaited, duplicate, perfect), path| {

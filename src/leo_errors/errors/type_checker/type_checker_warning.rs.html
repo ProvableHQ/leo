@@ -46,17 +46,18 @@
 <a href=#46 id=46 data-nosnippet>46</a>        help: <span class="prelude-val">None</span>,
 <a href=#47 id=47 data-nosnippet>47</a>    }
 <a href=#48 id=48 data-nosnippet>48</a>
-<a href=#49 id=49 data-nosnippet>49</a>    @formatted
-<a href=#50 id=50 data-nosnippet>50</a>    max_conditional_block_depth_exceeded {
-<a href=#51 id=51 data-nosnippet>51</a>        args: (max: <span class="kw">impl </span>Display),
-<a href=#52 id=52 data-nosnippet>52</a>        msg: <span class="macro">format!</span>(<span class="string">"The type checker has exceeded the max depth of nested conditional blocks: {max}."</span>),
-<a href=#53 id=53 data-nosnippet>53</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`."</span>.to_string()),
-<a href=#54 id=54 data-nosnippet>54</a>    }
-<a href=#55 id=55 data-nosnippet>55</a>
-<a href=#56 id=56 data-nosnippet>56</a>    @formatted
-<a href=#57 id=57 data-nosnippet>57</a>    caller_as_record_owner {
-<a href=#58 id=58 data-nosnippet>58</a>        args: (record_name: <span class="kw">impl </span>Display),
-<a href=#59 id=59 data-nosnippet>59</a>        msg: <span class="macro">format!</span>(<span class="string">"`self.caller` used as the owner of record `{record_name}`"</span>),
-<a href=#60 id=60 data-nosnippet>60</a>        help: <span class="prelude-val">Some</span>(<span class="string">"`self.caller` may refer to a program address, which cannot spend records."</span>.to_string()),
-<a href=#61 id=61 data-nosnippet>61</a>    }
-<a href=#62 id=62 data-nosnippet>62</a>);</code></pre></div></section></main></body></html>
+<a href=#49 id=49 data-nosnippet>49</a>    <span class="comment">// TODO: This warning is unused, remove it in the future.
+<a href=#50 id=50 data-nosnippet>50</a>    </span>@formatted
+<a href=#51 id=51 data-nosnippet>51</a>    max_conditional_block_depth_exceeded {
+<a href=#52 id=52 data-nosnippet>52</a>        args: (max: <span class="kw">impl </span>Display),
+<a href=#53 id=53 data-nosnippet>53</a>        msg: <span class="macro">format!</span>(<span class="string">"The type checker has exceeded the max depth of nested conditional blocks: {max}."</span>),
+<a href=#54 id=54 data-nosnippet>54</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`."</span>.to_string()),
+<a href=#55 id=55 data-nosnippet>55</a>    }
+<a href=#56 id=56 data-nosnippet>56</a>
+<a href=#57 id=57 data-nosnippet>57</a>    @formatted
+<a href=#58 id=58 data-nosnippet>58</a>    caller_as_record_owner {
+<a href=#59 id=59 data-nosnippet>59</a>        args: (record_name: <span class="kw">impl </span>Display),
+<a href=#60 id=60 data-nosnippet>60</a>        msg: <span class="macro">format!</span>(<span class="string">"`self.caller` used as the owner of record `{record_name}`"</span>),
+<a href=#61 id=61 data-nosnippet>61</a>        help: <span class="prelude-val">Some</span>(<span class="string">"`self.caller` may refer to a program address, which cannot spend records."</span>.to_string()),
+<a href=#62 id=62 data-nosnippet>62</a>    }
+<a href=#63 id=63 data-nosnippet>63</a>);</code></pre></div></section></main></body></html>
