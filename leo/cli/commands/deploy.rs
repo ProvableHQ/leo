@@ -327,11 +327,11 @@ fn print_deployment_plan<N: Network>(
 
     // Config
     println!("{}", "🔧 Configuration:".bold());
-    println!("  {:16}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
-    println!("  {:16}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
-    println!("  {:16}{}", "Endpoint:".cyan(), endpoint.yellow());
-    println!("  {:16}{}", "Network:".cyan(), network.to_string().yellow());
-    println!("  {:16}{}", "Consensus Version:".cyan(), (consensus_version as u8).to_string().yellow());
+    println!("  {:20}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
+    println!("  {:20}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
+    println!("  {:20}{}", "Endpoint:".cyan(), endpoint.yellow());
+    println!("  {:20}{}", "Network:".cyan(), network.to_string().yellow());
+    println!("  {:20}{}", "Consensus Version:".cyan(), (consensus_version as u8).to_string().yellow());
 
     // Tasks
     println!("\n{}", "📦 Deployment Tasks:".bold());

@@ -385,11 +385,11 @@ fn print_execution_plan<N: Network>(
     println!("{}", "──────────────────────────────────────────────".dimmed());
 
     println!("{}", "🔧 Configuration:".bold());
-    println!("  {:16}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
-    println!("  {:16}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
-    println!("  {:16}{}", "Endpoint:", endpoint.yellow());
-    println!("  {:16}{}", "Network:", network.to_string().yellow());
-    println!("  {:16}{}", "Consensus Version:", (consensus_version as u8).to_string().yellow());
+    println!("  {:20}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
+    println!("  {:20}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
+    println!("  {:20}{}", "Endpoint:", endpoint.yellow());
+    println!("  {:20}{}", "Network:", network.to_string().yellow());
+    println!("  {:20}{}", "Consensus Version:", (consensus_version as u8).to_string().yellow());
 
     println!("\n{}", "🎯 Execution Target:".bold());
     println!("  {:16}{}", "Program:", program_name.cyan());
