@@ -28,8 +28,15 @@ pub struct LeoRemove {
     )]
     pub(crate) name: Option<String>,
 
-    #[clap(long, help = "Clear all previous dependencies.", default_value = "false")]
+    #[clap(
+        long,
+        help = "Clear all previous dependencies (or dev dependencies, if used with --dev).",
+        default_value = "false"
+    )]
     pub(crate) all: bool,
+
+    #[clap(long, help = "This is a dev dependency.", default_value = "false")]
+    pub(crate) dev: bool,
 }
 
 impl Command for LeoRemove {
@@ -50,37 +57,44 @@ impl Command for LeoRemove {
         let manifest_path = path.join(leo_package::MANIFEST_FILENAME);
         let mut manifest = Manifest::read_from_file(&manifest_path)?;
 
-        let mut dependencies = manifest.dependencies.unwrap_or_default();
+        let dependencies = if self.dev {
+            if manifest.dev_dependencies.is_none() {
+                manifest.dev_dependencies = Some(Vec::new())
+            }
+            manifest.dev_dependencies.as_mut().unwrap()
+        } else {
+            if manifest.dependencies.is_none() {
+                manifest.dependencies = Some(Vec::new())
+            }
+            manifest.dependencies.as_mut().unwrap()
+        };
 
         if self.all {
-            dependencies = Vec::new();
+            *dependencies = Vec::new();
         } else {
             let name =
                 self.name.map(|name| if name.ends_with(".aleo") { name } else { format!("{name}.aleo") }).unwrap();
             let original_len = dependencies.len();
-            let mut new_deps = Vec::with_capacity(original_len);
-            for dependency in dependencies.into_iter() {
+            for dependency in dependencies.iter() {
                 if dependency.name == name {
                     if let Some(local_path) = &dependency.path {
                         tracing::warn!(
-                            "✅ Successfully removed the local dependency {} from path {}.",
+                            "✅ Successfully removed the local dependency {} with path {}.",
                             dependency.name,
                             local_path.display()
                         );
                     } else {
-                        tracing::warn!("✅ Successfully removed the network dependency {}.", dependency.name,);
+                        tracing::warn!("✅ Successfully removed the network dependency {}.", dependency.name);
                     }
-                } else {
-                    new_deps.push(dependency);
                 }
             }
-            if new_deps.len() == original_len {
+
+            dependencies.retain(|dep| dep.name != name);
+
+            if dependencies.len() == original_len {
                 return Err(PackageError::dependency_not_found(name).into());
             }
-            dependencies = new_deps;
         }
-
-        manifest.dependencies = Some(dependencies);
 
         manifest.write_to_file(&manifest_path)?;
 

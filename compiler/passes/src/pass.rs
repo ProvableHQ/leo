@@ -38,6 +38,8 @@ pub struct CompilerState {
     pub struct_graph: StructGraph,
     /// A graph of which functions call each other.
     pub call_graph: CallGraph,
+    /// Is this a test program?
+    pub is_test: bool,
 }
 
 /// A compiler pass.

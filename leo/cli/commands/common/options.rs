@@ -40,6 +40,8 @@ pub struct BuildOptions {
     pub enable_all_ast_snapshots: bool,
     #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1..)]
     pub ast_snapshots: Vec<String>,
+    #[clap(long, help = "Build tests along with the main program and dependencies.")]
+    pub build_tests: bool,
     #[clap(long, help = "Don't use the dependency cache.")]
     pub no_cache: bool,
 }
@@ -56,6 +58,7 @@ impl Default for BuildOptions {
             enable_initial_ast_snapshot: false,
             enable_all_ast_snapshots: false,
             ast_snapshots: Vec::new(),
+            build_tests: false,
             no_cache: false,
         }
     }

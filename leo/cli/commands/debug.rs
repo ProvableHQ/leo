@@ -15,10 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_package::{Package, ProgramData};
+use leo_span::Symbol;
 
 use snarkvm::prelude::TestnetV0;
 
-use std::{fs, path::PathBuf};
+use indexmap::IndexSet;
+use std::path::PathBuf;
 
 use super::*;
 
@@ -68,7 +70,7 @@ fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) 
         let private_key = context.get_private_key(&None)?;
         let address = Address::try_from(&private_key)?;
 
-        // Retrieve all local dependencies in post order
+        // Get the paths of all local dependencies.
         let local_dependency_paths: Vec<PathBuf> = package
             .programs
             .iter()
@@ -78,19 +80,41 @@ fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) 
             })
             .collect();
 
+        let local_dependency_symbols: IndexSet<Symbol> = package
+            .programs
+            .iter()
+            .flat_map(|program| match &program.data {
+                ProgramData::SourcePath(..) => {
+                    // It's a local dependency.
+                    Some(program.name)
+                }
+                ProgramData::Bytecode(..) => {
+                    // It's a network dependency.
+                    None
+                }
+            })
+            .collect();
+
         let imports_directory = package.imports_directory();
 
-        let aleo_paths: Vec<PathBuf> = if let Ok(dir) = fs::read_dir(imports_directory) {
-            dir.flat_map(|maybe_filename| maybe_filename.ok())
-                .filter(|entry| entry.file_type().ok().map(|filetype| filetype.is_file()).unwrap_or(false))
-                .flat_map(|entry| {
-                    let path = entry.path();
-                    if path.extension().map(|e| e == "aleo").unwrap_or(false) { Some(path) } else { None }
-                })
-                .collect()
-        } else {
-            Vec::new()
-        };
+        // Get the paths to .aleo files in `imports` - but filter out the ones corresponding to local dependencies.
+        let aleo_paths: Vec<PathBuf> = imports_directory
+            .read_dir()
+            .ok()
+            .into_iter()
+            .flatten()
+            .flat_map(|maybe_filename| maybe_filename.ok())
+            .filter(|entry| entry.file_type().ok().map(|filetype| filetype.is_file()).unwrap_or(false))
+            .flat_map(|entry| {
+                let path = entry.path();
+                if let Some(filename) = leo_package::filename_no_aleo_extension(&path) {
+                    let symbol = Symbol::intern(filename);
+                    if local_dependency_symbols.contains(&symbol) { None } else { Some(path) }
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         // No need to keep this around while the interpreter runs.
         std::mem::drop(package);

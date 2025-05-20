@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', '}' -- found 'circuit'
+Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', 'script', '}' -- found 'circuit'
     --> test:4:5
      |
    4 |     circuit Foo {

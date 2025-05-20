@@ -99,13 +99,14 @@ impl<N: Network> Compiler<N> {
     /// Returns a new Leo compiler.
     pub fn new(
         expected_program_name: Option<String>,
+        is_test: bool,
         handler: Handler,
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
         import_stubs: IndexMap<Symbol, Stub>,
     ) -> Self {
         Self {
-            state: CompilerState { handler, ..Default::default() },
+            state: CompilerState { handler, is_test, ..Default::default() },
             output_directory,
             program_name: expected_program_name,
             compiler_options: compiler_options.unwrap_or_default(),
@@ -141,6 +142,8 @@ impl<N: Network> Compiler<N> {
             max_mappings: N::MAX_MAPPINGS,
             max_functions: N::MAX_FUNCTIONS,
         })?;
+
+        self.do_pass::<ProcessingScript>(())?;
 
         self.do_pass::<StaticAnalyzing>(())?;
 

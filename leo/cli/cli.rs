@@ -57,6 +57,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoRun,
     },
+    #[clap(about = "Test a Leo program")]
+    Test {
+        #[clap(flatten)]
+        command: LeoTest,
+    },
     #[clap(about = "Execute a program with input variables")]
     Execute {
         #[clap(flatten)]
@@ -143,6 +148,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
+        Commands::Test { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
         Commands::Remove { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
@@ -320,7 +326,7 @@ mod tests {
 
 #[cfg(test)]
 mod test_helpers {
-    use crate::cli::{CLI, LeoAdd, LeoNew, add::DependencySource, cli::Commands, run_with_args};
+    use crate::cli::{CLI, DependencySource, LeoAdd, LeoNew, cli::Commands, run_with_args};
     use leo_span::create_session_if_not_set_then;
     use std::path::Path;
 
@@ -415,6 +421,7 @@ function external_nested_function:
                     name: "nested_example_layer_0".to_string(),
                     source: DependencySource { local: None, network: true },
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(project_directory.clone()),
@@ -526,6 +533,7 @@ program child.aleo {
                     name: "parent".to_string(),
                     source: DependencySource { local: Some(parent_directory.clone()), network: false },
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
@@ -540,6 +548,7 @@ program child.aleo {
                     name: "child".to_string(),
                     source: DependencySource { local: Some(child_directory.clone()), network: false },
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
@@ -554,6 +563,7 @@ program child.aleo {
                     name: "child".to_string(),
                     source: DependencySource { local: Some(child_directory.clone()), network: false },
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(parent_directory.clone()),
@@ -695,6 +705,7 @@ program outer.aleo {
                     name: "inner_1".to_string(),
                     source: DependencySource { local: Some(inner_1_directory.clone()), network: false },
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -709,6 +720,7 @@ program outer.aleo {
                     name: "inner_2".to_string(),
                     source: DependencySource { local: Some(inner_2_directory.clone()), network: false },
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -880,6 +892,7 @@ program outer_2.aleo {
                     name: "inner_1".to_string(),
                     source: DependencySource { local: Some(inner_1_directory.clone()), network: false },
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -894,6 +907,7 @@ program outer_2.aleo {
                     name: "inner_2".to_string(),
                     source: DependencySource { local: Some(inner_2_directory.clone()), network: false },
                     clear: false,
+                    dev: false,
                 },
             },
             path: Some(outer_directory.clone()),

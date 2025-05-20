@@ -33,6 +33,16 @@ workspace = true
 [dependencies.leo-span]
 workspace = true
 
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.aleo-std-storage]
+version = "0.1.7"
+default-features = false
+
+[dependencies.rand_chacha]
+workspace = true
+
 [dependencies.sha2]
 version = "0.10"
 
@@ -40,6 +50,9 @@ version = "0.10"
 workspace = true
 
 [dependencies.indexmap]
+workspace = true
+
+[dependencies.serde_json]
 workspace = true
 
 [dev-dependencies.leo-disassembler]
@@ -51,23 +64,13 @@ workspace = true
 [dev-dependencies.leo-test-framework]
 workspace = true
 
-[dev-dependencies.aleo-std-storage]
-version = "0.1.7"
-default-features = false
-
 [dev-dependencies.itertools]
-workspace = true
-
-[dev-dependencies.rand_chacha]
 workspace = true
 
 [dev-dependencies.snarkvm]
 workspace = true
 
 [dev-dependencies.serde]
-workspace = true
-
-[dev-dependencies.serde_json]
 workspace = true
 
 [dev-dependencies.toml]

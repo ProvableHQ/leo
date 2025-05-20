@@ -16,8 +16,9 @@
 
 use crate::{Identifier, Node, NodeID, simple_node_impl};
 
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -27,6 +28,8 @@ pub struct Annotation {
     // TODO: Consider using a symbol instead of an identifier.
     /// The name of the annotation.
     pub identifier: Identifier,
+    /// Keys and value associated with the annotation.
+    pub map: IndexMap<Symbol, String>,
     /// A span locating where the annotation occurred in the source.
     pub span: Span,
     /// The ID of the node.
