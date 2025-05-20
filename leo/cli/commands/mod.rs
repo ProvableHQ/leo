@@ -26,9 +26,6 @@ pub use build::LeoBuild;
 pub mod clean;
 pub use clean::LeoClean;
 
-pub mod check;
-pub use check::LeoCheck;
-
 mod common;
 use common::*;
 

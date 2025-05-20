@@ -153,16 +153,16 @@ impl Package {
     ///
     /// This may be useful if you just need other information like the manifest or env file.
     pub fn from_directory_no_graph<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q) -> Result<Self> {
-        Self::from_directory_impl(path.as_ref(), home_path.as_ref(), /* build_graph */ false)
+        Self::from_directory_impl(path.as_ref(), home_path.as_ref(), /* build_graph */ false, false)
     }
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies,
     /// obtaining dependencies from the file system or network and topologically sorting them.
-    pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q) -> Result<Self> {
-        Self::from_directory_impl(path.as_ref(), home_path.as_ref(), /* build_graph */ true)
+    pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q, no_cache: bool) -> Result<Self> {
+        Self::from_directory_impl(path.as_ref(), home_path.as_ref(), /* build_graph */ true, no_cache)
     }
 
-    fn from_directory_impl(path: &Path, home_path: &Path, build_graph: bool) -> Result<Self> {
+    fn from_directory_impl(path: &Path, home_path: &Path, build_graph: bool, no_cache: bool) -> Result<Self> {
         let map_err = |path: &Path, err| {
             UtilError::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
         };
@@ -183,7 +183,15 @@ impl Package {
             let first_dependency =
                 Dependency { name: manifest.program.clone(), location: Location::Local, path: Some(path.clone()) };
 
-            Self::graph_build(&home_path, env.network, &env.endpoint, first_dependency, &mut map, &mut digraph)?;
+            Self::graph_build(
+                &home_path,
+                env.network,
+                &env.endpoint,
+                first_dependency,
+                &mut map,
+                &mut digraph,
+                no_cache,
+            )?;
 
             let ordered_dependency_symbols =
                 digraph.post_order().map_err(|_| UtilError::circular_dependency_error())?;
@@ -203,6 +211,7 @@ impl Package {
         new: Dependency,
         map: &mut IndexMap<Symbol, (Dependency, Program)>,
         graph: &mut DiGraph<Symbol>,
+        no_cache: bool,
     ) -> Result<()> {
         let name_symbol = crate::symbol(&new.name)?;
 
@@ -223,7 +232,7 @@ impl Package {
                     Program::from_path(name_symbol, path.clone())?
                 } else {
                     // It's a network dependency.
-                    Program::fetch(name_symbol, home_path, network, endpoint, true)?
+                    Program::fetch(name_symbol, home_path, network, endpoint, no_cache)?
                 };
 
                 vacant.insert((new, program.clone()));
@@ -237,7 +246,7 @@ impl Package {
         for dependency in program.dependencies.iter() {
             let dependency_symbol = crate::symbol(&dependency.name)?;
             graph.add_edge(name_symbol, dependency_symbol);
-            Self::graph_build(home_path, network, endpoint, dependency.clone(), map, graph)?;
+            Self::graph_build(home_path, network, endpoint, dependency.clone(), map, graph, no_cache)?;
         }
 
         Ok(())

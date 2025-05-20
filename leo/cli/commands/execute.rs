@@ -81,10 +81,13 @@ impl Command for LeoExecute {
         let home_path = context.home()?;
         // If the current directory is a valid Leo package, then build it.
         if let Ok(package) = Package::from_directory_no_graph(path, home_path) {
-            LeoCheck {
+            LeoBuild {
                 env_override: self.env_override.clone(),
-                extra: self.extra.clone(),
-                build_options: self.build_options.clone(),
+                options: {
+                    let mut options = self.build_options.clone();
+                    options.no_cache = true;
+                    options
+                },
             }
             .execute(context)?;
             // Return the package.
