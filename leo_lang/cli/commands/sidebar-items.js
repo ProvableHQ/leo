@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["check_balance","get_latest_block_height","handle_broadcast","parse_record"],"mod":["account","add","build","clean","debug","deploy","execute","new","query","remove","run","update"],"struct":["BuildOptions","FeeOptions"],"trait":["Command"]};
+window.SIDEBAR_ITEMS = {"fn":["check_balance","get_latest_block_height","handle_broadcast","parse_record"],"mod":["account","add","build","clean","debug","deploy","execute","new","query","remove","run","test","update"],"struct":["BuildOptions","FeeOptions"],"trait":["Command"]};

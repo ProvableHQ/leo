@@ -42,7 +42,7 @@
 <a href=#42 id=42 data-nosnippet>42</a><span class="kw">use </span>rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
 <a href=#43 id=43 data-nosnippet>43</a><span class="kw">use </span>std::mem;
 <a href=#44 id=44 data-nosnippet>44</a>
-<a href=#45 id=45 data-nosnippet>45</a><span class="kw">impl </span>Cursor&lt;<span class="lifetime">'_</span>&gt; {
+<a href=#45 id=45 data-nosnippet>45</a><span class="kw">impl </span>Cursor {
 <a href=#46 id=46 data-nosnippet>46</a>    <span class="kw">fn </span>mapping_by_call_operator(<span class="kw-2">&amp;</span><span class="self">self</span>, operator: <span class="kw-2">&amp;</span>CallOperator&lt;TestnetV0&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>HashMap&lt;Value, Value&gt;&gt; {
 <a href=#47 id=47 data-nosnippet>47</a>        <span class="kw">let </span>(program, name) = <span class="kw">match </span>operator {
 <a href=#48 id=48 data-nosnippet>48</a>            CallOperator::Locator(locator) =&gt; {
@@ -106,7 +106,7 @@
 <a href=#106 id=106 data-nosnippet>106</a>        <span class="kw">let </span><span class="prelude-val">Some</span>(Frame { element: Element::AleoExecution { context, .. }, .. }) = <span class="self">self</span>.frames.last() <span class="kw">else </span>{
 <a href=#107 id=107 data-nosnippet>107</a>            <span class="macro">panic!</span>();
 <a href=#108 id=108 data-nosnippet>108</a>        };
-<a href=#109 id=109 data-nosnippet>109</a>        <span class="kw">match </span>context {
+<a href=#109 id=109 data-nosnippet>109</a>        <span class="kw">match </span><span class="kw-2">&amp;**</span>context {
 <a href=#110 id=110 data-nosnippet>110</a>            AleoContext::Closure(closure) =&gt; closure.instructions().len(),
 <a href=#111 id=111 data-nosnippet>111</a>            AleoContext::Function(function) =&gt; function.instructions().len(),
 <a href=#112 id=112 data-nosnippet>112</a>            AleoContext::Finalize(finalize) =&gt; finalize.commands().len(),
@@ -133,7 +133,7 @@
 <a href=#133 id=133 data-nosnippet>133</a>        <span class="kw">else </span>{
 <a href=#134 id=134 data-nosnippet>134</a>            <span class="macro">panic!</span>();
 <a href=#135 id=135 data-nosnippet>135</a>        };
-<a href=#136 id=136 data-nosnippet>136</a>        <span class="kw">match </span>context {
+<a href=#136 id=136 data-nosnippet>136</a>        <span class="kw">match </span><span class="kw-2">&amp;**</span>context {
 <a href=#137 id=137 data-nosnippet>137</a>            AleoContext::Closure(closure) =&gt; closure.instructions().get(<span class="kw-2">*</span>instruction_index),
 <a href=#138 id=138 data-nosnippet>138</a>            AleoContext::Function(function) =&gt; function.instructions().get(<span class="kw-2">*</span>instruction_index),
 <a href=#139 id=139 data-nosnippet>139</a>            AleoContext::Finalize(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
@@ -145,7 +145,7 @@
 <a href=#145 id=145 data-nosnippet>145</a>        <span class="kw">else </span>{
 <a href=#146 id=146 data-nosnippet>146</a>            <span class="macro">panic!</span>();
 <a href=#147 id=147 data-nosnippet>147</a>        };
-<a href=#148 id=148 data-nosnippet>148</a>        <span class="kw">match </span>context {
+<a href=#148 id=148 data-nosnippet>148</a>        <span class="kw">match </span><span class="kw-2">&amp;**</span>context {
 <a href=#149 id=149 data-nosnippet>149</a>            AleoContext::Closure(<span class="kw">_</span>) | AleoContext::Function(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
 <a href=#150 id=150 data-nosnippet>150</a>            AleoContext::Finalize(finalize) =&gt; finalize.commands().get(<span class="kw-2">*</span>instruction_index),
 <a href=#151 id=151 data-nosnippet>151</a>        }
@@ -775,7 +775,7 @@
 <a href=#775 id=775 data-nosnippet>775</a>            <span class="macro">panic!</span>(<span class="string">"aleo execution expected"</span>);
 <a href=#776 id=776 data-nosnippet>776</a>        };
 <a href=#777 id=777 data-nosnippet>777</a>
-<a href=#778 id=778 data-nosnippet>778</a>        <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="kw">match </span>context {
+<a href=#778 id=778 data-nosnippet>778</a>        <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="kw">match </span><span class="kw-2">&amp;**</span>context {
 <a href=#779 id=779 data-nosnippet>779</a>            AleoContext::Closure(closure) =&gt; {
 <a href=#780 id=780 data-nosnippet>780</a>                closure.outputs().iter().map(|output| <span class="self">self</span>.operand_value(output.operand())).collect()
 <a href=#781 id=781 data-nosnippet>781</a>            }
@@ -924,107 +924,108 @@
 <a href=#924 id=924 data-nosnippet>924</a>    }
 <a href=#925 id=925 data-nosnippet>925</a>
 <a href=#926 id=926 data-nosnippet>926</a>    <span class="kw">fn </span>branch(<span class="kw-2">&amp;mut </span><span class="self">self</span>, label: <span class="kw-2">&amp;</span>Identifier&lt;TestnetV0&gt;) {
-<a href=#927 id=927 data-nosnippet>927</a>        <span class="kw">let </span><span class="prelude-val">Some</span>(Frame {
-<a href=#928 id=928 data-nosnippet>928</a>            element: Element::AleoExecution { instruction_index, context: AleoContext::Finalize(finalize), .. },
-<a href=#929 id=929 data-nosnippet>929</a>            ..
-<a href=#930 id=930 data-nosnippet>930</a>        }) = <span class="self">self</span>.frames.last_mut()
-<a href=#931 id=931 data-nosnippet>931</a>        <span class="kw">else </span>{
-<a href=#932 id=932 data-nosnippet>932</a>            <span class="macro">panic!</span>();
-<a href=#933 id=933 data-nosnippet>933</a>        };
-<a href=#934 id=934 data-nosnippet>934</a>        <span class="kw">for </span>(i, cmd) <span class="kw">in </span>finalize.commands().iter().enumerate() {
-<a href=#935 id=935 data-nosnippet>935</a>            <span class="kw">if let </span>Command::Position(position) = cmd {
-<a href=#936 id=936 data-nosnippet>936</a>                <span class="kw">if </span>position.name() == label {
-<a href=#937 id=937 data-nosnippet>937</a>                    <span class="kw-2">*</span>instruction_index = i;
-<a href=#938 id=938 data-nosnippet>938</a>                    <span class="kw">return</span>;
-<a href=#939 id=939 data-nosnippet>939</a>                }
-<a href=#940 id=940 data-nosnippet>940</a>            }
-<a href=#941 id=941 data-nosnippet>941</a>        }
-<a href=#942 id=942 data-nosnippet>942</a>        <span class="macro">panic!</span>(<span class="string">"branch to nonexistent label {}"</span>, label);
-<a href=#943 id=943 data-nosnippet>943</a>    }
-<a href=#944 id=944 data-nosnippet>944</a>
-<a href=#945 id=945 data-nosnippet>945</a>    <span class="kw">pub fn </span>step_aleo(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#946 id=946 data-nosnippet>946</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(command) = <span class="self">self</span>.next_command().cloned() {
-<a href=#947 id=947 data-nosnippet>947</a>            <span class="self">self</span>.step_aleo_command(command)<span class="question-mark">?</span>;
-<a href=#948 id=948 data-nosnippet>948</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(instruction) = <span class="self">self</span>.next_instruction().cloned() {
-<a href=#949 id=949 data-nosnippet>949</a>            <span class="self">self</span>.step_aleo_instruction(instruction)<span class="question-mark">?</span>;
-<a href=#950 id=950 data-nosnippet>950</a>        }
-<a href=#951 id=951 data-nosnippet>951</a>
-<a href=#952 id=952 data-nosnippet>952</a>        <span class="kw">if </span><span class="self">self</span>.execution_complete() {
-<a href=#953 id=953 data-nosnippet>953</a>            <span class="kw">let </span><span class="kw-2">mut </span>outputs = <span class="self">self</span>.outputs();
-<a href=#954 id=954 data-nosnippet>954</a>            <span class="self">self</span>.frames.pop();
-<a href=#955 id=955 data-nosnippet>955</a>            <span class="self">self</span>.contexts.pop();
-<a href=#956 id=956 data-nosnippet>956</a>            <span class="kw">if </span>outputs.len() &gt; <span class="number">1 </span>{
-<a href=#957 id=957 data-nosnippet>957</a>                <span class="self">self</span>.values.push(Value::Tuple(outputs));
-<a href=#958 id=958 data-nosnippet>958</a>            } <span class="kw">else </span>{
-<a href=#959 id=959 data-nosnippet>959</a>                <span class="self">self</span>.values.push(mem::take(<span class="kw-2">&amp;mut </span>outputs[<span class="number">0</span>]));
-<a href=#960 id=960 data-nosnippet>960</a>            }
-<a href=#961 id=961 data-nosnippet>961</a>        }
-<a href=#962 id=962 data-nosnippet>962</a>
-<a href=#963 id=963 data-nosnippet>963</a>        <span class="prelude-val">Ok</span>(())
-<a href=#964 id=964 data-nosnippet>964</a>    }
-<a href=#965 id=965 data-nosnippet>965</a>}
-<a href=#966 id=966 data-nosnippet>966</a>
-<a href=#967 id=967 data-nosnippet>967</a><span class="kw">fn </span>snarkvm_literal_type_to_type(snarkvm_type: LiteralType) -&gt; Type {
-<a href=#968 id=968 data-nosnippet>968</a>    <span class="kw">use </span>Type::<span class="kw-2">*</span>;
-<a href=#969 id=969 data-nosnippet>969</a>    <span class="kw">match </span>snarkvm_type {
-<a href=#970 id=970 data-nosnippet>970</a>        LiteralType::Address =&gt; Address,
-<a href=#971 id=971 data-nosnippet>971</a>        LiteralType::Boolean =&gt; Boolean,
-<a href=#972 id=972 data-nosnippet>972</a>        LiteralType::Field =&gt; Field,
-<a href=#973 id=973 data-nosnippet>973</a>        LiteralType::Group =&gt; Group,
-<a href=#974 id=974 data-nosnippet>974</a>        LiteralType::I8 =&gt; Integer(IntegerType::I8),
-<a href=#975 id=975 data-nosnippet>975</a>        LiteralType::I16 =&gt; Integer(IntegerType::I16),
-<a href=#976 id=976 data-nosnippet>976</a>        LiteralType::I32 =&gt; Integer(IntegerType::I32),
-<a href=#977 id=977 data-nosnippet>977</a>        LiteralType::I64 =&gt; Integer(IntegerType::I64),
-<a href=#978 id=978 data-nosnippet>978</a>        LiteralType::I128 =&gt; Integer(IntegerType::I128),
-<a href=#979 id=979 data-nosnippet>979</a>        LiteralType::U8 =&gt; Integer(IntegerType::U8),
-<a href=#980 id=980 data-nosnippet>980</a>        LiteralType::U16 =&gt; Integer(IntegerType::U16),
-<a href=#981 id=981 data-nosnippet>981</a>        LiteralType::U32 =&gt; Integer(IntegerType::U32),
-<a href=#982 id=982 data-nosnippet>982</a>        LiteralType::U64 =&gt; Integer(IntegerType::U64),
-<a href=#983 id=983 data-nosnippet>983</a>        LiteralType::U128 =&gt; Integer(IntegerType::U128),
-<a href=#984 id=984 data-nosnippet>984</a>        LiteralType::Scalar =&gt; Scalar,
-<a href=#985 id=985 data-nosnippet>985</a>        LiteralType::Signature =&gt; <span class="macro">todo!</span>(),
-<a href=#986 id=986 data-nosnippet>986</a>        LiteralType::String =&gt; <span class="macro">todo!</span>(),
-<a href=#987 id=987 data-nosnippet>987</a>    }
-<a href=#988 id=988 data-nosnippet>988</a>}
-<a href=#989 id=989 data-nosnippet>989</a>
-<a href=#990 id=990 data-nosnippet>990</a><span class="kw">fn </span>snarkvm_literal_to_value(literal: Literal&lt;TestnetV0&gt;) -&gt; Value {
-<a href=#991 id=991 data-nosnippet>991</a>    <span class="kw">match </span>literal {
-<a href=#992 id=992 data-nosnippet>992</a>        Literal::Address(x) =&gt; Value::Address(x),
-<a href=#993 id=993 data-nosnippet>993</a>        Literal::Boolean(x) =&gt; Value::Bool(<span class="kw-2">*</span>x),
-<a href=#994 id=994 data-nosnippet>994</a>        Literal::Field(x) =&gt; Value::Field(x),
-<a href=#995 id=995 data-nosnippet>995</a>        Literal::Group(x) =&gt; Value::Group(x),
-<a href=#996 id=996 data-nosnippet>996</a>        Literal::I8(x) =&gt; Value::I8(<span class="kw-2">*</span>x),
-<a href=#997 id=997 data-nosnippet>997</a>        Literal::I16(x) =&gt; Value::I16(<span class="kw-2">*</span>x),
-<a href=#998 id=998 data-nosnippet>998</a>        Literal::I32(x) =&gt; Value::I32(<span class="kw-2">*</span>x),
-<a href=#999 id=999 data-nosnippet>999</a>        Literal::I64(x) =&gt; Value::I64(<span class="kw-2">*</span>x),
-<a href=#1000 id=1000 data-nosnippet>1000</a>        Literal::I128(x) =&gt; Value::I128(<span class="kw-2">*</span>x),
-<a href=#1001 id=1001 data-nosnippet>1001</a>        Literal::U8(x) =&gt; Value::U8(<span class="kw-2">*</span>x),
-<a href=#1002 id=1002 data-nosnippet>1002</a>        Literal::U16(x) =&gt; Value::U16(<span class="kw-2">*</span>x),
-<a href=#1003 id=1003 data-nosnippet>1003</a>        Literal::U32(x) =&gt; Value::U32(<span class="kw-2">*</span>x),
-<a href=#1004 id=1004 data-nosnippet>1004</a>        Literal::U64(x) =&gt; Value::U64(<span class="kw-2">*</span>x),
-<a href=#1005 id=1005 data-nosnippet>1005</a>        Literal::U128(x) =&gt; Value::U128(<span class="kw-2">*</span>x),
-<a href=#1006 id=1006 data-nosnippet>1006</a>        Literal::Scalar(x) =&gt; Value::Scalar(x),
-<a href=#1007 id=1007 data-nosnippet>1007</a>        Literal::Signature(<span class="kw">_</span>) | Literal::String(<span class="kw">_</span>) =&gt; <span class="macro">tc_fail!</span>(),
-<a href=#1008 id=1008 data-nosnippet>1008</a>    }
-<a href=#1009 id=1009 data-nosnippet>1009</a>}
-<a href=#1010 id=1010 data-nosnippet>1010</a>
-<a href=#1011 id=1011 data-nosnippet>1011</a><span class="kw">fn </span>value_to_snarkvm_literal(value: Value) -&gt; Literal&lt;TestnetV0&gt; {
-<a href=#1012 id=1012 data-nosnippet>1012</a>    <span class="kw">match </span>value {
-<a href=#1013 id=1013 data-nosnippet>1013</a>        Value::Bool(x) =&gt; Literal::Boolean(Boolean::new(x)),
-<a href=#1014 id=1014 data-nosnippet>1014</a>        Value::U8(x) =&gt; Literal::U8(Integer::new(x)),
-<a href=#1015 id=1015 data-nosnippet>1015</a>        Value::U16(x) =&gt; Literal::U16(Integer::new(x)),
-<a href=#1016 id=1016 data-nosnippet>1016</a>        Value::U32(x) =&gt; Literal::U32(Integer::new(x)),
-<a href=#1017 id=1017 data-nosnippet>1017</a>        Value::U64(x) =&gt; Literal::U64(Integer::new(x)),
-<a href=#1018 id=1018 data-nosnippet>1018</a>        Value::U128(x) =&gt; Literal::U128(Integer::new(x)),
-<a href=#1019 id=1019 data-nosnippet>1019</a>        Value::I8(x) =&gt; Literal::I8(Integer::new(x)),
-<a href=#1020 id=1020 data-nosnippet>1020</a>        Value::I16(x) =&gt; Literal::I16(Integer::new(x)),
-<a href=#1021 id=1021 data-nosnippet>1021</a>        Value::I32(x) =&gt; Literal::I32(Integer::new(x)),
-<a href=#1022 id=1022 data-nosnippet>1022</a>        Value::I64(x) =&gt; Literal::I64(Integer::new(x)),
-<a href=#1023 id=1023 data-nosnippet>1023</a>        Value::I128(x) =&gt; Literal::I128(Integer::new(x)),
-<a href=#1024 id=1024 data-nosnippet>1024</a>        Value::Group(x) =&gt; Literal::Group(x),
-<a href=#1025 id=1025 data-nosnippet>1025</a>        Value::Field(x) =&gt; Literal::Field(x),
-<a href=#1026 id=1026 data-nosnippet>1026</a>        Value::Scalar(x) =&gt; Literal::Scalar(x),
-<a href=#1027 id=1027 data-nosnippet>1027</a>        Value::Address(x) =&gt; Literal::Address(x),
-<a href=#1028 id=1028 data-nosnippet>1028</a>        Value::Array(<span class="kw">_</span>) | Value::Tuple(<span class="kw">_</span>) | Value::Unit | Value::Future(<span class="kw">_</span>) | Value::Struct(<span class="kw">_</span>) =&gt; <span class="macro">tc_fail!</span>(),
-<a href=#1029 id=1029 data-nosnippet>1029</a>    }
-<a href=#1030 id=1030 data-nosnippet>1030</a>}</code></pre></div></section></main></body></html>
+<a href=#927 id=927 data-nosnippet>927</a>        <span class="kw">let </span><span class="prelude-val">Some</span>(Frame { element: Element::AleoExecution { instruction_index, context, .. }, .. }) =
+<a href=#928 id=928 data-nosnippet>928</a>            <span class="self">self</span>.frames.last_mut()
+<a href=#929 id=929 data-nosnippet>929</a>        <span class="kw">else </span>{
+<a href=#930 id=930 data-nosnippet>930</a>            <span class="macro">panic!</span>();
+<a href=#931 id=931 data-nosnippet>931</a>        };
+<a href=#932 id=932 data-nosnippet>932</a>        <span class="kw">let </span>AleoContext::Finalize(finalize) = <span class="kw-2">&amp;mut **</span>context <span class="kw">else </span>{
+<a href=#933 id=933 data-nosnippet>933</a>            <span class="macro">panic!</span>();
+<a href=#934 id=934 data-nosnippet>934</a>        };
+<a href=#935 id=935 data-nosnippet>935</a>        <span class="kw">for </span>(i, cmd) <span class="kw">in </span>finalize.commands().iter().enumerate() {
+<a href=#936 id=936 data-nosnippet>936</a>            <span class="kw">if let </span>Command::Position(position) = cmd {
+<a href=#937 id=937 data-nosnippet>937</a>                <span class="kw">if </span>position.name() == label {
+<a href=#938 id=938 data-nosnippet>938</a>                    <span class="kw-2">*</span>instruction_index = i;
+<a href=#939 id=939 data-nosnippet>939</a>                    <span class="kw">return</span>;
+<a href=#940 id=940 data-nosnippet>940</a>                }
+<a href=#941 id=941 data-nosnippet>941</a>            }
+<a href=#942 id=942 data-nosnippet>942</a>        }
+<a href=#943 id=943 data-nosnippet>943</a>        <span class="macro">panic!</span>(<span class="string">"branch to nonexistent label {}"</span>, label);
+<a href=#944 id=944 data-nosnippet>944</a>    }
+<a href=#945 id=945 data-nosnippet>945</a>
+<a href=#946 id=946 data-nosnippet>946</a>    <span class="kw">pub fn </span>step_aleo(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#947 id=947 data-nosnippet>947</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(command) = <span class="self">self</span>.next_command().cloned() {
+<a href=#948 id=948 data-nosnippet>948</a>            <span class="self">self</span>.step_aleo_command(command)<span class="question-mark">?</span>;
+<a href=#949 id=949 data-nosnippet>949</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(instruction) = <span class="self">self</span>.next_instruction().cloned() {
+<a href=#950 id=950 data-nosnippet>950</a>            <span class="self">self</span>.step_aleo_instruction(instruction)<span class="question-mark">?</span>;
+<a href=#951 id=951 data-nosnippet>951</a>        }
+<a href=#952 id=952 data-nosnippet>952</a>
+<a href=#953 id=953 data-nosnippet>953</a>        <span class="kw">if </span><span class="self">self</span>.execution_complete() {
+<a href=#954 id=954 data-nosnippet>954</a>            <span class="kw">let </span><span class="kw-2">mut </span>outputs = <span class="self">self</span>.outputs();
+<a href=#955 id=955 data-nosnippet>955</a>            <span class="self">self</span>.frames.pop();
+<a href=#956 id=956 data-nosnippet>956</a>            <span class="self">self</span>.contexts.pop();
+<a href=#957 id=957 data-nosnippet>957</a>            <span class="kw">if </span>outputs.len() &gt; <span class="number">1 </span>{
+<a href=#958 id=958 data-nosnippet>958</a>                <span class="self">self</span>.values.push(Value::Tuple(outputs));
+<a href=#959 id=959 data-nosnippet>959</a>            } <span class="kw">else </span>{
+<a href=#960 id=960 data-nosnippet>960</a>                <span class="self">self</span>.values.push(mem::take(<span class="kw-2">&amp;mut </span>outputs[<span class="number">0</span>]));
+<a href=#961 id=961 data-nosnippet>961</a>            }
+<a href=#962 id=962 data-nosnippet>962</a>        }
+<a href=#963 id=963 data-nosnippet>963</a>
+<a href=#964 id=964 data-nosnippet>964</a>        <span class="prelude-val">Ok</span>(())
+<a href=#965 id=965 data-nosnippet>965</a>    }
+<a href=#966 id=966 data-nosnippet>966</a>}
+<a href=#967 id=967 data-nosnippet>967</a>
+<a href=#968 id=968 data-nosnippet>968</a><span class="kw">fn </span>snarkvm_literal_type_to_type(snarkvm_type: LiteralType) -&gt; Type {
+<a href=#969 id=969 data-nosnippet>969</a>    <span class="kw">use </span>Type::<span class="kw-2">*</span>;
+<a href=#970 id=970 data-nosnippet>970</a>    <span class="kw">match </span>snarkvm_type {
+<a href=#971 id=971 data-nosnippet>971</a>        LiteralType::Address =&gt; Address,
+<a href=#972 id=972 data-nosnippet>972</a>        LiteralType::Boolean =&gt; Boolean,
+<a href=#973 id=973 data-nosnippet>973</a>        LiteralType::Field =&gt; Field,
+<a href=#974 id=974 data-nosnippet>974</a>        LiteralType::Group =&gt; Group,
+<a href=#975 id=975 data-nosnippet>975</a>        LiteralType::I8 =&gt; Integer(IntegerType::I8),
+<a href=#976 id=976 data-nosnippet>976</a>        LiteralType::I16 =&gt; Integer(IntegerType::I16),
+<a href=#977 id=977 data-nosnippet>977</a>        LiteralType::I32 =&gt; Integer(IntegerType::I32),
+<a href=#978 id=978 data-nosnippet>978</a>        LiteralType::I64 =&gt; Integer(IntegerType::I64),
+<a href=#979 id=979 data-nosnippet>979</a>        LiteralType::I128 =&gt; Integer(IntegerType::I128),
+<a href=#980 id=980 data-nosnippet>980</a>        LiteralType::U8 =&gt; Integer(IntegerType::U8),
+<a href=#981 id=981 data-nosnippet>981</a>        LiteralType::U16 =&gt; Integer(IntegerType::U16),
+<a href=#982 id=982 data-nosnippet>982</a>        LiteralType::U32 =&gt; Integer(IntegerType::U32),
+<a href=#983 id=983 data-nosnippet>983</a>        LiteralType::U64 =&gt; Integer(IntegerType::U64),
+<a href=#984 id=984 data-nosnippet>984</a>        LiteralType::U128 =&gt; Integer(IntegerType::U128),
+<a href=#985 id=985 data-nosnippet>985</a>        LiteralType::Scalar =&gt; Scalar,
+<a href=#986 id=986 data-nosnippet>986</a>        LiteralType::Signature =&gt; <span class="macro">todo!</span>(),
+<a href=#987 id=987 data-nosnippet>987</a>        LiteralType::String =&gt; <span class="macro">todo!</span>(),
+<a href=#988 id=988 data-nosnippet>988</a>    }
+<a href=#989 id=989 data-nosnippet>989</a>}
+<a href=#990 id=990 data-nosnippet>990</a>
+<a href=#991 id=991 data-nosnippet>991</a><span class="kw">fn </span>snarkvm_literal_to_value(literal: Literal&lt;TestnetV0&gt;) -&gt; Value {
+<a href=#992 id=992 data-nosnippet>992</a>    <span class="kw">match </span>literal {
+<a href=#993 id=993 data-nosnippet>993</a>        Literal::Address(x) =&gt; Value::Address(x),
+<a href=#994 id=994 data-nosnippet>994</a>        Literal::Boolean(x) =&gt; Value::Bool(<span class="kw-2">*</span>x),
+<a href=#995 id=995 data-nosnippet>995</a>        Literal::Field(x) =&gt; Value::Field(x),
+<a href=#996 id=996 data-nosnippet>996</a>        Literal::Group(x) =&gt; Value::Group(x),
+<a href=#997 id=997 data-nosnippet>997</a>        Literal::I8(x) =&gt; Value::I8(<span class="kw-2">*</span>x),
+<a href=#998 id=998 data-nosnippet>998</a>        Literal::I16(x) =&gt; Value::I16(<span class="kw-2">*</span>x),
+<a href=#999 id=999 data-nosnippet>999</a>        Literal::I32(x) =&gt; Value::I32(<span class="kw-2">*</span>x),
+<a href=#1000 id=1000 data-nosnippet>1000</a>        Literal::I64(x) =&gt; Value::I64(<span class="kw-2">*</span>x),
+<a href=#1001 id=1001 data-nosnippet>1001</a>        Literal::I128(x) =&gt; Value::I128(<span class="kw-2">*</span>x),
+<a href=#1002 id=1002 data-nosnippet>1002</a>        Literal::U8(x) =&gt; Value::U8(<span class="kw-2">*</span>x),
+<a href=#1003 id=1003 data-nosnippet>1003</a>        Literal::U16(x) =&gt; Value::U16(<span class="kw-2">*</span>x),
+<a href=#1004 id=1004 data-nosnippet>1004</a>        Literal::U32(x) =&gt; Value::U32(<span class="kw-2">*</span>x),
+<a href=#1005 id=1005 data-nosnippet>1005</a>        Literal::U64(x) =&gt; Value::U64(<span class="kw-2">*</span>x),
+<a href=#1006 id=1006 data-nosnippet>1006</a>        Literal::U128(x) =&gt; Value::U128(<span class="kw-2">*</span>x),
+<a href=#1007 id=1007 data-nosnippet>1007</a>        Literal::Scalar(x) =&gt; Value::Scalar(x),
+<a href=#1008 id=1008 data-nosnippet>1008</a>        Literal::Signature(<span class="kw">_</span>) | Literal::String(<span class="kw">_</span>) =&gt; <span class="macro">tc_fail!</span>(),
+<a href=#1009 id=1009 data-nosnippet>1009</a>    }
+<a href=#1010 id=1010 data-nosnippet>1010</a>}
+<a href=#1011 id=1011 data-nosnippet>1011</a>
+<a href=#1012 id=1012 data-nosnippet>1012</a><span class="kw">fn </span>value_to_snarkvm_literal(value: Value) -&gt; Literal&lt;TestnetV0&gt; {
+<a href=#1013 id=1013 data-nosnippet>1013</a>    <span class="kw">match </span>value {
+<a href=#1014 id=1014 data-nosnippet>1014</a>        Value::Bool(x) =&gt; Literal::Boolean(Boolean::new(x)),
+<a href=#1015 id=1015 data-nosnippet>1015</a>        Value::U8(x) =&gt; Literal::U8(Integer::new(x)),
+<a href=#1016 id=1016 data-nosnippet>1016</a>        Value::U16(x) =&gt; Literal::U16(Integer::new(x)),
+<a href=#1017 id=1017 data-nosnippet>1017</a>        Value::U32(x) =&gt; Literal::U32(Integer::new(x)),
+<a href=#1018 id=1018 data-nosnippet>1018</a>        Value::U64(x) =&gt; Literal::U64(Integer::new(x)),
+<a href=#1019 id=1019 data-nosnippet>1019</a>        Value::U128(x) =&gt; Literal::U128(Integer::new(x)),
+<a href=#1020 id=1020 data-nosnippet>1020</a>        Value::I8(x) =&gt; Literal::I8(Integer::new(x)),
+<a href=#1021 id=1021 data-nosnippet>1021</a>        Value::I16(x) =&gt; Literal::I16(Integer::new(x)),
+<a href=#1022 id=1022 data-nosnippet>1022</a>        Value::I32(x) =&gt; Literal::I32(Integer::new(x)),
+<a href=#1023 id=1023 data-nosnippet>1023</a>        Value::I64(x) =&gt; Literal::I64(Integer::new(x)),
+<a href=#1024 id=1024 data-nosnippet>1024</a>        Value::I128(x) =&gt; Literal::I128(Integer::new(x)),
+<a href=#1025 id=1025 data-nosnippet>1025</a>        Value::Group(x) =&gt; Literal::Group(x),
+<a href=#1026 id=1026 data-nosnippet>1026</a>        Value::Field(x) =&gt; Literal::Field(x),
+<a href=#1027 id=1027 data-nosnippet>1027</a>        Value::Scalar(x) =&gt; Literal::Scalar(x),
+<a href=#1028 id=1028 data-nosnippet>1028</a>        Value::Address(x) =&gt; Literal::Address(x),
+<a href=#1029 id=1029 data-nosnippet>1029</a>        Value::Array(<span class="kw">_</span>) | Value::Tuple(<span class="kw">_</span>) | Value::Unit | Value::Future(<span class="kw">_</span>) | Value::Struct(<span class="kw">_</span>) =&gt; <span class="macro">tc_fail!</span>(),
+<a href=#1030 id=1030 data-nosnippet>1030</a>    }
+<a href=#1031 id=1031 data-nosnippet>1031</a>}</code></pre></div></section></main></body></html>

@@ -1069,7 +1069,7 @@
 <a href=#1069 id=1069 data-nosnippet>1069</a>                <span class="self">self</span>.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
 <a href=#1070 id=1070 data-nosnippet>1070</a>            }
 <a href=#1071 id=1071 data-nosnippet>1071</a>            <span class="comment">// If the function is not an async transition, then it cannot have a future as output.
-<a href=#1072 id=1072 data-nosnippet>1072</a>            </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant != <span class="prelude-val">Some</span>(Variant::AsyncTransition)
+<a href=#1072 id=1072 data-nosnippet>1072</a>            </span><span class="kw">if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.scope_state.variant, <span class="prelude-val">Some</span>(Variant::AsyncTransition) | <span class="prelude-val">Some</span>(Variant::Script))
 <a href=#1073 id=1073 data-nosnippet>1073</a>                &amp;&amp; <span class="macro">matches!</span>(function_output.type_, Type::Future(<span class="kw">_</span>))
 <a href=#1074 id=1074 data-nosnippet>1074</a>            {
 <a href=#1075 id=1075 data-nosnippet>1075</a>                <span class="self">self</span>.emit_err(TypeCheckerError::only_async_transition_can_return_future(function_output.span));

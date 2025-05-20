@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Program"]};
+window.SIDEBAR_ITEMS = {"fn":["canonicalize_dependency_path_relative_to"],"struct":["Program"]};

@@ -236,230 +236,238 @@
 <a href=#236 id=236 data-nosnippet>236</a>    </span>False: <span class="string">"false"</span>,
 <a href=#237 id=237 data-nosnippet>237</a>    True: <span class="string">"true"</span>,
 <a href=#238 id=238 data-nosnippet>238</a>
-<a href=#239 id=239 data-nosnippet>239</a>    <span class="comment">// general keywords
-<a href=#240 id=240 data-nosnippet>240</a>    </span>As: <span class="string">"as"</span>,
-<a href=#241 id=241 data-nosnippet>241</a>    assert,
-<a href=#242 id=242 data-nosnippet>242</a>    assert_eq,
-<a href=#243 id=243 data-nosnippet>243</a>    assert_neq,
-<a href=#244 id=244 data-nosnippet>244</a>    caller,
-<a href=#245 id=245 data-nosnippet>245</a>    Const: <span class="string">"const"</span>,
-<a href=#246 id=246 data-nosnippet>246</a>    constant,
-<a href=#247 id=247 data-nosnippet>247</a>    decrement,
-<a href=#248 id=248 data-nosnippet>248</a>    Else: <span class="string">"else"</span>,
-<a href=#249 id=249 data-nosnippet>249</a>    For: <span class="string">"for"</span>,
-<a href=#250 id=250 data-nosnippet>250</a>    function,
-<a href=#251 id=251 data-nosnippet>251</a>    If: <span class="string">"if"</span>,
-<a href=#252 id=252 data-nosnippet>252</a>    In: <span class="string">"in"</span>,
-<a href=#253 id=253 data-nosnippet>253</a>    import,
-<a href=#254 id=254 data-nosnippet>254</a>    increment,
-<a href=#255 id=255 data-nosnippet>255</a>    inline,
-<a href=#256 id=256 data-nosnippet>256</a>    input,
-<a href=#257 id=257 data-nosnippet>257</a>    Let: <span class="string">"let"</span>,
-<a href=#258 id=258 data-nosnippet>258</a>    leo,
-<a href=#259 id=259 data-nosnippet>259</a>    main,
-<a href=#260 id=260 data-nosnippet>260</a>    mapping,
-<a href=#261 id=261 data-nosnippet>261</a>    Mut: <span class="string">"mut"</span>,
-<a href=#262 id=262 data-nosnippet>262</a>    Return: <span class="string">"return"</span>,
-<a href=#263 id=263 data-nosnippet>263</a>    SelfLower: <span class="string">"self"</span>,
-<a href=#264 id=264 data-nosnippet>264</a>    SelfUpper: <span class="string">"Self"</span>,
-<a href=#265 id=265 data-nosnippet>265</a>    signer,
-<a href=#266 id=266 data-nosnippet>266</a>    Star: <span class="string">"*"</span>,
-<a href=#267 id=267 data-nosnippet>267</a>    transition,
-<a href=#268 id=268 data-nosnippet>268</a>    Type: <span class="string">"type"</span>,
-<a href=#269 id=269 data-nosnippet>269</a>
-<a href=#270 id=270 data-nosnippet>270</a>    aleo,
-<a href=#271 id=271 data-nosnippet>271</a>    public,
-<a href=#272 id=272 data-nosnippet>272</a>    private,
-<a href=#273 id=273 data-nosnippet>273</a>    owner,
-<a href=#274 id=274 data-nosnippet>274</a>    _nonce,
-<a href=#275 id=275 data-nosnippet>275</a>    program,
-<a href=#276 id=276 data-nosnippet>276</a>    stub,
-<a href=#277 id=277 data-nosnippet>277</a>    block,
-<a href=#278 id=278 data-nosnippet>278</a>    height,
-<a href=#279 id=279 data-nosnippet>279</a>    network,
-<a href=#280 id=280 data-nosnippet>280</a>    id,
-<a href=#281 id=281 data-nosnippet>281</a>}
-<a href=#282 id=282 data-nosnippet>282</a>
-<a href=#283 id=283 data-nosnippet>283</a><span class="doccomment">/// An interned string.
-<a href=#284 id=284 data-nosnippet>284</a>///
-<a href=#285 id=285 data-nosnippet>285</a>/// Represented as an index internally, with all operations based on that.
-<a href=#286 id=286 data-nosnippet>286</a>/// A `Symbol` reserves the value `0`, so that `Option&lt;Symbol&gt;` only takes up 4 bytes.
-<a href=#287 id=287 data-nosnippet>287</a></span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-<a href=#288 id=288 data-nosnippet>288</a></span><span class="kw">pub struct </span>Symbol(
-<a href=#289 id=289 data-nosnippet>289</a>    <span class="attr">#[serde(deserialize_with = <span class="string">"Symbol::serde_to_symbol"</span>)]
-<a href=#290 id=290 data-nosnippet>290</a>    #[serde(serialize_with = <span class="string">"Symbol::serde_from_symbol"</span>)]
-<a href=#291 id=291 data-nosnippet>291</a>    </span>NonZeroU32,
-<a href=#292 id=292 data-nosnippet>292</a>);
-<a href=#293 id=293 data-nosnippet>293</a>
-<a href=#294 id=294 data-nosnippet>294</a><span class="kw">impl </span>Default <span class="kw">for </span>Symbol {
-<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-<a href=#296 id=296 data-nosnippet>296</a>        Symbol(NonZeroU32::MIN)
-<a href=#297 id=297 data-nosnippet>297</a>    }
-<a href=#298 id=298 data-nosnippet>298</a>}
-<a href=#299 id=299 data-nosnippet>299</a>
-<a href=#300 id=300 data-nosnippet>300</a><span class="kw">impl </span>Symbol {
-<a href=#301 id=301 data-nosnippet>301</a>    <span class="doccomment">/// Returns the corresponding `Symbol` for the given `index`.
-<a href=#302 id=302 data-nosnippet>302</a>    </span><span class="kw">pub const fn </span>new(index: u32) -&gt; <span class="self">Self </span>{
-<a href=#303 id=303 data-nosnippet>303</a>        <span class="kw">let </span>index = index.saturating_add(<span class="number">1</span>);
-<a href=#304 id=304 data-nosnippet>304</a>        <span class="self">Self</span>(<span class="kw">match </span>NonZeroU32::new(index) {
-<a href=#305 id=305 data-nosnippet>305</a>            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(),
-<a href=#306 id=306 data-nosnippet>306</a>            <span class="prelude-val">Some</span>(x) =&gt; x,
-<a href=#307 id=307 data-nosnippet>307</a>        })
-<a href=#308 id=308 data-nosnippet>308</a>    }
-<a href=#309 id=309 data-nosnippet>309</a>
-<a href=#310 id=310 data-nosnippet>310</a>    <span class="doccomment">/// Maps a string to its interned representation.
-<a href=#311 id=311 data-nosnippet>311</a>    </span><span class="kw">pub fn </span>intern(string: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
-<a href=#312 id=312 data-nosnippet>312</a>        with_session_globals(|session_globals| session_globals.symbol_interner.intern(string))
-<a href=#313 id=313 data-nosnippet>313</a>    }
-<a href=#314 id=314 data-nosnippet>314</a>
-<a href=#315 id=315 data-nosnippet>315</a>    <span class="doccomment">/// Convert to effectively a `&amp;'static str` given the `SessionGlobals`.
-<a href=#316 id=316 data-nosnippet>316</a>    </span><span class="kw">pub fn </span>as_str&lt;R&gt;(<span class="self">self</span>, s: <span class="kw-2">&amp;</span>SessionGlobals, with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>str) -&gt; R) -&gt; R {
-<a href=#317 id=317 data-nosnippet>317</a>        s.symbol_interner.get(<span class="self">self</span>, with)
-<a href=#318 id=318 data-nosnippet>318</a>    }
-<a href=#319 id=319 data-nosnippet>319</a>
-<a href=#320 id=320 data-nosnippet>320</a>    <span class="doccomment">/// Converts this symbol to the raw index.
-<a href=#321 id=321 data-nosnippet>321</a>    </span><span class="kw">pub const fn </span>as_u32(<span class="self">self</span>) -&gt; u32 {
-<a href=#322 id=322 data-nosnippet>322</a>        <span class="self">self</span>.<span class="number">0</span>.get() - <span class="number">1
-<a href=#323 id=323 data-nosnippet>323</a>    </span>}
-<a href=#324 id=324 data-nosnippet>324</a>
-<a href=#325 id=325 data-nosnippet>325</a>    <span class="kw">fn </span>serde_to_symbol&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(de: D) -&gt; <span class="prelude-ty">Result</span>&lt;NonZeroU32, D::Error&gt; {
-<a href=#326 id=326 data-nosnippet>326</a>        <span class="prelude-val">Ok</span>(Symbol::intern(&lt;<span class="kw-2">&amp;</span>str&gt;::deserialize(de)<span class="question-mark">?</span>).<span class="number">0</span>)
-<a href=#327 id=327 data-nosnippet>327</a>    }
-<a href=#328 id=328 data-nosnippet>328</a>
-<a href=#329 id=329 data-nosnippet>329</a>    <span class="kw">fn </span>serde_from_symbol&lt;S: Serializer&gt;(index: <span class="kw-2">&amp;</span>NonZeroU32, ser: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
-<a href=#330 id=330 data-nosnippet>330</a>        with_session_globals(|sg| <span class="self">Self</span>(<span class="kw-2">*</span>index).as_str(sg, |s| ser.serialize_str(s)))
-<a href=#331 id=331 data-nosnippet>331</a>    }
-<a href=#332 id=332 data-nosnippet>332</a>}
-<a href=#333 id=333 data-nosnippet>333</a>
-<a href=#334 id=334 data-nosnippet>334</a><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Symbol {
-<a href=#335 id=335 data-nosnippet>335</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-<a href=#336 id=336 data-nosnippet>336</a>        with_session_globals(|s| <span class="self">self</span>.as_str(s, |s| fmt::Debug::fmt(s, f)))
-<a href=#337 id=337 data-nosnippet>337</a>    }
-<a href=#338 id=338 data-nosnippet>338</a>}
-<a href=#339 id=339 data-nosnippet>339</a>
-<a href=#340 id=340 data-nosnippet>340</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Symbol {
-<a href=#341 id=341 data-nosnippet>341</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-<a href=#342 id=342 data-nosnippet>342</a>        with_session_globals(|s| <span class="self">self</span>.as_str(s, |s| fmt::Display::fmt(s, f)))
-<a href=#343 id=343 data-nosnippet>343</a>    }
-<a href=#344 id=344 data-nosnippet>344</a>}
-<a href=#345 id=345 data-nosnippet>345</a>
-<a href=#346 id=346 data-nosnippet>346</a><span class="doccomment">/// All the globals for a compiler sessions.
-<a href=#347 id=347 data-nosnippet>347</a></span><span class="kw">pub struct </span>SessionGlobals {
-<a href=#348 id=348 data-nosnippet>348</a>    <span class="doccomment">/// The interner for `Symbol`s used in the compiler.
-<a href=#349 id=349 data-nosnippet>349</a>    </span>symbol_interner: Interner,
-<a href=#350 id=350 data-nosnippet>350</a>    <span class="doccomment">/// The source map used in the compiler.
-<a href=#351 id=351 data-nosnippet>351</a>    </span><span class="kw">pub </span>source_map: SourceMap,
+<a href=#239 id=239 data-nosnippet>239</a>    <span class="comment">// annotations
+<a href=#240 id=240 data-nosnippet>240</a>    </span>should_fail,
+<a href=#241 id=241 data-nosnippet>241</a>    test,
+<a href=#242 id=242 data-nosnippet>242</a>
+<a href=#243 id=243 data-nosnippet>243</a>    <span class="comment">// annotation keys
+<a href=#244 id=244 data-nosnippet>244</a>    </span>private_key,
+<a href=#245 id=245 data-nosnippet>245</a>
+<a href=#246 id=246 data-nosnippet>246</a>    <span class="comment">// general keywords
+<a href=#247 id=247 data-nosnippet>247</a>    </span>As: <span class="string">"as"</span>,
+<a href=#248 id=248 data-nosnippet>248</a>    assert,
+<a href=#249 id=249 data-nosnippet>249</a>    assert_eq,
+<a href=#250 id=250 data-nosnippet>250</a>    assert_neq,
+<a href=#251 id=251 data-nosnippet>251</a>    caller,
+<a href=#252 id=252 data-nosnippet>252</a>    Const: <span class="string">"const"</span>,
+<a href=#253 id=253 data-nosnippet>253</a>    constant,
+<a href=#254 id=254 data-nosnippet>254</a>    decrement,
+<a href=#255 id=255 data-nosnippet>255</a>    Else: <span class="string">"else"</span>,
+<a href=#256 id=256 data-nosnippet>256</a>    For: <span class="string">"for"</span>,
+<a href=#257 id=257 data-nosnippet>257</a>    function,
+<a href=#258 id=258 data-nosnippet>258</a>    If: <span class="string">"if"</span>,
+<a href=#259 id=259 data-nosnippet>259</a>    In: <span class="string">"in"</span>,
+<a href=#260 id=260 data-nosnippet>260</a>    import,
+<a href=#261 id=261 data-nosnippet>261</a>    increment,
+<a href=#262 id=262 data-nosnippet>262</a>    inline,
+<a href=#263 id=263 data-nosnippet>263</a>    input,
+<a href=#264 id=264 data-nosnippet>264</a>    Let: <span class="string">"let"</span>,
+<a href=#265 id=265 data-nosnippet>265</a>    leo,
+<a href=#266 id=266 data-nosnippet>266</a>    main,
+<a href=#267 id=267 data-nosnippet>267</a>    mapping,
+<a href=#268 id=268 data-nosnippet>268</a>    Mut: <span class="string">"mut"</span>,
+<a href=#269 id=269 data-nosnippet>269</a>    Return: <span class="string">"return"</span>,
+<a href=#270 id=270 data-nosnippet>270</a>    script,
+<a href=#271 id=271 data-nosnippet>271</a>    SelfLower: <span class="string">"self"</span>,
+<a href=#272 id=272 data-nosnippet>272</a>    SelfUpper: <span class="string">"Self"</span>,
+<a href=#273 id=273 data-nosnippet>273</a>    signer,
+<a href=#274 id=274 data-nosnippet>274</a>    Star: <span class="string">"*"</span>,
+<a href=#275 id=275 data-nosnippet>275</a>    transition,
+<a href=#276 id=276 data-nosnippet>276</a>    Type: <span class="string">"type"</span>,
+<a href=#277 id=277 data-nosnippet>277</a>
+<a href=#278 id=278 data-nosnippet>278</a>    aleo,
+<a href=#279 id=279 data-nosnippet>279</a>    public,
+<a href=#280 id=280 data-nosnippet>280</a>    private,
+<a href=#281 id=281 data-nosnippet>281</a>    owner,
+<a href=#282 id=282 data-nosnippet>282</a>    _nonce,
+<a href=#283 id=283 data-nosnippet>283</a>    program,
+<a href=#284 id=284 data-nosnippet>284</a>    stub,
+<a href=#285 id=285 data-nosnippet>285</a>    block,
+<a href=#286 id=286 data-nosnippet>286</a>    height,
+<a href=#287 id=287 data-nosnippet>287</a>    network,
+<a href=#288 id=288 data-nosnippet>288</a>    id,
+<a href=#289 id=289 data-nosnippet>289</a>}
+<a href=#290 id=290 data-nosnippet>290</a>
+<a href=#291 id=291 data-nosnippet>291</a><span class="doccomment">/// An interned string.
+<a href=#292 id=292 data-nosnippet>292</a>///
+<a href=#293 id=293 data-nosnippet>293</a>/// Represented as an index internally, with all operations based on that.
+<a href=#294 id=294 data-nosnippet>294</a>/// A `Symbol` reserves the value `0`, so that `Option&lt;Symbol&gt;` only takes up 4 bytes.
+<a href=#295 id=295 data-nosnippet>295</a></span><span class="attr">#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+<a href=#296 id=296 data-nosnippet>296</a></span><span class="kw">pub struct </span>Symbol(
+<a href=#297 id=297 data-nosnippet>297</a>    <span class="attr">#[serde(deserialize_with = <span class="string">"Symbol::serde_to_symbol"</span>)]
+<a href=#298 id=298 data-nosnippet>298</a>    #[serde(serialize_with = <span class="string">"Symbol::serde_from_symbol"</span>)]
+<a href=#299 id=299 data-nosnippet>299</a>    </span>NonZeroU32,
+<a href=#300 id=300 data-nosnippet>300</a>);
+<a href=#301 id=301 data-nosnippet>301</a>
+<a href=#302 id=302 data-nosnippet>302</a><span class="kw">impl </span>Default <span class="kw">for </span>Symbol {
+<a href=#303 id=303 data-nosnippet>303</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#304 id=304 data-nosnippet>304</a>        Symbol(NonZeroU32::MIN)
+<a href=#305 id=305 data-nosnippet>305</a>    }
+<a href=#306 id=306 data-nosnippet>306</a>}
+<a href=#307 id=307 data-nosnippet>307</a>
+<a href=#308 id=308 data-nosnippet>308</a><span class="kw">impl </span>Symbol {
+<a href=#309 id=309 data-nosnippet>309</a>    <span class="doccomment">/// Returns the corresponding `Symbol` for the given `index`.
+<a href=#310 id=310 data-nosnippet>310</a>    </span><span class="kw">pub const fn </span>new(index: u32) -&gt; <span class="self">Self </span>{
+<a href=#311 id=311 data-nosnippet>311</a>        <span class="kw">let </span>index = index.saturating_add(<span class="number">1</span>);
+<a href=#312 id=312 data-nosnippet>312</a>        <span class="self">Self</span>(<span class="kw">match </span>NonZeroU32::new(index) {
+<a href=#313 id=313 data-nosnippet>313</a>            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(),
+<a href=#314 id=314 data-nosnippet>314</a>            <span class="prelude-val">Some</span>(x) =&gt; x,
+<a href=#315 id=315 data-nosnippet>315</a>        })
+<a href=#316 id=316 data-nosnippet>316</a>    }
+<a href=#317 id=317 data-nosnippet>317</a>
+<a href=#318 id=318 data-nosnippet>318</a>    <span class="doccomment">/// Maps a string to its interned representation.
+<a href=#319 id=319 data-nosnippet>319</a>    </span><span class="kw">pub fn </span>intern(string: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+<a href=#320 id=320 data-nosnippet>320</a>        with_session_globals(|session_globals| session_globals.symbol_interner.intern(string))
+<a href=#321 id=321 data-nosnippet>321</a>    }
+<a href=#322 id=322 data-nosnippet>322</a>
+<a href=#323 id=323 data-nosnippet>323</a>    <span class="doccomment">/// Convert to effectively a `&amp;'static str` given the `SessionGlobals`.
+<a href=#324 id=324 data-nosnippet>324</a>    </span><span class="kw">pub fn </span>as_str&lt;R&gt;(<span class="self">self</span>, s: <span class="kw-2">&amp;</span>SessionGlobals, with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>str) -&gt; R) -&gt; R {
+<a href=#325 id=325 data-nosnippet>325</a>        s.symbol_interner.get(<span class="self">self</span>, with)
+<a href=#326 id=326 data-nosnippet>326</a>    }
+<a href=#327 id=327 data-nosnippet>327</a>
+<a href=#328 id=328 data-nosnippet>328</a>    <span class="doccomment">/// Converts this symbol to the raw index.
+<a href=#329 id=329 data-nosnippet>329</a>    </span><span class="kw">pub const fn </span>as_u32(<span class="self">self</span>) -&gt; u32 {
+<a href=#330 id=330 data-nosnippet>330</a>        <span class="self">self</span>.<span class="number">0</span>.get() - <span class="number">1
+<a href=#331 id=331 data-nosnippet>331</a>    </span>}
+<a href=#332 id=332 data-nosnippet>332</a>
+<a href=#333 id=333 data-nosnippet>333</a>    <span class="kw">fn </span>serde_to_symbol&lt;<span class="lifetime">'de</span>, D: Deserializer&lt;<span class="lifetime">'de</span>&gt;&gt;(de: D) -&gt; <span class="prelude-ty">Result</span>&lt;NonZeroU32, D::Error&gt; {
+<a href=#334 id=334 data-nosnippet>334</a>        <span class="prelude-val">Ok</span>(Symbol::intern(&lt;<span class="kw-2">&amp;</span>str&gt;::deserialize(de)<span class="question-mark">?</span>).<span class="number">0</span>)
+<a href=#335 id=335 data-nosnippet>335</a>    }
+<a href=#336 id=336 data-nosnippet>336</a>
+<a href=#337 id=337 data-nosnippet>337</a>    <span class="kw">fn </span>serde_from_symbol&lt;S: Serializer&gt;(index: <span class="kw-2">&amp;</span>NonZeroU32, ser: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+<a href=#338 id=338 data-nosnippet>338</a>        with_session_globals(|sg| <span class="self">Self</span>(<span class="kw-2">*</span>index).as_str(sg, |s| ser.serialize_str(s)))
+<a href=#339 id=339 data-nosnippet>339</a>    }
+<a href=#340 id=340 data-nosnippet>340</a>}
+<a href=#341 id=341 data-nosnippet>341</a>
+<a href=#342 id=342 data-nosnippet>342</a><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Symbol {
+<a href=#343 id=343 data-nosnippet>343</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+<a href=#344 id=344 data-nosnippet>344</a>        with_session_globals(|s| <span class="self">self</span>.as_str(s, |s| fmt::Debug::fmt(s, f)))
+<a href=#345 id=345 data-nosnippet>345</a>    }
+<a href=#346 id=346 data-nosnippet>346</a>}
+<a href=#347 id=347 data-nosnippet>347</a>
+<a href=#348 id=348 data-nosnippet>348</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Symbol {
+<a href=#349 id=349 data-nosnippet>349</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+<a href=#350 id=350 data-nosnippet>350</a>        with_session_globals(|s| <span class="self">self</span>.as_str(s, |s| fmt::Display::fmt(s, f)))
+<a href=#351 id=351 data-nosnippet>351</a>    }
 <a href=#352 id=352 data-nosnippet>352</a>}
 <a href=#353 id=353 data-nosnippet>353</a>
-<a href=#354 id=354 data-nosnippet>354</a><span class="kw">impl </span>Default <span class="kw">for </span>SessionGlobals {
-<a href=#355 id=355 data-nosnippet>355</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-<a href=#356 id=356 data-nosnippet>356</a>        <span class="self">Self </span>{ symbol_interner: Interner::prefilled(), source_map: SourceMap::default() }
-<a href=#357 id=357 data-nosnippet>357</a>    }
-<a href=#358 id=358 data-nosnippet>358</a>}
-<a href=#359 id=359 data-nosnippet>359</a>
-<a href=#360 id=360 data-nosnippet>360</a><span class="macro">scoped_tls::scoped_thread_local!</span>(<span class="kw">pub static </span>SESSION_GLOBALS: SessionGlobals);
+<a href=#354 id=354 data-nosnippet>354</a><span class="doccomment">/// All the globals for a compiler sessions.
+<a href=#355 id=355 data-nosnippet>355</a></span><span class="kw">pub struct </span>SessionGlobals {
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="doccomment">/// The interner for `Symbol`s used in the compiler.
+<a href=#357 id=357 data-nosnippet>357</a>    </span>symbol_interner: Interner,
+<a href=#358 id=358 data-nosnippet>358</a>    <span class="doccomment">/// The source map used in the compiler.
+<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">pub </span>source_map: SourceMap,
+<a href=#360 id=360 data-nosnippet>360</a>}
 <a href=#361 id=361 data-nosnippet>361</a>
-<a href=#362 id=362 data-nosnippet>362</a><span class="doccomment">/// Creates the session globals and then runs the closure `f`.
-<a href=#363 id=363 data-nosnippet>363</a></span><span class="attr">#[inline]
-<a href=#364 id=364 data-nosnippet>364</a></span><span class="kw">pub fn </span>create_session_if_not_set_then&lt;R&gt;(f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>SessionGlobals) -&gt; R) -&gt; R {
-<a href=#365 id=365 data-nosnippet>365</a>    <span class="kw">if </span>!SESSION_GLOBALS.is_set() {
-<a href=#366 id=366 data-nosnippet>366</a>        <span class="kw">let </span>sg = SessionGlobals::default();
-<a href=#367 id=367 data-nosnippet>367</a>        SESSION_GLOBALS.set(<span class="kw-2">&amp;</span>sg, || SESSION_GLOBALS.with(f))
-<a href=#368 id=368 data-nosnippet>368</a>    } <span class="kw">else </span>{
-<a href=#369 id=369 data-nosnippet>369</a>        SESSION_GLOBALS.with(f)
-<a href=#370 id=370 data-nosnippet>370</a>    }
-<a href=#371 id=371 data-nosnippet>371</a>}
-<a href=#372 id=372 data-nosnippet>372</a>
-<a href=#373 id=373 data-nosnippet>373</a><span class="doccomment">/// Gives access to read or modify the session globals in `f`.
-<a href=#374 id=374 data-nosnippet>374</a></span><span class="attr">#[inline]
-<a href=#375 id=375 data-nosnippet>375</a></span><span class="kw">pub fn </span>with_session_globals&lt;R&gt;(f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>SessionGlobals) -&gt; R) -&gt; R {
-<a href=#376 id=376 data-nosnippet>376</a>    SESSION_GLOBALS.with(f)
-<a href=#377 id=377 data-nosnippet>377</a>}
-<a href=#378 id=378 data-nosnippet>378</a>
-<a href=#379 id=379 data-nosnippet>379</a><span class="doccomment">/// An interned string,
-<a href=#380 id=380 data-nosnippet>380</a>/// either prefilled "at compile time" (`Static`),
-<a href=#381 id=381 data-nosnippet>381</a>/// or created at runtime (`Owned`).
-<a href=#382 id=382 data-nosnippet>382</a></span><span class="attr">#[derive(Eq)]
-<a href=#383 id=383 data-nosnippet>383</a></span><span class="kw">enum </span>InternedStr {
-<a href=#384 id=384 data-nosnippet>384</a>    <span class="doccomment">/// String is stored "at compile time", i.e. prefilled.
-<a href=#385 id=385 data-nosnippet>385</a>    </span>Static(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
-<a href=#386 id=386 data-nosnippet>386</a>    <span class="doccomment">/// String is constructed and stored during runtime.
-<a href=#387 id=387 data-nosnippet>387</a>    </span>Owned(Box&lt;str&gt;),
-<a href=#388 id=388 data-nosnippet>388</a>}
-<a href=#389 id=389 data-nosnippet>389</a>
-<a href=#390 id=390 data-nosnippet>390</a><span class="kw">impl </span>Borrow&lt;str&gt; <span class="kw">for </span>InternedStr {
-<a href=#391 id=391 data-nosnippet>391</a>    <span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-<a href=#392 id=392 data-nosnippet>392</a>        <span class="self">self</span>.deref()
-<a href=#393 id=393 data-nosnippet>393</a>    }
-<a href=#394 id=394 data-nosnippet>394</a>}
-<a href=#395 id=395 data-nosnippet>395</a>
-<a href=#396 id=396 data-nosnippet>396</a><span class="kw">impl </span>Deref <span class="kw">for </span>InternedStr {
-<a href=#397 id=397 data-nosnippet>397</a>    <span class="kw">type </span>Target = str;
-<a href=#398 id=398 data-nosnippet>398</a>
-<a href=#399 id=399 data-nosnippet>399</a>    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
-<a href=#400 id=400 data-nosnippet>400</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#401 id=401 data-nosnippet>401</a>            <span class="self">Self</span>::Static(s) =&gt; s,
-<a href=#402 id=402 data-nosnippet>402</a>            <span class="self">Self</span>::Owned(s) =&gt; s,
-<a href=#403 id=403 data-nosnippet>403</a>        }
-<a href=#404 id=404 data-nosnippet>404</a>    }
-<a href=#405 id=405 data-nosnippet>405</a>}
+<a href=#362 id=362 data-nosnippet>362</a><span class="kw">impl </span>Default <span class="kw">for </span>SessionGlobals {
+<a href=#363 id=363 data-nosnippet>363</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#364 id=364 data-nosnippet>364</a>        <span class="self">Self </span>{ symbol_interner: Interner::prefilled(), source_map: SourceMap::default() }
+<a href=#365 id=365 data-nosnippet>365</a>    }
+<a href=#366 id=366 data-nosnippet>366</a>}
+<a href=#367 id=367 data-nosnippet>367</a>
+<a href=#368 id=368 data-nosnippet>368</a><span class="macro">scoped_tls::scoped_thread_local!</span>(<span class="kw">pub static </span>SESSION_GLOBALS: SessionGlobals);
+<a href=#369 id=369 data-nosnippet>369</a>
+<a href=#370 id=370 data-nosnippet>370</a><span class="doccomment">/// Creates the session globals and then runs the closure `f`.
+<a href=#371 id=371 data-nosnippet>371</a></span><span class="attr">#[inline]
+<a href=#372 id=372 data-nosnippet>372</a></span><span class="kw">pub fn </span>create_session_if_not_set_then&lt;R&gt;(f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>SessionGlobals) -&gt; R) -&gt; R {
+<a href=#373 id=373 data-nosnippet>373</a>    <span class="kw">if </span>!SESSION_GLOBALS.is_set() {
+<a href=#374 id=374 data-nosnippet>374</a>        <span class="kw">let </span>sg = SessionGlobals::default();
+<a href=#375 id=375 data-nosnippet>375</a>        SESSION_GLOBALS.set(<span class="kw-2">&amp;</span>sg, || SESSION_GLOBALS.with(f))
+<a href=#376 id=376 data-nosnippet>376</a>    } <span class="kw">else </span>{
+<a href=#377 id=377 data-nosnippet>377</a>        SESSION_GLOBALS.with(f)
+<a href=#378 id=378 data-nosnippet>378</a>    }
+<a href=#379 id=379 data-nosnippet>379</a>}
+<a href=#380 id=380 data-nosnippet>380</a>
+<a href=#381 id=381 data-nosnippet>381</a><span class="doccomment">/// Gives access to read or modify the session globals in `f`.
+<a href=#382 id=382 data-nosnippet>382</a></span><span class="attr">#[inline]
+<a href=#383 id=383 data-nosnippet>383</a></span><span class="kw">pub fn </span>with_session_globals&lt;R&gt;(f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>SessionGlobals) -&gt; R) -&gt; R {
+<a href=#384 id=384 data-nosnippet>384</a>    SESSION_GLOBALS.with(f)
+<a href=#385 id=385 data-nosnippet>385</a>}
+<a href=#386 id=386 data-nosnippet>386</a>
+<a href=#387 id=387 data-nosnippet>387</a><span class="doccomment">/// An interned string,
+<a href=#388 id=388 data-nosnippet>388</a>/// either prefilled "at compile time" (`Static`),
+<a href=#389 id=389 data-nosnippet>389</a>/// or created at runtime (`Owned`).
+<a href=#390 id=390 data-nosnippet>390</a></span><span class="attr">#[derive(Eq)]
+<a href=#391 id=391 data-nosnippet>391</a></span><span class="kw">enum </span>InternedStr {
+<a href=#392 id=392 data-nosnippet>392</a>    <span class="doccomment">/// String is stored "at compile time", i.e. prefilled.
+<a href=#393 id=393 data-nosnippet>393</a>    </span>Static(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
+<a href=#394 id=394 data-nosnippet>394</a>    <span class="doccomment">/// String is constructed and stored during runtime.
+<a href=#395 id=395 data-nosnippet>395</a>    </span>Owned(Box&lt;str&gt;),
+<a href=#396 id=396 data-nosnippet>396</a>}
+<a href=#397 id=397 data-nosnippet>397</a>
+<a href=#398 id=398 data-nosnippet>398</a><span class="kw">impl </span>Borrow&lt;str&gt; <span class="kw">for </span>InternedStr {
+<a href=#399 id=399 data-nosnippet>399</a>    <span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+<a href=#400 id=400 data-nosnippet>400</a>        <span class="self">self</span>.deref()
+<a href=#401 id=401 data-nosnippet>401</a>    }
+<a href=#402 id=402 data-nosnippet>402</a>}
+<a href=#403 id=403 data-nosnippet>403</a>
+<a href=#404 id=404 data-nosnippet>404</a><span class="kw">impl </span>Deref <span class="kw">for </span>InternedStr {
+<a href=#405 id=405 data-nosnippet>405</a>    <span class="kw">type </span>Target = str;
 <a href=#406 id=406 data-nosnippet>406</a>
-<a href=#407 id=407 data-nosnippet>407</a><span class="kw">impl </span>PartialEq <span class="kw">for </span>InternedStr {
-<a href=#408 id=408 data-nosnippet>408</a>    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>InternedStr) -&gt; bool {
-<a href=#409 id=409 data-nosnippet>409</a>        <span class="self">self</span>.deref() == other.deref()
-<a href=#410 id=410 data-nosnippet>410</a>    }
-<a href=#411 id=411 data-nosnippet>411</a>}
-<a href=#412 id=412 data-nosnippet>412</a>
-<a href=#413 id=413 data-nosnippet>413</a><span class="kw">impl </span>Hash <span class="kw">for </span>InternedStr {
-<a href=#414 id=414 data-nosnippet>414</a>    <span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
-<a href=#415 id=415 data-nosnippet>415</a>        <span class="self">self</span>.deref().hash(state);
-<a href=#416 id=416 data-nosnippet>416</a>    }
-<a href=#417 id=417 data-nosnippet>417</a>}
-<a href=#418 id=418 data-nosnippet>418</a>
-<a href=#419 id=419 data-nosnippet>419</a><span class="doccomment">/// The inner interner.
-<a href=#420 id=420 data-nosnippet>420</a>/// This construction is used to get interior mutability in `Interner`.
-<a href=#421 id=421 data-nosnippet>421</a></span><span class="kw">struct </span>InnerInterner {
-<a href=#422 id=422 data-nosnippet>422</a>    <span class="comment">// /// Arena used to allocate the strings, giving us `&amp;'static str`s from it.
-<a href=#423 id=423 data-nosnippet>423</a>    // arena: DroplessArena,
-<a href=#424 id=424 data-nosnippet>424</a>    </span><span class="doccomment">/// Registration of strings and symbol index allocation is done in this set.
-<a href=#425 id=425 data-nosnippet>425</a>    </span>set: IndexSet&lt;InternedStr, FxBuildHasher&gt;,
-<a href=#426 id=426 data-nosnippet>426</a>}
-<a href=#427 id=427 data-nosnippet>427</a>
-<a href=#428 id=428 data-nosnippet>428</a><span class="doccomment">/// A symbol-to-string interner.
-<a href=#429 id=429 data-nosnippet>429</a></span><span class="kw">struct </span>Interner {
-<a href=#430 id=430 data-nosnippet>430</a>    inner: RefCell&lt;InnerInterner&gt;,
-<a href=#431 id=431 data-nosnippet>431</a>}
-<a href=#432 id=432 data-nosnippet>432</a>
-<a href=#433 id=433 data-nosnippet>433</a><span class="kw">impl </span>Interner {
-<a href=#434 id=434 data-nosnippet>434</a>    <span class="doccomment">/// Returns an interner prefilled with commonly used strings in Leo.
-<a href=#435 id=435 data-nosnippet>435</a>    </span><span class="kw">fn </span>prefilled() -&gt; <span class="self">Self </span>{
-<a href=#436 id=436 data-nosnippet>436</a>        <span class="self">Self</span>::prefill(PRE_DEFINED)
-<a href=#437 id=437 data-nosnippet>437</a>    }
-<a href=#438 id=438 data-nosnippet>438</a>
-<a href=#439 id=439 data-nosnippet>439</a>    <span class="doccomment">/// Returns an interner prefilled with `init`.
-<a href=#440 id=440 data-nosnippet>440</a>    </span><span class="kw">fn </span>prefill(init: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str]) -&gt; <span class="self">Self </span>{
-<a href=#441 id=441 data-nosnippet>441</a>        <span class="kw">let </span>inner = InnerInterner {
-<a href=#442 id=442 data-nosnippet>442</a>            <span class="comment">// arena: &lt;_&gt;::default(),
-<a href=#443 id=443 data-nosnippet>443</a>            </span>set: init.iter().copied().map(InternedStr::Static).collect(),
-<a href=#444 id=444 data-nosnippet>444</a>        };
-<a href=#445 id=445 data-nosnippet>445</a>        <span class="self">Self </span>{ inner: RefCell::new(inner) }
-<a href=#446 id=446 data-nosnippet>446</a>    }
-<a href=#447 id=447 data-nosnippet>447</a>
-<a href=#448 id=448 data-nosnippet>448</a>    <span class="doccomment">/// Interns `string`, returning a `Symbol` corresponding to it.
-<a href=#449 id=449 data-nosnippet>449</a>    </span><span class="kw">fn </span>intern(<span class="kw-2">&amp;</span><span class="self">self</span>, string: <span class="kw-2">&amp;</span>str) -&gt; Symbol {
-<a href=#450 id=450 data-nosnippet>450</a>        <span class="kw">let </span>InnerInterner { set } = <span class="kw-2">&amp;mut *</span><span class="self">self</span>.inner.borrow_mut();
-<a href=#451 id=451 data-nosnippet>451</a>
-<a href=#452 id=452 data-nosnippet>452</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(sym) = set.get_index_of(string) {
-<a href=#453 id=453 data-nosnippet>453</a>            <span class="comment">// Already interned, return that symbol.
-<a href=#454 id=454 data-nosnippet>454</a>            </span><span class="kw">return </span>Symbol::new(sym <span class="kw">as </span>u32);
-<a href=#455 id=455 data-nosnippet>455</a>        }
-<a href=#456 id=456 data-nosnippet>456</a>
-<a href=#457 id=457 data-nosnippet>457</a>        Symbol::new(set.insert_full(InternedStr::Owned(string.into())).<span class="number">0 </span><span class="kw">as </span>u32)
-<a href=#458 id=458 data-nosnippet>458</a>    }
+<a href=#407 id=407 data-nosnippet>407</a>    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+<a href=#408 id=408 data-nosnippet>408</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#409 id=409 data-nosnippet>409</a>            <span class="self">Self</span>::Static(s) =&gt; s,
+<a href=#410 id=410 data-nosnippet>410</a>            <span class="self">Self</span>::Owned(s) =&gt; s,
+<a href=#411 id=411 data-nosnippet>411</a>        }
+<a href=#412 id=412 data-nosnippet>412</a>    }
+<a href=#413 id=413 data-nosnippet>413</a>}
+<a href=#414 id=414 data-nosnippet>414</a>
+<a href=#415 id=415 data-nosnippet>415</a><span class="kw">impl </span>PartialEq <span class="kw">for </span>InternedStr {
+<a href=#416 id=416 data-nosnippet>416</a>    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>InternedStr) -&gt; bool {
+<a href=#417 id=417 data-nosnippet>417</a>        <span class="self">self</span>.deref() == other.deref()
+<a href=#418 id=418 data-nosnippet>418</a>    }
+<a href=#419 id=419 data-nosnippet>419</a>}
+<a href=#420 id=420 data-nosnippet>420</a>
+<a href=#421 id=421 data-nosnippet>421</a><span class="kw">impl </span>Hash <span class="kw">for </span>InternedStr {
+<a href=#422 id=422 data-nosnippet>422</a>    <span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+<a href=#423 id=423 data-nosnippet>423</a>        <span class="self">self</span>.deref().hash(state);
+<a href=#424 id=424 data-nosnippet>424</a>    }
+<a href=#425 id=425 data-nosnippet>425</a>}
+<a href=#426 id=426 data-nosnippet>426</a>
+<a href=#427 id=427 data-nosnippet>427</a><span class="doccomment">/// The inner interner.
+<a href=#428 id=428 data-nosnippet>428</a>/// This construction is used to get interior mutability in `Interner`.
+<a href=#429 id=429 data-nosnippet>429</a></span><span class="kw">struct </span>InnerInterner {
+<a href=#430 id=430 data-nosnippet>430</a>    <span class="comment">// /// Arena used to allocate the strings, giving us `&amp;'static str`s from it.
+<a href=#431 id=431 data-nosnippet>431</a>    // arena: DroplessArena,
+<a href=#432 id=432 data-nosnippet>432</a>    </span><span class="doccomment">/// Registration of strings and symbol index allocation is done in this set.
+<a href=#433 id=433 data-nosnippet>433</a>    </span>set: IndexSet&lt;InternedStr, FxBuildHasher&gt;,
+<a href=#434 id=434 data-nosnippet>434</a>}
+<a href=#435 id=435 data-nosnippet>435</a>
+<a href=#436 id=436 data-nosnippet>436</a><span class="doccomment">/// A symbol-to-string interner.
+<a href=#437 id=437 data-nosnippet>437</a></span><span class="kw">struct </span>Interner {
+<a href=#438 id=438 data-nosnippet>438</a>    inner: RefCell&lt;InnerInterner&gt;,
+<a href=#439 id=439 data-nosnippet>439</a>}
+<a href=#440 id=440 data-nosnippet>440</a>
+<a href=#441 id=441 data-nosnippet>441</a><span class="kw">impl </span>Interner {
+<a href=#442 id=442 data-nosnippet>442</a>    <span class="doccomment">/// Returns an interner prefilled with commonly used strings in Leo.
+<a href=#443 id=443 data-nosnippet>443</a>    </span><span class="kw">fn </span>prefilled() -&gt; <span class="self">Self </span>{
+<a href=#444 id=444 data-nosnippet>444</a>        <span class="self">Self</span>::prefill(PRE_DEFINED)
+<a href=#445 id=445 data-nosnippet>445</a>    }
+<a href=#446 id=446 data-nosnippet>446</a>
+<a href=#447 id=447 data-nosnippet>447</a>    <span class="doccomment">/// Returns an interner prefilled with `init`.
+<a href=#448 id=448 data-nosnippet>448</a>    </span><span class="kw">fn </span>prefill(init: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str]) -&gt; <span class="self">Self </span>{
+<a href=#449 id=449 data-nosnippet>449</a>        <span class="kw">let </span>inner = InnerInterner {
+<a href=#450 id=450 data-nosnippet>450</a>            <span class="comment">// arena: &lt;_&gt;::default(),
+<a href=#451 id=451 data-nosnippet>451</a>            </span>set: init.iter().copied().map(InternedStr::Static).collect(),
+<a href=#452 id=452 data-nosnippet>452</a>        };
+<a href=#453 id=453 data-nosnippet>453</a>        <span class="self">Self </span>{ inner: RefCell::new(inner) }
+<a href=#454 id=454 data-nosnippet>454</a>    }
+<a href=#455 id=455 data-nosnippet>455</a>
+<a href=#456 id=456 data-nosnippet>456</a>    <span class="doccomment">/// Interns `string`, returning a `Symbol` corresponding to it.
+<a href=#457 id=457 data-nosnippet>457</a>    </span><span class="kw">fn </span>intern(<span class="kw-2">&amp;</span><span class="self">self</span>, string: <span class="kw-2">&amp;</span>str) -&gt; Symbol {
+<a href=#458 id=458 data-nosnippet>458</a>        <span class="kw">let </span>InnerInterner { set } = <span class="kw-2">&amp;mut *</span><span class="self">self</span>.inner.borrow_mut();
 <a href=#459 id=459 data-nosnippet>459</a>
-<a href=#460 id=460 data-nosnippet>460</a>    <span class="doccomment">/// Returns the corresponding string for the given symbol.
-<a href=#461 id=461 data-nosnippet>461</a>    </span><span class="kw">fn </span>get&lt;R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, symbol: Symbol, with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>str) -&gt; R) -&gt; R {
-<a href=#462 id=462 data-nosnippet>462</a>        <span class="kw">let </span>set = <span class="kw-2">&amp;</span><span class="self">self</span>.inner.borrow().set;
-<a href=#463 id=463 data-nosnippet>463</a>        with(set.get_index(symbol.as_u32() <span class="kw">as </span>usize).unwrap())
-<a href=#464 id=464 data-nosnippet>464</a>    }
-<a href=#465 id=465 data-nosnippet>465</a>}</code></pre></div></section></main></body></html>
+<a href=#460 id=460 data-nosnippet>460</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(sym) = set.get_index_of(string) {
+<a href=#461 id=461 data-nosnippet>461</a>            <span class="comment">// Already interned, return that symbol.
+<a href=#462 id=462 data-nosnippet>462</a>            </span><span class="kw">return </span>Symbol::new(sym <span class="kw">as </span>u32);
+<a href=#463 id=463 data-nosnippet>463</a>        }
+<a href=#464 id=464 data-nosnippet>464</a>
+<a href=#465 id=465 data-nosnippet>465</a>        Symbol::new(set.insert_full(InternedStr::Owned(string.into())).<span class="number">0 </span><span class="kw">as </span>u32)
+<a href=#466 id=466 data-nosnippet>466</a>    }
+<a href=#467 id=467 data-nosnippet>467</a>
+<a href=#468 id=468 data-nosnippet>468</a>    <span class="doccomment">/// Returns the corresponding string for the given symbol.
+<a href=#469 id=469 data-nosnippet>469</a>    </span><span class="kw">fn </span>get&lt;R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, symbol: Symbol, with: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>str) -&gt; R) -&gt; R {
+<a href=#470 id=470 data-nosnippet>470</a>        <span class="kw">let </span>set = <span class="kw-2">&amp;</span><span class="self">self</span>.inner.borrow().set;
+<a href=#471 id=471 data-nosnippet>471</a>        with(set.get_index(symbol.as_u32() <span class="kw">as </span>usize).unwrap())
+<a href=#472 id=472 data-nosnippet>472</a>    }
+<a href=#473 id=473 data-nosnippet>473</a>}</code></pre></div></section></main></body></html>

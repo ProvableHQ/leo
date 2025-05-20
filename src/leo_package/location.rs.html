@@ -17,13 +17,19 @@
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span>serde::{Deserialize, Serialize};
 <a href=#18 id=18 data-nosnippet>18</a>
 <a href=#19 id=19 data-nosnippet>19</a><span class="comment">// Retrievable locations for an external program.
-<a href=#20 id=20 data-nosnippet>20</a></span><span class="attr">#[derive(Debug, Default, Clone, std::cmp::Eq, PartialEq, Hash, Serialize, Deserialize)]
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="attr">#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
 <a href=#21 id=21 data-nosnippet>21</a></span><span class="kw">pub enum </span>Location {
-<a href=#22 id=22 data-nosnippet>22</a>    <span class="attr">#[default]
-<a href=#23 id=23 data-nosnippet>23</a>    #[serde(rename = <span class="string">"network"</span>)]
-<a href=#24 id=24 data-nosnippet>24</a>    </span>Network,
-<a href=#25 id=25 data-nosnippet>25</a>    <span class="attr">#[serde(rename = <span class="string">"local"</span>)]
-<a href=#26 id=26 data-nosnippet>26</a>    </span>Local,
-<a href=#27 id=27 data-nosnippet>27</a>    <span class="attr">#[serde(rename = <span class="string">"git"</span>)]
-<a href=#28 id=28 data-nosnippet>28</a>    </span>Git,
-<a href=#29 id=29 data-nosnippet>29</a>}</code></pre></div></section></main></body></html>
+<a href=#22 id=22 data-nosnippet>22</a>    <span class="doccomment">/// A dependency already deployed on the network.
+<a href=#23 id=23 data-nosnippet>23</a>    </span><span class="attr">#[default]
+<a href=#24 id=24 data-nosnippet>24</a>    #[serde(rename = <span class="string">"network"</span>)]
+<a href=#25 id=25 data-nosnippet>25</a>    </span>Network,
+<a href=#26 id=26 data-nosnippet>26</a>    <span class="doccomment">/// A dependency found on the local filesystem.
+<a href=#27 id=27 data-nosnippet>27</a>    </span><span class="attr">#[serde(rename = <span class="string">"local"</span>)]
+<a href=#28 id=28 data-nosnippet>28</a>    </span>Local,
+<a href=#29 id=29 data-nosnippet>29</a>    <span class="doccomment">/// A dependency in the `tests` directory - a test.
+<a href=#30 id=30 data-nosnippet>30</a>    </span><span class="attr">#[serde(rename = <span class="string">"test"</span>)]
+<a href=#31 id=31 data-nosnippet>31</a>    </span>Test,
+<a href=#32 id=32 data-nosnippet>32</a>    <span class="doccomment">/// Unused.
+<a href=#33 id=33 data-nosnippet>33</a>    </span><span class="attr">#[serde(rename = <span class="string">"git"</span>)]
+<a href=#34 id=34 data-nosnippet>34</a>    </span>Git,
+<a href=#35 id=35 data-nosnippet>35</a>}</code></pre></div></section></main></body></html>
