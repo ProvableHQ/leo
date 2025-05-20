@@ -1198,7 +1198,9 @@ impl TypeCheckingVisitor<'_> {
         // Check that the function context matches.
         if self.scope_state.variant == Some(Variant::AsyncFunction) && !finalize_op {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span))
-        } else if self.scope_state.variant != Some(Variant::AsyncFunction) && finalize_op {
+        } else if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
+            && finalize_op
+        {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
         }
     }
