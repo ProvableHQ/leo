@@ -116,11 +116,10 @@ pub fn run_with_ledger(
     let genesis_private_key = PrivateKey::new(&mut rng).unwrap();
 
     // Initialize a `VM` and construct the genesis block. This should always succeed.
-    let genesis_block =
-        VM::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::from(ConsensusStore::open(None).unwrap())
-            .unwrap()
-            .genesis_beacon(&genesis_private_key, &mut rng)
-            .unwrap();
+    let genesis_block = VM::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::from(ConsensusStore::open(0).unwrap())
+        .unwrap()
+        .genesis_beacon(&genesis_private_key, &mut rng)
+        .unwrap();
 
     // Initialize a `Ledger`. This should always succeed.
     let ledger =

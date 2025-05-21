@@ -8,7 +8,7 @@ function main:
     output r2 as boolean.private;
 verified: false
 status: none
-errors: Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal)
+errors: Failed to evaluate instruction (assert.eq r0 r1;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal)
 warnings:
 null
 
@@ -51,7 +51,7 @@ warnings:
 
 verified: false
 status: none
-errors: Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal)
+errors: Failed to evaluate instruction (assert.eq r0 r1;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal)
 warnings:
 null
 

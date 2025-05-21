@@ -137,7 +137,7 @@ warnings:
 
 verified: false
 status: none
-errors: Failed to evaluate instruction (assert.eq r2 true ;): 'assert.eq' failed: 'false' is not equal to 'true' (should be equal)
+errors: Failed to evaluate instruction (assert.eq r2 true;): 'assert.eq' failed: 'false' is not equal to 'true' (should be equal)
 warnings:
 null
 
