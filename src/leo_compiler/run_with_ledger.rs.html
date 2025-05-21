@@ -116,176 +116,175 @@
 <a href=#116 id=116 data-nosnippet>116</a>    </span><span class="kw">let </span>genesis_private_key = PrivateKey::new(<span class="kw-2">&amp;mut </span>rng).unwrap();
 <a href=#117 id=117 data-nosnippet>117</a>
 <a href=#118 id=118 data-nosnippet>118</a>    <span class="comment">// Initialize a `VM` and construct the genesis block. This should always succeed.
-<a href=#119 id=119 data-nosnippet>119</a>    </span><span class="kw">let </span>genesis_block =
-<a href=#120 id=120 data-nosnippet>120</a>        VM::&lt;CurrentNetwork, ConsensusMemory&lt;CurrentNetwork&gt;&gt;::from(ConsensusStore::open(<span class="prelude-val">None</span>).unwrap())
-<a href=#121 id=121 data-nosnippet>121</a>            .unwrap()
-<a href=#122 id=122 data-nosnippet>122</a>            .genesis_beacon(<span class="kw-2">&amp;</span>genesis_private_key, <span class="kw-2">&amp;mut </span>rng)
-<a href=#123 id=123 data-nosnippet>123</a>            .unwrap();
-<a href=#124 id=124 data-nosnippet>124</a>
-<a href=#125 id=125 data-nosnippet>125</a>    <span class="comment">// Initialize a `Ledger`. This should always succeed.
-<a href=#126 id=126 data-nosnippet>126</a>    </span><span class="kw">let </span>ledger =
-<a href=#127 id=127 data-nosnippet>127</a>        Ledger::&lt;CurrentNetwork, ConsensusMemory&lt;CurrentNetwork&gt;&gt;::load(genesis_block, StorageMode::Production)
-<a href=#128 id=128 data-nosnippet>128</a>            .unwrap();
-<a href=#129 id=129 data-nosnippet>129</a>
-<a href=#130 id=130 data-nosnippet>130</a>    <span class="comment">// Deploy each bytecode separately.
-<a href=#131 id=131 data-nosnippet>131</a>    </span><span class="kw">for </span>Program { bytecode, name } <span class="kw">in </span><span class="kw-2">&amp;</span>config.programs {
-<a href=#132 id=132 data-nosnippet>132</a>        <span class="comment">// Parse the bytecode as an Aleo program.
-<a href=#133 id=133 data-nosnippet>133</a>        // Note that this function checks that the bytecode is well-formed.
-<a href=#134 id=134 data-nosnippet>134</a>        </span><span class="kw">let </span>aleo_program =
-<a href=#135 id=135 data-nosnippet>135</a>            ProgramCore::from_str(bytecode).map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">"Failed to parse bytecode of program {name}"</span>))<span class="question-mark">?</span>;
-<a href=#136 id=136 data-nosnippet>136</a>
-<a href=#137 id=137 data-nosnippet>137</a>        <span class="comment">// Add the program to the ledger.
-<a href=#138 id=138 data-nosnippet>138</a>        // Note that this function performs an additional validity check on the bytecode.
-<a href=#139 id=139 data-nosnippet>139</a>        </span><span class="kw">let </span>deployment = ledger
-<a href=#140 id=140 data-nosnippet>140</a>            .vm()
-<a href=#141 id=141 data-nosnippet>141</a>            .deploy(<span class="kw-2">&amp;</span>genesis_private_key, <span class="kw-2">&amp;</span>aleo_program, <span class="prelude-val">None</span>, <span class="number">0</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>rng)
-<a href=#142 id=142 data-nosnippet>142</a>            .map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">"Failed to deploy program {name}"</span>))<span class="question-mark">?</span>;
-<a href=#143 id=143 data-nosnippet>143</a>        <span class="kw">let </span>block = ledger
-<a href=#144 id=144 data-nosnippet>144</a>            .prepare_advance_to_next_beacon_block(<span class="kw-2">&amp;</span>genesis_private_key, <span class="macro">vec!</span>[], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[deployment], <span class="kw-2">&amp;mut </span>rng)
-<a href=#145 id=145 data-nosnippet>145</a>            .map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">"Failed to prepare to advance block for program {name}"</span>))<span class="question-mark">?</span>;
-<a href=#146 id=146 data-nosnippet>146</a>        ledger.advance_to_next_block(<span class="kw-2">&amp;</span>block).map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">"Failed to advance block for program {name}"</span>))<span class="question-mark">?</span>;
-<a href=#147 id=147 data-nosnippet>147</a>
-<a href=#148 id=148 data-nosnippet>148</a>        <span class="comment">// Check that the deployment transaction was accepted.
-<a href=#149 id=149 data-nosnippet>149</a>        </span><span class="kw">if </span>block.transactions().num_accepted() != <span class="number">1 </span>{
-<a href=#150 id=150 data-nosnippet>150</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"Deployment transaction for program {name} not accepted."</span>).into());
-<a href=#151 id=151 data-nosnippet>151</a>        }
-<a href=#152 id=152 data-nosnippet>152</a>    }
-<a href=#153 id=153 data-nosnippet>153</a>
-<a href=#154 id=154 data-nosnippet>154</a>    <span class="comment">// Fund each private key used in the test cases with 1M ALEO.
-<a href=#155 id=155 data-nosnippet>155</a>    </span><span class="kw">let </span>transactions: Vec&lt;Transaction&lt;CurrentNetwork&gt;&gt; = cases
-<a href=#156 id=156 data-nosnippet>156</a>        .iter()
-<a href=#157 id=157 data-nosnippet>157</a>        .filter_map(|case| case.private_key.as_ref())
-<a href=#158 id=158 data-nosnippet>158</a>        .map(|key| {
-<a href=#159 id=159 data-nosnippet>159</a>            <span class="comment">// Parse the private key.
-<a href=#160 id=160 data-nosnippet>160</a>            </span><span class="kw">let </span>private_key = PrivateKey::&lt;CurrentNetwork&gt;::from_str(key).expect(<span class="string">"Failed to parse private key."</span>);
-<a href=#161 id=161 data-nosnippet>161</a>            <span class="comment">// Convert the private key to an address.
-<a href=#162 id=162 data-nosnippet>162</a>            </span><span class="kw">let </span>address = Address::try_from(private_key).expect(<span class="string">"Failed to convert private key to address."</span>);
-<a href=#163 id=163 data-nosnippet>163</a>            <span class="comment">// Generate the transaction.
-<a href=#164 id=164 data-nosnippet>164</a>            </span>ledger
-<a href=#165 id=165 data-nosnippet>165</a>                .vm()
-<a href=#166 id=166 data-nosnippet>166</a>                .execute(
-<a href=#167 id=167 data-nosnippet>167</a>                    <span class="kw-2">&amp;</span>genesis_private_key,
-<a href=#168 id=168 data-nosnippet>168</a>                    (<span class="string">"credits.aleo"</span>, <span class="string">"transfer_public"</span>),
-<a href=#169 id=169 data-nosnippet>169</a>                    [
-<a href=#170 id=170 data-nosnippet>170</a>                        Value::from_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{address}"</span>)).expect(<span class="string">"Failed to parse recipient address"</span>),
-<a href=#171 id=171 data-nosnippet>171</a>                        Value::from_str(<span class="string">"1_000_000_000_000u64"</span>).expect(<span class="string">"Failed to parse amount"</span>),
-<a href=#172 id=172 data-nosnippet>172</a>                    ]
-<a href=#173 id=173 data-nosnippet>173</a>                    .iter(),
-<a href=#174 id=174 data-nosnippet>174</a>                    <span class="prelude-val">None</span>,
-<a href=#175 id=175 data-nosnippet>175</a>                    <span class="number">0u64</span>,
-<a href=#176 id=176 data-nosnippet>176</a>                    <span class="prelude-val">None</span>,
-<a href=#177 id=177 data-nosnippet>177</a>                    <span class="kw-2">&amp;mut </span>rng,
-<a href=#178 id=178 data-nosnippet>178</a>                )
-<a href=#179 id=179 data-nosnippet>179</a>                .expect(<span class="string">"Failed to generate funding transaction"</span>)
-<a href=#180 id=180 data-nosnippet>180</a>        })
-<a href=#181 id=181 data-nosnippet>181</a>        .collect();
-<a href=#182 id=182 data-nosnippet>182</a>
-<a href=#183 id=183 data-nosnippet>183</a>    <span class="comment">// Create a block with the funding transactions.
-<a href=#184 id=184 data-nosnippet>184</a>    </span><span class="kw">let </span>block = ledger
-<a href=#185 id=185 data-nosnippet>185</a>        .prepare_advance_to_next_beacon_block(<span class="kw-2">&amp;</span>genesis_private_key, <span class="macro">vec!</span>[], <span class="macro">vec!</span>[], transactions, <span class="kw-2">&amp;mut </span>rng)
-<a href=#186 id=186 data-nosnippet>186</a>        .expect(<span class="string">"Failed to prepare advance to next beacon block"</span>);
-<a href=#187 id=187 data-nosnippet>187</a>    <span class="comment">// Assert that no transactions were aborted or rejected.
-<a href=#188 id=188 data-nosnippet>188</a>    </span><span class="macro">assert!</span>(block.aborted_transaction_ids().is_empty());
-<a href=#189 id=189 data-nosnippet>189</a>    <span class="macro">assert_eq!</span>(block.transactions().num_rejected(), <span class="number">0</span>);
-<a href=#190 id=190 data-nosnippet>190</a>    <span class="comment">// Advance the ledger to the next block.
-<a href=#191 id=191 data-nosnippet>191</a>    </span>ledger.advance_to_next_block(<span class="kw-2">&amp;</span>block).expect(<span class="string">"Failed to advance to next block"</span>);
-<a href=#192 id=192 data-nosnippet>192</a>
-<a href=#193 id=193 data-nosnippet>193</a>    <span class="comment">// Advance the ledger with empty blocks until the specified height.
-<a href=#194 id=194 data-nosnippet>194</a>    </span><span class="kw">let </span>current_height = ledger.vm().block_store().current_block_height();
-<a href=#195 id=195 data-nosnippet>195</a>    <span class="kw">let </span>num_blocks = config.min_height.saturating_sub(current_height).saturating_sub(<span class="number">1</span>);
-<a href=#196 id=196 data-nosnippet>196</a>    <span class="kw">for _ in </span><span class="number">0</span>..num_blocks {
-<a href=#197 id=197 data-nosnippet>197</a>        <span class="kw">let </span>block = ledger
-<a href=#198 id=198 data-nosnippet>198</a>            .prepare_advance_to_next_beacon_block(<span class="kw-2">&amp;</span>genesis_private_key, <span class="macro">vec!</span>[], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[], <span class="kw-2">&amp;mut </span>rng)
-<a href=#199 id=199 data-nosnippet>199</a>            .expect(<span class="string">"Failed to prepare advance to next beacon block"</span>);
-<a href=#200 id=200 data-nosnippet>200</a>        ledger.advance_to_next_block(<span class="kw-2">&amp;</span>block).expect(<span class="string">"Failed to advance to next block"</span>);
-<a href=#201 id=201 data-nosnippet>201</a>    }
-<a href=#202 id=202 data-nosnippet>202</a>
-<a href=#203 id=203 data-nosnippet>203</a>    <span class="kw">let </span><span class="kw-2">mut </span>case_outcomes = Vec::new();
-<a href=#204 id=204 data-nosnippet>204</a>
-<a href=#205 id=205 data-nosnippet>205</a>    <span class="kw">for </span>case <span class="kw">in </span>cases {
-<a href=#206 id=206 data-nosnippet>206</a>        <span class="macro">assert!</span>(
-<a href=#207 id=207 data-nosnippet>207</a>            ledger.vm().contains_program(<span class="kw-2">&amp;</span>ProgramID::from_str(<span class="kw-2">&amp;</span>case.program_name).unwrap()),
-<a href=#208 id=208 data-nosnippet>208</a>            <span class="string">"Program {} should exist."</span>,
-<a href=#209 id=209 data-nosnippet>209</a>            case.program_name
-<a href=#210 id=210 data-nosnippet>210</a>        );
-<a href=#211 id=211 data-nosnippet>211</a>
-<a href=#212 id=212 data-nosnippet>212</a>        <span class="kw">let </span>private_key = case
-<a href=#213 id=213 data-nosnippet>213</a>            .private_key
-<a href=#214 id=214 data-nosnippet>214</a>            .as_ref()
-<a href=#215 id=215 data-nosnippet>215</a>            .map(|key| PrivateKey::from_str(key).expect(<span class="string">"Failed to parse private key."</span>))
-<a href=#216 id=216 data-nosnippet>216</a>            .unwrap_or(genesis_private_key);
-<a href=#217 id=217 data-nosnippet>217</a>
-<a href=#218 id=218 data-nosnippet>218</a>        <span class="kw">let </span><span class="kw-2">mut </span>execution = <span class="prelude-val">None</span>;
-<a href=#219 id=219 data-nosnippet>219</a>        <span class="kw">let </span><span class="kw-2">mut </span>verified = <span class="bool-val">false</span>;
-<a href=#220 id=220 data-nosnippet>220</a>        <span class="kw">let </span><span class="kw-2">mut </span>status = Status::None;
-<a href=#221 id=221 data-nosnippet>221</a>
-<a href=#222 id=222 data-nosnippet>222</a>        <span class="comment">// Halts are handled by panics, so we need to catch them.
-<a href=#223 id=223 data-nosnippet>223</a>        // I'm not thrilled about this usage of `AssertUnwindSafe`, but it seems to be
-<a href=#224 id=224 data-nosnippet>224</a>        // used frequently in SnarkVM anyway.
-<a href=#225 id=225 data-nosnippet>225</a>        </span><span class="kw">let </span>execute_output = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-<a href=#226 id=226 data-nosnippet>226</a>            ledger.vm().execute(
-<a href=#227 id=227 data-nosnippet>227</a>                <span class="kw-2">&amp;</span>private_key,
-<a href=#228 id=228 data-nosnippet>228</a>                (<span class="kw-2">&amp;</span>case.program_name, <span class="kw-2">&amp;</span>case.function),
-<a href=#229 id=229 data-nosnippet>229</a>                case.input.iter(),
-<a href=#230 id=230 data-nosnippet>230</a>                <span class="prelude-val">None</span>,
-<a href=#231 id=231 data-nosnippet>231</a>                <span class="number">0</span>,
-<a href=#232 id=232 data-nosnippet>232</a>                <span class="prelude-val">None</span>,
-<a href=#233 id=233 data-nosnippet>233</a>                <span class="kw-2">&amp;mut </span>rng,
-<a href=#234 id=234 data-nosnippet>234</a>            )
-<a href=#235 id=235 data-nosnippet>235</a>        }));
-<a href=#236 id=236 data-nosnippet>236</a>
-<a href=#237 id=237 data-nosnippet>237</a>        <span class="kw">if let </span><span class="prelude-val">Err</span>(payload) = execute_output {
-<a href=#238 id=238 data-nosnippet>238</a>            <span class="kw">let </span>s1 = payload.downcast_ref::&lt;<span class="kw-2">&amp;</span>str&gt;().map(|s| s.to_string());
-<a href=#239 id=239 data-nosnippet>239</a>            <span class="kw">let </span>s2 = payload.downcast_ref::&lt;String&gt;().cloned();
-<a href=#240 id=240 data-nosnippet>240</a>            <span class="kw">let </span>s = s1.or(s2).unwrap_or_else(|| <span class="string">"Unknown panic payload"</span>.to_string());
-<a href=#241 id=241 data-nosnippet>241</a>
-<a href=#242 id=242 data-nosnippet>242</a>            case_outcomes.push(CaseOutcome {
-<a href=#243 id=243 data-nosnippet>243</a>                status: Status::Halted(s),
-<a href=#244 id=244 data-nosnippet>244</a>                verified: <span class="bool-val">false</span>,
-<a href=#245 id=245 data-nosnippet>245</a>                errors: buf.extract_errs(),
-<a href=#246 id=246 data-nosnippet>246</a>                warnings: buf.extract_warnings(),
-<a href=#247 id=247 data-nosnippet>247</a>                execution: <span class="string">""</span>.to_string(),
-<a href=#248 id=248 data-nosnippet>248</a>            });
-<a href=#249 id=249 data-nosnippet>249</a>            <span class="kw">continue</span>;
-<a href=#250 id=250 data-nosnippet>250</a>        }
-<a href=#251 id=251 data-nosnippet>251</a>
-<a href=#252 id=252 data-nosnippet>252</a>        <span class="kw">let </span>result = execute_output
-<a href=#253 id=253 data-nosnippet>253</a>            .unwrap()
-<a href=#254 id=254 data-nosnippet>254</a>            .and_then(|transaction| {
-<a href=#255 id=255 data-nosnippet>255</a>                verified = ledger.vm().check_transaction(<span class="kw-2">&amp;</span>transaction, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>rng).is_ok();
-<a href=#256 id=256 data-nosnippet>256</a>                execution = <span class="prelude-val">Some</span>(transaction.clone());
-<a href=#257 id=257 data-nosnippet>257</a>                ledger.prepare_advance_to_next_beacon_block(<span class="kw-2">&amp;</span>private_key, <span class="macro">vec!</span>[], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[transaction], <span class="kw-2">&amp;mut </span>rng)
-<a href=#258 id=258 data-nosnippet>258</a>            })
-<a href=#259 id=259 data-nosnippet>259</a>            .and_then(|block| {
-<a href=#260 id=260 data-nosnippet>260</a>                status = <span class="kw">match </span>(block.aborted_transaction_ids().is_empty(), block.transactions().num_accepted() == <span class="number">1</span>) {
-<a href=#261 id=261 data-nosnippet>261</a>                    (<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; Status::Aborted,
-<a href=#262 id=262 data-nosnippet>262</a>                    (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; Status::Accepted,
-<a href=#263 id=263 data-nosnippet>263</a>                    (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; Status::Rejected,
-<a href=#264 id=264 data-nosnippet>264</a>                };
-<a href=#265 id=265 data-nosnippet>265</a>                ledger.advance_to_next_block(<span class="kw-2">&amp;</span>block)
-<a href=#266 id=266 data-nosnippet>266</a>            });
-<a href=#267 id=267 data-nosnippet>267</a>
-<a href=#268 id=268 data-nosnippet>268</a>        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = result {
-<a href=#269 id=269 data-nosnippet>269</a>            handler.emit_err(LeoError::Anyhow(e));
-<a href=#270 id=270 data-nosnippet>270</a>        }
-<a href=#271 id=271 data-nosnippet>271</a>
-<a href=#272 id=272 data-nosnippet>272</a>        <span class="comment">// Extract the execution, removing the global state root and proof.
-<a href=#273 id=273 data-nosnippet>273</a>        // This is necessary as they are not deterministic across runs, even with RNG fixed.
-<a href=#274 id=274 data-nosnippet>274</a>        </span><span class="kw">let </span>execution = <span class="kw">if let </span><span class="prelude-val">Some</span>(Transaction::Execute(<span class="kw">_</span>, <span class="kw">_</span>, execution, <span class="kw">_</span>)) = execution {
-<a href=#275 id=275 data-nosnippet>275</a>            <span class="kw">let </span>transitions = execution.into_transitions();
-<a href=#276 id=276 data-nosnippet>276</a>            <span class="prelude-val">Some</span>(Execution::from(transitions, Default::default(), <span class="prelude-val">None</span>).unwrap())
-<a href=#277 id=277 data-nosnippet>277</a>        } <span class="kw">else </span>{
-<a href=#278 id=278 data-nosnippet>278</a>            <span class="prelude-val">None
-<a href=#279 id=279 data-nosnippet>279</a>        </span>};
-<a href=#280 id=280 data-nosnippet>280</a>
-<a href=#281 id=281 data-nosnippet>281</a>        case_outcomes.push(CaseOutcome {
-<a href=#282 id=282 data-nosnippet>282</a>            status,
-<a href=#283 id=283 data-nosnippet>283</a>            verified,
-<a href=#284 id=284 data-nosnippet>284</a>            errors: buf.extract_errs(),
-<a href=#285 id=285 data-nosnippet>285</a>            warnings: buf.extract_warnings(),
-<a href=#286 id=286 data-nosnippet>286</a>            execution: serde_json::to_string_pretty(<span class="kw-2">&amp;</span>execution).expect(<span class="string">"Serialization failure"</span>),
-<a href=#287 id=287 data-nosnippet>287</a>        });
-<a href=#288 id=288 data-nosnippet>288</a>    }
-<a href=#289 id=289 data-nosnippet>289</a>
-<a href=#290 id=290 data-nosnippet>290</a>    <span class="prelude-val">Ok</span>(case_outcomes)
-<a href=#291 id=291 data-nosnippet>291</a>}</code></pre></div></section></main></body></html>
+<a href=#119 id=119 data-nosnippet>119</a>    </span><span class="kw">let </span>genesis_block = VM::&lt;CurrentNetwork, ConsensusMemory&lt;CurrentNetwork&gt;&gt;::from(ConsensusStore::open(<span class="number">0</span>).unwrap())
+<a href=#120 id=120 data-nosnippet>120</a>        .unwrap()
+<a href=#121 id=121 data-nosnippet>121</a>        .genesis_beacon(<span class="kw-2">&amp;</span>genesis_private_key, <span class="kw-2">&amp;mut </span>rng)
+<a href=#122 id=122 data-nosnippet>122</a>        .unwrap();
+<a href=#123 id=123 data-nosnippet>123</a>
+<a href=#124 id=124 data-nosnippet>124</a>    <span class="comment">// Initialize a `Ledger`. This should always succeed.
+<a href=#125 id=125 data-nosnippet>125</a>    </span><span class="kw">let </span>ledger =
+<a href=#126 id=126 data-nosnippet>126</a>        Ledger::&lt;CurrentNetwork, ConsensusMemory&lt;CurrentNetwork&gt;&gt;::load(genesis_block, StorageMode::Production)
+<a href=#127 id=127 data-nosnippet>127</a>            .unwrap();
+<a href=#128 id=128 data-nosnippet>128</a>
+<a href=#129 id=129 data-nosnippet>129</a>    <span class="comment">// Deploy each bytecode separately.
+<a href=#130 id=130 data-nosnippet>130</a>    </span><span class="kw">for </span>Program { bytecode, name } <span class="kw">in </span><span class="kw-2">&amp;</span>config.programs {
+<a href=#131 id=131 data-nosnippet>131</a>        <span class="comment">// Parse the bytecode as an Aleo program.
+<a href=#132 id=132 data-nosnippet>132</a>        // Note that this function checks that the bytecode is well-formed.
+<a href=#133 id=133 data-nosnippet>133</a>        </span><span class="kw">let </span>aleo_program =
+<a href=#134 id=134 data-nosnippet>134</a>            ProgramCore::from_str(bytecode).map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">"Failed to parse bytecode of program {name}"</span>))<span class="question-mark">?</span>;
+<a href=#135 id=135 data-nosnippet>135</a>
+<a href=#136 id=136 data-nosnippet>136</a>        <span class="comment">// Add the program to the ledger.
+<a href=#137 id=137 data-nosnippet>137</a>        // Note that this function performs an additional validity check on the bytecode.
+<a href=#138 id=138 data-nosnippet>138</a>        </span><span class="kw">let </span>deployment = ledger
+<a href=#139 id=139 data-nosnippet>139</a>            .vm()
+<a href=#140 id=140 data-nosnippet>140</a>            .deploy(<span class="kw-2">&amp;</span>genesis_private_key, <span class="kw-2">&amp;</span>aleo_program, <span class="prelude-val">None</span>, <span class="number">0</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>rng)
+<a href=#141 id=141 data-nosnippet>141</a>            .map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">"Failed to deploy program {name}"</span>))<span class="question-mark">?</span>;
+<a href=#142 id=142 data-nosnippet>142</a>        <span class="kw">let </span>block = ledger
+<a href=#143 id=143 data-nosnippet>143</a>            .prepare_advance_to_next_beacon_block(<span class="kw-2">&amp;</span>genesis_private_key, <span class="macro">vec!</span>[], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[deployment], <span class="kw-2">&amp;mut </span>rng)
+<a href=#144 id=144 data-nosnippet>144</a>            .map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">"Failed to prepare to advance block for program {name}"</span>))<span class="question-mark">?</span>;
+<a href=#145 id=145 data-nosnippet>145</a>        ledger.advance_to_next_block(<span class="kw-2">&amp;</span>block).map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">"Failed to advance block for program {name}"</span>))<span class="question-mark">?</span>;
+<a href=#146 id=146 data-nosnippet>146</a>
+<a href=#147 id=147 data-nosnippet>147</a>        <span class="comment">// Check that the deployment transaction was accepted.
+<a href=#148 id=148 data-nosnippet>148</a>        </span><span class="kw">if </span>block.transactions().num_accepted() != <span class="number">1 </span>{
+<a href=#149 id=149 data-nosnippet>149</a>            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"Deployment transaction for program {name} not accepted."</span>).into());
+<a href=#150 id=150 data-nosnippet>150</a>        }
+<a href=#151 id=151 data-nosnippet>151</a>    }
+<a href=#152 id=152 data-nosnippet>152</a>
+<a href=#153 id=153 data-nosnippet>153</a>    <span class="comment">// Fund each private key used in the test cases with 1M ALEO.
+<a href=#154 id=154 data-nosnippet>154</a>    </span><span class="kw">let </span>transactions: Vec&lt;Transaction&lt;CurrentNetwork&gt;&gt; = cases
+<a href=#155 id=155 data-nosnippet>155</a>        .iter()
+<a href=#156 id=156 data-nosnippet>156</a>        .filter_map(|case| case.private_key.as_ref())
+<a href=#157 id=157 data-nosnippet>157</a>        .map(|key| {
+<a href=#158 id=158 data-nosnippet>158</a>            <span class="comment">// Parse the private key.
+<a href=#159 id=159 data-nosnippet>159</a>            </span><span class="kw">let </span>private_key = PrivateKey::&lt;CurrentNetwork&gt;::from_str(key).expect(<span class="string">"Failed to parse private key."</span>);
+<a href=#160 id=160 data-nosnippet>160</a>            <span class="comment">// Convert the private key to an address.
+<a href=#161 id=161 data-nosnippet>161</a>            </span><span class="kw">let </span>address = Address::try_from(private_key).expect(<span class="string">"Failed to convert private key to address."</span>);
+<a href=#162 id=162 data-nosnippet>162</a>            <span class="comment">// Generate the transaction.
+<a href=#163 id=163 data-nosnippet>163</a>            </span>ledger
+<a href=#164 id=164 data-nosnippet>164</a>                .vm()
+<a href=#165 id=165 data-nosnippet>165</a>                .execute(
+<a href=#166 id=166 data-nosnippet>166</a>                    <span class="kw-2">&amp;</span>genesis_private_key,
+<a href=#167 id=167 data-nosnippet>167</a>                    (<span class="string">"credits.aleo"</span>, <span class="string">"transfer_public"</span>),
+<a href=#168 id=168 data-nosnippet>168</a>                    [
+<a href=#169 id=169 data-nosnippet>169</a>                        Value::from_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{address}"</span>)).expect(<span class="string">"Failed to parse recipient address"</span>),
+<a href=#170 id=170 data-nosnippet>170</a>                        Value::from_str(<span class="string">"1_000_000_000_000u64"</span>).expect(<span class="string">"Failed to parse amount"</span>),
+<a href=#171 id=171 data-nosnippet>171</a>                    ]
+<a href=#172 id=172 data-nosnippet>172</a>                    .iter(),
+<a href=#173 id=173 data-nosnippet>173</a>                    <span class="prelude-val">None</span>,
+<a href=#174 id=174 data-nosnippet>174</a>                    <span class="number">0u64</span>,
+<a href=#175 id=175 data-nosnippet>175</a>                    <span class="prelude-val">None</span>,
+<a href=#176 id=176 data-nosnippet>176</a>                    <span class="kw-2">&amp;mut </span>rng,
+<a href=#177 id=177 data-nosnippet>177</a>                )
+<a href=#178 id=178 data-nosnippet>178</a>                .expect(<span class="string">"Failed to generate funding transaction"</span>)
+<a href=#179 id=179 data-nosnippet>179</a>        })
+<a href=#180 id=180 data-nosnippet>180</a>        .collect();
+<a href=#181 id=181 data-nosnippet>181</a>
+<a href=#182 id=182 data-nosnippet>182</a>    <span class="comment">// Create a block with the funding transactions.
+<a href=#183 id=183 data-nosnippet>183</a>    </span><span class="kw">let </span>block = ledger
+<a href=#184 id=184 data-nosnippet>184</a>        .prepare_advance_to_next_beacon_block(<span class="kw-2">&amp;</span>genesis_private_key, <span class="macro">vec!</span>[], <span class="macro">vec!</span>[], transactions, <span class="kw-2">&amp;mut </span>rng)
+<a href=#185 id=185 data-nosnippet>185</a>        .expect(<span class="string">"Failed to prepare advance to next beacon block"</span>);
+<a href=#186 id=186 data-nosnippet>186</a>    <span class="comment">// Assert that no transactions were aborted or rejected.
+<a href=#187 id=187 data-nosnippet>187</a>    </span><span class="macro">assert!</span>(block.aborted_transaction_ids().is_empty());
+<a href=#188 id=188 data-nosnippet>188</a>    <span class="macro">assert_eq!</span>(block.transactions().num_rejected(), <span class="number">0</span>);
+<a href=#189 id=189 data-nosnippet>189</a>    <span class="comment">// Advance the ledger to the next block.
+<a href=#190 id=190 data-nosnippet>190</a>    </span>ledger.advance_to_next_block(<span class="kw-2">&amp;</span>block).expect(<span class="string">"Failed to advance to next block"</span>);
+<a href=#191 id=191 data-nosnippet>191</a>
+<a href=#192 id=192 data-nosnippet>192</a>    <span class="comment">// Advance the ledger with empty blocks until the specified height.
+<a href=#193 id=193 data-nosnippet>193</a>    </span><span class="kw">let </span>current_height = ledger.vm().block_store().current_block_height();
+<a href=#194 id=194 data-nosnippet>194</a>    <span class="kw">let </span>num_blocks = config.min_height.saturating_sub(current_height).saturating_sub(<span class="number">1</span>);
+<a href=#195 id=195 data-nosnippet>195</a>    <span class="kw">for _ in </span><span class="number">0</span>..num_blocks {
+<a href=#196 id=196 data-nosnippet>196</a>        <span class="kw">let </span>block = ledger
+<a href=#197 id=197 data-nosnippet>197</a>            .prepare_advance_to_next_beacon_block(<span class="kw-2">&amp;</span>genesis_private_key, <span class="macro">vec!</span>[], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[], <span class="kw-2">&amp;mut </span>rng)
+<a href=#198 id=198 data-nosnippet>198</a>            .expect(<span class="string">"Failed to prepare advance to next beacon block"</span>);
+<a href=#199 id=199 data-nosnippet>199</a>        ledger.advance_to_next_block(<span class="kw-2">&amp;</span>block).expect(<span class="string">"Failed to advance to next block"</span>);
+<a href=#200 id=200 data-nosnippet>200</a>    }
+<a href=#201 id=201 data-nosnippet>201</a>
+<a href=#202 id=202 data-nosnippet>202</a>    <span class="kw">let </span><span class="kw-2">mut </span>case_outcomes = Vec::new();
+<a href=#203 id=203 data-nosnippet>203</a>
+<a href=#204 id=204 data-nosnippet>204</a>    <span class="kw">for </span>case <span class="kw">in </span>cases {
+<a href=#205 id=205 data-nosnippet>205</a>        <span class="macro">assert!</span>(
+<a href=#206 id=206 data-nosnippet>206</a>            ledger.vm().contains_program(<span class="kw-2">&amp;</span>ProgramID::from_str(<span class="kw-2">&amp;</span>case.program_name).unwrap()),
+<a href=#207 id=207 data-nosnippet>207</a>            <span class="string">"Program {} should exist."</span>,
+<a href=#208 id=208 data-nosnippet>208</a>            case.program_name
+<a href=#209 id=209 data-nosnippet>209</a>        );
+<a href=#210 id=210 data-nosnippet>210</a>
+<a href=#211 id=211 data-nosnippet>211</a>        <span class="kw">let </span>private_key = case
+<a href=#212 id=212 data-nosnippet>212</a>            .private_key
+<a href=#213 id=213 data-nosnippet>213</a>            .as_ref()
+<a href=#214 id=214 data-nosnippet>214</a>            .map(|key| PrivateKey::from_str(key).expect(<span class="string">"Failed to parse private key."</span>))
+<a href=#215 id=215 data-nosnippet>215</a>            .unwrap_or(genesis_private_key);
+<a href=#216 id=216 data-nosnippet>216</a>
+<a href=#217 id=217 data-nosnippet>217</a>        <span class="kw">let </span><span class="kw-2">mut </span>execution = <span class="prelude-val">None</span>;
+<a href=#218 id=218 data-nosnippet>218</a>        <span class="kw">let </span><span class="kw-2">mut </span>verified = <span class="bool-val">false</span>;
+<a href=#219 id=219 data-nosnippet>219</a>        <span class="kw">let </span><span class="kw-2">mut </span>status = Status::None;
+<a href=#220 id=220 data-nosnippet>220</a>
+<a href=#221 id=221 data-nosnippet>221</a>        <span class="comment">// Halts are handled by panics, so we need to catch them.
+<a href=#222 id=222 data-nosnippet>222</a>        // I'm not thrilled about this usage of `AssertUnwindSafe`, but it seems to be
+<a href=#223 id=223 data-nosnippet>223</a>        // used frequently in SnarkVM anyway.
+<a href=#224 id=224 data-nosnippet>224</a>        </span><span class="kw">let </span>execute_output = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+<a href=#225 id=225 data-nosnippet>225</a>            ledger.vm().execute(
+<a href=#226 id=226 data-nosnippet>226</a>                <span class="kw-2">&amp;</span>private_key,
+<a href=#227 id=227 data-nosnippet>227</a>                (<span class="kw-2">&amp;</span>case.program_name, <span class="kw-2">&amp;</span>case.function),
+<a href=#228 id=228 data-nosnippet>228</a>                case.input.iter(),
+<a href=#229 id=229 data-nosnippet>229</a>                <span class="prelude-val">None</span>,
+<a href=#230 id=230 data-nosnippet>230</a>                <span class="number">0</span>,
+<a href=#231 id=231 data-nosnippet>231</a>                <span class="prelude-val">None</span>,
+<a href=#232 id=232 data-nosnippet>232</a>                <span class="kw-2">&amp;mut </span>rng,
+<a href=#233 id=233 data-nosnippet>233</a>            )
+<a href=#234 id=234 data-nosnippet>234</a>        }));
+<a href=#235 id=235 data-nosnippet>235</a>
+<a href=#236 id=236 data-nosnippet>236</a>        <span class="kw">if let </span><span class="prelude-val">Err</span>(payload) = execute_output {
+<a href=#237 id=237 data-nosnippet>237</a>            <span class="kw">let </span>s1 = payload.downcast_ref::&lt;<span class="kw-2">&amp;</span>str&gt;().map(|s| s.to_string());
+<a href=#238 id=238 data-nosnippet>238</a>            <span class="kw">let </span>s2 = payload.downcast_ref::&lt;String&gt;().cloned();
+<a href=#239 id=239 data-nosnippet>239</a>            <span class="kw">let </span>s = s1.or(s2).unwrap_or_else(|| <span class="string">"Unknown panic payload"</span>.to_string());
+<a href=#240 id=240 data-nosnippet>240</a>
+<a href=#241 id=241 data-nosnippet>241</a>            case_outcomes.push(CaseOutcome {
+<a href=#242 id=242 data-nosnippet>242</a>                status: Status::Halted(s),
+<a href=#243 id=243 data-nosnippet>243</a>                verified: <span class="bool-val">false</span>,
+<a href=#244 id=244 data-nosnippet>244</a>                errors: buf.extract_errs(),
+<a href=#245 id=245 data-nosnippet>245</a>                warnings: buf.extract_warnings(),
+<a href=#246 id=246 data-nosnippet>246</a>                execution: <span class="string">""</span>.to_string(),
+<a href=#247 id=247 data-nosnippet>247</a>            });
+<a href=#248 id=248 data-nosnippet>248</a>            <span class="kw">continue</span>;
+<a href=#249 id=249 data-nosnippet>249</a>        }
+<a href=#250 id=250 data-nosnippet>250</a>
+<a href=#251 id=251 data-nosnippet>251</a>        <span class="kw">let </span>result = execute_output
+<a href=#252 id=252 data-nosnippet>252</a>            .unwrap()
+<a href=#253 id=253 data-nosnippet>253</a>            .and_then(|transaction| {
+<a href=#254 id=254 data-nosnippet>254</a>                verified = ledger.vm().check_transaction(<span class="kw-2">&amp;</span>transaction, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>rng).is_ok();
+<a href=#255 id=255 data-nosnippet>255</a>                execution = <span class="prelude-val">Some</span>(transaction.clone());
+<a href=#256 id=256 data-nosnippet>256</a>                ledger.prepare_advance_to_next_beacon_block(<span class="kw-2">&amp;</span>private_key, <span class="macro">vec!</span>[], <span class="macro">vec!</span>[], <span class="macro">vec!</span>[transaction], <span class="kw-2">&amp;mut </span>rng)
+<a href=#257 id=257 data-nosnippet>257</a>            })
+<a href=#258 id=258 data-nosnippet>258</a>            .and_then(|block| {
+<a href=#259 id=259 data-nosnippet>259</a>                status = <span class="kw">match </span>(block.aborted_transaction_ids().is_empty(), block.transactions().num_accepted() == <span class="number">1</span>) {
+<a href=#260 id=260 data-nosnippet>260</a>                    (<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; Status::Aborted,
+<a href=#261 id=261 data-nosnippet>261</a>                    (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; Status::Accepted,
+<a href=#262 id=262 data-nosnippet>262</a>                    (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; Status::Rejected,
+<a href=#263 id=263 data-nosnippet>263</a>                };
+<a href=#264 id=264 data-nosnippet>264</a>                ledger.advance_to_next_block(<span class="kw-2">&amp;</span>block)
+<a href=#265 id=265 data-nosnippet>265</a>            });
+<a href=#266 id=266 data-nosnippet>266</a>
+<a href=#267 id=267 data-nosnippet>267</a>        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = result {
+<a href=#268 id=268 data-nosnippet>268</a>            handler.emit_err(LeoError::Anyhow(e));
+<a href=#269 id=269 data-nosnippet>269</a>        }
+<a href=#270 id=270 data-nosnippet>270</a>
+<a href=#271 id=271 data-nosnippet>271</a>        <span class="comment">// Extract the execution, removing the global state root and proof.
+<a href=#272 id=272 data-nosnippet>272</a>        // This is necessary as they are not deterministic across runs, even with RNG fixed.
+<a href=#273 id=273 data-nosnippet>273</a>        </span><span class="kw">let </span>execution = <span class="kw">if let </span><span class="prelude-val">Some</span>(Transaction::Execute(<span class="kw">_</span>, <span class="kw">_</span>, execution, <span class="kw">_</span>)) = execution {
+<a href=#274 id=274 data-nosnippet>274</a>            <span class="kw">let </span>transitions = execution.into_transitions();
+<a href=#275 id=275 data-nosnippet>275</a>            <span class="prelude-val">Some</span>(Execution::from(transitions, Default::default(), <span class="prelude-val">None</span>).unwrap())
+<a href=#276 id=276 data-nosnippet>276</a>        } <span class="kw">else </span>{
+<a href=#277 id=277 data-nosnippet>277</a>            <span class="prelude-val">None
+<a href=#278 id=278 data-nosnippet>278</a>        </span>};
+<a href=#279 id=279 data-nosnippet>279</a>
+<a href=#280 id=280 data-nosnippet>280</a>        case_outcomes.push(CaseOutcome {
+<a href=#281 id=281 data-nosnippet>281</a>            status,
+<a href=#282 id=282 data-nosnippet>282</a>            verified,
+<a href=#283 id=283 data-nosnippet>283</a>            errors: buf.extract_errs(),
+<a href=#284 id=284 data-nosnippet>284</a>            warnings: buf.extract_warnings(),
+<a href=#285 id=285 data-nosnippet>285</a>            execution: serde_json::to_string_pretty(<span class="kw-2">&amp;</span>execution).expect(<span class="string">"Serialization failure"</span>),
+<a href=#286 id=286 data-nosnippet>286</a>        });
+<a href=#287 id=287 data-nosnippet>287</a>    }
+<a href=#288 id=288 data-nosnippet>288</a>
+<a href=#289 id=289 data-nosnippet>289</a>    <span class="prelude-val">Ok</span>(case_outcomes)
+<a href=#290 id=290 data-nosnippet>290</a>}</code></pre></div></section></main></body></html>
