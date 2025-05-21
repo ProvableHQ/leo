@@ -178,7 +178,7 @@
 <a href=#178 id=178 data-nosnippet>178</a>                    <span class="comment">// Make a definition for each.
 <a href=#179 id=179 data-nosnippet>179</a>                    </span><span class="kw">let </span>stmt = DefinitionStatement {
 <a href=#180 id=180 data-nosnippet>180</a>                        place: Single(<span class="kw-2">*</span>identifier),
-<a href=#181 id=181 data-nosnippet>181</a>                        type_: ty.clone(),
+<a href=#181 id=181 data-nosnippet>181</a>                        type_: <span class="prelude-val">Some</span>(ty.clone()),
 <a href=#182 id=182 data-nosnippet>182</a>                        value: Expression::Identifier(<span class="kw-2">*</span>rhs_identifier),
 <a href=#183 id=183 data-nosnippet>183</a>                        span: Default::default(),
 <a href=#184 id=184 data-nosnippet>184</a>                        id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -202,7 +202,7 @@
 <a href=#202 id=202 data-nosnippet>202</a>                    <span class="comment">// Make a definition for each.
 <a href=#203 id=203 data-nosnippet>203</a>                    </span><span class="kw">let </span>stmt = DefinitionStatement {
 <a href=#204 id=204 data-nosnippet>204</a>                        place: Single(<span class="kw-2">*</span>identifier),
-<a href=#205 id=205 data-nosnippet>205</a>                        type_: ty.clone(),
+<a href=#205 id=205 data-nosnippet>205</a>                        type_: <span class="prelude-val">Some</span>(ty.clone()),
 <a href=#206 id=206 data-nosnippet>206</a>                        value: expr,
 <a href=#207 id=207 data-nosnippet>207</a>                        span: Default::default(),
 <a href=#208 id=208 data-nosnippet>208</a>                        id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -243,7 +243,7 @@
 <a href=#243 id=243 data-nosnippet>243</a>                </span><span class="kw">for </span>(identifier, expr) <span class="kw">in </span>identifiers.into_iter().zip_eq(tuple.elements) {
 <a href=#244 id=244 data-nosnippet>244</a>                    <span class="kw">let </span>stmt = DefinitionStatement {
 <a href=#245 id=245 data-nosnippet>245</a>                        place: Single(identifier),
-<a href=#246 id=246 data-nosnippet>246</a>                        type_: Type::Err,
+<a href=#246 id=246 data-nosnippet>246</a>                        type_: <span class="prelude-val">None</span>,
 <a href=#247 id=247 data-nosnippet>247</a>                        value: expr,
 <a href=#248 id=248 data-nosnippet>248</a>                        span: Default::default(),
 <a href=#249 id=249 data-nosnippet>249</a>                        id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -261,7 +261,7 @@
 <a href=#261 id=261 data-nosnippet>261</a>                <span class="kw">for </span>(identifier, rhs_identifier) <span class="kw">in </span>identifiers.into_iter().zip_eq(rhs_identifiers.iter()) {
 <a href=#262 id=262 data-nosnippet>262</a>                    <span class="kw">let </span>stmt = DefinitionStatement {
 <a href=#263 id=263 data-nosnippet>263</a>                        place: Single(identifier),
-<a href=#264 id=264 data-nosnippet>264</a>                        type_: Type::Err,
+<a href=#264 id=264 data-nosnippet>264</a>                        type_: <span class="prelude-val">None</span>,
 <a href=#265 id=265 data-nosnippet>265</a>                        value: Expression::Identifier(<span class="kw-2">*</span>rhs_identifier),
 <a href=#266 id=266 data-nosnippet>266</a>                        span: Default::default(),
 <a href=#267 id=267 data-nosnippet>267</a>                        id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -276,7 +276,7 @@
 <a href=#276 id=276 data-nosnippet>276</a>            (m @ Multiple(..), value @ Expression::Call(..), Type::Tuple(..)) =&gt; {
 <a href=#277 id=277 data-nosnippet>277</a>                <span class="comment">// Just reconstruct the statement.
 <a href=#278 id=278 data-nosnippet>278</a>                </span><span class="kw">let </span>stmt =
-<a href=#279 id=279 data-nosnippet>279</a>                    DefinitionStatement { place: m, type_: Type::Err, value, span: definition.span, id: definition.id }
+<a href=#279 id=279 data-nosnippet>279</a>                    DefinitionStatement { place: m, type_: <span class="prelude-val">None</span>, value, span: definition.span, id: definition.id }
 <a href=#280 id=280 data-nosnippet>280</a>                        .into();
 <a href=#281 id=281 data-nosnippet>281</a>                (stmt, statements)
 <a href=#282 id=282 data-nosnippet>282</a>            }
@@ -287,7 +287,7 @@
 <a href=#287 id=287 data-nosnippet>287</a>                <span class="comment">// This isn't a tuple. Just build the definition again.
 <a href=#288 id=288 data-nosnippet>288</a>                </span><span class="kw">let </span>stmt = DefinitionStatement {
 <a href=#289 id=289 data-nosnippet>289</a>                    place: s,
-<a href=#290 id=290 data-nosnippet>290</a>                    type_: Type::Err,
+<a href=#290 id=290 data-nosnippet>290</a>                    type_: <span class="prelude-val">None</span>,
 <a href=#291 id=291 data-nosnippet>291</a>                    value: rhs,
 <a href=#292 id=292 data-nosnippet>292</a>                    span: Default::default(),
 <a href=#293 id=293 data-nosnippet>293</a>                    id: definition.id,

@@ -67,7 +67,7 @@
 <a href=#67 id=67 data-nosnippet>67</a>                <span class="self">self</span>.state.type_table.insert(access.id(), <span class="self">self</span>.state.type_table.get(<span class="kw-2">&amp;</span>member.id()).unwrap().clone());
 <a href=#68 id=68 data-nosnippet>68</a>                <span class="kw">let </span>def = DefinitionStatement {
 <a href=#69 id=69 data-nosnippet>69</a>                    place: DefinitionPlace::Single(member),
-<a href=#70 id=70 data-nosnippet>70</a>                    type_: Type::Err,
+<a href=#70 id=70 data-nosnippet>70</a>                    type_: <span class="prelude-val">None</span>,
 <a href=#71 id=71 data-nosnippet>71</a>                    value: access.into(),
 <a href=#72 id=72 data-nosnippet>72</a>                    span: Default::default(),
 <a href=#73 id=73 data-nosnippet>73</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -88,7 +88,7 @@
 <a href=#88 id=88 data-nosnippet>88</a>                <span class="self">self</span>.state.type_table.insert(access.id(), <span class="self">self</span>.state.type_table.get(<span class="kw-2">&amp;</span>member.id()).unwrap().clone());
 <a href=#89 id=89 data-nosnippet>89</a>                <span class="kw">let </span>def = DefinitionStatement {
 <a href=#90 id=90 data-nosnippet>90</a>                    place: DefinitionPlace::Single(member),
-<a href=#91 id=91 data-nosnippet>91</a>                    type_: Type::Err,
+<a href=#91 id=91 data-nosnippet>91</a>                    type_: <span class="prelude-val">None</span>,
 <a href=#92 id=92 data-nosnippet>92</a>                    value: access.into(),
 <a href=#93 id=93 data-nosnippet>93</a>                    span: Default::default(),
 <a href=#94 id=94 data-nosnippet>94</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),

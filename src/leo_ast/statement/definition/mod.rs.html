@@ -28,7 +28,7 @@
 <a href=#28 id=28 data-nosnippet>28</a>    <span class="doccomment">/// The bindings / variable names to declare.
 <a href=#29 id=29 data-nosnippet>29</a>    </span><span class="kw">pub </span>place: DefinitionPlace,
 <a href=#30 id=30 data-nosnippet>30</a>    <span class="doccomment">/// The types of the bindings, if specified, or inferred otherwise.
-<a href=#31 id=31 data-nosnippet>31</a>    </span><span class="kw">pub </span>type_: Type,
+<a href=#31 id=31 data-nosnippet>31</a>    </span><span class="kw">pub </span>type_: <span class="prelude-ty">Option</span>&lt;Type&gt;,
 <a href=#32 id=32 data-nosnippet>32</a>    <span class="doccomment">/// An initializer value for the bindings.
 <a href=#33 id=33 data-nosnippet>33</a>    </span><span class="kw">pub </span>value: Expression,
 <a href=#34 id=34 data-nosnippet>34</a>    <span class="doccomment">/// The span excluding the semicolon.
@@ -54,19 +54,18 @@
 <a href=#54 id=54 data-nosnippet>54</a>
 <a href=#55 id=55 data-nosnippet>55</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>DefinitionStatement {
 <a href=#56 id=56 data-nosnippet>56</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-<a href=#57 id=57 data-nosnippet>57</a>        <span class="comment">// For an Err type (as produced by many passes), don't write the type to reduce verbosity.
-<a href=#58 id=58 data-nosnippet>58</a>        </span><span class="kw">if let </span>Type::Err = <span class="self">self</span>.type_ {
-<a href=#59 id=59 data-nosnippet>59</a>            <span class="macro">write!</span>(f, <span class="string">"let {} = {}"</span>, <span class="self">self</span>.place, <span class="self">self</span>.value)
-<a href=#60 id=60 data-nosnippet>60</a>        } <span class="kw">else </span>{
-<a href=#61 id=61 data-nosnippet>61</a>            <span class="macro">write!</span>(f, <span class="string">"let {}: {} = {}"</span>, <span class="self">self</span>.place, <span class="self">self</span>.type_, <span class="self">self</span>.value)
-<a href=#62 id=62 data-nosnippet>62</a>        }
-<a href=#63 id=63 data-nosnippet>63</a>    }
-<a href=#64 id=64 data-nosnippet>64</a>}
-<a href=#65 id=65 data-nosnippet>65</a>
-<a href=#66 id=66 data-nosnippet>66</a><span class="kw">impl </span>From&lt;DefinitionStatement&gt; <span class="kw">for </span>Statement {
-<a href=#67 id=67 data-nosnippet>67</a>    <span class="kw">fn </span>from(value: DefinitionStatement) -&gt; <span class="self">Self </span>{
-<a href=#68 id=68 data-nosnippet>68</a>        Statement::Definition(value)
-<a href=#69 id=69 data-nosnippet>69</a>    }
-<a href=#70 id=70 data-nosnippet>70</a>}
-<a href=#71 id=71 data-nosnippet>71</a>
-<a href=#72 id=72 data-nosnippet>72</a><span class="macro">crate::simple_node_impl!</span>(DefinitionStatement);</code></pre></div></section></main></body></html>
+<a href=#57 id=57 data-nosnippet>57</a>        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.type_ {
+<a href=#58 id=58 data-nosnippet>58</a>            <span class="comment">// For an Err type (as produced by many passes), don't write the type to reduce verbosity.
+<a href=#59 id=59 data-nosnippet>59</a>            </span><span class="prelude-val">Some</span>(Type::Err) | <span class="prelude-val">None </span>=&gt; <span class="macro">write!</span>(f, <span class="string">"let {} = {}"</span>, <span class="self">self</span>.place, <span class="self">self</span>.value),
+<a href=#60 id=60 data-nosnippet>60</a>            <span class="prelude-val">Some</span>(ty) =&gt; <span class="macro">write!</span>(f, <span class="string">"let {}: {} = {}"</span>, <span class="self">self</span>.place, ty, <span class="self">self</span>.value),
+<a href=#61 id=61 data-nosnippet>61</a>        }
+<a href=#62 id=62 data-nosnippet>62</a>    }
+<a href=#63 id=63 data-nosnippet>63</a>}
+<a href=#64 id=64 data-nosnippet>64</a>
+<a href=#65 id=65 data-nosnippet>65</a><span class="kw">impl </span>From&lt;DefinitionStatement&gt; <span class="kw">for </span>Statement {
+<a href=#66 id=66 data-nosnippet>66</a>    <span class="kw">fn </span>from(value: DefinitionStatement) -&gt; <span class="self">Self </span>{
+<a href=#67 id=67 data-nosnippet>67</a>        Statement::Definition(value)
+<a href=#68 id=68 data-nosnippet>68</a>    }
+<a href=#69 id=69 data-nosnippet>69</a>}
+<a href=#70 id=70 data-nosnippet>70</a>
+<a href=#71 id=71 data-nosnippet>71</a><span class="macro">crate::simple_node_impl!</span>(DefinitionStatement);</code></pre></div></section></main></body></html>
