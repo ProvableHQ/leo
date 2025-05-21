@@ -26,7 +26,7 @@ pub struct ConstDeclaration {
     /// The place to assign to. As opposed to `DefinitionStatement`, this can only be an identifier
     pub place: Identifier,
     /// The type of the binding, if specified, or inferred otherwise.
-    pub type_: Type,
+    pub type_: Option<Type>,
     /// An initializer value for the binding.
     pub value: Expression,
     /// The span excluding the semicolon.
@@ -37,7 +37,11 @@ pub struct ConstDeclaration {
 
 impl fmt::Display for ConstDeclaration {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "const {}: {} = {}", self.place, self.type_, self.value)
+        if let Some(ty) = &self.type_ {
+            write!(f, "const {}: {} = {}", self.place, ty, self.value)
+        } else {
+            write!(f, "const {} = {}", self.place, self.value)
+        }
     }
 }
 

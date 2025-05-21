@@ -1,0 +1,40 @@
+Error [ETYC0372117]: Expected type `bool` but type `u8` was found.
+    --> compiler-test:8:21
+     |
+   8 |     const A: bool = 3u8;
+     |                     ^^^
+Error [ETYC0372117]: Expected type `[u8; 3]` but type `u64` was found.
+    --> compiler-test:9:24
+     |
+   9 |     const B: [u8; 3] = 3u64;
+     |                        ^^^^
+Error [ETYC0372117]: Expected type `S` but type `u8` was found.
+    --> compiler-test:10:24
+     |
+  10 |     const C: (S, S) = (1u8, 3u8);
+     |                        ^^^
+Error [ETYC0372117]: Expected type `S` but type `u8` was found.
+    --> compiler-test:10:29
+     |
+  10 |     const C: (S, S) = (1u8, 3u8);
+     |                             ^^^
+Error [ETYC0372117]: Expected type `S` but type `[u8; 2]` was found.
+    --> compiler-test:11:18
+     |
+  11 |     const D: S = [1u8, 3u8];
+     |                  ^^^^^^^^^^
+Error [ETYC0372117]: Expected type `(u8, u8)` but type `S` was found.
+    --> compiler-test:12:25
+     |
+  12 |     const E: (u8, u8) = S { x: 0u8, b: false };
+     |                         ^
+Error [ETYC0372117]: Expected type `bool` but type `u8` was found.
+    --> compiler-test:20:21
+     |
+  20 |     const F: bool = E_.x + D_[0u8] + C_.0;
+     |                     ^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
+    --> compiler-test:21:21
+     |
+  21 |     const G = (0u8, (0u8, 0u8));
+     |                     ^^^^^^^^^^

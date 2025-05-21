@@ -118,9 +118,9 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
-            Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
+            Some(Type::Unit) => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             // If the type is a singleton tuple, return an error.
-            Type::Tuple(tuple) => match tuple.length() {
+            Some(Type::Tuple(tuple)) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
                 _ => {
                     if tuple.elements().iter().any(|type_| matches!(type_, Type::Tuple(_))) {
@@ -128,7 +128,7 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
                     }
                 }
             },
-            Type::Mapping(_) | Type::Err => unreachable!(
+            Some(Type::Mapping(_) | Type::Err) => unreachable!(
                 "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             ),
             // Otherwise, the type is valid.
@@ -136,13 +136,17 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
         }
 
         // Check the expression on the right-hand side.
-        self.visit_expression(&input.value, &Some(input.type_.clone()));
+        let inferred_type = self.visit_expression(&input.value, &input.type_);
 
         // Add constants to symbol table so that any references to them in later statements will pass type checking.
         if let Err(err) = self.state.symbol_table.insert_variable(
             self.scope_state.program_name.unwrap(),
             input.place.name,
-            VariableSymbol { type_: input.type_.clone(), span: input.place.span, declaration: VariableType::Const },
+            VariableSymbol {
+                type_: input.type_.clone().unwrap_or(inferred_type),
+                span: input.place.span,
+                declaration: VariableType::Const,
+            },
         ) {
             self.state.handler.emit_err(err);
         }
@@ -167,7 +171,7 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
                     }
                 }
             },
-            Some(Type::Mapping(_)) | Some(Type::Err) => unreachable!(
+            Some(Type::Mapping(_) | Type::Err) => unreachable!(
                 "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             ),
             // Otherwise, the type is valid.

@@ -34,31 +34,11 @@ Error [EPAR0370029]: A tuple expression must have at least two elements.
      |
    1 | let x = ();
      |         ^^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_5:1:9
-     |
-   1 | const x = expr;
-     |         ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_6:1:9
+Error [EPAR0370029]: A tuple expression must have at least two elements.
+    --> test_6:1:11
      |
    1 | const x = ();
-     |         ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_7:1:9
-     |
-   1 | const x = x+y;
-     |         ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_8:1:9
-     |
-   1 | const x = (x,y);
-     |         ^
-Error [EPAR0370005]: expected : -- found '='
-    --> test_9:1:9
-     |
-   1 | const x = x();
-     |         ^
+     |           ^^
 Error [EPAR0370029]: A tuple expression must have at least two elements.
     --> test_11:1:14
      |

@@ -218,7 +218,8 @@ impl<N: Network> ParserContext<'_, N> {
         let decl_span = self.prev_token.span;
 
         // Parse variable name and type.
-        let (place, type_, _) = self.parse_typed_ident()?;
+        let place = self.expect_identifier()?;
+        let type_ = if self.eat(&Token::Colon) { Some(self.parse_type()?.0) } else { None };
 
         self.expect(&Token::Assign)?;
         let value = self.parse_expression()?;

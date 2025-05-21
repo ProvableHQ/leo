@@ -1,0 +1,16 @@
+program type_inference.aleo;
+
+struct S:
+    x as u8;
+    b as boolean;
+
+function main:
+    assert.eq true true;
+    assert.eq true true;
+    assert.eq true true;
+    assert.eq true true;
+    assert.eq true true;
+    assert.eq true true;
+    assert.eq true true;
+    assert.eq true true;
+    assert.eq true true;
