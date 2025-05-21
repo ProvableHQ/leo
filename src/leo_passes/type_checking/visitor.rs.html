@@ -1198,8 +1198,10 @@
 <a href=#1198 id=1198 data-nosnippet>1198</a>        <span class="comment">// Check that the function context matches.
 <a href=#1199 id=1199 data-nosnippet>1199</a>        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; !finalize_op {
 <a href=#1200 id=1200 data-nosnippet>1200</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span))
-<a href=#1201 id=1201 data-nosnippet>1201</a>        } <span class="kw">else if </span><span class="self">self</span>.scope_state.variant != <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; finalize_op {
-<a href=#1202 id=1202 data-nosnippet>1202</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
-<a href=#1203 id=1203 data-nosnippet>1203</a>        }
-<a href=#1204 id=1204 data-nosnippet>1204</a>    }
-<a href=#1205 id=1205 data-nosnippet>1205</a>}</code></pre></div></section></main></body></html>
+<a href=#1201 id=1201 data-nosnippet>1201</a>        } <span class="kw">else if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.scope_state.variant, <span class="prelude-val">Some</span>(Variant::AsyncFunction) | <span class="prelude-val">Some</span>(Variant::Script))
+<a href=#1202 id=1202 data-nosnippet>1202</a>            &amp;&amp; finalize_op
+<a href=#1203 id=1203 data-nosnippet>1203</a>        {
+<a href=#1204 id=1204 data-nosnippet>1204</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
+<a href=#1205 id=1205 data-nosnippet>1205</a>        }
+<a href=#1206 id=1206 data-nosnippet>1206</a>    }
+<a href=#1207 id=1207 data-nosnippet>1207</a>}</code></pre></div></section></main></body></html>
