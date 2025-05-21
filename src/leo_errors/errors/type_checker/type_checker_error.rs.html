@@ -1045,4 +1045,18 @@
 <a href=#1045 id=1045 data-nosnippet>1045</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to type `{ty}` or a member thereof."</span>),
 <a href=#1046 id=1046 data-nosnippet>1046</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record types and tuples containing them may not be assigned to."</span>.to_string()),
 <a href=#1047 id=1047 data-nosnippet>1047</a>    }
-<a href=#1048 id=1048 data-nosnippet>1048</a>);</code></pre></div></section></main></body></html>
+<a href=#1048 id=1048 data-nosnippet>1048</a>
+<a href=#1049 id=1049 data-nosnippet>1049</a>    @formatted
+<a href=#1050 id=1050 data-nosnippet>1050</a>    illegal_name {
+<a href=#1051 id=1051 data-nosnippet>1051</a>        args: (item_name: <span class="kw">impl </span>Display, item_type: <span class="kw">impl </span>Display, keyword: <span class="kw">impl </span>Display),
+<a href=#1052 id=1052 data-nosnippet>1052</a>        msg: <span class="macro">format!</span>(<span class="string">"`{item_name}` is an invalid {item_type} name. A {item_type} cannot have \"{keyword}\" in its name."</span>),
+<a href=#1053 id=1053 data-nosnippet>1053</a>        help: <span class="prelude-val">None</span>,
+<a href=#1054 id=1054 data-nosnippet>1054</a>    }
+<a href=#1055 id=1055 data-nosnippet>1055</a>
+<a href=#1056 id=1056 data-nosnippet>1056</a>    @formatted
+<a href=#1057 id=1057 data-nosnippet>1057</a>    record_prefixed_by_other_record {
+<a href=#1058 id=1058 data-nosnippet>1058</a>        args: (r1: <span class="kw">impl </span>Display, r2: <span class="kw">impl </span>Display),
+<a href=#1059 id=1059 data-nosnippet>1059</a>        msg: <span class="macro">format!</span>(<span class="string">"Record name `{r1}` is prefixed by the record name `{r2}`. Record names must not be prefixes of other record names."</span>),
+<a href=#1060 id=1060 data-nosnippet>1060</a>        help: <span class="prelude-val">None</span>,
+<a href=#1061 id=1061 data-nosnippet>1061</a>    }
+<a href=#1062 id=1062 data-nosnippet>1062</a>);</code></pre></div></section></main></body></html>
