@@ -1031,4 +1031,17 @@
 <a href=#1031 id=1031 data-nosnippet>1031</a>        msg: <span class="macro">format!</span>(<span class="string">"Invalid annotation: {message}."</span>),
 <a href=#1032 id=1032 data-nosnippet>1032</a>        help: <span class="prelude-val">None</span>,
 <a href=#1033 id=1033 data-nosnippet>1033</a>    }
-<a href=#1034 id=1034 data-nosnippet>1034</a>);</code></pre></div></section></main></body></html>
+<a href=#1034 id=1034 data-nosnippet>1034</a>    @formatted
+<a href=#1035 id=1035 data-nosnippet>1035</a>    ternary_over_external_records {
+<a href=#1036 id=1036 data-nosnippet>1036</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1037 id=1037 data-nosnippet>1037</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot apply ternary conditional to type `{ty}`."</span>),
+<a href=#1038 id=1038 data-nosnippet>1038</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ternary conditionals may not contain an external record type."</span>.to_string()),
+<a href=#1039 id=1039 data-nosnippet>1039</a>    }
+<a href=#1040 id=1040 data-nosnippet>1040</a>
+<a href=#1041 id=1041 data-nosnippet>1041</a>    @formatted
+<a href=#1042 id=1042 data-nosnippet>1042</a>    assignment_to_external_record {
+<a href=#1043 id=1043 data-nosnippet>1043</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1044 id=1044 data-nosnippet>1044</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to type `{ty}` or a member thereof."</span>),
+<a href=#1045 id=1045 data-nosnippet>1045</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record types and tuples containing them may not be assigned to."</span>.to_string()),
+<a href=#1046 id=1046 data-nosnippet>1046</a>    }
+<a href=#1047 id=1047 data-nosnippet>1047</a>);</code></pre></div></section></main></body></html>
