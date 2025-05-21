@@ -27,9 +27,9 @@ use leo_ast::{
     StructExpression,
     StructVariableInitializer,
     TupleExpression,
+    interpreter_value::Value,
 };
 use leo_errors::StaticAnalyzerError;
-use leo_interpreter::Value;
 use leo_span::{Span, Symbol};
 
 pub struct ConstPropagationVisitor<'a> {

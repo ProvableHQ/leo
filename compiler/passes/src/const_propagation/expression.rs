@@ -28,9 +28,9 @@ use leo_ast::{
     TupleAccess,
     Type,
     UnaryExpression,
+    interpreter_value::{self, StructContents, Value},
 };
 use leo_errors::StaticAnalyzerError;
-use leo_interpreter::{StructContents, Value};
 use leo_span::sym;
 
 use super::{ConstPropagationVisitor, value_to_expression};
@@ -205,7 +205,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             let core_function = CoreFunction::from_symbols(input.variant.name, input.name.name)
                 .expect("Type checking guarantees this is valid.");
 
-            match leo_interpreter::evaluate_core_function(&mut values, core_function, &[], input.span()) {
+            match interpreter_value::evaluate_core_function(&mut values, core_function, &[], input.span()) {
                 Ok(Some(value)) => {
                     // Successful evaluation.
                     let expr = value_to_expression(&value, input.span(), &self.state.node_builder).expect(VALUE_ERROR);
@@ -278,7 +278,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
 
         if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
-            match leo_interpreter::evaluate_binary(span, input.op, &lhs_value, &rhs_value) {
+            match interpreter_value::evaluate_binary(span, input.op, &lhs_value, &rhs_value) {
                 Ok(new_value) => {
                     let new_expr = value_to_expression(&new_value, span, &self.state.node_builder).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
@@ -331,7 +331,8 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_literal(&mut self, input: leo_ast::Literal) -> (Expression, Self::AdditionalOutput) {
-        let value = leo_interpreter::literal_to_value(&input).expect("Should work");
+        let value =
+            interpreter_value::literal_to_value(&input, &self.state.type_table.get(&input.id())).expect("Should work");
         (input.into(), Some(value))
     }
 
@@ -360,7 +361,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
 
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
-            match leo_interpreter::evaluate_unary(span, input.op, &value) {
+            match interpreter_value::evaluate_unary(span, input.op, &value) {
                 Ok(new_value) => {
                     let new_expr = value_to_expression(&new_value, span, &self.state.node_builder).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));

@@ -1,0 +1,11 @@
+program test.aleo;
+
+struct S:
+    x as u8;
+    y as u16;
+
+function aggregates:
+
+function function_calls:
+    input r0 as signature.private;
+    input r1 as address.private;

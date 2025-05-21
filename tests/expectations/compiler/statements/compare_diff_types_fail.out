@@ -40,6 +40,16 @@ Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `<
      |                       ^^^^^^^^
      |
      = Make both operands the same type.
+Error [ETYC0372117]: Expected type `u32` but type `i8` was found.
+    --> compiler-test:10:22
+     |
+  10 |         let h: u32 = a * 1u8;
+     |                      ^
+Error [ETYC0372117]: Expected type `u32` but type `u8` was found.
+    --> compiler-test:10:26
+     |
+  10 |         let h: u32 = a * 1u8;
+     |                          ^^^
 Error [ETYC0372120]: Received types `i8` and `u8` for the operation `*`.
     --> compiler-test:10:22
      |

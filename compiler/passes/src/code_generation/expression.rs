@@ -84,8 +84,38 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_value(&mut self, input: &Literal) -> (String, String) {
         // AVM can only parse decimal numbers.
-        let decimal_input = input.display_decimal();
-        (format!("{decimal_input}"), String::new())
+        let literal = if let LiteralVariant::Unsuffixed(value) = &input.variant {
+            // For unsuffixed lierals, consult the `type_table` for their types. The type checker
+            // ensures that their type can only be `Integer`, `Field`, `Group`, or `Scalar`.
+            match self.state.type_table.get(&input.id) {
+                Some(Type::Integer(int_ty)) => Literal {
+                    variant: LiteralVariant::Integer(int_ty, value.clone()),
+                    id: self.state.node_builder.next_id(),
+                    span: input.span,
+                },
+                Some(Type::Field) => Literal {
+                    variant: LiteralVariant::Field(value.clone()),
+                    id: self.state.node_builder.next_id(),
+                    span: input.span,
+                },
+                Some(Type::Group) => Literal {
+                    variant: LiteralVariant::Group(value.clone()),
+                    id: self.state.node_builder.next_id(),
+                    span: input.span,
+                },
+                Some(Type::Scalar) => Literal {
+                    variant: LiteralVariant::Scalar(value.clone()),
+                    id: self.state.node_builder.next_id(),
+                    span: input.span,
+                },
+                _ => panic!(
+                    "Unexpected type for unsuffixed integer literal. This should have been caught by the type checker"
+                ),
+            }
+        } else {
+            input.clone()
+        };
+        (format!("{}", literal.display_decimal()), String::new())
     }
 
     fn visit_locator(&mut self, input: &LocatorExpression) -> (String, String) {
@@ -640,6 +670,7 @@ impl CodeGeneratingVisitor<'_> {
             | Type::Identifier(..)
             | Type::String
             | Type::Unit
+            | Type::Numeric
             | Type::Err => panic!("Objects of type {typ} cannot be cloned."),
         }
     }

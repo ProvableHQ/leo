@@ -14,16 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
-
-use leo_ast::{CoreFunction, Expression};
-use leo_errors::Result;
+use crate::{
+    CoreFunction,
+    Expression,
+    halt,
+    interpreter_value::{Value, util::ExpectTc},
+    tc_fail,
+};
+use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol};
 
 use snarkvm::prelude::{CastLossy as _, Network as _, TestnetV0, ToBits};
 
 use rand::Rng as _;
 use rand_chacha::ChaCha20Rng;
+use std::collections::HashMap;
 
 /// A context in which we can evaluate core functions.
 ///

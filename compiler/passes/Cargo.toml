@@ -30,9 +30,6 @@ workspace = true
 [dependencies.leo-errors]
 workspace = true
 
-[dependencies.leo-interpreter]
-workspace = true
-
 [dependencies.leo-span]
 workspace = true
 

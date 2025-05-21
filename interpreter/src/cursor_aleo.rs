@@ -16,7 +16,14 @@
 
 use super::*;
 
-use leo_ast::{BinaryOperation, CoreFunction, IntegerType, Type, UnaryOperation};
+use leo_ast::{
+    BinaryOperation,
+    CoreFunction,
+    IntegerType,
+    Type,
+    UnaryOperation,
+    interpreter_value::{self, AsyncExecution, Future, GlobalId, StructContents, Value},
+};
 
 use snarkvm::{
     prelude::{
@@ -199,7 +206,7 @@ impl Cursor {
         macro_rules! unary {
             ($svm_op: expr, $op: ident) => {{
                 let operand = self.operand_value(&$svm_op.operands()[0]);
-                let value = evaluate_unary(Default::default(), UnaryOperation::$op, &operand)?;
+                let value = interpreter_value::evaluate_unary(Default::default(), UnaryOperation::$op, &operand)?;
                 self.increment_instruction_index();
                 (value, $svm_op.destinations()[0].clone())
             }};
@@ -209,7 +216,8 @@ impl Cursor {
             ($svm_op: expr, $op: ident) => {{
                 let operand0 = self.operand_value(&$svm_op.operands()[0]);
                 let operand1 = self.operand_value(&$svm_op.operands()[1]);
-                let value = evaluate_binary(Default::default(), BinaryOperation::$op, &operand0, &operand1)?;
+                let value =
+                    interpreter_value::evaluate_binary(Default::default(), BinaryOperation::$op, &operand0, &operand1)?;
                 self.increment_instruction_index();
                 (value, $svm_op.destinations()[0].clone())
             }};
@@ -232,7 +240,7 @@ impl Cursor {
                 let operand_value = self.operand_value(&$commit.operands()[1]);
                 self.values.push(randomizer_value);
                 self.values.push(operand_value);
-                let value = crate::evaluate_core_function(self, core_function, &[], Span::default())?;
+                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $commit.destinations()[0].clone())
             }};
@@ -274,7 +282,7 @@ impl Cursor {
                 };
                 let operand_value = self.operand_value(&$hash.operands()[0]);
                 self.values.push(operand_value);
-                let value = crate::evaluate_core_function(self, core_function, &[], Span::default())?;
+                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $hash.destinations()[0].clone())
             }};

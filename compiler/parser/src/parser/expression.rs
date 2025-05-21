@@ -678,7 +678,11 @@ impl<N: Network> ParserContext<'_, N> {
                         let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
                         Literal::integer(int_ty, value, full_span, self.node_builder.next_id()).into()
                     }
-                    None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
+                    None => {
+                        // `Integer` tokens with no suffix are `unsuffixed`. We try to infer their
+                        // type in the type inference phase of the type checker.
+                        Literal::unsuffixed(value, span, self.node_builder.next_id()).into()
+                    }
                 }
             }
             Token::True => Literal::boolean(true, span, self.node_builder.next_id()).into(),

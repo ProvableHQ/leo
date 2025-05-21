@@ -69,7 +69,7 @@ create_messages!(
         msg: format!(
             "Could not determine the type of `{expr}`",
         ),
-        help: None,
+        help: Some("Consider using explicit type annotations.".into()),
     }
 
     /// For when the user tries to return a unknown variable.
@@ -1087,5 +1087,21 @@ create_messages!(
         args: (ty: impl Display),
         msg: format!("Cannot assign to the tuple type `{ty}` containing an external record in this location."),
         help: Some("Tuples containing external records may not be assigned to in narrower conditonal scopes than they were defined.".into()),
+    }
+
+    @formatted
+    hexbin_literal_nonintegers {
+        args: (),
+        msg: format!("Hex, octal, and binary literals may only be used for integer types."),
+        help: None,
+    }
+
+    @formatted
+    unexpected_unsuffixed_numeral {
+        args: (expected: impl Display),
+        msg: format!(
+            "Expected {expected} but an unsuffixed numeral was found.",
+        ),
+        help: None,
     }
 );

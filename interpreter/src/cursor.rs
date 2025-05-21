@@ -18,41 +18,44 @@ use super::*;
 
 use leo_ast::{
     AssertVariant,
-    BinaryOperation,
     Block,
     CoreConstant,
     CoreFunction,
     DefinitionPlace,
     Expression,
-    FromStrRadix as _,
     Function,
-    IntegerType,
-    Literal,
-    LiteralVariant,
     Statement,
     Type,
-    UnaryOperation,
     Variant,
+    interpreter_value::{
+        AsyncExecution,
+        CoreFunctionHelper,
+        Future,
+        GlobalId,
+        StructContents,
+        SvmAddress,
+        Value,
+        evaluate_binary,
+        evaluate_core_function,
+        evaluate_unary,
+        literal_to_value,
+    },
 };
 use leo_errors::{InterpreterHalt, Result};
+use leo_passes::TypeTable;
 use leo_span::{Span, Symbol, sym};
 
 use snarkvm::prelude::{
     Closure as SvmClosure,
-    Double as _,
     Finalize as SvmFinalize,
     Function as SvmFunctionParam,
-    Inverse as _,
-    Pow as _,
     ProgramID,
-    Square as _,
-    SquareRoot as _,
     TestnetV0,
 };
 
 use indexmap::{IndexMap, IndexSet};
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
-use std::{cmp::Ordering, collections::HashMap, fmt, mem, str::FromStr as _};
+use std::{cmp::Ordering, collections::HashMap, mem, str::FromStr as _};
 
 pub type Closure = SvmClosure<TestnetV0>;
 pub type Finalize = SvmFinalize<TestnetV0>;
@@ -204,20 +207,6 @@ pub struct Frame {
     pub user_initiated: bool,
 }
 
-/// Global values - such as mappings, functions, etc -
-/// are identified by program and name.
-#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq)]
-pub struct GlobalId {
-    pub program: Symbol,
-    pub name: Symbol,
-}
-
-impl fmt::Display for GlobalId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}.aleo/{}", self.program, self.name)
-    }
-}
-
 #[derive(Clone, Debug)]
 pub enum FunctionVariant {
     Leo(Function),
@@ -252,6 +241,8 @@ pub struct Cursor {
     pub futures: Vec<Future>,
 
     pub contexts: ContextStack,
+
+    pub type_table: TypeTable,
 
     pub signer: SvmAddress,
 
@@ -299,6 +290,7 @@ impl Cursor {
             structs: Default::default(),
             contexts: Default::default(),
             futures: Default::default(),
+            type_table: Default::default(),
             rng: ChaCha20Rng::from_entropy(),
             signer,
             block_height,
@@ -795,7 +787,7 @@ impl Cursor {
                     // For an await, we have one extra step - first we must evaluate the delayed call.
                     None
                 } else {
-                    let value = crate::evaluate_core_function(self, core_function.clone(), &function.arguments, span)?;
+                    let value = evaluate_core_function(self, core_function.clone(), &function.arguments, span)?;
                     assert!(value.is_some());
                     value
                 }
@@ -864,7 +856,9 @@ impl Cursor {
             Expression::Identifier(identifier) if step == 0 => {
                 Some(self.lookup(identifier.name).expect_tc(identifier.span())?)
             }
-            Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal)?),
+            Expression::Literal(literal) if step == 0 => {
+                Some(literal_to_value(literal, &self.type_table.get(&expression.id()))?)
+            }
             Expression::Locator(_locator) => todo!(),
             Expression::Struct(struct_) if step == 0 => {
                 struct_.members.iter().flat_map(|init| init.expression.as_ref()).for_each(push!());
@@ -1124,625 +1118,4 @@ pub struct StepResult {
 
     /// If the element was an expression, here's its value.
     pub value: Option<Value>,
-}
-
-/// Evaluate a binary operation.
-pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value) -> Result<Value> {
-    let value = match op {
-        BinaryOperation::Add => {
-            let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_add(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_add(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_add(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_add(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_add(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_add(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_add(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_add(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_add(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_add(*y).map(Value::I128),
-                (Value::Group(x), Value::Group(y)) => Some(Value::Group(*x + *y)),
-                (Value::Field(x), Value::Field(y)) => Some(Value::Field(*x + *y)),
-                (Value::Scalar(x), Value::Scalar(y)) => Some(Value::Scalar(*x + *y)),
-                _ => halt!(span, "Type error"),
-            }) else {
-                halt!(span, "add overflow");
-            };
-            value
-        }
-        BinaryOperation::AddWrapped => match (lhs, rhs) {
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_add(*y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_add(*y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_add(*y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_add(*y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_add(*y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_add(*y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_add(*y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_add(*y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_add(*y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_add(*y)),
-            _ => halt!(span, "Type error"),
-        },
-        BinaryOperation::And => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(*x && *y),
-            _ => halt!(span, "Type error"),
-        },
-        BinaryOperation::BitwiseAnd => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(x & y),
-            (Value::U8(x), Value::U8(y)) => Value::U8(x & y),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x & y),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x & y),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x & y),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x & y),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x & y),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x & y),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x & y),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x & y),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x & y),
-            _ => halt!(span, "Type error"),
-        },
-        BinaryOperation::Div => {
-            let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_div(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_div(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_div(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_div(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_div(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_div(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_div(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_div(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_div(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_div(*y).map(Value::I128),
-                (Value::Field(x), Value::Field(y)) => y.inverse().map(|y| Value::Field(*x * y)).ok(),
-                _ => halt!(span, "Type error"),
-            }) else {
-                halt!(span, "div overflow");
-            };
-            value
-        }
-        BinaryOperation::DivWrapped => match (lhs, rhs) {
-            (Value::U8(_), Value::U8(0))
-            | (Value::U16(_), Value::U16(0))
-            | (Value::U32(_), Value::U32(0))
-            | (Value::U64(_), Value::U64(0))
-            | (Value::U128(_), Value::U128(0))
-            | (Value::I8(_), Value::I8(0))
-            | (Value::I16(_), Value::I16(0))
-            | (Value::I32(_), Value::I32(0))
-            | (Value::I64(_), Value::I64(0))
-            | (Value::I128(_), Value::I128(0)) => halt!(span, "divide by 0"),
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_div(*y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_div(*y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_div(*y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_div(*y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_div(*y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_div(*y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_div(*y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_div(*y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_div(*y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_div(*y)),
-            _ => halt!(span, "Type error"),
-        },
-        BinaryOperation::Eq => Value::Bool(lhs.eq(rhs)?),
-        BinaryOperation::Gte => Value::Bool(lhs.gte(rhs)?),
-        BinaryOperation::Gt => Value::Bool(lhs.gt(rhs)?),
-        BinaryOperation::Lte => Value::Bool(lhs.lte(rhs)?),
-        BinaryOperation::Lt => Value::Bool(lhs.lt(rhs)?),
-        BinaryOperation::Mod => {
-            let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_rem(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_rem(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_rem(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_rem(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_rem(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_rem(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_rem(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_rem(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_rem(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_rem(*y).map(Value::I128),
-                _ => halt!(span, "Type error"),
-            }) else {
-                halt!(span, "mod overflow");
-            };
-            value
-        }
-        BinaryOperation::Mul => {
-            let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_mul(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_mul(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_mul(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_mul(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_mul(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_mul(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_mul(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_mul(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_mul(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_mul(*y).map(Value::I128),
-                (Value::Field(x), Value::Field(y)) => Some(Value::Field(*x * *y)),
-                (Value::Group(x), Value::Scalar(y)) => Some(Value::Group(*x * *y)),
-                (Value::Scalar(x), Value::Group(y)) => Some(Value::Group(*x * *y)),
-                _ => halt!(span, "Type error"),
-            }) else {
-                halt!(span, "mul overflow");
-            };
-            value
-        }
-        BinaryOperation::MulWrapped => match (lhs, rhs) {
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_mul(*y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_mul(*y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_mul(*y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_mul(*y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_mul(*y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_mul(*y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_mul(*y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_mul(*y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_mul(*y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_mul(*y)),
-            _ => halt!(span, "Type error"),
-        },
-
-        BinaryOperation::Nand => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(!(x & y)),
-            _ => halt!(span, "Type error"),
-        },
-        BinaryOperation::Neq => Value::Bool(lhs.neq(rhs)?),
-        BinaryOperation::Nor => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(!(x | y)),
-            _ => halt!(span, "Type error"),
-        },
-        BinaryOperation::Or => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(x | y),
-            _ => halt!(span, "Type error"),
-        },
-        BinaryOperation::BitwiseOr => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(x | y),
-            (Value::U8(x), Value::U8(y)) => Value::U8(x | y),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x | y),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x | y),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x | y),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x | y),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x | y),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x | y),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x | y),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x | y),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x | y),
-            _ => halt!(span, "Type error"),
-        },
-        BinaryOperation::Pow => {
-            if let (Value::Field(x), Value::Field(y)) = (&lhs, &rhs) {
-                Value::Field(x.pow(y))
-            } else {
-                let rhs: u32 = match rhs {
-                    Value::U8(y) => (*y).into(),
-                    Value::U16(y) => (*y).into(),
-                    Value::U32(y) => *y,
-                    _ => tc_fail!(),
-                };
-
-                let Some(value) = (match lhs {
-                    Value::U8(x) => x.checked_pow(rhs).map(Value::U8),
-                    Value::U16(x) => x.checked_pow(rhs).map(Value::U16),
-                    Value::U32(x) => x.checked_pow(rhs).map(Value::U32),
-                    Value::U64(x) => x.checked_pow(rhs).map(Value::U64),
-                    Value::U128(x) => x.checked_pow(rhs).map(Value::U128),
-                    Value::I8(x) => x.checked_pow(rhs).map(Value::I8),
-                    Value::I16(x) => x.checked_pow(rhs).map(Value::I16),
-                    Value::I32(x) => x.checked_pow(rhs).map(Value::I32),
-                    Value::I64(x) => x.checked_pow(rhs).map(Value::I64),
-                    Value::I128(x) => x.checked_pow(rhs).map(Value::I128),
-                    _ => halt!(span, "Type error"),
-                }) else {
-                    halt!(span, "pow overflow");
-                };
-                value
-            }
-        }
-        BinaryOperation::PowWrapped => {
-            let rhs: u32 = match rhs {
-                Value::U8(y) => (*y).into(),
-                Value::U16(y) => (*y).into(),
-                Value::U32(y) => *y,
-                _ => halt!(span, "Type error"),
-            };
-
-            match lhs {
-                Value::U8(x) => Value::U8(x.wrapping_pow(rhs)),
-                Value::U16(x) => Value::U16(x.wrapping_pow(rhs)),
-                Value::U32(x) => Value::U32(x.wrapping_pow(rhs)),
-                Value::U64(x) => Value::U64(x.wrapping_pow(rhs)),
-                Value::U128(x) => Value::U128(x.wrapping_pow(rhs)),
-                Value::I8(x) => Value::I8(x.wrapping_pow(rhs)),
-                Value::I16(x) => Value::I16(x.wrapping_pow(rhs)),
-                Value::I32(x) => Value::I32(x.wrapping_pow(rhs)),
-                Value::I64(x) => Value::I64(x.wrapping_pow(rhs)),
-                Value::I128(x) => Value::I128(x.wrapping_pow(rhs)),
-                _ => halt!(span, "Type error"),
-            }
-        }
-        BinaryOperation::Rem => {
-            let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_rem(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_rem(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_rem(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_rem(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_rem(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_rem(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_rem(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_rem(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_rem(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_rem(*y).map(Value::I128),
-                _ => halt!(span, "Type error"),
-            }) else {
-                halt!(span, "rem error");
-            };
-            value
-        }
-        BinaryOperation::RemWrapped => match (lhs, rhs) {
-            (Value::U8(_), Value::U8(0))
-            | (Value::U16(_), Value::U16(0))
-            | (Value::U32(_), Value::U32(0))
-            | (Value::U64(_), Value::U64(0))
-            | (Value::U128(_), Value::U128(0))
-            | (Value::I8(_), Value::I8(0))
-            | (Value::I16(_), Value::I16(0))
-            | (Value::I32(_), Value::I32(0))
-            | (Value::I64(_), Value::I64(0))
-            | (Value::I128(_), Value::I128(0)) => halt!(span, "rem by 0"),
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_rem(*y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_rem(*y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_rem(*y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_rem(*y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_rem(*y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_rem(*y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_rem(*y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_rem(*y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_rem(*y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_rem(*y)),
-            _ => halt!(span, "Type error"),
-        },
-        BinaryOperation::Shl => {
-            let rhs: u32 = match rhs {
-                Value::U8(y) => (*y).into(),
-                Value::U16(y) => (*y).into(),
-                Value::U32(y) => *y,
-                _ => halt!(span, "Type error"),
-            };
-            match lhs {
-                Value::U8(_) | Value::I8(_) if rhs >= 8 => halt!(span, "shl overflow"),
-                Value::U16(_) | Value::I16(_) if rhs >= 16 => halt!(span, "shl overflow"),
-                Value::U32(_) | Value::I32(_) if rhs >= 32 => halt!(span, "shl overflow"),
-                Value::U64(_) | Value::I64(_) if rhs >= 64 => halt!(span, "shl overflow"),
-                Value::U128(_) | Value::I128(_) if rhs >= 128 => halt!(span, "shl overflow"),
-                _ => {}
-            }
-
-            // Aleo's shl halts if set bits are shifted out.
-            let shifted = lhs.simple_shl(rhs);
-            let reshifted = shifted.simple_shr(rhs);
-            if lhs.eq(&reshifted)? {
-                shifted
-            } else {
-                halt!(span, "shl overflow");
-            }
-        }
-
-        BinaryOperation::ShlWrapped => {
-            let rhs: u32 = match rhs {
-                Value::U8(y) => (*y).into(),
-                Value::U16(y) => (*y).into(),
-                Value::U32(y) => *y,
-                _ => halt!(span, "Type error"),
-            };
-            match lhs {
-                Value::U8(x) => Value::U8(x.wrapping_shl(rhs)),
-                Value::U16(x) => Value::U16(x.wrapping_shl(rhs)),
-                Value::U32(x) => Value::U32(x.wrapping_shl(rhs)),
-                Value::U64(x) => Value::U64(x.wrapping_shl(rhs)),
-                Value::U128(x) => Value::U128(x.wrapping_shl(rhs)),
-                Value::I8(x) => Value::I8(x.wrapping_shl(rhs)),
-                Value::I16(x) => Value::I16(x.wrapping_shl(rhs)),
-                Value::I32(x) => Value::I32(x.wrapping_shl(rhs)),
-                Value::I64(x) => Value::I64(x.wrapping_shl(rhs)),
-                Value::I128(x) => Value::I128(x.wrapping_shl(rhs)),
-                _ => halt!(span, "Type error"),
-            }
-        }
-
-        BinaryOperation::Shr => {
-            let rhs: u32 = match rhs {
-                Value::U8(y) => (*y).into(),
-                Value::U16(y) => (*y).into(),
-                Value::U32(y) => *y,
-                _ => halt!(span, "Type error"),
-            };
-
-            match lhs {
-                Value::U8(_) | Value::I8(_) if rhs >= 8 => halt!(span, "shr overflow"),
-                Value::U16(_) | Value::I16(_) if rhs >= 16 => halt!(span, "shr overflow"),
-                Value::U32(_) | Value::I32(_) if rhs >= 32 => halt!(span, "shr overflow"),
-                Value::U64(_) | Value::I64(_) if rhs >= 64 => halt!(span, "shr overflow"),
-                Value::U128(_) | Value::I128(_) if rhs >= 128 => halt!(span, "shr overflow"),
-                _ => {}
-            }
-
-            lhs.simple_shr(rhs)
-        }
-
-        BinaryOperation::ShrWrapped => {
-            let rhs: u32 = match rhs {
-                Value::U8(y) => (*y).into(),
-                Value::U16(y) => (*y).into(),
-                Value::U32(y) => *y,
-                _ => halt!(span, "Type error"),
-            };
-
-            match lhs {
-                Value::U8(x) => Value::U8(x.wrapping_shr(rhs)),
-                Value::U16(x) => Value::U16(x.wrapping_shr(rhs)),
-                Value::U32(x) => Value::U32(x.wrapping_shr(rhs)),
-                Value::U64(x) => Value::U64(x.wrapping_shr(rhs)),
-                Value::U128(x) => Value::U128(x.wrapping_shr(rhs)),
-                Value::I8(x) => Value::I8(x.wrapping_shr(rhs)),
-                Value::I16(x) => Value::I16(x.wrapping_shr(rhs)),
-                Value::I32(x) => Value::I32(x.wrapping_shr(rhs)),
-                Value::I64(x) => Value::I64(x.wrapping_shr(rhs)),
-                Value::I128(x) => Value::I128(x.wrapping_shr(rhs)),
-                _ => halt!(span, "Type error"),
-            }
-        }
-
-        BinaryOperation::Sub => {
-            let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_sub(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_sub(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_sub(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_sub(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_sub(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_sub(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_sub(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_sub(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_sub(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_sub(*y).map(Value::I128),
-                (Value::Group(x), Value::Group(y)) => Some(Value::Group(*x - *y)),
-                (Value::Field(x), Value::Field(y)) => Some(Value::Field(*x - *y)),
-                _ => halt!(span, "Type error"),
-            }) else {
-                halt!(span, "sub overflow");
-            };
-            value
-        }
-
-        BinaryOperation::SubWrapped => match (lhs, rhs) {
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_sub(*y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_sub(*y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_sub(*y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_sub(*y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_sub(*y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_sub(*y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_sub(*y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_sub(*y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_sub(*y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_sub(*y)),
-            _ => halt!(span, "Type error"),
-        },
-
-        BinaryOperation::Xor => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(*x ^ *y),
-            (Value::U8(x), Value::U8(y)) => Value::U8(*x ^ *y),
-            (Value::U16(x), Value::U16(y)) => Value::U16(*x ^ *y),
-            (Value::U32(x), Value::U32(y)) => Value::U32(*x ^ *y),
-            (Value::U64(x), Value::U64(y)) => Value::U64(*x ^ *y),
-            (Value::U128(x), Value::U128(y)) => Value::U128(*x ^ *y),
-            (Value::I8(x), Value::I8(y)) => Value::I8(*x ^ *y),
-            (Value::I16(x), Value::I16(y)) => Value::I16(*x ^ *y),
-            (Value::I32(x), Value::I32(y)) => Value::I32(*x ^ *y),
-            (Value::I64(x), Value::I64(y)) => Value::I64(*x ^ *y),
-            (Value::I128(x), Value::I128(y)) => Value::I128(*x ^ *y),
-            _ => halt!(span, "Type error"),
-        },
-    };
-    Ok(value)
-}
-
-/// Evaluate a unary operation.
-pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value) -> Result<Value> {
-    let value_result = match op {
-        UnaryOperation::Abs => match value {
-            Value::I8(x) => {
-                if *x == i8::MIN {
-                    halt!(span, "abs overflow");
-                } else {
-                    Value::I8(x.abs())
-                }
-            }
-            Value::I16(x) => {
-                if *x == i16::MIN {
-                    halt!(span, "abs overflow");
-                } else {
-                    Value::I16(x.abs())
-                }
-            }
-            Value::I32(x) => {
-                if *x == i32::MIN {
-                    halt!(span, "abs overflow");
-                } else {
-                    Value::I32(x.abs())
-                }
-            }
-            Value::I64(x) => {
-                if *x == i64::MIN {
-                    halt!(span, "abs overflow");
-                } else {
-                    Value::I64(x.abs())
-                }
-            }
-            Value::I128(x) => {
-                if *x == i128::MIN {
-                    halt!(span, "abs overflow");
-                } else {
-                    Value::I128(x.abs())
-                }
-            }
-            _ => halt!(span, "Type error"),
-        },
-        UnaryOperation::AbsWrapped => match value {
-            Value::I8(x) => Value::I8(x.unsigned_abs() as i8),
-            Value::I16(x) => Value::I16(x.unsigned_abs() as i16),
-            Value::I32(x) => Value::I32(x.unsigned_abs() as i32),
-            Value::I64(x) => Value::I64(x.unsigned_abs() as i64),
-            Value::I128(x) => Value::I128(x.unsigned_abs() as i128),
-            _ => halt!(span, "Type error"),
-        },
-        UnaryOperation::Double => match value {
-            Value::Field(x) => Value::Field(x.double()),
-            Value::Group(x) => Value::Group(x.double()),
-            _ => halt!(span, "Type error"),
-        },
-        UnaryOperation::Inverse => match value {
-            Value::Field(x) => {
-                let Ok(y) = x.inverse() else {
-                    halt!(span, "attempt to invert 0field");
-                };
-                Value::Field(y)
-            }
-            _ => halt!(span, "Can only invert fields"),
-        },
-        UnaryOperation::Negate => match value {
-            Value::I8(x) => match x.checked_neg() {
-                None => halt!(span, "negation overflow"),
-                Some(y) => Value::I8(y),
-            },
-            Value::I16(x) => match x.checked_neg() {
-                None => halt!(span, "negation overflow"),
-                Some(y) => Value::I16(y),
-            },
-            Value::I32(x) => match x.checked_neg() {
-                None => halt!(span, "negation overflow"),
-                Some(y) => Value::I32(y),
-            },
-            Value::I64(x) => match x.checked_neg() {
-                None => halt!(span, "negation overflow"),
-                Some(y) => Value::I64(y),
-            },
-            Value::I128(x) => match x.checked_neg() {
-                None => halt!(span, "negation overflow"),
-                Some(y) => Value::I128(y),
-            },
-            Value::Group(x) => Value::Group(-*x),
-            Value::Field(x) => Value::Field(-*x),
-            _ => halt!(span, "Type error"),
-        },
-        UnaryOperation::Not => match value {
-            Value::Bool(x) => Value::Bool(!x),
-            Value::U8(x) => Value::U8(!x),
-            Value::U16(x) => Value::U16(!x),
-            Value::U32(x) => Value::U32(!x),
-            Value::U64(x) => Value::U64(!x),
-            Value::U128(x) => Value::U128(!x),
-            Value::I8(x) => Value::I8(!x),
-            Value::I16(x) => Value::I16(!x),
-            Value::I32(x) => Value::I32(!x),
-            Value::I64(x) => Value::I64(!x),
-            Value::I128(x) => Value::I128(!x),
-            _ => halt!(span, "Type error"),
-        },
-        UnaryOperation::Square => match value {
-            Value::Field(x) => Value::Field(x.square()),
-            _ => halt!(span, "Can only square fields"),
-        },
-        UnaryOperation::SquareRoot => match value {
-            Value::Field(x) => {
-                let Ok(y) = x.square_root() else {
-                    halt!(span, "square root failure");
-                };
-                Value::Field(y)
-            }
-            _ => halt!(span, "Can only apply square_root to fields"),
-        },
-        UnaryOperation::ToXCoordinate => match value {
-            Value::Group(x) => Value::Field(x.to_x_coordinate()),
-            _ => tc_fail!(),
-        },
-        UnaryOperation::ToYCoordinate => match value {
-            Value::Group(x) => Value::Field(x.to_y_coordinate()),
-            _ => tc_fail!(),
-        },
-    };
-
-    Ok(value_result)
-}
-
-pub fn literal_to_value(literal: &Literal) -> Result<Value> {
-    // SnarkVM will not parse fields, groups, or scalars with
-    // leading zeros, so we strip them out.
-    fn prepare_snarkvm_string(s: &str, suffix: &str) -> String {
-        // If there's a `-`, separate it from the rest of the string.
-        let (neg, rest) = s.strip_prefix("-").map(|rest| ("-", rest)).unwrap_or(("", s));
-        // Remove leading zeros.
-        let mut rest = rest.trim_start_matches('0');
-        if rest.is_empty() {
-            rest = "0";
-        }
-        format!("{neg}{rest}{suffix}")
-    }
-
-    let value = match &literal.variant {
-        LiteralVariant::Boolean(b) => Value::Bool(*b),
-        LiteralVariant::Integer(IntegerType::U8, s, ..) => {
-            let s = s.replace("_", "");
-            Value::U8(u8::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-        }
-        LiteralVariant::Integer(IntegerType::U16, s, ..) => {
-            let s = s.replace("_", "");
-            Value::U16(u16::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-        }
-        LiteralVariant::Integer(IntegerType::U32, s, ..) => {
-            let s = s.replace("_", "");
-            Value::U32(u32::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-        }
-        LiteralVariant::Integer(IntegerType::U64, s, ..) => {
-            let s = s.replace("_", "");
-            Value::U64(u64::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-        }
-        LiteralVariant::Integer(IntegerType::U128, s, ..) => {
-            let s = s.replace("_", "");
-            Value::U128(u128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-        }
-        LiteralVariant::Integer(IntegerType::I8, s, ..) => {
-            let s = s.replace("_", "");
-            Value::I8(i8::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-        }
-        LiteralVariant::Integer(IntegerType::I16, s, ..) => {
-            let s = s.replace("_", "");
-            Value::I16(i16::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-        }
-        LiteralVariant::Integer(IntegerType::I32, s, ..) => {
-            let s = s.replace("_", "");
-            Value::I32(i32::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-        }
-        LiteralVariant::Integer(IntegerType::I64, s, ..) => {
-            let s = s.replace("_", "");
-            Value::I64(i64::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-        }
-        LiteralVariant::Integer(IntegerType::I128, s, ..) => {
-            let s = s.replace("_", "");
-            Value::I128(i128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-        }
-        LiteralVariant::Field(s) => Value::Field(prepare_snarkvm_string(s, "field").parse().expect_tc(literal.span())?),
-        LiteralVariant::Group(s) => Value::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(literal.span())?),
-        LiteralVariant::Address(s) => {
-            if s.ends_with(".aleo") {
-                let program_id = ProgramID::from_str(s)?;
-                Value::Address(program_id.to_address()?)
-            } else {
-                Value::Address(s.parse().expect_tc(literal.span())?)
-            }
-        }
-        LiteralVariant::Scalar(s) => {
-            Value::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span())?)
-        }
-        LiteralVariant::String(..) => tc_fail!(),
-    };
-
-    Ok(value)
 }

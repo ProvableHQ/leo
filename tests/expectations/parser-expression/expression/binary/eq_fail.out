@@ -1,5 +1,5 @@
-Error [EPAR0370017]: Could not parse the implicit value: 1.
-    --> test_0:1:1
+Error [EPAR0370005]: expected <eof> -- found '=='
+    --> test_0:1:8
      |
    1 | 1 == 2 == 3
-     | ^
+     |        ^^

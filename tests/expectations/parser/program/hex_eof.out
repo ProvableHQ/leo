@@ -1,5 +1,5 @@
-Error [EPAR0370017]: Could not parse the implicit value: 0x.
-    --> test:3:31
+Error [EPAR0370005]: expected ; -- found '}'
+    --> test:3:33
      |
    3 |     function main() { let a = 0x}
-     |                               ^^
+     |                                 ^

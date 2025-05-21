@@ -15,8 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-
+use leo_ast::interpreter_value::{GlobalId, Value};
 use leo_errors::{CompilerError, Handler, InterpreterHalt, LeoError, Result};
+use leo_passes::{CompilerState, Pass, SymbolTableCreation, TypeChecking, TypeCheckingInput};
+use snarkvm::prelude::Network;
 
 /// Contains the state of interpretation, in the form of the `Cursor`,
 /// as well as information needed to interact with the user, like
@@ -65,20 +67,43 @@ impl Interpreter {
         aleo_source_files: impl IntoIterator<Item = &'a Q>,
         signer: SvmAddress,
         block_height: u32,
+        test_flow: bool, // impacts the type checker
     ) -> Result<Self> {
         Self::new_impl(
             &mut leo_source_files.into_iter().map(|p| p.as_ref()),
             &mut aleo_source_files.into_iter().map(|p| p.as_ref()),
             signer,
             block_height,
+            test_flow,
         )
     }
 
-    fn get_ast(path: &Path, handler: &Handler, node_builder: &NodeBuilder) -> Result<Ast> {
+    fn get_ast(path: &Path, state: &mut CompilerState) -> Result<Ast> {
         let text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))?;
         let filename = FileName::Real(path.to_path_buf());
         let source_file = with_session_globals(|s| s.source_map.new_source(&text, filename));
-        leo_parser::parse_ast::<TestnetV0>(handler.clone(), node_builder, &text, source_file.absolute_start)
+
+        // Parse
+        state.ast = leo_parser::parse_ast::<TestnetV0>(
+            state.handler.clone(),
+            &state.node_builder,
+            &text,
+            source_file.absolute_start,
+        )?;
+
+        // Only run these two passes from the compiler to make sure that type inference runs and the `type_table` is
+        // filled out. Other compiler passes are not necessary at this stage.
+        SymbolTableCreation::do_pass((), state)?;
+        TypeChecking::do_pass(
+            TypeCheckingInput {
+                max_array_elements: TestnetV0::MAX_ARRAY_ELEMENTS,
+                max_mappings: TestnetV0::MAX_MAPPINGS,
+                max_functions: TestnetV0::MAX_FUNCTIONS,
+            },
+            state,
+        )?;
+
+        Ok(state.ast.clone())
     }
 
     fn new_impl(
@@ -86,17 +111,19 @@ impl Interpreter {
         aleo_source_files: &mut dyn Iterator<Item = &Path>,
         signer: SvmAddress,
         block_height: u32,
+        test_flow: bool,
     ) -> Result<Self> {
-        let handler = Handler::default();
-        let node_builder = Default::default();
         let mut cursor: Cursor = Cursor::new(
             true, // really_async
             signer,
             block_height,
         );
         let mut filename_to_program = HashMap::new();
+
+        let mut state = CompilerState { is_test: test_flow, ..Default::default() };
+
         for path in leo_source_files {
-            let ast = Self::get_ast(path, &handler, &node_builder)?;
+            let ast = Self::get_ast(path, &mut state)?;
             for (&program, scope) in ast.ast.program_scopes.iter() {
                 filename_to_program.insert(path.to_path_buf(), program.to_string());
                 for (name, function) in scope.functions.iter() {
@@ -165,10 +192,14 @@ impl Interpreter {
             }
         }
 
+        // Move the type table from `state` to `curser`. It will be used when trying to evaluate expressions that don't
+        // inherently have a type such as unsuffixed literals.
+        cursor.type_table = state.type_table;
+
         Ok(Interpreter {
             cursor,
-            handler,
-            node_builder,
+            handler: state.handler.clone(),
+            node_builder: state.node_builder.clone(),
             actions: Vec::new(),
             breakpoints: Vec::new(),
             watchpoints: Vec::new(),

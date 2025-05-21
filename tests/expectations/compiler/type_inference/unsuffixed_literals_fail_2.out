@@ -1,0 +1,177 @@
+Error [ETYC0372004]: Could not determine the type of `1`
+    --> compiler-test:3:19
+     |
+   3 |         let t0 = (1, 2);
+     |                   ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `2`
+    --> compiler-test:3:22
+     |
+   3 |         let t0 = (1, 2);
+     |                      ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `1`
+    --> compiler-test:4:24
+     |
+   4 |         let t1: u32 = (1, 2);
+     |                        ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `2`
+    --> compiler-test:4:27
+     |
+   4 |         let t1: u32 = (1, 2);
+     |                           ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `1`
+    --> compiler-test:5:21
+     |
+   5 |         let t2_0 = (1, 2).0;
+     |                     ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `2`
+    --> compiler-test:5:24
+     |
+   5 |         let t2_0 = (1, 2).0;
+     |                        ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `1`
+    --> compiler-test:6:19
+     |
+   6 |         let a0 = [1, 2];
+     |                   ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `2`
+    --> compiler-test:6:22
+     |
+   6 |         let a0 = [1, 2];
+     |                      ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `1`
+    --> compiler-test:7:24
+     |
+   7 |         let a1: u32 = [1, 2];
+     |                        ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `2`
+    --> compiler-test:7:27
+     |
+   7 |         let a1: u32 = [1, 2];
+     |                           ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372117]: Expected an array but type `u32` was found.
+    --> compiler-test:8:20
+     |
+   8 |         let a1_0 = a1[0];
+     |                    ^^
+Error [ETYC0372004]: Could not determine the type of `0`
+    --> compiler-test:8:23
+     |
+   8 |         let a1_0 = a1[0];
+     |                       ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `1`
+    --> compiler-test:9:21
+     |
+   9 |         let a2_0 = [1, 2][0u32];
+     |                     ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `2`
+    --> compiler-test:9:24
+     |
+   9 |         let a2_0 = [1, 2][0u32];
+     |                        ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `0`
+    --> compiler-test:10:40
+     |
+  10 |         let verify = signature::verify(0, 0, 0);
+     |                                        ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `0`
+    --> compiler-test:10:43
+     |
+  10 |         let verify = signature::verify(0, 0, 0);
+     |                                           ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `0`
+    --> compiler-test:10:46
+     |
+  10 |         let verify = signature::verify(0, 0, 0);
+     |                                              ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `0`
+    --> compiler-test:11:24
+     |
+  11 |         let t = true ? 0 : 1;
+     |                        ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `1`
+    --> compiler-test:11:28
+     |
+  11 |         let t = true ? 0 : 1;
+     |                            ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `2`
+    --> compiler-test:12:17
+     |
+  12 |         let c = 2 as u16;
+     |                 ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372117]: Expected an integer but type `numeric` was found.
+    --> compiler-test:13:18
+     |
+  13 |         for i in 1..2 { }
+     |                  ^
+Error [ETYC0372117]: Expected an integer but type `numeric` was found.
+    --> compiler-test:13:21
+     |
+  13 |         for i in 1..2 { }
+     |                     ^
+Error [ETYC0372004]: Could not determine the type of `1`
+    --> compiler-test:14:19
+     |
+  14 |         assert_eq(1, 1);
+     |                   ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372004]: Could not determine the type of `1`
+    --> compiler-test:14:22
+     |
+  14 |         assert_eq(1, 1);
+     |                      ^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372138]: Hex, octal, and binary literals may only be used for integer types.
+    --> compiler-test:17:24
+     |
+  17 |         let f: field = 0x0;
+     |                        ^^^
+Error [ETYC0372138]: Hex, octal, and binary literals may only be used for integer types.
+    --> compiler-test:18:25
+     |
+  18 |         let s: scalar = 0b0;
+     |                         ^^^
+Error [ETYC0372138]: Hex, octal, and binary literals may only be used for integer types.
+    --> compiler-test:19:24
+     |
+  19 |         let g: group = 0o0;
+     |                        ^^^
