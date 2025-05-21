@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AstSnapshots"],"struct":["BuildOptions","CompilerOptions","OutputOptions"]};
+window.SIDEBAR_ITEMS = {"enum":["AstSnapshots"],"struct":["CompilerOptions"]};
