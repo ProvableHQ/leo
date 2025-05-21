@@ -18,7 +18,7 @@ use super::TypeCheckingVisitor;
 use crate::VariableType;
 
 use leo_ast::*;
-use leo_errors::{Handler, TypeCheckerError, TypeCheckerWarning};
+use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
@@ -82,7 +82,8 @@ impl TypeCheckingVisitor<'_> {
         self.assert_array_type(&this_type, input.array.span());
 
         // Check that the index is an integer type.
-        let index_type = self.visit_expression(&input.index, &None);
+        let index_type = self.visit_expression_reject_numeric(&input.index, &None);
+
         self.assert_int_type(&index_type, input.index.span());
 
         // Get the element type of the array.
@@ -284,6 +285,19 @@ impl TypeCheckingVisitor<'_> {
 
         var.type_.clone()
     }
+
+    // Infers the type of an expression, but returns Type::Err and emits an error if the result is Type::Numeric.
+    // Used to disallow numeric types in specific contexts where they are not valid or expected.
+    pub(crate) fn visit_expression_reject_numeric(&mut self, expr: &Expression, expected: &Option<Type>) -> Type {
+        let mut inferred = self.visit_expression(expr, expected);
+        match inferred {
+            Type::Numeric => {
+                self.emit_inference_failure_error(&mut inferred, expr);
+                Type::Err
+            }
+            _ => inferred,
+        }
+    }
 }
 
 impl ExpressionVisitor for TypeCheckingVisitor<'_> {
@@ -334,7 +348,11 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         }
 
-        let element_type = self.visit_expression(&input.elements[0], &None);
+        // Grab the element type from the expected type if the expected type is an array
+        let element_type =
+            if let Some(Type::Array(array_ty)) = additional { Some(array_ty.element_type().clone()) } else { None };
+
+        let inferred_type = self.visit_expression_reject_numeric(&input.elements[0], &element_type);
 
         if input.elements.len() > self.limits.max_array_elements {
             self.emit_err(TypeCheckerError::array_too_large(
@@ -344,21 +362,21 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        if element_type == Type::Err {
-            return Type::Err;
-        }
-
         for expression in input.elements[1..].iter() {
-            let next_type = self.visit_expression(expression, &None);
+            let next_type = self.visit_expression_reject_numeric(expression, &element_type);
 
             if next_type == Type::Err {
                 return Type::Err;
             }
 
-            self.assert_type(&next_type, &element_type, expression.span());
+            self.assert_type(&next_type, &inferred_type, expression.span());
         }
 
-        let type_ = Type::Array(ArrayType::new(element_type, NonNegativeNumber::from(input.elements.len())));
+        if inferred_type == Type::Err {
+            return Type::Err;
+        }
+
+        let type_ = Type::Array(ArrayType::new(inferred_type, NonNegativeNumber::from(input.elements.len())));
 
         self.maybe_assert_type(&type_, additional, input.span());
 
@@ -397,9 +415,14 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
         }
 
-        // Get the types of the arguments.
-        let argument_types =
-            input.arguments.iter().map(|arg| (self.visit_expression(arg, &None), arg.span())).collect::<Vec<_>>();
+        // Get the types of the arguments. Error out on arguments that have `Type::Numeric`. We could potentially do
+        // better for some of the core functions, but that can get pretty tedious because it would have to be function
+        // specific.
+        let argument_types = input
+            .arguments
+            .iter()
+            .map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg.span()))
+            .collect::<Vec<_>>();
 
         // Check that the types of the arguments are valid.
         let return_type = self.check_core_function_call(core_instruction.clone(), &argument_types, input.span());
@@ -427,6 +450,58 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             }
         };
 
+        // This closure attempts to resolve numeric type inference between two operands.
+        // It handles the following cases:
+        // - If both types are unknown numeric placeholders (`Numeric`), emit errors for both.
+        // - If one type is `Numeric` and the other is an error (`Err`), propagate the error.
+        // - If one type is a known numeric type and the other is `Numeric`, infer the unknown type.
+        // - If one type is `Numeric` but the other is not a valid numeric type, emit an error.
+        // - Otherwise, do nothing (types are already resolved or not subject to inference).
+        let infer_numeric_types = |slf: &Self, left_type: &mut Type, right_type: &mut Type| {
+            use Type::*;
+
+            match (&*left_type, &*right_type) {
+                // Case: Both types are unknown numeric types – cannot infer either side
+                (Numeric, Numeric) => {
+                    slf.emit_inference_failure_error(left_type, &input.left);
+                    slf.emit_inference_failure_error(right_type, &input.right);
+                }
+
+                // Case: Left is unknown numeric, right is erroneous – propagate error to left
+                (Numeric, Err) => slf.emit_inference_failure_error(left_type, &input.left),
+
+                // Case: Right is unknown numeric, left is erroneous – propagate error to right
+                (Err, Numeric) => slf.emit_inference_failure_error(right_type, &input.right),
+
+                // Case: Right type is unknown numeric, infer it from known left type
+                (Integer(_) | Field | Group | Scalar, Numeric) => {
+                    *right_type = left_type.clone();
+                    slf.state.type_table.insert(input.right.id(), right_type.clone());
+                    if let Expression::Literal(literal) = &input.right {
+                        slf.check_numeric_literal(literal, right_type);
+                    }
+                }
+
+                // Case: Left type is unknown numeric, infer it from known right type
+                (Numeric, Integer(_) | Field | Group | Scalar) => {
+                    *left_type = right_type.clone();
+                    slf.state.type_table.insert(input.left.id(), left_type.clone());
+                    if let Expression::Literal(literal) = &input.left {
+                        slf.check_numeric_literal(literal, left_type);
+                    }
+                }
+
+                // Case: Left type is numeric but right is invalid for numeric inference – error on left
+                (Numeric, _) => slf.emit_inference_failure_error(left_type, &input.left),
+
+                // Case: Right type is numeric but left is invalid for numeric inference – error on right
+                (_, Numeric) => slf.emit_inference_failure_error(right_type, &input.right),
+
+                // No inference or error needed. Rely on further operator-specific checks.
+                _ => {}
+            }
+        };
+
         match input.op {
             BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Nand | BinaryOperation::Nor => {
                 self.maybe_assert_type(&Type::Boolean, destination, input.span());
@@ -435,17 +510,30 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 Type::Boolean
             }
             BinaryOperation::BitwiseAnd | BinaryOperation::BitwiseOr | BinaryOperation::Xor => {
-                let t1 = self.visit_expression(&input.left, &None);
+                // The expected type for both `left` and `right` is the same as `destination`.
+                let mut t1 = self.visit_expression(&input.left, destination);
+                let mut t2 = self.visit_expression(&input.right, destination);
+
+                // Infer `Numeric` types if possible
+                infer_numeric_types(self, &mut t1, &mut t2);
+
+                // Now sanity check everything
                 self.assert_bool_int_type(&t1, input.left.span());
-                let t2 = self.visit_expression(&input.right, &None);
                 self.assert_bool_int_type(&t2, input.right.span());
+
                 let result_t = assert_same_type(self, &t1, &t2);
                 self.maybe_assert_type(&result_t, destination, input.span());
                 result_t
             }
             BinaryOperation::Add => {
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                // The expected type for both `left` and `right` is the same as `destination`.
+                let mut t1 = self.visit_expression(&input.left, destination);
+                let mut t2 = self.visit_expression(&input.right, destination);
+
+                // Infer `Numeric` types if possible
+                infer_numeric_types(self, &mut t1, &mut t2);
+
+                // Now sanity check everything
                 let assert_add_type = |type_: &Type, span: Span| {
                     if !matches!(type_, Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_)) {
                         self.emit_err(TypeCheckerError::type_should_be2(
@@ -466,9 +554,14 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 result_t
             }
             BinaryOperation::Sub => {
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                // The expected type for both `left` and `right` is the same as `destination`.
+                let mut t1 = self.visit_expression(&input.left, destination);
+                let mut t2 = self.visit_expression(&input.right, destination);
 
+                // Infer `Numeric` types if possible
+                infer_numeric_types(self, &mut t1, &mut t2);
+
+                // Now sanity check everything
                 self.assert_field_group_int_type(&t1, input.left.span());
                 self.assert_field_group_int_type(&t2, input.right.span());
 
@@ -479,9 +572,27 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 result_t
             }
             BinaryOperation::Mul => {
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                // The expected type for both `left` and `right` is the same as `destination` except when `destination` is
+                // a `Type::Group`. In that case, the two operands should be a `Type::Group` and `Type::Scalar` but we can't
+                // known which one is which.
+                let expected = if matches!(destination, Some(Type::Group)) { &None } else { destination };
+                let mut t1 = self.visit_expression(&input.left, expected);
+                let mut t2 = self.visit_expression(&input.right, expected);
 
+                // - If one side is `Group` and the other is an unresolved `Numeric`, infer the `Numeric` as a `Scalar`,
+                //   since `Group * Scalar = Group`.
+                // - Similarly, if one side is `Scalar` and the other is `Numeric`, infer the `Numeric` as `Group`.
+                //
+                // If no special case applies, default to inferring types between `t1` and `t2` as-is.
+                match (&t1, &t2) {
+                    (Type::Group, Type::Numeric) => infer_numeric_types(self, &mut Type::Scalar, &mut t2),
+                    (Type::Numeric, Type::Group) => infer_numeric_types(self, &mut t1, &mut Type::Scalar),
+                    (Type::Scalar, Type::Numeric) => infer_numeric_types(self, &mut Type::Group, &mut t2),
+                    (Type::Numeric, Type::Scalar) => infer_numeric_types(self, &mut t1, &mut Type::Group),
+                    (_, _) => infer_numeric_types(self, &mut t1, &mut t2),
+                }
+
+                // Final sanity checks
                 let result_t = match (&t1, &t2) {
                     (Type::Err, _) | (_, Type::Err) => Type::Err,
                     (Type::Group, Type::Scalar) | (Type::Scalar, Type::Group) => Type::Group,
@@ -500,9 +611,14 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 result_t
             }
             BinaryOperation::Div => {
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                // The expected type for both `left` and `right` is the same as `destination`.
+                let mut t1 = self.visit_expression(&input.left, destination);
+                let mut t2 = self.visit_expression(&input.right, destination);
 
+                // Infer `Numeric` types if possible
+                infer_numeric_types(self, &mut t1, &mut t2);
+
+                // Now sanity check everything
                 self.assert_field_int_type(&t1, input.left.span());
                 self.assert_field_int_type(&t2, input.right.span());
 
@@ -513,9 +629,14 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 result_t
             }
             BinaryOperation::Rem | BinaryOperation::RemWrapped => {
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                // The expected type for both `left` and `right` is the same as `destination`.
+                let mut t1 = self.visit_expression(&input.left, destination);
+                let mut t2 = self.visit_expression(&input.right, destination);
 
+                // Infer `Numeric` types if possible
+                infer_numeric_types(self, &mut t1, &mut t2);
+
+                // Now sanity check everything
                 self.assert_int_type(&t1, input.left.span());
                 self.assert_int_type(&t2, input.right.span());
 
@@ -526,11 +647,16 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 result_t
             }
             BinaryOperation::Mod => {
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                // The expected type for both `left` and `right` is the same as `destination`.
+                let mut t1 = self.visit_expression(&input.left, destination);
+                let mut t2 = self.visit_expression(&input.right, destination);
 
+                // Infer `Numeric` types if possible
+                infer_numeric_types(self, &mut t1, &mut t2);
+
+                // Now sanity check everything
                 self.assert_unsigned_type(&t1, input.left.span());
-                self.assert_unsigned_type(&t1, input.right.span());
+                self.assert_unsigned_type(&t2, input.right.span());
 
                 let result_t = assert_same_type(self, &t1, &t2);
 
@@ -539,9 +665,26 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 result_t
             }
             BinaryOperation::Pow => {
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                // The expected type of `left` is the same as `destination`
+                let mut t1 = self.visit_expression(&input.left, destination);
 
+                // The expected type of `right` is `field`, `u8`, `u16`, or `u32` so leave it as `None` for now.
+                let mut t2 = self.visit_expression(&input.right, &None);
+
+                // If one side is a `Field` and the other is a `Numeric`, infer the `Numeric` as a `Field.
+                // Otherwise, error out for each `Numeric`.
+                if matches!((&t1, &t2), (Type::Field, Type::Numeric) | (Type::Numeric, Type::Field)) {
+                    infer_numeric_types(self, &mut t1, &mut t2);
+                } else {
+                    if matches!(t1, Type::Numeric) {
+                        self.emit_inference_failure_error(&mut t1, &input.left);
+                    }
+                    if matches!(t2, Type::Numeric) {
+                        self.emit_inference_failure_error(&mut t2, &input.right);
+                    }
+                }
+
+                // Now sanity check everything
                 let ty = match (&t1, &t2) {
                     (Type::Err, _) | (_, Type::Err) => Type::Err,
                     (Type::Field, Type::Field) => Type::Field,
@@ -567,9 +710,13 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 ty
             }
             BinaryOperation::Eq | BinaryOperation::Neq => {
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                let mut t1 = self.visit_expression(&input.left, &None);
+                let mut t2 = self.visit_expression(&input.right, &None);
 
+                // Infer `Numeric` types if possible
+                infer_numeric_types(self, &mut t1, &mut t2);
+
+                // Now sanity check everything
                 let _ = assert_same_type(self, &t1, &t2);
 
                 self.maybe_assert_type(&Type::Boolean, destination, input.span());
@@ -578,9 +725,13 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             }
             BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Lte | BinaryOperation::Gte => {
                 // Assert left and right are equal field, scalar, or integer types.
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                let mut t1 = self.visit_expression(&input.left, &None);
+                let mut t2 = self.visit_expression(&input.right, &None);
 
+                // Infer `Numeric` types if possible
+                infer_numeric_types(self, &mut t1, &mut t2);
+
+                // Now sanity check everything
                 let assert_compare_type = |type_: &Type, span: Span| {
                     if !matches!(type_, Type::Err | Type::Field | Type::Scalar | Type::Integer(_)) {
                         self.emit_err(TypeCheckerError::type_should_be2(type_, "a field, scalar, or integer", span));
@@ -600,9 +751,14 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             | BinaryOperation::SubWrapped
             | BinaryOperation::DivWrapped
             | BinaryOperation::MulWrapped => {
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                // The expected type for both `left` and `right` is the same as `destination`.
+                let mut t1 = self.visit_expression(&input.left, destination);
+                let mut t2 = self.visit_expression(&input.right, destination);
 
+                // Infer `Numeric` types if possible
+                infer_numeric_types(self, &mut t1, &mut t2);
+
+                // Now sanity check everything
                 self.assert_int_type(&t1, input.left.span());
                 self.assert_int_type(&t2, input.right.span());
 
@@ -617,8 +773,11 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             | BinaryOperation::Shr
             | BinaryOperation::ShrWrapped
             | BinaryOperation::PowWrapped => {
-                let t1 = self.visit_expression(&input.left, &None);
-                let t2 = self.visit_expression(&input.right, &None);
+                // The expected type of `left` is the same as `destination`
+                let t1 = self.visit_expression_reject_numeric(&input.left, destination);
+
+                // The expected type of `right` is `field`, `u8`, `u16`, or `u32` so leave it as `None` for now.
+                let t2 = self.visit_expression_reject_numeric(&input.right, &None);
 
                 self.assert_int_type(&t1, input.left.span());
 
@@ -864,7 +1023,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_cast(&mut self, input: &CastExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        let expression_type = self.visit_expression(&input.expression, &None);
+        let expression_type = self.visit_expression_reject_numeric(&input.expression, &None);
 
         let assert_castable_type = |actual: &Type, span: Span| {
             if !matches!(
@@ -973,75 +1132,61 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_literal(&mut self, input: &Literal, expected: &Self::AdditionalInput) -> Self::Output {
-        fn parse_integer_literal<I: FromStrRadix>(handler: &Handler, raw_string: &str, span: Span, type_string: &str) {
-            let string = raw_string.replace('_', "");
-            if I::from_str_by_radix(&string).is_err() {
-                handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
-            }
+        let span = input.span();
+
+        macro_rules! parse_and_return {
+            ($ty:ty, $variant:expr, $str:expr, $label:expr) => {{
+                self.parse_integer_literal::<$ty>($str, span, $label);
+                Type::Integer($variant)
+            }};
         }
 
         let type_ = match &input.variant {
             LiteralVariant::Address(..) => Type::Address,
             LiteralVariant::Boolean(..) => Type::Boolean,
             LiteralVariant::Field(..) => Type::Field,
-            LiteralVariant::Integer(IntegerType::U8, string) => {
-                parse_integer_literal::<u8>(&self.state.handler, string, input.span(), "u8");
-                Type::Integer(IntegerType::U8)
+            LiteralVariant::Scalar(..) => Type::Scalar,
+            LiteralVariant::String(..) => {
+                self.emit_err(TypeCheckerError::strings_are_not_supported(span));
+                Type::String
             }
-            LiteralVariant::Integer(IntegerType::U16, string) => {
-                parse_integer_literal::<u16>(&self.state.handler, string, input.span(), "u16");
-                Type::Integer(IntegerType::U16)
-            }
-            LiteralVariant::Integer(IntegerType::U32, string) => {
-                parse_integer_literal::<u32>(&self.state.handler, string, input.span(), "u32");
-                Type::Integer(IntegerType::U32)
-            }
-            LiteralVariant::Integer(IntegerType::U64, string) => {
-                parse_integer_literal::<u64>(&self.state.handler, string, input.span(), "u64");
-                Type::Integer(IntegerType::U64)
-            }
-            LiteralVariant::Integer(IntegerType::U128, string) => {
-                parse_integer_literal::<u128>(&self.state.handler, string, input.span(), "u128");
-                Type::Integer(IntegerType::U128)
-            }
-            LiteralVariant::Integer(IntegerType::I8, string) => {
-                parse_integer_literal::<i8>(&self.state.handler, string, input.span(), "i8");
-                Type::Integer(IntegerType::I8)
-            }
-            LiteralVariant::Integer(IntegerType::I16, string) => {
-                parse_integer_literal::<i16>(&self.state.handler, string, input.span(), "i16");
-                Type::Integer(IntegerType::I16)
-            }
-            LiteralVariant::Integer(IntegerType::I32, string) => {
-                parse_integer_literal::<i32>(&self.state.handler, string, input.span(), "i32");
-                Type::Integer(IntegerType::I32)
-            }
-            LiteralVariant::Integer(IntegerType::I64, string) => {
-                parse_integer_literal::<i64>(&self.state.handler, string, input.span(), "i64");
-                Type::Integer(IntegerType::I64)
-            }
-            LiteralVariant::Integer(IntegerType::I128, string) => {
-                parse_integer_literal::<i128>(&self.state.handler, string, input.span(), "i128");
-                Type::Integer(IntegerType::I128)
-            }
+            LiteralVariant::Integer(kind, string) => match kind {
+                IntegerType::U8 => parse_and_return!(u8, IntegerType::U8, string, "u8"),
+                IntegerType::U16 => parse_and_return!(u16, IntegerType::U16, string, "u16"),
+                IntegerType::U32 => parse_and_return!(u32, IntegerType::U32, string, "u32"),
+                IntegerType::U64 => parse_and_return!(u64, IntegerType::U64, string, "u64"),
+                IntegerType::U128 => parse_and_return!(u128, IntegerType::U128, string, "u128"),
+                IntegerType::I8 => parse_and_return!(i8, IntegerType::I8, string, "i8"),
+                IntegerType::I16 => parse_and_return!(i16, IntegerType::I16, string, "i16"),
+                IntegerType::I32 => parse_and_return!(i32, IntegerType::I32, string, "i32"),
+                IntegerType::I64 => parse_and_return!(i64, IntegerType::I64, string, "i64"),
+                IntegerType::I128 => parse_and_return!(i128, IntegerType::I128, string, "i128"),
+            },
             LiteralVariant::Group(s) => {
-                // Get rid of leading - and 0 and see if it parses
-                let s = s.trim_start_matches('-').trim_start_matches('0');
-                if !s.is_empty()
-                    && format!("{s}group").parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>().is_err()
+                let trimmed = s.trim_start_matches('-').trim_start_matches('0');
+                if !trimmed.is_empty()
+                    && format!("{trimmed}group")
+                        .parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>()
+                        .is_err()
                 {
-                    self.emit_err(TypeCheckerError::invalid_int_value(s, "group", input.span()));
+                    self.emit_err(TypeCheckerError::invalid_int_value(trimmed, "group", span));
                 }
                 Type::Group
             }
-            LiteralVariant::Scalar(..) => Type::Scalar,
-            LiteralVariant::String(..) => {
-                self.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));
-                Type::String
-            }
+            LiteralVariant::Unsuffixed(_) => match expected {
+                Some(ty @ Type::Integer(_) | ty @ Type::Field | ty @ Type::Group | ty @ Type::Scalar) => {
+                    self.check_numeric_literal(input, ty);
+                    ty.clone()
+                }
+                Some(ty) => {
+                    self.emit_err(TypeCheckerError::unexpected_unsuffixed_numeral(format!("type `{ty}`"), span));
+                    Type::Err
+                }
+                None => Type::Numeric,
+            },
         };
 
-        self.maybe_assert_type(&type_, expected, input.span());
+        self.maybe_assert_type(&type_, expected, span);
 
         type_
     }
@@ -1061,8 +1206,8 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
     fn visit_ternary(&mut self, input: &TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
-        let t1 = self.visit_expression(&input.if_true, expected);
-        let t2 = self.visit_expression(&input.if_false, expected);
+        let t1 = self.visit_expression_reject_numeric(&input.if_true, expected);
+        let t2 = self.visit_expression_reject_numeric(&input.if_false, expected);
 
         let typ = if t1 == Type::Err || t2 == Type::Err {
             Type::Err
@@ -1116,10 +1261,23 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 // If the expected type is not a tuple, then we just error out
 
                 // This is the expected type of the tuple based on its individual fields
-                let inferred_type = Type::Tuple(TupleType::new(
-                    input.elements.iter().map(|field| self.visit_expression(field, &None)).collect::<Vec<_>>(),
-                ));
-                self.emit_err(TypeCheckerError::type_should_be2(inferred_type.clone(), expected, input.span()));
+                let field_types = input
+                    .elements
+                    .iter()
+                    .map(|field| {
+                        let ty = self.visit_expression(field, &None);
+                        if ty == Type::Numeric {
+                            self.emit_err(TypeCheckerError::could_not_determine_type(field.clone(), field.span()));
+                            Type::Err
+                        } else {
+                            ty
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                if field_types.iter().all(|f| *f != Type::Err) {
+                    let tuple_type = Type::Tuple(TupleType::new(field_types));
+                    self.emit_err(TypeCheckerError::type_should_be2(tuple_type, expected, input.span()));
+                }
 
                 // Recover with the expected type anyways
                 expected.clone()
@@ -1135,7 +1293,19 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             });
 
             Type::Tuple(TupleType::new(
-                input.elements.iter().map(|field| self.visit_expression(field, &None)).collect::<Vec<_>>(),
+                input
+                    .elements
+                    .iter()
+                    .map(|field| {
+                        let ty = self.visit_expression(field, &None);
+                        if ty == Type::Numeric {
+                            self.emit_err(TypeCheckerError::could_not_determine_type(field.clone(), field.span()));
+                            Type::Err
+                        } else {
+                            ty
+                        }
+                    })
+                    .collect::<Vec<_>>(),
             ))
         }
     }
@@ -1157,29 +1327,35 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
 
         let ty = match input.op {
             UnaryOperation::Abs => {
-                let type_ = self.visit_expression(&input.receiver, &None);
+                let type_ = self.visit_expression_reject_numeric(&input.receiver, destination);
                 assert_signed_int(self, &type_);
                 type_
             }
             UnaryOperation::AbsWrapped => {
-                let type_ = self.visit_expression(&input.receiver, &None);
+                let type_ = self.visit_expression_reject_numeric(&input.receiver, destination);
                 assert_signed_int(self, &type_);
                 type_
             }
             UnaryOperation::Double => {
-                let type_ = self.visit_expression(&input.receiver, &None);
+                let type_ = self.visit_expression_reject_numeric(&input.receiver, destination);
                 if !matches!(&type_, Type::Err | Type::Field | Type::Group) {
                     self.emit_err(TypeCheckerError::type_should_be2(&type_, "a field or group", input.span()));
                 }
                 type_
             }
             UnaryOperation::Inverse => {
-                let type_ = self.visit_expression(&input.receiver, &None);
-                self.assert_type(&type_, &Type::Field, input.span());
+                let mut type_ = self.visit_expression(&input.receiver, destination);
+                if type_ == Type::Numeric {
+                    // We can actually infer to `field` here because only fields can be inverted
+                    type_ = Type::Field;
+                    self.state.type_table.insert(input.receiver.id(), Type::Field);
+                } else {
+                    self.assert_type(&type_, &Type::Field, input.span());
+                }
                 type_
             }
             UnaryOperation::Negate => {
-                let type_ = self.visit_expression(&input.receiver, &None);
+                let type_ = self.visit_expression_reject_numeric(&input.receiver, destination);
                 if !matches!(
                     &type_,
                     Type::Err
@@ -1200,20 +1376,32 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 type_
             }
             UnaryOperation::Not => {
-                let type_ = self.visit_expression(&input.receiver, &None);
+                let type_ = self.visit_expression_reject_numeric(&input.receiver, destination);
                 if !matches!(&type_, Type::Err | Type::Boolean | Type::Integer(_)) {
                     self.emit_err(TypeCheckerError::type_should_be2(&type_, "a bool or integer", input.span()));
                 }
                 type_
             }
             UnaryOperation::Square => {
-                let type_ = self.visit_expression(&input.receiver, &None);
-                self.assert_type(&type_, &Type::Field, input.span());
+                let mut type_ = self.visit_expression(&input.receiver, destination);
+                if type_ == Type::Numeric {
+                    // We can actually infer to `field` here because only fields can be squared
+                    type_ = Type::Field;
+                    self.state.type_table.insert(input.receiver.id(), Type::Field);
+                } else {
+                    self.assert_type(&type_, &Type::Field, input.span());
+                }
                 type_
             }
             UnaryOperation::SquareRoot => {
-                let type_ = self.visit_expression(&input.receiver, &None);
-                self.assert_type(&type_, &Type::Field, input.span());
+                let mut type_ = self.visit_expression(&input.receiver, destination);
+                if type_ == Type::Numeric {
+                    // We can actually infer to `field` here because only fields can be square-rooted
+                    type_ = Type::Field;
+                    self.state.type_table.insert(input.receiver.id(), Type::Field);
+                } else {
+                    self.assert_type(&type_, &Type::Field, input.span());
+                }
                 type_
             }
             UnaryOperation::ToXCoordinate | UnaryOperation::ToYCoordinate => {

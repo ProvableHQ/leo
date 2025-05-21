@@ -40,41 +40,57 @@ impl StatementReconstructor for UnrollingVisitor<'_> {
         // There's no need to reconstruct the bound expressions - they must be constants
         // which can be evaluated through constant propagation.
 
-        let Literal(start_lit) = &input.start else {
+        let Literal(start_lit_ref) = &input.start else {
             self.loop_not_unrolled = Some(input.start.span());
             return (Statement::Iteration(Box::new(input)), Default::default());
         };
 
-        let Literal(stop_lit) = &input.stop else {
+        let Literal(stop_lit_ref) = &input.stop else {
             self.loop_not_unrolled = Some(input.stop.span());
             return (Statement::Iteration(Box::new(input)), Default::default());
         };
 
-        // These unwraps work because these literals were either found during parsing and validated
-        // during type checking or else created during const folding.
-        let start_value = Value::try_from(start_lit).unwrap();
-        let stop_value = Value::try_from(stop_lit).unwrap();
+        // Helper to clone and resolve Unsuffixed -> Integer literal based on type table
+        let resolve_unsuffixed = |lit: &leo_ast::Literal, expr_id| {
+            let mut resolved = lit.clone();
+            if let LiteralVariant::Unsuffixed(s) = &resolved.variant {
+                if let Some(Type::Integer(integer_type)) = self.state.type_table.get(&expr_id) {
+                    resolved.variant = LiteralVariant::Integer(integer_type, s.clone());
+                }
+            }
+            resolved
+        };
 
-        // Ensure loop bounds are increasing. This cannot be done in the type checker because constant propagation must
-        // happen first.
-        if match (&start_value, &stop_value) {
-            (Value::I8(lower_bound, _), Value::I8(upper_bound, _)) => lower_bound >= upper_bound,
-            (Value::I16(lower_bound, _), Value::I16(upper_bound, _)) => lower_bound >= upper_bound,
-            (Value::I32(lower_bound, _), Value::I32(upper_bound, _)) => lower_bound >= upper_bound,
-            (Value::I64(lower_bound, _), Value::I64(upper_bound, _)) => lower_bound >= upper_bound,
-            (Value::I128(lower_bound, _), Value::I128(upper_bound, _)) => lower_bound >= upper_bound,
-            (Value::U8(lower_bound, _), Value::U8(upper_bound, _)) => lower_bound >= upper_bound,
-            (Value::U16(lower_bound, _), Value::U16(upper_bound, _)) => lower_bound >= upper_bound,
-            (Value::U32(lower_bound, _), Value::U32(upper_bound, _)) => lower_bound >= upper_bound,
-            (Value::U64(lower_bound, _), Value::U64(upper_bound, _)) => lower_bound >= upper_bound,
-            (Value::U128(lower_bound, _), Value::U128(upper_bound, _)) => lower_bound >= upper_bound,
-            _ => panic!("Type checking guarantees that the loop bounds have same type and that they are integers."),
-        } {
+        // Clone and resolve both literals
+        let resolved_start_lit = resolve_unsuffixed(start_lit_ref, input.start.id());
+        let resolved_stop_lit = resolve_unsuffixed(stop_lit_ref, input.stop.id());
+
+        // Convert resolved literals into constant values
+        let start_value = Value::try_from(&resolved_start_lit).unwrap();
+        let stop_value = Value::try_from(&resolved_stop_lit).unwrap();
+
+        // Ensure loop bounds are strictly increasing
+        let bounds_invalid = match (&start_value, &stop_value) {
+            (Value::I8(a, _), Value::I8(b, _)) => a >= b,
+            (Value::I16(a, _), Value::I16(b, _)) => a >= b,
+            (Value::I32(a, _), Value::I32(b, _)) => a >= b,
+            (Value::I64(a, _), Value::I64(b, _)) => a >= b,
+            (Value::I128(a, _), Value::I128(b, _)) => a >= b,
+            (Value::U8(a, _), Value::U8(b, _)) => a >= b,
+            (Value::U16(a, _), Value::U16(b, _)) => a >= b,
+            (Value::U32(a, _), Value::U32(b, _)) => a >= b,
+            (Value::U64(a, _), Value::U64(b, _)) => a >= b,
+            (Value::U128(a, _), Value::U128(b, _)) => a >= b,
+            _ => panic!("Type checking guarantees that loop bounds are integers of the same type."),
+        };
+
+        if bounds_invalid {
             self.emit_err(LoopUnrollerError::loop_range_decreasing(input.stop.span()));
         }
 
         self.loop_unrolled = true;
 
+        // Perform loop unrolling using i128 — all numeric bounds are converted to this internally
         (self.unroll_iteration_statement::<i128>(input, start_value, stop_value), Default::default())
     }
 }

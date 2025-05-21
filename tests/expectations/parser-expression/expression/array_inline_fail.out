@@ -8,11 +8,11 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found ','
      |
    1 | [,,]
      |  ^
-Error [EPAR0370017]: Could not parse the implicit value: 0.
-    --> test_2:1:2
+Error [EPAR0370009]: unexpected string: expected 'expression', found ','
+    --> test_2:1:4
      |
    1 | [0,,]
-     |  ^
+     |    ^
 Error [EPAR0370009]: unexpected string: expected 'expression', found ','
     --> test_3:1:2
      |

@@ -50,8 +50,8 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
                 let _type = self.visit_expression(expr, &Some(Type::Boolean));
             }
             AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
-                let t1 = self.visit_expression(left, &None);
-                let t2 = self.visit_expression(right, &None);
+                let t1 = self.visit_expression_reject_numeric(left, &None);
+                let t2 = self.visit_expression_reject_numeric(right, &None);
 
                 if t1 != Type::Err && t2 != Type::Err && !self.eq_user(&t1, &t2) {
                     let op =
@@ -174,8 +174,10 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
             _ => (), // Do nothing
         }
 
-        // Check the expression on the right-hand side.
-        let inferred_type = self.visit_expression(&input.value, &input.type_);
+        // Check the expression on the right-hand side. If we could not resolve `Type::Numeric`, then just give up.
+        // We could do better in the future by potentially looking at consumers of this variable and inferring type
+        // information from them.
+        let inferred_type = self.visit_expression_reject_numeric(&input.value, &input.type_);
 
         // Insert the variables into the symbol table.
         match &input.place {
@@ -305,7 +307,8 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
                 true,
             ));
 
-            // Need to modify return type since the function signature is just default future, but the actual return type is the fully inferred future of the finalize input type.
+            // Need to modify return type since the function signature is just default future, but the actual return
+            // type is the fully inferred future of the finalize input type.
             let inferred = match return_type.clone() {
                 Future(_) => inferred_future_type,
                 Tuple(tuple) => Tuple(TupleType::new(

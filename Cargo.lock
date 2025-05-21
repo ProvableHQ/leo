@@ -1501,6 +1501,8 @@ dependencies = [
  "itertools 0.13.0",
  "leo-errors",
  "leo-span",
+ "rand",
+ "rand_chacha",
  "serde",
  "serde_json",
  "snarkvm",
@@ -1567,6 +1569,7 @@ dependencies = [
  "leo-ast",
  "leo-errors",
  "leo-parser",
+ "leo-passes",
  "leo-span",
  "leo-test-framework",
  "rand",
@@ -1577,7 +1580,6 @@ dependencies = [
  "snarkvm-circuit",
  "snarkvm-synthesizer-program",
  "tempfile",
- "tui-input",
 ]
 
 [[package]]
@@ -1660,7 +1662,6 @@ dependencies = [
  "itertools 0.13.0",
  "leo-ast",
  "leo-errors",
- "leo-interpreter",
  "leo-span",
  "num-traits",
  "serde",
@@ -4080,16 +4081,6 @@ name = "try-lock"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
-
-[[package]]
-name = "tui-input"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5d1733c47f1a217b7deff18730ff7ca4ecafc5771368f715ab072d679a36114"
-dependencies = [
- "ratatui",
- "unicode-width 0.2.0",
-]
 
 [[package]]
 name = "typenum"

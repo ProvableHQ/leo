@@ -33,6 +33,12 @@ workspace = true
 [dependencies.itertools]
 workspace = true
 
+[dependencies.rand]
+workspace = true
+
+[dependencies.rand_chacha]
+workspace = true
+
 [dependencies.serde]
 workspace = true
 

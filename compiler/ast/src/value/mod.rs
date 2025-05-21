@@ -40,6 +40,7 @@ pub enum Value {
     U64(u64, Span),
     U128(u128, Span),
     Scalar(String, Span),
+    Unsuffixed(String, Span),
     String(String, Span),
 }
 
@@ -63,6 +64,7 @@ impl Display for Value {
             U64(val, _) => write!(f, "{val}"),
             U128(val, _) => write!(f, "{val}"),
             Scalar(val, _) => write!(f, "{val}"),
+            Unsuffixed(val, _) => write!(f, "{val}"),
             String(val, _) => write!(f, "{val}"),
         }
     }
@@ -170,6 +172,7 @@ impl From<&Value> for Type {
             U64(_, _) => Type::Integer(IntegerType::U64),
             U128(_, _) => Type::Integer(IntegerType::U128),
             Scalar(_, _) => Type::Scalar,
+            Unsuffixed(_, _) => Type::Numeric,
             String(_, _) => Type::String,
         }
     }
@@ -187,6 +190,7 @@ impl TryFrom<&Literal> for Value {
             LiteralVariant::Field(string) => Self::Field(string.clone(), span),
             LiteralVariant::Group(string) => Self::Group(string.clone(), span),
             LiteralVariant::Scalar(string) => Self::Scalar(string.clone(), span),
+            LiteralVariant::Unsuffixed(string) => Self::Unsuffixed(string.clone(), span),
             LiteralVariant::String(string) => Self::String(string.clone(), span),
             LiteralVariant::Integer(integer_type, raw_string) => {
                 let string = raw_string.replace('_', "");

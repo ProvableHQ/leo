@@ -57,6 +57,8 @@ pub enum Type {
     String,
     /// A static tuple of at least one type.
     Tuple(TupleType),
+    /// Numeric type which should be resolved to `Field`, `Group`, `Integer(_)`, or `Scalar`.
+    Numeric,
     /// The `unit` type.
     Unit,
     /// Placeholder for a type that could not be resolved or was not well-formed.
@@ -151,6 +153,7 @@ impl fmt::Display for Type {
             Type::String => write!(f, "string"),
             Type::Composite(ref struct_type) => write!(f, "{struct_type}"),
             Type::Tuple(ref tuple) => write!(f, "{tuple}"),
+            Type::Numeric => write!(f, "numeric"),
             Type::Unit => write!(f, "()"),
             Type::Err => write!(f, "error"),
         }
