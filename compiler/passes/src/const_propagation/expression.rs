@@ -139,7 +139,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
                 Value::I32(x) => x.try_into().unwrap_or(len),
                 Value::I64(x) => x.try_into().unwrap_or(len),
                 Value::I128(x) => x.try_into().unwrap_or(len),
-                _ => panic!("Type checking guarantees this is an intger"),
+                _ => panic!("Type checking guarantees this is an integer"),
             };
 
             if index >= len {
