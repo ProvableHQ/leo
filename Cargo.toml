@@ -143,10 +143,6 @@ version = "3.1.1"
 [workspace.dependencies.tempfile]
 version = "3.13"
 
-[workspace.dependencies.toml]
-version = "0.8"
-features = [ "preserve_order" ]
-
 [workspace.dependencies.tracing]
 version = "0.1"
 
@@ -246,9 +242,6 @@ features = [ "circuit", "console" ]
 [dependencies.sys-info]
 version = "0.9.1"
 
-[dependencies.toml]
-workspace = true
-
 [dependencies.tracing]
 version = "0.1"
 
@@ -270,12 +263,6 @@ workspace = true
 
 [target."cfg(windows)".dependencies.ansi_term]
 version = "0.12.1"
-
-[dev-dependencies.rusty-hook]
-version = "0.11.2"
-
-[dev-dependencies.test_dir]
-version = "0.2.0"
 
 [build-dependencies.walkdir]
 workspace = true

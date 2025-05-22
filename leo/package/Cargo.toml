@@ -18,9 +18,6 @@ license = "GPL-3.0"
 edition = "2024"
 rust-version = "1.85.1"
 
-[dependencies.leo-disassembler]
-workspace = true
-
 [dependencies.leo-errors]
 workspace = true
 

@@ -36,9 +36,6 @@ version = "0.6.1"
 [dependencies.derivative]
 version = "2.2.0"
 
-[dependencies.reqwest]
-version = "0.12.9"
-
 [dependencies.itertools]
 workspace = true
 
