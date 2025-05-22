@@ -18,14 +18,5 @@ license = "GPL-3.0"
 edition = "2024"
 rust-version = "1.85.1"
 
-[dependencies.leo-errors]
-workspace = true
-
-[dependencies.indexmap]
-workspace = true
-
-[dependencies.itertools]
-workspace = true
-
 [dependencies.walkdir]
 workspace = true

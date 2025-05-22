@@ -57,9 +57,6 @@ workspace = true
 [dev-dependencies.leo-disassembler]
 path = "../../utils/disassembler"
 
-[dev-dependencies.leo-package]
-workspace = true
-
 [dev-dependencies.leo-test-framework]
 workspace = true
 
@@ -70,9 +67,6 @@ workspace = true
 workspace = true
 
 [dev-dependencies.serde]
-workspace = true
-
-[dev-dependencies.toml]
 workspace = true
 
 [dev-dependencies.regex]
