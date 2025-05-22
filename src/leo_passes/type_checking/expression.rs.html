@@ -902,7 +902,7 @@
 <a href=#902 id=902 data-nosnippet>902</a>                <span class="kw">match </span><span class="kw-2">&amp;</span>actual.expression {
 <a href=#903 id=903 data-nosnippet>903</a>                    <span class="prelude-val">None </span>=&gt; {
 <a href=#904 id=904 data-nosnippet>904</a>                        <span class="comment">// If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`
-<a href=#905 id=905 data-nosnippet>905</a>                        // We visit it as an expression rather than just calling `visit_identifer` so it will get
+<a href=#905 id=905 data-nosnippet>905</a>                        // We visit it as an expression rather than just calling `visit_identifier` so it will get
 <a href=#906 id=906 data-nosnippet>906</a>                        // put into the type table.
 <a href=#907 id=907 data-nosnippet>907</a>                        </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>actual.identifier.into(), <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(type_.clone()));
 <a href=#908 id=908 data-nosnippet>908</a>                    }
@@ -926,7 +926,7 @@
 <a href=#926 id=926 data-nosnippet>926</a>            <span class="comment">// Records where the `owner` is `self.caller` can be problematic because `self.caller` can be a program
 <a href=#927 id=927 data-nosnippet>927</a>            // address and programs can't spend records. Emit a warning in this case.
 <a href=#928 id=928 data-nosnippet>928</a>            //
-<a href=#929 id=929 data-nosnippet>929</a>            // Multiple occurences of `owner` here is an error but that should be flagged somewhere else.
+<a href=#929 id=929 data-nosnippet>929</a>            // Multiple occurrences of `owner` here is an error but that should be flagged somewhere else.
 <a href=#930 id=930 data-nosnippet>930</a>            </span>input.members.iter().filter(|init| init.identifier.name == sym::owner).for_each(|init| {
 <a href=#931 id=931 data-nosnippet>931</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(Expression::MemberAccess(access)) = <span class="kw-2">&amp;</span>init.expression {
 <a href=#932 id=932 data-nosnippet>932</a>                    <span class="kw">if let </span>MemberAccess {

@@ -162,7 +162,7 @@
 <a href=#162 id=162 data-nosnippet>162</a>        <span class="self">self</span>.local = <span class="prelude-val">Some</span>(new_local_table);
 <a href=#163 id=163 data-nosnippet>163</a>    }
 <a href=#164 id=164 data-nosnippet>164</a>
-<a href=#165 id=165 data-nosnippet>165</a>    <span class="doccomment">/// Enther the parent scope of the current scope (or the global scope if there is no local parent scope).
+<a href=#165 id=165 data-nosnippet>165</a>    <span class="doccomment">/// Enter the parent scope of the current scope (or the global scope if there is no local parent scope).
 <a href=#166 id=166 data-nosnippet>166</a>    </span><span class="kw">pub fn </span>enter_parent(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
 <a href=#167 id=167 data-nosnippet>167</a>        <span class="kw">let </span>parent: <span class="prelude-ty">Option</span>&lt;NodeID&gt; = <span class="self">self</span>.local.as_ref().and_then(|table| table.inner.borrow().parent);
 <a href=#168 id=168 data-nosnippet>168</a>        <span class="self">self</span>.local = parent.map(|id| <span class="self">self</span>.all_locals.get(<span class="kw-2">&amp;</span>id).expect(<span class="string">"Parent should exist."</span>)).cloned();
