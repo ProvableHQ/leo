@@ -100,7 +100,7 @@ jobs:
             -v ${{ github.workspace }}:/volume \
             -v cargo-cache:/root/.cargo/registry \
             --rm \
-            -t clux/muslrust:stable \
+            -t clux/muslrust:1.85.1-stable \
             bash -c "
               rustup install stable &&
               rustup default stable &&
