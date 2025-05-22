@@ -1,11 +1,7 @@
 name: Code Coverage
 on:
-  push:
-    branches:
-      - mainnet
-    paths-ignore:
-      - 'docs/**'
-      - 'documentation/**'
+  schedule:
+    - cron: '0 15 * * 0'  # Sunday 15:00 UTC (7am or 8am Pacific time)
 env:
   RUST_BACKTRACE: 0
 
