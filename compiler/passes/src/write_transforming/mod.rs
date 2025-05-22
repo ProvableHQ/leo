@@ -32,7 +32,7 @@ use visitor::*;
 /// A pass to rewrite assignments to array accesses and struct accesses.
 ///
 /// This pass makes variables for members of arrays and structs that are written to,
-/// changes assignments to those members into assignemnts to those variables, and,
+/// changes assignments to those members into assignments to those variables, and,
 /// whenever the arrays or structs are accessed, reconstructs them from the variables.
 /// So code like this:
 ///

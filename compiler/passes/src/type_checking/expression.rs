@@ -902,7 +902,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 match &actual.expression {
                     None => {
                         // If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`
-                        // We visit it as an expression rather than just calling `visit_identifer` so it will get
+                        // We visit it as an expression rather than just calling `visit_identifier` so it will get
                         // put into the type table.
                         self.visit_expression(&actual.identifier.into(), &Some(type_.clone()));
                     }
@@ -926,7 +926,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             // Records where the `owner` is `self.caller` can be problematic because `self.caller` can be a program
             // address and programs can't spend records. Emit a warning in this case.
             //
-            // Multiple occurences of `owner` here is an error but that should be flagged somewhere else.
+            // Multiple occurrences of `owner` here is an error but that should be flagged somewhere else.
             input.members.iter().filter(|init| init.identifier.name == sym::owner).for_each(|init| {
                 if let Some(Expression::MemberAccess(access)) = &init.expression {
                     if let MemberAccess {
