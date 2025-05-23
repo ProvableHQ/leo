@@ -301,3 +301,302 @@
   }
 }
 
+{
+  "Iteration": {
+    "variable": {
+      "name": "x",
+      "span": {
+        "lo": 168,
+        "hi": 169
+      },
+      "id": 0
+    },
+    "type_": null,
+    "start": {
+      "Literal": {
+        "span": {
+          "lo": 173,
+          "hi": 176
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "U8",
+            "0"
+          ]
+        }
+      }
+    },
+    "stop": {
+      "Literal": {
+        "span": {
+          "lo": 178,
+          "hi": 181
+        },
+        "id": 2,
+        "variant": {
+          "Integer": [
+            "U8",
+            "7"
+          ]
+        }
+      }
+    },
+    "inclusive": false,
+    "block": {
+      "statements": [],
+      "span": {
+        "lo": 182,
+        "hi": 184
+      },
+      "id": 3
+    },
+    "span": {
+      "lo": 164,
+      "hi": 184
+    },
+    "id": 4
+  }
+}
+
+{
+  "Iteration": {
+    "variable": {
+      "name": "x",
+      "span": {
+        "lo": 189,
+        "hi": 190
+      },
+      "id": 0
+    },
+    "type_": null,
+    "start": {
+      "Literal": {
+        "span": {
+          "lo": 194,
+          "hi": 198
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "I64",
+            "0"
+          ]
+        }
+      }
+    },
+    "stop": {
+      "Literal": {
+        "span": {
+          "lo": 200,
+          "hi": 204
+        },
+        "id": 2,
+        "variant": {
+          "Integer": [
+            "I64",
+            "7"
+          ]
+        }
+      }
+    },
+    "inclusive": false,
+    "block": {
+      "statements": [
+        {
+          "Return": {
+            "expression": {
+              "Literal": {
+                "span": {
+                  "lo": 218,
+                  "hi": 221
+                },
+                "id": 3,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "1"
+                  ]
+                }
+              }
+            },
+            "span": {
+              "lo": 211,
+              "hi": 222
+            },
+            "id": 4
+          }
+        }
+      ],
+      "span": {
+        "lo": 205,
+        "hi": 224
+      },
+      "id": 5
+    },
+    "span": {
+      "lo": 185,
+      "hi": 224
+    },
+    "id": 6
+  }
+}
+
+{
+  "Iteration": {
+    "variable": {
+      "name": "x",
+      "span": {
+        "lo": 229,
+        "hi": 230
+      },
+      "id": 0
+    },
+    "type_": null,
+    "start": {
+      "Literal": {
+        "span": {
+          "lo": 234,
+          "hi": 240
+        },
+        "id": 1,
+        "variant": {
+          "Field": "0"
+        }
+      }
+    },
+    "stop": {
+      "Literal": {
+        "span": {
+          "lo": 242,
+          "hi": 246
+        },
+        "id": 2,
+        "variant": {
+          "Integer": [
+            "U8",
+            "99"
+          ]
+        }
+      }
+    },
+    "inclusive": false,
+    "block": {
+      "statements": [
+        {
+          "Return": {
+            "expression": {
+              "Literal": {
+                "span": {
+                  "lo": 260,
+                  "hi": 263
+                },
+                "id": 3,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "1"
+                  ]
+                }
+              }
+            },
+            "span": {
+              "lo": 253,
+              "hi": 264
+            },
+            "id": 4
+          }
+        }
+      ],
+      "span": {
+        "lo": 247,
+        "hi": 266
+      },
+      "id": 5
+    },
+    "span": {
+      "lo": 225,
+      "hi": 266
+    },
+    "id": 6
+  }
+}
+
+{
+  "Iteration": {
+    "variable": {
+      "name": "x",
+      "span": {
+        "lo": 271,
+        "hi": 272
+      },
+      "id": 0
+    },
+    "type_": null,
+    "start": {
+      "Literal": {
+        "span": {
+          "lo": 276,
+          "hi": 279
+        },
+        "id": 1,
+        "variant": {
+          "Integer": [
+            "U8",
+            "0"
+          ]
+        }
+      }
+    },
+    "stop": {
+      "Identifier": {
+        "name": "Self",
+        "span": {
+          "lo": 281,
+          "hi": 285
+        },
+        "id": 2
+      }
+    },
+    "inclusive": false,
+    "block": {
+      "statements": [
+        {
+          "Return": {
+            "expression": {
+              "Literal": {
+                "span": {
+                  "lo": 299,
+                  "hi": 302
+                },
+                "id": 3,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "1"
+                  ]
+                }
+              }
+            },
+            "span": {
+              "lo": 292,
+              "hi": 303
+            },
+            "id": 4
+          }
+        }
+      ],
+      "span": {
+        "lo": 286,
+        "hi": 305
+      },
+      "id": 5
+    },
+    "span": {
+      "lo": 267,
+      "hi": 305
+    },
+    "id": 6
+  }
+}
+

@@ -106,13 +106,17 @@ impl UnrollingVisitor<'_> {
     fn unroll_single_iteration<I: LoopBound>(&mut self, input: &IterationStatement, iteration_count: I) -> Statement {
         // Construct a new node ID.
         let const_id = self.state.node_builder.next_id();
+
+        let iterator_type =
+            self.state.type_table.get(&input.variable.id()).expect("guaranteed to have a type after type checking");
+
         // Update the type table.
-        self.state.type_table.insert(const_id, input.type_.clone());
+        self.state.type_table.insert(const_id, iterator_type.clone());
 
         let outer_block_id = self.state.node_builder.next_id();
 
         // Reconstruct `iteration_count` as a `Literal`.
-        let Type::Integer(integer_type) = &input.type_ else {
+        let Type::Integer(integer_type) = &iterator_type else {
             unreachable!("Type checking enforces that the iteration variable is of integer type");
         };
 
