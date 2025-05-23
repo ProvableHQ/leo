@@ -118,7 +118,7 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found 'as'
      |
    1 | as x = 10u8;
      | ^^
-Error [EPAR0370005]: expected : -- found '='
+Error [EPAR0370005]: expected in -- found '='
     --> test_24:1:7
      |
    1 | for x = 10u8;

@@ -186,9 +186,12 @@ impl<N: Network> ParserContext<'_, N> {
     /// Returns an [`IterationStatement`] AST node if the next tokens represent an iteration statement.
     fn parse_loop_statement(&mut self) -> Result<IterationStatement> {
         let start_span = self.expect(&Token::For)?;
+
+        // Parse the iterator name
         let ident = self.expect_identifier()?;
-        self.expect(&Token::Colon)?;
-        let type_ = self.parse_type()?;
+
+        // The type annotation is optional
+        let type_ = if self.eat(&Token::Colon) { Some(self.parse_type()?.0) } else { None };
         self.expect(&Token::In)?;
 
         // Parse iteration range.
@@ -203,7 +206,7 @@ impl<N: Network> ParserContext<'_, N> {
         Ok(IterationStatement {
             span: start_span + block.span,
             variable: ident,
-            type_: type_.0,
+            type_,
             start,
             stop,
             inclusive: false,
@@ -248,7 +251,7 @@ impl<N: Network> ParserContext<'_, N> {
         self.expect(&Token::Let)?;
         let decl_span = self.prev_token.span;
 
-        // Parse variable name and type.
+        // Parse definition place which can either be an identifier or a group of identifiers.
         let place = self.parse_definition_place()?;
 
         // The type annotation is optional

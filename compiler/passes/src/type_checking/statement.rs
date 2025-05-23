@@ -233,14 +233,37 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_iteration(&mut self, input: &IterationStatement) {
-        self.assert_int_type(&input.type_, input.variable.span);
+        // Ensure the type annotation is an integer type
+        if let Some(ty) = &input.type_ {
+            self.assert_int_type(ty, input.variable.span);
+        }
+
+        // These are the types of the start and end expressions of the iterator range. `visit_expression` will make
+        // sure they match `input.type_` (i.e. the iterator type annotation) if available.
+        let start_ty = self.visit_expression(&input.start, &input.type_.clone());
+        let stop_ty = self.visit_expression(&input.stop, &input.type_.clone());
+
+        // Ensure both types are integer types
+        self.assert_int_type(&start_ty, input.start.span());
+        self.assert_int_type(&stop_ty, input.stop.span());
+
+        if start_ty != stop_ty {
+            // Emit an error if the types of the range bounds do not match
+            self.emit_err(TypeCheckerError::range_bounds_type_mismatch(input.start.span() + input.stop.span()));
+        }
+
+        // Now, just set the type of the iterator variable to `start_ty` if `input.type_` is not available. If `stop_ty`
+        // does not match `start_ty` and `input.type_` is not available, the we just recover with `start_ty` anyways
+        // and continue.
+        let iterator_ty = input.type_.clone().unwrap_or(start_ty);
+        self.state.type_table.insert(input.variable.id(), iterator_ty.clone());
 
         self.in_scope(input.id(), |slf| {
             // Add the loop variable to the scope of the loop body.
             if let Err(err) = slf.state.symbol_table.insert_variable(
                 slf.scope_state.program_name.unwrap(),
                 input.variable.name,
-                VariableSymbol { type_: input.type_.clone(), span: input.span(), declaration: VariableType::Const },
+                VariableSymbol { type_: iterator_ty.clone(), span: input.span(), declaration: VariableType::Const },
             ) {
                 slf.state.handler.emit_err(err);
             }
@@ -261,10 +284,6 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
             slf.scope_state.has_return = prior_has_return;
             slf.scope_state.has_called_finalize = prior_has_finalize;
         });
-
-        self.visit_expression(&input.start, &Some(input.type_.clone()));
-
-        self.visit_expression(&input.stop, &Some(input.type_.clone()));
     }
 
     fn visit_return(&mut self, input: &ReturnStatement) {

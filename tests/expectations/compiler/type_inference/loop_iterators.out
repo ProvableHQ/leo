@@ -1,0 +1,17 @@
+program test.aleo;
+
+mapping m:
+    key as u32.public;
+    value as u32.public;
+
+function main:
+    async main into r0;
+    output r0 as test.aleo/main.future;
+
+finalize main:
+    set 3u32 into m[1u32];
+    set 4u32 into m[1u32];
+    set 5u32 into m[1u32];
+    set 4u32 into m[2u32];
+    set 5u32 into m[2u32];
+    set 5u32 into m[3u32];

@@ -3,3 +3,8 @@ Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
      |
    7 |         for i: u8 in START..STOP {
      |                      ^^^^^
+Error [ETYC0372134]: mismatched types in loop iterator range bounds
+    --> compiler-test:7:22
+     |
+   7 |         for i: u8 in START..STOP {
+     |                      ^^^^^^^^^^^

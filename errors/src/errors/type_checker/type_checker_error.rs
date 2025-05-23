@@ -1059,4 +1059,10 @@ create_messages!(
         msg: format!("Record name `{r1}` is prefixed by the record name `{r2}`. Record names must not be prefixes of other record names."),
         help: None,
     }
+    @formatted
+    range_bounds_type_mismatch{
+        args: (),
+        msg: format!("mismatched types in loop iterator range bounds"),
+        help: None,
+    }
 );
