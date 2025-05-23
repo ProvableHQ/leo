@@ -106,32 +106,36 @@
 <a href=#106 id=106 data-nosnippet>106</a>    </span><span class="kw">fn </span>unroll_single_iteration&lt;I: LoopBound&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>IterationStatement, iteration_count: I) -&gt; Statement {
 <a href=#107 id=107 data-nosnippet>107</a>        <span class="comment">// Construct a new node ID.
 <a href=#108 id=108 data-nosnippet>108</a>        </span><span class="kw">let </span>const_id = <span class="self">self</span>.state.node_builder.next_id();
-<a href=#109 id=109 data-nosnippet>109</a>        <span class="comment">// Update the type table.
-<a href=#110 id=110 data-nosnippet>110</a>        </span><span class="self">self</span>.state.type_table.insert(const_id, input.type_.clone());
-<a href=#111 id=111 data-nosnippet>111</a>
-<a href=#112 id=112 data-nosnippet>112</a>        <span class="kw">let </span>outer_block_id = <span class="self">self</span>.state.node_builder.next_id();
-<a href=#113 id=113 data-nosnippet>113</a>
-<a href=#114 id=114 data-nosnippet>114</a>        <span class="comment">// Reconstruct `iteration_count` as a `Literal`.
-<a href=#115 id=115 data-nosnippet>115</a>        </span><span class="kw">let </span>Type::Integer(integer_type) = <span class="kw-2">&amp;</span>input.type_ <span class="kw">else </span>{
-<a href=#116 id=116 data-nosnippet>116</a>            <span class="macro">unreachable!</span>(<span class="string">"Type checking enforces that the iteration variable is of integer type"</span>);
-<a href=#117 id=117 data-nosnippet>117</a>        };
-<a href=#118 id=118 data-nosnippet>118</a>
-<a href=#119 id=119 data-nosnippet>119</a>        <span class="self">self</span>.in_scope(outer_block_id, |slf| {
-<a href=#120 id=120 data-nosnippet>120</a>            <span class="kw">let </span>value = Literal::integer(<span class="kw-2">*</span>integer_type, iteration_count.to_string(), Default::default(), const_id);
-<a href=#121 id=121 data-nosnippet>121</a>
-<a href=#122 id=122 data-nosnippet>122</a>            <span class="comment">// Add the loop variable as a constant for the current scope.
-<a href=#123 id=123 data-nosnippet>123</a>            </span>slf.state.symbol_table.insert_const(slf.program, input.variable.name, value.into());
-<a href=#124 id=124 data-nosnippet>124</a>
-<a href=#125 id=125 data-nosnippet>125</a>            <span class="kw">let </span>duplicated_body =
-<a href=#126 id=126 data-nosnippet>126</a>                <span class="kw">super</span>::duplicate::duplicate(input.block.clone(), <span class="kw-2">&amp;mut </span>slf.state.symbol_table, <span class="kw-2">&amp;</span>slf.state.node_builder);
-<a href=#127 id=127 data-nosnippet>127</a>
-<a href=#128 id=128 data-nosnippet>128</a>            <span class="kw">let </span>result = slf.reconstruct_block(duplicated_body).<span class="number">0</span>.into();
-<a href=#129 id=129 data-nosnippet>129</a>
-<a href=#130 id=130 data-nosnippet>130</a>            Block { statements: <span class="macro">vec!</span>[result], span: input.span(), id: outer_block_id }.into()
-<a href=#131 id=131 data-nosnippet>131</a>        })
-<a href=#132 id=132 data-nosnippet>132</a>    }
-<a href=#133 id=133 data-nosnippet>133</a>}
-<a href=#134 id=134 data-nosnippet>134</a>
-<a href=#135 id=135 data-nosnippet>135</a><span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>UnrollingVisitor&lt;<span class="lifetime">'_</span>&gt; {
-<a href=#136 id=136 data-nosnippet>136</a>    <span class="kw">type </span>AdditionalOutput = ();
-<a href=#137 id=137 data-nosnippet>137</a>}</code></pre></div></section></main></body></html>
+<a href=#109 id=109 data-nosnippet>109</a>
+<a href=#110 id=110 data-nosnippet>110</a>        <span class="kw">let </span>iterator_type =
+<a href=#111 id=111 data-nosnippet>111</a>            <span class="self">self</span>.state.type_table.get(<span class="kw-2">&amp;</span>input.variable.id()).expect(<span class="string">"guaranteed to have a type after type checking"</span>);
+<a href=#112 id=112 data-nosnippet>112</a>
+<a href=#113 id=113 data-nosnippet>113</a>        <span class="comment">// Update the type table.
+<a href=#114 id=114 data-nosnippet>114</a>        </span><span class="self">self</span>.state.type_table.insert(const_id, iterator_type.clone());
+<a href=#115 id=115 data-nosnippet>115</a>
+<a href=#116 id=116 data-nosnippet>116</a>        <span class="kw">let </span>outer_block_id = <span class="self">self</span>.state.node_builder.next_id();
+<a href=#117 id=117 data-nosnippet>117</a>
+<a href=#118 id=118 data-nosnippet>118</a>        <span class="comment">// Reconstruct `iteration_count` as a `Literal`.
+<a href=#119 id=119 data-nosnippet>119</a>        </span><span class="kw">let </span>Type::Integer(integer_type) = <span class="kw-2">&amp;</span>iterator_type <span class="kw">else </span>{
+<a href=#120 id=120 data-nosnippet>120</a>            <span class="macro">unreachable!</span>(<span class="string">"Type checking enforces that the iteration variable is of integer type"</span>);
+<a href=#121 id=121 data-nosnippet>121</a>        };
+<a href=#122 id=122 data-nosnippet>122</a>
+<a href=#123 id=123 data-nosnippet>123</a>        <span class="self">self</span>.in_scope(outer_block_id, |slf| {
+<a href=#124 id=124 data-nosnippet>124</a>            <span class="kw">let </span>value = Literal::integer(<span class="kw-2">*</span>integer_type, iteration_count.to_string(), Default::default(), const_id);
+<a href=#125 id=125 data-nosnippet>125</a>
+<a href=#126 id=126 data-nosnippet>126</a>            <span class="comment">// Add the loop variable as a constant for the current scope.
+<a href=#127 id=127 data-nosnippet>127</a>            </span>slf.state.symbol_table.insert_const(slf.program, input.variable.name, value.into());
+<a href=#128 id=128 data-nosnippet>128</a>
+<a href=#129 id=129 data-nosnippet>129</a>            <span class="kw">let </span>duplicated_body =
+<a href=#130 id=130 data-nosnippet>130</a>                <span class="kw">super</span>::duplicate::duplicate(input.block.clone(), <span class="kw-2">&amp;mut </span>slf.state.symbol_table, <span class="kw-2">&amp;</span>slf.state.node_builder);
+<a href=#131 id=131 data-nosnippet>131</a>
+<a href=#132 id=132 data-nosnippet>132</a>            <span class="kw">let </span>result = slf.reconstruct_block(duplicated_body).<span class="number">0</span>.into();
+<a href=#133 id=133 data-nosnippet>133</a>
+<a href=#134 id=134 data-nosnippet>134</a>            Block { statements: <span class="macro">vec!</span>[result], span: input.span(), id: outer_block_id }.into()
+<a href=#135 id=135 data-nosnippet>135</a>        })
+<a href=#136 id=136 data-nosnippet>136</a>    }
+<a href=#137 id=137 data-nosnippet>137</a>}
+<a href=#138 id=138 data-nosnippet>138</a>
+<a href=#139 id=139 data-nosnippet>139</a><span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>UnrollingVisitor&lt;<span class="lifetime">'_</span>&gt; {
+<a href=#140 id=140 data-nosnippet>140</a>    <span class="kw">type </span>AdditionalOutput = ();
+<a href=#141 id=141 data-nosnippet>141</a>}</code></pre></div></section></main></body></html>
