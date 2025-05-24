@@ -191,7 +191,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
             if let Type::Composite(comp) = &input.type_ {
                 let program = comp.program.unwrap_or(self.program_id.unwrap().name.name);
                 if let Some(record) = self.state.symbol_table.lookup_record(Location::new(program, comp.id.name)) {
-                    if record.external.is_none() || record.external == Some(program) {
+                    if record.external.is_none() || record.external == self.program_id.map(|id| id.name.name) {
                         self.internal_record_inputs.insert(register_string.clone());
                     }
                 }
