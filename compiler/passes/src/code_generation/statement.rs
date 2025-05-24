@@ -112,8 +112,16 @@ impl CodeGeneratingVisitor<'_> {
         } else {
             // Not a tuple - only one output.
             let (operand, op_instructions) = self.visit_expression(&input.expression);
-            instructions = op_instructions;
-            operands.insert(operand);
+            if self.internal_record_inputs.contains(&operand) {
+                // We can't output an internal record we received as input.
+                let (new_operand, new_instr) =
+                    self.clone_register(&operand, &self.current_function.unwrap().output_type);
+                instructions.push_str(&new_instr);
+                operands.insert(new_operand);
+            } else {
+                instructions = op_instructions;
+                operands.insert(operand);
+            }
         }
 
         for (operand, output) in operands.iter().zip(&self.current_function.unwrap().output) {
