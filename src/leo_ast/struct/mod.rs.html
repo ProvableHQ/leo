@@ -38,7 +38,7 @@
 <a href=#38 id=38 data-nosnippet>38</a>/// Type identity is decided by the full path including `struct_name`,
 <a href=#39 id=39 data-nosnippet>39</a>/// as the record is nominal, not structural.
 <a href=#40 id=40 data-nosnippet>40</a>/// The fields are named so `struct Foo(u8, u16)` is not allowed.
-<a href=#41 id=41 data-nosnippet>41</a></span><span class="attr">#[derive(Clone, Serialize, Deserialize)]
+<a href=#41 id=41 data-nosnippet>41</a></span><span class="attr">#[derive(Clone, Debug, Serialize, Deserialize)]
 <a href=#42 id=42 data-nosnippet>42</a></span><span class="kw">pub struct </span>Composite {
 <a href=#43 id=43 data-nosnippet>43</a>    <span class="doccomment">/// The name of the type in the type system in this module.
 <a href=#44 id=44 data-nosnippet>44</a>    </span><span class="kw">pub </span>identifier: Identifier,
@@ -126,21 +126,15 @@
 <a href=#126 id=126 data-nosnippet>126</a>    }
 <a href=#127 id=127 data-nosnippet>127</a>}
 <a href=#128 id=128 data-nosnippet>128</a>
-<a href=#129 id=129 data-nosnippet>129</a><span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Composite {
+<a href=#129 id=129 data-nosnippet>129</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Composite {
 <a href=#130 id=130 data-nosnippet>130</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-<a href=#131 id=131 data-nosnippet>131</a>        &lt;<span class="self">Self </span><span class="kw">as </span>fmt::Display&gt;::fmt(<span class="self">self</span>, f)
-<a href=#132 id=132 data-nosnippet>132</a>    }
-<a href=#133 id=133 data-nosnippet>133</a>}
-<a href=#134 id=134 data-nosnippet>134</a>
-<a href=#135 id=135 data-nosnippet>135</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Composite {
-<a href=#136 id=136 data-nosnippet>136</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-<a href=#137 id=137 data-nosnippet>137</a>        f.write_str(<span class="kw">if </span><span class="self">self</span>.is_record { <span class="string">"record" </span>} <span class="kw">else </span>{ <span class="string">"struct" </span>})<span class="question-mark">?</span>;
-<a href=#138 id=138 data-nosnippet>138</a>        <span class="macro">writeln!</span>(f, <span class="string">" {} {{"</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
-<a href=#139 id=139 data-nosnippet>139</a>        <span class="kw">for </span>field <span class="kw">in </span><span class="self">self</span>.members.iter() {
-<a href=#140 id=140 data-nosnippet>140</a>            <span class="macro">writeln!</span>(f, <span class="string">"{},"</span>, Indent(field))<span class="question-mark">?</span>;
-<a href=#141 id=141 data-nosnippet>141</a>        }
-<a href=#142 id=142 data-nosnippet>142</a>        <span class="macro">write!</span>(f, <span class="string">"}}"</span>)
-<a href=#143 id=143 data-nosnippet>143</a>    }
-<a href=#144 id=144 data-nosnippet>144</a>}
-<a href=#145 id=145 data-nosnippet>145</a>
-<a href=#146 id=146 data-nosnippet>146</a><span class="macro">crate::simple_node_impl!</span>(Composite);</code></pre></div></section></main></body></html>
+<a href=#131 id=131 data-nosnippet>131</a>        f.write_str(<span class="kw">if </span><span class="self">self</span>.is_record { <span class="string">"record" </span>} <span class="kw">else </span>{ <span class="string">"struct" </span>})<span class="question-mark">?</span>;
+<a href=#132 id=132 data-nosnippet>132</a>        <span class="macro">writeln!</span>(f, <span class="string">" {} {{"</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
+<a href=#133 id=133 data-nosnippet>133</a>        <span class="kw">for </span>field <span class="kw">in </span><span class="self">self</span>.members.iter() {
+<a href=#134 id=134 data-nosnippet>134</a>            <span class="macro">writeln!</span>(f, <span class="string">"{},"</span>, Indent(field))<span class="question-mark">?</span>;
+<a href=#135 id=135 data-nosnippet>135</a>        }
+<a href=#136 id=136 data-nosnippet>136</a>        <span class="macro">write!</span>(f, <span class="string">"}}"</span>)
+<a href=#137 id=137 data-nosnippet>137</a>    }
+<a href=#138 id=138 data-nosnippet>138</a>}
+<a href=#139 id=139 data-nosnippet>139</a>
+<a href=#140 id=140 data-nosnippet>140</a><span class="macro">crate::simple_node_impl!</span>(Composite);</code></pre></div></section></main></body></html>

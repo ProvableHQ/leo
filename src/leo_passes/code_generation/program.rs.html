@@ -191,7 +191,7 @@
 <a href=#191 id=191 data-nosnippet>191</a>            </span><span class="kw">if let </span>Type::Composite(comp) = <span class="kw-2">&amp;</span>input.type_ {
 <a href=#192 id=192 data-nosnippet>192</a>                <span class="kw">let </span>program = comp.program.unwrap_or(<span class="self">self</span>.program_id.unwrap().name.name);
 <a href=#193 id=193 data-nosnippet>193</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(record) = <span class="self">self</span>.state.symbol_table.lookup_record(Location::new(program, comp.id.name)) {
-<a href=#194 id=194 data-nosnippet>194</a>                    <span class="kw">if </span>record.external.is_none() || record.external == <span class="prelude-val">Some</span>(program) {
+<a href=#194 id=194 data-nosnippet>194</a>                    <span class="kw">if </span>record.external.is_none() || record.external == <span class="self">self</span>.program_id.map(|id| id.name.name) {
 <a href=#195 id=195 data-nosnippet>195</a>                        <span class="self">self</span>.internal_record_inputs.insert(register_string.clone());
 <a href=#196 id=196 data-nosnippet>196</a>                    }
 <a href=#197 id=197 data-nosnippet>197</a>                }
