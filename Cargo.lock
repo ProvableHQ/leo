@@ -364,9 +364,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.23"
+version = "1.2.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f4ac86a9e5bc1e2b3449ab9d7d3a6a405e3d1bb28d7b9be8614f55846ae3766"
+checksum = "16595d3be041c03b09d08d0858631facccee9221e579704070e6e9e4915d3bc7"
 dependencies = [
  "shlex",
 ]
@@ -1257,12 +1257,13 @@ dependencies = [
 
 [[package]]
 name = "hyper-util"
-version = "0.1.12"
+version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf9f1e950e0d9d1d3c47184416723cf29c0d1f93bd8cccf37e4beb6b44f31710"
+checksum = "b1c293b6b3d21eca78250dc7dbebd6b9210ec5530e038cbfe0661b5c47ab06e8"
 dependencies = [
  "bytes",
  "futures-channel",
+ "futures-core",
  "futures-util",
  "http 1.3.1",
  "http-body 1.0.1",
@@ -1486,7 +1487,7 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "leo-abnf"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "abnf",
  "anyhow",
@@ -1494,7 +1495,7 @@ dependencies = [
 
 [[package]]
 name = "leo-ast"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "indexmap",
  "itertools 0.13.0",
@@ -1507,7 +1508,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "aleo-std-storage",
  "anyhow",
@@ -1532,7 +1533,7 @@ dependencies = [
 
 [[package]]
 name = "leo-disassembler"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "leo-ast",
  "leo-errors",
@@ -1542,7 +1543,7 @@ dependencies = [
 
 [[package]]
 name = "leo-errors"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -1557,7 +1558,7 @@ dependencies = [
 
 [[package]]
 name = "leo-interpreter"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "colored",
  "crossterm",
@@ -1581,7 +1582,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "aleo-std",
  "ansi_term",
@@ -1620,7 +1621,7 @@ dependencies = [
 
 [[package]]
 name = "leo-package"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -1637,7 +1638,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "clap",
  "indexmap",
@@ -1654,7 +1655,7 @@ dependencies = [
 
 [[package]]
 name = "leo-passes"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "indexmap",
  "itertools 0.13.0",
@@ -1670,7 +1671,7 @@ dependencies = [
 
 [[package]]
 name = "leo-span"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "fxhash",
  "indexmap",
@@ -1680,7 +1681,7 @@ dependencies = [
 
 [[package]]
 name = "leo-test-framework"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "rayon",
  "walkdir",
@@ -1786,14 +1787,14 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "1.0.3"
+version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2886843bf800fba2e3377cff24abf6379b4c4d5c6681eaf9ea5b0d15090450bd"
+checksum = "78bed444cc8a2160f01cbcf811ef18cac863ad68ae8ca62092e8db51d51c761c"
 dependencies = [
  "libc",
  "log",
  "wasi 0.11.0+wasi-snapshot-preview1",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -3665,9 +3666,9 @@ dependencies = [
 
 [[package]]
 name = "socket2"
-version = "0.5.9"
+version = "0.5.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f5fd57c80058a56cf5c777ab8a126398ece8e442983605d280a44ce79d0edef"
+checksum = "e22376abed350d73dd1cd119b57ffccad95b4e585a7cda43e286245ce23c0678"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
@@ -3961,9 +3962,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.45.0"
+version = "1.45.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2513ca694ef9ede0fb23fe71a4ee4107cb102b9dc1930f6d0fd77aae068ae165"
+checksum = "75ef51a33ef1da925cea3e4eb122833cb377c61439ca401b770f54902b806779"
 dependencies = [
  "backtrace",
  "bytes",
