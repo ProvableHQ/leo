@@ -96,7 +96,8 @@ impl TypeCheckingVisitor<'_> {
     /// Use this method when you know the actual type.
     /// Emits an error to the handler if the `actual` type is not equal to the `expected` type.
     pub fn assert_and_return_type(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
-        if expected.is_some() {
+        // If expected is `Type::Err`, we don't want to actually report a redundant error.
+        if expected.is_some() && !matches!(expected, Some(Type::Err)) {
             self.check_eq_types(&Some(actual.clone()), expected, span);
         }
         actual

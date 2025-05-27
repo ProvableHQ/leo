@@ -1039,6 +1039,7 @@ create_messages!(
         help: Some("Ternary conditionals may not contain an external record type.".to_string()),
     }
 
+    // TODO: unused.
     @formatted
     assignment_to_external_record {
         args: (ty: impl Display),
@@ -1059,10 +1060,32 @@ create_messages!(
         msg: format!("Record name `{r1}` is prefixed by the record name `{r2}`. Record names must not be prefixes of other record names."),
         help: None,
     }
+
     @formatted
     range_bounds_type_mismatch{
         args: (),
         msg: format!("mismatched types in loop iterator range bounds"),
         help: None,
+    }
+
+    @formatted
+    assignment_to_external_record_member {
+        args: (ty: impl Display),
+        msg: format!("Cannot assign to a member of the external record `{ty}`."),
+        help: None,
+    }
+
+    @formatted
+    assignment_to_external_record_cond {
+        args: (ty: impl Display),
+        msg: format!("Cannot assign to the external record type `{ty}` in this location."),
+        help: Some("External record variables may not be assigned to in narrower conditonal scopes than they were defined.".into()),
+    }
+
+    @formatted
+    assignment_to_external_record_tuple_cond {
+        args: (ty: impl Display),
+        msg: format!("Cannot assign to the tuple type `{ty}` containing an external record in this location."),
+        help: Some("Tuples containing external records may not be assigned to in narrower conditonal scopes than they were defined.".into()),
     }
 );
