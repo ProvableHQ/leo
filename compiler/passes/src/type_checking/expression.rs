@@ -36,17 +36,24 @@ impl TypeCheckingVisitor<'_> {
             }
         };
 
-        // Prohibit assignment to an external record or a member thereof.
-        // This is necessary as an assignment in a conditional branch would become a
-        // ternary, which can't happen.
-        if self.is_external_record(&ty) {
-            self.emit_err(TypeCheckerError::assignment_to_external_record(&ty, input.span()));
-        }
+        // Prohibit assignment to an external record in a narrower conditional scope.
+        let external_record = self.is_external_record(&ty);
+        let external_record_tuple =
+            matches!(&ty, Type::Tuple(tuple) if tuple.elements().iter().any(|ty| self.is_external_record(ty)));
 
-        // Similarly prohibit assignment to a tuple with an external record member.
-        if let Type::Tuple(tuple) = &ty {
-            if tuple.elements().iter().any(|ty| self.is_external_record(ty)) {
-                self.emit_err(TypeCheckerError::assignment_to_external_record(&ty, input.span()));
+        if external_record || external_record_tuple {
+            let Expression::Identifier(id) = input else {
+                // This is not valid Leo and will have triggered an error elsewhere.
+                return Type::Err;
+            };
+
+            if !self.symbol_in_conditional_scope(id.name) {
+                if external_record {
+                    self.emit_err(TypeCheckerError::assignment_to_external_record_cond(&ty, input.span()));
+                } else {
+                    // Note that this will cover both assigning to a tuple variable and assigning to a member of a tuple.
+                    self.emit_err(TypeCheckerError::assignment_to_external_record_tuple_cond(&ty, input.span()));
+                }
             }
         }
 
@@ -157,6 +164,11 @@ impl TypeCheckingVisitor<'_> {
         } else {
             self.visit_expression(&input.inner, &None)
         };
+
+        // Make sure we're not assigning to a member of an external record.
+        if assign && self.is_external_record(&ty) {
+            self.emit_err(TypeCheckerError::assignment_to_external_record_member(&ty, input.span));
+        }
 
         // Check that the type of `inner` in `inner.name` is a struct.
         match ty {
