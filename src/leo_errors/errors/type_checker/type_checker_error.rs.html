@@ -1039,30 +1039,53 @@
 <a href=#1039 id=1039 data-nosnippet>1039</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ternary conditionals may not contain an external record type."</span>.to_string()),
 <a href=#1040 id=1040 data-nosnippet>1040</a>    }
 <a href=#1041 id=1041 data-nosnippet>1041</a>
-<a href=#1042 id=1042 data-nosnippet>1042</a>    @formatted
-<a href=#1043 id=1043 data-nosnippet>1043</a>    assignment_to_external_record {
-<a href=#1044 id=1044 data-nosnippet>1044</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1045 id=1045 data-nosnippet>1045</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to type `{ty}` or a member thereof."</span>),
-<a href=#1046 id=1046 data-nosnippet>1046</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record types and tuples containing them may not be assigned to."</span>.to_string()),
-<a href=#1047 id=1047 data-nosnippet>1047</a>    }
-<a href=#1048 id=1048 data-nosnippet>1048</a>
-<a href=#1049 id=1049 data-nosnippet>1049</a>    @formatted
-<a href=#1050 id=1050 data-nosnippet>1050</a>    illegal_name {
-<a href=#1051 id=1051 data-nosnippet>1051</a>        args: (item_name: <span class="kw">impl </span>Display, item_type: <span class="kw">impl </span>Display, keyword: <span class="kw">impl </span>Display),
-<a href=#1052 id=1052 data-nosnippet>1052</a>        msg: <span class="macro">format!</span>(<span class="string">"`{item_name}` is an invalid {item_type} name. A {item_type} cannot have \"{keyword}\" in its name."</span>),
-<a href=#1053 id=1053 data-nosnippet>1053</a>        help: <span class="prelude-val">None</span>,
-<a href=#1054 id=1054 data-nosnippet>1054</a>    }
-<a href=#1055 id=1055 data-nosnippet>1055</a>
-<a href=#1056 id=1056 data-nosnippet>1056</a>    @formatted
-<a href=#1057 id=1057 data-nosnippet>1057</a>    record_prefixed_by_other_record {
-<a href=#1058 id=1058 data-nosnippet>1058</a>        args: (r1: <span class="kw">impl </span>Display, r2: <span class="kw">impl </span>Display),
-<a href=#1059 id=1059 data-nosnippet>1059</a>        msg: <span class="macro">format!</span>(<span class="string">"Record name `{r1}` is prefixed by the record name `{r2}`. Record names must not be prefixes of other record names."</span>),
-<a href=#1060 id=1060 data-nosnippet>1060</a>        help: <span class="prelude-val">None</span>,
-<a href=#1061 id=1061 data-nosnippet>1061</a>    }
-<a href=#1062 id=1062 data-nosnippet>1062</a>    @formatted
-<a href=#1063 id=1063 data-nosnippet>1063</a>    range_bounds_type_mismatch{
-<a href=#1064 id=1064 data-nosnippet>1064</a>        args: (),
-<a href=#1065 id=1065 data-nosnippet>1065</a>        msg: <span class="macro">format!</span>(<span class="string">"mismatched types in loop iterator range bounds"</span>),
-<a href=#1066 id=1066 data-nosnippet>1066</a>        help: <span class="prelude-val">None</span>,
-<a href=#1067 id=1067 data-nosnippet>1067</a>    }
-<a href=#1068 id=1068 data-nosnippet>1068</a>);</code></pre></div></section></main></body></html>
+<a href=#1042 id=1042 data-nosnippet>1042</a>    <span class="comment">// TODO: unused.
+<a href=#1043 id=1043 data-nosnippet>1043</a>    </span>@formatted
+<a href=#1044 id=1044 data-nosnippet>1044</a>    assignment_to_external_record {
+<a href=#1045 id=1045 data-nosnippet>1045</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1046 id=1046 data-nosnippet>1046</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to type `{ty}` or a member thereof."</span>),
+<a href=#1047 id=1047 data-nosnippet>1047</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record types and tuples containing them may not be assigned to."</span>.to_string()),
+<a href=#1048 id=1048 data-nosnippet>1048</a>    }
+<a href=#1049 id=1049 data-nosnippet>1049</a>
+<a href=#1050 id=1050 data-nosnippet>1050</a>    @formatted
+<a href=#1051 id=1051 data-nosnippet>1051</a>    illegal_name {
+<a href=#1052 id=1052 data-nosnippet>1052</a>        args: (item_name: <span class="kw">impl </span>Display, item_type: <span class="kw">impl </span>Display, keyword: <span class="kw">impl </span>Display),
+<a href=#1053 id=1053 data-nosnippet>1053</a>        msg: <span class="macro">format!</span>(<span class="string">"`{item_name}` is an invalid {item_type} name. A {item_type} cannot have \"{keyword}\" in its name."</span>),
+<a href=#1054 id=1054 data-nosnippet>1054</a>        help: <span class="prelude-val">None</span>,
+<a href=#1055 id=1055 data-nosnippet>1055</a>    }
+<a href=#1056 id=1056 data-nosnippet>1056</a>
+<a href=#1057 id=1057 data-nosnippet>1057</a>    @formatted
+<a href=#1058 id=1058 data-nosnippet>1058</a>    record_prefixed_by_other_record {
+<a href=#1059 id=1059 data-nosnippet>1059</a>        args: (r1: <span class="kw">impl </span>Display, r2: <span class="kw">impl </span>Display),
+<a href=#1060 id=1060 data-nosnippet>1060</a>        msg: <span class="macro">format!</span>(<span class="string">"Record name `{r1}` is prefixed by the record name `{r2}`. Record names must not be prefixes of other record names."</span>),
+<a href=#1061 id=1061 data-nosnippet>1061</a>        help: <span class="prelude-val">None</span>,
+<a href=#1062 id=1062 data-nosnippet>1062</a>    }
+<a href=#1063 id=1063 data-nosnippet>1063</a>
+<a href=#1064 id=1064 data-nosnippet>1064</a>    @formatted
+<a href=#1065 id=1065 data-nosnippet>1065</a>    range_bounds_type_mismatch{
+<a href=#1066 id=1066 data-nosnippet>1066</a>        args: (),
+<a href=#1067 id=1067 data-nosnippet>1067</a>        msg: <span class="macro">format!</span>(<span class="string">"mismatched types in loop iterator range bounds"</span>),
+<a href=#1068 id=1068 data-nosnippet>1068</a>        help: <span class="prelude-val">None</span>,
+<a href=#1069 id=1069 data-nosnippet>1069</a>    }
+<a href=#1070 id=1070 data-nosnippet>1070</a>
+<a href=#1071 id=1071 data-nosnippet>1071</a>    @formatted
+<a href=#1072 id=1072 data-nosnippet>1072</a>    assignment_to_external_record_member {
+<a href=#1073 id=1073 data-nosnippet>1073</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1074 id=1074 data-nosnippet>1074</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to a member of the external record `{ty}`."</span>),
+<a href=#1075 id=1075 data-nosnippet>1075</a>        help: <span class="prelude-val">None</span>,
+<a href=#1076 id=1076 data-nosnippet>1076</a>    }
+<a href=#1077 id=1077 data-nosnippet>1077</a>
+<a href=#1078 id=1078 data-nosnippet>1078</a>    @formatted
+<a href=#1079 id=1079 data-nosnippet>1079</a>    assignment_to_external_record_cond {
+<a href=#1080 id=1080 data-nosnippet>1080</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1081 id=1081 data-nosnippet>1081</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the external record type `{ty}` in this location."</span>),
+<a href=#1082 id=1082 data-nosnippet>1082</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record variables may not be assigned to in narrower conditonal scopes than they were defined."</span>.into()),
+<a href=#1083 id=1083 data-nosnippet>1083</a>    }
+<a href=#1084 id=1084 data-nosnippet>1084</a>
+<a href=#1085 id=1085 data-nosnippet>1085</a>    @formatted
+<a href=#1086 id=1086 data-nosnippet>1086</a>    assignment_to_external_record_tuple_cond {
+<a href=#1087 id=1087 data-nosnippet>1087</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1088 id=1088 data-nosnippet>1088</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the tuple type `{ty}` containing an external record in this location."</span>),
+<a href=#1089 id=1089 data-nosnippet>1089</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Tuples containing external records may not be assigned to in narrower conditonal scopes than they were defined."</span>.into()),
+<a href=#1090 id=1090 data-nosnippet>1090</a>    }
+<a href=#1091 id=1091 data-nosnippet>1091</a>);</code></pre></div></section></main></body></html>
