@@ -158,11 +158,11 @@
 <a href=#158 id=158 data-nosnippet>158</a>        .get(url)
 <a href=#159 id=159 data-nosnippet>159</a>        .set(<span class="string">"X-Leo-Version"</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>))
 <a href=#160 id=160 data-nosnippet>160</a>        .call()
-<a href=#161 id=161 data-nosnippet>161</a>        .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))<span class="question-mark">?</span>;
+<a href=#161 id=161 data-nosnippet>161</a>        .map_err(UtilError::failed_to_retrieve_from_endpoint)<span class="question-mark">?</span>;
 <a href=#162 id=162 data-nosnippet>162</a>    <span class="kw">match </span>response.status() {
 <a href=#163 id=163 data-nosnippet>163</a>        <span class="number">200 </span>=&gt; <span class="prelude-val">Ok</span>(response.into_string().unwrap().replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>).replace(<span class="string">'\"'</span>, <span class="string">""</span>)),
 <a href=#164 id=164 data-nosnippet>164</a>        <span class="number">301 </span>=&gt; <span class="prelude-val">Err</span>(UtilError::endpoint_moved_error(url)),
-<a href=#165 id=165 data-nosnippet>165</a>        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(UtilError::network_error(url, response.status(), Default::default())),
+<a href=#165 id=165 data-nosnippet>165</a>        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(UtilError::network_error(url, response.status())),
 <a href=#166 id=166 data-nosnippet>166</a>    }
 <a href=#167 id=167 data-nosnippet>167</a>}
 <a href=#168 id=168 data-nosnippet>168</a>
