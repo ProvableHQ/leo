@@ -20,18 +20,41 @@ use clap::Parser;
 
 /// Query transaction information.
 #[derive(Parser, Debug)]
+#[command(group(
+    // Ensure exactly one source is specified.
+    clap::ArgGroup::new("source").required(true).multiple(false)
+))]
+#[command(group(
+    // Ensure at most one mode is specified and ony if using "id" as a source.
+    clap::ArgGroup::new("mode").required(false).multiple(false).requires("id")
+))]
 pub struct LeoTransaction {
-    #[clap(name = "ID", help = "The id of the transaction to fetch", required_unless_present_any = &["from_program", "from_transition", "from_io", "confirmed", "unconfirmed"])]
+    #[clap(name = "ID", help = "The ID of the transaction to fetch", group = "source")]
     pub(crate) id: Option<String>,
-    #[arg(short, long, help = "Get the transaction only if it has been confirmed", default_value = "false", conflicts_with_all(["from_io", "from_transition", "from_program", "unconfirmed"]))]
+    #[arg(short, long, help = "Return more information about a confirmed transaction", group = "mode")]
     pub(crate) confirmed: bool,
-    #[arg(short, long, help = "Get the original (unconfirmed) transaction", default_value = "false", conflicts_with_all(["from_io", "from_transition", "from_program", "confirmed"]))]
+    #[arg(short, long, help = "Get the original (unconfirmed) transaction", group = "mode")]
     pub(crate) unconfirmed: bool,
-    #[arg(value_name = "INPUT_OR_OUTPUT_ID", long, help = "Get the transition id that an input or output id occurred in", conflicts_with_all(["from_program", "from_transition", "confirmed", "unconfirmed"]))]
+    #[arg(
+        value_name = "INPUT_OR_OUTPUT_ID",
+        long,
+        help = "Get the transition id that an input or output id occurred in",
+        group = "source"
+    )]
     pub(crate) from_io: Option<String>,
-    #[arg(value_name = "TRANSITION_ID", long, help = "Get the id of the transaction containing the specified transition", conflicts_with_all(["from_io", "from_program", "confirmed", "unconfirmed"]))]
+    #[arg(
+        value_name = "TRANSITION_ID",
+        long,
+        help = "Get the id of the transaction containing the specified transition",
+        group = "source"
+    )]
     pub(crate) from_transition: Option<String>,
-    #[arg(value_name = "PROGRAM", long, help = "Get the id of the transaction id that the specified program was deployed in", conflicts_with_all(["from_io", "from_transition", "confirmed", "unconfirmed"]))]
+    #[arg(
+        value_name = "PROGRAM",
+        long,
+        help = "Get the id of the transaction id that the specified program was deployed in",
+        group = "source"
+    )]
     pub(crate) from_program: Option<String>,
 }
 
