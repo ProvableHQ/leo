@@ -22,9 +22,6 @@ use leo_span::{Span, Symbol};
 
 mod duplicate;
 
-mod range_iterator;
-use range_iterator::*;
-
 mod statement;
 
 mod program;

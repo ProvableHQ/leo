@@ -99,7 +99,7 @@ create_messages!(
         help: None,
     }
 
-    @formatted
+    @backtraced
     const_prop_unroll_many_loops {
         args: (bound: usize),
         msg: format!("The const propagation and loop unrolling passes ran {bound} times without reaching a fixed point."),

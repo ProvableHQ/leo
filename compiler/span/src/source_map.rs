@@ -187,6 +187,8 @@ impl SourceFile {
         let start = self.relative_offset(span.lo) as usize;
         let end = self.relative_offset(span.hi) as usize;
 
+        assert!(start <= end, "Invalid span");
+
         let line_start = self.src[..=start].rfind('\n').map(|i| i + 1).unwrap_or(0);
         let line_end = self.src[end..].find('\n').map(|x| x + end).unwrap_or(self.src.len());
 

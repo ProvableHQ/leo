@@ -28,12 +28,14 @@ use leo_ast::{
     Type,
     Variant,
     interpreter_value::{
-        AsyncExecution,
+        Address,
+        Argument,
         CoreFunctionHelper,
         Future,
         GlobalId,
-        StructContents,
-        SvmAddress,
+        LeoValue,
+        Plaintext,
+        PlaintextHash,
         Value,
         evaluate_binary,
         evaluate_core_function,
@@ -49,6 +51,7 @@ use snarkvm::prelude::{
     Closure as SvmClosure,
     Finalize as SvmFinalize,
     Function as SvmFunctionParam,
+    Identifier as SvmIdentifier,
     ProgramID,
     TestnetV0,
 };
@@ -65,9 +68,9 @@ pub type SvmFunction = SvmFunctionParam<TestnetV0>;
 #[derive(Clone, Debug)]
 pub struct FunctionContext {
     program: Symbol,
-    pub caller: SvmAddress,
-    names: HashMap<Symbol, Value>,
-    accumulated_futures: Future,
+    pub caller: Address,
+    names: HashMap<Symbol, LeoValue>,
+    accumulated_futures: Vec<Future>,
     is_async: bool,
 }
 
@@ -83,7 +86,7 @@ impl ContextStack {
         self.current_len
     }
 
-    fn push(&mut self, program: Symbol, caller: SvmAddress, is_async: bool) {
+    fn push(&mut self, program: Symbol, caller: Address, is_async: bool) {
         if self.current_len == self.contexts.len() {
             self.contexts.push(FunctionContext {
                 program,
@@ -93,7 +96,7 @@ impl ContextStack {
                 is_async,
             });
         }
-        self.contexts[self.current_len].accumulated_futures.0.clear();
+        self.contexts[self.current_len].accumulated_futures.clear();
         self.contexts[self.current_len].names.clear();
         self.contexts[self.current_len].caller = caller;
         self.contexts[self.current_len].program = program;
@@ -116,17 +119,24 @@ impl ContextStack {
     /// will of course be empty.
     fn get_future(&mut self) -> Future {
         assert!(self.len() > 0);
-        mem::take(&mut self.contexts[self.current_len - 1].accumulated_futures)
+        let context = &mut self.contexts[self.current_len - 1];
+        let future_vec = mem::take(&mut context.accumulated_futures);
+        let s = format!("{}.aleo", context.program);
+        let id: ProgramID<TestnetV0> = s.parse().unwrap();
+        // YYY
+        let function_name: SvmIdentifier<TestnetV0> = "x".try_into().unwrap();
+        let arguments = future_vec.into_iter().map(snarkvm::prelude::Argument::Future).collect();
+        Future::new(id, function_name, arguments)
     }
 
-    fn set(&mut self, symbol: Symbol, value: Value) {
+    fn set(&mut self, symbol: Symbol, value: LeoValue) {
         assert!(self.current_len > 0);
         self.last_mut().unwrap().names.insert(symbol, value);
     }
 
     pub fn add_future(&mut self, future: Future) {
         assert!(self.current_len > 0);
-        self.contexts[self.current_len - 1].accumulated_futures.0.extend(future.0);
+        self.contexts[self.current_len - 1].accumulated_futures.push(future);
     }
 
     /// Are we currently in an async function?
@@ -179,7 +189,7 @@ pub enum Element {
 
     AleoExecution {
         context: Box<AleoContext>,
-        registers: IndexMap<u64, Value>,
+        registers: IndexMap<u64, LeoValue>,
         instruction_index: usize,
     },
 
@@ -223,17 +233,17 @@ pub struct Cursor {
     /// Stack of values from evaluated expressions.
     ///
     /// Each time an expression completes evaluation, a value is pushed here.
-    pub values: Vec<Value>,
+    pub values: Vec<LeoValue>,
 
     /// All functions (or transitions or inlines) in any program being interpreted.
     pub functions: HashMap<GlobalId, FunctionVariant>,
 
     /// Consts are stored here.
-    pub globals: HashMap<GlobalId, Value>,
+    pub globals: HashMap<GlobalId, LeoValue>,
 
-    pub user_values: HashMap<Symbol, Value>,
+    pub user_values: HashMap<Symbol, LeoValue>,
 
-    pub mappings: HashMap<GlobalId, HashMap<Value, Value>>,
+    pub mappings: HashMap<GlobalId, HashMap<PlaintextHash, Plaintext>>,
 
     /// For each struct type, we only need to remember the names of its members, in order.
     pub structs: HashMap<GlobalId, IndexSet<Symbol>>,
@@ -244,7 +254,7 @@ pub struct Cursor {
 
     pub type_table: TypeTable,
 
-    pub signer: SvmAddress,
+    pub signer: Address,
 
     pub rng: ChaCha20Rng,
 
@@ -256,7 +266,7 @@ pub struct Cursor {
 }
 
 impl CoreFunctionHelper for Cursor {
-    fn pop_value_impl(&mut self) -> Option<Value> {
+    fn pop_value_impl(&mut self) -> Option<LeoValue> {
         self.values.pop()
     }
 
@@ -264,11 +274,15 @@ impl CoreFunctionHelper for Cursor {
         self.block_height = height;
     }
 
-    fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<Value, Value>> {
+    fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<PlaintextHash, Plaintext>> {
         Cursor::lookup_mapping(self, program, name)
     }
 
-    fn lookup_mapping_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut HashMap<Value, Value>> {
+    fn lookup_mapping_mut(
+        &mut self,
+        program: Option<Symbol>,
+        name: Symbol,
+    ) -> Option<&mut HashMap<PlaintextHash, Plaintext>> {
         Cursor::lookup_mapping_mut(self, program, name)
     }
 
@@ -279,7 +293,7 @@ impl CoreFunctionHelper for Cursor {
 
 impl Cursor {
     /// `really_async` indicates we should really delay execution of async function calls until the user runs them.
-    pub fn new(really_async: bool, signer: SvmAddress, block_height: u32) -> Self {
+    pub fn new(really_async: bool, signer: Address, block_height: u32) -> Self {
         Cursor {
             frames: Default::default(),
             values: Default::default(),
@@ -315,7 +329,7 @@ impl Cursor {
         *step += 1;
     }
 
-    fn new_caller(&self) -> SvmAddress {
+    fn new_caller(&self) -> Address {
         if let Some(function_context) = self.contexts.last() {
             let program_id = ProgramID::<TestnetV0>::from_str(&format!("{}.aleo", function_context.program))
                 .expect("should be able to create ProgramID");
@@ -325,7 +339,7 @@ impl Cursor {
         }
     }
 
-    fn pop_value(&mut self) -> Result<Value> {
+    fn pop_value(&mut self) -> Result<LeoValue> {
         match self.values.pop() {
             Some(v) => Ok(v),
             None => {
@@ -335,7 +349,7 @@ impl Cursor {
         }
     }
 
-    fn lookup(&self, name: Symbol) -> Option<Value> {
+    fn lookup(&self, name: Symbol) -> Option<LeoValue> {
         if let Some(context) = self.contexts.last() {
             let option_value =
                 context.names.get(&name).or_else(|| self.globals.get(&GlobalId { program: context.program, name }));
@@ -347,14 +361,18 @@ impl Cursor {
         self.user_values.get(&name).cloned()
     }
 
-    pub fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<Value, Value>> {
+    pub fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<PlaintextHash, Plaintext>> {
         let Some(program) = program.or_else(|| self.current_program()) else {
             panic!("no program for mapping lookup");
         };
         self.mappings.get(&GlobalId { program, name })
     }
 
-    pub fn lookup_mapping_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut HashMap<Value, Value>> {
+    pub fn lookup_mapping_mut(
+        &mut self,
+        program: Option<Symbol>,
+        name: Symbol,
+    ) -> Option<&mut HashMap<PlaintextHash, Plaintext>> {
         let Some(program) = program.or_else(|| self.current_program()) else {
             panic!("no program for mapping lookup");
         };
@@ -365,7 +383,7 @@ impl Cursor {
         self.functions.get(&GlobalId { program, name }).cloned()
     }
 
-    fn set_variable(&mut self, symbol: Symbol, value: Value) {
+    fn set_variable(&mut self, symbol: Symbol, value: LeoValue) {
         if self.contexts.len() > 0 {
             self.contexts.set(symbol, value);
         } else {
@@ -429,7 +447,7 @@ impl Cursor {
                 false
             }
             1 if function_body => {
-                self.values.push(Value::Unit);
+                self.values.push(LeoValue::Unit);
                 self.contexts.pop();
                 true
             }
@@ -468,10 +486,10 @@ impl Cursor {
             Statement::Assert(assert) if step == 1 => {
                 match &assert.variant {
                     AssertVariant::Assert(..) => {
-                        let value = self.pop_value()?;
+                        let value: Result<bool, _> = self.pop_value()?.try_into();
                         match value {
-                            Value::Bool(true) => {}
-                            Value::Bool(false) => halt!(assert.span(), "assert failure"),
+                            Ok(true) => {}
+                            Ok(false) => halt!(assert.span(), "assert failure"),
                             _ => tc_fail!(),
                         }
                     }
@@ -500,10 +518,10 @@ impl Cursor {
                             halt!(assign.span(), "tuple assignments must refer to identifiers.");
                         };
                         let mut current_tuple = self.lookup(identifier.name).expect_tc(identifier.span())?;
-                        let Value::Tuple(tuple) = &mut current_tuple else {
+                        let LeoValue::Tuple(tuple) = &mut current_tuple else {
                             halt!(tuple_access.span(), "Type error: this must be a tuple.");
                         };
-                        tuple[tuple_access.index.value()] = value;
+                        tuple[tuple_access.index.value()] = value.try_into().expect_tc(assign.span)?;
                         self.set_variable(identifier.name, current_tuple);
                     }
                     _ => halt!(assign.span(), "Invalid assignment place."),
@@ -516,13 +534,13 @@ impl Cursor {
                 false
             }
             Statement::Conditional(conditional) if step == 1 => {
-                match self.pop_value()? {
-                    Value::Bool(true) => self.frames.push(Frame {
+                match self.pop_value()?.try_into() {
+                    Ok(true) => self.frames.push(Frame {
                         step: 0,
                         element: Element::Block { block: conditional.then.clone(), function_body: false },
                         user_initiated: false,
                     }),
-                    Value::Bool(false) => {
+                    Ok(false) => {
                         if let Some(otherwise) = conditional.otherwise.as_ref() {
                             self.frames.push(Frame {
                                 step: 0,
@@ -554,11 +572,11 @@ impl Cursor {
                 match &definition.place {
                     DefinitionPlace::Single(id) => self.set_variable(id.name, value),
                     DefinitionPlace::Multiple(ids) => {
-                        let Value::Tuple(rhs) = value else {
+                        let LeoValue::Tuple(rhs) = value else {
                             tc_fail!();
                         };
                         for (id, val) in ids.iter().zip(rhs.into_iter()) {
-                            self.set_variable(id.name, val);
+                            self.set_variable(id.name, val.into());
                         }
                     }
                 }
@@ -608,7 +626,7 @@ impl Cursor {
                         if self.contexts.is_async() {
                             // Get rid of the Unit we previously pushed, and replace it with a Future.
                             self.values.pop();
-                            self.values.push(Value::Future(self.contexts.get_future()));
+                            self.values.push(self.contexts.get_future().into());
                         }
                         self.contexts.pop();
                         return Ok(true);
@@ -657,36 +675,26 @@ impl Cursor {
                 let array = self.pop_value()?;
                 let index = self.pop_value()?;
 
-                let index_usize: usize = match index {
-                    Value::U8(x) => x.into(),
-                    Value::U16(x) => x.into(),
-                    Value::U32(x) => x.try_into().expect_tc(span)?,
-                    Value::U64(x) => x.try_into().expect_tc(span)?,
-                    Value::U128(x) => x.try_into().expect_tc(span)?,
-                    Value::I8(x) => x.try_into().expect_tc(span)?,
-                    Value::I16(x) => x.try_into().expect_tc(span)?,
-                    Value::I32(x) => x.try_into().expect_tc(span)?,
-                    Value::I64(x) => x.try_into().expect_tc(span)?,
-                    Value::I128(x) => x.try_into().expect_tc(span)?,
-                    _ => halt!(expression.span(), "invalid array index {index}"),
+                let index_usize: usize = match index.try_as_usize() {
+                    Some(x) => x,
+                    None => halt!(expression.span(), "invalid array index {index}"),
                 };
-                let Value::Array(vec_array) = array else { tc_fail!() };
-                Some(vec_array.get(index_usize).expect_tc(span)?.clone())
+                array.try_as_array().and_then(|vec_array| vec_array.get(index_usize)).expect_tc(span)?.clone().into()
             }
             Expression::MemberAccess(access) => match &access.inner {
                 Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
-                    sym::signer => Some(Value::Address(self.signer)),
+                    sym::signer => Some(self.signer.into()),
                     sym::caller => {
                         if let Some(function_context) = self.contexts.last() {
-                            Some(Value::Address(function_context.caller))
+                            Some(function_context.caller.into())
                         } else {
-                            Some(Value::Address(self.signer))
+                            Some(self.signer.into())
                         }
                     }
                     _ => halt!(access.span(), "unknown member of self"),
                 },
                 Expression::Identifier(identifier) if identifier.name == sym::block => match access.name.name {
-                    sym::height => Some(Value::U32(self.block_height)),
+                    sym::height => Some(self.block_height.into()),
                     _ => halt!(access.span(), "unknown member of block"),
                 },
 
@@ -696,7 +704,8 @@ impl Cursor {
                     None
                 }
                 _ if step == 1 => {
-                    let Some(Value::Struct(struct_)) = self.values.pop() else {
+                    // let Some(LeoValue::Value(SvmValue::
+                    Struct(struct_)) = self.values.pop() else {
                         tc_fail!();
                     };
                     let value = struct_.contents.get(&access.name.name).cloned();
@@ -713,7 +722,7 @@ impl Cursor {
             }
             Expression::TupleAccess(tuple_access) if step == 1 => {
                 let Some(value) = self.values.pop() else { tc_fail!() };
-                let Value::Tuple(tuple) = value else {
+                let LeoValue::Tuple(tuple) = value else {
                     halt!(tuple_access.span(), "Type error");
                 };
                 if let Some(result) = tuple.get(tuple_access.index.value()) {
@@ -729,7 +738,10 @@ impl Cursor {
             Expression::Array(array) if step == 1 => {
                 let len = self.values.len();
                 let array_values = self.values.drain(len - array.elements.len()..).collect();
-                Some(Value::Array(array_values))
+                let plaintexts: Vec<Plaintext> =
+                    array_values.into_iter().filter_map(|value| value.try_into().ok()).collect();
+                (plaintexts.len() == array.elements.len())
+                    .then_some(Plaintext::Array(array_values, Default::default()).into())
             }
             Expression::AssociatedConstant(constant) if step == 0 => {
                 let Type::Identifier(type_ident) = constant.ty else {
@@ -739,7 +751,7 @@ impl Cursor {
                     halt!(constant.span(), "Unknown constant {constant}");
                 };
                 match core_constant {
-                    CoreConstant::GroupGenerator => Some(Value::generator()),
+                    CoreConstant::GroupGenerator => Some(LeoValue::generator()),
                 }
             }
             Expression::AssociatedFunction(function) if step == 0 => {
@@ -773,7 +785,7 @@ impl Cursor {
 
                 if let CoreFunction::FutureAwait = core_function {
                     let value = self.pop_value()?;
-                    let Value::Future(future) = value else {
+                    let Ok(future) = value.try_into() else {
                         halt!(span, "Invalid value for await: {value}");
                     };
                     for async_execution in future.0 {
@@ -787,7 +799,7 @@ impl Cursor {
                     // For an await, we have one extra step - first we must evaluate the delayed call.
                     None
                 } else {
-                    let value = evaluate_core_function(self, core_function.clone(), &function.arguments, span)?;
+                    let value = evaluate_core_function(self, core_function, &function.arguments, span)?;
                     assert!(value.is_some());
                     value
                 }
@@ -797,7 +809,7 @@ impl Cursor {
                     halt!(function.span(), "Unkown core function {function}");
                 };
                 assert!(core_function == CoreFunction::FutureAwait);
-                Some(Value::Unit)
+                Some(LeoValue::Unit)
             }
             Expression::Binary(binary) if step == 0 => {
                 push!()(&binary.right);
@@ -874,7 +886,8 @@ impl Cursor {
                     } else {
                         self.lookup(name).expect_tc(struct_.span())?
                     };
-                    contents_tmp.insert(name, value);
+                    let plaintext: Plaintext = value.try_into().expect_tc(struct_.span())?;
+                    contents_tmp.insert(name, plaintext);
                 }
 
                 // And now put them into an IndexMap in the correct order.
@@ -883,10 +896,10 @@ impl Cursor {
                 let struct_type = self.structs.get(&id).expect_tc(struct_.span())?;
                 let contents = struct_type
                     .iter()
-                    .map(|sym| (*sym, contents_tmp.remove(sym).expect("we just inserted this")))
+                    .map(|sym| ((*sym).try_into().unwrap(), contents_tmp.remove(sym).expect("we just inserted this")))
                     .collect();
 
-                Some(Value::Struct(StructContents { name: struct_.name.name, contents }))
+                Some(Plaintext::Struct(contents, Default::default()).into())
             }
             Expression::Ternary(ternary) if step == 0 => {
                 push!()(&ternary.condition);
@@ -894,10 +907,10 @@ impl Cursor {
             }
             Expression::Ternary(ternary) if step == 1 => {
                 let condition = self.pop_value()?;
-                match condition {
-                    Value::Bool(true) => push!()(&ternary.if_true),
-                    Value::Bool(false) => push!()(&ternary.if_false),
-                    _ => halt!(ternary.span(), "Invalid type for ternary expression {ternary}"),
+                match condition.try_into() {
+                    Ok(true) => push!()(&ternary.if_true),
+                    Ok(false) => push!()(&ternary.if_false),
+                    Err(..) => halt!(ternary.span(), "Invalid type for ternary expression {ternary}"),
                 }
                 None
             }
@@ -909,7 +922,12 @@ impl Cursor {
             Expression::Tuple(tuple) if step == 1 => {
                 let len = self.values.len();
                 let tuple_values = self.values.drain(len - tuple.elements.len()..).collect();
-                Some(Value::Tuple(tuple_values))
+                let tuple_plaintexts = tuple_values.into_iter().filter_map(|v| v.try_into().ok());
+                if tuple_plaintexts.len() == tuple.elements.len() {
+                    Some(LeoValue::Tuple(tuple_values))
+                } else {
+                    halt!(tuple.span(), "Type error");
+                }
             }
             Expression::Unary(unary) if step == 0 => {
                 push!()(&unary.receiver);
@@ -919,7 +937,7 @@ impl Cursor {
                 let value = self.pop_value()?;
                 Some(evaluate_unary(unary.span, unary.op, &value)?)
             }
-            Expression::Unit(_) if step == 0 => Some(Value::Unit),
+            Expression::Unit(_) if step == 0 => Some(LeoValue::Unit),
             x => unreachable!("Unexpected expression {x}"),
         } {
             assert_eq!(self.frames.len(), len);
@@ -979,7 +997,7 @@ impl Cursor {
                     FunctionVariant::Leo(function) => {
                         assert!(function.variant == Variant::AsyncFunction);
                         let len = self.values.len();
-                        let values: Vec<Value> = self.values.drain(len - function.input.len()..).collect();
+                        let values: Vec<LeoValue> = self.values.drain(len - function.input.len()..).collect();
                         self.contexts.push(
                             gid.program,
                             self.signer,
@@ -1036,7 +1054,7 @@ impl Cursor {
         &mut self,
         function_program: Symbol,
         function_name: Symbol,
-        arguments: impl Iterator<Item = Value>,
+        arguments: impl Iterator<Item = LeoValue>,
         finalize: bool,
         span: Span,
     ) -> Result<()> {
@@ -1052,11 +1070,17 @@ impl Cursor {
                 };
                 if self.really_async && function.variant == Variant::AsyncFunction {
                     // Don't actually run the call now.
-                    let async_ex = AsyncExecution {
-                        function: GlobalId { name: function_name, program: function_program },
-                        arguments: arguments.collect(),
+                    let Ok(new_arguments) =
+                        arguments.map(|value_arg| value_arg.try_into()).collect::<Result<Vec<Argument>, _>>()
+                    else {
+                        tc_fail!();
                     };
-                    self.values.push(Value::Future(Future(vec![async_ex])));
+                    let future = Future::new(
+                        function_program.try_into().unwrap(),
+                        function_name.try_into().unwrap(),
+                        new_arguments,
+                    );
+                    self.values.push(future.into());
                 } else {
                     let is_async = function.variant == Variant::AsyncFunction;
                     self.contexts.push(function_program, caller, is_async);
@@ -1117,5 +1141,5 @@ pub struct StepResult {
     pub finished: bool,
 
     /// If the element was an expression, here's its value.
-    pub value: Option<Value>,
+    pub value: Option<LeoValue>,
 }

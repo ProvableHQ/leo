@@ -22,7 +22,7 @@ use leo_ast::{
     Node as _,
     NodeBuilder,
     Statement,
-    interpreter_value::{GlobalId, SvmAddress},
+    interpreter_value::{Address, GlobalId},
 };
 use leo_errors::{InterpreterHalt, LeoError, Result};
 use leo_span::{Span, Symbol, source_map::FileName, sym, with_session_globals};
@@ -49,7 +49,7 @@ use cursor::*;
 mod interpreter;
 use interpreter::*;
 
-mod cursor_aleo;
+// mod cursor_aleo;
 
 mod ui;
 use ui::Ui;
@@ -140,7 +140,7 @@ pub struct TestFunction {
 pub fn find_and_run_tests(
     leo_filenames: &[PathBuf],
     aleo_filenames: &[PathBuf],
-    signer: SvmAddress,
+    signer: Address,
     block_height: u32,
     match_str: &str,
 ) -> Result<(Vec<TestFunction>, IndexMap<GlobalId, Result<()>>)> {
@@ -241,7 +241,7 @@ pub fn find_and_run_tests(
 pub fn interpret(
     leo_filenames: &[PathBuf],
     aleo_filenames: &[PathBuf],
-    signer: SvmAddress,
+    signer: Address,
     block_height: u32,
     tui: bool,
 ) -> Result<()> {

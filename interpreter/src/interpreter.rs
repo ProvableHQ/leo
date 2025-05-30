@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_ast::interpreter_value::{GlobalId, Value};
+use leo_ast::interpreter_value::{Address, GlobalId, LeoValue};
 use leo_errors::{CompilerError, Handler, InterpreterHalt, LeoError, Result};
 use leo_passes::{CompilerState, Pass, SymbolTableCreation, TypeChecking, TypeCheckingInput};
 use snarkvm::prelude::Network;
@@ -65,7 +65,7 @@ impl Interpreter {
     pub fn new<'a, P: 'a + AsRef<Path>, Q: 'a + AsRef<Path>>(
         leo_source_files: impl IntoIterator<Item = &'a P>,
         aleo_source_files: impl IntoIterator<Item = &'a Q>,
-        signer: SvmAddress,
+        signer: Address,
         block_height: u32,
         test_flow: bool, // impacts the type checker
     ) -> Result<Self> {
@@ -109,7 +109,7 @@ impl Interpreter {
     fn new_impl(
         leo_source_files: &mut dyn Iterator<Item = &Path>,
         aleo_source_files: &mut dyn Iterator<Item = &Path>,
-        signer: SvmAddress,
+        signer: Address,
         block_height: u32,
         test_flow: bool,
     ) -> Result<Self> {
@@ -253,7 +253,7 @@ impl Interpreter {
         Ok(changed)
     }
 
-    pub fn action(&mut self, act: InterpreterAction) -> Result<Option<Value>> {
+    pub fn action(&mut self, act: InterpreterAction) -> Result<Option<LeoValue>> {
         use InterpreterAction::*;
 
         let ret = match &act {

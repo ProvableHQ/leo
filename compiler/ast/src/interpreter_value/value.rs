@@ -14,33 +14,66 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_span::Symbol;
+use crate::Type;
+
+use leo_span::{Symbol, sym};
+
 use snarkvm::prelude::{
     Address as SvmAddressParam,
+    Argument as SvmArgumentParam,
     Boolean as SvmBooleanParam,
     Field as SvmFieldParam,
+    Future as SvmFutureParam,
     Group as SvmGroupParam,
+    I8 as SvmI8Param,
+    I16 as SvmI16Param,
+    I32 as SvmI32Param,
+    I64 as SvmI64Param,
+    I128 as SvmI128Param,
     Identifier as SvmIdentifierParam,
+    Literal as SvmLiteralParam,
+    LiteralType,
+    Plaintext as SvmPlaintextParam,
+    Record as SvmRecordParam,
     Scalar as SvmScalarParam,
-    // Signature as SvmSignatureParam,
+    Signature as SvmSignatureParam,
     TestnetV0,
+    U8 as SvmU8Param,
+    U16 as SvmU16Param,
+    U32 as SvmU32Param,
+    U64 as SvmU64Param,
+    U128 as SvmU128Param,
+    Value as SvmValueParam,
     integers::Integer as SvmIntegerParam,
 };
 
-use std::{
-    fmt,
-    hash::{Hash, Hasher},
-};
+use itertools::Itertools as _;
+use std::{fmt, fmt::Write as _, hash::Hash};
 
-use indexmap::IndexMap;
-
-pub type SvmAddress = SvmAddressParam<TestnetV0>;
-pub type SvmBoolean = SvmBooleanParam<TestnetV0>;
-pub type SvmField = SvmFieldParam<TestnetV0>;
-pub type SvmGroup = SvmGroupParam<TestnetV0>;
+pub type U8 = SvmU8Param<TestnetV0>;
+pub type U16 = SvmU16Param<TestnetV0>;
+pub type U32 = SvmU32Param<TestnetV0>;
+pub type U64 = SvmU64Param<TestnetV0>;
+pub type U128 = SvmU128Param<TestnetV0>;
+pub type I8 = SvmI8Param<TestnetV0>;
+pub type I16 = SvmI16Param<TestnetV0>;
+pub type I32 = SvmI32Param<TestnetV0>;
+pub type I64 = SvmI64Param<TestnetV0>;
+pub type I128 = SvmI128Param<TestnetV0>;
+pub type Literal = SvmLiteralParam<TestnetV0>;
+pub type Plaintext = SvmPlaintextParam<TestnetV0>;
+pub type Record = SvmRecordParam<TestnetV0, Plaintext>;
+pub type Value = SvmValueParam<TestnetV0>;
+pub type Address = SvmAddressParam<TestnetV0>;
+pub type Boolean = SvmBooleanParam<TestnetV0>;
+pub type Field = SvmFieldParam<TestnetV0>;
+pub type Future = SvmFutureParam<TestnetV0>;
+pub type Group = SvmGroupParam<TestnetV0>;
 pub type SvmIdentifier = SvmIdentifierParam<TestnetV0>;
-pub type SvmInteger<I> = SvmIntegerParam<TestnetV0, I>;
-pub type SvmScalar = SvmScalarParam<TestnetV0>;
+pub type Integer<I> = SvmIntegerParam<TestnetV0, I>;
+pub type Scalar = SvmScalarParam<TestnetV0>;
+pub type Signature = SvmSignatureParam<TestnetV0>;
+pub type Argument = SvmArgumentParam<TestnetV0>;
 
 /// Global values - such as mappings, functions, etc -
 /// are identified by program and name.
@@ -56,134 +89,542 @@ impl fmt::Display for GlobalId {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct StructContents {
-    pub name: Symbol,
-    pub contents: IndexMap<Symbol, Value>,
-}
-
-impl Hash for StructContents {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.name.hash(state);
-        for (_symbol, value) in self.contents.iter() {
-            value.hash(state);
-        }
-    }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub struct AsyncExecution {
-    pub function: GlobalId,
-    pub arguments: Vec<Value>,
-}
-
-#[derive(Clone, Debug, Default, Eq, PartialEq, Hash)]
-pub struct Future(pub Vec<AsyncExecution>);
-
-impl fmt::Display for Future {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Future")?;
-        if !self.0.is_empty() {
-            write!(f, " with calls to ")?;
-            let mut names = self.0.iter().map(|async_ex| async_ex.function).peekable();
-            while let Some(name) = names.next() {
-                write!(f, "{name}")?;
-                if names.peek().is_some() {
-                    write!(f, ", ")?;
-                }
-            }
-        }
-        Ok(())
-    }
-}
-
 /// A Leo value of any type.
 ///
-/// Mappings and functions aren't considered values.
-#[derive(Clone, Debug, Default, Eq, PartialEq, Hash)]
-pub enum Value {
+/// Mappings and functions aren't considered values. The snarkvm `Value` is
+/// almost what we need, but we also have tuples and Unit.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub enum LeoValue {
     #[default]
     Unit,
-    Bool(bool),
-    U8(u8),
-    U16(u16),
-    U32(u32),
-    U64(u64),
-    U128(u128),
-    I8(i8),
-    I16(i16),
-    I32(i32),
-    I64(i64),
-    I128(i128),
-    Group(SvmGroup),
-    Field(SvmField),
-    Scalar(SvmScalar),
-    Array(Vec<Value>),
-    // Signature(Box<SvmSignature>),
     Tuple(Vec<Value>),
-    Address(SvmAddress),
-    Future(Future),
-    Struct(StructContents),
-    // String(()),
+    Value(Value),
 }
 
-impl fmt::Display for Value {
+impl LeoValue {
+    pub fn cast(&self, ty: &Type) -> Option<LeoValue> {
+        let literal: &Literal = self.try_as_ref()?;
+        let literal_type = match ty {
+            Type::Address => LiteralType::Address,
+            Type::Boolean => LiteralType::Boolean,
+            Type::Field => LiteralType::Field,
+            Type::Group => LiteralType::Group,
+            Type::Scalar => LiteralType::Scalar,
+            Type::Integer(crate::IntegerType::U8) => LiteralType::U8,
+            Type::Integer(crate::IntegerType::U16) => LiteralType::U16,
+            Type::Integer(crate::IntegerType::U32) => LiteralType::U32,
+            Type::Integer(crate::IntegerType::U64) => LiteralType::U64,
+            Type::Integer(crate::IntegerType::U128) => LiteralType::U128,
+            Type::Integer(crate::IntegerType::I8) => LiteralType::I8,
+            Type::Integer(crate::IntegerType::I16) => LiteralType::I16,
+            Type::Integer(crate::IntegerType::I32) => LiteralType::I32,
+            Type::Integer(crate::IntegerType::I64) => LiteralType::I64,
+            Type::Integer(crate::IntegerType::I128) => LiteralType::I128,
+            Type::Array(..)
+            | Type::Composite(..)
+            | Type::Future(..)
+            | Type::Identifier(..)
+            | Type::Mapping(..)
+            | Type::Signature
+            | Type::String
+            | Type::Tuple(..)
+            | Type::Numeric
+            | Type::Unit
+            | Type::Err => return None,
+        };
+
+        literal.cast(literal_type).ok().map(|lit_result| lit_result.into())
+    }
+
+    pub fn try_as_array(&self) -> Option<&[Plaintext]> {
+        match self {
+            LeoValue::Value(SvmValueParam::Plaintext(SvmPlaintextParam::Array(x, _))) => Some(x),
+            _ => None,
+        }
+    }
+
+    pub fn try_as_array_mut(&mut self) -> Option<&mut [Plaintext]> {
+        match self {
+            LeoValue::Value(SvmValueParam::Plaintext(SvmPlaintextParam::Array(x, _))) => Some(x),
+            _ => None,
+        }
+    }
+
+    pub fn record(nonce: Group, owner: Address, pairs: impl Iterator<Item = (Symbol, Plaintext)>) -> Option<Self> {
+        let mut buffer = String::new();
+        let Ok(indexmap): Result<_, ()> = pairs
+            .map(|(symbol, plaintext)| {
+                buffer.clear();
+                write!(&mut buffer, "{symbol}").unwrap();
+                let identifier: SvmIdentifier = buffer.parse().map_err(|_| ())?;
+                Ok((identifier, snarkvm::prelude::Entry::Public(plaintext)))
+            })
+            .collect()
+        else {
+            return None;
+        };
+
+        Some(Record::from_plaintext(snarkvm::prelude::Owner::Public(owner), indexmap, nonce).ok()?.into())
+    }
+
+    pub fn struct_svm(pairs: impl Iterator<Item = (SvmIdentifier, Plaintext)>) -> Option<Self> {
+        Some(Plaintext::Struct(pairs.collect(), Default::default()).into())
+    }
+
+    pub fn struct_(pairs: impl Iterator<Item = (Symbol, Plaintext)>) -> Option<Self> {
+        let mut buffer = String::new();
+        let Ok(indexmap): Result<_, ()> = pairs
+            .map(|(symbol, plaintext)| {
+                buffer.clear();
+                write!(&mut buffer, "{symbol}").unwrap();
+                let identifier: SvmIdentifier = buffer.parse().map_err(|_| ())?;
+                Ok((identifier, plaintext))
+            })
+            .collect()
+        else {
+            return None;
+        };
+
+        Some(Plaintext::Struct(indexmap, Default::default()).into())
+    }
+
+    /// Update an entry in the struct or record.
+    ///
+    /// Structs and records are handled rather differently than other sub-variants of `LeoValue`.
+    /// We provide functions to access and update them, rather than expecting Leo compiler code
+    /// to access the underlying `IndexMap` directly. This is largely because we don't want to
+    /// guarantee that the version of `indexmap` used in snarkVM is the same as the version in
+    /// Leo, and thus we don't want to force code to try to refer to the type `IndexMap`.
+    pub fn struct_set(&mut self, key: Symbol, value: LeoValue) -> bool {
+        let Ok(plaintext): Result<Plaintext, _> = value.try_into() else {
+            return false;
+        };
+
+        match self {
+            LeoValue::Value(SvmValueParam::Record(record)) => {
+                // Since snarkvm records are immutable, we have to rebuild a new record.
+                // Consequently this is unfortunately linear in the number of entries.
+                // Performance is unlikely to be a problem in practice.
+                if key == sym::owner {
+                    // `owner` isn't a normal field.
+                    let SvmPlaintextParam::Literal(SvmLiteralParam::Address(address), _) = plaintext else {
+                        return false;
+                    };
+
+                    let owner = snarkvm::prelude::Owner::Public(address);
+                    let nonce = record.nonce().clone();
+                    let data = record.data().iter().map(|(id, entry)| (id.clone(), entry.clone())).collect();
+                    let Ok(new_record) = Record::from_plaintext(owner, data, nonce).into() else {
+                        return false;
+                    };
+                    *self = new_record.into();
+                    true
+                } else {
+                    // We have to rebuild the whole record, updating one of the entries.
+                    let owner = record.owner().clone();
+                    let nonce = record.nonce().clone();
+                    let new_entry = snarkvm::prelude::Entry::Public(plaintext);
+                    let Ok(key_id): Result<SvmIdentifier, _> = key.try_into() else {
+                        return false;
+                    };
+                    let mut changed_entry = false;
+                    let data = record
+                        .data()
+                        .iter()
+                        .map(|(id, entry)| {
+                            if *id == key_id {
+                                changed_entry = true;
+                                (key_id, new_entry.clone())
+                            } else {
+                                (id.clone(), entry.clone())
+                            }
+                        })
+                        .collect();
+                    if !changed_entry {
+                        // We can't add a new entry - only update one.
+                        return false;
+                    }
+                    let Ok(new_record) = Record::from_plaintext(owner, data, nonce).into() else {
+                        return false;
+                    };
+                    *self = new_record.into();
+                    true
+                }
+            }
+            LeoValue::Value(SvmValueParam::Plaintext(SvmPlaintextParam::Struct(struct_, _))) => {
+                let Ok(key_id): Result<SvmIdentifier, _> = key.try_into() else {
+                    return false;
+                };
+                let Some(value) = struct_.get_mut(&key_id) else {
+                    return false;
+                };
+                *value = plaintext;
+                true
+            }
+            _ => false,
+        }
+    }
+
+    pub fn struct_get(&self, key: Symbol) -> Option<Plaintext> {
+        let identifier = || -> Option<SvmIdentifier> { key.to_string().parse().ok() };
+
+        match self {
+            LeoValue::Value(SvmValueParam::Record(record)) => {
+                if key == sym::owner {
+                    let address: Address = **record.owner();
+                    let literal: Literal = address.into();
+                    Some(SvmPlaintextParam::Literal(literal, Default::default()))
+                } else {
+                    match record.data().get(&identifier()?)? {
+                        snarkvm::prelude::Entry::Constant(x) | snarkvm::prelude::Entry::Public(x) => Some(x.clone()),
+                        snarkvm::prelude::Entry::Private(..) => None,
+                    }
+                }
+            }
+            LeoValue::Value(SvmValueParam::Plaintext(SvmPlaintextParam::Struct(struct_, _))) => {
+                struct_.get(&identifier()?).cloned()
+            }
+            _ => None,
+        }
+    }
+
+    pub fn owner(&self) -> Option<Address> {
+        let LeoValue::Value(SvmValueParam::Record(record)) = self else {
+            return None;
+        };
+
+        Some(**record.owner())
+    }
+
+    pub fn nonce(&self) -> Option<Group> {
+        let LeoValue::Value(SvmValueParam::Record(record)) = self else {
+            return None;
+        };
+
+        Some(*record.nonce())
+    }
+
+    pub fn try_as_usize(&self) -> Option<usize> {
+        let literal: &Literal = self.try_as_ref()?;
+        match literal {
+            SvmLiteralParam::I8(x) => (**x).try_into().ok(),
+            SvmLiteralParam::I16(x) => (**x).try_into().ok(),
+            SvmLiteralParam::I32(x) => (**x).try_into().ok(),
+            SvmLiteralParam::I64(x) => (**x).try_into().ok(),
+            SvmLiteralParam::I128(x) => (**x).try_into().ok(),
+            SvmLiteralParam::U8(x) => Some(**x as usize),
+            SvmLiteralParam::U16(x) => Some(**x as usize),
+            SvmLiteralParam::U32(x) => (**x).try_into().ok(),
+            SvmLiteralParam::U64(x) => (**x).try_into().ok(),
+            SvmLiteralParam::U128(x) => (**x).try_into().ok(),
+            SvmLiteralParam::Address(..)
+            | SvmLiteralParam::Boolean(..)
+            | SvmLiteralParam::Field(..)
+            | SvmLiteralParam::Group(..)
+            | SvmLiteralParam::Scalar(..)
+            | SvmLiteralParam::Signature(..)
+            | SvmLiteralParam::String(..) => None,
+        }
+    }
+
+    pub fn try_as_u32(&self) -> Option<u32> {
+        let literal: &Literal = self.try_as_ref()?;
+        match literal {
+            SvmLiteralParam::I8(x) => (**x).try_into().ok(),
+            SvmLiteralParam::I16(x) => (**x).try_into().ok(),
+            SvmLiteralParam::I32(x) => (**x).try_into().ok(),
+            SvmLiteralParam::I64(x) => (**x).try_into().ok(),
+            SvmLiteralParam::I128(x) => (**x).try_into().ok(),
+            SvmLiteralParam::U8(x) => Some(**x as u32),
+            SvmLiteralParam::U16(x) => Some(**x as u32),
+            SvmLiteralParam::U32(x) => Some(**x),
+            SvmLiteralParam::U64(x) => (**x).try_into().ok(),
+            SvmLiteralParam::U128(x) => (**x).try_into().ok(),
+            SvmLiteralParam::Address(..)
+            | SvmLiteralParam::Boolean(..)
+            | SvmLiteralParam::Field(..)
+            | SvmLiteralParam::Group(..)
+            | SvmLiteralParam::Scalar(..)
+            | SvmLiteralParam::Signature(..)
+            | SvmLiteralParam::String(..) => None,
+        }
+    }
+
+    pub fn try_as_i128(&self) -> Option<i128> {
+        let literal: &Literal = self.try_as_ref()?;
+        match literal {
+            SvmLiteralParam::I8(x) => Some(**x as i128),
+            SvmLiteralParam::I16(x) => Some(**x as i128),
+            SvmLiteralParam::I32(x) => Some(**x as i128),
+            SvmLiteralParam::I64(x) => Some(**x as i128),
+            SvmLiteralParam::I128(x) => Some(**x as i128),
+            SvmLiteralParam::U8(x) => Some(**x as i128),
+            SvmLiteralParam::U16(x) => Some(**x as i128),
+            SvmLiteralParam::U32(x) => Some(**x as i128),
+            SvmLiteralParam::U64(x) => Some(**x as i128),
+            SvmLiteralParam::U128(x) => (**x).try_into().ok(),
+            SvmLiteralParam::Address(..)
+            | SvmLiteralParam::Boolean(..)
+            | SvmLiteralParam::Field(..)
+            | SvmLiteralParam::Group(..)
+            | SvmLiteralParam::Scalar(..)
+            | SvmLiteralParam::Signature(..)
+            | SvmLiteralParam::String(..) => None,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PlaintextHash(pub Plaintext);
+
+fn pt_hash<H: std::hash::Hasher>(pt: &Plaintext, state: &mut H) {
+    use SvmPlaintextParam::*;
+    match pt {
+        Literal(literal, _) => {
+            0u8.hash(state);
+            literal.hash(state);
+        }
+        Struct(index_map, _) => {
+            1u8.hash(state);
+            index_map.iter().for_each(|(key, val)| {
+                key.hash(state);
+                pt_hash(val, state);
+            });
+        }
+        Array(vec, _) => {
+            2u8.hash(state);
+            vec.iter().for_each(|val| pt_hash(val, state));
+        }
+    }
+}
+
+impl From<Plaintext> for PlaintextHash {
+    fn from(value: Plaintext) -> Self {
+        PlaintextHash(value)
+    }
+}
+
+impl Hash for PlaintextHash {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        pt_hash(&self.0, state);
+    }
+}
+
+impl fmt::Display for LeoValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use Value::*;
+        use LeoValue::*;
         match self {
             Unit => write!(f, "()"),
-
-            Bool(x) => write!(f, "{x}"),
-            U8(x) => write!(f, "{x}u8"),
-            U16(x) => write!(f, "{x}u16"),
-            U32(x) => write!(f, "{x}u32"),
-            U64(x) => write!(f, "{x}u64"),
-            U128(x) => write!(f, "{x}u128"),
-            I8(x) => write!(f, "{x}i8"),
-            I16(x) => write!(f, "{x}i16"),
-            I32(x) => write!(f, "{x}i32"),
-            I64(x) => write!(f, "{x}i64"),
-            I128(x) => write!(f, "{x}i128"),
-            Group(x) => write!(f, "{x}"),
-            Field(x) => write!(f, "{x}"),
-            Scalar(x) => write!(f, "{x}"),
-            Array(x) => {
-                write!(f, "[")?;
-                let mut iter = x.iter().peekable();
-                while let Some(value) = iter.next() {
-                    write!(f, "{value}")?;
-                    if iter.peek().is_some() {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, "]")
-            }
-            Struct(StructContents { name, contents }) => {
-                write!(f, "{name} {{")?;
-                let mut iter = contents.iter().peekable();
-                while let Some((member_name, value)) = iter.next() {
-                    write!(f, "{member_name}: {value}")?;
-                    if iter.peek().is_some() {
-                        write!(f, ", ")?;
-                    }
-                }
-                write!(f, "}}")
-            }
             Tuple(x) => {
-                write!(f, "(")?;
-                let mut iter = x.iter().peekable();
-                while let Some(value) = iter.next() {
-                    write!(f, "{value}")?;
-                    if iter.peek().is_some() {
-                        write!(f, ", ")?;
+                write!(f, "({})", x.iter().format(", "))
+            }
+            Value(v) => write!(f, "{v}"),
+        }
+    }
+}
+
+impl From<Value> for LeoValue {
+    fn from(value: Value) -> Self {
+        LeoValue::Value(value)
+    }
+}
+
+impl From<Plaintext> for LeoValue {
+    fn from(value: Plaintext) -> Self {
+        LeoValue::Value(SvmValueParam::Plaintext(value))
+    }
+}
+
+impl From<Literal> for LeoValue {
+    fn from(value: Literal) -> Self {
+        LeoValue::Value(SvmValueParam::Plaintext(SvmPlaintextParam::Literal(value, Default::default())))
+    }
+}
+
+impl From<Future> for LeoValue {
+    fn from(value: Future) -> Self {
+        LeoValue::Value(SvmValueParam::Future(value))
+    }
+}
+
+impl From<Record> for LeoValue {
+    fn from(value: Record) -> Self {
+        LeoValue::Value(SvmValueParam::Record(value))
+    }
+}
+
+impl TryFrom<LeoValue> for Future {
+    type Error = ();
+
+    fn try_from(value: LeoValue) -> Result<Self, Self::Error> {
+        match value {
+            LeoValue::Value(SvmValueParam::Future(x)) => Ok(x),
+            _ => Err(()),
+        }
+    }
+}
+
+impl TryFrom<LeoValue> for Value {
+    type Error = ();
+
+    fn try_from(value: LeoValue) -> Result<Self, Self::Error> {
+        match value {
+            LeoValue::Value(value) => Ok(value),
+            _ => Err(()),
+        }
+    }
+}
+
+impl TryFrom<LeoValue> for Plaintext {
+    type Error = ();
+
+    fn try_from(value: LeoValue) -> Result<Self, Self::Error> {
+        match value {
+            LeoValue::Value(SvmValueParam::Plaintext(plaintext)) => Ok(plaintext),
+            _ => Err(()),
+        }
+    }
+}
+
+macro_rules! impl_try_from {
+    ($($ty: ident)*) => {
+        $(
+            impl TryFrom<LeoValue> for $ty {
+                type Error = ();
+
+                fn try_from(value: LeoValue) -> Result<Self, Self::Error> {
+                    match value {
+                        LeoValue::Value(SvmValueParam::Plaintext(SvmPlaintextParam::Literal(SvmLiteralParam::$ty(x), _))) => {
+                            Ok(x)
+                        }
+                        _ => Err(()),
                     }
                 }
-                write!(f, ")")
             }
-            Address(x) => write!(f, "{x}"),
-            Future(future) => write!(f, "{future}"),
-            // Signature(x) => write!(f, "{x}"),
-            // String(_) => todo!(),
+        )*
+    };
+}
+
+impl_try_from! {
+    Scalar Group Field Address
+}
+
+pub trait TryAsRef<T>
+where
+    T: ?Sized,
+{
+    fn try_as_ref(&self) -> Option<&T>;
+}
+
+impl TryAsRef<Literal> for LeoValue {
+    fn try_as_ref(&self) -> Option<&Literal> {
+        match self {
+            LeoValue::Value(Value::Plaintext(Plaintext::Literal(lit, _))) => Some(lit),
+            _ => None,
+        }
+    }
+}
+
+impl TryAsRef<Plaintext> for LeoValue {
+    fn try_as_ref(&self) -> Option<&Plaintext> {
+        match self {
+            LeoValue::Value(Value::Plaintext(plaintext)) => Some(plaintext),
+            _ => None,
+        }
+    }
+}
+
+macro_rules! impl_from_integer {
+    ($($int_type: ident $variant: ident);* $(;)?) => {
+        $(
+            impl From<$int_type> for LeoValue {
+                fn from(value: $int_type) -> Self {
+                    LeoValue::Value(
+                        SvmValueParam::Plaintext(
+                            SvmPlaintextParam::Literal(
+                                snarkvm::prelude::$variant::new(value).into(),
+                                Default::default(),
+                            )
+                        )
+                    )
+                }
+            }
+
+            impl TryFrom<LeoValue> for $int_type {
+                type Error = ();
+
+                fn try_from(value: LeoValue) -> Result<$int_type, Self::Error> {
+                    match value {
+                        LeoValue::Value(SvmValueParam::Plaintext(SvmPlaintextParam::Literal(SvmLiteralParam::$variant(x), _))) => Ok(*x),
+                        _ => Err(()),
+                    }
+                }
+            }
+
+            impl TryAsRef<$int_type> for LeoValue {
+                fn try_as_ref(&self) -> Option<&$int_type> {
+                    match self {
+                        LeoValue::Value(SvmValueParam::Plaintext(SvmPlaintextParam::Literal(SvmLiteralParam::$variant(x), _))) => Some(&**x),
+                        _ => None,
+                    }
+                }
+            }
+        )*
+    };
+}
+
+impl_from_integer! {
+    u8 U8;
+    u16 U16;
+    u32 U32;
+    u64 U64;
+    u128 U128;
+    i8 I8;
+    i16 I16;
+    i32 I32;
+    i64 I64;
+    i128 I128;
+    bool Boolean;
+}
+
+macro_rules! impl_from_type {
+    ($($type_: ident);* $(;)?) => {
+        $(
+            impl From<$type_> for LeoValue {
+                fn from(value: $type_) -> Self {
+                    LeoValue::Value(
+                        SvmValueParam::Plaintext(
+                            SvmPlaintextParam::Literal(
+                                value.into(),
+                                Default::default(),
+                            )
+                        )
+                    )
+                }
+            }
+        )*
+    };
+}
+
+impl_from_type! {
+    Group; Field; Scalar; Address; Signature;
+    U8; U16; U32; U64; U128;
+    I8; I16; I32; I64; I128;
+    Boolean;
+}
+
+impl TryFrom<LeoValue> for Argument {
+    type Error = ();
+
+    fn try_from(value: LeoValue) -> Result<Self, Self::Error> {
+        let LeoValue::Value(value) = value else {
+            return Err(());
+        };
+
+        match value {
+            SvmValueParam::Plaintext(plaintext) => Ok(SvmArgumentParam::Plaintext(plaintext)),
+            SvmValueParam::Future(future) => Ok(SvmArgumentParam::Future(future)),
+            SvmValueParam::Record(..) => Err(()),
         }
     }
 }

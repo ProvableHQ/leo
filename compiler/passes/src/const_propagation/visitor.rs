@@ -21,16 +21,16 @@ use leo_ast::{
     Expression,
     Identifier,
     IntegerType,
-    Literal,
-    NodeBuilder,
     NodeID,
     StructExpression,
     StructVariableInitializer,
-    TupleExpression,
-    interpreter_value::Value,
+    Type,
+    interpreter_value::{Address, LeoValue, Plaintext},
 };
 use leo_errors::StaticAnalyzerError;
-use leo_span::{Span, Symbol};
+use leo_span::{Span, Symbol, sym};
+
+use std::{fmt::Write as _, str::FromStr};
 
 pub struct ConstPropagationVisitor<'a> {
     pub state: &'a mut CompilerState,
@@ -57,79 +57,164 @@ impl ConstPropagationVisitor<'_> {
     pub fn emit_err(&self, err: StaticAnalyzerError) {
         self.state.handler.emit_err(err);
     }
-}
 
-pub fn value_to_expression(value: &Value, span: Span, node_builder: &NodeBuilder) -> Option<Expression> {
-    use Value::*;
-    let id = node_builder.next_id();
+    fn plaintext_to_expression(&self, plaintext: &Plaintext, span: Span, ty: &Type) -> Option<Expression> {
+        use leo_ast::Literal as LeoLiteral;
 
-    let result = match value {
-        Unit => leo_ast::UnitExpression { span, id }.into(),
-        Bool(x) => Literal::boolean(*x, span, id).into(),
-        U8(x) => Literal::integer(IntegerType::U8, format!("{x}"), span, id).into(),
-        U16(x) => Literal::integer(IntegerType::U16, format!("{x}"), span, id).into(),
-        U32(x) => Literal::integer(IntegerType::U32, format!("{x}"), span, id).into(),
-        U64(x) => Literal::integer(IntegerType::U64, format!("{x}"), span, id).into(),
-        U128(x) => Literal::integer(IntegerType::U128, format!("{x}"), span, id).into(),
-        I8(x) => Literal::integer(IntegerType::I8, format!("{x}"), span, id).into(),
-        I16(x) => Literal::integer(IntegerType::I16, format!("{x}"), span, id).into(),
-        I32(x) => Literal::integer(IntegerType::I32, format!("{x}"), span, id).into(),
-        I64(x) => Literal::integer(IntegerType::I64, format!("{x}"), span, id).into(),
-        I128(x) => Literal::integer(IntegerType::I128, format!("{x}"), span, id).into(),
-        Address(x) => Literal::address(format!("{x}"), span, id).into(),
-        Group(x) => {
-            let mut s = format!("{x}");
-            // Strip off the `group` suffix.
-            s.truncate(s.len() - 5);
-            Literal::group(s, span, id).into()
-        }
-        Field(x) => {
-            let mut s = format!("{x}");
-            // Strip off the `field` suffix.
-            s.truncate(s.len() - 5);
-            Literal::field(s, span, id).into()
-        }
-        Scalar(x) => {
-            let mut s = format!("{x}");
-            // Strip off the `scalar` suffix.
-            s.truncate(s.len() - 6);
-            Literal::scalar(s, span, id).into()
-        }
-        Tuple(x) => {
-            let mut elements = Vec::with_capacity(x.len());
-            for value in x.iter() {
-                elements.push(value_to_expression(value, span, node_builder)?);
-            }
-            TupleExpression { elements, span, id }.into()
-        }
-        Array(x) => {
-            let mut elements = Vec::with_capacity(x.len());
-            for value in x.iter() {
-                elements.push(value_to_expression(value, span, node_builder)?);
-            }
-            ArrayExpression { elements, span, id }.into()
-        }
-        Struct(x) => StructExpression {
-            name: Identifier { name: x.name, id: node_builder.next_id(), span },
-            members: {
-                let mut members = Vec::with_capacity(x.contents.len());
-                for (name, val) in x.contents.iter() {
-                    let initializer = StructVariableInitializer {
-                        identifier: Identifier { name: *name, id: node_builder.next_id(), span },
-                        expression: Some(value_to_expression(val, span, node_builder)?),
-                        span,
-                        id: node_builder.next_id(),
-                    };
-                    members.push(initializer)
+        let id = self.state.node_builder.next_id();
+
+        let result: Expression = match plaintext {
+            Plaintext::Literal(literal, _) => {
+                use snarkvm::prelude::Literal::*;
+                match literal {
+                    Address(x) => LeoLiteral::address(x.to_string(), span, id).into(),
+                    Boolean(x) => LeoLiteral::boolean(**x, span, id).into(),
+                    Field(x) => {
+                        let mut s = x.to_string();
+                        // Strip off the `field` suffix.
+                        s.truncate(s.len() - 5);
+                        LeoLiteral::field(s, span, id).into()
+                    }
+                    Group(x) => {
+                        let mut s = x.to_string();
+                        // Strip off the `group` suffix.
+                        s.truncate(s.len() - 5);
+                        LeoLiteral::group(s, span, id).into()
+                    }
+                    // For the integers, we make sure to apply `to_string` to the native Rust integer, not the snarkVM
+                    // integer type, so that we don't get the type suffix.
+                    I8(x) => LeoLiteral::integer(IntegerType::I8, (**x).to_string(), span, id).into(),
+                    I16(x) => LeoLiteral::integer(IntegerType::I16, (**x).to_string(), span, id).into(),
+                    I32(x) => LeoLiteral::integer(IntegerType::I32, (**x).to_string(), span, id).into(),
+                    I64(x) => LeoLiteral::integer(IntegerType::I64, (**x).to_string(), span, id).into(),
+                    I128(x) => LeoLiteral::integer(IntegerType::I128, (**x).to_string(), span, id).into(),
+                    U8(x) => LeoLiteral::integer(IntegerType::U8, (**x).to_string(), span, id).into(),
+                    U16(x) => LeoLiteral::integer(IntegerType::U16, (**x).to_string(), span, id).into(),
+                    U32(x) => LeoLiteral::integer(IntegerType::U32, (**x).to_string(), span, id).into(),
+                    U64(x) => LeoLiteral::integer(IntegerType::U64, (**x).to_string(), span, id).into(),
+                    U128(x) => LeoLiteral::integer(IntegerType::U128, (**x).to_string(), span, id).into(),
+                    Scalar(x) => {
+                        let mut s = x.to_string();
+                        // Strip off the `scalar` suffix.
+                        s.truncate(s.len() - 6);
+                        LeoLiteral::scalar(s, span, id).into()
+                    }
+                    Signature(_signature) => todo!(),
+                    String(_string_type) => todo!(),
                 }
-                members
-            },
-            span,
-            id,
-        }
-        .into(),
-        Future(..) => return None,
-    };
+            }
+            Plaintext::Struct(index_map, _) => {
+                let Type::Composite(comp_ty) = ty else {
+                    panic!("Can't happen");
+                };
+                let composite = self.state.symbol_table.lookup_struct(comp_ty.id.name).expect("");
 
-    Some(result)
+                let mut members = Vec::with_capacity(composite.members.len());
+                let mut buffer = String::new();
+                for member in &composite.members {
+                    buffer.clear();
+                    write!(&mut buffer, "{}", member.identifier).unwrap();
+                    let value = index_map
+                        .get(&snarkvm::prelude::Identifier::from_str(&buffer).unwrap())
+                        .expect("Struct should have all fields");
+                    let member_expr = self.plaintext_to_expression(value, span, &member.type_)?;
+                    members.push(StructVariableInitializer {
+                        identifier: member.identifier,
+                        expression: Some(member_expr),
+                        span,
+                        id: self.state.node_builder.next_id(),
+                    });
+                }
+
+                StructExpression { name: comp_ty.id, members, span, id }.into()
+            }
+            Plaintext::Array(x, _) => {
+                let mut elements = Vec::with_capacity(x.len());
+                for value in x.iter() {
+                    elements.push(self.plaintext_to_expression(value, span, ty)?);
+                }
+                ArrayExpression { elements, span, id }.into()
+            }
+        };
+
+        Some(result)
+    }
+
+    pub fn value_to_expression(&self, value: &LeoValue, span: Span, ty: &Type) -> Option<Expression> {
+        use LeoValue::*;
+        use snarkvm::prelude::Value as SvmValue;
+
+        let result = match value {
+            Unit => leo_ast::UnitExpression { span, id: self.state.node_builder.next_id() }.into(),
+            Tuple(tuple) => {
+                let Type::Tuple(tuple_ty) = ty else {
+                    panic!("Can't happen");
+                };
+                assert!(tuple_ty.elements().len() == tuple.len());
+                let mut elements = Vec::with_capacity(tuple.len());
+                for (value, value_ty) in tuple.iter().zip(tuple_ty.elements()) {
+                    elements.push(self.value_to_expression(&value.clone().into(), span, value_ty)?);
+                }
+                leo_ast::TupleExpression { elements, span, id: self.state.node_builder.next_id() }.into()
+            }
+            Value(SvmValue::Plaintext(plaintext)) => self.plaintext_to_expression(plaintext, span, ty)?,
+            Value(SvmValue::Record(record)) => {
+                let mut buffer = String::new();
+                let Type::Composite(comp_ty) = ty else {
+                    panic!("Can't happen");
+                };
+                let program = comp_ty.program.unwrap_or(self.program);
+                let location = leo_ast::Location::new(program, comp_ty.id.name);
+                let composite = self.state.symbol_table.lookup_record(location).expect("");
+
+                let owner_address: &Address = &*record.owner();
+                let owner_member = StructVariableInitializer {
+                    identifier: Identifier::new(sym::owner, self.state.node_builder.next_id()),
+                    expression: Some(
+                        leo_ast::Literal::address(owner_address.to_string(), span, self.state.node_builder.next_id())
+                            .into(),
+                    ),
+                    span,
+                    id: self.state.node_builder.next_id(),
+                };
+
+                let mut members = vec![owner_member];
+
+                // Add other members from the record
+                let data = record.data();
+                for member in &composite.members {
+                    if member.identifier.name != sym::owner {
+                        buffer.clear();
+                        write!(&mut buffer, "{}", member.identifier).unwrap();
+                        let entry = data
+                            .get(&snarkvm::prelude::Identifier::from_str(&buffer).unwrap())
+                            .expect("Record should have all fields");
+                        let plaintext = match entry {
+                            snarkvm::prelude::Entry::Constant(plaintext)
+                            | snarkvm::prelude::Entry::Public(plaintext) => plaintext,
+                            snarkvm::prelude::Entry::Private(_) => return None,
+                        };
+                        let member_expr = self.plaintext_to_expression(plaintext, span, &member.type_)?;
+                        members.push(StructVariableInitializer {
+                            identifier: member.identifier,
+                            expression: Some(member_expr),
+                            span,
+                            id: self.state.node_builder.next_id(),
+                        });
+                    }
+                }
+
+                StructExpression {
+                    name: Identifier::new(comp_ty.id.name, self.state.node_builder.next_id()),
+                    members,
+                    span,
+                    id: self.state.node_builder.next_id(),
+                }
+                .into()
+            }
+            Value(SvmValue::Future(..)) => return None,
+        };
+
+        Some(result)
+    }
 }

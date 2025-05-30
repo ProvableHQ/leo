@@ -24,13 +24,12 @@ use leo_ast::{
     Statement,
     StatementReconstructor,
     Type,
-    Value,
+    interpreter_value::LeoValue,
 };
 
 use leo_errors::LoopUnrollerError;
 use leo_span::{Span, Symbol};
 
-use super::{Clusivity, LoopBound, RangeIterator};
 use crate::CompilerState;
 
 pub struct UnrollingVisitor<'a> {
@@ -57,45 +56,33 @@ impl UnrollingVisitor<'_> {
     }
 
     /// Unrolls an IterationStatement.
-    pub fn unroll_iteration_statement<I: LoopBound>(
+    pub fn unroll_iteration_statement(
         &mut self,
         input: IterationStatement,
-        start: Value,
-        stop: Value,
+        start: LeoValue,
+        stop: LeoValue,
     ) -> Statement {
-        // Closure to check that the constant values are valid u128.
-        // We already know these are integers since loop unrolling occurs after type checking.
-        let cast_to_number = |v: Value| -> Result<I, Statement> {
-            match v.try_into() {
-                Ok(val_as_u128) => Ok(val_as_u128),
-                Err(err) => {
-                    self.state.handler.emit_err(err);
-                    Err(Statement::dummy())
-                }
-            }
+        let Some(start) = start.try_as_i128() else {
+            self.state.handler.emit_err(LoopUnrollerError::invalid_loop_bound(start, input.span()));
+            return Statement::dummy();
         };
-
-        // Cast `start` to `I`.
-        let start = match cast_to_number(start) {
-            Ok(v) => v,
-            Err(s) => return s,
-        };
-        // Cast `stop` to `I`.
-        let stop = match cast_to_number(stop) {
-            Ok(v) => v,
-            Err(s) => return s,
+        let Some(stop) = stop.try_as_i128() else {
+            self.state.handler.emit_err(LoopUnrollerError::invalid_loop_bound(stop, input.span()));
+            return Statement::dummy();
         };
 
         let new_block_id = self.state.node_builder.next_id();
 
-        let iter =
-            RangeIterator::new(start, stop, if input.inclusive { Clusivity::Inclusive } else { Clusivity::Exclusive });
-
         // Create a block statement to replace the iteration statement.
         self.in_scope(new_block_id, |slf| {
+            let unroll_one = |iteration_count| slf.unroll_single_iteration(&input, iteration_count);
             Block {
                 span: input.span,
-                statements: iter.map(|iteration_count| slf.unroll_single_iteration(&input, iteration_count)).collect(),
+                statements: if input.inclusive {
+                    (start..=stop).map(unroll_one).collect()
+                } else {
+                    (start..stop).map(unroll_one).collect()
+                },
                 id: new_block_id,
             }
             .into()
@@ -103,7 +90,7 @@ impl UnrollingVisitor<'_> {
     }
 
     /// A helper function to unroll a single iteration an IterationStatement.
-    fn unroll_single_iteration<I: LoopBound>(&mut self, input: &IterationStatement, iteration_count: I) -> Statement {
+    fn unroll_single_iteration(&mut self, input: &IterationStatement, iteration_index: i128) -> Statement {
         // Construct a new node ID.
         let const_id = self.state.node_builder.next_id();
 
@@ -115,14 +102,13 @@ impl UnrollingVisitor<'_> {
 
         let outer_block_id = self.state.node_builder.next_id();
 
-        // Reconstruct `iteration_count` as a `Literal`.
         let Type::Integer(integer_type) = &iterator_type else {
-            unreachable!("Type checking enforces that the iteration variable is of integer type");
+            panic!("Type checking enforces that the iteration variable is of integer type");
         };
+        // Reconstruct `iteration_index` as a `Literal`.
+        let value = Literal::integer(*integer_type, iteration_index.to_string(), Default::default(), const_id);
 
         self.in_scope(outer_block_id, |slf| {
-            let value = Literal::integer(*integer_type, iteration_count.to_string(), Default::default(), const_id);
-
             // Add the loop variable as a constant for the current scope.
             slf.state.symbol_table.insert_const(slf.program, input.variable.name, value.into());
 

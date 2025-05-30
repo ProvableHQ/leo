@@ -22,23 +22,31 @@ use leo_ast::{
     IntegerType,
     Type,
     UnaryOperation,
-    interpreter_value::{self, AsyncExecution, Future, GlobalId, StructContents, Value},
+    interpreter_value::{
+        self,
+        Argument,
+        Field,
+        Future,
+        GlobalId,
+        Group,
+        LeoValue,
+        Plaintext,
+        PlaintextHash,
+        Scalar,
+        Value,
+    },
 };
 
 use snarkvm::{
     prelude::{
         Access,
         Boolean,
-        Field,
         Identifier,
         Literal,
         LiteralType,
-        Network as _,
         PlaintextType,
         Register,
         TestnetV0,
-        ToBits as _,
-        ToBytes as _,
         integers::Integer,
     },
     synthesizer::{Command, Instruction},
@@ -46,11 +54,13 @@ use snarkvm::{
 use snarkvm_synthesizer_program::{CallOperator, CastType, Operand};
 
 use rand::Rng as _;
-use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
 use std::mem;
 
 impl Cursor {
-    fn mapping_by_call_operator(&self, operator: &CallOperator<TestnetV0>) -> Option<&HashMap<Value, Value>> {
+    fn mapping_by_call_operator(
+        &self,
+        operator: &CallOperator<TestnetV0>,
+    ) -> Option<&HashMap<PlaintextHash, Plaintext>> {
         let (program, name) = match operator {
             CallOperator::Locator(locator) => {
                 (Some(snarkvm_identifier_to_symbol(locator.name())), snarkvm_identifier_to_symbol(locator.resource()))
@@ -60,7 +70,7 @@ impl Cursor {
         self.lookup_mapping(program, name)
     }
 
-    fn get_register(&self, reg: &Register<TestnetV0>) -> &Value {
+    fn get_register(&self, reg: &Register<TestnetV0>) -> &LeoValue {
         let Some(Frame { element: Element::AleoExecution { registers, .. }, .. }) = self.frames.last() else {
             panic!();
         };
@@ -96,7 +106,7 @@ impl Cursor {
         }
     }
 
-    fn set_register(&mut self, reg: Register<TestnetV0>, value: Value) {
+    fn set_register(&mut self, reg: Register<TestnetV0>, value: LeoValue) {
         let Some(Frame { element: Element::AleoExecution { registers, .. }, .. }) = self.frames.last_mut() else {
             panic!();
         };
@@ -158,38 +168,20 @@ impl Cursor {
         }
     }
 
-    fn operand_value(&self, operand: &Operand<TestnetV0>) -> Value {
+    fn operand_value(&self, operand: &Operand<TestnetV0>) -> LeoValue {
         match operand {
-            Operand::Literal(literal) => match literal {
-                Literal::Address(x) => Value::Address(*x),
-                Literal::Boolean(x) => Value::Bool(**x),
-                Literal::Field(x) => Value::Field(*x),
-                Literal::Group(x) => Value::Group(*x),
-                Literal::I8(x) => Value::I8(**x),
-                Literal::I16(x) => Value::I16(**x),
-                Literal::I32(x) => Value::I32(**x),
-                Literal::I64(x) => Value::I64(**x),
-                Literal::I128(x) => Value::I128(**x),
-                Literal::U8(x) => Value::U8(**x),
-                Literal::U16(x) => Value::U16(**x),
-                Literal::U32(x) => Value::U32(**x),
-                Literal::U64(x) => Value::U64(**x),
-                Literal::U128(x) => Value::U128(**x),
-                Literal::Scalar(x) => Value::Scalar(*x),
-                Literal::Signature(_) => todo!(),
-                Literal::String(_) => todo!(),
-            },
+            Operand::Literal(literal) => literal.clone().into(),
             Operand::Register(register) => self.get_register(register).clone(),
             Operand::ProgramID(_) => todo!(),
-            Operand::Signer => Value::Address(self.signer),
+            Operand::Signer => self.signer.into(),
             Operand::Caller => {
                 if let Some(function_context) = self.contexts.last() {
-                    Value::Address(function_context.caller)
+                    function_context.caller.into()
                 } else {
-                    Value::Address(self.signer)
+                    self.signer.into()
                 }
             }
-            Operand::BlockHeight => Value::U32(self.block_height),
+            Operand::BlockHeight => self.block_height.into(),
             Operand::NetworkID => todo!(),
         }
     }
@@ -314,17 +306,23 @@ impl Cursor {
             }
             Async(async_) if *step == 0 => {
                 let program = self.contexts.current_program().expect("there should be a program");
-                let name = snarkvm_identifier_to_symbol(async_.function_name());
-                let arguments: Vec<Value> = async_.operands().iter().map(|op| self.operand_value(op)).collect();
+                let identifier_name = async_.function_name();
+                let name = snarkvm_identifier_to_symbol(identifier_name);
+                let arguments = async_.operands().iter().map(|op| self.operand_value(op));
                 if self.really_async {
                     self.increment_instruction_index();
-                    let async_ex = AsyncExecution { function: GlobalId { name, program }, arguments };
-                    (Value::Future(Future(vec![async_ex])), async_.destinations()[0].clone())
+                    let Ok(new_arguments) =
+                        arguments.map(|value_arg| value_arg.try_into()).collect::<Result<Vec<Argument>, _>>()
+                    else {
+                        tc_fail!();
+                    };
+                    let future = Future::new(program.try_into().unwrap(), *identifier_name, new_arguments);
+                    (future.into(), async_.destinations()[0].clone())
                 } else {
                     self.do_call(
                         program,
                         name,
-                        arguments.into_iter(),
+                        arguments,
                         true, // finalize
                         Span::default(),
                     )?;
@@ -343,11 +341,11 @@ impl Cursor {
                         self.contexts.current_program().expect("there should be a program"),
                     ),
                 };
-                let arguments: Vec<Value> = call.operands().iter().map(|op| self.operand_value(op)).collect();
+                let arguments = call.operands().iter().map(|op| self.operand_value(op));
                 self.do_call(
                     program,
                     name,
-                    arguments.into_iter(),
+                    arguments,
                     false, // finalize
                     Span::default(),
                 )?;
@@ -357,7 +355,10 @@ impl Cursor {
             Async(async_) if *step == 1 => {
                 // We've done a call, and the result is on the value stack.
                 self.values.pop();
-                self.set_register(async_.destinations()[0].clone(), Value::Future(Future(Vec::new())));
+                self.set_register(
+                    async_.destinations()[0].clone(),
+                    Future::new(program.try_into().unwrap(), name.try_into().unwrap(), Vec::new()).into(),
+                );
                 self.increment_instruction_index();
                 return Ok(());
             }
@@ -389,39 +390,48 @@ impl Cursor {
                     let name = snarkvm_identifier_to_symbol(name_identifier);
                     let id = GlobalId { program, name };
                     let struct_type = self.structs.get(&id).expect("struct type should exist");
-                    let operands = cast.operands().iter().map(|op| self.operand_value(op));
-                    Value::Struct(StructContents {
-                        name,
-                        contents: struct_type.iter().cloned().zip(operands).collect(),
-                    })
+                    let key_values = struct_type
+                        .iter()
+                        .zip(cast.operands())
+                        .filter_map(|(sym, operand)| {
+                            let identifier: Identifier<_> = (*sym).try_into().ok()?;
+                            let operand_plaintext: Plaintext = self.operand_value(operand).try_into().ok()?;
+                            (identifier, operand_plaintext).into()
+                        })
+                        .collect();
+                    (Plaintext::Struct(key_values, Default::default()).into(), destination)
                 };
 
                 match cast.cast_type() {
                     CastType::GroupXCoordinate => {
-                        let Value::Group(g) = self.operand_value(&cast.operands()[0]) else {
+                        let Ok(g) = self.operand_value(&cast.operands()[0]).try_into() else {
                             tc_fail!();
                         };
-                        let value = Value::Field(g.to_x_coordinate());
+                        let value = g.to_x_coordinate().into();
                         (value, destination)
                     }
                     CastType::GroupYCoordinate => {
-                        let Value::Group(g) = self.operand_value(&cast.operands()[0]) else {
+                        let Ok(g) = self.operand_value(&cast.operands()[0]).try_into() else {
                             tc_fail!();
                         };
-                        let value = Value::Field(g.to_y_coordinate());
+                        let value = g.to_y_coordinate().into();
                         (value, destination)
                     }
-                    CastType::Plaintext(PlaintextType::Array(_array)) => {
-                        let value = Value::Array(cast.operands().iter().map(|op| self.operand_value(op)).collect());
-                        (value, destination)
+                    CastType::Plaintext(PlaintextType::Array(array)) => {
+                        let operands_plaintext: Vec<Plaintext> =
+                            cast.operands().iter().filter_map(|op| self.operand_value(op).try_into().ok()).collect();
+                        if operands_plaintext.len() == **array.length() as usize {
+                            (Plaintext::Array(operands_plaintext, Default::default()).into(), destination)
+                        } else {
+                            tc_fail!();
+                        }
                     }
                     CastType::Plaintext(PlaintextType::Literal(literal_type)) => {
                         let operand = self.operand_value(&cast.operands()[0]);
-                        let value = match operand.cast(&snarkvm_literal_type_to_type(*literal_type)) {
-                            Some(value) => value,
-                            None => halt_no_span!("cast failure"),
+                        let Ok(operand_literal) = operand.try_into() else {
+                            tc_fail!();
                         };
-                        (value, destination)
+                        (operand_literal.cast(literal_type)?, destination)
                     }
                     CastType::Record(struct_name) | CastType::Plaintext(PlaintextType::Struct(struct_name)) => {
                         let program = self.contexts.current_program().expect("there should be a current program");
@@ -436,18 +446,15 @@ impl Cursor {
                 }
             }
             CastLossy(cast_lossy) => {
+                let destination = cast_lossy.destinations()[0].clone();
                 match cast_lossy.cast_type() {
                     CastType::Plaintext(PlaintextType::Literal(literal_type)) => {
                         // This is the only variant supported for lossy casts.
                         let operand = self.operand_value(&cast_lossy.operands()[0]);
-                        let operand_literal = value_to_snarkvm_literal(operand);
-                        let result_literal = match operand_literal.cast_lossy(*literal_type) {
-                            Ok(result_literal) => result_literal,
-                            Err(_) => halt_no_span!("cast failure"),
+                        let Ok(operand_literal) = operand.try_into() else {
+                            tc_fail!();
                         };
-                        let destination = cast_lossy.destinations()[0].clone();
-                        self.increment_instruction_index();
-                        (snarkvm_literal_to_value(result_literal), destination)
+                        (operand_literal.cast_lossy(literal_type)?, destination)
                     }
                     _ => tc_fail!(),
                 }
@@ -775,7 +782,7 @@ impl Cursor {
         Ok(())
     }
 
-    fn outputs(&self) -> Vec<Value> {
+    fn outputs(&self) -> Vec<LeoValue> {
         let Some(Frame { element, .. }) = self.frames.last() else {
             panic!("frame expected");
         };
@@ -794,7 +801,7 @@ impl Cursor {
         };
 
         if result.is_empty() {
-            result.push(Value::Unit);
+            result.push(LeoValue::Unit);
         }
         result
     }
@@ -818,7 +825,7 @@ impl Cursor {
             Contains(contains) => {
                 let mapping = self.mapping_by_call_operator(contains.mapping()).expect("mapping should be present");
                 let key = self.operand_value(contains.key());
-                let result = Value::Bool(mapping.contains_key(&key));
+                let result = mapping.contains_key(&key).into();
                 self.increment_instruction_index();
                 (result, contains.destination().clone())
             }
@@ -870,33 +877,24 @@ impl Cursor {
                 return Ok(());
             }
             RandChaCha(rand) => {
-                // If there are operands, they are additional seeds.
-                let mut bits = Vec::new();
-                for value in rand.operands().iter().map(|op| self.operand_value(op)) {
-                    value.write_bits_le(&mut bits);
-                }
-                let field: Field<TestnetV0> = self.rng.r#gen();
-                field.write_bits_le(&mut bits);
-                let seed_vec = TestnetV0::hash_bhp1024(&bits)?.to_bytes_le()?;
-                let mut seed = [0u8; 32];
-                seed.copy_from_slice(&seed_vec[..32]);
-                let mut rng = ChaCha20Rng::from_seed(seed);
+                // TODO - operands should be additional seeds. But in practice does this
+                // matter for interpreting?
                 let value = match rand.destination_type() {
-                    LiteralType::Address => Value::Address(rng.r#gen()),
-                    LiteralType::Boolean => Value::Bool(rng.r#gen()),
-                    LiteralType::Field => Value::Field(rng.r#gen()),
-                    LiteralType::Group => Value::Group(rng.r#gen()),
-                    LiteralType::I8 => Value::I8(rng.r#gen()),
-                    LiteralType::I16 => Value::I16(rng.r#gen()),
-                    LiteralType::I32 => Value::I32(rng.r#gen()),
-                    LiteralType::I64 => Value::I64(rng.r#gen()),
-                    LiteralType::I128 => Value::I128(rng.r#gen()),
-                    LiteralType::U8 => Value::U8(rng.r#gen()),
-                    LiteralType::U16 => Value::U16(rng.r#gen()),
-                    LiteralType::U32 => Value::U32(rng.r#gen()),
-                    LiteralType::U64 => Value::U64(rng.r#gen()),
-                    LiteralType::U128 => Value::U128(rng.r#gen()),
-                    LiteralType::Scalar => Value::Scalar(rng.r#gen()),
+                    LiteralType::Address => self.rng.r#gen::<Address>().into(),
+                    LiteralType::Boolean => self.rng.r#gen::<bool>().into(),
+                    LiteralType::Field => self.rng.r#gen::<Field>().into(),
+                    LiteralType::Group => self.rng.r#gen::<Group>().into(),
+                    LiteralType::I8 => self.rng.r#gen::<i8>().into(),
+                    LiteralType::I16 => self.rng.r#gen::<i16>().into(),
+                    LiteralType::I32 => self.rng.r#gen::<i32>().into(),
+                    LiteralType::I64 => self.rng.r#gen::<i64>().into(),
+                    LiteralType::I128 => self.rng.r#gen::<i128>().into(),
+                    LiteralType::U8 => self.rng.r#gen::<u8>().into(),
+                    LiteralType::U16 => self.rng.r#gen::<u16>().into(),
+                    LiteralType::U32 => self.rng.r#gen::<u32>().into(),
+                    LiteralType::U64 => self.rng.r#gen::<u64>().into(),
+                    LiteralType::U128 => self.rng.r#gen::<u128>().into(),
+                    LiteralType::Scalar => self.rng.r#gen::<Scalar>().into(),
                     LiteralType::Signature => halt_no_span!("Cannot create a random signature"),
                     LiteralType::String => halt_no_span!("Cannot create a random string"),
                 };
@@ -959,81 +957,23 @@ impl Cursor {
         }
 
         if self.execution_complete() {
-            let mut outputs = self.outputs();
+            let outputs = self.outputs();
             self.frames.pop();
             self.contexts.pop();
-            if outputs.len() > 1 {
-                self.values.push(Value::Tuple(outputs));
+            let len = outputs.len();
+            if len > 1 {
+                let outputs_values: Vec<Value> =
+                    outputs.into_iter().filter_map(|output| output.try_into().ok()).collect();
+                if outputs_values.len() == len {
+                    self.values.push(LeoValue::Tuple(outputs));
+                } else {
+                    tc_fail!();
+                }
             } else {
-                self.values.push(mem::take(&mut outputs[0]));
+                self.values.push(outputs[0]);
             }
         }
 
         Ok(())
-    }
-}
-
-fn snarkvm_literal_type_to_type(snarkvm_type: LiteralType) -> Type {
-    use Type::*;
-    match snarkvm_type {
-        LiteralType::Address => Address,
-        LiteralType::Boolean => Boolean,
-        LiteralType::Field => Field,
-        LiteralType::Group => Group,
-        LiteralType::I8 => Integer(IntegerType::I8),
-        LiteralType::I16 => Integer(IntegerType::I16),
-        LiteralType::I32 => Integer(IntegerType::I32),
-        LiteralType::I64 => Integer(IntegerType::I64),
-        LiteralType::I128 => Integer(IntegerType::I128),
-        LiteralType::U8 => Integer(IntegerType::U8),
-        LiteralType::U16 => Integer(IntegerType::U16),
-        LiteralType::U32 => Integer(IntegerType::U32),
-        LiteralType::U64 => Integer(IntegerType::U64),
-        LiteralType::U128 => Integer(IntegerType::U128),
-        LiteralType::Scalar => Scalar,
-        LiteralType::Signature => todo!(),
-        LiteralType::String => todo!(),
-    }
-}
-
-fn snarkvm_literal_to_value(literal: Literal<TestnetV0>) -> Value {
-    match literal {
-        Literal::Address(x) => Value::Address(x),
-        Literal::Boolean(x) => Value::Bool(*x),
-        Literal::Field(x) => Value::Field(x),
-        Literal::Group(x) => Value::Group(x),
-        Literal::I8(x) => Value::I8(*x),
-        Literal::I16(x) => Value::I16(*x),
-        Literal::I32(x) => Value::I32(*x),
-        Literal::I64(x) => Value::I64(*x),
-        Literal::I128(x) => Value::I128(*x),
-        Literal::U8(x) => Value::U8(*x),
-        Literal::U16(x) => Value::U16(*x),
-        Literal::U32(x) => Value::U32(*x),
-        Literal::U64(x) => Value::U64(*x),
-        Literal::U128(x) => Value::U128(*x),
-        Literal::Scalar(x) => Value::Scalar(x),
-        Literal::Signature(_) | Literal::String(_) => tc_fail!(),
-    }
-}
-
-fn value_to_snarkvm_literal(value: Value) -> Literal<TestnetV0> {
-    match value {
-        Value::Bool(x) => Literal::Boolean(Boolean::new(x)),
-        Value::U8(x) => Literal::U8(Integer::new(x)),
-        Value::U16(x) => Literal::U16(Integer::new(x)),
-        Value::U32(x) => Literal::U32(Integer::new(x)),
-        Value::U64(x) => Literal::U64(Integer::new(x)),
-        Value::U128(x) => Literal::U128(Integer::new(x)),
-        Value::I8(x) => Literal::I8(Integer::new(x)),
-        Value::I16(x) => Literal::I16(Integer::new(x)),
-        Value::I32(x) => Literal::I32(Integer::new(x)),
-        Value::I64(x) => Literal::I64(Integer::new(x)),
-        Value::I128(x) => Literal::I128(Integer::new(x)),
-        Value::Group(x) => Literal::Group(x),
-        Value::Field(x) => Literal::Field(x),
-        Value::Scalar(x) => Literal::Scalar(x),
-        Value::Address(x) => Literal::Address(x),
-        Value::Array(_) | Value::Tuple(_) | Value::Unit | Value::Future(_) | Value::Struct(_) => tc_fail!(),
     }
 }

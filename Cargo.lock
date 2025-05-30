@@ -364,9 +364,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.24"
+version = "1.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16595d3be041c03b09d08d0858631facccee9221e579704070e6e9e4915d3bc7"
+checksum = "d0fc897dc1e865cc67c0e05a836d9d3f1df3cbe442aa4a9473b18e12624a4951"
 dependencies = [
  "shlex",
 ]
@@ -379,9 +379,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "clap"
-version = "4.5.38"
+version = "4.5.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed93b9805f8ba930df42c2590f05453d5ec36cbb85d018868a5b24d31f6ac000"
+checksum = "fd60e63e9be68e5fb56422e397cf9baddded06dae1d2e523401542383bc72a9f"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -389,9 +389,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.38"
+version = "4.5.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "379026ff283facf611b0ea629334361c4211d1b12ee01024eec1591133b04120"
+checksum = "89cc6392a1f72bbeb820d71f32108f61fdaf18bc526e1d23954168a67759ef51"
 dependencies = [
  "anstream",
  "anstyle",
@@ -1105,9 +1105,9 @@ checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
 name = "hermit-abi"
-version = "0.3.9"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d231dfb89cfffdbc30e7fc41579ed6066ad03abda9e567ccafae602b97ec5024"
+checksum = "f154ce46856750ed433c8649605bf7ed2de3bc35fd9d2a9f30cddd873c80cb08"
 
 [[package]]
 name = "hex"
@@ -1261,6 +1261,7 @@ version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1c293b6b3d21eca78250dc7dbebd6b9210ec5530e038cbfe0661b5c47ab06e8"
 dependencies = [
+ "base64 0.22.1",
  "bytes",
  "futures-channel",
  "futures-core",
@@ -1268,7 +1269,9 @@ dependencies = [
  "http 1.3.1",
  "http-body 1.0.1",
  "hyper 1.6.0",
+ "ipnet",
  "libc",
+ "percent-encoding",
  "pin-project-lite",
  "socket2",
  "tokio",
@@ -1438,6 +1441,16 @@ name = "ipnet"
 version = "2.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "469fb0b9cefa57e3ef31275ee7cacb78f2fdca44e4765491884a2b119d4eb130"
+
+[[package]]
+name = "iri-string"
+version = "0.7.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dbc5ebe9c3a1a7a5127f920a418f7585e9e758e911d0466ed004f393b0e380b2"
+dependencies = [
+ "memchr",
+ "serde",
+]
 
 [[package]]
 name = "is_terminal_polyfill"
@@ -1677,6 +1690,7 @@ dependencies = [
  "indexmap",
  "scoped-tls",
  "serde",
+ "snarkvm",
 ]
 
 [[package]]
@@ -1735,9 +1749,9 @@ checksum = "241eaef5fd12c88705a01fc1066c48c4b36e0dd4377dcdc7ec3942cea7a69956"
 
 [[package]]
 name = "lock_api"
-version = "0.4.12"
+version = "0.4.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07af8b9cdd281b7915f413fa73f29ebd5d55d0d3f0155584dade1ff18cea1b17"
+checksum = "96936507f153605bddfcda068dd804796c84324ed2510809e5b2a624c81da765"
 dependencies = [
  "autocfg",
  "scopeguard",
@@ -1891,9 +1905,9 @@ dependencies = [
 
 [[package]]
 name = "num_cpus"
-version = "1.16.0"
+version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4161fcb6d602d4d2081af7c3a45852d875a03dd337a6bfdd6e06407b61342a43"
+checksum = "91df4bbde75afed763b708b7eee1e8e7651e02d97f6d5dd763e89367e957b23b"
 dependencies = [
  "hermit-abi",
  "libc",
@@ -1928,9 +1942,9 @@ checksum = "a4895175b425cb1f87721b59f0f286c2092bd4af812243672510e1ac53e2e0ad"
 
 [[package]]
 name = "openssl"
-version = "0.10.72"
+version = "0.10.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fedfea7d58a1f73118430a55da6a286e7b044961736ce96a16a17068ea25e5da"
+checksum = "8505734d46c8ab1e19a1dce3aef597ad87dcb4c37e7188231769bd6bd51cebf8"
 dependencies = [
  "bitflags 2.9.1",
  "cfg-if",
@@ -1960,9 +1974,9 @@ checksum = "d05e27ee213611ffe7d6348b942e8f942b37114c00cc03cec254295a4a17852e"
 
 [[package]]
 name = "openssl-sys"
-version = "0.9.108"
+version = "0.9.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e145e1651e858e820e4860f7b9c5e169bc1d8ce1c86043be79fa7b7634821847"
+checksum = "90096e2e47630d78b7d1c20952dc621f957103f8bc2c8359ec81290d75238571"
 dependencies = [
  "cc",
  "libc",
@@ -1978,9 +1992,9 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
 name = "parking_lot"
-version = "0.12.3"
+version = "0.12.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1bf18183cf54e8d6059647fc3063646a1801cf30896933ec2311622cc4b9a27"
+checksum = "70d58bf43669b5795d1576d0641cfb6fbb2057bf629506267a92807158584a13"
 dependencies = [
  "lock_api",
  "parking_lot_core",
@@ -1988,9 +2002,9 @@ dependencies = [
 
 [[package]]
 name = "parking_lot_core"
-version = "0.9.10"
+version = "0.9.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e401f977ab385c9e4e3ab30627d6f26d00e2c73eef317493c4ec6d468726cf8"
+checksum = "bc838d2a56b5b1a6c25f55575dfc605fabb63bb2365f6c2353ef9159aa69e4a5"
 dependencies = [
  "cfg-if",
  "libc",
@@ -2261,7 +2275,7 @@ dependencies = [
  "once_cell",
  "percent-encoding",
  "pin-project-lite",
- "rustls-pemfile 1.0.4",
+ "rustls-pemfile",
  "serde",
  "serde_json",
  "serde_urlencoded",
@@ -2279,9 +2293,9 @@ dependencies = [
 
 [[package]]
 name = "reqwest"
-version = "0.12.15"
+version = "0.12.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d19c46a6fdd48bc4dab94b6103fccc55d34c67cc0ad04653aad4ea2a07cd7bbb"
+checksum = "e98ff6b0dbbe4d5a37318f433d4fc82babd21631f194d370409ceb2e40b2f0b5"
 dependencies = [
  "base64 0.22.1",
  "bytes",
@@ -2302,7 +2316,7 @@ dependencies = [
  "once_cell",
  "percent-encoding",
  "pin-project-lite",
- "rustls-pemfile 2.2.0",
+ "rustls-pki-types",
  "serde",
  "serde_json",
  "serde_urlencoded",
@@ -2310,12 +2324,12 @@ dependencies = [
  "tokio",
  "tokio-native-tls",
  "tower",
+ "tower-http",
  "tower-service",
  "url",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
- "windows-registry",
 ]
 
 [[package]]
@@ -2416,15 +2430,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c74cae0a4cf6ccbbf5f359f08efdf8ee7e1dc532573bf0db71968cb56b1448c"
 dependencies = [
  "base64 0.21.7",
-]
-
-[[package]]
-name = "rustls-pemfile"
-version = "2.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dce314e5fee3f39953d46bb63bb8a46d40c2f8fb7cc5a3b6cab2bde9721d6e50"
-dependencies = [
- "rustls-pki-types",
 ]
 
 [[package]]
@@ -2568,7 +2573,7 @@ dependencies = [
  "log",
  "quick-xml",
  "regex",
- "reqwest 0.12.15",
+ "reqwest 0.12.18",
  "self-replace",
  "semver",
  "serde_json",
@@ -2759,8 +2764,7 @@ dependencies = [
 [[package]]
 name = "snarkvm"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "baceeb131ae73c1a4506c830b86de17381ddefb6dd361145df7cd39b494368e3"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -2790,8 +2794,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-algorithms"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0306e1d4bfaaef71ea178cd061cdd5b6dbef2ddca69214b93314d7c8f763a61d"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -2821,8 +2824,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61f879933679aa573761af38c834a7501592a336e251724ee4d6e1d263ea5dc1"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-account",
  "snarkvm-circuit-algorithms",
@@ -2836,8 +2838,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-account"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37e5ab8f5da9a5576eb827764cb1a885c824c9060e4ce0d1fb5214dc4e991181"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-algorithms",
  "snarkvm-circuit-network",
@@ -2848,8 +2849,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-algorithms"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4bc82f22fa74d114dda4a5734583a8dd2cb2ca66953575e482eb3fd60ecc6b5b"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-types",
  "snarkvm-console-algorithms",
@@ -2859,8 +2859,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-collections"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e146dc2b36cac3c436f633aa72c07f93cc792771339c218b83c67bc752511b59"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-algorithms",
  "snarkvm-circuit-types",
@@ -2870,8 +2869,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-environment"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab711195279b27cbfda77e29379a522e60e84c95ea7600a82a561449575e2bb3"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "indexmap",
  "itertools 0.11.0",
@@ -2890,14 +2888,12 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-environment-witness"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8173d6a0245194c9c02e1ddda3781bef9d61372bed0a3c9143812f79067f6b9c"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 
 [[package]]
 name = "snarkvm-circuit-network"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85461e34d3817156f891078e36b6b984c4a34a825863748e8a4365bc2857cdda"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-algorithms",
  "snarkvm-circuit-collections",
@@ -2908,8 +2904,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-program"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7aac8e512ed94dcce5fe1819e448cc199c246f8723a562c9147f1a7fc443fa7e"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "paste",
  "snarkvm-circuit-account",
@@ -2924,8 +2919,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d86f3f30e5740e31992c5749cf56880dcd06eaf68c4d9dbaeb3572f8b114cc03"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-address",
@@ -2940,8 +2934,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-address"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6363b872528b775aa1ba0b98fc36fb0978e6376da4341c65ae52f06de4a7eee7"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -2954,8 +2947,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-boolean"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f50d4db9a87c113704f406cf464af42ee0ff913a259317902bf27176ede5704"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-console-types-boolean",
@@ -2964,8 +2956,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-field"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10832a3588c4de8fb458b36b3876fd54b732caaec45e5cc268aa257d2ca20141"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -2975,8 +2966,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-group"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2aa7c75081c548a5240afb19e24c150d75a9d6ea6ab211648bfe7400f48bf74a"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -2988,8 +2978,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-integers"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ecd1dc9fd667a4a7d1021a837d2478adde71472c3ba6afbf507c2d78b1e9403"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -3001,8 +2990,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-scalar"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0eb51eeecbf5dd9bb4c2df9e771b307d258ff94774c2f4a91d044d6a82b7089d"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -3013,8 +3001,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-string"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e12d9463118d810408538aa327bb4700dc113489d2aacae2a39857a52ed8763"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -3026,8 +3013,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4cbcbe08121dad8fc143ef4296364574437f7c548aa9b5961f7d888afe3abaea"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-console-account",
  "snarkvm-console-algorithms",
@@ -3040,8 +3026,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-account"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69b9369d3c6537ae7afeec0994c31b6c743d71bf6f40c71ef990fbd936aed5bd"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "bs58",
  "snarkvm-console-network",
@@ -3052,8 +3037,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-algorithms"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "088c196127555e14048fb3a56769ce406d69f0eb4e6d61beba8ef897350c426c"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "blake2s_simd",
  "smallvec",
@@ -3066,8 +3050,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-collections"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "265edebe2a73715c49329191aebee0e5dfb07ee2a7d322acc176919bb61fab25"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std",
  "rayon",
@@ -3078,8 +3061,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-network"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0973f07904f8aac65658bc331f6c4880ca4ef350227dc759c723e30c71b71b61"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -3102,8 +3084,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-network-environment"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82e5d1f6e206c05d8c6aef9a5531e853e419d0c9970d634fec0e17294717b254"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "anyhow",
  "bech32",
@@ -3121,8 +3102,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-program"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ac52848da5e1d45f92f99ac1631d1508614d951a9c0b281d3b4ff702bf14a13"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "enum-iterator",
  "enum_index",
@@ -3144,8 +3124,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e671a01c5007fcc6e1c966965ebf6867811282d4cf44dd75e152eeb39285f35c"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-address",
@@ -3160,8 +3139,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-address"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad4c2ff7f81c0f8937c10469f8c9112727bbe772b635a340f27cc75983650d75"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3172,8 +3150,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-boolean"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17df1f3f23cce23bdc330974534281559790bde12c50678861993d6348a797e9"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-console-network-environment",
 ]
@@ -3181,8 +3158,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-field"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0d24198132d22c6907501e5457ae435a6759ffff99ae87ed153a86303554276"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3192,8 +3168,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-group"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "503df0fce4172324e2684ea2b02e8cf4570047a61cc3ec7df758e66e614882d6"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3204,8 +3179,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-integers"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "369ede075b81580719599fc980ecf48c6a15584cac5918c21f0a1580126d620e"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3216,8 +3190,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-scalar"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9187d411a831aff309ce07463a6a3e1adebe2367d931895e45ee6222b372706"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3228,8 +3201,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-string"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "212fbf54f7b2db9eaeaed7009fedd2a81afa331f7762c85bf76be5e38591a524"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3240,8 +3212,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-curves"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eee30d5a62bd33667cce8bb69d8c5b43c1a0898afeb8210660fd26a68dc2890f"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "rand",
  "rayon",
@@ -3255,8 +3226,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-fields"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28eb6025599027fc20f3d6bc58ec89998cd09ac9faf759f3fefff50313430d1d"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3273,8 +3243,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0c6487aa0d1c98672c9947846226a81fd50904a7c20bc965ab10808957475c0"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3299,8 +3268,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-authority"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69ea90edc3b53c17f8a7f3e4794a6652e693726edd7a6d50b8e7a3218a82084a"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "anyhow",
  "rand",
@@ -3312,8 +3280,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-block"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de2c1bddaa162505902576738cc76109499f35a028f12f9b3667f1793966d159"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "indexmap",
  "rayon",
@@ -3333,8 +3300,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-committee"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ee13674b3641173f9b0fcc6193c2bdcbff9321373d63eb0d87a8b25419685c3"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "indexmap",
  "rayon",
@@ -3346,8 +3312,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "462cfd8baffa6cd13bb34d9e242351e7ebe6104982dd356b29d8a17938e30968"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-ledger-narwhal-batch-certificate",
  "snarkvm-ledger-narwhal-batch-header",
@@ -3360,8 +3325,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-batch-certificate"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aadd960d23f198d45d1c0d5c6de17a16c75cf3065eabc78339dd551b28b36199"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "indexmap",
  "rayon",
@@ -3374,8 +3338,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-batch-header"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d323458d5a697599fef79015cefb94897dd88bcf4fc684b90609de41254fcffc"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "indexmap",
  "rayon",
@@ -3387,8 +3350,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-data"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9731a5c99c36fe216d05fcf6e46290e5ffd419778d2045732027c7edf048f94"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "bytes",
  "serde_json",
@@ -3399,8 +3361,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-subdag"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b1c2ddf5fdc307afceb805be80fbe95305620fb9c1b6dcad06f7413be4ed108"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "indexmap",
  "rayon",
@@ -3415,8 +3376,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-transmission"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5952ac72048313af7a0c77315fafd1677983ea01d431a2f7ff7c05e0e2c3b37"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "bytes",
  "serde_json",
@@ -3429,8 +3389,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-transmission-id"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f519ffbf03ca21b14459452741cf9603d3bb8b2e25427033b1d832490de7dab1"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "snarkvm-console",
  "snarkvm-ledger-puzzle",
@@ -3439,8 +3398,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-puzzle"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e62d66d4590b346e54e20a6302f91e2c0f2d77556dec164ae423ae89203d3edf"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3460,8 +3418,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-puzzle-epoch"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e6274e762c34a800ebcd13f28cdb5e52641f2b2dc618b41e85c168c8fc34c43"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3482,8 +3439,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-query"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bef2c2865ab9d425e98cefd3c54ce87f33ac0356566942497ca91401737a4ed0"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "async-trait",
  "reqwest 0.11.27",
@@ -3496,8 +3452,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-store"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3379e08f94e141299b05d82f6ded66b28285ca910bffb9ddd00e4b04973a4667"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std-storage",
  "anyhow",
@@ -3520,8 +3475,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-parameters"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "721f70007246fa083b7c65505dbbb9c68dfa8d51bf814b835b1d577c469f3add"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3546,8 +3500,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-synthesizer"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fd451afb7c05bbaf908b691f15cb5133412a79b1a54839c57448a2e693561e7"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3578,8 +3531,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-synthesizer-process"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6fea24033c9a6c9b50de84fa70688be8cc8e8db0460e9d6dcbbf83f223057bc9"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std",
  "colored",
@@ -3604,8 +3556,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-synthesizer-program"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "234bbab38d60f1dd0bfbddb29ee3ceedff66c8efc50a617497495b7a67390121"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "indexmap",
  "paste",
@@ -3620,8 +3571,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-synthesizer-snark"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cf27d0a319ebfecf66b0cf09562771bace9e3b5f9bd671e9638cd2cc564f49c"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "bincode",
  "once_cell",
@@ -3634,8 +3584,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-utilities"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3c6b21504db4a9f8fd555275018b85a579cf1c51f32c7da6b0db1cd94f18461"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3656,8 +3605,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-utilities-derives"
 version = "3.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c690d480d8b262d2e18c28439bb92b030594f42d37e2bfbd9f12db26be3bfcaf"
+source = "git+https://github.com/ProvableHQ/snarkVM?rev=97317df6b27b558f224111f2b7f6f061e6dcfb62#97317df6b27b558f224111f2b7f6f061e6dcfb62"
 dependencies = [
  "proc-macro2",
  "quote 1.0.40",
@@ -4003,6 +3951,24 @@ dependencies = [
  "pin-project-lite",
  "sync_wrapper 1.0.2",
  "tokio",
+ "tower-layer",
+ "tower-service",
+]
+
+[[package]]
+name = "tower-http"
+version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0fdb0c213ca27a9f57ab69ddb290fd80d970922355b83ae380b395d3986b8a2e"
+dependencies = [
+ "bitflags 2.9.1",
+ "bytes",
+ "futures-util",
+ "http 1.3.1",
+ "http-body 1.0.1",
+ "iri-string",
+ "pin-project-lite",
+ "tower",
  "tower-layer",
  "tower-service",
 ]
@@ -4375,41 +4341,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
-name = "windows-link"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76840935b766e1b0a05c0066835fb9ec80071d4c09a16f6bd5f7e655e3c14c38"
-
-[[package]]
-name = "windows-registry"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4286ad90ddb45071efd1a66dfa43eb02dd0dfbae1545ad6cc3c51cf34d7e8ba3"
-dependencies = [
- "windows-result",
- "windows-strings",
- "windows-targets 0.53.0",
-]
-
-[[package]]
-name = "windows-result"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56f42bd332cc6c8eac5af113fc0c1fd6a8fd2aa08a0119358686e5160d0586c6"
-dependencies = [
- "windows-link",
-]
-
-[[package]]
-name = "windows-strings"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87fa48cc5d406560701792be122a10132491cff9d0aeb23583cc2dcafc847319"
-dependencies = [
- "windows-link",
-]
-
-[[package]]
 name = "windows-sys"
 version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4460,27 +4391,11 @@ dependencies = [
  "windows_aarch64_gnullvm 0.52.6",
  "windows_aarch64_msvc 0.52.6",
  "windows_i686_gnu 0.52.6",
- "windows_i686_gnullvm 0.52.6",
+ "windows_i686_gnullvm",
  "windows_i686_msvc 0.52.6",
  "windows_x86_64_gnu 0.52.6",
  "windows_x86_64_gnullvm 0.52.6",
  "windows_x86_64_msvc 0.52.6",
-]
-
-[[package]]
-name = "windows-targets"
-version = "0.53.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1e4c7e8ceaaf9cb7d7507c974735728ab453b67ef8f18febdd7c11fe59dca8b"
-dependencies = [
- "windows_aarch64_gnullvm 0.53.0",
- "windows_aarch64_msvc 0.53.0",
- "windows_i686_gnu 0.53.0",
- "windows_i686_gnullvm 0.53.0",
- "windows_i686_msvc 0.53.0",
- "windows_x86_64_gnu 0.53.0",
- "windows_x86_64_gnullvm 0.53.0",
- "windows_x86_64_msvc 0.53.0",
 ]
 
 [[package]]
@@ -4496,12 +4411,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32a4622180e7a0ec044bb555404c800bc9fd9ec262ec147edd5989ccd0c02cd3"
 
 [[package]]
-name = "windows_aarch64_gnullvm"
-version = "0.53.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86b8d5f90ddd19cb4a147a5fa63ca848db3df085e25fee3cc10b39b6eebae764"
-
-[[package]]
 name = "windows_aarch64_msvc"
 version = "0.48.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4512,12 +4421,6 @@ name = "windows_aarch64_msvc"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09ec2a7bb152e2252b53fa7803150007879548bc709c039df7627cabbd05d469"
-
-[[package]]
-name = "windows_aarch64_msvc"
-version = "0.53.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7651a1f62a11b8cbd5e0d42526e55f2c99886c77e007179efff86c2b137e66c"
 
 [[package]]
 name = "windows_i686_gnu"
@@ -4532,22 +4435,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8e9b5ad5ab802e97eb8e295ac6720e509ee4c243f69d781394014ebfe8bbfa0b"
 
 [[package]]
-name = "windows_i686_gnu"
-version = "0.53.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1dc67659d35f387f5f6c479dc4e28f1d4bb90ddd1a5d3da2e5d97b42d6272c3"
-
-[[package]]
 name = "windows_i686_gnullvm"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0eee52d38c090b3caa76c563b86c3a4bd71ef1a819287c19d586d7334ae8ed66"
-
-[[package]]
-name = "windows_i686_gnullvm"
-version = "0.53.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ce6ccbdedbf6d6354471319e781c0dfef054c81fbc7cf83f338a4296c0cae11"
 
 [[package]]
 name = "windows_i686_msvc"
@@ -4562,12 +4453,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "240948bc05c5e7c6dabba28bf89d89ffce3e303022809e73deaefe4f6ec56c66"
 
 [[package]]
-name = "windows_i686_msvc"
-version = "0.53.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "581fee95406bb13382d2f65cd4a908ca7b1e4c2f1917f143ba16efe98a589b5d"
-
-[[package]]
 name = "windows_x86_64_gnu"
 version = "0.48.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4578,12 +4463,6 @@ name = "windows_x86_64_gnu"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "147a5c80aabfbf0c7d901cb5895d1de30ef2907eb21fbbab29ca94c5b08b1a78"
-
-[[package]]
-name = "windows_x86_64_gnu"
-version = "0.53.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e55b5ac9ea33f2fc1716d1742db15574fd6fc8dadc51caab1c16a3d3b4190ba"
 
 [[package]]
 name = "windows_x86_64_gnullvm"
@@ -4598,12 +4477,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "24d5b23dc417412679681396f2b49f3de8c1473deb516bd34410872eff51ed0d"
 
 [[package]]
-name = "windows_x86_64_gnullvm"
-version = "0.53.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a6e035dd0599267ce1ee132e51c27dd29437f63325753051e71dd9e42406c57"
-
-[[package]]
 name = "windows_x86_64_msvc"
 version = "0.48.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4614,12 +4487,6 @@ name = "windows_x86_64_msvc"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
-
-[[package]]
-name = "windows_x86_64_msvc"
-version = "0.53.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "271414315aff87387382ec3d271b52d7ae78726f5d44ac98b4f4030c91880486"
 
 [[package]]
 name = "winreg"

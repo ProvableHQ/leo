@@ -81,6 +81,6 @@ impl Pass for ConstPropagationAndUnrolling {
 
         // Note that it's challenging to write code in practice that demonstrates this error, because Leo code
         // with many nested loops or operations will blow the stack in the compiler before this bound is hit.
-        Err(CompilerError::const_prop_unroll_many_loops(LARGE_LOOP_BOUND, Default::default()).into())
+        Err(CompilerError::const_prop_unroll_many_loops(LARGE_LOOP_BOUND).into())
     }
 }

@@ -50,13 +50,13 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
             }
         };
 
-        (input.into(), None)
+        (input.into(), Default::default())
     }
 
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         let value = self.reconstruct_expression(assign.value).0;
         let place = self.reconstruct_expression(assign.place).0;
-        (AssignStatement { value, place, ..assign }.into(), None)
+        (AssignStatement { value, place, ..assign }.into(), Default::default())
     }
 
     fn reconstruct_block(&mut self, mut block: Block) -> (Block, Self::AdditionalOutput) {
@@ -67,7 +67,7 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
                 *statement = slf.reconstruct_statement(this_statement).0;
                 !statement.is_empty()
             });
-            (block, None)
+            (block, Default::default())
         })
     }
 
@@ -82,15 +82,15 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
             conditional.otherwise = Some(otherwise);
         }
 
-        (Statement::Conditional(conditional), None)
+        (Statement::Conditional(conditional), Default::default())
     }
 
     fn reconstruct_const(&mut self, mut input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
         let span = input.span();
 
-        let (expr, opt_value) = self.reconstruct_expression(input.value);
+        let (expr, output) = self.reconstruct_expression(input.value);
 
-        if opt_value.is_some() {
+        if output.value.is_some() {
             self.state.symbol_table.insert_const(self.program, input.place.name, expr.clone());
         } else {
             self.const_not_evaluated = Some(span);
@@ -98,11 +98,14 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
 
         input.value = expr;
 
-        (Statement::Const(input), None)
+        (Statement::Const(input), Default::default())
     }
 
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        (DefinitionStatement { value: self.reconstruct_expression(definition.value).0, ..definition }.into(), None)
+        (
+            DefinitionStatement { value: self.reconstruct_expression(definition.value).0, ..definition }.into(),
+            Default::default(),
+        )
     }
 
     fn reconstruct_expression_statement(
@@ -127,7 +130,7 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
         self.in_scope(id, |slf| {
             (
                 IterationStatement { start, stop, block: slf.reconstruct_block(iteration.block).0, ..iteration }.into(),
-                None,
+                Default::default(),
             )
         })
     }

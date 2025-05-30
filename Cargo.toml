@@ -106,11 +106,11 @@ features = [ "serde" ]
 version = "0.13.0"
 
 [workspace.dependencies.rand]
-version = "0.8"
+version = "0.8.0"
 default-features = false
 
 [workspace.dependencies.rand_chacha]
-version = "0.3.0"
+version = "0.3.1"
 default-features = false
 
 [workspace.dependencies.regex]
@@ -119,15 +119,21 @@ version = "1.11.1"
 # snarkvm doesn't use semantic versioning, so pin to a
 # specific version.
 [workspace.dependencies.snarkvm]
-version = "=3.7.1"
+# version = "=3.7.1"
+git = "https://github.com/ProvableHQ/snarkVM"
+rev = "97317df6b27b558f224111f2b7f6f061e6dcfb62"
 
 # ditto
 [workspace.dependencies.snarkvm-circuit]
-version = "=3.7.1"
+# version = "=3.7.1"
+git = "https://github.com/ProvableHQ/snarkVM"
+rev = "97317df6b27b558f224111f2b7f6f061e6dcfb62"
 
 # ditto
 [workspace.dependencies.snarkvm-synthesizer-program]
-version = "=3.7.1"
+# version = "=3.7.1"
+git = "https://github.com/ProvableHQ/snarkVM"
+rev = "97317df6b27b558f224111f2b7f6f061e6dcfb62"
 
 [workspace.dependencies.serde]
 version = "1.0.214"

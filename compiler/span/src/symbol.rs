@@ -351,6 +351,29 @@ impl fmt::Display for Symbol {
     }
 }
 
+mod private {
+    use super::*;
+    use snarkvm::prelude::{Identifier as SvmIdentifier, Network, ProgramID};
+
+    impl<N: Network> TryFrom<Symbol> for SvmIdentifier<N> {
+        type Error = ();
+
+        fn try_from(value: Symbol) -> Result<Self, Self::Error> {
+            // We could in principle avoid this allocation with arrayvec.
+            value.to_string().parse().map_err(|_| ())
+        }
+    }
+
+    impl<N: Network> TryFrom<Symbol> for ProgramID<N> {
+        type Error = ();
+
+        fn try_from(value: Symbol) -> Result<Self, Self::Error> {
+            // We could in principle avoid this allocation with arrayvec.
+            format!("{value}.aleo").parse().map_err(|_| ())
+        }
+    }
+}
+
 /// All the globals for a compiler sessions.
 pub struct SessionGlobals {
     /// The interner for `Symbol`s used in the compiler.

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use super::ConstPropagationVisitor;
+
 use leo_ast::{
     ArrayAccess,
     BinaryExpression,
@@ -28,21 +30,30 @@ use leo_ast::{
     TupleAccess,
     Type,
     UnaryExpression,
-    interpreter_value::{self, StructContents, Value},
+    interpreter_value::{self, LeoValue},
 };
 use leo_errors::StaticAnalyzerError;
 use leo_span::sym;
 
-use super::{ConstPropagationVisitor, value_to_expression};
+use snarkvm::prelude::Plaintext;
+
+use std::{fmt::Write, str::FromStr as _};
 
 const VALUE_ERROR: &str = "A non-future value should always be able to be converted into an expression";
 
+#[derive(Clone, Default)]
+pub struct ConstPropOutput {
+    pub value: Option<LeoValue>,
+    pub changed: bool,
+}
+
 impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
-    type AdditionalOutput = Option<Value>;
+    type AdditionalOutput = ConstPropOutput;
 
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         let old_id = input.id();
-        let (new_expr, opt_value) = match input {
+
+        let (new_expr, output) = match input {
             Expression::Array(array) => self.reconstruct_array(array),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
             Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
@@ -63,63 +74,85 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             Expression::Unit(unit) => self.reconstruct_unit(unit),
         };
 
-        if old_id != new_expr.id() {
+        if output.changed {
             self.changed = true;
-            let old_type =
-                self.state.type_table.get(&old_id).expect("Type checking guarantees that all expressions have a type.");
-            self.state.type_table.insert(new_expr.id(), old_type);
+            let new_id = new_expr.id();
+            if new_id != old_id {
+                let old_type = self
+                    .state
+                    .type_table
+                    .get(&old_id)
+                    .expect("Type checking guarantees that all expressions have a type.");
+                self.state.type_table.insert(new_id, old_type);
+            }
         }
 
-        (new_expr, opt_value)
+        (new_expr, output)
     }
 
     fn reconstruct_struct_init(&mut self, mut input: StructExpression) -> (Expression, Self::AdditionalOutput) {
-        let mut values = Vec::new();
-        for member in input.members.iter_mut() {
-            if let Some(expr) = std::mem::take(&mut member.expression) {
-                let (new_expr, value_opt) = self.reconstruct_expression(expr);
+        let id = input.id();
+        let mut buffer = String::new();
+        let mut member_changed = false;
+        let members: Vec<_> = input
+            .members
+            .iter_mut()
+            .filter_map(|member| {
+                let expr = std::mem::take(&mut member.expression)?;
+                let (new_expr, output) = self.reconstruct_expression(expr);
                 member.expression = Some(new_expr);
-                if let Some(value) = value_opt {
-                    values.push(value);
-                }
-            }
-        }
-        if values.len() == input.members.len() {
-            let value = Value::Struct(StructContents {
-                name: input.name.name,
-                contents: input.members.iter().map(|mem| mem.identifier.name).zip(values).collect(),
-            });
-            (input.into(), Some(value))
+                let value = output.value?;
+                member_changed |= output.changed;
+                let plaintext: Plaintext<_> = value.try_into().ok()?;
+                buffer.clear();
+                write!(&mut buffer, "{}", member.identifier).unwrap();
+                Some((snarkvm::prelude::Identifier::from_str(&buffer).unwrap(), plaintext))
+            })
+            .collect();
+
+        if members.len() == input.members.len() {
+            let value = LeoValue::struct_svm(members.into_iter()).unwrap();
+            let expr = if member_changed {
+                let ty = self.state.type_table.get(&id).expect("Type should exist");
+                self.value_to_expression(&value, input.span, &ty).expect(VALUE_ERROR)
+            } else {
+                input.into()
+            };
+            (expr, ConstPropOutput { value: Some(value), changed: member_changed })
         } else {
-            (input.into(), None)
+            (input.into(), Default::default())
         }
     }
 
     fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (cond, cond_value) = self.reconstruct_expression(input.condition);
+        let (condition, cond_output) = self.reconstruct_expression(input.condition);
 
-        match cond_value {
-            Some(Value::Bool(true)) => self.reconstruct_expression(input.if_true),
-            Some(Value::Bool(false)) => self.reconstruct_expression(input.if_false),
-            _ => (
-                TernaryExpression {
-                    condition: cond,
-                    if_true: self.reconstruct_expression(input.if_true).0,
-                    if_false: self.reconstruct_expression(input.if_false).0,
-                    ..input
-                }
-                .into(),
-                None,
-            ),
+        let (if_true, true_output) = self.reconstruct_expression(input.if_true);
+        let (if_false, false_output) = self.reconstruct_expression(input.if_false);
+
+        let changed = cond_output.changed | true_output.changed | false_output.changed;
+
+        match cond_output.value.and_then(|val| val.try_into().ok()) {
+            Some(true) if self.state.type_table.side_effect_free(&if_false) => {
+                (if_true, ConstPropOutput { changed: true, value: true_output.value })
+            }
+            Some(false) if self.state.type_table.side_effect_free(&if_true) => {
+                (if_false, ConstPropOutput { changed: true, value: false_output.value })
+            }
+            _ => {
+                let expr = TernaryExpression { condition, if_true, if_false, ..input };
+                (expr.into(), ConstPropOutput { changed, value: None })
+            }
         }
     }
 
     fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
+        let id = input.id();
         let span = input.span();
         let array_id = input.array.id();
-        let (array, value_opt) = self.reconstruct_expression(input.array);
-        let (index, opt_value) = self.reconstruct_expression(input.index);
-        if let Some(value) = opt_value {
+        let (array, array_output) = self.reconstruct_expression(input.array);
+        let (index, index_output) = self.reconstruct_expression(input.index);
+        if let Some(index_value) = index_output.value {
             // We can perform compile time bounds checking.
 
             let ty = self.state.type_table.get(&array_id);
@@ -128,52 +161,34 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             };
             let len = array_ty.length();
 
-            let index: usize = match value {
-                Value::U8(x) => x as usize,
-                Value::U16(x) => x as usize,
-                Value::U32(x) => x.try_into().unwrap_or(len),
-                Value::U64(x) => x.try_into().unwrap_or(len),
-                Value::U128(x) => x.try_into().unwrap_or(len),
-                Value::I8(x) => x.try_into().unwrap_or(len),
-                Value::I16(x) => x.try_into().unwrap_or(len),
-                Value::I32(x) => x.try_into().unwrap_or(len),
-                Value::I64(x) => x.try_into().unwrap_or(len),
-                Value::I128(x) => x.try_into().unwrap_or(len),
-                _ => panic!("Type checking guarantees this is an integer"),
-            };
+            let index: usize = index_value.try_as_usize().unwrap_or(len);
 
             if index >= len {
                 // Only emit a bounds error if we have no other errors yet.
                 // This prevents a chain of redundant error messages when a loop is unrolled.
                 if !self.state.handler.had_errors() {
-                    // Get the integer string with no suffix.
-                    let str_index = match value {
-                        Value::U8(x) => format!("{x}"),
-                        Value::U16(x) => format!("{x}"),
-                        Value::U32(x) => format!("{x}"),
-                        Value::U64(x) => format!("{x}"),
-                        Value::U128(x) => format!("{x}"),
-                        Value::I8(x) => format!("{x}"),
-                        Value::I16(x) => format!("{x}"),
-                        Value::I32(x) => format!("{x}"),
-                        Value::I64(x) => format!("{x}"),
-                        Value::I128(x) => format!("{x}"),
-                        _ => unreachable!("We would have panicked above"),
-                    };
-                    self.emit_err(StaticAnalyzerError::array_bounds(str_index, len, span));
+                    let s = index_value.to_string();
+                    // Remove the suffix
+                    let suffix_index = s.rfind(|c: char| c == 'i' || c == 'u').unwrap_or(s.len());
+                    self.emit_err(StaticAnalyzerError::array_bounds(&s[..suffix_index], len, span));
                 }
-            } else if let Some(Value::Array(value)) = value_opt {
+            } else if let Some(slice) = array_output.value.as_ref().and_then(|value| value.try_as_array()) {
                 // We're in bounds and we can evaluate the array at compile time, so just return the value.
-                let result_value = value.get(index).expect("We already checked bounds.");
+                let result_plaintext = slice.get(index).expect("We already checked bounds.");
+                let result_value: LeoValue = result_plaintext.clone().into();
+                let ty = self.state.type_table.get(&id).expect("Type should exist");
                 return (
-                    value_to_expression(result_value, input.span, &self.state.node_builder).expect(VALUE_ERROR),
-                    Some(result_value.clone()),
+                    self.value_to_expression(&result_value, input.span, &ty).expect(VALUE_ERROR),
+                    ConstPropOutput { value: Some(result_value), changed: true },
                 );
             }
         } else {
             self.array_index_not_evaluated = Some(index.span());
         }
-        (ArrayAccess { array, index, ..input }.into(), None)
+        (ArrayAccess { array, index, ..input }.into(), ConstPropOutput {
+            changed: array_output.changed | index_output.changed,
+            value: None,
+        })
     }
 
     fn reconstruct_associated_constant(
@@ -181,22 +196,25 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
         input: leo_ast::AssociatedConstantExpression,
     ) -> (Expression, Self::AdditionalOutput) {
         // Currently there is only one associated constant.
-        let generator = Value::generator();
-        let expr = value_to_expression(&generator, input.span(), &self.state.node_builder).expect(VALUE_ERROR);
-        (expr, Some(generator))
+        let generator = LeoValue::generator();
+        let expr = self.value_to_expression(&generator, input.span(), &Type::Group).expect(VALUE_ERROR);
+        (expr, ConstPropOutput { changed: true, value: Some(generator) })
     }
 
     fn reconstruct_associated_function(
         &mut self,
         mut input: leo_ast::AssociatedFunctionExpression,
     ) -> (Expression, Self::AdditionalOutput) {
+        let id = input.id();
         let mut values = Vec::new();
+        let mut changed = false;
         for argument in input.arguments.iter_mut() {
-            let (new_argument, opt_value) = self.reconstruct_expression(std::mem::take(argument));
+            let (new_argument, argument_output) = self.reconstruct_expression(std::mem::take(argument));
             *argument = new_argument;
-            if let Some(value) = opt_value {
+            if let Some(value) = argument_output.value {
                 values.push(value);
             }
+            changed |= argument_output.changed;
         }
 
         if values.len() == input.arguments.len() && !matches!(input.variant.name, sym::CheatCode | sym::Mapping) {
@@ -208,113 +226,124 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             match interpreter_value::evaluate_core_function(&mut values, core_function, &[], input.span()) {
                 Ok(Some(value)) => {
                     // Successful evaluation.
-                    let expr = value_to_expression(&value, input.span(), &self.state.node_builder).expect(VALUE_ERROR);
-                    return (expr, Some(value));
+                    let ty = self.state.type_table.get(&id).expect("Type should exist");
+                    let expr = self.value_to_expression(&value, input.span(), &ty).expect(VALUE_ERROR);
+                    return (expr, ConstPropOutput { value: Some(value), changed: true });
                 }
-                Ok(None) =>
+                Ok(None) => {
                     // No errors, but we were unable to evaluate.
-                    {}
+                }
                 Err(err) => {
                     self.emit_err(StaticAnalyzerError::compile_core_function(err, input.span()));
                 }
             }
         }
 
-        (input.into(), Default::default())
+        (input.into(), ConstPropOutput { value: None, changed })
     }
 
     fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
+        let id = input.id();
         let span = input.span();
-        let (inner, value_opt) = self.reconstruct_expression(input.inner);
-        let member_name = input.name.name;
-        if let Some(Value::Struct(contents)) = value_opt {
-            let value_result =
-                contents.contents.get(&member_name).expect("Type checking guarantees the member exists.");
-
-            (
-                value_to_expression(value_result, span, &self.state.node_builder).expect(VALUE_ERROR),
-                Some(value_result.clone()),
-            )
-        } else {
-            (MemberAccess { inner, ..input }.into(), None)
+        let (inner, output) = self.reconstruct_expression(input.inner);
+        if let Some(value) = output.value {
+            if let Some(member_plaintext) = value.struct_get(input.name.name) {
+                let value: LeoValue = member_plaintext.into();
+                let ty = self.state.type_table.get(&id).expect("Type should exist");
+                let expr = self.value_to_expression(&value, span, &ty).expect(VALUE_ERROR);
+                return (expr, ConstPropOutput { value: Some(value), changed: true });
+            }
         }
+        (MemberAccess { inner, ..input }.into(), ConstPropOutput { value: None, changed: output.changed })
     }
 
     fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
-        let (tuple, value_opt) = self.reconstruct_expression(input.tuple);
-        if let Some(Value::Tuple(tuple)) = value_opt {
-            let value_result = tuple.get(input.index.value()).expect("Type checking checked bounds.");
-            (
-                value_to_expression(value_result, span, &self.state.node_builder).expect(VALUE_ERROR),
-                Some(value_result.clone()),
-            )
+        let id = input.id();
+        let (tuple, output) = self.reconstruct_expression(input.tuple);
+        if let Some(LeoValue::Tuple(tuple)) = output.value {
+            let ty = self.state.type_table.get(&id).expect("Type should exist");
+            let result_plaintext = tuple.get(input.index.value()).expect("Type checking checked bounds.");
+            let value_result: LeoValue = result_plaintext.clone().into();
+            (self.value_to_expression(&value_result, span, &ty).expect(VALUE_ERROR), ConstPropOutput {
+                value: Some(value_result),
+                changed: true,
+            })
         } else {
-            (TupleAccess { tuple, ..input }.into(), None)
+            (TupleAccess { tuple, ..input }.into(), ConstPropOutput { value: None, changed: output.changed })
         }
     }
 
     fn reconstruct_array(&mut self, mut input: leo_ast::ArrayExpression) -> (Expression, Self::AdditionalOutput) {
-        let mut values = Vec::new();
+        let mut plaintexts = Vec::with_capacity(input.elements.len());
+        let mut changed = false;
         input.elements.iter_mut().for_each(|element| {
-            let (new_element, value_opt) = self.reconstruct_expression(std::mem::take(element));
-            if let Some(value) = value_opt {
-                values.push(value);
+            let (new_element, output) = self.reconstruct_expression(std::mem::take(element));
+            if let Some(plaintext) = output.value.and_then(|val| val.try_into().ok()) {
+                plaintexts.push(plaintext);
             }
+            changed |= output.changed;
             *element = new_element;
         });
-        if values.len() == input.elements.len() {
-            (input.into(), Some(Value::Array(values)))
-        } else {
-            (input.into(), None)
-        }
+
+        let value = (plaintexts.len() == input.elements.len())
+            .then_some(Plaintext::Array(plaintexts, Default::default()).into());
+
+        (input.into(), ConstPropOutput { value, changed })
     }
 
     fn reconstruct_binary(&mut self, input: leo_ast::BinaryExpression) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
+        let id = input.id();
 
-        let (left, lhs_opt_value) = self.reconstruct_expression(input.left);
-        let (right, rhs_opt_value) = self.reconstruct_expression(input.right);
+        let (left, output_left) = self.reconstruct_expression(input.left);
+        let (right, output_right) = self.reconstruct_expression(input.right);
 
-        if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
+        if let (Some(lhs_value), Some(rhs_value)) = (output_left.value, output_right.value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
             match interpreter_value::evaluate_binary(span, input.op, &lhs_value, &rhs_value) {
                 Ok(new_value) => {
-                    let new_expr = value_to_expression(&new_value, span, &self.state.node_builder).expect(VALUE_ERROR);
-                    return (new_expr, Some(new_value));
+                    let ty = self.state.type_table.get(&id).expect("Type should exist");
+                    let new_expr = self.value_to_expression(&new_value, span, &ty).expect(VALUE_ERROR);
+                    return (new_expr, ConstPropOutput { value: Some(new_value), changed: true });
                 }
                 Err(err) => self
                     .emit_err(StaticAnalyzerError::compile_time_binary_op(lhs_value, rhs_value, input.op, err, span)),
             }
         }
 
-        (BinaryExpression { left, right, ..input }.into(), None)
+        (BinaryExpression { left, right, ..input }.into(), ConstPropOutput {
+            value: None,
+            changed: output_left.changed | output_right.changed,
+        })
     }
 
     fn reconstruct_call(&mut self, mut input: leo_ast::CallExpression) -> (Expression, Self::AdditionalOutput) {
-        input.const_arguments.iter_mut().for_each(|arg| {
-            *arg = self.reconstruct_expression(std::mem::take(arg)).0;
-        });
+        let mut changed = false;
         input.arguments.iter_mut().for_each(|arg| {
-            *arg = self.reconstruct_expression(std::mem::take(arg)).0;
+            let (expr, output) = self.reconstruct_expression(std::mem::take(arg));
+            changed |= output.changed;
+            *arg = expr
         });
-        (input.into(), Default::default())
+        (input.into(), ConstPropOutput { value: None, changed })
     }
 
     fn reconstruct_cast(&mut self, input: leo_ast::CastExpression) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
+        let id = input.id();
 
-        let (expr, opt_value) = self.reconstruct_expression(input.expression);
+        let (expr, output) = self.reconstruct_expression(input.expression);
 
-        if let Some(value) = opt_value {
+        if let Some(value) = output.value {
             if let Some(cast_value) = value.cast(&input.type_) {
-                let expr = value_to_expression(&cast_value, span, &self.state.node_builder).expect(VALUE_ERROR);
-                return (expr, Some(cast_value));
+                let ty = self.state.type_table.get(&id).expect("Type should exist");
+                let expr = self.value_to_expression(&cast_value, span, &ty).expect(VALUE_ERROR);
+                return (expr, ConstPropOutput { value: Some(cast_value), changed: true });
             } else {
                 self.emit_err(StaticAnalyzerError::compile_time_cast(value, &input.type_, span));
             }
         }
-        (CastExpression { expression: expr, ..input }.into(), None)
+        (CastExpression { expression: expr, ..input }.into(), ConstPropOutput { value: None, changed: output.changed })
     }
 
     fn reconstruct_err(&mut self, _input: leo_ast::ErrExpression) -> (Expression, Self::AdditionalOutput) {
@@ -324,19 +353,17 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_identifier(&mut self, input: leo_ast::Identifier) -> (Expression, Self::AdditionalOutput) {
         // Substitute the identifier with the constant value if it is a constant that's been evaluated.
         if let Some(expression) = self.state.symbol_table.lookup_const(self.program, input.name) {
-            let (expression, opt_value) = self.reconstruct_expression(expression);
-            if opt_value.is_some() {
-                return (expression, opt_value);
-            }
+            let (expression, output) = self.reconstruct_expression(expression);
+            (expression, ConstPropOutput { value: output.value, changed: true })
+        } else {
+            (input.into(), Default::default())
         }
-
-        (input.into(), None)
     }
 
     fn reconstruct_literal(&mut self, input: leo_ast::Literal) -> (Expression, Self::AdditionalOutput) {
         let value =
             interpreter_value::literal_to_value(&input, &self.state.type_table.get(&input.id())).expect("Should work");
-        (input.into(), Some(value))
+        (input.into(), ConstPropOutput { value: Some(value), changed: false })
     }
 
     fn reconstruct_locator(&mut self, input: leo_ast::LocatorExpression) -> (Expression, Self::AdditionalOutput) {
@@ -344,38 +371,41 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_tuple(&mut self, mut input: leo_ast::TupleExpression) -> (Expression, Self::AdditionalOutput) {
-        let mut values = Vec::with_capacity(input.elements.len());
+        let mut changed = false;
+        let mut plaintexts = Vec::with_capacity(input.elements.len());
         for expr in input.elements.iter_mut() {
-            let (new_expr, opt_value) = self.reconstruct_expression(std::mem::take(expr));
+            let (new_expr, output) = self.reconstruct_expression(std::mem::take(expr));
             *expr = new_expr;
-            if let Some(value) = opt_value {
-                values.push(value);
+            if let Some(plaintext) = output.value.and_then(|val| val.try_into().ok()) {
+                plaintexts.push(plaintext);
             }
+            changed |= output.changed;
         }
 
-        let opt_value = if values.len() == input.elements.len() { Some(Value::Tuple(values)) } else { None };
+        let opt_value = (plaintexts.len() == input.elements.len()).then_some(LeoValue::Tuple(plaintexts));
 
-        (input.into(), opt_value)
+        (input.into(), ConstPropOutput { value: opt_value, changed })
     }
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (receiver, opt_value) = self.reconstruct_expression(input.receiver);
+        let ty = self.state.type_table.get(&input.id()).expect("Type should exist");
         let span = input.span;
+        let (receiver, output) = self.reconstruct_expression(input.receiver);
 
-        if let Some(value) = opt_value {
+        if let Some(value) = output.value {
             // We were able to evaluate the operand, so we can evaluate the expression.
             match interpreter_value::evaluate_unary(span, input.op, &value) {
                 Ok(new_value) => {
-                    let new_expr = value_to_expression(&new_value, span, &self.state.node_builder).expect(VALUE_ERROR);
-                    return (new_expr, Some(new_value));
+                    let new_expr = self.value_to_expression(&new_value, span, &ty).expect(VALUE_ERROR);
+                    return (new_expr, ConstPropOutput { value: Some(new_value), changed: true });
                 }
                 Err(err) => self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span)),
             }
         }
-        (UnaryExpression { receiver, ..input }.into(), None)
+        (UnaryExpression { receiver, ..input }.into(), ConstPropOutput { value: None, changed: output.changed })
     }
 
     fn reconstruct_unit(&mut self, input: leo_ast::UnitExpression) -> (Expression, Self::AdditionalOutput) {
-        (input.into(), None)
+        (input.into(), Default::default())
     }
 }

@@ -1,9 +1,9 @@
-Error [ESAZ0374007]: Binary operation `1i32 / 0i32` failed at compile time: div overflow.
+Error [ESAZ0374007]: Binary operation `1i32 / 0i32` failed at compile time: overflow.
     --> compiler-test:3:20
      |
    3 |     const A: i32 = 1i32 / 0i32;
      |                    ^^^^^^^^^^^
-Error [ESAZ0374007]: Binary operation `255u8 + 1u8` failed at compile time: add overflow.
+Error [ESAZ0374007]: Binary operation `255u8 + 1u8` failed at compile time: overflow.
     --> compiler-test:5:19
      |
    5 |     const B: u8 = 255u8 + 1u8;

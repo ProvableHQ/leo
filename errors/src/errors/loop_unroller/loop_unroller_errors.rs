@@ -37,4 +37,11 @@ create_messages!(
         msg: format!("The array index must be constant."),
         help: None,
     }
+
+    @formatted
+    invalid_loop_bound {
+        args: (bound: impl std::fmt::Display),
+        msg: format!("Invalid loop bound {bound}."),
+        help: None,
+    }
 );
