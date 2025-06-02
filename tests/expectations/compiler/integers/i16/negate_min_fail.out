@@ -1,12 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function main:
-    input r0 as boolean.private;
-    neg -32768i16 into r1;
-    output r1 as i16.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 function main:

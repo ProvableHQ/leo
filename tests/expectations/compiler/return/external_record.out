@@ -1,0 +1,15 @@
+program test0.aleo;
+
+record R:
+    owner as address.private;
+
+function foo:
+    cast self.signer into r0 as R.record;
+    output r0 as R.record;
+// --- Next Program --- //
+import test0.aleo;
+program test1.aleo;
+
+function bar:
+    input r0 as test0.aleo/R.record;
+    output r0 as test0.aleo/R.record;

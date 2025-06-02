@@ -1,21 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:8:18
-     |
-   8 |     function foo(a: credits) -> u8 {
-     |                  ^^^^^^^^^^
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:12:41
-     |
-  12 |     function boo(a: address, b: u64) -> credits {
-     |                                         ^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
     --> compiler-test:8:18
      |

@@ -1,21 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:5:9
-     |
-   5 |         let str:string = "a a a";
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:5:26
-     |
-   5 |         let str:string = "a a a";
-     |                          ^^^^^^^
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:6:19
-     |
-   6 |         if(str == "b b  b") {
-     |                   ^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372045]: Strings are not yet supported.
     --> compiler-test:5:9
      |

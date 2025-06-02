@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected : -- found '='
-    --> test:4:15
+Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', 'script', '}' -- found '|'
+    --> test:6:5
      |
-   4 |         let x = 1u8;
-     |               ^
+   6 |     |}
+     |     ^

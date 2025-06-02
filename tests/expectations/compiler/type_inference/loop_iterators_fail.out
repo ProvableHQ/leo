@@ -1,0 +1,30 @@
+Error [ETYC0372134]: mismatched types in loop iterator range bounds
+    --> compiler-test:3:18
+     |
+   3 |         for i in 1u8..2u16 {
+     |                  ^^^^^^^^^
+Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
+    --> compiler-test:4:26
+     |
+   4 |             for j: u8 in 0u32..1u32 {
+     |                          ^^^^
+Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
+    --> compiler-test:4:32
+     |
+   4 |             for j: u8 in 0u32..1u32 {
+     |                                ^^^^
+Error [ETYC0372117]: Expected an integer but type `field` was found.
+    --> compiler-test:9:18
+     |
+   9 |         for i in 1field..2scalar {
+     |                  ^^^^^^
+Error [ETYC0372117]: Expected an integer but type `scalar` was found.
+    --> compiler-test:9:26
+     |
+   9 |         for i in 1field..2scalar {
+     |                          ^^^^^^^
+Error [ETYC0372134]: mismatched types in loop iterator range bounds
+    --> compiler-test:9:18
+     |
+   9 |         for i in 1field..2scalar {
+     |                  ^^^^^^^^^^^^^^^

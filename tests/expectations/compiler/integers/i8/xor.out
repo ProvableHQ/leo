@@ -1,13 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function main:
-    input r0 as i8.private;
-    input r1 as i8.private;
-    xor r0 r1 into r2;
-    output r2 as i8.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 function main:

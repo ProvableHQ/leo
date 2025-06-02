@@ -1,28 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-mapping mfield:
-    key as field.public;
-    value as field.public;
-
-mapping mgroup:
-    key as group.public;
-    value as group.public;
-
-mapping mu32:
-    key as u32.public;
-    value as u32.public;
-
-function main:
-    async main into r0;
-    output r0 as test.aleo/main.future;
-
-finalize main:
-    set 3236679066651405816080778725233890125628939339772420925284755583710370794371field into mfield[5790452939377792755765199267124367999665041371398929631131254663397134656511field];
-    set 6108511972326079101406626541757505382902231607391431570208365002437568455742group into mgroup[6245268830463555179812861046132051182013738772733163565331565952498608839676group];
-    set 401375299u32 into mu32[194685703u32];
-
-DCE_DISABLED:
 program test.aleo;
 
 mapping mfield:

@@ -1,6 +1,6 @@
 [package]
 name = "leo-errors"
-version = "2.5.0"
+version = "2.6.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Errors for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -35,9 +35,6 @@ version = "0.6.1"
 
 [dependencies.derivative]
 version = "2.2.0"
-
-[dependencies.reqwest]
-version = "0.12.9"
 
 [dependencies.itertools]
 workspace = true

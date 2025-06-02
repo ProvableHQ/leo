@@ -1,4 +1,3 @@
-DCE_ENABLED:
 program test.aleo;
 
 record Token:
@@ -17,40 +16,6 @@ function mint_token:
     ternary r4 r5.amount r6.amount into r8;
     cast r7 r8 into r9 as Token.record;
     output r9 as Token.record;
-
-function mint_token2:
-    input r0 as address.private;
-    input r1 as u64.private;
-    input r2 as field.private;
-    hash.psd2 r2 into r3 as field;
-    is.eq 7202470996857839225873911078012225723419856133099120809866608931983814353616field r3 into r4;
-    cast r0 r1 into r5 as Token.record;
-    cast r0 0u64 into r6 as Token.record;
-    ternary r4 r5.owner r6.owner into r7;
-    ternary r4 r5.amount r6.amount into r8;
-    cast r7 r8 into r9 as Token.record;
-    output r9 as Token.record;
-
-DCE_DISABLED:
-program test.aleo;
-
-record Token:
-    owner as address.private;
-    amount as u64.private;
-
-function mint_token:
-    input r0 as address.private;
-    input r1 as u64.private;
-    input r2 as field.private;
-    hash.psd2 r2 into r3 as field;
-    is.eq 7202470996857839225873911078012225723419856133099120809866608931983814353616field r3 into r4;
-    cast r0 r1 into r5 as Token.record;
-    not r4 into r6;
-    cast r0 0u64 into r7 as Token.record;
-    ternary r4 r5.owner r7.owner into r8;
-    ternary r4 r5.amount r7.amount into r9;
-    cast r8 r9 into r10 as Token.record;
-    output r10 as Token.record;
 
 function mint_token2:
     input r0 as address.private;

@@ -1,25 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372025]: Cannot reach the following statement.
-    --> compiler-test:5:9
-     |
-   5 |         let double: u32 = x + x;
-     |         ^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Remove the unreachable code.
-Error [ETYC0372025]: Cannot reach the following statement.
-    --> compiler-test:6:9
-     |
-   6 |         return double;
-     |         ^^^^^^^^^^^^^^
-     |
-     = Remove the unreachable code.
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372025]: Cannot reach the following statement.
     --> compiler-test:5:9
      |

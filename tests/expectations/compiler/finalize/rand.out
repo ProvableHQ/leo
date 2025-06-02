@@ -1,4 +1,3 @@
-DCE_ENABLED:
 program test.aleo;
 
 function foo:
@@ -8,28 +7,3 @@ function foo:
 finalize foo:
     rand.chacha into r0 as boolean;
     assert.eq r0 true;
-
-DCE_DISABLED:
-program test.aleo;
-
-function foo:
-    async foo into r0;
-    output r0 as test.aleo/foo.future;
-
-finalize foo:
-    rand.chacha into r0 as address;
-    rand.chacha into r1 as boolean;
-    rand.chacha into r2 as field;
-    rand.chacha into r3 as group;
-    rand.chacha into r4 as i8;
-    rand.chacha into r5 as i16;
-    rand.chacha into r6 as i32;
-    rand.chacha into r7 as i64;
-    rand.chacha into r8 as i128;
-    rand.chacha into r9 as scalar;
-    rand.chacha into r10 as u8;
-    rand.chacha into r11 as u16;
-    rand.chacha into r12 as u32;
-    rand.chacha into r13 as u64;
-    rand.chacha into r14 as u128;
-    assert.eq r1 true;

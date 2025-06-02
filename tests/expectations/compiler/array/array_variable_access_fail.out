@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ECMP0376009]: This array index could not be determined at compile time.
-    --> compiler-test:4:18
-     |
-   4 |         return a[index];
-     |                  ^^^^^
-
-DCE_DISABLED:
 Error [ECMP0376009]: This array index could not be determined at compile time.
     --> compiler-test:4:18
      |

@@ -1,13 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372102]: External transition calls cannot be made after local async function call
-    --> compiler-test:8:9
-     |
-   8 |         child.aleo/t();
-     |         ^^^^^^^^^^^^^^
-     |
-     = Move the async function call before the transition call.
-
-DCE_DISABLED:
 Error [ETYC0372102]: External transition calls cannot be made after local async function call
     --> compiler-test:8:9
      |

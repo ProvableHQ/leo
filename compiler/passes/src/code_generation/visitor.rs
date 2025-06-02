@@ -19,7 +19,7 @@ use crate::CompilerState;
 use leo_ast::{Function, Program, ProgramId, Variant};
 use leo_span::Symbol;
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 
 pub struct CodeGeneratingVisitor<'a> {
     pub state: &'a CompilerState,
@@ -47,4 +47,14 @@ pub struct CodeGeneratingVisitor<'a> {
     pub next_label: u64,
     /// The depth of the current conditional block.
     pub conditional_depth: u64,
+    /// Internal record input registers of the current function.
+    /// This is necessary as if we output them, we need to clone them.
+    pub internal_record_inputs: IndexSet<String>,
+}
+
+impl CodeGeneratingVisitor<'_> {
+    pub fn next_register(&mut self) -> String {
+        self.next_register += 1;
+        format!("r{}", self.next_register - 1)
+    }
 }

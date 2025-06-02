@@ -1,16 +1,3 @@
-DCE_ENABLED:
-Error [EAST0372009]: variable `m` shadowed by
-    --> compiler-test:6:13
-     |
-   6 |         let m: u8 = 1u8;
-     |             ^
-Error [ETYC0372117]: Expected type `u8` but type `(u8 => u8)` was found.
-    --> compiler-test:7:16
-     |
-   7 |         return m;
-     |                ^
-
-DCE_DISABLED:
 Error [EAST0372009]: variable `m` shadowed by
     --> compiler-test:6:13
      |

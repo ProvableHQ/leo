@@ -1,12 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function main:
-    input r0 as boolean.private;
-    neg -170141183460469231731687303715884105728i128 into r1;
-    output r1 as i128.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 function main:

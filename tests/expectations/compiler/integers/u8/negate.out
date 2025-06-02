@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
-    --> compiler-test:4:17
-     |
-   4 |         return -a;
-     |                 ^
-
-DCE_DISABLED:
 Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
     --> compiler-test:4:17
      |

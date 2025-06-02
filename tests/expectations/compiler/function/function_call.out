@@ -1,4 +1,3 @@
-DCE_ENABLED:
 program test.aleo;
 
 closure adder:
@@ -21,28 +20,3 @@ function main:
     call subber r0 r1 into r4;
     ternary r2 r3 r4 into r5;
     output r5 as u32.private;
-
-DCE_DISABLED:
-program test.aleo;
-
-closure adder:
-    input r0 as u32;
-    input r1 as u32;
-    add r0 r1 into r2;
-    output r2 as u32;
-
-closure subber:
-    input r0 as u32;
-    input r1 as u32;
-    sub r0 r1 into r2;
-    output r2 as u32;
-
-function main:
-    input r0 as u32.private;
-    input r1 as u32.private;
-    input r2 as boolean.private;
-    call adder r0 r1 into r3;
-    not r2 into r4;
-    call subber r0 r1 into r5;
-    ternary r2 r3 r5 into r6;
-    output r6 as u32.private;

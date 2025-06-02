@@ -1152,7 +1152,10 @@ impl TypeCheckingVisitor<'_> {
         let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(name));
         // Record the usage.
         if let Some(s) = comp {
-            self.used_structs.insert(s.identifier.name);
+            // If it's a struct or internal record, mark it used.
+            if !s.is_record || program == self.scope_state.program_name {
+                self.used_structs.insert(s.identifier.name);
+            }
         }
         comp.cloned()
     }
@@ -1198,8 +1201,21 @@ impl TypeCheckingVisitor<'_> {
         // Check that the function context matches.
         if self.scope_state.variant == Some(Variant::AsyncFunction) && !finalize_op {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span))
-        } else if self.scope_state.variant != Some(Variant::AsyncFunction) && finalize_op {
+        } else if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
+            && finalize_op
+        {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
+        }
+    }
+
+    pub fn is_external_record(&self, ty: &Type) -> bool {
+        if let Type::Composite(typ) = &ty {
+            let this_program = self.scope_state.program_name.unwrap();
+            let program = typ.program.unwrap_or(this_program);
+            program != this_program
+                && self.state.symbol_table.lookup_record(Location::new(program, typ.id.name)).is_some()
+        } else {
+            false
         }
     }
 }

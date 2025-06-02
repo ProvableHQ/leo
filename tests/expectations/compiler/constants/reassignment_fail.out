@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372002]: Cannot assign to const variable `HELLO`
-    --> compiler-test:3:11
-     |
-   3 |     const HELLO: u8 = 0u8;
-     |           ^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372002]: Cannot assign to const variable `HELLO`
     --> compiler-test:3:11
      |

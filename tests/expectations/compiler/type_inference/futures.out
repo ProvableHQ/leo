@@ -1,0 +1,38 @@
+program child.aleo;
+
+function foo:
+    async foo into r0;
+    output r0 as child.aleo/foo.future;
+
+finalize foo:
+    assert.eq true true;
+
+function bar:
+    async bar into r0;
+    output r0 as child.aleo/bar.future;
+
+finalize bar:
+    assert.eq true true;
+// --- Next Program --- //
+import child.aleo;
+program type_inference.aleo;
+
+function t1:
+    call child.aleo/foo into r0;
+    async t1 r0 into r1;
+    output 42u64 as u64.private;
+    output r1 as type_inference.aleo/t1.future;
+
+finalize t1:
+    input r0 as child.aleo/foo.future;
+    await r0;
+
+function t2:
+    call child.aleo/bar into r0;
+    async t2 r0 into r1;
+    output 99u64 as u64.private;
+    output r1 as type_inference.aleo/t2.future;
+
+finalize t2:
+    input r0 as child.aleo/bar.future;
+    await r0;

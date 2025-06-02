@@ -1,4 +1,3 @@
-DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -10,17 +9,3 @@ function main:
     ternary r2 r3 r4 into r5;
     ternary r2 r3 r5 into r6;
     output r6 as u8.private;
-
-DCE_DISABLED:
-program test.aleo;
-
-function main:
-    input r0 as u8.private;
-    input r1 as u8.private;
-    is.eq r0 0u8 into r2;
-    add r1 1u8 into r3;
-    not r2 into r4;
-    add r1 2u8 into r5;
-    ternary r2 r3 r5 into r6;
-    ternary r2 r3 r6 into r7;
-    output r7 as u8.private;

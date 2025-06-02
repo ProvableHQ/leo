@@ -1,18 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-mapping Yo:
-    key as address.public;
-    value as u32.public;
-
-function main:
-    input r0 as address.private;
-    assert.eq r0 self.caller;
-    assert.eq r0 test.aleo;
-    assert.eq r0 hello.aleo;
-    output foo.aleo as address.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 mapping Yo:

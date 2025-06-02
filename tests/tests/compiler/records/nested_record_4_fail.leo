@@ -6,10 +6,10 @@ program test.aleo {
     }
 
     struct Bar {
-        bar: (Token, Token),
+        bar: (Token2, Token2),
     }
 
-    record Token {
+    record Token2 {
         owner: address,
         amount: u64,
     }

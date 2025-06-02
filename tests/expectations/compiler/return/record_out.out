@@ -1,0 +1,9 @@
+program test.aleo;
+
+record R:
+    owner as address.private;
+
+function foo:
+    input r0 as R.record;
+    cast r0.owner into r1 as R.record;
+    output r1 as R.record;

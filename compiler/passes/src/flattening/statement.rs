@@ -303,7 +303,7 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
                 (
                     DefinitionStatement {
                         place: DefinitionPlace::Multiple(identifiers),
-                        type_: Type::Err,
+                        type_: None,
                         value,
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),

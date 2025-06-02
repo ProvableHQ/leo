@@ -1,6 +1,6 @@
 [package]
 name = "leo-package"
-version = "2.5.0"
+version = "2.6.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Package parser for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -17,9 +17,6 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 rust-version = "1.85.1"
-
-[dependencies.leo-disassembler]
-workspace = true
 
 [dependencies.leo-errors]
 workspace = true

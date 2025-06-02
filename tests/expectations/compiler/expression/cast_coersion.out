@@ -1,4 +1,3 @@
-DCE_ENABLED:
 program test.aleo;
 
 struct foo:
@@ -19,26 +18,3 @@ function main:
     cast r10 into r11 as foo;
     output r9 as foo.private;
     output r11 as foo.private;
-
-DCE_DISABLED:
-program test.aleo;
-
-struct foo:
-    data as field;
-
-function main:
-    input r0 as boolean.private;
-    input r1 as group.private;
-    input r2 as address.private;
-    cast r1 into r3 as field;
-    cast r3 into r4 as foo;
-    cast 1field into r5 as foo;
-    not r0 into r6;
-    cast r2 into r7 as field;
-    cast r7 into r8 as foo;
-    ternary r0 r4.data r4.data into r9;
-    cast r9 into r10 as foo;
-    ternary r0 r5.data r8.data into r11;
-    cast r11 into r12 as foo;
-    output r10 as foo.private;
-    output r12 as foo.private;

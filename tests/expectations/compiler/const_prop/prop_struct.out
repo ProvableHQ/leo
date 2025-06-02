@@ -1,14 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-struct S:
-    x as u8;
-    y as u8;
-
-function main:
-    output 1u8 as u8.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 struct S:

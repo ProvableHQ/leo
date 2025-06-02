@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372034]: `block.height` must be inside an async function block.
-    --> compiler-test:4:33
-     |
-   4 |         assert_eq(height, block.height);
-     |                                 ^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372034]: `block.height` must be inside an async function block.
     --> compiler-test:4:33
      |

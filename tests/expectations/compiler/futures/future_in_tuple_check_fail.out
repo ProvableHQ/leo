@@ -1,13 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372104]: Not all futures were consumed: result2
-    --> compiler-test:9:27
-     |
-   9 |         return (result.0, finish(result.1));
-     |                           ^^^^^^^^^^^^^^^^
-     |
-     = Make sure all futures are consumed exactly once. Consume by passing to an async function call.
-
-DCE_DISABLED:
 Error [ETYC0372104]: Not all futures were consumed: result2
     --> compiler-test:9:27
      |

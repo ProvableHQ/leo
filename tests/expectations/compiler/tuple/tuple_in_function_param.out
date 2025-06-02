@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372051]: A function cannot take in a tuple as input.
-    --> compiler-test:3:20
-     |
-   3 |     transition foo(a: (u8, u16)) -> (u8, u16) {
-     |                    ^^^^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372051]: A function cannot take in a tuple as input.
     --> compiler-test:3:20
      |

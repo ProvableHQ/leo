@@ -1,0 +1,7 @@
+Error [ETYC0372130]: Cannot apply ternary conditional to type `test0.aleo/R`.
+    --> compiler-test:11:16
+     |
+  11 |         return x ? r1 : r2;
+     |                ^^^^^^^^^^^
+     |
+     = Ternary conditionals may not contain an external record type.

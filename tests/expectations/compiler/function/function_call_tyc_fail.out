@@ -1,21 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372003]: Expected type `i8` but type `u8` was found
-    --> compiler-test:15:13
-     |
-  15 |         x = f1(1u8);
-     |             ^^^^^^^
-Error [ETYC0372003]: Expected type `i8` but type `u8` was found
-    --> compiler-test:19:13
-     |
-  19 |         y = f3(y, z);
-     |             ^^^^^^^^
-Error [ETYC0372117]: Expected type `u8` but type `i8` was found.
-    --> compiler-test:19:16
-     |
-  19 |         y = f3(y, z);
-     |                ^
-
-DCE_DISABLED:
 Error [ETYC0372003]: Expected type `i8` but type `u8` was found
     --> compiler-test:15:13
      |

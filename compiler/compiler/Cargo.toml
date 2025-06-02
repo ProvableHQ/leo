@@ -1,6 +1,6 @@
 [package]
 name = "leo-compiler"
-version = "2.5.0"
+version = "2.6.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Compiler for Leo programming language"
 homepage = "https://leo-lang.org"
@@ -37,8 +37,7 @@ workspace = true
 workspace = true
 
 [dependencies.aleo-std-storage]
-version = "0.1.7"
-default-features = false
+workspace = true
 
 [dependencies.rand_chacha]
 workspace = true
@@ -58,9 +57,6 @@ workspace = true
 [dev-dependencies.leo-disassembler]
 path = "../../utils/disassembler"
 
-[dev-dependencies.leo-package]
-workspace = true
-
 [dev-dependencies.leo-test-framework]
 workspace = true
 
@@ -71,9 +67,6 @@ workspace = true
 workspace = true
 
 [dev-dependencies.serde]
-workspace = true
-
-[dev-dependencies.toml]
 workspace = true
 
 [dev-dependencies.regex]

@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372005]: Unknown variable `foo`
-    --> compiler-test:9:35
-     |
-   9 |         let a:bool = Mapping::get(registry.aleo/foo, addr);
-     |                                   ^^^^^^^^^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372005]: Unknown variable `foo`
     --> compiler-test:9:35
      |
