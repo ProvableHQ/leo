@@ -192,7 +192,7 @@ fn compile_leo_file<N: Network>(
 
     tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
     tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
-    tracing::info!("    The program checksum is: '[{checksum_string}]'.");
+    tracing::info!("    The program checksum is: '[{checksum_string}]'.\n");
 
     tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
     Ok(bytecode)
