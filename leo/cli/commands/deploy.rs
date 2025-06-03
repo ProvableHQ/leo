@@ -292,8 +292,8 @@ fn confirm_upgrade_mechanism<N: Network>(program: &Program<N>, upgrade: &Upgrade
         UpgradeConfig::Admin { address } => {
             println!(
                 "ANYONE with access to the private key for '{}' can upgrade '{}'.",
+                address.to_string().bold(),
                 program.id().to_string().bold(),
-                address.to_string().bold()
             );
             println!("You MUST ensure that the key is securely stored and operated.");
         }
@@ -324,8 +324,8 @@ fn confirm_upgrade_mechanism<N: Network>(program: &Program<N>, upgrade: &Upgrade
 /// The following properties are checked:
 /// - If the transaction is to be broadcast:
 ///     - The program does not exist on the network.
-///     - If the consensus version is less than V7, the program does not use V7 features.
-///     - If the consensus version is V7 or greater, the program contains a constructor.
+///     - If the consensus version is less than V8, the program does not use V8 features.
+///     - If the consensus version is V8 or greater, the program contains a constructor.
 fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
