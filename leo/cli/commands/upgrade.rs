@@ -331,12 +331,12 @@ fn check_tasks_for_warnings<N: Network>(
             ));
         }
 
-        // Check if the program uses V7 features.
-        if consensus_version < ConsensusVersion::V7 && program.contains_v7_syntax() {
-            warnings.push(format!("The program '{}' uses V7 features but the consensus version is less than V7. The deployment will likely fail", program_id));
+        // Check if the program uses V8 features.
+        if consensus_version < ConsensusVersion::V8 && program.contains_v8_syntax() {
+            warnings.push(format!("The program '{}' uses V8 features but the consensus version is less than V8. The deployment will likely fail", program_id));
         }
         // Check if the program contains a constructor.
-        if consensus_version >= ConsensusVersion::V7 && !program.contains_constructor() {
+        if consensus_version >= ConsensusVersion::V8 && !program.contains_constructor() {
             warnings.push(format!(
                 "The program '{}' does not contain a constructor. The deployment will likely fail",
                 program_id
