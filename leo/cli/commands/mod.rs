@@ -45,9 +45,6 @@ pub use query::LeoQuery;
 mod new;
 pub use new::LeoNew;
 
-// mod node;
-// pub use node::Node;
-
 mod remove;
 pub use remove::LeoRemove;
 

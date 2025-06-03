@@ -22,7 +22,7 @@ use leo_errors::{CliError, UtilError};
 use leo_package::{Manifest, NetworkName, Package, UpgradeConfig};
 use leo_span::Symbol;
 
-use snarkvm::prelude::{MainnetV0, Network, TestnetV0};
+use snarkvm::prelude::{Itertools, MainnetV0, Network, Program, TestnetV0};
 
 use indexmap::IndexMap;
 use snarkvm::prelude::CanaryV0;
@@ -185,8 +185,14 @@ fn compile_leo_file<N: Network>(
     // Compile the Leo program into Aleo instructions.
     let bytecode = compiler.compile_from_file(source_file_path)?;
 
+    // Get the AVM bytecode.
+    let program = Program::<N>::from_str(&bytecode)?;
+    let checksum = program.to_checksum();
+    let checksum_string = checksum.iter().join(", ");
+
     tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
     tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
+    tracing::info!("    The program checksum is: '[{checksum_string}]'.");
 
     tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
     Ok(bytecode)

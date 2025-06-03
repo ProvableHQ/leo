@@ -41,6 +41,7 @@ pub fn get_public_balance<N: Network>(
         command: QueryCommands::Program {
             command: LeoProgram {
                 name: "credits".to_string(),
+                edition: None,
                 mappings: false,
                 mapping_value: Some(vec!["account".to_string(), address.to_string()]),
             },
