@@ -1,12 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function foo:
-
-constructor:
-    assert.eq edition 0u16;
-
-DCE_DISABLED:
 program test.aleo;
 
 function foo:

@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-DCE_ENABLED:
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:5:9
-     |
-   5 |         let str:string = "a a a";
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^
-
-DCE_DISABLED:
-=======
->>>>>>> feat/cli-improvements
 Error [ETYC0372045]: Strings are not yet supported.
     --> compiler-test:5:9
      |

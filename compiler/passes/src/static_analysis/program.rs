@@ -36,7 +36,7 @@ impl<N: Network> ProgramVisitor for StaticAnalyzingVisitor<'_, N> {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
                 "An upgrade configuration was provided, but no constructor was found.",
                 Option::<String>::None,
-                input.span,
+                input.program_id.name.span,
             ));
         }
     }

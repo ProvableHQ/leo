@@ -190,10 +190,10 @@ fn compile_leo_file<N: Network>(
     let checksum = program.to_checksum();
     let checksum_string = checksum.iter().join(", ");
 
-    tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
+    tracing::info!("    \n{} statements before dead code elimination.", compiler.statements_before_dce);
     tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
-    tracing::info!("    The program checksum is: '[{checksum_string}]'.\n");
+    tracing::info!("    The program checksum is: '[{checksum_string}]'.");
 
-    tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
+    tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions.");
     Ok(bytecode)
 }

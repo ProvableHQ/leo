@@ -1,12 +1,4 @@
-DCE_ENABLED:
-Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', '}' -- found 'constructor'
-    --> compiler-test:8:5
-     |
-   8 |     constructor() {
-     |     ^^^^^^^^^^^
-
-DCE_DISABLED:
-Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', '}' -- found 'constructor'
+Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', 'script', '}' -- found 'constructor'
     --> compiler-test:8:5
      |
    8 |     constructor() {
