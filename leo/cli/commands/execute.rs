@@ -80,8 +80,8 @@ impl Command for LeoExecute {
         // Get the path to the home directory.
         let home_path = context.home()?;
         // If the current directory is a valid Leo package, then build it.
-        if let Ok(package) = Package::from_directory_no_graph(path, home_path) {
-            LeoBuild {
+        if Package::from_directory_no_graph(path, home_path).is_ok() {
+            let package = LeoBuild {
                 env_override: self.env_override.clone(),
                 options: {
                     let mut options = self.build_options.clone();
@@ -447,13 +447,6 @@ fn print_execution_stats<N: Network>(
     // ── Header ────────────────────────────────────────────────────────────
     println!("\n{} {}", "📊 Execution Summary for".bold(), program_name.bold());
     println!("{}", "──────────────────────────────────────────────".dimmed());
-
-    // ── Outputs ───────────────────────────────────────────────────────────
-    println!("{}", "➡️ Outputs".bold());
-    println!("{}", "──────────────────────────────────────────────".dimmed());
-    for (i, output) in execution.peek().expect("Expected top-level transition").outputs().iter().enumerate() {
-        println!("  {:2} {}", format!("(#{})", i + 1), output);
-    }
 
     // ── Cost breakdown ────────────────────────────────────────────────────
     println!("{}", "💰 Cost Breakdown (credits)".bold());
