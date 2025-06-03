@@ -63,6 +63,7 @@
               },
               "id": 4
             },
+            "const_parameters": [],
             "input": [],
             "output": [
               {
@@ -121,6 +122,7 @@
                             "id": 7
                           }
                         },
+                        "const_arguments": [],
                         "arguments": [
                           {
                             "Literal": {
@@ -214,6 +216,7 @@
               },
               "id": 16
             },
+            "const_parameters": [],
             "input": [
               {
                 "identifier": {

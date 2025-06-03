@@ -38,6 +38,7 @@
               },
               "id": 2
             },
+            "const_parameters": [],
             "input": [
               {
                 "identifier": {

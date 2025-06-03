@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, ConstPropagation, Pass, Unrolling};
+use crate::{CompilerState, ConstPropagation, Monomorphization, Pass, Unrolling};
 
 use leo_errors::{CompilerError, Result};
 
@@ -35,7 +35,12 @@ impl Pass for ConstPropagationAndUnrolling {
 
             let const_prop_output = ConstPropagation::do_pass((), state)?;
 
-            if !const_prop_output.changed && !loop_unroll_output.loop_unrolled {
+            let monomorphization_output = Monomorphization::do_pass((), state)?;
+
+            if !const_prop_output.changed
+                && !loop_unroll_output.loop_unrolled
+                && !monomorphization_output.resolved_some_calls
+            {
                 // We've got a fixed point, so see if we have any errors.
                 if let Some(not_evaluated_span) = const_prop_output.const_not_evaluated {
                     return Err(CompilerError::const_not_evaluated(not_evaluated_span).into());
@@ -44,6 +49,27 @@ impl Pass for ConstPropagationAndUnrolling {
                 if let Some(not_evaluated_span) = const_prop_output.array_index_not_evaluated {
                     return Err(CompilerError::array_index_not_evaluated(not_evaluated_span).into());
                 }
+
+                // Emit errors for all problematic calls
+                for call in &monomorphization_output.unresolved_calls {
+                    let callee_name = match call.function {
+                        leo_ast::Expression::Identifier(ref ident) => ident.name,
+                        _ => panic!("Parser ensures `function` is always an identifier."),
+                    };
+
+                    if let Some(arg) =
+                        call.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
+                    {
+                        state.handler.emit_err(CompilerError::call_to_generic_function_not_resolved(
+                            callee_name,
+                            arg,
+                            call.span,
+                        ));
+                    }
+                }
+
+                // Exit with the handler's last error.
+                state.handler.last_err().map_err(|e| *e)?;
 
                 if let Some(not_unrolled_span) = loop_unroll_output.loop_not_unrolled {
                     return Err(CompilerError::loop_bounds_not_evaluated(not_unrolled_span).into());

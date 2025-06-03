@@ -443,6 +443,7 @@ impl<N: Network> ParserContext<'_, N> {
             span: expr.span() + span,
             function: name.into(),
             program: Some(program.name),
+            const_arguments: vec![], // we do not expect const arguments for external calls at this time
             arguments,
             id: self.node_builder.next_id(),
         }
@@ -517,8 +518,34 @@ impl<N: Network> ParserContext<'_, N> {
                     }
                 }
             } else if self.eat(&Token::DoubleColon) {
-                // Eat a core associated constant or core associated function call.
-                expr = self.parse_associated_access_expression(expr)?;
+                // If we see a `::`, then we either expect a core associated expression or a list of const arguments in
+                // square brackets.
+                if self.check(&Token::LeftSquare) {
+                    // Check that the expression is an identifier.
+                    if !matches!(expr, Expression::Identifier(_)) {
+                        self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()))
+                    }
+
+                    // Parse a list of const arguments in between `[..]`
+                    let const_arguments = self.parse_bracket_comma_list(|p| p.parse_expression().map(Some))?.0;
+
+                    // Parse a list of input arguments in between `(..)`
+                    let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+
+                    // Now form a `CallExpression`
+                    expr = CallExpression {
+                        span: expr.span() + span,
+                        function: expr,
+                        program: self.program_name,
+                        const_arguments,
+                        arguments,
+                        id: self.node_builder.next_id(),
+                    }
+                    .into()
+                } else {
+                    // Eat a core associated constant or core associated function call.
+                    expr = self.parse_associated_access_expression(expr)?;
+                }
             } else if self.eat(&Token::LeftSquare) {
                 // Eat an array access.
                 let index = self.parse_expression()?;
@@ -538,6 +565,7 @@ impl<N: Network> ParserContext<'_, N> {
                     span: expr.span() + span,
                     function: expr,
                     program: self.program_name,
+                    const_arguments: vec![],
                     arguments,
                     id: self.node_builder.next_id(),
                 }

@@ -355,6 +355,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         self.in_conditional_scope(|slf| {
             slf.in_scope(function.id, |slf| {
+                function
+                    .const_parameters
+                    .iter()
+                    .for_each(|const_param| slf.insert_symbol_conditional_scope(const_param.identifier.name));
+
                 function.input.iter().for_each(|input| slf.insert_symbol_conditional_scope(input.identifier.name));
 
                 // The function's body does not have a return statement.

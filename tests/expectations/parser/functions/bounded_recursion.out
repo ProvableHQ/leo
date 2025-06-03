@@ -38,6 +38,7 @@
               },
               "id": 2
             },
+            "const_parameters": [],
             "input": [
               {
                 "identifier": {
@@ -130,6 +131,7 @@
                                     "id": 9
                                   }
                                 },
+                                "const_arguments": [],
                                 "arguments": [
                                   {
                                     "Binary": {
@@ -224,6 +226,7 @@
               },
               "id": 19
             },
+            "const_parameters": [],
             "input": [
               {
                 "identifier": {
@@ -271,6 +274,7 @@
                             "id": 23
                           }
                         },
+                        "const_arguments": [],
                         "arguments": [
                           {
                             "Literal": {

@@ -114,6 +114,11 @@ pub trait ExpressionReconstructor {
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
         (
             CallExpression {
+                const_arguments: input
+                    .const_arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .collect(),
                 arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                 ..input
             }
@@ -359,6 +364,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
             annotations: input.annotations,
             variant: input.variant,
             identifier: input.identifier,
+            const_parameters: input.const_parameters,
             input: input.input,
             output: input.output,
             output_type: input.output_type,

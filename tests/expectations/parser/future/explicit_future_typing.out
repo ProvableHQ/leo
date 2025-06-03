@@ -38,6 +38,7 @@
               },
               "id": 2
             },
+            "const_parameters": [],
             "input": [],
             "output": [
               {
@@ -174,6 +175,7 @@
                             "id": 6
                           }
                         },
+                        "const_arguments": [],
                         "arguments": [],
                         "program": "bye",
                         "span": {
@@ -239,6 +241,7 @@
                             "id": 11
                           }
                         },
+                        "const_arguments": [],
                         "arguments": [],
                         "program": "hello",
                         "span": {
@@ -325,6 +328,7 @@
                             "id": 15
                           }
                         },
+                        "const_arguments": [],
                         "arguments": [
                           {
                             "Literal": {
@@ -438,6 +442,7 @@
               },
               "id": 26
             },
+            "const_parameters": [],
             "input": [
               {
                 "identifier": {

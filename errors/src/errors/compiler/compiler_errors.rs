@@ -112,4 +112,11 @@ create_messages!(
         msg: format!("Failed to write AST to file {filename}: {error}."),
         help: None,
     }
+
+    @formatted
+    call_to_generic_function_not_resolved {
+        args: (func: impl Display, arg: impl Display),
+        msg: format!("Unable to resolve call to generic function `{func}`. A non-const expression `{arg}` was provided where a const generic parameter is required."),
+        help: None,
+    }
 );

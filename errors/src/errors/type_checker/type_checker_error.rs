@@ -1104,4 +1104,37 @@ create_messages!(
         ),
         help: None,
     }
+
+    @formatted
+    incorrect_num_const_args_to_call {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!(
+            "Call expected `{expected}` const args, but got `{received}`",
+        ),
+        help: None,
+    }
+
+    @formatted
+    bad_const_generic_type {
+        args: (found: impl Display),
+        msg: format!("A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but {found} was found"),
+        help: None,
+    }
+
+    /// For when the user tries to assign to a generic const function parameter.
+    @formatted
+    cannot_assign_to_generic_const_function_parameter {
+        args: (param: impl Display),
+        msg: format!(
+            "Cannot assign to const parameter `{param}`",
+        ),
+        help: None,
+    }
+
+    @formatted
+    only_inline_can_have_const_generics {
+        args: (),
+        msg: format!("Only `inline` functions can have generic const parameters."),
+        help: None,
+    }
 );

@@ -1,0 +1,5 @@
+Error [ECMP0376012]: Unable to resolve call to generic function `bar`. A non-const expression `x` was provided where a const generic parameter is required.
+    --> compiler-test:3:16
+     |
+   3 |         return bar::[x]();
+     |                ^^^^^^^^^^

@@ -17,6 +17,9 @@
 mod annotation;
 pub use annotation::*;
 
+mod const_parameter;
+pub use const_parameter::*;
+
 mod core_function;
 pub use core_function::*;
 
@@ -48,6 +51,8 @@ pub struct Function {
     pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
+    /// The function's const parameters.
+    pub const_parameters: Vec<ConstParameter>,
     /// The function's input parameters.
     pub input: Vec<Input>,
     /// The function's output declarations.
@@ -77,6 +82,7 @@ impl Function {
         annotations: Vec<Annotation>,
         variant: Variant,
         identifier: Identifier,
+        const_parameters: Vec<ConstParameter>,
         input: Vec<Input>,
         output: Vec<Output>,
         block: Block,
@@ -89,7 +95,7 @@ impl Function {
             _ => Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
         };
 
-        Function { annotations, variant, identifier, input, output, output_type, block, span, id }
+        Function { annotations, variant, identifier, const_parameters, input, output, output_type, block, span, id }
     }
 
     /// Returns function name.
@@ -104,6 +110,7 @@ impl From<FunctionStub> for Function {
             annotations: function.annotations,
             variant: function.variant,
             identifier: function.identifier,
+            const_parameters: vec![],
             input: function.input,
             output: function.output,
             output_type: function.output_type,
@@ -130,7 +137,12 @@ impl fmt::Display for Function {
             Variant::AsyncTransition => write!(f, "async transition ")?,
             Variant::Script => write!(f, "script ")?,
         }
-        write!(f, "{}({})", self.identifier, self.input.iter().format(", "))?;
+
+        write!(f, "{}", self.identifier)?;
+        if !self.const_parameters.is_empty() {
+            write!(f, "::[{}]", self.const_parameters.iter().format(", "))?;
+        }
+        write!(f, "({})", self.input.iter().format(", "))?;
 
         match self.output.len() {
             0 => {}

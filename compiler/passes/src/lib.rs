@@ -44,6 +44,9 @@ pub use flattening::*;
 mod function_inlining;
 pub use function_inlining::*;
 
+mod monomorphization;
+pub use monomorphization::*;
+
 mod loop_unrolling;
 pub use loop_unrolling::*;
 

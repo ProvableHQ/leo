@@ -1,0 +1,5 @@
+Error [EPAR0370005]: expected ( -- found ';'
+    --> compiler-test:3:37
+     |
+   3 |         return abc::[0]() + abc::[1];
+     |                                     ^
