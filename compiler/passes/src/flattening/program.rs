@@ -73,6 +73,7 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
             annotations: function.annotations,
             variant: function.variant,
             identifier: function.identifier,
+            const_parameters: function.const_parameters,
             input: function.input,
             output: function.output,
             output_type: function.output_type,

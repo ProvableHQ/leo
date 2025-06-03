@@ -288,6 +288,17 @@ impl<N: Network> ParserContext<'_, N> {
         }
     }
 
+    /// Returns a [`ConstParameter`] AST node if the next tokens represent a function input.
+    fn parse_const_parameter(&mut self) -> Result<ConstParameter> {
+        let name = self.expect_identifier()?;
+        self.expect(&Token::Colon)?;
+
+        let (type_, type_span) = self.parse_type()?;
+        let span = name.span() + type_span;
+
+        Ok(ConstParameter { identifier: name, type_, span, id: self.node_builder.next_id() })
+    }
+
     /// Returns an [`Input`] AST node if the next tokens represent a function input.
     fn parse_input(&mut self) -> Result<Input> {
         let mode = self.parse_mode()?;
@@ -387,6 +398,12 @@ impl<N: Network> ParserContext<'_, N> {
         };
         let name = self.expect_identifier()?;
 
+        let const_params = if self.eat(&Token::DoubleColon) {
+            self.parse_bracket_comma_list(|p| p.parse_const_parameter().map(Some))?.0
+        } else {
+            vec![]
+        };
+
         // Parse parameters.
         let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_input().map(Some))?;
 
@@ -420,7 +437,17 @@ impl<N: Network> ParserContext<'_, N> {
 
         Ok((
             name.name,
-            Function::new(annotations, variant, name, inputs, output, block, span, self.node_builder.next_id()),
+            Function::new(
+                annotations,
+                variant,
+                name,
+                const_params,
+                inputs,
+                output,
+                block,
+                span,
+                self.node_builder.next_id(),
+            ),
         ))
     }
 }

@@ -111,6 +111,7 @@
             "id": 1
           }
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {
@@ -272,6 +273,7 @@
             "id": 1
           }
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {
@@ -357,6 +359,7 @@
             "id": 3
           }
         },
+        "const_arguments": [],
         "arguments": [
           {
             "Literal": {
@@ -427,6 +430,7 @@
             "id": 4
           }
         },
+        "const_arguments": [],
         "arguments": [
           {
             "Literal": {
@@ -573,6 +577,7 @@
             "id": 1
           }
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {
@@ -703,6 +708,7 @@
             "id": 1
           }
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {

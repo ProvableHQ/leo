@@ -1,0 +1,9 @@
+program const_generics.aleo;
+
+function foo:
+    async foo into r0;
+    output 0field as field.private;
+    output r0 as const_generics.aleo/foo.future;
+
+finalize foo:
+    assert.eq true true;

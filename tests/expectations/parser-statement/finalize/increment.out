@@ -12,6 +12,7 @@
             "id": 0
           }
         },
+        "const_arguments": [],
         "arguments": [
           {
             "Identifier": {
@@ -74,6 +75,7 @@
             "id": 0
           }
         },
+        "const_arguments": [],
         "arguments": [
           {
             "Identifier": {
@@ -146,6 +148,7 @@
             "id": 0
           }
         },
+        "const_arguments": [],
         "arguments": [
           {
             "Identifier": {
@@ -198,6 +201,7 @@
             "id": 0
           }
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {

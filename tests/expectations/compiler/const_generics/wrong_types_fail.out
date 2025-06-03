@@ -1,0 +1,15 @@
+Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
+    --> compiler-test:3:23
+     |
+   3 |         let x = foo::[5u16]();
+     |                       ^^^^
+Error [ETYC0372140]: Call expected `1` const args, but got `0`
+    --> compiler-test:4:17
+     |
+   4 |         let y = foo::[]();
+     |                 ^^^^^^^^^
+Error [ETYC0372140]: Call expected `1` const args, but got `2`
+    --> compiler-test:5:17
+     |
+   5 |         let z = foo::[5u32, 5u32]();
+     |                 ^^^^^^^^^^^^^^^^^^^

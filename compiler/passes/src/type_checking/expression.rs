@@ -285,6 +285,9 @@ impl TypeCheckingVisitor<'_> {
         // If the variable exists, then check that it is not a constant.
         match &var.declaration {
             VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(input, var.span)),
+            VariableType::ConstParameter => {
+                self.emit_err(TypeCheckerError::cannot_assign_to_generic_const_function_parameter(input, input.span))
+            }
             VariableType::Input(Mode::Constant) => {
                 self.emit_err(TypeCheckerError::cannot_assign_to_const_input(input, var.span))
             }
@@ -902,7 +905,20 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        // Check function argument types.
+        // Check the number of const arguments against the number of the function's const parameters
+        if func.const_parameters.len() != input.const_arguments.len() {
+            self.emit_err(TypeCheckerError::incorrect_num_const_args_to_call(
+                func.const_parameters.len(),
+                input.const_arguments.len(),
+                input.span(),
+            ));
+        }
+
+        // Check the types of const arguments against the types of the function's const parameters
+        for (expected, argument) in func.const_parameters.iter().zip(input.const_arguments.iter()) {
+            self.visit_expression(argument, &Some(expected.type_().clone()));
+        }
+
         self.scope_state.is_call = true;
         let (mut input_futures, mut inferred_finalize_inputs) = (Vec::new(), Vec::new());
         for (expected, argument) in func.input.iter().zip(input.arguments.iter()) {

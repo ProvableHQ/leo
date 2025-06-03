@@ -292,6 +292,9 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_call(&mut self, mut input: leo_ast::CallExpression) -> (Expression, Self::AdditionalOutput) {
+        input.const_arguments.iter_mut().for_each(|arg| {
+            *arg = self.reconstruct_expression(std::mem::take(arg)).0;
+        });
         input.arguments.iter_mut().for_each(|arg| {
             *arg = self.reconstruct_expression(std::mem::take(arg)).0;
         });
