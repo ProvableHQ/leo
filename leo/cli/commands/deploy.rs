@@ -317,7 +317,7 @@ fn confirm_upgrade_mechanism<N: Network>(program: &Program<N>, upgrade: &Upgrade
             );
         }
     }
-    confirm("Do you want to proceed?", yes)
+    confirm("\nDo you want to proceed?", yes)
 }
 
 /// Check the tasks to warn the user about any potential issues.
