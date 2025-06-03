@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 DCE_ENABLED:
 program test.aleo;
 
@@ -14,6 +15,8 @@ function main:
     output foo.aleo as address.private;
 
 DCE_DISABLED:
+=======
+>>>>>>> feat/cli-improvements
 program test.aleo;
 
 mapping Yo:

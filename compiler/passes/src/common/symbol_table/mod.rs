@@ -162,7 +162,7 @@ impl SymbolTable {
         self.local = Some(new_local_table);
     }
 
-    /// Enther the parent scope of the current scope (or the global scope if there is no local parent scope).
+    /// Enter the parent scope of the current scope (or the global scope if there is no local parent scope).
     pub fn enter_parent(&mut self) {
         let parent: Option<NodeID> = self.local.as_ref().and_then(|table| table.inner.borrow().parent);
         self.local = parent.map(|id| self.all_locals.get(&id).expect("Parent should exist.")).cloned();

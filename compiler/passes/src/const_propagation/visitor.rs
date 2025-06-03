@@ -36,7 +36,7 @@ pub struct ConstPropagationVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// The program name.
     pub program: Symbol,
-    /// Have we actually modified the progam at all?
+    /// Have we actually modified the program at all?
     pub changed: bool,
     /// The RHS of a const declaration we were not able to evaluate.
     pub const_not_evaluated: Option<Span>,

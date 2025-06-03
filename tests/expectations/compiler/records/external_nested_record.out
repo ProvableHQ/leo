@@ -1,25 +1,3 @@
-DCE_ENABLED:
-program child.aleo;
-
-record child_rec:
-    owner as address.private;
-
-function main:
-    input r0 as child_rec.record;
-// --- Next Program --- //
-import child.aleo;
-program inter.aleo;
-
-function use_child:
-    input r0 as child.aleo/child_rec.record;
-// --- Next Program --- //
-import child.aleo;
-import inter.aleo;
-program parent.aleo;
-
-function main:
-
-DCE_DISABLED:
 program child.aleo;
 
 record child_rec:

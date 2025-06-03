@@ -27,7 +27,7 @@ pub struct IterationStatement {
     /// The binding / variable to introduce in the body `block`.
     pub variable: Identifier,
     /// The type of the iteration.
-    pub type_: Type,
+    pub type_: Option<Type>,
     /// The start of the iteration.
     pub start: Expression,
     /// The end of the iteration, possibly `inclusive`.
@@ -46,7 +46,11 @@ pub struct IterationStatement {
 impl fmt::Display for IterationStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let eq = if self.inclusive { "=" } else { "" };
-        writeln!(f, "for {}: {} in {}..{eq}{} {{", self.variable, self.type_, self.start, self.stop)?;
+        if let Some(ty) = &self.type_ {
+            writeln!(f, "for {}: {} in {}..{eq}{} {{", self.variable, ty, self.start, self.stop)?;
+        } else {
+            writeln!(f, "for {} in {}..{eq}{} {{", self.variable, self.start, self.stop)?;
+        }
         for stmt in self.block.statements.iter() {
             writeln!(f, "{}{}", Indent(stmt), stmt.semicolon())?;
         }

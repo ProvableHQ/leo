@@ -1,30 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-mapping account:
-    key as address.public;
-    value as u64.public;
-
-mapping values:
-    key as u8.public;
-    value as u8.public;
-
-function finalize_self_caller:
-    async finalize_self_caller self.caller into r0;
-    output r0 as test.aleo/finalize_self_caller.future;
-
-finalize finalize_self_caller:
-    input r0 as address.public;
-    get.or_use values[0u8] 0u8 into r1;
-    add r1 3u8 into r2;
-    add r2 1u8 into r3;
-    add r3 1u8 into r4;
-    set r4 into values[0u8];
-    get.or_use account[r0] 0u64 into r5;
-    add r5 1u64 into r6;
-    set r6 into account[r0];
-
-DCE_DISABLED:
 program test.aleo;
 
 mapping account:

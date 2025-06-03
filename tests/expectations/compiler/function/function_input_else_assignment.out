@@ -1,13 +1,4 @@
-DCE_ENABLED:
 program test.aleo;
 
 function foo:
     input r0 as u8.private;
-
-DCE_DISABLED:
-program test.aleo;
-
-function foo:
-    input r0 as u8.private;
-    not false into r1;
-    ternary false r0 0u8 into r2;

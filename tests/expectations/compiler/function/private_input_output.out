@@ -1,13 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function foo:
-    input r0 as u8.private;
-    input r1 as u8.public;
-    add r0 r1 into r2;
-    output r2 as u8.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 function foo:

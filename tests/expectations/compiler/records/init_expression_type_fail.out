@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 DCE_ENABLED:
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
     --> compiler-test:10:44
@@ -26,6 +27,8 @@ Error [ETYC0372083]: A program must have at least one transition function.
      |         ^^^^^^^^^
 
 DCE_DISABLED:
+=======
+>>>>>>> feat/cli-improvements
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
     --> compiler-test:10:44
      |

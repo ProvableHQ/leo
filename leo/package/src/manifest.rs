@@ -31,6 +31,7 @@ pub struct Manifest {
     pub description: String,
     pub license: String,
     pub dependencies: Option<Vec<Dependency>>,
+    pub dev_dependencies: Option<Vec<Dependency>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub upgrade: Option<UpgradeConfig>,
 }

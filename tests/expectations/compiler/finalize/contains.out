@@ -1,21 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-mapping balances:
-    key as address.public;
-    value as u32.public;
-
-function foo:
-    async foo self.caller into r0;
-    output r0 as test.aleo/foo.future;
-
-finalize foo:
-    input r0 as address.public;
-    contains balances[r0] into r1;
-    not r1 into r2;
-    assert.eq r2 true;
-
-DCE_DISABLED:
 program test.aleo;
 
 mapping balances:

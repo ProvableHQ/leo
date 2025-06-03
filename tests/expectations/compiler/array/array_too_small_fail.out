@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372076]: An array cannot be empty
-    --> compiler-test:3:20
-     |
-   3 |     transition foo(a: [bool; 0]) -> bool {
-     |                    ^^^^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372076]: An array cannot be empty
     --> compiler-test:3:20
      |

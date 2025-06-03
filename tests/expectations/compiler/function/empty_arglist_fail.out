@@ -1,20 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372113]: Cannot define a function with no parameters.
-    --> compiler-test:3:5
-     |
-   3 |     function x() -> u8 {
-     |     ^^^^^^^^^^^^^^^^^^^^
-   4 |         return 0u8;
-     |         ^^^^^^^^^^^
-   5 |     }
-     |     ^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372113]: Cannot define a function with no parameters.
     --> compiler-test:3:5
      |

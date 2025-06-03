@@ -89,9 +89,11 @@ impl ExpressionReconstructor for FunctionInliningVisitor<'_> {
 
                 (result, inlined_statements)
             }
-            Variant::Function | Variant::AsyncFunction | Variant::Transition | Variant::AsyncTransition => {
-                (input.into(), Default::default())
-            }
+            Variant::Function
+            | Variant::Script
+            | Variant::AsyncFunction
+            | Variant::Transition
+            | Variant::AsyncTransition => (input.into(), Default::default()),
         }
     }
 }

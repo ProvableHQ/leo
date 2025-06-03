@@ -794,6 +794,10 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
             CoreFunction::ChaChaRandU64 => Type::Integer(IntegerType::U64),
             CoreFunction::ChaChaRandU128 => Type::Integer(IntegerType::U128),
             CoreFunction::SignatureVerify => {
+                // Check that the third argument is not a mapping nor a tuple. We have to do this
+                // before the other checks below to appease the borrow checker
+                assert_not_mapping_tuple_unit(&arguments[2].0, arguments[2].1.span());
+
                 // Check that the first argument is a signature.
                 self.assert_type(&arguments[0].0, &Type::Signature, arguments[0].1.span());
                 // Check that the second argument is an address.
@@ -1120,7 +1124,7 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
                 self.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
             }
             // If the function is not an async transition, then it cannot have a future as output.
-            if self.scope_state.variant != Some(Variant::AsyncTransition)
+            if !matches!(self.scope_state.variant, Some(Variant::AsyncTransition) | Some(Variant::Script))
                 && matches!(function_output.type_, Type::Future(_))
             {
                 self.emit_err(TypeCheckerError::only_async_transition_can_return_future(function_output.span));
@@ -1203,7 +1207,10 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
         let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(name));
         // Record the usage.
         if let Some(s) = comp {
-            self.used_structs.insert(s.identifier.name);
+            // If it's a struct or internal record, mark it used.
+            if !s.is_record || program == self.scope_state.program_name {
+                self.used_structs.insert(s.identifier.name);
+            }
         }
         comp.cloned()
     }
@@ -1249,7 +1256,9 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
         // Check that the function context matches.
         if self.scope_state.variant == Some(Variant::AsyncFunction) && !finalize_op {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span))
-        } else if self.scope_state.variant != Some(Variant::AsyncFunction) && finalize_op {
+        } else if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
+            && finalize_op
+        {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
         }
     }
@@ -1271,6 +1280,17 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
         } else {
             self.emit_err(TypeCheckerError::custom_error("Expected a string literal".to_string(), expression.span()));
             None
+        }
+    }
+
+    pub fn is_external_record(&self, ty: &Type) -> bool {
+        if let Type::Composite(typ) = &ty {
+            let this_program = self.scope_state.program_name.unwrap();
+            let program = typ.program.unwrap_or(this_program);
+            program != this_program
+                && self.state.symbol_table.lookup_record(Location::new(program, typ.id.name)).is_some()
+        } else {
+            false
         }
     }
 }

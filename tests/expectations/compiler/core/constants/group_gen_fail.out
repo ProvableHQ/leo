@@ -1,16 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372064]: group::GENERATOR is not a valid core constant.
-    --> compiler-test:6:24
-     |
-   6 |         let a: group = group::GENERATOR;
-     |                        ^^^^^
-Error [ETYC0372063]: group::GENERATOR is not a valid associated constant.
-    --> compiler-test:6:24
-     |
-   6 |         let a: group = group::GENERATOR;
-     |                        ^^^^^^^^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372064]: group::GENERATOR is not a valid core constant.
     --> compiler-test:6:24
      |

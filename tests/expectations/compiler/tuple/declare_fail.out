@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372117]: Expected type `bool` but type `u64` was found.
-    --> compiler-test:4:35
-     |
-   4 |         let t: (bool, bool) = (a, 1u64); // We should be declaring to a bool, not a u64.
-     |                                   ^^^^
-
-DCE_DISABLED:
 Error [ETYC0372117]: Expected type `bool` but type `u64` was found.
     --> compiler-test:4:35
      |

@@ -30,7 +30,7 @@ use leo_span::Symbol;
 
 use snarkvm::prelude::{Network, ensure};
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 use std::str::FromStr;
 
 pub struct CodeGeneratingVisitor<'a, N: Network> {
@@ -59,6 +59,9 @@ pub struct CodeGeneratingVisitor<'a, N: Network> {
     pub next_label: u64,
     /// The depth of the current conditional block.
     pub conditional_depth: u64,
+    /// Internal record input registers of the current function.
+    /// This is necessary as if we output them, we need to clone them.
+    pub internal_record_inputs: IndexSet<String>,
     pub _phantom: std::marker::PhantomData<N>,
 }
 
@@ -87,4 +90,11 @@ pub(crate) fn check_snarkvm_constructor<N: Network>(
         ensure!(actual == expected, "Constructor mismatch: expected {}, got {}", expected, actual)
     }
     Ok(())
+}
+
+impl<N: Network> CodeGeneratingVisitor<'_, N> {
+    pub fn next_register(&mut self) -> String {
+        self.next_register += 1;
+        format!("r{}", self.next_register - 1)
+    }
 }

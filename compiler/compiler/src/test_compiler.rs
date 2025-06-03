@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{BuildOptions, Compiler, CompilerOptions};
+use crate::Compiler;
 
 use leo_ast::Stub;
 use leo_disassembler::disassemble_from_str;
@@ -36,18 +36,16 @@ pub const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
 
 pub fn whole_compile(
     source: &str,
-    dce_enabled: bool,
     handler: &Handler,
     import_stubs: IndexMap<Symbol, Stub>,
     upgrade_config: Option<UpgradeConfig>,
 ) -> Result<(String, String), LeoError> {
-    let options = CompilerOptions { build: BuildOptions { dce_enabled, ..Default::default() }, ..Default::default() };
-
     let mut compiler = Compiler::<TestnetV0>::new(
         None,
+        /* is_test (a Leo test) */ false,
         handler.clone(),
         "/fakedirectory-wont-use".into(),
-        Some(options),
+        None,
         import_stubs,
         upgrade_config,
     );
@@ -59,7 +57,7 @@ pub fn whole_compile(
     Ok((bytecode, compiler.program_name.unwrap()))
 }
 
-fn run_test(test: &str, dce_enabled: bool, handler: &Handler) -> Result<String, ()> {
+fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
     // Initialize a `Process`. This should always succeed.
     let mut process = Process::<TestnetV0>::load().unwrap();
 
@@ -79,13 +77,8 @@ fn run_test(test: &str, dce_enabled: bool, handler: &Handler) -> Result<String, 
             }
         }
 
-        let (bytecode, program_name) = handler.extend_if_error(whole_compile(
-            source,
-            dce_enabled,
-            handler,
-            import_stubs.clone(),
-            upgrade_config,
-        ))?;
+        let (bytecode, program_name) =
+            handler.extend_if_error(whole_compile(source, handler, import_stubs.clone(), upgrade_config))?;
 
         // Parse the bytecode as an Aleo program.
         // Note that this function checks that the bytecode is well-formed.
@@ -100,7 +93,8 @@ fn run_test(test: &str, dce_enabled: bool, handler: &Handler) -> Result<String, 
             .extend_if_error(disassemble_from_str::<TestnetV0>(&program_name, &bytecode).map_err(|err| err.into()))?;
         import_stubs.insert(Symbol::intern(&program_name), stub);
 
-        if handler.err_count() != 0 || handler.warning_count() != 0 {
+        // Only error out if there are errors. Warnings are okay but we still want to print them later.
+        if handler.err_count() != 0 {
             return Err(());
         }
 
@@ -111,21 +105,13 @@ fn run_test(test: &str, dce_enabled: bool, handler: &Handler) -> Result<String, 
 }
 
 fn runner(source: &str) -> String {
-    fn run(source: &str, dce_enabled: bool) -> String {
-        let buf = BufferEmitter::new();
-        let handler = Handler::new(buf.clone());
+    let buf = BufferEmitter::new();
+    let handler = Handler::new(buf.clone());
 
-        match run_test(source, dce_enabled, &handler) {
-            Ok(x) => x,
-            Err(()) => format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
-        }
-    }
-
-    let with_dce_enabled = create_session_if_not_set_then(|_| run(source, true));
-
-    let with_dce_disabled = create_session_if_not_set_then(|_| run(source, false));
-
-    format!("DCE_ENABLED:\n{with_dce_enabled}\nDCE_DISABLED:\n{with_dce_disabled}")
+    create_session_if_not_set_then(|_| match run_test(source, &handler) {
+        Ok(x) => format!("{}{}", buf.extract_warnings(), x),
+        Err(()) => format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
+    })
 }
 
 #[test]

@@ -1,14 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function main:
-    input r0 as address.private;
-    input r1 as boolean.private;
-    ternary r1 aleo16s003g206rjms5pm4ak48340f7y4z4dsskuqfrd2gvqz6umh2qfq7lajfp aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx into r2;
-    is.eq r2 aleo1drcl2g8zxhxjzjw63ajp067gzvl94am3z7m7wgrzmr2ecd5sdq8sy66l5k into r3;
-    output r3 as boolean.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 function main:

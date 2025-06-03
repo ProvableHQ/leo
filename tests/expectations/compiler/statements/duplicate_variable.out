@@ -1,16 +1,3 @@
-DCE_ENABLED:
-Error [EAST0372009]: variable `x` shadowed by
-    --> compiler-test:5:12
-     |
-   5 |       	let x: bool = true;
-     |            ^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [EAST0372009]: variable `x` shadowed by
     --> compiler-test:5:12
      |

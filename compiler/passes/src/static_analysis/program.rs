@@ -82,7 +82,7 @@ impl<N: Network> ProgramVisitor for StaticAnalyzingVisitor<'_, N> {
                         .join(", "),
                     function.span(),
                 ));
-            } else if self.await_checker.enabled && !self.await_checker.to_await.is_empty() {
+            } else if !self.await_checker.to_await.is_empty() {
                 // Tally up number of paths that are unawaited and number of paths that are awaited more than once.
                 let (num_paths_unawaited, num_paths_duplicate_awaited, num_perfect) =
                     self.await_checker.to_await.iter().fold((0, 0, 0), |(unawaited, duplicate, perfect), path| {

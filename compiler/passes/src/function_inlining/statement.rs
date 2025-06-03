@@ -28,7 +28,6 @@ use leo_ast::{
     IterationStatement,
     Statement,
     StatementReconstructor,
-    Type,
 };
 
 impl StatementReconstructor for FunctionInliningVisitor<'_> {
@@ -79,7 +78,7 @@ impl StatementReconstructor for FunctionInliningVisitor<'_> {
                 for (identifier, rhs_value) in left.into_iter().zip(right.elements) {
                     let stmt = DefinitionStatement {
                         place: DefinitionPlace::Single(identifier),
-                        type_: Type::Err,
+                        type_: None,
                         value: rhs_value,
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),

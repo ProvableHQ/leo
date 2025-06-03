@@ -1,24 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:9:5
-     |
-   9 |     async function finalize_mint_public(public receiver: address, public amount: u64) -> u64 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  10 |         Mapping::set(account, receiver, amount);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 |         return 1u8 + 2u8;
-     |         ^^^^^^^^^^^^^^^^^
-  12 |     }
-     |     ^
-     |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
-Error [ETYC0372117]: Expected type `u64` but type `u8` was found.
-    --> compiler-test:11:16
-     |
-  11 |         return 1u8 + 2u8;
-     |                ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:9:5
      |

@@ -1,4 +1,3 @@
-DCE_ENABLED:
 program test.aleo;
 
 function main:
@@ -21,51 +20,3 @@ function main:
     rem r0 r1 into r16;
     is.eq r0 r1 into r17;
     output r17 as boolean.private;
-
-DCE_DISABLED:
-program test.aleo;
-
-function main:
-    input r0 as i128.private;
-    input r1 as i128.private;
-    abs r0 into r2;
-    abs.w r0 into r3;
-    neg r0 into r4;
-    not r0 into r5;
-    add r0 r1 into r6;
-    add.w r0 r1 into r7;
-    and r0 r1 into r8;
-    div r0 r1 into r9;
-    div.w r0 r1 into r10;
-    is.eq r0 r1 into r11;
-    gte r0 r1 into r12;
-    gt r0 r1 into r13;
-    lte r0 r1 into r14;
-    lt r0 r1 into r15;
-    mul r0 r1 into r16;
-    mul.w r0 r1 into r17;
-    is.neq r0 r1 into r18;
-    or r0 r1 into r19;
-    pow r0 2u8 into r20;
-    pow r0 2u16 into r21;
-    pow r0 2u32 into r22;
-    pow.w r0 2u8 into r23;
-    pow.w r0 2u16 into r24;
-    pow.w r0 2u32 into r25;
-    shl r0 2u8 into r26;
-    shl r0 2u16 into r27;
-    shl r0 2u32 into r28;
-    shl.w r0 2u8 into r29;
-    shl.w r0 2u16 into r30;
-    shl.w r0 2u32 into r31;
-    shr r0 2u8 into r32;
-    shr r0 2u16 into r33;
-    shr r0 2u32 into r34;
-    shr.w r0 2u8 into r35;
-    shr.w r0 2u16 into r36;
-    shr.w r0 2u32 into r37;
-    xor r0 r1 into r38;
-    rem r0 r1 into r39;
-    rem.w r0 r1 into r40;
-    is.eq r0 r1 into r41;
-    output r41 as boolean.private;

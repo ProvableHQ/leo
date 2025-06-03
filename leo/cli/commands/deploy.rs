@@ -36,7 +36,6 @@ use aleo_std::StorageMode;
 use colored::*;
 use snarkvm::prelude::{ConsensusVersion, ProgramID};
 use std::path::PathBuf;
-use text_tables;
 
 pub(crate) type DeploymentTask<N> =
     (ProgramID<N>, Program<N>, Option<Manifest>, Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>);
@@ -69,10 +68,13 @@ impl Command for LeoDeploy {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        LeoCheck {
+        LeoBuild {
             env_override: self.env_override.clone(),
-            extra: self.extra.clone(),
-            build_options: self.build_options.clone(),
+            options: {
+                let mut options = self.build_options.clone();
+                options.no_cache = true;
+                options
+            },
         }
         .execute(context)
     }
@@ -358,7 +360,7 @@ fn check_tasks_for_warnings<N: Network>(
     warnings
 }
 
-/// Pretty-print the deployment plan in a readable format.
+/// Pretty‑print the deployment plan without using a table.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn print_deployment_plan<N: Network>(
     private_key: &PrivateKey<N>,
@@ -372,101 +374,84 @@ pub(crate) fn print_deployment_plan<N: Network>(
     consensus_version: ConsensusVersion,
     command: &LeoDeploy,
 ) {
-    use text_tables::render;
+    use colored::*;
 
     println!("\n{}", "🛠️  Deployment Plan Summary".bold());
     println!("{}", "──────────────────────────────────────────────".dimmed());
 
-    // Config
+    // ── Configuration ────────────────────────────────────────────────────
     println!("{}", "🔧 Configuration:".bold());
-    println!("  {:16}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
-    println!("  {:16}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
-    println!("  {:16}{}", "Endpoint:".cyan(), endpoint.yellow());
-    println!("  {:16}{}", "Network:".cyan(), network.to_string().yellow());
-    println!("  {:16}{}", "Consensus Version:".cyan(), (consensus_version as u8).to_string().yellow());
+    println!("  {:20}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
+    println!("  {:20}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
+    println!("  {:20}{}", "Endpoint:".cyan(), endpoint.yellow());
+    println!("  {:20}{}", "Network:".cyan(), network.to_string().yellow());
+    println!("  {:20}{}", "Consensus Version:".cyan(), (consensus_version as u8).to_string().yellow());
 
-    // Tasks
+    // ── Deployment tasks (bullet list) ───────────────────────────────────
     println!("\n{}", "📦 Deployment Tasks:".bold());
-
-    let mut table = vec![[
-        "Program".to_string(),
-        "Upgrade".to_string(),
-        "Base Fee".to_string(),
-        "Priority Fee".to_string(),
-        "Fee Record".to_string(),
-    ]];
-
-    for (name, _, manifest, _, priority_fee, record) in tasks.iter() {
-        let name = name.to_string();
-        // Get the upgrade mode specified in the manifest.
-        let manifest = manifest.as_ref().expect("Local program should have a manifest");
-        let upgrade = match manifest.upgrade {
-            None => "none".to_string(),
-            Some(UpgradeConfig::Admin { .. }) => "admin".to_string(),
-            Some(UpgradeConfig::Checksum { .. }) => "checksum".to_string(),
-            Some(UpgradeConfig::Custom) => "custom".to_string(),
-            Some(UpgradeConfig::NoUpgrade) => "no upgrade".to_string(),
-        };
-        // Base fees are not used at the moment, so we can ignore them.
-        let base_fee = "auto".to_string();
-        let priority_fee = priority_fee.map_or("0".into(), |v| v.to_string());
-        let record = match record.is_some() {
-            true => "yes".to_string(),
-            false => "no (public fee)".to_string(),
-        };
-
-        table.push([name, upgrade, base_fee, priority_fee, record]);
-    }
-
-    let mut buf = Vec::new();
-    render(&mut buf, table).expect("table render failed");
-    println!("{}", std::str::from_utf8(&buf).expect("utf8 fail"));
-
-    // Skipped programs
-    if !skipped.is_empty() {
-        println!("{}", "🚫 Skipped Programs:".bold().red());
-        for (symbol, _, _, _, _, _) in skipped {
-            println!("  - {}", symbol.to_string().dimmed());
-        }
-    }
-
-    // Remote dependencies
-    if !remote.is_empty() {
-        println!("{}", "🌐 Remote Dependencies:".bold().red());
-        println!("{}", "(Leo will not generate transactions for these programs):".bold().red());
-        for (symbol, _, _, _, _, _) in remote {
-            println!("  - {}", symbol.to_string().dimmed());
-        }
-    }
-
-    // Actions
-    println!("{}", "⚙️ Actions:".bold());
-    if command.action.print {
-        println!("  - Your transaction(s) will be printed to the console.");
+    if tasks.is_empty() {
+        println!("  (none)");
     } else {
-        println!("  - Your transaction(s) will NOT be printed to the console.");
+        for (name, _, _, _, priority_fee, record) in tasks.iter() {
+            let priority_fee_str = priority_fee.map_or("0".into(), |v| v.to_string());
+            let record_str = if record.is_some() { "yes" } else { "no (public fee)" };
+            println!(
+                "  • {}  │ priority fee: {}  │ fee record: {}",
+                name.to_string().cyan(),
+                priority_fee_str,
+                record_str
+            );
+        }
+    }
+
+    // ── Skipped programs ─────────────────────────────────────────────────
+    if !skipped.is_empty() {
+        println!("\n{}", "🚫 Skipped Programs:".bold().red());
+        for (symbol, _, _, _, _, _) in skipped {
+            println!("  • {}", symbol.to_string().dimmed());
+        }
+    }
+
+    // ── Remote dependencies ──────────────────────────────────────────────
+    if !remote.is_empty() {
+        println!("\n{}", "🌐 Remote Dependencies:".bold().red());
+        println!("{}", "(Leo will not generate transactions for these programs)".bold().red());
+        for (symbol, _, _, _, _, _) in remote {
+            println!("  • {}", symbol.to_string().dimmed());
+        }
+    }
+
+    // ── Actions ──────────────────────────────────────────────────────────
+    println!("\n{}", "⚙️ Actions:".bold());
+    if command.action.print {
+        println!("  • Transaction(s) will be printed to the console.");
+    } else {
+        println!("  • Transaction(s) will NOT be printed to the console.");
     }
     if let Some(path) = &command.action.save {
-        println!("  - Your transaction(s) will be saved to {}", path.bold());
+        println!("  • Transaction(s) will be saved to {}", path.bold());
     } else {
-        println!("  - Your transaction(s) will NOT be saved to a file.");
+        println!("  • Transaction(s) will NOT be saved to a file.");
     }
     if command.action.broadcast {
-        println!("  - Your transaction(s) will be broadcast to {}", endpoint.bold());
+        println!("  • Transaction(s) will be broadcast to {}", endpoint.bold());
     } else {
-        println!("  - Your transaction(s) will NOT be broadcast to the network.");
+        println!("  • Transaction(s) will NOT be broadcast to the network.");
     }
 
-    // Warnings
+    // ── Warnings ─────────────────────────────────────────────────────────
     if !warnings.is_empty() {
         println!("\n{}", "⚠️ Warnings:".bold().red());
         for warning in warnings {
-            println!("  - {}", warning.dimmed());
+            println!("  • {}", warning.dimmed());
         }
     }
+
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }
 
+/// Pretty‑print deployment statistics without a table, using the same UI
+/// conventions as `print_deployment_plan`.
 pub(crate) fn print_deployment_stats<N: Network>(
     vm: &VM<N, ConsensusMemory<N>>,
     program_id: &str,
@@ -475,44 +460,40 @@ pub(crate) fn print_deployment_stats<N: Network>(
 ) -> Result<()> {
     use colored::*;
     use num_format::{Locale, ToFormattedString};
-    use text_tables::render;
 
-    // Extract stats
+    // ── Collect statistics ────────────────────────────────────────────────
     let variables = deployment.num_combined_variables()?;
     let constraints = deployment.num_combined_constraints()?;
-
     let (base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
         deployment_cost(&vm.process().read(), deployment)?;
 
-    // Compute final fee
-    let priority_fee_value = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;
-    let base_fee_value = base_fee as f64 / 1_000_000.0;
-    let total_fee = base_fee_value + priority_fee_value;
+    let base_fee_cr = base_fee as f64 / 1_000_000.0;
+    let prio_fee_cr = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;
+    let total_fee_cr = base_fee_cr + prio_fee_cr;
 
-    // Print summary
-    println!("\n{} {}", "📊 Deployment Stats for".bold(), program_id.bold());
+    // ── Header ────────────────────────────────────────────────────────────
+    println!("\n{} {}", "📊 Deployment Summary for".bold(), program_id.bold());
+    println!("{}", "──────────────────────────────────────────────".dimmed());
+
+    // ── High‑level metrics ────────────────────────────────────────────────
+    println!("  {:22}{}", "Total Variables:".cyan(), variables.to_formatted_string(&Locale::en).yellow());
+    println!("  {:22}{}", "Total Constraints:".cyan(), constraints.to_formatted_string(&Locale::en).yellow());
+
+    // ── Cost breakdown ────────────────────────────────────────────────────
+    println!("\n{}", "💰 Cost Breakdown (credits)".bold());
     println!(
-        "Total Variables:   {:>10}\nTotal Constraints: {:>10}\n",
-        variables.to_formatted_string(&Locale::en),
-        constraints.to_formatted_string(&Locale::en)
+        "  {:22}{}{:.6}",
+        "Transaction Storage:".cyan(),
+        "".yellow(), // spacer for alignment
+        storage_cost as f64 / 1_000_000.0
     );
+    println!("  {:22}{}{:.6}", "Program Synthesis:".cyan(), "".yellow(), synthesis_cost as f64 / 1_000_000.0);
+    println!("  {:22}{}{:.6}", "Namespace:".cyan(), "".yellow(), namespace_cost as f64 / 1_000_000.0);
+    println!("  {:22}{}{:.6}", "Constructor:".cyan(), "".yellow(), constructor_cost as f64 / 1_000_000.0);
+    println!("  {:22}{}{:.6}", "Priority Fee:".cyan(), "".yellow(), prio_fee_cr);
+    println!("  {:22}{}{:.6}", "Total Fee:".cyan(), "".yellow(), total_fee_cr);
 
-    // Print cost breakdown inline
-    println!("Base deployment cost for '{}' is {:.6} credits.\n", program_id.bold(), base_fee_value);
-
-    let data = [
-        [program_id, "Cost (credits)"],
-        ["Transaction Storage", &format!("{:.6}", storage_cost as f64 / 1_000_000.0)],
-        ["Program Synthesis", &format!("{:.6}", synthesis_cost as f64 / 1_000_000.0)],
-        ["Constructor", &format!("{:.6}", constructor_cost as f64 / 1_000_000.0)],
-        ["Namespace", &format!("{:.6}", namespace_cost as f64 / 1_000_000.0)],
-        ["Priority Fee", &format!("{:.6}", priority_fee_value)],
-        ["Total", &format!("{:.6}", total_fee)],
-    ];
-
-    let mut out = Vec::new();
-    render(&mut out, data).map_err(CliError::table_render_failed)?;
-    println!("{}", std::str::from_utf8(&out).map_err(CliError::table_render_failed)?);
-
+    // ── Footer rule ───────────────────────────────────────────────────────
+    println!("{}", "──────────────────────────────────────────────".dimmed());
     Ok(())
 }

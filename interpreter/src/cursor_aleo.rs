@@ -45,7 +45,7 @@ use rand::Rng as _;
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
 use std::mem;
 
-impl Cursor<'_> {
+impl Cursor {
     fn mapping_by_call_operator(&self, operator: &CallOperator<TestnetV0>) -> Option<&HashMap<Value, Value>> {
         let (program, name) = match operator {
             CallOperator::Locator(locator) => {
@@ -109,7 +109,7 @@ impl Cursor<'_> {
         let Some(Frame { element: Element::AleoExecution { context, .. }, .. }) = self.frames.last() else {
             panic!();
         };
-        match context {
+        match &**context {
             AleoContext::Closure(closure) => closure.instructions().len(),
             AleoContext::Function(function) => function.instructions().len(),
             AleoContext::Finalize(finalize) => finalize.commands().len(),
@@ -136,7 +136,7 @@ impl Cursor<'_> {
         else {
             panic!();
         };
-        match context {
+        match &**context {
             AleoContext::Closure(closure) => closure.instructions().get(*instruction_index),
             AleoContext::Function(function) => function.instructions().get(*instruction_index),
             AleoContext::Finalize(_) => None,
@@ -148,7 +148,7 @@ impl Cursor<'_> {
         else {
             panic!();
         };
-        match context {
+        match &**context {
             AleoContext::Closure(_) | AleoContext::Function(_) => None,
             AleoContext::Finalize(finalize) => finalize.commands().get(*instruction_index),
         }
@@ -781,7 +781,7 @@ impl Cursor<'_> {
             panic!("aleo execution expected");
         };
 
-        let mut result = match context {
+        let mut result = match &**context {
             AleoContext::Closure(closure) => {
                 closure.outputs().iter().map(|output| self.operand_value(output.operand())).collect()
             }
@@ -930,11 +930,12 @@ impl Cursor<'_> {
     }
 
     fn branch(&mut self, label: &Identifier<TestnetV0>) {
-        let Some(Frame {
-            element: Element::AleoExecution { instruction_index, context: AleoContext::Finalize(finalize), .. },
-            ..
-        }) = self.frames.last_mut()
+        let Some(Frame { element: Element::AleoExecution { instruction_index, context, .. }, .. }) =
+            self.frames.last_mut()
         else {
+            panic!();
+        };
+        let AleoContext::Finalize(finalize) = &mut **context else {
             panic!();
         };
         for (i, cmd) in finalize.commands().iter().enumerate() {

@@ -1,0 +1,24 @@
+program foo.aleo;
+
+struct S:
+    x as u32;
+    y as u32;
+
+function main:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as address.private;
+    input r3 as [u32; 4u32].private;
+    cast r0 r1 into r4 as S;
+    cast r4.x 42u32 into r5 as S;
+    add r0 1u32 into r6;
+    add r1 2u32 into r7;
+    mul r6 r6 into r8;
+    output r4 as S.private;
+    output r5 as S.private;
+    output 42u64 as u64.private;
+    output r6 as u32.private;
+    output r7 as u32.private;
+    output true as boolean.private;
+    output r8 as u32.private;
+    output r3[3u32] as u32.private;

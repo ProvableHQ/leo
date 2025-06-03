@@ -161,6 +161,7 @@ pub enum Token {
     Program,
     Public,
     Return,
+    Script,
     SelfLower,
     Transition,
 
@@ -212,6 +213,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Record,
     Token::Return,
     Token::Scalar,
+    Token::Script,
     Token::SelfLower,
     Token::Signature,
     Token::String,
@@ -270,6 +272,7 @@ impl Token {
             Token::Record => sym::record,
             Token::Return => sym::Return,
             Token::Scalar => sym::scalar,
+            Token::Script => sym::script,
             Token::Signature => sym::signature,
             Token::SelfLower => sym::SelfLower,
             Token::String => sym::string,
@@ -401,6 +404,7 @@ impl fmt::Display for Token {
             Program => write!(f, "program"),
             Public => write!(f, "public"),
             Return => write!(f, "return"),
+            Script => write!(f, "script"),
             SelfLower => write!(f, "self"),
             Transition => write!(f, "transition"),
 

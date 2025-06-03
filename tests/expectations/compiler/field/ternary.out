@@ -1,17 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function main:
-    input r0 as field.private;
-    input r1 as field.private;
-    input r2 as field.private;
-    is.eq r1 1field into r3;
-    is.eq r0 1field into r4;
-    is.eq r2 2field into r5;
-    ternary r3 r4 r5 into r6;
-    output r6 as boolean.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 function main:

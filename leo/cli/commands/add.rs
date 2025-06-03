@@ -30,6 +30,9 @@ pub struct LeoAdd {
 
     #[clap(short = 'c', long, help = "Clear all previous dependencies.", default_value = "false")]
     pub(crate) clear: bool,
+
+    #[clap(long, help = "This is a development dependency.", default_value = "false")]
+    pub(crate) dev: bool,
 }
 
 #[derive(Parser, Debug)]
@@ -83,9 +86,9 @@ impl Command for LeoAdd {
             edition: self.source.edition,
         };
 
-        if let Some(matched_dep) =
-            manifest.dependencies.get_or_insert_default().iter_mut().find(|dep| dep.name == new_dependency.name)
-        {
+        let deps = if self.dev { &mut manifest.dev_dependencies } else { &mut manifest.dependencies };
+
+        if let Some(matched_dep) = deps.get_or_insert_default().iter_mut().find(|dep| dep.name == new_dependency.name) {
             if let Some(path) = &matched_dep.path {
                 tracing::warn!(
                     "⚠️ Program `{name}` already exists as a local dependency at `{}`. Overwriting.",
@@ -96,7 +99,7 @@ impl Command for LeoAdd {
             }
             *matched_dep = new_dependency;
         } else {
-            manifest.dependencies.as_mut().unwrap().push(new_dependency);
+            deps.as_mut().unwrap().push(new_dependency);
             if let Some(path) = self.source.local.as_ref() {
                 tracing::info!("✅ Added local dependency to program `{name}` at path `{}`.", path.display());
             } else {

@@ -1,6 +1,6 @@
 [package]
 name = "leo-test-framework"
-version = "2.5.0"
+version = "2.6.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The testing framework for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -18,14 +18,11 @@ license = "GPL-3.0"
 edition = "2024"
 rust-version = "1.85.1"
 
-[dependencies.leo-errors]
-workspace = true
-
-[dependencies.indexmap]
-workspace = true
-
-[dependencies.itertools]
-workspace = true
+[dependencies.rayon]
+version = "1.10"
 
 [dependencies.walkdir]
 workspace = true
+
+[features]
+no_parallel = [ ]

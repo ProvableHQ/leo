@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372008]: The value 32768 is not a valid `i16`
-    --> compiler-test:4:22
-     |
-   4 |         let a: i16 = 32768i16;
-     |                      ^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372008]: The value 32768 is not a valid `i16`
     --> compiler-test:4:22
      |

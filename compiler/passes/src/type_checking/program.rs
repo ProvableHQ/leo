@@ -18,9 +18,10 @@ use super::*;
 
 use leo_ast::{DiGraphError, Type, *};
 use leo_errors::TypeCheckerError;
-use leo_span::sym;
+use leo_span::{Symbol, sym};
 
-use std::collections::HashSet;
+use itertools::Itertools;
+use std::collections::{BTreeMap, HashSet};
 
 impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
     fn visit_program(&mut self, input: &Program) {
@@ -43,8 +44,32 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {
+        let program_name = input.program_id.name;
+
+        // Ensure that the program name is legal, i.e., it does not contain the keyword `aleo`
+        check_name(&self.state.handler, program_name, "program");
+
         // Set the current program name.
-        self.scope_state.program_name = Some(input.program_id.name.name);
+        self.scope_state.program_name = Some(program_name.name);
+
+        // Collect a map from record names to their spans
+        let record_info: BTreeMap<String, leo_span::Span> = input
+            .structs
+            .iter()
+            .filter(|(_, c)| c.is_record)
+            .map(|(_, r)| (r.name().to_string(), r.identifier.span))
+            .collect();
+
+        // Check if any record name is a prefix for another record name. We don't really collect all possible prefixes
+        // here but only adjacent ones. That is, if we have records `Foo`, `FooBar`, and `FooBarBaz`, we only emit
+        // errors for `Foo/FooBar` and for `FooBar/FooBarBaz` but not for `Foo/FooBarBaz`.
+        for ((prev_name, _), (curr_name, curr_span)) in record_info.iter().tuple_windows() {
+            if curr_name.starts_with(prev_name) {
+                self.state
+                    .handler
+                    .emit_err(TypeCheckerError::record_prefixed_by_other_record(curr_name, prev_name, *curr_span));
+            }
+        }
 
         // Typecheck each const definition, and append to symbol table.
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
@@ -143,6 +168,15 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
 
         // For records, enforce presence of the `owner: Address` member.
         if input.is_record {
+            // Ensure that the record name is legal, i.e., it does not contain the keyword `aleo`
+            check_name(&self.state.handler, input.identifier, "record");
+
+            // Ensure that the names of the record entries are all legal, i.e., they do not contain the
+            // keyword `aleo`
+            input.members.iter().for_each(|member| {
+                check_name(&self.state.handler, member.identifier, "record entry");
+            });
+
             let check_has_field =
                 |need, expected_ty: Type| match input.members.iter().find_map(|Member { identifier, type_, .. }| {
                     (identifier.name == need).then_some((identifier, type_))
@@ -260,6 +294,80 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
         // Set the scope state before traversing the function.
         self.scope_state.variant = Some(function.variant);
 
+        // Check that the function's annotations are valid.
+        for annotation in function.annotations.iter() {
+            if !matches!(annotation.identifier.name, sym::test | sym::should_fail) {
+                self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
+            }
+        }
+
+        let get = |symbol: Symbol| -> &Annotation {
+            function.annotations.iter().find(|ann| ann.identifier.name == symbol).unwrap()
+        };
+
+        let check_annotation = |symbol: Symbol, allowed_keys: &[Symbol]| -> bool {
+            let count = function.annotations.iter().filter(|ann| ann.identifier.name == symbol).count();
+            if count > 0 {
+                let annotation = get(symbol);
+                for key in annotation.map.keys() {
+                    if !allowed_keys.contains(key) {
+                        self.emit_err(TypeCheckerError::annotation_error(
+                            format_args!("Invalid key `{key}` for annotation @{symbol}"),
+                            annotation.span,
+                        ));
+                    }
+                }
+                if count > 1 {
+                    self.emit_err(TypeCheckerError::annotation_error(
+                        format_args!("Duplicate annotation @{symbol}"),
+                        annotation.span,
+                    ));
+                }
+            }
+            count > 0
+        };
+
+        let has_test = check_annotation(sym::test, &[sym::private_key]);
+        let has_should_fail = check_annotation(sym::should_fail, &[]);
+
+        if has_test && !self.state.is_test {
+            self.emit_err(TypeCheckerError::annotation_error(
+                format_args!("Test annotation @test appears outside of tests"),
+                get(sym::test).span,
+            ));
+        }
+
+        if has_should_fail && !self.state.is_test {
+            self.emit_err(TypeCheckerError::annotation_error(
+                format_args!("Test annotation @should_fail appears outside of tests"),
+                get(sym::should_fail).span,
+            ));
+        }
+
+        if has_should_fail && !has_test {
+            self.emit_err(TypeCheckerError::annotation_error(
+                format_args!("Annotation @should_fail appears without @test"),
+                get(sym::should_fail).span,
+            ));
+        }
+
+        if has_test
+            && !self.scope_state.variant.unwrap().is_script()
+            && !self.scope_state.variant.unwrap().is_transition()
+        {
+            self.emit_err(TypeCheckerError::annotation_error(
+                format_args!("Annotation @test may appear only on scripts and transitions"),
+                get(sym::test).span,
+            ));
+        }
+
+        if (has_test) && !function.input.is_empty() {
+            self.emit_err(TypeCheckerError::annotation_error(
+                "A test procedure cannot have inputs",
+                function.input[0].span,
+            ));
+        }
+
         self.in_conditional_scope(|slf| {
             slf.in_scope(function.id, |slf| {
                 function.input.iter().for_each(|input| slf.insert_symbol_conditional_scope(input.identifier.name));
@@ -345,5 +453,11 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
 
     fn visit_struct_stub(&mut self, input: &Composite) {
         self.visit_struct(input);
+    }
+}
+
+fn check_name(handler: &leo_errors::Handler, name: Identifier, item_type: &str) {
+    if name.to_string().contains(&sym::aleo.to_string()) {
+        handler.emit_err(TypeCheckerError::illegal_name(name, item_type, sym::aleo, name.span));
     }
 }

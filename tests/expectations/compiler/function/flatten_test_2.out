@@ -1,21 +1,6 @@
-DCE_ENABLED:
 program test.aleo;
 
 struct TokenInfo:
     id as u64;
 
 function add_new_liquidity_token_2:
-
-DCE_DISABLED:
-program test.aleo;
-
-struct TokenInfo:
-    id as u64;
-
-function add_new_liquidity_token_2:
-    cast 0u64 into r0 as TokenInfo;
-    is.eq r0.id 0u64 into r1;
-    cast 10u64 into r2 as TokenInfo;
-    not r1 into r3;
-    ternary r1 r2.id r0.id into r4;
-    cast r4 into r5 as TokenInfo;

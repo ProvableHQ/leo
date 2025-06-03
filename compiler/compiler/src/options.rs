@@ -18,28 +18,14 @@
 
 use std::collections::HashSet;
 
-#[derive(Clone, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct CompilerOptions {
-    /// Build options.
-    pub build: BuildOptions,
-    /// Output options.
-    pub output: OutputOptions,
-}
+    /// Whether spans are enabled in the output ASTs.
+    pub ast_spans_enabled: bool,
 
-#[derive(Clone)]
-pub struct BuildOptions {
-    /// Whether to enable dead code elimination.
-    pub dce_enabled: bool,
-    /// Max depth to type check nested conditionals.
-    pub conditional_block_max_depth: usize,
-    /// Whether to disable type checking for nested conditionals.
-    pub disable_conditional_branch_type_checking: bool,
-}
+    pub ast_snapshots: AstSnapshots,
 
-impl Default for BuildOptions {
-    fn default() -> Self {
-        Self { dce_enabled: true, conditional_block_max_depth: 0, disable_conditional_branch_type_checking: false }
-    }
+    pub initial_ast: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -52,14 +38,4 @@ impl Default for AstSnapshots {
     fn default() -> Self {
         AstSnapshots::Some(Default::default())
     }
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct OutputOptions {
-    /// Whether spans are enabled in the output ASTs.
-    pub ast_spans_enabled: bool,
-
-    pub ast_snapshots: AstSnapshots,
-
-    pub initial_ast: bool,
 }

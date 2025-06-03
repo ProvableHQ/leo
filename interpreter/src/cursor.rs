@@ -145,21 +145,21 @@ impl ContextStack {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-pub enum AleoContext<'a> {
-    Closure(&'a Closure),
-    Function(&'a SvmFunction),
-    Finalize(&'a Finalize),
+#[derive(Clone, Debug)]
+pub enum AleoContext {
+    Closure(Closure),
+    Function(SvmFunction),
+    Finalize(Finalize),
 }
 
 /// A Leo construct to be evauated.
 #[derive(Clone, Debug)]
-pub enum Element<'a> {
+pub enum Element {
     /// A Leo statement.
-    Statement(&'a Statement),
+    Statement(Statement),
 
     /// A Leo expression.
-    Expression(&'a Expression),
+    Expression(Expression),
 
     /// A Leo block.
     ///
@@ -170,12 +170,12 @@ pub enum Element<'a> {
     ///    so that if such a block ends, we know to push a `Unit` to
     ///    the values stack.
     Block {
-        block: &'a Block,
+        block: Block,
         function_body: bool,
     },
 
     AleoExecution {
-        context: AleoContext<'a>,
+        context: Box<AleoContext>,
         registers: IndexMap<u64, Value>,
         instruction_index: usize,
     },
@@ -183,7 +183,7 @@ pub enum Element<'a> {
     DelayedCall(GlobalId),
 }
 
-impl Element<'_> {
+impl Element {
     pub fn span(&self) -> Span {
         use Element::*;
         match self {
@@ -198,9 +198,9 @@ impl Element<'_> {
 /// A frame of execution, keeping track of the Element next to
 /// be executed and the number of steps we've done so far.
 #[derive(Clone, Debug)]
-pub struct Frame<'a> {
+pub struct Frame {
     pub step: usize,
-    pub element: Element<'a>,
+    pub element: Element,
     pub user_initiated: bool,
 }
 
@@ -214,22 +214,22 @@ pub struct GlobalId {
 
 impl fmt::Display for GlobalId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/{}", self.program, self.name)
+        write!(f, "{}.aleo/{}", self.program, self.name)
     }
 }
 
 #[derive(Clone, Debug)]
-pub enum FunctionVariant<'a> {
-    Leo(&'a Function),
-    AleoClosure(&'a Closure),
-    AleoFunction(&'a SvmFunction),
+pub enum FunctionVariant {
+    Leo(Function),
+    AleoClosure(Closure),
+    AleoFunction(SvmFunction),
 }
 
 /// Tracks the current execution state - a cursor into the running program.
 #[derive(Clone, Debug)]
-pub struct Cursor<'a> {
+pub struct Cursor {
     /// Stack of execution frames, with the one currently to be executed on top.
-    pub frames: Vec<Frame<'a>>,
+    pub frames: Vec<Frame>,
 
     /// Stack of values from evaluated expressions.
     ///
@@ -237,7 +237,7 @@ pub struct Cursor<'a> {
     pub values: Vec<Value>,
 
     /// All functions (or transitions or inlines) in any program being interpreted.
-    pub functions: HashMap<GlobalId, FunctionVariant<'a>>,
+    pub functions: HashMap<GlobalId, FunctionVariant>,
 
     /// Consts are stored here.
     pub globals: HashMap<GlobalId, Value>,
@@ -264,7 +264,7 @@ pub struct Cursor<'a> {
     pub program: Option<Symbol>,
 }
 
-impl CoreFunctionHelper for Cursor<'_> {
+impl CoreFunctionHelper for Cursor {
     fn pop_value_impl(&mut self) -> Option<Value> {
         self.values.pop()
     }
@@ -286,7 +286,7 @@ impl CoreFunctionHelper for Cursor<'_> {
     }
 }
 
-impl<'a> Cursor<'a> {
+impl Cursor {
     /// `really_async` indicates we should really delay execution of async function calls until the user runs them.
     pub fn new(really_async: bool, signer: SvmAddress, block_height: u32) -> Self {
         Cursor {
@@ -369,7 +369,7 @@ impl<'a> Cursor<'a> {
         self.mappings.get_mut(&GlobalId { program, name })
     }
 
-    fn lookup_function(&self, program: Symbol, name: Symbol) -> Option<FunctionVariant<'a>> {
+    fn lookup_function(&self, program: Symbol, name: Symbol) -> Option<FunctionVariant> {
         self.functions.get(&GlobalId { program, name }).cloned()
     }
 
@@ -422,13 +422,17 @@ impl<'a> Cursor<'a> {
         }
     }
 
-    pub fn step_block(&mut self, block: &'a Block, function_body: bool, step: usize) -> bool {
+    pub fn step_block(&mut self, block: &Block, function_body: bool, step: usize) -> bool {
         let len = self.frames.len();
 
         let done = match step {
             0 => {
                 for statement in block.statements.iter().rev() {
-                    self.frames.push(Frame { element: Element::Statement(statement), step: 0, user_initiated: false });
+                    self.frames.push(Frame {
+                        element: Element::Statement(statement.clone()),
+                        step: 0,
+                        user_initiated: false,
+                    });
                 }
                 false
             }
@@ -451,11 +455,11 @@ impl<'a> Cursor<'a> {
         done
     }
 
-    fn step_statement(&mut self, statement: &'a Statement, step: usize) -> Result<bool> {
+    fn step_statement(&mut self, statement: &Statement, step: usize) -> Result<bool> {
         let len = self.frames.len();
 
-        let mut push = |expression| {
-            self.frames.push(Frame { element: Element::Expression(expression), step: 0, user_initiated: false })
+        let mut push = |expression: &Expression| {
+            self.frames.push(Frame { element: Element::Expression(expression.clone()), step: 0, user_initiated: false })
         };
 
         let done = match statement {
@@ -523,14 +527,14 @@ impl<'a> Cursor<'a> {
                 match self.pop_value()? {
                     Value::Bool(true) => self.frames.push(Frame {
                         step: 0,
-                        element: Element::Block { block: &conditional.then, function_body: false },
+                        element: Element::Block { block: conditional.then.clone(), function_body: false },
                         user_initiated: false,
                     }),
                     Value::Bool(false) => {
                         if let Some(otherwise) = conditional.otherwise.as_ref() {
                             self.frames.push(Frame {
                                 step: 0,
-                                element: Element::Statement(otherwise),
+                                element: Element::Statement(Statement::clone(otherwise)),
                                 user_initiated: false,
                             })
                         }
@@ -593,7 +597,7 @@ impl<'a> Cursor<'a> {
                     self.set_variable(iteration.variable.name, start);
                     self.frames.push(Frame {
                         step: 0,
-                        element: Element::Block { block: &iteration.block, function_body: false },
+                        element: Element::Block { block: iteration.block.clone(), function_body: false },
                         user_initiated: false,
                     });
                     self.values.push(new_start);
@@ -635,13 +639,17 @@ impl<'a> Cursor<'a> {
         Ok(done)
     }
 
-    fn step_expression(&mut self, expression: &'a Expression, step: usize) -> Result<bool> {
+    fn step_expression(&mut self, expression: &Expression, step: usize) -> Result<bool> {
         let len = self.frames.len();
 
         macro_rules! push {
             () => {
-                |expression| {
-                    self.frames.push(Frame { element: Element::Expression(expression), step: 0, user_initiated: false })
+                |expression: &Expression| {
+                    self.frames.push(Frame {
+                        element: Element::Expression(expression.clone()),
+                        step: 0,
+                        user_initiated: false,
+                    })
                 }
             };
         }
@@ -942,19 +950,18 @@ impl<'a> Cursor<'a> {
             return Err(InterpreterHalt::new("no execution frames available".into()).into());
         }
 
-        let Frame { element, step, user_initiated } = self.frames.last().expect("there should be a frame");
-        let user_initiated = *user_initiated;
+        let Frame { element, step, user_initiated } = self.frames.last().expect("there should be a frame").clone();
         match element {
             Element::Block { block, function_body } => {
-                let finished = self.step_block(block, *function_body, *step);
+                let finished = self.step_block(&block, function_body, step);
                 Ok(StepResult { finished, value: None })
             }
             Element::Statement(statement) => {
-                let finished = self.step_statement(statement, *step)?;
+                let finished = self.step_statement(&statement, step)?;
                 Ok(StepResult { finished, value: None })
             }
             Element::Expression(expression) => {
-                let finished = self.step_expression(expression, *step)?;
+                let finished = self.step_expression(&expression, step)?;
                 let value = match (finished, user_initiated) {
                     (false, _) => None,
                     (true, false) => self.values.last().cloned(),
@@ -973,7 +980,7 @@ impl<'a> Cursor<'a> {
                 self.step_aleo()?;
                 Ok(StepResult { finished: true, value: None })
             }
-            Element::DelayedCall(gid) if *step == 0 => {
+            Element::DelayedCall(gid) if step == 0 => {
                 match self.lookup_function(gid.program, gid.name).expect("function should exist") {
                     FunctionVariant::Leo(function) => {
                         assert!(function.variant == Variant::AsyncFunction);
@@ -991,7 +998,7 @@ impl<'a> Cursor<'a> {
                         self.frames.last_mut().unwrap().step = 1;
                         self.frames.push(Frame {
                             step: 0,
-                            element: Element::Block { block: &function.block, function_body: true },
+                            element: Element::Block { block: function.block.clone(), function_body: true },
                             user_initiated: false,
                         });
                         Ok(StepResult { finished: false, value: None })
@@ -1011,7 +1018,7 @@ impl<'a> Cursor<'a> {
                         self.frames.push(Frame {
                             step: 0,
                             element: Element::AleoExecution {
-                                context: AleoContext::Finalize(finalize_f),
+                                context: AleoContext::Finalize(finalize_f.clone()).into(),
                                 registers: values_iter.enumerate().map(|(i, v)| (i as u64, v)).collect(),
                                 instruction_index: 0,
                             },
@@ -1023,7 +1030,7 @@ impl<'a> Cursor<'a> {
                 }
             }
             Element::DelayedCall(_gid) => {
-                assert_eq!(*step, 1);
+                assert_eq!(step, 1);
                 let value = self.values.pop();
                 self.frames.pop();
                 Ok(StepResult { finished: true, value })
@@ -1065,7 +1072,7 @@ impl<'a> Cursor<'a> {
                     }
                     self.frames.push(Frame {
                         step: 0,
-                        element: Element::Block { block: &function.block, function_body: true },
+                        element: Element::Block { block: function.block.clone(), function_body: true },
                         user_initiated: false,
                     });
                 }
@@ -1076,7 +1083,7 @@ impl<'a> Cursor<'a> {
                 self.frames.push(Frame {
                     step: 0,
                     element: Element::AleoExecution {
-                        context,
+                        context: context.into(),
                         registers: arguments.enumerate().map(|(i, v)| (i as u64, v)).collect(),
                         instruction_index: 0,
                     },
@@ -1090,14 +1097,14 @@ impl<'a> Cursor<'a> {
                     let Some(finalize_f) = function.finalize_logic() else {
                         panic!("finalize call with no finalize logic");
                     };
-                    AleoContext::Finalize(finalize_f)
+                    AleoContext::Finalize(finalize_f.clone())
                 } else {
                     AleoContext::Function(function)
                 };
                 self.frames.push(Frame {
                     step: 0,
                     element: Element::AleoExecution {
-                        context,
+                        context: context.into(),
                         registers: arguments.enumerate().map(|(i, v)| (i as u64, v)).collect(),
                         instruction_index: 0,
                     },

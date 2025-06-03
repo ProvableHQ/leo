@@ -236,6 +236,13 @@ symbols! {
     False: "false",
     True: "true",
 
+    // annotations
+    should_fail,
+    test,
+
+    // annotation keys
+    private_key,
+
     // general keywords
     As: "as",
     assert,
@@ -260,6 +267,7 @@ symbols! {
     mapping,
     Mut: "mut",
     Return: "return",
+    script,
     SelfLower: "self",
     SelfUpper: "Self",
     signer,

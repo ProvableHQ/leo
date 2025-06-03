@@ -1,25 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372088]: An async transition must call an async function.
-    --> compiler-test:5:5
-     |
-   5 |     async transition mint_public(public receiver: address, public amount: u64) {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   6 | 
-   7 |     }
-     |     ^
-     |
-     = Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`
-Warning [WTYC0372002]: The async function `finalize_mint_public` is never called by an async transition.
-    --> compiler-test:9:5
-     |
-   9 |     async function finalize_mint_public (public receiver: address, public amount: u64) {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  10 |         Mapping::set(account, receiver, amount);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 |     }
-     |     ^
-
-DCE_DISABLED:
 Error [ETYC0372088]: An async transition must call an async function.
     --> compiler-test:5:5
      |

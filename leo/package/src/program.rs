@@ -32,6 +32,7 @@ pub struct Program {
     pub data: ProgramData,
     pub edition: Option<u16>,
     pub dependencies: IndexSet<Dependency>,
+    pub is_test: bool,
 }
 
 impl Program {
@@ -73,7 +74,47 @@ impl Program {
             name,
             data: ProgramData::SourcePath(source_path),
             edition: None,
-            dependencies: manifest.dependencies.unwrap_or_default().into_iter().collect(),
+            dependencies: manifest
+                .dependencies
+                .unwrap_or_default()
+                .into_iter()
+                .map(|dependency| canonicalize_dependency_path_relative_to(path, dependency))
+                .collect::<Result<IndexSet<_>, _>>()?,
+            is_test: false,
+        })
+    }
+
+    /// Given the path to the source file of a test, create a `Program`.
+    ///
+    /// Unlike `Program::from_path`, the path is to the source file,
+    /// and the name of the program is determined from the filename.
+    ///
+    /// `main_program` must be provided since every test is dependent on it.
+    pub fn from_path_test<P: AsRef<Path>>(source_path: P, main_program: Dependency) -> Result<Self> {
+        Self::from_path_test_impl(source_path.as_ref(), main_program)
+    }
+
+    fn from_path_test_impl(source_path: &Path, main_program: Dependency) -> Result<Self> {
+        let name = filename_no_leo_extension(source_path)
+            .ok_or_else(|| PackageError::failed_path(source_path.display(), ""))?;
+        let package_directory = source_path.parent().and_then(|parent| parent.parent()).ok_or_else(|| {
+            UtilError::failed_to_open_file(format_args!("Failed to find package for test {}", source_path.display()))
+        })?;
+        let manifest = Manifest::read_from_file(package_directory.join(MANIFEST_FILENAME))?;
+        let mut dependencies = manifest
+            .dev_dependencies
+            .unwrap_or_default()
+            .into_iter()
+            .map(|dependency| canonicalize_dependency_path_relative_to(package_directory, dependency))
+            .collect::<Result<IndexSet<_>, _>>()?;
+        dependencies.insert(main_program);
+
+        Ok(Program {
+            name: Symbol::intern(name),
+            edition: None,
+            data: ProgramData::SourcePath(source_path.to_path_buf()),
+            dependencies,
+            is_test: true,
         })
     }
 
@@ -85,9 +126,9 @@ impl Program {
         home_path: P,
         network: NetworkName,
         endpoint: &str,
-        use_cache: bool,
+        no_cache: bool,
     ) -> Result<Self> {
-        Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, use_cache)
+        Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, no_cache)
     }
 
     fn fetch_impl(
@@ -96,7 +137,7 @@ impl Program {
         home_path: &Path,
         network: NetworkName,
         endpoint: &str,
-        use_cache: bool,
+        no_cache: bool,
     ) -> Result<Self> {
         // It's not a local program; let's check the cache.
         let cache_directory = home_path.join(format!("registry/{network}"));
@@ -116,34 +157,53 @@ impl Program {
             }
         };
 
+        // Define the full cache path for the program.
         let full_cache_path = cache_directory.join(format!("{name}/{edition}/{name}.aleo"));
-        let bytecode = if full_cache_path.exists() && use_cache {
-            // Great; apparently this file is already cached.
-            std::fs::read_to_string(&full_cache_path).map_err(|e| {
-                UtilError::util_file_io_error(
-                    format_args!("Trying to read cached file at {}", full_cache_path.display()),
-                    e,
-                )
-            })?
-        } else {
-            // We need to fetch it from the network.
-            let url = format!("{endpoint}/{network}/program/{name}/{edition}/{name}.aleo");
-            let contents = fetch_from_network(&url)?;
 
-            // Make sure the cache directory exists.
-            std::fs::create_dir_all(&cache_directory).map_err(|e| {
-                UtilError::util_file_io_error(
-                    format_args!("Could not create directory `{}`", cache_directory.display()),
-                    e,
-                )
-            })?;
+        // Get the existing bytecode if the file exists.
+        let existing_bytecode = match full_cache_path.exists() {
+            false => None,
+            true => {
+                // If the file exists, read it and compare it to the new contents.
+                let existing_contents = std::fs::read_to_string(&full_cache_path).map_err(|e| {
+                    UtilError::util_file_io_error(
+                        format_args!("Trying to read cached file at {}", full_cache_path.display()),
+                        e,
+                    )
+                })?;
+                Some(existing_contents)
+            }
+        };
 
-            // Write the bytecode to the cache.
-            std::fs::write(&full_cache_path, &contents).map_err(|err| {
-                UtilError::util_file_io_error(format_args!("Could not open file `{}`", full_cache_path.display()), err)
-            })?;
+        let bytecode = match (existing_bytecode, no_cache) {
+            // If we are using the cache, we can just return the bytecode.
+            (Some(bytecode), false) => bytecode,
+            // Otherwise, we need to fetch it from the network.
+            (existing, _) => {
+                // We need to fetch it from the network.
+                let url = format!("{endpoint}/{network}/program/{name}.aleo");
+                let contents = fetch_from_network(&url)?;
 
-            contents
+                // If the file already exists, compare it to the new contents.
+                if let Some(existing_contents) = existing {
+                    if existing_contents != contents {
+                        println!(
+                            "Warning: The cached file at `{}` is different from the one fetched from the network. The cached file will be overwritten.",
+                            full_cache_path.display()
+                        );
+                    }
+                }
+
+                // Write the bytecode to the cache.
+                std::fs::write(&full_cache_path, &contents).map_err(|err| {
+                    UtilError::util_file_io_error(
+                        format_args!("Could not open file `{}`", full_cache_path.display()),
+                        err,
+                    )
+                })?;
+
+                contents
+            }
         };
 
         // Parse the program so we can get its imports.
@@ -158,6 +218,26 @@ impl Program {
             })
             .collect();
 
-        Ok(Program { name, data: ProgramData::Bytecode(bytecode), edition: Some(edition), dependencies })
+        Ok(Program {
+            name,
+            data: ProgramData::Bytecode(bytecode),
+            edition: Some(edition),
+            dependencies,
+            is_test: false,
+        })
     }
+}
+
+/// If `dependency` has a relative path, assume it's relative to `base` and canonicalize it.
+///
+/// This needs to be done when collecting local dependencies from manifests which
+/// may be located at different places on the file system.
+fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
+    if let Some(path) = &mut dependency.path {
+        if !path.is_absolute() {
+            let joined = base.join(&path);
+            *path = joined.canonicalize().map_err(|e| PackageError::failed_path(joined.display(), e))?;
+        }
+    }
+    Ok(dependency)
 }

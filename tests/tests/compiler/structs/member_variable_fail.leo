@@ -4,8 +4,8 @@ program test.aleo {
         x: u32,
     }
 
-    function main() {
-        let a: foo = Foo { x: 1u32 };
+    transition main() {
+        let a: Foo = Foo { x: 1u32 };
         let err = a.y;
     }
 }

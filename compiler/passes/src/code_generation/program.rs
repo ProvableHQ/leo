@@ -198,14 +198,26 @@ impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
             Variant::Function => format!("\nclosure {}:\n", function.identifier),
             Variant::AsyncFunction => format!("\nfinalize {}:\n", self.finalize_caller.unwrap()),
             Variant::Inline => return String::new(),
+            Variant::Script => panic!("script should not appear in native code"),
         };
 
         let mut futures = futures.iter();
 
+        self.internal_record_inputs.clear();
+
         // Construct and append the input declarations of the function.
         for input in function.input.iter() {
-            let register_string = format!("r{}", self.next_register);
-            self.next_register += 1;
+            let register_string = self.next_register();
+
+            // Track all internal record inputs.
+            if let Type::Composite(comp) = &input.type_ {
+                let program = comp.program.unwrap_or(self.program_id.unwrap().name.name);
+                if let Some(record) = self.state.symbol_table.lookup_record(Location::new(program, comp.id.name)) {
+                    if record.external.is_none() || record.external == self.program_id.map(|id| id.name.name) {
+                        self.internal_record_inputs.insert(register_string.clone());
+                    }
+                }
+            }
 
             let type_string = {
                 self.variable_mapping.insert(input.identifier.name, register_string.clone());

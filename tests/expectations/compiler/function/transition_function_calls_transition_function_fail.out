@@ -1,16 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:5:19
-     |
-   5 |            return adder(a, b);
-     |                   ^^^^^^^^^^^
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:7:20
-     |
-   7 |             return subber(a, b);
-     |                    ^^^^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
     --> compiler-test:5:19
      |

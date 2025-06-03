@@ -82,7 +82,7 @@ impl<N: Network> Compiler<N> {
             .into());
         }
 
-        if self.compiler_options.output.initial_ast {
+        if self.compiler_options.initial_ast {
             self.write_ast_to_json("initial.json")?;
             self.write_ast("initial.ast")?;
         }
@@ -100,6 +100,7 @@ impl<N: Network> Compiler<N> {
     /// Returns a new Leo compiler.
     pub fn new(
         expected_program_name: Option<String>,
+        is_test: bool,
         handler: Handler,
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
@@ -107,7 +108,7 @@ impl<N: Network> Compiler<N> {
         upgrade_config: Option<UpgradeConfig>,
     ) -> Self {
         Self {
-            state: CompilerState { handler, upgrade_config, ..Default::default() },
+            state: CompilerState { handler, upgrade_config, is_test, ..Default::default() },
             output_directory,
             program_name: expected_program_name,
             compiler_options: compiler_options.unwrap_or_default(),
@@ -121,7 +122,7 @@ impl<N: Network> Compiler<N> {
     fn do_pass<P: Pass>(&mut self, input: P::Input) -> Result<P::Output> {
         let output = P::do_pass(input, &mut self.state)?;
 
-        let write = match &self.compiler_options.output.ast_snapshots {
+        let write = match &self.compiler_options.ast_snapshots {
             AstSnapshots::All => true,
             AstSnapshots::Some(passes) => passes.contains(P::NAME),
         };
@@ -144,10 +145,9 @@ impl<N: Network> Compiler<N> {
             max_functions: N::MAX_FUNCTIONS,
         })?;
 
-        self.do_pass::<StaticAnalyzing<N>>(StaticAnalyzingInput {
-            max_depth: self.compiler_options.build.conditional_block_max_depth,
-            conditional_branch_type_checking: !self.compiler_options.build.disable_conditional_branch_type_checking,
-        })?;
+        self.do_pass::<ProcessingScript>(())?;
+
+        self.do_pass::<StaticAnalyzing<N>>(())?;
 
         self.do_pass::<ConstPropagationAndUnrolling>(())?;
 
@@ -165,11 +165,9 @@ impl<N: Network> Compiler<N> {
 
         self.do_pass::<FunctionInlining>(())?;
 
-        if self.compiler_options.build.dce_enabled {
-            let output = self.do_pass::<DeadCodeEliminating>(())?;
-            self.statements_before_dce = output.statements_before;
-            self.statements_after_dce = output.statements_after;
-        }
+        let output = self.do_pass::<DeadCodeEliminating>(())?;
+        self.statements_before_dce = output.statements_before;
+        self.statements_after_dce = output.statements_after;
 
         Ok(())
     }
@@ -196,7 +194,7 @@ impl<N: Network> Compiler<N> {
     /// Writes the AST to a JSON file.
     fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
         // Remove `Span`s if they are not enabled.
-        if self.compiler_options.output.ast_spans_enabled {
+        if self.compiler_options.ast_spans_enabled {
             self.state.ast.to_json_file(
                 self.output_directory.clone(),
                 &format!("{}.{file_suffix}", self.program_name.as_ref().unwrap()),

@@ -21,6 +21,7 @@ use leo_errors::{CliError, PackageError, Result, UtilError};
 use leo_span::Symbol;
 
 use indexmap::{IndexMap, map::Entry};
+use snarkvm::prelude::anyhow;
 use std::path::{Path, PathBuf};
 
 /// Either the bytecode of an Aleo program (if it was a network dependency) or
@@ -34,7 +35,7 @@ pub enum ProgramData {
 /// A Leo package.
 #[derive(Clone, Debug)]
 pub struct Package {
-    /// The directory on the filesystem where the package is located.
+    /// The directory on the filesystem where the package is located, canonicalized.
     pub base_directory: PathBuf,
 
     /// A topologically sorted list of all programs in this package, whether
@@ -67,6 +68,10 @@ impl Package {
 
     pub fn source_directory(&self) -> PathBuf {
         self.base_directory.join(SOURCE_DIRECTORY)
+    }
+
+    pub fn tests_directory(&self) -> PathBuf {
+        self.base_directory.join(TESTS_DIRECTORY)
     }
 
     /// Create a Leo package by the name `package_name` in a subdirectory of `path`.
@@ -128,6 +133,7 @@ impl Package {
             description: String::new(),
             license: "MIT".to_string(),
             dependencies: None,
+            dev_dependencies: None,
             upgrade: Some(UpgradeConfig::NoUpgrade),
         };
 
@@ -144,7 +150,19 @@ impl Package {
         // Create the main.leo file.
         let main_path = source_path.join(MAIN_FILENAME);
 
-        std::fs::write(&main_path, main_template(package_name.strip_suffix(".aleo").unwrap()))
+        let name_no_aleo = package_name.strip_suffix(".aleo").unwrap();
+
+        std::fs::write(&main_path, main_template(name_no_aleo))
+            .map_err(|e| UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e))?;
+
+        // Create the tests directory.
+        let tests_path = full_path.join(TESTS_DIRECTORY);
+
+        std::fs::create_dir(&tests_path)
+            .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
+
+        let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
+        std::fs::write(&test_file_path, test_template(name_no_aleo))
             .map_err(|e| UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e))?;
 
         Ok(full_path)
@@ -154,16 +172,79 @@ impl Package {
     ///
     /// This may be useful if you just need other information like the manifest or env file.
     pub fn from_directory_no_graph<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q) -> Result<Self> {
-        Self::from_directory_impl(path.as_ref(), home_path.as_ref(), /* build_graph */ false)
+        Self::from_directory_impl(
+            path.as_ref(),
+            home_path.as_ref(),
+            /* build_graph */ false,
+            /* with_tests */ false,
+            /* no_cache */ false,
+        )
     }
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies,
     /// obtaining dependencies from the file system or network and topologically sorting them.
-    pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q) -> Result<Self> {
-        Self::from_directory_impl(path.as_ref(), home_path.as_ref(), /* build_graph */ true)
+    pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q, no_cache: bool) -> Result<Self> {
+        Self::from_directory_impl(
+            path.as_ref(),
+            home_path.as_ref(),
+            /* build_graph */ true,
+            /* with_tests */ false,
+            no_cache,
+        )
     }
 
-    fn from_directory_impl(path: &Path, home_path: &Path, build_graph: bool) -> Result<Self> {
+    /// Examine the Leo package at `path` to create a `Package`, including all its dependencies
+    /// and its tests, obtaining dependencies from the file system or network and topologically sorting them.
+    pub fn from_directory_with_tests<P: AsRef<Path>, Q: AsRef<Path>>(
+        path: P,
+        home_path: Q,
+        no_cache: bool,
+    ) -> Result<Self> {
+        Self::from_directory_impl(
+            path.as_ref(),
+            home_path.as_ref(),
+            /* build_graph */ true,
+            /* with_tests */ true,
+            no_cache,
+        )
+    }
+
+    pub fn test_files(&self) -> impl Iterator<Item = PathBuf> {
+        let path = self.tests_directory();
+        // This allocation isn't ideal but it's not performance critical and
+        // easily resolves lifetime issues.
+        let data: Vec<PathBuf> = Self::files_with_extension(&path, "leo").collect();
+        data.into_iter()
+    }
+
+    pub fn import_files(&self) -> impl Iterator<Item = PathBuf> {
+        let path = self.imports_directory();
+        // This allocation isn't ideal but it's not performance critical and
+        // easily resolves lifetime issues.
+        let data: Vec<PathBuf> = Self::files_with_extension(&path, "aleo").collect();
+        data.into_iter()
+    }
+
+    fn files_with_extension(path: &Path, extension: &'static str) -> impl Iterator<Item = PathBuf> {
+        path.read_dir()
+            .ok()
+            .into_iter()
+            .flatten()
+            .flat_map(|maybe_filename| maybe_filename.ok())
+            .filter(|entry| entry.file_type().ok().map(|filetype| filetype.is_file()).unwrap_or(false))
+            .flat_map(move |entry| {
+                let path = entry.path();
+                if path.extension().is_some_and(|e| e == extension) { Some(path) } else { None }
+            })
+    }
+
+    fn from_directory_impl(
+        path: &Path,
+        home_path: &Path,
+        build_graph: bool,
+        with_tests: bool,
+        no_cache: bool,
+    ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             UtilError::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
         };
@@ -188,7 +269,37 @@ impl Package {
                 edition: None,
             };
 
-            Self::graph_build(&home_path, env.network, &env.endpoint, first_dependency, &mut map, &mut digraph)?;
+            let test_dependencies: Vec<Dependency> = if with_tests {
+                let tests_directory = path.join(TESTS_DIRECTORY);
+                let mut test_dependencies: Vec<Dependency> = Self::files_with_extension(&tests_directory, "leo")
+                    .map(|path| Dependency {
+                        // We just made sure it has a ".leo" extension.
+                        name: format!("{}.aleo", crate::filename_no_leo_extension(&path).unwrap()),
+                        edition: None,
+                        location: Location::Test,
+                        path: Some(path.to_path_buf()),
+                    })
+                    .collect();
+                if let Some(deps) = manifest.dev_dependencies.as_ref() {
+                    test_dependencies.extend(deps.iter().cloned());
+                }
+                test_dependencies
+            } else {
+                Vec::new()
+            };
+
+            for dependency in test_dependencies.into_iter().chain(std::iter::once(first_dependency.clone())) {
+                Self::graph_build(
+                    &home_path,
+                    env.network,
+                    &env.endpoint,
+                    &first_dependency,
+                    dependency,
+                    &mut map,
+                    &mut digraph,
+                    no_cache,
+                )?;
+            }
 
             let ordered_dependency_symbols =
                 digraph.post_order().map_err(|_| UtilError::circular_dependency_error())?;
@@ -201,15 +312,18 @@ impl Package {
         Ok(Package { base_directory: path, programs, env, manifest })
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn graph_build(
         home_path: &Path,
         network: NetworkName,
         endpoint: &str,
+        main_program: &Dependency,
         new: Dependency,
         map: &mut IndexMap<Symbol, (Dependency, Program)>,
         graph: &mut DiGraph<Symbol>,
+        no_cache: bool,
     ) -> Result<()> {
-        let name_symbol = crate::symbol(&new.name)?;
+        let name_symbol = symbol(&new.name)?;
 
         let program = match map.entry(name_symbol) {
             Entry::Occupied(occupied) => {
@@ -226,12 +340,21 @@ impl Package {
                 return Ok(());
             }
             Entry::Vacant(vacant) => {
-                let program = if let Some(path) = new.path.as_ref() {
-                    // It's a local dependency.
-                    Program::from_path(name_symbol, path.clone())?
-                } else {
-                    // It's a network dependency.
-                    Program::fetch(name_symbol, new.edition, home_path, network, endpoint, true)?
+                let program = match (new.path.as_ref(), new.location) {
+                    (Some(path), Location::Local) => {
+                        // It's a local dependency.
+                        Program::from_path(name_symbol, path.clone())?
+                    }
+                    (Some(path), Location::Test) => {
+                        // It's a test dependency - the path points to the source file,
+                        // not a package.
+                        Program::from_path_test(path, main_program.clone())?
+                    }
+                    (_, Location::Network) => {
+                        // It's a network dependency.
+                        Program::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache)?
+                    }
+                    _ => return Err(anyhow!("Invalid dependency data for {} (path must be given).", new.name).into()),
                 };
 
                 vacant.insert((new, program.clone()));
@@ -243,9 +366,9 @@ impl Package {
         graph.add_node(name_symbol);
 
         for dependency in program.dependencies.iter() {
-            let dependency_symbol = crate::symbol(&dependency.name)?;
+            let dependency_symbol = symbol(&dependency.name)?;
             graph.add_edge(name_symbol, dependency_symbol);
-            Self::graph_build(home_path, network, endpoint, dependency.clone(), map, graph)?;
+            Self::graph_build(home_path, network, endpoint, main_program, dependency.clone(), map, graph, no_cache)?;
         }
 
         Ok(())
@@ -312,6 +435,28 @@ program {name}.aleo {{
     // For more information, please refer to the documentation: <TODO>.
     async constructor() {{
         assert_eq(self.edition, 0u16);
+    }}
+}}
+"#
+    )
+}
+
+fn test_template(name: &str) -> String {
+    format!(
+        r#"// The 'test_{name}' test program.
+import {name}.aleo;
+program test_{name}.aleo {{
+    @test
+    script test_it() {{
+        let result: u32 = {name}.aleo/main(1u32, 2u32);
+        assert_eq(result, 3u32);
+    }}
+
+    @test
+    @should_fail
+    transition do_nothing() {{
+        let result: u32 = {name}.aleo/main(2u32, 3u32);
+        assert_eq(result, 3u32);
     }}
 }}
 "#

@@ -38,7 +38,7 @@ use snarkvm::{
 /// Type identity is decided by the full path including `struct_name`,
 /// as the record is nominal, not structural.
 /// The fields are named so `struct Foo(u8, u16)` is not allowed.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Composite {
     /// The name of the type in the type system in this module.
     pub identifier: Identifier,
@@ -123,12 +123,6 @@ impl Composite {
             span: Default::default(),
             id: Default::default(),
         }
-    }
-}
-
-impl fmt::Debug for Composite {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        <Self as fmt::Display>::fmt(self, f)
     }
 }
 

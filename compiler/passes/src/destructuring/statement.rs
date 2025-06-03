@@ -178,7 +178,7 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
                     // Make a definition for each.
                     let stmt = DefinitionStatement {
                         place: Single(*identifier),
-                        type_: ty.clone(),
+                        type_: Some(ty.clone()),
                         value: Expression::Identifier(*rhs_identifier),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
@@ -202,7 +202,7 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
                     // Make a definition for each.
                     let stmt = DefinitionStatement {
                         place: Single(*identifier),
-                        type_: ty.clone(),
+                        type_: Some(ty.clone()),
                         value: expr,
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
@@ -243,7 +243,7 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
                 for (identifier, expr) in identifiers.into_iter().zip_eq(tuple.elements) {
                     let stmt = DefinitionStatement {
                         place: Single(identifier),
-                        type_: Type::Err,
+                        type_: None,
                         value: expr,
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
@@ -261,7 +261,7 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
                 for (identifier, rhs_identifier) in identifiers.into_iter().zip_eq(rhs_identifiers.iter()) {
                     let stmt = DefinitionStatement {
                         place: Single(identifier),
-                        type_: Type::Err,
+                        type_: None,
                         value: Expression::Identifier(*rhs_identifier),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
@@ -276,7 +276,7 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
             (m @ Multiple(..), value @ Expression::Call(..), Type::Tuple(..)) => {
                 // Just reconstruct the statement.
                 let stmt =
-                    DefinitionStatement { place: m, type_: Type::Err, value, span: definition.span, id: definition.id }
+                    DefinitionStatement { place: m, type_: None, value, span: definition.span, id: definition.id }
                         .into();
                 (stmt, statements)
             }
@@ -287,7 +287,7 @@ impl StatementReconstructor for DestructuringVisitor<'_> {
                 // This isn't a tuple. Just build the definition again.
                 let stmt = DefinitionStatement {
                     place: s,
-                    type_: Type::Err,
+                    type_: None,
                     value: rhs,
                     span: Default::default(),
                     id: definition.id,

@@ -18,7 +18,7 @@ use super::*;
 use crate::VariableType;
 
 use leo_ast::*;
-use leo_errors::{Handler, TypeCheckerError};
+use leo_errors::{Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
@@ -35,6 +35,20 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
                 Type::Err
             }
         };
+
+        // Prohibit assignment to an external record or a member thereof.
+        // This is necessary as an assignment in a conditional branch would become a
+        // ternary, which can't happen.
+        if self.is_external_record(&ty) {
+            self.emit_err(TypeCheckerError::assignment_to_external_record(&ty, input.span()));
+        }
+
+        // Similarly prohibit assignment to a tuple with an external record member.
+        if let Type::Tuple(tuple) = &ty {
+            if tuple.elements().iter().any(|ty| self.is_external_record(ty)) {
+                self.emit_err(TypeCheckerError::assignment_to_external_record(&ty, input.span()));
+            }
+        }
 
         // Prohibit reassignment of futures.
         if let Type::Future(..) = ty {
@@ -92,7 +106,9 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
                         sym::caller => {
                             // Check that the operation is not invoked in a `finalize` block.
                             self.check_access_allowed("self.caller", false, input.name.span());
-                            return Type::Address;
+                            let ty = Type::Address;
+                            self.maybe_assert_type(&ty, expected, input.span());
+                            return ty;
                         }
                         sym::checksum => {
                             return Type::Array(ArrayType::new(
@@ -114,7 +130,9 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
                         sym::signer => {
                             // Check that operation is not invoked in a `finalize` block.
                             self.check_access_allowed("self.signer", false, input.name.span());
-                            return Type::Address;
+                            let ty = Type::Address;
+                            self.maybe_assert_type(&ty, expected, input.span());
+                            return ty;
                         }
                         _ => {
                             self.emit_err(TypeCheckerError::invalid_self_access(input.name.span()));
@@ -381,7 +399,9 @@ impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
             return Type::Err;
         };
         // Check that operation is not restricted to finalize blocks.
-        if self.scope_state.variant != Some(Variant::AsyncFunction) && core_instruction.is_finalize_command() {
+        if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
+            && core_instruction.is_finalize_command()
+        {
             self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
         }
 
@@ -664,11 +684,19 @@ impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
         // Async functions return a single future.
         let mut ret = if func.variant == Variant::AsyncFunction {
             // Type check after resolving the input types.
-            if let Some(Type::Future(_)) = expected {
-                Type::Future(FutureType::new(Vec::new(), Some(Location::new(callee_program, ident.name)), false))
-            } else {
-                self.emit_err(TypeCheckerError::return_type_of_finalize_function_is_future(input.span));
-                Type::Unit
+            let actual =
+                Type::Future(FutureType::new(Vec::new(), Some(Location::new(callee_program, ident.name)), false));
+            match expected {
+                Some(Type::Future(_)) | None => {
+                    // If the expected type is a `Future` or if it's not set, then just return the
+                    // actual type of the future from the expression itself
+                    actual
+                }
+                Some(_) => {
+                    // Otherwise, error out. There is a mismatch in types.
+                    self.maybe_assert_type(&actual, expected, input.span());
+                    Type::Unit
+                }
             }
         } else if func.variant == Variant::AsyncTransition {
             // Fully infer future type.
@@ -797,7 +825,7 @@ impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
             }
 
             // Can only call async functions and external async transitions from an async transition body.
-            if self.scope_state.variant != Some(Variant::AsyncTransition) {
+            if !matches!(self.scope_state.variant, Some(Variant::AsyncTransition) | Some(Variant::Script)) {
                 self.emit_err(TypeCheckerError::async_call_can_only_be_done_from_async_transition(input.span));
             }
 
@@ -805,6 +833,7 @@ impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
             if self.scope_state.has_called_finalize {
                 self.emit_err(TypeCheckerError::must_call_async_function_once(input.span));
             }
+
             // Check that all futures consumed.
             if !self.scope_state.futures.is_empty() {
                 self.emit_err(TypeCheckerError::not_all_futures_consumed(
@@ -898,7 +927,7 @@ impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
                 match &actual.expression {
                     None => {
                         // If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`
-                        // We visit it as an expression rather than just calling `visit_identifer` so it will get
+                        // We visit it as an expression rather than just calling `visit_identifier` so it will get
                         // put into the type table.
                         self.visit_expression(&actual.identifier.into(), &Some(type_.clone()));
                     }
@@ -910,6 +939,31 @@ impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
             } else {
                 self.emit_err(TypeCheckerError::missing_struct_member(struct_.identifier, identifier, input.span()));
             };
+        }
+
+        if struct_.is_record {
+            // First, ensure that the current scope is not an async function. Records should not be instantiated in
+            // async functions
+            if self.scope_state.variant == Some(Variant::AsyncFunction) {
+                self.state.handler.emit_err(TypeCheckerError::records_not_allowed_inside_finalize(input.span()));
+            }
+
+            // Records where the `owner` is `self.caller` can be problematic because `self.caller` can be a program
+            // address and programs can't spend records. Emit a warning in this case.
+            //
+            // Multiple occurrences of `owner` here is an error but that should be flagged somewhere else.
+            input.members.iter().filter(|init| init.identifier.name == sym::owner).for_each(|init| {
+                if let Some(Expression::MemberAccess(access)) = &init.expression {
+                    if let MemberAccess {
+                        inner: Expression::Identifier(Identifier { name: sym::SelfLower, .. }),
+                        name: Identifier { name: sym::caller, .. },
+                        ..
+                    } = &**access
+                    {
+                        self.emit_warning(TypeCheckerWarning::caller_as_record_owner(input.name, access.span()));
+                    }
+                }
+            });
         }
 
         type_
@@ -1020,41 +1074,80 @@ impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
         let t1 = self.visit_expression(&input.if_true, expected);
         let t2 = self.visit_expression(&input.if_false, expected);
 
-        if t1 == Type::Err || t2 == Type::Err {
+        let typ = if t1 == Type::Err || t2 == Type::Err {
             Type::Err
         } else if !self.eq_user(&t1, &t2) {
             self.emit_err(TypeCheckerError::ternary_branch_mismatch(t1, t2, input.span()));
             Type::Err
         } else {
             t1
+        };
+
+        // Make sure this isn't an external record type - won't work as we can't construct it.
+        if self.is_external_record(&typ) {
+            self.emit_err(TypeCheckerError::ternary_over_external_records(&typ, input.span));
         }
+
+        // None of its members may be external record types either.
+        if let Type::Tuple(tuple) = &typ {
+            if tuple.elements().iter().any(|ty| self.is_external_record(ty)) {
+                self.emit_err(TypeCheckerError::ternary_over_external_records(&typ, input.span));
+            }
+        }
+
+        typ
     }
 
     fn visit_tuple(&mut self, input: &TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        // Check the expected tuple types if they are known.
-        let Some(Type::Tuple(expected_types)) = expected else {
-            self.emit_err(TypeCheckerError::invalid_tuple(input.span()));
-            return Type::Err;
-        };
+        if let Some(expected) = expected {
+            if let Type::Tuple(expected_types) = expected {
+                // If the expected type is a tuple, then ensure it's compatible with `input`
 
-        // Check actual length is equal to expected length.
-        if expected_types.length() != input.elements.len() {
-            self.emit_err(TypeCheckerError::incorrect_tuple_length(
-                expected_types.length(),
-                input.elements.len(),
-                input.span(),
-            ));
-        }
+                // First, make sure that the number of tuple elements is correct
+                if expected_types.length() != input.elements.len() {
+                    self.emit_err(TypeCheckerError::incorrect_tuple_length(
+                        expected_types.length(),
+                        input.elements.len(),
+                        input.span(),
+                    ));
+                }
 
-        for (expr, expected) in input.elements.iter().zip(expected_types.elements().iter()) {
-            if matches!(expr, Expression::Tuple(_)) {
-                self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))
+                // Now make sure that none of the tuple elements is a tuple
+                input.elements.iter().zip(expected_types.elements()).for_each(|(expr, expected_el_ty)| {
+                    if matches!(expr, Expression::Tuple(_)) {
+                        self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()));
+                    }
+                    self.visit_expression(expr, &Some(expected_el_ty.clone()));
+                });
+
+                // Just return the expected type since we proved it's correct
+                expected.clone()
+            } else {
+                // If the expected type is not a tuple, then we just error out
+
+                // This is the expected type of the tuple based on its individual fields
+                let inferred_type = Type::Tuple(TupleType::new(
+                    input.elements.iter().map(|field| self.visit_expression(field, &None)).collect::<Vec<_>>(),
+                ));
+                self.emit_err(TypeCheckerError::type_should_be2(inferred_type.clone(), expected, input.span()));
+
+                // Recover with the expected type anyways
+                expected.clone()
             }
+        } else {
+            // If no `expected` type is provided, then we analyze the tuple itself and infer its type
 
-            self.visit_expression(expr, &Some(expected.clone()));
+            // We still need to check that none of the tuple elements is a tuple
+            input.elements.iter().for_each(|expr| {
+                if matches!(expr, Expression::Tuple(_)) {
+                    self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()));
+                }
+            });
+
+            Type::Tuple(TupleType::new(
+                input.elements.iter().map(|field| self.visit_expression(field, &None)).collect::<Vec<_>>(),
+            ))
         }
-
-        Type::Tuple(expected_types.clone())
     }
 
     fn visit_unary(&mut self, input: &UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {

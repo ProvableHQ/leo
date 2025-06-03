@@ -1,16 +1,6 @@
-DCE_ENABLED:
 program test.aleo;
 
 function main:
     input r0 as address.private;
     is.neq r0 aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx into r1;
     output r1 as boolean.private;
-
-DCE_DISABLED:
-program test.aleo;
-
-function main:
-    input r0 as address.private;
-    is.eq r0 aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx into r1;
-    is.neq r0 aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx into r2;
-    output r2 as boolean.private;

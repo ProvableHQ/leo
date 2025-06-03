@@ -1,16 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372112]: A struct must have at least one member.
-    --> compiler-test:3:5
-     |
-   3 |     struct Bar {}
-     |     ^^^^^^^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372112]: A struct must have at least one member.
     --> compiler-test:3:5
      |

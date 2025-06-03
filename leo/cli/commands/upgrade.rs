@@ -63,10 +63,13 @@ impl Command for LeoUpgrade {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        LeoCheck {
+        LeoBuild {
             env_override: self.env_override.clone(),
-            extra: self.extra.clone(),
-            build_options: self.build_options.clone(),
+            options: {
+                let mut options = self.build_options.clone();
+                options.no_cache = true;
+                options
+            },
         }
         .execute(context)
     }

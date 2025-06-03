@@ -1,12 +1,4 @@
-DCE_ENABLED:
-Error [ETYC0372067]: This operation can only be used in an async function block.
-    --> compiler-test:7:25
-     |
-   7 |         let a: scalar = ChaCha::rand_scalar();
-     |                         ^^^^^^^^^^^^^^^^^^^^^
-
-DCE_DISABLED:
-Error [ETYC0372067]: This operation can only be used in an async function block.
+Error [ETYC0372067]: This operation can only be used in an async function or script.
     --> compiler-test:7:25
      |
    7 |         let a: scalar = ChaCha::rand_scalar();

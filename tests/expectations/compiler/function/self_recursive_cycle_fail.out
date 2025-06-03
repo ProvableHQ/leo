@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 DCE_ENABLED:
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
     --> compiler-test:15:20
@@ -22,6 +23,8 @@ Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `
 Error [ETYC0372059]: Cyclic dependency between functions: `test/foo` --> `test/foo`
 
 DCE_DISABLED:
+=======
+>>>>>>> feat/cli-improvements
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
     --> compiler-test:15:20
      |

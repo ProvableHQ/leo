@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Expression::Literal, Type::Integer, *};
+use leo_ast::{Expression::Literal, *};
 use leo_errors::LoopUnrollerError;
 
 use super::UnrollingVisitor;
@@ -55,39 +55,20 @@ impl StatementReconstructor for UnrollingVisitor<'_> {
         let start_value = Value::try_from(start_lit).unwrap();
         let stop_value = Value::try_from(stop_lit).unwrap();
 
-        // Ensure loop bounds are increasing. This cannot be done in the type checker because constant propagation must happen first.
-        if match (input.type_.clone(), &start_value, &stop_value) {
-            (Integer(IntegerType::I8), Value::I8(lower_bound, _), Value::I8(upper_bound, _)) => {
-                lower_bound >= upper_bound
-            }
-            (Integer(IntegerType::I16), Value::I16(lower_bound, _), Value::I16(upper_bound, _)) => {
-                lower_bound >= upper_bound
-            }
-            (Integer(IntegerType::I32), Value::I32(lower_bound, _), Value::I32(upper_bound, _)) => {
-                lower_bound >= upper_bound
-            }
-            (Integer(IntegerType::I64), Value::I64(lower_bound, _), Value::I64(upper_bound, _)) => {
-                lower_bound >= upper_bound
-            }
-            (Integer(IntegerType::I128), Value::I128(lower_bound, _), Value::I128(upper_bound, _)) => {
-                lower_bound >= upper_bound
-            }
-            (Integer(IntegerType::U8), Value::U8(lower_bound, _), Value::U8(upper_bound, _)) => {
-                lower_bound >= upper_bound
-            }
-            (Integer(IntegerType::U16), Value::U16(lower_bound, _), Value::U16(upper_bound, _)) => {
-                lower_bound >= upper_bound
-            }
-            (Integer(IntegerType::U32), Value::U32(lower_bound, _), Value::U32(upper_bound, _)) => {
-                lower_bound >= upper_bound
-            }
-            (Integer(IntegerType::U64), Value::U64(lower_bound, _), Value::U64(upper_bound, _)) => {
-                lower_bound >= upper_bound
-            }
-            (Integer(IntegerType::U128), Value::U128(lower_bound, _), Value::U128(upper_bound, _)) => {
-                lower_bound >= upper_bound
-            }
-            _ => panic!("Type checking guarantees that the loop bounds have same type as loop variable."),
+        // Ensure loop bounds are increasing. This cannot be done in the type checker because constant propagation must
+        // happen first.
+        if match (&start_value, &stop_value) {
+            (Value::I8(lower_bound, _), Value::I8(upper_bound, _)) => lower_bound >= upper_bound,
+            (Value::I16(lower_bound, _), Value::I16(upper_bound, _)) => lower_bound >= upper_bound,
+            (Value::I32(lower_bound, _), Value::I32(upper_bound, _)) => lower_bound >= upper_bound,
+            (Value::I64(lower_bound, _), Value::I64(upper_bound, _)) => lower_bound >= upper_bound,
+            (Value::I128(lower_bound, _), Value::I128(upper_bound, _)) => lower_bound >= upper_bound,
+            (Value::U8(lower_bound, _), Value::U8(upper_bound, _)) => lower_bound >= upper_bound,
+            (Value::U16(lower_bound, _), Value::U16(upper_bound, _)) => lower_bound >= upper_bound,
+            (Value::U32(lower_bound, _), Value::U32(upper_bound, _)) => lower_bound >= upper_bound,
+            (Value::U64(lower_bound, _), Value::U64(upper_bound, _)) => lower_bound >= upper_bound,
+            (Value::U128(lower_bound, _), Value::U128(upper_bound, _)) => lower_bound >= upper_bound,
+            _ => panic!("Type checking guarantees that the loop bounds have same type and that they are integers."),
         } {
             self.emit_err(LoopUnrollerError::loop_range_decreasing(input.stop.span()));
         }

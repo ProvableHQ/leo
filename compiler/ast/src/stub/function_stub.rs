@@ -106,12 +106,11 @@ impl FunctionStub {
         self.name() == sym::main
     }
 
-    ///
     /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
-    ///
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.variant {
             Variant::Inline => write!(f, "inline ")?,
+            Variant::Script => write!(f, "script ")?,
             Variant::Function | Variant::AsyncFunction => write!(f, "function ")?,
             Variant::Transition | Variant::AsyncTransition => write!(f, "transition ")?,
         }

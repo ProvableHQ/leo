@@ -1,32 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function main:
-    input r0 as field.private;
-    is.eq r0 0field into r1;
-    not r1 into r2;
-    is.eq r0 1field into r3;
-    and r2 r3 into r4;
-    not r3 into r5;
-    is.eq r0 2field into r6;
-    and r2 r5 into r7;
-    and r7 r6 into r8;
-    not r6 into r9;
-    is.eq r0 3field into r10;
-    and r7 r9 into r11;
-    and r11 r10 into r12;
-    not r10 into r13;
-    is.eq r0 4field into r14;
-    and r11 r13 into r15;
-    and r15 r14 into r16;
-    ternary r16 4u32 5u32 into r17;
-    ternary r12 3u32 r17 into r18;
-    ternary r8 2u32 r18 into r19;
-    ternary r4 1u32 r19 into r20;
-    ternary r1 0u32 r20 into r21;
-    output r21 as u32.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 function main:

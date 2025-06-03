@@ -135,11 +135,8 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
             BinaryOperation::Xor => String::from("xor"),
         };
 
-        let destination_register = format!("r{}", self.next_register);
+        let destination_register = self.next_register();
         let binary_instruction = format!("    {opcode} {left_operand} {right_operand} into {destination_register};\n",);
-
-        // Increment the register counter.
-        self.next_register += 1;
 
         // Concatenate the instructions.
         let mut instructions = left_instructions;
@@ -153,9 +150,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
         let (expression_operand, mut instructions) = self.visit_expression(&input.expression);
 
         // Construct the destination register.
-        let destination_register = format!("r{}", self.next_register);
-        // Increment the register counter.
-        self.next_register += 1;
+        let destination_register = self.next_register();
 
         let cast_instruction = format!(
             "    cast {expression_operand} into {destination_register} as {};\n",
@@ -178,9 +173,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
         }
 
         // Construct the destination register.
-        let destination_register = format!("r{}", self.next_register);
-        // Increment the register counter.
-        self.next_register += 1;
+        let destination_register = self.next_register();
 
         // Get the array type.
         let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
@@ -214,11 +207,8 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
             UnaryOperation::ToYCoordinate => ("cast", " as group.y"),
         };
 
-        let destination_register = format!("r{}", self.next_register);
+        let destination_register = self.next_register();
         let unary_instruction = format!("    {opcode} {expression_operand} into {destination_register}{suffix};\n");
-
-        // Increment the register counter.
-        self.next_register += 1;
 
         // Concatenate the instructions.
         let mut instructions = expression_instructions;
@@ -232,13 +222,10 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
         let (if_true_operand, if_true_instructions) = self.visit_expression(&input.if_true);
         let (if_false_operand, if_false_instructions) = self.visit_expression(&input.if_false);
 
-        let destination_register = format!("r{}", self.next_register);
+        let destination_register = self.next_register();
         let ternary_instruction = format!(
             "    ternary {condition_operand} {if_true_operand} {if_false_operand} into {destination_register};\n",
         );
-
-        // Increment the register counter.
-        self.next_register += 1;
 
         // Concatenate the instructions.
         let mut instructions = condition_instructions;
@@ -288,14 +275,11 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
         }
 
         // Push destination register to struct init instruction.
-        let destination_register = format!("r{}", self.next_register);
+        let destination_register = self.next_register();
         writeln!(struct_init_instruction, "into {destination_register} as {name};",)
             .expect("failed to write to string");
 
         instructions.push_str(&struct_init_instruction);
-
-        // Increment the register counter.
-        self.next_register += 1;
 
         (destination_register, instructions)
     }
@@ -365,13 +349,6 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
             })
             .collect::<Vec<_>>();
 
-        // Helper function to get a destination register for a function call.
-        let mut get_destination_register = || {
-            let destination_register = format!("r{}", self.next_register);
-            self.next_register += 1;
-            destination_register
-        };
-
         // Helper function to construct the instruction associated with a simple function call.
         // This assumes that the function call has one output.
         let mut construct_simple_function_call = |function: &Identifier, variant: &str, arguments: Vec<String>| {
@@ -385,7 +362,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
             for argument in arguments {
                 write!(instruction, " {argument}").expect("failed to write to string");
             }
-            let destination_register = get_destination_register();
+            let destination_register = self.next_register();
             writeln!(instruction, " into {destination_register} as {return_type};").expect("failed to write to string");
             (destination_register, instruction)
         };
@@ -410,7 +387,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
             sym::Mapping => match input.name.name {
                 sym::get => {
                     let mut instruction = "    get".to_string();
-                    let destination_register = get_destination_register();
+                    let destination_register = self.next_register();
                     // Write the mapping name and the key.
                     writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
                         .expect("failed to write to string");
@@ -418,7 +395,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                 }
                 sym::get_or_use => {
                     let mut instruction = "    get.or_use".to_string();
-                    let destination_register = get_destination_register();
+                    let destination_register = self.next_register();
                     // Write the mapping name, the key, and the default value.
                     writeln!(
                         instruction,
@@ -443,7 +420,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                 }
                 sym::contains => {
                     let mut instruction = "    contains".to_string();
-                    let destination_register = get_destination_register();
+                    let destination_register = self.next_register();
                     // Write the mapping name and the key.
                     writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
                         .expect("failed to write to string");
@@ -455,7 +432,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                 match input.name {
                     Identifier { name: sym::to_x_coordinate, .. } => {
                         let mut instruction = "    cast".to_string();
-                        let destination_register = get_destination_register();
+                        let destination_register = self.next_register();
                         // Write the argument and the destination register.
                         writeln!(instruction, " {} into {destination_register} as group.x;", arguments[0],)
                             .expect("failed to write to string");
@@ -463,7 +440,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                     }
                     Identifier { name: sym::to_y_coordinate, .. } => {
                         let mut instruction = "    cast".to_string();
-                        let destination_register = get_destination_register();
+                        let destination_register = self.next_register();
                         // Write the argument and the destination register.
                         writeln!(instruction, " {} into {destination_register} as group.y;", arguments[0],)
                             .expect("failed to write to string");
@@ -474,7 +451,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
             }
             sym::ChaCha => {
                 // Get the destination register.
-                let destination_register = get_destination_register();
+                let destination_register = self.next_register();
                 // Construct the instruction template.
                 let mut instruction = format!("    rand.chacha into {destination_register} as ");
                 // Write the return type.
@@ -501,7 +478,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
             }
             sym::signature => {
                 let mut instruction = "    sign.verify".to_string();
-                let destination_register = get_destination_register();
+                let destination_register = self.next_register();
                 // Write the arguments and the destination register.
                 writeln!(
                     instruction,
@@ -610,24 +587,18 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                 0 | 1 => panic!("Parsing guarantees that a tuple type has at least two elements"),
                 len => {
                     for _ in 0..len {
-                        let destination_register = format!("r{}", self.next_register);
-                        destinations.push(destination_register);
-                        self.next_register += 1;
+                        destinations.push(self.next_register());
                     }
                 }
             },
             _ => {
-                let destination_register = format!("r{}", self.next_register);
-                destinations.push(destination_register);
-                self.next_register += 1;
+                destinations.push(self.next_register());
             }
         }
 
         // Add a register for async functions to represent the future created.
         if func_symbol.function.variant == Variant::AsyncFunction {
-            let destination_register = format!("r{}", self.next_register);
-            destinations.push(destination_register);
-            self.next_register += 1;
+            destinations.push(self.next_register());
         }
 
         // Construct the output operands. These are the destination registers **without** the future.
@@ -670,5 +641,64 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
 
     fn visit_unit(&mut self, _input: &UnitExpression) -> (String, String) {
         panic!("`UnitExpression`s should not be visited during code generation.")
+    }
+
+    pub fn clone_register(&mut self, register: &str, typ: &Type) -> (String, String) {
+        let new_reg = self.next_register();
+        match typ {
+            Type::Address
+            | Type::Boolean
+            | Type::Field
+            | Type::Group
+            | Type::Scalar
+            | Type::Signature
+            | Type::Integer(_) => {
+                // These types can be cloned just by casting them to themselves.
+                let instruction = format!("    cast {register} into {new_reg} as {typ};\n");
+                (new_reg, instruction)
+            }
+
+            Type::Array(array_type) => {
+                // We need to cast the old array's members into the new array.
+                let mut instruction = "    cast ".to_string();
+                for i in 0..array_type.length() {
+                    write!(&mut instruction, "{register}[{i}u32] ").unwrap();
+                }
+                writeln!(&mut instruction, "into {new_reg} as {};", Self::visit_type(typ)).unwrap();
+                (new_reg, instruction)
+            }
+
+            Type::Composite(comp_ty) => {
+                // We need to cast the old struct or record's members into the new one.
+                let program = comp_ty.program.unwrap_or(self.program_id.unwrap().name.name);
+                let location = Location::new(program, comp_ty.id.name);
+                let comp = self
+                    .state
+                    .symbol_table
+                    .lookup_record(location)
+                    .or_else(|| self.state.symbol_table.lookup_struct(comp_ty.id.name))
+                    .unwrap();
+                let mut instruction = "    cast ".to_string();
+                for member in &comp.members {
+                    write!(&mut instruction, "{register}.{} ", member.identifier.name).unwrap();
+                }
+                writeln!(
+                    &mut instruction,
+                    "into {new_reg} as {};",
+                    // We call `..with_visibility` just so we get the `.record` appended if it's a record.
+                    self.visit_type_with_visibility(typ, leo_ast::Mode::None)
+                )
+                .unwrap();
+                (new_reg, instruction)
+            }
+
+            Type::Mapping(..)
+            | Type::Future(..)
+            | Type::Tuple(..)
+            | Type::Identifier(..)
+            | Type::String
+            | Type::Unit
+            | Type::Err => panic!("Objects of type {typ} cannot be cloned."),
+        }
     }
 }

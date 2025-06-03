@@ -16,7 +16,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Functions are always one of five variants.
+/// Functions are always one of six variants.
 /// A transition function is permitted the ability to manipulate records.
 /// An asynchronous transition function is a transition function that calls an asynchronous function.
 /// A regular function is not permitted to manipulate records.
@@ -30,6 +30,9 @@ pub enum Variant {
     Transition,
     AsyncTransition,
     AsyncFunction,
+    /// `script` can only appear in test files, and is used for
+    /// tests which are interpreted rather than run on snarkvm using a Ledger and VM.
+    Script,
 }
 
 impl Variant {
@@ -46,6 +49,11 @@ impl Variant {
     /// Returns true if the variant is a function.
     pub fn is_function(self) -> bool {
         matches!(self, Variant::AsyncFunction | Variant::Function)
+    }
+
+    /// Is this a `script`?
+    pub fn is_script(self) -> bool {
+        matches!(self, Variant::Script)
     }
 
     /// Returns true if the variant is an async function.

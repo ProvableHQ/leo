@@ -1,0 +1,35 @@
+Error [ETYC0372132]: `fooaleobar` is an invalid program name. A program cannot have "aleo" in its name.
+    --> compiler-test:5:9
+     |
+   5 | program fooaleobar.aleo {
+     |         ^^^^^^^^^^
+Error [ETYC0372133]: Record name `FooBar` is prefixed by the record name `Foo`. Record names must not be prefixes of other record names.
+    --> compiler-test:17:12
+     |
+  17 |     record FooBar {
+     |            ^^^^^^
+Error [ETYC0372133]: Record name `FooBarBaz` is prefixed by the record name `FooBar`. Record names must not be prefixes of other record names.
+    --> compiler-test:12:12
+     |
+  12 |     record FooBarBaz {
+     |            ^^^^^^^^^
+Error [ETYC0372132]: `FooaleoBar` is an invalid record name. A record cannot have "aleo" in its name.
+    --> compiler-test:22:12
+     |
+  22 |     record FooaleoBar {
+     |            ^^^^^^^^^^
+Error [ETYC0372132]: `aaleob` is an invalid record entry name. A record entry cannot have "aleo" in its name.
+    --> compiler-test:24:9
+     |
+  24 |         aaleob: u32,
+     |         ^^^^^^
+Error [ETYC0372132]: `aleob` is an invalid record entry name. A record entry cannot have "aleo" in its name.
+    --> compiler-test:25:9
+     |
+  25 |         aleob: u32,
+     |         ^^^^^
+Error [ETYC0372132]: `daleo` is an invalid record entry name. A record entry cannot have "aleo" in its name.
+    --> compiler-test:26:9
+     |
+  26 |         daleo: u32,
+     |         ^^^^^

@@ -34,7 +34,7 @@ program vote.aleo {
     // Propose a new proposal to vote on.
     async transition propose(public info: ProposalInfo) -> (Proposal, Future) {
         // Authenticate proposer.
-        assert_eq(self.caller, info.proposer);
+        assert_eq(self.signer, info.proposer);
 
         // Generate a new proposal id.
         let id: field = BHP256::hash_to_field(info.title);
@@ -42,7 +42,7 @@ program vote.aleo {
 
         // Return a new record for the proposal.
         // Finalize the proposal id.
-        return (Proposal { owner: self.caller, id, info }, finalize_propose(id));
+        return (Proposal { owner: self.signer, id, info }, finalize_propose(id));
     }
     // Create a new proposal in the "tickets" mapping.
     async function finalize_propose(public id: field) {

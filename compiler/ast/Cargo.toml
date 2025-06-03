@@ -1,6 +1,6 @@
 [package]
 name = "leo-ast"
-version = "2.5.0"
+version = "2.6.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Abstract syntax tree (AST) for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -38,9 +38,6 @@ workspace = true
 
 [dependencies.serde_json]
 workspace = true
-
-[dev-dependencies.criterion]
-version = "0.5"
 
 [features]
 default = [ ]

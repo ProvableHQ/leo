@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_ast::Stub;
-use leo_compiler::{AstSnapshots, Compiler, CompilerOptions, OutputOptions};
+use leo_compiler::{AstSnapshots, Compiler, CompilerOptions};
 use leo_errors::{CliError, UtilError};
 use leo_package::{Manifest, NetworkName, Package, UpgradeConfig};
 use leo_span::Symbol;
@@ -31,20 +31,13 @@ use std::path::Path;
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         Self {
-            build: leo_compiler::BuildOptions {
-                dce_enabled: options.enable_dce,
-                conditional_block_max_depth: options.conditional_block_max_depth,
-                disable_conditional_branch_type_checking: options.disable_conditional_branch_type_checking,
+            ast_spans_enabled: options.enable_ast_spans,
+            ast_snapshots: if options.enable_all_ast_snapshots {
+                AstSnapshots::All
+            } else {
+                AstSnapshots::Some(options.ast_snapshots.into_iter().collect())
             },
-            output: OutputOptions {
-                ast_spans_enabled: options.enable_ast_spans,
-                ast_snapshots: if options.enable_all_ast_snapshots {
-                    AstSnapshots::All
-                } else {
-                    AstSnapshots::Some(options.ast_snapshots.into_iter().collect())
-                },
-                initial_ast: options.enable_all_ast_snapshots | options.enable_initial_ast_snapshot,
-            },
+            initial_ast: options.enable_all_ast_snapshots | options.enable_initial_ast_snapshot,
         }
     }
 }
@@ -86,7 +79,11 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
     let package_path = context.dir()?;
     let home_path = context.home()?;
 
-    let package = Package::from_directory(&package_path, &home_path)?;
+    let package = if command.options.build_tests {
+        Package::from_directory_with_tests(&package_path, &home_path, command.options.no_cache)?
+    } else {
+        Package::from_directory(&package_path, &home_path, command.options.no_cache)?
+    };
 
     let outputs_directory = package.outputs_directory();
     let build_directory = package.build_directory();
@@ -126,6 +123,7 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
                 let bytecode = compile_leo_file::<N>(
                     path,
                     program.name,
+                    program.is_test,
                     &outputs_directory,
                     &handler,
                     command.options.clone(),
@@ -153,6 +151,7 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
         description: String::new(),
         license: String::new(),
         dependencies: None,
+        dev_dependencies: None,
         upgrade: None,
     };
     fake_manifest.write_to_file(build_manifest_path)?;
@@ -165,17 +164,17 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
 fn compile_leo_file<N: Network>(
     source_file_path: &Path,
     program_name: Symbol,
+    is_test: bool,
     output_path: &Path,
     handler: &Handler,
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
     upgrade_config: Option<UpgradeConfig>,
 ) -> Result<String> {
-    let enable_dce = options.enable_dce;
-
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::<N>::new(
         Some(program_name.to_string()),
+        is_test,
         handler.clone(),
         output_path.to_path_buf(),
         Some(options.into()),
@@ -186,10 +185,9 @@ fn compile_leo_file<N: Network>(
     // Compile the Leo program into Aleo instructions.
     let bytecode = compiler.compile_from_file(source_file_path)?;
 
-    if enable_dce {
-        tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
-        tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
-    }
+    tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
+    tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
+
     tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
     Ok(bytecode)
 }

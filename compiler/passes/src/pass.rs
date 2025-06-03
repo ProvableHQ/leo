@@ -41,6 +41,8 @@ pub struct CompilerState {
     pub call_graph: CallGraph,
     /// An optional upgrade config.
     pub upgrade_config: Option<UpgradeConfig>,
+    /// Is this a test program?
+    pub is_test: bool,
 }
 
 /// A compiler pass.

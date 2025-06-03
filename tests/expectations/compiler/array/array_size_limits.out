@@ -1,15 +1,3 @@
-DCE_ENABLED:
-program test.aleo;
-
-function foo:
-    input r0 as [boolean; 1u32].private;
-    output true as boolean.private;
-
-function bar:
-    input r0 as [boolean; 32u32].private;
-    output true as boolean.private;
-
-DCE_DISABLED:
 program test.aleo;
 
 function foo:

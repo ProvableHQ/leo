@@ -1,21 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372116]: Futures may only appear as parameters to async functions.
-    --> compiler-test:3:28
-     |
-   3 |     async transition first(x: Future) -> Future {
-     |                            ^^^^^^^^^
-Error [ETYC0372116]: Futures may only appear as parameters to async functions.
-    --> compiler-test:7:23
-     |
-   7 |     transition second(x: Future) -> u8 {
-     |                       ^^^^^^^^^
-Error [ETYC0372116]: Futures may only appear as parameters to async functions.
-    --> compiler-test:11:20
-     |
-  11 |     function third(x: Future) -> u8 {
-     |                    ^^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372116]: Futures may only appear as parameters to async functions.
     --> compiler-test:3:28
      |

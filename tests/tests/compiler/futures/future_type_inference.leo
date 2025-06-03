@@ -25,7 +25,7 @@ program multi_token_support_program.aleo {
 
     async transition mint_private() -> (Token, Future) {
         let f: Future = finalize();
-        return (Token{owner: self.caller, amount: 100u64}, f);
+        return (Token{owner: self.signer, amount: 100u64}, f);
     }
 
     async function finalize() {

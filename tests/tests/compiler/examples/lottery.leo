@@ -10,7 +10,7 @@ program lottery.aleo {
 
     async transition play() -> (Ticket, Future) {
         let ticket: Ticket = Ticket {
-            owner: self.caller,
+            owner: self.signer,
         };
         return (ticket, finalize_play());
     }

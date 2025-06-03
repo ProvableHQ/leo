@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 DCE_ENABLED:
 Error [ETYC0372120]: Received types `i16` and `i32` for the operation `*`.
     --> compiler-test:4:24
@@ -53,6 +54,8 @@ Error [ETYC0372119]: Received different types `string` and `i8` for the operatio
      = Make both operands the same type.
 
 DCE_DISABLED:
+=======
+>>>>>>> feat/cli-improvements
 Error [ETYC0372120]: Received types `i16` and `i32` for the operation `*`.
     --> compiler-test:4:24
      |

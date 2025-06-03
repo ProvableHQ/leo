@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 DCE_ENABLED:
 Error [ETYC0372045]: Strings are not yet supported.
     --> compiler-test:5:9
@@ -6,6 +7,8 @@ Error [ETYC0372045]: Strings are not yet supported.
      |         ^^^^^^^^^^^^^^^^^^^^^^^^
 
 DCE_DISABLED:
+=======
+>>>>>>> feat/cli-improvements
 Error [ETYC0372045]: Strings are not yet supported.
     --> compiler-test:5:9
      |

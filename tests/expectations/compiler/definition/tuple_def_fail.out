@@ -1,11 +1,3 @@
-DCE_ENABLED:
-Error [EPAR0370045]: Expected an identifier.
-    --> compiler-test:4:14
-     |
-   4 |         let (1u8+1u8,1u8+1u8): (u8,u8) = (1u8,2u8);
-     |              ^
-
-DCE_DISABLED:
 Error [EPAR0370045]: Expected an identifier.
     --> compiler-test:4:14
      |

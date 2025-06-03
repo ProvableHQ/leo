@@ -1,21 +1,3 @@
-DCE_ENABLED:
-Error [ETYC0372060]: A struct cannot have a member with mode `constant`, `private`, or `public`.
-    --> compiler-test:4:18
-     |
-   4 |         constant a: u8,
-     |                  ^^^^^
-Error [ETYC0372060]: A struct cannot have a member with mode `constant`, `private`, or `public`.
-    --> compiler-test:5:17
-     |
-   5 |         private bar: bool,
-     |                 ^^^^^^^^^
-Error [ETYC0372060]: A struct cannot have a member with mode `constant`, `private`, or `public`.
-    --> compiler-test:6:16
-     |
-   6 |         public bax: u16,
-     |                ^^^^^^^^
-
-DCE_DISABLED:
 Error [ETYC0372060]: A struct cannot have a member with mode `constant`, `private`, or `public`.
     --> compiler-test:4:18
      |
