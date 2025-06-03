@@ -102,6 +102,7 @@
             "id": 1
           }
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {

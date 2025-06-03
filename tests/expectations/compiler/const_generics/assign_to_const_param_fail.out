@@ -1,0 +1,10 @@
+Error [ETYC0372142]: Cannot assign to const parameter `N`
+    --> compiler-test:6:16
+     |
+   6 |     inline foo[N: u32, M: u32]() -> u32 {
+     |                ^
+Error [ETYC0372142]: Cannot assign to const parameter `M`
+    --> compiler-test:6:24
+     |
+   6 |     inline foo[N: u32, M: u32]() -> u32 {
+     |                        ^

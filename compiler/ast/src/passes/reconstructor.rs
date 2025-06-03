@@ -359,6 +359,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
             annotations: input.annotations,
             variant: input.variant,
             identifier: input.identifier,
+            const_parameters: input.const_parameters,
             input: input.input,
             output: input.output,
             output_type: input.output_type,

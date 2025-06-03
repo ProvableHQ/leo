@@ -71,6 +71,28 @@ impl<N: Node> DiGraph<N> {
         entry.insert(to);
     }
 
+    /// Removes a node and all associated edges from the graph.
+    pub fn remove_node(&mut self, node: &N) -> bool {
+        let existed = self.nodes.shift_remove(node);
+
+        if existed {
+            // Remove all outgoing edges from the node
+            self.edges.shift_remove(node);
+
+            // Remove all incoming edges to the node
+            for targets in self.edges.values_mut() {
+                targets.shift_remove(node);
+            }
+        }
+
+        existed
+    }
+
+    /// Returns the set of immediate neighbors of a given node.
+    pub fn neighbors(&self, node: &N) -> Option<IndexSet<N>> {
+        self.edges.get(node).cloned()
+    }
+
     /// Returns `true` if the graph contains the given node.
     pub fn contains_node(&self, node: N) -> bool {
         self.nodes.contains(&node)

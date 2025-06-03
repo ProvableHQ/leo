@@ -25,7 +25,9 @@ pub struct CallExpression {
     /// An expression evaluating to a callable function,
     /// either a member of a structure or a free function.
     pub function: Expression, // todo: make this identifier?
-    /// Expressions for the arguments passed to the functions parameters.
+    /// Expressions for the const arguments passed to the function's const parameters.
+    pub const_arguments: Vec<Expression>,
+    /// Expressions for the arguments passed to the function's parameters.
     pub arguments: Vec<Expression>,
     /// The name of the parent program call, e.g.`bar` in `bar.aleo`.
     pub program: Option<Symbol>,
@@ -37,7 +39,13 @@ pub struct CallExpression {
 
 impl fmt::Display for CallExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}({})", self.function, self.arguments.iter().format(", "))
+        let const_args = if self.const_arguments.is_empty() {
+            String::new()
+        } else {
+            format!("::[{}]", self.const_arguments.iter().format(", "))
+        };
+
+        write!(f, "{}{}({})", self.function, const_args, self.arguments.iter().format(", "))
     }
 }
 

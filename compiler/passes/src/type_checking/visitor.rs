@@ -964,6 +964,38 @@ impl TypeCheckingVisitor<'_> {
             }
         }
 
+        // Ensure that, if the function has generic const paramaters, then it must be an `inline`.
+        // Otherwise, emit an error.
+        if self.scope_state.variant != Some(Variant::Inline) && !function.const_parameters.is_empty() {
+            self.emit_err(TypeCheckerError::only_inline_can_have_const_generics(function.identifier.span()));
+        }
+
+        for const_param in &function.const_parameters {
+            // Restrictions for const parameters
+            if !matches!(
+                const_param.type_(),
+                Type::Boolean | Type::Integer(_) | Type::Address | Type::Scalar | Type::Group | Type::Field
+            ) {
+                self.emit_err(TypeCheckerError::bad_const_generic_type(const_param.type_(), const_param.span()));
+            }
+
+            // Add the input to the symbol table.
+            if let Err(err) = self.state.symbol_table.insert_variable(
+                self.scope_state.program_name.unwrap(),
+                const_param.identifier().name,
+                VariableSymbol {
+                    type_: const_param.type_().clone(),
+                    span: const_param.identifier.span(),
+                    declaration: VariableType::ConstParameter,
+                },
+            ) {
+                self.state.handler.emit_err(err);
+            }
+
+            // Add the input to the type table.
+            self.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
+        }
+
         for (i, input) in function.input.iter().enumerate() {
             // No need to check compatibility of these types; that's already been done
             let table_type = inferred_inputs.get(i).unwrap_or_else(|| input.type_());

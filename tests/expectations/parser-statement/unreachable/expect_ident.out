@@ -38,7 +38,7 @@ Error [EPAR0370009]: unexpected string: expected 'identifier', found '/'
      |
    1 | x::/
      |    ^
-Error [EPAR0370009]: unexpected string: expected 'identifier', found '['
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
     --> test_8:1:4
      |
    1 | x::[

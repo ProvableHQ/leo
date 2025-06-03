@@ -38,6 +38,7 @@
               },
               "id": 2
             },
+            "const_parameters": [],
             "input": [],
             "output": [
               {
@@ -71,6 +72,7 @@
                             "id": 4
                           }
                         },
+                        "const_arguments": [],
                         "arguments": [],
                         "program": "test",
                         "span": {
@@ -114,6 +116,7 @@
               },
               "id": 9
             },
+            "const_parameters": [],
             "input": [
               {
                 "identifier": {
@@ -161,6 +164,7 @@
                             "id": 13
                           }
                         },
+                        "const_arguments": [],
                         "arguments": [],
                         "program": "test",
                         "span": {
