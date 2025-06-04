@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["execution_cost_breakdown","handle_execute","load_program_from_network"],"struct":["LeoExecute"]};
+window.SIDEBAR_ITEMS = {"fn":["handle_execute","print_execution_plan","print_execution_stats"],"struct":["LeoExecute"]};

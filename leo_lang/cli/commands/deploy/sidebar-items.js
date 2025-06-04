@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["deploy_cost_breakdown","handle_deploy"],"struct":["LeoDeploy"]};
+window.SIDEBAR_ITEMS = {"fn":["check_tasks_for_warnings","handle_deploy","print_deployment_plan","print_deployment_stats"],"struct":["LeoDeploy"],"type":["DeploymentTask"]};

@@ -14,7 +14,7 @@
 <a href=#14 id=14 data-nosnippet>14</a>// You should have received a copy of the GNU General Public License
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{Location, NetworkName};
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span><span class="kw">crate</span>::Location;
 <a href=#18 id=18 data-nosnippet>18</a>
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>serde::{Deserialize, Serialize};
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>std::path::PathBuf;
@@ -27,14 +27,12 @@
 <a href=#27 id=27 data-nosnippet>27</a>    </span><span class="kw">pub </span>name: String,
 <a href=#28 id=28 data-nosnippet>28</a>    <span class="doccomment">/// Network, local, or test dependency?
 <a href=#29 id=29 data-nosnippet>29</a>    </span><span class="kw">pub </span>location: Location,
-<a href=#30 id=30 data-nosnippet>30</a>    <span class="doccomment">/// For a network dependency, which network?
-<a href=#31 id=31 data-nosnippet>31</a>    </span><span class="kw">pub </span>network: <span class="prelude-ty">Option</span>&lt;NetworkName&gt;,
-<a href=#32 id=32 data-nosnippet>32</a>    <span class="doccomment">/// For a local dependency, where is its package? Or, for a test, where is its source file?
-<a href=#33 id=33 data-nosnippet>33</a>    </span><span class="kw">pub </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
-<a href=#34 id=34 data-nosnippet>34</a>}
-<a href=#35 id=35 data-nosnippet>35</a>
-<a href=#36 id=36 data-nosnippet>36</a><span class="kw">impl </span>Dependency {
-<a href=#37 id=37 data-nosnippet>37</a>    <span class="kw">pub fn </span>new(name: String, location: Location, network: <span class="prelude-ty">Option</span>&lt;NetworkName&gt;, path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;) -&gt; <span class="self">Self </span>{
-<a href=#38 id=38 data-nosnippet>38</a>        <span class="self">Self </span>{ name, location, network, path }
-<a href=#39 id=39 data-nosnippet>39</a>    }
-<a href=#40 id=40 data-nosnippet>40</a>}</code></pre></div></section></main></body></html>
+<a href=#30 id=30 data-nosnippet>30</a>    <span class="doccomment">/// For a local dependency, where is its package? Or, for a test, where is its source file?
+<a href=#31 id=31 data-nosnippet>31</a>    </span><span class="kw">pub </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
+<a href=#32 id=32 data-nosnippet>32</a>}
+<a href=#33 id=33 data-nosnippet>33</a>
+<a href=#34 id=34 data-nosnippet>34</a><span class="kw">impl </span>Dependency {
+<a href=#35 id=35 data-nosnippet>35</a>    <span class="kw">pub fn </span>new(name: String, location: Location, path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;) -&gt; <span class="self">Self </span>{
+<a href=#36 id=36 data-nosnippet>36</a>        <span class="self">Self </span>{ name, location, path }
+<a href=#37 id=37 data-nosnippet>37</a>    }
+<a href=#38 id=38 data-nosnippet>38</a>}</code></pre></div></section></main></body></html>

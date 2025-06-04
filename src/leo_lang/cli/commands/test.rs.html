@@ -51,7 +51,7 @@
 <a href=#51 id=51 data-nosnippet>51</a>    <span class="kw">fn </span>prelude(<span class="kw-2">&amp;</span><span class="self">self</span>, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Input&gt; {
 <a href=#52 id=52 data-nosnippet>52</a>        <span class="kw">let </span><span class="kw-2">mut </span>options = <span class="self">self</span>.compiler_options.clone();
 <a href=#53 id=53 data-nosnippet>53</a>        options.build_tests = <span class="bool-val">true</span>;
-<a href=#54 id=54 data-nosnippet>54</a>        (LeoBuild { options }).execute(context)
+<a href=#54 id=54 data-nosnippet>54</a>        (LeoBuild { env_override: Default::default(), options }).execute(context)
 <a href=#55 id=55 data-nosnippet>55</a>    }
 <a href=#56 id=56 data-nosnippet>56</a>
 <a href=#57 id=57 data-nosnippet>57</a>    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
