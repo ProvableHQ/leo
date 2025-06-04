@@ -115,42 +115,71 @@ impl Program {
     }
 
     /// Given an Aleo program on a network, fetch it to build a `Program`.
-    pub fn fetch<P: AsRef<Path>>(name: Symbol, home_path: P, network: NetworkName, endpoint: &str) -> Result<Self> {
-        Self::fetch_impl(name, home_path.as_ref(), network, endpoint)
+    pub fn fetch<P: AsRef<Path>>(
+        name: Symbol,
+        home_path: P,
+        network: NetworkName,
+        endpoint: &str,
+        no_cache: bool,
+    ) -> Result<Self> {
+        Self::fetch_impl(name, home_path.as_ref(), network, endpoint, no_cache)
     }
 
-    fn fetch_impl(name: Symbol, home_path: &Path, network: NetworkName, endpoint: &str) -> Result<Self> {
+    fn fetch_impl(
+        name: Symbol,
+        home_path: &Path,
+        network: NetworkName,
+        endpoint: &str,
+        no_cache: bool,
+    ) -> Result<Self> {
         // It's not a local program; let's check the cache.
         let cache_directory = home_path.join(format!("registry/{network}"));
         let full_cache_path = cache_directory.join(format!("{name}.aleo"));
 
-        let bytecode = if full_cache_path.exists() {
-            // Great; apparently this file is already cached.
-            std::fs::read_to_string(&full_cache_path).map_err(|e| {
-                UtilError::util_file_io_error(
-                    format_args!("Trying to read cached file at {}", full_cache_path.display()),
-                    e,
-                )
-            })?
-        } else {
-            // We need to fetch it from the network.
-            let url = format!("{endpoint}/{network}/program/{name}.aleo");
-            let contents = fetch_from_network(&url)?;
+        // Get the existing bytecode if the file exists.
+        let existing_bytecode = match full_cache_path.exists() {
+            false => None,
+            true => {
+                // If the file exists, read it and compare it to the new contents.
+                let existing_contents = std::fs::read_to_string(&full_cache_path).map_err(|e| {
+                    UtilError::util_file_io_error(
+                        format_args!("Trying to read cached file at {}", full_cache_path.display()),
+                        e,
+                    )
+                })?;
+                Some(existing_contents)
+            }
+        };
 
-            // Make sure the cache directory exists.
-            std::fs::create_dir_all(&cache_directory).map_err(|e| {
-                UtilError::util_file_io_error(
-                    format_args!("Could not create directory `{}`", cache_directory.display()),
-                    e,
-                )
-            })?;
+        let bytecode = match (existing_bytecode, no_cache) {
+            // If we are using the cache, we can just return the bytecode.
+            (Some(bytecode), false) => bytecode,
+            // Otherwise, we need to fetch it from the network.
+            (existing, _) => {
+                // We need to fetch it from the network.
+                let url = format!("{endpoint}/{network}/program/{name}.aleo");
+                let contents = fetch_from_network(&url)?;
 
-            // Write the bytecode to the cache.
-            std::fs::write(&full_cache_path, &contents).map_err(|err| {
-                UtilError::util_file_io_error(format_args!("Could not open file `{}`", full_cache_path.display()), err)
-            })?;
+                // If the file already exists, compare it to the new contents.
+                if let Some(existing_contents) = existing {
+                    if existing_contents != contents {
+                        println!(
+                            "Warning: The cached file at `{}` is different from the one fetched from the network. The cached file will be overwritten.",
+                            full_cache_path.display()
+                        );
+                    }
+                }
 
-            contents
+                // Write the bytecode to the cache.
+                std::fs::write(&full_cache_path, &contents).map_err(|err| {
+                    UtilError::util_file_io_error(
+                        format_args!("Could not open file `{}`", full_cache_path.display()),
+                        err,
+                    )
+                })?;
+
+                contents
+            }
         };
 
         // Parse the program so we can get its imports.
@@ -161,7 +190,7 @@ impl Program {
             .keys()
             .map(|program_id| {
                 let name = program_id.to_string();
-                Dependency { name, location: Location::Network, network: Some(network), path: None }
+                Dependency { name, location: Location::Network, path: None }
             })
             .collect();
 

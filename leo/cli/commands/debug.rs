@@ -29,15 +29,14 @@ use super::*;
 pub struct LeoDebug {
     #[arg(long, help = "Use these source files instead of finding source files through the project structure.", num_args = 1..)]
     pub(crate) paths: Vec<String>,
-
     #[arg(long, help = "The block height, accessible via block.height.", default_value = "0")]
     pub(crate) block_height: u32,
-
     #[arg(long, action, help = "Use the text user interface.")]
     pub(crate) tui: bool,
-
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
+    #[clap(flatten)]
+    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for LeoDebug {
@@ -50,7 +49,8 @@ impl Command for LeoDebug {
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         if self.paths.is_empty() {
-            let package = LeoBuild { options: self.compiler_options.clone() }.execute(context)?;
+            let package = LeoBuild { options: self.compiler_options.clone(), env_override: self.env_override.clone() }
+                .execute(context)?;
             Ok(Some(package))
         } else {
             Ok(None)

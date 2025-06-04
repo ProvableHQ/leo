@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Location, NetworkName};
+use crate::Location;
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -27,14 +27,12 @@ pub struct Dependency {
     pub name: String,
     /// Network, local, or test dependency?
     pub location: Location,
-    /// For a network dependency, which network?
-    pub network: Option<NetworkName>,
     /// For a local dependency, where is its package? Or, for a test, where is its source file?
     pub path: Option<PathBuf>,
 }
 
 impl Dependency {
-    pub fn new(name: String, location: Location, network: Option<NetworkName>, path: Option<PathBuf>) -> Self {
-        Self { name, location, network, path }
+    pub fn new(name: String, location: Location, path: Option<PathBuf>) -> Self {
+        Self { name, location, path }
     }
 }

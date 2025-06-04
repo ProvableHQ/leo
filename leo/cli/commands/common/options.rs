@@ -1,0 +1,211 @@
+// Copyright (C) 2019-2025 Provable Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use super::*;
+use leo_package::NetworkName;
+use snarkvm::prelude::ConsensusVersion;
+
+/// Compiler Options wrapper for Build command. Also used by other commands which
+/// require Build command output as their input.
+#[derive(Parser, Clone, Debug)]
+pub struct BuildOptions {
+    #[clap(long, help = "Does not recursively compile dependencies.")]
+    pub non_recursive: bool,
+    #[clap(long, help = "Enables offline mode.")]
+    pub offline: bool,
+    #[clap(long, help = "Enable spans in AST snapshots.")]
+    pub enable_ast_spans: bool,
+    #[clap(long, help = "Enables dead code elimination in the compiler.", default_value = "true")]
+    pub enable_dce: bool,
+    #[clap(long, help = "Max depth to type check nested conditionals.", default_value = "10")]
+    pub conditional_block_max_depth: usize,
+    #[clap(long, help = "Disable type checking of nested conditional branches in finalize scope.")]
+    pub disable_conditional_branch_type_checking: bool,
+    #[clap(long, help = "Write an AST snapshot immediately after parsing.")]
+    pub enable_initial_ast_snapshot: bool,
+    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
+    pub enable_all_ast_snapshots: bool,
+    #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1..)]
+    pub ast_snapshots: Vec<String>,
+    #[clap(long, help = "Build tests along with the main program and dependencies.")]
+    pub build_tests: bool,
+    #[clap(long, help = "Don't use the dependency cache.")]
+    pub no_cache: bool,
+}
+
+impl Default for BuildOptions {
+    fn default() -> Self {
+        Self {
+            non_recursive: false,
+            offline: false,
+            enable_ast_spans: false,
+            enable_dce: true,
+            conditional_block_max_depth: 10,
+            disable_conditional_branch_type_checking: false,
+            enable_initial_ast_snapshot: false,
+            enable_all_ast_snapshots: false,
+            ast_snapshots: Vec::new(),
+            build_tests: false,
+            no_cache: false,
+        }
+    }
+}
+
+/// Overrides for the `.env` file.
+#[derive(Parser, Clone, Debug, Default)]
+pub struct EnvOptions {
+    #[clap(long, help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` in the `.env` file.")]
+    pub(crate) private_key: Option<String>,
+    #[clap(long, help = "The network to deploy to. Overrides the `NETWORK` in the .env file.")]
+    pub(crate) network: Option<String>,
+    #[clap(long, help = "The endpoint to deploy to. Overrides the `ENDPOINT` in the .env file.")]
+    pub(crate) endpoint: Option<String>,
+}
+
+/// The fee options for the transactions.
+#[derive(Parser, Clone, Debug, Default)]
+pub struct FeeOptions {
+    #[clap(
+        long,
+        help = "[UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.",
+        value_delimiter = '|',
+        value_parser = parse_amount
+    )]
+    pub(crate) base_fees: Vec<Option<u64>>,
+    #[clap(
+        long,
+        help = "Priority fee in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to 0.",
+        value_delimiter = '|',
+        value_parser = parse_amount
+    )]
+    pub(crate) priority_fees: Vec<Option<u64>>,
+    #[clap(
+        short,
+        help = "Records to pay for fees privately, delimited by '|', and used in order. The fees must either be valid plaintext, ciphertext, or `default`. Defaults to public fees.",
+        long,
+        value_delimiter = '|',
+        value_parser = parse_record_string,
+    )]
+    fee_records: Vec<Option<String>>,
+}
+
+// A helper function to parse amounts, which can either be a `u64` or `default`.
+fn parse_amount(s: &str) -> Result<Option<u64>, String> {
+    let trimmed = s.trim();
+    if trimmed == "default" { Ok(None) } else { trimmed.parse::<u64>().map_err(|e| e.to_string()).map(Some) }
+}
+
+// A helper function to parse record strings, which can either be a string or `default`.
+fn parse_record_string(s: &str) -> Result<Option<String>, String> {
+    let trimmed = s.trim();
+    if trimmed == "default" { Ok(None) } else { Ok(Some(trimmed.to_string())) }
+}
+
+/// Parses the record string. If the string is a ciphertext, then attempt to decrypt it. Lifted from snarkOS.
+fn parse_record<N: Network>(private_key: &PrivateKey<N>, record: &str) -> Result<Record<N, Plaintext<N>>> {
+    match record.starts_with("record1") {
+        true => {
+            // Parse the ciphertext.
+            let ciphertext = Record::<N, Ciphertext<N>>::from_str(record)?;
+            // Derive the view key.
+            let view_key = ViewKey::try_from(private_key)?;
+            // Decrypt the ciphertext.
+            Ok(ciphertext.decrypt(&view_key)?)
+        }
+        false => Ok(Record::<N, Plaintext<N>>::from_str(record)?),
+    }
+}
+
+// A helper function to construct fee options for `k` transactions.
+#[allow(clippy::type_complexity)]
+pub fn parse_fee_options<N: Network>(
+    private_key: &PrivateKey<N>,
+    fee_options: &FeeOptions,
+    k: usize,
+) -> Result<Vec<(Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>)>> {
+    // Parse the base fees.
+    let base_fees = fee_options.base_fees.clone();
+    // Parse the priority fees.
+    let priority_fees = fee_options.priority_fees.clone();
+    // Parse the fee records.
+    let parse_record = |record: &Option<String>| record.as_ref().map(|r| parse_record::<N>(private_key, r)).transpose();
+    let fee_records = fee_options.fee_records.iter().map(parse_record).collect::<Result<Vec<_>>>()?;
+
+    // Pad the vectors to length `k`.
+    let base_fees = base_fees.into_iter().chain(iter::repeat(None)).take(k);
+    let priority_fees = priority_fees.into_iter().chain(iter::repeat(None)).take(k);
+    let fee_records = fee_records.into_iter().chain(iter::repeat(None)).take(k);
+
+    Ok(base_fees.zip(priority_fees).zip(fee_records).map(|((x, y), z)| (x, y, z)).collect())
+}
+
+/// Additional options that are common across a number of commands.
+#[derive(Parser, Clone, Debug, Default)]
+pub struct ExtraOptions {
+    #[clap(
+        short,
+        long,
+        help = "Don't ask for confirmation. DO NOT SET THIS FLAG UNLESS YOU KNOW WHAT YOU ARE DOING",
+        default_value = "false"
+    )]
+    pub(crate) yes: bool,
+    #[clap(
+        long,
+        help = "Consensus version to use. If one is not provided, the CLI will attempt to determine it from the latest block."
+    )]
+    pub(crate) consensus_version: Option<u8>,
+}
+
+// A helper function to get the consensus version from the fee options.
+// If a consensus version is not provided, then attempt to query the current block height and use it to determine the version.
+pub fn get_consensus_version<N: Network>(
+    consensus_version: &Option<u8>,
+    endpoint: &str,
+    network: NetworkName,
+    context: &Context,
+) -> Result<ConsensusVersion> {
+    // Get the consensus version.
+    match consensus_version {
+        Some(1) => Ok(ConsensusVersion::V1),
+        Some(2) => Ok(ConsensusVersion::V2),
+        Some(3) => Ok(ConsensusVersion::V3),
+        Some(4) => Ok(ConsensusVersion::V4),
+        // If none is provided, then attempt to query the current block height and use it to determine the version.
+        None => {
+            println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
+            get_latest_block_height(endpoint, network, context)
+                .and_then(|current_block_height| Ok(N::CONSENSUS_VERSION(current_block_height)?))
+                .map_err(|_| {
+                    CliError::custom(
+                        "Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus_version`",
+                    )
+                        .into()
+                })
+        }
+        Some(version) => Err(CliError::custom(format!("Invalid consensus version: {version}")).into()),
+    }
+}
+
+/// What to do with a transaction produced by the CLI.
+#[derive(Args, Clone, Debug)]
+pub struct TransactionAction {
+    #[arg(long, help = "Print the transaction to stdout.")]
+    pub print: bool,
+    #[arg(long, help = "Broadcast the transaction to the network.")]
+    pub broadcast: bool,
+    #[arg(long, help = "Save the transaction to the provided directory.")]
+    pub save: Option<String>,
+}

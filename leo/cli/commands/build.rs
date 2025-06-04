@@ -47,6 +47,8 @@ impl From<BuildOptions> for CompilerOptions {
 pub struct LeoBuild {
     #[clap(flatten)]
     pub(crate) options: BuildOptions,
+    #[clap(flatten)]
+    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for LeoBuild {
@@ -63,7 +65,7 @@ impl Command for LeoBuild {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network: NetworkName = context.get_network(&self.options.network)?.parse()?;
+        let network: NetworkName = context.get_network(&self.env_override.network)?.parse()?;
         match network {
             NetworkName::MainnetV0 => handle_build::<MainnetV0>(&self, context),
             NetworkName::TestnetV0 => handle_build::<TestnetV0>(&self, context),
@@ -78,9 +80,9 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
     let home_path = context.home()?;
 
     let package = if command.options.build_tests {
-        leo_package::Package::from_directory_with_tests(&package_path, &home_path)?
+        leo_package::Package::from_directory_with_tests(&package_path, &home_path, command.options.no_cache)?
     } else {
-        leo_package::Package::from_directory(&package_path, &home_path)?
+        leo_package::Package::from_directory(&package_path, &home_path, command.options.no_cache)?
     };
 
     let outputs_directory = package.outputs_directory();

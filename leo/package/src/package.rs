@@ -176,28 +176,35 @@ impl Package {
             home_path.as_ref(),
             /* build_graph */ false,
             /* with_tests */ false,
+            /* no_cache */ false,
         )
     }
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies,
     /// obtaining dependencies from the file system or network and topologically sorting them.
-    pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q) -> Result<Self> {
+    pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q, no_cache: bool) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
             home_path.as_ref(),
             /* build_graph */ true,
             /* with_tests */ false,
+            no_cache,
         )
     }
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies
     /// and its tests, obtaining dependencies from the file system or network and topologically sorting them.
-    pub fn from_directory_with_tests<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q) -> Result<Self> {
+    pub fn from_directory_with_tests<P: AsRef<Path>, Q: AsRef<Path>>(
+        path: P,
+        home_path: Q,
+        no_cache: bool,
+    ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
             home_path.as_ref(),
             /* build_graph */ true,
             /* with_tests */ true,
+            no_cache,
         )
     }
 
@@ -230,14 +237,20 @@ impl Package {
             })
     }
 
-    fn from_directory_impl(path: &Path, home_path: &Path, build_graph: bool, with_tests: bool) -> Result<Self> {
+    fn from_directory_impl(
+        path: &Path,
+        home_path: &Path,
+        build_graph: bool,
+        with_tests: bool,
+        no_cache: bool,
+    ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             UtilError::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
         };
 
         let path = path.canonicalize().map_err(|err| map_err(path, err))?;
 
-        let env = Env::read_from_file_or_environment(path.join(ENV_FILENAME))?;
+        let env = Env::read_from_file_or_environment(&path)?;
 
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
 
@@ -248,12 +261,8 @@ impl Package {
 
             let mut digraph = DiGraph::<Symbol>::new(Default::default());
 
-            let first_dependency = Dependency {
-                name: manifest.program.clone(),
-                location: Location::Local,
-                network: None,
-                path: Some(path.clone()),
-            };
+            let first_dependency =
+                Dependency { name: manifest.program.clone(), location: Location::Local, path: Some(path.clone()) };
 
             let test_dependencies: Vec<Dependency> = if with_tests {
                 let tests_directory = path.join(TESTS_DIRECTORY);
@@ -262,7 +271,6 @@ impl Package {
                         // We just made sure it has a ".leo" extension.
                         name: format!("{}.aleo", crate::filename_no_leo_extension(&path).unwrap()),
                         location: Location::Test,
-                        network: None,
                         path: Some(path.to_path_buf()),
                     })
                     .collect();
@@ -283,6 +291,7 @@ impl Package {
                     dependency,
                     &mut map,
                     &mut digraph,
+                    no_cache,
                 )?;
             }
 
@@ -297,6 +306,7 @@ impl Package {
         Ok(Package { base_directory: path, programs, env, manifest })
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn graph_build(
         home_path: &Path,
         network: NetworkName,
@@ -305,6 +315,7 @@ impl Package {
         new: Dependency,
         map: &mut IndexMap<Symbol, (Dependency, Program)>,
         graph: &mut DiGraph<Symbol>,
+        no_cache: bool,
     ) -> Result<()> {
         let name_symbol = crate::symbol(&new.name)?;
 
@@ -332,7 +343,7 @@ impl Package {
                     }
                     (_, Location::Network) => {
                         // It's a network dependency.
-                        Program::fetch(name_symbol, home_path, network, endpoint)?
+                        Program::fetch(name_symbol, home_path, network, endpoint, no_cache)?
                     }
                     _ => return Err(anyhow!("Invalid dependency data for {} (path must be given).", new.name).into()),
                 };
@@ -348,10 +359,50 @@ impl Package {
         for dependency in program.dependencies.iter() {
             let dependency_symbol = crate::symbol(&dependency.name)?;
             graph.add_edge(name_symbol, dependency_symbol);
-            Self::graph_build(home_path, network, endpoint, main_program, dependency.clone(), map, graph)?;
+            Self::graph_build(home_path, network, endpoint, main_program, dependency.clone(), map, graph, no_cache)?;
         }
 
         Ok(())
+    }
+
+    /// Get the program ID, program, and optional manifest for all programs in the package.
+    /// This method assumes that the package has already been built (`leo build` has been run).
+    #[allow(clippy::type_complexity)]
+    pub fn get_programs_and_manifests<P: AsRef<Path>>(
+        &self,
+        home_path: P,
+    ) -> Result<Vec<(String, String, Option<Manifest>)>> {
+        self.get_programs_and_manifests_impl(home_path.as_ref())
+    }
+
+    #[allow(clippy::type_complexity)]
+    fn get_programs_and_manifests_impl(&self, home_path: &Path) -> Result<Vec<(String, String, Option<Manifest>)>> {
+        self.programs
+            .iter()
+            .map(|program| {
+                match &program.data {
+                    ProgramData::Bytecode(bytecode) => Ok((program.name.to_string(), bytecode.clone(), None)),
+                    ProgramData::SourcePath(path) => {
+                        // Get the path to the built bytecode.
+                        let bytecode_path = if path.as_path() == self.source_directory().join("main.leo") {
+                            self.build_directory().join("main.aleo")
+                        } else {
+                            self.imports_directory().join(format!("{}.aleo", program.name))
+                        };
+                        // Fetch the bytecode.
+                        let bytecode = std::fs::read_to_string(&bytecode_path)
+                            .map_err(|e| PackageError::failed_to_read_file(bytecode_path.display(), e))?;
+                        // Get the package from the directory.
+                        let mut path = path.clone();
+                        path.pop();
+                        path.pop();
+                        let package = Package::from_directory_no_graph(&path, home_path)?;
+                        // Return the bytecode and the manifest.
+                        Ok((program.name.to_string(), bytecode, Some(package.manifest.clone())))
+                    }
+                }
+            })
+            .collect::<Result<Vec<_>>>()
     }
 }
 

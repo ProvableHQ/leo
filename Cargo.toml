@@ -168,7 +168,6 @@ only_testnet = [ ]
 [dependencies]
 dialoguer = "0.11.0"
 num-format = "0.4.4"
-text-tables = "0.3.1"
 
 [dependencies.leo-ast]
 workspace = true

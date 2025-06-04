@@ -51,7 +51,7 @@ impl Command for LeoTest {
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         let mut options = self.compiler_options.clone();
         options.build_tests = true;
-        (LeoBuild { options }).execute(context)
+        (LeoBuild { env_override: Default::default(), options }).execute(context)
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {

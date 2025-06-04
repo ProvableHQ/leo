@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod add;
-pub use add::LeoAdd;
+pub use add::{DependencySource, LeoAdd};
 
 mod account;
 pub use account::Account;
@@ -25,6 +25,9 @@ pub use build::LeoBuild;
 
 mod clean;
 pub use clean::LeoClean;
+
+mod common;
+use common::*;
 
 mod debug;
 pub use debug::LeoDebug;
@@ -61,9 +64,10 @@ use crate::cli::helpers::context::*;
 use leo_errors::{CliError, Handler, PackageError, Result};
 use snarkvm::prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey, block::Transaction};
 
-use clap::Parser;
+use clap::{Args, Parser};
 use colored::Colorize;
-use std::str::FromStr;
+use dialoguer::{Confirm, theme::ColorfulTheme};
+use std::{iter, str::FromStr};
 use tracing::span::Span;
 
 use crate::cli::query::QueryCommands;
@@ -128,206 +132,5 @@ pub trait Command {
         Self: std::marker::Sized,
     {
         self.execute(context).map(|_| Ok(()))?
-    }
-}
-
-/// Compiler Options wrapper for Build command. Also used by other commands which
-/// require Build command output as their input.
-#[derive(Parser, Clone, Debug, Default)]
-pub struct BuildOptions {
-    #[clap(long, help = "Endpoint to retrieve network state from. Overrides setting in `.env`.")]
-    pub endpoint: Option<String>,
-    #[clap(long, help = "Network to broadcast to. Overrides setting in `.env`.")]
-    pub(crate) network: Option<String>,
-    #[clap(long, help = "Does not recursively compile dependencies.")]
-    pub non_recursive: bool,
-    #[clap(long, help = "Enables offline mode.")]
-    pub offline: bool,
-    #[clap(long, help = "Enable spans in AST snapshots.")]
-    pub enable_ast_spans: bool,
-    #[clap(long, help = "Write an AST snapshot immediately after parsing.")]
-    pub enable_initial_ast_snapshot: bool,
-    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
-    pub enable_all_ast_snapshots: bool,
-    #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1..)]
-    pub ast_snapshots: Vec<String>,
-    #[clap(long, help = "Build tests along with the main program and dependencies.")]
-    pub build_tests: bool,
-}
-
-/// On Chain Execution Options to set preferences for keys, fees and networks.
-/// Used by Execute and Deploy commands.
-#[derive(Parser, Clone, Debug, Default)]
-pub struct FeeOptions {
-    #[clap(short, long, help = "Don't ask for confirmation.", default_value = "false")]
-    pub(crate) yes: bool,
-    #[clap(long, help = "Performs a dry-run of transaction generation")]
-    pub(crate) dry_run: bool,
-    #[clap(long, help = "Base fee in microcredits. Automatically calculated if not provided.")]
-    pub(crate) base_fee: Option<u64>,
-    #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
-    pub(crate) priority_fee: u64,
-    #[clap(long, help = "Private key to authorize fee expenditure.")]
-    pub(crate) private_key: Option<String>,
-    #[clap(
-        short,
-        help = "Record to pay for fee privately. If one is not specified, a public fee will be taken.",
-        long
-    )]
-    record: Option<String>,
-    #[clap(long, help = "Consensus version to use for the transaction.")]
-    pub(crate) consensus_version: Option<u8>,
-}
-
-/// Parses the record string. If the string is a ciphertext, then attempt to decrypt it. Lifted from snarkOS.
-pub fn parse_record<N: Network>(private_key: &PrivateKey<N>, record: &str) -> Result<Record<N, Plaintext<N>>> {
-    match record.starts_with("record1") {
-        true => {
-            // Parse the ciphertext.
-            let ciphertext = Record::<N, Ciphertext<N>>::from_str(record)?;
-            // Derive the view key.
-            let view_key = ViewKey::try_from(private_key)?;
-            // Decrypt the ciphertext.
-            Ok(ciphertext.decrypt(&view_key)?)
-        }
-        false => Ok(Record::<N, Plaintext<N>>::from_str(record)?),
-    }
-}
-
-fn check_balance<N: Network>(
-    private_key: &PrivateKey<N>,
-    endpoint: &str,
-    network: &str,
-    context: &Context,
-    total_cost: u64,
-) -> Result<()> {
-    // Derive the account address.
-    let address = Address::<N>::try_from(ViewKey::try_from(private_key)?)?;
-    // Query the public balance of the address on the `account` mapping from `credits.aleo`.
-    let mut public_balance = LeoQuery {
-        endpoint: Some(endpoint.to_string()),
-        network: Some(network.to_string()),
-        command: QueryCommands::Program {
-            command: query::LeoProgram {
-                name: "credits".to_string(),
-                mappings: false,
-                mapping_value: Some(vec!["account".to_string(), address.to_string()]),
-            },
-        },
-    }
-    .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
-    // Remove the last 3 characters since they represent the `u64` suffix.
-    public_balance.truncate(public_balance.len() - 3);
-    // Make sure the balance is valid.
-    let balance = if let Ok(credits) = public_balance.parse::<u64>() {
-        credits
-    } else {
-        return Err(CliError::invalid_balance(address).into());
-    };
-    // Compare balance.
-    if balance < total_cost {
-        Err(PackageError::insufficient_balance(address, public_balance, total_cost).into())
-    } else {
-        println!("Your current public balance is {} credits.\n", balance as f64 / 1_000_000.0);
-        Ok(())
-    }
-}
-
-// A helper function to query for the latest block height.
-fn get_latest_block_height(endpoint: &str, network: &str, context: &Context) -> Result<u32> {
-    // Query the latest block height.
-    let height = LeoQuery {
-        endpoint: Some(endpoint.to_string()),
-        network: Some(network.to_string()),
-        command: QueryCommands::Block {
-            command: query::LeoBlock {
-                id: None,
-                latest: false,
-                latest_hash: false,
-                latest_height: true,
-                range: None,
-                transactions: false,
-                to_height: false,
-            },
-        },
-    }
-    .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
-    // Parse the height.
-    let height = height.parse::<u32>().map_err(CliError::string_parse_error)?;
-    Ok(height)
-}
-
-/// Determine if the transaction should be broadcast or displayed to user.
-fn handle_broadcast<N: Network>(endpoint: &str, transaction: Transaction<N>, operation: &str) -> Result<()> {
-    println!("Broadcasting transaction to {}...\n", endpoint);
-    // Get the transaction id.
-    let transaction_id = transaction.id();
-
-    // Send the deployment request to the endpoint.
-    let response = ureq::AgentBuilder::new()
-        .redirects(0)
-        .build()
-        .post(endpoint)
-        .set("X-Leo-Version", env!("CARGO_PKG_VERSION"))
-        .send_json(&transaction)
-        .map_err(|err| CliError::broadcast_error(err.to_string()))?;
-    match response.status() {
-        200 => {
-            // Remove the quotes from the response.
-            let _response_string =
-                response.into_string().map_err(CliError::string_parse_error)?.trim_matches('\"').to_string();
-            match transaction {
-                Transaction::Deploy(..) => {
-                    println!(
-                        "⌛ Deployment {transaction_id} ('{}') has been broadcast to {}.\n",
-                        operation.bold(),
-                        endpoint
-                    );
-                }
-                Transaction::Execute(..) => {
-                    println!(
-                        "⌛ Execution {transaction_id} ('{}') has been broadcast to {}.\n",
-                        operation.bold(),
-                        endpoint
-                    );
-                }
-                Transaction::Fee(..) => {
-                    println!("❌ Failed to broadcast fee '{}' to the {}.\n", operation.bold(), endpoint);
-                }
-            }
-            Ok(())
-        }
-        301 => {
-            let msg = format!(
-                "⚠️ The endpoint `{endpoint}` has been permanently moved. Try using `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag."
-            );
-            Err(CliError::broadcast_error(msg).into())
-        }
-        _ => {
-            let code = response.status();
-            let error_message = match response.into_string() {
-                Ok(response) => format!("(status code {code}: {:?})", response),
-                Err(err) => format!("({err})"),
-            };
-
-            let msg = match transaction {
-                Transaction::Deploy(..) => {
-                    format!("❌ Failed to deploy '{}' to {}: {}", operation.bold(), &endpoint, error_message)
-                }
-                Transaction::Execute(..) => {
-                    format!(
-                        "❌ Failed to broadcast execution '{}' to {}: {}",
-                        operation.bold(),
-                        &endpoint,
-                        error_message
-                    )
-                }
-                Transaction::Fee(..) => {
-                    format!("❌ Failed to broadcast fee '{}' to {}: {}", operation.bold(), &endpoint, error_message)
-                }
-            };
-
-            Err(CliError::broadcast_error(msg).into())
-        }
     }
 }

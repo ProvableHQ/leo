@@ -40,8 +40,24 @@ impl Env {
     }
 
     pub fn read_from_file_or_environment<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let contents = std::fs::read_to_string(&path)
-            .map_err(|e| PackageError::failed_to_read_file(path.as_ref().display(), e))?;
+        // Read the `.env` file from the given directory.
+        // If the file does not exist, then attempt to read it from its parent directory recursively until
+        // there are no more parent directories.
+        let path = path.as_ref().to_path_buf();
+        let mut contents = String::new();
+        let mut current_path = path;
+        while current_path.exists() {
+            let env_path = current_path.join(ENV_FILENAME);
+            if env_path.exists() {
+                contents = fs::read_to_string(env_path).map_err(PackageError::io_error_env_file)?;
+                break;
+            }
+            current_path = match current_path.parent() {
+                Some(parent) => parent.to_path_buf(),
+                None => break,
+            };
+        }
+
         let mut network: Option<String> = None;
         let mut private_key: Option<String> = None;
         let mut endpoint: Option<String> = None;

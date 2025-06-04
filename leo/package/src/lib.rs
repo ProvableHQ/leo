@@ -52,11 +52,12 @@
 //! `Package::from_directory`:
 //! ```no_run
 //! # use leo_package::Package;
-//! let package = Package::from_directory("path/to/package", "/home/me/.aleo").unwrap();
+//! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false).unwrap();
 //! ```
 //! This will read the manifest and env file and keep their data in `package.manifest` and `package.env`.
 //! It will also process dependencies and store them in topological order in `package.programs`. This processing
 //! will involve fetching bytecode from the network for network dependencies.
+//! If the `no_cache` option (3rd parameter) is set to `true`, the package will not use the dependency cache.
 //!
 //! If you want to simply read the manifest and env file without processing dependencies, use
 //! `Package::from_directory_no_graph`.
@@ -164,6 +165,13 @@ pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
         301 => Err(UtilError::endpoint_moved_error(url)),
         _ => Err(UtilError::network_error(url, response.status())),
     }
+}
+
+/// Fetch the given program from the network and return the program as a string.
+pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkName) -> Result<String, UtilError> {
+    let url = format!("{endpoint}/{network}/program/{name}");
+    let program = fetch_from_network(&url)?;
+    Ok(program)
 }
 
 // Verify that a fetched program is valid aleo instructions.

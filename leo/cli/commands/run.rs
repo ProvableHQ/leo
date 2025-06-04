@@ -27,15 +27,14 @@ use snarkvm::{
 pub struct LeoRun {
     #[clap(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     pub(crate) name: String,
-
     #[clap(name = "INPUTS", help = "The inputs to the program.")]
     pub(crate) inputs: Vec<String>,
-
     #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
     pub(crate) file: Option<String>,
-
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
+    #[clap(flatten)]
+    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for LeoRun {
@@ -47,12 +46,12 @@ impl Command for LeoRun {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        (LeoBuild { options: self.compiler_options.clone() }).execute(context)
+        (LeoBuild { options: self.compiler_options.clone(), env_override: self.env_override.clone() }).execute(context)
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network = context.get_network(&self.compiler_options.network)?.parse()?;
+        let network = context.get_network(&self.env_override.network)?.parse()?;
         match network {
             NetworkName::MainnetV0 => handle_run::<MainnetV0>(self, context),
             NetworkName::TestnetV0 => handle_run::<TestnetV0>(self, context),
