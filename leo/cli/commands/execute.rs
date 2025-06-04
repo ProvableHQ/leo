@@ -16,6 +16,7 @@
 
 use super::*;
 
+use check_transaction::TransactionStatus;
 use leo_package::{NetworkName, Package, ProgramData};
 
 use aleo_std::StorageMode;
@@ -346,19 +347,41 @@ fn handle_execute<A: Aleo>(
             println!("❌ Execution aborted.");
             return Ok(());
         }
+        let fee_id = fee.id().to_string();
+        let id = transaction.id().to_string();
+        let height_before = crate::cli::check_transaction::current_height(&endpoint, network)?;
         // Broadcast the transaction to the network.
         let response =
             handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), &transaction, &program_name)?;
+
+        let fail = |msg| {
+            println!("❌ Failed to broadcast execution: {}.", msg);
+            Ok(())
+        };
+
         match response.status() {
-            200 => println!(
-                "✅ Successfully broadcast execution with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
-                transaction.id().to_string().bold().yellow(),
-                fee.id().to_string().bold().yellow()
-            ),
+            200 => {
+                let status = crate::cli::check_transaction::check_transaction_with_message(
+                    &id,
+                    Some(&fee_id),
+                    &endpoint,
+                    network,
+                    height_before + 1,
+                    command.extra.max_wait,
+                    command.extra.blocks_to_check,
+                )?;
+                if status == Some(TransactionStatus::Accepted) {
+                    println!(
+                        "✅ Successfully broadcast execution with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
+                        id.bold().yellow(),
+                        fee_id.bold().yellow()
+                    );
+                }
+            }
             _ => {
                 let error_message =
                     response.into_string().map_err(|e| CliError::custom(format!("Failed to read response: {e}")))?;
-                println!("❌ Failed to broadcast execution: {}", error_message);
+                return fail(&error_message);
             }
         }
     }

@@ -153,6 +153,10 @@ pub fn is_valid_aleo_name(name: &str) -> bool {
 
 // Fetch the given endpoint url and return the sanitized response.
 pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
+    fetch_from_network_plain(url).map(|s| s.replace("\\n", "\n").replace('\"', ""))
+}
+
+pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
     let response = ureq::AgentBuilder::new()
         .redirects(0)
         .build()
@@ -161,7 +165,7 @@ pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
         .call()
         .map_err(UtilError::failed_to_retrieve_from_endpoint)?;
     match response.status() {
-        200 => Ok(response.into_string().unwrap().replace("\\n", "\n").replace('\"', "")),
+        200 => Ok(response.into_string().unwrap()),
         301 => Err(UtilError::endpoint_moved_error(url)),
         _ => Err(UtilError::network_error(url, response.status())),
     }

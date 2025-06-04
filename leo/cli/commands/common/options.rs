@@ -167,6 +167,14 @@ pub struct ExtraOptions {
         help = "Consensus version to use. If one is not provided, the CLI will attempt to determine it from the latest block."
     )]
     pub(crate) consensus_version: Option<u8>,
+    #[clap(
+        long,
+        help = "Seconds to wait for a block to appear when searching for a transaction.",
+        default_value = "8"
+    )]
+    pub(crate) max_wait: usize,
+    #[clap(long, help = "Number of blocks to look at when searching for a transaction.", default_value = "12")]
+    pub(crate) blocks_to_check: usize,
 }
 
 // A helper function to get the consensus version from the fee options.
