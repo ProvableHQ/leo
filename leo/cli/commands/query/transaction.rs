@@ -26,7 +26,12 @@ use clap::Parser;
 ))]
 #[command(group(
     // Ensure at most one mode is specified and ony if using "id" as a source.
-    clap::ArgGroup::new("mode").required(false).multiple(false).requires("id")
+    // The `conflicts_with_all` here should not be required but it looks like Clap is getting a little confused
+    clap::ArgGroup::new("mode")
+        .required(false)
+        .multiple(false)
+        .requires("ID").conflicts_with_all(["from_io", "from_transition", "from_program"]
+    )
 ))]
 pub struct LeoTransaction {
     #[clap(name = "ID", help = "The ID of the transaction to fetch", group = "source")]
@@ -38,21 +43,21 @@ pub struct LeoTransaction {
     #[arg(
         value_name = "INPUT_OR_OUTPUT_ID",
         long,
-        help = "Get the transition id that an input or output id occurred in",
+        help = "Get the ID of the transaction that an input or output ID occurred in",
         group = "source"
     )]
     pub(crate) from_io: Option<String>,
     #[arg(
         value_name = "TRANSITION_ID",
         long,
-        help = "Get the id of the transaction containing the specified transition",
+        help = "Get the ID of the transaction containing the specified transition",
         group = "source"
     )]
     pub(crate) from_transition: Option<String>,
     #[arg(
         value_name = "PROGRAM",
         long,
-        help = "Get the id of the transaction id that the specified program was deployed in",
+        help = "Get the ID of the transaction that the specified program was deployed in",
         group = "source"
     )]
     pub(crate) from_program: Option<String>,
