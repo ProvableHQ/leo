@@ -16,6 +16,7 @@
 
 use super::*;
 
+use check_transaction::TransactionStatus;
 use leo_package::{Manifest, NetworkName, Package, fetch_program_from_network};
 
 #[cfg(not(feature = "only_testnet"))]
@@ -51,8 +52,6 @@ pub struct LeoDeploy {
     pub(crate) env_override: EnvOptions,
     #[clap(flatten)]
     pub(crate) extra: ExtraOptions,
-    #[clap(long, help = "Seconds to wait between consecutive deployments.", default_value = "15")]
-    pub(crate) wait: u64,
     #[clap(long, help = "Skips deployment of any program that contains one of the given substrings.")]
     pub(crate) skip: Vec<String>,
     #[clap(flatten)]
@@ -242,7 +241,7 @@ fn handle_deploy<N: Network>(
 
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
-        for (program_id, transaction) in transactions.iter() {
+        for (i, (program_id, transaction)) in transactions.iter().enumerate() {
             println!("📡 Broadcasting deployment for {program_id}...");
             // Get and confirm the fee with the user.
             let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
@@ -250,28 +249,55 @@ fn handle_deploy<N: Network>(
                 println!("❌ Deployment aborted.");
                 return Ok(());
             }
+            let fee_id = fee.id().to_string();
+            let id = transaction.id().to_string();
+            let height_before = crate::cli::check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
             let response = handle_broadcast(
                 &format!("{}/{}/transaction/broadcast", endpoint, network),
                 transaction,
                 &program_id.to_string(),
             )?;
+
+            let fail = |msg| {
+                println!("❌ Failed to deploy program {program_id}: {msg}.");
+                let count = transactions.len() - i - 1;
+                match count {
+                    0 => {}
+                    1 => println!("1 expected deployment skipped"),
+                    _ => println!("{count} expected deployments skipped"),
+                }
+                Ok(())
+            };
+
             match response.status() {
-                200 => println!(
-                    "✅ Successfully broadcast deployment with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
-                    transaction.id().to_string().bold().yellow(),
-                    fee.id().to_string().bold().yellow()
-                ),
+                200 => {
+                    let status = crate::cli::check_transaction::check_transaction_with_message(
+                        &id,
+                        Some(&fee_id),
+                        &endpoint,
+                        network,
+                        height_before + 1,
+                        command.extra.max_wait,
+                        command.extra.blocks_to_check,
+                    )?;
+                    if status == Some(TransactionStatus::Accepted) {
+                        println!(
+                            "✅ Successfully broadcast deployment with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
+                            id.bold().yellow(),
+                            fee_id.bold().yellow()
+                        );
+                    } else {
+                        return fail("Transaction apparently not accepted");
+                    }
+                }
                 _ => {
                     let error_message = response
                         .into_string()
                         .map_err(|e| CliError::custom(format!("Failed to read response: {e}")))?;
-                    println!("❌ Failed to broadcast deployment: {}", error_message);
+                    return fail(&error_message);
                 }
             }
-            // Wait between successive deployments to prevent out of order deployments.
-            println!("⏲️ Waiting for {} seconds to allow the deployment to confirm...\n", command.wait);
-            std::thread::sleep(std::time::Duration::from_secs(command.wait));
         }
     }
 
