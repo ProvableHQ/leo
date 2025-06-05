@@ -23,6 +23,7 @@ use leo_ast::{
     Block,
     ConditionalStatement,
     ConstDeclaration,
+    DefinitionPlace,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
@@ -98,14 +99,29 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
 
         input.value = expr;
 
-        (Statement::Const(input), Default::default())
+        (input.into(), Default::default())
     }
 
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        (
-            DefinitionStatement { value: self.reconstruct_expression(definition.value).0, ..definition }.into(),
-            Default::default(),
-        )
+        let (expr, output) = self.reconstruct_expression(definition.value);
+        if self.propagate_through_let && output.value.is_some() {
+            match &definition.place {
+                DefinitionPlace::Single(identifier) => {
+                    self.state.symbol_table.insert_const(self.program, identifier.name, expr.clone());
+                }
+                DefinitionPlace::Multiple(identifiers) => {
+                    let Expression::Tuple(tuple) = &expr else {
+                        panic!("Type checking should have prevented this.");
+                    };
+                    assert_eq!(identifiers.len(), tuple.elements.len());
+                    for (id, expr) in identifiers.iter().zip(&tuple.elements) {
+                        self.state.symbol_table.insert_const(self.program, id.name, expr.clone());
+                    }
+                }
+            }
+        }
+
+        (DefinitionStatement { value: expr, ..definition }.into(), Default::default())
     }
 
     fn reconstruct_expression_statement(

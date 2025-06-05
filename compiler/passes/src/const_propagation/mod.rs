@@ -38,6 +38,16 @@ pub struct ConstPropagationOutput {
     pub array_index_not_evaluated: Option<Span>,
 }
 
+pub struct ConstPropagationInput {
+    /// Propagate constants through `let`, not just `const`.
+    ///
+    /// The intent is that this is `false` when doing the initial
+    /// propagation through consts when it's mandatory to find constant
+    /// values of array indices and loop ranges, but `true` when running
+    /// the pass as a later optimization.
+    pub propagate_through_let: bool,
+}
+
 /// A pass to perform const propagation and folding.
 ///
 /// This pass should be used in conjunction with the Unroller so that
@@ -56,12 +66,12 @@ pub struct ConstPropagationOutput {
 pub struct ConstPropagation;
 
 impl Pass for ConstPropagation {
-    type Input = ();
+    type Input = ConstPropagationInput;
     type Output = ConstPropagationOutput;
 
     const NAME: &str = "ConstPropagation";
 
-    fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+    fn do_pass(input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let mut ast = std::mem::take(&mut state.ast);
         let mut visitor = ConstPropagationVisitor {
             state,
@@ -69,6 +79,7 @@ impl Pass for ConstPropagation {
             changed: false,
             const_not_evaluated: None,
             array_index_not_evaluated: None,
+            propagate_through_let: input.propagate_through_let,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err().map_err(|e| *e)?;

@@ -254,115 +254,117 @@ impl Interpreter {
     }
 
     pub fn action(&mut self, act: InterpreterAction) -> Result<Option<LeoValue>> {
-        use InterpreterAction::*;
+        todo!()
 
-        let ret = match &act {
-            RunFuture(n) => {
-                let future = self.cursor.futures.remove(*n);
-                for async_exec in future.0.into_iter().rev() {
-                    self.cursor.values.extend(async_exec.arguments);
-                    self.cursor.frames.push(Frame {
-                        step: 0,
-                        element: Element::DelayedCall(async_exec.function),
-                        user_initiated: true,
-                    });
-                }
-                self.cursor.step()?
-            }
-            LeoInterpretInto(s) | LeoInterpretOver(s) => {
-                let filename = FileName::Custom(format!("user_input{:04}", self.parsed_inputs));
-                self.parsed_inputs += 1;
-                let source_file = with_session_globals(|globals| globals.source_map.new_source(s, filename));
-                let s = s.trim();
-                if s.ends_with(';') {
-                    let statement = leo_parser::parse_statement::<TestnetV0>(
-                        self.handler.clone(),
-                        &self.node_builder,
-                        s,
-                        source_file.absolute_start,
-                    )
-                    .map_err(|_e| {
-                        LeoError::InterpreterHalt(InterpreterHalt::new("failed to parse statement".into()))
-                    })?;
-                    // The spans of the code the user wrote at the REPL are meaningless, so get rid of them.
-                    self.cursor.frames.push(Frame {
-                        step: 0,
-                        element: Element::Statement(statement),
-                        user_initiated: true,
-                    });
-                } else {
-                    let expression = leo_parser::parse_expression::<TestnetV0>(
-                        self.handler.clone(),
-                        &self.node_builder,
-                        s,
-                        source_file.absolute_start,
-                    )
-                    .map_err(|e| {
-                        LeoError::InterpreterHalt(InterpreterHalt::new(format!("Failed to parse expression: {e}")))
-                    })?;
-                    // The spans of the code the user wrote at the REPL are meaningless, so get rid of them.
-                    self.cursor.frames.push(Frame {
-                        step: 0,
-                        element: Element::Expression(expression),
-                        user_initiated: true,
-                    });
-                };
+        // use InterpreterAction::*;
 
-                if matches!(act, LeoInterpretOver(..)) {
-                    self.cursor.over()?
-                } else {
-                    StepResult { finished: false, value: None }
-                }
-            }
+        // let ret = match &act {
+        //     RunFuture(n) => {
+        //         let future = self.cursor.futures.remove(*n);
+        //         for async_exec in future.0.into_iter().rev() {
+        //             self.cursor.values.extend(async_exec.arguments);
+        //             self.cursor.frames.push(Frame {
+        //                 step: 0,
+        //                 element: Element::DelayedCall(async_exec.function),
+        //                 user_initiated: true,
+        //             });
+        //         }
+        //         self.cursor.step()?
+        //     }
+        //     LeoInterpretInto(s) | LeoInterpretOver(s) => {
+        //         let filename = FileName::Custom(format!("user_input{:04}", self.parsed_inputs));
+        //         self.parsed_inputs += 1;
+        //         let source_file = with_session_globals(|globals| globals.source_map.new_source(s, filename));
+        //         let s = s.trim();
+        //         if s.ends_with(';') {
+        //             let statement = leo_parser::parse_statement::<TestnetV0>(
+        //                 self.handler.clone(),
+        //                 &self.node_builder,
+        //                 s,
+        //                 source_file.absolute_start,
+        //             )
+        //             .map_err(|_e| {
+        //                 LeoError::InterpreterHalt(InterpreterHalt::new("failed to parse statement".into()))
+        //             })?;
+        //             // The spans of the code the user wrote at the REPL are meaningless, so get rid of them.
+        //             self.cursor.frames.push(Frame {
+        //                 step: 0,
+        //                 element: Element::Statement(statement),
+        //                 user_initiated: true,
+        //             });
+        //         } else {
+        //             let expression = leo_parser::parse_expression::<TestnetV0>(
+        //                 self.handler.clone(),
+        //                 &self.node_builder,
+        //                 s,
+        //                 source_file.absolute_start,
+        //             )
+        //             .map_err(|e| {
+        //                 LeoError::InterpreterHalt(InterpreterHalt::new(format!("Failed to parse expression: {e}")))
+        //             })?;
+        //             // The spans of the code the user wrote at the REPL are meaningless, so get rid of them.
+        //             self.cursor.frames.push(Frame {
+        //                 step: 0,
+        //                 element: Element::Expression(expression),
+        //                 user_initiated: true,
+        //             });
+        //         };
 
-            Step => self.cursor.whole_step()?,
+        //         if matches!(act, LeoInterpretOver(..)) {
+        //             self.cursor.over()?
+        //         } else {
+        //             StepResult { finished: false, value: None }
+        //         }
+        //     }
 
-            Into => self.cursor.step()?,
+        //     Step => self.cursor.whole_step()?,
 
-            Over => self.cursor.over()?,
+        //     Into => self.cursor.step()?,
 
-            Breakpoint(breakpoint) => {
-                self.breakpoints.push(breakpoint.clone());
-                StepResult { finished: false, value: None }
-            }
+        //     Over => self.cursor.over()?,
 
-            Watch(code) => {
-                self.watchpoints.push(Watchpoint { code: code.clone(), last_result: None });
-                StepResult { finished: false, value: None }
-            }
+        //     Breakpoint(breakpoint) => {
+        //         self.breakpoints.push(breakpoint.clone());
+        //         StepResult { finished: false, value: None }
+        //     }
 
-            PrintRegister(register_index) => {
-                let Some(Frame { element: Element::AleoExecution { registers, .. }, .. }) = self.cursor.frames.last()
-                else {
-                    halt_no_span!("cannot print register - not currently interpreting Aleo VM code");
-                };
+        //     Watch(code) => {
+        //         self.watchpoints.push(Watchpoint { code: code.clone(), last_result: None });
+        //         StepResult { finished: false, value: None }
+        //     }
 
-                if let Some(value) = registers.get(register_index) {
-                    StepResult { finished: false, value: Some(value.clone()) }
-                } else {
-                    halt_no_span!("no such register {register_index}");
-                }
-            }
+        //     PrintRegister(register_index) => {
+        //         let Some(Frame { element: Element::AleoExecution { registers, .. }, .. }) = self.cursor.frames.last()
+        //         else {
+        //             halt_no_span!("cannot print register - not currently interpreting Aleo VM code");
+        //         };
 
-            Run => {
-                while !self.cursor.frames.is_empty() {
-                    if let Some((program, line)) = self.current_program_and_line() {
-                        if self.breakpoints.iter().any(|bp| bp.program == program && bp.line == line) {
-                            return Ok(None);
-                        }
-                    }
-                    self.cursor.step()?;
-                    if self.update_watchpoints()? {
-                        return Ok(None);
-                    }
-                }
-                StepResult { finished: false, value: None }
-            }
-        };
+        //         if let Some(value) = registers.get(register_index) {
+        //             StepResult { finished: false, value: Some(value.clone()) }
+        //         } else {
+        //             halt_no_span!("no such register {register_index}");
+        //         }
+        //     }
 
-        self.actions.push(act);
+        //     Run => {
+        //         while !self.cursor.frames.is_empty() {
+        //             if let Some((program, line)) = self.current_program_and_line() {
+        //                 if self.breakpoints.iter().any(|bp| bp.program == program && bp.line == line) {
+        //                     return Ok(None);
+        //                 }
+        //             }
+        //             self.cursor.step()?;
+        //             if self.update_watchpoints()? {
+        //                 return Ok(None);
+        //             }
+        //         }
+        //         StepResult { finished: false, value: None }
+        //     }
+        // };
 
-        Ok(ret.value)
+        // self.actions.push(act);
+
+        // Ok(ret.value)
     }
 
     pub fn view_current(&self) -> Option<impl Display> {

@@ -1,6 +1,5 @@
-program test.aleo;
-
-function main:
-    input r0 as boolean.private;
-    neg -9223372036854775808i64 into r1;
-    output r1 as i64.private;
+Error [ESAZ0374006]: Unary operation `-9223372036854775808i64.neg()` failed at compile time: negation overflow.
+    --> compiler-test:8:16
+     |
+   8 |         return -a; // This line attempts to return 9223372036854775808i64 however, the largest i64 value is 9223372036854775807i64.
+     |                ^^

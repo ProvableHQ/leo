@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, ConstPropagation, Monomorphization, Pass, Unrolling};
+use crate::{CompilerState, ConstPropagation, ConstPropagationInput, Monomorphization, Pass, Unrolling};
 
 use leo_errors::{CompilerError, Result};
 
@@ -33,7 +33,8 @@ impl Pass for ConstPropagationAndUnrolling {
         for _ in 0..LARGE_LOOP_BOUND {
             let loop_unroll_output = Unrolling::do_pass((), state)?;
 
-            let const_prop_output = ConstPropagation::do_pass((), state)?;
+            let const_prop_output =
+                ConstPropagation::do_pass(ConstPropagationInput { propagate_through_let: false }, state)?;
 
             let monomorphization_output = Monomorphization::do_pass((), state)?;
 

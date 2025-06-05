@@ -650,304 +650,306 @@ impl Cursor {
     }
 
     fn step_expression(&mut self, expression: &Expression, step: usize) -> Result<bool> {
-        let len = self.frames.len();
+        todo!()
+        // let len = self.frames.len();
 
-        macro_rules! push {
-            () => {
-                |expression: &Expression| {
-                    self.frames.push(Frame {
-                        element: Element::Expression(expression.clone()),
-                        step: 0,
-                        user_initiated: false,
-                    })
-                }
-            };
-        }
+        // macro_rules! push {
+        //     () => {
+        //         |expression: &Expression| {
+        //             self.frames.push(Frame {
+        //                 element: Element::Expression(expression.clone()),
+        //                 step: 0,
+        //                 user_initiated: false,
+        //             })
+        //         }
+        //     };
+        // }
 
-        if let Some(value) = match expression {
-            Expression::ArrayAccess(array) if step == 0 => {
-                push!()(&array.index);
-                push!()(&array.array);
-                None
-            }
-            Expression::ArrayAccess(array) if step == 1 => {
-                let span = array.span();
-                let array = self.pop_value()?;
-                let index = self.pop_value()?;
+        // if let Some(value) = match expression {
+        //     Expression::ArrayAccess(array) if step == 0 => {
+        //         push!()(&array.index);
+        //         push!()(&array.array);
+        //         None
+        //     }
+        //     Expression::ArrayAccess(array) if step == 1 => {
+        //         let span = array.span();
+        //         let array = self.pop_value()?;
+        //         let index = self.pop_value()?;
 
-                let index_usize: usize = match index.try_as_usize() {
-                    Some(x) => x,
-                    None => halt!(expression.span(), "invalid array index {index}"),
-                };
-                array.try_as_array().and_then(|vec_array| vec_array.get(index_usize)).expect_tc(span)?.clone().into()
-            }
-            Expression::MemberAccess(access) => match &access.inner {
-                Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
-                    sym::signer => Some(self.signer.into()),
-                    sym::caller => {
-                        if let Some(function_context) = self.contexts.last() {
-                            Some(function_context.caller.into())
-                        } else {
-                            Some(self.signer.into())
-                        }
-                    }
-                    _ => halt!(access.span(), "unknown member of self"),
-                },
-                Expression::Identifier(identifier) if identifier.name == sym::block => match access.name.name {
-                    sym::height => Some(self.block_height.into()),
-                    _ => halt!(access.span(), "unknown member of block"),
-                },
+        //         let index_usize: usize = match index.try_as_usize() {
+        //             Some(x) => x,
+        //             None => halt!(expression.span(), "invalid array index {index}"),
+        //         };
+        //         array.try_as_array().and_then(|vec_array| vec_array.get(index_usize)).expect_tc(span)?.clone().into()
+        //     }
+        //     Expression::MemberAccess(access) => match &access.inner {
+        //         Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
+        //             sym::signer => Some(self.signer.into()),
+        //             sym::caller => {
+        //                 if let Some(function_context) = self.contexts.last() {
+        //                     Some(function_context.caller.into())
+        //                 } else {
+        //                     Some(self.signer.into())
+        //                 }
+        //             }
+        //             _ => halt!(access.span(), "unknown member of self"),
+        //         },
+        //         Expression::Identifier(identifier) if identifier.name == sym::block => match access.name.name {
+        //             sym::height => Some(self.block_height.into()),
+        //             _ => halt!(access.span(), "unknown member of block"),
+        //         },
 
-                // Otherwise, we just have a normal struct member access.
-                _ if step == 0 => {
-                    push!()(&access.inner);
-                    None
-                }
-                _ if step == 1 => {
-                    // let Some(LeoValue::Value(SvmValue::
-                    Struct(struct_)) = self.values.pop() else {
-                        tc_fail!();
-                    };
-                    let value = struct_.contents.get(&access.name.name).cloned();
-                    if value.is_none() {
-                        tc_fail!();
-                    }
-                    value
-                }
-                _ => unreachable!("we've actually covered all possible patterns above"),
-            },
-            Expression::TupleAccess(tuple_access) if step == 0 => {
-                push!()(&tuple_access.tuple);
-                None
-            }
-            Expression::TupleAccess(tuple_access) if step == 1 => {
-                let Some(value) = self.values.pop() else { tc_fail!() };
-                let LeoValue::Tuple(tuple) = value else {
-                    halt!(tuple_access.span(), "Type error");
-                };
-                if let Some(result) = tuple.get(tuple_access.index.value()) {
-                    Some(result.clone())
-                } else {
-                    halt!(tuple_access.span(), "Tuple index out of range");
-                }
-            }
-            Expression::Array(array) if step == 0 => {
-                array.elements.iter().rev().for_each(push!());
-                None
-            }
-            Expression::Array(array) if step == 1 => {
-                let len = self.values.len();
-                let array_values = self.values.drain(len - array.elements.len()..).collect();
-                let plaintexts: Vec<Plaintext> =
-                    array_values.into_iter().filter_map(|value| value.try_into().ok()).collect();
-                (plaintexts.len() == array.elements.len())
-                    .then_some(Plaintext::Array(array_values, Default::default()).into())
-            }
-            Expression::AssociatedConstant(constant) if step == 0 => {
-                let Type::Identifier(type_ident) = constant.ty else {
-                    tc_fail!();
-                };
-                let Some(core_constant) = CoreConstant::from_symbols(type_ident.name, constant.name.name) else {
-                    halt!(constant.span(), "Unknown constant {constant}");
-                };
-                match core_constant {
-                    CoreConstant::GroupGenerator => Some(LeoValue::generator()),
-                }
-            }
-            Expression::AssociatedFunction(function) if step == 0 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
-                    halt!(function.span(), "Unkown core function {function}");
-                };
+        //         // Otherwise, we just have a normal struct member access.
+        //         _ if step == 0 => {
+        //             push!()(&access.inner);
+        //             None
+        //         }
+        //         _ if step == 1 => {
+        //             todo!()
+        //             // let Some(LeoValue::Value(SvmValue::
+        //             // let Struct(struct_) = self.values.pop() else {
+        //             //     tc_fail!();
+        //             // };
+        //             // let value = struct_.contents.get(&access.name.name).cloned();
+        //             // if value.is_none() {
+        //             //     tc_fail!();
+        //             // }
+        //             // value
+        //         }
+        //         _ => unreachable!("we've actually covered all possible patterns above"),
+        //     },
+        //     Expression::TupleAccess(tuple_access) if step == 0 => {
+        //         push!()(&tuple_access.tuple);
+        //         None
+        //     }
+        //     Expression::TupleAccess(tuple_access) if step == 1 => {
+        //         let Some(value) = self.values.pop() else { tc_fail!() };
+        //         let LeoValue::Tuple(tuple) = value else {
+        //             halt!(tuple_access.span(), "Type error");
+        //         };
+        //         if let Some(result) = tuple.get(tuple_access.index.value()) {
+        //             Some(result.clone())
+        //         } else {
+        //             halt!(tuple_access.span(), "Tuple index out of range");
+        //         }
+        //     }
+        //     Expression::Array(array) if step == 0 => {
+        //         array.elements.iter().rev().for_each(push!());
+        //         None
+        //     }
+        //     Expression::Array(array) if step == 1 => {
+        //         let len = self.values.len();
+        //         let array_values = self.values.drain(len - array.elements.len()..).collect();
+        //         let plaintexts: Vec<Plaintext> =
+        //             array_values.into_iter().filter_map(|value| value.try_into().ok()).collect();
+        //         (plaintexts.len() == array.elements.len())
+        //             .then_some(Plaintext::Array(array_values, Default::default()).into())
+        //     }
+        //     Expression::AssociatedConstant(constant) if step == 0 => {
+        //         let Type::Identifier(type_ident) = constant.ty else {
+        //             tc_fail!();
+        //         };
+        //         let Some(core_constant) = CoreConstant::from_symbols(type_ident.name, constant.name.name) else {
+        //             halt!(constant.span(), "Unknown constant {constant}");
+        //         };
+        //         match core_constant {
+        //             CoreConstant::GroupGenerator => Some(LeoValue::generator()),
+        //         }
+        //     }
+        //     Expression::AssociatedFunction(function) if step == 0 => {
+        //         let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+        //             halt!(function.span(), "Unkown core function {function}");
+        //         };
 
-                // We want to push expressions for each of the arguments... except for mappings,
-                // because we don't look them up as Values.
-                match core_function {
-                    CoreFunction::MappingGet | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
-                        push!()(&function.arguments[1]);
-                    }
-                    CoreFunction::MappingGetOrUse | CoreFunction::MappingSet => {
-                        push!()(&function.arguments[2]);
-                        push!()(&function.arguments[1]);
-                    }
-                    CoreFunction::CheatCodePrintMapping => {
-                        // Do nothing, as we don't need to evaluate the mapping.
-                    }
-                    _ => function.arguments.iter().rev().for_each(push!()),
-                }
-                None
-            }
-            Expression::AssociatedFunction(function) if step == 1 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
-                    halt!(function.span(), "Unkown core function {function}");
-                };
+        //         // We want to push expressions for each of the arguments... except for mappings,
+        //         // because we don't look them up as Values.
+        //         match core_function {
+        //             CoreFunction::MappingGet | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
+        //                 push!()(&function.arguments[1]);
+        //             }
+        //             CoreFunction::MappingGetOrUse | CoreFunction::MappingSet => {
+        //                 push!()(&function.arguments[2]);
+        //                 push!()(&function.arguments[1]);
+        //             }
+        //             CoreFunction::CheatCodePrintMapping => {
+        //                 // Do nothing, as we don't need to evaluate the mapping.
+        //             }
+        //             _ => function.arguments.iter().rev().for_each(push!()),
+        //         }
+        //         None
+        //     }
+        //     Expression::AssociatedFunction(function) if step == 1 => {
+        //         let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+        //             halt!(function.span(), "Unkown core function {function}");
+        //         };
 
-                let span = function.span();
+        //         let span = function.span();
 
-                if let CoreFunction::FutureAwait = core_function {
-                    let value = self.pop_value()?;
-                    let Ok(future) = value.try_into() else {
-                        halt!(span, "Invalid value for await: {value}");
-                    };
-                    for async_execution in future.0 {
-                        self.values.extend(async_execution.arguments.into_iter());
-                        self.frames.push(Frame {
-                            step: 0,
-                            element: Element::DelayedCall(async_execution.function),
-                            user_initiated: false,
-                        });
-                    }
-                    // For an await, we have one extra step - first we must evaluate the delayed call.
-                    None
-                } else {
-                    let value = evaluate_core_function(self, core_function, &function.arguments, span)?;
-                    assert!(value.is_some());
-                    value
-                }
-            }
-            Expression::AssociatedFunction(function) if step == 2 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
-                    halt!(function.span(), "Unkown core function {function}");
-                };
-                assert!(core_function == CoreFunction::FutureAwait);
-                Some(LeoValue::Unit)
-            }
-            Expression::Binary(binary) if step == 0 => {
-                push!()(&binary.right);
-                push!()(&binary.left);
-                None
-            }
-            Expression::Binary(binary) if step == 1 => {
-                let rhs = self.pop_value()?;
-                let lhs = self.pop_value()?;
-                Some(evaluate_binary(binary.span, binary.op, &lhs, &rhs)?)
-            }
-            Expression::Call(call) if step == 0 => {
-                call.arguments.iter().rev().for_each(push!());
-                None
-            }
-            Expression::Call(call) if step == 1 => {
-                let len = self.values.len();
-                let (program, name) = match &call.function {
-                    Expression::Identifier(id) => {
-                        let maybe_program = call.program.or_else(|| self.current_program());
-                        if let Some(program) = maybe_program {
-                            (program, id.name)
-                        } else {
-                            halt!(call.span, "No current program");
-                        }
-                    }
-                    Expression::Locator(locator) => (locator.program.name.name, locator.name),
-                    _ => tc_fail!(),
-                };
-                // It's a bit cheesy to collect the arguments into a Vec first, but it's the easiest way
-                // to handle lifetimes here.
-                let arguments: Vec<Value> = self.values.drain(len - call.arguments.len()..).collect();
-                self.do_call(
-                    program,
-                    name,
-                    arguments.into_iter(),
-                    false, // finalize
-                    call.span(),
-                )?;
-                None
-            }
-            Expression::Call(_call) if step == 2 => Some(self.pop_value()?),
-            Expression::Cast(cast) if step == 0 => {
-                push!()(&cast.expression);
-                None
-            }
-            Expression::Cast(cast) if step == 1 => {
-                let span = cast.span();
-                let arg = self.pop_value()?;
-                match arg.cast(&cast.type_) {
-                    Some(value) => Some(value),
-                    None => return Err(InterpreterHalt::new_spanned("cast failure".to_string(), span).into()),
-                }
-            }
-            Expression::Err(_) => todo!(),
-            Expression::Identifier(identifier) if step == 0 => {
-                Some(self.lookup(identifier.name).expect_tc(identifier.span())?)
-            }
-            Expression::Literal(literal) if step == 0 => {
-                Some(literal_to_value(literal, &self.type_table.get(&expression.id()))?)
-            }
-            Expression::Locator(_locator) => todo!(),
-            Expression::Struct(struct_) if step == 0 => {
-                struct_.members.iter().flat_map(|init| init.expression.as_ref()).for_each(push!());
-                None
-            }
-            Expression::Struct(struct_) if step == 1 => {
-                // Collect all the key/value pairs into a HashMap.
-                let mut contents_tmp = HashMap::with_capacity(struct_.members.len());
-                for initializer in struct_.members.iter() {
-                    let name = initializer.identifier.name;
-                    let value = if initializer.expression.is_some() {
-                        self.pop_value()?
-                    } else {
-                        self.lookup(name).expect_tc(struct_.span())?
-                    };
-                    let plaintext: Plaintext = value.try_into().expect_tc(struct_.span())?;
-                    contents_tmp.insert(name, plaintext);
-                }
+        //         if let CoreFunction::FutureAwait = core_function {
+        //             let value = self.pop_value()?;
+        //             let Ok(future) = value.try_into() else {
+        //                 halt!(span, "Invalid value for await: {value}");
+        //             };
+        //             for async_execution in future.0 {
+        //                 self.values.extend(async_execution.arguments.into_iter());
+        //                 self.frames.push(Frame {
+        //                     step: 0,
+        //                     element: Element::DelayedCall(async_execution.function),
+        //                     user_initiated: false,
+        //                 });
+        //             }
+        //             // For an await, we have one extra step - first we must evaluate the delayed call.
+        //             None
+        //         } else {
+        //             let value = evaluate_core_function(self, core_function, &function.arguments, span)?;
+        //             assert!(value.is_some());
+        //             value
+        //         }
+        //     }
+        //     Expression::AssociatedFunction(function) if step == 2 => {
+        //         let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+        //             halt!(function.span(), "Unkown core function {function}");
+        //         };
+        //         assert!(core_function == CoreFunction::FutureAwait);
+        //         Some(LeoValue::Unit)
+        //     }
+        //     Expression::Binary(binary) if step == 0 => {
+        //         push!()(&binary.right);
+        //         push!()(&binary.left);
+        //         None
+        //     }
+        //     Expression::Binary(binary) if step == 1 => {
+        //         let rhs = self.pop_value()?;
+        //         let lhs = self.pop_value()?;
+        //         Some(evaluate_binary(binary.span, binary.op, &lhs, &rhs)?)
+        //     }
+        //     Expression::Call(call) if step == 0 => {
+        //         call.arguments.iter().rev().for_each(push!());
+        //         None
+        //     }
+        //     Expression::Call(call) if step == 1 => {
+        //         let len = self.values.len();
+        //         let (program, name) = match &call.function {
+        //             Expression::Identifier(id) => {
+        //                 let maybe_program = call.program.or_else(|| self.current_program());
+        //                 if let Some(program) = maybe_program {
+        //                     (program, id.name)
+        //                 } else {
+        //                     halt!(call.span, "No current program");
+        //                 }
+        //             }
+        //             Expression::Locator(locator) => (locator.program.name.name, locator.name),
+        //             _ => tc_fail!(),
+        //         };
+        //         // It's a bit cheesy to collect the arguments into a Vec first, but it's the easiest way
+        //         // to handle lifetimes here.
+        //         let arguments: Vec<Value> = self.values.drain(len - call.arguments.len()..).collect();
+        //         self.do_call(
+        //             program,
+        //             name,
+        //             arguments.into_iter(),
+        //             false, // finalize
+        //             call.span(),
+        //         )?;
+        //         None
+        //     }
+        //     Expression::Call(_call) if step == 2 => Some(self.pop_value()?),
+        //     Expression::Cast(cast) if step == 0 => {
+        //         push!()(&cast.expression);
+        //         None
+        //     }
+        //     Expression::Cast(cast) if step == 1 => {
+        //         let span = cast.span();
+        //         let arg = self.pop_value()?;
+        //         match arg.cast(&cast.type_) {
+        //             Some(value) => Some(value),
+        //             None => return Err(InterpreterHalt::new_spanned("cast failure".to_string(), span).into()),
+        //         }
+        //     }
+        //     Expression::Err(_) => todo!(),
+        //     Expression::Identifier(identifier) if step == 0 => {
+        //         Some(self.lookup(identifier.name).expect_tc(identifier.span())?)
+        //     }
+        //     Expression::Literal(literal) if step == 0 => {
+        //         Some(literal_to_value(literal, &self.type_table.get(&expression.id()))?)
+        //     }
+        //     Expression::Locator(_locator) => todo!(),
+        //     Expression::Struct(struct_) if step == 0 => {
+        //         struct_.members.iter().flat_map(|init| init.expression.as_ref()).for_each(push!());
+        //         None
+        //     }
+        //     Expression::Struct(struct_) if step == 1 => {
+        //         // Collect all the key/value pairs into a HashMap.
+        //         let mut contents_tmp = HashMap::with_capacity(struct_.members.len());
+        //         for initializer in struct_.members.iter() {
+        //             let name = initializer.identifier.name;
+        //             let value = if initializer.expression.is_some() {
+        //                 self.pop_value()?
+        //             } else {
+        //                 self.lookup(name).expect_tc(struct_.span())?
+        //             };
+        //             let plaintext: Plaintext = value.try_into().expect_tc(struct_.span())?;
+        //             contents_tmp.insert(name, plaintext);
+        //         }
 
-                // And now put them into an IndexMap in the correct order.
-                let program = self.current_program().expect("there should be a current program");
-                let id = GlobalId { program, name: struct_.name.name };
-                let struct_type = self.structs.get(&id).expect_tc(struct_.span())?;
-                let contents = struct_type
-                    .iter()
-                    .map(|sym| ((*sym).try_into().unwrap(), contents_tmp.remove(sym).expect("we just inserted this")))
-                    .collect();
+        //         // And now put them into an IndexMap in the correct order.
+        //         let program = self.current_program().expect("there should be a current program");
+        //         let id = GlobalId { program, name: struct_.name.name };
+        //         let struct_type = self.structs.get(&id).expect_tc(struct_.span())?;
+        //         let contents = struct_type
+        //             .iter()
+        //             .map(|sym| ((*sym).try_into().unwrap(), contents_tmp.remove(sym).expect("we just inserted this")))
+        //             .collect();
 
-                Some(Plaintext::Struct(contents, Default::default()).into())
-            }
-            Expression::Ternary(ternary) if step == 0 => {
-                push!()(&ternary.condition);
-                None
-            }
-            Expression::Ternary(ternary) if step == 1 => {
-                let condition = self.pop_value()?;
-                match condition.try_into() {
-                    Ok(true) => push!()(&ternary.if_true),
-                    Ok(false) => push!()(&ternary.if_false),
-                    Err(..) => halt!(ternary.span(), "Invalid type for ternary expression {ternary}"),
-                }
-                None
-            }
-            Expression::Ternary(_) if step == 2 => Some(self.pop_value()?),
-            Expression::Tuple(tuple) if step == 0 => {
-                tuple.elements.iter().rev().for_each(push!());
-                None
-            }
-            Expression::Tuple(tuple) if step == 1 => {
-                let len = self.values.len();
-                let tuple_values = self.values.drain(len - tuple.elements.len()..).collect();
-                let tuple_plaintexts = tuple_values.into_iter().filter_map(|v| v.try_into().ok());
-                if tuple_plaintexts.len() == tuple.elements.len() {
-                    Some(LeoValue::Tuple(tuple_values))
-                } else {
-                    halt!(tuple.span(), "Type error");
-                }
-            }
-            Expression::Unary(unary) if step == 0 => {
-                push!()(&unary.receiver);
-                None
-            }
-            Expression::Unary(unary) if step == 1 => {
-                let value = self.pop_value()?;
-                Some(evaluate_unary(unary.span, unary.op, &value)?)
-            }
-            Expression::Unit(_) if step == 0 => Some(LeoValue::Unit),
-            x => unreachable!("Unexpected expression {x}"),
-        } {
-            assert_eq!(self.frames.len(), len);
-            self.frames.pop();
-            self.values.push(value);
-            Ok(true)
-        } else {
-            self.frames[len - 1].step += 1;
-            Ok(false)
-        }
+        //         Some(Plaintext::Struct(contents, Default::default()).into())
+        //     }
+        //     Expression::Ternary(ternary) if step == 0 => {
+        //         push!()(&ternary.condition);
+        //         None
+        //     }
+        //     Expression::Ternary(ternary) if step == 1 => {
+        //         let condition = self.pop_value()?;
+        //         match condition.try_into() {
+        //             Ok(true) => push!()(&ternary.if_true),
+        //             Ok(false) => push!()(&ternary.if_false),
+        //             Err(..) => halt!(ternary.span(), "Invalid type for ternary expression {ternary}"),
+        //         }
+        //         None
+        //     }
+        //     Expression::Ternary(_) if step == 2 => Some(self.pop_value()?),
+        //     Expression::Tuple(tuple) if step == 0 => {
+        //         tuple.elements.iter().rev().for_each(push!());
+        //         None
+        //     }
+        //     Expression::Tuple(tuple) if step == 1 => {
+        //         let len = self.values.len();
+        //         let tuple_values = self.values.drain(len - tuple.elements.len()..).collect();
+        //         let tuple_plaintexts = tuple_values.into_iter().filter_map(|v| v.try_into().ok());
+        //         if tuple_plaintexts.len() == tuple.elements.len() {
+        //             Some(LeoValue::Tuple(tuple_values))
+        //         } else {
+        //             halt!(tuple.span(), "Type error");
+        //         }
+        //     }
+        //     Expression::Unary(unary) if step == 0 => {
+        //         push!()(&unary.receiver);
+        //         None
+        //     }
+        //     Expression::Unary(unary) if step == 1 => {
+        //         let value = self.pop_value()?;
+        //         Some(evaluate_unary(unary.span, unary.op, &value)?)
+        //     }
+        //     Expression::Unit(_) if step == 0 => Some(LeoValue::Unit),
+        //     x => unreachable!("Unexpected expression {x}"),
+        // } {
+        //     assert_eq!(self.frames.len(), len);
+        //     self.frames.pop();
+        //     self.values.push(value);
+        //     Ok(true)
+        // } else {
+        //     self.frames[len - 1].step += 1;
+        //     Ok(false)
+        // }
     }
 
     /// Execute one step of the current element.
@@ -958,96 +960,98 @@ impl Cursor {
     /// stack. Once that has executed and we've returned to the conditional, the final step
     /// does nothing.
     pub fn step(&mut self) -> Result<StepResult> {
-        if self.frames.is_empty() {
-            return Err(InterpreterHalt::new("no execution frames available".into()).into());
-        }
+        todo!()
 
-        let Frame { element, step, user_initiated } = self.frames.last().expect("there should be a frame").clone();
-        match element {
-            Element::Block { block, function_body } => {
-                let finished = self.step_block(&block, function_body, step);
-                Ok(StepResult { finished, value: None })
-            }
-            Element::Statement(statement) => {
-                let finished = self.step_statement(&statement, step)?;
-                Ok(StepResult { finished, value: None })
-            }
-            Element::Expression(expression) => {
-                let finished = self.step_expression(&expression, step)?;
-                let value = match (finished, user_initiated) {
-                    (false, _) => None,
-                    (true, false) => self.values.last().cloned(),
-                    (true, true) => self.values.pop(),
-                };
-                let maybe_future = if let Some(Value::Tuple(vals)) = &value { vals.last() } else { value.as_ref() };
+        // if self.frames.is_empty() {
+        //     return Err(InterpreterHalt::new("no execution frames available".into()).into());
+        // }
 
-                if let Some(Value::Future(future)) = &maybe_future {
-                    if user_initiated && !future.0.is_empty() {
-                        self.futures.push(future.clone());
-                    }
-                }
-                Ok(StepResult { finished, value })
-            }
-            Element::AleoExecution { .. } => {
-                self.step_aleo()?;
-                Ok(StepResult { finished: true, value: None })
-            }
-            Element::DelayedCall(gid) if step == 0 => {
-                match self.lookup_function(gid.program, gid.name).expect("function should exist") {
-                    FunctionVariant::Leo(function) => {
-                        assert!(function.variant == Variant::AsyncFunction);
-                        let len = self.values.len();
-                        let values: Vec<LeoValue> = self.values.drain(len - function.input.len()..).collect();
-                        self.contexts.push(
-                            gid.program,
-                            self.signer,
-                            true, // is_async
-                        );
-                        let param_names = function.input.iter().map(|input| input.identifier.name);
-                        for (name, value) in param_names.zip(values) {
-                            self.set_variable(name, value);
-                        }
-                        self.frames.last_mut().unwrap().step = 1;
-                        self.frames.push(Frame {
-                            step: 0,
-                            element: Element::Block { block: function.block.clone(), function_body: true },
-                            user_initiated: false,
-                        });
-                        Ok(StepResult { finished: false, value: None })
-                    }
-                    FunctionVariant::AleoFunction(function) => {
-                        let Some(finalize_f) = function.finalize_logic() else {
-                            panic!("must have finalize logic for a delayed call");
-                        };
-                        let len = self.values.len();
-                        let values_iter = self.values.drain(len - finalize_f.inputs().len()..);
-                        self.contexts.push(
-                            gid.program,
-                            self.signer,
-                            true, // is_async
-                        );
-                        self.frames.last_mut().unwrap().step = 1;
-                        self.frames.push(Frame {
-                            step: 0,
-                            element: Element::AleoExecution {
-                                context: AleoContext::Finalize(finalize_f.clone()).into(),
-                                registers: values_iter.enumerate().map(|(i, v)| (i as u64, v)).collect(),
-                                instruction_index: 0,
-                            },
-                            user_initiated: false,
-                        });
-                        Ok(StepResult { finished: false, value: None })
-                    }
-                    FunctionVariant::AleoClosure(..) => panic!("A call to a closure can't be delayed"),
-                }
-            }
-            Element::DelayedCall(_gid) => {
-                assert_eq!(step, 1);
-                let value = self.values.pop();
-                self.frames.pop();
-                Ok(StepResult { finished: true, value })
-            }
-        }
+        // let Frame { element, step, user_initiated } = self.frames.last().expect("there should be a frame").clone();
+        // match element {
+        //     Element::Block { block, function_body } => {
+        //         let finished = self.step_block(&block, function_body, step);
+        //         Ok(StepResult { finished, value: None })
+        //     }
+        //     Element::Statement(statement) => {
+        //         let finished = self.step_statement(&statement, step)?;
+        //         Ok(StepResult { finished, value: None })
+        //     }
+        //     Element::Expression(expression) => {
+        //         let finished = self.step_expression(&expression, step)?;
+        //         let value = match (finished, user_initiated) {
+        //             (false, _) => None,
+        //             (true, false) => self.values.last().cloned(),
+        //             (true, true) => self.values.pop(),
+        //         };
+        //         let maybe_future = if let Some(Value::Tuple(vals)) = &value { vals.last() } else { value.as_ref() };
+
+        //         if let Some(Value::Future(future)) = &maybe_future {
+        //             if user_initiated && !future.0.is_empty() {
+        //                 self.futures.push(future.clone());
+        //             }
+        //         }
+        //         Ok(StepResult { finished, value })
+        //     }
+        //     Element::AleoExecution { .. } => {
+        //         self.step_aleo()?;
+        //         Ok(StepResult { finished: true, value: None })
+        //     }
+        //     Element::DelayedCall(gid) if step == 0 => {
+        //         match self.lookup_function(gid.program, gid.name).expect("function should exist") {
+        //             FunctionVariant::Leo(function) => {
+        //                 assert!(function.variant == Variant::AsyncFunction);
+        //                 let len = self.values.len();
+        //                 let values: Vec<LeoValue> = self.values.drain(len - function.input.len()..).collect();
+        //                 self.contexts.push(
+        //                     gid.program,
+        //                     self.signer,
+        //                     true, // is_async
+        //                 );
+        //                 let param_names = function.input.iter().map(|input| input.identifier.name);
+        //                 for (name, value) in param_names.zip(values) {
+        //                     self.set_variable(name, value);
+        //                 }
+        //                 self.frames.last_mut().unwrap().step = 1;
+        //                 self.frames.push(Frame {
+        //                     step: 0,
+        //                     element: Element::Block { block: function.block.clone(), function_body: true },
+        //                     user_initiated: false,
+        //                 });
+        //                 Ok(StepResult { finished: false, value: None })
+        //             }
+        //             FunctionVariant::AleoFunction(function) => {
+        //                 let Some(finalize_f) = function.finalize_logic() else {
+        //                     panic!("must have finalize logic for a delayed call");
+        //                 };
+        //                 let len = self.values.len();
+        //                 let values_iter = self.values.drain(len - finalize_f.inputs().len()..);
+        //                 self.contexts.push(
+        //                     gid.program,
+        //                     self.signer,
+        //                     true, // is_async
+        //                 );
+        //                 self.frames.last_mut().unwrap().step = 1;
+        //                 self.frames.push(Frame {
+        //                     step: 0,
+        //                     element: Element::AleoExecution {
+        //                         context: AleoContext::Finalize(finalize_f.clone()).into(),
+        //                         registers: values_iter.enumerate().map(|(i, v)| (i as u64, v)).collect(),
+        //                         instruction_index: 0,
+        //                     },
+        //                     user_initiated: false,
+        //                 });
+        //                 Ok(StepResult { finished: false, value: None })
+        //             }
+        //             FunctionVariant::AleoClosure(..) => panic!("A call to a closure can't be delayed"),
+        //         }
+        //     }
+        //     Element::DelayedCall(_gid) => {
+        //         assert_eq!(step, 1);
+        //         let value = self.values.pop();
+        //         self.frames.pop();
+        //         Ok(StepResult { finished: true, value })
+        //     }
+        // }
     }
 
     pub fn do_call(

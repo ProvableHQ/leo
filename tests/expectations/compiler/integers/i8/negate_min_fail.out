@@ -1,6 +1,5 @@
-program test.aleo;
-
-function main:
-    input r0 as boolean.private;
-    neg -128i8 into r1;
-    output r1 as i8.private;
+Error [ESAZ0374006]: Unary operation `-128i8.neg()` failed at compile time: negation overflow.
+    --> compiler-test:8:16
+     |
+   8 |         return -a; // This line attempts to return 128i8 however, the largest i8 value is 127i8.
+     |                ^^

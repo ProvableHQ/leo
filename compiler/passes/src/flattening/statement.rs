@@ -189,10 +189,12 @@ impl StatementReconstructor for FlatteningVisitor<'_> {
         for statement in block.statements {
             let (reconstructed_statement, additional_statements) = self.reconstruct_statement(statement);
             statements.extend(additional_statements);
-            statements.push(reconstructed_statement);
+            if !reconstructed_statement.is_empty() {
+                statements.push(reconstructed_statement);
+            }
         }
 
-        (Block { span: block.span, statements, id: self.state.node_builder.next_id() }, Default::default())
+        (Block { span: block.span, statements, id: block.id }, Default::default())
     }
 
     /// Flatten a conditional statement into a list of statements.

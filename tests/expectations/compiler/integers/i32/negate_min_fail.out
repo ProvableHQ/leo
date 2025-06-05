@@ -1,6 +1,5 @@
-program test.aleo;
-
-function main:
-    input r0 as boolean.private;
-    neg -2147483648i32 into r1;
-    output r1 as i32.private;
+Error [ESAZ0374006]: Unary operation `-2147483648i32.neg()` failed at compile time: negation overflow.
+    --> compiler-test:8:16
+     |
+   8 |         return -a; // This line attempts to return 2147483648i32 however, the largest i32 value is 2147483647i32.
+     |                ^^
