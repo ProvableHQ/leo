@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["TransactionStatus"],"fn":["check_transaction","check_transaction_with_message","current_height","status_at_height"],"struct":["Block","CheckedTransaction","Fee","RejectedTransaction","Transaction","TransactionResult","Transition"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["context","logger","updater"]};
+window.SIDEBAR_ITEMS = {"mod":["check_transaction","context","logger","updater"]};
