@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AleoContext","Element","FunctionVariant"],"fn":["evaluate_binary","evaluate_unary","literal_to_value"],"struct":["ContextStack","Cursor","Frame","FunctionContext","GlobalId","StepResult"],"type":["Closure","Finalize","SvmFunction"]};
+window.SIDEBAR_ITEMS = {"enum":["AleoContext","Element","FunctionVariant"],"struct":["ContextStack","Cursor","Frame","FunctionContext","StepResult"],"type":["Closure","Finalize","SvmFunction"]};

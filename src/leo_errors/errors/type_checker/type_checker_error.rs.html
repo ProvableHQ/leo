@@ -69,7 +69,7 @@
 <a href=#69 id=69 data-nosnippet>69</a>        msg: <span class="macro">format!</span>(
 <a href=#70 id=70 data-nosnippet>70</a>            <span class="string">"Could not determine the type of `{expr}`"</span>,
 <a href=#71 id=71 data-nosnippet>71</a>        ),
-<a href=#72 id=72 data-nosnippet>72</a>        help: <span class="prelude-val">None</span>,
+<a href=#72 id=72 data-nosnippet>72</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Consider using explicit type annotations."</span>.into()),
 <a href=#73 id=73 data-nosnippet>73</a>    }
 <a href=#74 id=74 data-nosnippet>74</a>
 <a href=#75 id=75 data-nosnippet>75</a>    <span class="doccomment">/// For when the user tries to return a unknown variable.
@@ -1088,4 +1088,20 @@
 <a href=#1088 id=1088 data-nosnippet>1088</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the tuple type `{ty}` containing an external record in this location."</span>),
 <a href=#1089 id=1089 data-nosnippet>1089</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Tuples containing external records may not be assigned to in narrower conditonal scopes than they were defined."</span>.into()),
 <a href=#1090 id=1090 data-nosnippet>1090</a>    }
-<a href=#1091 id=1091 data-nosnippet>1091</a>);</code></pre></div></section></main></body></html>
+<a href=#1091 id=1091 data-nosnippet>1091</a>
+<a href=#1092 id=1092 data-nosnippet>1092</a>    @formatted
+<a href=#1093 id=1093 data-nosnippet>1093</a>    hexbin_literal_nonintegers {
+<a href=#1094 id=1094 data-nosnippet>1094</a>        args: (),
+<a href=#1095 id=1095 data-nosnippet>1095</a>        msg: <span class="macro">format!</span>(<span class="string">"Hex, octal, and binary literals may only be used for integer types."</span>),
+<a href=#1096 id=1096 data-nosnippet>1096</a>        help: <span class="prelude-val">None</span>,
+<a href=#1097 id=1097 data-nosnippet>1097</a>    }
+<a href=#1098 id=1098 data-nosnippet>1098</a>
+<a href=#1099 id=1099 data-nosnippet>1099</a>    @formatted
+<a href=#1100 id=1100 data-nosnippet>1100</a>    unexpected_unsuffixed_numeral {
+<a href=#1101 id=1101 data-nosnippet>1101</a>        args: (expected: <span class="kw">impl </span>Display),
+<a href=#1102 id=1102 data-nosnippet>1102</a>        msg: <span class="macro">format!</span>(
+<a href=#1103 id=1103 data-nosnippet>1103</a>            <span class="string">"Expected {expected} but an unsuffixed numeral was found."</span>,
+<a href=#1104 id=1104 data-nosnippet>1104</a>        ),
+<a href=#1105 id=1105 data-nosnippet>1105</a>        help: <span class="prelude-val">None</span>,
+<a href=#1106 id=1106 data-nosnippet>1106</a>    }
+<a href=#1107 id=1107 data-nosnippet>1107</a>);</code></pre></div></section></main></body></html>

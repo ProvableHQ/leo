@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Value"],"struct":["AsyncExecution","Future","GlobalId","StructContents"],"type":["SvmAddress","SvmBoolean","SvmField","SvmGroup","SvmIdentifier","SvmInteger","SvmScalar"]};

@@ -28,9 +28,9 @@
 <a href=#28 id=28 data-nosnippet>28</a>    TupleAccess,
 <a href=#29 id=29 data-nosnippet>29</a>    Type,
 <a href=#30 id=30 data-nosnippet>30</a>    UnaryExpression,
-<a href=#31 id=31 data-nosnippet>31</a>};
-<a href=#32 id=32 data-nosnippet>32</a><span class="kw">use </span>leo_errors::StaticAnalyzerError;
-<a href=#33 id=33 data-nosnippet>33</a><span class="kw">use </span>leo_interpreter::{StructContents, Value};
+<a href=#31 id=31 data-nosnippet>31</a>    interpreter_value::{<span class="self">self</span>, StructContents, Value},
+<a href=#32 id=32 data-nosnippet>32</a>};
+<a href=#33 id=33 data-nosnippet>33</a><span class="kw">use </span>leo_errors::StaticAnalyzerError;
 <a href=#34 id=34 data-nosnippet>34</a><span class="kw">use </span>leo_span::sym;
 <a href=#35 id=35 data-nosnippet>35</a>
 <a href=#36 id=36 data-nosnippet>36</a><span class="kw">use super</span>::{ConstPropagationVisitor, value_to_expression};
@@ -205,7 +205,7 @@
 <a href=#205 id=205 data-nosnippet>205</a>            </span><span class="kw">let </span>core_function = CoreFunction::from_symbols(input.variant.name, input.name.name)
 <a href=#206 id=206 data-nosnippet>206</a>                .expect(<span class="string">"Type checking guarantees this is valid."</span>);
 <a href=#207 id=207 data-nosnippet>207</a>
-<a href=#208 id=208 data-nosnippet>208</a>            <span class="kw">match </span>leo_interpreter::evaluate_core_function(<span class="kw-2">&amp;mut </span>values, core_function, <span class="kw-2">&amp;</span>[], input.span()) {
+<a href=#208 id=208 data-nosnippet>208</a>            <span class="kw">match </span>interpreter_value::evaluate_core_function(<span class="kw-2">&amp;mut </span>values, core_function, <span class="kw-2">&amp;</span>[], input.span()) {
 <a href=#209 id=209 data-nosnippet>209</a>                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(value)) =&gt; {
 <a href=#210 id=210 data-nosnippet>210</a>                    <span class="comment">// Successful evaluation.
 <a href=#211 id=211 data-nosnippet>211</a>                    </span><span class="kw">let </span>expr = value_to_expression(<span class="kw-2">&amp;</span>value, input.span(), <span class="kw-2">&amp;</span><span class="self">self</span>.state.node_builder).expect(VALUE_ERROR);
@@ -278,7 +278,7 @@
 <a href=#278 id=278 data-nosnippet>278</a>
 <a href=#279 id=279 data-nosnippet>279</a>        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(lhs_value), <span class="prelude-val">Some</span>(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
 <a href=#280 id=280 data-nosnippet>280</a>            <span class="comment">// We were able to evaluate both operands, so we can evaluate this expression.
-<a href=#281 id=281 data-nosnippet>281</a>            </span><span class="kw">match </span>leo_interpreter::evaluate_binary(span, input.op, <span class="kw-2">&amp;</span>lhs_value, <span class="kw-2">&amp;</span>rhs_value) {
+<a href=#281 id=281 data-nosnippet>281</a>            </span><span class="kw">match </span>interpreter_value::evaluate_binary(span, input.op, <span class="kw-2">&amp;</span>lhs_value, <span class="kw-2">&amp;</span>rhs_value) {
 <a href=#282 id=282 data-nosnippet>282</a>                <span class="prelude-val">Ok</span>(new_value) =&gt; {
 <a href=#283 id=283 data-nosnippet>283</a>                    <span class="kw">let </span>new_expr = value_to_expression(<span class="kw-2">&amp;</span>new_value, span, <span class="kw-2">&amp;</span><span class="self">self</span>.state.node_builder).expect(VALUE_ERROR);
 <a href=#284 id=284 data-nosnippet>284</a>                    <span class="kw">return </span>(new_expr, <span class="prelude-val">Some</span>(new_value));
@@ -331,47 +331,48 @@
 <a href=#331 id=331 data-nosnippet>331</a>    }
 <a href=#332 id=332 data-nosnippet>332</a>
 <a href=#333 id=333 data-nosnippet>333</a>    <span class="kw">fn </span>reconstruct_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: leo_ast::Literal) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#334 id=334 data-nosnippet>334</a>        <span class="kw">let </span>value = leo_interpreter::literal_to_value(<span class="kw-2">&amp;</span>input).expect(<span class="string">"Should work"</span>);
-<a href=#335 id=335 data-nosnippet>335</a>        (input.into(), <span class="prelude-val">Some</span>(value))
-<a href=#336 id=336 data-nosnippet>336</a>    }
-<a href=#337 id=337 data-nosnippet>337</a>
-<a href=#338 id=338 data-nosnippet>338</a>    <span class="kw">fn </span>reconstruct_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: leo_ast::LocatorExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#339 id=339 data-nosnippet>339</a>        (input.into(), Default::default())
-<a href=#340 id=340 data-nosnippet>340</a>    }
-<a href=#341 id=341 data-nosnippet>341</a>
-<a href=#342 id=342 data-nosnippet>342</a>    <span class="kw">fn </span>reconstruct_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: leo_ast::TupleExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#343 id=343 data-nosnippet>343</a>        <span class="kw">let </span><span class="kw-2">mut </span>values = Vec::with_capacity(input.elements.len());
-<a href=#344 id=344 data-nosnippet>344</a>        <span class="kw">for </span>expr <span class="kw">in </span>input.elements.iter_mut() {
-<a href=#345 id=345 data-nosnippet>345</a>            <span class="kw">let </span>(new_expr, opt_value) = <span class="self">self</span>.reconstruct_expression(std::mem::take(expr));
-<a href=#346 id=346 data-nosnippet>346</a>            <span class="kw-2">*</span>expr = new_expr;
-<a href=#347 id=347 data-nosnippet>347</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = opt_value {
-<a href=#348 id=348 data-nosnippet>348</a>                values.push(value);
-<a href=#349 id=349 data-nosnippet>349</a>            }
-<a href=#350 id=350 data-nosnippet>350</a>        }
-<a href=#351 id=351 data-nosnippet>351</a>
-<a href=#352 id=352 data-nosnippet>352</a>        <span class="kw">let </span>opt_value = <span class="kw">if </span>values.len() == input.elements.len() { <span class="prelude-val">Some</span>(Value::Tuple(values)) } <span class="kw">else </span>{ <span class="prelude-val">None </span>};
-<a href=#353 id=353 data-nosnippet>353</a>
-<a href=#354 id=354 data-nosnippet>354</a>        (input.into(), opt_value)
-<a href=#355 id=355 data-nosnippet>355</a>    }
-<a href=#356 id=356 data-nosnippet>356</a>
-<a href=#357 id=357 data-nosnippet>357</a>    <span class="kw">fn </span>reconstruct_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: UnaryExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#358 id=358 data-nosnippet>358</a>        <span class="kw">let </span>(receiver, opt_value) = <span class="self">self</span>.reconstruct_expression(input.receiver);
-<a href=#359 id=359 data-nosnippet>359</a>        <span class="kw">let </span>span = input.span;
-<a href=#360 id=360 data-nosnippet>360</a>
-<a href=#361 id=361 data-nosnippet>361</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = opt_value {
-<a href=#362 id=362 data-nosnippet>362</a>            <span class="comment">// We were able to evaluate the operand, so we can evaluate the expression.
-<a href=#363 id=363 data-nosnippet>363</a>            </span><span class="kw">match </span>leo_interpreter::evaluate_unary(span, input.op, <span class="kw-2">&amp;</span>value) {
-<a href=#364 id=364 data-nosnippet>364</a>                <span class="prelude-val">Ok</span>(new_value) =&gt; {
-<a href=#365 id=365 data-nosnippet>365</a>                    <span class="kw">let </span>new_expr = value_to_expression(<span class="kw-2">&amp;</span>new_value, span, <span class="kw-2">&amp;</span><span class="self">self</span>.state.node_builder).expect(VALUE_ERROR);
-<a href=#366 id=366 data-nosnippet>366</a>                    <span class="kw">return </span>(new_expr, <span class="prelude-val">Some</span>(new_value));
-<a href=#367 id=367 data-nosnippet>367</a>                }
-<a href=#368 id=368 data-nosnippet>368</a>                <span class="prelude-val">Err</span>(err) =&gt; <span class="self">self</span>.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span)),
-<a href=#369 id=369 data-nosnippet>369</a>            }
-<a href=#370 id=370 data-nosnippet>370</a>        }
-<a href=#371 id=371 data-nosnippet>371</a>        (UnaryExpression { receiver, ..input }.into(), <span class="prelude-val">None</span>)
-<a href=#372 id=372 data-nosnippet>372</a>    }
-<a href=#373 id=373 data-nosnippet>373</a>
-<a href=#374 id=374 data-nosnippet>374</a>    <span class="kw">fn </span>reconstruct_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: leo_ast::UnitExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#375 id=375 data-nosnippet>375</a>        (input.into(), <span class="prelude-val">None</span>)
-<a href=#376 id=376 data-nosnippet>376</a>    }
-<a href=#377 id=377 data-nosnippet>377</a>}</code></pre></div></section></main></body></html>
+<a href=#334 id=334 data-nosnippet>334</a>        <span class="kw">let </span>value =
+<a href=#335 id=335 data-nosnippet>335</a>            interpreter_value::literal_to_value(<span class="kw-2">&amp;</span>input, <span class="kw-2">&amp;</span><span class="self">self</span>.state.type_table.get(<span class="kw-2">&amp;</span>input.id())).expect(<span class="string">"Should work"</span>);
+<a href=#336 id=336 data-nosnippet>336</a>        (input.into(), <span class="prelude-val">Some</span>(value))
+<a href=#337 id=337 data-nosnippet>337</a>    }
+<a href=#338 id=338 data-nosnippet>338</a>
+<a href=#339 id=339 data-nosnippet>339</a>    <span class="kw">fn </span>reconstruct_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: leo_ast::LocatorExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#340 id=340 data-nosnippet>340</a>        (input.into(), Default::default())
+<a href=#341 id=341 data-nosnippet>341</a>    }
+<a href=#342 id=342 data-nosnippet>342</a>
+<a href=#343 id=343 data-nosnippet>343</a>    <span class="kw">fn </span>reconstruct_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: leo_ast::TupleExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#344 id=344 data-nosnippet>344</a>        <span class="kw">let </span><span class="kw-2">mut </span>values = Vec::with_capacity(input.elements.len());
+<a href=#345 id=345 data-nosnippet>345</a>        <span class="kw">for </span>expr <span class="kw">in </span>input.elements.iter_mut() {
+<a href=#346 id=346 data-nosnippet>346</a>            <span class="kw">let </span>(new_expr, opt_value) = <span class="self">self</span>.reconstruct_expression(std::mem::take(expr));
+<a href=#347 id=347 data-nosnippet>347</a>            <span class="kw-2">*</span>expr = new_expr;
+<a href=#348 id=348 data-nosnippet>348</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = opt_value {
+<a href=#349 id=349 data-nosnippet>349</a>                values.push(value);
+<a href=#350 id=350 data-nosnippet>350</a>            }
+<a href=#351 id=351 data-nosnippet>351</a>        }
+<a href=#352 id=352 data-nosnippet>352</a>
+<a href=#353 id=353 data-nosnippet>353</a>        <span class="kw">let </span>opt_value = <span class="kw">if </span>values.len() == input.elements.len() { <span class="prelude-val">Some</span>(Value::Tuple(values)) } <span class="kw">else </span>{ <span class="prelude-val">None </span>};
+<a href=#354 id=354 data-nosnippet>354</a>
+<a href=#355 id=355 data-nosnippet>355</a>        (input.into(), opt_value)
+<a href=#356 id=356 data-nosnippet>356</a>    }
+<a href=#357 id=357 data-nosnippet>357</a>
+<a href=#358 id=358 data-nosnippet>358</a>    <span class="kw">fn </span>reconstruct_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: UnaryExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#359 id=359 data-nosnippet>359</a>        <span class="kw">let </span>(receiver, opt_value) = <span class="self">self</span>.reconstruct_expression(input.receiver);
+<a href=#360 id=360 data-nosnippet>360</a>        <span class="kw">let </span>span = input.span;
+<a href=#361 id=361 data-nosnippet>361</a>
+<a href=#362 id=362 data-nosnippet>362</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = opt_value {
+<a href=#363 id=363 data-nosnippet>363</a>            <span class="comment">// We were able to evaluate the operand, so we can evaluate the expression.
+<a href=#364 id=364 data-nosnippet>364</a>            </span><span class="kw">match </span>interpreter_value::evaluate_unary(span, input.op, <span class="kw-2">&amp;</span>value) {
+<a href=#365 id=365 data-nosnippet>365</a>                <span class="prelude-val">Ok</span>(new_value) =&gt; {
+<a href=#366 id=366 data-nosnippet>366</a>                    <span class="kw">let </span>new_expr = value_to_expression(<span class="kw-2">&amp;</span>new_value, span, <span class="kw-2">&amp;</span><span class="self">self</span>.state.node_builder).expect(VALUE_ERROR);
+<a href=#367 id=367 data-nosnippet>367</a>                    <span class="kw">return </span>(new_expr, <span class="prelude-val">Some</span>(new_value));
+<a href=#368 id=368 data-nosnippet>368</a>                }
+<a href=#369 id=369 data-nosnippet>369</a>                <span class="prelude-val">Err</span>(err) =&gt; <span class="self">self</span>.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span)),
+<a href=#370 id=370 data-nosnippet>370</a>            }
+<a href=#371 id=371 data-nosnippet>371</a>        }
+<a href=#372 id=372 data-nosnippet>372</a>        (UnaryExpression { receiver, ..input }.into(), <span class="prelude-val">None</span>)
+<a href=#373 id=373 data-nosnippet>373</a>    }
+<a href=#374 id=374 data-nosnippet>374</a>
+<a href=#375 id=375 data-nosnippet>375</a>    <span class="kw">fn </span>reconstruct_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: leo_ast::UnitExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#376 id=376 data-nosnippet>376</a>        (input.into(), <span class="prelude-val">None</span>)
+<a href=#377 id=377 data-nosnippet>377</a>    }
+<a href=#378 id=378 data-nosnippet>378</a>}</code></pre></div></section></main></body></html>

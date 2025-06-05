@@ -1219,4 +1219,74 @@
 <a href=#1219 id=1219 data-nosnippet>1219</a>            <span class="bool-val">false
 <a href=#1220 id=1220 data-nosnippet>1220</a>        </span>}
 <a href=#1221 id=1221 data-nosnippet>1221</a>    }
-<a href=#1222 id=1222 data-nosnippet>1222</a>}</code></pre></div></section></main></body></html>
+<a href=#1222 id=1222 data-nosnippet>1222</a>
+<a href=#1223 id=1223 data-nosnippet>1223</a>    <span class="kw">pub fn </span>parse_integer_literal&lt;I: FromStrRadix&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, raw_string: <span class="kw-2">&amp;</span>str, span: Span, type_string: <span class="kw-2">&amp;</span>str) {
+<a href=#1224 id=1224 data-nosnippet>1224</a>        <span class="kw">let </span>string = raw_string.replace(<span class="string">'_'</span>, <span class="string">""</span>);
+<a href=#1225 id=1225 data-nosnippet>1225</a>        <span class="kw">if </span>I::from_str_by_radix(<span class="kw-2">&amp;</span>string).is_err() {
+<a href=#1226 id=1226 data-nosnippet>1226</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
+<a href=#1227 id=1227 data-nosnippet>1227</a>        }
+<a href=#1228 id=1228 data-nosnippet>1228</a>    }
+<a href=#1229 id=1229 data-nosnippet>1229</a>
+<a href=#1230 id=1230 data-nosnippet>1230</a>    <span class="comment">// Emit an error and update `ty` to be `Type::Err` indicating that the type of the expression could not be inferred.
+<a href=#1231 id=1231 data-nosnippet>1231</a>    // Also update `type_table` accordingly
+<a href=#1232 id=1232 data-nosnippet>1232</a>    </span><span class="kw">pub fn </span>emit_inference_failure_error(<span class="kw-2">&amp;</span><span class="self">self</span>, ty: <span class="kw-2">&amp;mut </span>Type, expr: <span class="kw-2">&amp;</span>Expression) {
+<a href=#1233 id=1233 data-nosnippet>1233</a>        <span class="self">self</span>.emit_err(TypeCheckerError::could_not_determine_type(expr.clone(), expr.span()));
+<a href=#1234 id=1234 data-nosnippet>1234</a>        <span class="kw-2">*</span>ty = Type::Err;
+<a href=#1235 id=1235 data-nosnippet>1235</a>        <span class="self">self</span>.state.type_table.insert(expr.id(), Type::Err);
+<a href=#1236 id=1236 data-nosnippet>1236</a>    }
+<a href=#1237 id=1237 data-nosnippet>1237</a>
+<a href=#1238 id=1238 data-nosnippet>1238</a>    <span class="comment">// Given a `Literal` and its type, if the literal is a numeric `Unsuffixed` literal, ensure it's a valid literal
+<a href=#1239 id=1239 data-nosnippet>1239</a>    // given the type. E.g., a `256` is not a valid `u8`.
+<a href=#1240 id=1240 data-nosnippet>1240</a>    </span><span class="kw">pub fn </span>check_numeric_literal(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Literal, ty: <span class="kw-2">&amp;</span>Type) {
+<a href=#1241 id=1241 data-nosnippet>1241</a>        <span class="kw">if let </span>Literal { variant: LiteralVariant::Unsuffixed(s), .. } = input {
+<a href=#1242 id=1242 data-nosnippet>1242</a>            <span class="kw">let </span>span = input.span();
+<a href=#1243 id=1243 data-nosnippet>1243</a>            <span class="kw">let </span>has_nondecimal_prefix =
+<a href=#1244 id=1244 data-nosnippet>1244</a>                |s: <span class="kw-2">&amp;</span>str| [<span class="string">"0x"</span>, <span class="string">"0o"</span>, <span class="string">"0b"</span>, <span class="string">"-0x"</span>, <span class="string">"-0o"</span>, <span class="string">"-0b"</span>].iter().any(|p| s.starts_with(p));
+<a href=#1245 id=1245 data-nosnippet>1245</a>
+<a href=#1246 id=1246 data-nosnippet>1246</a>            <span class="macro">macro_rules!</span> parse_int {
+<a href=#1247 id=1247 data-nosnippet>1247</a>                (<span class="macro-nonterminal">$t</span>:ty, <span class="macro-nonterminal">$name</span>:expr) =&gt; {
+<a href=#1248 id=1248 data-nosnippet>1248</a>                    <span class="self">self</span>.parse_integer_literal::&lt;<span class="macro-nonterminal">$t</span>&gt;(s, span, <span class="macro-nonterminal">$name</span>)
+<a href=#1249 id=1249 data-nosnippet>1249</a>                };
+<a href=#1250 id=1250 data-nosnippet>1250</a>            }
+<a href=#1251 id=1251 data-nosnippet>1251</a>
+<a href=#1252 id=1252 data-nosnippet>1252</a>            <span class="kw">match </span>ty {
+<a href=#1253 id=1253 data-nosnippet>1253</a>                Type::Integer(kind) =&gt; <span class="kw">match </span>kind {
+<a href=#1254 id=1254 data-nosnippet>1254</a>                    IntegerType::U8 =&gt; <span class="macro">parse_int!</span>(u8, <span class="string">"u8"</span>),
+<a href=#1255 id=1255 data-nosnippet>1255</a>                    IntegerType::U16 =&gt; <span class="macro">parse_int!</span>(u16, <span class="string">"u16"</span>),
+<a href=#1256 id=1256 data-nosnippet>1256</a>                    IntegerType::U32 =&gt; <span class="macro">parse_int!</span>(u32, <span class="string">"u32"</span>),
+<a href=#1257 id=1257 data-nosnippet>1257</a>                    IntegerType::U64 =&gt; <span class="macro">parse_int!</span>(u64, <span class="string">"u64"</span>),
+<a href=#1258 id=1258 data-nosnippet>1258</a>                    IntegerType::U128 =&gt; <span class="macro">parse_int!</span>(u128, <span class="string">"u128"</span>),
+<a href=#1259 id=1259 data-nosnippet>1259</a>                    IntegerType::I8 =&gt; <span class="macro">parse_int!</span>(i8, <span class="string">"i8"</span>),
+<a href=#1260 id=1260 data-nosnippet>1260</a>                    IntegerType::I16 =&gt; <span class="macro">parse_int!</span>(i16, <span class="string">"i16"</span>),
+<a href=#1261 id=1261 data-nosnippet>1261</a>                    IntegerType::I32 =&gt; <span class="macro">parse_int!</span>(i32, <span class="string">"i32"</span>),
+<a href=#1262 id=1262 data-nosnippet>1262</a>                    IntegerType::I64 =&gt; <span class="macro">parse_int!</span>(i64, <span class="string">"i64"</span>),
+<a href=#1263 id=1263 data-nosnippet>1263</a>                    IntegerType::I128 =&gt; <span class="macro">parse_int!</span>(i128, <span class="string">"i128"</span>),
+<a href=#1264 id=1264 data-nosnippet>1264</a>                },
+<a href=#1265 id=1265 data-nosnippet>1265</a>                Type::Group =&gt; {
+<a href=#1266 id=1266 data-nosnippet>1266</a>                    <span class="kw">if </span>has_nondecimal_prefix(s) {
+<a href=#1267 id=1267 data-nosnippet>1267</a>                        <span class="comment">// This is not checked in the parser for unsuffixed numerals. So do that here.
+<a href=#1268 id=1268 data-nosnippet>1268</a>                        </span><span class="self">self</span>.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+<a href=#1269 id=1269 data-nosnippet>1269</a>                    } <span class="kw">else </span>{
+<a href=#1270 id=1270 data-nosnippet>1270</a>                        <span class="kw">let </span>trimmed = s.trim_start_matches(<span class="string">'-'</span>).trim_start_matches(<span class="string">'0'</span>);
+<a href=#1271 id=1271 data-nosnippet>1271</a>                        <span class="kw">if </span>!trimmed.is_empty()
+<a href=#1272 id=1272 data-nosnippet>1272</a>                            &amp;&amp; <span class="macro">format!</span>(<span class="string">"{trimmed}group"</span>)
+<a href=#1273 id=1273 data-nosnippet>1273</a>                                .parse::&lt;snarkvm::prelude::Group&lt;snarkvm::prelude::TestnetV0&gt;&gt;()
+<a href=#1274 id=1274 data-nosnippet>1274</a>                                .is_err()
+<a href=#1275 id=1275 data-nosnippet>1275</a>                        {
+<a href=#1276 id=1276 data-nosnippet>1276</a>                            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_int_value(trimmed, <span class="string">"group"</span>, span));
+<a href=#1277 id=1277 data-nosnippet>1277</a>                        }
+<a href=#1278 id=1278 data-nosnippet>1278</a>                    }
+<a href=#1279 id=1279 data-nosnippet>1279</a>                }
+<a href=#1280 id=1280 data-nosnippet>1280</a>                Type::Field | Type::Scalar =&gt; {
+<a href=#1281 id=1281 data-nosnippet>1281</a>                    <span class="kw">if </span>has_nondecimal_prefix(s) {
+<a href=#1282 id=1282 data-nosnippet>1282</a>                        <span class="comment">// This is not checked in the parser for unsuffixed numerals. So do that here.
+<a href=#1283 id=1283 data-nosnippet>1283</a>                        </span><span class="self">self</span>.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+<a href=#1284 id=1284 data-nosnippet>1284</a>                    }
+<a href=#1285 id=1285 data-nosnippet>1285</a>                }
+<a href=#1286 id=1286 data-nosnippet>1286</a>                <span class="kw">_ </span>=&gt; {
+<a href=#1287 id=1287 data-nosnippet>1287</a>                    <span class="comment">// Other types aren't expected here
+<a href=#1288 id=1288 data-nosnippet>1288</a>                </span>}
+<a href=#1289 id=1289 data-nosnippet>1289</a>            }
+<a href=#1290 id=1290 data-nosnippet>1290</a>        }
+<a href=#1291 id=1291 data-nosnippet>1291</a>    }
+<a href=#1292 id=1292 data-nosnippet>1292</a>}</code></pre></div></section></main></body></html>
