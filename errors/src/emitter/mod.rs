@@ -189,6 +189,7 @@ impl Handler {
     /// Emit the error `err`.
     pub fn emit_err<E: Into<LeoError>>(&self, err: E) {
         let mut inner = self.inner.borrow_mut();
+        panic!("EMITTING {}", err.into());
         inner.err_count = inner.err_count.saturating_add(1);
         inner.emitter.emit_err(err.into());
     }
@@ -232,6 +233,7 @@ impl Handler {
             Ok(_) if self.had_errors() => Err(()),
             Ok(x) => Ok(x),
             Err(e) => {
+                println!("THE ERR IS {e}");
                 self.emit_err(e);
                 Err(())
             }

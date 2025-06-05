@@ -278,9 +278,6 @@ fn handle_execute<A: Aleo>(
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
-    // Specify the query
-    let query = SnarkVMQuery::from(&endpoint);
-
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
@@ -301,7 +298,7 @@ fn handle_execute<A: Aleo>(
         inputs.iter(),
         record,
         priority_fee.unwrap_or(0),
-        Some(query),
+        None,
         rng,
     )?;
 

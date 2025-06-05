@@ -120,7 +120,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             };
             (expr, ConstPropOutput { value: Some(value), changed: member_changed })
         } else {
-            (input.into(), Default::default())
+            (input.into(), ConstPropOutput { value: None, changed: member_changed })
         }
     }
 
@@ -247,7 +247,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
         let span = input.span();
         let (inner, output) = self.reconstruct_expression(input.inner);
         if let Some(value) = output.value {
-            if let Some(member_plaintext) = value.struct_get(input.name.name) {
+            if let Some(member_plaintext) = value.member_get(input.name.name) {
                 let value: LeoValue = member_plaintext.into();
                 let ty = self.state.type_table.get(&id).expect("Type should exist");
                 let expr = self.value_to_expression(&value, span, &ty).expect(VALUE_ERROR);
@@ -261,10 +261,10 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
         let span = input.span();
         let id = input.id();
         let (tuple, output) = self.reconstruct_expression(input.tuple);
-        if let Some(LeoValue::Tuple(tuple)) = output.value {
+        if let Some(LeoValue::Tuple(mut tuple)) = output.value {
             let ty = self.state.type_table.get(&id).expect("Type should exist");
-            let result_plaintext = tuple.get(input.index.value()).expect("Type checking checked bounds.");
-            let value_result: LeoValue = result_plaintext.clone().into();
+            let result_plaintext = tuple.swap_remove(input.index.value());
+            let value_result: LeoValue = result_plaintext.into();
             (self.value_to_expression(&value_result, span, &ty).expect(VALUE_ERROR), ConstPropOutput {
                 value: Some(value_result),
                 changed: true,

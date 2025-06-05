@@ -39,6 +39,7 @@ members = [
   "docs/grammar",
   "errors",
   "interpreter",
+  "interpreter2",
   "leo/package",
   "test-framework",
   "utils/disassembler",
@@ -62,6 +63,10 @@ version = "2.6.1"
 
 [workspace.dependencies.leo-interpreter]
 path = "./interpreter"
+version = "2.6.1"
+
+[workspace.dependencies.leo-interpreter2]
+path = "./interpreter2"
 version = "2.6.1"
 
 [workspace.dependencies.leo-package]
@@ -121,19 +126,22 @@ version = "1.11.1"
 [workspace.dependencies.snarkvm]
 # version = "=3.7.1"
 git = "https://github.com/ProvableHQ/snarkVM"
-rev = "97317df6b27b558f224111f2b7f6f061e6dcfb62"
+rev = "91d7d69e0f8afaa2587b2a363ced9a0f9de754bc"
 
 # ditto
 [workspace.dependencies.snarkvm-circuit]
 # version = "=3.7.1"
 git = "https://github.com/ProvableHQ/snarkVM"
-rev = "97317df6b27b558f224111f2b7f6f061e6dcfb62"
+rev = "91d7d69e0f8afaa2587b2a363ced9a0f9de754bc"
 
 # ditto
 [workspace.dependencies.snarkvm-synthesizer-program]
 # version = "=3.7.1"
 git = "https://github.com/ProvableHQ/snarkVM"
-rev = "97317df6b27b558f224111f2b7f6f061e6dcfb62"
+rev = "91d7d69e0f8afaa2587b2a363ced9a0f9de754bc"
+
+[workspace.dependencies.snarkvm-ledger-query]
+path = "../snarkVM/ledger/query"
 
 [workspace.dependencies.serde]
 version = "1.0.214"

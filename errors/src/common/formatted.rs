@@ -92,6 +92,7 @@ impl fmt::Display for Formatted {
             if self.backtrace.error { ("Error", self.error_code()) } else { ("Warning", self.warning_code()) };
 
         let message = format!("{kind} [{code}]: {message}", message = self.backtrace.message,);
+        println!("HELLO0 {message}");
 
         // To avoid the color enabling characters for comparison with test expectations.
         if std::env::var("NOCOLOR").unwrap_or_default().trim().to_owned().is_empty() {

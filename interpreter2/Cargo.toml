@@ -1,8 +1,8 @@
 [package]
-name = "leo-compiler"
+name = "leo-interpreter2"
 version = "2.6.1"
 authors = [ "The Leo Team <leo@provable.com>" ]
-description = "Compiler for Leo programming language"
+description = "Interpreter for the Leo programming language"
 homepage = "https://leo-lang.org"
 repository = "https://github.com/ProvableHQ/leo"
 keywords = [
@@ -18,62 +18,60 @@ license = "GPL-3.0"
 edition = "2024"
 rust-version = "1.85.1"
 
+[dependencies.snarkvm]
+workspace = true
+
+[dependencies.snarkvm-circuit]
+workspace = true
+
+[dependencies.snarkvm-synthesizer-program]
+workspace = true
+
 [dependencies.leo-ast]
 workspace = true
 
 [dependencies.leo-errors]
 workspace = true
 
-[dependencies.leo-passes]
+[dependencies.leo-parser]
 workspace = true
 
-[dependencies.leo-parser]
+[dependencies.leo-passes]
 workspace = true
 
 [dependencies.leo-span]
 workspace = true
 
-[dependencies.anyhow]
+[dependencies.colored]
 workspace = true
 
-[dependencies.aleo-std-storage]
+[dependencies.crossterm]
+version = "0.28.1"
+
+[dependencies.indexmap]
+workspace = true
+
+[dependencies.dialoguer]
+version = "0.11.0"
+features = [ "history" ]
+
+[dependencies.rand]
 workspace = true
 
 [dependencies.rand_chacha]
 workspace = true
 
-[dependencies.sha2]
-version = "0.10"
+[dependencies.ratatui]
+version = "0.29.0"
 
-[dependencies.snarkvm]
-workspace = true
-
-[dependencies.indexmap]
-workspace = true
-
-[dependencies.serde_json]
-workspace = true
-
-[dependencies.snarkvm-ledger-query]
+[dev-dependencies.leo-compiler]
 workspace = true
 
 [dev-dependencies.leo-disassembler]
-path = "../../utils/disassembler"
-
-[dev-dependencies.leo-test-framework]
 workspace = true
 
-[dev-dependencies.itertools]
+[dev-dependencies.walkdir]
 workspace = true
-
-[dev-dependencies.snarkvm]
-workspace = true
-
-[dev-dependencies.serde]
-workspace = true
-
-[dev-dependencies.regex]
-version = "1.11.1"
 
 [dev-dependencies.serial_test]
 workspace = true
@@ -81,6 +79,5 @@ workspace = true
 [dev-dependencies.tempfile]
 workspace = true
 
-[features]
-default = [ ]
-ci_skip = [ "leo-ast/ci_skip" ]
+[dev-dependencies.regex]
+workspace = true

@@ -65,11 +65,7 @@ impl fmt::Display for StructExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} {{", self.name)?;
         if !self.members.is_empty() {
-            write!(f, " ")?;
-        }
-        write!(f, "{}", self.members.iter().format(", "))?;
-        if !self.members.is_empty() {
-            write!(f, " ")?;
+            write!(f, " {} ", self.members.iter().format(", "))?;
         }
         write!(f, "}}")
     }

@@ -353,23 +353,21 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &LeoValue, rhs: &Le
         };
     }
 
-    macro_rules! shl {
-        ($bit_count: expr) => {{
-            let Some(shift) = rhs.try_as_u32() else {
-                tc_fail!();
-            };
-            if shift >= $bit_count {
-                tc_fail!();
-            }
-            let shifted = lhs.simple_shl(shift);
-            let reshifted = shifted.simple_shr(shift);
-            if lhs.eq(&reshifted)? {
-                shifted
-            } else {
-                halt!(span, "shl overflow");
-            }
-        }};
-    }
+    let shl = |bit_count: u32| -> Result<LeoValue> {
+        let Some(shift) = rhs.try_as_u32() else {
+            tc_fail!();
+        };
+        if shift >= bit_count {
+            tc_fail!();
+        }
+        let shifted = lhs.simple_shl(shift);
+        let reshifted = shifted.simple_shr(shift);
+        if lhs.eq(&reshifted)? {
+            Ok(shifted)
+        } else {
+            halt!(span, "shl overflow");
+        }
+    };
 
     macro_rules! wrapping_shl {
         ($x: expr) => {{
@@ -380,17 +378,15 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &LeoValue, rhs: &Le
         }};
     }
 
-    macro_rules! shr {
-        ($bit_count: expr) => {{
-            let Some(shift) = rhs.try_as_u32() else {
-                tc_fail!();
-            };
-            if shift >= $bit_count {
-                tc_fail!();
-            }
-            lhs.simple_shr(shift)
-        }};
-    }
+    let shr = |bit_count: u32| -> Result<LeoValue> {
+        let Some(shift) = rhs.try_as_u32() else {
+            tc_fail!();
+        };
+        if shift >= bit_count {
+            tc_fail!();
+        }
+        Ok(lhs.simple_shr(shift))
+    };
 
     macro_rules! wrapping_shr {
         ($x: expr) => {{
@@ -623,16 +619,16 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &LeoValue, rhs: &Le
         (BinaryOperation::RemWrapped, I64(x), I64(y)) => wrapping_op!(x, **y, wrapping_rem),
         (BinaryOperation::RemWrapped, I128(x), I128(y)) => wrapping_op!(x, **y, wrapping_rem),
 
-        (BinaryOperation::Shl, U8(_), U8(_) | U16(_) | U32(_)) => shl!(8),
-        (BinaryOperation::Shl, U16(_), U8(_) | U16(_) | U32(_)) => shl!(16),
-        (BinaryOperation::Shl, U32(_), U8(_) | U16(_) | U32(_)) => shl!(32),
-        (BinaryOperation::Shl, U64(_), U8(_) | U16(_) | U32(_)) => shl!(64),
-        (BinaryOperation::Shl, U128(_), U8(_) | U16(_) | U32(_)) => shl!(128),
-        (BinaryOperation::Shl, I8(_), U8(_) | U16(_) | U32(_)) => shl!(8),
-        (BinaryOperation::Shl, I16(_), U8(_) | U16(_) | U32(_)) => shl!(16),
-        (BinaryOperation::Shl, I32(_), U8(_) | U16(_) | U32(_)) => shl!(32),
-        (BinaryOperation::Shl, I64(_), U8(_) | U16(_) | U32(_)) => shl!(64),
-        (BinaryOperation::Shl, I128(_), U8(_) | U16(_) | U32(_)) => shl!(128),
+        (BinaryOperation::Shl, U8(_), U8(_) | U16(_) | U32(_)) => shl(8)?,
+        (BinaryOperation::Shl, U16(_), U8(_) | U16(_) | U32(_)) => shl(16)?,
+        (BinaryOperation::Shl, U32(_), U8(_) | U16(_) | U32(_)) => shl(32)?,
+        (BinaryOperation::Shl, U64(_), U8(_) | U16(_) | U32(_)) => shl(64)?,
+        (BinaryOperation::Shl, U128(_), U8(_) | U16(_) | U32(_)) => shl(128)?,
+        (BinaryOperation::Shl, I8(_), U8(_) | U16(_) | U32(_)) => shl(8)?,
+        (BinaryOperation::Shl, I16(_), U8(_) | U16(_) | U32(_)) => shl(16)?,
+        (BinaryOperation::Shl, I32(_), U8(_) | U16(_) | U32(_)) => shl(32)?,
+        (BinaryOperation::Shl, I64(_), U8(_) | U16(_) | U32(_)) => shl(64)?,
+        (BinaryOperation::Shl, I128(_), U8(_) | U16(_) | U32(_)) => shl(128)?,
 
         (BinaryOperation::ShlWrapped, U8(x), U8(_) | U16(_) | U32(_)) => wrapping_shl!(x),
         (BinaryOperation::ShlWrapped, U16(x), U8(_) | U16(_) | U32(_)) => wrapping_shl!(x),
@@ -645,16 +641,16 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &LeoValue, rhs: &Le
         (BinaryOperation::ShlWrapped, I64(x), U8(_) | U16(_) | U32(_)) => wrapping_shl!(x),
         (BinaryOperation::ShlWrapped, I128(x), U8(_) | U16(_) | U32(_)) => wrapping_shl!(x),
 
-        (BinaryOperation::Shr, U8(_), U8(_) | U16(_) | U32(_)) => shr!(8),
-        (BinaryOperation::Shr, U16(_), U8(_) | U16(_) | U32(_)) => shr!(16),
-        (BinaryOperation::Shr, U32(_), U8(_) | U16(_) | U32(_)) => shr!(32),
-        (BinaryOperation::Shr, U64(_), U8(_) | U16(_) | U32(_)) => shr!(64),
-        (BinaryOperation::Shr, U128(_), U8(_) | U16(_) | U32(_)) => shr!(128),
-        (BinaryOperation::Shr, I8(_), U8(_) | U16(_) | U32(_)) => shr!(8),
-        (BinaryOperation::Shr, I16(_), U8(_) | U16(_) | U32(_)) => shr!(16),
-        (BinaryOperation::Shr, I32(_), U8(_) | U16(_) | U32(_)) => shr!(32),
-        (BinaryOperation::Shr, I64(_), U8(_) | U16(_) | U32(_)) => shr!(64),
-        (BinaryOperation::Shr, I128(_), U8(_) | U16(_) | U32(_)) => shr!(128),
+        (BinaryOperation::Shr, U8(_), U8(_) | U16(_) | U32(_)) => shr(8)?,
+        (BinaryOperation::Shr, U16(_), U8(_) | U16(_) | U32(_)) => shr(16)?,
+        (BinaryOperation::Shr, U32(_), U8(_) | U16(_) | U32(_)) => shr(32)?,
+        (BinaryOperation::Shr, U64(_), U8(_) | U16(_) | U32(_)) => shr(64)?,
+        (BinaryOperation::Shr, U128(_), U8(_) | U16(_) | U32(_)) => shr(128)?,
+        (BinaryOperation::Shr, I8(_), U8(_) | U16(_) | U32(_)) => shr(8)?,
+        (BinaryOperation::Shr, I16(_), U8(_) | U16(_) | U32(_)) => shr(16)?,
+        (BinaryOperation::Shr, I32(_), U8(_) | U16(_) | U32(_)) => shr(32)?,
+        (BinaryOperation::Shr, I64(_), U8(_) | U16(_) | U32(_)) => shr(64)?,
+        (BinaryOperation::Shr, I128(_), U8(_) | U16(_) | U32(_)) => shr(128)?,
 
         (BinaryOperation::ShrWrapped, U8(x), U8(_) | U16(_) | U32(_)) => wrapping_shr!(x),
         (BinaryOperation::ShrWrapped, U16(x), U8(_) | U16(_) | U32(_)) => wrapping_shr!(x),

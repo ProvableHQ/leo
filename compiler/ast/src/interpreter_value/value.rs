@@ -31,7 +31,6 @@ use snarkvm::prelude::{
     I64 as SvmI64Param,
     I128 as SvmI128Param,
     Identifier as SvmIdentifierParam,
-    Literal as SvmLiteralParam,
     LiteralType,
     Plaintext as SvmPlaintextParam,
     Record as SvmRecordParam,
@@ -43,12 +42,12 @@ use snarkvm::prelude::{
     U32 as SvmU32Param,
     U64 as SvmU64Param,
     U128 as SvmU128Param,
-    Value as SvmValueParam,
     integers::Integer as SvmIntegerParam,
 };
+pub use snarkvm::prelude::{Literal as SvmLiteralParam, Value as SvmValueParam};
 
 use itertools::Itertools as _;
-use std::{fmt, fmt::Write as _, hash::Hash};
+use std::{fmt, fmt::Write as _, hash::Hash, str::FromStr};
 
 pub type U8 = SvmU8Param<TestnetV0>;
 pub type U16 = SvmU16Param<TestnetV0>;
@@ -171,7 +170,20 @@ impl LeoValue {
         Some(Plaintext::Struct(pairs.collect(), Default::default()).into())
     }
 
-    pub fn struct_(pairs: impl Iterator<Item = (Symbol, Plaintext)>) -> Option<Self> {
+    pub fn struct_(pairs: impl IntoIterator<Item = (Symbol, LeoValue)>) -> Option<Self> {
+        let mut all_worked = true;
+        let value =
+            Self::struct_plaintext(pairs.into_iter().filter_map(|(sym, leo_value)| match leo_value.try_into() {
+                Ok(plaintext) => Some((sym, plaintext)),
+                Err(..) => {
+                    all_worked = false;
+                    None
+                }
+            }))?;
+        all_worked.then_some(value)
+    }
+
+    pub fn struct_plaintext(pairs: impl Iterator<Item = (Symbol, Plaintext)>) -> Option<Self> {
         let mut buffer = String::new();
         let Ok(indexmap): Result<_, ()> = pairs
             .map(|(symbol, plaintext)| {
@@ -188,6 +200,81 @@ impl LeoValue {
         Some(Plaintext::Struct(indexmap, Default::default()).into())
     }
 
+    pub fn struct_set(struct_: &mut Plaintext, key: Symbol, new_value: LeoValue) -> bool {
+        let SvmPlaintextParam::Struct(struct_, _) = struct_ else {
+            return false;
+        };
+        let Ok(key_id): Result<SvmIdentifier, _> = key.try_into() else {
+            return false;
+        };
+        let Some(value) = struct_.get_mut(&key_id) else {
+            return false;
+        };
+        let Ok(plaintext) = new_value.try_into() else {
+            return false;
+        };
+        *value = plaintext;
+        true
+    }
+
+    pub fn record_set(record: &mut Value, key: Symbol, new_value: LeoValue) -> bool {
+        let SvmValueParam::Record(record) = record else {
+            return false;
+        };
+        let Ok(plaintext) = new_value.try_into() else {
+            return false;
+        };
+
+        // Since snarkvm records are immutable, we have to rebuild a new record.
+        // Consequently this is unfortunately linear in the number of entries.
+        // Performance is unlikely to be a problem in practice.
+        if key == sym::owner {
+            // `owner` isn't a normal field.
+            let SvmPlaintextParam::Literal(SvmLiteralParam::Address(address), _) = plaintext else {
+                return false;
+            };
+
+            let owner = snarkvm::prelude::Owner::Public(address);
+            let nonce = record.nonce().clone();
+            let data = record.data().iter().map(|(id, entry)| (id.clone(), entry.clone())).collect();
+            let Ok(new_record) = Record::from_plaintext(owner, data, nonce).into() else {
+                return false;
+            };
+            *record = new_record;
+            true
+        } else {
+            // We have to rebuild the whole record, updating one of the entries.
+            let owner = record.owner().clone();
+            let nonce = record.nonce().clone();
+            let new_entry = snarkvm::prelude::Entry::Public(plaintext);
+            let Ok(key_id): Result<SvmIdentifier, _> = key.try_into() else {
+                return false;
+            };
+            let mut changed_entry = false;
+            let data = record
+                .data()
+                .iter()
+                .map(|(id, entry)| {
+                    if *id == key_id {
+                        changed_entry = true;
+                        (key_id, new_entry.clone())
+                    } else {
+                        (id.clone(), entry.clone())
+                    }
+                })
+                .collect();
+            if !changed_entry {
+                // We can't add a new entry - only update one.
+                return false;
+            }
+            let Ok(new_record) = Record::from_plaintext(owner, data, nonce).into() else {
+                return false;
+            };
+            *record = new_record;
+            true
+        }
+    }
+
     /// Update an entry in the struct or record.
     ///
     /// Structs and records are handled rather differently than other sub-variants of `LeoValue`.
@@ -195,77 +282,15 @@ impl LeoValue {
     /// to access the underlying `IndexMap` directly. This is largely because we don't want to
     /// guarantee that the version of `indexmap` used in snarkVM is the same as the version in
     /// Leo, and thus we don't want to force code to try to refer to the type `IndexMap`.
-    pub fn struct_set(&mut self, key: Symbol, value: LeoValue) -> bool {
-        let Ok(plaintext): Result<Plaintext, _> = value.try_into() else {
-            return false;
-        };
-
+    pub fn member_set(&mut self, key: Symbol, value: LeoValue) -> bool {
         match self {
-            LeoValue::Value(SvmValueParam::Record(record)) => {
-                // Since snarkvm records are immutable, we have to rebuild a new record.
-                // Consequently this is unfortunately linear in the number of entries.
-                // Performance is unlikely to be a problem in practice.
-                if key == sym::owner {
-                    // `owner` isn't a normal field.
-                    let SvmPlaintextParam::Literal(SvmLiteralParam::Address(address), _) = plaintext else {
-                        return false;
-                    };
-
-                    let owner = snarkvm::prelude::Owner::Public(address);
-                    let nonce = record.nonce().clone();
-                    let data = record.data().iter().map(|(id, entry)| (id.clone(), entry.clone())).collect();
-                    let Ok(new_record) = Record::from_plaintext(owner, data, nonce).into() else {
-                        return false;
-                    };
-                    *self = new_record.into();
-                    true
-                } else {
-                    // We have to rebuild the whole record, updating one of the entries.
-                    let owner = record.owner().clone();
-                    let nonce = record.nonce().clone();
-                    let new_entry = snarkvm::prelude::Entry::Public(plaintext);
-                    let Ok(key_id): Result<SvmIdentifier, _> = key.try_into() else {
-                        return false;
-                    };
-                    let mut changed_entry = false;
-                    let data = record
-                        .data()
-                        .iter()
-                        .map(|(id, entry)| {
-                            if *id == key_id {
-                                changed_entry = true;
-                                (key_id, new_entry.clone())
-                            } else {
-                                (id.clone(), entry.clone())
-                            }
-                        })
-                        .collect();
-                    if !changed_entry {
-                        // We can't add a new entry - only update one.
-                        return false;
-                    }
-                    let Ok(new_record) = Record::from_plaintext(owner, data, nonce).into() else {
-                        return false;
-                    };
-                    *self = new_record.into();
-                    true
-                }
-            }
-            LeoValue::Value(SvmValueParam::Plaintext(SvmPlaintextParam::Struct(struct_, _))) => {
-                let Ok(key_id): Result<SvmIdentifier, _> = key.try_into() else {
-                    return false;
-                };
-                let Some(value) = struct_.get_mut(&key_id) else {
-                    return false;
-                };
-                *value = plaintext;
-                true
-            }
-            _ => false,
+            LeoValue::Value(SvmValueParam::Plaintext(plaintext)) => Self::struct_set(plaintext, key, value),
+            LeoValue::Value(record_value) => Self::record_set(record_value, key, value),
+            LeoValue::Unit | LeoValue::Tuple(..) => false,
         }
     }
 
-    pub fn struct_get(&self, key: Symbol) -> Option<Plaintext> {
+    pub fn member_get(&self, key: Symbol) -> Option<Plaintext> {
         let identifier = || -> Option<SvmIdentifier> { key.to_string().parse().ok() };
 
         match self {
@@ -371,6 +396,32 @@ impl LeoValue {
             | SvmLiteralParam::Signature(..)
             | SvmLiteralParam::String(..) => None,
         }
+    }
+
+    pub fn try_as_plaintext(&self) -> Option<&Plaintext> {
+        match self {
+            LeoValue::Value(Value::Plaintext(plaintext)) => Some(plaintext),
+            _ => None,
+        }
+    }
+
+    pub fn try_as_plaintext_mut(&mut self) -> Option<&mut Plaintext> {
+        match self {
+            LeoValue::Value(Value::Plaintext(plaintext)) => Some(plaintext),
+            _ => None,
+        }
+    }
+
+    pub fn try_make_array(values: impl IntoIterator<Item = LeoValue>) -> Option<Self> {
+        let plaintext_vec = values.into_iter().map(LeoValue::try_into).collect::<Result<Vec<Plaintext>, _>>().ok()?;
+
+        Some(SvmPlaintextParam::Array(plaintext_vec, Default::default()).into())
+    }
+
+    pub fn try_make_tuple(values: impl IntoIterator<Item = LeoValue>) -> Option<Self> {
+        let value_vec = values.into_iter().map(LeoValue::try_into).collect::<Result<Vec<Value>, _>>().ok()?;
+
+        Some(LeoValue::Tuple(value_vec))
     }
 }
 
@@ -626,5 +677,31 @@ impl TryFrom<LeoValue> for Argument {
             SvmValueParam::Future(future) => Ok(SvmArgumentParam::Future(future)),
             SvmValueParam::Record(..) => Err(()),
         }
+    }
+}
+
+impl FromStr for LeoValue {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s == "()" {
+            return Ok(LeoValue::Unit);
+        }
+
+        if let Some(s) = s.strip_prefix("(") {
+            if let Some(s) = s.strip_suffix(")") {
+                let mut results = Vec::new();
+                for item in s.split(',') {
+                    let item = item.trim();
+                    let value: Value = item.parse().map_err(|_| ())?;
+                    results.push(value);
+                }
+
+                return Ok(LeoValue::Tuple(results));
+            }
+        }
+
+        let value: Value = s.parse().map_err(|_| ())?;
+        Ok(value.into())
     }
 }

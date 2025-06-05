@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod util;
+pub use util::ExpectTc;
 
 mod core_function;
 pub use core_function::*;

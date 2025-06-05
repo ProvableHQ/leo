@@ -45,6 +45,7 @@ impl InterpreterHalt {
 
 impl fmt::Display for InterpreterHalt {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        println!("INTERPRETERHALT");
         write!(f, "{}", self.message)
     }
 }

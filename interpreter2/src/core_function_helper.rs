@@ -14,25 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_span::Symbol;
-use serde::{Deserialize, Serialize};
+use super::*;
+use cursor::Cursor;
 
-use std::fmt;
+use leo_ast::interpreter_value::{CoreFunctionHelper, LeoValue};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Location {
-    pub program: Symbol,
-    pub name: Symbol,
-}
+use rand_chacha::ChaCha20Rng;
 
-impl Location {
-    pub fn new(program: Symbol, name: Symbol) -> Location {
-        Location { program, name }
+impl CoreFunctionHelper for Cursor<'_> {
+    fn pop_value_impl(&mut self) -> Option<LeoValue> {
+        let function_call = self.function_call_stack.last_mut()?;
+        let cursor::FunctionCall::Leo(leo_function_call) = function_call else {
+            return None;
+        };
+
+        let statement_frame = leo_function_call.statement_frames.last_mut()?;
+
+        statement_frame.values.pop()
     }
-}
 
-impl fmt::Display for Location {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}.aleo/{}", self.program, self.name)
+    fn set_block_height(&mut self, height: u32) {
+        self.block_height = height;
+    }
+
+    fn rng(&mut self) -> Option<&mut ChaCha20Rng> {
+        Some(&mut self.rng)
     }
 }

@@ -178,9 +178,6 @@ fn handle_deploy<N: Network>(
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
 
-    // Specify the query
-    let query = SnarkVMQuery::from(&endpoint);
-
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
     for (program_id, program, manifest, _, priority_fee, fee_record) in tasks {
@@ -189,7 +186,7 @@ fn handle_deploy<N: Network>(
             println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
             // Generate the transaction.
             let transaction = vm
-                .deploy(&private_key, &program, fee_record, priority_fee.unwrap_or(0), Some(query.clone()), rng)
+                .deploy(&private_key, &program, fee_record, priority_fee.unwrap_or(0), None, rng)
                 .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");

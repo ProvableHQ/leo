@@ -107,6 +107,7 @@ impl fmt::Display for Backtraced {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let (kind, code) = if self.error { ("Error", self.error_code()) } else { ("Warning", self.warning_code()) };
         let message = format!("{kind} [{code}]: {message}", message = self.message,);
+        println!("HELLO {message}");
 
         // To avoid the color enabling characters for comparison with test expectations.
         if is_color() {
