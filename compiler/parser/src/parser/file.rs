@@ -398,7 +398,7 @@ impl<N: Network> ParserContext<'_, N> {
         };
         let name = self.expect_identifier()?;
 
-        let const_params = if self.check(&Token::LeftSquare) {
+        let const_params = if self.eat(&Token::DoubleColon) {
             self.parse_bracket_comma_list(|p| p.parse_const_parameter().map(Some))?.0
         } else {
             vec![]

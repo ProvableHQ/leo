@@ -13,7 +13,7 @@ program test.aleo {
               + other::[5](); // this call to `other` will get resolved in the first pass of monomophrization
     }
 
-    inline sum_first_n_ints[N: u32]() -> u32 {
+    inline sum_first_n_ints::[N: u32]() -> u32 {
         let sum = 0u32;
         for i in 0u32..N {
             sum += i + other::[i](); // this call to `other` will be resovled in the second pass of monomophrization
@@ -21,7 +21,7 @@ program test.aleo {
         return sum;
     }
 
-    inline other[Q: u32]() -> u32 {
+    inline other::[Q: u32]() -> u32 {
         return Q;
     }
 }

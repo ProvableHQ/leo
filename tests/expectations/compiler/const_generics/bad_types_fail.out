@@ -9,12 +9,12 @@ Error [ETYC0372117]: Expected type `scalar` but type `u32` was found.
    3 |         return bar::[9u16, 0u32]();
      |                            ^^^^
 Error [ETYC0372141]: A generic const parameter must be a Boolean, an integer, a `scalar`, a`group`, a `field`, or an `address`, but (u32, u32) was found
-    --> compiler-test:10:16
+    --> compiler-test:10:18
      |
-  10 |     inline foo[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
-     |                ^^^^^^^^^^^^^
+  10 |     inline foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
+     |                  ^^^^^^^^^^^^^
 Error [ETYC0372141]: A generic const parameter must be a Boolean, an integer, a `scalar`, a`group`, a `field`, or an `address`, but [u32; 3] was found
-    --> compiler-test:10:31
+    --> compiler-test:10:33
      |
-  10 |     inline foo[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
-     |                               ^^^^^^^^^^^
+  10 |     inline foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
+     |                                 ^^^^^^^^^^^

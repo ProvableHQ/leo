@@ -3,7 +3,7 @@ program test.aleo {
         return bar::[x]();
     }
 
-    inline bar[N: u32]() -> u32 {
+    inline bar::[N: u32]() -> u32 {
         return N;
     }
 }

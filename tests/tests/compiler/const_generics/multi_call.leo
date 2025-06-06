@@ -3,7 +3,7 @@ program test.aleo {
         return bar::[5u32, 1u32]() + bar::[6u32, 2u32]();
     }
 
-    inline bar[N: u32, M: u32]() -> u32 {
+    inline bar::[N: u32, M: u32]() -> u32 {
         return N + M + foo1() + foo2();
     }
 

@@ -1,6 +1,6 @@
 program test.aleo {
     // Define a generic function `foo` that takes all allowed types and returns them as a tuple
-    inline foo[
+    inline foo::[
         a1: bool,
         a2: u8,
         a3: u16,
