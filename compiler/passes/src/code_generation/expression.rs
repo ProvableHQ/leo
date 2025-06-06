@@ -33,6 +33,7 @@ use leo_ast::{
     Location,
     LocatorExpression,
     MemberAccess,
+    Node,
     StructExpression,
     TernaryExpression,
     TupleExpression,
@@ -315,15 +316,21 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_array_access(&mut self, input: &ArrayAccess) -> (String, String) {
         let (array_operand, _) = self.visit_expression(&input.array);
+
+        assert!(
+            matches!(self.state.type_table.get(&input.index.id()), Some(Type::Integer(_))),
+            "unexpected type for for array index. This should have been caught by the type checker."
+        );
+
         let index_operand = match &input.index {
-            Expression::Literal(Literal { variant: LiteralVariant::Integer(_, string), .. }) => {
-                format!("{}u32", string)
-            }
+            Expression::Literal(Literal {
+                variant: LiteralVariant::Integer(_, s) | LiteralVariant::Unsuffixed(s),
+                ..
+            }) => format!("{s}u32"),
             _ => panic!("Array indices must be integer literals"),
         };
-        let array_access = format!("{}[{}]", array_operand, index_operand);
 
-        (array_access, String::new())
+        (format!("{array_operand}[{index_operand}]"), String::new())
     }
 
     fn visit_member_access(&mut self, input: &MemberAccess) -> (String, String) {
