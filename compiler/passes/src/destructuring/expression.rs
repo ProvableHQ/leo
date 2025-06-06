@@ -50,14 +50,17 @@ impl ExpressionReconstructor for DestructuringVisitor<'_> {
                     panic!("Type checking guarantees that all tuple accesses are declared and indices are valid.");
                 }
 
-                let expr = ArrayAccess {
-                    array: (*identifier).into(),
-                    index: Literal::integer(IntegerType::U32, input.index.to_string(), input.span, Default::default())
-                        .into(),
-                    span: input.span,
-                    id: input.id,
-                }
-                .into();
+                let index = Literal::integer(
+                    IntegerType::U32,
+                    input.index.to_string(),
+                    input.span,
+                    self.state.node_builder.next_id(),
+                );
+                self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
+
+                let expr =
+                    ArrayAccess { array: (*identifier).into(), index: index.into(), span: input.span, id: input.id }
+                        .into();
 
                 (expr, Default::default())
             }
