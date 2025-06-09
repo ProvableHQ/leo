@@ -71,8 +71,10 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Emits a type checker warning
-    pub fn emit_warning(&self, warning: TypeCheckerWarning) {
-        self.state.handler.emit_warning(warning.into());
+    pub fn emit_warning(&mut self, warning: TypeCheckerWarning) {
+        if self.state.warnings.insert(warning.clone().into()) {
+            self.state.handler.emit_warning(warning.into());
+        }
     }
 
     /// Emits an error if the two given types are not equal.
@@ -865,18 +867,19 @@ impl TypeCheckingVisitor<'_> {
             // Check that the array element types are valid.
             Type::Array(array_type) => {
                 // Check that the array length is valid.
-                match array_type.length() {
-                    0 => self.emit_err(TypeCheckerError::array_empty(span)),
-                    length => {
-                        if length > self.limits.max_array_elements {
-                            self.emit_err(TypeCheckerError::array_too_large(
-                                length,
-                                self.limits.max_array_elements,
-                                span,
-                            ))
-                        }
+
+                if let Some(length) = array_type.length_as_u32() {
+                    if length == 0 {
+                        self.emit_err(TypeCheckerError::array_empty(span));
+                    } else if length > self.limits.max_array_elements as u32 {
+                        self.emit_err(TypeCheckerError::array_too_large(length, self.limits.max_array_elements, span));
                     }
+                } else if let Expression::Literal(_) = &*array_type.length {
+                    // Literal, but not valid u32 (e.g. too big or invalid format)
+                    self.emit_err(TypeCheckerError::array_too_large_for_u32(span));
                 }
+                // else: not a literal, so defer for later
+
                 // Check that the array element type is valid.
                 match array_type.element_type() {
                     // Array elements cannot be futures.
@@ -947,20 +950,20 @@ impl TypeCheckingVisitor<'_> {
 
             if let Some(first) = caller_finalizers.next() {
                 inferred_inputs = first.inferred_inputs.clone();
+
+                // If any input is a future that doesn't have the same member type for all
+                // finalizers, set that member to `Type::Err`.
+                for finalizer in caller_finalizers {
+                    assert_eq!(inferred_inputs.len(), finalizer.inferred_inputs.len());
+                    for (t1, t2) in inferred_inputs.iter_mut().zip(finalizer.inferred_inputs.iter()) {
+                        self.merge_types(t1, t2);
+                    }
+                }
             } else {
                 self.emit_warning(TypeCheckerWarning::async_function_is_never_called_by_transition_function(
                     function.identifier.name,
                     function.span(),
                 ));
-            }
-
-            // If any input is a future that doesn't have the same member type for all
-            // finalizers, set that member to `Type::Err`.
-            for finalizer in caller_finalizers {
-                assert_eq!(inferred_inputs.len(), finalizer.inferred_inputs.len());
-                for (t1, t2) in inferred_inputs.iter_mut().zip(finalizer.inferred_inputs.iter()) {
-                    self.merge_types(t1, t2);
-                }
             }
         }
 
@@ -971,6 +974,8 @@ impl TypeCheckingVisitor<'_> {
         }
 
         for const_param in &function.const_parameters {
+            self.visit_type(const_param.type_());
+
             // Restrictions for const parameters
             if !matches!(
                 const_param.type_(),
@@ -996,7 +1001,10 @@ impl TypeCheckingVisitor<'_> {
             self.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
         }
 
+        // The inputs should have access to the const parameters, so handle them after.
         for (i, input) in function.input.iter().enumerate() {
+            self.visit_type(input.type_());
+
             // No need to check compatibility of these types; that's already been done
             let table_type = inferred_inputs.get(i).unwrap_or_else(|| input.type_());
 
@@ -1070,6 +1078,8 @@ impl TypeCheckingVisitor<'_> {
         // Type check the function's return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
         function.output.iter().enumerate().for_each(|(index, function_output)| {
+            self.visit_type(&function_output.type_);
+
             // If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
             if let Type::Composite(struct_) = function_output.type_.clone() {
@@ -1108,6 +1118,8 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::only_async_transition_can_return_future(function_output.span));
             }
         });
+
+        self.visit_type(&function.output_type);
     }
 
     /// Merge inferred types into `lhs`.
@@ -1138,6 +1150,10 @@ impl TypeCheckingVisitor<'_> {
     /// In particular, any comparison involving an `Err` is `true`,
     /// composite types are resolved to the current program if not specified,
     /// and Futures which aren't explicit compare equal to other Futures.
+    ///
+    /// An array with an undetermined length (e.g., one that depends on a `const`) is considered equal to other arrays
+    /// if their element types match. This allows const propagation to potentially resolve the length before type
+    /// checking is performed again.
     pub fn eq_user(&self, t1: &Type, t2: &Type) -> bool {
         match (t1, t2) {
             (Type::Err, _)
@@ -1151,7 +1167,14 @@ impl TypeCheckingVisitor<'_> {
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) => true,
             (Type::Array(left), Type::Array(right)) => {
-                left.length() == right.length() && self.eq_user(left.element_type(), right.element_type())
+                (match (left.length_as_u32(), right.length_as_u32()) {
+                    (Some(l1), Some(l2)) => l1 == l2,
+                    _ => {
+                        // An array with an undetermined length (e.g., one that depends on a `const`) is considered
+                        // equal to other arrays because their lengths _may_ eventually be proven equal.
+                        true
+                    }
+                }) && self.eq_user(left.element_type(), right.element_type())
             }
             (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
             (Type::Integer(left), Type::Integer(right)) => left == right,
@@ -1269,7 +1292,7 @@ impl TypeCheckingVisitor<'_> {
 
     // Given a `Literal` and its type, if the literal is a numeric `Unsuffixed` literal, ensure it's a valid literal
     // given the type. E.g., a `256` is not a valid `u8`.
-    pub fn check_numeric_literal(&self, input: &Literal, ty: &Type) {
+    pub fn check_numeric_literal(&self, input: &Literal, ty: &Type) -> bool {
         if let Literal { variant: LiteralVariant::Unsuffixed(s), .. } = input {
             let span = input.span();
             let has_nondecimal_prefix =
@@ -1298,6 +1321,7 @@ impl TypeCheckingVisitor<'_> {
                     if has_nondecimal_prefix(s) {
                         // This is not checked in the parser for unsuffixed numerals. So do that here.
                         self.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+                        return false;
                     } else {
                         let trimmed = s.trim_start_matches('-').trim_start_matches('0');
                         if !trimmed.is_empty()
@@ -1306,6 +1330,7 @@ impl TypeCheckingVisitor<'_> {
                                 .is_err()
                         {
                             self.emit_err(TypeCheckerError::invalid_int_value(trimmed, "group", span));
+                            return false;
                         }
                     }
                 }
@@ -1313,6 +1338,7 @@ impl TypeCheckingVisitor<'_> {
                     if has_nondecimal_prefix(s) {
                         // This is not checked in the parser for unsuffixed numerals. So do that here.
                         self.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+                        return false;
                     }
                 }
                 _ => {
@@ -1320,5 +1346,6 @@ impl TypeCheckingVisitor<'_> {
                 }
             }
         }
+        true
     }
 }

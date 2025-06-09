@@ -16,7 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{BinaryOperation, Expression, Node as _, Type, UnaryOperation};
+use leo_ast::{BinaryOperation, Expression, Node as _, Type, TypeReconstructor, UnaryOperation};
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexSet;
@@ -107,3 +107,5 @@ impl DeadCodeEliminatingVisitor<'_> {
         }
     }
 }
+
+impl TypeReconstructor for DeadCodeEliminatingVisitor<'_> {}

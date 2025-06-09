@@ -21,9 +21,9 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A type list of at least two types.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TupleType {
-    elements: Vec<Type>,
+    pub elements: Vec<Type>,
 }
 
 impl TupleType {

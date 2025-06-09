@@ -22,6 +22,8 @@ mod scope_state;
 
 mod statement;
 
+mod type_;
+
 mod visitor;
 use visitor::*;
 
@@ -34,6 +36,7 @@ use leo_errors::Result;
 use indexmap::{IndexMap, IndexSet};
 
 /// Specify network limits for type checking.
+#[derive(Clone)]
 pub struct TypeCheckingInput {
     pub max_array_elements: usize,
     pub max_mappings: usize,

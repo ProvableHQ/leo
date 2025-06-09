@@ -151,7 +151,7 @@ impl LeoError {
 
 /// The LeoWarning type that contains all sub warning types.
 /// This allows a unified warning type throughout the Leo crates.
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Hash, PartialEq, Eq)]
 pub enum LeoWarning {
     /// Represents an Parser Warning in a Leo Warning.
     #[error(transparent)]

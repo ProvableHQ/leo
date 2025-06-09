@@ -1079,14 +1079,14 @@ create_messages!(
     assignment_to_external_record_cond {
         args: (ty: impl Display),
         msg: format!("Cannot assign to the external record type `{ty}` in this location."),
-        help: Some("External record variables may not be assigned to in narrower conditonal scopes than they were defined.".into()),
+        help: Some("External record variables may not be assigned to in narrower conditional scopes than they were defined.".into()),
     }
 
     @formatted
     assignment_to_external_record_tuple_cond {
         args: (ty: impl Display),
         msg: format!("Cannot assign to the tuple type `{ty}` containing an external record in this location."),
-        help: Some("Tuples containing external records may not be assigned to in narrower conditonal scopes than they were defined.".into()),
+        help: Some("Tuples containing external records may not be assigned to in narrower conditional scopes than they were defined.".into()),
     }
 
     @formatted
@@ -1135,6 +1135,13 @@ create_messages!(
     only_inline_can_have_const_generics {
         args: (),
         msg: format!("Only `inline` functions can have generic const parameters."),
+        help: None,
+    }
+
+    @formatted
+    array_too_large_for_u32 {
+        args: (),
+        msg: format!("An array length must be small enough to fit in a `u32` "),
         help: None,
     }
 );

@@ -747,3 +747,128 @@
   }
 }
 
+{
+  "Definition": {
+    "place": {
+      "Single": {
+        "name": "x",
+        "span": {
+          "lo": 463,
+          "hi": 464
+        },
+        "id": 0
+      }
+    },
+    "type_": {
+      "Array": {
+        "element_type": {
+          "Integer": "U32"
+        },
+        "length": {
+          "Binary": {
+            "left": {
+              "Call": {
+                "function": {
+                  "name": "foo",
+                  "span": {
+                    "lo": 472,
+                    "hi": 475
+                  },
+                  "id": 1
+                },
+                "const_arguments": [],
+                "arguments": [
+                  {
+                    "Binary": {
+                      "left": {
+                        "Literal": {
+                          "span": {
+                            "lo": 476,
+                            "hi": 477
+                          },
+                          "id": 2,
+                          "variant": {
+                            "Unsuffixed": "1"
+                          }
+                        }
+                      },
+                      "right": {
+                        "Literal": {
+                          "span": {
+                            "lo": 480,
+                            "hi": 481
+                          },
+                          "id": 3,
+                          "variant": {
+                            "Unsuffixed": "2"
+                          }
+                        }
+                      },
+                      "op": "Add",
+                      "span": {
+                        "lo": 476,
+                        "hi": 481
+                      },
+                      "id": 4
+                    }
+                  }
+                ],
+                "program": null,
+                "span": {
+                  "lo": 472,
+                  "hi": 482
+                },
+                "id": 5
+              }
+            },
+            "right": {
+              "Identifier": {
+                "name": "N",
+                "span": {
+                  "lo": 485,
+                  "hi": 486
+                },
+                "id": 6
+              }
+            },
+            "op": "Mul",
+            "span": {
+              "lo": 472,
+              "hi": 486
+            },
+            "id": 7
+          }
+        }
+      }
+    },
+    "value": {
+      "Array": {
+        "elements": [
+          {
+            "Literal": {
+              "span": {
+                "lo": 491,
+                "hi": 492
+              },
+              "id": 8,
+              "variant": {
+                "Unsuffixed": "1"
+              }
+            }
+          }
+        ],
+        "span": {
+          "lo": 490,
+          "hi": 493
+        },
+        "id": 9
+      }
+    },
+    "span": {
+      "lo": 459,
+      "hi": 493
+    },
+    "id": 10
+  }
+}
+

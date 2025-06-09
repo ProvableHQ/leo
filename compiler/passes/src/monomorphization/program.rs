@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor, Variant};
+use leo_ast::{Function, ProgramReconstructor, ProgramScope, Variant};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -37,7 +37,12 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             .post_order_from_entry_points(|node| {
                 function_map
                     .get(node)
-                    .map(|f| matches!(f.variant, Variant::AsyncTransition | Variant::Transition | Variant::Function))
+                    .map(|f| {
+                        matches!(
+                            f.variant,
+                            Variant::AsyncTransition | Variant::Transition | Variant::Function | Variant::Script
+                        )
+                    })
                     .unwrap_or(false)
             })
             .unwrap(); // This unwrap is safe because the type checker guarantees an acyclic graph.
@@ -47,6 +52,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             // Skip external functions (i.e., not in the input map).
             if let Some(function) = function_map.swap_remove(function_name) {
                 // Perform monomorphization or other reconstruction logic.
+                self.function = function.identifier.name;
                 let reconstructed_function = self.reconstruct_function(function);
                 // Store the reconstructed function for inclusion in the output scope.
                 self.reconstructed_functions.insert(*function_name, reconstructed_function);
@@ -69,34 +75,22 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         });
 
         // Move reconstructed functions into the final `ProgramScope`, clearing the temporary storage for the next scope.
-        let functions = core::mem::take(&mut self.reconstructed_functions).into_iter().collect::<Vec<_>>();
+        // Make sure to place transitions before all the other functions.
+        let (transitions, mut non_transitions): (Vec<_>, Vec<_>) = core::mem::take(&mut self.reconstructed_functions)
+            .into_iter()
+            .partition(|(_, f)| f.variant.is_transition());
+
+        let mut all_functions = transitions;
+        all_functions.append(&mut non_transitions);
 
         // Return the fully reconstructed scope with updated functions.
         ProgramScope {
             program_id: input.program_id,
             structs: input.structs,
             mappings: input.mappings,
-            functions,
+            functions: all_functions,
             consts: input.consts,
             span: input.span,
-        }
-    }
-
-    fn reconstruct_function(&mut self, input: Function) -> Function {
-        // Keep track of the current function name
-        self.function = input.identifier.name;
-
-        Function {
-            annotations: input.annotations,
-            variant: input.variant,
-            identifier: input.identifier,
-            const_parameters: input.const_parameters,
-            input: input.input,
-            output: input.output,
-            output_type: input.output_type,
-            block: self.reconstruct_block(input.block).0,
-            span: input.span,
-            id: input.id,
         }
     }
 }

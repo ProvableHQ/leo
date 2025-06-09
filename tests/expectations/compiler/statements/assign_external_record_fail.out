@@ -4,21 +4,21 @@ Error [ETYC0372136]: Cannot assign to the external record type `test0.aleo/R` in
   12 |             r1 = test0.aleo/foo();
      |             ^^
      |
-     = External record variables may not be assigned to in narrower conditonal scopes than they were defined.
+     = External record variables may not be assigned to in narrower conditional scopes than they were defined.
 Error [ETYC0372137]: Cannot assign to the tuple type `(test0.aleo/R, test0.aleo/R)` containing an external record in this location.
     --> compiler-test:21:13
      |
   21 |             tupl.0 = test0.aleo/foo();
      |             ^^^^
      |
-     = Tuples containing external records may not be assigned to in narrower conditonal scopes than they were defined.
+     = Tuples containing external records may not be assigned to in narrower conditional scopes than they were defined.
 Error [ETYC0372137]: Cannot assign to the tuple type `(test0.aleo/R, test0.aleo/R)` containing an external record in this location.
     --> compiler-test:25:13
      |
   25 |             tupl = (test0.aleo/foo(), test0.aleo/foo());
      |             ^^^^
      |
-     = Tuples containing external records may not be assigned to in narrower conditonal scopes than they were defined.
+     = Tuples containing external records may not be assigned to in narrower conditional scopes than they were defined.
 Error [ETYC0372135]: Cannot assign to a member of the external record `test0.aleo/R`.
     --> compiler-test:33:9
      |

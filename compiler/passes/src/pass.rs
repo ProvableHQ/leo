@@ -17,7 +17,9 @@
 use crate::{Assigner, CallGraph, StructGraph, SymbolTable, TypeTable};
 
 use leo_ast::{Ast, NodeBuilder};
-use leo_errors::{Handler, Result};
+use leo_errors::{Handler, LeoWarning, Result};
+
+use std::collections::HashSet;
 
 /// Contains data share by many compiler passes.
 #[derive(Default)]
@@ -38,6 +40,8 @@ pub struct CompilerState {
     pub struct_graph: StructGraph,
     /// A graph of which functions call each other.
     pub call_graph: CallGraph,
+    /// A set of the warnings collected. This is used to make sure we don't emit the same exact warning twice.
+    pub warnings: HashSet<LeoWarning>,
     /// Is this a test program?
     pub is_test: bool,
 }

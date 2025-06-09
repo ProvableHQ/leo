@@ -35,3 +35,5 @@ let x: u32 = x+y;
 let x: u32 = x();
 
 let x: address = aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx;
+
+let x: [u32; foo(1 + 2) * N] = [1];

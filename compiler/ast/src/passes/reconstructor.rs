@@ -20,6 +20,71 @@
 
 use crate::*;
 
+/// A Reconstructor trait for types in the AST.
+pub trait TypeReconstructor: ExpressionReconstructor {
+    fn reconstruct_type(&mut self, input: Type) -> (Type, Self::AdditionalOutput) {
+        match input {
+            Type::Array(array_type) => self.reconstruct_array_type(array_type),
+            Type::Future(future_type) => self.reconstruct_future_type(future_type),
+            Type::Mapping(mapping_type) => self.reconstruct_mapping_type(mapping_type),
+            Type::Tuple(tuple_type) => self.reconstruct_tuple_type(tuple_type),
+            Type::Address
+            | Type::Boolean
+            | Type::Composite(_)
+            | Type::Field
+            | Type::Group
+            | Type::Identifier(_)
+            | Type::Integer(_)
+            | Type::Scalar
+            | Type::Signature
+            | Type::String
+            | Type::Numeric
+            | Type::Unit
+            | Type::Err => (input.clone(), Default::default()),
+        }
+    }
+
+    fn reconstruct_array_type(&mut self, input: ArrayType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Array(ArrayType {
+                element_type: Box::new(self.reconstruct_type(*input.element_type).0),
+                length: Box::new(self.reconstruct_expression(*input.length).0),
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_future_type(&mut self, input: FutureType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Future(FutureType {
+                inputs: input.inputs.into_iter().map(|input| self.reconstruct_type(input).0).collect(),
+                ..input
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_mapping_type(&mut self, input: MappingType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Mapping(MappingType {
+                key: Box::new(self.reconstruct_type(*input.key).0),
+                value: Box::new(self.reconstruct_type(*input.value).0),
+                ..input
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_tuple_type(&mut self, input: TupleType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Tuple(TupleType {
+                elements: input.elements.into_iter().map(|element| self.reconstruct_type(element).0).collect(),
+            }),
+            Default::default(),
+        )
+    }
+}
+
 /// A Reconstructor trait for expressions in the AST.
 pub trait ExpressionReconstructor {
     type AdditionalOutput: Default;
@@ -208,7 +273,7 @@ pub trait ExpressionReconstructor {
 }
 
 /// A Reconstructor trait for statements in the AST.
-pub trait StatementReconstructor: ExpressionReconstructor {
+pub trait StatementReconstructor: TypeReconstructor {
     fn reconstruct_statement(&mut self, input: Statement) -> (Statement, Self::AdditionalOutput) {
         match input {
             Statement::Assert(assert) => self.reconstruct_assert(assert),
@@ -276,11 +341,27 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     }
 
     fn reconstruct_const(&mut self, input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
-        (ConstDeclaration { value: self.reconstruct_expression(input.value).0, ..input }.into(), Default::default())
+        (
+            ConstDeclaration {
+                type_: self.reconstruct_type(input.type_).0,
+                value: self.reconstruct_expression(input.value).0,
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
     }
 
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        (DefinitionStatement { value: self.reconstruct_expression(input.value).0, ..input }.into(), Default::default())
+        (
+            DefinitionStatement {
+                type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
+                value: self.reconstruct_expression(input.value).0,
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
     }
 
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
@@ -293,6 +374,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
         (
             IterationStatement {
+                type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
                 start: self.reconstruct_expression(input.start).0,
                 stop: self.reconstruct_expression(input.stop).0,
                 block: self.reconstruct_block(input.block).0,
@@ -364,10 +446,22 @@ pub trait ProgramReconstructor: StatementReconstructor {
             annotations: input.annotations,
             variant: input.variant,
             identifier: input.identifier,
-            const_parameters: input.const_parameters,
-            input: input.input,
-            output: input.output,
-            output_type: input.output_type,
+            const_parameters: input
+                .const_parameters
+                .iter()
+                .map(|param| ConstParameter { type_: self.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .collect(),
+            input: input
+                .input
+                .iter()
+                .map(|input| Input { type_: self.reconstruct_type(input.type_.clone()).0, ..input.clone() })
+                .collect(),
+            output: input
+                .output
+                .iter()
+                .map(|output| Output { type_: self.reconstruct_type(output.type_.clone()).0, ..output.clone() })
+                .collect(),
+            output_type: self.reconstruct_type(input.output_type).0,
             block: self.reconstruct_block(input.block).0,
             span: input.span,
             id: input.id,
@@ -379,7 +473,14 @@ pub trait ProgramReconstructor: StatementReconstructor {
     }
 
     fn reconstruct_struct(&mut self, input: Composite) -> Composite {
-        input
+        Composite {
+            members: input
+                .members
+                .iter()
+                .map(|member| Member { type_: self.reconstruct_type(member.type_.clone()).0, ..member.clone() })
+                .collect(),
+            ..input
+        }
     }
 
     fn reconstruct_import(&mut self, input: Program) -> Program {
@@ -387,6 +488,10 @@ pub trait ProgramReconstructor: StatementReconstructor {
     }
 
     fn reconstruct_mapping(&mut self, input: Mapping) -> Mapping {
-        input
+        Mapping {
+            key_type: self.reconstruct_type(input.key_type).0,
+            value_type: self.reconstruct_type(input.value_type).0,
+            ..input
+        }
     }
 }

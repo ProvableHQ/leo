@@ -43,6 +43,7 @@ use leo_ast::{
     TupleExpression,
     TupleType,
     Type,
+    TypeReconstructor,
     UnitExpression,
 };
 use leo_span::Symbol;
@@ -393,7 +394,7 @@ impl FlatteningVisitor<'_> {
         // Initialize a vector to accumulate any statements generated.
         let mut statements = Vec::new();
         // For each array element, construct a new ternary expression.
-        let elements = (0..array.length())
+        let elements = (0..array.length_as_u32().expect("length should be known at this point") as usize)
             .map(|i| {
                 // Create an assignment statement for the first access expression.
                 let (first, stmt) = self.make_array_access_definition(i, *first, array);
@@ -617,3 +618,5 @@ impl FlatteningVisitor<'_> {
         }
     }
 }
+
+impl TypeReconstructor for FlatteningVisitor<'_> {}

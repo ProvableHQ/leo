@@ -21,6 +21,7 @@ use leo_ast::{
     CoreFunction,
     Expression,
     ExpressionReconstructor,
+    LiteralVariant,
     MemberAccess,
     Node,
     StructExpression,
@@ -126,49 +127,52 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             let Some(Type::Array(array_ty)) = ty else {
                 panic!("Type checking guaranteed that this is an array.");
             };
-            let len = array_ty.length();
+            let len = array_ty.length_as_u32();
 
-            let index: usize = match value {
-                Value::U8(x) => x as usize,
-                Value::U16(x) => x as usize,
-                Value::U32(x) => x.try_into().unwrap_or(len),
-                Value::U64(x) => x.try_into().unwrap_or(len),
-                Value::U128(x) => x.try_into().unwrap_or(len),
-                Value::I8(x) => x.try_into().unwrap_or(len),
-                Value::I16(x) => x.try_into().unwrap_or(len),
-                Value::I32(x) => x.try_into().unwrap_or(len),
-                Value::I64(x) => x.try_into().unwrap_or(len),
-                Value::I128(x) => x.try_into().unwrap_or(len),
-                _ => panic!("Type checking guarantees this is an integer"),
-            };
+            if let Some(len) = len {
+                let index: u32 = match value {
+                    Value::U8(x) => x as u32,
+                    Value::U16(x) => x as u32,
+                    Value::U32(x) => x,
+                    Value::U64(x) => x.try_into().unwrap_or(len),
+                    Value::U128(x) => x.try_into().unwrap_or(len),
+                    Value::I8(x) => x.try_into().unwrap_or(len),
+                    Value::I16(x) => x.try_into().unwrap_or(len),
+                    Value::I32(x) => x.try_into().unwrap_or(len),
+                    Value::I64(x) => x.try_into().unwrap_or(len),
+                    Value::I128(x) => x.try_into().unwrap_or(len),
+                    _ => panic!("Type checking guarantees this is an integer"),
+                };
 
-            if index >= len {
-                // Only emit a bounds error if we have no other errors yet.
-                // This prevents a chain of redundant error messages when a loop is unrolled.
-                if !self.state.handler.had_errors() {
-                    // Get the integer string with no suffix.
-                    let str_index = match value {
-                        Value::U8(x) => format!("{x}"),
-                        Value::U16(x) => format!("{x}"),
-                        Value::U32(x) => format!("{x}"),
-                        Value::U64(x) => format!("{x}"),
-                        Value::U128(x) => format!("{x}"),
-                        Value::I8(x) => format!("{x}"),
-                        Value::I16(x) => format!("{x}"),
-                        Value::I32(x) => format!("{x}"),
-                        Value::I64(x) => format!("{x}"),
-                        Value::I128(x) => format!("{x}"),
-                        _ => unreachable!("We would have panicked above"),
-                    };
-                    self.emit_err(StaticAnalyzerError::array_bounds(str_index, len, span));
+                if index >= len {
+                    // Only emit a bounds error if we have no other errors yet.
+                    // This prevents a chain of redundant error messages when a loop is unrolled.
+                    if !self.state.handler.had_errors() {
+                        // Get the integer string with no suffix.
+                        let str_index = match value {
+                            Value::U8(x) => format!("{x}"),
+                            Value::U16(x) => format!("{x}"),
+                            Value::U32(x) => format!("{x}"),
+                            Value::U64(x) => format!("{x}"),
+                            Value::U128(x) => format!("{x}"),
+                            Value::I8(x) => format!("{x}"),
+                            Value::I16(x) => format!("{x}"),
+                            Value::I32(x) => format!("{x}"),
+                            Value::I64(x) => format!("{x}"),
+                            Value::I128(x) => format!("{x}"),
+                            _ => unreachable!("We would have panicked above"),
+                        };
+
+                        self.emit_err(StaticAnalyzerError::array_bounds(str_index, len, span));
+                    }
+                } else if let Some(Value::Array(value)) = value_opt {
+                    // We're in bounds and we can evaluate the array at compile time, so just return the value.
+                    let result_value = value.get(index as usize).expect("We already checked bounds.");
+                    return (
+                        value_to_expression(result_value, input.span, &self.state.node_builder).expect(VALUE_ERROR),
+                        Some(result_value.clone()),
+                    );
                 }
-            } else if let Some(Value::Array(value)) = value_opt {
-                // We're in bounds and we can evaluate the array at compile time, so just return the value.
-                let result_value = value.get(index).expect("We already checked bounds.");
-                return (
-                    value_to_expression(result_value, input.span, &self.state.node_builder).expect(VALUE_ERROR),
-                    Some(result_value.clone()),
-                );
             }
         } else {
             self.array_index_not_evaluated = Some(index.span());
@@ -333,9 +337,23 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
         (input.into(), None)
     }
 
-    fn reconstruct_literal(&mut self, input: leo_ast::Literal) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_literal(&mut self, mut input: leo_ast::Literal) -> (Expression, Self::AdditionalOutput) {
+        let type_info = self.state.type_table.get(&input.id());
+
         let value =
-            interpreter_value::literal_to_value(&input, &self.state.type_table.get(&input.id())).expect("Should work");
+            interpreter_value::literal_to_value(&input, &type_info).expect("Failed to convert literal to value");
+
+        // If we know the type of an unsuffixed literal, might as well change it to a suffixed literal. This way, we
+        // do not have to infer the type again in later passes of type checking.
+        if let LiteralVariant::Unsuffixed(s) = input.variant {
+            match type_info.expect("Expected type information to be available") {
+                Type::Integer(ty) => input.variant = LiteralVariant::Integer(ty, s),
+                Type::Field => input.variant = LiteralVariant::Field(s),
+                Type::Group => input.variant = LiteralVariant::Group(s),
+                Type::Scalar => input.variant = LiteralVariant::Scalar(s),
+                _ => panic!("Type checking should have prevented this."),
+            }
+        }
         (input.into(), Some(value))
     }
 
