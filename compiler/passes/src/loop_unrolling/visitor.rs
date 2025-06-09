@@ -24,6 +24,7 @@ use leo_ast::{
     Statement,
     StatementReconstructor,
     Type,
+    TypeReconstructor,
     Value,
 };
 
@@ -135,6 +136,8 @@ impl UnrollingVisitor<'_> {
         })
     }
 }
+
+impl TypeReconstructor for UnrollingVisitor<'_> {}
 
 impl ExpressionReconstructor for UnrollingVisitor<'_> {
     type AdditionalOutput = ();

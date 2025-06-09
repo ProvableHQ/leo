@@ -1,0 +1,10 @@
+Error [ETYC0372005]: Unknown variable `N`
+    --> compiler-test:2:32
+     |
+   2 |     transition main(arr: [u32; N], arr2: [u32; N]) {
+     |                                ^
+Error [ETYC0372005]: Unknown variable `N`
+    --> compiler-test:2:48
+     |
+   2 |     transition main(arr: [u32; N], arr2: [u32; N]) {
+     |                                                ^

@@ -17,7 +17,7 @@
 use crate::CompilerState;
 
 use indexmap::{IndexMap, IndexSet};
-use leo_ast::{CallExpression, Function};
+use leo_ast::{CallExpression, Function, TypeReconstructor};
 use leo_span::Symbol;
 
 pub struct MonomorphizationVisitor<'a> {
@@ -34,3 +34,5 @@ pub struct MonomorphizationVisitor<'a> {
     /// the functions not the names of the monomorphized versions.
     pub monomorphized_functions: IndexSet<Symbol>,
 }
+
+impl TypeReconstructor for MonomorphizationVisitor<'_> {}

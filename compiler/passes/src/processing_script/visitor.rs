@@ -16,7 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::Variant;
+use leo_ast::{TypeReconstructor, Variant};
 use leo_span::Symbol;
 
 pub struct ProcessingScriptVisitor<'a> {
@@ -25,3 +25,5 @@ pub struct ProcessingScriptVisitor<'a> {
     pub current_variant: Variant,
     pub program_name: Symbol,
 }
+
+impl TypeReconstructor for ProcessingScriptVisitor<'_> {}

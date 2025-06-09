@@ -115,6 +115,8 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_const(&mut self, input: &ConstDeclaration) {
+        self.visit_type(&input.type_);
+
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
@@ -151,6 +153,7 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
     fn visit_definition(&mut self, input: &DefinitionStatement) {
         // Check that the type annotation of the definition is valid, if provided.
         if let Some(ty) = &input.type_ {
+            self.visit_type(ty);
             self.assert_type_is_valid(ty, input.span);
         }
 
@@ -237,6 +240,7 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
     fn visit_iteration(&mut self, input: &IterationStatement) {
         // Ensure the type annotation is an integer type
         if let Some(ty) = &input.type_ {
+            self.visit_type(ty);
             self.assert_int_type(ty, input.variable.span);
         }
 

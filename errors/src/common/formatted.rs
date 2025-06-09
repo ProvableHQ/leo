@@ -32,7 +32,7 @@ use std::fmt;
 ///      |
 ///      = help: Initialize a variable `x` first.
 /// Makes use of the same fields as a BacktracedError.
-#[derive(Clone, Debug, Default, Hash, PartialEq)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq)]
 pub struct Formatted {
     /// The formatted error span information.
     pub span: Span,

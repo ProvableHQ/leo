@@ -1,0 +1,40 @@
+Error [ETYC0372008]: The value 111111111111111 is not a valid `u8`
+    --> compiler-test:3:22
+     |
+   3 |         let a: [u32; 111111111111111u8] = [1u32]; // overflow
+     |                      ^^^^^^^^^^^^^^^^^
+Error [ETYC0372144]: An array length must be small enough to fit in a `u32` 
+    --> compiler-test:3:9
+     |
+   3 |         let a: [u32; 111111111111111u8] = [1u32]; // overflow
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372008]: The value 111111111111111 is not a valid `u32`
+    --> compiler-test:4:22
+     |
+   4 |         let b: [u32; 111111111111111] = [1u32]; // overflow
+     |                      ^^^^^^^^^^^^^^^
+Error [ETYC0372144]: An array length must be small enough to fit in a `u32` 
+    --> compiler-test:4:9
+     |
+   4 |         let b: [u32; 111111111111111] = [1u32]; // overflow
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 100 elements
+    --> compiler-test:6:9
+     |
+   6 |         let d: [u32; 100u128] = [1u32]; // passes limits
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `[u32; 100]` but type `[u32; 1]` was found.
+    --> compiler-test:6:33
+     |
+   6 |         let d: [u32; 100u128] = [1u32]; // passes limits
+     |                                 ^^^^^^
+Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 100 elements
+    --> compiler-test:7:9
+     |
+   7 |         let e: [u32; 100] = [1u32]; // passes limits
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `[u32; 100]` but type `[u32; 1]` was found.
+    --> compiler-test:7:29
+     |
+   7 |         let e: [u32; 100] = [1u32]; // passes limits
+     |                             ^^^^^^

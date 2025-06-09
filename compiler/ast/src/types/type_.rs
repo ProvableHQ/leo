@@ -27,7 +27,7 @@ use snarkvm::prelude::{
 use std::fmt;
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Type {
     /// The `address` type.
     Address,
@@ -85,7 +85,12 @@ impl Type {
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) => true,
             (Type::Array(left), Type::Array(right)) => {
-                left.element_type().eq_flat_relaxed(right.element_type()) && left.length() == right.length()
+                // Two arrays are equal if their element types are the same and if their lengths
+                // are the same, assuming the lengths can be extracted as `u32`.
+                left.element_type().eq_flat_relaxed(right.element_type())
+                    && left.length_as_u32().is_some()
+                    && right.length_as_u32().is_some()
+                    && left.length_as_u32() == right.length_as_u32()
             }
             (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),

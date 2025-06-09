@@ -30,7 +30,7 @@ pub(crate) const INDENT: &str = "    ";
 ///     --> file.leo: 2:8
 ///      = help: Initialize a variable `x` first.
 #[derive(Derivative)]
-#[derivative(Clone, Debug, Default, Hash, PartialEq)]
+#[derivative(Clone, Debug, Default, Hash, PartialEq, Eq)]
 pub struct Backtraced {
     /// The error message.
     pub message: String,

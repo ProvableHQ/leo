@@ -104,3 +104,5 @@ impl StaticAnalyzingVisitor<'_> {
         }
     }
 }
+
+impl TypeVisitor for StaticAnalyzingVisitor<'_> {}

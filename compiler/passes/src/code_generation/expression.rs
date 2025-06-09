@@ -634,7 +634,7 @@ impl CodeGeneratingVisitor<'_> {
             Type::Array(array_type) => {
                 // We need to cast the old array's members into the new array.
                 let mut instruction = "    cast ".to_string();
-                for i in 0..array_type.length() {
+                for i in 0..array_type.length_as_u32().expect("length should be known at this point") as usize {
                     write!(&mut instruction, "{register}[{i}u32] ").unwrap();
                 }
                 writeln!(&mut instruction, "into {new_reg} as {};", Self::visit_type(typ)).unwrap();
