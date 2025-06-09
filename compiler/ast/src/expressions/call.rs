@@ -39,13 +39,11 @@ pub struct CallExpression {
 
 impl fmt::Display for CallExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let const_args = if self.const_arguments.is_empty() {
-            String::new()
-        } else {
-            format!("::[{}]", self.const_arguments.iter().format(", "))
-        };
-
-        write!(f, "{}{}({})", self.function, const_args, self.arguments.iter().format(", "))
+        write!(f, "{}", self.function)?;
+        if !self.const_arguments.is_empty() {
+            write!(f, "::[{}]", self.const_arguments.iter().format(", "))?;
+        }
+        write!(f, "({})", self.arguments.iter().format(", "))
     }
 }
 

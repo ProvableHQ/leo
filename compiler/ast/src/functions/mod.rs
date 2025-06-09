@@ -138,13 +138,11 @@ impl fmt::Display for Function {
             Variant::Script => write!(f, "script ")?,
         }
 
-        let const_params = if self.const_parameters.is_empty() {
-            String::new()
-        } else {
-            format!("[{}]", self.const_parameters.iter().format(", "))
-        };
-
-        write!(f, "{}{}({})", self.identifier, const_params, self.input.iter().format(", "))?;
+        write!(f, "{}", self.identifier)?;
+        if !self.const_parameters.is_empty() {
+            write!(f, "::[{}]", self.const_parameters.iter().format(", "))?;
+        }
+        write!(f, "({})", self.input.iter().format(", "))?;
 
         match self.output.len() {
             0 => {}

@@ -57,16 +57,13 @@ impl Pass for ConstPropagationAndUnrolling {
                         _ => panic!("Parser ensures `function` is always an identifier."),
                     };
 
-                    if let Some((func_name, arg, not_resolved_span)) = call
-                        .const_arguments
-                        .iter()
-                        .find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
-                        .map(|arg| (callee_name, arg.clone(), call.span))
+                    if let Some(arg) =
+                        call.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
                     {
                         state.handler.emit_err(CompilerError::call_to_generic_function_not_resolved(
-                            func_name,
+                            callee_name,
                             arg,
-                            not_resolved_span,
+                            call.span,
                         ));
                     }
                 }

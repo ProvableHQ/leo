@@ -16,7 +16,7 @@
 
 //! Performs monomorphization of const generic functions within a `ProgramScope`.
 //!
-//! This pass identifies all `inline` functions that take const generic parameters (e.g., `foo[N: u32]()`)
+//! This pass identifies all `inline` functions that take const generic parameters (e.g., `foo::[N: u32]()`)
 //! and replaces each unique instantiation (e.g., `foo::[3]()`, `foo::[7]()`) with a concrete version of the function
 //! where the const parameter is replaced with its actual value. These concrete instances are generated, added to the
 //! reconstructed function list, and inserted into the final program scope.
@@ -31,16 +31,16 @@
 //!     return foo::[3u32]() + foo::[7u32]();
 //! }
 //!
-//! inline foo[N: u32]() -> u32 {
+//! inline foo::[N: u32]() -> u32 {
 //!     return N;
 //! }
 //! ```
 //!
 //! In the example above:
-//! - `foo::[3u32]()` and `foo::[7u32]()` are two distinct instantiations of `foo[N]`.
+//! - `foo::[3u32]()` and `foo::[7u32]()` are two distinct instantiations of `foo::[N]`.
 //! - This pass will generate two monomorphized versions of `foo`, one for each unique const argument `M` and `P`.
 //! - These are inserted into the output `ProgramScope` as separate functions with unique names.
-//! - If `foo[N]` is no longer referenced in any calls, the original generic function is removed.
+//! - If `foo::[N]` is no longer referenced in any calls, the original generic function is removed.
 
 use crate::Pass;
 
@@ -56,7 +56,7 @@ mod visitor;
 use visitor::*;
 
 pub struct MonomorphizationOutput {
-    /// If we encountered a call to a const generic function that was not resolved, here's it's span.
+    /// If we encountered calls to const generic functions that were not resolved, keep track of them in this vector
     pub unresolved_calls: Vec<leo_ast::CallExpression>,
     /// Did we monomorphize any const generic functions?
     pub resolved_some_calls: bool,
@@ -78,7 +78,7 @@ impl Pass for Monomorphization {
             state,
             program: Symbol::intern(""),
             function: Symbol::intern(""),
-            reconstructed_functions: Vec::new(),
+            reconstructed_functions: indexmap::IndexMap::new(),
             monomorphized_functions: indexmap::IndexSet::new(),
             unresolved_calls: Vec::new(),
         };

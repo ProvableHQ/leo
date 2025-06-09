@@ -35,41 +35,34 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Reconstruct functions in post-order.
         for function_name in &order {
             // Skip external functions (i.e., not in the input map).
-            if let Some(function) = function_map.shift_remove(function_name) {
+            if let Some(function) = function_map.swap_remove(function_name) {
                 // Perform monomorphization or other reconstruction logic.
                 let reconstructed_function = self.reconstruct_function(function);
                 // Store the reconstructed function for inclusion in the output scope.
-                self.reconstructed_functions.push((*function_name, reconstructed_function));
+                self.reconstructed_functions.insert(*function_name, reconstructed_function);
             }
         }
 
-        // Identify functions that are monomorphized and no longer referenced by any calls.
-        let functions_to_remove: Vec<_> = self
-            .reconstructed_functions
-            .iter()
-            .filter_map(|(f, _)| {
-                let is_monomorphized = self.monomorphized_functions.contains(f);
+        // Retain only functions that are either not yet monomorphized or are still referenced by calls.
+        self.reconstructed_functions.retain(|f, _| {
+            let is_monomorphized = self.monomorphized_functions.contains(f);
 
-                let is_still_called = self.unresolved_calls.iter().any(|c| match &c.function {
-                    leo_ast::Expression::Identifier(ident) => ident.name == *f,
-                    _ => panic!("Parser guarantees `function` is always an identifier."),
-                });
+            let is_still_called = self.unresolved_calls.iter().any(|c| match &c.function {
+                leo_ast::Expression::Identifier(ident) => ident.name == *f,
+                _ => panic!("Parser guarantees `function` is always an identifier."),
+            });
 
-                // Mark for removal if the function is monomorphized and no unresolved calls reference it.
-                if is_monomorphized && !is_still_called { Some(*f) } else { None }
-            })
-            .collect();
-
-        // Remove functions that are no longer needed.
-        self.reconstructed_functions.retain(|(f, _)| !functions_to_remove.contains(f));
-
-        // Also remove these functions from the call graph.
-        for f in functions_to_remove {
-            self.state.call_graph.remove_node(&f);
-        }
+            if is_monomorphized && !is_still_called {
+                // It's monomorphized and there are no unresolved calls to it - remove it.
+                self.state.call_graph.remove_node(f);
+                false
+            } else {
+                true
+            }
+        });
 
         // Move reconstructed functions into the final `ProgramScope`, clearing the temporary storage for the next scope.
-        let functions = core::mem::take(&mut self.reconstructed_functions).into_iter().collect();
+        let functions = core::mem::take(&mut self.reconstructed_functions).into_iter().collect::<Vec<_>>();
 
         // Return the fully reconstructed scope with updated functions.
         ProgramScope {

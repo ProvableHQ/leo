@@ -273,7 +273,7 @@ impl TypeCheckingVisitor<'_> {
         match &var.declaration {
             VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(input, var.span)),
             VariableType::ConstParameter => {
-                self.emit_err(TypeCheckerError::cannot_assign_to_generic_const_function_parameter(input, var.span))
+                self.emit_err(TypeCheckerError::cannot_assign_to_generic_const_function_parameter(input, input.span))
             }
             VariableType::Input(Mode::Constant) => {
                 self.emit_err(TypeCheckerError::cannot_assign_to_const_input(input, var.span))

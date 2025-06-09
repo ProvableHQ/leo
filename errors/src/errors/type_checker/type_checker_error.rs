@@ -1117,7 +1117,7 @@ create_messages!(
     @formatted
     bad_const_generic_type {
         args: (found: impl Display),
-        msg: format!("A generic const parameter must be a Boolean, an integer, a `scalar`, a`group`, a `field`, or an `address`, but {found} was found"),
+        msg: format!("A generic const parameter must be a Boolean, an integer, a `scalar`, a `group`, a `field`, or an `address`, but {found} was found"),
         help: None,
     }
 

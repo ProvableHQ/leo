@@ -40,16 +40,14 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
         }
 
         // Extract the function name from the call expression.
-        let callee_name = match input_call.function {
-            Expression::Identifier(ref ident) => ident.name,
-            _ => panic!("Parser ensures `function` is always an identifier."),
+        let Expression::Identifier(Identifier { name: callee_name, .. }) = &input_call.function else {
+            panic!("Parser ensures `function` is always an identifier.")
         };
 
         // Look up the already reconstructed function by name.
-        let (_, callee_fn) = self
+        let callee_fn = self
             .reconstructed_functions
-            .iter()
-            .find(|(name, _)| *name == callee_name)
+            .get(callee_name)
             .expect("Callee should already be reconstructed (post-order traversal).");
 
         // Proceed only if the function variant is `inline` and if there are some const arguments.
@@ -67,8 +65,8 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
 
         // Generate a unique name for the monomorphized function based on const arguments.
         //
-        // For a functino `fn foo[x: u32, y: u32](..)`, the generated name would be `foo::[1u32, 2u32]` for a call that
-        // sets `x` to `1u32` and `y` to `2u32`. We know this nama is safe to use because it's not a valid identifier in
+        // For a function `fn foo[x: u32, y: u32](..)`, the generated name would be `foo::[1u32, 2u32]` for a call that
+        // sets `x` to `1u32` and `y` to `2u32`. We know this name is safe to use because it's not a valid identifier in
         // the user code.
         let new_callee_name = leo_span::Symbol::intern(&format!(
             "{}::[{}]",
@@ -78,22 +76,22 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
 
         // Check if the new callee name is not already present in `reconstructed_functions`. This ensures that we do not
         // add a duplicate entry for the same function and only insert a new version with a unique name.
-        if self.reconstructed_functions.iter().all(|(name, _)| *name != new_callee_name) {
+        if self.reconstructed_functions.get(&new_callee_name).is_none() {
             // Build mapping from const parameters to const argument values.
             let const_param_map: IndexMap<_, _> = callee_fn
                 .const_parameters
                 .iter()
                 .map(|param| param.identifier().name)
-                .zip_eq(input_call.const_arguments.clone())
+                .zip_eq(&input_call.const_arguments)
                 .collect();
 
             // Function to replace identifiers with their corresponding const argument or keep them unchanged.
             let replace_identifier = |ident: &Identifier| {
-                const_param_map.get(&ident.name).cloned().unwrap_or(Expression::Identifier(*ident))
+                const_param_map.get(&ident.name).map_or(Expression::Identifier(*ident), |&expr| expr.clone())
             };
 
             // Add a new copy of `callee_fn` with a new name, no const parameters, and the monomorphized block
-            self.reconstructed_functions.push((new_callee_name, Function {
+            self.reconstructed_functions.insert(new_callee_name, Function {
                 identifier: Identifier {
                     name: new_callee_name,
                     span: leo_span::Span::default(),
@@ -108,17 +106,17 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
                 block: Replacer::new(replace_identifier).reconstruct_block(callee_fn.block.clone()).0,
                 span: callee_fn.span,
                 id: callee_fn.id,
-            }));
+            });
 
             // Now keep track of the function we just monomorphized
-            self.monomorphized_functions.insert(callee_name);
+            self.monomorphized_functions.insert(*callee_name);
         }
 
         // Update call graph with edges for the monomorphized function. We do this by basically cloning the edges in
         // and out of `callee_name` and replicating them for a new node that contains `new_callee_name`.
-        if let Some(neighbors) = self.state.call_graph.neighbors(&callee_name) {
+        if let Some(neighbors) = self.state.call_graph.neighbors(callee_name) {
             for neighbor in neighbors {
-                if neighbor != callee_name {
+                if neighbor != *callee_name {
                     self.state.call_graph.add_edge(new_callee_name, neighbor);
                 }
             }

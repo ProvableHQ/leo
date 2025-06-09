@@ -5,7 +5,7 @@ program test.aleo {
         let z = foo::[5u32, 5u32]();
     }
 
-    inline foo::[N: u32]() -> u32 { 
-        return N; 
+    inline foo::[N: u32]() -> u32 {
+        return N;
     }
 }

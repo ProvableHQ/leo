@@ -56,16 +56,16 @@ program test.aleo {
     ) {
         // Call `foo` with values for all allowed types. Also check for type inference of unsuffixed literals here
         return foo::[
-            true, 
-            8, 
-            16, 
-            32, 
-            64, 
-            128, 
-            8, 
-            16, 
-            32, 
-            64, 
+            true,
+            8,
+            16,
+            32,
+            64,
+            128,
+            8,
+            16,
+            32,
+            64,
             128,
             42, // scalar
             aleo1ezamst4pjgj9zfxqq0fwfj8a4cjuqndmasgata3hggzqygggnyfq6kmyd4, // address
