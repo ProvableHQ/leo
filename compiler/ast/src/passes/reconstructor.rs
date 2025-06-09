@@ -394,7 +394,7 @@ pub trait StatementReconstructor: TypeReconstructor {
 }
 
 /// A Reconstructor trait for the program represented by the AST.
-pub trait ProgramReconstructor: StatementReconstructor {
+pub trait ProgramReconstructor: StatementReconstructor + TypeReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
         Program {
             imports: input

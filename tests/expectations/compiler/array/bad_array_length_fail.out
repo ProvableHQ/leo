@@ -23,7 +23,7 @@ Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 
      |
    6 |         let d: [u32; 100u128] = [1u32]; // passes limits
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `[u32; 100]` but type `[u32; 1]` was found.
+Error [ETYC0372117]: Expected type `[u32; u128]` but type `[u32; u32]` was found.
     --> compiler-test:6:33
      |
    6 |         let d: [u32; 100u128] = [1u32]; // passes limits
@@ -33,7 +33,7 @@ Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 
      |
    7 |         let e: [u32; 100] = [1u32]; // passes limits
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `[u32; 100]` but type `[u32; 1]` was found.
+Error [ETYC0372117]: Expected type `[u32; 100]` but type `[u32; u32]` was found.
     --> compiler-test:7:29
      |
    7 |         let e: [u32; 100] = [1u32]; // passes limits
