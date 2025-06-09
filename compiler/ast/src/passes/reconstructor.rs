@@ -20,6 +20,86 @@
 
 use crate::*;
 
+/*pub trait TypeReconstructor: ExpressionReconstructor {
+    fn reconstruct_type(&mut self, input: Type) -> (Type, Self::AdditionalOutput) {
+        match input {
+            Type::Array(ArrayType { element_type, length }) => (
+                Type::Array(ArrayType {
+                    element_type: Box::new(self.reconstruct_type(*element_type).0),
+                    length: Box::new(self.reconstruct_expression(*length).0),
+                }),
+                Default::default(),
+            ),
+            _ => (input.clone(), Default::default()),
+        }
+    }
+}*/
+
+/// A Reconstructor trait for types in the AST.
+pub trait TypeReconstructor: ExpressionReconstructor {
+    fn reconstruct_type(&mut self, input: Type) -> (Type, Self::AdditionalOutput) {
+        match input {
+            Type::Array(array_type) => self.reconstruct_array_type(array_type),
+            Type::Future(future_type) => self.reconstruct_future_type(future_type),
+            Type::Mapping(mapping_type) => self.reconstruct_mapping_type(mapping_type),
+            Type::Tuple(tuple_type) => self.reconstruct_tuple_type(tuple_type),
+            Type::Address
+            | Type::Boolean
+            | Type::Composite(_)
+            | Type::Field
+            | Type::Group
+            | Type::Identifier(_)
+            | Type::Integer(_)
+            | Type::Scalar
+            | Type::Signature
+            | Type::String
+            | Type::Numeric
+            | Type::Unit
+            | Type::Err => (input.clone(), Default::default()),
+        }
+    }
+
+    fn reconstruct_array_type(&mut self, input: ArrayType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Array(ArrayType {
+                element_type: Box::new(self.reconstruct_type(*input.element_type).0),
+                length: Box::new(self.reconstruct_expression(*input.length).0),
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_future_type(&mut self, input: FutureType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Future(FutureType {
+                inputs: input.inputs.into_iter().map(|input| self.reconstruct_type(input).0).collect(),
+                ..input
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_mapping_type(&mut self, input: MappingType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Mapping(MappingType {
+                key: Box::new(self.reconstruct_type(*input.key).0),
+                value: Box::new(self.reconstruct_type(*input.value).0),
+                ..input
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_tuple_type(&mut self, input: TupleType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Tuple(TupleType {
+                elements: input.elements.into_iter().map(|element| self.reconstruct_type(element).0).collect(),
+            }),
+            Default::default(),
+        )
+    }
+}
+
 /// A Reconstructor trait for expressions in the AST.
 pub trait ExpressionReconstructor {
     type AdditionalOutput: Default;
@@ -312,7 +392,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
 }
 
 /// A Reconstructor trait for the program represented by the AST.
-pub trait ProgramReconstructor: StatementReconstructor {
+pub trait ProgramReconstructor: StatementReconstructor + TypeReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
         Program {
             imports: input
@@ -365,7 +445,11 @@ pub trait ProgramReconstructor: StatementReconstructor {
             variant: input.variant,
             identifier: input.identifier,
             const_parameters: input.const_parameters,
-            input: input.input,
+            input: input
+                .input
+                .iter()
+                .map(|input| Input { type_: self.reconstruct_type(input.type_.clone()).0, ..input.clone() })
+                .collect(),
             output: input.output,
             output_type: input.output_type,
             block: self.reconstruct_block(input.block).0,

@@ -15,10 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor, Variant};
+use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor, TypeReconstructor, Variant};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
+
+impl TypeReconstructor for MonomorphizationVisitor<'_> {}
 
 impl ProgramReconstructor for MonomorphizationVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
@@ -26,7 +28,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         self.program = input.program_id.name.name;
 
         // Create a map of function names to their definitions for fast access.
-        let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
+        let mut function_map: IndexMap<Symbol, Function> = input.functions.clone().into_iter().collect();
 
         // Compute a post-order traversal of the call graph. This ensures that functions are processed after all their
         // callees. Make sure to only to compute the post order by considering the entry points of the program, which
@@ -49,7 +51,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 // Perform monomorphization or other reconstruction logic.
                 let reconstructed_function = self.reconstruct_function(function);
                 // Store the reconstructed function for inclusion in the output scope.
-                self.reconstructed_functions.insert(*function_name, reconstructed_function);
+                self.reconstructed_functions.insert(*function_name, (reconstructed_function, *function_name));
             }
         }
 
@@ -72,14 +74,35 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         });
 
         // Move reconstructed functions into the final `ProgramScope`, clearing the temporary storage for the next scope.
-        let functions = core::mem::take(&mut self.reconstructed_functions).into_iter().collect::<Vec<_>>();
+        /*let functions = core::mem::take(&mut self.reconstructed_functions)
+        .into_iter()
+        .map(|(s, (f, _))| (s, f))
+        .collect::<Vec<_>>();*/
+
+        // Step 1: Group reconstructed functions by `old_name`
+        let mut grouped: std::collections::HashMap<Symbol, Vec<(Symbol, Function)>> = std::collections::HashMap::new();
+
+        for (new_name, (function, old_name)) in &self.reconstructed_functions {
+            grouped.entry(*old_name).or_default().push((*new_name, function.clone()));
+        }
+
+        // Step 2: Emit all reconstructed functions in the original order
+        let mut ordered_reconstructed = Vec::new();
+
+        for (original_name, _) in &input.functions {
+            if let Some(entries) = grouped.remove(original_name) {
+                ordered_reconstructed.extend(entries);
+            }
+        }
+
+        self.reconstructed_functions.clear();
 
         // Return the fully reconstructed scope with updated functions.
         ProgramScope {
             program_id: input.program_id,
             structs: input.structs,
             mappings: input.mappings,
-            functions,
+            functions: ordered_reconstructed,
             consts: input.consts,
             span: input.span,
         }

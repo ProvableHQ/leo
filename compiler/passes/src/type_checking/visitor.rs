@@ -72,7 +72,9 @@ impl TypeCheckingVisitor<'_> {
 
     /// Emits a type checker warning
     pub fn emit_warning(&self, warning: TypeCheckerWarning) {
-        self.state.handler.emit_warning(warning.into());
+        if self.limits.emit_warnings {
+            self.state.handler.emit_warning(warning.into());
+        }
     }
 
     /// Emits an error if the two given types are not equal.
@@ -866,8 +868,8 @@ impl TypeCheckingVisitor<'_> {
             Type::Array(array_type) => {
                 // Check that the array length is valid.
                 match array_type.length() {
-                    0 => self.emit_err(TypeCheckerError::array_empty(span)),
-                    length => {
+                    Some(0) => self.emit_err(TypeCheckerError::array_empty(span)),
+                    Some(length) => {
                         if length > self.limits.max_array_elements {
                             self.emit_err(TypeCheckerError::array_too_large(
                                 length,
@@ -876,6 +878,7 @@ impl TypeCheckingVisitor<'_> {
                             ))
                         }
                     }
+                    _ => {}
                 }
                 // Check that the array element type is valid.
                 match array_type.element_type() {
@@ -996,7 +999,17 @@ impl TypeCheckingVisitor<'_> {
             self.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
         }
 
+        // The inputs should have access to the const parameters, so handle them after.
         for (i, input) in function.input.iter().enumerate() {
+            self.visit_type(input.type_());
+            /*if let Type::Array(ArrayType { length, .. }) = &input.type_() {
+                let mut length_type = self.visit_expression(length, &None);
+                if length_type == Type::Numeric {
+                    length_type = Type::Integer(IntegerType::U32);
+                }
+                self.state.type_table.insert(length.id(), length_type);
+            }*/
+
             // No need to check compatibility of these types; that's already been done
             let table_type = inferred_inputs.get(i).unwrap_or_else(|| input.type_());
 

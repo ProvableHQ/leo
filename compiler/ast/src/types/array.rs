@@ -14,25 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{NonNegativeNumber, Type};
+use crate::{Expression, FromStrRadix, IntegerType, Literal, LiteralVariant, Type};
 use snarkvm::console::program::ArrayType as ConsoleArrayType;
 
-use leo_span::Symbol;
+use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::Network;
 use std::fmt;
 
 /// An array type.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ArrayType {
-    element_type: Box<Type>,
-    length: NonNegativeNumber,
+    pub element_type: Box<Type>,
+    pub length: Box<Expression>,
 }
 
 impl ArrayType {
     /// Creates a new array type.
-    pub fn new(element: Type, length: NonNegativeNumber) -> Self {
-        Self { element_type: Box::new(element), length }
+    pub fn new(element: Type, length: Expression) -> Self {
+        Self { element_type: Box::new(element), length: Box::new(length) }
     }
 
     /// Returns the element type of the array.
@@ -41,8 +41,16 @@ impl ArrayType {
     }
 
     /// Returns the length of the array.
-    pub fn length(&self) -> usize {
-        self.length.value()
+    pub fn length(&self) -> Option<usize> {
+        if let Expression::Literal(Literal { variant: LiteralVariant::Integer(_, len), .. }) = *self.length.clone() {
+            Some(u32::from_str_by_radix(&len).unwrap() as usize)
+        } else if let Expression::Literal(Literal { variant: LiteralVariant::Unsuffixed(len), .. }) =
+            *self.length.clone()
+        {
+            Some(len.parse::<usize>().unwrap())
+        } else {
+            None
+        }
     }
 
     /// Returns the base element type of the array.
@@ -56,7 +64,11 @@ impl ArrayType {
     pub fn from_snarkvm<N: Network>(array_type: &ConsoleArrayType<N>, program: Option<Symbol>) -> Self {
         Self {
             element_type: Box::new(Type::from_snarkvm(array_type.next_element_type(), program)),
-            length: NonNegativeNumber::from(array_type.length().to_string().replace("u32", "")),
+            length: Box::new(Expression::Literal(Literal {
+                variant: LiteralVariant::Integer(IntegerType::U32, array_type.length().to_string().replace("u32", "")),
+                id: Default::default(),
+                span: Span::default(),
+            })),
         }
     }
 }

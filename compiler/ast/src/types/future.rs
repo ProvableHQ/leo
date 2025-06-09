@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A future type consisting of the type of the inputs.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FutureType {
     // Optional type specification of inputs.
     pub inputs: Vec<Type>,

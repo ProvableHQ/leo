@@ -42,6 +42,67 @@ use crate::*;
 //     }
 // }
 
+/*    Type::Address => write!(f, "address"),
+Type::Array(ref array_type) => write!(f, "{array_type}"),
+Type::Boolean => write!(f, "bool"),
+Type::Field => write!(f, "field"),
+Type::Future(ref future_type) => write!(f, "{future_type}"),
+Type::Group => write!(f, "group"),
+Type::Identifier(ref variable) => write!(f, "{variable}"),
+Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
+Type::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
+Type::Scalar => write!(f, "scalar"),
+Type::Signature => write!(f, "signature"),
+Type::String => write!(f, "string"),
+Type::Composite(ref struct_type) => write!(f, "{struct_type}"),
+Type::Tuple(ref tuple) => write!(f, "{tuple}"),
+Type::Numeric => write!(f, "numeric"),
+Type::Unit => write!(f, "()"),
+Type::Err => write!(f, "error"),*/
+
+/// A Visitor trait for types in the AST.
+pub trait TypeVisitor: ExpressionVisitor {
+    fn visit_type(&mut self, input: &Type) {
+        match input {
+            Type::Array(array_type) => self.visit_array_type(array_type),
+            Type::Future(future_type) => self.visit_future_type(future_type),
+            Type::Mapping(mapping_type) => self.visit_mapping_type(mapping_type),
+            Type::Tuple(tuple_type) => self.visit_tuple_type(tuple_type),
+            Type::Address
+            | Type::Boolean
+            | Type::Composite(_)
+            | Type::Field
+            | Type::Group
+            | Type::Identifier(_)
+            | Type::Integer(_)
+            | Type::Scalar
+            | Type::Signature
+            | Type::String
+            | Type::Numeric
+            | Type::Unit
+            | Type::Err => {}
+        }
+    }
+
+    fn visit_array_type(&mut self, input: &ArrayType) {
+        self.visit_type(&input.element_type);
+        self.visit_expression(&input.length, &Default::default());
+    }
+
+    fn visit_future_type(&mut self, input: &FutureType) {
+        input.inputs.iter().for_each(|input| self.visit_type(input));
+    }
+
+    fn visit_mapping_type(&mut self, input: &MappingType) {
+        self.visit_type(&input.key);
+        self.visit_type(&input.value);
+    }
+
+    fn visit_tuple_type(&mut self, input: &TupleType) {
+        input.elements().iter().for_each(|input| self.visit_type(input));
+    }
+}
+
 /// A Visitor trait for expressions in the AST.
 pub trait ExpressionVisitor {
     type AdditionalInput: Default;
@@ -180,7 +241,7 @@ pub trait ExpressionVisitor {
 }
 
 /// A Visitor trait for statements in the AST.
-pub trait StatementVisitor: ExpressionVisitor {
+pub trait StatementVisitor: ExpressionVisitor + TypeVisitor {
     fn visit_statement(&mut self, input: &Statement) {
         match input {
             Statement::Assert(stmt) => self.visit_assert(stmt),
@@ -222,10 +283,14 @@ pub trait StatementVisitor: ExpressionVisitor {
     }
 
     fn visit_const(&mut self, input: &ConstDeclaration) {
+        self.visit_type(&input.type_);
         self.visit_expression(&input.value, &Default::default());
     }
 
     fn visit_definition(&mut self, input: &DefinitionStatement) {
+        if let Some(ty) = input.type_.as_ref() {
+            self.visit_type(ty)
+        }
         self.visit_expression(&input.value, &Default::default());
     }
 
@@ -234,6 +299,9 @@ pub trait StatementVisitor: ExpressionVisitor {
     }
 
     fn visit_iteration(&mut self, input: &IterationStatement) {
+        if let Some(ty) = input.type_.as_ref() {
+            self.visit_type(ty)
+        }
         self.visit_expression(&input.start, &Default::default());
         self.visit_expression(&input.stop, &Default::default());
         self.visit_block(&input.block);

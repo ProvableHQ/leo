@@ -1,0 +1,22 @@
+program test.aleo;
+
+function main:
+    cast 1u32 into r0 as [u32; 1u32];
+    add 0u32 r0[0u32] into r1;
+    add 0u32 r1 into r2;
+    cast 1u32 2u32 into r3 as [u32; 2u32];
+    add 0u32 r3[0u32] into r4;
+    add r4 r3[1u32] into r5;
+    add r2 r5 into r6;
+    cast 1u32 2u32 3u32 into r7 as [u32; 3u32];
+    add 0u32 r7[0u32] into r8;
+    add r8 r7[1u32] into r9;
+    add r9 r7[2u32] into r10;
+    add r6 r10 into r11;
+    cast 1u32 2u32 3u32 4u32 into r12 as [u32; 4u32];
+    add 0u32 r12[0u32] into r13;
+    add r13 r12[1u32] into r14;
+    add r14 r12[2u32] into r15;
+    add r15 r12[3u32] into r16;
+    add r11 r16 into r17;
+    output r17 as u32.private;

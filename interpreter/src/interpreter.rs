@@ -99,6 +99,7 @@ impl Interpreter {
                 max_array_elements: TestnetV0::MAX_ARRAY_ELEMENTS,
                 max_mappings: TestnetV0::MAX_MAPPINGS,
                 max_functions: TestnetV0::MAX_FUNCTIONS,
+                emit_warnings: true,
             },
             state,
         )?;

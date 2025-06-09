@@ -141,13 +141,19 @@ impl<N: Network> Compiler<N> {
             max_array_elements: N::MAX_ARRAY_ELEMENTS,
             max_mappings: N::MAX_MAPPINGS,
             max_functions: N::MAX_FUNCTIONS,
+            emit_warnings: true,
         })?;
 
         self.do_pass::<ProcessingScript>(())?;
 
         self.do_pass::<StaticAnalyzing>(())?;
 
-        self.do_pass::<ConstPropagationAndUnrolling>(())?;
+        self.do_pass::<ConstPropagationAndUnrolling>(TypeCheckingInput {
+            max_array_elements: N::MAX_ARRAY_ELEMENTS,
+            max_mappings: N::MAX_MAPPINGS,
+            max_functions: N::MAX_FUNCTIONS,
+            emit_warnings: false,
+        })?;
 
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: true })?;
 

@@ -24,7 +24,10 @@ use leo_ast::{
     ReturnStatement,
     Statement,
     StatementReconstructor,
+    TypeReconstructor,
 };
+
+impl TypeReconstructor for FlatteningVisitor<'_> {}
 
 impl ProgramReconstructor for FlatteningVisitor<'_> {
     /// Flattens a program scope.

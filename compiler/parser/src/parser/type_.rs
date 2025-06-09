@@ -117,7 +117,8 @@ impl<N: Network> ParserContext<'_, N> {
             // Parse the semi-colon.
             self.expect(&Token::Semicolon)?;
             // Parse the length.
-            let (length, _) = self.eat_whole_number()?;
+            //            let (length, _) = self.eat_whole_number()?;
+            let length = self.parse_expression()?;
             // Parse the right bracket.
             self.expect(&Token::RightSquare)?;
             // Return the array type.

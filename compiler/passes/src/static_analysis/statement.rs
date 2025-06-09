@@ -19,6 +19,8 @@ use crate::ConditionalTreeNode;
 
 use leo_ast::*;
 
+impl TypeVisitor for StaticAnalyzingVisitor<'_> {}
+
 impl StatementVisitor for StaticAnalyzingVisitor<'_> {
     fn visit_conditional(&mut self, input: &ConditionalStatement) {
         self.visit_expression(&input.condition, &Default::default());

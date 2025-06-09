@@ -128,47 +128,49 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             };
             let len = array_ty.length();
 
-            let index: usize = match value {
-                Value::U8(x) => x as usize,
-                Value::U16(x) => x as usize,
-                Value::U32(x) => x.try_into().unwrap_or(len),
-                Value::U64(x) => x.try_into().unwrap_or(len),
-                Value::U128(x) => x.try_into().unwrap_or(len),
-                Value::I8(x) => x.try_into().unwrap_or(len),
-                Value::I16(x) => x.try_into().unwrap_or(len),
-                Value::I32(x) => x.try_into().unwrap_or(len),
-                Value::I64(x) => x.try_into().unwrap_or(len),
-                Value::I128(x) => x.try_into().unwrap_or(len),
-                _ => panic!("Type checking guarantees this is an integer"),
-            };
+            if let Some(len) = len {
+                let index: usize = match value {
+                    Value::U8(x) => x as usize,
+                    Value::U16(x) => x as usize,
+                    Value::U32(x) => x.try_into().unwrap_or(len),
+                    Value::U64(x) => x.try_into().unwrap_or(len),
+                    Value::U128(x) => x.try_into().unwrap_or(len),
+                    Value::I8(x) => x.try_into().unwrap_or(len),
+                    Value::I16(x) => x.try_into().unwrap_or(len),
+                    Value::I32(x) => x.try_into().unwrap_or(len),
+                    Value::I64(x) => x.try_into().unwrap_or(len),
+                    Value::I128(x) => x.try_into().unwrap_or(len),
+                    _ => panic!("Type checking guarantees this is an integer"),
+                };
 
-            if index >= len {
-                // Only emit a bounds error if we have no other errors yet.
-                // This prevents a chain of redundant error messages when a loop is unrolled.
-                if !self.state.handler.had_errors() {
-                    // Get the integer string with no suffix.
-                    let str_index = match value {
-                        Value::U8(x) => format!("{x}"),
-                        Value::U16(x) => format!("{x}"),
-                        Value::U32(x) => format!("{x}"),
-                        Value::U64(x) => format!("{x}"),
-                        Value::U128(x) => format!("{x}"),
-                        Value::I8(x) => format!("{x}"),
-                        Value::I16(x) => format!("{x}"),
-                        Value::I32(x) => format!("{x}"),
-                        Value::I64(x) => format!("{x}"),
-                        Value::I128(x) => format!("{x}"),
-                        _ => unreachable!("We would have panicked above"),
-                    };
-                    self.emit_err(StaticAnalyzerError::array_bounds(str_index, len, span));
+                if index >= len {
+                    // Only emit a bounds error if we have no other errors yet.
+                    // This prevents a chain of redundant error messages when a loop is unrolled.
+                    if !self.state.handler.had_errors() {
+                        // Get the integer string with no suffix.
+                        let str_index = match value {
+                            Value::U8(x) => format!("{x}"),
+                            Value::U16(x) => format!("{x}"),
+                            Value::U32(x) => format!("{x}"),
+                            Value::U64(x) => format!("{x}"),
+                            Value::U128(x) => format!("{x}"),
+                            Value::I8(x) => format!("{x}"),
+                            Value::I16(x) => format!("{x}"),
+                            Value::I32(x) => format!("{x}"),
+                            Value::I64(x) => format!("{x}"),
+                            Value::I128(x) => format!("{x}"),
+                            _ => unreachable!("We would have panicked above"),
+                        };
+                        self.emit_err(StaticAnalyzerError::array_bounds(str_index, len, span));
+                    }
+                } else if let Some(Value::Array(value)) = value_opt {
+                    // We're in bounds and we can evaluate the array at compile time, so just return the value.
+                    let result_value = value.get(index).expect("We already checked bounds.");
+                    return (
+                        value_to_expression(result_value, input.span, &self.state.node_builder).expect(VALUE_ERROR),
+                        Some(result_value.clone()),
+                    );
                 }
-            } else if let Some(Value::Array(value)) = value_opt {
-                // We're in bounds and we can evaluate the array at compile time, so just return the value.
-                let result_value = value.get(index).expect("We already checked bounds.");
-                return (
-                    value_to_expression(result_value, input.span, &self.state.node_builder).expect(VALUE_ERROR),
-                    Some(result_value.clone()),
-                );
             }
         } else {
             self.array_index_not_evaluated = Some(index.span());

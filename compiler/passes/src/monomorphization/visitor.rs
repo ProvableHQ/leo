@@ -27,7 +27,7 @@ pub struct MonomorphizationVisitor<'a> {
     /// The current function being reconstructed.
     pub function: Symbol,
     /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_functions: IndexMap<Symbol, Function>,
+    pub reconstructed_functions: IndexMap<Symbol, (Function, Symbol)>,
     /// A vector of all the calls to const generic functions that have not been resolved.
     pub unresolved_calls: Vec<CallExpression>,
     /// A set of all functions that have been monomorphized at least once. This keeps track of the _original_ names of

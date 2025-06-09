@@ -16,8 +16,10 @@
 
 use super::ProcessingScriptVisitor;
 
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor as _, Variant};
+use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor as _, TypeReconstructor, Variant};
 use leo_errors::TypeCheckerError;
+
+impl TypeReconstructor for ProcessingScriptVisitor<'_> {}
 
 impl ProgramReconstructor for ProcessingScriptVisitor<'_> {
     fn reconstruct_program_scope(&mut self, mut input: ProgramScope) -> ProgramScope {
