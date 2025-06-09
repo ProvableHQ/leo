@@ -18,6 +18,8 @@ use leo_ast::*;
 
 use super::UnrollingVisitor;
 
+impl TypeReconstructor for UnrollingVisitor<'_> {}
+
 impl ProgramReconstructor for UnrollingVisitor<'_> {
     fn reconstruct_stub(&mut self, input: Stub) -> Stub {
         // Set the current program.

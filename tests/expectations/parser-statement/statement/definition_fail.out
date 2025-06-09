@@ -84,11 +84,11 @@ Error [EPAR0370045]: Expected an identifier.
      |
    1 | let (x,,y) = ();
      |        ^
-Error [EPAR0370005]: expected integer literal -- found '('
-    --> test_23:1:13
+Error [EPAR0370009]: unexpected string: expected 'expression', found ','
+    --> test_23:1:16
      |
    1 | let x: [u8; (2,,)] = [[0,0], [0,0]];
-     |             ^
+     |                ^
 Error [EPAR0370005]: expected 'address', 'bool', 'field', 'Future', 'group', 'scalar', 'signature', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'const'
     --> test_24:1:8
      |
@@ -154,16 +154,16 @@ Error [EPAR0370005]: expected ; -- found ']'
      |
    1 | let x: [u8] = 1;
      |           ^
-Error [EPAR0370005]: expected integer literal -- found '<eof>'
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
     --> test_37:1:11
      |
    1 | let x: [u8;
      |           ^
-Error [EPAR0370005]: expected ] -- found 'u8'
-    --> test_38:1:14
+Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
+    --> test_38:1:22
      |
    1 | let x: [u8; 1u8] = [1,
-     |              ^^
+     |                      ^
 Error [EPAR0370009]: unexpected string: expected 'expression', found ']'
     --> test_39:1:15
      |

@@ -371,6 +371,16 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 // Query helper function to type check function parameters and outputs.
                 slf.check_function_signature(function, false);
 
+                function.input.iter().for_each(|input| {
+                    if let Type::Array(ArrayType { length, .. }) = &input.type_ {
+                        let mut length_type = slf.visit_expression(length, &None);
+                        if length_type == Type::Numeric {
+                            length_type = Type::Integer(IntegerType::U32);
+                        }
+                        slf.state.type_table.insert(length.id(), length_type);
+                    }
+                });
+
                 if function.variant == Variant::Function && function.input.is_empty() {
                     slf.emit_err(TypeCheckerError::empty_function_arglist(function.span));
                 }

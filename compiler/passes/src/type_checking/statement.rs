@@ -23,6 +23,17 @@ use leo_ast::{
 };
 use leo_errors::TypeCheckerError;
 
+impl TypeVisitor for TypeCheckingVisitor<'_> {
+    fn visit_array_type(&mut self, input: &ArrayType) {
+        self.visit_type(&input.element_type);
+        let mut length_type = self.visit_expression(&input.length, &None);
+        if length_type == Type::Numeric {
+            length_type = Type::Integer(IntegerType::U32);
+        }
+        self.state.type_table.insert(input.length.id(), length_type);
+    }
+}
+
 impl StatementVisitor for TypeCheckingVisitor<'_> {
     fn visit_statement(&mut self, input: &Statement) {
         // No statements can follow a return statement.
@@ -115,6 +126,7 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_const(&mut self, input: &ConstDeclaration) {
+        self.visit_type(&input.type_);
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
@@ -151,6 +163,7 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
     fn visit_definition(&mut self, input: &DefinitionStatement) {
         // Check that the type annotation of the definition is valid, if provided.
         if let Some(ty) = &input.type_ {
+            self.visit_type(ty);
             self.assert_type_is_valid(ty, input.span);
         }
 
@@ -177,7 +190,12 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
         // Check the expression on the right-hand side. If we could not resolve `Type::Numeric`, then just give up.
         // We could do better in the future by potentially looking at consumers of this variable and inferring type
         // information from them.
-        let inferred_type = self.visit_expression_reject_numeric(&input.value, &input.type_);
+        let inferred_type = match &input.type_ {
+            Some(Type::Array(array_type)) if array_type.length().is_none() => {
+                self.visit_expression_reject_numeric(&input.value, &None)
+            }
+            _ => self.visit_expression_reject_numeric(&input.value, &input.type_),
+        };
 
         // Insert the variables into the symbol table.
         match &input.place {
@@ -237,6 +255,7 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
     fn visit_iteration(&mut self, input: &IterationStatement) {
         // Ensure the type annotation is an integer type
         if let Some(ty) = &input.type_ {
+            self.visit_type(ty);
             self.assert_int_type(ty, input.variable.span);
         }
 

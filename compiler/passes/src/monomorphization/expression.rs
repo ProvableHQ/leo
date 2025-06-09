@@ -15,17 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use crate::Replacer;
+use crate::ReplacerWithNewIds;
 
-use leo_ast::{
-    CallExpression,
-    Expression,
-    ExpressionReconstructor,
-    Function,
-    Identifier,
-    StatementReconstructor,
-    Variant,
-};
+use leo_ast::{CallExpression, Expression, ExpressionReconstructor, Identifier, ProgramReconstructor, Variant};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -69,7 +61,7 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
         // that sets `x` to `1u32` and `y` to `2u32`. We know this name is safe to use because it's not a valid
         // identifier in the user code.
         let new_callee_name = leo_span::Symbol::intern(&format!(
-            "{}::[{}]",
+            "\"{}::[{}]\"",
             callee_name,
             input_call.const_arguments.iter().map(|arg| arg.to_string()).format(", ")
         ));
@@ -90,23 +82,20 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
                 const_param_map.get(&ident.name).map_or(Expression::Identifier(*ident), |&expr| expr.clone())
             };
 
-            // Add a new copy of `callee_fn` with a new name, no const parameters, and the monomorphized block
-            self.reconstructed_functions.insert(new_callee_name, Function {
-                identifier: Identifier {
-                    name: new_callee_name,
-                    span: leo_span::Span::default(),
-                    id: self.state.node_builder.next_id(),
-                },
-                annotations: callee_fn.annotations.clone(),
-                variant: callee_fn.variant,
-                const_parameters: Vec::new(), // Remove const parameters
-                input: callee_fn.input.clone(),
-                output: callee_fn.output.clone(),
-                output_type: callee_fn.output_type.clone(),
-                block: Replacer::new(replace_identifier).reconstruct_block(callee_fn.block.clone()).0,
-                span: callee_fn.span,
-                id: callee_fn.id,
-            });
+            let mut replacer = ReplacerWithNewIds::new(replace_identifier, &self.state.node_builder);
+
+            let callee_fn = self.reconstructed_functions.get(callee_name).unwrap();
+
+            let mut function = replacer.reconstruct_function(callee_fn.clone());
+            function.identifier = Identifier {
+                name: new_callee_name,
+                span: leo_span::Span::default(),
+                id: self.state.node_builder.next_id(),
+            };
+            function.const_parameters = vec![];
+            function.id = self.state.node_builder.next_id();
+
+            self.reconstructed_functions.insert(new_callee_name, function);
 
             // Now keep track of the function we just monomorphized
             self.monomorphized_functions.insert(*callee_name);

@@ -341,6 +341,11 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             Expression::Unary(unary) => self.visit_unary(unary, additional),
             Expression::Unit(unit) => self.visit_unit(unit, additional),
         };
+
+        if let Some(ty) = self.state.type_table.get(&input.id()) {
+            return ty;
+        }
+
         // Add the expression and its associated type to the symbol table.
         self.state.type_table.insert(input.id(), output.clone());
         output
@@ -392,7 +397,14 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         }
 
-        let type_ = Type::Array(ArrayType::new(inferred_type, NonNegativeNumber::from(input.elements.len())));
+        let type_ = Type::Array(ArrayType::new(
+            inferred_type,
+            Expression::Literal(Literal {
+                variant: LiteralVariant::Integer(IntegerType::U32, input.elements.len().to_string()),
+                id: self.state.node_builder.next_id(),
+                span: Span::default(),
+            }), //NonNegativeNumber::from(input.elements.len()))
+        ));
 
         self.maybe_assert_type(&type_, additional, input.span());
 
@@ -923,7 +935,8 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
         let (mut input_futures, mut inferred_finalize_inputs) = (Vec::new(), Vec::new());
         for (expected, argument) in func.input.iter().zip(input.arguments.iter()) {
             // Get the type of the expression. If the type is not known, do not attempt to attempt any further inference.
-            let ty = self.visit_expression(argument, &Some(expected.type_().clone()));
+            let ty = self.visit_expression_reject_numeric(argument, &Some(expected.type_().clone()));
+
             if ty == Type::Err {
                 return Type::Err;
             }

@@ -14,7 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, ConstPropagation, Monomorphization, Pass, Unrolling};
+use crate::{
+    CompilerState,
+    ConstPropagation,
+    Monomorphization,
+    Pass,
+    SymbolTable,
+    SymbolTableCreation,
+    TypeChecking,
+    TypeCheckingInput,
+    Unrolling,
+};
 
 use leo_errors::{CompilerError, Result};
 
@@ -22,12 +32,12 @@ use leo_errors::{CompilerError, Result};
 pub struct ConstPropagationAndUnrolling;
 
 impl Pass for ConstPropagationAndUnrolling {
-    type Input = ();
+    type Input = TypeCheckingInput;
     type Output = ();
 
     const NAME: &str = "ConstPropagationAndUnrolling";
 
-    fn do_pass(_input: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
+    fn do_pass(input: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         const LARGE_LOOP_BOUND: usize = 1024usize;
 
         for _ in 0..LARGE_LOOP_BOUND {
@@ -36,6 +46,13 @@ impl Pass for ConstPropagationAndUnrolling {
             let const_prop_output = ConstPropagation::do_pass((), state)?;
 
             let monomorphization_output = Monomorphization::do_pass((), state)?;
+
+            // println!("before: {}", state.ast.ast);
+            state.symbol_table = SymbolTable::default();
+            SymbolTableCreation::do_pass((), state)?;
+            let mut input = input.clone();
+            input.emit_warnings = false;
+            TypeChecking::do_pass(input, state)?;
 
             if !const_prop_output.changed
                 && !loop_unroll_output.loop_unrolled

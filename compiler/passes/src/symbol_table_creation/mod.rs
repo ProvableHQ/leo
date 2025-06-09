@@ -30,6 +30,7 @@ use leo_ast::{
     StatementVisitor,
     Stub,
     Type,
+    TypeVisitor,
     Variant,
 };
 use leo_errors::{AstError, LeoError, Result};
@@ -78,6 +79,8 @@ impl ExpressionVisitor for SymbolTableCreationVisitor<'_> {
     type AdditionalInput = ();
     type Output = ();
 }
+
+impl TypeVisitor for SymbolTableCreationVisitor<'_> {}
 
 impl StatementVisitor for SymbolTableCreationVisitor<'_> {}
 

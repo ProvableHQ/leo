@@ -16,7 +16,18 @@
 
 use super::ConstPropagationVisitor;
 
-use leo_ast::{Function, Node, ProgramReconstructor, ProgramScope, Statement, StatementReconstructor as _};
+use leo_ast::{
+    Function,
+    Input,
+    Node,
+    ProgramReconstructor,
+    ProgramScope,
+    Statement,
+    StatementReconstructor as _,
+    TypeReconstructor,
+};
+
+impl TypeReconstructor for ConstPropagationVisitor<'_> {}
 
 impl ProgramReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_program_scope(&mut self, mut input: ProgramScope) -> ProgramScope {
@@ -38,6 +49,11 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_function(&mut self, mut function: Function) -> Function {
         self.in_scope(function.id(), |slf| {
+            function.input = function
+                .input
+                .iter()
+                .map(|input| Input { type_: slf.reconstruct_type(input.type_.clone()).0, ..input.clone() })
+                .collect();
             function.block = slf.reconstruct_block(function.block).0;
             function
         })

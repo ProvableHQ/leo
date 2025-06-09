@@ -1,4 +1,4 @@
-Error [ETYC0372117]: Expected type `[bool; 8]` but type `[bool; 7]` was found.
+Error [ETYC0372117]: Expected type `[bool; 8]` but type `[bool; 7u32]` was found.
     --> compiler-test:4:16
      |
    4 |         return [a, a, a, a, a, a, a];

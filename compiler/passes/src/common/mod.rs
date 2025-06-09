@@ -29,6 +29,9 @@ pub use rename_table::*;
 mod replacer;
 pub use replacer::*;
 
+mod replacer_with_new_ids;
+pub use replacer_with_new_ids::*;
+
 mod symbol_table;
 pub use symbol_table::*;
 

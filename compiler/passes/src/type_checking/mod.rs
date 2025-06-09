@@ -34,10 +34,12 @@ use leo_errors::Result;
 use indexmap::{IndexMap, IndexSet};
 
 /// Specify network limits for type checking.
+#[derive(Clone)]
 pub struct TypeCheckingInput {
     pub max_array_elements: usize,
     pub max_mappings: usize,
     pub max_functions: usize,
+    pub emit_warnings: bool,
 }
 
 /// A pass to check types.

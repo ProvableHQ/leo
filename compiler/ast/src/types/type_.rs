@@ -27,7 +27,7 @@ use snarkvm::prelude::{
 use std::fmt;
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Type {
     /// The `address` type.
     Address,

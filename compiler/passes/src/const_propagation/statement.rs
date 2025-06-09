@@ -32,6 +32,7 @@ use leo_ast::{
     ReturnStatement,
     Statement,
     StatementReconstructor,
+    TypeReconstructor,
 };
 
 impl StatementReconstructor for ConstPropagationVisitor<'_> {
@@ -102,7 +103,15 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        (DefinitionStatement { value: self.reconstruct_expression(definition.value).0, ..definition }.into(), None)
+        (
+            DefinitionStatement {
+                type_: definition.type_.map(|ty| self.reconstruct_type(ty).0),
+                value: self.reconstruct_expression(definition.value).0,
+                ..definition
+            }
+            .into(),
+            None,
+        )
     }
 
     fn reconstruct_expression_statement(

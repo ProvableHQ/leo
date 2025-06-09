@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A mapping type of a key and value type.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MappingType {
     pub key: Box<Type>,
     pub value: Box<Type>,

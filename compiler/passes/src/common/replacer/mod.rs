@@ -14,7 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Expression, ExpressionReconstructor, Identifier, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    ProgramReconstructor,
+    StatementReconstructor,
+    TypeReconstructor,
+};
 
 /// A `Replacer` applies `replacer` to all `Identifier`s in an AST.
 /// `Replacer`s are used to rename identifiers.
@@ -47,5 +54,7 @@ where
 }
 
 impl<F> StatementReconstructor for Replacer<F> where F: Fn(&Identifier) -> Expression {}
+
+impl<F> TypeReconstructor for Replacer<F> where F: Fn(&Identifier) -> Expression {}
 
 impl<F> ProgramReconstructor for Replacer<F> where F: Fn(&Identifier) -> Expression {}

@@ -15,10 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor, Variant};
+use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor, TypeReconstructor, Variant};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
+
+impl TypeReconstructor for MonomorphizationVisitor<'_> {}
 
 impl ProgramReconstructor for MonomorphizationVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
@@ -26,7 +28,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         self.program = input.program_id.name.name;
 
         // Create a map of function names to their definitions for fast access.
-        let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
+        let mut function_map: IndexMap<Symbol, Function> = input.functions.clone().into_iter().collect();
 
         // Compute a post-order traversal of the call graph. This ensures that functions are processed after all their
         // callees. Make sure to only to compute the post order by considering the entry points of the program, which
@@ -72,14 +74,19 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         });
 
         // Move reconstructed functions into the final `ProgramScope`, clearing the temporary storage for the next scope.
-        let functions = core::mem::take(&mut self.reconstructed_functions).into_iter().collect::<Vec<_>>();
+        // Make sure to place transitions before all the other functions.
+        let (mut transitions, mut functions): (Vec<_>, Vec<_>) = core::mem::take(&mut self.reconstructed_functions)
+            .into_iter()
+            .partition(|(_, f)| f.variant.is_transition());
+
+        transitions.append(&mut functions);
 
         // Return the fully reconstructed scope with updated functions.
         ProgramScope {
             program_id: input.program_id,
             structs: input.structs,
             mappings: input.mappings,
-            functions,
+            functions: transitions,
             consts: input.consts,
             span: input.span,
         }

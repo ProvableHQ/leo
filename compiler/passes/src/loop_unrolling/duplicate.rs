@@ -38,6 +38,8 @@ impl Duplicator<'_> {
     }
 }
 
+impl TypeReconstructor for Duplicator<'_> {}
+
 impl ExpressionReconstructor for Duplicator<'_> {
     type AdditionalOutput = ();
 }
