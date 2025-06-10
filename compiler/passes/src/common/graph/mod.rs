@@ -101,11 +101,23 @@ impl<N: Node> DiGraph<N> {
     /// Returns the post-order ordering of the graph.
     /// Detects if there is a cycle in the graph.
     pub fn post_order(&self) -> Result<IndexSet<N>, DiGraphError<N>> {
+        self.post_order_from_entry_points(|_| true)
+    }
+
+    /// Returns the post-order ordering of the graph but only considering a subset of the nodes as "entry points".
+    /// Meaning, nodes that are not accessible from the entry nodes are not considered in the post order.
+    ///
+    /// Detects if there is a cycle in the graph.
+    pub fn post_order_from_entry_points<F>(&self, is_entry_point: F) -> Result<IndexSet<N>, DiGraphError<N>>
+    where
+        F: Fn(&N) -> bool,
+    {
         // The set of nodes that do not need to be visited again.
         let mut finished: IndexSet<N> = IndexSet::with_capacity(self.nodes.len());
 
-        // Perform a depth-first search of the graph, starting from `node`, for each node in the graph.
-        for node in self.nodes.iter() {
+        // Perform a depth-first search of the graph, starting from `node`, for each node in the graph that satisfies
+        // `is_entry_point`.
+        for node in self.nodes.iter().filter(|n| is_entry_point(n)) {
             // If the node has not been explored, explore it.
             if !finished.contains(node) {
                 // The set of nodes that are on the path to the current node in the search.

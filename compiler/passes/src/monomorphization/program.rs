@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor};
+use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor, Variant};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -25,12 +25,22 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Set the current program name from the input.
         self.program = input.program_id.name.name;
 
-        // Compute a post-order traversal of the call graph. This ensures that functions are processed after all their
-        // callees. This unwrap is safe because the type checker guarantees an acyclic graph.
-        let order = self.state.call_graph.post_order().unwrap();
-
         // Create a map of function names to their definitions for fast access.
         let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
+
+        // Compute a post-order traversal of the call graph. This ensures that functions are processed after all their
+        // callees. Make sure to only to compute the post order by considering the entry points of the program, which
+        // are `async transition`, `transition` and `function`.
+        let order = self
+            .state
+            .call_graph
+            .post_order_from_entry_points(|node| {
+                function_map
+                    .get(node)
+                    .map(|f| matches!(f.variant, Variant::AsyncTransition | Variant::Transition | Variant::Function))
+                    .unwrap_or(false)
+            })
+            .unwrap(); // This unwrap is safe because the type checker guarantees an acyclic graph.
 
         // Reconstruct functions in post-order.
         for function_name in &order {
