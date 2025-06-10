@@ -1,0 +1,5 @@
+Error [ETYC0372008]: The value 44444444444444444444444 is not a valid `u32`
+    --> compiler-test:4:22
+     |
+   4 |         let x1 = arr[44444444444444444444444]; // not a valid u32
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^
