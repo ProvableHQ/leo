@@ -82,9 +82,22 @@ impl TypeCheckingVisitor<'_> {
         self.assert_array_type(&this_type, input.array.span());
 
         // Check that the index is an integer type.
-        let index_type = self.visit_expression_reject_numeric(&input.index, &None);
+        let mut index_type = self.visit_expression(&input.index, &None);
+
+        if index_type == Type::Numeric {
+            // If the index has type `Numeric`, then it's an unsuffixed literal. Just infer its type to be `u32` and
+            // then check it's validity as a `u32`.
+            index_type = Type::Integer(IntegerType::U32);
+            if let Expression::Literal(literal) = &input.index {
+                self.check_numeric_literal(literal, &index_type);
+            }
+        }
 
         self.assert_int_type(&index_type, input.index.span());
+
+        // Keep track of the type of the index in the type table.
+        // This is important for when the index is an unsuffixed literal.
+        self.state.type_table.insert(input.index.id(), index_type.clone());
 
         // Get the element type of the array.
         let Type::Array(array_type) = this_type else {

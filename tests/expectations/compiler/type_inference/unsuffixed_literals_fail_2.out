@@ -73,13 +73,6 @@ Error [ETYC0372117]: Expected an array but type `u32` was found.
      |
    8 |         let a1_0 = a1[0];
      |                    ^^
-Error [ETYC0372004]: Could not determine the type of `0`
-    --> compiler-test:8:23
-     |
-   8 |         let a1_0 = a1[0];
-     |                       ^
-     |
-     = Consider using explicit type annotations.
 Error [ETYC0372004]: Could not determine the type of `1`
     --> compiler-test:9:21
      |
