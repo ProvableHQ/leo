@@ -335,13 +335,25 @@ fn validate_deployment_limits<N: Network>(
     // Check if the number of variables is within the limits.
     let combined_variables = deployment.num_combined_variables()?;
     if combined_variables > N::MAX_DEPLOYMENT_VARIABLES {
-        Err(CliError::variable_limit_exceeded(program_id, combined_variables, N::MAX_DEPLOYMENT_VARIABLES, network))?
+        return Err(CliError::variable_limit_exceeded(
+            program_id,
+            combined_variables,
+            N::MAX_DEPLOYMENT_VARIABLES,
+            network,
+        )
+        .into());
     }
 
     // Check if the number of constraints is within the limits.
     let constraints = deployment.num_combined_constraints()?;
     if constraints > N::MAX_DEPLOYMENT_CONSTRAINTS {
-        Err(CliError::constraint_limit_exceeded(program_id, constraints, N::MAX_DEPLOYMENT_CONSTRAINTS, network))?
+        return Err(CliError::constraint_limit_exceeded(
+            program_id,
+            constraints,
+            N::MAX_DEPLOYMENT_CONSTRAINTS,
+            network,
+        )
+        .into());
     }
 
     Ok(())
