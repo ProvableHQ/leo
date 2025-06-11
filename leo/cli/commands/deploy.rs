@@ -195,15 +195,9 @@ fn handle_deploy<N: Network>(
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
             print_deployment_stats(&program_id.to_string(), deployment, priority_fee)?;
-            // Check if the number of variables and constraints are within the limits.
-            if deployment.num_combined_variables()? > N::MAX_DEPLOYMENT_VARIABLES {
-                return Err(CliError::variable_limit_exceeded(program_id, N::MAX_DEPLOYMENT_VARIABLES, network).into());
-            }
-            if deployment.num_combined_constraints()? > N::MAX_DEPLOYMENT_CONSTRAINTS {
-                return Err(
-                    CliError::constraint_limit_exceeded(program_id, N::MAX_DEPLOYMENT_CONSTRAINTS, network).into()
-                );
-            }
+
+            validate_deployment_limits(deployment, &program_id, &network)?;
+
             // Save the transaction.
             transactions.push((program_id, transaction));
         }
@@ -330,6 +324,39 @@ fn check_tasks_for_warnings<N: Network>(
         }
     }
     warnings
+}
+
+/// Check if the number of variables and constraints are within the limits.
+fn validate_deployment_limits<N: Network>(
+    deployment: &Deployment<N>,
+    program_id: &ProgramID<N>,
+    network: &NetworkName,
+) -> Result<()> {
+    // Check if the number of variables is within the limits.
+    let combined_variables = deployment.num_combined_variables()?;
+    if combined_variables > N::MAX_DEPLOYMENT_VARIABLES {
+        return Err(CliError::variable_limit_exceeded(
+            program_id,
+            combined_variables,
+            N::MAX_DEPLOYMENT_VARIABLES,
+            network,
+        )
+        .into());
+    }
+
+    // Check if the number of constraints is within the limits.
+    let constraints = deployment.num_combined_constraints()?;
+    if constraints > N::MAX_DEPLOYMENT_CONSTRAINTS {
+        return Err(CliError::constraint_limit_exceeded(
+            program_id,
+            constraints,
+            N::MAX_DEPLOYMENT_CONSTRAINTS,
+            network,
+        )
+        .into());
+    }
+
+    Ok(())
 }
 
 /// Pretty‑print the deployment plan without using a table.
