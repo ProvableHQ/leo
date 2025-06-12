@@ -1104,4 +1104,37 @@
 <a href=#1104 id=1104 data-nosnippet>1104</a>        ),
 <a href=#1105 id=1105 data-nosnippet>1105</a>        help: <span class="prelude-val">None</span>,
 <a href=#1106 id=1106 data-nosnippet>1106</a>    }
-<a href=#1107 id=1107 data-nosnippet>1107</a>);</code></pre></div></section></main></body></html>
+<a href=#1107 id=1107 data-nosnippet>1107</a>
+<a href=#1108 id=1108 data-nosnippet>1108</a>    @formatted
+<a href=#1109 id=1109 data-nosnippet>1109</a>    incorrect_num_const_args_to_call {
+<a href=#1110 id=1110 data-nosnippet>1110</a>        args: (expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
+<a href=#1111 id=1111 data-nosnippet>1111</a>        msg: <span class="macro">format!</span>(
+<a href=#1112 id=1112 data-nosnippet>1112</a>            <span class="string">"Call expected `{expected}` const args, but got `{received}`"</span>,
+<a href=#1113 id=1113 data-nosnippet>1113</a>        ),
+<a href=#1114 id=1114 data-nosnippet>1114</a>        help: <span class="prelude-val">None</span>,
+<a href=#1115 id=1115 data-nosnippet>1115</a>    }
+<a href=#1116 id=1116 data-nosnippet>1116</a>
+<a href=#1117 id=1117 data-nosnippet>1117</a>    @formatted
+<a href=#1118 id=1118 data-nosnippet>1118</a>    bad_const_generic_type {
+<a href=#1119 id=1119 data-nosnippet>1119</a>        args: (found: <span class="kw">impl </span>Display),
+<a href=#1120 id=1120 data-nosnippet>1120</a>        msg: <span class="macro">format!</span>(<span class="string">"A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but {found} was found"</span>),
+<a href=#1121 id=1121 data-nosnippet>1121</a>        help: <span class="prelude-val">None</span>,
+<a href=#1122 id=1122 data-nosnippet>1122</a>    }
+<a href=#1123 id=1123 data-nosnippet>1123</a>
+<a href=#1124 id=1124 data-nosnippet>1124</a>    <span class="doccomment">/// For when the user tries to assign to a generic const function parameter.
+<a href=#1125 id=1125 data-nosnippet>1125</a>    </span>@formatted
+<a href=#1126 id=1126 data-nosnippet>1126</a>    cannot_assign_to_generic_const_function_parameter {
+<a href=#1127 id=1127 data-nosnippet>1127</a>        args: (param: <span class="kw">impl </span>Display),
+<a href=#1128 id=1128 data-nosnippet>1128</a>        msg: <span class="macro">format!</span>(
+<a href=#1129 id=1129 data-nosnippet>1129</a>            <span class="string">"Cannot assign to const parameter `{param}`"</span>,
+<a href=#1130 id=1130 data-nosnippet>1130</a>        ),
+<a href=#1131 id=1131 data-nosnippet>1131</a>        help: <span class="prelude-val">None</span>,
+<a href=#1132 id=1132 data-nosnippet>1132</a>    }
+<a href=#1133 id=1133 data-nosnippet>1133</a>
+<a href=#1134 id=1134 data-nosnippet>1134</a>    @formatted
+<a href=#1135 id=1135 data-nosnippet>1135</a>    only_inline_can_have_const_generics {
+<a href=#1136 id=1136 data-nosnippet>1136</a>        args: (),
+<a href=#1137 id=1137 data-nosnippet>1137</a>        msg: <span class="macro">format!</span>(<span class="string">"Only `inline` functions can have generic const parameters."</span>),
+<a href=#1138 id=1138 data-nosnippet>1138</a>        help: <span class="prelude-val">None</span>,
+<a href=#1139 id=1139 data-nosnippet>1139</a>    }
+<a href=#1140 id=1140 data-nosnippet>1140</a>);</code></pre></div></section></main></body></html>

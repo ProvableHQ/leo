@@ -192,194 +192,195 @@
 <a href=#192 id=192 data-nosnippet>192</a>
 <a href=#193 id=193 data-nosnippet>193</a>        <span class="kw">let </span>call = CallExpression {
 <a href=#194 id=194 data-nosnippet>194</a>            function: Identifier::new(function.identifier.name, interpreter.node_builder.next_id()).into(),
-<a href=#195 id=195 data-nosnippet>195</a>            arguments: Vec::new(),
-<a href=#196 id=196 data-nosnippet>196</a>            program: <span class="prelude-val">Some</span>(id.program),
-<a href=#197 id=197 data-nosnippet>197</a>            span: Default::default(),
-<a href=#198 id=198 data-nosnippet>198</a>            id: interpreter.node_builder.next_id(),
-<a href=#199 id=199 data-nosnippet>199</a>        };
-<a href=#200 id=200 data-nosnippet>200</a>
-<a href=#201 id=201 data-nosnippet>201</a>        <span class="kw">let </span>statement: Statement = ExpressionStatement {
-<a href=#202 id=202 data-nosnippet>202</a>            expression: call.into(),
-<a href=#203 id=203 data-nosnippet>203</a>            span: Default::default(),
-<a href=#204 id=204 data-nosnippet>204</a>            id: interpreter.node_builder.next_id(),
-<a href=#205 id=205 data-nosnippet>205</a>        }
-<a href=#206 id=206 data-nosnippet>206</a>        .into();
-<a href=#207 id=207 data-nosnippet>207</a>
-<a href=#208 id=208 data-nosnippet>208</a>        interpreter.cursor.frames.push(Frame {
-<a href=#209 id=209 data-nosnippet>209</a>            step: <span class="number">0</span>,
-<a href=#210 id=210 data-nosnippet>210</a>            element: Element::Statement(statement),
-<a href=#211 id=211 data-nosnippet>211</a>            user_initiated: <span class="bool-val">false</span>,
-<a href=#212 id=212 data-nosnippet>212</a>        });
-<a href=#213 id=213 data-nosnippet>213</a>
-<a href=#214 id=214 data-nosnippet>214</a>        <span class="kw">let </span>run_result = interpreter.cursor.over();
-<a href=#215 id=215 data-nosnippet>215</a>
-<a href=#216 id=216 data-nosnippet>216</a>        <span class="kw">match </span>(run_result, should_fail) {
-<a href=#217 id=217 data-nosnippet>217</a>            (<span class="prelude-val">Ok</span>(..), <span class="bool-val">true</span>) =&gt; {
-<a href=#218 id=218 data-nosnippet>218</a>                result.insert(
-<a href=#219 id=219 data-nosnippet>219</a>                    id,
-<a href=#220 id=220 data-nosnippet>220</a>                    <span class="prelude-val">Err</span>(InterpreterHalt::new(<span class="string">"Test succeeded when failure was expected."</span>.to_string()).into()),
-<a href=#221 id=221 data-nosnippet>221</a>                );
-<a href=#222 id=222 data-nosnippet>222</a>            }
-<a href=#223 id=223 data-nosnippet>223</a>            (<span class="prelude-val">Ok</span>(..), <span class="bool-val">false</span>) =&gt; {
-<a href=#224 id=224 data-nosnippet>224</a>                result.insert(id, <span class="prelude-val">Ok</span>(()));
-<a href=#225 id=225 data-nosnippet>225</a>            }
-<a href=#226 id=226 data-nosnippet>226</a>            (<span class="prelude-val">Err</span>(..), <span class="bool-val">true</span>) =&gt; {
-<a href=#227 id=227 data-nosnippet>227</a>                result.insert(id, <span class="prelude-val">Ok</span>(()));
-<a href=#228 id=228 data-nosnippet>228</a>            }
-<a href=#229 id=229 data-nosnippet>229</a>            (<span class="prelude-val">Err</span>(err), <span class="bool-val">false</span>) =&gt; {
-<a href=#230 id=230 data-nosnippet>230</a>                result.insert(id, <span class="prelude-val">Err</span>(err));
-<a href=#231 id=231 data-nosnippet>231</a>            }
-<a href=#232 id=232 data-nosnippet>232</a>        }
-<a href=#233 id=233 data-nosnippet>233</a>    }
-<a href=#234 id=234 data-nosnippet>234</a>
-<a href=#235 id=235 data-nosnippet>235</a>    <span class="prelude-val">Ok</span>((native_test_functions, result))
-<a href=#236 id=236 data-nosnippet>236</a>}
-<a href=#237 id=237 data-nosnippet>237</a>
-<a href=#238 id=238 data-nosnippet>238</a><span class="doccomment">/// Load all the Leo source files indicated and open the interpreter
-<a href=#239 id=239 data-nosnippet>239</a>/// to commands from the user.
-<a href=#240 id=240 data-nosnippet>240</a></span><span class="kw">pub fn </span>interpret(
-<a href=#241 id=241 data-nosnippet>241</a>    leo_filenames: <span class="kw-2">&amp;</span>[PathBuf],
-<a href=#242 id=242 data-nosnippet>242</a>    aleo_filenames: <span class="kw-2">&amp;</span>[PathBuf],
-<a href=#243 id=243 data-nosnippet>243</a>    signer: SvmAddress,
-<a href=#244 id=244 data-nosnippet>244</a>    block_height: u32,
-<a href=#245 id=245 data-nosnippet>245</a>    tui: bool,
-<a href=#246 id=246 data-nosnippet>246</a>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#247 id=247 data-nosnippet>247</a>    <span class="kw">let </span><span class="kw-2">mut </span>interpreter =
-<a href=#248 id=248 data-nosnippet>248</a>        Interpreter::new(leo_filenames, aleo_filenames, signer, block_height, <span class="bool-val">false </span><span class="comment">/* test flow */</span>)<span class="question-mark">?</span>;
-<a href=#249 id=249 data-nosnippet>249</a>
-<a href=#250 id=250 data-nosnippet>250</a>    <span class="kw">let </span><span class="kw-2">mut </span>user_interface: Box&lt;<span class="kw">dyn </span>Ui&gt; =
-<a href=#251 id=251 data-nosnippet>251</a>        <span class="kw">if </span>tui { Box::new(ratatui_ui::RatatuiUi::new()) } <span class="kw">else </span>{ Box::new(dialoguer_input::DialoguerUi::new()) };
-<a href=#252 id=252 data-nosnippet>252</a>
-<a href=#253 id=253 data-nosnippet>253</a>    <span class="kw">let </span><span class="kw-2">mut </span>code = String::new();
-<a href=#254 id=254 data-nosnippet>254</a>    <span class="kw">let </span><span class="kw-2">mut </span>futures = Vec::new();
-<a href=#255 id=255 data-nosnippet>255</a>    <span class="kw">let </span><span class="kw-2">mut </span>watchpoints = Vec::new();
-<a href=#256 id=256 data-nosnippet>256</a>    <span class="kw">let </span><span class="kw-2">mut </span>message = INTRO.to_string();
-<a href=#257 id=257 data-nosnippet>257</a>    <span class="kw">let </span><span class="kw-2">mut </span>result = String::new();
-<a href=#258 id=258 data-nosnippet>258</a>
-<a href=#259 id=259 data-nosnippet>259</a>    <span class="kw">loop </span>{
-<a href=#260 id=260 data-nosnippet>260</a>        code.clear();
-<a href=#261 id=261 data-nosnippet>261</a>        futures.clear();
-<a href=#262 id=262 data-nosnippet>262</a>        watchpoints.clear();
-<a href=#263 id=263 data-nosnippet>263</a>
-<a href=#264 id=264 data-nosnippet>264</a>        <span class="kw">let </span>(code, highlight) = <span class="kw">if let </span><span class="prelude-val">Some</span>((code, lo, hi)) = interpreter.view_current_in_context() {
-<a href=#265 id=265 data-nosnippet>265</a>            (code.to_string(), <span class="prelude-val">Some</span>((lo, hi)))
-<a href=#266 id=266 data-nosnippet>266</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(v) = interpreter.view_current() {
-<a href=#267 id=267 data-nosnippet>267</a>            (v.to_string(), <span class="prelude-val">None</span>)
-<a href=#268 id=268 data-nosnippet>268</a>        } <span class="kw">else </span>{
-<a href=#269 id=269 data-nosnippet>269</a>            (<span class="string">""</span>.to_string(), <span class="prelude-val">None</span>)
-<a href=#270 id=270 data-nosnippet>270</a>        };
-<a href=#271 id=271 data-nosnippet>271</a>
-<a href=#272 id=272 data-nosnippet>272</a>        futures.extend(interpreter.cursor.futures.iter().map(|f| f.to_string()));
-<a href=#273 id=273 data-nosnippet>273</a>
-<a href=#274 id=274 data-nosnippet>274</a>        interpreter.update_watchpoints()<span class="question-mark">?</span>;
-<a href=#275 id=275 data-nosnippet>275</a>
-<a href=#276 id=276 data-nosnippet>276</a>        watchpoints.extend(interpreter.watchpoints.iter().map(|watchpoint| {
-<a href=#277 id=277 data-nosnippet>277</a>            <span class="macro">format!</span>(<span class="string">"{:&gt;15} = {}"</span>, watchpoint.code, <span class="kw">if let </span><span class="prelude-val">Some</span>(s) = <span class="kw-2">&amp;</span>watchpoint.last_result { <span class="kw-2">&amp;**</span>s } <span class="kw">else </span>{ <span class="string">"?" </span>})
-<a href=#278 id=278 data-nosnippet>278</a>        }));
-<a href=#279 id=279 data-nosnippet>279</a>
-<a href=#280 id=280 data-nosnippet>280</a>        <span class="kw">let </span>user_data = ui::UserData {
-<a href=#281 id=281 data-nosnippet>281</a>            code: <span class="kw-2">&amp;</span>code,
-<a href=#282 id=282 data-nosnippet>282</a>            highlight,
-<a href=#283 id=283 data-nosnippet>283</a>            message: <span class="kw-2">&amp;</span>message,
-<a href=#284 id=284 data-nosnippet>284</a>            futures: <span class="kw-2">&amp;</span>futures,
-<a href=#285 id=285 data-nosnippet>285</a>            watchpoints: <span class="kw-2">&amp;</span>watchpoints,
-<a href=#286 id=286 data-nosnippet>286</a>            result: <span class="kw">if </span>result.is_empty() { <span class="prelude-val">None </span>} <span class="kw">else </span>{ <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>result) },
-<a href=#287 id=287 data-nosnippet>287</a>        };
-<a href=#288 id=288 data-nosnippet>288</a>
-<a href=#289 id=289 data-nosnippet>289</a>        user_interface.display_user_data(<span class="kw-2">&amp;</span>user_data);
-<a href=#290 id=290 data-nosnippet>290</a>
-<a href=#291 id=291 data-nosnippet>291</a>        message.clear();
-<a href=#292 id=292 data-nosnippet>292</a>        result.clear();
-<a href=#293 id=293 data-nosnippet>293</a>
-<a href=#294 id=294 data-nosnippet>294</a>        <span class="kw">let </span>user_input = user_interface.receive_user_input();
-<a href=#295 id=295 data-nosnippet>295</a>
-<a href=#296 id=296 data-nosnippet>296</a>        <span class="kw">let </span>(command, rest) = tokenize_user_input(<span class="kw-2">&amp;</span>user_input);
-<a href=#297 id=297 data-nosnippet>297</a>
-<a href=#298 id=298 data-nosnippet>298</a>        <span class="kw">let </span>action = <span class="kw">match </span>(command, rest) {
-<a href=#299 id=299 data-nosnippet>299</a>            (<span class="string">""</span>, <span class="string">""</span>) =&gt; <span class="kw">continue</span>,
-<a href=#300 id=300 data-nosnippet>300</a>            (<span class="string">"#h" </span>| <span class="string">"#help"</span>, <span class="string">""</span>) =&gt; {
-<a href=#301 id=301 data-nosnippet>301</a>                message = HELP.to_string();
-<a href=#302 id=302 data-nosnippet>302</a>                <span class="kw">continue</span>;
-<a href=#303 id=303 data-nosnippet>303</a>            }
-<a href=#304 id=304 data-nosnippet>304</a>            (<span class="string">"#i" </span>| <span class="string">"#into"</span>, <span class="string">""</span>) =&gt; InterpreterAction::Into,
-<a href=#305 id=305 data-nosnippet>305</a>            (<span class="string">"#i" </span>| <span class="string">"#into"</span>, rest) =&gt; InterpreterAction::LeoInterpretInto(rest.into()),
-<a href=#306 id=306 data-nosnippet>306</a>            (<span class="string">"#s" </span>| <span class="string">"#step"</span>, <span class="string">""</span>) =&gt; InterpreterAction::Step,
-<a href=#307 id=307 data-nosnippet>307</a>            (<span class="string">"#o" </span>| <span class="string">"#over"</span>, <span class="string">""</span>) =&gt; InterpreterAction::Over,
-<a href=#308 id=308 data-nosnippet>308</a>            (<span class="string">"#r" </span>| <span class="string">"#run"</span>, <span class="string">""</span>) =&gt; InterpreterAction::Run,
-<a href=#309 id=309 data-nosnippet>309</a>            (<span class="string">"#q" </span>| <span class="string">"#quit"</span>, <span class="string">""</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
-<a href=#310 id=310 data-nosnippet>310</a>            (<span class="string">"#f" </span>| <span class="string">"#future"</span>, rest) =&gt; {
-<a href=#311 id=311 data-nosnippet>311</a>                <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = rest.trim().parse::&lt;usize&gt;() {
-<a href=#312 id=312 data-nosnippet>312</a>                    <span class="kw">if </span>num &gt;= interpreter.cursor.futures.len() {
-<a href=#313 id=313 data-nosnippet>313</a>                        message = <span class="string">"No such future."</span>.to_string();
-<a href=#314 id=314 data-nosnippet>314</a>                        <span class="kw">continue</span>;
-<a href=#315 id=315 data-nosnippet>315</a>                    }
-<a href=#316 id=316 data-nosnippet>316</a>                    InterpreterAction::RunFuture(num)
-<a href=#317 id=317 data-nosnippet>317</a>                } <span class="kw">else </span>{
-<a href=#318 id=318 data-nosnippet>318</a>                    message = <span class="string">"Failed to parse future."</span>.to_string();
-<a href=#319 id=319 data-nosnippet>319</a>                    <span class="kw">continue</span>;
-<a href=#320 id=320 data-nosnippet>320</a>                }
-<a href=#321 id=321 data-nosnippet>321</a>            }
-<a href=#322 id=322 data-nosnippet>322</a>            (<span class="string">"#restore"</span>, <span class="string">""</span>) =&gt; {
-<a href=#323 id=323 data-nosnippet>323</a>                <span class="kw">if </span>!interpreter.restore_cursor() {
-<a href=#324 id=324 data-nosnippet>324</a>                    message = <span class="string">"No saved state to restore"</span>.to_string();
-<a href=#325 id=325 data-nosnippet>325</a>                }
-<a href=#326 id=326 data-nosnippet>326</a>                <span class="kw">continue</span>;
-<a href=#327 id=327 data-nosnippet>327</a>            }
-<a href=#328 id=328 data-nosnippet>328</a>            (<span class="string">"#b" </span>| <span class="string">"#break"</span>, rest) =&gt; {
-<a href=#329 id=329 data-nosnippet>329</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(breakpoint) = parse_breakpoint(rest) <span class="kw">else </span>{
-<a href=#330 id=330 data-nosnippet>330</a>                    message = <span class="string">"Failed to parse breakpoint"</span>.to_string();
-<a href=#331 id=331 data-nosnippet>331</a>                    <span class="kw">continue</span>;
-<a href=#332 id=332 data-nosnippet>332</a>                };
-<a href=#333 id=333 data-nosnippet>333</a>                InterpreterAction::Breakpoint(breakpoint)
-<a href=#334 id=334 data-nosnippet>334</a>            }
-<a href=#335 id=335 data-nosnippet>335</a>            (<span class="string">"#p" </span>| <span class="string">"#print"</span>, rest) =&gt; {
-<a href=#336 id=336 data-nosnippet>336</a>                <span class="kw">let </span>without_r = rest.strip_prefix(<span class="string">"r"</span>).unwrap_or(rest);
-<a href=#337 id=337 data-nosnippet>337</a>                <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = without_r.parse::&lt;u64&gt;() {
-<a href=#338 id=338 data-nosnippet>338</a>                    InterpreterAction::PrintRegister(num)
-<a href=#339 id=339 data-nosnippet>339</a>                } <span class="kw">else </span>{
-<a href=#340 id=340 data-nosnippet>340</a>                    message = <span class="string">"Failed to parse register number"</span>.to_string();
-<a href=#341 id=341 data-nosnippet>341</a>                    <span class="kw">continue</span>;
-<a href=#342 id=342 data-nosnippet>342</a>                }
-<a href=#343 id=343 data-nosnippet>343</a>            }
-<a href=#344 id=344 data-nosnippet>344</a>            (<span class="string">"#w" </span>| <span class="string">"#watch"</span>, rest) =&gt; InterpreterAction::Watch(rest.to_string()),
-<a href=#345 id=345 data-nosnippet>345</a>            (<span class="string">"#set_program"</span>, rest) =&gt; {
-<a href=#346 id=346 data-nosnippet>346</a>                interpreter.cursor.set_program(rest);
-<a href=#347 id=347 data-nosnippet>347</a>                <span class="kw">continue</span>;
-<a href=#348 id=348 data-nosnippet>348</a>            }
-<a href=#349 id=349 data-nosnippet>349</a>            (<span class="string">""</span>, rest) =&gt; InterpreterAction::LeoInterpretOver(rest.to_string()),
-<a href=#350 id=350 data-nosnippet>350</a>            <span class="kw">_ </span>=&gt; {
-<a href=#351 id=351 data-nosnippet>351</a>                message = <span class="string">"Failed to parse command"</span>.to_string();
-<a href=#352 id=352 data-nosnippet>352</a>                <span class="kw">continue</span>;
-<a href=#353 id=353 data-nosnippet>353</a>            }
-<a href=#354 id=354 data-nosnippet>354</a>        };
-<a href=#355 id=355 data-nosnippet>355</a>
-<a href=#356 id=356 data-nosnippet>356</a>        <span class="kw">if </span><span class="macro">matches!</span>(action, InterpreterAction::LeoInterpretInto(..) | InterpreterAction::LeoInterpretOver(..)) {
-<a href=#357 id=357 data-nosnippet>357</a>            interpreter.save_cursor();
-<a href=#358 id=358 data-nosnippet>358</a>        }
-<a href=#359 id=359 data-nosnippet>359</a>
-<a href=#360 id=360 data-nosnippet>360</a>        <span class="kw">match </span>interpreter.action(action) {
-<a href=#361 id=361 data-nosnippet>361</a>            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(value)) =&gt; {
-<a href=#362 id=362 data-nosnippet>362</a>                result = value.to_string();
-<a href=#363 id=363 data-nosnippet>363</a>            }
-<a href=#364 id=364 data-nosnippet>364</a>            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {}
-<a href=#365 id=365 data-nosnippet>365</a>            <span class="prelude-val">Err</span>(LeoError::InterpreterHalt(interpreter_halt)) =&gt; {
-<a href=#366 id=366 data-nosnippet>366</a>                message = <span class="macro">format!</span>(<span class="string">"Halted: {interpreter_halt}"</span>);
-<a href=#367 id=367 data-nosnippet>367</a>            }
-<a href=#368 id=368 data-nosnippet>368</a>            <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
-<a href=#369 id=369 data-nosnippet>369</a>        }
-<a href=#370 id=370 data-nosnippet>370</a>    }
-<a href=#371 id=371 data-nosnippet>371</a>}
-<a href=#372 id=372 data-nosnippet>372</a>
-<a href=#373 id=373 data-nosnippet>373</a><span class="kw">fn </span>tokenize_user_input(input: <span class="kw-2">&amp;</span>str) -&gt; (<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str) {
-<a href=#374 id=374 data-nosnippet>374</a>    <span class="kw">let </span>input = input.trim();
-<a href=#375 id=375 data-nosnippet>375</a>
-<a href=#376 id=376 data-nosnippet>376</a>    <span class="kw">if </span>!input.starts_with(<span class="string">"#"</span>) {
-<a href=#377 id=377 data-nosnippet>377</a>        <span class="kw">return </span>(<span class="string">""</span>, input);
-<a href=#378 id=378 data-nosnippet>378</a>    }
-<a href=#379 id=379 data-nosnippet>379</a>
-<a href=#380 id=380 data-nosnippet>380</a>    <span class="kw">let </span><span class="prelude-val">Some</span>((first, rest)) = input.split_once(<span class="string">' '</span>) <span class="kw">else </span>{
-<a href=#381 id=381 data-nosnippet>381</a>        <span class="kw">return </span>(input, <span class="string">""</span>);
-<a href=#382 id=382 data-nosnippet>382</a>    };
-<a href=#383 id=383 data-nosnippet>383</a>
-<a href=#384 id=384 data-nosnippet>384</a>    (first.trim(), rest.trim())
-<a href=#385 id=385 data-nosnippet>385</a>}</code></pre></div></section></main></body></html>
+<a href=#195 id=195 data-nosnippet>195</a>            const_arguments: <span class="macro">vec!</span>[], <span class="comment">// scripts don't have const parameters for now
+<a href=#196 id=196 data-nosnippet>196</a>            </span>arguments: Vec::new(),
+<a href=#197 id=197 data-nosnippet>197</a>            program: <span class="prelude-val">Some</span>(id.program),
+<a href=#198 id=198 data-nosnippet>198</a>            span: Default::default(),
+<a href=#199 id=199 data-nosnippet>199</a>            id: interpreter.node_builder.next_id(),
+<a href=#200 id=200 data-nosnippet>200</a>        };
+<a href=#201 id=201 data-nosnippet>201</a>
+<a href=#202 id=202 data-nosnippet>202</a>        <span class="kw">let </span>statement: Statement = ExpressionStatement {
+<a href=#203 id=203 data-nosnippet>203</a>            expression: call.into(),
+<a href=#204 id=204 data-nosnippet>204</a>            span: Default::default(),
+<a href=#205 id=205 data-nosnippet>205</a>            id: interpreter.node_builder.next_id(),
+<a href=#206 id=206 data-nosnippet>206</a>        }
+<a href=#207 id=207 data-nosnippet>207</a>        .into();
+<a href=#208 id=208 data-nosnippet>208</a>
+<a href=#209 id=209 data-nosnippet>209</a>        interpreter.cursor.frames.push(Frame {
+<a href=#210 id=210 data-nosnippet>210</a>            step: <span class="number">0</span>,
+<a href=#211 id=211 data-nosnippet>211</a>            element: Element::Statement(statement),
+<a href=#212 id=212 data-nosnippet>212</a>            user_initiated: <span class="bool-val">false</span>,
+<a href=#213 id=213 data-nosnippet>213</a>        });
+<a href=#214 id=214 data-nosnippet>214</a>
+<a href=#215 id=215 data-nosnippet>215</a>        <span class="kw">let </span>run_result = interpreter.cursor.over();
+<a href=#216 id=216 data-nosnippet>216</a>
+<a href=#217 id=217 data-nosnippet>217</a>        <span class="kw">match </span>(run_result, should_fail) {
+<a href=#218 id=218 data-nosnippet>218</a>            (<span class="prelude-val">Ok</span>(..), <span class="bool-val">true</span>) =&gt; {
+<a href=#219 id=219 data-nosnippet>219</a>                result.insert(
+<a href=#220 id=220 data-nosnippet>220</a>                    id,
+<a href=#221 id=221 data-nosnippet>221</a>                    <span class="prelude-val">Err</span>(InterpreterHalt::new(<span class="string">"Test succeeded when failure was expected."</span>.to_string()).into()),
+<a href=#222 id=222 data-nosnippet>222</a>                );
+<a href=#223 id=223 data-nosnippet>223</a>            }
+<a href=#224 id=224 data-nosnippet>224</a>            (<span class="prelude-val">Ok</span>(..), <span class="bool-val">false</span>) =&gt; {
+<a href=#225 id=225 data-nosnippet>225</a>                result.insert(id, <span class="prelude-val">Ok</span>(()));
+<a href=#226 id=226 data-nosnippet>226</a>            }
+<a href=#227 id=227 data-nosnippet>227</a>            (<span class="prelude-val">Err</span>(..), <span class="bool-val">true</span>) =&gt; {
+<a href=#228 id=228 data-nosnippet>228</a>                result.insert(id, <span class="prelude-val">Ok</span>(()));
+<a href=#229 id=229 data-nosnippet>229</a>            }
+<a href=#230 id=230 data-nosnippet>230</a>            (<span class="prelude-val">Err</span>(err), <span class="bool-val">false</span>) =&gt; {
+<a href=#231 id=231 data-nosnippet>231</a>                result.insert(id, <span class="prelude-val">Err</span>(err));
+<a href=#232 id=232 data-nosnippet>232</a>            }
+<a href=#233 id=233 data-nosnippet>233</a>        }
+<a href=#234 id=234 data-nosnippet>234</a>    }
+<a href=#235 id=235 data-nosnippet>235</a>
+<a href=#236 id=236 data-nosnippet>236</a>    <span class="prelude-val">Ok</span>((native_test_functions, result))
+<a href=#237 id=237 data-nosnippet>237</a>}
+<a href=#238 id=238 data-nosnippet>238</a>
+<a href=#239 id=239 data-nosnippet>239</a><span class="doccomment">/// Load all the Leo source files indicated and open the interpreter
+<a href=#240 id=240 data-nosnippet>240</a>/// to commands from the user.
+<a href=#241 id=241 data-nosnippet>241</a></span><span class="kw">pub fn </span>interpret(
+<a href=#242 id=242 data-nosnippet>242</a>    leo_filenames: <span class="kw-2">&amp;</span>[PathBuf],
+<a href=#243 id=243 data-nosnippet>243</a>    aleo_filenames: <span class="kw-2">&amp;</span>[PathBuf],
+<a href=#244 id=244 data-nosnippet>244</a>    signer: SvmAddress,
+<a href=#245 id=245 data-nosnippet>245</a>    block_height: u32,
+<a href=#246 id=246 data-nosnippet>246</a>    tui: bool,
+<a href=#247 id=247 data-nosnippet>247</a>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#248 id=248 data-nosnippet>248</a>    <span class="kw">let </span><span class="kw-2">mut </span>interpreter =
+<a href=#249 id=249 data-nosnippet>249</a>        Interpreter::new(leo_filenames, aleo_filenames, signer, block_height, <span class="bool-val">false </span><span class="comment">/* test flow */</span>)<span class="question-mark">?</span>;
+<a href=#250 id=250 data-nosnippet>250</a>
+<a href=#251 id=251 data-nosnippet>251</a>    <span class="kw">let </span><span class="kw-2">mut </span>user_interface: Box&lt;<span class="kw">dyn </span>Ui&gt; =
+<a href=#252 id=252 data-nosnippet>252</a>        <span class="kw">if </span>tui { Box::new(ratatui_ui::RatatuiUi::new()) } <span class="kw">else </span>{ Box::new(dialoguer_input::DialoguerUi::new()) };
+<a href=#253 id=253 data-nosnippet>253</a>
+<a href=#254 id=254 data-nosnippet>254</a>    <span class="kw">let </span><span class="kw-2">mut </span>code = String::new();
+<a href=#255 id=255 data-nosnippet>255</a>    <span class="kw">let </span><span class="kw-2">mut </span>futures = Vec::new();
+<a href=#256 id=256 data-nosnippet>256</a>    <span class="kw">let </span><span class="kw-2">mut </span>watchpoints = Vec::new();
+<a href=#257 id=257 data-nosnippet>257</a>    <span class="kw">let </span><span class="kw-2">mut </span>message = INTRO.to_string();
+<a href=#258 id=258 data-nosnippet>258</a>    <span class="kw">let </span><span class="kw-2">mut </span>result = String::new();
+<a href=#259 id=259 data-nosnippet>259</a>
+<a href=#260 id=260 data-nosnippet>260</a>    <span class="kw">loop </span>{
+<a href=#261 id=261 data-nosnippet>261</a>        code.clear();
+<a href=#262 id=262 data-nosnippet>262</a>        futures.clear();
+<a href=#263 id=263 data-nosnippet>263</a>        watchpoints.clear();
+<a href=#264 id=264 data-nosnippet>264</a>
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="kw">let </span>(code, highlight) = <span class="kw">if let </span><span class="prelude-val">Some</span>((code, lo, hi)) = interpreter.view_current_in_context() {
+<a href=#266 id=266 data-nosnippet>266</a>            (code.to_string(), <span class="prelude-val">Some</span>((lo, hi)))
+<a href=#267 id=267 data-nosnippet>267</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(v) = interpreter.view_current() {
+<a href=#268 id=268 data-nosnippet>268</a>            (v.to_string(), <span class="prelude-val">None</span>)
+<a href=#269 id=269 data-nosnippet>269</a>        } <span class="kw">else </span>{
+<a href=#270 id=270 data-nosnippet>270</a>            (<span class="string">""</span>.to_string(), <span class="prelude-val">None</span>)
+<a href=#271 id=271 data-nosnippet>271</a>        };
+<a href=#272 id=272 data-nosnippet>272</a>
+<a href=#273 id=273 data-nosnippet>273</a>        futures.extend(interpreter.cursor.futures.iter().map(|f| f.to_string()));
+<a href=#274 id=274 data-nosnippet>274</a>
+<a href=#275 id=275 data-nosnippet>275</a>        interpreter.update_watchpoints()<span class="question-mark">?</span>;
+<a href=#276 id=276 data-nosnippet>276</a>
+<a href=#277 id=277 data-nosnippet>277</a>        watchpoints.extend(interpreter.watchpoints.iter().map(|watchpoint| {
+<a href=#278 id=278 data-nosnippet>278</a>            <span class="macro">format!</span>(<span class="string">"{:&gt;15} = {}"</span>, watchpoint.code, <span class="kw">if let </span><span class="prelude-val">Some</span>(s) = <span class="kw-2">&amp;</span>watchpoint.last_result { <span class="kw-2">&amp;**</span>s } <span class="kw">else </span>{ <span class="string">"?" </span>})
+<a href=#279 id=279 data-nosnippet>279</a>        }));
+<a href=#280 id=280 data-nosnippet>280</a>
+<a href=#281 id=281 data-nosnippet>281</a>        <span class="kw">let </span>user_data = ui::UserData {
+<a href=#282 id=282 data-nosnippet>282</a>            code: <span class="kw-2">&amp;</span>code,
+<a href=#283 id=283 data-nosnippet>283</a>            highlight,
+<a href=#284 id=284 data-nosnippet>284</a>            message: <span class="kw-2">&amp;</span>message,
+<a href=#285 id=285 data-nosnippet>285</a>            futures: <span class="kw-2">&amp;</span>futures,
+<a href=#286 id=286 data-nosnippet>286</a>            watchpoints: <span class="kw-2">&amp;</span>watchpoints,
+<a href=#287 id=287 data-nosnippet>287</a>            result: <span class="kw">if </span>result.is_empty() { <span class="prelude-val">None </span>} <span class="kw">else </span>{ <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>result) },
+<a href=#288 id=288 data-nosnippet>288</a>        };
+<a href=#289 id=289 data-nosnippet>289</a>
+<a href=#290 id=290 data-nosnippet>290</a>        user_interface.display_user_data(<span class="kw-2">&amp;</span>user_data);
+<a href=#291 id=291 data-nosnippet>291</a>
+<a href=#292 id=292 data-nosnippet>292</a>        message.clear();
+<a href=#293 id=293 data-nosnippet>293</a>        result.clear();
+<a href=#294 id=294 data-nosnippet>294</a>
+<a href=#295 id=295 data-nosnippet>295</a>        <span class="kw">let </span>user_input = user_interface.receive_user_input();
+<a href=#296 id=296 data-nosnippet>296</a>
+<a href=#297 id=297 data-nosnippet>297</a>        <span class="kw">let </span>(command, rest) = tokenize_user_input(<span class="kw-2">&amp;</span>user_input);
+<a href=#298 id=298 data-nosnippet>298</a>
+<a href=#299 id=299 data-nosnippet>299</a>        <span class="kw">let </span>action = <span class="kw">match </span>(command, rest) {
+<a href=#300 id=300 data-nosnippet>300</a>            (<span class="string">""</span>, <span class="string">""</span>) =&gt; <span class="kw">continue</span>,
+<a href=#301 id=301 data-nosnippet>301</a>            (<span class="string">"#h" </span>| <span class="string">"#help"</span>, <span class="string">""</span>) =&gt; {
+<a href=#302 id=302 data-nosnippet>302</a>                message = HELP.to_string();
+<a href=#303 id=303 data-nosnippet>303</a>                <span class="kw">continue</span>;
+<a href=#304 id=304 data-nosnippet>304</a>            }
+<a href=#305 id=305 data-nosnippet>305</a>            (<span class="string">"#i" </span>| <span class="string">"#into"</span>, <span class="string">""</span>) =&gt; InterpreterAction::Into,
+<a href=#306 id=306 data-nosnippet>306</a>            (<span class="string">"#i" </span>| <span class="string">"#into"</span>, rest) =&gt; InterpreterAction::LeoInterpretInto(rest.into()),
+<a href=#307 id=307 data-nosnippet>307</a>            (<span class="string">"#s" </span>| <span class="string">"#step"</span>, <span class="string">""</span>) =&gt; InterpreterAction::Step,
+<a href=#308 id=308 data-nosnippet>308</a>            (<span class="string">"#o" </span>| <span class="string">"#over"</span>, <span class="string">""</span>) =&gt; InterpreterAction::Over,
+<a href=#309 id=309 data-nosnippet>309</a>            (<span class="string">"#r" </span>| <span class="string">"#run"</span>, <span class="string">""</span>) =&gt; InterpreterAction::Run,
+<a href=#310 id=310 data-nosnippet>310</a>            (<span class="string">"#q" </span>| <span class="string">"#quit"</span>, <span class="string">""</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
+<a href=#311 id=311 data-nosnippet>311</a>            (<span class="string">"#f" </span>| <span class="string">"#future"</span>, rest) =&gt; {
+<a href=#312 id=312 data-nosnippet>312</a>                <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = rest.trim().parse::&lt;usize&gt;() {
+<a href=#313 id=313 data-nosnippet>313</a>                    <span class="kw">if </span>num &gt;= interpreter.cursor.futures.len() {
+<a href=#314 id=314 data-nosnippet>314</a>                        message = <span class="string">"No such future."</span>.to_string();
+<a href=#315 id=315 data-nosnippet>315</a>                        <span class="kw">continue</span>;
+<a href=#316 id=316 data-nosnippet>316</a>                    }
+<a href=#317 id=317 data-nosnippet>317</a>                    InterpreterAction::RunFuture(num)
+<a href=#318 id=318 data-nosnippet>318</a>                } <span class="kw">else </span>{
+<a href=#319 id=319 data-nosnippet>319</a>                    message = <span class="string">"Failed to parse future."</span>.to_string();
+<a href=#320 id=320 data-nosnippet>320</a>                    <span class="kw">continue</span>;
+<a href=#321 id=321 data-nosnippet>321</a>                }
+<a href=#322 id=322 data-nosnippet>322</a>            }
+<a href=#323 id=323 data-nosnippet>323</a>            (<span class="string">"#restore"</span>, <span class="string">""</span>) =&gt; {
+<a href=#324 id=324 data-nosnippet>324</a>                <span class="kw">if </span>!interpreter.restore_cursor() {
+<a href=#325 id=325 data-nosnippet>325</a>                    message = <span class="string">"No saved state to restore"</span>.to_string();
+<a href=#326 id=326 data-nosnippet>326</a>                }
+<a href=#327 id=327 data-nosnippet>327</a>                <span class="kw">continue</span>;
+<a href=#328 id=328 data-nosnippet>328</a>            }
+<a href=#329 id=329 data-nosnippet>329</a>            (<span class="string">"#b" </span>| <span class="string">"#break"</span>, rest) =&gt; {
+<a href=#330 id=330 data-nosnippet>330</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(breakpoint) = parse_breakpoint(rest) <span class="kw">else </span>{
+<a href=#331 id=331 data-nosnippet>331</a>                    message = <span class="string">"Failed to parse breakpoint"</span>.to_string();
+<a href=#332 id=332 data-nosnippet>332</a>                    <span class="kw">continue</span>;
+<a href=#333 id=333 data-nosnippet>333</a>                };
+<a href=#334 id=334 data-nosnippet>334</a>                InterpreterAction::Breakpoint(breakpoint)
+<a href=#335 id=335 data-nosnippet>335</a>            }
+<a href=#336 id=336 data-nosnippet>336</a>            (<span class="string">"#p" </span>| <span class="string">"#print"</span>, rest) =&gt; {
+<a href=#337 id=337 data-nosnippet>337</a>                <span class="kw">let </span>without_r = rest.strip_prefix(<span class="string">"r"</span>).unwrap_or(rest);
+<a href=#338 id=338 data-nosnippet>338</a>                <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = without_r.parse::&lt;u64&gt;() {
+<a href=#339 id=339 data-nosnippet>339</a>                    InterpreterAction::PrintRegister(num)
+<a href=#340 id=340 data-nosnippet>340</a>                } <span class="kw">else </span>{
+<a href=#341 id=341 data-nosnippet>341</a>                    message = <span class="string">"Failed to parse register number"</span>.to_string();
+<a href=#342 id=342 data-nosnippet>342</a>                    <span class="kw">continue</span>;
+<a href=#343 id=343 data-nosnippet>343</a>                }
+<a href=#344 id=344 data-nosnippet>344</a>            }
+<a href=#345 id=345 data-nosnippet>345</a>            (<span class="string">"#w" </span>| <span class="string">"#watch"</span>, rest) =&gt; InterpreterAction::Watch(rest.to_string()),
+<a href=#346 id=346 data-nosnippet>346</a>            (<span class="string">"#set_program"</span>, rest) =&gt; {
+<a href=#347 id=347 data-nosnippet>347</a>                interpreter.cursor.set_program(rest);
+<a href=#348 id=348 data-nosnippet>348</a>                <span class="kw">continue</span>;
+<a href=#349 id=349 data-nosnippet>349</a>            }
+<a href=#350 id=350 data-nosnippet>350</a>            (<span class="string">""</span>, rest) =&gt; InterpreterAction::LeoInterpretOver(rest.to_string()),
+<a href=#351 id=351 data-nosnippet>351</a>            <span class="kw">_ </span>=&gt; {
+<a href=#352 id=352 data-nosnippet>352</a>                message = <span class="string">"Failed to parse command"</span>.to_string();
+<a href=#353 id=353 data-nosnippet>353</a>                <span class="kw">continue</span>;
+<a href=#354 id=354 data-nosnippet>354</a>            }
+<a href=#355 id=355 data-nosnippet>355</a>        };
+<a href=#356 id=356 data-nosnippet>356</a>
+<a href=#357 id=357 data-nosnippet>357</a>        <span class="kw">if </span><span class="macro">matches!</span>(action, InterpreterAction::LeoInterpretInto(..) | InterpreterAction::LeoInterpretOver(..)) {
+<a href=#358 id=358 data-nosnippet>358</a>            interpreter.save_cursor();
+<a href=#359 id=359 data-nosnippet>359</a>        }
+<a href=#360 id=360 data-nosnippet>360</a>
+<a href=#361 id=361 data-nosnippet>361</a>        <span class="kw">match </span>interpreter.action(action) {
+<a href=#362 id=362 data-nosnippet>362</a>            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(value)) =&gt; {
+<a href=#363 id=363 data-nosnippet>363</a>                result = value.to_string();
+<a href=#364 id=364 data-nosnippet>364</a>            }
+<a href=#365 id=365 data-nosnippet>365</a>            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {}
+<a href=#366 id=366 data-nosnippet>366</a>            <span class="prelude-val">Err</span>(LeoError::InterpreterHalt(interpreter_halt)) =&gt; {
+<a href=#367 id=367 data-nosnippet>367</a>                message = <span class="macro">format!</span>(<span class="string">"Halted: {interpreter_halt}"</span>);
+<a href=#368 id=368 data-nosnippet>368</a>            }
+<a href=#369 id=369 data-nosnippet>369</a>            <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
+<a href=#370 id=370 data-nosnippet>370</a>        }
+<a href=#371 id=371 data-nosnippet>371</a>    }
+<a href=#372 id=372 data-nosnippet>372</a>}
+<a href=#373 id=373 data-nosnippet>373</a>
+<a href=#374 id=374 data-nosnippet>374</a><span class="kw">fn </span>tokenize_user_input(input: <span class="kw-2">&amp;</span>str) -&gt; (<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str) {
+<a href=#375 id=375 data-nosnippet>375</a>    <span class="kw">let </span>input = input.trim();
+<a href=#376 id=376 data-nosnippet>376</a>
+<a href=#377 id=377 data-nosnippet>377</a>    <span class="kw">if </span>!input.starts_with(<span class="string">"#"</span>) {
+<a href=#378 id=378 data-nosnippet>378</a>        <span class="kw">return </span>(<span class="string">""</span>, input);
+<a href=#379 id=379 data-nosnippet>379</a>    }
+<a href=#380 id=380 data-nosnippet>380</a>
+<a href=#381 id=381 data-nosnippet>381</a>    <span class="kw">let </span><span class="prelude-val">Some</span>((first, rest)) = input.split_once(<span class="string">' '</span>) <span class="kw">else </span>{
+<a href=#382 id=382 data-nosnippet>382</a>        <span class="kw">return </span>(input, <span class="string">""</span>);
+<a href=#383 id=383 data-nosnippet>383</a>    };
+<a href=#384 id=384 data-nosnippet>384</a>
+<a href=#385 id=385 data-nosnippet>385</a>    (first.trim(), rest.trim())
+<a href=#386 id=386 data-nosnippet>386</a>}</code></pre></div></section></main></body></html>

@@ -65,20 +65,21 @@
 <a href=#65 id=65 data-nosnippet>65</a>            annotations: input.annotations,
 <a href=#66 id=66 data-nosnippet>66</a>            variant: input.variant,
 <a href=#67 id=67 data-nosnippet>67</a>            identifier: input.identifier,
-<a href=#68 id=68 data-nosnippet>68</a>            input: input.input,
-<a href=#69 id=69 data-nosnippet>69</a>            output: input.output,
-<a href=#70 id=70 data-nosnippet>70</a>            output_type: input.output_type,
-<a href=#71 id=71 data-nosnippet>71</a>            block: {
-<a href=#72 id=72 data-nosnippet>72</a>                <span class="comment">// Set the `is_async` flag before reconstructing the block.
-<a href=#73 id=73 data-nosnippet>73</a>                </span><span class="self">self</span>.is_async = input.variant.is_async_function();
-<a href=#74 id=74 data-nosnippet>74</a>                <span class="comment">// Reconstruct the block.
-<a href=#75 id=75 data-nosnippet>75</a>                </span><span class="kw">let </span>block = <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>;
-<a href=#76 id=76 data-nosnippet>76</a>                <span class="comment">// Reset the `is_async` flag.
-<a href=#77 id=77 data-nosnippet>77</a>                </span><span class="self">self</span>.is_async = <span class="bool-val">false</span>;
-<a href=#78 id=78 data-nosnippet>78</a>                block
-<a href=#79 id=79 data-nosnippet>79</a>            },
-<a href=#80 id=80 data-nosnippet>80</a>            span: input.span,
-<a href=#81 id=81 data-nosnippet>81</a>            id: input.id,
-<a href=#82 id=82 data-nosnippet>82</a>        }
-<a href=#83 id=83 data-nosnippet>83</a>    }
-<a href=#84 id=84 data-nosnippet>84</a>}</code></pre></div></section></main></body></html>
+<a href=#68 id=68 data-nosnippet>68</a>            const_parameters: input.const_parameters,
+<a href=#69 id=69 data-nosnippet>69</a>            input: input.input,
+<a href=#70 id=70 data-nosnippet>70</a>            output: input.output,
+<a href=#71 id=71 data-nosnippet>71</a>            output_type: input.output_type,
+<a href=#72 id=72 data-nosnippet>72</a>            block: {
+<a href=#73 id=73 data-nosnippet>73</a>                <span class="comment">// Set the `is_async` flag before reconstructing the block.
+<a href=#74 id=74 data-nosnippet>74</a>                </span><span class="self">self</span>.is_async = input.variant.is_async_function();
+<a href=#75 id=75 data-nosnippet>75</a>                <span class="comment">// Reconstruct the block.
+<a href=#76 id=76 data-nosnippet>76</a>                </span><span class="kw">let </span>block = <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>;
+<a href=#77 id=77 data-nosnippet>77</a>                <span class="comment">// Reset the `is_async` flag.
+<a href=#78 id=78 data-nosnippet>78</a>                </span><span class="self">self</span>.is_async = <span class="bool-val">false</span>;
+<a href=#79 id=79 data-nosnippet>79</a>                block
+<a href=#80 id=80 data-nosnippet>80</a>            },
+<a href=#81 id=81 data-nosnippet>81</a>            span: input.span,
+<a href=#82 id=82 data-nosnippet>82</a>            id: input.id,
+<a href=#83 id=83 data-nosnippet>83</a>        }
+<a href=#84 id=84 data-nosnippet>84</a>    }
+<a href=#85 id=85 data-nosnippet>85</a>}</code></pre></div></section></main></body></html>
