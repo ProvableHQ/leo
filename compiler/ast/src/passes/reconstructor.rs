@@ -104,6 +104,7 @@ pub trait ExpressionReconstructor {
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
+            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
@@ -147,6 +148,18 @@ pub trait ExpressionReconstructor {
 
     fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
         (MemberAccess { inner: self.reconstruct_expression(input.inner).0, ..input }.into(), Default::default())
+    }
+
+    fn reconstruct_repeat(&mut self, input: RepeatExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            RepeatExpression {
+                expr: self.reconstruct_expression(input.expr).0,
+                count: self.reconstruct_expression(input.count).0,
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
     }
 
     fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {

@@ -57,6 +57,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
+            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
@@ -241,6 +242,25 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             )
         } else {
             (MemberAccess { inner, ..input }.into(), None)
+        }
+    }
+
+    fn reconstruct_repeat(&mut self, input: leo_ast::RepeatExpression) -> (Expression, Self::AdditionalOutput) {
+        let (expr, expr_value) = self.reconstruct_expression(input.expr.clone());
+        let (count, count_value) = self.reconstruct_expression(input.count.clone());
+
+        let mut values = Vec::new();
+        if let Some(Value::U8(size)) = count_value {
+            if let Some(value) = expr_value {
+                for i in 0..size {
+                    values.push(value.clone());
+                }
+                (input.into(), Some(Value::Array(values)))
+            } else {
+                (input.into(), None)
+            }
+        } else {
+            (input.into(), None)
         }
     }
 
