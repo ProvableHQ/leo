@@ -32,12 +32,13 @@ pub trait ExpressionConsumer {
             Expression::Binary(binary) => self.consume_binary(*binary),
             Expression::Call(call) => self.consume_call(*call),
             Expression::Cast(cast) => self.consume_cast(*cast),
-            Expression::Struct(struct_) => self.consume_struct_init(struct_),
             Expression::Err(err) => self.consume_err(err),
             Expression::Identifier(identifier) => self.consume_identifier(identifier),
             Expression::Literal(value) => self.consume_literal(value),
             Expression::Locator(locator) => self.consume_locator(locator),
             Expression::MemberAccess(access) => self.consume_member_access(*access),
+            Expression::Struct(struct_) => self.consume_struct_init(struct_),
+            Expression::Repeat(repeat) => self.consume_repeat(*repeat),
             Expression::Ternary(ternary) => self.consume_ternary(*ternary),
             Expression::Tuple(tuple) => self.consume_tuple(tuple),
             Expression::TupleAccess(access) => self.consume_tuple_access(*access),
@@ -46,9 +47,9 @@ pub trait ExpressionConsumer {
         }
     }
 
-    fn consume_array_access(&mut self, _input: ArrayAccess) -> Self::Output;
+    fn consume_array(&mut self, _input: ArrayExpression) -> Self::Output;
 
-    fn consume_member_access(&mut self, _input: MemberAccess) -> Self::Output;
+    fn consume_array_access(&mut self, _input: ArrayAccess) -> Self::Output;
 
     fn consume_tuple_access(&mut self, _input: TupleAccess) -> Self::Output;
 
@@ -56,15 +57,11 @@ pub trait ExpressionConsumer {
 
     fn consume_associated_function(&mut self, _input: AssociatedFunctionExpression) -> Self::Output;
 
-    fn consume_array(&mut self, _input: ArrayExpression) -> Self::Output;
-
     fn consume_binary(&mut self, _input: BinaryExpression) -> Self::Output;
 
     fn consume_call(&mut self, _input: CallExpression) -> Self::Output;
 
     fn consume_cast(&mut self, _input: CastExpression) -> Self::Output;
-
-    fn consume_struct_init(&mut self, _input: StructExpression) -> Self::Output;
 
     fn consume_err(&mut self, _input: ErrExpression) -> Self::Output {
         panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
@@ -75,6 +72,12 @@ pub trait ExpressionConsumer {
     fn consume_literal(&mut self, _input: Literal) -> Self::Output;
 
     fn consume_locator(&mut self, _input: LocatorExpression) -> Self::Output;
+
+    fn consume_member_access(&mut self, _input: MemberAccess) -> Self::Output;
+
+    fn consume_repeat(&mut self, _input: RepeatExpression) -> Self::Output;
+
+    fn consume_struct_init(&mut self, _input: StructExpression) -> Self::Output;
 
     fn consume_ternary(&mut self, _input: TernaryExpression) -> Self::Output;
 

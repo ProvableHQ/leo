@@ -44,6 +44,9 @@ pub use cast::*;
 mod err;
 pub use err::*;
 
+mod repeat;
+pub use repeat::*;
+
 mod member_access;
 pub use member_access::*;
 
@@ -99,6 +102,11 @@ pub enum Expression {
     Locator(LocatorExpression),
     /// An access of a struct member, e.g. `struc.member`.
     MemberAccess(Box<MemberAccess>),
+    /// An array expression constructed from one repeated element.
+    ///
+    /// E.g., `[1u32; 5]`. The expression is the element to be
+    /// repeated; the constant is the number of times to repeat it.
+    Repeat(Box<RepeatExpression>),
     /// An expression constructing a struct like `Foo { bar: 42, baz }`.
     Struct(StructExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
@@ -135,6 +143,7 @@ impl Node for Expression {
             Literal(n) => n.span(),
             Locator(n) => n.span(),
             MemberAccess(n) => n.span(),
+            Repeat(n) => n.span(),
             Struct(n) => n.span(),
             Ternary(n) => n.span(),
             Tuple(n) => n.span(),
@@ -159,6 +168,7 @@ impl Node for Expression {
             Literal(n) => n.set_span(span),
             Locator(n) => n.set_span(span),
             MemberAccess(n) => n.set_span(span),
+            Repeat(n) => n.set_span(span),
             Struct(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
             Tuple(n) => n.set_span(span),
@@ -182,6 +192,7 @@ impl Node for Expression {
             Literal(n) => n.id(),
             Locator(n) => n.id(),
             MemberAccess(n) => n.id(),
+            Repeat(n) => n.id(),
             Err(n) => n.id(),
             Struct(n) => n.id(),
             Ternary(n) => n.id(),
@@ -206,6 +217,7 @@ impl Node for Expression {
             Literal(n) => n.set_id(id),
             Locator(n) => n.set_id(id),
             MemberAccess(n) => n.set_id(id),
+            Repeat(n) => n.set_id(id),
             Err(n) => n.set_id(id),
             Struct(n) => n.set_id(id),
             Ternary(n) => n.set_id(id),
@@ -233,6 +245,7 @@ impl fmt::Display for Expression {
             Literal(n) => n.fmt(f),
             Locator(n) => n.fmt(f),
             MemberAccess(n) => n.fmt(f),
+            Repeat(n) => n.fmt(f),
             Struct(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
             Tuple(n) => n.fmt(f),
@@ -267,6 +280,7 @@ impl Expression {
             | Literal(_)
             | Locator(_)
             | MemberAccess(_)
+            | Repeat(_)
             | Struct(_)
             | Tuple(_)
             | TupleAccess(_)

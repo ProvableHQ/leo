@@ -335,6 +335,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access_general(access, false, additional),
+            Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.visit_tuple_access_general(access, false, additional),
@@ -409,6 +410,60 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
         self.maybe_assert_type(&type_, additional, input.span());
 
         type_
+    }
+
+    fn visit_repeat(&mut self, input: &RepeatExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        let element_type =
+            if let Some(Type::Array(array_ty)) = additional { Some(array_ty.element_type().clone()) } else { None };
+
+        let inferred_type = self.visit_expression_reject_numeric(&input.expr, &element_type);
+
+        todo!()
+        /*if input.elements.is_empty() {
+            self.emit_err(TypeCheckerError::array_empty(input.span()));
+            return Type::Err;
+        }
+
+        // Grab the element type from the expected type if the expected type is an array
+        let element_type =
+            if let Some(Type::Array(array_ty)) = additional { Some(array_ty.element_type().clone()) } else { None };
+
+        let inferred_type = self.visit_expression_reject_numeric(&input.elements[0], &element_type);
+
+        if input.elements.len() > self.limits.max_array_elements {
+            self.emit_err(TypeCheckerError::array_too_large(
+                input.elements.len(),
+                self.limits.max_array_elements,
+                input.span(),
+            ));
+        }
+
+        for expression in input.elements[1..].iter() {
+            let next_type = self.visit_expression_reject_numeric(expression, &element_type);
+
+            if next_type == Type::Err {
+                return Type::Err;
+            }
+
+            self.assert_type(&next_type, &inferred_type, expression.span());
+        }
+
+        if inferred_type == Type::Err {
+            return Type::Err;
+        }
+
+        let type_ = Type::Array(ArrayType::new(
+            inferred_type,
+            Expression::Literal(Literal {
+                variant: LiteralVariant::Integer(IntegerType::U32, input.elements.len().to_string()),
+                id: self.state.node_builder.next_id(),
+                span: Span::default(),
+            }), //NonNegativeNumber::from(input.elements.len()))
+        ));
+
+        self.maybe_assert_type(&type_, additional, input.span());
+
+        type_*/
     }
 
     fn visit_associated_constant(

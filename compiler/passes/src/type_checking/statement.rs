@@ -190,12 +190,7 @@ impl StatementVisitor for TypeCheckingVisitor<'_> {
         // Check the expression on the right-hand side. If we could not resolve `Type::Numeric`, then just give up.
         // We could do better in the future by potentially looking at consumers of this variable and inferring type
         // information from them.
-        let inferred_type = match &input.type_ {
-            Some(Type::Array(array_type)) if array_type.length().is_none() => {
-                self.visit_expression_reject_numeric(&input.value, &None)
-            }
-            _ => self.visit_expression_reject_numeric(&input.value, &input.type_),
-        };
+        let inferred_type = self.visit_expression_reject_numeric(&input.value, &input.type_);
 
         // Insert the variables into the symbol table.
         match &input.place {

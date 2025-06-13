@@ -974,6 +974,8 @@ impl TypeCheckingVisitor<'_> {
         }
 
         for const_param in &function.const_parameters {
+            self.visit_type(const_param.type_());
+
             // Restrictions for const parameters
             if !matches!(
                 const_param.type_(),
@@ -1002,13 +1004,6 @@ impl TypeCheckingVisitor<'_> {
         // The inputs should have access to the const parameters, so handle them after.
         for (i, input) in function.input.iter().enumerate() {
             self.visit_type(input.type_());
-            /*if let Type::Array(ArrayType { length, .. }) = &input.type_() {
-                let mut length_type = self.visit_expression(length, &None);
-                if length_type == Type::Numeric {
-                    length_type = Type::Integer(IntegerType::U32);
-                }
-                self.state.type_table.insert(length.id(), length_type);
-            }*/
 
             // No need to check compatibility of these types; that's already been done
             let table_type = inferred_inputs.get(i).unwrap_or_else(|| input.type_());

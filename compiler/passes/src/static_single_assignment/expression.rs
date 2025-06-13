@@ -31,6 +31,7 @@ use leo_ast::{
     Location,
     LocatorExpression,
     MemberAccess,
+    RepeatExpression,
     Statement,
     StructExpression,
     StructVariableInitializer,
@@ -224,6 +225,14 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
     /// Consumes and returns the locator expression without making any modifications
     fn consume_locator(&mut self, input: LocatorExpression) -> Self::Output {
         (input.into(), Vec::new())
+    }
+
+    fn consume_repeat(&mut self, input: RepeatExpression) -> Self::Output {
+        let (expr, mut statements) = self.consume_expression_and_define(input.expr);
+        let (count, mut count_statements) = self.consume_expression_and_define(input.count);
+        statements.append(&mut count_statements);
+
+        (RepeatExpression { expr, count, ..input }.into(), statements)
     }
 
     /// Consumes a ternary expression, accumulating any statements that are generated.
