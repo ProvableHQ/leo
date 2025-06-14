@@ -42,15 +42,10 @@ impl ExpressionReconstructor for FunctionInliningVisitor<'_> {
             return (input.into(), Default::default());
         }
 
-        // Get the name of the callee function.
-        let function_name = match input.function {
-            Expression::Identifier(identifier) => identifier.name,
-            _ => panic!("Parser guarantees that `input.function` is always an identifier."),
-        };
-
         // Lookup the reconstructed callee function.
         // Since this pass processes functions in post-order, the callee function is guaranteed to exist in `self.reconstructed_functions`
-        let (_, callee) = self.reconstructed_functions.iter().find(|(symbol, _)| *symbol == function_name).unwrap();
+        let (_, callee) =
+            self.reconstructed_functions.iter().find(|(symbol, _)| *symbol == input.function.name).unwrap();
 
         // Inline the callee function, if required, otherwise, return the call expression.
         match callee.variant {

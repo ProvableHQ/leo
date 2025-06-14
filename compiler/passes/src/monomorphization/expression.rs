@@ -39,15 +39,10 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
             return (input_call.into(), Default::default());
         }
 
-        // Extract the function name from the call expression.
-        let Expression::Identifier(Identifier { name: callee_name, .. }) = &input_call.function else {
-            panic!("Parser ensures `function` is always an identifier.")
-        };
-
         // Look up the already reconstructed function by name.
         let callee_fn = self
             .reconstructed_functions
-            .get(callee_name)
+            .get(&input_call.function.name)
             .expect("Callee should already be reconstructed (post-order traversal).");
 
         // Proceed only if the function variant is `inline` and if there are some const arguments.
@@ -70,7 +65,7 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
         // identifier in the user code.
         let new_callee_name = leo_span::Symbol::intern(&format!(
             "{}::[{}]",
-            callee_name,
+            input_call.function.name,
             input_call.const_arguments.iter().map(|arg| arg.to_string()).format(", ")
         ));
 
@@ -91,33 +86,36 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
             };
 
             // Add a new copy of `callee_fn` with a new name, no const parameters, and the monomorphized block
-            self.reconstructed_functions.insert(new_callee_name, Function {
-                identifier: Identifier {
-                    name: new_callee_name,
-                    span: leo_span::Span::default(),
-                    id: self.state.node_builder.next_id(),
+            self.reconstructed_functions.insert(
+                new_callee_name,
+                Function {
+                    identifier: Identifier {
+                        name: new_callee_name,
+                        span: leo_span::Span::default(),
+                        id: self.state.node_builder.next_id(),
+                    },
+                    annotations: callee_fn.annotations.clone(),
+                    variant: callee_fn.variant,
+                    const_parameters: Vec::new(), // Remove const parameters
+                    input: callee_fn.input.clone(),
+                    output: callee_fn.output.clone(),
+                    output_type: callee_fn.output_type.clone(),
+                    block: Replacer::new(replace_identifier).reconstruct_block(callee_fn.block.clone()).0,
+                    span: callee_fn.span,
+                    id: callee_fn.id,
                 },
-                annotations: callee_fn.annotations.clone(),
-                variant: callee_fn.variant,
-                const_parameters: Vec::new(), // Remove const parameters
-                input: callee_fn.input.clone(),
-                output: callee_fn.output.clone(),
-                output_type: callee_fn.output_type.clone(),
-                block: Replacer::new(replace_identifier).reconstruct_block(callee_fn.block.clone()).0,
-                span: callee_fn.span,
-                id: callee_fn.id,
-            });
+            );
 
             // Now keep track of the function we just monomorphized
-            self.monomorphized_functions.insert(*callee_name);
+            self.monomorphized_functions.insert(input_call.function.name);
         }
 
         // Update call graph with edges for the monomorphized function. We do this by basically cloning the edges in
         // and out of `callee_name` and replicating them for a new node that contains `new_callee_name`.
-        if let Some(neighbors) = self.state.call_graph.neighbors(callee_name) {
+        if let Some(neighbors) = self.state.call_graph.neighbors(&input_call.function.name) {
             for neighbor in neighbors {
-                if neighbor != *callee_name {
-                    self.state.call_graph.add_edge(new_callee_name, neighbor);
+                if neighbor != input_call.function.name {
+                    self.state.call_graph.add_edge(input_call.function.name, neighbor);
                 }
             }
         }
@@ -126,11 +124,11 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
         // Finally, construct the updated call expression that points to the monomorphized version and return it.
         (
             CallExpression {
-                function: Expression::Identifier(Identifier {
+                function: Identifier {
                     name: new_callee_name, // use the new name
                     span: leo_span::Span::default(),
                     id: self.state.node_builder.next_id(),
-                }),
+                },
                 const_arguments: vec![], // remove const arguments
                 arguments: input_call.arguments,
                 program: input_call.program,

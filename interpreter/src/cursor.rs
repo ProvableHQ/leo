@@ -815,17 +815,13 @@ impl Cursor {
             }
             Expression::Call(call) if step == 1 => {
                 let len = self.values.len();
-                let (program, name) = match &call.function {
-                    Expression::Identifier(id) => {
-                        let maybe_program = call.program.or_else(|| self.current_program());
-                        if let Some(program) = maybe_program {
-                            (program, id.name)
-                        } else {
-                            halt!(call.span, "No current program");
-                        }
+                let (program, name) = {
+                    let maybe_program = call.program.or_else(|| self.current_program());
+                    if let Some(program) = maybe_program {
+                        (program, call.function.name)
+                    } else {
+                        halt!(call.span, "No current program");
                     }
-                    Expression::Locator(locator) => (locator.program.name.name, locator.name),
-                    _ => tc_fail!(),
                 };
                 // It's a bit cheesy to collect the arguments into a Vec first, but it's the easiest way
                 // to handle lifetimes here.

@@ -24,7 +24,7 @@ use itertools::Itertools as _;
 pub struct CallExpression {
     /// An expression evaluating to a callable function,
     /// either a member of a structure or a free function.
-    pub function: Expression, // todo: make this identifier?
+    pub function: Identifier,
     /// Expressions for the const arguments passed to the function's const parameters.
     pub const_arguments: Vec<Expression>,
     /// Expressions for the arguments passed to the function's parameters.

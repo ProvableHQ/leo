@@ -57,10 +57,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         self.reconstructed_functions.retain(|f, _| {
             let is_monomorphized = self.monomorphized_functions.contains(f);
 
-            let is_still_called = self.unresolved_calls.iter().any(|c| match &c.function {
-                leo_ast::Expression::Identifier(ident) => ident.name == *f,
-                _ => panic!("Parser guarantees `function` is always an identifier."),
-            });
+            let is_still_called = self.unresolved_calls.iter().any(|c| c.function.name == *f);
 
             if is_monomorphized && !is_still_called {
                 // It's monomorphized and there are no unresolved calls to it - remove it.
