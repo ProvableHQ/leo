@@ -813,16 +813,12 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_call(&mut self, input: &CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        // Get the function symbol.
-        let Expression::Identifier(ident) = &input.function else {
-            panic!("Parsing guarantees that a function name is always an identifier.");
-        };
-
         let callee_program = input.program.or(self.scope_state.program_name).unwrap();
 
-        let Some(func_symbol) = self.state.symbol_table.lookup_function(Location::new(callee_program, ident.name))
+        let Some(func_symbol) =
+            self.state.symbol_table.lookup_function(Location::new(callee_program, input.function.name))
         else {
-            self.emit_err(TypeCheckerError::unknown_sym("function", ident.name, ident.span()));
+            self.emit_err(TypeCheckerError::unknown_sym("function", input.function.name, input.function.span()));
             return Type::Err;
         };
 
@@ -851,8 +847,11 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
         // Async functions return a single future.
         let mut ret = if func.variant == Variant::AsyncFunction {
             // Type check after resolving the input types.
-            let actual =
-                Type::Future(FutureType::new(Vec::new(), Some(Location::new(callee_program, ident.name)), false));
+            let actual = Type::Future(FutureType::new(
+                Vec::new(),
+                Some(Location::new(callee_program, input.function.name)),
+                false,
+            ));
             match expected {
                 Some(Type::Future(_)) | None => {
                     // If the expected type is a `Future` or if it's not set, then just return the
@@ -869,18 +868,21 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             // Fully infer future type.
             let Some(inputs) = self
                 .async_function_input_types
-                .get(&Location::new(callee_program, Symbol::intern(&format!("finalize/{}", ident.name))))
+                .get(&Location::new(callee_program, Symbol::intern(&format!("finalize/{}", input.function.name))))
             else {
-                self.emit_err(TypeCheckerError::async_function_not_found(ident.name, input.span));
+                self.emit_err(TypeCheckerError::async_function_not_found(input.function.name, input.span));
                 return Type::Future(FutureType::new(
                     Vec::new(),
-                    Some(Location::new(callee_program, ident.name)),
+                    Some(Location::new(callee_program, input.function.name)),
                     false,
                 ));
             };
 
-            let future_type =
-                Type::Future(FutureType::new(inputs.clone(), Some(Location::new(callee_program, ident.name)), true));
+            let future_type = Type::Future(FutureType::new(
+                inputs.clone(),
+                Some(Location::new(callee_program, input.function.name)),
+                true,
+            ));
             let fully_inferred_type = match &func.output_type {
                 Type::Tuple(tup) => Type::Tuple(TupleType::new(
                     tup.elements()
@@ -981,7 +983,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
 
         // Don't add external functions to call graph. Since imports are acyclic, these can never produce a cycle.
         if input.program.unwrap() == self.scope_state.program_name.unwrap() {
-            self.state.call_graph.add_edge(caller_name, ident.name);
+            self.state.call_graph.add_edge(caller_name, input.function.name);
         }
 
         if func.variant.is_transition()
@@ -1020,14 +1022,14 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
                 .symbol_table
                 .attach_finalizer(
                     Location::new(callee_program, caller_name),
-                    Location::new(callee_program, ident.name),
+                    Location::new(callee_program, input.function.name),
                     input_futures,
                     inferred_finalize_inputs.clone(),
                 )
                 .expect("Failed to attach finalizer");
             // Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
             self.async_function_callers
-                .entry(Location::new(self.scope_state.program_name.unwrap(), ident.name))
+                .entry(Location::new(self.scope_state.program_name.unwrap(), input.function.name))
                 .or_default()
                 .insert(self.scope_state.location());
 
@@ -1037,7 +1039,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             // Update ret to reflect fully inferred future type.
             ret = Type::Future(FutureType::new(
                 inferred_finalize_inputs,
-                Some(Location::new(callee_program, ident.name)),
+                Some(Location::new(callee_program, input.function.name)),
                 true,
             ));
 
@@ -1046,7 +1048,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
         }
 
         // Set call location so that definition statement knows where future comes from.
-        self.scope_state.call_location = Some(Location::new(callee_program, ident.name));
+        self.scope_state.call_location = Some(Location::new(callee_program, input.function.name));
 
         ret
     }

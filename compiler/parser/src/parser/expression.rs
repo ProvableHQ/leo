@@ -522,9 +522,13 @@ impl<N: Network> ParserContext<'_, N> {
                 // square brackets.
                 if self.check(&Token::LeftSquare) {
                     // Check that the expression is an identifier.
-                    if !matches!(expr, Expression::Identifier(_)) {
-                        self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()))
-                    }
+                    let Expression::Identifier(ident) = &expr else {
+                        return Err(leo_errors::LeoError::ParserError(ParserError::unexpected(
+                            expr.to_string(),
+                            "an identifier",
+                            expr.span(),
+                        )));
+                    };
 
                     // Parse a list of const arguments in between `[..]`
                     let const_arguments = self.parse_bracket_comma_list(|p| p.parse_expression().map(Some))?.0;
@@ -535,7 +539,7 @@ impl<N: Network> ParserContext<'_, N> {
                     // Now form a `CallExpression`
                     expr = CallExpression {
                         span: expr.span() + span,
-                        function: expr,
+                        function: *ident,
                         program: self.program_name,
                         const_arguments,
                         arguments,
@@ -556,14 +560,19 @@ impl<N: Network> ParserContext<'_, N> {
                     ArrayAccess { array: expr, index, span: expr_span + span, id: self.node_builder.next_id() }.into();
             } else if self.check(&Token::LeftParen) {
                 // Check that the expression is an identifier.
-                if !matches!(expr, Expression::Identifier(_)) {
-                    self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()))
-                }
+                let Expression::Identifier(ident) = &expr else {
+                    return Err(leo_errors::LeoError::ParserError(ParserError::unexpected(
+                        expr.to_string(),
+                        "an identifier",
+                        expr.span(),
+                    )));
+                };
+
                 // Parse a function call that's by itself.
                 let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
                 expr = CallExpression {
                     span: expr.span() + span,
-                    function: expr,
+                    function: *ident,
                     program: self.program_name,
                     const_arguments: vec![],
                     arguments,
