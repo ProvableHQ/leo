@@ -45,7 +45,7 @@ use leo_ast::{
 };
 use leo_span::sym;
 
-use std::{borrow::Borrow, fmt::Write as _};
+use std::fmt::Write as _;
 
 /// Implement the necessary methods to visit nodes in the AST.
 impl CodeGeneratingVisitor<'_> {
@@ -519,19 +519,13 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_call(&mut self, input: &CallExpression) -> (String, String) {
-        // Lookup the function return type.
-        let function_name = match input.function.borrow() {
-            Expression::Identifier(identifier) => identifier.name,
-            _ => panic!("Parsing guarantees that a function name is always an identifier."),
-        };
-
         let caller_program = self.program_id.expect("Calls only appear within programs.").name.name;
         let callee_program = input.program.unwrap_or(caller_program);
 
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(Location::new(callee_program, function_name))
+            .lookup_function(Location::new(callee_program, input.function.name))
             .expect("Type checking guarantees functions exist");
 
         // Need to determine the program the function originated from as well as if the function has a finalize block.

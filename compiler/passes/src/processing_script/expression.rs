@@ -24,20 +24,16 @@ impl ExpressionReconstructor for ProcessingScriptVisitor<'_> {
 
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
         if !matches!(self.current_variant, Variant::Script) {
-            // Get the function symbol.
-            let Expression::Identifier(ident) = &input.function else {
-                panic!("Parsing guarantees that a function name is always an identifier.");
-            };
-
             let callee_program = input.program.unwrap_or(self.program_name);
 
-            let Some(func_symbol) = self.state.symbol_table.lookup_function(Location::new(callee_program, ident.name))
+            let Some(func_symbol) =
+                self.state.symbol_table.lookup_function(Location::new(callee_program, input.function.name))
             else {
                 panic!("Type checking should have prevented this.");
             };
 
             if matches!(func_symbol.function.variant, Variant::Script) {
-                self.state.handler.emit_err(TypeCheckerError::non_script_calls_script(ident, input.span))
+                self.state.handler.emit_err(TypeCheckerError::non_script_calls_script(input.function, input.span))
             }
         }
         (input.into(), Default::default())

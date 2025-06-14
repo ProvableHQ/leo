@@ -52,16 +52,11 @@ impl Pass for ConstPropagationAndUnrolling {
 
                 // Emit errors for all problematic calls
                 for call in &monomorphization_output.unresolved_calls {
-                    let callee_name = match call.function {
-                        leo_ast::Expression::Identifier(ref ident) => ident.name,
-                        _ => panic!("Parser ensures `function` is always an identifier."),
-                    };
-
                     if let Some(arg) =
                         call.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
                     {
                         state.handler.emit_err(CompilerError::call_to_generic_function_not_resolved(
-                            callee_name,
+                            call.function.name,
                             arg,
                             call.span,
                         ));
