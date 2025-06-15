@@ -441,7 +441,7 @@ impl<N: Network> ParserContext<'_, N> {
 
         Ok(CallExpression {
             span: expr.span() + span,
-            function: name.into(),
+            function: name,
             program: Some(program.name),
             const_arguments: vec![], // we do not expect const arguments for external calls at this time
             arguments,

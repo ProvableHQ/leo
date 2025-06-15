@@ -66,7 +66,7 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
         let new_callee_name = leo_span::Symbol::intern(&format!(
             "{}::[{}]",
             input_call.function.name,
-            input_call.const_arguments.iter().map(|arg| arg.to_string()).format(", ")
+            input_call.const_arguments.iter().format(", ")
         ));
 
         // Check if the new callee name is not already present in `reconstructed_functions`. This ensures that we do not
@@ -86,25 +86,22 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
             };
 
             // Add a new copy of `callee_fn` with a new name, no const parameters, and the monomorphized block
-            self.reconstructed_functions.insert(
-                new_callee_name,
-                Function {
-                    identifier: Identifier {
-                        name: new_callee_name,
-                        span: leo_span::Span::default(),
-                        id: self.state.node_builder.next_id(),
-                    },
-                    annotations: callee_fn.annotations.clone(),
-                    variant: callee_fn.variant,
-                    const_parameters: Vec::new(), // Remove const parameters
-                    input: callee_fn.input.clone(),
-                    output: callee_fn.output.clone(),
-                    output_type: callee_fn.output_type.clone(),
-                    block: Replacer::new(replace_identifier).reconstruct_block(callee_fn.block.clone()).0,
-                    span: callee_fn.span,
-                    id: callee_fn.id,
+            self.reconstructed_functions.insert(new_callee_name, Function {
+                identifier: Identifier {
+                    name: new_callee_name,
+                    span: leo_span::Span::default(),
+                    id: self.state.node_builder.next_id(),
                 },
-            );
+                annotations: callee_fn.annotations.clone(),
+                variant: callee_fn.variant,
+                const_parameters: Vec::new(), // Remove const parameters
+                input: callee_fn.input.clone(),
+                output: callee_fn.output.clone(),
+                output_type: callee_fn.output_type.clone(),
+                block: Replacer::new(replace_identifier).reconstruct_block(callee_fn.block.clone()).0,
+                span: callee_fn.span,
+                id: callee_fn.id,
+            });
 
             // Now keep track of the function we just monomorphized
             self.monomorphized_functions.insert(input_call.function.name);
@@ -115,7 +112,7 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
         if let Some(neighbors) = self.state.call_graph.neighbors(&input_call.function.name) {
             for neighbor in neighbors {
                 if neighbor != input_call.function.name {
-                    self.state.call_graph.add_edge(input_call.function.name, neighbor);
+                    self.state.call_graph.add_edge(new_callee_name, neighbor);
                 }
             }
         }

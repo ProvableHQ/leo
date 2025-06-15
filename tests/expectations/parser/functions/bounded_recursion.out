@@ -122,14 +122,12 @@
                             "expression": {
                               "Call": {
                                 "function": {
-                                  "Identifier": {
-                                    "name": "x",
-                                    "span": {
-                                      "lo": 95,
-                                      "hi": 96
-                                    },
-                                    "id": 9
-                                  }
+                                  "name": "x",
+                                  "span": {
+                                    "lo": 95,
+                                    "hi": 96
+                                  },
+                                  "id": 9
                                 },
                                 "const_arguments": [],
                                 "arguments": [
@@ -265,14 +263,12 @@
                     "expression": {
                       "Call": {
                         "function": {
-                          "Identifier": {
-                            "name": "x",
-                            "span": {
-                              "lo": 168,
-                              "hi": 169
-                            },
-                            "id": 23
-                          }
+                          "name": "x",
+                          "span": {
+                            "lo": 168,
+                            "hi": 169
+                          },
+                          "id": 23
                         },
                         "const_arguments": [],
                         "arguments": [

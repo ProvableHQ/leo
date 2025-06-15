@@ -166,14 +166,12 @@
                     "value": {
                       "Call": {
                         "function": {
-                          "Identifier": {
-                            "name": "add",
-                            "span": {
-                              "lo": 167,
-                              "hi": 170
-                            },
-                            "id": 6
-                          }
+                          "name": "add",
+                          "span": {
+                            "lo": 167,
+                            "hi": 170
+                          },
+                          "id": 6
                         },
                         "const_arguments": [],
                         "arguments": [],
@@ -232,14 +230,12 @@
                     "value": {
                       "Call": {
                         "function": {
-                          "Identifier": {
-                            "name": "nested_fn",
-                            "span": {
-                              "lo": 241,
-                              "hi": 250
-                            },
-                            "id": 11
-                          }
+                          "name": "nested_fn",
+                          "span": {
+                            "lo": 241,
+                            "hi": 250
+                          },
+                          "id": 11
                         },
                         "const_arguments": [],
                         "arguments": [],
@@ -319,14 +315,12 @@
                     "value": {
                       "Call": {
                         "function": {
-                          "Identifier": {
-                            "name": "finalize_main",
-                            "span": {
-                              "lo": 346,
-                              "hi": 359
-                            },
-                            "id": 15
-                          }
+                          "name": "finalize_main",
+                          "span": {
+                            "lo": 346,
+                            "hi": 359
+                          },
+                          "id": 15
                         },
                         "const_arguments": [],
                         "arguments": [

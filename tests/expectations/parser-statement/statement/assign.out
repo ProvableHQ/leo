@@ -93,14 +93,12 @@
     "value": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 23,
-              "hi": 24
-            },
-            "id": 1
-          }
+          "name": "x",
+          "span": {
+            "lo": 23,
+            "hi": 24
+          },
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [],

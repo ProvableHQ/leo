@@ -191,7 +191,7 @@ pub fn find_and_run_tests(
         assert!(function.variant.is_script(), "Type checking should ensure test functions are transitions or scripts.");
 
         let call = CallExpression {
-            function: Identifier::new(function.identifier.name, interpreter.node_builder.next_id()).into(),
+            function: Identifier::new(function.identifier.name, interpreter.node_builder.next_id()),
             const_arguments: vec![], // scripts don't have const parameters for now
             arguments: Vec::new(),
             program: Some(id.program),

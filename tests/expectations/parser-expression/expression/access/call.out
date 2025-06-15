@@ -1,14 +1,12 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 0,
-          "hi": 1
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 0,
+        "hi": 1
+      },
+      "id": 0
     },
     "const_arguments": [],
     "arguments": [],
@@ -24,14 +22,12 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "X",
-        "span": {
-          "lo": 4,
-          "hi": 5
-        },
-        "id": 0
-      }
+      "name": "X",
+      "span": {
+        "lo": 4,
+        "hi": 5
+      },
+      "id": 0
     },
     "const_arguments": [],
     "arguments": [],
@@ -47,14 +43,12 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 8,
-          "hi": 9
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 8,
+        "hi": 9
+      },
+      "id": 0
     },
     "const_arguments": [],
     "arguments": [
@@ -81,14 +75,12 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 13,
-          "hi": 14
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 13,
+        "hi": 14
+      },
+      "id": 0
     },
     "const_arguments": [],
     "arguments": [
@@ -125,14 +117,12 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 21,
-          "hi": 22
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 21,
+        "hi": 22
+      },
+      "id": 0
     },
     "const_arguments": [],
     "arguments": [
@@ -179,14 +169,12 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 32,
-          "hi": 33
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 32,
+        "hi": 33
+      },
+      "id": 0
     },
     "const_arguments": [],
     "arguments": [
@@ -233,14 +221,12 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 47,
-          "hi": 48
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 47,
+        "hi": 48
+      },
+      "id": 0
     },
     "const_arguments": [
       {
@@ -298,14 +284,12 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 63,
-          "hi": 64
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 63,
+        "hi": 64
+      },
+      "id": 0
     },
     "const_arguments": [
       {
