@@ -63,14 +63,12 @@
     "expression": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 11,
-              "hi": 12
-            },
-            "id": 0
-          }
+          "name": "x",
+          "span": {
+            "lo": 11,
+            "hi": 12
+          },
+          "id": 0
         },
         "const_arguments": [],
         "arguments": [],

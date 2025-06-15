@@ -113,14 +113,12 @@
                     "value": {
                       "Call": {
                         "function": {
-                          "Identifier": {
-                            "name": "finalize_main",
-                            "span": {
-                              "lo": 114,
-                              "hi": 127
-                            },
-                            "id": 7
-                          }
+                          "name": "finalize_main",
+                          "span": {
+                            "lo": 114,
+                            "hi": 127
+                          },
+                          "id": 7
                         },
                         "const_arguments": [],
                         "arguments": [
