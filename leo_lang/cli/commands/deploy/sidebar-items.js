@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["check_tasks_for_warnings","handle_deploy","print_deployment_plan","print_deployment_stats"],"struct":["LeoDeploy"],"type":["DeploymentTask"]};
+window.SIDEBAR_ITEMS = {"fn":["check_tasks_for_warnings","handle_deploy","print_deployment_plan","print_deployment_stats","validate_deployment_limits"],"struct":["LeoDeploy"],"type":["DeploymentTask"]};

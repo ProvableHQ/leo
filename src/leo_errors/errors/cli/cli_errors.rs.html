@@ -288,15 +288,15 @@
 <a href=#288 id=288 data-nosnippet>288</a>
 <a href=#289 id=289 data-nosnippet>289</a>    @backtraced
 <a href=#290 id=290 data-nosnippet>290</a>    constraint_limit_exceeded {
-<a href=#291 id=291 data-nosnippet>291</a>        args: (program: <span class="kw">impl </span>Display, limit: u64, network: <span class="kw">impl </span>Display),
-<a href=#292 id=292 data-nosnippet>292</a>        msg: <span class="macro">format!</span>(<span class="string">"Program `{program}` exceeds the constraint limit {limit} for deployment on network {network}."</span>),
+<a href=#291 id=291 data-nosnippet>291</a>        args: (program: <span class="kw">impl </span>Display, actual: u64, limit: u64, network: <span class="kw">impl </span>Display),
+<a href=#292 id=292 data-nosnippet>292</a>        msg: <span class="macro">format!</span>(<span class="string">"Program `{program}` has {actual} constraints, which exceeds the limit of {limit} for deployment on network {network}."</span>),
 <a href=#293 id=293 data-nosnippet>293</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Reduce the number of constraints in the program by reducing the number of instructions in transition functions."</span>.to_string()),
 <a href=#294 id=294 data-nosnippet>294</a>    }
 <a href=#295 id=295 data-nosnippet>295</a>
 <a href=#296 id=296 data-nosnippet>296</a>    @backtraced
 <a href=#297 id=297 data-nosnippet>297</a>    variable_limit_exceeded {
-<a href=#298 id=298 data-nosnippet>298</a>        args: (program: <span class="kw">impl </span>Display, limit: u64, network: <span class="kw">impl </span>Display),
-<a href=#299 id=299 data-nosnippet>299</a>        msg: <span class="macro">format!</span>(<span class="string">"Program `{program}` exceeds the variable limit {limit} for deployment on network {network}."</span>),
+<a href=#298 id=298 data-nosnippet>298</a>        args: (program: <span class="kw">impl </span>Display, actual: u64, limit: u64, network: <span class="kw">impl </span>Display),
+<a href=#299 id=299 data-nosnippet>299</a>        msg: <span class="macro">format!</span>(<span class="string">"Program `{program}` has {actual} variables, which exceeds the limit of {limit} for deployment on network {network}."</span>),
 <a href=#300 id=300 data-nosnippet>300</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Reduce the number of variables in the program by reducing the number of instructions in transition functions."</span>.to_string()),
 <a href=#301 id=301 data-nosnippet>301</a>    }
 <a href=#302 id=302 data-nosnippet>302</a>
