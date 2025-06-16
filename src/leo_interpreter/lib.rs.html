@@ -191,7 +191,7 @@
 <a href=#191 id=191 data-nosnippet>191</a>        <span class="macro">assert!</span>(function.variant.is_script(), <span class="string">"Type checking should ensure test functions are transitions or scripts."</span>);
 <a href=#192 id=192 data-nosnippet>192</a>
 <a href=#193 id=193 data-nosnippet>193</a>        <span class="kw">let </span>call = CallExpression {
-<a href=#194 id=194 data-nosnippet>194</a>            function: Identifier::new(function.identifier.name, interpreter.node_builder.next_id()).into(),
+<a href=#194 id=194 data-nosnippet>194</a>            function: Identifier::new(function.identifier.name, interpreter.node_builder.next_id()),
 <a href=#195 id=195 data-nosnippet>195</a>            const_arguments: <span class="macro">vec!</span>[], <span class="comment">// scripts don't have const parameters for now
 <a href=#196 id=196 data-nosnippet>196</a>            </span>arguments: Vec::new(),
 <a href=#197 id=197 data-nosnippet>197</a>            program: <span class="prelude-val">Some</span>(id.program),

@@ -24,8 +24,8 @@
 <a href=#24 id=24 data-nosnippet>24</a></span><span class="kw">pub struct </span>CallExpression {
 <a href=#25 id=25 data-nosnippet>25</a>    <span class="doccomment">/// An expression evaluating to a callable function,
 <a href=#26 id=26 data-nosnippet>26</a>    /// either a member of a structure or a free function.
-<a href=#27 id=27 data-nosnippet>27</a>    </span><span class="kw">pub </span>function: Expression, <span class="comment">// todo: make this identifier?
-<a href=#28 id=28 data-nosnippet>28</a>    </span><span class="doccomment">/// Expressions for the const arguments passed to the function's const parameters.
+<a href=#27 id=27 data-nosnippet>27</a>    </span><span class="kw">pub </span>function: Identifier,
+<a href=#28 id=28 data-nosnippet>28</a>    <span class="doccomment">/// Expressions for the const arguments passed to the function's const parameters.
 <a href=#29 id=29 data-nosnippet>29</a>    </span><span class="kw">pub </span>const_arguments: Vec&lt;Expression&gt;,
 <a href=#30 id=30 data-nosnippet>30</a>    <span class="doccomment">/// Expressions for the arguments passed to the function's parameters.
 <a href=#31 id=31 data-nosnippet>31</a>    </span><span class="kw">pub </span>arguments: Vec&lt;Expression&gt;,
