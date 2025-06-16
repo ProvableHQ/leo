@@ -27,7 +27,7 @@ include = [
 ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.85.1"
+rust-version = "1.87.0"
 
 [workspace]
 members = [
@@ -170,11 +170,17 @@ path = "leo/lib.rs"
 name = "leo"
 path = "leo/cli/main.rs"
 
+[[test]]
+name = "integration"
+path = "leo/tests/integration.rs"
+
 [features]
 default = [ ]
-ci_skip = [ "leo-compiler/ci_skip" ]
-noconfig = [ ]
 only_testnet = [ ]
+# Use lower values for block heights of each consensus version. We need
+# this for testing. Integration tests should be run with this feature
+# enabled.
+test_consensus_heights = [ "snarkvm/test_consensus_heights" ]
 
 [dependencies]
 dialoguer = "0.11.0"
@@ -269,6 +275,15 @@ version = "7.3.1"
 workspace = true
 
 [dependencies.walkdir]
+workspace = true
+
+[dev-dependencies.regex]
+workspace = true
+
+[dev-dependencies.tempfile]
+workspace = true
+
+[dev-dependencies.walkdir]
 workspace = true
 
 [target."cfg(windows)".dependencies.ansi_term]

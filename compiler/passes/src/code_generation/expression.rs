@@ -348,7 +348,7 @@ impl CodeGeneratingVisitor<'_> {
         let (operand, mut operand_instructions) = self.visit_expression(&input.expr);
         let count = input.count.as_u32().expect("repeat count should be known at this point");
 
-        let expression_operands = std::iter::repeat(operand).take(count as usize).collect::<Vec<_>>().join(" ");
+        let expression_operands = std::iter::repeat_n(operand, count as usize).collect::<Vec<_>>().join(" ");
 
         // Construct the destination register.
         let destination_register = self.next_register();

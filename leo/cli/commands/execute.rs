@@ -29,7 +29,7 @@ use std::{convert::TryFrom, path::PathBuf};
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
-    ledger::store::helpers::memory::BlockMemory,
+    ledger::{query::Query as SnarkVMQuery, store::helpers::memory::BlockMemory},
     prelude::{
         ConsensusVersion,
         Identifier,
@@ -38,7 +38,6 @@ use snarkvm::{
         Value,
         execution_cost_v1,
         execution_cost_v2,
-        query::Query as SnarkVMQuery,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };

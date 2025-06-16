@@ -22,7 +22,7 @@ use leo_package::{NetworkName, Package, ProgramData, fetch_program_from_network}
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
-    ledger::store::helpers::memory::BlockMemory,
+    ledger::{query::Query as SnarkVMQuery, store::helpers::memory::BlockMemory},
     prelude::{
         ConsensusVersion,
         Deployment,
@@ -31,7 +31,6 @@ use snarkvm::{
         TestnetV0,
         VM,
         deployment_cost,
-        query::Query as SnarkVMQuery,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };

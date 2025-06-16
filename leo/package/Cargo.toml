@@ -16,7 +16,7 @@ categories = [ "compilers", "cryptography", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.85.1"
+rust-version = "1.87.0"
 
 [dependencies.leo-errors]
 workspace = true
@@ -29,6 +29,7 @@ workspace = true
 
 [dependencies.snarkvm]
 workspace = true
+features = [ "cli" ]
 
 [dependencies.anyhow]
 workspace = true
@@ -50,3 +51,4 @@ workspace = true
 
 [dependencies.ureq]
 workspace = true
+features = [ "json" ]
