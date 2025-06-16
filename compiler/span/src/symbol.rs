@@ -251,6 +251,7 @@ symbols! {
     caller,
     Const: "const",
     constant,
+    constructor,
     decrement,
     Else: "else",
     For: "for",
