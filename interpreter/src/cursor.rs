@@ -654,8 +654,8 @@ impl Cursor {
             }
             Expression::ArrayAccess(array) if step == 1 => {
                 let span = array.span();
-                let array = self.pop_value()?;
                 let index = self.pop_value()?;
+                let array = self.pop_value()?;
 
                 let index_usize: usize = match index {
                     Value::U8(x) => x.into(),
