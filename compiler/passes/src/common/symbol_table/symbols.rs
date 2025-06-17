@@ -25,6 +25,7 @@ use leo_span::Span;
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum VariableType {
     Const,
+    ConstParameter,
     Input(Mode),
     Mut,
 }
@@ -35,6 +36,7 @@ impl Display for VariableType {
 
         match self {
             Const => write!(f, "const var"),
+            ConstParameter => write!(f, "const parameter"),
             Input(m) => write!(f, "{m} input"),
             Mut => write!(f, "mut var"),
         }

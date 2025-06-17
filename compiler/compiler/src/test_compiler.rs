@@ -59,7 +59,7 @@ pub fn whole_compile(
 
 fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
     // Initialize a `Process`. This should always succeed.
-    let mut process = Process::<TestnetV0>::load().unwrap();
+    let process = Process::<TestnetV0>::load().unwrap();
 
     let mut import_stubs = IndexMap::new();
 

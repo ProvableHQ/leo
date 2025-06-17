@@ -1,0 +1,16 @@
+program const_generics.aleo;
+
+function main:
+    output 0field as field.private;
+
+function main2:
+    async main2 into r0;
+    output r0 as const_generics.aleo/main2.future;
+
+finalize main2:
+    assert.eq true true;
+
+closure bar:
+    input r0 as field;
+    assert.eq true true;
+    output r0 as field;

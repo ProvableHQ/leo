@@ -17,6 +17,9 @@
 mod annotation;
 pub use annotation::*;
 
+mod const_parameter;
+pub use const_parameter::*;
+
 mod core_function;
 pub use core_function::*;
 
@@ -48,6 +51,8 @@ pub struct Function {
     pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
+    /// The function's const parameters.
+    pub const_parameters: Vec<ConstParameter>,
     /// The function's input parameters.
     pub input: Vec<Input>,
     /// The function's output declarations.
@@ -62,6 +67,66 @@ pub struct Function {
     pub id: NodeID,
 }
 
+impl PartialEq for Function {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier == other.identifier
+    }
+}
+
+impl Eq for Function {}
+
+impl Function {
+    /// Initialize a new function.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        annotations: Vec<Annotation>,
+        variant: Variant,
+        identifier: Identifier,
+        const_parameters: Vec<ConstParameter>,
+        input: Vec<Input>,
+        output: Vec<Output>,
+        block: Block,
+        span: Span,
+        id: NodeID,
+    ) -> Self {
+        let output_type = match output.len() {
+            0 => Type::Unit,
+            1 => output[0].type_.clone(),
+            _ => Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
+        };
+
+        Function { annotations, variant, identifier, const_parameters, input, output, output_type, block, span, id }
+    }
+
+    /// Returns function name.
+    pub fn name(&self) -> Symbol {
+        self.identifier.name
+    }
+}
+
+impl From<FunctionStub> for Function {
+    fn from(function: FunctionStub) -> Self {
+        Self {
+            annotations: function.annotations,
+            variant: function.variant,
+            identifier: function.identifier,
+            const_parameters: vec![],
+            input: function.input,
+            output: function.output,
+            output_type: function.output_type,
+            block: Block::default(),
+            span: function.span,
+            id: function.id,
+        }
+    }
+}
+
+impl fmt::Debug for Function {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
 impl fmt::Display for Function {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.variant {
@@ -72,7 +137,12 @@ impl fmt::Display for Function {
             Variant::AsyncTransition => write!(f, "async transition ")?,
             Variant::Script => write!(f, "script ")?,
         }
-        write!(f, "{}({})", self.identifier, self.input.iter().format(", "))?;
+
+        write!(f, "{}", self.identifier)?;
+        if !self.const_parameters.is_empty() {
+            write!(f, "::[{}]", self.const_parameters.iter().format(", "))?;
+        }
+        write!(f, "({})", self.input.iter().format(", "))?;
 
         match self.output.len() {
             0 => {}
@@ -91,64 +161,6 @@ impl fmt::Display for Function {
             writeln!(f, "{}{}", Indent(stmt), stmt.semicolon())?;
         }
         write!(f, "}}")
-    }
-}
-
-impl fmt::Debug for Function {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self)
-    }
-}
-
-impl Function {
-    /// Initialize a new function.
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        annotations: Vec<Annotation>,
-        variant: Variant,
-        identifier: Identifier,
-        input: Vec<Input>,
-        output: Vec<Output>,
-        block: Block,
-        span: Span,
-        id: NodeID,
-    ) -> Self {
-        let output_type = match output.len() {
-            0 => Type::Unit,
-            1 => output[0].type_.clone(),
-            _ => Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
-        };
-
-        Function { annotations, variant, identifier, input, output, output_type, block, span, id }
-    }
-
-    /// Returns function name.
-    pub fn name(&self) -> Symbol {
-        self.identifier.name
-    }
-}
-
-impl PartialEq for Function {
-    fn eq(&self, other: &Self) -> bool {
-        self.identifier == other.identifier
-    }
-}
-
-impl Eq for Function {}
-
-impl From<FunctionStub> for Function {
-    fn from(function: FunctionStub) -> Self {
-        Self {
-            annotations: function.annotations,
-            variant: function.variant,
-            identifier: function.identifier,
-            input: function.input,
-            output: function.output,
-            output_type: function.output_type,
-            block: Block::default(),
-            span: function.span,
-            id: function.id,
-        }
     }
 }
 

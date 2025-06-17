@@ -1,6 +1,6 @@
 [package]
 name = "leo-ast"
-version = "2.6.0"
+version = "2.6.1"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Abstract syntax tree (AST) for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -31,6 +31,12 @@ workspace = true
 workspace = true
 
 [dependencies.itertools]
+workspace = true
+
+[dependencies.rand]
+workspace = true
+
+[dependencies.rand_chacha]
 workspace = true
 
 [dependencies.serde]

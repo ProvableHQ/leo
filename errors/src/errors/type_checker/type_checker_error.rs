@@ -69,7 +69,7 @@ create_messages!(
         msg: format!(
             "Could not determine the type of `{expr}`",
         ),
-        help: None,
+        help: Some("Consider using explicit type annotations.".into()),
     }
 
     /// For when the user tries to return a unknown variable.
@@ -1046,6 +1046,7 @@ create_messages!(
         help: Some("Ternary conditionals may not contain an external record type.".to_string()),
     }
 
+    // TODO: unused.
     @formatted
     assignment_to_external_record {
         args: (ty: impl Display),
@@ -1068,9 +1069,79 @@ create_messages!(
     }
 
     @formatted
-    range_bounds_type_mismatch{
+    range_bounds_type_mismatch {
         args: (),
         msg: format!("mismatched types in loop iterator range bounds"),
+        help: None,
+    }
+
+    @formatted
+    assignment_to_external_record_member {
+        args: (ty: impl Display),
+        msg: format!("Cannot assign to a member of the external record `{ty}`."),
+        help: None,
+    }
+
+    @formatted
+    assignment_to_external_record_cond {
+        args: (ty: impl Display),
+        msg: format!("Cannot assign to the external record type `{ty}` in this location."),
+        help: Some("External record variables may not be assigned to in narrower conditonal scopes than they were defined.".into()),
+    }
+
+    @formatted
+    assignment_to_external_record_tuple_cond {
+        args: (ty: impl Display),
+        msg: format!("Cannot assign to the tuple type `{ty}` containing an external record in this location."),
+        help: Some("Tuples containing external records may not be assigned to in narrower conditonal scopes than they were defined.".into()),
+    }
+
+    @formatted
+    hexbin_literal_nonintegers {
+        args: (),
+        msg: format!("Hex, octal, and binary literals may only be used for integer types."),
+        help: None,
+    }
+
+    @formatted
+    unexpected_unsuffixed_numeral {
+        args: (expected: impl Display),
+        msg: format!(
+            "Expected {expected} but an unsuffixed numeral was found.",
+        ),
+        help: None,
+    }
+
+    @formatted
+    incorrect_num_const_args_to_call {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!(
+            "Call expected `{expected}` const args, but got `{received}`",
+        ),
+        help: None,
+    }
+
+    @formatted
+    bad_const_generic_type {
+        args: (found: impl Display),
+        msg: format!("A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but {found} was found"),
+        help: None,
+    }
+
+    /// For when the user tries to assign to a generic const function parameter.
+    @formatted
+    cannot_assign_to_generic_const_function_parameter {
+        args: (param: impl Display),
+        msg: format!(
+            "Cannot assign to const parameter `{param}`",
+        ),
+        help: None,
+    }
+
+    @formatted
+    only_inline_can_have_const_generics {
+        args: (),
+        msg: format!("Only `inline` functions can have generic const parameters."),
         help: None,
     }
 );

@@ -149,10 +149,7 @@ impl Program {
                 let url = format!("{endpoint}/{network}/program/{name}.aleo/latest_edition");
                 let contents = fetch_from_network(&url)?;
                 contents.parse::<u16>().map_err(|e| {
-                    UtilError::failed_to_retrieve_from_endpoint(
-                        format!("Failed to parse edition as u16: {e}"),
-                        Default::default(),
-                    )
+                    UtilError::failed_to_retrieve_from_endpoint(format!("Failed to parse edition as u16: {e}"))
                 })?
             }
         };

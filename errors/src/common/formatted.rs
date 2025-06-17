@@ -88,12 +88,6 @@ impl Formatted {
 
 impl fmt::Display for Formatted {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) else {
-            return write!(f, "Can't find source file");
-        };
-
-        let line_contents = source_file.line_contents(self.span);
-
         let (kind, code) =
             if self.backtrace.error { ("Error", self.error_code()) } else { ("Warning", self.warning_code()) };
 
@@ -110,19 +104,23 @@ impl fmt::Display for Formatted {
             writeln!(f, "{message}")?;
         };
 
-        writeln!(
-            f,
-            "{indent     }--> {path}:{line_start}:{start}",
-            indent = INDENT,
-            path = &source_file.name,
-            // Report lines starting from line 1.
-            line_start = line_contents.line + 1,
-            // And columns - comments in some old code claims to report columns indexing from 0,
-            // but that doesn't appear to have been true.
-            start = line_contents.start + 1,
-        )?;
+        if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
+            let line_contents = source_file.line_contents(self.span);
 
-        write!(f, "{line_contents}")?;
+            writeln!(
+                f,
+                "{indent     }--> {path}:{line_start}:{start}",
+                indent = INDENT,
+                path = &source_file.name,
+                // Report lines starting from line 1.
+                line_start = line_contents.line + 1,
+                // And columns - comments in some old code claims to report columns indexing from 0,
+                // but that doesn't appear to have been true.
+                start = line_contents.start + 1,
+            )?;
+
+            write!(f, "{line_contents}")?;
+        };
 
         if let Some(help) = &self.backtrace.help {
             writeln!(

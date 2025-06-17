@@ -30,6 +30,7 @@ use snarkvm::{
     },
 };
 
+use crate::cli::commands::deploy::validate_deployment_limits;
 use aleo_std::StorageMode;
 use colored::*;
 use snarkvm::prelude::{ConsensusVersion, ProgramID, Stack};
@@ -207,15 +208,8 @@ fn handle_upgrade<N: Network>(
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
             print_deployment_stats(&vm, &program_id.to_string(), deployment, priority_fee)?;
-            // Check if the number of variables and constraints are within the limits.
-            if deployment.num_combined_variables()? > N::MAX_DEPLOYMENT_VARIABLES {
-                return Err(CliError::variable_limit_exceeded(program_id, N::MAX_DEPLOYMENT_VARIABLES, network).into());
-            }
-            if deployment.num_combined_constraints()? > N::MAX_DEPLOYMENT_CONSTRAINTS {
-                return Err(
-                    CliError::constraint_limit_exceeded(program_id, N::MAX_DEPLOYMENT_CONSTRAINTS, network).into()
-                );
-            }
+            // Validate the deployment limits.
+            validate_deployment_limits(deployment, &program_id, &network)?;
             // Save the transaction.
             transactions.push((program_id, transaction));
         }
@@ -354,7 +348,6 @@ impl From<&LeoUpgrade> for LeoDeploy {
             action: upgrade.action.clone(),
             env_override: upgrade.env_override.clone(),
             extra: upgrade.extra.clone(),
-            wait: upgrade.wait,
             skip: upgrade.skip.clone(),
             build_options: upgrade.build_options.clone(),
         }

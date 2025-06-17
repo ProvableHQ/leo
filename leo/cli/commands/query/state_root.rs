@@ -35,6 +35,6 @@ impl Command for StateRoot {
     }
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
-        Ok("/stateRoot/latest".to_string())
+        Ok("stateRoot/latest".to_string())
     }
 }

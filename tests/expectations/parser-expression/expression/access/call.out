@@ -1,15 +1,14 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 0,
-          "hi": 1
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 0,
+        "hi": 1
+      },
+      "id": 0
     },
+    "const_arguments": [],
     "arguments": [],
     "program": null,
     "span": {
@@ -23,15 +22,14 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "X",
-        "span": {
-          "lo": 4,
-          "hi": 5
-        },
-        "id": 0
-      }
+      "name": "X",
+      "span": {
+        "lo": 4,
+        "hi": 5
+      },
+      "id": 0
     },
+    "const_arguments": [],
     "arguments": [],
     "program": null,
     "span": {
@@ -45,15 +43,14 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 8,
-          "hi": 9
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 8,
+        "hi": 9
+      },
+      "id": 0
     },
+    "const_arguments": [],
     "arguments": [
       {
         "Identifier": {
@@ -78,15 +75,14 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 13,
-          "hi": 14
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 13,
+        "hi": 14
+      },
+      "id": 0
     },
+    "const_arguments": [],
     "arguments": [
       {
         "Identifier": {
@@ -121,15 +117,14 @@
 {
   "Call": {
     "function": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 21,
-          "hi": 22
-        },
-        "id": 0
-      }
+      "name": "x",
+      "span": {
+        "lo": 21,
+        "hi": 22
+      },
+      "id": 0
     },
+    "const_arguments": [],
     "arguments": [
       {
         "Identifier": {
@@ -168,6 +163,240 @@
       "hi": 31
     },
     "id": 4
+  }
+}
+
+{
+  "Call": {
+    "function": {
+      "name": "x",
+      "span": {
+        "lo": 32,
+        "hi": 33
+      },
+      "id": 0
+    },
+    "const_arguments": [],
+    "arguments": [
+      {
+        "Identifier": {
+          "name": "x",
+          "span": {
+            "lo": 38,
+            "hi": 39
+          },
+          "id": 1
+        }
+      },
+      {
+        "Identifier": {
+          "name": "y",
+          "span": {
+            "lo": 41,
+            "hi": 42
+          },
+          "id": 2
+        }
+      },
+      {
+        "Identifier": {
+          "name": "z",
+          "span": {
+            "lo": 44,
+            "hi": 45
+          },
+          "id": 3
+        }
+      }
+    ],
+    "program": null,
+    "span": {
+      "lo": 32,
+      "hi": 46
+    },
+    "id": 4
+  }
+}
+
+{
+  "Call": {
+    "function": {
+      "name": "x",
+      "span": {
+        "lo": 47,
+        "hi": 48
+      },
+      "id": 0
+    },
+    "const_arguments": [
+      {
+        "Identifier": {
+          "name": "p",
+          "span": {
+            "lo": 51,
+            "hi": 52
+          },
+          "id": 1
+        }
+      }
+    ],
+    "arguments": [
+      {
+        "Identifier": {
+          "name": "x",
+          "span": {
+            "lo": 54,
+            "hi": 55
+          },
+          "id": 2
+        }
+      },
+      {
+        "Identifier": {
+          "name": "y",
+          "span": {
+            "lo": 57,
+            "hi": 58
+          },
+          "id": 3
+        }
+      },
+      {
+        "Identifier": {
+          "name": "z",
+          "span": {
+            "lo": 60,
+            "hi": 61
+          },
+          "id": 4
+        }
+      }
+    ],
+    "program": null,
+    "span": {
+      "lo": 47,
+      "hi": 62
+    },
+    "id": 5
+  }
+}
+
+{
+  "Call": {
+    "function": {
+      "name": "x",
+      "span": {
+        "lo": 63,
+        "hi": 64
+      },
+      "id": 0
+    },
+    "const_arguments": [
+      {
+        "Literal": {
+          "span": {
+            "lo": 67,
+            "hi": 68
+          },
+          "id": 1,
+          "variant": {
+            "Unsuffixed": "1"
+          }
+        }
+      },
+      {
+        "Literal": {
+          "span": {
+            "lo": 70,
+            "hi": 71
+          },
+          "id": 2,
+          "variant": {
+            "Unsuffixed": "2"
+          }
+        }
+      },
+      {
+        "Identifier": {
+          "name": "z",
+          "span": {
+            "lo": 73,
+            "hi": 74
+          },
+          "id": 3
+        }
+      },
+      {
+        "Binary": {
+          "left": {
+            "Literal": {
+              "span": {
+                "lo": 76,
+                "hi": 77
+              },
+              "id": 4,
+              "variant": {
+                "Unsuffixed": "1"
+              }
+            }
+          },
+          "right": {
+            "Identifier": {
+              "name": "y",
+              "span": {
+                "lo": 80,
+                "hi": 81
+              },
+              "id": 5
+            }
+          },
+          "op": "Add",
+          "span": {
+            "lo": 76,
+            "hi": 81
+          },
+          "id": 6
+        }
+      }
+    ],
+    "arguments": [
+      {
+        "Identifier": {
+          "name": "x",
+          "span": {
+            "lo": 83,
+            "hi": 84
+          },
+          "id": 7
+        }
+      },
+      {
+        "Identifier": {
+          "name": "y",
+          "span": {
+            "lo": 86,
+            "hi": 87
+          },
+          "id": 8
+        }
+      },
+      {
+        "Identifier": {
+          "name": "z",
+          "span": {
+            "lo": 89,
+            "hi": 90
+          },
+          "id": 9
+        }
+      }
+    ],
+    "program": null,
+    "span": {
+      "lo": 63,
+      "hi": 91
+    },
+    "id": 10
   }
 }
 

@@ -24,15 +24,14 @@
     "receiver": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 4,
-              "hi": 5
-            },
-            "id": 0
-          }
+          "name": "x",
+          "span": {
+            "lo": 4,
+            "hi": 5
+          },
+          "id": 0
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {

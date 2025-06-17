@@ -38,6 +38,7 @@
               },
               "id": 2
             },
+            "const_parameters": [],
             "input": [
               {
                 "identifier": {
@@ -147,6 +148,7 @@
               },
               "id": 12
             },
+            "const_parameters": [],
             "input": [
               {
                 "identifier": {

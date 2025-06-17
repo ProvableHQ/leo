@@ -3,15 +3,14 @@
     "expression": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "increment",
-            "span": {
-              "lo": 0,
-              "hi": 9
-            },
-            "id": 0
-          }
+          "name": "increment",
+          "span": {
+            "lo": 0,
+            "hi": 9
+          },
+          "id": 0
         },
+        "const_arguments": [],
         "arguments": [
           {
             "Identifier": {
@@ -65,15 +64,14 @@
     "expression": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "increment",
-            "span": {
-              "lo": 26,
-              "hi": 35
-            },
-            "id": 0
-          }
+          "name": "increment",
+          "span": {
+            "lo": 26,
+            "hi": 35
+          },
+          "id": 0
         },
+        "const_arguments": [],
         "arguments": [
           {
             "Identifier": {
@@ -137,15 +135,14 @@
     "expression": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "increment",
-            "span": {
-              "lo": 52,
-              "hi": 61
-            },
-            "id": 0
-          }
+          "name": "increment",
+          "span": {
+            "lo": 52,
+            "hi": 61
+          },
+          "id": 0
         },
+        "const_arguments": [],
         "arguments": [
           {
             "Identifier": {
@@ -189,15 +186,14 @@
     "expression": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "increment",
-            "span": {
-              "lo": 73,
-              "hi": 82
-            },
-            "id": 0
-          }
+          "name": "increment",
+          "span": {
+            "lo": 73,
+            "hi": 82
+          },
+          "id": 0
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {

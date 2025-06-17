@@ -15,4 +15,14 @@ Error [ETYC0372117]: Expected type `u64` but type `u8` was found.
     --> compiler-test:11:16
      |
   11 |         return 1u8 + 2u8;
+     |                ^^^
+Error [ETYC0372117]: Expected type `u64` but type `u8` was found.
+    --> compiler-test:11:22
+     |
+  11 |         return 1u8 + 2u8;
+     |                      ^^^
+Error [ETYC0372117]: Expected type `u64` but type `u8` was found.
+    --> compiler-test:11:16
+     |
+  11 |         return 1u8 + 2u8;
      |                ^^^^^^^^^

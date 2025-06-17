@@ -41,7 +41,7 @@ pub struct TypeCheckingVisitor<'a, N: Network> {
     pub limits: TypeCheckingInput,
     /// For detecting the error `TypeCheckerError::async_cannot_assign_outside_conditional`.
     pub conditional_scopes: Vec<IndexSet<Symbol>>,
-    pub phantom: std::marker::PhantomData<N>,
+    pub _phantom: std::marker::PhantomData<N>,
 }
 
 impl<N: Network> TypeCheckingVisitor<'_, N> {
@@ -98,7 +98,8 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
     /// Use this method when you know the actual type.
     /// Emits an error to the handler if the `actual` type is not equal to the `expected` type.
     pub fn assert_and_return_type(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
-        if expected.is_some() {
+        // If expected is `Type::Err`, we don't want to actually report a redundant error.
+        if expected.is_some() && !matches!(expected, Some(Type::Err)) {
             self.check_eq_types(&Some(actual.clone()), expected, span);
         }
         actual
@@ -1018,6 +1019,38 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
             }
         }
 
+        // Ensure that, if the function has generic const paramaters, then it must be an `inline`.
+        // Otherwise, emit an error.
+        if self.scope_state.variant != Some(Variant::Inline) && !function.const_parameters.is_empty() {
+            self.emit_err(TypeCheckerError::only_inline_can_have_const_generics(function.identifier.span()));
+        }
+
+        for const_param in &function.const_parameters {
+            // Restrictions for const parameters
+            if !matches!(
+                const_param.type_(),
+                Type::Boolean | Type::Integer(_) | Type::Address | Type::Scalar | Type::Group | Type::Field
+            ) {
+                self.emit_err(TypeCheckerError::bad_const_generic_type(const_param.type_(), const_param.span()));
+            }
+
+            // Add the input to the symbol table.
+            if let Err(err) = self.state.symbol_table.insert_variable(
+                self.scope_state.program_name.unwrap(),
+                const_param.identifier().name,
+                VariableSymbol {
+                    type_: const_param.type_().clone(),
+                    span: const_param.identifier.span(),
+                    declaration: VariableType::ConstParameter,
+                },
+            ) {
+                self.state.handler.emit_err(err);
+            }
+
+            // Add the input to the type table.
+            self.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
+        }
+
         for (i, input) in function.input.iter().enumerate() {
             // No need to check compatibility of these types; that's already been done
             let table_type = inferred_inputs.get(i).unwrap_or_else(|| input.type_());
@@ -1291,6 +1324,76 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
                 && self.state.symbol_table.lookup_record(Location::new(program, typ.id.name)).is_some()
         } else {
             false
+        }
+    }
+
+    pub fn parse_integer_literal<I: FromStrRadix>(&self, raw_string: &str, span: Span, type_string: &str) {
+        let string = raw_string.replace('_', "");
+        if I::from_str_by_radix(&string).is_err() {
+            self.state.handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
+        }
+    }
+
+    // Emit an error and update `ty` to be `Type::Err` indicating that the type of the expression could not be inferred.
+    // Also update `type_table` accordingly
+    pub fn emit_inference_failure_error(&self, ty: &mut Type, expr: &Expression) {
+        self.emit_err(TypeCheckerError::could_not_determine_type(expr.clone(), expr.span()));
+        *ty = Type::Err;
+        self.state.type_table.insert(expr.id(), Type::Err);
+    }
+
+    // Given a `Literal` and its type, if the literal is a numeric `Unsuffixed` literal, ensure it's a valid literal
+    // given the type. E.g., a `256` is not a valid `u8`.
+    pub fn check_numeric_literal(&self, input: &Literal, ty: &Type) {
+        if let Literal { variant: LiteralVariant::Unsuffixed(s), .. } = input {
+            let span = input.span();
+            let has_nondecimal_prefix =
+                |s: &str| ["0x", "0o", "0b", "-0x", "-0o", "-0b"].iter().any(|p| s.starts_with(p));
+
+            macro_rules! parse_int {
+                ($t:ty, $name:expr) => {
+                    self.parse_integer_literal::<$t>(s, span, $name)
+                };
+            }
+
+            match ty {
+                Type::Integer(kind) => match kind {
+                    IntegerType::U8 => parse_int!(u8, "u8"),
+                    IntegerType::U16 => parse_int!(u16, "u16"),
+                    IntegerType::U32 => parse_int!(u32, "u32"),
+                    IntegerType::U64 => parse_int!(u64, "u64"),
+                    IntegerType::U128 => parse_int!(u128, "u128"),
+                    IntegerType::I8 => parse_int!(i8, "i8"),
+                    IntegerType::I16 => parse_int!(i16, "i16"),
+                    IntegerType::I32 => parse_int!(i32, "i32"),
+                    IntegerType::I64 => parse_int!(i64, "i64"),
+                    IntegerType::I128 => parse_int!(i128, "i128"),
+                },
+                Type::Group => {
+                    if has_nondecimal_prefix(s) {
+                        // This is not checked in the parser for unsuffixed numerals. So do that here.
+                        self.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+                    } else {
+                        let trimmed = s.trim_start_matches('-').trim_start_matches('0');
+                        if !trimmed.is_empty()
+                            && format!("{trimmed}group")
+                                .parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>()
+                                .is_err()
+                        {
+                            self.emit_err(TypeCheckerError::invalid_int_value(trimmed, "group", span));
+                        }
+                    }
+                }
+                Type::Field | Type::Scalar => {
+                    if has_nondecimal_prefix(s) {
+                        // This is not checked in the parser for unsuffixed numerals. So do that here.
+                        self.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+                    }
+                }
+                _ => {
+                    // Other types aren't expected here
+                }
+            }
         }
     }
 }

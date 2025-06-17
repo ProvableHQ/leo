@@ -1,0 +1,18 @@
+program test.aleo;
+
+function main:
+    output true as boolean.private;
+    output 8u8 as u8.private;
+    output 16u16 as u16.private;
+    output 32u32 as u32.private;
+    output 64u64 as u64.private;
+    output 128u128 as u128.private;
+    output 8i8 as i8.private;
+    output 16i16 as i16.private;
+    output 32i32 as i32.private;
+    output 64i64 as i64.private;
+    output 128i128 as i128.private;
+    output 42scalar as scalar.private;
+    output aleo1ezamst4pjgj9zfxqq0fwfj8a4cjuqndmasgata3hggzqygggnyfq6kmyd4 as address.private;
+    output 0group as group.private;
+    output 1field as field.private;

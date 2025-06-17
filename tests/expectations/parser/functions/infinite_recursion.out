@@ -38,6 +38,7 @@
               },
               "id": 2
             },
+            "const_parameters": [],
             "input": [],
             "output": [
               {
@@ -62,15 +63,14 @@
                     "expression": {
                       "Call": {
                         "function": {
-                          "Identifier": {
-                            "name": "inf",
-                            "span": {
-                              "lo": 56,
-                              "hi": 59
-                            },
-                            "id": 4
-                          }
+                          "name": "inf",
+                          "span": {
+                            "lo": 56,
+                            "hi": 59
+                          },
+                          "id": 4
                         },
+                        "const_arguments": [],
                         "arguments": [],
                         "program": "test",
                         "span": {
@@ -114,6 +114,7 @@
               },
               "id": 9
             },
+            "const_parameters": [],
             "input": [
               {
                 "identifier": {
@@ -152,15 +153,14 @@
                     "expression": {
                       "Call": {
                         "function": {
-                          "Identifier": {
-                            "name": "inf",
-                            "span": {
-                              "lo": 115,
-                              "hi": 118
-                            },
-                            "id": 13
-                          }
+                          "name": "inf",
+                          "span": {
+                            "lo": 115,
+                            "hi": 118
+                          },
+                          "id": 13
                         },
+                        "const_arguments": [],
                         "arguments": [],
                         "program": "test",
                         "span": {

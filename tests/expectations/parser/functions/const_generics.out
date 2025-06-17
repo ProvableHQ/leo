@@ -1,0 +1,168 @@
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 8,
+            "hi": 12
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 13,
+            "hi": 17
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "functions": [
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "Transition",
+            "identifier": {
+              "name": "main",
+              "span": {
+                "lo": 35,
+                "hi": 39
+              },
+              "id": 2
+            },
+            "const_parameters": [],
+            "input": [],
+            "output": [],
+            "output_type": "Unit",
+            "block": {
+              "statements": [],
+              "span": {
+                "lo": 42,
+                "hi": 44
+              },
+              "id": 3
+            },
+            "span": {
+              "lo": 24,
+              "hi": 44
+            },
+            "id": 4
+          }
+        ],
+        [
+          "foo",
+          {
+            "annotations": [],
+            "variant": "Inline",
+            "identifier": {
+              "name": "foo",
+              "span": {
+                "lo": 56,
+                "hi": 59
+              },
+              "id": 5
+            },
+            "const_parameters": [
+              {
+                "identifier": {
+                  "name": "N",
+                  "span": {
+                    "lo": 62,
+                    "hi": 63
+                  },
+                  "id": 6
+                },
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 62,
+                  "hi": 68
+                },
+                "id": 7
+              },
+              {
+                "identifier": {
+                  "name": "M",
+                  "span": {
+                    "lo": 70,
+                    "hi": 71
+                  },
+                  "id": 8
+                },
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 70,
+                  "hi": 76
+                },
+                "id": 9
+              }
+            ],
+            "input": [],
+            "output": [],
+            "output_type": "Unit",
+            "block": {
+              "statements": [],
+              "span": {
+                "lo": 80,
+                "hi": 82
+              },
+              "id": 10
+            },
+            "span": {
+              "lo": 49,
+              "hi": 82
+            },
+            "id": 11
+          }
+        ],
+        [
+          "bar",
+          {
+            "annotations": [],
+            "variant": "Inline",
+            "identifier": {
+              "name": "bar",
+              "span": {
+                "lo": 94,
+                "hi": 97
+              },
+              "id": 12
+            },
+            "const_parameters": [],
+            "input": [],
+            "output": [],
+            "output_type": "Unit",
+            "block": {
+              "statements": [],
+              "span": {
+                "lo": 104,
+                "hi": 106
+              },
+              "id": 13
+            },
+            "span": {
+              "lo": 87,
+              "hi": 106
+            },
+            "id": 14
+          }
+        ]
+      ],
+      "span": {
+        "lo": 0,
+        "hi": 108
+      }
+    }
+  }
+}

@@ -102,15 +102,14 @@
     "value": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 48,
-              "hi": 49
-            },
-            "id": 1
-          }
+          "name": "x",
+          "span": {
+            "lo": 48,
+            "hi": 49
+          },
+          "id": 1
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {
@@ -263,15 +262,14 @@
     "value": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 123,
-              "hi": 124
-            },
-            "id": 1
-          }
+          "name": "x",
+          "span": {
+            "lo": 123,
+            "hi": 124
+          },
+          "id": 1
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {
@@ -348,15 +346,14 @@
     "value": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "mint_private",
-            "span": {
-              "lo": 180,
-              "hi": 192
-            },
-            "id": 3
-          }
+          "name": "mint_private",
+          "span": {
+            "lo": 180,
+            "hi": 192
+          },
+          "id": 3
         },
+        "const_arguments": [],
         "arguments": [
           {
             "Literal": {
@@ -418,15 +415,14 @@
     "value": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "mint_private",
-            "span": {
-              "lo": 245,
-              "hi": 257
-            },
-            "id": 4
-          }
+          "name": "mint_private",
+          "span": {
+            "lo": 245,
+            "hi": 257
+          },
+          "id": 4
         },
+        "const_arguments": [],
         "arguments": [
           {
             "Literal": {
@@ -564,15 +560,14 @@
     "value": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 317,
-              "hi": 318
-            },
-            "id": 1
-          }
+          "name": "x",
+          "span": {
+            "lo": 317,
+            "hi": 318
+          },
+          "id": 1
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {
@@ -694,15 +689,14 @@
     "value": {
       "Call": {
         "function": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 372,
-              "hi": 373
-            },
-            "id": 1
-          }
+          "name": "x",
+          "span": {
+            "lo": 372,
+            "hi": 373
+          },
+          "id": 1
         },
+        "const_arguments": [],
         "arguments": [],
         "program": null,
         "span": {

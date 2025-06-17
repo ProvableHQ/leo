@@ -46,7 +46,7 @@ pub struct TypeCheckingInput {
 ///
 /// Also constructs the struct graph, call graph, and local symbol table data.
 pub struct TypeChecking<N: Network> {
-    phantom: std::marker::PhantomData<N>,
+    _phantom: std::marker::PhantomData<N>,
 }
 
 impl<N: Network> Pass for TypeChecking<N> {
@@ -78,7 +78,7 @@ impl<N: Network> Pass for TypeChecking<N> {
             used_structs: IndexSet::new(),
             conditional_scopes: Vec::new(),
             limits: input,
-            phantom: Default::default(),
+            _phantom: Default::default(),
         };
         visitor.visit_program(ast.as_repr());
         visitor.state.handler.last_err().map_err(|e| *e)?;

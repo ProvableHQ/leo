@@ -41,10 +41,6 @@ impl<N: Network> ExpressionVisitor for StaticAnalyzingVisitor<'_, N> {
     }
 
     fn visit_call(&mut self, input: &CallExpression, _: &Self::AdditionalInput) -> Self::Output {
-        let Expression::Identifier(ident) = &input.function else {
-            panic!("Parsing guarantees that a function name is always an identifier.");
-        };
-
         let caller_program = self.current_program;
         let callee_program = input.program.unwrap_or(caller_program);
 
@@ -54,7 +50,7 @@ impl<N: Network> ExpressionVisitor for StaticAnalyzingVisitor<'_, N> {
             && self.variant == Some(Variant::AsyncTransition)
             && callee_program != caller_program
         {
-            self.assert_simple_async_transition_call(callee_program, ident.name, input.span());
+            self.assert_simple_async_transition_call(callee_program, input.function.name, input.span());
         }
 
         // Look up the function and check if it is a non-async call.
@@ -63,7 +59,7 @@ impl<N: Network> ExpressionVisitor for StaticAnalyzingVisitor<'_, N> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(Location::new(function_program, ident.name))
+            .lookup_function(Location::new(function_program, input.function.name))
             .expect("Type checking guarantees functions exist.");
 
         if func_symbol.function.variant == Variant::Transition {

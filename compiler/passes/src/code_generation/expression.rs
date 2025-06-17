@@ -33,6 +33,7 @@ use leo_ast::{
     Location,
     LocatorExpression,
     MemberAccess,
+    Node,
     StructExpression,
     TernaryExpression,
     TupleExpression,
@@ -85,8 +86,38 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
 
     fn visit_value(&mut self, input: &Literal) -> (String, String) {
         // AVM can only parse decimal numbers.
-        let decimal_input = input.display_decimal();
-        (format!("{decimal_input}"), String::new())
+        let literal = if let LiteralVariant::Unsuffixed(value) = &input.variant {
+            // For unsuffixed lierals, consult the `type_table` for their types. The type checker
+            // ensures that their type can only be `Integer`, `Field`, `Group`, or `Scalar`.
+            match self.state.type_table.get(&input.id) {
+                Some(Type::Integer(int_ty)) => Literal {
+                    variant: LiteralVariant::Integer(int_ty, value.clone()),
+                    id: self.state.node_builder.next_id(),
+                    span: input.span,
+                },
+                Some(Type::Field) => Literal {
+                    variant: LiteralVariant::Field(value.clone()),
+                    id: self.state.node_builder.next_id(),
+                    span: input.span,
+                },
+                Some(Type::Group) => Literal {
+                    variant: LiteralVariant::Group(value.clone()),
+                    id: self.state.node_builder.next_id(),
+                    span: input.span,
+                },
+                Some(Type::Scalar) => Literal {
+                    variant: LiteralVariant::Scalar(value.clone()),
+                    id: self.state.node_builder.next_id(),
+                    span: input.span,
+                },
+                _ => panic!(
+                    "Unexpected type for unsuffixed integer literal. This should have been caught by the type checker"
+                ),
+            }
+        } else {
+            input.clone()
+        };
+        (format!("{}", literal.display_decimal()), String::new())
     }
 
     fn visit_locator(&mut self, input: &LocatorExpression) -> (String, String) {
@@ -286,15 +317,21 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
 
     fn visit_array_access(&mut self, input: &ArrayAccess) -> (String, String) {
         let (array_operand, _) = self.visit_expression(&input.array);
+
+        assert!(
+            matches!(self.state.type_table.get(&input.index.id()), Some(Type::Integer(_))),
+            "unexpected type for for array index. This should have been caught by the type checker."
+        );
+
         let index_operand = match &input.index {
-            Expression::Literal(Literal { variant: LiteralVariant::Integer(_, string), .. }) => {
-                format!("{}u32", string)
-            }
+            Expression::Literal(Literal {
+                variant: LiteralVariant::Integer(_, s) | LiteralVariant::Unsuffixed(s),
+                ..
+            }) => format!("{s}u32"),
             _ => panic!("Array indices must be integer literals"),
         };
-        let array_access = format!("{}[{}]", array_operand, index_operand);
 
-        (array_access, String::new())
+        (format!("{array_operand}[{index_operand}]"), String::new())
     }
 
     fn visit_member_access(&mut self, input: &MemberAccess) -> (String, String) {
@@ -540,19 +577,13 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
     }
 
     fn visit_call(&mut self, input: &CallExpression) -> (String, String) {
-        // Lookup the function return type.
-        let function_name = match input.function.borrow() {
-            Expression::Identifier(identifier) => identifier.name,
-            _ => panic!("Parsing guarantees that a function name is always an identifier."),
-        };
-
         let caller_program = self.program_id.expect("Calls only appear within programs.").name.name;
         let callee_program = input.program.unwrap_or(caller_program);
 
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(Location::new(callee_program, function_name))
+            .lookup_function(Location::new(callee_program, input.function.name))
             .expect("Type checking guarantees functions exist");
 
         // Need to determine the program the function originated from as well as if the function has a finalize block.
@@ -698,6 +729,7 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
             | Type::Identifier(..)
             | Type::String
             | Type::Unit
+            | Type::Numeric
             | Type::Err => panic!("Objects of type {typ} cannot be cloned."),
         }
     }

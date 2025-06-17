@@ -213,8 +213,8 @@ Error [EPAR0370005]: expected ; -- found 'x'
      |
    1 | false x = 10u8;
      |       ^
-Error [EPAR0370017]: Could not parse the implicit value: 0.
-    --> test_43:1:1
+Error [EPAR0370005]: expected ; -- found 'x'
+    --> test_43:1:3
      |
    1 | 0 x = 10u8;
-     | ^
+     |   ^

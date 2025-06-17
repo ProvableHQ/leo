@@ -1,5 +1,5 @@
-Error [EPAR0370017]: Could not parse the implicit value: 2.
-    --> test_0:1:25
+Error [EPAR0370008]: unexpected statement: expected 'Block or Conditional', found 'let x = 2'
+    --> test_0:1:17
      |
    1 | if true {} else let x = 2;
-     |                         ^
+     |                 ^^^^^^^^^

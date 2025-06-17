@@ -1,0 +1,10 @@
+program test.aleo;
+
+function main:
+    cast 1u32 2u32 3u32 4u32 5u32 6u32 into r0 as [u32; 6u32];
+    add r0[0u32] r0[1u32] into r1;
+    add r1 r0[2u32] into r2;
+    add r2 r0[3u32] into r3;
+    add r3 r0[4u32] into r4;
+    add r4 r0[5u32] into r5;
+    output r5 as u32.private;

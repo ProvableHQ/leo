@@ -364,9 +364,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.25"
+version = "1.2.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0fc897dc1e865cc67c0e05a836d9d3f1df3cbe442aa4a9473b18e12624a4951"
+checksum = "16595d3be041c03b09d08d0858631facccee9221e579704070e6e9e4915d3bc7"
 dependencies = [
  "shlex",
 ]
@@ -1500,7 +1500,7 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "leo-abnf"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "abnf",
  "anyhow",
@@ -1508,12 +1508,14 @@ dependencies = [
 
 [[package]]
 name = "leo-ast"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "indexmap",
  "itertools 0.13.0",
  "leo-errors",
  "leo-span",
+ "rand",
+ "rand_chacha",
  "serde",
  "serde_json",
  "snarkvm",
@@ -1521,7 +1523,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "aleo-std",
  "indexmap",
@@ -1543,7 +1545,7 @@ dependencies = [
 
 [[package]]
 name = "leo-disassembler"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "leo-ast",
  "leo-errors",
@@ -1553,7 +1555,7 @@ dependencies = [
 
 [[package]]
 name = "leo-errors"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -1568,7 +1570,7 @@ dependencies = [
 
 [[package]]
 name = "leo-interpreter"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "colored",
  "crossterm",
@@ -1577,6 +1579,7 @@ dependencies = [
  "leo-ast",
  "leo-errors",
  "leo-parser",
+ "leo-passes",
  "leo-span",
  "leo-test-framework",
  "rand",
@@ -1585,12 +1588,11 @@ dependencies = [
  "serial_test",
  "snarkvm",
  "tempfile",
- "tui-input",
 ]
 
 [[package]]
 name = "leo-lang"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "aleo-std",
  "ansi_term",
@@ -1628,7 +1630,7 @@ dependencies = [
 
 [[package]]
 name = "leo-package"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "indexmap",
  "leo-ast",
@@ -1643,7 +1645,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "clap",
  "indexmap",
@@ -1660,13 +1662,12 @@ dependencies = [
 
 [[package]]
 name = "leo-passes"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "indexmap",
  "itertools 0.13.0",
  "leo-ast",
  "leo-errors",
- "leo-interpreter",
  "leo-package",
  "leo-parser",
  "leo-span",
@@ -1678,7 +1679,7 @@ dependencies = [
 
 [[package]]
 name = "leo-span"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "fxhash",
  "indexmap",
@@ -1688,7 +1689,7 @@ dependencies = [
 
 [[package]]
 name = "leo-test-framework"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
  "rayon",
  "walkdir",
@@ -2757,7 +2758,7 @@ dependencies = [
 [[package]]
 name = "snarkvm"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "anstyle",
  "anyhow",
@@ -2787,7 +2788,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-algorithms"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -2817,7 +2818,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-account",
  "snarkvm-circuit-algorithms",
@@ -2831,7 +2832,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-account"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-algorithms",
  "snarkvm-circuit-network",
@@ -2842,7 +2843,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-algorithms"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-types",
  "snarkvm-console-algorithms",
@@ -2852,7 +2853,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-collections"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-algorithms",
  "snarkvm-circuit-types",
@@ -2862,7 +2863,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-environment"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "indexmap",
  "itertools 0.11.0",
@@ -2881,12 +2882,12 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-environment-witness"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 
 [[package]]
 name = "snarkvm-circuit-network"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-algorithms",
  "snarkvm-circuit-collections",
@@ -2897,7 +2898,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-program"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "paste",
  "snarkvm-circuit-account",
@@ -2912,7 +2913,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-address",
@@ -2927,7 +2928,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-address"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -2940,7 +2941,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-boolean"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-console-types-boolean",
@@ -2949,7 +2950,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-field"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -2959,7 +2960,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-group"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -2971,7 +2972,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-integers"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -2983,7 +2984,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-scalar"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -2994,7 +2995,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-circuit-types-string"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -3006,7 +3007,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-console-account",
  "snarkvm-console-algorithms",
@@ -3019,7 +3020,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-account"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "bs58",
  "snarkvm-console-network",
@@ -3030,7 +3031,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-algorithms"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "blake2s_simd",
  "smallvec",
@@ -3043,7 +3044,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-collections"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std",
  "rayon",
@@ -3054,7 +3055,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-network"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -3077,7 +3078,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-network-environment"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "anyhow",
  "bech32",
@@ -3095,7 +3096,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-program"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "enum-iterator",
  "enum_index",
@@ -3117,7 +3118,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-address",
@@ -3132,7 +3133,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-address"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3143,7 +3144,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-boolean"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-console-network-environment",
 ]
@@ -3151,7 +3152,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-field"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3161,7 +3162,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-group"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3172,7 +3173,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-integers"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3183,7 +3184,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-scalar"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3194,7 +3195,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-console-types-string"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3205,7 +3206,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-curves"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "rand",
  "rayon",
@@ -3219,7 +3220,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-fields"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3236,7 +3237,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3261,7 +3262,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-authority"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "anyhow",
  "rand",
@@ -3273,7 +3274,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-block"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "indexmap",
  "rayon",
@@ -3293,7 +3294,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-committee"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "indexmap",
  "rayon",
@@ -3305,7 +3306,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-ledger-narwhal-batch-certificate",
  "snarkvm-ledger-narwhal-batch-header",
@@ -3318,7 +3319,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-batch-certificate"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "indexmap",
  "rayon",
@@ -3331,7 +3332,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-batch-header"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "indexmap",
  "rayon",
@@ -3343,7 +3344,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-data"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "bytes",
  "serde_json",
@@ -3354,7 +3355,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-subdag"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "indexmap",
  "rayon",
@@ -3369,7 +3370,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-transmission"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "bytes",
  "serde_json",
@@ -3382,7 +3383,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-narwhal-transmission-id"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "snarkvm-console",
  "snarkvm-ledger-puzzle",
@@ -3391,7 +3392,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-puzzle"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3411,7 +3412,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-puzzle-epoch"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3432,7 +3433,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-query"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "async-trait",
  "reqwest 0.11.27",
@@ -3445,7 +3446,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ledger-store"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std-storage",
  "anyhow",
@@ -3468,7 +3469,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-parameters"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3493,7 +3494,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-synthesizer"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3524,7 +3525,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-synthesizer-process"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std",
  "colored",
@@ -3549,7 +3550,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-synthesizer-program"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "indexmap",
  "paste",
@@ -3565,7 +3566,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-synthesizer-snark"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "bincode",
  "once_cell",
@@ -3578,7 +3579,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-utilities"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3599,7 +3600,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-utilities-derives"
 version = "3.7.1"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?branch=feat%2Freject-old-execs-after-upgrade%2Bstaging#38d7aa48944b8fb0aa56c39e507aeb55b3cbc972"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=a015246#a015246ccb8a1b16711f372a7bfab59fa89f853b"
 dependencies = [
  "proc-macro2",
  "quote 1.0.40",
@@ -4041,16 +4042,6 @@ name = "try-lock"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
-
-[[package]]
-name = "tui-input"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5d1733c47f1a217b7deff18730ff7ca4ecafc5771368f715ab072d679a36114"
-dependencies = [
- "ratatui",
- "unicode-width 0.2.0",
-]
 
 [[package]]
 name = "typenum"

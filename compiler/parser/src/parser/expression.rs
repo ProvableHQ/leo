@@ -441,8 +441,9 @@ impl<N: Network> ParserContext<'_, N> {
 
         Ok(CallExpression {
             span: expr.span() + span,
-            function: name.into(),
+            function: name,
             program: Some(program.name),
+            const_arguments: vec![], // we do not expect const arguments for external calls at this time
             arguments,
             id: self.node_builder.next_id(),
         }
@@ -518,8 +519,38 @@ impl<N: Network> ParserContext<'_, N> {
                     }
                 }
             } else if self.eat(&Token::DoubleColon) {
-                // Eat a core associated constant or core associated function call.
-                expr = self.parse_associated_access_expression(expr)?;
+                // If we see a `::`, then we either expect a core associated expression or a list of const arguments in
+                // square brackets.
+                if self.check(&Token::LeftSquare) {
+                    // Check that the expression is an identifier.
+                    let Expression::Identifier(ident) = &expr else {
+                        return Err(leo_errors::LeoError::ParserError(ParserError::unexpected(
+                            expr.to_string(),
+                            "an identifier",
+                            expr.span(),
+                        )));
+                    };
+
+                    // Parse a list of const arguments in between `[..]`
+                    let const_arguments = self.parse_bracket_comma_list(|p| p.parse_expression().map(Some))?.0;
+
+                    // Parse a list of input arguments in between `(..)`
+                    let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+
+                    // Now form a `CallExpression`
+                    expr = CallExpression {
+                        span: expr.span() + span,
+                        function: *ident,
+                        program: self.program_name,
+                        const_arguments,
+                        arguments,
+                        id: self.node_builder.next_id(),
+                    }
+                    .into()
+                } else {
+                    // Eat a core associated constant or core associated function call.
+                    expr = self.parse_associated_access_expression(expr)?;
+                }
             } else if self.eat(&Token::LeftSquare) {
                 // Eat an array access.
                 let index = self.parse_expression()?;
@@ -530,15 +561,21 @@ impl<N: Network> ParserContext<'_, N> {
                     ArrayAccess { array: expr, index, span: expr_span + span, id: self.node_builder.next_id() }.into();
             } else if self.check(&Token::LeftParen) {
                 // Check that the expression is an identifier.
-                if !matches!(expr, Expression::Identifier(_)) {
-                    self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()))
-                }
+                let Expression::Identifier(ident) = &expr else {
+                    return Err(leo_errors::LeoError::ParserError(ParserError::unexpected(
+                        expr.to_string(),
+                        "an identifier",
+                        expr.span(),
+                    )));
+                };
+
                 // Parse a function call that's by itself.
                 let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
                 expr = CallExpression {
                     span: expr.span() + span,
-                    function: expr,
+                    function: *ident,
                     program: self.program_name,
+                    const_arguments: vec![],
                     arguments,
                     id: self.node_builder.next_id(),
                 }
@@ -679,7 +716,11 @@ impl<N: Network> ParserContext<'_, N> {
                         let int_ty = Self::token_to_int_type(suffix).expect("unknown int type token");
                         Literal::integer(int_ty, value, full_span, self.node_builder.next_id()).into()
                     }
-                    None => return Err(ParserError::implicit_values_not_allowed(value, span).into()),
+                    None => {
+                        // `Integer` tokens with no suffix are `unsuffixed`. We try to infer their
+                        // type in the type inference phase of the type checker.
+                        Literal::unsuffixed(value, span, self.node_builder.next_id()).into()
+                    }
                 }
             }
             Token::True => Literal::boolean(true, span, self.node_builder.next_id()).into(),

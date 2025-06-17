@@ -1,0 +1,5 @@
+Error [ESAZ0374010]: Array index 4 out of bounds (array length is 3).
+    --> compiler-test:4:18
+     |
+   4 |         let x0 = arr[4]; // out of bounds
+     |                  ^^^^^^
