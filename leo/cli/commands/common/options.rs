@@ -198,7 +198,7 @@ pub fn get_consensus_version<N: Network>(
                 .and_then(|current_block_height| Ok(N::CONSENSUS_VERSION(current_block_height)?))
                 .map_err(|_| {
                     CliError::custom(
-                        "Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus_version`",
+                        "Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus-version`",
                     )
                         .into()
                 })
