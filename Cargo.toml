@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "2.6.1"
+version = "2.7.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The Leo programming language"
 homepage = "https://leo-lang.org"
@@ -46,43 +46,43 @@ members = [
 
 [workspace.dependencies.leo-ast]
 path = "./compiler/ast"
-version = "2.6.1"
+version = "=2.7.0"
 
 [workspace.dependencies.leo-compiler]
 path = "./compiler/compiler"
-version = "2.6.1"
+version = "=2.7.0"
 
 [workspace.dependencies.leo-disassembler]
 path = "./utils/disassembler"
-version = "2.6.1"
+version = "=2.7.0"
 
 [workspace.dependencies.leo-errors]
 path = "./errors"
-version = "2.6.1"
+version = "=2.7.0"
 
 [workspace.dependencies.leo-interpreter]
 path = "./interpreter"
-version = "2.6.1"
+version = "=2.7.0"
 
 [workspace.dependencies.leo-package]
 path = "./leo/package"
-version = "2.6.1"
+version = "=2.7.0"
 
 [workspace.dependencies.leo-parser]
 path = "./compiler/parser"
-version = "2.6.1"
+version = "=2.7.0"
 
 [workspace.dependencies.leo-passes]
 path = "./compiler/passes"
-version = "2.6.1"
+version = "=2.7.0"
 
 [workspace.dependencies.leo-span]
 path = "./compiler/span"
-version = "2.6.1"
+version = "=2.7.0"
 
 [workspace.dependencies.leo-test-framework]
 path = "./test-framework"
-version = "2.6.1"
+version = "=2.7.0"
 
 [workspace.dependencies.anyhow]
 version = "1.0"
@@ -119,15 +119,15 @@ version = "1.11.1"
 # snarkvm doesn't use semantic versioning, so pin to a
 # specific version.
 [workspace.dependencies.snarkvm]
-version = "=3.7.1"
+version = "=3.8.0"
 
 # ditto
 [workspace.dependencies.snarkvm-circuit]
-version = "=3.7.1"
+version = "=3.8.0"
 
 # ditto
 [workspace.dependencies.snarkvm-synthesizer-program]
-version = "=3.7.1"
+version = "=3.8.0"
 
 [workspace.dependencies.serde]
 version = "1.0.214"
