@@ -246,7 +246,7 @@ impl Token {
             Token::Bool => sym::bool,
             Token::Const => sym::Const,
             Token::Constant => sym::constant,
-            Token::Constructor => sym::Constructor,
+            Token::Constructor => sym::constructor,
             Token::Else => sym::Else,
             Token::False => sym::False,
             Token::Field => sym::field,
