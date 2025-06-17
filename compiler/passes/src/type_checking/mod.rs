@@ -66,8 +66,9 @@ impl<N: Network> Pass for TypeChecking<N> {
 
         let ast = std::mem::take(&mut state.ast);
 
-        // Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
+        // Initialize the struct graph with all the structs in the program.
         state.struct_graph = StructGraph::new(struct_names);
+        // Initialize the call graph with all the functions in the program.
         state.call_graph = CallGraph::new(function_names);
 
         let mut visitor = TypeCheckingVisitor::<N> {

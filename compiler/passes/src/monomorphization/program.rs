@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{Constructor, Function, Location, ProgramReconstructor, ProgramScope, StatementReconstructor, Variant};
+use leo_ast::{Constructor, Function, Location, ProgramReconstructor, ProgramScope, StatementReconstructor};
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
@@ -28,30 +28,30 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Create a map of function names to their definitions for fast access.
         let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
 
-        // Compute a post-order traversal of the call graph. This ensures that functions are processed after all their
-        // callees. Make sure to only to compute the post order by considering the entry points of the program, which
-        // are `async transition`, `transition` and `function`.
-        let order = self
-            .state
-            .call_graph
-            .post_order_from_entry_points(|node| {
-                function_map
-                    .get(&node.name)
-                    .map(|f| matches!(f.variant, Variant::AsyncTransition | Variant::Transition | Variant::Function))
-                    .unwrap_or(false)
-            })
-            .unwrap(); // This unwrap is safe because the type checker guarantees an acyclic graph.
+        println!("Call graph: {:#?}", self.state.call_graph.nodes().collect::<Vec<_>>());
+
+        // Compute a post-order traversal of the call graph.
+        // This ensures that functions are processed after all their callees.
+        let order = self.state.call_graph.post_order().unwrap(); // This unwrap is safe because the type checker guarantees an acyclic graph.
 
         // Reconstruct functions in post-order.
-        for function_name in &order {
-            // Skip external functions (i.e., not in the input map).
-            if let Some(function) = function_map.swap_remove(&function_name.name) {
-                // Perform monomorphization or other reconstruction logic.
-                let reconstructed_function = self.reconstruct_function(function);
-                // Store the reconstructed function for inclusion in the output scope.
-                self.reconstructed_functions.insert(function_name.name, reconstructed_function);
+        for location in &order {
+            // Skip external functions.
+            if location.program != self.program {
+                continue;
             }
+            // Reconstruct the function which is guaranteed to be in the map.
+            let Some(function) = function_map.swap_remove(&location.name) else {
+                panic!("Function {} not found in function map", location.name);
+            };
+            // Perform monomorphization or other reconstruction logic.
+            let reconstructed_function = self.reconstruct_function(function);
+            // Store the reconstructed function for inclusion in the output scope.
+            self.reconstructed_functions.insert(location.name, reconstructed_function);
         }
+
+        // Reconstruct the constructor last, as it cannot be called by any other function.
+        let constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
 
         // Retain only functions that are either not yet monomorphized or are still referenced by calls.
         self.reconstructed_functions.retain(|f, _| {
@@ -70,9 +70,6 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
 
         // Move reconstructed functions into the final `ProgramScope`, clearing the temporary storage for the next scope.
         let functions = core::mem::take(&mut self.reconstructed_functions).into_iter().collect::<Vec<_>>();
-
-        // Reconstruct the constructor last, as it cannot be called by any other function.
-        let constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
 
         // Return the fully reconstructed scope with updated functions.
         ProgramScope {

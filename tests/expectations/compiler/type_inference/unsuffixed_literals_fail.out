@@ -5,37 +5,37 @@ Error [ETYC0372004]: Could not determine the type of `1`
      |                  ^
      |
      = Consider using explicit type annotations.
-Error [ETYC0372139]: Expected type `bool` but an unsuffixed numeral was found.
+Error [ETYC0372140]: Expected type `bool` but an unsuffixed numeral was found.
     --> compiler-test:4:18
      |
    4 |         let a1 = 1 && true;
      |                  ^
-Error [ETYC0372139]: Expected type `bool` but an unsuffixed numeral was found.
+Error [ETYC0372140]: Expected type `bool` but an unsuffixed numeral was found.
     --> compiler-test:5:26
      |
    5 |         let a2 = true || 1;
      |                          ^
-Error [ETYC0372139]: Expected type `bool` but an unsuffixed numeral was found.
+Error [ETYC0372140]: Expected type `bool` but an unsuffixed numeral was found.
     --> compiler-test:6:18
      |
    6 |         let a3 = 1.nand(1);
      |                  ^
-Error [ETYC0372139]: Expected type `bool` but an unsuffixed numeral was found.
+Error [ETYC0372140]: Expected type `bool` but an unsuffixed numeral was found.
     --> compiler-test:6:25
      |
    6 |         let a3 = 1.nand(1);
      |                         ^
-Error [ETYC0372139]: Expected type `bool` but an unsuffixed numeral was found.
+Error [ETYC0372140]: Expected type `bool` but an unsuffixed numeral was found.
     --> compiler-test:7:18
      |
    7 |         let a4 = 1.nor(1).nor(1);
      |                  ^
-Error [ETYC0372139]: Expected type `bool` but an unsuffixed numeral was found.
+Error [ETYC0372140]: Expected type `bool` but an unsuffixed numeral was found.
     --> compiler-test:7:24
      |
    7 |         let a4 = 1.nor(1).nor(1);
      |                        ^
-Error [ETYC0372139]: Expected type `bool` but an unsuffixed numeral was found.
+Error [ETYC0372140]: Expected type `bool` but an unsuffixed numeral was found.
     --> compiler-test:7:31
      |
    7 |         let a4 = 1.nor(1).nor(1);

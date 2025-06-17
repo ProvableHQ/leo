@@ -403,7 +403,7 @@ pub fn literal_to_value(literal: &Literal, ty: &Option<Type>) -> Result<Value> {
                 halt!(literal.span(), "cannot infer type of unsuffixed literal")
             }
         },
-        LiteralVariant::String(..) => tc_fail!(),
+        LiteralVariant::String(s) => Value::String(s.clone()),
     };
 
     Ok(value)

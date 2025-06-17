@@ -64,8 +64,14 @@ impl<N: GraphNode> DiGraph<N> {
         Self { nodes, edges: IndexMap::new() }
     }
 
+    /// Adds a node to the graph.
     pub fn add_node(&mut self, node: N) {
         self.nodes.insert(node);
+    }
+
+    /// Returns an iterator over the nodes in the graph.
+    pub fn nodes(&self) -> impl Iterator<Item = &N> {
+        self.nodes.iter()
     }
 
     /// Adds an edge to the graph.
@@ -109,14 +115,14 @@ impl<N: GraphNode> DiGraph<N> {
     /// Returns the post-order ordering of the graph.
     /// Detects if there is a cycle in the graph.
     pub fn post_order(&self) -> Result<IndexSet<N>, DiGraphError<N>> {
-        self.post_order_from_entry_points(|_| true)
+        self.post_order_with_filter(|_| true)
     }
 
-    /// Returns the post-order ordering of the graph but only considering a subset of the nodes as "entry points".
-    /// Meaning, nodes that are not accessible from the entry nodes are not considered in the post order.
+    /// Returns the post-order ordering of the graph but only considering a subset of the nodes that
+    /// satisfy the given filter.
     ///
     /// Detects if there is a cycle in the graph.
-    pub fn post_order_from_entry_points<F>(&self, is_entry_point: F) -> Result<IndexSet<N>, DiGraphError<N>>
+    pub fn post_order_with_filter<F>(&self, filter: F) -> Result<IndexSet<N>, DiGraphError<N>>
     where
         F: Fn(&N) -> bool,
     {
@@ -125,7 +131,7 @@ impl<N: GraphNode> DiGraph<N> {
 
         // Perform a depth-first search of the graph, starting from `node`, for each node in the graph that satisfies
         // `is_entry_point`.
-        for node in self.nodes.iter().filter(|n| is_entry_point(n)) {
+        for node in self.nodes.iter().filter(|n| filter(n)) {
             // If the node has not been explored, explore it.
             if !finished.contains(node) {
                 // The set of nodes that are on the path to the current node in the search.
