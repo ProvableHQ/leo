@@ -13,7 +13,6 @@ version: 2.1
 # TODO:
 #  - The cache size can accumulate as the dependencies get upgraded. Ideally you want some pruning before the cache gets persisted.
 #    See swatinem/rust-cache for a sensible approach. Unfortunately, we'd have to build this for CircleCI.
-#  - Rust v1.83.0 is coming with some sensible cargo rebuild improvements. We should upgrade to that when it's released.
 
 
 environment:
@@ -182,7 +181,7 @@ jobs:
 #          key: codecov-cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
 #          paths:
 #            - ~/.cargo
-#            - target
+#            - ~/.aleo/resources
 
   check-style-clippy-docs:
     executor: linux-executor
