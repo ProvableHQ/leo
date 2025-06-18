@@ -634,7 +634,7 @@
 <a href=#634 id=634 data-nosnippet>634</a>            Type::Array(array_type) =&gt; {
 <a href=#635 id=635 data-nosnippet>635</a>                <span class="comment">// We need to cast the old array's members into the new array.
 <a href=#636 id=636 data-nosnippet>636</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast "</span>.to_string();
-<a href=#637 id=637 data-nosnippet>637</a>                <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..array_type.length() {
+<a href=#637 id=637 data-nosnippet>637</a>                <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..array_type.length_as_u32().expect(<span class="string">"length should be known at this point"</span>) <span class="kw">as </span>usize {
 <a href=#638 id=638 data-nosnippet>638</a>                    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>instruction, <span class="string">"{register}[{i}u32] "</span>).unwrap();
 <a href=#639 id=639 data-nosnippet>639</a>                }
 <a href=#640 id=640 data-nosnippet>640</a>                <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut </span>instruction, <span class="string">"into {new_reg} as {};"</span>, <span class="self">Self</span>::visit_type(typ)).unwrap();

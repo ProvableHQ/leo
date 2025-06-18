@@ -21,9 +21,9 @@
 <a href=#21 id=21 data-nosnippet>21</a><span class="kw">use </span>std::fmt;
 <a href=#22 id=22 data-nosnippet>22</a>
 <a href=#23 id=23 data-nosnippet>23</a><span class="doccomment">/// A type list of at least two types.
-<a href=#24 id=24 data-nosnippet>24</a></span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+<a href=#24 id=24 data-nosnippet>24</a></span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 <a href=#25 id=25 data-nosnippet>25</a></span><span class="kw">pub struct </span>TupleType {
-<a href=#26 id=26 data-nosnippet>26</a>    elements: Vec&lt;Type&gt;,
+<a href=#26 id=26 data-nosnippet>26</a>    <span class="kw">pub </span>elements: Vec&lt;Type&gt;,
 <a href=#27 id=27 data-nosnippet>27</a>}
 <a href=#28 id=28 data-nosnippet>28</a>
 <a href=#29 id=29 data-nosnippet>29</a><span class="kw">impl </span>TupleType {

@@ -1079,14 +1079,14 @@
 <a href=#1079 id=1079 data-nosnippet>1079</a>    assignment_to_external_record_cond {
 <a href=#1080 id=1080 data-nosnippet>1080</a>        args: (ty: <span class="kw">impl </span>Display),
 <a href=#1081 id=1081 data-nosnippet>1081</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the external record type `{ty}` in this location."</span>),
-<a href=#1082 id=1082 data-nosnippet>1082</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record variables may not be assigned to in narrower conditonal scopes than they were defined."</span>.into()),
+<a href=#1082 id=1082 data-nosnippet>1082</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record variables may not be assigned to in narrower conditional scopes than they were defined."</span>.into()),
 <a href=#1083 id=1083 data-nosnippet>1083</a>    }
 <a href=#1084 id=1084 data-nosnippet>1084</a>
 <a href=#1085 id=1085 data-nosnippet>1085</a>    @formatted
 <a href=#1086 id=1086 data-nosnippet>1086</a>    assignment_to_external_record_tuple_cond {
 <a href=#1087 id=1087 data-nosnippet>1087</a>        args: (ty: <span class="kw">impl </span>Display),
 <a href=#1088 id=1088 data-nosnippet>1088</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the tuple type `{ty}` containing an external record in this location."</span>),
-<a href=#1089 id=1089 data-nosnippet>1089</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Tuples containing external records may not be assigned to in narrower conditonal scopes than they were defined."</span>.into()),
+<a href=#1089 id=1089 data-nosnippet>1089</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Tuples containing external records may not be assigned to in narrower conditional scopes than they were defined."</span>.into()),
 <a href=#1090 id=1090 data-nosnippet>1090</a>    }
 <a href=#1091 id=1091 data-nosnippet>1091</a>
 <a href=#1092 id=1092 data-nosnippet>1092</a>    @formatted
@@ -1137,4 +1137,11 @@
 <a href=#1137 id=1137 data-nosnippet>1137</a>        msg: <span class="macro">format!</span>(<span class="string">"Only `inline` functions can have generic const parameters."</span>),
 <a href=#1138 id=1138 data-nosnippet>1138</a>        help: <span class="prelude-val">None</span>,
 <a href=#1139 id=1139 data-nosnippet>1139</a>    }
-<a href=#1140 id=1140 data-nosnippet>1140</a>);</code></pre></div></section></main></body></html>
+<a href=#1140 id=1140 data-nosnippet>1140</a>
+<a href=#1141 id=1141 data-nosnippet>1141</a>    @formatted
+<a href=#1142 id=1142 data-nosnippet>1142</a>    array_too_large_for_u32 {
+<a href=#1143 id=1143 data-nosnippet>1143</a>        args: (),
+<a href=#1144 id=1144 data-nosnippet>1144</a>        msg: <span class="macro">format!</span>(<span class="string">"An array length must be small enough to fit in a `u32` "</span>),
+<a href=#1145 id=1145 data-nosnippet>1145</a>        help: <span class="prelude-val">None</span>,
+<a href=#1146 id=1146 data-nosnippet>1146</a>    }
+<a href=#1147 id=1147 data-nosnippet>1147</a>);</code></pre></div></section></main></body></html>

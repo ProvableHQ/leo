@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["ExpressionReconstructor","ProgramReconstructor","StatementReconstructor"]};
+window.SIDEBAR_ITEMS = {"trait":["ExpressionReconstructor","ProgramReconstructor","StatementReconstructor","TypeReconstructor"]};
