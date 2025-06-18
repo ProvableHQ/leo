@@ -122,7 +122,6 @@ jobs:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
             - C:\Users\circleci\.cargo
-            - target
             - C:\Users\circleci\.aleo\resources
 
   test-macos:
@@ -143,7 +142,6 @@ jobs:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
             - ~/.cargo
-            - target
             - ~/.aleo/resources
 
   test-linux:
@@ -164,7 +162,6 @@ jobs:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
             - ~/.cargo
-            - target
             - ~/.aleo/resources
 
 # TODO: Move code-coverage to CircleCI
@@ -223,7 +220,6 @@ jobs:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
             - ~/.cargo
-            - target
 
   leo-executable:
     executor: linux-executor
@@ -250,7 +246,6 @@ jobs:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
             - ~/.cargo
-            - target
 
   leo-new:
     docker:
