@@ -16,11 +16,9 @@
 
 use crate::tokenizer;
 
-use leo_ast::NodeBuilder;
+use leo_ast::{NetworkName, NodeBuilder};
 use leo_errors::{BufferEmitter, Handler, LeoError};
 use leo_span::{create_session_if_not_set_then, source_map::FileName, with_session_globals};
-
-use snarkvm::prelude::TestnetV0;
 
 use itertools::Itertools as _;
 use serde::Serialize;
@@ -95,7 +93,9 @@ fn tokenizer_tests() {
 fn runner_expression_test(test: &str) -> String {
     let tests = test.lines().map(|line| line.trim()).filter(|line| !line.is_empty());
 
-    runner_parse_many_test(tests, crate::parse_expression::<TestnetV0>)
+    runner_parse_many_test(tests, |handler, node_builder, source, start_pos| {
+        crate::parse_expression(handler, node_builder, source, start_pos, NetworkName::TestnetV0)
+    })
 }
 
 #[test]
@@ -109,7 +109,9 @@ fn parse_expression_tests() {
 fn runner_statement_test(test: &str) -> String {
     let tests = test.split("\n\n").map(|text| text.trim()).filter(|text| !text.is_empty());
 
-    runner_parse_many_test(tests, crate::parse_statement::<TestnetV0>)
+    runner_parse_many_test(tests, |handler, node_builder, source, start_pos| {
+        crate::parse_statement(handler, node_builder, source, start_pos, NetworkName::TestnetV0)
+    })
 }
 
 #[test]
@@ -122,11 +124,12 @@ fn parse_statement_tests() {
 
 fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
     let source_file = with_session_globals(|s| s.source_map.new_source(test, FileName::Custom("test".into())));
-    let result = crate::parse_ast::<TestnetV0>(
+    let result = crate::parse_ast(
         handler.clone(),
         &Default::default(),
         &source_file.src,
         source_file.absolute_start,
+        NetworkName::TestnetV0,
     );
     let ast = handler.extend_if_error(result)?;
     let value = serde_json::to_value(&ast.ast).expect("Serialization failure");

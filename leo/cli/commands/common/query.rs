@@ -20,7 +20,8 @@ use snarkvm::prelude::{Program, ProgramID};
 
 use super::*;
 
-use leo_package::{NetworkName, ProgramData};
+use leo_ast::NetworkName;
+use leo_package::ProgramData;
 use leo_span::Symbol;
 
 use ureq::Response;

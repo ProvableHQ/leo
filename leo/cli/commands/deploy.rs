@@ -17,7 +17,8 @@
 use super::*;
 
 use check_transaction::TransactionStatus;
-use leo_package::{Manifest, NetworkName, Package, UpgradeConfig, fetch_program_from_network};
+use leo_ast::NetworkName;
+use leo_package::{Manifest, Package, UpgradeConfig, fetch_program_from_network};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};

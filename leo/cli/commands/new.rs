@@ -16,7 +16,8 @@
 
 use super::*;
 
-use leo_package::{NetworkName, Package};
+use leo_ast::NetworkName;
+use leo_package::Package;
 
 /// Create new Leo project
 #[derive(Parser, Debug)]

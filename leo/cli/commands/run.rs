@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_package::NetworkName;
+use leo_ast::NetworkName;
 use snarkvm::{
     cli::Run as SnarkVMRun,
     prelude::{CanaryV0, MainnetV0, Network, Parser as SnarkVMParser, TestnetV0},

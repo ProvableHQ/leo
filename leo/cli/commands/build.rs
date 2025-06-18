@@ -16,10 +16,10 @@
 
 use super::*;
 
-use leo_ast::Stub;
+use leo_ast::{NetworkName, Stub};
 use leo_compiler::{AstSnapshots, Compiler, CompilerOptions};
 use leo_errors::{CliError, UtilError};
-use leo_package::{Manifest, NetworkName, Package, UpgradeConfig};
+use leo_package::{Manifest, Package, UpgradeConfig};
 use leo_span::Symbol;
 
 use snarkvm::prelude::{Itertools, MainnetV0, Network, Program, TestnetV0};

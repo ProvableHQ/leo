@@ -29,6 +29,9 @@ pub use imported_modules::*;
 mod positive_number;
 pub use positive_number::*;
 
+mod network_name;
+pub use network_name::*;
+
 pub mod node;
 
 mod node_builder;

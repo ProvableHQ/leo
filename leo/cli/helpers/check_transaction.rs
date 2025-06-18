@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_ast::NetworkName;
 use leo_errors::Result;
-use leo_package::NetworkName;
 
 use anyhow::anyhow;
 use serde::Deserialize;

@@ -61,11 +61,12 @@ impl<N: Network> Compiler<N> {
         let source_file = with_session_globals(|s| s.source_map.new_source(source, filename));
 
         // Use the parser to construct the abstract syntax tree (ast).
-        self.state.ast = leo_parser::parse_ast::<N>(
+        self.state.ast = leo_parser::parse_ast(
             self.state.handler.clone(),
             &self.state.node_builder,
             &source_file.src,
             source_file.absolute_start,
+            self.state.network,
         )?;
 
         // Check that the name of its program scope matches the expected name.

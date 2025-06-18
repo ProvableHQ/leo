@@ -71,7 +71,7 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
             ));
         }
         // Construct the expected constructor.
-        let expected = parse_constructor::<N>(&leo_admin_constructor(address));
+        let expected = self.parse_constructor(&leo_admin_constructor(address));
         // Check that the expected constructor matches the given constructor.
         if !constructors_match(constructor, &expected) {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
@@ -149,7 +149,7 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
             ));
         }
         // Construct the expected constructor.
-        let expected = parse_constructor::<N>(&leo_checksum_constructor(mapping, key));
+        let expected = self.parse_constructor(&leo_checksum_constructor(mapping, key));
         // Check that the expected constructor matches the given constructor.
         if !constructors_match(constructor, &expected) {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
@@ -169,7 +169,7 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
     // Checks that a `NoUpgrade` constructor is well formed.
     fn check_noupgrade_constructor(&self, constructor: &Constructor) {
         // Construct the expected constructor.
-        let expected = parse_constructor::<N>(&leo_noupgrade_constructor());
+        let expected = self.parse_constructor(&leo_noupgrade_constructor());
         // Check that the expected constructor matches the given constructor.
         if !constructors_match(constructor, &expected) {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
@@ -179,17 +179,17 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
             ));
         }
     }
-}
 
-// A helper function to parse a constructor string into a Leo constructor.
-fn parse_constructor<N: Network>(constructor_string: &str) -> Constructor {
-    // Initialize a new handler.
-    let handler = Handler::new(BufferEmitter::new());
-    // Initialize a node builder.
-    let node_builder = NodeBuilder::new(0);
-    // Parse the constructor string.
-    leo_parser::parse_constructor::<N>(handler, &node_builder, constructor_string, 0)
-        .expect("The default constructor should be well-formed")
+    // A helper function to parse a constructor string into a Leo constructor.
+    fn parse_constructor(&self, constructor_string: &str) -> Constructor {
+        // Initialize a new handler.
+        let handler = Handler::new(BufferEmitter::new());
+        // Initialize a node builder.
+        let node_builder = NodeBuilder::new(0);
+        // Parse the constructor string.
+        leo_parser::parse_constructor(handler, &node_builder, constructor_string, 0, self.state.network)
+            .expect("The default constructor should be well-formed")
+    }
 }
 
 // A helper function to provide an error message if the constructor is not well formed.

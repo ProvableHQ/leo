@@ -16,7 +16,8 @@
 
 use super::*;
 
-use leo_package::{NetworkName, Package, fetch_program_from_network};
+use leo_ast::NetworkName;
+use leo_package::{Package, fetch_program_from_network};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};

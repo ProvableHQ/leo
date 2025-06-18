@@ -21,8 +21,9 @@ use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
 use std::{fmt, str::FromStr};
 
 // Retrievable networks for an external program
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum NetworkName {
+    #[default]
     #[serde(rename = "testnet")]
     TestnetV0,
     #[serde(rename = "mainnet")]

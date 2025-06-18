@@ -17,7 +17,8 @@
 use super::*;
 
 use check_transaction::TransactionStatus;
-use leo_package::{NetworkName, Package, ProgramData};
+use leo_ast::NetworkName;
+use leo_package::{Package, ProgramData};
 
 use aleo_std::StorageMode;
 use clap::Parser;

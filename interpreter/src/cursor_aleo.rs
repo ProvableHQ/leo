@@ -33,7 +33,6 @@ use snarkvm::{
         Identifier,
         Literal,
         LiteralType,
-        Network as _,
         PlaintextType,
         Register,
         TestnetV0,

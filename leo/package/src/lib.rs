@@ -42,7 +42,8 @@
 //! Such a directory structure, together with a `.gitignore` file, may be created
 //! on the file system using `Package::initialize`.
 //! ```no_run
-//! # use leo_package::{NetworkName, Package};
+//! # use leo_ast::NetworkName;
+//! # use leo_package::{Package};
 //! let path = Package::initialize("my_package", "path/to/parent", NetworkName::TestnetV0, "http://localhost:3030").unwrap();
 //! ```
 //!
@@ -68,6 +69,7 @@
 
 #![forbid(unsafe_code)]
 
+use leo_ast::NetworkName;
 use leo_errors::{PackageError, Result, UtilError};
 use leo_span::Symbol;
 
@@ -84,9 +86,6 @@ pub use location::*;
 
 mod manifest;
 pub use manifest::*;
-
-mod network_name;
-pub use network_name::*;
 
 mod package;
 pub use package::*;
