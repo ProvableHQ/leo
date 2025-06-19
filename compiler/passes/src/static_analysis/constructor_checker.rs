@@ -137,17 +137,16 @@ impl StaticAnalyzingVisitor<'_> {
             .lookup_global(location)
             .map(|variable| match variable.type_ {
                 Type::Mapping(ref mapping_type) => {
-                    mapping_type.key.as_ref() == &key_type
-                        && mapping_type.value.as_ref()
-                            == &Type::Array(ArrayType::new(
-                                Type::Integer(IntegerType::U8),
-                                Expression::Literal(leo_ast::Literal::integer(
-                                    IntegerType::U8,
-                                    "32".to_string(),
-                                    Default::default(),
-                                    Default::default(),
-                                )),
-                            ))
+                    mapping_type.key.as_ref().eq_flat_relaxed(&key_type)
+                        && mapping_type.value.as_ref().eq_flat_relaxed(&Type::Array(ArrayType::new(
+                            Type::Integer(IntegerType::U8),
+                            Expression::Literal(leo_ast::Literal::integer(
+                                IntegerType::U8,
+                                "32".to_string(),
+                                Default::default(),
+                                Default::default(),
+                            )),
+                        )))
                 }
                 _ => false,
             })
