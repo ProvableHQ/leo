@@ -28,8 +28,6 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Create a map of function names to their definitions for fast access.
         let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
 
-        println!("Call graph: {:#?}", self.state.call_graph.nodes().collect::<Vec<_>>());
-
         // Compute a post-order traversal of the call graph.
         // This ensures that functions are processed after all their callees.
         let order = self.state.call_graph.post_order().unwrap(); // This unwrap is safe because the type checker guarantees an acyclic graph.

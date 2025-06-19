@@ -35,10 +35,7 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
             .post_order()
             .unwrap()
             .into_iter()
-            .filter_map(|location| match location.program == self.program {
-                true => Some(location.name),
-                false => None,
-            })
+            .filter_map(|location| (location.program == self.program).then_some(location.name))
             .collect_vec();
 
         // Construct map to provide faster lookup of functions.

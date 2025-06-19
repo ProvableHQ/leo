@@ -29,7 +29,12 @@ use std::path::{Path, PathBuf};
 #[derive(Clone, Debug)]
 pub enum ProgramData {
     Bytecode(String),
-    SourcePath(PathBuf),
+    /// For a local dependency, `directory` is the directory of the package
+    /// For a test dependency, `directory` is the directory of the test file.
+    SourcePath {
+        directory: PathBuf,
+        source: PathBuf,
+    },
 }
 
 /// A Leo package.
@@ -396,9 +401,9 @@ impl Package {
                     ProgramData::Bytecode(bytecode) => {
                         Ok((program.name.to_string(), bytecode.clone(), program.edition, None))
                     }
-                    ProgramData::SourcePath(path) => {
+                    ProgramData::SourcePath { directory, source } => {
                         // Get the path to the built bytecode.
-                        let bytecode_path = if path.as_path() == self.source_directory().join("main.leo") {
+                        let bytecode_path = if source.as_path() == self.source_directory().join("main.leo") {
                             self.build_directory().join("main.aleo")
                         } else {
                             self.imports_directory().join(format!("{}.aleo", program.name))
@@ -407,10 +412,7 @@ impl Package {
                         let bytecode = std::fs::read_to_string(&bytecode_path)
                             .map_err(|e| PackageError::failed_to_read_file(bytecode_path.display(), e))?;
                         // Get the package from the directory.
-                        let mut path = path.clone();
-                        path.pop();
-                        path.pop();
-                        let package = Package::from_directory_no_graph(&path, home_path)?;
+                        let package = Package::from_directory_no_graph(directory, home_path)?;
                         // Return the bytecode and the manifest.
                         Ok((program.name.to_string(), bytecode, program.edition, Some(package.manifest.clone())))
                     }

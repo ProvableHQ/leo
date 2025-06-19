@@ -75,7 +75,7 @@ fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) 
             .programs
             .iter()
             .flat_map(|program| match &program.data {
-                ProgramData::SourcePath(path) => Some(path.clone()),
+                ProgramData::SourcePath { source, .. } => Some(source.clone()),
                 ProgramData::Bytecode(..) => None,
             })
             .collect();
@@ -84,7 +84,7 @@ fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) 
             .programs
             .iter()
             .flat_map(|program| match &program.data {
-                ProgramData::SourcePath(..) => {
+                ProgramData::SourcePath { .. } => {
                     // It's a local dependency.
                     Some(program.name)
                 }

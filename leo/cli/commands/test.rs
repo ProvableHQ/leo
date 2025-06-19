@@ -69,7 +69,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
         .programs
         .iter()
         .flat_map(|program| match &program.data {
-            ProgramData::SourcePath(path) => Some(path.clone()),
+            ProgramData::SourcePath { source, .. } => Some(source.clone()),
             ProgramData::Bytecode(..) => None,
         })
         .collect();
@@ -77,7 +77,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
         .programs
         .iter()
         .flat_map(|program| match &program.data {
-            ProgramData::SourcePath(..) => {
+            ProgramData::SourcePath { .. } => {
                 // It's a local dependency.
                 Some(program.name)
             }
@@ -130,7 +130,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
             }
             let bytecode = match &program.data {
                 ProgramData::Bytecode(c) => c.clone(),
-                ProgramData::SourcePath(..) => {
+                ProgramData::SourcePath { .. } => {
                     // This was not a network dependency, so get its bytecode from the filesystem.
                     let aleo_path = if program.name == program_name_symbol {
                         build_directory.join("main.aleo")

@@ -40,9 +40,6 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
             return (input_call.into(), Default::default());
         }
 
-        println!("Program: {}, Function: {}", self.program, self.function);
-        println!("Reconstructed functions: {:?}", self.reconstructed_functions.keys().collect::<Vec<_>>());
-        println!("Input: {:?}", input_call.function);
         // Look up the already reconstructed function by name.
         let callee_fn = self
             .reconstructed_functions

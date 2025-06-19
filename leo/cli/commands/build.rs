@@ -108,20 +108,17 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
                 // This was a network dependency, and we've downloaded its bytecode.
                 (bytecode.clone(), imports_directory.join(format!("{}.aleo", program.name)))
             }
-            leo_package::ProgramData::SourcePath(path) => {
+            leo_package::ProgramData::SourcePath { directory, source, .. } => {
                 // This is a local dependency, so we must compile it.
-                let build_path = if path == &main_source_path {
+                let build_path = if source == &main_source_path {
                     build_directory.join("main.aleo")
                 } else {
                     imports_directory.join(format!("{}.aleo", program.name))
                 };
                 // Load the manifest in local dependency.
-                let mut manifest_path = path.clone();
-                manifest_path.pop();
-                manifest_path.pop();
-                let manifest = Manifest::read_from_file(manifest_path.join(leo_package::MANIFEST_FILENAME))?;
+                let manifest = Manifest::read_from_file(directory.join(leo_package::MANIFEST_FILENAME))?;
                 let bytecode = compile_leo_file::<N>(
-                    path,
+                    source,
                     program.name,
                     program.is_test,
                     &outputs_directory,

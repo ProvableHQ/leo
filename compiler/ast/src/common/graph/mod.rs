@@ -32,8 +32,7 @@ pub type ImportGraph = DiGraph<Symbol>;
 /// A node in a graph.
 pub trait GraphNode: Copy + 'static + Eq + PartialEq + Debug + Hash {}
 
-impl GraphNode for Symbol {}
-impl GraphNode for Location {}
+impl<T> GraphNode for T where T: 'static + Copy + Eq + PartialEq + Debug + Hash {}
 
 /// Errors in directed graph operations.
 #[derive(Debug)]
@@ -208,8 +207,6 @@ impl<N: GraphNode> DiGraph<N> {
 #[cfg(test)]
 mod test {
     use super::*;
-
-    impl GraphNode for u32 {}
 
     fn check_post_order<N: GraphNode>(graph: &DiGraph<N>, expected: &[N]) {
         let result = graph.post_order();

@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_errors::{ParserError, Result};
+use leo_errors::{ParserError, Result, TypeCheckerError};
 use leo_span::{Symbol, sym};
 
 impl<N: Network> ParserContext<'_, N> {
@@ -141,7 +141,11 @@ impl<N: Network> ParserContext<'_, N> {
                 Token::Async if self.look_ahead(1, |t| &t.token) == &Token::Constructor => {
                     // If a constructor already exists, return an error.
                     if constructor.is_some() {
-                        return Err(ParserError::multiple_constructors(self.token.span).into());
+                        return Err(TypeCheckerError::custom_error(
+                            "A program can only have one constructor.",
+                            self.token.span,
+                        )
+                        .into());
                     }
                     let constructor_ = self.parse_constructor()?;
                     constructor = Some(constructor_);

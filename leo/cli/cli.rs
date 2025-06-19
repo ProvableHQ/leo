@@ -375,7 +375,6 @@ program nested.aleo {
         let c: u32 = nested_example_layer_0.aleo/main(a, b);
         return c;
     }
-
     async constructor() {
         assert_eq(self.edition, 0u16);
     }
@@ -519,7 +518,6 @@ program grandparent.aleo {
     transition double_wrapper_mint(owner: address, val: u32) -> child.aleo/A {
         return parent.aleo/wrapper_mint(owner, val);
     }
-
     async constructor() {
         assert_eq(self.edition, 0u16);
     }
@@ -531,11 +529,9 @@ program parent.aleo {
     transition wrapper_mint(owner: address, val: u32) ->  child.aleo/A {
         return child.aleo/mint(owner, val);
     }
-
     async constructor() {
         assert_eq(self.edition, 0u16);
     }
-    
 }
 ";
 
@@ -549,7 +545,6 @@ program child.aleo {
     transition mint(owner: address, val: u32) -> A {
         return A {owner: owner, val: val};
     }
-
     async constructor() {
         assert_eq(self.edition, 0u16);
     }

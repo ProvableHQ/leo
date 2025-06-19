@@ -177,9 +177,9 @@ fn handle_execute<A: Aleo>(
                     .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
                 match &program.data {
                     ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string())),
-                    ProgramData::SourcePath(path) => {
+                    ProgramData::SourcePath { source, .. } => {
                         // Get the path to the built bytecode.
-                        let bytecode_path = if path.as_path() == source_directory.join("main.leo") {
+                        let bytecode_path = if source.as_path() == source_directory.join("main.leo") {
                             build_directory.join("main.aleo")
                         } else {
                             imports_directory.join(format!("{}.aleo", program.name))

@@ -381,11 +381,4 @@ create_messages!(
         msg: format!("Expected an identifier."),
         help: None,
     }
-
-    @formatted
-    multiple_constructors {
-        args: (),
-        msg: format!("A program can only have one constructor."),
-        help: None,
-    }
 );
