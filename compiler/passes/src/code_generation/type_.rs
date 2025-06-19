@@ -18,7 +18,7 @@ use super::*;
 
 use leo_ast::{Location, Mode, Type};
 
-impl<N: Network> CodeGeneratingVisitor<'_, N> {
+impl CodeGeneratingVisitor<'_> {
     pub fn visit_type(input: &Type) -> String {
         match input {
             Type::Address

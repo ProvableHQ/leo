@@ -23,7 +23,7 @@ use leo_span::{Symbol, sym};
 use itertools::Itertools;
 use std::collections::{BTreeMap, HashSet};
 
-impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
+impl ProgramVisitor for TypeCheckingVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {

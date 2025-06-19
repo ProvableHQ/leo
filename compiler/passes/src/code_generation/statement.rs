@@ -37,7 +37,7 @@ use indexmap::IndexSet;
 use itertools::Itertools as _;
 use std::fmt::Write as _;
 
-impl<N: Network> CodeGeneratingVisitor<'_, N> {
+impl CodeGeneratingVisitor<'_> {
     fn visit_statement(&mut self, input: &Statement) -> String {
         match input {
             Statement::Assert(stmt) => self.visit_assert(stmt),

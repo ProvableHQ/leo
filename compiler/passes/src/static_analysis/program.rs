@@ -19,9 +19,7 @@ use super::StaticAnalyzingVisitor;
 use leo_ast::{Type, *};
 use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
 
-use snarkvm::prelude::Network;
-
-impl<N: Network> ProgramVisitor for StaticAnalyzingVisitor<'_, N> {
+impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set the current program name.
         self.current_program = input.program_id.name.name;

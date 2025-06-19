@@ -16,7 +16,7 @@
 
 use crate::{Compiler, run_with_ledger};
 
-use leo_ast::Stub;
+use leo_ast::{NetworkName, Stub};
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError, Result};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
@@ -37,7 +37,7 @@ fn whole_compile(
     handler: &Handler,
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<(String, String), LeoError> {
-    let mut compiler = Compiler::<CurrentNetwork>::new(
+    let mut compiler = Compiler::new(
         None,
         /* is_test (a Leo test) */ false,
         handler.clone(),
@@ -45,6 +45,7 @@ fn whole_compile(
         None,
         import_stubs,
         None,
+        NetworkName::TestnetV0,
     );
 
     let filename = FileName::Custom("execution-test".into());

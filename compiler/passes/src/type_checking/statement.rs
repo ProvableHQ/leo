@@ -23,7 +23,7 @@ use leo_ast::{
 };
 use leo_errors::TypeCheckerError;
 
-impl<N: Network> StatementVisitor for TypeCheckingVisitor<'_, N> {
+impl StatementVisitor for TypeCheckingVisitor<'_> {
     fn visit_statement(&mut self, input: &Statement) {
         // No statements can follow a return statement.
         if self.scope_state.has_return {

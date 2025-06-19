@@ -24,6 +24,7 @@ use leo_ast::{
     Expression,
     IntegerType,
     Location,
+    NetworkName,
     Node,
     NodeBuilder,
     ProgramId,
@@ -37,11 +38,11 @@ use leo_errors::{BufferEmitter, Handler, StaticAnalyzerError};
 use leo_package::{MappingTarget, UpgradeConfig};
 use leo_span::Symbol;
 
-use snarkvm::prelude::{Address, Literal, Network, ProgramID};
+use snarkvm::prelude::{Address, CanaryV0, Literal, MainnetV0, Network, ProgramID, TestnetV0};
 
 use std::{fmt::Display, str::FromStr};
 
-impl<N: Network> StaticAnalyzingVisitor<'_, N> {
+impl StaticAnalyzingVisitor<'_> {
     /// Checks that the declared constructor matches the configuration.
     pub fn check_constructor_matches(&self, constructor: &Constructor) {
         if let Some(config) = &self.state.upgrade_config {
@@ -63,9 +64,13 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
     // Checks that an `Admin` constructor is well formed.
     fn check_admin_constructor(&self, constructor: &Constructor, address: &str) {
         // Verify that the address is valid.
-        if let Err(e) = Address::<N>::from_str(address) {
+        if match self.state.network {
+            NetworkName::MainnetV0 => Address::<MainnetV0>::from_str(address).is_err(),
+            NetworkName::TestnetV0 => Address::<TestnetV0>::from_str(address).is_err(),
+            NetworkName::CanaryV0 => Address::<CanaryV0>::from_str(address).is_err(),
+        } {
             self.state.handler.emit_err(StaticAnalyzerError::custom_error(
-                format!("'{address}' is not a valid address: {e}"),
+                format!("'{address}' is not a valid address for the current network: {}", self.state.network),
                 Option::<String>::None,
                 constructor.span(),
             ));
@@ -82,15 +87,20 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
         }
     }
 
-    // Checks that a `Checksum` constructor is well formed.
+    // Checks that a `Checksum` constructor is well-formed.
     fn check_checksum_constructor(&self, constructor: &Constructor, mapping: &MappingTarget, key: &str) {
         // Get the location of the mapping.
         let location = match mapping {
             MappingTarget::Local(name) => Location::new(self.current_program, Symbol::intern(name)),
             MappingTarget::External { program_id, name } => {
                 // Parse the program ID.
-                let program_id: ProgramId = match ProgramID::<N>::from_str(program_id) {
-                    Ok(program_id) => (&program_id).into(),
+                let result = match self.state.network {
+                    NetworkName::MainnetV0 => ProgramID::<MainnetV0>::from_str(program_id).map(|p| (&p).into()),
+                    NetworkName::TestnetV0 => ProgramID::<TestnetV0>::from_str(program_id).map(|p| (&p).into()),
+                    NetworkName::CanaryV0 => ProgramID::<CanaryV0>::from_str(program_id).map(|p| (&p).into()),
+                };
+                let program_id: ProgramId = match result {
+                    Ok(program_id) => program_id,
                     Err(_) => {
                         self.state.handler.emit_err(StaticAnalyzerError::custom_error(
                             format!("The program ID '{program_id}' is not a valid program ID."),
@@ -104,8 +114,13 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
             }
         };
         // Get the type of the key used to index the mapping.
-        let key_type: Type = match Literal::<N>::from_str(key) {
-            Ok(literal) => get_type_from_snarkvm_literal(&literal),
+        let result = match self.state.network {
+            NetworkName::MainnetV0 => Literal::<MainnetV0>::from_str(key).map(|l| get_type_from_snarkvm_literal(&l)),
+            NetworkName::TestnetV0 => Literal::<TestnetV0>::from_str(key).map(|l| get_type_from_snarkvm_literal(&l)),
+            NetworkName::CanaryV0 => Literal::<CanaryV0>::from_str(key).map(|l| get_type_from_snarkvm_literal(&l)),
+        };
+        let key_type: Type = match result {
+            Ok(type_) => type_,
             Err(_) => {
                 self.state.handler.emit_err(StaticAnalyzerError::custom_error(
                     format!("The key '{key}' is not a valid."),

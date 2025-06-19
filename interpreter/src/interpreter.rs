@@ -102,7 +102,7 @@ impl Interpreter {
         // Only run these two passes from the compiler to make sure that type inference runs and the `type_table` is
         // filled out. Other compiler passes are not necessary at this stage.
         SymbolTableCreation::do_pass((), state)?;
-        TypeChecking::<TestnetV0>::do_pass(
+        TypeChecking::do_pass(
             TypeCheckingInput {
                 max_array_elements: TestnetV0::MAX_ARRAY_ELEMENTS,
                 max_mappings: TestnetV0::MAX_MAPPINGS,

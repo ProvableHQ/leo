@@ -30,10 +30,10 @@ use visitor::*;
 use self::scope_state::ScopeState;
 use crate::{CompilerState, Pass};
 
-use leo_ast::{CallGraph, ProgramVisitor, StructGraph};
+use leo_ast::{CallGraph, NetworkName, ProgramVisitor, StructGraph};
 use leo_errors::Result;
 
-use snarkvm::prelude::Network;
+use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
 
 use indexmap::{IndexMap, IndexSet};
 
@@ -45,14 +45,28 @@ pub struct TypeCheckingInput {
     pub max_functions: usize,
 }
 
+impl TypeCheckingInput {
+    /// Create a new `TypeCheckingInput` from the given network.
+    pub fn new(network: NetworkName) -> Self {
+        let (max_array_elements, max_mappings, max_functions) = match network {
+            NetworkName::MainnetV0 => {
+                (MainnetV0::MAX_ARRAY_ELEMENTS, MainnetV0::MAX_MAPPINGS, MainnetV0::MAX_FUNCTIONS)
+            }
+            NetworkName::TestnetV0 => {
+                (TestnetV0::MAX_ARRAY_ELEMENTS, TestnetV0::MAX_MAPPINGS, TestnetV0::MAX_FUNCTIONS)
+            }
+            NetworkName::CanaryV0 => (CanaryV0::MAX_ARRAY_ELEMENTS, CanaryV0::MAX_MAPPINGS, CanaryV0::MAX_FUNCTIONS),
+        };
+        Self { max_array_elements, max_mappings, max_functions }
+    }
+}
+
 /// A pass to check types.
 ///
 /// Also constructs the struct graph, call graph, and local symbol table data.
-pub struct TypeChecking<N: Network> {
-    _phantom: std::marker::PhantomData<N>,
-}
+pub struct TypeChecking {}
 
-impl<N: Network> Pass for TypeChecking<N> {
+impl Pass for TypeChecking {
     type Input = TypeCheckingInput;
     type Output = ();
 
@@ -74,7 +88,7 @@ impl<N: Network> Pass for TypeChecking<N> {
         // Initialize the call graph with all the functions in the program.
         state.call_graph = CallGraph::new(function_names);
 
-        let mut visitor = TypeCheckingVisitor::<N> {
+        let mut visitor = TypeCheckingVisitor {
             state,
             scope_state: ScopeState::new(),
             async_function_input_types: IndexMap::new(),
@@ -82,7 +96,6 @@ impl<N: Network> Pass for TypeChecking<N> {
             used_structs: IndexSet::new(),
             conditional_scopes: Vec::new(),
             limits: input,
-            _phantom: Default::default(),
         };
         visitor.visit_program(ast.as_repr());
         visitor.state.handler.last_err().map_err(|e| *e)?;

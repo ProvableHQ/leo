@@ -16,9 +16,8 @@
 
 use super::TypeCheckingVisitor;
 use leo_ast::{ArrayType, Expression, ExpressionVisitor, IntegerType, Node, Type, TypeVisitor};
-use snarkvm::prelude::Network;
 
-impl<N: Network> TypeVisitor for TypeCheckingVisitor<'_, N> {
+impl TypeVisitor for TypeCheckingVisitor<'_> {
     fn visit_array_type(&mut self, input: &ArrayType) {
         self.visit_type(&input.element_type);
         let mut length_type = self.visit_expression(&input.length, &None);

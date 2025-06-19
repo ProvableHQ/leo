@@ -23,7 +23,7 @@ use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
 
-impl<N: Network> TypeCheckingVisitor<'_, N> {
+impl TypeCheckingVisitor<'_> {
     pub fn visit_expression_assign(&mut self, input: &Expression) -> Type {
         let ty = match input {
             Expression::ArrayAccess(array_access) => self.visit_array_access_general(array_access, true, &None),
@@ -341,7 +341,7 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
     }
 }
 
-impl<N: Network> ExpressionVisitor for TypeCheckingVisitor<'_, N> {
+impl ExpressionVisitor for TypeCheckingVisitor<'_> {
     type AdditionalInput = Option<Type>;
     type Output = Type;
 

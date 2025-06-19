@@ -24,10 +24,9 @@ use leo_span::{Span, Symbol};
 
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
-use snarkvm::prelude::ProgramID;
-use std::{ops::Deref, str::FromStr};
+use std::ops::Deref;
 
-pub struct TypeCheckingVisitor<'a, N: Network> {
+pub struct TypeCheckingVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// The state of the current scope being traversed.
     pub scope_state: ScopeState,
@@ -41,10 +40,9 @@ pub struct TypeCheckingVisitor<'a, N: Network> {
     pub limits: TypeCheckingInput,
     /// For detecting the error `TypeCheckerError::async_cannot_assign_outside_conditional`.
     pub conditional_scopes: Vec<IndexSet<Symbol>>,
-    pub _phantom: std::marker::PhantomData<N>,
 }
 
-impl<N: Network> TypeCheckingVisitor<'_, N> {
+impl TypeCheckingVisitor<'_> {
     pub fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
         self.state.symbol_table.enter_scope(Some(id));
         let result = func(self);
@@ -858,7 +856,7 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
                 // Verify that the argument is a valid program ID.
                 if let Some(program_id) = self.assert_and_return_program_id(expression) {
                     // Attempt to convert the program ID into an address.
-                    if let Err(e) = program_id.to_address() {
+                    if let Err(e) = program_id.to_address_string(self.state.network) {
                         // Emit an error if the conversion fails.
                         self.emit_err(TypeCheckerError::custom_error(
                             format!("Failed to convert program ID into address: {e}"),
@@ -1328,10 +1326,10 @@ impl<N: Network> TypeCheckingVisitor<'_, N> {
     }
 
     // Asserts that an expression is a valid program ID and returns the program ID.
-    fn assert_and_return_program_id(&mut self, expression: &Expression) -> Option<ProgramID<N>> {
+    fn assert_and_return_program_id(&mut self, expression: &Expression) -> Option<ProgramId> {
         if let Expression::Literal(Literal { variant: LiteralVariant::String(program_id_string), .. }) = expression {
             // Check that the program ID is valid and return it.
-            match ProgramID::<N>::from_str(program_id_string) {
+            match ProgramId::from_str_with_network(program_id_string, self.state.network) {
                 Ok(program_id) => Some(program_id),
                 Err(e) => {
                     self.emit_err(TypeCheckerError::custom_error(

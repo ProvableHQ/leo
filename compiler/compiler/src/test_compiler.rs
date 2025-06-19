@@ -16,7 +16,7 @@
 
 use crate::Compiler;
 
-use leo_ast::Stub;
+use leo_ast::{NetworkName, Stub};
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
 use leo_package::UpgradeConfig;
@@ -40,7 +40,7 @@ pub fn whole_compile(
     import_stubs: IndexMap<Symbol, Stub>,
     upgrade_config: Option<UpgradeConfig>,
 ) -> Result<(String, String), LeoError> {
-    let mut compiler = Compiler::<TestnetV0>::new(
+    let mut compiler = Compiler::new(
         None,
         /* is_test (a Leo test) */ false,
         handler.clone(),
@@ -48,6 +48,7 @@ pub fn whole_compile(
         None,
         import_stubs,
         upgrade_config,
+        NetworkName::TestnetV0,
     );
 
     let filename = FileName::Custom("compiler-test".into());

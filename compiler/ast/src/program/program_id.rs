@@ -14,12 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Identifier;
+use crate::{Identifier, NetworkName};
 
 use core::fmt;
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
-use snarkvm::{console::program::ProgramID, prelude::Network};
+use snarkvm::{
+    console::program::ProgramID,
+    prelude::{CanaryV0, MainnetV0, Network, Result, TestnetV0},
+};
+use std::str::FromStr;
 
 /// An identifier for a program that is eventually deployed to the network.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
@@ -28,6 +32,32 @@ pub struct ProgramId {
     pub name: Identifier,
     /// The network associated with the program.
     pub network: Identifier,
+}
+
+impl ProgramId {
+    /// Initializes a new `ProgramId` from a string, using a network parameter to validate using snarkVM.
+    pub fn from_str_with_network(string: &str, network: NetworkName) -> Result<Self> {
+        match network {
+            NetworkName::MainnetV0 => ProgramID::<MainnetV0>::from_str(string).map(|id| (&id).into()),
+            NetworkName::TestnetV0 => ProgramID::<TestnetV0>::from_str(string).map(|id| (&id).into()),
+            NetworkName::CanaryV0 => ProgramID::<CanaryV0>::from_str(string).map(|id| (&id).into()),
+        }
+    }
+
+    /// Converts the `ProgramId` into an address string.
+    pub fn to_address_string(&self, network: NetworkName) -> Result<String> {
+        match network {
+            NetworkName::MainnetV0 => {
+                ProgramID::<MainnetV0>::from_str(&self.to_string())?.to_address().map(|addr| addr.to_string())
+            }
+            NetworkName::TestnetV0 => {
+                ProgramID::<TestnetV0>::from_str(&self.to_string())?.to_address().map(|addr| addr.to_string())
+            }
+            NetworkName::CanaryV0 => {
+                ProgramID::<CanaryV0>::from_str(&self.to_string())?.to_address().map(|addr| addr.to_string())
+            }
+        }
+    }
 }
 
 impl fmt::Display for ProgramId {

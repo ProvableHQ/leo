@@ -20,9 +20,7 @@ use leo_ast::*;
 use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
 use leo_span::{Span, Symbol};
 
-use snarkvm::prelude::Network;
-
-pub struct StaticAnalyzingVisitor<'a, N: Network> {
+pub struct StaticAnalyzingVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// Struct to store the state relevant to checking all futures are awaited.
     pub await_checker: AwaitChecker,
@@ -32,10 +30,9 @@ pub struct StaticAnalyzingVisitor<'a, N: Network> {
     pub variant: Option<Variant>,
     /// Whether or not a non-async external call has been seen in this function.
     pub non_async_external_call_seen: bool,
-    pub _phantom: std::marker::PhantomData<N>,
 }
 
-impl<N: Network> StaticAnalyzingVisitor<'_, N> {
+impl StaticAnalyzingVisitor<'_> {
     pub fn emit_err(&self, err: StaticAnalyzerError) {
         self.state.handler.emit_err(err);
     }
@@ -108,4 +105,4 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
     }
 }
 
-impl<N: Network> TypeVisitor for StaticAnalyzingVisitor<'_, N> {}
+impl TypeVisitor for StaticAnalyzingVisitor<'_> {}
