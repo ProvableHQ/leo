@@ -141,7 +141,7 @@ fn check_transaction(
 ) -> Result<CheckedTransaction> {
     // It appears that the default rate limit for snarkOS is 10 requests per second per IP,
     // and this value seems to avoid rate limits in practice, so let's go with this.
-    const DELAY_MILLIS: u64 = 101;
+    const DELAY_MILLIS: u64 = 201;
 
     for use_height in start_height..start_height + blocks_to_check {
         let status = status_at_height(id, maybe_fee_id, endpoint, network, use_height, max_wait)?;
@@ -167,7 +167,7 @@ pub fn check_transaction_with_message(
     max_wait: usize,
     blocks_to_check: usize,
 ) -> Result<Option<TransactionStatus>> {
-    println!("Searching up to {blocks_to_check} blocks to find transaction (this may take several seconds)...");
+    println!("🔄 Searching up to {blocks_to_check} blocks to confirm transaction (this may take several seconds)...");
     let checked = crate::cli::check_transaction::check_transaction(
         id,
         maybe_fee_id,
@@ -182,7 +182,7 @@ pub fn check_transaction_with_message(
         Some(TransactionStatus::Accepted) => println!("Transaction accepted."),
         Some(TransactionStatus::Rejected) => println!("Transaction rejected."),
         Some(TransactionStatus::Aborted) => println!("Transaction aborted."),
-        None => println!("Couldn't find the transaction."),
+        None => println!("Could not find the transaction."),
     }
     Ok(checked.status)
 }

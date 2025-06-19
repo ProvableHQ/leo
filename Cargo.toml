@@ -115,7 +115,7 @@ version = "1.11.1"
 [workspace.dependencies.snarkvm]
 #version = "=3.8.0"
 git = "https://github.com/ProvableHQ/snarkVM.git"
-rev = "a015246"
+rev = "a4573a3"
 
 [workspace.dependencies.serde]
 version = "1.0.214"

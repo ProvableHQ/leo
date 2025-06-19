@@ -31,7 +31,7 @@ use snarkvm::{
     },
 };
 
-use crate::cli::commands::deploy::validate_deployment_limits;
+use crate::cli::{check_transaction::TransactionStatus, commands::deploy::validate_deployment_limits};
 use aleo_std::StorageMode;
 use colored::*;
 use snarkvm::prelude::{ConsensusVersion, ProgramID, Stack};
@@ -48,9 +48,7 @@ pub struct LeoUpgrade {
     pub(crate) env_override: EnvOptions,
     #[clap(flatten)]
     pub(crate) extra: ExtraOptions,
-    #[clap(long, help = "Seconds to wait between consecutive deployments.", default_value = "15")]
-    pub(crate) wait: u64,
-    #[clap(long, help = "Skips deployment of any program that contains one of the given substrings.")]
+    #[clap(long, help = "Skips the upgrade of any program that contains one of the given substrings.")]
     pub(crate) skip: Vec<String>,
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
@@ -146,10 +144,12 @@ fn handle_upgrade<N: Network>(
     // Split the tasks into local and remote dependencies.
     let (local, remote) = tasks.into_iter().partition::<Vec<_>, _>(|(_, _, manifest, _, _, _)| manifest.is_some());
 
-    // Split the local tasks into those that should be skipped and those that should not.
-    let (skipped, tasks): (Vec<_>, Vec<_>) = local
-        .into_iter()
-        .partition(|(program_id, _, _, _, _, _)| command.skip.iter().any(|skip| program_id.to_string().contains(skip)));
+    // Get the skipped programs.
+    let skipped = local
+        .iter()
+        .filter(|(program_id, _, _, _, _, _)| command.skip.iter().any(|skip| program_id.to_string().contains(skip)))
+        .map(|(program_id, _, _, _, _, _)| *program_id)
+        .collect::<Vec<_>>();
 
     // Get the consensus version.
     let consensus_version = get_consensus_version::<N>(&command.extra.consensus_version, &endpoint, network, &context)?;
@@ -160,10 +160,10 @@ fn handle_upgrade<N: Network>(
         &address,
         &endpoint,
         &network,
-        &tasks,
+        &local,
         &skipped,
         &remote,
-        &check_tasks_for_warnings(&endpoint, network, &tasks, consensus_version, command),
+        &check_tasks_for_warnings(&endpoint, network, &local, consensus_version, command),
         consensus_version,
         &command.into(),
     );
@@ -180,7 +180,7 @@ fn handle_upgrade<N: Network>(
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
 
-    // Load all of the programs from the network into the VM.
+    // Load all the programs from the network into the VM.
     for program_id in program_ids {
         // Load the program from the network.
         let bytecode = fetch_program_from_network(&program_id.to_string(), &endpoint, network)
@@ -197,9 +197,9 @@ fn handle_upgrade<N: Network>(
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
-    for (program_id, program, manifest, _, priority_fee, fee_record) in tasks {
-        // If the program is a local dependency, generate a deployment transaction.
-        if manifest.is_some() {
+    for (program_id, program, manifest, _, priority_fee, fee_record) in local {
+        // If the program is a local dependency that is not skipped, generate a deployment transaction.
+        if manifest.is_some() && !skipped.contains(&program_id) {
             println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
             // Generate the transaction.
             let transaction = vm
@@ -246,38 +246,67 @@ fn handle_upgrade<N: Network>(
         }
     }
 
-    // If the `broadcast` option is set, broadcast each deployment transaction to the network.
+    // If the `broadcast` option is set, broadcast each upgrade transaction to the network.
     if command.action.broadcast {
-        for (program_id, transaction) in transactions.iter() {
-            println!("📡 Broadcasting deployment for {program_id}...");
+        for (i, (program_id, transaction)) in transactions.iter().enumerate() {
+            println!("📡 Broadcasting upgrade for {program_id}...");
             // Get and confirm the fee with the user.
             let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
             if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.extra.yes)? {
-                println!("❌ Deployment aborted.");
-                return Ok(());
+                println!("⏩ Upgrade skipped.");
+                continue;
             }
+            let fee_id = fee.id().to_string();
+            let id = transaction.id().to_string();
+            let height_before = check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
             let response = handle_broadcast(
                 &format!("{}/{}/transaction/broadcast", endpoint, network),
                 transaction,
                 &program_id.to_string(),
             )?;
+
+            let fail_and_prompt = |msg| {
+                println!("❌ Failed to upgrade program {program_id}: {msg}.");
+                let count = transactions.len() - i - 1;
+                // Check if the user wants to continue with the next upgrade.
+                if count > 0 {
+                    confirm("Do you want to continue with the next upgrade?", command.extra.yes)
+                } else {
+                    Ok(false)
+                }
+            };
+
             match response.status() {
-                200 => println!(
-                    "✅ Successfully broadcast deployment with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
-                    transaction.id().to_string().bold().yellow(),
-                    fee.id().to_string().bold().yellow()
-                ),
+                200 => {
+                    let status = check_transaction::check_transaction_with_message(
+                        &id,
+                        Some(&fee_id),
+                        &endpoint,
+                        network,
+                        height_before + 1,
+                        command.extra.max_wait,
+                        command.extra.blocks_to_check,
+                    )?;
+                    if status == Some(TransactionStatus::Accepted) {
+                        println!("✅ Upgrade confirmed!");
+                    } else if fail_and_prompt("Transaction apparently not accepted")? {
+                        continue;
+                    } else {
+                        return Ok(());
+                    }
+                }
                 _ => {
                     let error_message = response
                         .into_string()
                         .map_err(|e| CliError::custom(format!("Failed to read response: {e}")))?;
-                    println!("❌ Failed to broadcast deployment: {}", error_message);
+                    if fail_and_prompt(&error_message)? {
+                        continue;
+                    } else {
+                        return Ok(());
+                    }
                 }
             }
-            // Wait between successive deployments to prevent out of order deployments.
-            println!("⏲️ Waiting for {} seconds to allow the deployment to confirm...\n", command.wait);
-            std::thread::sleep(std::time::Duration::from_secs(command.wait));
         }
     }
 
@@ -316,7 +345,7 @@ fn check_tasks_for_warnings<N: Network>(
             // Check if the program is a valid upgrade.
             if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, program) {
                 warnings.push(format!(
-                    "The program '{program_id}' is not a valid upgrade. The deployment will likely fail. Error: {e}",
+                    "The program '{program_id}' is not a valid upgrade. The upgrade will likely fail. Error: {e}",
                 ));
             }
         } else {
@@ -328,12 +357,12 @@ fn check_tasks_for_warnings<N: Network>(
 
         // Check if the program uses V8 features.
         if consensus_version < ConsensusVersion::V8 && program.contains_v8_syntax() {
-            warnings.push(format!("The program '{}' uses V8 features but the consensus version is less than V8. The deployment will likely fail", program_id));
+            warnings.push(format!("The program '{}' uses V8 features but the consensus version is less than V8. The upgrade will likely fail", program_id));
         }
         // Check if the program contains a constructor.
         if consensus_version >= ConsensusVersion::V8 && !program.contains_constructor() {
             warnings.push(format!(
-                "The program '{}' does not contain a constructor. The deployment will likely fail",
+                "The program '{}' does not contain a constructor. The upgrade will likely fail",
                 program_id
             ));
         }
