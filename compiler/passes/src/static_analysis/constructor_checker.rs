@@ -61,7 +61,7 @@ impl StaticAnalyzingVisitor<'_> {
         }
     }
 
-    // Checks that an `Admin` constructor is well formed.
+    // Checks that an `Admin` constructor is well-formed.
     fn check_admin_constructor(&self, constructor: &Constructor, address: &str) {
         // Verify that the address is valid.
         if match self.state.network {
