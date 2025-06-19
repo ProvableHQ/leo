@@ -18,9 +18,7 @@ use super::StaticAnalyzingVisitor;
 
 use leo_ast::*;
 
-use snarkvm::prelude::Network;
-
-impl<N: Network> ExpressionVisitor for StaticAnalyzingVisitor<'_, N> {
+impl ExpressionVisitor for StaticAnalyzingVisitor<'_> {
     type AdditionalInput = ();
     type Output = ();
 

@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_ast::interpreter_value::{GlobalId, Value};
+use leo_ast::{
+    NetworkName,
+    interpreter_value::{GlobalId, Value},
+};
 use leo_errors::{CompilerError, Handler, InterpreterHalt, LeoError, Result};
 use leo_passes::{CompilerState, Pass, SymbolTableCreation, TypeChecking, TypeCheckingInput};
 use snarkvm::prelude::Network;
@@ -33,6 +36,8 @@ pub struct Interpreter {
     saved_cursors: Vec<Cursor>,
     filename_to_program: HashMap<PathBuf, String>,
     parsed_inputs: u32,
+    /// The network.
+    network: NetworkName,
 }
 
 #[derive(Clone, Debug)]
@@ -68,6 +73,7 @@ impl Interpreter {
         signer: SvmAddress,
         block_height: u32,
         test_flow: bool, // impacts the type checker
+        network: NetworkName,
     ) -> Result<Self> {
         Self::new_impl(
             &mut leo_source_files.into_iter().map(|p| p.as_ref()),
@@ -75,6 +81,7 @@ impl Interpreter {
             signer,
             block_height,
             test_flow,
+            network,
         )
     }
 
@@ -84,17 +91,18 @@ impl Interpreter {
         let source_file = with_session_globals(|s| s.source_map.new_source(&text, filename));
 
         // Parse
-        state.ast = leo_parser::parse_ast::<TestnetV0>(
+        state.ast = leo_parser::parse_ast(
             state.handler.clone(),
             &state.node_builder,
             &text,
             source_file.absolute_start,
+            state.network,
         )?;
 
         // Only run these two passes from the compiler to make sure that type inference runs and the `type_table` is
         // filled out. Other compiler passes are not necessary at this stage.
         SymbolTableCreation::do_pass((), state)?;
-        TypeChecking::<TestnetV0>::do_pass(
+        TypeChecking::do_pass(
             TypeCheckingInput {
                 max_array_elements: TestnetV0::MAX_ARRAY_ELEMENTS,
                 max_mappings: TestnetV0::MAX_MAPPINGS,
@@ -112,6 +120,7 @@ impl Interpreter {
         signer: SvmAddress,
         block_height: u32,
         test_flow: bool,
+        network: NetworkName,
     ) -> Result<Self> {
         let mut cursor: Cursor = Cursor::new(
             true, // really_async
@@ -120,7 +129,7 @@ impl Interpreter {
         );
         let mut filename_to_program = HashMap::new();
 
-        let mut state = CompilerState { is_test: test_flow, ..Default::default() };
+        let mut state = CompilerState { is_test: test_flow, network, ..Default::default() };
 
         for path in leo_source_files {
             let ast = Self::get_ast(path, &mut state)?;
@@ -206,6 +215,7 @@ impl Interpreter {
             saved_cursors: Vec::new(),
             filename_to_program,
             parsed_inputs: 0,
+            network,
         })
     }
 
@@ -275,11 +285,12 @@ impl Interpreter {
                 let source_file = with_session_globals(|globals| globals.source_map.new_source(s, filename));
                 let s = s.trim();
                 if s.ends_with(';') {
-                    let statement = leo_parser::parse_statement::<TestnetV0>(
+                    let statement = leo_parser::parse_statement(
                         self.handler.clone(),
                         &self.node_builder,
                         s,
                         source_file.absolute_start,
+                        self.network,
                     )
                     .map_err(|_e| {
                         LeoError::InterpreterHalt(InterpreterHalt::new("failed to parse statement".into()))
@@ -291,11 +302,12 @@ impl Interpreter {
                         user_initiated: true,
                     });
                 } else {
-                    let expression = leo_parser::parse_expression::<TestnetV0>(
+                    let expression = leo_parser::parse_expression(
                         self.handler.clone(),
                         &self.node_builder,
                         s,
                         source_file.absolute_start,
+                        self.network,
                     )
                     .map_err(|e| {
                         LeoError::InterpreterHalt(InterpreterHalt::new(format!("Failed to parse expression: {e}")))

@@ -108,8 +108,14 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
         })
         .collect();
 
-    let (native_test_functions, interpreter_result) =
-        leo_interpreter::find_and_run_tests(&leo_paths, &aleo_paths, address, 0u32, &command.test_name)?;
+    let (native_test_functions, interpreter_result) = leo_interpreter::find_and_run_tests(
+        &leo_paths,
+        &aleo_paths,
+        address,
+        0u32,
+        &command.test_name,
+        package.env.network,
+    )?;
 
     // Now for native tests.
 

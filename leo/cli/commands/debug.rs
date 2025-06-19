@@ -116,10 +116,20 @@ fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) 
             })
             .collect();
 
+        // Get the network from the package environment.
+        let network = package.env.network;
+
         // No need to keep this around while the interpreter runs.
         std::mem::drop(package);
 
-        leo_interpreter::interpret(&local_dependency_paths, &aleo_paths, address, command.block_height, command.tui)
+        leo_interpreter::interpret(
+            &local_dependency_paths,
+            &aleo_paths,
+            address,
+            command.block_height,
+            command.tui,
+            network,
+        )
     } else {
         let private_key: PrivateKey<TestnetV0> = PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY)?;
         let address = Address::try_from(&private_key)?;
@@ -137,6 +147,13 @@ fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) 
             .map(|path_str| path_str.into())
             .collect();
 
-        leo_interpreter::interpret(&leo_paths, &aleo_paths, address, command.block_height, command.tui)
+        leo_interpreter::interpret(
+            &leo_paths,
+            &aleo_paths,
+            address,
+            command.block_height,
+            command.tui,
+            package.map(|p| p.env.network).unwrap_or_default(),
+        )
     }
 }

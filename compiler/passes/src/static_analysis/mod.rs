@@ -28,7 +28,6 @@ mod statement;
 mod program;
 
 mod visitor;
-use snarkvm::prelude::Network;
 use visitor::*;
 
 use crate::Pass;
@@ -37,11 +36,9 @@ use leo_ast::ProgramVisitor;
 use leo_errors::Result;
 use leo_span::Symbol;
 
-pub struct StaticAnalyzing<N: Network> {
-    _phantom: std::marker::PhantomData<N>,
-}
+pub struct StaticAnalyzing;
 
-impl<N: Network> Pass for StaticAnalyzing<N> {
+impl Pass for StaticAnalyzing {
     type Input = ();
     type Output = ();
 
@@ -49,13 +46,12 @@ impl<N: Network> Pass for StaticAnalyzing<N> {
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
-        let mut visitor = StaticAnalyzingVisitor::<N> {
+        let mut visitor = StaticAnalyzingVisitor {
             state,
             await_checker: AwaitChecker::new(),
             current_program: Symbol::intern(""),
             variant: None,
             non_async_external_call_seen: false,
-            _phantom: Default::default(),
         };
         visitor.visit_program(ast.as_repr());
         visitor.state.handler.last_err().map_err(|e| *e)?;

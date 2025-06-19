@@ -34,6 +34,7 @@ use leo_ast::{
     LocatorExpression,
     MemberAccess,
     Node,
+    ProgramId,
     StructExpression,
     TernaryExpression,
     TupleExpression,
@@ -44,12 +45,11 @@ use leo_ast::{
     Variant,
 };
 use leo_span::sym;
-use snarkvm::prelude::{Network, ProgramID};
 
-use std::{borrow::Borrow, fmt::Write as _, str::FromStr};
+use std::{borrow::Borrow, fmt::Write as _};
 
 /// Implement the necessary methods to visit nodes in the AST.
-impl<N: Network> CodeGeneratingVisitor<'_, N> {
+impl CodeGeneratingVisitor<'_> {
     pub fn visit_expression(&mut self, input: &Expression) -> (String, String) {
         match input {
             Expression::Array(expr) => self.visit_array(expr),
@@ -535,8 +535,9 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                     // Generate code for `Program::checksum`, `Program::edition`, and `Program::program_owner`
                     name @ (sym::checksum | sym::edition | sym::program_owner) => {
                         // Get the program ID from the first argument.
-                        let program_id = ProgramID::<N>::from_str(&arguments[0].replace("\"", ""))
-                            .expect("Type checking guarantees that the program name is valid");
+                        let program_id =
+                            ProgramId::from_str_with_network(&arguments[0].replace("\"", ""), self.state.network)
+                                .expect("Type checking guarantees that the program name is valid");
                         // If the program name matches the current program ID, then use `checksum`, otherwise fully qualify the operand.
                         let operand = match program_id.to_string()
                             == self.program_id.expect("The program ID is set before traversing the program").to_string()
@@ -549,14 +550,15 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                     // Generate code for `Program::name_to_address`
                     sym::name_to_address => {
                         // Parse the argument string as a snarkVM address.
-                        let program_id = ProgramID::<N>::from_str(&arguments[0].replace("\"", ""))
-                            .expect("Type checking guarantees that the program name is valid");
+                        let program_id =
+                            ProgramId::from_str_with_network(&arguments[0].replace("\"", ""), self.state.network)
+                                .expect("Type checking guarantees that the program name is valid");
                         // Convert the program ID into an address.
-                        let address = program_id.to_address().expect(
+                        let address = program_id.to_address_string(self.state.network).expect(
                             "Type checking guarantees that the program ID can be converted into a valid address",
                         );
-                        // Return the address as a string.
-                        (format!("{address}"), String::new())
+                        // Return the address.
+                        (address, String::new())
                     }
                     // No other variants are allowed.
                     _ => panic!("The only associated methods of `Program` are `address`, `checksum`, and `edition`"),

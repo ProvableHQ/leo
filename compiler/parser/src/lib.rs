@@ -30,20 +30,19 @@ pub(crate) use tokenizer::*;
 pub mod parser;
 pub use parser::*;
 
-use leo_ast::{Ast, NodeBuilder};
+use leo_ast::{Ast, NetworkName, NodeBuilder};
 use leo_errors::{Handler, Result};
-
-use snarkvm::prelude::Network;
 
 #[cfg(test)]
 mod test;
 
 /// Creates a new AST from a given file path and source code text.
-pub fn parse_ast<N: Network>(
+pub fn parse_ast(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
     start_pos: u32,
+    network: NetworkName,
 ) -> Result<Ast> {
-    Ok(Ast::new(parse::<N>(handler, node_builder, source, start_pos)?))
+    Ok(Ast::new(parse(handler, node_builder, source, start_pos, network)?))
 }

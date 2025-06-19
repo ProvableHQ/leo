@@ -33,7 +33,7 @@ use snarkvm::prelude::{Network, ensure};
 use indexmap::{IndexMap, IndexSet};
 use std::str::FromStr;
 
-pub struct CodeGeneratingVisitor<'a, N: Network> {
+pub struct CodeGeneratingVisitor<'a> {
     pub state: &'a CompilerState,
     /// A counter to track the next available register.
     pub next_register: u64,
@@ -62,7 +62,6 @@ pub struct CodeGeneratingVisitor<'a, N: Network> {
     /// Internal record input registers of the current function.
     /// This is necessary as if we output them, we need to clone them.
     pub internal_record_inputs: IndexSet<String>,
-    pub _phantom: std::marker::PhantomData<N>,
 }
 
 /// This function checks whether or not the constructor is well-formed.
@@ -92,7 +91,7 @@ pub(crate) fn check_snarkvm_constructor<N: Network>(
     Ok(())
 }
 
-impl<N: Network> CodeGeneratingVisitor<'_, N> {
+impl CodeGeneratingVisitor<'_> {
     pub fn next_register(&mut self) -> String {
         self.next_register += 1;
         format!("r{}", self.next_register - 1)

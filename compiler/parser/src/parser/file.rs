@@ -19,7 +19,7 @@ use super::*;
 use leo_errors::{ParserError, Result, TypeCheckerError};
 use leo_span::{Symbol, sym};
 
-impl<N: Network> ParserContext<'_, N> {
+impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut imports = IndexMap::new();

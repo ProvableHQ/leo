@@ -39,7 +39,7 @@ pub(super) const TYPE_TOKENS: &[Token] = &[
     Token::U128,
 ];
 
-impl<N: Network> ParserContext<'_, N> {
+impl ParserContext<'_> {
     /// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].
     pub(super) fn token_to_int_type(token: &Token) -> Option<IntegerType> {
         Some(match token {

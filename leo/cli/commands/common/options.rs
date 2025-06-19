@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_package::NetworkName;
+use leo_ast::NetworkName;
 use snarkvm::prelude::ConsensusVersion;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which

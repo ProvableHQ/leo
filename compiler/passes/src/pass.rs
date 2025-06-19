@@ -16,7 +16,7 @@
 
 use crate::{Assigner, SymbolTable, TypeTable};
 
-use leo_ast::{Ast, CallGraph, NodeBuilder, StructGraph};
+use leo_ast::{Ast, CallGraph, NetworkName, NodeBuilder, StructGraph};
 use leo_errors::{Handler, LeoWarning, Result};
 use leo_package::UpgradeConfig;
 
@@ -47,6 +47,8 @@ pub struct CompilerState {
     pub warnings: HashSet<LeoWarning>,
     /// Is this a test program?
     pub is_test: bool,
+    /// The network.
+    pub network: NetworkName,
 }
 
 /// A compiler pass.

@@ -35,7 +35,7 @@ const ASSIGN_TOKENS: &[Token] = &[
     Token::ShlAssign,
 ];
 
-impl<N: Network> ParserContext<'_, N> {
+impl ParserContext<'_> {
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {

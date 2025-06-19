@@ -21,13 +21,11 @@
 use crate::{AstSnapshots, CompilerOptions};
 
 pub use leo_ast::Ast;
-use leo_ast::Stub;
+use leo_ast::{NetworkName, Stub};
 use leo_errors::{CompilerError, Handler, Result};
 use leo_package::UpgradeConfig;
 use leo_passes::*;
 use leo_span::{Symbol, source_map::FileName, with_session_globals};
-
-use snarkvm::prelude::Network;
 
 use indexmap::{IndexMap, IndexSet};
 use std::{
@@ -36,7 +34,7 @@ use std::{
 };
 
 /// The primary entry point of the Leo compiler.
-pub struct Compiler<N: Network> {
+pub struct Compiler {
     /// The path to where the compiler outputs all generated files.
     output_directory: PathBuf,
     /// The program name,
@@ -51,21 +49,20 @@ pub struct Compiler<N: Network> {
     pub statements_before_dce: u32,
     /// How many statements were in the AST after DCE?
     pub statements_after_dce: u32,
-    // Allows the compiler to be generic over the network.
-    phantom: std::marker::PhantomData<N>,
 }
 
-impl<N: Network> Compiler<N> {
+impl Compiler {
     pub fn parse(&mut self, source: &str, filename: FileName) -> Result<()> {
         // Register the source in the source map.
         let source_file = with_session_globals(|s| s.source_map.new_source(source, filename));
 
         // Use the parser to construct the abstract syntax tree (ast).
-        self.state.ast = leo_parser::parse_ast::<N>(
+        self.state.ast = leo_parser::parse_ast(
             self.state.handler.clone(),
             &self.state.node_builder,
             &source_file.src,
             source_file.absolute_start,
+            self.state.network,
         )?;
 
         // Check that the name of its program scope matches the expected name.
@@ -98,6 +95,7 @@ impl<N: Network> Compiler<N> {
     }
 
     /// Returns a new Leo compiler.
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         expected_program_name: Option<String>,
         is_test: bool,
@@ -106,16 +104,16 @@ impl<N: Network> Compiler<N> {
         compiler_options: Option<CompilerOptions>,
         import_stubs: IndexMap<Symbol, Stub>,
         upgrade_config: Option<UpgradeConfig>,
+        network: NetworkName,
     ) -> Self {
         Self {
-            state: CompilerState { handler, upgrade_config, is_test, ..Default::default() },
+            state: CompilerState { handler, upgrade_config, is_test, network, ..Default::default() },
             output_directory,
             program_name: expected_program_name,
             compiler_options: compiler_options.unwrap_or_default(),
             import_stubs,
             statements_before_dce: 0,
             statements_after_dce: 0,
-            phantom: Default::default(),
         }
     }
 
@@ -137,17 +135,13 @@ impl<N: Network> Compiler<N> {
 
     /// Runs the compiler stages.
     pub fn intermediate_passes(&mut self) -> Result<()> {
-        let type_checking_config = TypeCheckingInput {
-            max_array_elements: N::MAX_ARRAY_ELEMENTS,
-            max_mappings: N::MAX_MAPPINGS,
-            max_functions: N::MAX_FUNCTIONS,
-        };
+        let type_checking_config = TypeCheckingInput::new(self.state.network);
 
         self.do_pass::<SymbolTableCreation>(())?;
 
-        self.do_pass::<TypeChecking<N>>(type_checking_config.clone())?;
+        self.do_pass::<TypeChecking>(type_checking_config.clone())?;
 
-        self.do_pass::<StaticAnalyzing<N>>(())?;
+        self.do_pass::<StaticAnalyzing>(())?;
 
         self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config)?;
 
@@ -183,7 +177,7 @@ impl<N: Network> Compiler<N> {
         // Run the intermediate compiler stages.
         self.intermediate_passes()?;
         // Run code generation.
-        let bytecode = CodeGenerating::<N>::do_pass((), &mut self.state)?;
+        let bytecode = CodeGenerating::do_pass((), &mut self.state)?;
         Ok(bytecode)
     }
 

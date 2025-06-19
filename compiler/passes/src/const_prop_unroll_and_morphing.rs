@@ -25,7 +25,6 @@ use crate::{
     TypeCheckingInput,
     Unrolling,
 };
-use snarkvm::prelude::TestnetV0;
 
 use leo_errors::{CompilerError, Result};
 
@@ -56,7 +55,7 @@ impl Pass for ConstPropUnrollAndMorphing {
 
             // Now run the type checker again to validate and infer types. Again, this is important because the program
             // may have changed significantly after the passes above.
-            TypeChecking::<TestnetV0>::do_pass(input.clone(), state)?;
+            TypeChecking::do_pass(input.clone(), state)?;
 
             if !const_prop_output.changed
                 && !loop_unroll_output.loop_unrolled

@@ -16,16 +16,15 @@
 
 use super::*;
 
-use leo_ast::Stub;
+use leo_ast::{NetworkName, Stub};
 use leo_compiler::{AstSnapshots, Compiler, CompilerOptions};
 use leo_errors::{CliError, UtilError};
-use leo_package::{Manifest, NetworkName, Package, UpgradeConfig};
+use leo_package::{Manifest, Package, UpgradeConfig};
 use leo_span::Symbol;
 
-use snarkvm::prelude::{Itertools, MainnetV0, Network, Program, TestnetV0};
+use snarkvm::prelude::{CanaryV0, Itertools, MainnetV0, Program, TestnetV0};
 
 use indexmap::IndexMap;
-use snarkvm::prelude::CanaryV0;
 use std::path::Path;
 
 impl From<BuildOptions> for CompilerOptions {
@@ -66,16 +65,13 @@ impl Command for LeoBuild {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
         let network: NetworkName = context.get_network(&self.env_override.network)?.parse()?;
-        match network {
-            NetworkName::MainnetV0 => handle_build::<MainnetV0>(&self, context),
-            NetworkName::TestnetV0 => handle_build::<TestnetV0>(&self, context),
-            NetworkName::CanaryV0 => handle_build::<CanaryV0>(&self, context),
-        }
+        // Build the program.
+        handle_build(&self, context, network)
     }
 }
 
 // A helper function to handle the build command.
-fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Command>::Output> {
+fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> Result<<LeoBuild as Command>::Output> {
     let package_path = context.dir()?;
     let home_path = context.home()?;
 
@@ -117,7 +113,7 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
                 };
                 // Load the manifest in local dependency.
                 let manifest = Manifest::read_from_file(directory.join(leo_package::MANIFEST_FILENAME))?;
-                let bytecode = compile_leo_file::<N>(
+                let bytecode = compile_leo_file(
                     source,
                     program.name,
                     program.is_test,
@@ -126,6 +122,7 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
                     command.options.clone(),
                     stubs.clone(),
                     manifest.upgrade,
+                    network,
                 )?;
                 (bytecode, build_path)
             }
@@ -135,7 +132,11 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
         std::fs::write(build_path, &bytecode).map_err(CliError::failed_to_load_instructions)?;
 
         // Track the Stub.
-        let stub = leo_disassembler::disassemble_from_str::<N>(program.name, &bytecode)?;
+        let stub = match network {
+            NetworkName::MainnetV0 => leo_disassembler::disassemble_from_str::<MainnetV0>(program.name, &bytecode),
+            NetworkName::TestnetV0 => leo_disassembler::disassemble_from_str::<TestnetV0>(program.name, &bytecode),
+            NetworkName::CanaryV0 => leo_disassembler::disassemble_from_str::<CanaryV0>(program.name, &bytecode),
+        }?;
         stubs.insert(program.name, stub);
     }
 
@@ -158,7 +159,7 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
 
 /// Compiles a Leo file. Writes and returns the compiled bytecode.
 #[allow(clippy::too_many_arguments)]
-fn compile_leo_file<N: Network>(
+fn compile_leo_file(
     source_file_path: &Path,
     program_name: Symbol,
     is_test: bool,
@@ -167,9 +168,10 @@ fn compile_leo_file<N: Network>(
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
     upgrade_config: Option<UpgradeConfig>,
+    network: NetworkName,
 ) -> Result<String> {
     // Create a new instance of the Leo compiler.
-    let mut compiler = Compiler::<N>::new(
+    let mut compiler = Compiler::new(
         Some(program_name.to_string()),
         is_test,
         handler.clone(),
@@ -177,19 +179,22 @@ fn compile_leo_file<N: Network>(
         Some(options.into()),
         stubs,
         upgrade_config,
+        network,
     );
 
     // Compile the Leo program into Aleo instructions.
     let bytecode = compiler.compile_from_file(source_file_path)?;
 
     // Get the AVM bytecode.
-    let program = Program::<N>::from_str(&bytecode)?;
-    let checksum = program.to_checksum();
-    let checksum_string = checksum.iter().join(", ");
+    let checksum: String = match network {
+        NetworkName::MainnetV0 => Program::<MainnetV0>::from_str(&bytecode)?.to_checksum().iter().join(", "),
+        NetworkName::TestnetV0 => Program::<TestnetV0>::from_str(&bytecode)?.to_checksum().iter().join(", "),
+        NetworkName::CanaryV0 => Program::<CanaryV0>::from_str(&bytecode)?.to_checksum().iter().join(", "),
+    };
 
     tracing::info!("    \n{} statements before dead code elimination.", compiler.statements_before_dce);
     tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
-    tracing::info!("    The program checksum is: '[{checksum_string}]'.");
+    tracing::info!("    The program checksum is: '[{checksum}]'.");
 
     tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions.");
     Ok(bytecode)

@@ -24,6 +24,7 @@ use leo_ast::{
     Mapping,
     Member,
     Mode,
+    NetworkName,
     Program,
     ProgramScope,
     Type,
@@ -36,11 +37,12 @@ use leo_package::UpgradeConfig;
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
+use snarkvm::prelude::MainnetV0;
 use std::fmt::Write as _;
 
 const EXPECT_STR: &str = "Failed to write code";
 
-impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
+impl<'a> CodeGeneratingVisitor<'a> {
     pub fn visit_program(&mut self, input: &'a Program) -> String {
         // Accumulate instructions into a program string.
         let mut program_string = String::new();
@@ -282,8 +284,25 @@ impl<'a, N: Network> CodeGeneratingVisitor<'a, N> {
                 UpgradeConfig::NoUpgrade => snarkvm_noupgrade_constructor(),
             };
         // Check that the constructor is well-formed.
-        check_snarkvm_constructor::<N>(&constructor, self.state.upgrade_config.as_ref())
-            .expect("Constructors are checked for well-formedness during static analysis");
+        if match self.state.network {
+            NetworkName::MainnetV0 => {
+                check_snarkvm_constructor::<MainnetV0>(&constructor, self.state.upgrade_config.as_ref()).is_err()
+            }
+            NetworkName::TestnetV0 => check_snarkvm_constructor::<snarkvm::prelude::TestnetV0>(
+                &constructor,
+                self.state.upgrade_config.as_ref(),
+            )
+            .is_err(),
+            NetworkName::CanaryV0 => check_snarkvm_constructor::<snarkvm::prelude::CanaryV0>(
+                &constructor,
+                self.state.upgrade_config.as_ref(),
+            )
+            .is_err(),
+        } {
+            panic!("Constructors are checked for well-formedness during static analysis");
+        };
+
+        // Return the constructor string.
         constructor
     }
 

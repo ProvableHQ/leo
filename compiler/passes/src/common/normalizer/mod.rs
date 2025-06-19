@@ -22,6 +22,7 @@ use leo_ast::{
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
+    Literal,
     LocatorExpression,
     MemberAccess,
     Node,
@@ -84,6 +85,11 @@ impl ExpressionReconstructor for Normalizer {
             .into(),
             Default::default(),
         )
+    }
+
+    fn reconstruct_literal(&mut self, input: Literal) -> (Expression, Self::AdditionalOutput) {
+        let input = normalize_node(input);
+        (Expression::Literal(input), Default::default())
     }
 
     fn reconstruct_locator(&mut self, input: LocatorExpression) -> (Expression, Self::AdditionalOutput) {
@@ -156,6 +162,7 @@ impl StatementReconstructor for Normalizer {
                         DefinitionPlace::Multiple(identifiers.into_iter().map(normalize_node).collect())
                     }
                 },
+                type_: input.type_.map(|t| self.reconstruct_type(t).0),
                 ..input
             }
             .into(),
