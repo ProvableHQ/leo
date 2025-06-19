@@ -17,13 +17,17 @@
 use super::ConstPropagationVisitor;
 
 use leo_ast::{
+    ConstParameter,
     Constructor,
     Function,
+    Input,
     Node,
+    Output,
     ProgramReconstructor,
     ProgramScope,
     Statement,
     StatementReconstructor as _,
+    TypeReconstructor,
 };
 
 impl ProgramReconstructor for ConstPropagationVisitor<'_> {
@@ -45,11 +49,31 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
             *c = self.reconstruct_constructor(std::mem::take(c));
         }
 
+        input.structs = input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect();
+        input.mappings =
+            input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect();
+
         input
     }
 
     fn reconstruct_function(&mut self, mut function: Function) -> Function {
         self.in_scope(function.id(), |slf| {
+            function.const_parameters = function
+                .const_parameters
+                .iter()
+                .map(|param| ConstParameter { type_: slf.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .collect();
+            function.input = function
+                .input
+                .iter()
+                .map(|input| Input { type_: slf.reconstruct_type(input.type_.clone()).0, ..input.clone() })
+                .collect();
+            function.output = function
+                .output
+                .iter()
+                .map(|output| Output { type_: slf.reconstruct_type(output.type_.clone()).0, ..output.clone() })
+                .collect();
+            function.output_type = slf.reconstruct_type(function.output_type).0;
             function.block = slf.reconstruct_block(function.block).0;
             function
         })

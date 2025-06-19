@@ -107,3 +107,5 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
         }
     }
 }
+
+impl<N: Network> TypeVisitor for StaticAnalyzingVisitor<'_, N> {}

@@ -42,6 +42,8 @@ pub struct ConstPropagationVisitor<'a> {
     pub const_not_evaluated: Option<Span>,
     /// An array index which was not able to be evaluated.
     pub array_index_not_evaluated: Option<Span>,
+    /// An array index which was not able to be evaluated.
+    pub array_length_not_evaluated: Option<Span>,
 }
 
 impl ConstPropagationVisitor<'_> {

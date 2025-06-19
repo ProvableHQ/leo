@@ -17,8 +17,10 @@
 use crate::{Assigner, SymbolTable, TypeTable};
 
 use leo_ast::{Ast, CallGraph, NodeBuilder, StructGraph};
-use leo_errors::{Handler, Result};
+use leo_errors::{Handler, LeoWarning, Result};
 use leo_package::UpgradeConfig;
+
+use std::collections::HashSet;
 
 /// Contains data shared by many compiler passes.
 #[derive(Default)]
@@ -41,6 +43,8 @@ pub struct CompilerState {
     pub call_graph: CallGraph,
     /// An optional upgrade config.
     pub upgrade_config: Option<UpgradeConfig>,
+    /// A set of the warnings collected. This is used to make sure we don't emit the same exact warning twice.
+    pub warnings: HashSet<LeoWarning>,
     /// Is this a test program?
     pub is_test: bool,
 }

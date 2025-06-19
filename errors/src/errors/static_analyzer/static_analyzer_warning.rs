@@ -20,6 +20,7 @@ use std::fmt::Display;
 
 create_messages!(
     /// ParserWarning enum that represents all the warnings for static analysis
+    #[derive(Hash, Eq, PartialEq)]
     StaticAnalyzerWarning,
     code_mask: 4000i32,
     code_prefix: "SAZ",

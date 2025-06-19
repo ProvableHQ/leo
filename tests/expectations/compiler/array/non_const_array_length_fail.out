@@ -1,0 +1,5 @@
+Error [ECMP0376013]: This array length could not be determined at compile time.
+    --> compiler-test:4:22
+     |
+   4 |         let a: [u32; x] = [1u32];
+     |                      ^

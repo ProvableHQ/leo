@@ -61,9 +61,23 @@ We recommend installing Rust using [rustup](https://www.rustup.rs/). You can ins
   
   Download the [Windows 32-bit executable](https://win.rustup.rs/i686) and follow the on-screen instructions.
 
+### 🐙 Simple build
+
+If you don't intend to work on the Leo compiler itself, you can install the latest Leo release with:
+
+```bash
+cargo install leo-lang
+```
+
+Now to use leo, in your terminal, run:
+```bash
+leo
+```
+
 ### 🐙 Build from Source Code
 
-We recommend installing Leo by building from the source code as follows:
+If you'd like to install the latest unreleased top of tree Leo, you can buid from source code
+as follows:
 
 ```bash
 # Download the source code
@@ -74,18 +88,17 @@ cd leo
 cargo install --path .
 ```
 
-Now to use leo, in your terminal, run:
-```bash
-leo
-```
-
 ### 🦁 Update from Leo
 
-You can update Leo to the latest version using the following command:
+You can update Leo to the latest released version using the following command:
 
 ```bash
 leo update
 ```
+
+Note that if you were using a prerelease version of Leo, this will overwrite
+that with the latest released version.
+
 Now to check the version of leo, in your terminal, run:
 ```bash
 leo --version

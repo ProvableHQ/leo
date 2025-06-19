@@ -251,6 +251,7 @@ symbols! {
     caller,
     Const: "const",
     constant,
+    constructor,
     decrement,
     Else: "else",
     For: "for",
@@ -291,7 +292,6 @@ symbols! {
     edition,
     program_owner,
     name_to_address,
-    constructor
 }
 
 /// An interned string.

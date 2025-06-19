@@ -42,6 +42,11 @@ impl<N: Network> ProgramVisitor for StaticAnalyzingVisitor<'_, N> {
     }
 
     fn visit_function(&mut self, function: &Function) {
+        function.const_parameters.iter().for_each(|input| self.visit_type(&input.type_));
+        function.input.iter().for_each(|input| self.visit_type(&input.type_));
+        function.output.iter().for_each(|output| self.visit_type(&output.type_));
+        self.visit_type(&function.output_type);
+
         // Set the function name and variant.
         self.variant = Some(function.variant);
 

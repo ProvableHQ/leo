@@ -119,4 +119,11 @@ create_messages!(
         msg: format!("Unable to resolve call to generic function `{func}`. A non-const expression `{arg}` was provided where a const generic parameter is required."),
         help: None,
     }
+
+    @formatted
+    array_length_not_evaluated {
+        args: (),
+        msg: "This array length could not be determined at compile time.".to_string(),
+        help: None,
+    }
 );

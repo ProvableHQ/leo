@@ -20,6 +20,7 @@ use std::fmt::Display;
 
 create_messages!(
     /// ParserWarning enum that represents all the warnings for the `leo-parser` crate.
+    #[derive(Hash, PartialEq, Eq)]
     ParserWarning,
     code_mask: 0000i32,
     code_prefix: "PAR",

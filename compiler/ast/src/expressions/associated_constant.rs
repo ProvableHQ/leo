@@ -20,7 +20,7 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// An access expression to an struct constant., e.g. `u8::MAX`.
+/// An access expression to a struct constant., e.g. `u8::MAX`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AssociatedConstantExpression {
     /// The inner struct type.

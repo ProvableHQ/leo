@@ -21,11 +21,11 @@ use super::visitor::StaticAnalyzingVisitor;
 use leo_ast::{
     ArrayType,
     Constructor,
+    Expression,
     IntegerType,
     Location,
     Node,
     NodeBuilder,
-    NonNegativeNumber,
     ProgramId,
     ProgramReconstructor,
     Type,
@@ -124,7 +124,15 @@ impl<N: Network> StaticAnalyzingVisitor<'_, N> {
                 Type::Mapping(ref mapping_type) => {
                     mapping_type.key.as_ref() == &key_type
                         && mapping_type.value.as_ref()
-                            == &Type::Array(ArrayType::new(Type::Integer(IntegerType::U8), NonNegativeNumber::from(32)))
+                            == &Type::Array(ArrayType::new(
+                                Type::Integer(IntegerType::U8),
+                                Expression::Literal(leo_ast::Literal::integer(
+                                    IntegerType::U8,
+                                    "32".to_string(),
+                                    Default::default(),
+                                    Default::default(),
+                                )),
+                            ))
                 }
                 _ => false,
             })

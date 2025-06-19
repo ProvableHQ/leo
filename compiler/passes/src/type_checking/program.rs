@@ -151,6 +151,8 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
     }
 
     fn visit_struct(&mut self, input: &Composite) {
+        input.members.iter().for_each(|member| self.visit_type(&member.type_));
+
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
         // TODO: Better span to target duplicate member.
@@ -236,6 +238,9 @@ impl<N: Network> ProgramVisitor for TypeCheckingVisitor<'_, N> {
     }
 
     fn visit_mapping(&mut self, input: &Mapping) {
+        self.visit_type(&input.key_type);
+        self.visit_type(&input.value_type);
+
         // Check that a mapping's key type is valid.
         self.assert_type_is_valid(&input.key_type, input.span);
         // Check that a mapping's key type is not a future, tuple, record, or mapping.

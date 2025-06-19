@@ -63,8 +63,10 @@ impl ExpressionReconstructor for FunctionInliningVisitor<'_> {
                     parameter_to_argument.get(&identifier.name).cloned().unwrap_or(Expression::Identifier(*identifier))
                 };
 
-                let mut inlined_statements =
-                    Replacer::new(replace).reconstruct_block(callee.block.clone()).0.statements;
+                let mut inlined_statements = Replacer::new(replace, &self.state.node_builder)
+                    .reconstruct_block(callee.block.clone())
+                    .0
+                    .statements;
 
                 // If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
                 let result = match inlined_statements.last() {

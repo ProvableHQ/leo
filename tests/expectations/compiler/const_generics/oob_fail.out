@@ -1,0 +1,5 @@
+Error [ESAZ0374010]: Array index 20 out of bounds (array length is 2).
+    --> compiler-test:6:16
+     |
+   6 |         return arr[20];
+     |                ^^^^^^^

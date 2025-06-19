@@ -26,6 +26,7 @@ use leo_ast::{
     Statement,
     TupleExpression,
     Type,
+    TypeReconstructor,
 };
 use leo_span::Symbol;
 
@@ -128,3 +129,5 @@ impl DestructuringVisitor<'_> {
         })
     }
 }
+
+impl TypeReconstructor for DestructuringVisitor<'_> {}

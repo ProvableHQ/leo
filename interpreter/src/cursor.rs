@@ -654,8 +654,8 @@ impl Cursor {
             }
             Expression::ArrayAccess(array) if step == 1 => {
                 let span = array.span();
-                let array = self.pop_value()?;
                 let index = self.pop_value()?;
+                let array = self.pop_value()?;
 
                 let index_usize: usize = match index {
                     Value::U8(x) => x.into(),
@@ -810,7 +810,9 @@ impl Cursor {
                 Some(evaluate_binary(binary.span, binary.op, &lhs, &rhs)?)
             }
             Expression::Call(call) if step == 0 => {
+                // Treat const generic arguments as regular inputs
                 call.arguments.iter().rev().for_each(push!());
+                call.const_arguments.iter().rev().for_each(push!());
                 None
             }
             Expression::Call(call) if step == 1 => {
@@ -825,7 +827,8 @@ impl Cursor {
                 };
                 // It's a bit cheesy to collect the arguments into a Vec first, but it's the easiest way
                 // to handle lifetimes here.
-                let arguments: Vec<Value> = self.values.drain(len - call.arguments.len()..).collect();
+                let arguments: Vec<Value> =
+                    self.values.drain(len - call.arguments.len() - call.const_arguments.len()..).collect();
                 self.do_call(
                     program,
                     name,
@@ -1056,7 +1059,12 @@ impl Cursor {
                 } else {
                     let is_async = function.variant == Variant::AsyncFunction;
                     self.contexts.push(function_program, caller, is_async);
-                    let param_names = function.input.iter().map(|input| input.identifier.name);
+                    // Treat const generic parameters as regular inputs
+                    let param_names = function
+                        .const_parameters
+                        .iter()
+                        .map(|param| param.identifier.name)
+                        .chain(function.input.iter().map(|input| input.identifier.name));
                     for (name, value) in param_names.zip(arguments) {
                         self.set_variable(name, value);
                     }

@@ -32,6 +32,7 @@ use leo_ast::{
     ReturnStatement,
     Statement,
     StatementReconstructor,
+    TypeReconstructor,
 };
 
 impl StatementReconstructor for ConstPropagationVisitor<'_> {
@@ -88,6 +89,7 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_const(&mut self, mut input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
         let span = input.span();
 
+        let type_ = self.reconstruct_type(input.type_).0;
         let (expr, opt_value) = self.reconstruct_expression(input.value);
 
         if opt_value.is_some() {
@@ -96,13 +98,22 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
             self.const_not_evaluated = Some(span);
         }
 
+        input.type_ = type_;
         input.value = expr;
 
         (Statement::Const(input), None)
     }
 
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        (DefinitionStatement { value: self.reconstruct_expression(definition.value).0, ..definition }.into(), None)
+        (
+            DefinitionStatement {
+                type_: definition.type_.map(|ty| self.reconstruct_type(ty).0),
+                value: self.reconstruct_expression(definition.value).0,
+                ..definition
+            }
+            .into(),
+            None,
+        )
     }
 
     fn reconstruct_expression_statement(
@@ -122,11 +133,13 @@ impl StatementReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_iteration(&mut self, iteration: IterationStatement) -> (Statement, Self::AdditionalOutput) {
         let id = iteration.id();
+        let type_ = iteration.type_.map(|ty| self.reconstruct_type(ty).0);
         let start = self.reconstruct_expression(iteration.start).0;
         let stop = self.reconstruct_expression(iteration.stop).0;
         self.in_scope(id, |slf| {
             (
-                IterationStatement { start, stop, block: slf.reconstruct_block(iteration.block).0, ..iteration }.into(),
+                IterationStatement { type_, start, stop, block: slf.reconstruct_block(iteration.block).0, ..iteration }
+                    .into(),
                 None,
             )
         })

@@ -26,6 +26,8 @@ use leo_ast::{
     Program,
     StatementVisitor,
     Type,
+    TypeReconstructor,
+    TypeVisitor,
 };
 use leo_span::Symbol;
 
@@ -77,6 +79,8 @@ impl ExpressionVisitor for WriteTransformingFiller<'_> {
 
 // All we actually need is `visit_assign`; we're just using `StatementVisitor`'s
 // default traversal.
+impl TypeVisitor for WriteTransformingFiller<'_> {}
+
 impl StatementVisitor for WriteTransformingFiller<'_> {
     fn visit_assign(&mut self, input: &AssignStatement) {
         self.access_recurse(&input.place);
@@ -103,7 +107,7 @@ impl WriteTransformingFiller<'_> {
                 let members = self.0.array_members.entry(array_name.name).or_insert_with(|| {
                     let ty = self.0.state.type_table.get(&array_access.array.id()).unwrap();
                     let Type::Array(arr) = ty else { panic!("Type checking should have prevented this.") };
-                    (0..arr.length())
+                    (0..arr.length_as_u32().expect("length should be known at this point"))
                         .map(|i| {
                             let id = self.0.state.node_builder.next_id();
                             let symbol = self.0.state.assigner.unique_symbol(format_args!("{array_name}#{i}"), "$");
@@ -158,3 +162,5 @@ impl WriteTransformingFiller<'_> {
         }
     }
 }
+
+impl TypeReconstructor for WriteTransformingVisitor<'_> {}

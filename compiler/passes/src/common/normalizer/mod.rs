@@ -29,6 +29,7 @@ use leo_ast::{
     ProgramReconstructor,
     Statement,
     StatementReconstructor,
+    TypeReconstructor,
 };
 
 /// A `Normalizer` normalizes all NodeID and Span values in the AST.
@@ -41,7 +42,7 @@ impl ExpressionReconstructor for Normalizer {
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         // Set the ID and span to 0.
         let input = normalize_node(input);
-        // Reconstructo the sub-expressions.
+        // Reconstruct the sub-expressions.
         match input {
             Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
             Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
@@ -162,6 +163,8 @@ impl StatementReconstructor for Normalizer {
         )
     }
 }
+
+impl TypeReconstructor for Normalizer {}
 
 impl ProgramReconstructor for Normalizer {
     fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {

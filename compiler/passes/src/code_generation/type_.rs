@@ -36,7 +36,11 @@ impl<N: Network> CodeGeneratingVisitor<'_, N> {
                 "boolean".into()
             }
             Type::Array(array_type) => {
-                format!("[{}; {}u32]", Self::visit_type(array_type.element_type()), array_type.length())
+                format!(
+                    "[{}; {}u32]",
+                    Self::visit_type(array_type.element_type()),
+                    array_type.length_as_u32().expect("length should be known at this point")
+                )
             }
             Type::Mapping(_) => {
                 panic!("Mapping types are not supported at this phase of compilation")
