@@ -134,6 +134,13 @@ impl Program {
     ) -> Result<Self> {
         // It's not a local program; let's check the cache.
         let cache_directory = home_path.join(format!("registry/{network}"));
+        if !cache_directory.exists() {
+            // Create directory if it doesn't exist.
+            std::fs::create_dir_all(&cache_directory).map_err(|err| {
+                UtilError::util_file_io_error(format!("Could not write path {}", cache_directory.display()), err)
+            })?;
+        }
+
         let full_cache_path = cache_directory.join(format!("{name}.aleo"));
 
         // Get the existing bytecode if the file exists.
