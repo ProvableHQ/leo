@@ -868,7 +868,7 @@ impl TypeCheckingVisitor<'_> {
             Type::Array(array_type) => {
                 // Check that the array length is valid.
 
-                if let Some(length) = array_type.length_as_u32() {
+                if let Some(length) = array_type.length.as_u32() {
                     if length == 0 {
                         self.emit_err(TypeCheckerError::array_empty(span));
                     } else if length > self.limits.max_array_elements as u32 {
@@ -1167,7 +1167,7 @@ impl TypeCheckingVisitor<'_> {
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) => true,
             (Type::Array(left), Type::Array(right)) => {
-                (match (left.length_as_u32(), right.length_as_u32()) {
+                (match (left.length.as_u32(), right.length.as_u32()) {
                     (Some(l1), Some(l2)) => l1 == l2,
                     _ => {
                         // An array with an undetermined length (e.g., one that depends on a `const`) is considered

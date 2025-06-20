@@ -1,3 +1,12 @@
+/*
+seed = 123456789
+
+[case]
+program = "test.aleo"
+function = "main"
+input = []
+*/
+
 program test.aleo {
     const M: u32 = 1u32;
     const P: u32 = 2u32;

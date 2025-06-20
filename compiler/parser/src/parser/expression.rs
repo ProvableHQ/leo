@@ -611,17 +611,33 @@ impl<N: Network> ParserContext<'_, N> {
         }
     }
 
-    /// Returns an [`Expression`] AST node if the next tokens represent an array initialization expression.
-    fn parse_array_expression(&mut self) -> Result<Expression> {
-        let (elements, _, span) = self.parse_bracket_comma_list(|p| p.parse_expression().map(Some))?;
+    /// Attempts to parse an array initialization expression and returns an [`Expression`] AST node if successful.
+    fn parse_array_or_repeat_expression(&mut self) -> Result<Expression> {
+        let (open, close) = Delimiter::Bracket.open_close_pair();
+        let open_span = self.expect(&open)?;
 
-        match elements.is_empty() {
-            // If the array expression is empty, return an error.
-            true => Err(ParserError::array_must_have_at_least_one_element("expression", span).into()),
-            // Otherwise, return an array expression.
-            // Note: This is the only place where `ArrayExpression` is constructed in the parser.
-            false => Ok(ArrayExpression { elements, span, id: self.node_builder.next_id() }.into()),
+        // Attempt to parse the first expression in the array.
+        let Ok(first_expr) = self.parse_expression() else {
+            // If we're unable to parse an expression, just expect a `]` and error out on empty array.
+            let close_span = self.expect(&close)?;
+            return Err(ParserError::array_must_have_at_least_one_element("expression", open_span + close_span).into());
+        };
+
+        // Handle array repetition syntax: [expr; count]
+        if self.eat(&Token::Semicolon) {
+            let count = self.parse_expression()?;
+            let span = open_span + self.expect(&close)?;
+            return Ok(RepeatExpression { expr: first_expr, count, span, id: self.node_builder.next_id() }.into());
         }
+
+        // Handle array with multiple elements: [expr1, expr2, ...] or single element with or without trailing comma:
+        // [expr,]
+        let mut elements = vec![first_expr];
+        while self.eat(&Token::Comma) && !self.check(&close) {
+            elements.push(self.parse_expression()?);
+        }
+        let span = open_span + self.expect(&close)?;
+        Ok(ArrayExpression { elements, span, id: self.node_builder.next_id() }.into())
     }
 
     fn parse_struct_member(&mut self) -> Result<StructVariableInitializer> {
@@ -670,7 +686,7 @@ impl<N: Network> ParserContext<'_, N> {
         if let Token::LeftParen = self.token.token {
             return self.parse_tuple_expression();
         } else if let Token::LeftSquare = self.token.token {
-            return self.parse_array_expression();
+            return self.parse_array_or_repeat_expression();
         }
 
         let SpannedToken { token, span } = self.token.clone();

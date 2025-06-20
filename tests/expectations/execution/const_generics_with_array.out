@@ -1,0 +1,31 @@
+program test.aleo;
+
+function main:
+    cast 1u32 2u32 3u32 into r0 as [u32; 3u32];
+    output r0[2u32] as u32.private;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1phrwgkxsattf7z6prvhcr2uvccfu2wd3szphfyep8xhlauxr2vys6z4xyr",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "5084423468939825060538130033201630818262626287455782920263130347645504854802field",
+          "value": "ciphertext1qyq8ch8mum8aw3ferw5s6333d02zfkddnc8w4yq76x9mfrt6rrp05zqsqpf3e"
+        }
+      ],
+      "tpk": "1591703393543314415338793528822828705598549884408373108004070441897119952758group",
+      "tcm": "7425642878252279545349012318163473871813519702004165494419629069965094894844field",
+      "scm": "7641300893166473038899116715557541668720675567934043706719494919418703578913field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

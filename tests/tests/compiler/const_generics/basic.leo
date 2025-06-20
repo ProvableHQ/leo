@@ -16,7 +16,7 @@ program test.aleo {
     inline sum_first_n_ints::[N: u32]() -> u32 {
         let sum = 0u32;
         for i in 0u32..N {
-            sum += i + other::[i](); // this call to `other` will be resovled in the second pass of monomorphization
+            sum += i + other::[i](); // this call to `other` will be resolved in the second pass of monomorphization
         }
         return sum;
     }

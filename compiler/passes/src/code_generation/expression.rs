@@ -34,6 +34,7 @@ use leo_ast::{
     LocatorExpression,
     MemberAccess,
     Node,
+    RepeatExpression,
     StructExpression,
     TernaryExpression,
     TupleExpression,
@@ -64,6 +65,7 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Literal(expr) => self.visit_value(expr),
             Expression::Locator(expr) => self.visit_locator(expr),
             Expression::MemberAccess(expr) => self.visit_member_access(expr),
+            Expression::Repeat(expr) => self.visit_repeat(expr),
             Expression::Ternary(expr) => self.visit_ternary(expr),
             Expression::Tuple(expr) => self.visit_tuple(expr),
             Expression::TupleAccess(_) => panic!("Tuple accesses should not appear in the AST at this point."),
@@ -338,6 +340,30 @@ impl CodeGeneratingVisitor<'_> {
         let member_access = format!("{}.{}", inner_expr, input.name);
 
         (member_access, String::new())
+    }
+
+    fn visit_repeat(&mut self, input: &RepeatExpression) -> (String, String) {
+        let (operand, mut operand_instructions) = self.visit_expression(&input.expr);
+        let count = input.count.as_u32().expect("repeat count should be known at this point");
+
+        let expression_operands = std::iter::repeat(operand).take(count as usize).collect::<Vec<_>>().join(" ");
+
+        // Construct the destination register.
+        let destination_register = self.next_register();
+
+        // Get the array type.
+        let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
+            panic!("All types should be known at this phase of compilation");
+        };
+        let array_type: String = Self::visit_type(&array_type);
+
+        let array_instruction =
+            format!("    cast {expression_operands} into {destination_register} as {};\n", array_type);
+
+        // Concatenate the instructions.
+        operand_instructions.push_str(&array_instruction);
+
+        (destination_register, operand_instructions)
     }
 
     // group::GEN -> group::GEN
@@ -634,7 +660,7 @@ impl CodeGeneratingVisitor<'_> {
             Type::Array(array_type) => {
                 // We need to cast the old array's members into the new array.
                 let mut instruction = "    cast ".to_string();
-                for i in 0..array_type.length_as_u32().expect("length should be known at this point") as usize {
+                for i in 0..array_type.length.as_u32().expect("length should be known at this point") as usize {
                     write!(&mut instruction, "{register}[{i}u32] ").unwrap();
                 }
                 writeln!(&mut instruction, "into {new_reg} as {};", Self::visit_type(typ)).unwrap();

@@ -1034,6 +1034,8 @@ fn value_to_snarkvm_literal(value: Value) -> Literal<TestnetV0> {
         Value::Field(x) => Literal::Field(x),
         Value::Scalar(x) => Literal::Scalar(x),
         Value::Address(x) => Literal::Address(x),
-        Value::Array(_) | Value::Tuple(_) | Value::Unit | Value::Future(_) | Value::Struct(_) => tc_fail!(),
+        Value::Array(_) | Value::Repeat(..) | Value::Tuple(_) | Value::Unit | Value::Future(_) | Value::Struct(_) => {
+            tc_fail!()
+        }
     }
 }
