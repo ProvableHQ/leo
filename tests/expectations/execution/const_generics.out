@@ -1,0 +1,124 @@
+program test.aleo;
+
+function main:
+    add 0u32 0u32 into r0;
+    add 0u32 r0 into r1;
+    add 0u32 0u32 into r2;
+    add 0u32 r2 into r3;
+    add 1u32 1u32 into r4;
+    add r3 r4 into r5;
+    add r1 r5 into r6;
+    add 0u32 r6 into r7;
+    add 0u32 0u32 into r8;
+    add 0u32 r8 into r9;
+    add 1u32 1u32 into r10;
+    add r9 r10 into r11;
+    add 0u32 0u32 into r12;
+    add 0u32 r12 into r13;
+    add 1u32 1u32 into r14;
+    add r13 r14 into r15;
+    add 2u32 2u32 into r16;
+    add r15 r16 into r17;
+    add r11 r17 into r18;
+    add r7 r18 into r19;
+    add 0u32 0u32 into r20;
+    add 0u32 r20 into r21;
+    add 1u32 1u32 into r22;
+    add r21 r22 into r23;
+    add 2u32 2u32 into r24;
+    add r23 r24 into r25;
+    add 0u32 0u32 into r26;
+    add 0u32 r26 into r27;
+    add 1u32 1u32 into r28;
+    add r27 r28 into r29;
+    add 2u32 2u32 into r30;
+    add r29 r30 into r31;
+    add 3u32 3u32 into r32;
+    add r31 r32 into r33;
+    add r25 r33 into r34;
+    add r19 r34 into r35;
+    add 0u32 0u32 into r36;
+    add 0u32 r36 into r37;
+    add 1u32 1u32 into r38;
+    add r37 r38 into r39;
+    add 2u32 2u32 into r40;
+    add r39 r40 into r41;
+    add 3u32 3u32 into r42;
+    add r41 r42 into r43;
+    add 0u32 0u32 into r44;
+    add 0u32 r44 into r45;
+    add 1u32 1u32 into r46;
+    add r45 r46 into r47;
+    add 2u32 2u32 into r48;
+    add r47 r48 into r49;
+    add 3u32 3u32 into r50;
+    add r49 r50 into r51;
+    add 4u32 4u32 into r52;
+    add r51 r52 into r53;
+    add r43 r53 into r54;
+    add r35 r54 into r55;
+    add 0u32 0u32 into r56;
+    add 0u32 r56 into r57;
+    add 1u32 1u32 into r58;
+    add r57 r58 into r59;
+    add 2u32 2u32 into r60;
+    add r59 r60 into r61;
+    add 3u32 3u32 into r62;
+    add r61 r62 into r63;
+    add 4u32 4u32 into r64;
+    add r63 r64 into r65;
+    add 0u32 0u32 into r66;
+    add 0u32 r66 into r67;
+    add 1u32 1u32 into r68;
+    add r67 r68 into r69;
+    add 2u32 2u32 into r70;
+    add r69 r70 into r71;
+    add 3u32 3u32 into r72;
+    add r71 r72 into r73;
+    add 4u32 4u32 into r74;
+    add r73 r74 into r75;
+    add 5u32 5u32 into r76;
+    add r75 r76 into r77;
+    add r65 r77 into r78;
+    add r55 r78 into r79;
+    add 0u32 0u32 into r80;
+    add 0u32 r80 into r81;
+    add 1u32 1u32 into r82;
+    add r81 r82 into r83;
+    add 2u32 2u32 into r84;
+    add r83 r84 into r85;
+    add 3u32 3u32 into r86;
+    add r85 r86 into r87;
+    add 4u32 4u32 into r88;
+    add r87 r88 into r89;
+    add 5u32 5u32 into r90;
+    add r89 r90 into r91;
+    add r79 r91 into r92;
+    add r92 5u32 into r93;
+    output r93 as u32.private;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1hducnvujpfmqyadvsnmvxe38v376m7685sa5pxztrx0sc9vrvyfqyfautd",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "8352899324393158157821151595389675888598220082165529891899336791181438354832field",
+          "value": "ciphertext1qyq8ch8mrmfdw3ferw5s6333d02zfkddnc8w4yq76x9mfrt6rrp05zqfvrhnu"
+        }
+      ],
+      "tpk": "1591703393543314415338793528822828705598549884408373108004070441897119952758group",
+      "tcm": "7425642878252279545349012318163473871813519702004165494419629069965094894844field",
+      "scm": "7641300893166473038899116715557541668720675567934043706719494919418703578913field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

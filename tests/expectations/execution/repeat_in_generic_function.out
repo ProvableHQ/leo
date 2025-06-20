@@ -1,0 +1,48 @@
+program test.aleo;
+
+function main:
+    cast 1u32 into r0 as [u32; 1u32];
+    add 0u32 r0[0u32] into r1;
+    cast 2u32 2u32 into r2 as [u32; 2u32];
+    add r1 r2[1u32] into r3;
+    cast 3u32 3u32 3u32 into r4 as [u32; 3u32];
+    add r3 r4[2u32] into r5;
+    cast 4u32 4u32 4u32 4u32 into r6 as [u32; 4u32];
+    add r5 r6[3u32] into r7;
+    cast 5u32 5u32 5u32 5u32 5u32 into r8 as [u32; 5u32];
+    add r7 r8[4u32] into r9;
+    cast 6u32 6u32 6u32 6u32 6u32 6u32 into r10 as [u32; 6u32];
+    add r9 r10[5u32] into r11;
+    cast 7u32 7u32 7u32 7u32 7u32 7u32 7u32 into r12 as [u32; 7u32];
+    add r11 r12[6u32] into r13;
+    cast 8u32 8u32 8u32 8u32 8u32 8u32 8u32 8u32 into r14 as [u32; 8u32];
+    add r13 r14[7u32] into r15;
+    cast 9u32 9u32 9u32 9u32 9u32 9u32 9u32 9u32 9u32 into r16 as [u32; 9u32];
+    add r15 r16[8u32] into r17;
+    output r17 as u32.private;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1ctj3e3ezj8wxn73z09e8psm66pzhpfm0rmhlc39hctgj45jncvysx85akp",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "4056912050219595339690033562616225433187693781482139999876009713801769425893field",
+          "value": "ciphertext1qyq8ch8m3mgdw3ferw5s6333d02zfkddnc8w4yq76x9mfrt6rrp05zqec2xqj"
+        }
+      ],
+      "tpk": "1591703393543314415338793528822828705598549884408373108004070441897119952758group",
+      "tcm": "7425642878252279545349012318163473871813519702004165494419629069965094894844field",
+      "scm": "7641300893166473038899116715557541668720675567934043706719494919418703578913field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

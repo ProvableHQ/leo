@@ -1,0 +1,5 @@
+Error [ECMP0376014]: This repeat count could not be determined at compile time.
+    --> compiler-test:3:24
+     |
+   3 |         let a = [1u32; x];
+     |                        ^

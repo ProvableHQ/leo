@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, FromStrRadix, IntegerType, Literal, LiteralVariant, Type};
+use crate::{Expression, IntegerType, Literal, LiteralVariant, Type};
 use snarkvm::console::program::ArrayType as ConsoleArrayType;
 
 use leo_span::{Span, Symbol};
@@ -38,35 +38,6 @@ impl ArrayType {
     /// Returns the element type of the array.
     pub fn element_type(&self) -> &Type {
         &self.element_type
-    }
-
-    /// Return the array length as a `u32` if possible. Otherwise, return a `None`. This allows for
-    /// large and/or signed types but only if they can be safely cast to a `u32`.
-    pub fn length_as_u32(&self) -> Option<u32> {
-        if let Expression::Literal(literal) = &*self.length {
-            if let LiteralVariant::Integer(int_type, s, ..) = &literal.variant {
-                use IntegerType::*;
-                let s = s.replace("_", "");
-
-                return match int_type {
-                    U8 => u8::from_str_by_radix(&s).map(|v| v as u32).ok(),
-                    U16 => u16::from_str_by_radix(&s).map(|v| v as u32).ok(),
-                    U32 => u32::from_str_by_radix(&s).ok(),
-                    U64 => u64::from_str_by_radix(&s).ok().and_then(|v| u32::try_from(v).ok()),
-                    U128 => u128::from_str_by_radix(&s).ok().and_then(|v| u32::try_from(v).ok()),
-                    I8 => i8::from_str_by_radix(&s).ok().and_then(|v| u32::try_from(v).ok()),
-                    I16 => i16::from_str_by_radix(&s).ok().and_then(|v| u32::try_from(v).ok()),
-                    I32 => i32::from_str_by_radix(&s).ok().and_then(|v| u32::try_from(v).ok()),
-                    I64 => i64::from_str_by_radix(&s).ok().and_then(|v| u32::try_from(v).ok()),
-                    I128 => i128::from_str_by_radix(&s).ok().and_then(|v| u32::try_from(v).ok()),
-                };
-            } else if let LiteralVariant::Unsuffixed(s) = &literal.variant {
-                // Assume unsuffixed literals are `u32`. The type checker should enforce that as the default type.
-                let s = s.replace("_", "");
-                return u32::from_str_by_radix(&s).ok();
-            }
-        }
-        None
     }
 
     /// Returns the base element type of the array.

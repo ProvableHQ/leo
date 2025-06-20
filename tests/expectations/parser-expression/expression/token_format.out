@@ -124,7 +124,7 @@ Error [EPAR0370009]: unexpected string: expected 'expression', found ')'
      |
    1 | )
      | ^
-Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
+Error [EPAR0370005]: expected ] -- found '<eof>'
     --> test_30:1:1
      |
    1 | [

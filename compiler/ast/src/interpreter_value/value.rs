@@ -119,6 +119,7 @@ pub enum Value {
     Field(SvmField),
     Scalar(SvmScalar),
     Array(Vec<Value>),
+    Repeat(Box<Value>, Box<Value>),
     // Signature(Box<SvmSignature>),
     Tuple(Vec<Value>),
     Address(SvmAddress),
@@ -158,6 +159,7 @@ impl fmt::Display for Value {
                 }
                 write!(f, "]")
             }
+            Repeat(expr, count) => write!(f, "[{expr}; {count}]"),
             Struct(StructContents { name, contents }) => {
                 write!(f, "{name} {{")?;
                 let mut iter = contents.iter().peekable();

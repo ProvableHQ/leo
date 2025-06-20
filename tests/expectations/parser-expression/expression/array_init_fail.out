@@ -1,20 +1,20 @@
-Error [EPAR0370009]: unexpected string: expected 'expression', found '..'
-    --> test_0:1:2
+Error [EPAR0370005]: expected ] -- found '.'
+    --> test_0:1:4
      |
    1 | [...0u8; 1]
-     |  ^^
-Error [EPAR0370009]: unexpected string: expected 'expression', found '..'
-    --> test_1:1:2
+     |    ^
+Error [EPAR0370005]: expected ] -- found '.'
+    --> test_1:1:4
      |
    1 | [...0; 1]
-     |  ^^
-Error [EPAR0370005]: expected ] -- found ';'
-    --> test_2:1:3
+     |    ^
+Error [EPAR0370029]: A tuple expression must have at least two elements.
+    --> test_2:1:5
      |
    1 | [0; ()]
-     |   ^
+     |     ^^
 Error [EPAR0370005]: expected ] -- found ';'
-    --> test_3:1:3
+    --> test_4:1:6
      |
-   1 | [0; (1)]
-     |   ^
+   1 | [0; 1;]
+     |      ^

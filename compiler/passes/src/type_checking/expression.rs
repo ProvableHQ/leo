@@ -335,6 +335,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access_general(access, false, additional),
+            Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.visit_tuple_access_general(access, false, additional),
@@ -405,6 +406,50 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
 
         self.maybe_assert_type(&type_, additional, input.span());
 
+        type_
+    }
+
+    fn visit_repeat(&mut self, input: &RepeatExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        // Infer the type of the expression to repeat
+        let element_type =
+            if let Some(Type::Array(array_ty)) = additional { Some(array_ty.element_type().clone()) } else { None };
+
+        let inferred_type = self.visit_expression_reject_numeric(&input.expr, &element_type);
+
+        // Now infer the type of `count`. If it's an unsuffixed literal (i.e. has `Type::Numeric`), then infer it to be
+        // a `U32` as the default type.
+        let mut count_type = self.visit_expression(&input.count, &None);
+        if count_type == Type::Numeric {
+            // Infer `U32` as the default type for repeat count
+            count_type = Type::Integer(IntegerType::U32);
+
+            // Do not forget to ensure validity of the literal as `U32`
+            if let Expression::Literal(literal) = &input.count {
+                if !self.check_numeric_literal(literal, &count_type) {
+                    count_type = Type::Err;
+                }
+            }
+
+            // Update the type table accordingly
+            self.state.type_table.insert(input.count.id(), count_type);
+        }
+
+        // If we can already evaluate the repeat count as a `u32`, then make sure it's not 0 or  greater than the array
+        // size limit.
+        if let Some(count) = input.count.as_u32() {
+            if count == 0 {
+                self.emit_err(TypeCheckerError::array_empty(input.span()));
+                return Type::Err;
+            }
+
+            if count > self.limits.max_array_elements as u32 {
+                self.emit_err(TypeCheckerError::array_too_large(count, self.limits.max_array_elements, input.span()));
+            }
+        }
+
+        let type_ = Type::Array(ArrayType::new(inferred_type, input.count.clone()));
+
+        self.maybe_assert_type(&type_, additional, input.span());
         type_
     }
 

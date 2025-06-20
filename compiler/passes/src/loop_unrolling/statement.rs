@@ -33,7 +33,15 @@ impl StatementReconstructor for UnrollingVisitor<'_> {
     }
 
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        (input.into(), Default::default())
+        (
+            DefinitionStatement {
+                type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
+                value: self.reconstruct_expression(input.value).0,
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
     }
 
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> (Statement, Self::AdditionalOutput) {

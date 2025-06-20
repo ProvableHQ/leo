@@ -3,3 +3,8 @@ Error [ETYC0372076]: An array cannot be empty
      |
    3 |     transition foo(a: [bool; 0]) -> bool {
      |                    ^^^^^^^^^^^^
+Error [ETYC0372076]: An array cannot be empty
+    --> compiler-test:4:19
+     |
+   4 |         let bar = [false; 0];
+     |                   ^^^^^^^^^^
