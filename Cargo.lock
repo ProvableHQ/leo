@@ -1487,7 +1487,7 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "leo-abnf"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "abnf",
  "anyhow",
@@ -1495,7 +1495,7 @@ dependencies = [
 
 [[package]]
 name = "leo-ast"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "indexmap",
  "itertools 0.13.0",
@@ -1510,7 +1510,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "aleo-std-storage",
  "anyhow",
@@ -1535,7 +1535,7 @@ dependencies = [
 
 [[package]]
 name = "leo-disassembler"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "leo-ast",
  "leo-errors",
@@ -1545,7 +1545,7 @@ dependencies = [
 
 [[package]]
 name = "leo-errors"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -1560,7 +1560,7 @@ dependencies = [
 
 [[package]]
 name = "leo-interpreter"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "colored",
  "crossterm",
@@ -1584,7 +1584,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "aleo-std",
  "ansi_term",
@@ -1622,7 +1622,7 @@ dependencies = [
 
 [[package]]
 name = "leo-package"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -1639,7 +1639,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "clap",
  "indexmap",
@@ -1656,7 +1656,7 @@ dependencies = [
 
 [[package]]
 name = "leo-passes"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "indexmap",
  "itertools 0.13.0",
@@ -1671,7 +1671,7 @@ dependencies = [
 
 [[package]]
 name = "leo-span"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "fxhash",
  "indexmap",
@@ -1681,7 +1681,7 @@ dependencies = [
 
 [[package]]
 name = "leo-test-framework"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "rayon",
  "walkdir",
