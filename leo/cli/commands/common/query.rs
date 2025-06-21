@@ -88,7 +88,14 @@ pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>
         .send_json(transaction)
         .map_err(|err| CliError::broadcast_error(err.to_string()))?;
     match response.status() {
-        200 => Ok(response),
+        200 => {
+            println!(
+                "✉️ Broadcasted transaction with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
+                transaction.id().to_string().bold().yellow(),
+                transaction.fee_transition().expect("Expected a fee in transactions").id().to_string().bold().yellow()
+            );
+            Ok(response)
+        }
         301 => {
             let msg = format!(
                 "⚠️ The endpoint `{endpoint}` has been permanently moved. Try using `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag."
