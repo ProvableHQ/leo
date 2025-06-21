@@ -349,7 +349,7 @@ fn handle_execute<A: Aleo>(
         }
         let fee_id = fee.id().to_string();
         let id = transaction.id().to_string();
-        let height_before = crate::cli::check_transaction::current_height(&endpoint, network)?;
+        let height_before = check_transaction::current_height(&endpoint, network)?;
         // Broadcast the transaction to the network.
         let response =
             handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), &transaction, &program_name)?;
@@ -361,7 +361,7 @@ fn handle_execute<A: Aleo>(
 
         match response.status() {
             200 => {
-                let status = crate::cli::check_transaction::check_transaction_with_message(
+                let status = check_transaction::check_transaction_with_message(
                     &id,
                     Some(&fee_id),
                     &endpoint,
@@ -371,11 +371,7 @@ fn handle_execute<A: Aleo>(
                     command.extra.blocks_to_check,
                 )?;
                 if status == Some(TransactionStatus::Accepted) {
-                    println!(
-                        "✅ Successfully broadcast execution with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
-                        id.bold().yellow(),
-                        fee_id.bold().yellow()
-                    );
+                    println!("✅ Execution confirmed!");
                 }
             }
             _ => {
