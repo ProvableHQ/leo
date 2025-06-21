@@ -88,13 +88,13 @@ impl Command for LeoDeploy {
                 #[cfg(feature = "only_testnet")]
                 panic!("Mainnet chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                return handle_deploy::<MainnetV0>(&self, context, network, input);
+                handle_deploy::<MainnetV0>(&self, context, network, input)
             }
             NetworkName::CanaryV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Canary chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                return handle_deploy::<CanaryV0>(&self, context, network, input);
+                handle_deploy::<CanaryV0>(&self, context, network, input)
             }
         }
     }
@@ -145,10 +145,12 @@ fn handle_deploy<N: Network>(
     // Split the tasks into local and remote dependencies.
     let (local, remote) = tasks.into_iter().partition::<Vec<_>, _>(|(_, _, manifest, _, _, _)| manifest.is_some());
 
-    // Split the local tasks into those that should be skipped and those that should not.
-    let (skipped, tasks): (Vec<_>, Vec<_>) = local
-        .into_iter()
-        .partition(|(program_id, _, _, _, _, _)| command.skip.iter().any(|skip| program_id.to_string().contains(skip)));
+    // Get the skipped programs.
+    let skipped = local
+        .iter()
+        .filter(|(program_id, _, _, _, _, _)| command.skip.iter().any(|skip| program_id.to_string().contains(skip)))
+        .map(|(program_id, _, _, _, _, _)| *program_id)
+        .collect::<Vec<_>>();
 
     // Get the consensus version.
     let consensus_version = get_consensus_version::<N>(&command.extra.consensus_version, &endpoint, network, &context)?;
@@ -159,11 +161,12 @@ fn handle_deploy<N: Network>(
         &address,
         &endpoint,
         &network,
-        &tasks,
+        &local,
         &skipped,
         &remote,
-        &command.action,
+        &check_tasks_for_warnings(&endpoint, network, &local, &command.action),
         consensus_version,
+        command,
     );
 
     // Prompt the user to confirm the plan.
@@ -178,14 +181,20 @@ fn handle_deploy<N: Network>(
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
 
+    // Load the remote dependencies into the VM.
+    for (_, program, _, _, _, _) in remote {
+        // If the program is a remote dependency, add it to the VM.
+        vm.process().write().add_program(&program)?;
+    }
+
     // Specify the query
     let query = SnarkVMQuery::from(&endpoint);
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
-    for (program_id, program, manifest, _, priority_fee, fee_record) in tasks {
-        // If the program is a local dependency, generate a deployment transaction.
-        if manifest.is_some() {
+    for (program_id, program, manifest, _, priority_fee, fee_record) in local {
+        // If the program is a local dependency that is not skipped, generate a deployment transaction.
+        if manifest.is_some() && !skipped.contains(&program_id) {
             println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
             // Generate the transaction.
             let transaction = vm
@@ -195,9 +204,8 @@ fn handle_deploy<N: Network>(
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
             print_deployment_stats(&program_id.to_string(), deployment, priority_fee)?;
-
+            // Validate the deployment limits.
             validate_deployment_limits(deployment, &program_id, &network)?;
-
             // Save the transaction.
             transactions.push((program_id, transaction));
         }
@@ -236,16 +244,16 @@ fn handle_deploy<N: Network>(
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
         for (i, (program_id, transaction)) in transactions.iter().enumerate() {
-            println!("📡 Broadcasting deployment for {program_id}...");
+            println!("\n📡 Broadcasting deployment for {}...", program_id.to_string().bold());
             // Get and confirm the fee with the user.
             let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
             if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.extra.yes)? {
-                println!("❌ Deployment aborted.");
-                return Ok(());
+                println!("⏩ Deployment skipped.");
+                continue;
             }
             let fee_id = fee.id().to_string();
             let id = transaction.id().to_string();
-            let height_before = crate::cli::check_transaction::current_height(&endpoint, network)?;
+            let height_before = check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
             let response = handle_broadcast(
                 &format!("{}/{}/transaction/broadcast", endpoint, network),
@@ -253,20 +261,20 @@ fn handle_deploy<N: Network>(
                 &program_id.to_string(),
             )?;
 
-            let fail = |msg| {
+            let fail_and_prompt = |msg| {
                 println!("❌ Failed to deploy program {program_id}: {msg}.");
                 let count = transactions.len() - i - 1;
-                match count {
-                    0 => {}
-                    1 => println!("1 expected deployment skipped"),
-                    _ => println!("{count} expected deployments skipped"),
+                // Check if the user wants to continue with the next deployment.
+                if count > 0 {
+                    confirm("Do you want to continue with the next deployment?", command.extra.yes)
+                } else {
+                    Ok(false)
                 }
-                Ok(())
             };
 
             match response.status() {
                 200 => {
-                    let status = crate::cli::check_transaction::check_transaction_with_message(
+                    let status = check_transaction::check_transaction_with_message(
                         &id,
                         Some(&fee_id),
                         &endpoint,
@@ -276,20 +284,22 @@ fn handle_deploy<N: Network>(
                         command.extra.blocks_to_check,
                     )?;
                     if status == Some(TransactionStatus::Accepted) {
-                        println!(
-                            "✅ Successfully broadcast deployment with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
-                            id.bold().yellow(),
-                            fee_id.bold().yellow()
-                        );
+                        println!("✅ Deployment confirmed!");
+                    } else if fail_and_prompt("Transaction apparently not accepted")? {
+                        continue;
                     } else {
-                        return fail("Transaction apparently not accepted");
+                        return Ok(());
                     }
                 }
                 _ => {
                     let error_message = response
                         .into_string()
                         .map_err(|e| CliError::custom(format!("Failed to read response: {e}")))?;
-                    return fail(&error_message);
+                    if fail_and_prompt(&error_message)? {
+                        continue;
+                    } else {
+                        return Ok(());
+                    }
                 }
             }
         }
@@ -366,11 +376,12 @@ fn print_deployment_plan<N: Network>(
     address: &Address<N>,
     endpoint: &str,
     network: &NetworkName,
-    tasks: &[DeploymentTask<N>],
-    skipped: &[DeploymentTask<N>],
+    local: &[DeploymentTask<N>],
+    skipped: &[ProgramID<N>],
     remote: &[DeploymentTask<N>],
-    action: &TransactionAction,
+    warnings: &[String],
     consensus_version: ConsensusVersion,
+    command: &LeoDeploy,
 ) {
     use colored::*;
 
@@ -387,10 +398,10 @@ fn print_deployment_plan<N: Network>(
 
     // ── Deployment tasks (bullet list) ───────────────────────────────────
     println!("\n{}", "📦 Deployment Tasks:".bold());
-    if tasks.is_empty() {
+    if local.is_empty() {
         println!("  (none)");
     } else {
-        for (name, _, _, _, priority_fee, record) in tasks.iter() {
+        for (name, _, _, _, priority_fee, record) in local.iter().filter(|(p, ..)| !skipped.contains(p)) {
             let priority_fee_str = priority_fee.map_or("0".into(), |v| v.to_string());
             let record_str = if record.is_some() { "yes" } else { "no (public fee)" };
             println!(
@@ -405,7 +416,7 @@ fn print_deployment_plan<N: Network>(
     // ── Skipped programs ─────────────────────────────────────────────────
     if !skipped.is_empty() {
         println!("\n{}", "🚫 Skipped Programs:".bold().red());
-        for (symbol, _, _, _, _, _) in skipped {
+        for symbol in skipped {
             println!("  • {}", symbol.to_string().dimmed());
         }
     }
@@ -421,24 +432,23 @@ fn print_deployment_plan<N: Network>(
 
     // ── Actions ──────────────────────────────────────────────────────────
     println!("\n{}", "⚙️ Actions:".bold());
-    if action.print {
+    if command.action.print {
         println!("  • Transaction(s) will be printed to the console.");
     } else {
         println!("  • Transaction(s) will NOT be printed to the console.");
     }
-    if let Some(path) = &action.save {
+    if let Some(path) = &command.action.save {
         println!("  • Transaction(s) will be saved to {}", path.bold());
     } else {
         println!("  • Transaction(s) will NOT be saved to a file.");
     }
-    if action.broadcast {
+    if command.action.broadcast {
         println!("  • Transaction(s) will be broadcast to {}", endpoint.bold());
     } else {
         println!("  • Transaction(s) will NOT be broadcast to the network.");
     }
 
     // ── Warnings ─────────────────────────────────────────────────────────
-    let warnings = check_tasks_for_warnings(endpoint, *network, tasks, action);
     if !warnings.is_empty() {
         println!("\n{}", "⚠️ Warnings:".bold().red());
         for warning in warnings {
