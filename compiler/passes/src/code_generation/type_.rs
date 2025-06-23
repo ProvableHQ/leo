@@ -16,7 +16,7 @@
 
 use super::CodeGeneratingVisitor;
 
-use leo_ast::{Location, Mode, Type};
+use leo_ast::{CompositeType, Location, Mode, Type};
 
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_type(input: &Type) -> String {
@@ -28,9 +28,9 @@ impl CodeGeneratingVisitor<'_> {
             | Type::Signature
             | Type::String
             | Type::Future(..)
-            | Type::Composite(..)
             | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
+            Type::Composite(CompositeType { id, .. }) => Self::legalize_struct_name(id.name.to_string()),
             Type::Boolean => {
                 // Leo calls this just `bool`, which isn't what we need.
                 "boolean".into()

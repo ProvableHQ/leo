@@ -533,19 +533,29 @@ impl<N: Network> ParserContext<'_, N> {
                     // Parse a list of const arguments in between `[..]`
                     let const_arguments = self.parse_bracket_comma_list(|p| p.parse_expression().map(Some))?.0;
 
-                    // Parse a list of input arguments in between `(..)`
-                    let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+                    // If the next token is a `(` then we parse a call expression.
+                    // If the next token is a `{`, then we parse a struct init expression.
+                    if self.check(&Token::LeftParen) {
+                        // Parse a list of input arguments in between `(..)`
+                        let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
 
-                    // Now form a `CallExpression`
-                    expr = CallExpression {
-                        span: expr.span() + span,
-                        function: *ident,
-                        program: self.program_name,
-                        const_arguments,
-                        arguments,
-                        id: self.node_builder.next_id(),
+                        // Now form a `CallExpression`
+                        expr = CallExpression {
+                            span: expr.span() + span,
+                            function: *ident,
+                            program: self.program_name,
+                            const_arguments,
+                            arguments,
+                            id: self.node_builder.next_id(),
+                        }
+                        .into();
+                    } else if !self.disallow_struct_construction && self.check(&Token::LeftCurly) {
+                        // Parse struct and records inits as struct expressions with const arguments.
+                        // Enforce struct or record type later at type checking.
+                        expr = self.parse_struct_init_expression(*ident, const_arguments)?;
+                    } else {
+                        self.emit_err(ParserError::unexpected(expr.to_string(), "( or {{", expr.span()))
                     }
-                    .into()
                 } else {
                     // Eat a core associated constant or core associated function call.
                     expr = self.parse_associated_access_expression(expr)?;
@@ -658,12 +668,22 @@ impl<N: Network> ParserContext<'_, N> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// struct initialization expression.
     /// let foo = Foo { x: 1u8 };
-    pub fn parse_struct_init_expression(&mut self, identifier: Identifier) -> Result<Expression> {
+    pub fn parse_struct_init_expression(
+        &mut self,
+        identifier: Identifier,
+        const_arguments: Vec<Expression>,
+    ) -> Result<Expression> {
         let (members, _, end) =
             self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| p.parse_struct_member().map(Some))?;
 
-        Ok(StructExpression { span: identifier.span + end, name: identifier, members, id: self.node_builder.next_id() }
-            .into())
+        Ok(StructExpression {
+            span: identifier.span + end,
+            name: identifier,
+            const_arguments,
+            members,
+            id: self.node_builder.next_id(),
+        }
+        .into())
     }
 
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
@@ -752,9 +772,9 @@ impl<N: Network> ParserContext<'_, N> {
             Token::Identifier(name) => {
                 let ident = Identifier { name, span, id: self.node_builder.next_id() };
                 if !self.disallow_struct_construction && self.check(&Token::LeftCurly) {
-                    // Parse struct and records inits as struct expressions.
+                    // Parse struct and records inits as struct expressions without const arguments.
                     // Enforce struct or record type later at type checking.
-                    self.parse_struct_init_expression(ident)?
+                    self.parse_struct_init_expression(ident, Vec::new())?
                 } else {
                     ident.into()
                 }

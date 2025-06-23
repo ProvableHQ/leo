@@ -1,0 +1,19 @@
+Error [ETYC0372146]: unexpected generic const argment for Bar::[4].
+    --> compiler-test:5:24
+     |
+   5 |     transition main(c: Bar::[4]) {
+     |                        ^^^
+     |
+     = If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
+Error [ETYC0372017]: The type `Bar` is not found in the current scope.
+    --> compiler-test:5:21
+     |
+   5 |     transition main(c: Bar::[4]) {
+     |                     ^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372005]: Unknown struct or record `Bar`
+    --> compiler-test:6:17
+     |
+   6 |         let b = Bar::[3] {
+     |                 ^^^

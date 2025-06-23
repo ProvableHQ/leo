@@ -14,27 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Identifier;
-
+use crate::{Expression, Identifier};
+use itertools::Itertools as _;
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A composite type of a identifier and external program name.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Copy)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CompositeType {
-    // The identifier of the composite definition.
+    /// The identifier of the composite definition.
     pub id: Identifier,
-    // The external program that this composite is defined in.
+    /// Expressions for the const arguments passed to the struct's const parameters.
+    pub const_arguments: Vec<Expression>,
+    /// The external program that this composite is defined in.
     pub program: Option<Symbol>,
 }
 
 impl fmt::Display for CompositeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(program) = self.program {
-            write!(f, "{}.aleo/{}", program, self.id)
+        if let Some(program) = self.program.as_ref() {
+            write!(f, "{}.aleo/{}", program, self.id)?;
         } else {
-            write!(f, "{}", self.id)
+            write!(f, "{}", self.id)?;
         }
+
+        if !self.const_arguments.is_empty() {
+            write!(f, "::[{}]", self.const_arguments.iter().format(", "))?;
+        }
+
+        Ok(())
     }
 }

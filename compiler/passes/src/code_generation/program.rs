@@ -110,7 +110,8 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // Add private symbol to composite types.
         self.composite_mapping.insert(struct_.identifier.name, (false, String::from("private"))); // todo: private by default here.
 
-        let mut output_string = format!("\nstruct {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
+        let mut output_string =
+            format!("\nstruct {}:\n", Self::legalize_struct_name(struct_.identifier.name.to_string())); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in struct_.members.iter() {

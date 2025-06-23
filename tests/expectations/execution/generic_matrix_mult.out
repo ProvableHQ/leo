@@ -1,0 +1,119 @@
+program test.aleo;
+
+struct Matrix__H4ARZhIE6sd:
+    data as [[i32; 2u32]; 2u32];
+
+struct Matrix__BJGcgfcGdDj:
+    data as [[i32; 3u32]; 2u32];
+
+struct Matrix__7Gvec9Waurb:
+    data as [[i32; 2u32]; 3u32];
+
+struct Matrix__2QlnkrWdzCH:
+    data as [[i32; 3u32]; 3u32];
+
+function main_1:
+    cast 1i32 2i32 3i32 into r0 as [i32; 3u32];
+    cast 4i32 5i32 6i32 into r1 as [i32; 3u32];
+    cast r0 r1 into r2 as [[i32; 3u32]; 2u32];
+    cast r2 into r3 as Matrix__BJGcgfcGdDj;
+    cast 7i32 8i32 into r4 as [i32; 2u32];
+    cast 9i32 10i32 into r5 as [i32; 2u32];
+    cast 11i32 12i32 into r6 as [i32; 2u32];
+    cast r4 r5 r6 into r7 as [[i32; 2u32]; 3u32];
+    cast r7 into r8 as Matrix__7Gvec9Waurb;
+    mul r3.data[0u32][0u32] r8.data[0u32][0u32] into r9;
+    add 0i32 r9 into r10;
+    mul r3.data[0u32][1u32] r8.data[1u32][0u32] into r11;
+    add r10 r11 into r12;
+    mul r3.data[0u32][2u32] r8.data[2u32][0u32] into r13;
+    add r12 r13 into r14;
+    mul r3.data[0u32][0u32] r8.data[0u32][1u32] into r15;
+    add 0i32 r15 into r16;
+    mul r3.data[0u32][1u32] r8.data[1u32][1u32] into r17;
+    add r16 r17 into r18;
+    mul r3.data[0u32][2u32] r8.data[2u32][1u32] into r19;
+    add r18 r19 into r20;
+    mul r3.data[1u32][0u32] r8.data[0u32][0u32] into r21;
+    add 0i32 r21 into r22;
+    mul r3.data[1u32][1u32] r8.data[1u32][0u32] into r23;
+    add r22 r23 into r24;
+    mul r3.data[1u32][2u32] r8.data[2u32][0u32] into r25;
+    add r24 r25 into r26;
+    mul r3.data[1u32][0u32] r8.data[0u32][1u32] into r27;
+    add 0i32 r27 into r28;
+    mul r3.data[1u32][1u32] r8.data[1u32][1u32] into r29;
+    add r28 r29 into r30;
+    mul r3.data[1u32][2u32] r8.data[2u32][1u32] into r31;
+    add r30 r31 into r32;
+    cast r14 r20 into r33 as [i32; 2u32];
+    cast r26 r32 into r34 as [i32; 2u32];
+    cast r33 r34 into r35 as [[i32; 2u32]; 2u32];
+    cast r35 into r36 as Matrix__H4ARZhIE6sd;
+    output r36 as Matrix__H4ARZhIE6sd.private;
+
+function main_2:
+    cast 1i32 2i32 3i32 into r0 as [i32; 3u32];
+    cast 2i32 4i32 5i32 into r1 as [i32; 3u32];
+    cast 3i32 5i32 6i32 into r2 as [i32; 3u32];
+    cast r0 r1 r2 into r3 as [[i32; 3u32]; 3u32];
+    cast r3 into r4 as Matrix__2QlnkrWdzCH;
+    is.neq r4.data[0u32][1u32] r4.data[1u32][0u32] into r5;
+    is.neq r4.data[0u32][2u32] r4.data[2u32][0u32] into r6;
+    is.neq r4.data[1u32][2u32] r4.data[2u32][1u32] into r7;
+    ternary r7 false true into r8;
+    ternary r6 false r8 into r9;
+    ternary r5 false r9 into r10;
+    output r10 as boolean.private;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1ap4jkr5saskqeldv67lf5dn89f5edunluu7qmt98x3p852gukc8su92xzv",
+      "program": "test.aleo",
+      "function": "main_1",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "6266325536782863421428123989919314361149737427635363874611481837992298379391field",
+          "value": "ciphertext1qgqw73fc7q5tz73gqc2etduvq32gcjzeqyhyektgv0rleqqmtwrl5qgn4vc4srrfsdshsjdtcs4t8w2tlkgth3j0cqn4uzght42mrqm2qs40ks0s"
+        }
+      ],
+      "tpk": "3512735095601551270640660495499181222216581862583783827918429948427181564544group",
+      "tcm": "1022619783829824094650464451096633567117539432913019284147802096972543794625field",
+      "scm": "7322348355602127627961736810937042820420643952588286466881919219653958280727field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1ta2shgyjs77pm977xkzgq6g2cqyps6cf4amdnjkhts3hr9lmzgyqkdgc39",
+      "program": "test.aleo",
+      "function": "main_2",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "2384526487137806365639885733183083940875603562549262208916378434507648308348field",
+          "value": "ciphertext1qyqppz5fnx8qweyq38w97dvdl2zvh0rh8fmh0ceaalhteurfu25swps6krp5q"
+        }
+      ],
+      "tpk": "2796564055865928933000541352429457716550844704963905942506565594546716650583group",
+      "tcm": "6662749277121087007002965620221283173485121971491206364588478025447183214612field",
+      "scm": "2232718398028466489128313341539783590042888635214882448357194061913160516103field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

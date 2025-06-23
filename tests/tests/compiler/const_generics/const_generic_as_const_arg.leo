@@ -1,6 +1,6 @@
 program const_generics.aleo {
     transition main() -> field {
-        return abc::[0]() + abc::[1];
+        return abc::[0]() + abc::[1]();
     }
 
     inline abc::[C: field]() -> field {

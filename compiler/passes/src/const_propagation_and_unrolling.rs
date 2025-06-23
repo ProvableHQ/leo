@@ -57,10 +57,7 @@ impl Pass for ConstPropagationAndUnrolling {
             // may have changed significantly after the passes above.
             TypeChecking::do_pass(input.clone(), state)?;
 
-            if !const_prop_output.changed
-                && !loop_unroll_output.loop_unrolled
-                && !monomorphization_output.resolved_some_calls
-            {
+            if !const_prop_output.changed && !loop_unroll_output.loop_unrolled && !monomorphization_output.changed {
                 // We've got a fixed point, so see if we have any errors.
                 if let Some(not_evaluated_span) = const_prop_output.const_not_evaluated {
                     return Err(CompilerError::const_not_evaluated(not_evaluated_span).into());
@@ -83,10 +80,39 @@ impl Pass for ConstPropagationAndUnrolling {
                     if let Some(arg) =
                         call.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
                     {
-                        state.handler.emit_err(CompilerError::call_to_generic_function_not_resolved(
+                        state.handler.emit_err(CompilerError::const_generic_not_resolved(
+                            "call to generic function",
                             call.function.name,
                             arg,
                             call.span,
+                        ));
+                    }
+                }
+
+                // Emit errors for all problematic struct expressions
+                for expr in &monomorphization_output.unresolved_struct_exprs {
+                    if let Some(arg) =
+                        expr.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
+                    {
+                        state.handler.emit_err(CompilerError::const_generic_not_resolved(
+                            "struct expression",
+                            expr.name.name,
+                            arg,
+                            expr.span,
+                        ));
+                    }
+                }
+
+                // Emit errors for all problematic struct type instantiations
+                for ty in &monomorphization_output.unresolved_struct_types {
+                    if let Some(arg) =
+                        ty.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
+                    {
+                        state.handler.emit_err(CompilerError::const_generic_not_resolved(
+                            "struct type",
+                            ty.id.name,
+                            arg,
+                            ty.id.span,
                         ));
                     }
                 }

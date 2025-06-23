@@ -17,7 +17,7 @@
 pub mod member;
 pub use member::*;
 
-use crate::{Identifier, Indent, Mode, Node, NodeID, Type};
+use crate::{ConstParameter, Identifier, Indent, Mode, Node, NodeID, Type};
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools;
@@ -42,6 +42,8 @@ use snarkvm::{
 pub struct Composite {
     /// The name of the type in the type system in this module.
     pub identifier: Identifier,
+    /// The composite's const parameters.
+    pub const_parameters: Vec<ConstParameter>,
     /// The fields, constant variables, and functions of this structure.
     pub members: Vec<Member>,
     /// The external program the struct is defined in.
@@ -72,6 +74,7 @@ impl Composite {
     pub fn from_external_record<N: Network>(input: &RecordType<N>, external_program: Symbol) -> Self {
         Self {
             identifier: Identifier::from(input.name()),
+            const_parameters: Vec::new(),
             members: [
                 vec![Member {
                     mode: if input.owner().is_private() { Mode::Public } else { Mode::Private },
@@ -107,6 +110,7 @@ impl Composite {
     pub fn from_snarkvm<N: Network>(input: &StructType<N>) -> Self {
         Self {
             identifier: Identifier::from(input.name()),
+            const_parameters: Vec::new(),
             members: input
                 .members()
                 .iter()
@@ -129,7 +133,12 @@ impl Composite {
 impl fmt::Display for Composite {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_str(if self.is_record { "record" } else { "struct" })?;
-        writeln!(f, " {} {{", self.identifier)?;
+        write!(f, " {}", self.identifier)?;
+        if !self.const_parameters.is_empty() {
+            write!(f, "::[{}]", self.const_parameters.iter().format(", "))?;
+        }
+        writeln!(f, " {{")?;
+
         for field in self.members.iter() {
             writeln!(f, "{},", Indent(field))?;
         }

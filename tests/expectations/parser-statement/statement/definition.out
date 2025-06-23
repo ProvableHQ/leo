@@ -340,6 +340,7 @@
           },
           "id": 1
         },
+        "const_arguments": [],
         "program": null
       }
     },
@@ -409,6 +410,7 @@
           },
           "id": 2
         },
+        "const_arguments": [],
         "program": "credits"
       }
     },

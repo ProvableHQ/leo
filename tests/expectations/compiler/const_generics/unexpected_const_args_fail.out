@@ -1,0 +1,49 @@
+Error [ETYC0372146]: unexpected generic const argment for M::[6].
+    --> compiler-test:7:12
+     |
+   7 |         g: M::[6],
+     |            ^
+     |
+     = If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
+Error [ETYC0372146]: unexpected generic const argment for baz::[5].
+    --> compiler-test:8:12
+     |
+   8 |         f: baz::[5],
+     |            ^^^
+     |
+     = If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
+Error [ETYC0372017]: The type `M` is not found in the current scope.
+    --> compiler-test:7:9
+     |
+   7 |         g: M::[6],
+     |         ^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `baz` is not found in the current scope.
+    --> compiler-test:8:9
+     |
+   8 |         f: baz::[5],
+     |         ^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372146]: unexpected generic const argment for x::[5].
+    --> compiler-test:13:16
+     |
+  13 |         let y: x::[5] = [3];
+     |                ^
+     |
+     = If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
+Error [ETYC0372017]: The type `x` is not found in the current scope.
+    --> compiler-test:13:9
+     |
+  13 |         let y: x::[5] = [3];
+     |         ^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372004]: Could not determine the type of `3`
+    --> compiler-test:13:26
+     |
+  13 |         let y: x::[5] = [3];
+     |                          ^
+     |
+     = Consider using explicit type annotations.

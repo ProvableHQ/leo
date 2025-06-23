@@ -247,6 +247,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "base62"
+version = "2.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10e52a7bcb1d6beebee21fb5053af9e3cbb7a7ed1a4909e534040e676437ab1f"
+dependencies = [
+ "rustversion",
+]
+
+[[package]]
 name = "base64"
 version = "0.21.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1528,7 +1537,6 @@ dependencies = [
  "serde",
  "serde_json",
  "serial_test",
- "sha2",
  "snarkvm",
  "tempfile",
 ]
@@ -1658,14 +1666,17 @@ dependencies = [
 name = "leo-passes"
 version = "2.7.1"
 dependencies = [
+ "base62",
  "indexmap",
  "itertools 0.13.0",
  "leo-ast",
  "leo-errors",
  "leo-span",
  "num-traits",
+ "regex",
  "serde",
  "serde_json",
+ "sha2",
  "snarkvm",
 ]
 

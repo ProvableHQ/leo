@@ -42,9 +42,6 @@ workspace = true
 [dependencies.rand_chacha]
 workspace = true
 
-[dependencies.sha2]
-version = "0.10"
-
 [dependencies.snarkvm]
 workspace = true
 

@@ -1,4 +1,8 @@
 program const_generics.aleo {
+    struct Foo::[N: (u32, u32), A: [u32; 3]] {
+        x: u32,
+    }
+
     transition main() -> u32 {
         return bar::[9u16, 0u32]();
     }

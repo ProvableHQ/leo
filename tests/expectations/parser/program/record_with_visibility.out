@@ -34,6 +34,7 @@
               },
               "id": 2
             },
+            "const_parameters": [],
             "members": [
               {
                 "mode": "Private",

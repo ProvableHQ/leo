@@ -1106,10 +1106,10 @@ create_messages!(
     }
 
     @formatted
-    incorrect_num_const_args_to_call {
-        args: (expected: impl Display, received: impl Display),
+    incorrect_num_const_args {
+        args: (kind: impl Display, expected: impl Display, received: impl Display),
         msg: format!(
-            "Call expected `{expected}` const args, but got `{received}`",
+            "{kind} expected `{expected}` const args, but got `{received}`",
         ),
         help: None,
     }
@@ -1141,7 +1141,21 @@ create_messages!(
     @formatted
     array_too_large_for_u32 {
         args: (),
-        msg: format!("An array length must be small enough to fit in a `u32` "),
+        msg: format!("An array length must be small enough to fit in a `u32`"),
         help: None,
+    }
+
+    @formatted
+    unexpected_record_const_parameters {
+        args: (),
+        msg: format!("Records cannot be declared with generic const parameters."),
+        help: None,
+    }
+
+    @formatted
+    unexpected_const_args {
+        args: (item: impl Display),
+        msg: format!("unexpected generic const argment for {item}."),
+        help: Some("If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments".to_string()),
     }
 );

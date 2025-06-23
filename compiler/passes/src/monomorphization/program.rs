@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, Variant};
+use leo_ast::{Composite, Function, ProgramReconstructor, ProgramScope, Statement, StatementReconstructor, Variant};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -25,6 +25,29 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Set the current program name from the input.
         self.program = input.program_id.name.name;
 
+        // We first reconstruct all structs. Struct fields can instantiate other generic structs that we need to handle
+        // first. We'll then address struct expressions and other struct type instantiations.
+        let mut struct_map: IndexMap<Symbol, Composite> = input.structs.clone().into_iter().collect();
+        let struct_order = self.state.struct_graph.post_order().unwrap();
+
+        // Reconstruct structs in post-order.
+        for struct_name in &struct_order {
+            if let Some(r#struct) = struct_map.swap_remove(struct_name) {
+                // Perform monomorphization or other reconstruction logic.
+                let reconstructed_struct = self.reconstruct_struct(r#struct);
+                // Store the reconstructed struct for inclusion in the output scope.
+                self.reconstructed_structs.insert(*struct_name, reconstructed_struct);
+            }
+        }
+
+        // If there are some structs left in `struct_map`, that means these are dead structs since they do not show up
+        // in `struct_graph`. Therefore, they won't be reconstructed, implying a change in the reconstructed program.
+        if !struct_map.is_empty() {
+            self.changed = true;
+        }
+
+        // Next, handle generic functions
+        //
         // Create a map of function names to their definitions for fast access.
         let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
 
@@ -52,27 +75,35 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             // Skip external functions (i.e., not in the input map).
             if let Some(function) = function_map.swap_remove(function_name) {
                 // Perform monomorphization or other reconstruction logic.
-                self.function = function.identifier.name;
                 let reconstructed_function = self.reconstruct_function(function);
                 // Store the reconstructed function for inclusion in the output scope.
                 self.reconstructed_functions.insert(*function_name, reconstructed_function);
             }
         }
 
-        // Retain only functions that are either not yet monomorphized or are still referenced by calls.
+        // Now reconstruct mappings
+        let mappings =
+            input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect();
+
+        // Then consts
+        let consts = input
+            .consts
+            .into_iter()
+            .map(|(i, c)| match self.reconstruct_const(c) {
+                (Statement::Const(declaration), _) => (i, declaration),
+                _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+            })
+            .collect();
+
+        // Now retain only functions that are either not yet monomorphized or are still referenced by calls.
         self.reconstructed_functions.retain(|f, _| {
             let is_monomorphized = self.monomorphized_functions.contains(f);
-
             let is_still_called = self.unresolved_calls.iter().any(|c| c.function.name == *f);
-
-            if is_monomorphized && !is_still_called {
-                // It's monomorphized and there are no unresolved calls to it - remove it.
-                self.state.call_graph.remove_node(f);
-                false
-            } else {
-                true
-            }
+            !is_monomorphized || is_still_called
         });
+
+        // Move reconstructed structs into the final `ProgramScope`, clearing the temporary storage for the next scope.
+        let structs = core::mem::take(&mut self.reconstructed_structs).into_iter().collect::<Vec<_>>();
 
         // Move reconstructed functions into the final `ProgramScope`, clearing the temporary storage for the next scope.
         // Make sure to place transitions before all the other functions.
@@ -86,10 +117,10 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Return the fully reconstructed scope with updated functions.
         ProgramScope {
             program_id: input.program_id,
-            structs: input.structs,
-            mappings: input.mappings,
+            structs,
+            mappings,
             functions: all_functions,
-            consts: input.consts,
+            consts,
             span: input.span,
         }
     }

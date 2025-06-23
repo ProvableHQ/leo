@@ -20,10 +20,10 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A function const parameter.
+/// A const parameter for a function or a composite.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ConstParameter {
-    /// The name the const parameter is accessible as in the function's body.
+    /// The name of the const parameter.
     pub identifier: Identifier,
     /// What's the const parameter's type?
     pub type_: Type,

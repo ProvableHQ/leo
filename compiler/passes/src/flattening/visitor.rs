@@ -505,15 +505,21 @@ impl FlatteningVisitor<'_> {
 
         let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
             name: struct_.identifier,
+            const_arguments: Vec::new(), // All const arguments should have been resolved by now
             members,
             span: Default::default(),
             id: {
                 // Create a new node ID for the struct expression.
                 let id = self.state.node_builder.next_id();
                 // Set the type of the node ID.
-                self.state
-                    .type_table
-                    .insert(id, Type::Composite(CompositeType { id: struct_.identifier, program: struct_.external }));
+                self.state.type_table.insert(
+                    id,
+                    Type::Composite(CompositeType {
+                        id: struct_.identifier,
+                        const_arguments: Vec::new(), // all const generics should have been resolved by now
+                        program: struct_.external,
+                    }),
+                );
                 id
             },
         });
