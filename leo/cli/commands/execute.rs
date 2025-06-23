@@ -63,8 +63,6 @@ pub struct LeoExecute {
     pub(crate) extra: ExtraOptions,
     #[clap(flatten)]
     build_options: BuildOptions,
-    #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
-    file: Option<String>,
 }
 
 impl Command for LeoExecute {
@@ -225,18 +223,8 @@ fn handle_execute<A: Aleo>(
         }
     }
 
-    // Parse the inputs.
-    // If the `file` option is set, read the inputs from the file.
-    let input_strings = if let Some(file) = command.file {
-        // Read the inputs from the file.
-        let file = std::fs::read_to_string(file).map_err(|e| CliError::custom(format!("Failed to read file: {e}")))?;
-        // Parse the inputs from the file.
-        file.lines().map(|line| line.to_string()).collect::<Vec<_>>()
-    } else {
-        // Use the inputs from the command line.
-        command.inputs
-    };
-    let inputs = input_strings
+    let inputs = command
+        .inputs
         .into_iter()
         .map(|input| {
             Value::from_str(&input).map_err(|e| CliError::custom(format!("Failed to parse input: {e}")).into())

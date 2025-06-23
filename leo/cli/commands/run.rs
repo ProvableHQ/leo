@@ -16,11 +16,7 @@
 
 use super::*;
 
-use leo_package::NetworkName;
-use snarkvm::{
-    cli::Run as SnarkVMRun,
-    prelude::{CanaryV0, MainnetV0, Network, Parser as SnarkVMParser, TestnetV0},
-};
+use snarkvm::cli::Run as SnarkVMRun;
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -29,8 +25,6 @@ pub struct LeoRun {
     pub(crate) name: String,
     #[clap(name = "INPUTS", help = "The inputs to the program.")]
     pub(crate) inputs: Vec<String>,
-    #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
-    pub(crate) file: Option<String>,
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
     #[clap(flatten)]
@@ -50,50 +44,17 @@ impl Command for LeoRun {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Parse the network.
-        let network = context.get_network(&self.env_override.network)?.parse()?;
-        match network {
-            NetworkName::MainnetV0 => handle_run::<MainnetV0>(self, context),
-            NetworkName::TestnetV0 => handle_run::<TestnetV0>(self, context),
-            NetworkName::CanaryV0 => handle_run::<CanaryV0>(self, context),
-        }
+        handle_run(self, context)
     }
 }
 
 // A helper function to handle the run command.
-fn handle_run<N: Network>(command: LeoRun, context: Context) -> Result<<LeoRun as Command>::Output> {
-    let mut inputs = command.inputs;
-
+fn handle_run(mut command: LeoRun, context: Context) -> Result<<LeoRun as Command>::Output> {
     // Compose the `run` command.
     // The argument "--" is the separator, used to make sure snarkvm doesn't try to parse negative
     // values as CLI flags.
     let mut arguments = vec![SNARKVM_COMMAND.to_string(), command.name, "--".to_string()];
-
-    // Add the inputs to the arguments.
-    match command.file {
-        Some(file) => {
-            // Get the contents from the file.
-            let path = context.dir()?.join(file);
-            let raw_content =
-                std::fs::read_to_string(&path).map_err(|err| PackageError::failed_to_read_file(path.display(), err))?;
-            // Parse the values from the file.
-            let mut content = raw_content.as_str();
-            let mut values = vec![];
-            while let Ok((remaining, value)) = snarkvm::prelude::Value::<N>::parse(content) {
-                content = remaining;
-                values.push(value);
-            }
-            // Check that the remaining content is empty.
-            if !content.trim().is_empty() {
-                return Err(PackageError::failed_to_read_input_file(path.display()).into());
-            }
-            // Convert the values to strings.
-            let inputs_from_file = values.iter().map(|value| value.to_string());
-            // Add the inputs from the file to the arguments.
-            arguments.extend(inputs_from_file);
-        }
-        None => arguments.append(&mut inputs),
-    }
+    arguments.append(&mut command.inputs);
 
     // Open the Leo build/ directory
     let path = context.dir()?;
