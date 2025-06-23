@@ -47,235 +47,275 @@
 <a href=#47 id=47 data-nosnippet>47</a><span class="kw">mod </span>member_access;
 <a href=#48 id=48 data-nosnippet>48</a><span class="kw">pub use </span>member_access::<span class="kw-2">*</span>;
 <a href=#49 id=49 data-nosnippet>49</a>
-<a href=#50 id=50 data-nosnippet>50</a><span class="kw">mod </span>struct_init;
-<a href=#51 id=51 data-nosnippet>51</a><span class="kw">pub use </span>struct_init::<span class="kw-2">*</span>;
+<a href=#50 id=50 data-nosnippet>50</a><span class="kw">mod </span>repeat;
+<a href=#51 id=51 data-nosnippet>51</a><span class="kw">pub use </span>repeat::<span class="kw-2">*</span>;
 <a href=#52 id=52 data-nosnippet>52</a>
-<a href=#53 id=53 data-nosnippet>53</a><span class="kw">mod </span>ternary;
-<a href=#54 id=54 data-nosnippet>54</a><span class="kw">pub use </span>ternary::<span class="kw-2">*</span>;
+<a href=#53 id=53 data-nosnippet>53</a><span class="kw">mod </span>struct_init;
+<a href=#54 id=54 data-nosnippet>54</a><span class="kw">pub use </span>struct_init::<span class="kw-2">*</span>;
 <a href=#55 id=55 data-nosnippet>55</a>
-<a href=#56 id=56 data-nosnippet>56</a><span class="kw">mod </span>tuple;
-<a href=#57 id=57 data-nosnippet>57</a><span class="kw">pub use </span>tuple::<span class="kw-2">*</span>;
+<a href=#56 id=56 data-nosnippet>56</a><span class="kw">mod </span>ternary;
+<a href=#57 id=57 data-nosnippet>57</a><span class="kw">pub use </span>ternary::<span class="kw-2">*</span>;
 <a href=#58 id=58 data-nosnippet>58</a>
-<a href=#59 id=59 data-nosnippet>59</a><span class="kw">mod </span>tuple_access;
-<a href=#60 id=60 data-nosnippet>60</a><span class="kw">pub use </span>tuple_access::<span class="kw-2">*</span>;
+<a href=#59 id=59 data-nosnippet>59</a><span class="kw">mod </span>tuple;
+<a href=#60 id=60 data-nosnippet>60</a><span class="kw">pub use </span>tuple::<span class="kw-2">*</span>;
 <a href=#61 id=61 data-nosnippet>61</a>
-<a href=#62 id=62 data-nosnippet>62</a><span class="kw">mod </span>unary;
-<a href=#63 id=63 data-nosnippet>63</a><span class="kw">pub use </span>unary::<span class="kw-2">*</span>;
+<a href=#62 id=62 data-nosnippet>62</a><span class="kw">mod </span>tuple_access;
+<a href=#63 id=63 data-nosnippet>63</a><span class="kw">pub use </span>tuple_access::<span class="kw-2">*</span>;
 <a href=#64 id=64 data-nosnippet>64</a>
-<a href=#65 id=65 data-nosnippet>65</a><span class="kw">mod </span>unit;
-<a href=#66 id=66 data-nosnippet>66</a><span class="kw">pub use </span>unit::<span class="kw-2">*</span>;
+<a href=#65 id=65 data-nosnippet>65</a><span class="kw">mod </span>unary;
+<a href=#66 id=66 data-nosnippet>66</a><span class="kw">pub use </span>unary::<span class="kw-2">*</span>;
 <a href=#67 id=67 data-nosnippet>67</a>
-<a href=#68 id=68 data-nosnippet>68</a><span class="kw">mod </span>literal;
-<a href=#69 id=69 data-nosnippet>69</a><span class="kw">pub use </span>literal::<span class="kw-2">*</span>;
+<a href=#68 id=68 data-nosnippet>68</a><span class="kw">mod </span>unit;
+<a href=#69 id=69 data-nosnippet>69</a><span class="kw">pub use </span>unit::<span class="kw-2">*</span>;
 <a href=#70 id=70 data-nosnippet>70</a>
-<a href=#71 id=71 data-nosnippet>71</a><span class="kw">pub mod </span>locator;
-<a href=#72 id=72 data-nosnippet>72</a><span class="kw">pub use </span>locator::<span class="kw-2">*</span>;
+<a href=#71 id=71 data-nosnippet>71</a><span class="kw">mod </span>literal;
+<a href=#72 id=72 data-nosnippet>72</a><span class="kw">pub use </span>literal::<span class="kw-2">*</span>;
 <a href=#73 id=73 data-nosnippet>73</a>
-<a href=#74 id=74 data-nosnippet>74</a><span class="doccomment">/// Expression that evaluates to a value.
-<a href=#75 id=75 data-nosnippet>75</a></span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-<a href=#76 id=76 data-nosnippet>76</a></span><span class="kw">pub enum </span>Expression {
-<a href=#77 id=77 data-nosnippet>77</a>    <span class="doccomment">/// An array access, e.g. `arr[i]`.
-<a href=#78 id=78 data-nosnippet>78</a>    </span>ArrayAccess(Box&lt;ArrayAccess&gt;),
-<a href=#79 id=79 data-nosnippet>79</a>    <span class="doccomment">/// An associated constant; e.g., `group::GEN`.
-<a href=#80 id=80 data-nosnippet>80</a>    </span>AssociatedConstant(AssociatedConstantExpression),
-<a href=#81 id=81 data-nosnippet>81</a>    <span class="doccomment">/// An associated function; e.g., `BHP256::hash_to_field`.
-<a href=#82 id=82 data-nosnippet>82</a>    </span>AssociatedFunction(AssociatedFunctionExpression),
-<a href=#83 id=83 data-nosnippet>83</a>    <span class="doccomment">/// An array expression, e.g., `[true, false, true, false]`.
-<a href=#84 id=84 data-nosnippet>84</a>    </span>Array(ArrayExpression),
-<a href=#85 id=85 data-nosnippet>85</a>    <span class="doccomment">/// A binary expression, e.g., `42 + 24`.
-<a href=#86 id=86 data-nosnippet>86</a>    </span>Binary(Box&lt;BinaryExpression&gt;),
-<a href=#87 id=87 data-nosnippet>87</a>    <span class="doccomment">/// A call expression, e.g., `my_fun(args)`.
-<a href=#88 id=88 data-nosnippet>88</a>    </span>Call(Box&lt;CallExpression&gt;),
-<a href=#89 id=89 data-nosnippet>89</a>    <span class="doccomment">/// A cast expression, e.g., `42u32 as u8`.
-<a href=#90 id=90 data-nosnippet>90</a>    </span>Cast(Box&lt;CastExpression&gt;),
-<a href=#91 id=91 data-nosnippet>91</a>    <span class="doccomment">/// An expression of type "error".
-<a href=#92 id=92 data-nosnippet>92</a>    /// Will result in a compile error eventually.
-<a href=#93 id=93 data-nosnippet>93</a>    </span><span class="prelude-val">Err</span>(ErrExpression),
-<a href=#94 id=94 data-nosnippet>94</a>    <span class="doccomment">/// An identifier.
-<a href=#95 id=95 data-nosnippet>95</a>    </span>Identifier(Identifier),
-<a href=#96 id=96 data-nosnippet>96</a>    <span class="doccomment">/// A literal expression.
-<a href=#97 id=97 data-nosnippet>97</a>    </span>Literal(Literal),
-<a href=#98 id=98 data-nosnippet>98</a>    <span class="doccomment">/// A locator expression, e.g., `hello.aleo/foo`.
-<a href=#99 id=99 data-nosnippet>99</a>    </span>Locator(LocatorExpression),
-<a href=#100 id=100 data-nosnippet>100</a>    <span class="doccomment">/// An access of a struct member, e.g. `struc.member`.
-<a href=#101 id=101 data-nosnippet>101</a>    </span>MemberAccess(Box&lt;MemberAccess&gt;),
-<a href=#102 id=102 data-nosnippet>102</a>    <span class="doccomment">/// An expression constructing a struct like `Foo { bar: 42, baz }`.
-<a href=#103 id=103 data-nosnippet>103</a>    </span>Struct(StructExpression),
-<a href=#104 id=104 data-nosnippet>104</a>    <span class="doccomment">/// A ternary conditional expression `cond ? if_expr : else_expr`.
-<a href=#105 id=105 data-nosnippet>105</a>    </span>Ternary(Box&lt;TernaryExpression&gt;),
-<a href=#106 id=106 data-nosnippet>106</a>    <span class="doccomment">/// A tuple expression e.g., `(foo, 42, true)`.
-<a href=#107 id=107 data-nosnippet>107</a>    </span>Tuple(TupleExpression),
-<a href=#108 id=108 data-nosnippet>108</a>    <span class="doccomment">/// A tuple access expression e.g., `foo.2`.
-<a href=#109 id=109 data-nosnippet>109</a>    </span>TupleAccess(Box&lt;TupleAccess&gt;),
-<a href=#110 id=110 data-nosnippet>110</a>    <span class="doccomment">/// An unary expression.
-<a href=#111 id=111 data-nosnippet>111</a>    </span>Unary(Box&lt;UnaryExpression&gt;),
-<a href=#112 id=112 data-nosnippet>112</a>    <span class="doccomment">/// A unit expression e.g. `()`
-<a href=#113 id=113 data-nosnippet>113</a>    </span>Unit(UnitExpression),
-<a href=#114 id=114 data-nosnippet>114</a>}
-<a href=#115 id=115 data-nosnippet>115</a>
-<a href=#116 id=116 data-nosnippet>116</a><span class="kw">impl </span>Default <span class="kw">for </span>Expression {
-<a href=#117 id=117 data-nosnippet>117</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-<a href=#118 id=118 data-nosnippet>118</a>        Expression::Err(Default::default())
-<a href=#119 id=119 data-nosnippet>119</a>    }
-<a href=#120 id=120 data-nosnippet>120</a>}
-<a href=#121 id=121 data-nosnippet>121</a>
-<a href=#122 id=122 data-nosnippet>122</a><span class="kw">impl </span>Node <span class="kw">for </span>Expression {
-<a href=#123 id=123 data-nosnippet>123</a>    <span class="kw">fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
-<a href=#124 id=124 data-nosnippet>124</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
-<a href=#125 id=125 data-nosnippet>125</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#126 id=126 data-nosnippet>126</a>            ArrayAccess(n) =&gt; n.span(),
-<a href=#127 id=127 data-nosnippet>127</a>            Array(n) =&gt; n.span(),
-<a href=#128 id=128 data-nosnippet>128</a>            AssociatedConstant(n) =&gt; n.span(),
-<a href=#129 id=129 data-nosnippet>129</a>            AssociatedFunction(n) =&gt; n.span(),
-<a href=#130 id=130 data-nosnippet>130</a>            Binary(n) =&gt; n.span(),
-<a href=#131 id=131 data-nosnippet>131</a>            Call(n) =&gt; n.span(),
-<a href=#132 id=132 data-nosnippet>132</a>            Cast(n) =&gt; n.span(),
-<a href=#133 id=133 data-nosnippet>133</a>            <span class="prelude-val">Err</span>(n) =&gt; n.span(),
-<a href=#134 id=134 data-nosnippet>134</a>            Identifier(n) =&gt; n.span(),
-<a href=#135 id=135 data-nosnippet>135</a>            Literal(n) =&gt; n.span(),
-<a href=#136 id=136 data-nosnippet>136</a>            Locator(n) =&gt; n.span(),
-<a href=#137 id=137 data-nosnippet>137</a>            MemberAccess(n) =&gt; n.span(),
-<a href=#138 id=138 data-nosnippet>138</a>            Struct(n) =&gt; n.span(),
-<a href=#139 id=139 data-nosnippet>139</a>            Ternary(n) =&gt; n.span(),
-<a href=#140 id=140 data-nosnippet>140</a>            Tuple(n) =&gt; n.span(),
-<a href=#141 id=141 data-nosnippet>141</a>            TupleAccess(n) =&gt; n.span(),
-<a href=#142 id=142 data-nosnippet>142</a>            Unary(n) =&gt; n.span(),
-<a href=#143 id=143 data-nosnippet>143</a>            Unit(n) =&gt; n.span(),
-<a href=#144 id=144 data-nosnippet>144</a>        }
-<a href=#145 id=145 data-nosnippet>145</a>    }
-<a href=#146 id=146 data-nosnippet>146</a>
-<a href=#147 id=147 data-nosnippet>147</a>    <span class="kw">fn </span>set_span(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span) {
-<a href=#148 id=148 data-nosnippet>148</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
-<a href=#149 id=149 data-nosnippet>149</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#150 id=150 data-nosnippet>150</a>            ArrayAccess(n) =&gt; n.set_span(span),
-<a href=#151 id=151 data-nosnippet>151</a>            Array(n) =&gt; n.set_span(span),
-<a href=#152 id=152 data-nosnippet>152</a>            AssociatedConstant(n) =&gt; n.set_span(span),
-<a href=#153 id=153 data-nosnippet>153</a>            AssociatedFunction(n) =&gt; n.set_span(span),
-<a href=#154 id=154 data-nosnippet>154</a>            Binary(n) =&gt; n.set_span(span),
-<a href=#155 id=155 data-nosnippet>155</a>            Call(n) =&gt; n.set_span(span),
-<a href=#156 id=156 data-nosnippet>156</a>            Cast(n) =&gt; n.set_span(span),
-<a href=#157 id=157 data-nosnippet>157</a>            <span class="prelude-val">Err</span>(n) =&gt; n.set_span(span),
-<a href=#158 id=158 data-nosnippet>158</a>            Identifier(n) =&gt; n.set_span(span),
-<a href=#159 id=159 data-nosnippet>159</a>            Literal(n) =&gt; n.set_span(span),
-<a href=#160 id=160 data-nosnippet>160</a>            Locator(n) =&gt; n.set_span(span),
-<a href=#161 id=161 data-nosnippet>161</a>            MemberAccess(n) =&gt; n.set_span(span),
-<a href=#162 id=162 data-nosnippet>162</a>            Struct(n) =&gt; n.set_span(span),
-<a href=#163 id=163 data-nosnippet>163</a>            Ternary(n) =&gt; n.set_span(span),
-<a href=#164 id=164 data-nosnippet>164</a>            Tuple(n) =&gt; n.set_span(span),
-<a href=#165 id=165 data-nosnippet>165</a>            TupleAccess(n) =&gt; n.set_span(span),
-<a href=#166 id=166 data-nosnippet>166</a>            Unary(n) =&gt; n.set_span(span),
-<a href=#167 id=167 data-nosnippet>167</a>            Unit(n) =&gt; n.set_span(span),
-<a href=#168 id=168 data-nosnippet>168</a>        }
-<a href=#169 id=169 data-nosnippet>169</a>    }
-<a href=#170 id=170 data-nosnippet>170</a>
-<a href=#171 id=171 data-nosnippet>171</a>    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NodeID {
-<a href=#172 id=172 data-nosnippet>172</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
-<a href=#173 id=173 data-nosnippet>173</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#174 id=174 data-nosnippet>174</a>            Array(n) =&gt; n.id(),
-<a href=#175 id=175 data-nosnippet>175</a>            ArrayAccess(n) =&gt; n.id(),
-<a href=#176 id=176 data-nosnippet>176</a>            AssociatedConstant(n) =&gt; n.id(),
-<a href=#177 id=177 data-nosnippet>177</a>            AssociatedFunction(n) =&gt; n.id(),
-<a href=#178 id=178 data-nosnippet>178</a>            Binary(n) =&gt; n.id(),
-<a href=#179 id=179 data-nosnippet>179</a>            Call(n) =&gt; n.id(),
-<a href=#180 id=180 data-nosnippet>180</a>            Cast(n) =&gt; n.id(),
-<a href=#181 id=181 data-nosnippet>181</a>            Identifier(n) =&gt; n.id(),
-<a href=#182 id=182 data-nosnippet>182</a>            Literal(n) =&gt; n.id(),
-<a href=#183 id=183 data-nosnippet>183</a>            Locator(n) =&gt; n.id(),
-<a href=#184 id=184 data-nosnippet>184</a>            MemberAccess(n) =&gt; n.id(),
-<a href=#185 id=185 data-nosnippet>185</a>            <span class="prelude-val">Err</span>(n) =&gt; n.id(),
-<a href=#186 id=186 data-nosnippet>186</a>            Struct(n) =&gt; n.id(),
-<a href=#187 id=187 data-nosnippet>187</a>            Ternary(n) =&gt; n.id(),
-<a href=#188 id=188 data-nosnippet>188</a>            Tuple(n) =&gt; n.id(),
-<a href=#189 id=189 data-nosnippet>189</a>            TupleAccess(n) =&gt; n.id(),
-<a href=#190 id=190 data-nosnippet>190</a>            Unary(n) =&gt; n.id(),
-<a href=#191 id=191 data-nosnippet>191</a>            Unit(n) =&gt; n.id(),
-<a href=#192 id=192 data-nosnippet>192</a>        }
-<a href=#193 id=193 data-nosnippet>193</a>    }
-<a href=#194 id=194 data-nosnippet>194</a>
-<a href=#195 id=195 data-nosnippet>195</a>    <span class="kw">fn </span>set_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID) {
-<a href=#196 id=196 data-nosnippet>196</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
-<a href=#197 id=197 data-nosnippet>197</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#198 id=198 data-nosnippet>198</a>            Array(n) =&gt; n.set_id(id),
-<a href=#199 id=199 data-nosnippet>199</a>            ArrayAccess(n) =&gt; n.set_id(id),
-<a href=#200 id=200 data-nosnippet>200</a>            AssociatedConstant(n) =&gt; n.set_id(id),
-<a href=#201 id=201 data-nosnippet>201</a>            AssociatedFunction(n) =&gt; n.set_id(id),
-<a href=#202 id=202 data-nosnippet>202</a>            Binary(n) =&gt; n.set_id(id),
-<a href=#203 id=203 data-nosnippet>203</a>            Call(n) =&gt; n.set_id(id),
-<a href=#204 id=204 data-nosnippet>204</a>            Cast(n) =&gt; n.set_id(id),
-<a href=#205 id=205 data-nosnippet>205</a>            Identifier(n) =&gt; n.set_id(id),
-<a href=#206 id=206 data-nosnippet>206</a>            Literal(n) =&gt; n.set_id(id),
-<a href=#207 id=207 data-nosnippet>207</a>            Locator(n) =&gt; n.set_id(id),
-<a href=#208 id=208 data-nosnippet>208</a>            MemberAccess(n) =&gt; n.set_id(id),
-<a href=#209 id=209 data-nosnippet>209</a>            <span class="prelude-val">Err</span>(n) =&gt; n.set_id(id),
-<a href=#210 id=210 data-nosnippet>210</a>            Struct(n) =&gt; n.set_id(id),
-<a href=#211 id=211 data-nosnippet>211</a>            Ternary(n) =&gt; n.set_id(id),
-<a href=#212 id=212 data-nosnippet>212</a>            Tuple(n) =&gt; n.set_id(id),
-<a href=#213 id=213 data-nosnippet>213</a>            TupleAccess(n) =&gt; n.set_id(id),
-<a href=#214 id=214 data-nosnippet>214</a>            Unary(n) =&gt; n.set_id(id),
-<a href=#215 id=215 data-nosnippet>215</a>            Unit(n) =&gt; n.set_id(id),
-<a href=#216 id=216 data-nosnippet>216</a>        }
-<a href=#217 id=217 data-nosnippet>217</a>    }
-<a href=#218 id=218 data-nosnippet>218</a>}
-<a href=#219 id=219 data-nosnippet>219</a>
-<a href=#220 id=220 data-nosnippet>220</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Expression {
-<a href=#221 id=221 data-nosnippet>221</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-<a href=#222 id=222 data-nosnippet>222</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
-<a href=#223 id=223 data-nosnippet>223</a>        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
-<a href=#224 id=224 data-nosnippet>224</a>            Array(n) =&gt; n.fmt(f),
-<a href=#225 id=225 data-nosnippet>225</a>            ArrayAccess(n) =&gt; n.fmt(f),
-<a href=#226 id=226 data-nosnippet>226</a>            AssociatedConstant(n) =&gt; n.fmt(f),
-<a href=#227 id=227 data-nosnippet>227</a>            AssociatedFunction(n) =&gt; n.fmt(f),
-<a href=#228 id=228 data-nosnippet>228</a>            Binary(n) =&gt; n.fmt(f),
-<a href=#229 id=229 data-nosnippet>229</a>            Call(n) =&gt; n.fmt(f),
-<a href=#230 id=230 data-nosnippet>230</a>            Cast(n) =&gt; n.fmt(f),
-<a href=#231 id=231 data-nosnippet>231</a>            <span class="prelude-val">Err</span>(n) =&gt; n.fmt(f),
-<a href=#232 id=232 data-nosnippet>232</a>            Identifier(n) =&gt; n.fmt(f),
-<a href=#233 id=233 data-nosnippet>233</a>            Literal(n) =&gt; n.fmt(f),
-<a href=#234 id=234 data-nosnippet>234</a>            Locator(n) =&gt; n.fmt(f),
-<a href=#235 id=235 data-nosnippet>235</a>            MemberAccess(n) =&gt; n.fmt(f),
-<a href=#236 id=236 data-nosnippet>236</a>            Struct(n) =&gt; n.fmt(f),
-<a href=#237 id=237 data-nosnippet>237</a>            Ternary(n) =&gt; n.fmt(f),
-<a href=#238 id=238 data-nosnippet>238</a>            Tuple(n) =&gt; n.fmt(f),
-<a href=#239 id=239 data-nosnippet>239</a>            TupleAccess(n) =&gt; n.fmt(f),
-<a href=#240 id=240 data-nosnippet>240</a>            Unary(n) =&gt; n.fmt(f),
-<a href=#241 id=241 data-nosnippet>241</a>            Unit(n) =&gt; n.fmt(f),
-<a href=#242 id=242 data-nosnippet>242</a>        }
-<a href=#243 id=243 data-nosnippet>243</a>    }
-<a href=#244 id=244 data-nosnippet>244</a>}
-<a href=#245 id=245 data-nosnippet>245</a>
-<a href=#246 id=246 data-nosnippet>246</a><span class="attr">#[derive(Clone, Copy, Eq, PartialEq)]
-<a href=#247 id=247 data-nosnippet>247</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>Associativity {
-<a href=#248 id=248 data-nosnippet>248</a>    Left,
-<a href=#249 id=249 data-nosnippet>249</a>    Right,
-<a href=#250 id=250 data-nosnippet>250</a>    <span class="prelude-val">None</span>,
-<a href=#251 id=251 data-nosnippet>251</a>}
-<a href=#252 id=252 data-nosnippet>252</a>
-<a href=#253 id=253 data-nosnippet>253</a><span class="kw">impl </span>Expression {
-<a href=#254 id=254 data-nosnippet>254</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>precedence(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
-<a href=#255 id=255 data-nosnippet>255</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
-<a href=#256 id=256 data-nosnippet>256</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#257 id=257 data-nosnippet>257</a>            Binary(e) =&gt; e.precedence(),
-<a href=#258 id=258 data-nosnippet>258</a>            Cast(<span class="kw">_</span>) =&gt; <span class="number">12</span>,
-<a href=#259 id=259 data-nosnippet>259</a>            Ternary(<span class="kw">_</span>) =&gt; <span class="number">14</span>,
-<a href=#260 id=260 data-nosnippet>260</a>            Array(<span class="kw">_</span>)
-<a href=#261 id=261 data-nosnippet>261</a>            | ArrayAccess(<span class="kw">_</span>)
-<a href=#262 id=262 data-nosnippet>262</a>            | AssociatedConstant(<span class="kw">_</span>)
-<a href=#263 id=263 data-nosnippet>263</a>            | AssociatedFunction(<span class="kw">_</span>)
-<a href=#264 id=264 data-nosnippet>264</a>            | Call(<span class="kw">_</span>)
-<a href=#265 id=265 data-nosnippet>265</a>            | <span class="prelude-val">Err</span>(<span class="kw">_</span>)
-<a href=#266 id=266 data-nosnippet>266</a>            | Identifier(<span class="kw">_</span>)
-<a href=#267 id=267 data-nosnippet>267</a>            | Literal(<span class="kw">_</span>)
-<a href=#268 id=268 data-nosnippet>268</a>            | Locator(<span class="kw">_</span>)
-<a href=#269 id=269 data-nosnippet>269</a>            | MemberAccess(<span class="kw">_</span>)
-<a href=#270 id=270 data-nosnippet>270</a>            | Struct(<span class="kw">_</span>)
-<a href=#271 id=271 data-nosnippet>271</a>            | Tuple(<span class="kw">_</span>)
-<a href=#272 id=272 data-nosnippet>272</a>            | TupleAccess(<span class="kw">_</span>)
-<a href=#273 id=273 data-nosnippet>273</a>            | Unary(<span class="kw">_</span>)
-<a href=#274 id=274 data-nosnippet>274</a>            | Unit(<span class="kw">_</span>) =&gt; <span class="number">20</span>,
-<a href=#275 id=275 data-nosnippet>275</a>        }
-<a href=#276 id=276 data-nosnippet>276</a>    }
-<a href=#277 id=277 data-nosnippet>277</a>
-<a href=#278 id=278 data-nosnippet>278</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>associativity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Associativity {
-<a href=#279 id=279 data-nosnippet>279</a>        <span class="kw">if let </span>Expression::Binary(bin) = <span class="self">self </span>{ bin.associativity() } <span class="kw">else </span>{ Associativity::None }
-<a href=#280 id=280 data-nosnippet>280</a>    }
-<a href=#281 id=281 data-nosnippet>281</a>}</code></pre></div></section></main></body></html>
+<a href=#74 id=74 data-nosnippet>74</a><span class="kw">pub mod </span>locator;
+<a href=#75 id=75 data-nosnippet>75</a><span class="kw">pub use </span>locator::<span class="kw-2">*</span>;
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a><span class="doccomment">/// Expression that evaluates to a value.
+<a href=#78 id=78 data-nosnippet>78</a></span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+<a href=#79 id=79 data-nosnippet>79</a></span><span class="kw">pub enum </span>Expression {
+<a href=#80 id=80 data-nosnippet>80</a>    <span class="doccomment">/// An array access, e.g. `arr[i]`.
+<a href=#81 id=81 data-nosnippet>81</a>    </span>ArrayAccess(Box&lt;ArrayAccess&gt;),
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="doccomment">/// An associated constant; e.g., `group::GEN`.
+<a href=#83 id=83 data-nosnippet>83</a>    </span>AssociatedConstant(AssociatedConstantExpression),
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="doccomment">/// An associated function; e.g., `BHP256::hash_to_field`.
+<a href=#85 id=85 data-nosnippet>85</a>    </span>AssociatedFunction(AssociatedFunctionExpression),
+<a href=#86 id=86 data-nosnippet>86</a>    <span class="doccomment">/// An array expression, e.g., `[true, false, true, false]`.
+<a href=#87 id=87 data-nosnippet>87</a>    </span>Array(ArrayExpression),
+<a href=#88 id=88 data-nosnippet>88</a>    <span class="doccomment">/// A binary expression, e.g., `42 + 24`.
+<a href=#89 id=89 data-nosnippet>89</a>    </span>Binary(Box&lt;BinaryExpression&gt;),
+<a href=#90 id=90 data-nosnippet>90</a>    <span class="doccomment">/// A call expression, e.g., `my_fun(args)`.
+<a href=#91 id=91 data-nosnippet>91</a>    </span>Call(Box&lt;CallExpression&gt;),
+<a href=#92 id=92 data-nosnippet>92</a>    <span class="doccomment">/// A cast expression, e.g., `42u32 as u8`.
+<a href=#93 id=93 data-nosnippet>93</a>    </span>Cast(Box&lt;CastExpression&gt;),
+<a href=#94 id=94 data-nosnippet>94</a>    <span class="doccomment">/// An expression of type "error".
+<a href=#95 id=95 data-nosnippet>95</a>    /// Will result in a compile error eventually.
+<a href=#96 id=96 data-nosnippet>96</a>    </span><span class="prelude-val">Err</span>(ErrExpression),
+<a href=#97 id=97 data-nosnippet>97</a>    <span class="doccomment">/// An identifier.
+<a href=#98 id=98 data-nosnippet>98</a>    </span>Identifier(Identifier),
+<a href=#99 id=99 data-nosnippet>99</a>    <span class="doccomment">/// A literal expression.
+<a href=#100 id=100 data-nosnippet>100</a>    </span>Literal(Literal),
+<a href=#101 id=101 data-nosnippet>101</a>    <span class="doccomment">/// A locator expression, e.g., `hello.aleo/foo`.
+<a href=#102 id=102 data-nosnippet>102</a>    </span>Locator(LocatorExpression),
+<a href=#103 id=103 data-nosnippet>103</a>    <span class="doccomment">/// An access of a struct member, e.g. `struc.member`.
+<a href=#104 id=104 data-nosnippet>104</a>    </span>MemberAccess(Box&lt;MemberAccess&gt;),
+<a href=#105 id=105 data-nosnippet>105</a>    <span class="doccomment">/// An array expression constructed from one repeated element, e.g., `[1u32; 5]`.
+<a href=#106 id=106 data-nosnippet>106</a>    </span>Repeat(Box&lt;RepeatExpression&gt;),
+<a href=#107 id=107 data-nosnippet>107</a>    <span class="doccomment">/// An expression constructing a struct like `Foo { bar: 42, baz }`.
+<a href=#108 id=108 data-nosnippet>108</a>    </span>Struct(StructExpression),
+<a href=#109 id=109 data-nosnippet>109</a>    <span class="doccomment">/// A ternary conditional expression `cond ? if_expr : else_expr`.
+<a href=#110 id=110 data-nosnippet>110</a>    </span>Ternary(Box&lt;TernaryExpression&gt;),
+<a href=#111 id=111 data-nosnippet>111</a>    <span class="doccomment">/// A tuple expression e.g., `(foo, 42, true)`.
+<a href=#112 id=112 data-nosnippet>112</a>    </span>Tuple(TupleExpression),
+<a href=#113 id=113 data-nosnippet>113</a>    <span class="doccomment">/// A tuple access expression e.g., `foo.2`.
+<a href=#114 id=114 data-nosnippet>114</a>    </span>TupleAccess(Box&lt;TupleAccess&gt;),
+<a href=#115 id=115 data-nosnippet>115</a>    <span class="doccomment">/// An unary expression.
+<a href=#116 id=116 data-nosnippet>116</a>    </span>Unary(Box&lt;UnaryExpression&gt;),
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="doccomment">/// A unit expression e.g. `()`
+<a href=#118 id=118 data-nosnippet>118</a>    </span>Unit(UnitExpression),
+<a href=#119 id=119 data-nosnippet>119</a>}
+<a href=#120 id=120 data-nosnippet>120</a>
+<a href=#121 id=121 data-nosnippet>121</a><span class="kw">impl </span>Default <span class="kw">for </span>Expression {
+<a href=#122 id=122 data-nosnippet>122</a>    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+<a href=#123 id=123 data-nosnippet>123</a>        Expression::Err(Default::default())
+<a href=#124 id=124 data-nosnippet>124</a>    }
+<a href=#125 id=125 data-nosnippet>125</a>}
+<a href=#126 id=126 data-nosnippet>126</a>
+<a href=#127 id=127 data-nosnippet>127</a><span class="kw">impl </span>Node <span class="kw">for </span>Expression {
+<a href=#128 id=128 data-nosnippet>128</a>    <span class="kw">fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
+<a href=#129 id=129 data-nosnippet>129</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
+<a href=#130 id=130 data-nosnippet>130</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#131 id=131 data-nosnippet>131</a>            ArrayAccess(n) =&gt; n.span(),
+<a href=#132 id=132 data-nosnippet>132</a>            Array(n) =&gt; n.span(),
+<a href=#133 id=133 data-nosnippet>133</a>            AssociatedConstant(n) =&gt; n.span(),
+<a href=#134 id=134 data-nosnippet>134</a>            AssociatedFunction(n) =&gt; n.span(),
+<a href=#135 id=135 data-nosnippet>135</a>            Binary(n) =&gt; n.span(),
+<a href=#136 id=136 data-nosnippet>136</a>            Call(n) =&gt; n.span(),
+<a href=#137 id=137 data-nosnippet>137</a>            Cast(n) =&gt; n.span(),
+<a href=#138 id=138 data-nosnippet>138</a>            <span class="prelude-val">Err</span>(n) =&gt; n.span(),
+<a href=#139 id=139 data-nosnippet>139</a>            Identifier(n) =&gt; n.span(),
+<a href=#140 id=140 data-nosnippet>140</a>            Literal(n) =&gt; n.span(),
+<a href=#141 id=141 data-nosnippet>141</a>            Locator(n) =&gt; n.span(),
+<a href=#142 id=142 data-nosnippet>142</a>            MemberAccess(n) =&gt; n.span(),
+<a href=#143 id=143 data-nosnippet>143</a>            Repeat(n) =&gt; n.span(),
+<a href=#144 id=144 data-nosnippet>144</a>            Struct(n) =&gt; n.span(),
+<a href=#145 id=145 data-nosnippet>145</a>            Ternary(n) =&gt; n.span(),
+<a href=#146 id=146 data-nosnippet>146</a>            Tuple(n) =&gt; n.span(),
+<a href=#147 id=147 data-nosnippet>147</a>            TupleAccess(n) =&gt; n.span(),
+<a href=#148 id=148 data-nosnippet>148</a>            Unary(n) =&gt; n.span(),
+<a href=#149 id=149 data-nosnippet>149</a>            Unit(n) =&gt; n.span(),
+<a href=#150 id=150 data-nosnippet>150</a>        }
+<a href=#151 id=151 data-nosnippet>151</a>    }
+<a href=#152 id=152 data-nosnippet>152</a>
+<a href=#153 id=153 data-nosnippet>153</a>    <span class="kw">fn </span>set_span(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span) {
+<a href=#154 id=154 data-nosnippet>154</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
+<a href=#155 id=155 data-nosnippet>155</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#156 id=156 data-nosnippet>156</a>            ArrayAccess(n) =&gt; n.set_span(span),
+<a href=#157 id=157 data-nosnippet>157</a>            Array(n) =&gt; n.set_span(span),
+<a href=#158 id=158 data-nosnippet>158</a>            AssociatedConstant(n) =&gt; n.set_span(span),
+<a href=#159 id=159 data-nosnippet>159</a>            AssociatedFunction(n) =&gt; n.set_span(span),
+<a href=#160 id=160 data-nosnippet>160</a>            Binary(n) =&gt; n.set_span(span),
+<a href=#161 id=161 data-nosnippet>161</a>            Call(n) =&gt; n.set_span(span),
+<a href=#162 id=162 data-nosnippet>162</a>            Cast(n) =&gt; n.set_span(span),
+<a href=#163 id=163 data-nosnippet>163</a>            <span class="prelude-val">Err</span>(n) =&gt; n.set_span(span),
+<a href=#164 id=164 data-nosnippet>164</a>            Identifier(n) =&gt; n.set_span(span),
+<a href=#165 id=165 data-nosnippet>165</a>            Literal(n) =&gt; n.set_span(span),
+<a href=#166 id=166 data-nosnippet>166</a>            Locator(n) =&gt; n.set_span(span),
+<a href=#167 id=167 data-nosnippet>167</a>            MemberAccess(n) =&gt; n.set_span(span),
+<a href=#168 id=168 data-nosnippet>168</a>            Repeat(n) =&gt; n.set_span(span),
+<a href=#169 id=169 data-nosnippet>169</a>            Struct(n) =&gt; n.set_span(span),
+<a href=#170 id=170 data-nosnippet>170</a>            Ternary(n) =&gt; n.set_span(span),
+<a href=#171 id=171 data-nosnippet>171</a>            Tuple(n) =&gt; n.set_span(span),
+<a href=#172 id=172 data-nosnippet>172</a>            TupleAccess(n) =&gt; n.set_span(span),
+<a href=#173 id=173 data-nosnippet>173</a>            Unary(n) =&gt; n.set_span(span),
+<a href=#174 id=174 data-nosnippet>174</a>            Unit(n) =&gt; n.set_span(span),
+<a href=#175 id=175 data-nosnippet>175</a>        }
+<a href=#176 id=176 data-nosnippet>176</a>    }
+<a href=#177 id=177 data-nosnippet>177</a>
+<a href=#178 id=178 data-nosnippet>178</a>    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NodeID {
+<a href=#179 id=179 data-nosnippet>179</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
+<a href=#180 id=180 data-nosnippet>180</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#181 id=181 data-nosnippet>181</a>            Array(n) =&gt; n.id(),
+<a href=#182 id=182 data-nosnippet>182</a>            ArrayAccess(n) =&gt; n.id(),
+<a href=#183 id=183 data-nosnippet>183</a>            AssociatedConstant(n) =&gt; n.id(),
+<a href=#184 id=184 data-nosnippet>184</a>            AssociatedFunction(n) =&gt; n.id(),
+<a href=#185 id=185 data-nosnippet>185</a>            Binary(n) =&gt; n.id(),
+<a href=#186 id=186 data-nosnippet>186</a>            Call(n) =&gt; n.id(),
+<a href=#187 id=187 data-nosnippet>187</a>            Cast(n) =&gt; n.id(),
+<a href=#188 id=188 data-nosnippet>188</a>            Identifier(n) =&gt; n.id(),
+<a href=#189 id=189 data-nosnippet>189</a>            Literal(n) =&gt; n.id(),
+<a href=#190 id=190 data-nosnippet>190</a>            Locator(n) =&gt; n.id(),
+<a href=#191 id=191 data-nosnippet>191</a>            MemberAccess(n) =&gt; n.id(),
+<a href=#192 id=192 data-nosnippet>192</a>            Repeat(n) =&gt; n.id(),
+<a href=#193 id=193 data-nosnippet>193</a>            <span class="prelude-val">Err</span>(n) =&gt; n.id(),
+<a href=#194 id=194 data-nosnippet>194</a>            Struct(n) =&gt; n.id(),
+<a href=#195 id=195 data-nosnippet>195</a>            Ternary(n) =&gt; n.id(),
+<a href=#196 id=196 data-nosnippet>196</a>            Tuple(n) =&gt; n.id(),
+<a href=#197 id=197 data-nosnippet>197</a>            TupleAccess(n) =&gt; n.id(),
+<a href=#198 id=198 data-nosnippet>198</a>            Unary(n) =&gt; n.id(),
+<a href=#199 id=199 data-nosnippet>199</a>            Unit(n) =&gt; n.id(),
+<a href=#200 id=200 data-nosnippet>200</a>        }
+<a href=#201 id=201 data-nosnippet>201</a>    }
+<a href=#202 id=202 data-nosnippet>202</a>
+<a href=#203 id=203 data-nosnippet>203</a>    <span class="kw">fn </span>set_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID) {
+<a href=#204 id=204 data-nosnippet>204</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
+<a href=#205 id=205 data-nosnippet>205</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#206 id=206 data-nosnippet>206</a>            Array(n) =&gt; n.set_id(id),
+<a href=#207 id=207 data-nosnippet>207</a>            ArrayAccess(n) =&gt; n.set_id(id),
+<a href=#208 id=208 data-nosnippet>208</a>            AssociatedConstant(n) =&gt; n.set_id(id),
+<a href=#209 id=209 data-nosnippet>209</a>            AssociatedFunction(n) =&gt; n.set_id(id),
+<a href=#210 id=210 data-nosnippet>210</a>            Binary(n) =&gt; n.set_id(id),
+<a href=#211 id=211 data-nosnippet>211</a>            Call(n) =&gt; n.set_id(id),
+<a href=#212 id=212 data-nosnippet>212</a>            Cast(n) =&gt; n.set_id(id),
+<a href=#213 id=213 data-nosnippet>213</a>            Identifier(n) =&gt; n.set_id(id),
+<a href=#214 id=214 data-nosnippet>214</a>            Literal(n) =&gt; n.set_id(id),
+<a href=#215 id=215 data-nosnippet>215</a>            Locator(n) =&gt; n.set_id(id),
+<a href=#216 id=216 data-nosnippet>216</a>            MemberAccess(n) =&gt; n.set_id(id),
+<a href=#217 id=217 data-nosnippet>217</a>            Repeat(n) =&gt; n.set_id(id),
+<a href=#218 id=218 data-nosnippet>218</a>            <span class="prelude-val">Err</span>(n) =&gt; n.set_id(id),
+<a href=#219 id=219 data-nosnippet>219</a>            Struct(n) =&gt; n.set_id(id),
+<a href=#220 id=220 data-nosnippet>220</a>            Ternary(n) =&gt; n.set_id(id),
+<a href=#221 id=221 data-nosnippet>221</a>            Tuple(n) =&gt; n.set_id(id),
+<a href=#222 id=222 data-nosnippet>222</a>            TupleAccess(n) =&gt; n.set_id(id),
+<a href=#223 id=223 data-nosnippet>223</a>            Unary(n) =&gt; n.set_id(id),
+<a href=#224 id=224 data-nosnippet>224</a>            Unit(n) =&gt; n.set_id(id),
+<a href=#225 id=225 data-nosnippet>225</a>        }
+<a href=#226 id=226 data-nosnippet>226</a>    }
+<a href=#227 id=227 data-nosnippet>227</a>}
+<a href=#228 id=228 data-nosnippet>228</a>
+<a href=#229 id=229 data-nosnippet>229</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Expression {
+<a href=#230 id=230 data-nosnippet>230</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+<a href=#231 id=231 data-nosnippet>231</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
+<a href=#232 id=232 data-nosnippet>232</a>        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
+<a href=#233 id=233 data-nosnippet>233</a>            Array(n) =&gt; n.fmt(f),
+<a href=#234 id=234 data-nosnippet>234</a>            ArrayAccess(n) =&gt; n.fmt(f),
+<a href=#235 id=235 data-nosnippet>235</a>            AssociatedConstant(n) =&gt; n.fmt(f),
+<a href=#236 id=236 data-nosnippet>236</a>            AssociatedFunction(n) =&gt; n.fmt(f),
+<a href=#237 id=237 data-nosnippet>237</a>            Binary(n) =&gt; n.fmt(f),
+<a href=#238 id=238 data-nosnippet>238</a>            Call(n) =&gt; n.fmt(f),
+<a href=#239 id=239 data-nosnippet>239</a>            Cast(n) =&gt; n.fmt(f),
+<a href=#240 id=240 data-nosnippet>240</a>            <span class="prelude-val">Err</span>(n) =&gt; n.fmt(f),
+<a href=#241 id=241 data-nosnippet>241</a>            Identifier(n) =&gt; n.fmt(f),
+<a href=#242 id=242 data-nosnippet>242</a>            Literal(n) =&gt; n.fmt(f),
+<a href=#243 id=243 data-nosnippet>243</a>            Locator(n) =&gt; n.fmt(f),
+<a href=#244 id=244 data-nosnippet>244</a>            MemberAccess(n) =&gt; n.fmt(f),
+<a href=#245 id=245 data-nosnippet>245</a>            Repeat(n) =&gt; n.fmt(f),
+<a href=#246 id=246 data-nosnippet>246</a>            Struct(n) =&gt; n.fmt(f),
+<a href=#247 id=247 data-nosnippet>247</a>            Ternary(n) =&gt; n.fmt(f),
+<a href=#248 id=248 data-nosnippet>248</a>            Tuple(n) =&gt; n.fmt(f),
+<a href=#249 id=249 data-nosnippet>249</a>            TupleAccess(n) =&gt; n.fmt(f),
+<a href=#250 id=250 data-nosnippet>250</a>            Unary(n) =&gt; n.fmt(f),
+<a href=#251 id=251 data-nosnippet>251</a>            Unit(n) =&gt; n.fmt(f),
+<a href=#252 id=252 data-nosnippet>252</a>        }
+<a href=#253 id=253 data-nosnippet>253</a>    }
+<a href=#254 id=254 data-nosnippet>254</a>}
+<a href=#255 id=255 data-nosnippet>255</a>
+<a href=#256 id=256 data-nosnippet>256</a><span class="attr">#[derive(Clone, Copy, Eq, PartialEq)]
+<a href=#257 id=257 data-nosnippet>257</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>Associativity {
+<a href=#258 id=258 data-nosnippet>258</a>    Left,
+<a href=#259 id=259 data-nosnippet>259</a>    Right,
+<a href=#260 id=260 data-nosnippet>260</a>    <span class="prelude-val">None</span>,
+<a href=#261 id=261 data-nosnippet>261</a>}
+<a href=#262 id=262 data-nosnippet>262</a>
+<a href=#263 id=263 data-nosnippet>263</a><span class="kw">impl </span>Expression {
+<a href=#264 id=264 data-nosnippet>264</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>precedence(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
+<a href=#266 id=266 data-nosnippet>266</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#267 id=267 data-nosnippet>267</a>            Binary(e) =&gt; e.precedence(),
+<a href=#268 id=268 data-nosnippet>268</a>            Cast(<span class="kw">_</span>) =&gt; <span class="number">12</span>,
+<a href=#269 id=269 data-nosnippet>269</a>            Ternary(<span class="kw">_</span>) =&gt; <span class="number">14</span>,
+<a href=#270 id=270 data-nosnippet>270</a>            Array(<span class="kw">_</span>)
+<a href=#271 id=271 data-nosnippet>271</a>            | ArrayAccess(<span class="kw">_</span>)
+<a href=#272 id=272 data-nosnippet>272</a>            | AssociatedConstant(<span class="kw">_</span>)
+<a href=#273 id=273 data-nosnippet>273</a>            | AssociatedFunction(<span class="kw">_</span>)
+<a href=#274 id=274 data-nosnippet>274</a>            | Call(<span class="kw">_</span>)
+<a href=#275 id=275 data-nosnippet>275</a>            | <span class="prelude-val">Err</span>(<span class="kw">_</span>)
+<a href=#276 id=276 data-nosnippet>276</a>            | Identifier(<span class="kw">_</span>)
+<a href=#277 id=277 data-nosnippet>277</a>            | Literal(<span class="kw">_</span>)
+<a href=#278 id=278 data-nosnippet>278</a>            | Locator(<span class="kw">_</span>)
+<a href=#279 id=279 data-nosnippet>279</a>            | MemberAccess(<span class="kw">_</span>)
+<a href=#280 id=280 data-nosnippet>280</a>            | Repeat(<span class="kw">_</span>)
+<a href=#281 id=281 data-nosnippet>281</a>            | Struct(<span class="kw">_</span>)
+<a href=#282 id=282 data-nosnippet>282</a>            | Tuple(<span class="kw">_</span>)
+<a href=#283 id=283 data-nosnippet>283</a>            | TupleAccess(<span class="kw">_</span>)
+<a href=#284 id=284 data-nosnippet>284</a>            | Unary(<span class="kw">_</span>)
+<a href=#285 id=285 data-nosnippet>285</a>            | Unit(<span class="kw">_</span>) =&gt; <span class="number">20</span>,
+<a href=#286 id=286 data-nosnippet>286</a>        }
+<a href=#287 id=287 data-nosnippet>287</a>    }
+<a href=#288 id=288 data-nosnippet>288</a>
+<a href=#289 id=289 data-nosnippet>289</a>    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>associativity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Associativity {
+<a href=#290 id=290 data-nosnippet>290</a>        <span class="kw">if let </span>Expression::Binary(bin) = <span class="self">self </span>{ bin.associativity() } <span class="kw">else </span>{ Associativity::None }
+<a href=#291 id=291 data-nosnippet>291</a>    }
+<a href=#292 id=292 data-nosnippet>292</a>
+<a href=#293 id=293 data-nosnippet>293</a>    <span class="doccomment">/// Returns `self` as a known `u32` if possible. Otherwise, returns a `None`. This allows for large and/or signed
+<a href=#294 id=294 data-nosnippet>294</a>    /// types but only if they can be safely cast to a `u32`.
+<a href=#295 id=295 data-nosnippet>295</a>    </span><span class="kw">pub fn </span>as_u32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+<a href=#296 id=296 data-nosnippet>296</a>        <span class="kw">if let </span>Expression::Literal(literal) = <span class="kw-2">&amp;</span><span class="self">self </span>{
+<a href=#297 id=297 data-nosnippet>297</a>            <span class="kw">if let </span>LiteralVariant::Integer(int_type, s, ..) = <span class="kw-2">&amp;</span>literal.variant {
+<a href=#298 id=298 data-nosnippet>298</a>                <span class="kw">use </span><span class="kw">crate</span>::IntegerType::<span class="kw-2">*</span>;
+<a href=#299 id=299 data-nosnippet>299</a>                <span class="kw">let </span>s = s.replace(<span class="string">"_"</span>, <span class="string">""</span>);
+<a href=#300 id=300 data-nosnippet>300</a>
+<a href=#301 id=301 data-nosnippet>301</a>                <span class="kw">return match </span>int_type {
+<a href=#302 id=302 data-nosnippet>302</a>                    U8 =&gt; u8::from_str_by_radix(<span class="kw-2">&amp;</span>s).map(|v| v <span class="kw">as </span>u32).ok(),
+<a href=#303 id=303 data-nosnippet>303</a>                    U16 =&gt; u16::from_str_by_radix(<span class="kw-2">&amp;</span>s).map(|v| v <span class="kw">as </span>u32).ok(),
+<a href=#304 id=304 data-nosnippet>304</a>                    U32 =&gt; u32::from_str_by_radix(<span class="kw-2">&amp;</span>s).ok(),
+<a href=#305 id=305 data-nosnippet>305</a>                    U64 =&gt; u64::from_str_by_radix(<span class="kw-2">&amp;</span>s).ok().and_then(|v| u32::try_from(v).ok()),
+<a href=#306 id=306 data-nosnippet>306</a>                    U128 =&gt; u128::from_str_by_radix(<span class="kw-2">&amp;</span>s).ok().and_then(|v| u32::try_from(v).ok()),
+<a href=#307 id=307 data-nosnippet>307</a>                    I8 =&gt; i8::from_str_by_radix(<span class="kw-2">&amp;</span>s).ok().and_then(|v| u32::try_from(v).ok()),
+<a href=#308 id=308 data-nosnippet>308</a>                    I16 =&gt; i16::from_str_by_radix(<span class="kw-2">&amp;</span>s).ok().and_then(|v| u32::try_from(v).ok()),
+<a href=#309 id=309 data-nosnippet>309</a>                    I32 =&gt; i32::from_str_by_radix(<span class="kw-2">&amp;</span>s).ok().and_then(|v| u32::try_from(v).ok()),
+<a href=#310 id=310 data-nosnippet>310</a>                    I64 =&gt; i64::from_str_by_radix(<span class="kw-2">&amp;</span>s).ok().and_then(|v| u32::try_from(v).ok()),
+<a href=#311 id=311 data-nosnippet>311</a>                    I128 =&gt; i128::from_str_by_radix(<span class="kw-2">&amp;</span>s).ok().and_then(|v| u32::try_from(v).ok()),
+<a href=#312 id=312 data-nosnippet>312</a>                };
+<a href=#313 id=313 data-nosnippet>313</a>            } <span class="kw">else if let </span>LiteralVariant::Unsuffixed(s) = <span class="kw-2">&amp;</span>literal.variant {
+<a href=#314 id=314 data-nosnippet>314</a>                <span class="comment">// Assume unsuffixed literals are `u32`. The type checker should enforce that as the default type.
+<a href=#315 id=315 data-nosnippet>315</a>                </span><span class="kw">let </span>s = s.replace(<span class="string">"_"</span>, <span class="string">""</span>);
+<a href=#316 id=316 data-nosnippet>316</a>                <span class="kw">return </span>u32::from_str_by_radix(<span class="kw-2">&amp;</span>s).ok();
+<a href=#317 id=317 data-nosnippet>317</a>            }
+<a href=#318 id=318 data-nosnippet>318</a>        }
+<a href=#319 id=319 data-nosnippet>319</a>        <span class="prelude-val">None
+<a href=#320 id=320 data-nosnippet>320</a>    </span>}
+<a href=#321 id=321 data-nosnippet>321</a>}</code></pre></div></section></main></body></html>

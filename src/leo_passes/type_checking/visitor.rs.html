@@ -868,7 +868,7 @@
 <a href=#868 id=868 data-nosnippet>868</a>            </span>Type::Array(array_type) =&gt; {
 <a href=#869 id=869 data-nosnippet>869</a>                <span class="comment">// Check that the array length is valid.
 <a href=#870 id=870 data-nosnippet>870</a>
-<a href=#871 id=871 data-nosnippet>871</a>                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(length) = array_type.length_as_u32() {
+<a href=#871 id=871 data-nosnippet>871</a>                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(length) = array_type.length.as_u32() {
 <a href=#872 id=872 data-nosnippet>872</a>                    <span class="kw">if </span>length == <span class="number">0 </span>{
 <a href=#873 id=873 data-nosnippet>873</a>                        <span class="self">self</span>.emit_err(TypeCheckerError::array_empty(span));
 <a href=#874 id=874 data-nosnippet>874</a>                    } <span class="kw">else if </span>length &gt; <span class="self">self</span>.limits.max_array_elements <span class="kw">as </span>u32 {
@@ -1167,7 +1167,7 @@
 <a href=#1167 id=1167 data-nosnippet>1167</a>            | (Type::String, Type::String)
 <a href=#1168 id=1168 data-nosnippet>1168</a>            | (Type::Unit, Type::Unit) =&gt; <span class="bool-val">true</span>,
 <a href=#1169 id=1169 data-nosnippet>1169</a>            (Type::Array(left), Type::Array(right)) =&gt; {
-<a href=#1170 id=1170 data-nosnippet>1170</a>                (<span class="kw">match </span>(left.length_as_u32(), right.length_as_u32()) {
+<a href=#1170 id=1170 data-nosnippet>1170</a>                (<span class="kw">match </span>(left.length.as_u32(), right.length.as_u32()) {
 <a href=#1171 id=1171 data-nosnippet>1171</a>                    (<span class="prelude-val">Some</span>(l1), <span class="prelude-val">Some</span>(l2)) =&gt; l1 == l2,
 <a href=#1172 id=1172 data-nosnippet>1172</a>                    <span class="kw">_ </span>=&gt; {
 <a href=#1173 id=1173 data-nosnippet>1173</a>                        <span class="comment">// An array with an undetermined length (e.g., one that depends on a `const`) is considered

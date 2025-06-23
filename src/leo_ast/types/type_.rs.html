@@ -88,9 +88,9 @@
 <a href=#88 id=88 data-nosnippet>88</a>                <span class="comment">// Two arrays are equal if their element types are the same and if their lengths
 <a href=#89 id=89 data-nosnippet>89</a>                // are the same, assuming the lengths can be extracted as `u32`.
 <a href=#90 id=90 data-nosnippet>90</a>                </span>left.element_type().eq_flat_relaxed(right.element_type())
-<a href=#91 id=91 data-nosnippet>91</a>                    &amp;&amp; left.length_as_u32().is_some()
-<a href=#92 id=92 data-nosnippet>92</a>                    &amp;&amp; right.length_as_u32().is_some()
-<a href=#93 id=93 data-nosnippet>93</a>                    &amp;&amp; left.length_as_u32() == right.length_as_u32()
+<a href=#91 id=91 data-nosnippet>91</a>                    &amp;&amp; left.length.as_u32().is_some()
+<a href=#92 id=92 data-nosnippet>92</a>                    &amp;&amp; right.length.as_u32().is_some()
+<a href=#93 id=93 data-nosnippet>93</a>                    &amp;&amp; left.length.as_u32() == right.length.as_u32()
 <a href=#94 id=94 data-nosnippet>94</a>            }
 <a href=#95 id=95 data-nosnippet>95</a>            (Type::Identifier(left), Type::Identifier(right)) =&gt; left.matches(right),
 <a href=#96 id=96 data-nosnippet>96</a>            (Type::Integer(left), Type::Integer(right)) =&gt; left.eq(right),

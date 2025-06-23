@@ -394,7 +394,7 @@
 <a href=#394 id=394 data-nosnippet>394</a>        <span class="comment">// Initialize a vector to accumulate any statements generated.
 <a href=#395 id=395 data-nosnippet>395</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
 <a href=#396 id=396 data-nosnippet>396</a>        <span class="comment">// For each array element, construct a new ternary expression.
-<a href=#397 id=397 data-nosnippet>397</a>        </span><span class="kw">let </span>elements = (<span class="number">0</span>..array.length_as_u32().expect(<span class="string">"length should be known at this point"</span>) <span class="kw">as </span>usize)
+<a href=#397 id=397 data-nosnippet>397</a>        </span><span class="kw">let </span>elements = (<span class="number">0</span>..array.length.as_u32().expect(<span class="string">"length should be known at this point"</span>) <span class="kw">as </span>usize)
 <a href=#398 id=398 data-nosnippet>398</a>            .map(|i| {
 <a href=#399 id=399 data-nosnippet>399</a>                <span class="comment">// Create an assignment statement for the first access expression.
 <a href=#400 id=400 data-nosnippet>400</a>                </span><span class="kw">let </span>(first, stmt) = <span class="self">self</span>.make_array_access_definition(i, <span class="kw-2">*</span>first, array);

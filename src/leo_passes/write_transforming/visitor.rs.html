@@ -107,7 +107,7 @@
 <a href=#107 id=107 data-nosnippet>107</a>                <span class="kw">let </span>members = <span class="self">self</span>.<span class="number">0</span>.array_members.entry(array_name.name).or_insert_with(|| {
 <a href=#108 id=108 data-nosnippet>108</a>                    <span class="kw">let </span>ty = <span class="self">self</span>.<span class="number">0</span>.state.type_table.get(<span class="kw-2">&amp;</span>array_access.array.id()).unwrap();
 <a href=#109 id=109 data-nosnippet>109</a>                    <span class="kw">let </span>Type::Array(arr) = ty <span class="kw">else </span>{ <span class="macro">panic!</span>(<span class="string">"Type checking should have prevented this."</span>) };
-<a href=#110 id=110 data-nosnippet>110</a>                    (<span class="number">0</span>..arr.length_as_u32().expect(<span class="string">"length should be known at this point"</span>))
+<a href=#110 id=110 data-nosnippet>110</a>                    (<span class="number">0</span>..arr.length.as_u32().expect(<span class="string">"length should be known at this point"</span>))
 <a href=#111 id=111 data-nosnippet>111</a>                        .map(|i| {
 <a href=#112 id=112 data-nosnippet>112</a>                            <span class="kw">let </span>id = <span class="self">self</span>.<span class="number">0</span>.state.node_builder.next_id();
 <a href=#113 id=113 data-nosnippet>113</a>                            <span class="kw">let </span>symbol = <span class="self">self</span>.<span class="number">0</span>.state.assigner.unique_symbol(<span class="macro">format_args!</span>(<span class="string">"{array_name}#{i}"</span>), <span class="string">"$"</span>);

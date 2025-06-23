@@ -39,7 +39,7 @@
 <a href=#39 id=39 data-nosnippet>39</a>                <span class="macro">format!</span>(
 <a href=#40 id=40 data-nosnippet>40</a>                    <span class="string">"[{}; {}u32]"</span>,
 <a href=#41 id=41 data-nosnippet>41</a>                    <span class="self">Self</span>::visit_type(array_type.element_type()),
-<a href=#42 id=42 data-nosnippet>42</a>                    array_type.length_as_u32().expect(<span class="string">"length should be known at this point"</span>)
+<a href=#42 id=42 data-nosnippet>42</a>                    array_type.length.as_u32().expect(<span class="string">"length should be known at this point"</span>)
 <a href=#43 id=43 data-nosnippet>43</a>                )
 <a href=#44 id=44 data-nosnippet>44</a>            }
 <a href=#45 id=45 data-nosnippet>45</a>            Type::Mapping(<span class="kw">_</span>) =&gt; {

@@ -1034,6 +1034,8 @@
 <a href=#1034 id=1034 data-nosnippet>1034</a>        Value::Field(x) =&gt; Literal::Field(x),
 <a href=#1035 id=1035 data-nosnippet>1035</a>        Value::Scalar(x) =&gt; Literal::Scalar(x),
 <a href=#1036 id=1036 data-nosnippet>1036</a>        Value::Address(x) =&gt; Literal::Address(x),
-<a href=#1037 id=1037 data-nosnippet>1037</a>        Value::Array(<span class="kw">_</span>) | Value::Tuple(<span class="kw">_</span>) | Value::Unit | Value::Future(<span class="kw">_</span>) | Value::Struct(<span class="kw">_</span>) =&gt; <span class="macro">tc_fail!</span>(),
-<a href=#1038 id=1038 data-nosnippet>1038</a>    }
-<a href=#1039 id=1039 data-nosnippet>1039</a>}</code></pre></div></section></main></body></html>
+<a href=#1037 id=1037 data-nosnippet>1037</a>        Value::Array(<span class="kw">_</span>) | Value::Repeat(..) | Value::Tuple(<span class="kw">_</span>) | Value::Unit | Value::Future(<span class="kw">_</span>) | Value::Struct(<span class="kw">_</span>) =&gt; {
+<a href=#1038 id=1038 data-nosnippet>1038</a>            <span class="macro">tc_fail!</span>()
+<a href=#1039 id=1039 data-nosnippet>1039</a>        }
+<a href=#1040 id=1040 data-nosnippet>1040</a>    }
+<a href=#1041 id=1041 data-nosnippet>1041</a>}</code></pre></div></section></main></body></html>
