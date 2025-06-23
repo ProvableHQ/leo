@@ -135,7 +135,9 @@ impl Type {
                 snarkvm::prelude::LiteralType::Signature => Type::Signature,
                 snarkvm::prelude::LiteralType::String => Type::String,
             },
-            Struct(s) => Type::Composite(CompositeType { id: common::Identifier::from(s), program }),
+            Struct(s) => {
+                Type::Composite(CompositeType { id: common::Identifier::from(s), const_arguments: Vec::new(), program })
+            }
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }
     }

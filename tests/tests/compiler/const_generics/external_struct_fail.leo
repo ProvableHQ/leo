@@ -1,0 +1,18 @@
+program child.aleo {
+    struct Bar::[N: u32] {
+        x: u32,
+    }
+
+    transition main(b: Bar::[5]) {}
+}
+
+// --- Next Program --- //
+
+import child.aleo;
+program parent.aleo {
+    transition main(c: Bar::[4]) {
+        let b = Bar::[3] {
+            x: 0,
+        };
+    }
+}

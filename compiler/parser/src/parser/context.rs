@@ -269,4 +269,15 @@ impl<'a, N: Network> ParserContext<'a, N> {
             ));
         }
     }
+
+    /// Returns a [`ConstParameter`] AST node if the next tokens represent a generic const parameter.
+    pub(crate) fn parse_const_parameter(&mut self) -> Result<ConstParameter> {
+        let name = self.expect_identifier()?;
+        self.expect(&Token::Colon)?;
+
+        let (type_, type_span) = self.parse_type()?;
+        let span = name.span() + type_span;
+
+        Ok(ConstParameter { identifier: name, type_, span, id: self.node_builder.next_id() })
+    }
 }

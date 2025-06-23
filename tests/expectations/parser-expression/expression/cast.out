@@ -61,6 +61,7 @@
           },
           "id": 0
         },
+        "const_arguments": [],
         "members": [
           {
             "identifier": {

@@ -276,7 +276,7 @@ impl CodeGeneratingVisitor<'_> {
                 format!("{}.{type_}", input.name)
             } else {
                 // foo; // no visibility for structs
-                input.name.to_string()
+                Self::legalize_struct_name(input.name.to_string())
             }
         } else {
             panic!("All composite types should be known at this phase of compilation")

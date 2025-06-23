@@ -1,0 +1,14 @@
+program comma_separators.aleo {
+    struct Foo1 {
+        y: u8
+    }
+    struct Foo2::[N: u32] {
+        y: u8
+    }
+    struct Foo3::[N: u32, M: address] {
+        z: Foo2::[5],
+    }
+
+    transition main() {
+    }
+}

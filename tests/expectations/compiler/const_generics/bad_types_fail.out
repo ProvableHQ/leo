@@ -1,20 +1,30 @@
-Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
-    --> compiler-test:3:22
-     |
-   3 |         return bar::[9u16, 0u32]();
-     |                      ^^^^
-Error [ETYC0372117]: Expected type `scalar` but type `u32` was found.
-    --> compiler-test:3:28
-     |
-   3 |         return bar::[9u16, 0u32]();
-     |                            ^^^^
 Error [ETYC0372141]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but (u32, u32) was found
-    --> compiler-test:10:18
+    --> compiler-test:2:18
      |
-  10 |     inline foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
+   2 |     struct Foo::[N: (u32, u32), A: [u32; 3]] {
      |                  ^^^^^^^^^^^^^
 Error [ETYC0372141]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but [u32; 3] was found
-    --> compiler-test:10:33
+    --> compiler-test:2:33
      |
-  10 |     inline foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
+   2 |     struct Foo::[N: (u32, u32), A: [u32; 3]] {
+     |                                 ^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
+    --> compiler-test:7:22
+     |
+   7 |         return bar::[9u16, 0u32]();
+     |                      ^^^^
+Error [ETYC0372117]: Expected type `scalar` but type `u32` was found.
+    --> compiler-test:7:28
+     |
+   7 |         return bar::[9u16, 0u32]();
+     |                            ^^^^
+Error [ETYC0372141]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but (u32, u32) was found
+    --> compiler-test:14:18
+     |
+  14 |     inline foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
+     |                  ^^^^^^^^^^^^^
+Error [ETYC0372141]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but [u32; 3] was found
+    --> compiler-test:14:33
+     |
+  14 |     inline foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
      |                                 ^^^^^^^^^^^

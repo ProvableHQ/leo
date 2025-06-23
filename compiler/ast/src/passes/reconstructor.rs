@@ -25,12 +25,12 @@ pub trait TypeReconstructor: ExpressionReconstructor {
     fn reconstruct_type(&mut self, input: Type) -> (Type, Self::AdditionalOutput) {
         match input {
             Type::Array(array_type) => self.reconstruct_array_type(array_type),
+            Type::Composite(composite_type) => self.reconstruct_composite_type(composite_type),
             Type::Future(future_type) => self.reconstruct_future_type(future_type),
             Type::Mapping(mapping_type) => self.reconstruct_mapping_type(mapping_type),
             Type::Tuple(tuple_type) => self.reconstruct_tuple_type(tuple_type),
             Type::Address
             | Type::Boolean
-            | Type::Composite(_)
             | Type::Field
             | Type::Group
             | Type::Identifier(_)
@@ -49,6 +49,20 @@ pub trait TypeReconstructor: ExpressionReconstructor {
             Type::Array(ArrayType {
                 element_type: Box::new(self.reconstruct_type(*input.element_type).0),
                 length: Box::new(self.reconstruct_expression(*input.length).0),
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_composite_type(&mut self, input: CompositeType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Composite(CompositeType {
+                const_arguments: input
+                    .const_arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .collect(),
+                ..input
             }),
             Default::default(),
         )
@@ -215,6 +229,11 @@ pub trait ExpressionReconstructor {
     fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
         (
             StructExpression {
+                const_arguments: input
+                    .const_arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .collect(),
                 members: input
                     .members
                     .into_iter()
@@ -487,6 +506,11 @@ pub trait ProgramReconstructor: StatementReconstructor {
 
     fn reconstruct_struct(&mut self, input: Composite) -> Composite {
         Composite {
+            const_parameters: input
+                .const_parameters
+                .iter()
+                .map(|param| ConstParameter { type_: self.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .collect(),
             members: input
                 .members
                 .iter()

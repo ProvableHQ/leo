@@ -100,7 +100,11 @@ impl<N: Network> ParserContext<'_, N> {
                 if let Some(record_name) = self.eat_identifier() {
                     // Return the external type
                     return Ok((
-                        Type::Composite(CompositeType { id: record_name, program: Some(ident.name) }),
+                        Type::Composite(CompositeType {
+                            id: record_name,
+                            const_arguments: Vec::new(), // For now, external composite types can't have const generics
+                            program: Some(ident.name),
+                        }),
                         ident.span + record_name.span,
                     ));
                 } else {
@@ -108,7 +112,14 @@ impl<N: Network> ParserContext<'_, N> {
                 }
             }
 
-            Ok((Type::Composite(CompositeType { id: ident, program: None }), ident.span))
+            // Parse a list of const arguments in between `::[..]`
+            let const_arguments = if self.eat(&Token::DoubleColon) {
+                self.parse_bracket_comma_list(|p| p.parse_expression().map(Some))?.0
+            } else {
+                Vec::new()
+            };
+
+            Ok((Type::Composite(CompositeType { id: ident, const_arguments, program: None }), ident.span))
         } else if self.token.token == Token::LeftSquare {
             // Parse the left bracket.
             self.expect(&Token::LeftSquare)?;

@@ -53,8 +53,57 @@ pub struct CodeGeneratingVisitor<'a> {
 }
 
 impl CodeGeneratingVisitor<'_> {
-    pub fn next_register(&mut self) -> String {
+    pub(crate) fn next_register(&mut self) -> String {
         self.next_register += 1;
         format!("r{}", self.next_register - 1)
+    }
+
+    /// Legalize a struct name. If it's already legal, then just keep it as is. For now, this
+    /// expects two possible struct name formats:
+    /// - Names that are generated for const generic structs during monomorphization such as: `Foo::[1u32, 2u32]`. These
+    ///   names are modified according to `transform_generic_struct_name`.
+    /// - All other names which are assumed to be legal (this is not really checked but probably should be).
+    pub(crate) fn legalize_struct_name(input: String) -> String {
+        Self::transform_generic_struct_name(&input).unwrap_or(input)
+    }
+
+    /// Given a struct name as a `&str`, transform it into a legal name if the it happens to be a const generic struct.
+    /// For example, if the name of the struct is `Foo::[1u32, 2u32]`, then transform it to `Foo__90ViPfqSIPb`. The
+    /// suffix is computed using the hash of the string `Foo::[1u32, 2u32]`
+    fn transform_generic_struct_name(input: &str) -> Option<String> {
+        use base62::encode;
+        use regex::Regex;
+        use sha2::{Digest, Sha256};
+
+        // Match format like: foo::[1, 2]
+        let re = Regex::new(r#"^([a-zA-Z_][\w]*)::\[(.*?)\]$"#).unwrap();
+        let captures = re.captures(input)?;
+
+        let ident = captures.get(1)?.as_str();
+
+        // Compute SHA-256 hash of the entire input
+        let mut hasher = Sha256::new();
+        hasher.update(input.as_bytes());
+        let hash = hasher.finalize();
+
+        // Take first 8 bytes and encode as base62
+        let hash_prefix = &hash[..8]; // 4 bytes = 32 bits
+        let hash_number = u64::from_be_bytes([
+            hash_prefix[0],
+            hash_prefix[1],
+            hash_prefix[2],
+            hash_prefix[3],
+            hash_prefix[4],
+            hash_prefix[5],
+            hash_prefix[6],
+            hash_prefix[7],
+        ]);
+        let hash_base62 = encode(hash_number);
+
+        // Format: <truncated_ident>__<hash>
+        let fixed_suffix_len = 2 + hash_base62.len(); // __ + hash
+        let max_ident_len = 31 - fixed_suffix_len;
+
+        Some(format!("{ident:.max_ident_len$}__{hash_base62}"))
     }
 }

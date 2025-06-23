@@ -1,5 +1,8 @@
 program test.aleo;
 
+struct Foo__1b9MLNQQFJZ:
+    x as u32;
+
 function main:
     output true as boolean.private;
     output 8u8 as u8.private;
@@ -16,3 +19,5 @@ function main:
     output aleo1ezamst4pjgj9zfxqq0fwfj8a4cjuqndmasgata3hggzqygggnyfq6kmyd4 as address.private;
     output 0group as group.private;
     output 1field as field.private;
+
+function main2:

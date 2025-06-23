@@ -3,7 +3,7 @@ Error [ETYC0372008]: The value 111111111111111 is not a valid `u8`
      |
    3 |         let a: [u32; 111111111111111u8] = [1u32]; // overflow
      |                      ^^^^^^^^^^^^^^^^^
-Error [ETYC0372144]: An array length must be small enough to fit in a `u32` 
+Error [ETYC0372144]: An array length must be small enough to fit in a `u32`
     --> compiler-test:3:9
      |
    3 |         let a: [u32; 111111111111111u8] = [1u32]; // overflow
@@ -13,7 +13,7 @@ Error [ETYC0372008]: The value 111111111111111 is not a valid `u32`
      |
    4 |         let b: [u32; 111111111111111] = [1u32]; // overflow
      |                      ^^^^^^^^^^^^^^^
-Error [ETYC0372144]: An array length must be small enough to fit in a `u32` 
+Error [ETYC0372144]: An array length must be small enough to fit in a `u32`
     --> compiler-test:4:9
      |
    4 |         let b: [u32; 111111111111111] = [1u32]; // overflow

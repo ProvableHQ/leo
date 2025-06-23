@@ -1,0 +1,272 @@
+{
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "comma_separators": {
+      "program_id": {
+        "name": {
+          "name": "comma_separators",
+          "span": {
+            "lo": 8,
+            "hi": 24
+          },
+          "id": 0
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 25,
+            "hi": 29
+          },
+          "id": 1
+        }
+      },
+      "consts": [],
+      "structs": [
+        [
+          "Foo1",
+          {
+            "identifier": {
+              "name": "Foo1",
+              "span": {
+                "lo": 43,
+                "hi": 47
+              },
+              "id": 2
+            },
+            "const_parameters": [],
+            "members": [
+              {
+                "mode": "None",
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 58,
+                    "hi": 59
+                  },
+                  "id": 3
+                },
+                "type_": {
+                  "Integer": "U8"
+                },
+                "span": {
+                  "lo": 58,
+                  "hi": 63
+                },
+                "id": 4
+              }
+            ],
+            "external": null,
+            "is_record": false,
+            "span": {
+              "lo": 36,
+              "hi": 69
+            },
+            "id": 5
+          }
+        ],
+        [
+          "Foo2",
+          {
+            "identifier": {
+              "name": "Foo2",
+              "span": {
+                "lo": 81,
+                "hi": 85
+              },
+              "id": 6
+            },
+            "const_parameters": [
+              {
+                "identifier": {
+                  "name": "N",
+                  "span": {
+                    "lo": 88,
+                    "hi": 89
+                  },
+                  "id": 7
+                },
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 88,
+                  "hi": 94
+                },
+                "id": 8
+              }
+            ],
+            "members": [
+              {
+                "mode": "None",
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 106,
+                    "hi": 107
+                  },
+                  "id": 9
+                },
+                "type_": {
+                  "Integer": "U8"
+                },
+                "span": {
+                  "lo": 106,
+                  "hi": 111
+                },
+                "id": 10
+              }
+            ],
+            "external": null,
+            "is_record": false,
+            "span": {
+              "lo": 74,
+              "hi": 117
+            },
+            "id": 11
+          }
+        ],
+        [
+          "Foo3",
+          {
+            "identifier": {
+              "name": "Foo3",
+              "span": {
+                "lo": 129,
+                "hi": 133
+              },
+              "id": 12
+            },
+            "const_parameters": [
+              {
+                "identifier": {
+                  "name": "N",
+                  "span": {
+                    "lo": 136,
+                    "hi": 137
+                  },
+                  "id": 13
+                },
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 136,
+                  "hi": 142
+                },
+                "id": 14
+              },
+              {
+                "identifier": {
+                  "name": "M",
+                  "span": {
+                    "lo": 144,
+                    "hi": 145
+                  },
+                  "id": 15
+                },
+                "type_": "Address",
+                "span": {
+                  "lo": 144,
+                  "hi": 154
+                },
+                "id": 16
+              }
+            ],
+            "members": [
+              {
+                "mode": "None",
+                "identifier": {
+                  "name": "z",
+                  "span": {
+                    "lo": 166,
+                    "hi": 167
+                  },
+                  "id": 17
+                },
+                "type_": {
+                  "Composite": {
+                    "id": {
+                      "name": "Foo2",
+                      "span": {
+                        "lo": 169,
+                        "hi": 173
+                      },
+                      "id": 18
+                    },
+                    "const_arguments": [
+                      {
+                        "Literal": {
+                          "span": {
+                            "lo": 176,
+                            "hi": 177
+                          },
+                          "id": 19,
+                          "variant": {
+                            "Unsuffixed": "5"
+                          }
+                        }
+                      }
+                    ],
+                    "program": null
+                  }
+                },
+                "span": {
+                  "lo": 166,
+                  "hi": 173
+                },
+                "id": 20
+              }
+            ],
+            "external": null,
+            "is_record": false,
+            "span": {
+              "lo": 122,
+              "hi": 185
+            },
+            "id": 21
+          }
+        ]
+      ],
+      "mappings": [],
+      "functions": [
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "Transition",
+            "identifier": {
+              "name": "main",
+              "span": {
+                "lo": 202,
+                "hi": 206
+              },
+              "id": 22
+            },
+            "const_parameters": [],
+            "input": [],
+            "output": [],
+            "output_type": "Unit",
+            "block": {
+              "statements": [],
+              "span": {
+                "lo": 209,
+                "hi": 216
+              },
+              "id": 23
+            },
+            "span": {
+              "lo": 191,
+              "hi": 216
+            },
+            "id": 24
+          }
+        ]
+      ],
+      "span": {
+        "lo": 0,
+        "hi": 218
+      }
+    }
+  }
+}

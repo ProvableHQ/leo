@@ -17,7 +17,16 @@
 use super::MonomorphizationVisitor;
 use crate::Replacer;
 
-use leo_ast::{CallExpression, Expression, ExpressionReconstructor, Identifier, ProgramReconstructor, Variant};
+use leo_ast::{
+    CallExpression,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    ProgramReconstructor,
+    StructExpression,
+    StructVariableInitializer,
+    Variant,
+};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -52,7 +61,7 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
 
         // Generate a unique name for the monomorphized function based on const arguments.
         //
-        // For a function `fn foo::[x: u32, y: u32](..)`, the generated name would be `foo::[1u32, 2u32]` for a call
+        // For a function `fn foo::[x: u32, y: u32](..)`, the generated name would be `"foo::[1u32, 2u32]"` for a call
         // that sets `x` to `1u32` and `y` to `2u32`. We know this name is safe to use because it's not a valid
         // identifier in the user code.
         let new_callee_name = leo_span::Symbol::intern(&format!(
@@ -62,7 +71,7 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
         ));
 
         // Check if the new callee name is not already present in `reconstructed_functions`. This ensures that we do not
-        // add a duplicate entry for the same function and only insert a new version with a unique name.
+        // add a duplicate definition for the same function.
         if self.reconstructed_functions.get(&new_callee_name).is_none() {
             // Build mapping from const parameters to const argument values.
             let const_param_map: IndexMap<_, _> = callee_fn
@@ -80,8 +89,13 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
             let mut replacer = Replacer::new(replace_identifier, &self.state.node_builder);
 
             // Create a new version of `callee_fn` that has a new name, no const parameters, and a new function ID.
-            self.function = callee_fn.identifier.name;
+
+            // First, reconstruct the function by changing all instances of const generic parameters to literals
+            // according to `const_param_map`.
             let mut function = replacer.reconstruct_function(callee_fn.clone());
+
+            // Now, reconstruct the function to actually monomorphize its content such as generic struct expressions.
+            function = self.reconstruct_function(function);
             function.identifier = Identifier {
                 name: new_callee_name,
                 span: leo_span::Span::default(),
@@ -97,18 +111,10 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
             self.monomorphized_functions.insert(input_call.function.name);
         }
 
-        // Update call graph with edges for the monomorphized function. We do this by basically cloning the edges in
-        // and out of `callee_name` and replicating them for a new node that contains `new_callee_name`.
-        if let Some(neighbors) = self.state.call_graph.neighbors(&input_call.function.name) {
-            for neighbor in neighbors {
-                if neighbor != input_call.function.name {
-                    self.state.call_graph.add_edge(new_callee_name, neighbor);
-                }
-            }
-        }
-        self.state.call_graph.add_edge(self.function, new_callee_name);
+        // At this stage, we know that we're going to modify the program
+        self.changed = true;
 
-        // Finally, construct the updated call expression that points to the monomorphized version and return it.
+        // Finally, construct the updated call expression that points to a monomorphized version and return it.
         (
             CallExpression {
                 function: Identifier {
@@ -121,6 +127,57 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
                 program: input_call.program,
                 span: input_call.span, // Keep pointing to the original call expression
                 id: input_call.id,
+            }
+            .into(),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_struct_init(&mut self, mut input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+        // Handle all the struct members first
+        let members = input
+            .members
+            .clone()
+            .into_iter()
+            .map(|member| StructVariableInitializer {
+                identifier: member.identifier,
+                expression: member.expression.map(|expr| self.reconstruct_expression(expr).0),
+                span: member.span,
+                id: member.id,
+            })
+            .collect();
+
+        // Proceed only if there are some const arguments.
+        if input.const_arguments.is_empty() {
+            input.members = members;
+            return (input.into(), Default::default());
+        }
+
+        // Ensure all const arguments are literals; if not, we skip this struct expression for now and mark it as
+        // unresolved.
+        //
+        // The types of the const arguments are checked in the type checking pass.
+        if input.const_arguments.iter().any(|arg| !matches!(arg, Expression::Literal(_))) {
+            self.unresolved_struct_exprs.push(input.clone());
+            input.members = members;
+            return (input.into(), Default::default());
+        }
+
+        // At this stage, we know that we're going to modify the program
+        self.changed = true;
+
+        // Finally, construct the updated struct expression that points to a monomorphized version and return it.
+        (
+            StructExpression {
+                name: Identifier {
+                    name: self.monomorphize_struct(&input.name.name, &input.const_arguments),
+                    span: input.name.span,
+                    id: self.state.node_builder.next_id(),
+                },
+                members,
+                const_arguments: vec![], // remove const arguments
+                span: input.span,        // Keep pointing to the original struct expression
+                id: input.id,
             }
             .into(),
             Default::default(),

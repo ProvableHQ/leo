@@ -17,9 +17,6 @@
 mod annotation;
 pub use annotation::*;
 
-mod const_parameter;
-pub use const_parameter::*;
-
 mod core_function;
 pub use core_function::*;
 
@@ -35,7 +32,7 @@ pub use output::*;
 mod mode;
 pub use mode::*;
 
-use crate::{Block, FunctionStub, Identifier, Indent, Node, NodeID, TupleType, Type};
+use crate::{Block, ConstParameter, FunctionStub, Identifier, Indent, Node, NodeID, TupleType, Type};
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools as _;

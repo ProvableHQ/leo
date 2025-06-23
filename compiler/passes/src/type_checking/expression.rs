@@ -187,7 +187,7 @@ impl TypeCheckingVisitor<'_> {
         // Check that the type of `inner` in `inner.name` is a struct.
         match ty {
             Type::Err => Type::Err,
-            Type::Composite(struct_) => {
+            Type::Composite(ref struct_) => {
                 // Retrieve the struct definition associated with `identifier`.
                 let Some(struct_) =
                     self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
@@ -302,8 +302,8 @@ impl TypeCheckingVisitor<'_> {
         var.type_.clone()
     }
 
-    // Infers the type of an expression, but returns Type::Err and emits an error if the result is Type::Numeric.
-    // Used to disallow numeric types in specific contexts where they are not valid or expected.
+    /// Infers the type of an expression, but returns Type::Err and emits an error if the result is Type::Numeric.
+    /// Used to disallow numeric types in specific contexts where they are not valid or expected.
     pub(crate) fn visit_expression_reject_numeric(&mut self, expr: &Expression, expected: &Option<Type>) -> Type {
         let mut inferred = self.visit_expression(expr, expected);
         match inferred {
@@ -313,6 +313,26 @@ impl TypeCheckingVisitor<'_> {
             }
             _ => inferred,
         }
+    }
+
+    /// Infers the type of an expression, and if it is `Type::Numeric`, coerces it to `U32`, validates it, and
+    /// records it in the type table.
+    pub(crate) fn visit_expression_infer_default_u32(&mut self, expr: &Expression) -> Type {
+        let mut inferred = self.visit_expression(expr, &None);
+
+        if inferred == Type::Numeric {
+            inferred = Type::Integer(IntegerType::U32);
+
+            if let Expression::Literal(literal) = expr {
+                if !self.check_numeric_literal(literal, &inferred) {
+                    inferred = Type::Err;
+                }
+            }
+
+            self.state.type_table.insert(expr.id(), inferred.clone());
+        }
+
+        inferred
     }
 }
 
@@ -411,28 +431,14 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_repeat(&mut self, input: &RepeatExpression, additional: &Self::AdditionalInput) -> Self::Output {
         // Infer the type of the expression to repeat
-        let element_type =
+        let expected_element_type =
             if let Some(Type::Array(array_ty)) = additional { Some(array_ty.element_type().clone()) } else { None };
 
-        let inferred_type = self.visit_expression_reject_numeric(&input.expr, &element_type);
+        let inferred_element_type = self.visit_expression_reject_numeric(&input.expr, &expected_element_type);
 
         // Now infer the type of `count`. If it's an unsuffixed literal (i.e. has `Type::Numeric`), then infer it to be
         // a `U32` as the default type.
-        let mut count_type = self.visit_expression(&input.count, &None);
-        if count_type == Type::Numeric {
-            // Infer `U32` as the default type for repeat count
-            count_type = Type::Integer(IntegerType::U32);
-
-            // Do not forget to ensure validity of the literal as `U32`
-            if let Expression::Literal(literal) = &input.count {
-                if !self.check_numeric_literal(literal, &count_type) {
-                    count_type = Type::Err;
-                }
-            }
-
-            // Update the type table accordingly
-            self.state.type_table.insert(input.count.id(), count_type);
-        }
+        self.visit_expression_infer_default_u32(&input.count);
 
         // If we can already evaluate the repeat count as a `u32`, then make sure it's not 0 or  greater than the array
         // size limit.
@@ -447,7 +453,7 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             }
         }
 
-        let type_ = Type::Array(ArrayType::new(inferred_type, input.count.clone()));
+        let type_ = Type::Array(ArrayType::new(inferred_element_type, input.count.clone()));
 
         self.maybe_assert_type(&type_, additional, input.span());
         type_
@@ -963,7 +969,8 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
 
         // Check the number of const arguments against the number of the function's const parameters
         if func.const_parameters.len() != input.const_arguments.len() {
-            self.emit_err(TypeCheckerError::incorrect_num_const_args_to_call(
+            self.emit_err(TypeCheckerError::incorrect_num_const_args(
+                "Call",
                 func.const_parameters.len(),
                 input.const_arguments.len(),
                 input.span(),
@@ -1140,9 +1147,28 @@ impl ExpressionVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         };
 
+        // Check the number of const arguments against the number of the struct's const parameters
+        if struct_.const_parameters.len() != input.const_arguments.len() {
+            self.emit_err(TypeCheckerError::incorrect_num_const_args(
+                "Struct expression",
+                struct_.const_parameters.len(),
+                input.const_arguments.len(),
+                input.span(),
+            ));
+        }
+
+        // Check the types of const arguments against the types of the struct's const parameters
+        for (expected, argument) in struct_.const_parameters.iter().zip(input.const_arguments.iter()) {
+            self.visit_expression(argument, &Some(expected.type_().clone()));
+        }
+
         // Note that it is sufficient for the `program` to be `None` as composite types can only be initialized
         // in the program in which they are defined.
-        let type_ = Type::Composite(CompositeType { id: input.name, program: None });
+        let type_ = Type::Composite(CompositeType {
+            id: input.name,
+            const_arguments: Vec::new(), // TODO - grab const arguments from `StructExpression`
+            program: None,
+        });
         self.maybe_assert_type(&type_, additional, input.name.span());
 
         // Check number of struct members.
