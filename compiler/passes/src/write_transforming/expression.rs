@@ -215,7 +215,7 @@ impl ExpressionReconstructor for WriteTransformingVisitor<'_> {
             member.expression = Some(expr);
         }
 
-        (input.into(), Default::default())
+        (input.into(), statements)
     }
 
     fn reconstruct_err(&mut self, _input: leo_ast::ErrExpression) -> (Expression, Self::AdditionalOutput) {

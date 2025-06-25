@@ -9,40 +9,41 @@ function some_assignments:
     input r1 as boolean.public;
     cast 0u32 1u32 2u32 into r2 as [u32; 3u32];
     ternary r0 10u32 r2[0u32] into r3;
-    cast 3u32 r2 into r4 as S;
-    cast 50u32 60u32 70u32 into r5 as [u32; 3u32];
-    ternary r0 r5[0u32] r4.y[0u32] into r6;
-    ternary r0 r5[1u32] r4.y[1u32] into r7;
-    ternary r0 r5[2u32] r4.y[2u32] into r8;
-    cast r6 r7 r8 into r9 as [u32; 3u32];
-    cast 20u32 r4.y[1u32] r4.y[2u32] into r10 as [u32; 3u32];
-    cast r4.x r10 into r11 as S;
-    ternary r0 r4.y[0u32] r11.y[0u32] into r12;
-    ternary r0 r4.y[1u32] r11.y[1u32] into r13;
-    ternary r0 r4.y[2u32] r11.y[2u32] into r14;
-    cast r12 r13 r14 into r15 as [u32; 3u32];
-    ternary r0 r4.x r11.x into r16;
-    cast r16 r15 into r17 as S;
-    ternary r1 20u32 r4.y[0u32] into r18;
-    ternary r1 30u32 r4.x into r19;
-    ternary r1 r9[0u32] r4.y[0u32] into r20;
-    ternary r1 r9[1u32] r4.y[1u32] into r21;
-    ternary r1 r9[2u32] r4.y[2u32] into r22;
-    cast r20 r21 r22 into r23 as [u32; 3u32];
-    cast r18 r4.y[1u32] r4.y[2u32] into r24 as [u32; 3u32];
-    cast r4.x r24 into r25 as S;
-    ternary r1 r17.y[0u32] r25.y[0u32] into r26;
-    ternary r1 r17.y[1u32] r25.y[1u32] into r27;
-    ternary r1 r17.y[2u32] r25.y[2u32] into r28;
-    cast r26 r27 r28 into r29 as [u32; 3u32];
-    ternary r1 r17.x r25.x into r30;
-    cast r30 r29 into r31 as S;
-    cast r19 r23 into r32 as S;
-    cast r19 r23 into r33 as S;
-    cast r19 r23 into r34 as S;
-    cast r19 r23 into r35 as S;
-    cast r3 r2[1u32] r2[2u32] r31.x r31.y[0u32] r31.y[1u32] r31.y[2u32] r32.x r33.y[0u32] r34.y[1u32] r35.y[2u32] into r36 as [u32; 11u32];
-    output r36 as [u32; 11u32].public;
+    cast r3 r2[1u32] r2[2u32] into r4 as [u32; 3u32];
+    cast 3u32 r4 into r5 as S;
+    cast 50u32 60u32 70u32 into r6 as [u32; 3u32];
+    ternary r0 r6[0u32] r5.y[0u32] into r7;
+    ternary r0 r6[1u32] r5.y[1u32] into r8;
+    ternary r0 r6[2u32] r5.y[2u32] into r9;
+    cast r7 r8 r9 into r10 as [u32; 3u32];
+    cast 20u32 r5.y[1u32] r5.y[2u32] into r11 as [u32; 3u32];
+    cast r5.x r11 into r12 as S;
+    ternary r0 r5.y[0u32] r12.y[0u32] into r13;
+    ternary r0 r5.y[1u32] r12.y[1u32] into r14;
+    ternary r0 r5.y[2u32] r12.y[2u32] into r15;
+    cast r13 r14 r15 into r16 as [u32; 3u32];
+    ternary r0 r5.x r12.x into r17;
+    cast r17 r16 into r18 as S;
+    ternary r1 20u32 r5.y[0u32] into r19;
+    ternary r1 30u32 r5.x into r20;
+    ternary r1 r10[0u32] r5.y[0u32] into r21;
+    ternary r1 r10[1u32] r5.y[1u32] into r22;
+    ternary r1 r10[2u32] r5.y[2u32] into r23;
+    cast r21 r22 r23 into r24 as [u32; 3u32];
+    cast r19 r5.y[1u32] r5.y[2u32] into r25 as [u32; 3u32];
+    cast r5.x r25 into r26 as S;
+    ternary r1 r18.y[0u32] r26.y[0u32] into r27;
+    ternary r1 r18.y[1u32] r26.y[1u32] into r28;
+    ternary r1 r18.y[2u32] r26.y[2u32] into r29;
+    cast r27 r28 r29 into r30 as [u32; 3u32];
+    ternary r1 r18.x r26.x into r31;
+    cast r31 r30 into r32 as S;
+    cast r20 r24 into r33 as S;
+    cast r20 r24 into r34 as S;
+    cast r20 r24 into r35 as S;
+    cast r20 r24 into r36 as S;
+    cast r3 r2[1u32] r2[2u32] r32.x r32.y[0u32] r32.y[1u32] r32.y[2u32] r33.x r34.y[0u32] r35.y[1u32] r36.y[2u32] into r37 as [u32; 11u32];
+    output r37 as [u32; 11u32].public;
 verified: true
 status: accepted
 errors:
@@ -124,7 +125,7 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1fj43mv56zdykdrhg4qs8yg9xl03733gnsudhdjhpq9ue6tvrev9q0f5f3u",
+      "id": "au1vp3sqsu3e2re6vr9h8zdrhz98peemlvhglu4zlr9jqk34krk95ps5dz2th",
       "program": "test.aleo",
       "function": "some_assignments",
       "inputs": [
@@ -142,8 +143,8 @@ warnings:
       "outputs": [
         {
           "type": "public",
-          "id": "2332924504565981776577986070707282354867541699115161568792615663061533544440field",
-          "value": "[\n  10u32,\n  1u32,\n  2u32,\n  3u32,\n  0u32,\n  1u32,\n  2u32,\n  3u32,\n  0u32,\n  1u32,\n  2u32\n]"
+          "id": "7258122878391326055038844603163798239599393495647659404741007523431473363234field",
+          "value": "[\n  10u32,\n  1u32,\n  2u32,\n  3u32,\n  10u32,\n  1u32,\n  2u32,\n  3u32,\n  10u32,\n  1u32,\n  2u32\n]"
         }
       ],
       "tpk": "6352206753535255980025733601802299791496101780602229502595072900766285760035group",
@@ -161,7 +162,7 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1xp3ychp5qfavferyuh0kmc7r0p8eu2deaw2tad6yrr0tvv5f0s8qe5pncu",
+      "id": "au1ecxu56scefwyw4w3jt5vlvmr5ltyzv7quqxzh7k7z7z0ta7nzypslxsh65",
       "program": "test.aleo",
       "function": "some_assignments",
       "inputs": [
@@ -179,8 +180,8 @@ warnings:
       "outputs": [
         {
           "type": "public",
-          "id": "6913258902064110531868510158443683370492345345095549895684449394904780609175field",
-          "value": "[\n  10u32,\n  1u32,\n  2u32,\n  3u32,\n  0u32,\n  1u32,\n  2u32,\n  30u32,\n  50u32,\n  60u32,\n  70u32\n]"
+          "id": "5635102908262576284684871871265162852346253451426357400254112013037754839815field",
+          "value": "[\n  10u32,\n  1u32,\n  2u32,\n  3u32,\n  10u32,\n  1u32,\n  2u32,\n  30u32,\n  50u32,\n  60u32,\n  70u32\n]"
         }
       ],
       "tpk": "3891428700902399899813841857083595455633605712004026119237839274729024705205group",
