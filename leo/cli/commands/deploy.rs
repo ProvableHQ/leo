@@ -204,11 +204,16 @@ fn handle_deploy<N: Network>(
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
             print_deployment_stats(&program_id.to_string(), deployment, priority_fee)?;
-            // Validate the deployment limits.
-            validate_deployment_limits(deployment, &program_id, &network)?;
             // Save the transaction.
-            transactions.push((program_id, transaction));
+            transactions.push((program, transaction));
         }
+    }
+
+    for (program, transaction) in transactions.iter() {
+        // Validate the deployment limits.
+        let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+        validate_deployment_limits(deployment, &program.id(), &network)?;
+
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
     }
@@ -216,8 +221,9 @@ fn handle_deploy<N: Network>(
     // If the `print` option is set, print the deployment transaction to the console.
     // The transaction is printed in JSON format.
     if command.action.print {
-        for (program_name, transaction) in transactions.iter() {
+        for (program, transaction) in transactions.iter() {
             // Pretty-print the transaction.
+            let program_name = program.id();
             let transaction_json = serde_json::to_string_pretty(transaction)
                 .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
             println!("🖨️ Printing deployment for {program_name}\n{transaction_json}")
@@ -230,7 +236,8 @@ fn handle_deploy<N: Network>(
     if let Some(path) = &command.action.save {
         // Create the directory if it doesn't exist.
         std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
-        for (program_name, transaction) in transactions.iter() {
+        for (program, transaction) in transactions.iter() {
+            let program_name = program.id();
             // Save the transaction to a file.
             let file_path = PathBuf::from(path).join(format!("{program_name}.deployment.json"));
             println!("💾 Saving deployment for {program_name} at {}", file_path.display());
@@ -243,7 +250,8 @@ fn handle_deploy<N: Network>(
 
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
-        for (i, (program_id, transaction)) in transactions.iter().enumerate() {
+        for (i, (program, transaction)) in transactions.iter().enumerate() {
+            let program_id = program.id();
             println!("\n📡 Broadcasting deployment for {}...", program_id.to_string().bold());
             // Get and confirm the fee with the user.
             let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
@@ -485,6 +493,16 @@ fn print_deployment_stats<N: Network>(
     // ── High‑level metrics ────────────────────────────────────────────────
     println!("  {:22}{}", "Total Variables:".cyan(), variables.to_formatted_string(&Locale::en).yellow());
     println!("  {:22}{}", "Total Constraints:".cyan(), constraints.to_formatted_string(&Locale::en).yellow());
+    println!(
+        "  {:22}{}",
+        "Max Variables:".cyan(),
+        N::MAX_DEPLOYMENT_VARIABLES.to_formatted_string(&Locale::en).green()
+    );
+    println!(
+        "  {:22}{}",
+        "Max Constraints:".cyan(),
+        N::MAX_DEPLOYMENT_CONSTRAINTS.to_formatted_string(&Locale::en).green()
+    );
 
     // ── Cost breakdown ────────────────────────────────────────────────────
     println!("\n{}", "💰 Cost Breakdown (credits)".bold());
