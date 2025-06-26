@@ -204,13 +204,17 @@ fn handle_deploy<N: Network>(
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
             print_deployment_stats(&program_id.to_string(), deployment, priority_fee)?;
-            // Validate the deployment limits.
-            validate_deployment_limits(deployment, &program_id, &network)?;
             // Save the transaction.
             transactions.push((program_id, transaction));
         }
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
+    }
+
+    for (program_id, transaction) in transactions.iter() {
+        // Validate the deployment limits.
+        let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+        validate_deployment_limits(deployment, program_id, &network)?;
     }
 
     // If the `print` option is set, print the deployment transaction to the console.
@@ -485,6 +489,16 @@ fn print_deployment_stats<N: Network>(
     // ── High‑level metrics ────────────────────────────────────────────────
     println!("  {:22}{}", "Total Variables:".cyan(), variables.to_formatted_string(&Locale::en).yellow());
     println!("  {:22}{}", "Total Constraints:".cyan(), constraints.to_formatted_string(&Locale::en).yellow());
+    println!(
+        "  {:22}{}",
+        "Max Variables:".cyan(),
+        N::MAX_DEPLOYMENT_VARIABLES.to_formatted_string(&Locale::en).green()
+    );
+    println!(
+        "  {:22}{}",
+        "Max Constraints:".cyan(),
+        N::MAX_DEPLOYMENT_CONSTRAINTS.to_formatted_string(&Locale::en).green()
+    );
 
     // ── Cost breakdown ────────────────────────────────────────────────────
     println!("\n{}", "💰 Cost Breakdown (credits)".bold());
