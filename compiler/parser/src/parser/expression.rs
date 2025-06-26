@@ -489,7 +489,9 @@ impl ParserContext<'_> {
                 } else {
                     // Parse instances of `self.address`.
                     // This needs to be handled as a special case because `address` is a keyword in Leo,
-                    if self.token.token == Token::Address {
+                    if matches!(expr, Expression::Identifier(id) if id.name == sym::SelfLower)
+                        && self.token.token == Token::Address
+                    {
                         // Eat the address token.
                         let span = self.expect(&Token::Address)?;
                         // Return a member access expression.
