@@ -16,7 +16,12 @@
 
 use super::*;
 use leo_ast::NetworkName;
-use snarkvm::prelude::ConsensusVersion;
+use snarkvm::prelude::{
+    CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
+    ConsensusVersion,
+    MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
+    TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
+};
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
@@ -179,7 +184,7 @@ pub struct ExtraOptions {
 
 // A helper function to get the consensus version from the fee options.
 // If a consensus version is not provided, then attempt to query the current block height and use it to determine the version.
-pub fn get_consensus_version<N: Network>(
+pub fn get_consensus_version(
     consensus_version: &Option<u8>,
     endpoint: &str,
     network: NetworkName,
@@ -199,7 +204,7 @@ pub fn get_consensus_version<N: Network>(
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
             get_latest_block_height(endpoint, network, context)
-                .and_then(|current_block_height| Ok(N::CONSENSUS_VERSION(current_block_height)?))
+                .and_then(|current_block_height| get_consensus_version_from_height(current_block_height, network))
                 .map_err(|_| {
                     CliError::custom(
                         "Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus-version`",
@@ -208,6 +213,30 @@ pub fn get_consensus_version<N: Network>(
                 })
         }
         Some(version) => Err(CliError::custom(format!("Invalid consensus version: {version}")).into()),
+    }
+}
+
+// A helper function to get the consensus version based on the block height.
+// Note. This custom implementation is necessary because we use `snarkVM` with the `test_heights` feature enabled, which does not reflect the actual consensus version heights.
+pub fn get_consensus_version_from_height(seek_height: u32, network_name: NetworkName) -> Result<ConsensusVersion> {
+    let heights = match network_name {
+        NetworkName::TestnetV0 => TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
+        NetworkName::MainnetV0 => MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
+        NetworkName::CanaryV0 => CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
+    };
+    // Find the consensus version based on the block height.
+    match heights.binary_search_by(|(_, height)| height.cmp(&seek_height)) {
+        // If a consensus version was found at this height, return it.
+        Ok(index) => Ok(heights[index].0),
+        // If the specified height was not found, determine whether to return an appropriate version.
+        Err(index) => {
+            if index == 0 {
+                Err(CliError::custom("Expected consensus version 1 to exist at height 0.").into())
+            } else {
+                // Return the appropriate version belonging to the height *lower* than the sought height.
+                Ok(heights[index - 1].0)
+            }
+        }
     }
 }
 
@@ -220,4 +249,14 @@ pub struct TransactionAction {
     pub broadcast: bool,
     #[arg(long, help = "Save the transaction to the provided directory.")]
     pub save: Option<String>,
+}
+
+#[cfg(test)]
+mod test {
+    use snarkvm::prelude::ConsensusVersion;
+
+    #[test]
+    fn test_latest_consensus_version() {
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V8); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+    }
 }

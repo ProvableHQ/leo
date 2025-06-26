@@ -154,7 +154,7 @@ fn handle_deploy<N: Network>(
         .collect::<Vec<_>>();
 
     // Get the consensus version.
-    let consensus_version = get_consensus_version::<N>(&command.extra.consensus_version, &endpoint, network, &context)?;
+    let consensus_version = get_consensus_version(&command.extra.consensus_version, &endpoint, network, &context)?;
 
     // Print a summary of the deployment plan.
     print_deployment_plan(

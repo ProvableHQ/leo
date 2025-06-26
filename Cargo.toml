@@ -115,7 +115,10 @@ version = "1.11.1"
 [workspace.dependencies.snarkvm]
 #version = "=3.8.0"
 git = "https://github.com/ProvableHQ/snarkVM.git"
-rev = "a4573a3"
+rev = "b8c1b12"
+# Note. It is safe to use `test_targets` and `test_consensus_heights` in production since 
+# `leo deploy|upgrade|execute` do not rely on block state.
+features = ["default", "test_consensus_heights", "test_targets"]
 
 [workspace.dependencies.serde]
 version = "1.0.214"

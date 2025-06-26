@@ -249,8 +249,7 @@ fn handle_execute<A: Aleo>(
         parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
 
     // Get the consensus version.
-    let consensus_version =
-        get_consensus_version::<A::Network>(&command.extra.consensus_version, &endpoint, network, &context)?;
+    let consensus_version = get_consensus_version(&command.extra.consensus_version, &endpoint, network, &context)?;
 
     // Print the execution plan.
     print_execution_plan::<A::Network>(

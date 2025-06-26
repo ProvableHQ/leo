@@ -36,6 +36,7 @@ use snarkvm::{
 
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
 use serde_json;
+use snarkvm::prelude::{ConsensusVersion, Network};
 use std::{fmt, str::FromStr as _};
 
 type CurrentNetwork = TestnetV0;
@@ -125,6 +126,16 @@ pub fn run_with_ledger(
     let ledger =
         Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Production)
             .unwrap();
+
+    // Advance the `VM` to the height for the latest consensus version.
+    let latest_consensus_version = ConsensusVersion::latest();
+    let target_height = CurrentNetwork::CONSENSUS_HEIGHT(latest_consensus_version).unwrap();
+    while target_height < ledger.latest_height() {
+        let block = ledger
+            .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![], &mut rng)
+            .map_err(|_| anyhow!("Failed to prepare advance to next beacon block"))?;
+        ledger.advance_to_next_block(&block).map_err(|_| anyhow!("Failed to advance to next block"))?;
+    }
 
     // Deploy each bytecode separately.
     for Program { bytecode, name } in &config.programs {
