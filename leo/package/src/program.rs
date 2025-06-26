@@ -161,7 +161,14 @@ impl Program {
         };
 
         // Define the full cache path for the program.
-        let full_cache_path = cache_directory.join(format!("{name}/{edition}/{name}.aleo"));
+        let cache_directory = cache_directory.join(format!("{name}/{edition}"));
+        let full_cache_path = cache_directory.join(format!("{name}.aleo"));
+        if !cache_directory.exists() {
+            // Create directory if it doesn't exist.
+            std::fs::create_dir_all(&cache_directory).map_err(|err| {
+                UtilError::util_file_io_error(format!("Could not write path {}", cache_directory.display()), err)
+            })?;
+        }
 
         // Get the existing bytecode if the file exists.
         let existing_bytecode = match full_cache_path.exists() {

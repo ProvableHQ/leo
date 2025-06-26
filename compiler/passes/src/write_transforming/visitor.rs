@@ -107,7 +107,7 @@ impl WriteTransformingFiller<'_> {
                 let members = self.0.array_members.entry(array_name.name).or_insert_with(|| {
                     let ty = self.0.state.type_table.get(&array_access.array.id()).unwrap();
                     let Type::Array(arr) = ty else { panic!("Type checking should have prevented this.") };
-                    (0..arr.length_as_u32().expect("length should be known at this point"))
+                    (0..arr.length.as_u32().expect("length should be known at this point"))
                         .map(|i| {
                             let id = self.0.state.node_builder.next_id();
                             let symbol = self.0.state.assigner.unique_symbol(format_args!("{array_name}#{i}"), "$");

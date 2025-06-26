@@ -39,7 +39,7 @@ impl CodeGeneratingVisitor<'_> {
                 format!(
                     "[{}; {}u32]",
                     Self::visit_type(array_type.element_type()),
-                    array_type.length_as_u32().expect("length should be known at this point")
+                    array_type.length.as_u32().expect("length should be known at this point")
                 )
             }
             Type::Mapping(_) => {

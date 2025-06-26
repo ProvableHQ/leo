@@ -24,6 +24,7 @@ use leo_ast::{
     LiteralVariant,
     MemberAccess,
     Node,
+    RepeatExpression,
     StructExpression,
     TernaryExpression,
     TupleAccess,
@@ -57,6 +58,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
+            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
@@ -127,7 +129,7 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             let Some(Type::Array(array_ty)) = ty else {
                 panic!("Type checking guaranteed that this is an array.");
             };
-            let len = array_ty.length_as_u32();
+            let len = array_ty.length.as_u32();
 
             if let Some(len) = len {
                 let index: u32 = match value {
@@ -241,6 +243,22 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
             )
         } else {
             (MemberAccess { inner, ..input }.into(), None)
+        }
+    }
+
+    fn reconstruct_repeat(&mut self, input: leo_ast::RepeatExpression) -> (Expression, Self::AdditionalOutput) {
+        let (expr, expr_value) = self.reconstruct_expression(input.expr.clone());
+        let (count, count_value) = self.reconstruct_expression(input.count.clone());
+
+        if count_value.is_none() {
+            self.repeat_count_not_evaluated = Some(count.span());
+        }
+
+        match (expr_value, count.as_u32()) {
+            (Some(value), Some(count_u32)) => {
+                (RepeatExpression { expr, count, ..input }.into(), Some(Value::Array(vec![value; count_u32 as usize])))
+            }
+            _ => (RepeatExpression { expr, count, ..input }.into(), None),
         }
     }
 

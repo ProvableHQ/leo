@@ -3,3 +3,8 @@ Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 
      |
    3 |     transition foo(a: [bool; 33]) -> bool {
      |                    ^^^^^^^^^^^^^
+Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 33 elements
+    --> compiler-test:4:19
+     |
+   4 |         let bar = [false; 33];
+     |                   ^^^^^^^^^^^

@@ -657,21 +657,35 @@ impl Cursor {
                 let index = self.pop_value()?;
                 let array = self.pop_value()?;
 
-                let index_usize: usize = match index {
-                    Value::U8(x) => x.into(),
-                    Value::U16(x) => x.into(),
-                    Value::U32(x) => x.try_into().expect_tc(span)?,
-                    Value::U64(x) => x.try_into().expect_tc(span)?,
-                    Value::U128(x) => x.try_into().expect_tc(span)?,
-                    Value::I8(x) => x.try_into().expect_tc(span)?,
-                    Value::I16(x) => x.try_into().expect_tc(span)?,
-                    Value::I32(x) => x.try_into().expect_tc(span)?,
-                    Value::I64(x) => x.try_into().expect_tc(span)?,
-                    Value::I128(x) => x.try_into().expect_tc(span)?,
-                    _ => halt!(expression.span(), "invalid array index {index}"),
+                let to_usize = |value: &Value, s: &str| -> Result<usize> {
+                    match value {
+                        Value::U8(x) => Ok((*x).into()),
+                        Value::U16(x) => Ok((*x).into()),
+                        Value::U32(x) => (*x).try_into().expect_tc(span),
+                        Value::U64(x) => (*x).try_into().expect_tc(span),
+                        Value::U128(x) => (*x).try_into().expect_tc(span),
+                        Value::I8(x) => (*x).try_into().expect_tc(span),
+                        Value::I16(x) => (*x).try_into().expect_tc(span),
+                        Value::I32(x) => (*x).try_into().expect_tc(span),
+                        Value::I64(x) => (*x).try_into().expect_tc(span),
+                        Value::I128(x) => (*x).try_into().expect_tc(span),
+                        _ => halt!(expression.span(), "invalid {s} {index}"),
+                    }
                 };
-                let Value::Array(vec_array) = array else { tc_fail!() };
-                Some(vec_array.get(index_usize).expect_tc(span)?.clone())
+
+                let index_usize = to_usize(&index, "array index")?;
+                if let Value::Repeat(expr, count) = array {
+                    if index_usize < to_usize(&count, "repeat expression count")? {
+                        Some(*expr)
+                    } else {
+                        halt!(expression.span(), "array index {index_usize} is out of bounds")
+                    }
+                } else if let Value::Array(vec_array) = array {
+                    Some(vec_array.get(index_usize).expect_tc(span)?.clone())
+                } else {
+                    // Shouldn't have anything else here.
+                    tc_fail!()
+                }
             }
             Expression::MemberAccess(access) => match &access.inner {
                 Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
@@ -730,6 +744,16 @@ impl Cursor {
                 let len = self.values.len();
                 let array_values = self.values.drain(len - array.elements.len()..).collect();
                 Some(Value::Array(array_values))
+            }
+            Expression::Repeat(repeat) if step == 0 => {
+                push!()(&repeat.count);
+                push!()(&repeat.expr);
+                None
+            }
+            Expression::Repeat(_) if step == 1 => {
+                let count = self.pop_value()?;
+                let expr = self.pop_value()?;
+                Some(Value::Repeat(Box::new(expr), Box::new(count)))
             }
             Expression::AssociatedConstant(constant) if step == 0 => {
                 let Type::Identifier(type_ident) = constant.ty else {

@@ -105,6 +105,7 @@ pub trait ExpressionVisitor {
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access(access, additional),
+            Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.visit_tuple_access(access, additional),
@@ -195,6 +196,12 @@ pub trait ExpressionVisitor {
     }
 
     fn visit_locator(&mut self, _input: &LocatorExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_repeat(&mut self, input: &RepeatExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.expr, additional);
+        self.visit_expression(&input.count, additional);
         Default::default()
     }
 

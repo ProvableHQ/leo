@@ -40,6 +40,8 @@ pub struct ConstPropagationOutput {
     pub array_index_not_evaluated: Option<Span>,
     /// An array length which was not able to be evaluated.
     pub array_length_not_evaluated: Option<Span>,
+    /// A repeat expression count which was not able to be evaluated.
+    pub repeat_count_not_evaluated: Option<Span>,
 }
 
 /// A pass to perform const propagation and folding.
@@ -74,6 +76,7 @@ impl Pass for ConstPropagation {
             const_not_evaluated: None,
             array_index_not_evaluated: None,
             array_length_not_evaluated: None,
+            repeat_count_not_evaluated: None,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err().map_err(|e| *e)?;
@@ -83,6 +86,7 @@ impl Pass for ConstPropagation {
             const_not_evaluated: visitor.const_not_evaluated,
             array_index_not_evaluated: visitor.array_index_not_evaluated,
             array_length_not_evaluated: visitor.array_length_not_evaluated,
+            repeat_count_not_evaluated: visitor.repeat_count_not_evaluated,
         })
     }
 }
