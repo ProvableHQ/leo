@@ -40,7 +40,7 @@ pub fn confirm_fee<N: Network>(
     fee: &snarkvm::prelude::Fee<N>,
     private_key: &PrivateKey<N>,
     address: &Address<N>,
-    endpoint: &str,
+    endpoint: &Url,
     network: NetworkName,
     context: &Context,
     skip: bool,

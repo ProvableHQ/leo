@@ -50,3 +50,6 @@ workspace = true
 
 [dependencies.ureq]
 workspace = true
+
+[dependencies.url]
+workspace = true

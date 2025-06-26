@@ -21,6 +21,7 @@ use leo_package::Manifest;
 use aleo_std::aleo_dir;
 use snarkvm::prelude::{Network, PrivateKey};
 use std::{env::current_dir, path::PathBuf, str::FromStr};
+use url::Url;
 
 /// Project context, manifest, current directory etc
 /// All the info that is relevant in most of the commands
@@ -87,10 +88,12 @@ impl Context {
     }
 
     /// Returns the endpoint from the .env file specified in the directory.
-    pub fn dotenv_endpoint(&self) -> Result<String> {
+    pub fn dotenv_endpoint(&self) -> Result<Url> {
         dotenvy::from_path(self.dir()?.join(".env")).map_err(|_| CliError::failed_to_get_endpoint_from_env())?;
         // Load the endpoint from the environment.
-        Ok(dotenvy::var("ENDPOINT").map_err(|_| CliError::failed_to_get_endpoint_from_env())?)
+        let endpoint = dotenvy::var("ENDPOINT").map_err(|_| CliError::failed_to_get_endpoint_from_env())?;
+        // convert it to a URL type to check its validity as a valid endpoint
+        Ok(Url::try_from(endpoint.as_str()).map_err(|e| CliError::failed_to_parse_endpoint_as_valid_url(e))?)
     }
 
     /// Returns the network from the .env file specified in the directory.
@@ -102,7 +105,7 @@ impl Context {
 
     /// Returns the endpoint to interact with the network.
     /// If the `--endpoint` options is not provided, it will default to the one in the `.env` file.
-    pub fn get_endpoint(&self, endpoint: &Option<String>) -> Result<String> {
+    pub fn get_endpoint(&self, endpoint: &Option<Url>) -> Result<Url> {
         match endpoint {
             Some(endpoint) => Ok(endpoint.clone()),
             None => Ok(self.dotenv_endpoint()?),

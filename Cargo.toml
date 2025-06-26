@@ -133,6 +133,7 @@ version = "=3.8.0"
 version = "1.0.214"
 features = [ "derive", "rc" ]
 
+
 [workspace.dependencies.serde_json]
 version = "1.0"
 features = [ "preserve_order" ]
@@ -151,6 +152,9 @@ version = "2.10.1"
 
 [workspace.dependencies.walkdir]
 version = "2.5"
+
+[workspace.dependencies.url]
+version = "2.5.4"
 
 [lib]
 path = "leo/lib.rs"
@@ -253,6 +257,9 @@ version = "0.28.1"
 
 [dependencies.rpassword]
 version = "7.3.1"
+
+[dependencies.url]
+workspace = true
 
 [dependencies.ureq]
 workspace = true

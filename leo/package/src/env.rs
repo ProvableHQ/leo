@@ -17,6 +17,7 @@
 use crate::NetworkName;
 
 use leo_errors::{CliError, PackageError, Result};
+use url::Url;
 
 use std::{fmt, fs, path::Path};
 
@@ -26,11 +27,11 @@ pub const ENV_FILENAME: &str = ".env";
 pub struct Env {
     pub network: NetworkName,
     pub private_key: String,
-    pub endpoint: String,
+    pub endpoint: Url,
 }
 
 impl Env {
-    pub fn new(network: NetworkName, private_key: String, endpoint: String) -> Self {
+    pub fn new(network: NetworkName, private_key: String, endpoint: Url) -> Self {
         Env { network, private_key, endpoint }
     }
 
@@ -84,6 +85,7 @@ impl Env {
         }
 
         let network: Option<NetworkName> = network.and_then(|net| net.parse().ok());
+        let endpoint = endpoint.map(|url| Url::try_from(url.as_str()).ok()).flatten();
 
         match (network, private_key, endpoint) {
             (Some(network), Some(private_key), Some(endpoint)) => Ok(Env { network, private_key, endpoint }),

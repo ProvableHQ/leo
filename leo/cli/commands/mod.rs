@@ -69,6 +69,7 @@ use colored::Colorize;
 use dialoguer::{Confirm, theme::ColorfulTheme};
 use std::{iter, str::FromStr};
 use tracing::span::Span;
+use url::Url;
 
 use crate::cli::query::QueryCommands;
 use snarkvm::console::network::Network;

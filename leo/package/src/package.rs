@@ -23,6 +23,7 @@ use leo_span::Symbol;
 use anyhow::anyhow;
 use indexmap::{IndexMap, map::Entry};
 use std::path::{Path, PathBuf};
+use url::Url;
 
 /// Either the bytecode of an Aleo program (if it was a network dependency) or
 /// a path to its source (if it was local).
@@ -79,12 +80,12 @@ impl Package {
         package_name: &str,
         path: P,
         network: NetworkName,
-        endpoint: &str,
+        endpoint: &Url,
     ) -> Result<PathBuf> {
         Self::initialize_impl(package_name, path.as_ref(), network, endpoint)
     }
 
-    fn initialize_impl(package_name: &str, path: &Path, network: NetworkName, endpoint: &str) -> Result<PathBuf> {
+    fn initialize_impl(package_name: &str, path: &Path, network: NetworkName, endpoint: &Url) -> Result<PathBuf> {
         let package_name =
             if package_name.ends_with(".aleo") { package_name.to_string() } else { format!("{package_name}.aleo") };
 
@@ -120,7 +121,7 @@ impl Package {
         std::fs::write(gitignore_path, GITIGNORE_TEMPLATE).map_err(PackageError::io_error_gitignore_file)?;
 
         // Create the .env file.
-        let env = Env { network, private_key: TEST_PRIVATE_KEY.to_string(), endpoint: endpoint.to_string() };
+        let env = Env { network, private_key: TEST_PRIVATE_KEY.to_string(), endpoint: endpoint.to_owned() };
 
         let env_path = full_path.join(ENV_FILENAME);
 
@@ -310,7 +311,7 @@ impl Package {
     fn graph_build(
         home_path: &Path,
         network: NetworkName,
-        endpoint: &str,
+        endpoint: &Url,
         main_program: &Dependency,
         new: Dependency,
         map: &mut IndexMap<Symbol, (Dependency, Program)>,

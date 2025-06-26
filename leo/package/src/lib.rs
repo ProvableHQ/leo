@@ -68,8 +68,9 @@
 
 #![forbid(unsafe_code)]
 
-use leo_errors::{PackageError, Result, UtilError};
+use leo_errors::{CliError, PackageError, Result, UtilError};
 use leo_span::Symbol;
+use url::Url;
 
 use std::path::Path;
 
@@ -172,9 +173,18 @@ pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
 }
 
 /// Fetch the given program from the network and return the program as a string.
-pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkName) -> Result<String, UtilError> {
-    let url = format!("{endpoint}/{network}/program/{name}");
-    let program = fetch_from_network(&url)?;
+pub fn fetch_program_from_network(name: &str, endpoint: &Url, network: NetworkName) -> Result<String, UtilError> {
+    // let url = format!("{endpoint}/{network}/program/{name}");
+    let mut url = endpoint.to_owned();
+    url.path_segments_mut()
+        .map_err(|_| {
+            UtilError::failed_to_retrieve_from_endpoint(CliError::failed_to_parse_endpoint_as_valid_url(
+                "cannot be base",
+            ))
+        })?
+        .extend(&[&network.to_string(), "program", name]);
+
+    let program = fetch_from_network(url.as_str())?;
     Ok(program)
 }
 

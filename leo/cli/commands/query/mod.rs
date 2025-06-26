@@ -47,7 +47,7 @@ use utils::*;
 #[derive(Parser, Debug)]
 pub struct LeoQuery {
     #[clap(short, long, global = true, help = "Endpoint to retrieve network state from. Defaults to entry in `.env`.")]
-    pub endpoint: Option<String>,
+    pub endpoint: Option<Url>,
     #[clap(short, long, global = true, help = "Network to use. Defaults to entry in `.env`.")]
     pub(crate) network: Option<String>,
     #[clap(subcommand)]
@@ -79,9 +79,13 @@ fn handle_query(
     query: LeoQuery,
     context: Context,
     network: NetworkName,
-    endpoint: &str,
+    endpoint: &Url,
 ) -> Result<<LeoQuery as Command>::Output> {
     let recursive = context.recursive;
+
+    let provable_api_endpoint = Url::try_from("https://api.explorer.provable.com/v1")
+        .map_err(|e| CliError::failed_to_parse_endpoint_as_valid_url(e))?;
+
     let (program, output) = match query.command {
         QueryCommands::Block { command } => (None, command.apply(context, ())?),
         QueryCommands::Transaction { command } => (None, command.apply(context, ())?),
@@ -94,7 +98,7 @@ fn handle_query(
         QueryCommands::Stateroot { command } => (None, command.apply(context, ())?),
         QueryCommands::Committee { command } => (None, command.apply(context, ())?),
         QueryCommands::Mempool { command } => {
-            if endpoint == "https://api.explorer.provable.com/v1" {
+            if endpoint == &provable_api_endpoint {
                 tracing::warn!(
                     "⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                 );
@@ -102,7 +106,7 @@ fn handle_query(
             (None, command.apply(context, ())?)
         }
         QueryCommands::Peers { command } => {
-            if endpoint == "https://api.explorer.provable.com/v1" {
+            if endpoint == &provable_api_endpoint {
                 tracing::warn!(
                     "⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
                 );
@@ -112,8 +116,14 @@ fn handle_query(
     };
 
     // Make GET request to retrieve on-chain state.
-    let url = format!("{}/{}/{output}", endpoint, network);
-    let result = fetch_from_network(&url)?;
+    // let url = format!("{}/{}/{output}", endpoint, network);
+    let mut url = endpoint.to_owned();
+
+    url.path_segments_mut()
+        .map_err(|_| CliError::failed_to_parse_endpoint_as_valid_url("cannot be a base"))?
+        .extend(&[network.to_string(), output]);
+
+    let result = fetch_from_network(url.as_str())?;
     if !recursive {
         tracing::info!("✅ Successfully retrieved data from '{url}'.\n");
         println!("{}\n", result);

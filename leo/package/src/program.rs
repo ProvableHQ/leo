@@ -16,13 +16,14 @@
 
 use crate::*;
 
-use leo_errors::{PackageError, Result, UtilError};
+use leo_errors::{CliError, PackageError, Result, UtilError};
 use leo_span::Symbol;
 
 use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
 
 use indexmap::IndexSet;
 use std::path::Path;
+use url::Url;
 
 /// Information about an Aleo program.
 #[derive(Clone, Debug)]
@@ -119,7 +120,7 @@ impl Program {
         name: Symbol,
         home_path: P,
         network: NetworkName,
-        endpoint: &str,
+        endpoint: &Url,
         no_cache: bool,
     ) -> Result<Self> {
         Self::fetch_impl(name, home_path.as_ref(), network, endpoint, no_cache)
@@ -129,7 +130,7 @@ impl Program {
         name: Symbol,
         home_path: &Path,
         network: NetworkName,
-        endpoint: &str,
+        endpoint: &Url,
         no_cache: bool,
     ) -> Result<Self> {
         // It's not a local program; let's check the cache.
@@ -164,8 +165,13 @@ impl Program {
             // Otherwise, we need to fetch it from the network.
             (existing, _) => {
                 // We need to fetch it from the network.
-                let url = format!("{endpoint}/{network}/program/{name}.aleo");
-                let contents = fetch_from_network(&url)?;
+                let mut url = endpoint.to_owned();
+
+                url.path_segments_mut()
+                    .map_err(|_| CliError::failed_to_parse_endpoint_as_valid_url("cannot be base"))?
+                    .extend(&[network.to_string(), "program".to_owned(), format!("{name}.aleo")]);
+
+                let contents = fetch_from_network(url.as_str())?;
 
                 // If the file already exists, compare it to the new contents.
                 if let Some(existing_contents) = existing {

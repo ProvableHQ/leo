@@ -56,7 +56,7 @@ pub enum Account {
             help = "Endpoint to retrieve network state from.",
             default_value = "https://api.explorer.provable.com/v1"
         )]
-        endpoint: String,
+        endpoint: Url,
     },
     /// Derive an Aleo account from a private key.
     Import {
@@ -76,7 +76,7 @@ pub enum Account {
             help = "Endpoint to retrieve network state from.",
             default_value = "https://api.explorer.provable.com/v1"
         )]
-        endpoint: String,
+        endpoint: Url,
     },
     /// Sign a message using your Aleo private key.
     Sign {
@@ -226,7 +226,7 @@ fn generate_new_account<N: Network>(
     write: bool,
     discreet: bool,
     ctx: &Context,
-    endpoint: String,
+    endpoint: Url,
 ) -> Result<()> {
     // Sample a new Aleo account.
     let private_key = match seed {
@@ -254,7 +254,7 @@ fn import_account<N: Network>(
     write: bool,
     discreet: bool,
     ctx: &Context,
-    endpoint: String,
+    endpoint: Url,
 ) -> Result<()> {
     let priv_key = match discreet {
         true => {
@@ -391,7 +391,7 @@ fn write_to_env_file<N: Network>(
     network: NetworkName,
     private_key: PrivateKey<N>,
     ctx: &Context,
-    endpoint: String,
+    endpoint: Url,
 ) -> Result<()> {
     let program_dir = ctx.dir()?;
     let env = Env { network, private_key: private_key.to_string(), endpoint };

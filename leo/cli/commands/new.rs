@@ -31,7 +31,7 @@ pub struct LeoNew {
         help = "Endpoint to retrieve network state from.",
         default_value = "https://api.explorer.provable.com/v1"
     )]
-    pub(crate) endpoint: String,
+    pub(crate) endpoint: Url,
 }
 
 impl Command for LeoNew {

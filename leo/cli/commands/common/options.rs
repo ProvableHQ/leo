@@ -72,7 +72,7 @@ pub struct EnvOptions {
     #[clap(long, help = "The network to deploy to. Overrides the `NETWORK` in the .env file.")]
     pub(crate) network: Option<String>,
     #[clap(long, help = "The endpoint to deploy to. Overrides the `ENDPOINT` in the .env file.")]
-    pub(crate) endpoint: Option<String>,
+    pub(crate) endpoint: Option<Url>,
 }
 
 /// The fee options for the transactions.
@@ -181,7 +181,7 @@ pub struct ExtraOptions {
 // If a consensus version is not provided, then attempt to query the current block height and use it to determine the version.
 pub fn get_consensus_version<N: Network>(
     consensus_version: &Option<u8>,
-    endpoint: &str,
+    endpoint: &Url,
     network: NetworkName,
     context: &Context,
 ) -> Result<ConsensusVersion> {

@@ -19,6 +19,7 @@ use leo_package::NetworkName;
 
 use anyhow::anyhow;
 use serde::Deserialize;
+use url::Url;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize)]
 pub enum TransactionStatus {
@@ -63,7 +64,7 @@ struct RejectedTransaction {
     fee: Option<Fee>,
 }
 
-pub fn current_height(endpoint: &str, network: NetworkName) -> Result<usize> {
+pub fn current_height(endpoint: &Url, network: NetworkName) -> Result<usize> {
     let height_url = format!("{endpoint}/{network}/block/height/latest");
     let height_str = leo_package::fetch_from_network_plain(&height_url)?;
     let height: usize = height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))?;
@@ -73,7 +74,7 @@ pub fn current_height(endpoint: &str, network: NetworkName) -> Result<usize> {
 fn status_at_height(
     id: &str,
     maybe_fee_id: Option<&str>,
-    endpoint: &str,
+    endpoint: &Url,
     network: NetworkName,
     height: usize,
     max_wait: usize,
@@ -133,7 +134,7 @@ struct CheckedTransaction {
 fn check_transaction(
     id: &str,
     maybe_fee_id: Option<&str>,
-    endpoint: &str,
+    endpoint: &Url,
     network: NetworkName,
     start_height: usize,
     max_wait: usize,
@@ -161,7 +162,7 @@ fn check_transaction(
 pub fn check_transaction_with_message(
     id: &str,
     maybe_fee_id: Option<&str>,
-    endpoint: &str,
+    endpoint: &Url,
     network: NetworkName,
     start_height: usize,
     max_wait: usize,

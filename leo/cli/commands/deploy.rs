@@ -188,7 +188,7 @@ fn handle_deploy<N: Network>(
     }
 
     // Specify the query
-    let query = SnarkVMQuery::from(&endpoint);
+    let query = SnarkVMQuery::from(endpoint.as_str());
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
@@ -254,12 +254,14 @@ fn handle_deploy<N: Network>(
             let fee_id = fee.id().to_string();
             let id = transaction.id().to_string();
             let height_before = check_transaction::current_height(&endpoint, network)?;
+            let mut url = endpoint.to_owned();
+
+            url.path_segments_mut()
+                .map_err(|_| CliError::failed_to_parse_endpoint_as_valid_url("Cannot be just base"))?
+                .extend(&[&network.to_string(), "transaction", "broadcast"]);
+
             // Broadcast the transaction to the network.
-            let response = handle_broadcast(
-                &format!("{}/{}/transaction/broadcast", endpoint, network),
-                transaction,
-                &program_id.to_string(),
-            )?;
+            let response = handle_broadcast(&url, transaction, &program_id.to_string())?;
 
             let fail_and_prompt = |msg| {
                 println!("❌ Failed to deploy program {program_id}: {msg}.");
@@ -315,7 +317,7 @@ fn handle_deploy<N: Network>(
 ///     - The program does not exist on the network.
 /// - The program's external dependencies are the latest version.
 fn check_tasks_for_warnings<N: Network>(
-    endpoint: &str,
+    endpoint: &Url,
     network: NetworkName,
     tasks: &[DeploymentTask<N>],
     action: &TransactionAction,
@@ -374,7 +376,7 @@ fn validate_deployment_limits<N: Network>(
 fn print_deployment_plan<N: Network>(
     private_key: &PrivateKey<N>,
     address: &Address<N>,
-    endpoint: &str,
+    endpoint: &Url,
     network: &NetworkName,
     local: &[DeploymentTask<N>],
     skipped: &[ProgramID<N>],
@@ -392,7 +394,7 @@ fn print_deployment_plan<N: Network>(
     println!("{}", "🔧 Configuration:".bold());
     println!("  {:20}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
     println!("  {:20}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
-    println!("  {:20}{}", "Endpoint:".cyan(), endpoint.yellow());
+    println!("  {:20}{}", "Endpoint:".cyan(), endpoint.as_str().yellow());
     println!("  {:20}{}", "Network:".cyan(), network.to_string().yellow());
     println!("  {:20}{}", "Consensus Version:".cyan(), (consensus_version as u8).to_string().yellow());
 
@@ -443,7 +445,7 @@ fn print_deployment_plan<N: Network>(
         println!("  • Transaction(s) will NOT be saved to a file.");
     }
     if command.action.broadcast {
-        println!("  • Transaction(s) will be broadcast to {}", endpoint.bold());
+        println!("  • Transaction(s) will be broadcast to {}", endpoint.as_str().bold());
     } else {
         println!("  • Transaction(s) will NOT be broadcast to the network.");
     }

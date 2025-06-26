@@ -273,6 +273,13 @@ create_messages!(
     }
 
     @backtraced
+    failed_to_parse_endpoint_as_valid_url {
+        args: (error: impl Display),
+        msg: format!("Failed to parse endpoint an valid URL: {error}"),
+        help: Some("Either make sure you have a `.env` file in current project directory with an `ENDPOINT` variable set with a valid url and double check it, or set the `--endpoint` flag when invoking the CLI command.\n Example: `ENDPOINT=https://api.explorer.provable.com/v1` or `leo build --endpoint \"https://api.explorer.provable.com/v1\"`.".to_string()),
+    }
+
+    @backtraced
     failed_to_get_private_key_from_env {
         args: (),
         msg: "Failed to get a private key.".to_string(),

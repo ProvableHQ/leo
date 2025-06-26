@@ -243,7 +243,7 @@ fn handle_execute<A: Aleo>(
     print_execution_plan::<A::Network>(
         &private_key,
         &address,
-        &endpoint,
+        endpoint.as_str(),
         &network,
         &program_name,
         &function_name,
@@ -267,7 +267,7 @@ fn handle_execute<A: Aleo>(
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
     // Specify the query
-    let query = SnarkVMQuery::from(&endpoint);
+    let query = SnarkVMQuery::from(endpoint.as_str());
 
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
@@ -338,9 +338,12 @@ fn handle_execute<A: Aleo>(
         let fee_id = fee.id().to_string();
         let id = transaction.id().to_string();
         let height_before = check_transaction::current_height(&endpoint, network)?;
+        let mut url = endpoint.to_owned();
+        url.path_segments_mut()
+            .map_err(|_| CliError::failed_to_parse_endpoint_as_valid_url("cannot be just base"))?
+            .extend(&[&network.to_string(), "transaction", "broadcast"]);
         // Broadcast the transaction to the network.
-        let response =
-            handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), &transaction, &program_name)?;
+        let response = handle_broadcast(&url, &transaction, &program_name)?;
 
         let fail = |msg| {
             println!("❌ Failed to broadcast execution: {}.", msg);

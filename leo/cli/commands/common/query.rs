@@ -27,7 +27,7 @@ use ureq::Response;
 /// A helper function to query the public balance of an address.
 pub fn get_public_balance<N: Network>(
     private_key: &PrivateKey<N>,
-    endpoint: &str,
+    endpoint: &Url,
     network: &str,
     context: &Context,
 ) -> Result<u64> {
@@ -35,7 +35,7 @@ pub fn get_public_balance<N: Network>(
     let address = Address::<N>::try_from(ViewKey::try_from(private_key)?)?;
     // Query the public balance of the address on the `account` mapping from `credits.aleo`.
     let mut public_balance = LeoQuery {
-        endpoint: Some(endpoint.to_string()),
+        endpoint: Some(endpoint.to_owned()),
         network: Some(network.to_string()),
         command: QueryCommands::Program {
             command: LeoProgram {
@@ -54,10 +54,10 @@ pub fn get_public_balance<N: Network>(
 
 // A helper function to query for the latest block height.
 #[allow(dead_code)]
-pub fn get_latest_block_height(endpoint: &str, network: NetworkName, context: &Context) -> Result<u32> {
+pub fn get_latest_block_height(endpoint: &Url, network: NetworkName, context: &Context) -> Result<u32> {
     // Query the latest block height.
     let height = LeoQuery {
-        endpoint: Some(endpoint.to_string()),
+        endpoint: Some(endpoint.to_owned()),
         network: Some(network.to_string()),
         command: QueryCommands::Block {
             command: LeoBlock {
@@ -78,12 +78,12 @@ pub fn get_latest_block_height(endpoint: &str, network: NetworkName, context: &C
 }
 
 /// Determine if the transaction should be broadcast or displayed to user.
-pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>, operation: &str) -> Result<Response> {
+pub fn handle_broadcast<N: Network>(endpoint: &Url, transaction: &Transaction<N>, operation: &str) -> Result<Response> {
     // Send the deployment request to the endpoint.
     let response = ureq::AgentBuilder::new()
         .redirects(0)
         .build()
-        .post(endpoint)
+        .post(endpoint.as_str())
         .set("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .send_json(transaction)
         .map_err(|err| CliError::broadcast_error(err.to_string()))?;
@@ -136,7 +136,7 @@ pub fn load_programs_from_network<N: Network>(
     context: &Context,
     program_id: ProgramID<N>,
     network: NetworkName,
-    endpoint: &str,
+    endpoint: &Url,
 ) -> Result<Vec<(ProgramID<N>, Program<N>)>> {
     use snarkvm::prelude::Program;
     use std::collections::HashSet;
