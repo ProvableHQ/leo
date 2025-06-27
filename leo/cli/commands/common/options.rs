@@ -20,6 +20,7 @@ use snarkvm::prelude::{
     CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
     ConsensusVersion,
     MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
+    TEST_CONSENSUS_VERSION_HEIGHTS,
     TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
 };
 
@@ -219,11 +220,16 @@ pub fn get_consensus_version(
 // A helper function to get the consensus version based on the block height.
 // Note. This custom implementation is necessary because we use `snarkVM` with the `test_heights` feature enabled, which does not reflect the actual consensus version heights.
 pub fn get_consensus_version_from_height(seek_height: u32, network_name: NetworkName) -> Result<ConsensusVersion> {
-    let heights = match network_name {
-        NetworkName::TestnetV0 => TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
-        NetworkName::MainnetV0 => MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
-        NetworkName::CanaryV0 => CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
+    let heights = if cfg!(feature = "test_network") {
+        TEST_CONSENSUS_VERSION_HEIGHTS
+    } else {
+        match network_name {
+            NetworkName::TestnetV0 => TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
+            NetworkName::MainnetV0 => MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
+            NetworkName::CanaryV0 => CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
+        }
     };
+
     // Find the consensus version based on the block height.
     match heights.binary_search_by(|(_, height)| height.cmp(&seek_height)) {
         // If a consensus version was found at this height, return it.
