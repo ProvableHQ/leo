@@ -76,9 +76,14 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
     let home_path = context.home()?;
 
     let package = if command.options.build_tests {
-        Package::from_directory_with_tests(&package_path, &home_path, command.options.no_cache)?
+        Package::from_directory_with_tests(
+            &package_path,
+            &home_path,
+            command.options.no_cache,
+            command.options.no_local,
+        )?
     } else {
-        Package::from_directory(&package_path, &home_path, command.options.no_cache)?
+        Package::from_directory(&package_path, &home_path, command.options.no_cache, command.options.no_local)?
     };
 
     let outputs_directory = package.outputs_directory();

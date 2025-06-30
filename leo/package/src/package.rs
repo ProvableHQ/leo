@@ -183,18 +183,25 @@ impl Package {
             /* build_graph */ false,
             /* with_tests */ false,
             /* no_cache */ false,
+            /* no_local */ false,
         )
     }
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies,
     /// obtaining dependencies from the file system or network and topologically sorting them.
-    pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q, no_cache: bool) -> Result<Self> {
+    pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(
+        path: P,
+        home_path: Q,
+        no_cache: bool,
+        no_local: bool,
+    ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
             home_path.as_ref(),
             /* build_graph */ true,
             /* with_tests */ false,
             no_cache,
+            no_local,
         )
     }
 
@@ -204,6 +211,7 @@ impl Package {
         path: P,
         home_path: Q,
         no_cache: bool,
+        no_local: bool,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -211,6 +219,7 @@ impl Package {
             /* build_graph */ true,
             /* with_tests */ true,
             no_cache,
+            no_local,
         )
     }
 
@@ -249,6 +258,7 @@ impl Package {
         build_graph: bool,
         with_tests: bool,
         no_cache: bool,
+        no_local: bool,
     ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             UtilError::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
@@ -303,6 +313,7 @@ impl Package {
                     &mut map,
                     &mut digraph,
                     no_cache,
+                    no_local,
                 )?;
             }
 
@@ -327,6 +338,7 @@ impl Package {
         map: &mut IndexMap<Symbol, (Dependency, Program)>,
         graph: &mut DiGraph<Symbol>,
         no_cache: bool,
+        no_local: bool,
     ) -> Result<()> {
         let name_symbol = symbol(&new.name)?;
 
@@ -346,7 +358,7 @@ impl Package {
             }
             Entry::Vacant(vacant) => {
                 let program = match (new.path.as_ref(), new.location) {
-                    (Some(path), Location::Local) => {
+                    (Some(path), Location::Local) if !no_local => {
                         // It's a local dependency.
                         Program::from_path(name_symbol, path.clone())?
                     }
@@ -355,7 +367,7 @@ impl Package {
                         // not a package.
                         Program::from_path_test(path, main_program.clone())?
                     }
-                    (_, Location::Network) => {
+                    (_, Location::Network) | (Some(_), Location::Local) => {
                         // It's a network dependency.
                         Program::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache)?
                     }
@@ -373,7 +385,17 @@ impl Package {
         for dependency in program.dependencies.iter() {
             let dependency_symbol = symbol(&dependency.name)?;
             graph.add_edge(name_symbol, dependency_symbol);
-            Self::graph_build(home_path, network, endpoint, main_program, dependency.clone(), map, graph, no_cache)?;
+            Self::graph_build(
+                home_path,
+                network,
+                endpoint,
+                main_program,
+                dependency.clone(),
+                map,
+                graph,
+                no_cache,
+                no_local,
+            )?;
         }
 
         Ok(())

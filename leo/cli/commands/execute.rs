@@ -18,12 +18,12 @@ use super::*;
 
 use check_transaction::TransactionStatus;
 use leo_ast::NetworkName;
-use leo_package::{Package, ProgramData};
+use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
 use clap::Parser;
 use colored::*;
-use snarkvm::prelude::{Execution, Network};
+use snarkvm::prelude::{Execution, Network, Program};
 use std::{convert::TryFrom, path::PathBuf};
 
 #[cfg(not(feature = "only_testnet"))]
@@ -107,13 +107,13 @@ impl Command for LeoExecute {
                 #[cfg(feature = "only_testnet")]
                 panic!("Mainnet chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                return handle_execute::<AleoV0>(self, context, network, input);
+                handle_execute::<AleoV0>(self, context, network, input)
             }
             NetworkName::CanaryV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Canary chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                return handle_execute::<AleoCanaryV0>(self, context, network, input);
+                handle_execute::<AleoCanaryV0>(self, context, network, input)
             }
         }
     }
@@ -252,6 +252,7 @@ fn handle_execute<A: Aleo>(
         record.is_some(),
         &command.action,
         consensus_version,
+        &check_task_for_warnings(&endpoint, network, &programs),
     );
 
     // Prompt the user to confirm the plan.
@@ -277,7 +278,7 @@ fn handle_execute<A: Aleo>(
     };
 
     // Add the programs to the VM.
-    println!("Adding programs to the VM ...");
+    println!("Adding programs to the VM...");
     for (_, program) in programs {
         vm.process().write().add_program(&program)?;
     }
@@ -373,6 +374,42 @@ fn handle_execute<A: Aleo>(
     Ok(())
 }
 
+/// Check the execution task for warnings.
+/// The following properties are checked:
+///   - The component programs exist on the network and match the local ones.
+fn check_task_for_warnings<N: Network>(
+    endpoint: &str,
+    network: NetworkName,
+    programs: &[(ProgramID<N>, Program<N>)],
+) -> Vec<String> {
+    let mut warnings = Vec::new();
+    for (program_id, program) in programs {
+        // Check if the program exists on the network.
+        if let Ok(remote_program) = fetch_program_from_network(&program_id.to_string(), endpoint, network) {
+            // Parse the program.
+            let remote_program = match Program::<N>::from_str(&remote_program) {
+                Ok(program) => program,
+                Err(e) => {
+                    warnings.push(format!("Could not parse '{program_id}' from the network. Error: {e}",));
+                    continue;
+                }
+            };
+            // Check if the program matches the local one.
+            if remote_program != *program {
+                warnings.push(format!(
+                    "The program '{program_id}' on the network does not match the local copy. If you have a local dependency, you may use the `--no-local` flag to use the network version instead.",
+                ));
+            }
+        } else {
+            warnings.push(format!(
+                "The program '{}' does not exist on the network. You may use `leo deploy --broadcast` to deploy it.",
+                program_id
+            ));
+        }
+    }
+    warnings
+}
+
 /// Pretty-print the execution plan in a readable format.
 #[allow(clippy::too_many_arguments)]
 fn print_execution_plan<N: Network>(
@@ -387,6 +424,7 @@ fn print_execution_plan<N: Network>(
     fee_record: bool,
     action: &TransactionAction,
     consensus_version: ConsensusVersion,
+    warnings: &[String],
 ) {
     println!("\n{}", "🚀 Execution Plan Summary".bold().underline());
     println!("{}", "──────────────────────────────────────────────".dimmed());
@@ -426,6 +464,15 @@ fn print_execution_plan<N: Network>(
     } else {
         println!("  - Transaction will NOT be broadcast to the network.");
     }
+
+    // ── Warnings ─────────────────────────────────────────────────────────
+    if !warnings.is_empty() {
+        println!("\n{}", "⚠️ Warnings:".bold().red());
+        for warning in warnings {
+            println!("  • {}", warning.dimmed());
+        }
+    }
+
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }
 

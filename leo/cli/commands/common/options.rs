@@ -50,6 +50,8 @@ pub struct BuildOptions {
     pub build_tests: bool,
     #[clap(long, help = "Don't use the dependency cache.")]
     pub no_cache: bool,
+    #[clap(long, help = "Don't use the local source code.")]
+    pub no_local: bool,
 }
 
 impl Default for BuildOptions {
@@ -66,6 +68,7 @@ impl Default for BuildOptions {
             ast_snapshots: Vec::new(),
             build_tests: false,
             no_cache: false,
+            no_local: false,
         }
     }
 }

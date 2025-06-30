@@ -174,7 +174,6 @@ impl Program {
         let existing_bytecode = match full_cache_path.exists() {
             false => None,
             true => {
-                // If the file exists, read it and compare it to the new contents.
                 let existing_contents = std::fs::read_to_string(&full_cache_path).map_err(|e| {
                     UtilError::util_file_io_error(
                         format_args!("Trying to read cached file at {}", full_cache_path.display()),
