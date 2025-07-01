@@ -1,0 +1,36 @@
+program test.aleo;
+
+mapping foo:
+    key as u32.public;
+    value as u32.public;
+
+function main_inner:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    async main_inner r0 into r3;
+    output r2 as u32.private;
+    output r3 as test.aleo/main_inner.future;
+
+finalize main_inner:
+    input r0 as u32.public;
+    set 1u32 into foo[r0];
+// --- Next Program --- //
+import test.aleo;
+program basic.aleo;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    call test.aleo/main_inner 1u32 1u32 into r3 r4;
+    async main r4 r0 r2 into r5;
+    output r2 as u32.private;
+    output r5 as basic.aleo/main.future;
+
+finalize main:
+    input r0 as test.aleo/main_inner.future;
+    input r1 as u32.public;
+    input r2 as u32.public;
+    await r0;
+    assert.eq r1 r2;

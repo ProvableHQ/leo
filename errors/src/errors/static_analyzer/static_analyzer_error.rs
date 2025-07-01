@@ -101,4 +101,11 @@ create_messages!(
         msg: format!("Array index {index} out of bounds (array length is {len})."),
         help: None,
     }
+
+    @formatted
+    async_block_capturing_too_many_vars {
+        args: (size: impl Display, max: impl Display),
+        msg: format!("An `async` block cannot capture more than {max} variables, found one attempting to capture {size} variables."),
+        help: None,
+    }
 );

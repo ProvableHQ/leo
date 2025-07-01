@@ -1,0 +1,10 @@
+Error [ETYC0372154]: Cannot access argument from future produced by an `async` block.
+    --> compiler-test:6:20
+     |
+   6 |         let y0 = f.0;
+     |                    ^
+Error [ETYC0372154]: Cannot access argument from future produced by an `async` block.
+    --> compiler-test:8:20
+     |
+   8 |         let y1 = z.3;
+     |                    ^

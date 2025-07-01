@@ -58,8 +58,9 @@ impl AstVisitor for FutureChecker<'_> {
     fn visit_expression(&mut self, input: &Expression, additional: &Self::AdditionalInput) -> Self::Output {
         use Position::*;
         let is_call = matches!(input, Expression::Call(..));
+        let is_async_block = matches!(input, Expression::Async(..));
         match self.type_table.get(&input.id()) {
-            Some(Type::Future(..)) if is_call => {
+            Some(Type::Future(..)) if is_call | is_async_block => {
                 // A call producing a Future may appear in any of these positions.
                 if !matches!(additional, Await | Return | FunctionArgument | LastTupleLiteral | Definition) {
                     self.emit_err(StaticAnalyzerError::misplaced_future(input.span()));
@@ -92,6 +93,7 @@ impl AstVisitor for FutureChecker<'_> {
             Expression::ArrayAccess(access) => self.visit_array_access(access, &Position::Misc),
             Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, &Position::Misc),
             Expression::AssociatedFunction(function) => self.visit_associated_function(function, &Position::Misc),
+            Expression::Async(async_) => self.visit_async(async_, &Position::Misc),
             Expression::Binary(binary) => self.visit_binary(binary, &Position::Misc),
             Expression::Call(call) => self.visit_call(call, &Position::Misc),
             Expression::Cast(cast) => self.visit_cast(cast, &Position::Misc),

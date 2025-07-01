@@ -434,8 +434,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         });
 
         // Make sure that async transitions call finalize.
-        if self.scope_state.variant == Some(Variant::AsyncTransition) && !self.scope_state.has_called_finalize {
-            self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
+        if self.scope_state.variant == Some(Variant::AsyncTransition)
+            && !self.scope_state.has_called_finalize
+            && !self.scope_state.already_contains_an_async_block
+        {
+            self.emit_err(TypeCheckerError::missing_async_operation_in_async_transition(function.span));
         }
     }
 

@@ -40,6 +40,8 @@ pub struct TypeCheckingVisitor<'a> {
     pub limits: TypeCheckingInput,
     /// For detecting the error `TypeCheckerError::async_cannot_assign_outside_conditional`.
     pub conditional_scopes: Vec<IndexSet<Symbol>>,
+    /// If we're inside an async block, this is the node ID of the contained `Block`. Otherwise, this is `None`.
+    pub async_block_id: Option<NodeID>,
 }
 
 impl TypeCheckingVisitor<'_> {
@@ -701,7 +703,7 @@ impl TypeCheckingVisitor<'_> {
             }
             CoreFunction::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` block.
-                self.check_access_allowed("Mapping::get_or", true, function_span);
+                self.check_access_allowed("Mapping::get_or_use", true, function_span);
                 // Check that the first argument is a mapping.
                 self.assert_mapping_type(&arguments[0].0, arguments[0].1);
 
@@ -1252,15 +1254,24 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    // Checks if the access operation is valid inside the current function variant.
+    // Validates whether an access operation is allowed in the current function or block context.
+    // This prevents illegal use of certain operations depending on whether the code is inside
+    // an async function, an async block, or a finalize block.
     pub fn check_access_allowed(&mut self, name: &str, finalize_op: bool, span: Span) {
-        // Check that the function context matches.
+        // Case 1: Operation is not a finalize op, and we're inside an `async` function.
         if self.scope_state.variant == Some(Variant::AsyncFunction) && !finalize_op {
-            self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span))
-        } else if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
+            self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span));
+        }
+        // Case 2: Operation is not a finalize op, and we're inside an `async` block.
+        else if self.async_block_id.is_some() && !finalize_op {
+            self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_async_block(name, span));
+        }
+        // Case 3: Operation *is* a finalize op, but we're *not* inside an async context.
+        else if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
+            && self.async_block_id.is_none()
             && finalize_op
         {
-            self.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
+            self.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span));
         }
     }
 

@@ -4,4 +4,4 @@ Error [ETYC0372104]: Not all futures were consumed: f1
   16 |         return finalize_foo(f0, f3, f2, f5, f4);
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
-     = Make sure all futures are consumed exactly once. Consume by passing to an async function call.
+     = Make sure all futures are consumed exactly once. Consume by passing to an async function call or async block.

@@ -53,6 +53,9 @@ pub use loop_unrolling::*;
 mod pass;
 pub use pass::*;
 
+mod processing_async;
+pub use processing_async::*;
+
 mod processing_script;
 pub use processing_script::*;
 

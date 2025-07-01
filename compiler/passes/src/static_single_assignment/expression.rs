@@ -304,4 +304,8 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
 
         (expr, statements)
     }
+
+    fn consume_async(&mut self, input: leo_ast::AsyncExpression) -> Self::Output {
+        (input.into(), Default::default())
+    }
 }

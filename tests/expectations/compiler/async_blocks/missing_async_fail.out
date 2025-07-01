@@ -1,0 +1,7 @@
+Error [ETYC0372088]: An `async` transition must contain at least one async operation — either a call to an `async` function or an `async` block.
+    --> compiler-test:2:5
+     |
+   2 |     async transition t() { }
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`

@@ -101,6 +101,7 @@ pub trait AstVisitor {
             Expression::ArrayAccess(access) => self.visit_array_access(access, additional),
             Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, additional),
             Expression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
+            Expression::Async(async_) => self.visit_async(async_, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
@@ -158,6 +159,11 @@ pub trait AstVisitor {
         input.arguments.iter().for_each(|arg| {
             self.visit_expression(arg, &Default::default());
         });
+        Default::default()
+    }
+
+    fn visit_async(&mut self, input: &AsyncExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_block(&input.block);
         Default::default()
     }
 

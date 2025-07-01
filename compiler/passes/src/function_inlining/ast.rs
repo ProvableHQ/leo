@@ -48,12 +48,15 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
                     .zip_eq(input.arguments)
                     .collect::<IndexMap<_, _>>();
 
-                // Replace each input variable with the appropriate parameter.
-                let replace = |identifier: &Identifier| {
-                    parameter_to_argument.get(&identifier.name).cloned().unwrap_or(Expression::Identifier(*identifier))
+                // Function to replace identifier expressions with their corresponding const argument or keep them unchanged.
+                let replace_identifier = |expr: &Expression| match expr {
+                    Expression::Identifier(ident) => parameter_to_argument
+                        .get(&ident.name)
+                        .map_or(Expression::Identifier(*ident), |expr| expr.clone()),
+                    _ => expr.clone(),
                 };
 
-                let mut inlined_statements = Replacer::new(replace, &self.state.node_builder)
+                let mut inlined_statements = Replacer::new(replace_identifier, &self.state.node_builder)
                     .reconstruct_block(callee.block.clone())
                     .0
                     .statements;

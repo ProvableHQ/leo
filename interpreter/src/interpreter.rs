@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_ast::interpreter_value::{GlobalId, Value};
+use leo_ast::interpreter_value::{AsyncExecution, GlobalId, Value};
 use leo_errors::{CompilerError, Handler, InterpreterHalt, LeoError, Result};
 
 /// Contains the state of interpretation, in the form of the `Cursor`,
@@ -255,12 +255,29 @@ impl Interpreter {
             RunFuture(n) => {
                 let future = self.cursor.futures.remove(*n);
                 for async_exec in future.0.into_iter().rev() {
-                    self.cursor.values.extend(async_exec.arguments);
-                    self.cursor.frames.push(Frame {
-                        step: 0,
-                        element: Element::DelayedCall(async_exec.function),
-                        user_initiated: true,
-                    });
+                    match async_exec {
+                        AsyncExecution::AsyncFunctionCall { function, arguments } => {
+                            self.cursor.values.extend(arguments);
+                            self.cursor.frames.push(Frame {
+                                step: 0,
+                                element: Element::DelayedCall(function),
+                                user_initiated: true,
+                            });
+                        }
+                        AsyncExecution::AsyncBlock { containing_function, block, names, .. } => {
+                            self.cursor.frames.push(Frame {
+                                step: 0,
+                                element: Element::DelayedAsyncBlock {
+                                    program: containing_function.program,
+                                    block,
+                                    // Keep track of all the known variables up to this point.
+                                    // These are available to use inside the block when we actually execute it.
+                                    names: names.clone().into_iter().collect(),
+                                },
+                                user_initiated: false,
+                            });
+                        }
+                    }
                 }
                 self.cursor.step()?
             }
@@ -372,6 +389,7 @@ impl Interpreter {
             Element::Expression(expression, _) => format!("{expression}"),
             Element::Block { block, .. } => format!("{block}"),
             Element::DelayedCall(gid) => format!("Delayed call to {gid}"),
+            Element::DelayedAsyncBlock { .. } => "Delayed async block".to_string(),
             Element::AleoExecution { context, instruction_index, .. } => match &**context {
                 AleoContext::Closure(closure) => closure.instructions().get(*instruction_index).map(|i| format!("{i}")),
                 AleoContext::Function(function) => {

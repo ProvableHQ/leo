@@ -33,6 +33,8 @@ pub struct ScopeState {
     pub(crate) futures: IndexMap<Symbol, Location>,
     /// Whether the finalize caller has called the finalize function.
     pub(crate) has_called_finalize: bool,
+    /// Whether this function already contains an `async` block.
+    pub(crate) already_contains_an_async_block: bool,
     /// Whether currently traversing a conditional statement.
     pub(crate) is_conditional: bool,
     /// Whether the current function is a call.
@@ -52,6 +54,7 @@ impl ScopeState {
             is_stub: true,
             futures: IndexMap::new(),
             has_called_finalize: false,
+            already_contains_an_async_block: false,
             is_conditional: false,
             is_call: false,
             call_location: None,
@@ -62,6 +65,7 @@ impl ScopeState {
     pub fn initialize_function_state(&mut self, variant: Variant) {
         self.variant = Some(variant);
         self.has_called_finalize = false;
+        self.already_contains_an_async_block = false;
         self.futures = IndexMap::new();
     }
 

@@ -324,7 +324,8 @@ impl Cursor {
                 let arguments: Vec<Value> = async_.operands().iter().map(|op| self.operand_value(op)).collect();
                 if self.really_async {
                     self.increment_instruction_index();
-                    let async_ex = AsyncExecution { function: GlobalId { name, program }, arguments };
+                    let async_ex =
+                        AsyncExecution::AsyncFunctionCall { function: GlobalId { name, program }, arguments };
                     (Value::Future(Future(vec![async_ex])), async_.destinations()[0].clone())
                 } else {
                     self.do_call(

@@ -1,0 +1,15 @@
+Error [ETYC0372117]: Expected type `u16` but type `u8` was found.
+    --> compiler-test:9:28
+     |
+   9 |             let x: u16 = f.0;
+     |                            ^
+Error [ETYC0372117]: Expected type `u8` but type `u16` was found.
+    --> compiler-test:10:27
+     |
+  10 |             let y: u8 = f.1;
+     |                           ^
+Error [ETYC0372090]: Cannot access argument `2` from future. The future only has `2` arguments.
+    --> compiler-test:11:23
+     |
+  11 |             let z = f.2;
+     |                       ^
