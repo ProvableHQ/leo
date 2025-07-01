@@ -20,13 +20,9 @@ use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
 use leo_span::{Span, Symbol};
 
-mod expression;
+mod ast;
 
 mod program;
-
-mod statement;
-
-mod type_;
 
 mod visitor;
 use visitor::*;

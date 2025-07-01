@@ -53,8 +53,6 @@ pub struct MonomorphizationVisitor<'a> {
     pub changed: bool,
 }
 
-impl leo_ast::StatementReconstructor for MonomorphizationVisitor<'_> {}
-
 impl MonomorphizationVisitor<'_> {
     /// Monomorphizes a generic struct by substituting const parameters with concrete arguments and caching result.
     /// Generates a unique name like `Foo::[1u32, 2u32]` based on the original name and the provided const arguments.

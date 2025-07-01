@@ -14,15 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod expression;
+mod ast;
 
 mod program;
 
 mod scope_state;
-
-mod statement;
-
-mod type_;
 
 mod visitor;
 use visitor::*;

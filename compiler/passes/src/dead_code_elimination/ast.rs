@@ -16,19 +16,37 @@
 
 use super::DeadCodeEliminatingVisitor;
 
-use leo_ast::{
-    AssignStatement,
-    Block,
-    DefinitionPlace,
-    DefinitionStatement,
-    ExpressionReconstructor,
-    ExpressionStatement,
-    IterationStatement,
-    Statement,
-    StatementReconstructor,
-};
+use leo_ast::*;
 
-impl StatementReconstructor for DeadCodeEliminatingVisitor<'_> {
+impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
+    type AdditionalOutput = ();
+
+    /* Expressions */
+    // Use and reconstruct an identifier.
+    fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
+        self.used_variables.insert(input.name);
+        (input.into(), Default::default())
+    }
+
+    // We need to make sure we hit identifiers, so do our own traversal
+    // rather than relying on the default.
+    fn reconstruct_struct_init(
+        &mut self,
+        mut input: leo_ast::StructExpression,
+    ) -> (Expression, Self::AdditionalOutput) {
+        for member in input.members.iter_mut() {
+            if let Some(expr) = std::mem::take(&mut member.expression) {
+                member.expression = Some(self.reconstruct_expression(expr).0);
+            } else {
+                // We're not actually going to modify it.
+                self.reconstruct_identifier(member.identifier);
+            }
+        }
+
+        (input.into(), Default::default())
+    }
+
+    /* Statements */
     /// Reconstruct an assignment statement by eliminating any dead code.
     fn reconstruct_assign(&mut self, _input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         panic!("`AssignStatement`s should not exist in the AST at this phase of compilation.")

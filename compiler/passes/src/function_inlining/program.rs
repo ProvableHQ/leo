@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::FunctionInliningVisitor;
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor};
+use leo_ast::{AstReconstructor, Function, ProgramReconstructor, ProgramScope};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;

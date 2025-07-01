@@ -15,16 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
+    AstReconstructor,
     Block,
     Expression,
-    ExpressionReconstructor,
     Identifier,
     IterationStatement,
     NodeBuilder,
     ProgramReconstructor,
     Statement,
-    StatementReconstructor,
-    TypeReconstructor,
 };
 
 /// A `Replacer` applies `replacer` to all `Identifier`s in an AST.
@@ -51,9 +49,7 @@ where
     }
 }
 
-impl<F> TypeReconstructor for Replacer<'_, F> where F: Fn(&Identifier) -> Expression {}
-
-impl<F> ExpressionReconstructor for Replacer<'_, F>
+impl<F> AstReconstructor for Replacer<'_, F>
 where
     F: Fn(&Identifier) -> Expression,
 {
@@ -62,12 +58,7 @@ where
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
         ((self.replace)(&input), Default::default())
     }
-}
 
-impl<F> StatementReconstructor for Replacer<'_, F>
-where
-    F: Fn(&Identifier) -> Expression,
-{
     fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
         (
             Block {
