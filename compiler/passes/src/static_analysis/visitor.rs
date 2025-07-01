@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, static_analysis::await_checker::AwaitChecker};
+use crate::{CompilerState, ConditionalTreeNode, static_analysis::await_checker::AwaitChecker};
 
 use leo_ast::*;
 use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
@@ -105,4 +105,84 @@ impl StaticAnalyzingVisitor<'_> {
     }
 }
 
-impl TypeVisitor for StaticAnalyzingVisitor<'_> {}
+impl AstVisitor for StaticAnalyzingVisitor<'_> {
+    /* Expressions */
+    type AdditionalInput = ();
+    type Output = ();
+
+    fn visit_associated_function(
+        &mut self,
+        input: &AssociatedFunctionExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        // Get the core function.
+        let Some(core_function) = CoreFunction::from_symbols(input.variant.name, input.name.name) else {
+            panic!("Typechecking guarantees that this function exists.");
+        };
+
+        // Check that the future was awaited correctly.
+        if core_function == CoreFunction::FutureAwait {
+            self.assert_future_await(&input.arguments.first(), input.span());
+        }
+    }
+
+    fn visit_call(&mut self, input: &CallExpression, _: &Self::AdditionalInput) -> Self::Output {
+        let caller_program = self.current_program;
+        let callee_program = input.program.unwrap_or(caller_program);
+
+        // If the function call is an external async transition, then for all async calls that follow a non-async call,
+        // we must check that the async call is not an async function that takes a future as an argument.
+        if self.non_async_external_call_seen
+            && self.variant == Some(Variant::AsyncTransition)
+            && callee_program != caller_program
+        {
+            self.assert_simple_async_transition_call(callee_program, input.function.name, input.span());
+        }
+
+        // Look up the function and check if it is a non-async call.
+        let function_program = input.program.unwrap_or(self.current_program);
+
+        let func_symbol = self
+            .state
+            .symbol_table
+            .lookup_function(Location::new(function_program, input.function.name))
+            .expect("Type checking guarantees functions exist.");
+
+        if func_symbol.function.variant == Variant::Transition {
+            self.non_async_external_call_seen = true;
+        }
+    }
+
+    /* Statements */
+    fn visit_conditional(&mut self, input: &ConditionalStatement) {
+        self.visit_expression(&input.condition, &Default::default());
+
+        // Create scope for checking awaits in `then` branch of conditional.
+        let current_bst_nodes: Vec<ConditionalTreeNode> =
+            match self.await_checker.create_then_scope(self.variant == Some(Variant::AsyncFunction), input.span) {
+                Ok(nodes) => nodes,
+                Err(warn) => return self.emit_warning(warn),
+            };
+
+        // Visit block.
+        self.visit_block(&input.then);
+
+        // Exit scope for checking awaits in `then` branch of conditional.
+        let saved_paths =
+            self.await_checker.exit_then_scope(self.variant == Some(Variant::AsyncFunction), current_bst_nodes);
+
+        if let Some(otherwise) = &input.otherwise {
+            match &**otherwise {
+                Statement::Block(stmt) => {
+                    // Visit the otherwise-block.
+                    self.visit_block(stmt);
+                }
+                Statement::Conditional(stmt) => self.visit_conditional(stmt),
+                _ => unreachable!("Else-case can only be a block or conditional statement."),
+            }
+        }
+
+        // Update the set of all possible BST paths.
+        self.await_checker.exit_statement_scope(self.variant == Some(Variant::AsyncFunction), saved_paths);
+    }
+}

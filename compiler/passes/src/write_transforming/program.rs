@@ -16,7 +16,7 @@
 
 use super::WriteTransformingVisitor;
 
-use leo_ast::{Function, ProgramReconstructor, StatementReconstructor as _};
+use leo_ast::{AstReconstructor as _, Function, ProgramReconstructor};
 
 impl ProgramReconstructor for WriteTransformingVisitor<'_> {
     fn reconstruct_function(&mut self, input: Function) -> Function {

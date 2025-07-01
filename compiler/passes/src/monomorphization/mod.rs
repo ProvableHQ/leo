@@ -48,11 +48,9 @@ use leo_ast::{CompositeType, ProgramReconstructor as _, StructExpression};
 use leo_errors::Result;
 use leo_span::Symbol;
 
-mod expression;
+mod ast;
 
 mod program;
-
-mod type_;
 
 mod visitor;
 use visitor::*;

@@ -16,7 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{Function, TypeReconstructor};
+use leo_ast::Function;
 use leo_span::Symbol;
 
 pub struct FunctionInliningVisitor<'a> {
@@ -28,5 +28,3 @@ pub struct FunctionInliningVisitor<'a> {
     /// Whether or not we are currently traversing an async function block.
     pub is_async: bool,
 }
-
-impl TypeReconstructor for FunctionInliningVisitor<'_> {}

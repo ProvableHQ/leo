@@ -20,12 +20,12 @@ use leo_ast::ProgramReconstructor;
 use leo_errors::Result;
 use leo_span::{Span, Symbol};
 
+mod ast;
+
 mod duplicate;
 
 mod range_iterator;
 use range_iterator::*;
-
-mod statement;
 
 mod program;
 

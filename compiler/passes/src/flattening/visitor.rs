@@ -20,13 +20,13 @@ use leo_ast::{
     ArrayAccess,
     ArrayExpression,
     ArrayType,
+    AstReconstructor,
     BinaryExpression,
     BinaryOperation,
     Block,
     Composite,
     CompositeType,
     Expression,
-    ExpressionReconstructor,
     Identifier,
     IntegerType,
     Literal,
@@ -43,7 +43,6 @@ use leo_ast::{
     TupleExpression,
     TupleType,
     Type,
-    TypeReconstructor,
     UnitExpression,
 };
 use leo_span::Symbol;
@@ -624,5 +623,3 @@ impl FlatteningVisitor<'_> {
         }
     }
 }
-
-impl TypeReconstructor for FlatteningVisitor<'_> {}

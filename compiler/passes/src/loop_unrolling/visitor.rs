@@ -14,22 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{
-    ArrayType,
-    Block,
-    Expression,
-    ExpressionReconstructor,
-    IterationStatement,
-    Literal,
-    Node,
-    NodeID,
-    RepeatExpression,
-    Statement,
-    StatementReconstructor,
-    Type,
-    TypeReconstructor,
-    Value,
-};
+use leo_ast::{AstReconstructor, Block, IterationStatement, Literal, Node, NodeID, Statement, Type, Value};
 
 use leo_errors::LoopUnrollerError;
 use leo_span::{Span, Symbol};
@@ -137,25 +122,5 @@ impl UnrollingVisitor<'_> {
 
             Block { statements: vec![result], span: input.span(), id: outer_block_id }.into()
         })
-    }
-}
-
-impl TypeReconstructor for UnrollingVisitor<'_> {}
-
-impl ExpressionReconstructor for UnrollingVisitor<'_> {
-    type AdditionalOutput = ();
-
-    fn reconstruct_repeat(&mut self, input: RepeatExpression) -> (Expression, Self::AdditionalOutput) {
-        // Because the value of `count` affects the type of a repeat expression, we need to assign a new ID to the
-        // reconstructed `RepeatExpression` and update the type table accordingly.
-        let new_id = self.state.node_builder.next_id();
-        let new_count = self.reconstruct_expression(input.count).0;
-        let el_ty = self.state.type_table.get(&input.expr.id()).expect("guaranteed by type checking");
-        self.state.type_table.insert(new_id, Type::Array(ArrayType::new(el_ty, new_count.clone())));
-        (
-            RepeatExpression { expr: self.reconstruct_expression(input.expr).0, count: new_count, id: new_id, ..input }
-                .into(),
-            Default::default(),
-        )
     }
 }

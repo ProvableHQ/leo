@@ -18,22 +18,57 @@ use super::MonomorphizationVisitor;
 use crate::Replacer;
 
 use leo_ast::{
+    AstReconstructor,
     CallExpression,
+    CompositeType,
     Expression,
-    ExpressionReconstructor,
     Identifier,
     ProgramReconstructor,
     StructExpression,
     StructVariableInitializer,
+    Type,
     Variant,
 };
 
 use indexmap::IndexMap;
 use itertools::Itertools;
 
-impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
+impl AstReconstructor for MonomorphizationVisitor<'_> {
     type AdditionalOutput = ();
 
+    /* Types */
+    fn reconstruct_composite_type(&mut self, input: leo_ast::CompositeType) -> (leo_ast::Type, Self::AdditionalOutput) {
+        // Proceed only if there are some const arguments.
+        if input.const_arguments.is_empty() {
+            return (Type::Composite(input), Default::default());
+        }
+
+        // Ensure all const arguments are literals; if not, we skip this struct type instantiation for now and mark it
+        // as unresolved.
+        //
+        // The types of the const arguments are checked in the type checking pass.
+        if input.const_arguments.iter().any(|arg| !matches!(arg, Expression::Literal(_))) {
+            self.unresolved_struct_types.push(input.clone());
+            return (Type::Composite(input), Default::default());
+        }
+
+        // At this stage, we know that we're going to modify the program
+        self.changed = true;
+        (
+            Type::Composite(CompositeType {
+                id: Identifier {
+                    name: self.monomorphize_struct(&input.id.name, &input.const_arguments), // use the new name
+                    span: input.id.span,
+                    id: self.state.node_builder.next_id(),
+                },
+                const_arguments: vec![], // remove const arguments
+                program: input.program,
+            }),
+            Default::default(),
+        )
+    }
+
+    /* Expressions */
     fn reconstruct_call(&mut self, input_call: CallExpression) -> (Expression, Self::AdditionalOutput) {
         // Skip calls to functions from other programs.
         if input_call.program.unwrap() != self.program {

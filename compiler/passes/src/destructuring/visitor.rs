@@ -17,16 +17,15 @@
 use crate::CompilerState;
 
 use leo_ast::{
+    AstReconstructor,
     DefinitionPlace,
     DefinitionStatement,
     Expression,
-    ExpressionReconstructor as _,
     Identifier,
     Node as _,
     Statement,
     TupleExpression,
     Type,
-    TypeReconstructor,
 };
 use leo_span::Symbol;
 
@@ -129,5 +128,3 @@ impl DestructuringVisitor<'_> {
         })
     }
 }
-
-impl TypeReconstructor for DestructuringVisitor<'_> {}

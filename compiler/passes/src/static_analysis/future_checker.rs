@@ -16,7 +16,7 @@
 
 use crate::TypeTable;
 
-use leo_ast::{CoreFunction, Expression, ExpressionVisitor, Function, Node, StatementVisitor, Type, TypeVisitor};
+use leo_ast::{AstVisitor, CoreFunction, Expression, Function, Node, Type};
 use leo_errors::{Handler, StaticAnalyzerError};
 
 /// Error if futures are used improperly.
@@ -50,9 +50,8 @@ impl FutureChecker<'_> {
     }
 }
 
-impl TypeVisitor for FutureChecker<'_> {}
-
-impl ExpressionVisitor for FutureChecker<'_> {
+impl AstVisitor for FutureChecker<'_> {
+    /* Expressions */
     type AdditionalInput = Position;
     type Output = ();
 
@@ -168,9 +167,8 @@ impl ExpressionVisitor for FutureChecker<'_> {
         }
         Default::default()
     }
-}
 
-impl StatementVisitor for FutureChecker<'_> {
+    /* Statments */
     fn visit_definition(&mut self, input: &leo_ast::DefinitionStatement) {
         if let Some(ty) = input.type_.as_ref() {
             self.visit_type(ty)

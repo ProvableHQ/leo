@@ -16,15 +16,7 @@
 
 use super::{FlatteningVisitor, ReturnGuard};
 
-use leo_ast::{
-    Expression,
-    Function,
-    ProgramReconstructor,
-    ProgramScope,
-    ReturnStatement,
-    Statement,
-    StatementReconstructor,
-};
+use leo_ast::{AstReconstructor, Expression, Function, ProgramReconstructor, ProgramScope, ReturnStatement, Statement};
 
 impl ProgramReconstructor for FlatteningVisitor<'_> {
     /// Flattens a program scope.
