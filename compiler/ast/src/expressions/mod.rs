@@ -29,6 +29,9 @@ pub use associated_constant::*;
 mod associated_function;
 pub use associated_function::*;
 
+mod async_;
+pub use async_::*;
+
 mod array;
 pub use array::*;
 
@@ -83,6 +86,8 @@ pub enum Expression {
     AssociatedConstant(AssociatedConstantExpression),
     /// An associated function; e.g., `BHP256::hash_to_field`.
     AssociatedFunction(AssociatedFunctionExpression),
+    /// An `async` block: e.g. `async { my_mapping.set(1, 2); }`.
+    Async(AsyncExpression),
     /// An array expression, e.g., `[true, false, true, false]`.
     Array(ArrayExpression),
     /// A binary expression, e.g., `42 + 24`.
@@ -132,6 +137,7 @@ impl Node for Expression {
             Array(n) => n.span(),
             AssociatedConstant(n) => n.span(),
             AssociatedFunction(n) => n.span(),
+            Async(n) => n.span(),
             Binary(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
@@ -157,6 +163,7 @@ impl Node for Expression {
             Array(n) => n.set_span(span),
             AssociatedConstant(n) => n.set_span(span),
             AssociatedFunction(n) => n.set_span(span),
+            Async(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
@@ -182,6 +189,7 @@ impl Node for Expression {
             ArrayAccess(n) => n.id(),
             AssociatedConstant(n) => n.id(),
             AssociatedFunction(n) => n.id(),
+            Async(n) => n.id(),
             Binary(n) => n.id(),
             Call(n) => n.id(),
             Cast(n) => n.id(),
@@ -207,6 +215,7 @@ impl Node for Expression {
             ArrayAccess(n) => n.set_id(id),
             AssociatedConstant(n) => n.set_id(id),
             AssociatedFunction(n) => n.set_id(id),
+            Async(n) => n.set_id(id),
             Binary(n) => n.set_id(id),
             Call(n) => n.set_id(id),
             Cast(n) => n.set_id(id),
@@ -234,6 +243,7 @@ impl fmt::Display for Expression {
             ArrayAccess(n) => n.fmt(f),
             AssociatedConstant(n) => n.fmt(f),
             AssociatedFunction(n) => n.fmt(f),
+            Async(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
@@ -271,6 +281,7 @@ impl Expression {
             | ArrayAccess(_)
             | AssociatedConstant(_)
             | AssociatedFunction(_)
+            | Async(_)
             | Call(_)
             | Err(_)
             | Identifier(_)

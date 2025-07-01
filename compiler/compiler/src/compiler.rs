@@ -139,15 +139,18 @@ impl<N: Network> Compiler<N> {
             max_array_elements: N::MAX_ARRAY_ELEMENTS,
             max_mappings: N::MAX_MAPPINGS,
             max_functions: N::MAX_FUNCTIONS,
+            max_inputs: N::MAX_INPUTS,
         };
 
         self.do_pass::<SymbolTableCreation>(())?;
 
         self.do_pass::<TypeChecking>(type_checking_config.clone())?;
 
+        self.do_pass::<ProcessingAsync>(type_checking_config.clone())?;
+
         self.do_pass::<StaticAnalyzing>(())?;
 
-        self.do_pass::<ConstPropagationAndUnrolling>(type_checking_config)?;
+        self.do_pass::<ConstPropagationAndUnrolling>(type_checking_config.clone())?;
 
         self.do_pass::<ProcessingScript>(())?;
 

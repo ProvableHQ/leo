@@ -59,6 +59,7 @@ impl DeadCodeEliminatingVisitor<'_> {
                         sym::CheatCode | sym::Mapping | sym::Future | sym::Pedersen64 | sym::Pedersen128
                     )
             }
+            Async(_) => false,
             Binary(bin) => {
                 use BinaryOperation::*;
                 let halting_op = match bin.op {

@@ -1,0 +1,10 @@
+Error [ETYC0372147]: Invalid expression in an async block. `self.signer` cannot be used directly here
+    --> compiler-test:4:26
+     |
+   4 |             let s = self.signer;
+     |                          ^^^^^^
+Error [ETYC0372147]: Invalid expression in an async block. `self.caller` cannot be used directly here
+    --> compiler-test:5:26
+     |
+   5 |             let c = self.caller;
+     |                          ^^^^^^

@@ -3,7 +3,7 @@ Error [ETYC0372005]: Unknown function `finalize_mint_public`
      |
    7 |         return finalize_mint_public(receiver, amount);
      |                ^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372088]: An async transition must call an async function.
+Error [ETYC0372088]: An `async` transition must contain at least one async operation — either a call to an `async` function or an `async` block.
     --> compiler-test:6:5
      |
    6 |     async transition mint_public(public receiver: address, public amount: u64) -> Future {

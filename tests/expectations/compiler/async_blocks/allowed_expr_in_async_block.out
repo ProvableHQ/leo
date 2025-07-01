@@ -1,0 +1,18 @@
+program test.aleo;
+
+mapping foo:
+    key as u32.public;
+    value as u32.public;
+
+function t1:
+    async t1 into r0;
+    output r0 as test.aleo/t1.future;
+
+finalize t1:
+    set 0u32 into foo[0u32];
+    get foo[0u32] into r0;
+    get.or_use foo[0u32] 0u32 into r1;
+    remove foo[0u32];
+    contains foo[0u32] into r2;
+    not r2 into r3;
+    assert.eq r3 true;

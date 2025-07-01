@@ -1,0 +1,7 @@
+Error [ETYC0372109]: Cannot re-assign to `try_get_token` from a conditional scope to an outer scope in an async block.
+    --> compiler-test:9:17
+     |
+   9 |             let try_get_token: TokenInfo = Mapping::get_or_use(
+     |                 ^^^^^^^^^^^^^
+     |
+     = This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/ProvableHQ/ARCs) will support more complex assignments in async functions.

@@ -75,7 +75,7 @@ impl TypeCheckingVisitor<'_> {
         ty
     }
 
-    fn visit_array_access_general(&mut self, input: &ArrayAccess, assign: bool, expected: &Option<Type>) -> Type {
+    pub fn visit_array_access_general(&mut self, input: &ArrayAccess, assign: bool, expected: &Option<Type>) -> Type {
         // Check that the expression is an array.
         let this_type = if assign {
             self.visit_expression_assign(&input.array)
@@ -117,7 +117,7 @@ impl TypeCheckingVisitor<'_> {
         element_type.clone()
     }
 
-    fn visit_member_access_general(&mut self, input: &MemberAccess, assign: bool, expected: &Option<Type>) -> Type {
+    pub fn visit_member_access_general(&mut self, input: &MemberAccess, assign: bool, expected: &Option<Type>) -> Type {
         // Handler member access expressions that correspond to valid operands in AVM code.
         if !assign {
             match input.inner {
@@ -224,7 +224,7 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    fn visit_tuple_access_general(&mut self, input: &TupleAccess, assign: bool, expected: &Option<Type>) -> Type {
+    pub fn visit_tuple_access_general(&mut self, input: &TupleAccess, assign: bool, expected: &Option<Type>) -> Type {
         let this_type = if assign {
             self.visit_expression_assign(&input.tuple)
         } else {
@@ -250,6 +250,13 @@ impl TypeCheckingVisitor<'_> {
                     // If a future type was not inferred, we will have already reported an error.
                     return Type::Err;
                 };
+
+                if inferred_f.location.is_none() {
+                    // This generally means that the `Future` is produced by an `async` block expression and not an
+                    // `async function` function call.
+                    self.emit_err(TypeCheckerError::invalid_async_block_future_access(input.span()));
+                    return Type::Err;
+                }
 
                 let Some(actual) = inferred_f.inputs().get(input.index.value()) else {
                     self.emit_err(TypeCheckerError::invalid_future_access(
@@ -277,7 +284,7 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    fn visit_identifier_assign(&mut self, input: &Identifier) -> Type {
+    pub fn visit_identifier_assign(&mut self, input: &Identifier) -> Type {
         // Lookup the variable in the symbol table and retrieve its type.
         let Some(var) = self.state.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), input.name)
         else {
@@ -299,7 +306,21 @@ impl TypeCheckingVisitor<'_> {
 
         // If the variable exists and it's in an async function, then check that it is in the current conditional scope.
         if self.scope_state.variant.unwrap().is_async_function() && !self.symbol_in_conditional_scope(input.name) {
-            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, var.span));
+            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "function", var.span));
+        }
+
+        // Similarly, if the variable exists and it's in an async block, then check that it is in the current conditional scope.
+        if self.async_block_id.is_some() && !self.symbol_in_conditional_scope(input.name) {
+            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "block", var.span));
+        }
+
+        if let Some(async_block_id) = self.async_block_id {
+            if !self.state.symbol_table.is_defined_in_scope_or_ancestor_until(async_block_id, input.name) {
+                // If we're inside an async block (i.e. in the scope of its block or one if its child scopes) and if
+                // we're trying to assign to a variable that is not local to the block (or its child scopes), then we
+                // should error out.
+                self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_async_block(input.name, input.span));
+            }
         }
 
         var.type_.clone()
@@ -378,6 +399,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::ArrayAccess(access) => self.visit_array_access_general(access, false, additional),
             Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, additional),
             Expression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
+            Expression::Async(async_) => self.visit_async(async_, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
@@ -518,9 +540,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         };
         // Check that operation is not restricted to finalize blocks.
         if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
+            && self.async_block_id.is_none()
             && core_instruction.is_finalize_command()
         {
-            self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
+            self.emit_err(TypeCheckerError::operation_must_be_in_async_block_or_function(input.span()));
         }
 
         // Get the types of the arguments. Error out on arguments that have `Type::Numeric`. We could potentially do
@@ -544,6 +567,40 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         return_type
+    }
+
+    fn visit_async(&mut self, input: &AsyncExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        // Step into an async block
+        self.async_block_id = Some(input.block.id);
+
+        // A few restrictions
+        if self.scope_state.is_conditional {
+            self.emit_err(TypeCheckerError::async_block_in_conditional(input.span));
+        }
+
+        if !matches!(self.scope_state.variant, Some(Variant::AsyncTransition) | Some(Variant::Script)) {
+            self.emit_err(TypeCheckerError::illegal_async_block_location(input.span));
+        }
+
+        if self.scope_state.already_contains_an_async_block {
+            self.emit_err(TypeCheckerError::multiple_async_blocks_not_allowed(input.span));
+        }
+
+        if self.scope_state.has_called_finalize {
+            self.emit_err(TypeCheckerError::conflicting_async_call_and_block(input.span));
+        }
+
+        self.visit_block(&input.block);
+
+        // This scope now already has an async block
+        self.scope_state.already_contains_an_async_block = true;
+
+        // Step out of the async block
+        self.async_block_id = None;
+
+        // The type of the async block is just a `Future` with no `Location` (i.e. not produced by an explicit `async
+        // function`) and no inputs since we're not allowed to access inputs of a `Future` produced by an `async block.
+        Type::Future(FutureType::new(Vec::new(), None, false))
     }
 
     fn visit_binary(&mut self, input: &BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
@@ -920,7 +977,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // We always set the variant before entering the body of a function, so this unwrap works.
         match self.scope_state.variant.unwrap() {
             Variant::AsyncFunction | Variant::Function if !matches!(func.variant, Variant::Inline) => {
-                self.emit_err(TypeCheckerError::can_only_call_inline_function(input.span))
+                self.emit_err(TypeCheckerError::can_only_call_inline_function("a `function` or `inline`", input.span))
             }
             Variant::Transition | Variant::AsyncTransition
                 if matches!(func.variant, Variant::Transition)
@@ -934,6 +991,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check that the call is not to an external `inline` function.
         if func.variant == Variant::Inline && input.program.unwrap() != self.scope_state.program_name.unwrap() {
             self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
+        }
+
+        // Make sure we're not calling a non-inline from an async block
+        if self.async_block_id.is_some() && !matches!(func.variant, Variant::Inline) {
+            self.emit_err(TypeCheckerError::can_only_call_inline_function("an async block", input.span));
         }
 
         // Async functions return a single future.
@@ -1080,12 +1142,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.state.call_graph.add_edge(caller_name, input.function.name);
         }
 
-        if func.variant.is_transition()
-            && self.scope_state.variant == Some(Variant::AsyncTransition)
-            && self.scope_state.has_called_finalize
-        {
-            // Cannot call an external async transition after having called the async function.
-            self.emit_err(TypeCheckerError::external_transition_call_must_be_before_finalize(input.span));
+        if func.variant.is_transition() && self.scope_state.variant == Some(Variant::AsyncTransition) {
+            if self.scope_state.has_called_finalize {
+                self.emit_err(TypeCheckerError::external_call_after_async("function call", input.span));
+            }
+
+            if self.scope_state.already_contains_an_async_block {
+                self.emit_err(TypeCheckerError::external_call_after_async("block", input.span));
+            }
         }
 
         // Propagate futures from async functions and transitions.
@@ -1103,6 +1167,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // Can only call an async function once in a transition function body.
             if self.scope_state.has_called_finalize {
                 self.emit_err(TypeCheckerError::must_call_async_function_once(input.span));
+            }
+
+            if self.scope_state.already_contains_an_async_block {
+                self.emit_err(TypeCheckerError::conflicting_async_call_and_block(input.span));
             }
 
             // Check that all futures consumed.
@@ -1235,7 +1303,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // First, ensure that the current scope is not an async function. Records should not be instantiated in
             // async functions
             if self.scope_state.variant == Some(Variant::AsyncFunction) {
-                self.state.handler.emit_err(TypeCheckerError::records_not_allowed_inside_finalize(input.span()));
+                self.state
+                    .handler
+                    .emit_err(TypeCheckerError::records_not_allowed_inside_async("function", input.span()));
+            }
+
+            // Similarly, ensure that the current scope is not an async block. Records should not be instantiated in
+            // async blocks
+            if self.async_block_id.is_some() {
+                self.state.handler.emit_err(TypeCheckerError::records_not_allowed_inside_async("block", input.span()));
             }
 
             // Records where the `owner` is `self.caller` can be problematic because `self.caller` can be a program
@@ -1825,7 +1901,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
 
             if slf.scope_state.has_called_finalize {
-                slf.emit_err(TypeCheckerError::loop_body_contains_finalize(input.span()));
+                slf.emit_err(TypeCheckerError::loop_body_contains_async("function call", input.span()));
+            }
+
+            if slf.scope_state.already_contains_an_async_block {
+                slf.emit_err(TypeCheckerError::loop_body_contains_async("block expression", input.span()));
             }
 
             slf.scope_state.has_return = prior_has_return;
@@ -1834,6 +1914,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_return(&mut self, input: &ReturnStatement) {
+        if self.async_block_id.is_some() {
+            return self.emit_err(TypeCheckerError::async_block_cannot_return(input.span()));
+        }
+
         let func_name = self.scope_state.function.unwrap();
         let func_symbol = self
             .state
@@ -1842,12 +1926,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             .expect("The symbol table creator should already have visited all functions.");
         let mut return_type = func_symbol.function.output_type.clone();
 
-        // Set the `has_return` flag.
-        self.scope_state.has_return = true;
-
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
             let inferred_future_type = Future(FutureType::new(
-                func_symbol.finalizer.as_ref().unwrap().inferred_inputs.clone(),
+                if let Some(finalizer) = &func_symbol.finalizer { finalizer.inferred_inputs.clone() } else { vec![] },
                 Some(Location::new(self.scope_state.program_name.unwrap(), func_name)),
                 true,
             ));
@@ -1883,5 +1964,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         self.visit_expression(&input.expression, &Some(return_type));
+
+        // Set the `has_return` flag after processing `input.expression` so that we don't error out
+        // on something like `return async { .. }`.
+        self.scope_state.has_return = true;
     }
 }

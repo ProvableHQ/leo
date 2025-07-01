@@ -37,6 +37,7 @@ pub struct TypeCheckingInput {
     pub max_array_elements: usize,
     pub max_mappings: usize,
     pub max_functions: usize,
+    pub max_inputs: usize,
 }
 
 /// A pass to check types.
@@ -73,6 +74,7 @@ impl Pass for TypeChecking {
             used_structs: IndexSet::new(),
             conditional_scopes: Vec::new(),
             limits: input,
+            async_block_id: None,
         };
         visitor.visit_program(ast.as_repr());
         visitor.state.handler.last_err().map_err(|e| *e)?;

@@ -54,6 +54,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
             Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
             Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
+            Expression::Async(async_) => self.reconstruct_async(async_),
             Expression::Binary(binary) => self.reconstruct_binary(*binary),
             Expression::Call(call) => self.reconstruct_call(*call),
             Expression::Cast(cast) => self.reconstruct_cast(*cast),

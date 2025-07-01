@@ -1,0 +1,32 @@
+program credits.aleo;
+
+record credits:
+    owner as address.private;
+    amount as u64.private;
+
+function transfer_private_to_public:
+    input r0 as credits.record;
+    input r1 as address.private;
+    input r2 as u64.private;
+    async transfer_private_to_public into r3;
+    cast r0.owner r0.amount into r4 as credits.record;
+    output r4 as credits.record;
+    output r3 as credits.aleo/transfer_private_to_public.future;
+
+finalize transfer_private_to_public:
+    assert.eq 1u8 1u8;
+// --- Next Program --- //
+import credits.aleo;
+program test_credits.aleo;
+
+function send_credits:
+    input r0 as credits.aleo/credits.record;
+    input r1 as u64.private;
+    call credits.aleo/transfer_private_to_public r0 test_credits.aleo r1 into r2 r3;
+    async send_credits r3 into r4;
+    output r2 as credits.aleo/credits.record;
+    output r4 as test_credits.aleo/send_credits.future;
+
+finalize send_credits:
+    input r0 as credits.aleo/transfer_private_to_public.future;
+    await r0;

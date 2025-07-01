@@ -21,6 +21,7 @@ use leo_ast::{
     ArrayExpression,
     AssociatedConstantExpression,
     AssociatedFunctionExpression,
+    AsyncExpression,
     BinaryExpression,
     BinaryOperation,
     CallExpression,
@@ -56,6 +57,7 @@ impl CodeGeneratingVisitor<'_> {
             Expression::ArrayAccess(expr) => self.visit_array_access(expr),
             Expression::AssociatedConstant(expr) => self.visit_associated_constant(expr),
             Expression::AssociatedFunction(expr) => self.visit_associated_function(expr),
+            Expression::Async(expr) => self.visit_async(expr),
             Expression::Binary(expr) => self.visit_binary(expr),
             Expression::Call(expr) => self.visit_call(expr),
             Expression::Cast(expr) => self.visit_cast(expr),
@@ -542,6 +544,10 @@ impl CodeGeneratingVisitor<'_> {
         instructions.push_str(&instruction);
 
         (destination, instructions)
+    }
+
+    fn visit_async(&mut self, _input: &AsyncExpression) -> (String, String) {
+        panic!("`AsyncExpression`s should not be in the AST at this phase of compilation.")
     }
 
     fn visit_call(&mut self, input: &CallExpression) -> (String, String) {

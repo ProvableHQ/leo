@@ -1,0 +1,57 @@
+program test.aleo;
+
+mapping map:
+    key as u32.public;
+    value as u32.public;
+
+function foo:
+    input r0 as u32.private;
+    input r1 as u8.private;
+    cast 1u8 1u8 1u8 into r2 as [u8; 3u32];
+    async foo 1u32 true 5u32 1u32 2u8 r2 3u16 r0 r1 6u32 8u8 into r3;
+    gte 5u32 0u32 into r4;
+    assert.eq r4 true;
+    gte 5u32 0u32 into r5;
+    assert.eq r5 true;
+    output r3 as test.aleo/foo.future;
+
+finalize foo:
+    input r0 as u32.public;
+    input r1 as boolean.public;
+    input r2 as u32.public;
+    input r3 as u32.public;
+    input r4 as u8.public;
+    input r5 as [u8; 3u32].public;
+    input r6 as u16.public;
+    input r7 as u32.public;
+    input r8 as u8.public;
+    input r9 as u32.public;
+    input r10 as u8.public;
+    add r2 r3 into r11;
+    cast r4 into r12 as u32;
+    add r11 r12 into r13;
+    cast r5[0u32] into r14 as u32;
+    add r13 r14 into r15;
+    cast r5[2u32] into r16 as u32;
+    add r15 r16 into r17;
+    add r17 r0 into r18;
+    add r18 r0 into r19;
+    add r2 r3 into r20;
+    cast r4 into r21 as u32;
+    add r20 r21 into r22;
+    cast r5[0u32] into r23 as u32;
+    add r22 r23 into r24;
+    cast r5[2u32] into r25 as u32;
+    add r24 r25 into r26;
+    cast r8 into r27 as u32;
+    add r7 r27 into r28;
+    add r28 r9 into r29;
+    cast r10 into r30 as u32;
+    add r29 r30 into r31;
+    add r31 5u32 into r32;
+    add r19 r26 into r33;
+    add r33 r32 into r34;
+    set r34 into map[0u32];
+    add r19 r26 into r35;
+    add r35 r32 into r36;
+    set r36 into map[0u32];

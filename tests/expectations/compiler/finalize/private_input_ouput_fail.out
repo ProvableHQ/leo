@@ -1,5 +1,5 @@
-Error [EPAR0370009]: unexpected string: expected 'expression', found 'async'
-    --> compiler-test:4:9
+Error [EPAR0370005]: expected { -- found 'finalize_foo'
+    --> compiler-test:4:15
      |
    4 |         async finalize_foo(a);
-     |         ^^^^^
+     |               ^^^^^^^^^^^^

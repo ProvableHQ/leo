@@ -707,6 +707,11 @@ impl<N: Network> ParserContext<'_, N> {
             return self.parse_tuple_expression();
         } else if let Token::LeftSquare = self.token.token {
             return self.parse_array_or_repeat_expression();
+        } else if let Token::Async = self.token.token {
+            let async_keyword_span = self.expect(&Token::Async)?;
+            let block = self.parse_block()?;
+            let span = async_keyword_span + block.span;
+            return Ok(AsyncExpression { block, span, id: self.node_builder.next_id() }.into());
         }
 
         let SpannedToken { token, span } = self.token.clone();

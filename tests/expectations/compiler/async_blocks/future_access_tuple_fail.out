@@ -1,0 +1,7 @@
+Error [ESAZ0374005]: A future may not be used in this way
+    --> compiler-test:9:37
+     |
+   9 |         let start_2: Future = start.1;
+     |                                     ^
+     |
+     = Futures should be created, assigned to a variable, and consumed without being moved or reassigned.

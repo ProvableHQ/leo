@@ -29,6 +29,7 @@ pub trait ExpressionConsumer {
             Expression::ArrayAccess(access) => self.consume_array_access(*access),
             Expression::AssociatedConstant(constant) => self.consume_associated_constant(constant),
             Expression::AssociatedFunction(function) => self.consume_associated_function(function),
+            Expression::Async(async_) => self.consume_async(async_),
             Expression::Binary(binary) => self.consume_binary(*binary),
             Expression::Call(call) => self.consume_call(*call),
             Expression::Cast(cast) => self.consume_cast(*cast),
@@ -56,6 +57,8 @@ pub trait ExpressionConsumer {
     fn consume_associated_constant(&mut self, _input: AssociatedConstantExpression) -> Self::Output;
 
     fn consume_associated_function(&mut self, _input: AssociatedFunctionExpression) -> Self::Output;
+
+    fn consume_async(&mut self, _input: AsyncExpression) -> Self::Output;
 
     fn consume_array(&mut self, _input: ArrayExpression) -> Self::Output;
 

@@ -106,6 +106,7 @@ pub trait AstReconstructor {
         match input {
             Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
             Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
+            Expression::Async(async_) => self.reconstruct_async(async_),
             Expression::Array(array) => self.reconstruct_array(array),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
             Expression::Binary(binary) => self.reconstruct_binary(*binary),
@@ -157,6 +158,10 @@ pub trait AstReconstructor {
             .into(),
             Default::default(),
         )
+    }
+
+    fn reconstruct_async(&mut self, input: AsyncExpression) -> (Expression, Self::AdditionalOutput) {
+        (AsyncExpression { block: self.reconstruct_block(input.block).0, ..input }.into(), Default::default())
     }
 
     fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {

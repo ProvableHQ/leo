@@ -116,9 +116,12 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
                 .zip_eq(&input_call.const_arguments)
                 .collect();
 
-            // Function to replace identifiers with their corresponding const argument or keep them unchanged.
-            let replace_identifier = |ident: &Identifier| {
-                const_param_map.get(&ident.name).map_or(Expression::Identifier(*ident), |&expr| expr.clone())
+            // Function to replace identifier expressions with their corresponding const argument or keep them unchanged.
+            let replace_identifier = |expr: &Expression| match expr {
+                Expression::Identifier(ident) => {
+                    const_param_map.get(&ident.name).map_or(Expression::Identifier(*ident), |&expr| expr.clone())
+                }
+                _ => expr.clone(),
             };
 
             let mut replacer = Replacer::new(replace_identifier, &self.state.node_builder);
