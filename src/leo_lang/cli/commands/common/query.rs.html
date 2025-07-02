@@ -88,7 +88,7 @@
 <a href=#88 id=88 data-nosnippet>88</a>        .send_json(transaction)
 <a href=#89 id=89 data-nosnippet>89</a>        .map_err(|err| CliError::broadcast_error(err.to_string()))<span class="question-mark">?</span>;
 <a href=#90 id=90 data-nosnippet>90</a>    <span class="kw">match </span>response.status() {
-<a href=#91 id=91 data-nosnippet>91</a>        <span class="number">200 </span>=&gt; {
+<a href=#91 id=91 data-nosnippet>91</a>        <span class="number">200</span>..=<span class="number">299 </span>=&gt; {
 <a href=#92 id=92 data-nosnippet>92</a>            <span class="macro">println!</span>(
 <a href=#93 id=93 data-nosnippet>93</a>                <span class="string">"✉️ Broadcasted transaction with:\n  - transaction ID: '{}'\n  - fee ID: '{}'"</span>,
 <a href=#94 id=94 data-nosnippet>94</a>                transaction.id().to_string().bold().yellow(),
