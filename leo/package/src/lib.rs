@@ -165,7 +165,7 @@ pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
         .call()
         .map_err(UtilError::failed_to_retrieve_from_endpoint)?;
     match response.status() {
-        200 => Ok(response.into_string().unwrap()),
+        200..=299 => Ok(response.into_string().unwrap()),
         301 => Err(UtilError::endpoint_moved_error(url)),
         _ => Err(UtilError::network_error(url, response.status())),
     }

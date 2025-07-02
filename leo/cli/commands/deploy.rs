@@ -277,7 +277,7 @@ fn handle_deploy<N: Network>(
             };
 
             match response.status() {
-                200 => {
+                200..=299 => {
                     let status = check_transaction::check_transaction_with_message(
                         &id,
                         Some(&fee_id),

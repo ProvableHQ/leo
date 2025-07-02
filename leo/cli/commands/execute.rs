@@ -348,7 +348,7 @@ fn handle_execute<A: Aleo>(
         };
 
         match response.status() {
-            200 => {
+            200..=299 => {
                 let status = check_transaction::check_transaction_with_message(
                     &id,
                     Some(&fee_id),
