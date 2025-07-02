@@ -88,7 +88,7 @@ pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>
         .send_json(transaction)
         .map_err(|err| CliError::broadcast_error(err.to_string()))?;
     match response.status() {
-        200 => {
+        200..=299 => {
             println!(
                 "✉️ Broadcasted transaction with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
                 transaction.id().to_string().bold().yellow(),
