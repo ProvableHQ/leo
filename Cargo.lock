@@ -1569,7 +1569,6 @@ dependencies = [
  "leo-ast",
  "leo-errors",
  "leo-parser",
- "leo-passes",
  "leo-span",
  "leo-test-framework",
  "rand",

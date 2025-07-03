@@ -129,6 +129,7 @@ pub fn value_to_expression(value: &Value, span: Span, node_builder: &NodeBuilder
         }
         .into(),
         Future(..) => return None,
+        Unsuffixed(..) => return None,
     };
 
     Some(result)
