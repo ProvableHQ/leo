@@ -36,8 +36,7 @@ fn runner_leo_test(test: &str) -> String {
             PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should be able to parse private key");
         let address = Address::try_from(&private_key).expect("should be able to create address");
         let empty: [&PathBuf; 0] = [];
-        let mut interpreter =
-            Interpreter::new([filename].iter(), empty, address, 0, false).expect("creating interpreter");
+        let mut interpreter = Interpreter::new([filename].iter(), empty, address, 0).expect("creating interpreter");
         match interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into())) {
             Err(e) => format!("{e}\n"),
             Ok(None) => "no value received\n".to_string(),

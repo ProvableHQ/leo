@@ -206,7 +206,8 @@ impl Cursor {
         macro_rules! unary {
             ($svm_op: expr, $op: ident) => {{
                 let operand = self.operand_value(&$svm_op.operands()[0]);
-                let value = interpreter_value::evaluate_unary(Default::default(), UnaryOperation::$op, &operand)?;
+                let value =
+                    interpreter_value::evaluate_unary(Default::default(), UnaryOperation::$op, &operand, &None)?;
                 self.increment_instruction_index();
                 (value, $svm_op.destinations()[0].clone())
             }};
@@ -216,8 +217,13 @@ impl Cursor {
             ($svm_op: expr, $op: ident) => {{
                 let operand0 = self.operand_value(&$svm_op.operands()[0]);
                 let operand1 = self.operand_value(&$svm_op.operands()[1]);
-                let value =
-                    interpreter_value::evaluate_binary(Default::default(), BinaryOperation::$op, &operand0, &operand1)?;
+                let value = interpreter_value::evaluate_binary(
+                    Default::default(),
+                    BinaryOperation::$op,
+                    &operand0,
+                    &operand1,
+                    &None,
+                )?;
                 self.increment_instruction_index();
                 (value, $svm_op.destinations()[0].clone())
             }};
@@ -385,14 +391,13 @@ impl Cursor {
 
                 self.increment_instruction_index();
 
-                let make_struct = |program, name_identifier| {
+                let make_struct = |name_identifier| {
                     let name = snarkvm_identifier_to_symbol(name_identifier);
-                    let id = GlobalId { program, name };
-                    let struct_type = self.structs.get(&id).expect("struct type should exist");
+                    let struct_type = self.structs.get(&name).expect("struct type should exist");
                     let operands = cast.operands().iter().map(|op| self.operand_value(op));
                     Value::Struct(StructContents {
                         name,
-                        contents: struct_type.iter().cloned().zip(operands).collect(),
+                        contents: struct_type.iter().map(|(name, _)| *name).zip(operands).collect(),
                     })
                 };
 
@@ -424,13 +429,11 @@ impl Cursor {
                         (value, destination)
                     }
                     CastType::Record(struct_name) | CastType::Plaintext(PlaintextType::Struct(struct_name)) => {
-                        let program = self.contexts.current_program().expect("there should be a current program");
-                        let value = make_struct(program, struct_name);
+                        let value = make_struct(struct_name);
                         (value, destination)
                     }
                     CastType::ExternalRecord(locator) => {
-                        let program = snarkvm_identifier_to_symbol(locator.program_id().name());
-                        let value = make_struct(program, locator.name());
+                        let value = make_struct(locator.name());
                         (value, destination)
                     }
                 }
@@ -1034,7 +1037,13 @@ fn value_to_snarkvm_literal(value: Value) -> Literal<TestnetV0> {
         Value::Field(x) => Literal::Field(x),
         Value::Scalar(x) => Literal::Scalar(x),
         Value::Address(x) => Literal::Address(x),
-        Value::Array(_) | Value::Repeat(..) | Value::Tuple(_) | Value::Unit | Value::Future(_) | Value::Struct(_) => {
+        Value::Array(_)
+        | Value::Repeat(..)
+        | Value::Tuple(_)
+        | Value::Unit
+        | Value::Future(_)
+        | Value::Struct(_)
+        | Value::Unsuffixed(_) => {
             tc_fail!()
         }
     }

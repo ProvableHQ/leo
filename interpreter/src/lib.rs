@@ -144,8 +144,7 @@ pub fn find_and_run_tests(
     block_height: u32,
     match_str: &str,
 ) -> Result<(Vec<TestFunction>, IndexMap<GlobalId, Result<()>>)> {
-    let mut interpreter =
-        Interpreter::new(leo_filenames, aleo_filenames, signer, block_height, true /*test flow*/)?;
+    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, signer, block_height)?;
 
     let mut native_test_functions = Vec::new();
 
@@ -245,8 +244,7 @@ pub fn interpret(
     block_height: u32,
     tui: bool,
 ) -> Result<()> {
-    let mut interpreter =
-        Interpreter::new(leo_filenames, aleo_filenames, signer, block_height, false /* test flow */)?;
+    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, signer, block_height)?;
 
     let mut user_interface: Box<dyn Ui> =
         if tui { Box::new(ratatui_ui::RatatuiUi::new()) } else { Box::new(dialoguer_input::DialoguerUi::new()) };
