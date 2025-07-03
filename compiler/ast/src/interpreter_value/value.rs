@@ -125,7 +125,32 @@ pub enum Value {
     Address(SvmAddress),
     Future(Future),
     Struct(StructContents),
+    Unsuffixed(String),
     // String(()),
+}
+
+impl Value {
+    /// Gets the type of a `Value` but only if it is an integer, a field, a group, or a scalar.
+    /// Return `None` otherwise. These are the only types that an unsuffixed literal can have.
+    pub fn get_numeric_type(&self) -> Option<crate::Type> {
+        use crate::{IntegerType::*, Type::*};
+        match self {
+            Value::U8(_) => Some(Integer(U8)),
+            Value::U16(_) => Some(Integer(U16)),
+            Value::U32(_) => Some(Integer(U32)),
+            Value::U64(_) => Some(Integer(U64)),
+            Value::U128(_) => Some(Integer(U128)),
+            Value::I8(_) => Some(Integer(I8)),
+            Value::I16(_) => Some(Integer(I16)),
+            Value::I32(_) => Some(Integer(I32)),
+            Value::I64(_) => Some(Integer(I64)),
+            Value::I128(_) => Some(Integer(I128)),
+            Value::Field(_) => Some(Field),
+            Value::Group(_) => Some(Group),
+            Value::Scalar(_) => Some(Scalar),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Display for Value {
@@ -184,6 +209,7 @@ impl fmt::Display for Value {
             }
             Address(x) => write!(f, "{x}"),
             Future(future) => write!(f, "{future}"),
+            Unsuffixed(s) => write!(f, "{s}"),
             // Signature(x) => write!(f, "{x}"),
             // String(_) => todo!(),
         }

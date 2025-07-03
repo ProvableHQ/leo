@@ -90,6 +90,7 @@ impl Value {
             (I64(x), I64(y)) => x < y,
             (I128(x), I128(y)) => x < y,
             (Field(x), Field(y)) => x < y,
+            (Scalar(x), Scalar(y)) => x < y,
             (a, b) => halt_no_span!("Type failure: {a} < {b}"),
         })
     }
@@ -108,6 +109,7 @@ impl Value {
             (I64(x), I64(y)) => x > y,
             (I128(x), I128(y)) => x > y,
             (Field(x), Field(y)) => x > y,
+            (Scalar(x), Scalar(y)) => x > y,
             (a, b) => halt_no_span!("Type failure: {a} > {b}"),
         })
     }
@@ -138,6 +140,7 @@ impl Value {
             (I128(x), I128(y)) => x == y,
             (Field(x), Field(y)) => x == y,
             (Group(x), Group(y)) => x == y,
+            (Scalar(x), Scalar(y)) => x == y,
             (Array(x), Array(y)) => {
                 if x.len() != y.len() {
                     return Ok(false);
@@ -231,6 +234,82 @@ impl Value {
             _ => None,
         }
     }
+
+    /// Resolves an unsuffixed literal to a typed `Value` using the provided optional `Type`. If the value is unsuffixed
+    /// and a type is provided, parses the string into the corresponding `Value` variant. Handles integers of various
+    /// widths and special types like `Field`, `Group`, and `Scalar`. If no type is given or the value is already typed,
+    /// returns the original value. Returns an error if type inference is not possible or parsing fails.
+    pub fn resolve_if_unsuffixed(&self, ty: &Option<Type>, span: Span) -> Result<Value> {
+        if let Value::Unsuffixed(s) = self {
+            if let Some(ty) = ty {
+                let value = match ty {
+                    Type::Integer(IntegerType::U8) => {
+                        let s = s.replace("_", "");
+                        Value::U8(u8::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+                    }
+                    Type::Integer(IntegerType::U16) => {
+                        let s = s.replace("_", "");
+                        Value::U16(u16::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+                    }
+                    Type::Integer(IntegerType::U32) => {
+                        let s = s.replace("_", "");
+                        Value::U32(u32::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+                    }
+                    Type::Integer(IntegerType::U64) => {
+                        let s = s.replace("_", "");
+                        Value::U64(u64::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+                    }
+                    Type::Integer(IntegerType::U128) => {
+                        let s = s.replace("_", "");
+                        Value::U128(u128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+                    }
+                    Type::Integer(IntegerType::I8) => {
+                        let s = s.replace("_", "");
+                        Value::I8(i8::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+                    }
+                    Type::Integer(IntegerType::I16) => {
+                        let s = s.replace("_", "");
+                        Value::I16(i16::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+                    }
+                    Type::Integer(IntegerType::I32) => {
+                        let s = s.replace("_", "");
+                        Value::I32(i32::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+                    }
+                    Type::Integer(IntegerType::I64) => {
+                        let s = s.replace("_", "");
+                        Value::I64(i64::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+                    }
+                    Type::Integer(IntegerType::I128) => {
+                        let s = s.replace("_", "");
+                        Value::I128(i128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
+                    }
+                    Type::Field => Value::Field(prepare_snarkvm_string(s, "field").parse().expect_tc(span)?),
+                    Type::Group => Value::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(span)?),
+                    Type::Scalar => Value::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(span)?),
+                    _ => {
+                        halt!(span, "cannot infer type of unsuffixed literal")
+                    }
+                };
+                Ok(value)
+            } else {
+                Ok(self.clone())
+            }
+        } else {
+            Ok(self.clone())
+        }
+    }
+}
+
+// SnarkVM will not parse fields, groups, or scalars with leading zeros, so we strip them out.
+fn prepare_snarkvm_string(s: &str, suffix: &str) -> String {
+    // If there's a `-`, separate it from the rest of the string.
+    let (neg, rest) = s.strip_prefix("-").map(|rest| ("-", rest)).unwrap_or(("", s));
+    // Remove leading zeros.
+    let mut rest = rest.trim_start_matches('0');
+    if rest.is_empty() {
+        rest = "0";
+    }
+    format!("{neg}{rest}{suffix}")
 }
 
 impl ToBits for Value {
@@ -286,21 +365,8 @@ impl ToBits for Value {
     }
 }
 
-pub fn literal_to_value(literal: &Literal, ty: &Option<Type>) -> Result<Value> {
-    // SnarkVM will not parse fields, groups, or scalars with
-    // leading zeros, so we strip them out.
-    fn prepare_snarkvm_string(s: &str, suffix: &str) -> String {
-        // If there's a `-`, separate it from the rest of the string.
-        let (neg, rest) = s.strip_prefix("-").map(|rest| ("-", rest)).unwrap_or(("", s));
-        // Remove leading zeros.
-        let mut rest = rest.trim_start_matches('0');
-        if rest.is_empty() {
-            rest = "0";
-        }
-        format!("{neg}{rest}{suffix}")
-    }
-
-    let value = match &literal.variant {
+pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result<Value> {
+    Ok(match &literal.variant {
         LiteralVariant::Boolean(b) => Value::Bool(*b),
         LiteralVariant::Integer(IntegerType::U8, s, ..) => {
             let s = s.replace("_", "");
@@ -355,64 +421,43 @@ pub fn literal_to_value(literal: &Literal, ty: &Option<Type>) -> Result<Value> {
         LiteralVariant::Scalar(s) => {
             Value::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span())?)
         }
-        LiteralVariant::Unsuffixed(s) => match ty {
-            Some(Type::Integer(IntegerType::U8)) => {
-                let s = s.replace("_", "");
-                Value::U8(u8::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-            }
-            Some(Type::Integer(IntegerType::U16)) => {
-                let s = s.replace("_", "");
-                Value::U16(u16::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-            }
-            Some(Type::Integer(IntegerType::U32)) => {
-                let s = s.replace("_", "");
-                Value::U32(u32::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-            }
-            Some(Type::Integer(IntegerType::U64)) => {
-                let s = s.replace("_", "");
-                Value::U64(u64::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-            }
-            Some(Type::Integer(IntegerType::U128)) => {
-                let s = s.replace("_", "");
-                Value::U128(u128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-            }
-            Some(Type::Integer(IntegerType::I8)) => {
-                let s = s.replace("_", "");
-                Value::I8(i8::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-            }
-            Some(Type::Integer(IntegerType::I16)) => {
-                let s = s.replace("_", "");
-                Value::I16(i16::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-            }
-            Some(Type::Integer(IntegerType::I32)) => {
-                let s = s.replace("_", "");
-                Value::I32(i32::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-            }
-            Some(Type::Integer(IntegerType::I64)) => {
-                let s = s.replace("_", "");
-                Value::I64(i64::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-            }
-            Some(Type::Integer(IntegerType::I128)) => {
-                let s = s.replace("_", "");
-                Value::I128(i128::from_str_by_radix(&s).expect("Parsing guarantees this works."))
-            }
-            Some(Type::Field) => Value::Field(prepare_snarkvm_string(s, "field").parse().expect_tc(literal.span())?),
-            Some(Type::Group) => Value::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(literal.span())?),
-            Some(Type::Scalar) => Value::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span())?),
-            _ => {
-                halt!(literal.span(), "cannot infer type of unsuffixed literal")
-            }
-        },
+        LiteralVariant::Unsuffixed(s) => {
+            Value::Unsuffixed(s.clone()).resolve_if_unsuffixed(expected_ty, literal.span())?
+        }
         LiteralVariant::String(..) => tc_fail!(),
-    };
+    })
+}
 
-    Ok(value)
+/// Resolves an unsuffixed operand for a unary operation by inferring its type based on the operation and an optional
+/// expected type. Uses predefined types (`Field` or `Group`) for specific operations, otherwise defaults to the expected
+/// type if available. Returns the resolved `Value` or an error if type resolution fails.
+fn resolve_unsuffixed_unary_op_operand(
+    val: &Value,
+    op: &UnaryOperation,
+    expected_ty: &Option<Type>,
+    span: &Span,
+) -> Result<Value> {
+    match op {
+        UnaryOperation::Inverse | UnaryOperation::Square | UnaryOperation::SquareRoot => {
+            // These ops only take a `field` and return a `field`
+            val.resolve_if_unsuffixed(&Some(Type::Field), *span)
+        }
+        UnaryOperation::ToXCoordinate | UnaryOperation::ToYCoordinate => {
+            // These ops only take a `Group`
+            val.resolve_if_unsuffixed(&Some(Type::Group), *span)
+        }
+        _ => {
+            // All other unary ops take the same type as the their return type
+            val.resolve_if_unsuffixed(expected_ty, *span)
+        }
+    }
 }
 
 /// Evaluate a unary operation.
-pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value) -> Result<Value> {
+pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value, expected_ty: &Option<Type>) -> Result<Value> {
+    let value = resolve_unsuffixed_unary_op_operand(value, &op, expected_ty, &span)?;
     let value_result = match op {
-        UnaryOperation::Abs => match value {
+        UnaryOperation::Abs => match &value {
             Value::I8(x) => {
                 if *x == i8::MIN {
                     halt!(span, "abs overflow");
@@ -493,8 +538,8 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value) -> Result<V
                 None => halt!(span, "negation overflow"),
                 Some(y) => Value::I128(y),
             },
-            Value::Group(x) => Value::Group(-*x),
-            Value::Field(x) => Value::Field(-*x),
+            Value::Group(x) => Value::Group(-x),
+            Value::Field(x) => Value::Field(-x),
             _ => halt!(span, "Type error"),
         },
         UnaryOperation::Not => match value {
@@ -537,24 +582,83 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value) -> Result<V
     Ok(value_result)
 }
 
+/// Resolves unsuffixed numeric operands for binary operations by inferring types based on the other operand, the
+/// operation type, and an optional expected type. Handles special cases for multiplication and exponentiation with
+/// additional logic for `Group`, `Scalar`, and `Field` type inference. Ensures that both operands are resolved to
+/// compatible types before evaluation. Returns a tuple of resolved `Value`s or an error if resolution fails.
+fn resolve_unsuffixed_binary_op_operands(
+    lhs: &Value,
+    rhs: &Value,
+    op: &BinaryOperation,
+    expected_ty: &Option<Type>,
+    span: &Span,
+) -> Result<(Value, Value)> {
+    use Type::*;
+
+    let lhs_ty = lhs.get_numeric_type();
+    let rhs_ty = rhs.get_numeric_type();
+
+    Ok(match op {
+        BinaryOperation::Mul => {
+            // For a `Mul`, if on operand is a Scalar, then the other must ba a `Group`. Otherwise, both ops must have
+            // the same type as the return type of the multiplication.
+            let lhs = match rhs_ty {
+                Some(Group) => lhs.resolve_if_unsuffixed(&Some(Scalar), *span)?,
+                Some(Scalar) => lhs.resolve_if_unsuffixed(&Some(Group), *span)?,
+                _ => lhs.resolve_if_unsuffixed(&rhs_ty, *span)?.resolve_if_unsuffixed(expected_ty, *span)?,
+            };
+
+            let rhs = match lhs_ty {
+                Some(Group) => rhs.resolve_if_unsuffixed(&Some(Scalar), *span)?,
+                Some(Scalar) => rhs.resolve_if_unsuffixed(&Some(Group), *span)?,
+                _ => rhs.resolve_if_unsuffixed(&lhs_ty, *span)?.resolve_if_unsuffixed(expected_ty, *span)?,
+            };
+
+            (lhs, rhs)
+        }
+        BinaryOperation::Pow => {
+            // For a `Pow`, if one operand is a `Field`, then the other must also be a `Field.
+            // Otherwise, only the `lhs` must match the return type.
+            let lhs_resolved = lhs
+                .resolve_if_unsuffixed(&rhs_ty.filter(|ty| matches!(ty, Type::Field)), *span)?
+                .resolve_if_unsuffixed(expected_ty, *span)?;
+
+            let rhs_resolved = rhs.resolve_if_unsuffixed(&lhs_ty.filter(|ty| matches!(ty, Type::Field)), *span)?;
+
+            (lhs_resolved, rhs_resolved)
+        }
+        _ => (
+            lhs.resolve_if_unsuffixed(&rhs_ty, *span)?.resolve_if_unsuffixed(expected_ty, *span)?,
+            rhs.resolve_if_unsuffixed(&lhs_ty, *span)?.resolve_if_unsuffixed(expected_ty, *span)?,
+        ),
+    })
+}
+
 /// Evaluate a binary operation.
-pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value) -> Result<Value> {
+pub fn evaluate_binary(
+    span: Span,
+    op: BinaryOperation,
+    lhs: &Value,
+    rhs: &Value,
+    expected_ty: &Option<Type>,
+) -> Result<Value> {
+    let (lhs, rhs) = resolve_unsuffixed_binary_op_operands(lhs, rhs, &op, expected_ty, &span)?;
     let value = match op {
         BinaryOperation::Add => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_add(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_add(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_add(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_add(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_add(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_add(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_add(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_add(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_add(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_add(*y).map(Value::I128),
-                (Value::Group(x), Value::Group(y)) => Some(Value::Group(*x + *y)),
-                (Value::Field(x), Value::Field(y)) => Some(Value::Field(*x + *y)),
-                (Value::Scalar(x), Value::Scalar(y)) => Some(Value::Scalar(*x + *y)),
+                (Value::U8(x), Value::U8(y)) => x.checked_add(y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_add(y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_add(y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_add(y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_add(y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_add(y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_add(y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_add(y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_add(y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_add(y).map(Value::I128),
+                (Value::Group(x), Value::Group(y)) => Some(Value::Group(x + y)),
+                (Value::Field(x), Value::Field(y)) => Some(Value::Field(x + y)),
+                (Value::Scalar(x), Value::Scalar(y)) => Some(Value::Scalar(x + y)),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "add overflow");
@@ -562,20 +666,20 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
             value
         }
         BinaryOperation::AddWrapped => match (lhs, rhs) {
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_add(*y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_add(*y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_add(*y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_add(*y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_add(*y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_add(*y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_add(*y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_add(*y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_add(*y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_add(*y)),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_add(y)),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_add(y)),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_add(y)),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_add(y)),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_add(y)),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_add(y)),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_add(y)),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_add(y)),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_add(y)),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_add(y)),
             _ => halt!(span, "Type error"),
         },
         BinaryOperation::And => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(*x && *y),
+            (Value::Bool(x), Value::Bool(y)) => Value::Bool(x && y),
             _ => halt!(span, "Type error"),
         },
         BinaryOperation::BitwiseAnd => match (lhs, rhs) {
@@ -594,17 +698,17 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
         },
         BinaryOperation::Div => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_div(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_div(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_div(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_div(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_div(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_div(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_div(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_div(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_div(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_div(*y).map(Value::I128),
-                (Value::Field(x), Value::Field(y)) => y.inverse().map(|y| Value::Field(*x * y)).ok(),
+                (Value::U8(x), Value::U8(y)) => x.checked_div(y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_div(y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_div(y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_div(y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_div(y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_div(y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_div(y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_div(y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_div(y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_div(y).map(Value::I128),
+                (Value::Field(x), Value::Field(y)) => y.inverse().map(|y| Value::Field(x * y)).ok(),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "div overflow");
@@ -622,35 +726,35 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
             | (Value::I32(_), Value::I32(0))
             | (Value::I64(_), Value::I64(0))
             | (Value::I128(_), Value::I128(0)) => halt!(span, "divide by 0"),
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_div(*y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_div(*y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_div(*y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_div(*y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_div(*y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_div(*y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_div(*y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_div(*y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_div(*y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_div(*y)),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_div(y)),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_div(y)),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_div(y)),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_div(y)),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_div(y)),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_div(y)),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_div(y)),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_div(y)),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_div(y)),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_div(y)),
             _ => halt!(span, "Type error"),
         },
-        BinaryOperation::Eq => Value::Bool(lhs.eq(rhs)?),
-        BinaryOperation::Gte => Value::Bool(lhs.gte(rhs)?),
-        BinaryOperation::Gt => Value::Bool(lhs.gt(rhs)?),
-        BinaryOperation::Lte => Value::Bool(lhs.lte(rhs)?),
-        BinaryOperation::Lt => Value::Bool(lhs.lt(rhs)?),
+        BinaryOperation::Eq => Value::Bool(lhs.eq(&rhs)?),
+        BinaryOperation::Gte => Value::Bool(lhs.gte(&rhs)?),
+        BinaryOperation::Gt => Value::Bool(lhs.gt(&rhs)?),
+        BinaryOperation::Lte => Value::Bool(lhs.lte(&rhs)?),
+        BinaryOperation::Lt => Value::Bool(lhs.lt(&rhs)?),
         BinaryOperation::Mod => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_rem(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_rem(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_rem(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_rem(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_rem(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_rem(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_rem(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_rem(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_rem(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_rem(*y).map(Value::I128),
+                (Value::U8(x), Value::U8(y)) => x.checked_rem(y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_rem(y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_rem(y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_rem(y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_rem(y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_rem(y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_rem(y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_rem(y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_rem(y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_rem(y).map(Value::I128),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "mod overflow");
@@ -659,19 +763,19 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
         }
         BinaryOperation::Mul => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_mul(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_mul(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_mul(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_mul(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_mul(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_mul(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_mul(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_mul(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_mul(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_mul(*y).map(Value::I128),
-                (Value::Field(x), Value::Field(y)) => Some(Value::Field(*x * *y)),
-                (Value::Group(x), Value::Scalar(y)) => Some(Value::Group(*x * *y)),
-                (Value::Scalar(x), Value::Group(y)) => Some(Value::Group(*x * *y)),
+                (Value::U8(x), Value::U8(y)) => x.checked_mul(y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_mul(y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_mul(y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_mul(y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_mul(y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_mul(y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_mul(y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_mul(y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_mul(y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_mul(y).map(Value::I128),
+                (Value::Field(x), Value::Field(y)) => Some(Value::Field(x * y)),
+                (Value::Group(x), Value::Scalar(y)) => Some(Value::Group(x * y)),
+                (Value::Scalar(x), Value::Group(y)) => Some(Value::Group(x * y)),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "mul overflow");
@@ -679,16 +783,16 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
             value
         }
         BinaryOperation::MulWrapped => match (lhs, rhs) {
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_mul(*y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_mul(*y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_mul(*y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_mul(*y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_mul(*y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_mul(*y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_mul(*y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_mul(*y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_mul(*y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_mul(*y)),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_mul(y)),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_mul(y)),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_mul(y)),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_mul(y)),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_mul(y)),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_mul(y)),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_mul(y)),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_mul(y)),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_mul(y)),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_mul(y)),
             _ => halt!(span, "Type error"),
         },
 
@@ -696,7 +800,7 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
             (Value::Bool(x), Value::Bool(y)) => Value::Bool(!(x & y)),
             _ => halt!(span, "Type error"),
         },
-        BinaryOperation::Neq => Value::Bool(lhs.neq(rhs)?),
+        BinaryOperation::Neq => Value::Bool(lhs.neq(&rhs)?),
         BinaryOperation::Nor => match (lhs, rhs) {
             (Value::Bool(x), Value::Bool(y)) => Value::Bool(!(x | y)),
             _ => halt!(span, "Type error"),
@@ -724,9 +828,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
                 Value::Field(x.pow(y))
             } else {
                 let rhs: u32 = match rhs {
-                    Value::U8(y) => (*y).into(),
-                    Value::U16(y) => (*y).into(),
-                    Value::U32(y) => *y,
+                    Value::U8(y) => (y).into(),
+                    Value::U16(y) => (y).into(),
+                    Value::U32(y) => y,
                     _ => tc_fail!(),
                 };
 
@@ -750,9 +854,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
         }
         BinaryOperation::PowWrapped => {
             let rhs: u32 = match rhs {
-                Value::U8(y) => (*y).into(),
-                Value::U16(y) => (*y).into(),
-                Value::U32(y) => *y,
+                Value::U8(y) => (y).into(),
+                Value::U16(y) => (y).into(),
+                Value::U32(y) => y,
                 _ => halt!(span, "Type error"),
             };
 
@@ -772,16 +876,16 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
         }
         BinaryOperation::Rem => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_rem(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_rem(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_rem(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_rem(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_rem(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_rem(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_rem(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_rem(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_rem(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_rem(*y).map(Value::I128),
+                (Value::U8(x), Value::U8(y)) => x.checked_rem(y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_rem(y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_rem(y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_rem(y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_rem(y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_rem(y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_rem(y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_rem(y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_rem(y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_rem(y).map(Value::I128),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "rem error");
@@ -799,23 +903,23 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
             | (Value::I32(_), Value::I32(0))
             | (Value::I64(_), Value::I64(0))
             | (Value::I128(_), Value::I128(0)) => halt!(span, "rem by 0"),
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_rem(*y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_rem(*y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_rem(*y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_rem(*y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_rem(*y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_rem(*y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_rem(*y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_rem(*y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_rem(*y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_rem(*y)),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_rem(y)),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_rem(y)),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_rem(y)),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_rem(y)),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_rem(y)),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_rem(y)),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_rem(y)),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_rem(y)),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_rem(y)),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_rem(y)),
             _ => halt!(span, "Type error"),
         },
         BinaryOperation::Shl => {
             let rhs: u32 = match rhs {
-                Value::U8(y) => (*y).into(),
-                Value::U16(y) => (*y).into(),
-                Value::U32(y) => *y,
+                Value::U8(y) => (y).into(),
+                Value::U16(y) => (y).into(),
+                Value::U32(y) => y,
                 _ => halt!(span, "Type error"),
             };
             match lhs {
@@ -839,9 +943,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
 
         BinaryOperation::ShlWrapped => {
             let rhs: u32 = match rhs {
-                Value::U8(y) => (*y).into(),
-                Value::U16(y) => (*y).into(),
-                Value::U32(y) => *y,
+                Value::U8(y) => (y).into(),
+                Value::U16(y) => (y).into(),
+                Value::U32(y) => y,
                 _ => halt!(span, "Type error"),
             };
             match lhs {
@@ -861,9 +965,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
 
         BinaryOperation::Shr => {
             let rhs: u32 = match rhs {
-                Value::U8(y) => (*y).into(),
-                Value::U16(y) => (*y).into(),
-                Value::U32(y) => *y,
+                Value::U8(y) => (y).into(),
+                Value::U16(y) => (y).into(),
+                Value::U32(y) => y,
                 _ => halt!(span, "Type error"),
             };
 
@@ -881,9 +985,9 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
 
         BinaryOperation::ShrWrapped => {
             let rhs: u32 = match rhs {
-                Value::U8(y) => (*y).into(),
-                Value::U16(y) => (*y).into(),
-                Value::U32(y) => *y,
+                Value::U8(y) => (y).into(),
+                Value::U16(y) => (y).into(),
+                Value::U32(y) => y,
                 _ => halt!(span, "Type error"),
             };
 
@@ -904,18 +1008,18 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
 
         BinaryOperation::Sub => {
             let Some(value) = (match (lhs, rhs) {
-                (Value::U8(x), Value::U8(y)) => x.checked_sub(*y).map(Value::U8),
-                (Value::U16(x), Value::U16(y)) => x.checked_sub(*y).map(Value::U16),
-                (Value::U32(x), Value::U32(y)) => x.checked_sub(*y).map(Value::U32),
-                (Value::U64(x), Value::U64(y)) => x.checked_sub(*y).map(Value::U64),
-                (Value::U128(x), Value::U128(y)) => x.checked_sub(*y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_sub(*y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_sub(*y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_sub(*y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_sub(*y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_sub(*y).map(Value::I128),
-                (Value::Group(x), Value::Group(y)) => Some(Value::Group(*x - *y)),
-                (Value::Field(x), Value::Field(y)) => Some(Value::Field(*x - *y)),
+                (Value::U8(x), Value::U8(y)) => x.checked_sub(y).map(Value::U8),
+                (Value::U16(x), Value::U16(y)) => x.checked_sub(y).map(Value::U16),
+                (Value::U32(x), Value::U32(y)) => x.checked_sub(y).map(Value::U32),
+                (Value::U64(x), Value::U64(y)) => x.checked_sub(y).map(Value::U64),
+                (Value::U128(x), Value::U128(y)) => x.checked_sub(y).map(Value::U128),
+                (Value::I8(x), Value::I8(y)) => x.checked_sub(y).map(Value::I8),
+                (Value::I16(x), Value::I16(y)) => x.checked_sub(y).map(Value::I16),
+                (Value::I32(x), Value::I32(y)) => x.checked_sub(y).map(Value::I32),
+                (Value::I64(x), Value::I64(y)) => x.checked_sub(y).map(Value::I64),
+                (Value::I128(x), Value::I128(y)) => x.checked_sub(y).map(Value::I128),
+                (Value::Group(x), Value::Group(y)) => Some(Value::Group(x - y)),
+                (Value::Field(x), Value::Field(y)) => Some(Value::Field(x - y)),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "sub overflow");
@@ -924,31 +1028,31 @@ pub fn evaluate_binary(span: Span, op: BinaryOperation, lhs: &Value, rhs: &Value
         }
 
         BinaryOperation::SubWrapped => match (lhs, rhs) {
-            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_sub(*y)),
-            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_sub(*y)),
-            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_sub(*y)),
-            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_sub(*y)),
-            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_sub(*y)),
-            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_sub(*y)),
-            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_sub(*y)),
-            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_sub(*y)),
-            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_sub(*y)),
-            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_sub(*y)),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x.wrapping_sub(y)),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x.wrapping_sub(y)),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x.wrapping_sub(y)),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x.wrapping_sub(y)),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x.wrapping_sub(y)),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x.wrapping_sub(y)),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x.wrapping_sub(y)),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x.wrapping_sub(y)),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x.wrapping_sub(y)),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x.wrapping_sub(y)),
             _ => halt!(span, "Type error"),
         },
 
         BinaryOperation::Xor => match (lhs, rhs) {
-            (Value::Bool(x), Value::Bool(y)) => Value::Bool(*x ^ *y),
-            (Value::U8(x), Value::U8(y)) => Value::U8(*x ^ *y),
-            (Value::U16(x), Value::U16(y)) => Value::U16(*x ^ *y),
-            (Value::U32(x), Value::U32(y)) => Value::U32(*x ^ *y),
-            (Value::U64(x), Value::U64(y)) => Value::U64(*x ^ *y),
-            (Value::U128(x), Value::U128(y)) => Value::U128(*x ^ *y),
-            (Value::I8(x), Value::I8(y)) => Value::I8(*x ^ *y),
-            (Value::I16(x), Value::I16(y)) => Value::I16(*x ^ *y),
-            (Value::I32(x), Value::I32(y)) => Value::I32(*x ^ *y),
-            (Value::I64(x), Value::I64(y)) => Value::I64(*x ^ *y),
-            (Value::I128(x), Value::I128(y)) => Value::I128(*x ^ *y),
+            (Value::Bool(x), Value::Bool(y)) => Value::Bool(x ^ y),
+            (Value::U8(x), Value::U8(y)) => Value::U8(x ^ y),
+            (Value::U16(x), Value::U16(y)) => Value::U16(x ^ y),
+            (Value::U32(x), Value::U32(y)) => Value::U32(x ^ y),
+            (Value::U64(x), Value::U64(y)) => Value::U64(x ^ y),
+            (Value::U128(x), Value::U128(y)) => Value::U128(x ^ y),
+            (Value::I8(x), Value::I8(y)) => Value::I8(x ^ y),
+            (Value::I16(x), Value::I16(y)) => Value::I16(x ^ y),
+            (Value::I32(x), Value::I32(y)) => Value::I32(x ^ y),
+            (Value::I64(x), Value::I64(y)) => Value::I64(x ^ y),
+            (Value::I128(x), Value::I128(y)) => Value::I128(x ^ y),
             _ => halt!(span, "Type error"),
         },
     };

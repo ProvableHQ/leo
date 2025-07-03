@@ -303,13 +303,20 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_binary(&mut self, input: leo_ast::BinaryExpression) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
+        let input_id = input.id();
 
         let (left, lhs_opt_value) = self.reconstruct_expression(input.left);
         let (right, rhs_opt_value) = self.reconstruct_expression(input.right);
 
         if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
-            match interpreter_value::evaluate_binary(span, input.op, &lhs_value, &rhs_value) {
+            match interpreter_value::evaluate_binary(
+                span,
+                input.op,
+                &lhs_value,
+                &rhs_value,
+                &self.state.type_table.get(&input_id),
+            ) {
                 Ok(new_value) => {
                     let new_expr = value_to_expression(&new_value, span, &self.state.node_builder).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
@@ -404,12 +411,13 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (receiver, opt_value) = self.reconstruct_expression(input.receiver);
+        let input_id = input.id();
         let span = input.span;
+        let (receiver, opt_value) = self.reconstruct_expression(input.receiver);
 
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
-            match interpreter_value::evaluate_unary(span, input.op, &value) {
+            match interpreter_value::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
                 Ok(new_value) => {
                     let new_expr = value_to_expression(&new_value, span, &self.state.node_builder).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
