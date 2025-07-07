@@ -15,27 +15,34 @@
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span><span class="kw">super</span>::TypeCheckingVisitor;
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>leo_ast::{ArrayType, Expression, ExpressionVisitor, IntegerType, Node, Type, TypeVisitor};
-<a href=#19 id=19 data-nosnippet>19</a>
-<a href=#20 id=20 data-nosnippet>20</a><span class="kw">impl </span>TypeVisitor <span class="kw">for </span>TypeCheckingVisitor&lt;<span class="lifetime">'_</span>&gt; {
-<a href=#21 id=21 data-nosnippet>21</a>    <span class="kw">fn </span>visit_array_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayType) {
-<a href=#22 id=22 data-nosnippet>22</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.element_type);
-<a href=#23 id=23 data-nosnippet>23</a>        <span class="kw">let </span><span class="kw-2">mut </span>length_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.length, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-<a href=#24 id=24 data-nosnippet>24</a>        <span class="kw">if </span>length_type == Type::Numeric {
-<a href=#25 id=25 data-nosnippet>25</a>            <span class="comment">// Infer `U32` as the default type for array lengths.
-<a href=#26 id=26 data-nosnippet>26</a>            </span>length_type = Type::Integer(IntegerType::U32);
-<a href=#27 id=27 data-nosnippet>27</a>
-<a href=#28 id=28 data-nosnippet>28</a>            <span class="kw">let </span>Expression::Literal(literal) = <span class="kw-2">&amp;*</span>input.length <span class="kw">else </span>{
-<a href=#29 id=29 data-nosnippet>29</a>                <span class="macro">panic!</span>(<span class="string">"only literals can have Type::Numeric"</span>);
-<a href=#30 id=30 data-nosnippet>30</a>            };
-<a href=#31 id=31 data-nosnippet>31</a>
-<a href=#32 id=32 data-nosnippet>32</a>            <span class="comment">// Do not forget to ensure validity of the literal as `U32`
-<a href=#33 id=33 data-nosnippet>33</a>            </span><span class="kw">if </span>!<span class="self">self</span>.check_numeric_literal(literal, <span class="kw-2">&amp;</span>length_type) {
-<a href=#34 id=34 data-nosnippet>34</a>                length_type = Type::Err;
-<a href=#35 id=35 data-nosnippet>35</a>            }
-<a href=#36 id=36 data-nosnippet>36</a>        }
-<a href=#37 id=37 data-nosnippet>37</a>
-<a href=#38 id=38 data-nosnippet>38</a>        <span class="comment">// Keep track of the type of the length expression in type_table
-<a href=#39 id=39 data-nosnippet>39</a>        </span><span class="self">self</span>.state.type_table.insert(input.length.id(), length_type);
-<a href=#40 id=40 data-nosnippet>40</a>    }
-<a href=#41 id=41 data-nosnippet>41</a>}</code></pre></div></section></main></body></html>
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>leo_ast::{ArrayType, CompositeType, ExpressionVisitor, TypeVisitor};
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_errors::TypeCheckerError;
+<a href=#20 id=20 data-nosnippet>20</a>
+<a href=#21 id=21 data-nosnippet>21</a><span class="kw">impl </span>TypeVisitor <span class="kw">for </span>TypeCheckingVisitor&lt;<span class="lifetime">'_</span>&gt; {
+<a href=#22 id=22 data-nosnippet>22</a>    <span class="kw">fn </span>visit_array_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayType) {
+<a href=#23 id=23 data-nosnippet>23</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.element_type);
+<a href=#24 id=24 data-nosnippet>24</a>        <span class="self">self</span>.visit_expression_infer_default_u32(<span class="kw-2">&amp;</span>input.length);
+<a href=#25 id=25 data-nosnippet>25</a>    }
+<a href=#26 id=26 data-nosnippet>26</a>
+<a href=#27 id=27 data-nosnippet>27</a>    <span class="kw">fn </span>visit_composite_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CompositeType) {
+<a href=#28 id=28 data-nosnippet>28</a>        <span class="kw">let </span>struct_ = <span class="self">self</span>.lookup_struct(<span class="self">self</span>.scope_state.program_name, input.id.name).clone();
+<a href=#29 id=29 data-nosnippet>29</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = struct_ {
+<a href=#30 id=30 data-nosnippet>30</a>            <span class="comment">// Check the number of const arguments against the number of the struct's const parameters
+<a href=#31 id=31 data-nosnippet>31</a>            </span><span class="kw">if </span>struct_.const_parameters.len() != input.const_arguments.len() {
+<a href=#32 id=32 data-nosnippet>32</a>                <span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_const_args(
+<a href=#33 id=33 data-nosnippet>33</a>                    <span class="string">"Struct type"</span>,
+<a href=#34 id=34 data-nosnippet>34</a>                    struct_.const_parameters.len(),
+<a href=#35 id=35 data-nosnippet>35</a>                    input.const_arguments.len(),
+<a href=#36 id=36 data-nosnippet>36</a>                    input.id.span,
+<a href=#37 id=37 data-nosnippet>37</a>                ));
+<a href=#38 id=38 data-nosnippet>38</a>            }
+<a href=#39 id=39 data-nosnippet>39</a>
+<a href=#40 id=40 data-nosnippet>40</a>            <span class="comment">// Check the types of const arguments against the types of the struct's const parameters
+<a href=#41 id=41 data-nosnippet>41</a>            </span><span class="kw">for </span>(expected, argument) <span class="kw">in </span>struct_.const_parameters.iter().zip(input.const_arguments.iter()) {
+<a href=#42 id=42 data-nosnippet>42</a>                <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_().clone()));
+<a href=#43 id=43 data-nosnippet>43</a>            }
+<a href=#44 id=44 data-nosnippet>44</a>        } <span class="kw">else if </span>!input.const_arguments.is_empty() {
+<a href=#45 id=45 data-nosnippet>45</a>            <span class="self">self</span>.emit_err(TypeCheckerError::unexpected_const_args(input, input.id.span));
+<a href=#46 id=46 data-nosnippet>46</a>        }
+<a href=#47 id=47 data-nosnippet>47</a>    }
+<a href=#48 id=48 data-nosnippet>48</a>}</code></pre></div></section></main></body></html>

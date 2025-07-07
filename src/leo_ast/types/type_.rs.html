@@ -135,32 +135,34 @@
 <a href=#135 id=135 data-nosnippet>135</a>                snarkvm::prelude::LiteralType::Signature =&gt; Type::Signature,
 <a href=#136 id=136 data-nosnippet>136</a>                snarkvm::prelude::LiteralType::String =&gt; Type::String,
 <a href=#137 id=137 data-nosnippet>137</a>            },
-<a href=#138 id=138 data-nosnippet>138</a>            Struct(s) =&gt; Type::Composite(CompositeType { id: common::Identifier::from(s), program }),
-<a href=#139 id=139 data-nosnippet>139</a>            Array(array) =&gt; Type::Array(ArrayType::from_snarkvm(array, program)),
-<a href=#140 id=140 data-nosnippet>140</a>        }
-<a href=#141 id=141 data-nosnippet>141</a>    }
-<a href=#142 id=142 data-nosnippet>142</a>}
-<a href=#143 id=143 data-nosnippet>143</a>
-<a href=#144 id=144 data-nosnippet>144</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Type {
-<a href=#145 id=145 data-nosnippet>145</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-<a href=#146 id=146 data-nosnippet>146</a>        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-<a href=#147 id=147 data-nosnippet>147</a>            Type::Address =&gt; <span class="macro">write!</span>(f, <span class="string">"address"</span>),
-<a href=#148 id=148 data-nosnippet>148</a>            Type::Array(<span class="kw-2">ref </span>array_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{array_type}"</span>),
-<a href=#149 id=149 data-nosnippet>149</a>            Type::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">"bool"</span>),
-<a href=#150 id=150 data-nosnippet>150</a>            Type::Field =&gt; <span class="macro">write!</span>(f, <span class="string">"field"</span>),
-<a href=#151 id=151 data-nosnippet>151</a>            Type::Future(<span class="kw-2">ref </span>future_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{future_type}"</span>),
-<a href=#152 id=152 data-nosnippet>152</a>            Type::Group =&gt; <span class="macro">write!</span>(f, <span class="string">"group"</span>),
-<a href=#153 id=153 data-nosnippet>153</a>            Type::Identifier(<span class="kw-2">ref </span>variable) =&gt; <span class="macro">write!</span>(f, <span class="string">"{variable}"</span>),
-<a href=#154 id=154 data-nosnippet>154</a>            Type::Integer(<span class="kw-2">ref </span>integer_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{integer_type}"</span>),
-<a href=#155 id=155 data-nosnippet>155</a>            Type::Mapping(<span class="kw-2">ref </span>mapping_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{mapping_type}"</span>),
-<a href=#156 id=156 data-nosnippet>156</a>            Type::Scalar =&gt; <span class="macro">write!</span>(f, <span class="string">"scalar"</span>),
-<a href=#157 id=157 data-nosnippet>157</a>            Type::Signature =&gt; <span class="macro">write!</span>(f, <span class="string">"signature"</span>),
-<a href=#158 id=158 data-nosnippet>158</a>            Type::String =&gt; <span class="macro">write!</span>(f, <span class="string">"string"</span>),
-<a href=#159 id=159 data-nosnippet>159</a>            Type::Composite(<span class="kw-2">ref </span>struct_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{struct_type}"</span>),
-<a href=#160 id=160 data-nosnippet>160</a>            Type::Tuple(<span class="kw-2">ref </span>tuple) =&gt; <span class="macro">write!</span>(f, <span class="string">"{tuple}"</span>),
-<a href=#161 id=161 data-nosnippet>161</a>            Type::Numeric =&gt; <span class="macro">write!</span>(f, <span class="string">"numeric"</span>),
-<a href=#162 id=162 data-nosnippet>162</a>            Type::Unit =&gt; <span class="macro">write!</span>(f, <span class="string">"()"</span>),
-<a href=#163 id=163 data-nosnippet>163</a>            Type::Err =&gt; <span class="macro">write!</span>(f, <span class="string">"error"</span>),
-<a href=#164 id=164 data-nosnippet>164</a>        }
-<a href=#165 id=165 data-nosnippet>165</a>    }
-<a href=#166 id=166 data-nosnippet>166</a>}</code></pre></div></section></main></body></html>
+<a href=#138 id=138 data-nosnippet>138</a>            Struct(s) =&gt; {
+<a href=#139 id=139 data-nosnippet>139</a>                Type::Composite(CompositeType { id: common::Identifier::from(s), const_arguments: Vec::new(), program })
+<a href=#140 id=140 data-nosnippet>140</a>            }
+<a href=#141 id=141 data-nosnippet>141</a>            Array(array) =&gt; Type::Array(ArrayType::from_snarkvm(array, program)),
+<a href=#142 id=142 data-nosnippet>142</a>        }
+<a href=#143 id=143 data-nosnippet>143</a>    }
+<a href=#144 id=144 data-nosnippet>144</a>}
+<a href=#145 id=145 data-nosnippet>145</a>
+<a href=#146 id=146 data-nosnippet>146</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Type {
+<a href=#147 id=147 data-nosnippet>147</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+<a href=#148 id=148 data-nosnippet>148</a>        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+<a href=#149 id=149 data-nosnippet>149</a>            Type::Address =&gt; <span class="macro">write!</span>(f, <span class="string">"address"</span>),
+<a href=#150 id=150 data-nosnippet>150</a>            Type::Array(<span class="kw-2">ref </span>array_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{array_type}"</span>),
+<a href=#151 id=151 data-nosnippet>151</a>            Type::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">"bool"</span>),
+<a href=#152 id=152 data-nosnippet>152</a>            Type::Field =&gt; <span class="macro">write!</span>(f, <span class="string">"field"</span>),
+<a href=#153 id=153 data-nosnippet>153</a>            Type::Future(<span class="kw-2">ref </span>future_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{future_type}"</span>),
+<a href=#154 id=154 data-nosnippet>154</a>            Type::Group =&gt; <span class="macro">write!</span>(f, <span class="string">"group"</span>),
+<a href=#155 id=155 data-nosnippet>155</a>            Type::Identifier(<span class="kw-2">ref </span>variable) =&gt; <span class="macro">write!</span>(f, <span class="string">"{variable}"</span>),
+<a href=#156 id=156 data-nosnippet>156</a>            Type::Integer(<span class="kw-2">ref </span>integer_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{integer_type}"</span>),
+<a href=#157 id=157 data-nosnippet>157</a>            Type::Mapping(<span class="kw-2">ref </span>mapping_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{mapping_type}"</span>),
+<a href=#158 id=158 data-nosnippet>158</a>            Type::Scalar =&gt; <span class="macro">write!</span>(f, <span class="string">"scalar"</span>),
+<a href=#159 id=159 data-nosnippet>159</a>            Type::Signature =&gt; <span class="macro">write!</span>(f, <span class="string">"signature"</span>),
+<a href=#160 id=160 data-nosnippet>160</a>            Type::String =&gt; <span class="macro">write!</span>(f, <span class="string">"string"</span>),
+<a href=#161 id=161 data-nosnippet>161</a>            Type::Composite(<span class="kw-2">ref </span>struct_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{struct_type}"</span>),
+<a href=#162 id=162 data-nosnippet>162</a>            Type::Tuple(<span class="kw-2">ref </span>tuple) =&gt; <span class="macro">write!</span>(f, <span class="string">"{tuple}"</span>),
+<a href=#163 id=163 data-nosnippet>163</a>            Type::Numeric =&gt; <span class="macro">write!</span>(f, <span class="string">"numeric"</span>),
+<a href=#164 id=164 data-nosnippet>164</a>            Type::Unit =&gt; <span class="macro">write!</span>(f, <span class="string">"()"</span>),
+<a href=#165 id=165 data-nosnippet>165</a>            Type::Err =&gt; <span class="macro">write!</span>(f, <span class="string">"error"</span>),
+<a href=#166 id=166 data-nosnippet>166</a>        }
+<a href=#167 id=167 data-nosnippet>167</a>    }
+<a href=#168 id=168 data-nosnippet>168</a>}</code></pre></div></section></main></body></html>

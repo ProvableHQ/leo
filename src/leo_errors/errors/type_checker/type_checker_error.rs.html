@@ -1106,10 +1106,10 @@
 <a href=#1106 id=1106 data-nosnippet>1106</a>    }
 <a href=#1107 id=1107 data-nosnippet>1107</a>
 <a href=#1108 id=1108 data-nosnippet>1108</a>    @formatted
-<a href=#1109 id=1109 data-nosnippet>1109</a>    incorrect_num_const_args_to_call {
-<a href=#1110 id=1110 data-nosnippet>1110</a>        args: (expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
+<a href=#1109 id=1109 data-nosnippet>1109</a>    incorrect_num_const_args {
+<a href=#1110 id=1110 data-nosnippet>1110</a>        args: (kind: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
 <a href=#1111 id=1111 data-nosnippet>1111</a>        msg: <span class="macro">format!</span>(
-<a href=#1112 id=1112 data-nosnippet>1112</a>            <span class="string">"Call expected `{expected}` const args, but got `{received}`"</span>,
+<a href=#1112 id=1112 data-nosnippet>1112</a>            <span class="string">"{kind} expected `{expected}` const args, but got `{received}`"</span>,
 <a href=#1113 id=1113 data-nosnippet>1113</a>        ),
 <a href=#1114 id=1114 data-nosnippet>1114</a>        help: <span class="prelude-val">None</span>,
 <a href=#1115 id=1115 data-nosnippet>1115</a>    }
@@ -1141,7 +1141,21 @@
 <a href=#1141 id=1141 data-nosnippet>1141</a>    @formatted
 <a href=#1142 id=1142 data-nosnippet>1142</a>    array_too_large_for_u32 {
 <a href=#1143 id=1143 data-nosnippet>1143</a>        args: (),
-<a href=#1144 id=1144 data-nosnippet>1144</a>        msg: <span class="macro">format!</span>(<span class="string">"An array length must be small enough to fit in a `u32` "</span>),
+<a href=#1144 id=1144 data-nosnippet>1144</a>        msg: <span class="macro">format!</span>(<span class="string">"An array length must be small enough to fit in a `u32`"</span>),
 <a href=#1145 id=1145 data-nosnippet>1145</a>        help: <span class="prelude-val">None</span>,
 <a href=#1146 id=1146 data-nosnippet>1146</a>    }
-<a href=#1147 id=1147 data-nosnippet>1147</a>);</code></pre></div></section></main></body></html>
+<a href=#1147 id=1147 data-nosnippet>1147</a>
+<a href=#1148 id=1148 data-nosnippet>1148</a>    @formatted
+<a href=#1149 id=1149 data-nosnippet>1149</a>    unexpected_record_const_parameters {
+<a href=#1150 id=1150 data-nosnippet>1150</a>        args: (),
+<a href=#1151 id=1151 data-nosnippet>1151</a>        msg: <span class="macro">format!</span>(<span class="string">"Records cannot be declared with generic const parameters."</span>),
+<a href=#1152 id=1152 data-nosnippet>1152</a>        help: <span class="prelude-val">None</span>,
+<a href=#1153 id=1153 data-nosnippet>1153</a>    }
+<a href=#1154 id=1154 data-nosnippet>1154</a>
+<a href=#1155 id=1155 data-nosnippet>1155</a>    @formatted
+<a href=#1156 id=1156 data-nosnippet>1156</a>    unexpected_const_args {
+<a href=#1157 id=1157 data-nosnippet>1157</a>        args: (item: <span class="kw">impl </span>Display),
+<a href=#1158 id=1158 data-nosnippet>1158</a>        msg: <span class="macro">format!</span>(<span class="string">"unexpected generic const argment for {item}."</span>),
+<a href=#1159 id=1159 data-nosnippet>1159</a>        help: <span class="prelude-val">Some</span>(<span class="string">"If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments"</span>.to_string()),
+<a href=#1160 id=1160 data-nosnippet>1160</a>    }
+<a href=#1161 id=1161 data-nosnippet>1161</a>);</code></pre></div></section></main></body></html>

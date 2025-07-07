@@ -114,9 +114,9 @@
 <a href=#114 id=114 data-nosnippet>114</a>    }
 <a href=#115 id=115 data-nosnippet>115</a>
 <a href=#116 id=116 data-nosnippet>116</a>    @formatted
-<a href=#117 id=117 data-nosnippet>117</a>    call_to_generic_function_not_resolved {
-<a href=#118 id=118 data-nosnippet>118</a>        args: (func: <span class="kw">impl </span>Display, arg: <span class="kw">impl </span>Display),
-<a href=#119 id=119 data-nosnippet>119</a>        msg: <span class="macro">format!</span>(<span class="string">"Unable to resolve call to generic function `{func}`. A non-const expression `{arg}` was provided where a const generic parameter is required."</span>),
+<a href=#117 id=117 data-nosnippet>117</a>    const_generic_not_resolved {
+<a href=#118 id=118 data-nosnippet>118</a>        args: (kind: <span class="kw">impl </span>Display, item: <span class="kw">impl </span>Display, arg: <span class="kw">impl </span>Display),
+<a href=#119 id=119 data-nosnippet>119</a>        msg: <span class="macro">format!</span>(<span class="string">"Unable to resolve {kind} `{item}`. A non-const expression `{arg}` was provided where a const generic parameter is required."</span>),
 <a href=#120 id=120 data-nosnippet>120</a>        help: <span class="prelude-val">None</span>,
 <a href=#121 id=121 data-nosnippet>121</a>    }
 <a href=#122 id=122 data-nosnippet>122</a>

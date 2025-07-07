@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["expression","program","visitor"],"struct":["Monomorphization","MonomorphizationOutput"]};
+window.SIDEBAR_ITEMS = {"mod":["expression","program","type_","visitor"],"struct":["Monomorphization","MonomorphizationOutput"]};

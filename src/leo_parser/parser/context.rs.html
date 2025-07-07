@@ -269,4 +269,15 @@
 <a href=#269 id=269 data-nosnippet>269</a>            ));
 <a href=#270 id=270 data-nosnippet>270</a>        }
 <a href=#271 id=271 data-nosnippet>271</a>    }
-<a href=#272 id=272 data-nosnippet>272</a>}</code></pre></div></section></main></body></html>
+<a href=#272 id=272 data-nosnippet>272</a>
+<a href=#273 id=273 data-nosnippet>273</a>    <span class="doccomment">/// Returns a [`ConstParameter`] AST node if the next tokens represent a generic const parameter.
+<a href=#274 id=274 data-nosnippet>274</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_const_parameter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ConstParameter&gt; {
+<a href=#275 id=275 data-nosnippet>275</a>        <span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+<a href=#276 id=276 data-nosnippet>276</a>        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
+<a href=#277 id=277 data-nosnippet>277</a>
+<a href=#278 id=278 data-nosnippet>278</a>        <span class="kw">let </span>(type_, type_span) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
+<a href=#279 id=279 data-nosnippet>279</a>        <span class="kw">let </span>span = name.span() + type_span;
+<a href=#280 id=280 data-nosnippet>280</a>
+<a href=#281 id=281 data-nosnippet>281</a>        <span class="prelude-val">Ok</span>(ConstParameter { identifier: name, type_, span, id: <span class="self">self</span>.node_builder.next_id() })
+<a href=#282 id=282 data-nosnippet>282</a>    }
+<a href=#283 id=283 data-nosnippet>283</a>}</code></pre></div></section></main></body></html>

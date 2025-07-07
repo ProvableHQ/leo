@@ -100,60 +100,71 @@
 <a href=#100 id=100 data-nosnippet>100</a>                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(record_name) = <span class="self">self</span>.eat_identifier() {
 <a href=#101 id=101 data-nosnippet>101</a>                    <span class="comment">// Return the external type
 <a href=#102 id=102 data-nosnippet>102</a>                    </span><span class="kw">return </span><span class="prelude-val">Ok</span>((
-<a href=#103 id=103 data-nosnippet>103</a>                        Type::Composite(CompositeType { id: record_name, program: <span class="prelude-val">Some</span>(ident.name) }),
-<a href=#104 id=104 data-nosnippet>104</a>                        ident.span + record_name.span,
-<a href=#105 id=105 data-nosnippet>105</a>                    ));
-<a href=#106 id=106 data-nosnippet>106</a>                } <span class="kw">else </span>{
-<a href=#107 id=107 data-nosnippet>107</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_external_type(<span class="self">self</span>.token.span).into());
-<a href=#108 id=108 data-nosnippet>108</a>                }
-<a href=#109 id=109 data-nosnippet>109</a>            }
-<a href=#110 id=110 data-nosnippet>110</a>
-<a href=#111 id=111 data-nosnippet>111</a>            <span class="prelude-val">Ok</span>((Type::Composite(CompositeType { id: ident, program: <span class="prelude-val">None </span>}), ident.span))
-<a href=#112 id=112 data-nosnippet>112</a>        } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::LeftSquare {
-<a href=#113 id=113 data-nosnippet>113</a>            <span class="comment">// Parse the left bracket.
-<a href=#114 id=114 data-nosnippet>114</a>            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftSquare)<span class="question-mark">?</span>;
-<a href=#115 id=115 data-nosnippet>115</a>            <span class="comment">// Parse the element type.
-<a href=#116 id=116 data-nosnippet>116</a>            </span><span class="kw">let </span>(element_type, <span class="kw">_</span>) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
-<a href=#117 id=117 data-nosnippet>117</a>            <span class="comment">// Parse the semi-colon.
-<a href=#118 id=118 data-nosnippet>118</a>            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
-<a href=#119 id=119 data-nosnippet>119</a>            <span class="comment">// Parse the length as an expression.
-<a href=#120 id=120 data-nosnippet>120</a>            </span><span class="kw">let </span>length = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
-<a href=#121 id=121 data-nosnippet>121</a>            <span class="comment">// Parse the right bracket.
-<a href=#122 id=122 data-nosnippet>122</a>            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightSquare)<span class="question-mark">?</span>;
-<a href=#123 id=123 data-nosnippet>123</a>            <span class="comment">// Return the array type.
-<a href=#124 id=124 data-nosnippet>124</a>            </span><span class="prelude-val">Ok</span>((Type::Array(ArrayType::new(element_type, length)), <span class="self">self</span>.prev_token.span))
-<a href=#125 id=125 data-nosnippet>125</a>        } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::LeftParen {
-<a href=#126 id=126 data-nosnippet>126</a>            <span class="kw">let </span>(types, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_type().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
-<a href=#127 id=127 data-nosnippet>127</a>            <span class="kw">match </span>types.len() {
-<a href=#128 id=128 data-nosnippet>128</a>                <span class="comment">// If the parenthetical block is empty, e.g. `()` or `( )`, it should be parsed into `Unit` types.
-<a href=#129 id=129 data-nosnippet>129</a>                </span><span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>((Type::Unit, span)),
-<a href=#130 id=130 data-nosnippet>130</a>                <span class="comment">// If the parenthetical block contains a single type, e.g. `(u8)`, emit an error, since tuples must have at least two elements.
-<a href=#131 id=131 data-nosnippet>131</a>                </span><span class="number">1 </span>=&gt; <span class="prelude-val">Err</span>(ParserError::tuple_must_have_at_least_two_elements(<span class="string">"type"</span>, span).into()),
-<a href=#132 id=132 data-nosnippet>132</a>                <span class="comment">// Otherwise, parse it into a `Tuple` type.
-<a href=#133 id=133 data-nosnippet>133</a>                // Note: This is the only place where `Tuple` type is constructed in the parser.
-<a href=#134 id=134 data-nosnippet>134</a>                </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>((Type::Tuple(TupleType::new(types.into_iter().map(|t| t.<span class="number">0</span>).collect())), span)),
-<a href=#135 id=135 data-nosnippet>135</a>            }
-<a href=#136 id=136 data-nosnippet>136</a>        } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::Future {
-<a href=#137 id=137 data-nosnippet>137</a>            <span class="comment">// Parse the `Future` token.
-<a href=#138 id=138 data-nosnippet>138</a>            </span><span class="kw">let </span>span = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Future)<span class="question-mark">?</span>;
-<a href=#139 id=139 data-nosnippet>139</a>            <span class="comment">// Parse the explicit future type, e.g. `Future&lt;Fn(u32, u32)&gt;`, `Future&lt;Fn(u32, Future&lt;Fn(u32, u32, u64)&gt;)&gt;` etc.
-<a href=#140 id=140 data-nosnippet>140</a>            </span><span class="kw">if </span><span class="self">self</span>.token.token == Token::Lt {
-<a href=#141 id=141 data-nosnippet>141</a>                <span class="comment">// Expect the sequence `&lt;`, `Fn`.
-<a href=#142 id=142 data-nosnippet>142</a>                </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Lt)<span class="question-mark">?</span>;
-<a href=#143 id=143 data-nosnippet>143</a>                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Fn)<span class="question-mark">?</span>;
-<a href=#144 id=144 data-nosnippet>144</a>                <span class="comment">// Parse the parenthesized list of function arguments.
-<a href=#145 id=145 data-nosnippet>145</a>                </span><span class="kw">let </span>(types, <span class="kw">_</span>, full_span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_type().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
-<a href=#146 id=146 data-nosnippet>146</a>                <span class="comment">// Expect the closing `&gt;`.
-<a href=#147 id=147 data-nosnippet>147</a>                </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Gt)<span class="question-mark">?</span>;
-<a href=#148 id=148 data-nosnippet>148</a>                <span class="prelude-val">Ok</span>((
-<a href=#149 id=149 data-nosnippet>149</a>                    Type::Future(FutureType::new(types.into_iter().map(|t| t.<span class="number">0</span>).collect(), <span class="prelude-val">None</span>, <span class="bool-val">true</span>)),
-<a href=#150 id=150 data-nosnippet>150</a>                    span + full_span,
-<a href=#151 id=151 data-nosnippet>151</a>                ))
-<a href=#152 id=152 data-nosnippet>152</a>            } <span class="kw">else </span>{
-<a href=#153 id=153 data-nosnippet>153</a>                <span class="prelude-val">Ok</span>((Type::Future(Default::default()), span))
-<a href=#154 id=154 data-nosnippet>154</a>            }
-<a href=#155 id=155 data-nosnippet>155</a>        } <span class="kw">else </span>{
-<a href=#156 id=156 data-nosnippet>156</a>            <span class="self">self</span>.parse_primitive_type()
-<a href=#157 id=157 data-nosnippet>157</a>        }
-<a href=#158 id=158 data-nosnippet>158</a>    }
-<a href=#159 id=159 data-nosnippet>159</a>}</code></pre></div></section></main></body></html>
+<a href=#103 id=103 data-nosnippet>103</a>                        Type::Composite(CompositeType {
+<a href=#104 id=104 data-nosnippet>104</a>                            id: record_name,
+<a href=#105 id=105 data-nosnippet>105</a>                            const_arguments: Vec::new(), <span class="comment">// For now, external composite types can't have const generics
+<a href=#106 id=106 data-nosnippet>106</a>                            </span>program: <span class="prelude-val">Some</span>(ident.name),
+<a href=#107 id=107 data-nosnippet>107</a>                        }),
+<a href=#108 id=108 data-nosnippet>108</a>                        ident.span + record_name.span,
+<a href=#109 id=109 data-nosnippet>109</a>                    ));
+<a href=#110 id=110 data-nosnippet>110</a>                } <span class="kw">else </span>{
+<a href=#111 id=111 data-nosnippet>111</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_external_type(<span class="self">self</span>.token.span).into());
+<a href=#112 id=112 data-nosnippet>112</a>                }
+<a href=#113 id=113 data-nosnippet>113</a>            }
+<a href=#114 id=114 data-nosnippet>114</a>
+<a href=#115 id=115 data-nosnippet>115</a>            <span class="comment">// Parse a list of const arguments in between `::[..]`
+<a href=#116 id=116 data-nosnippet>116</a>            </span><span class="kw">let </span>const_arguments = <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::DoubleColon) {
+<a href=#117 id=117 data-nosnippet>117</a>                <span class="self">self</span>.parse_bracket_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>.<span class="number">0
+<a href=#118 id=118 data-nosnippet>118</a>            </span>} <span class="kw">else </span>{
+<a href=#119 id=119 data-nosnippet>119</a>                Vec::new()
+<a href=#120 id=120 data-nosnippet>120</a>            };
+<a href=#121 id=121 data-nosnippet>121</a>
+<a href=#122 id=122 data-nosnippet>122</a>            <span class="prelude-val">Ok</span>((Type::Composite(CompositeType { id: ident, const_arguments, program: <span class="prelude-val">None </span>}), ident.span))
+<a href=#123 id=123 data-nosnippet>123</a>        } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::LeftSquare {
+<a href=#124 id=124 data-nosnippet>124</a>            <span class="comment">// Parse the left bracket.
+<a href=#125 id=125 data-nosnippet>125</a>            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftSquare)<span class="question-mark">?</span>;
+<a href=#126 id=126 data-nosnippet>126</a>            <span class="comment">// Parse the element type.
+<a href=#127 id=127 data-nosnippet>127</a>            </span><span class="kw">let </span>(element_type, <span class="kw">_</span>) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
+<a href=#128 id=128 data-nosnippet>128</a>            <span class="comment">// Parse the semi-colon.
+<a href=#129 id=129 data-nosnippet>129</a>            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+<a href=#130 id=130 data-nosnippet>130</a>            <span class="comment">// Parse the length as an expression.
+<a href=#131 id=131 data-nosnippet>131</a>            </span><span class="kw">let </span>length = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+<a href=#132 id=132 data-nosnippet>132</a>            <span class="comment">// Parse the right bracket.
+<a href=#133 id=133 data-nosnippet>133</a>            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightSquare)<span class="question-mark">?</span>;
+<a href=#134 id=134 data-nosnippet>134</a>            <span class="comment">// Return the array type.
+<a href=#135 id=135 data-nosnippet>135</a>            </span><span class="prelude-val">Ok</span>((Type::Array(ArrayType::new(element_type, length)), <span class="self">self</span>.prev_token.span))
+<a href=#136 id=136 data-nosnippet>136</a>        } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::LeftParen {
+<a href=#137 id=137 data-nosnippet>137</a>            <span class="kw">let </span>(types, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_type().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+<a href=#138 id=138 data-nosnippet>138</a>            <span class="kw">match </span>types.len() {
+<a href=#139 id=139 data-nosnippet>139</a>                <span class="comment">// If the parenthetical block is empty, e.g. `()` or `( )`, it should be parsed into `Unit` types.
+<a href=#140 id=140 data-nosnippet>140</a>                </span><span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>((Type::Unit, span)),
+<a href=#141 id=141 data-nosnippet>141</a>                <span class="comment">// If the parenthetical block contains a single type, e.g. `(u8)`, emit an error, since tuples must have at least two elements.
+<a href=#142 id=142 data-nosnippet>142</a>                </span><span class="number">1 </span>=&gt; <span class="prelude-val">Err</span>(ParserError::tuple_must_have_at_least_two_elements(<span class="string">"type"</span>, span).into()),
+<a href=#143 id=143 data-nosnippet>143</a>                <span class="comment">// Otherwise, parse it into a `Tuple` type.
+<a href=#144 id=144 data-nosnippet>144</a>                // Note: This is the only place where `Tuple` type is constructed in the parser.
+<a href=#145 id=145 data-nosnippet>145</a>                </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>((Type::Tuple(TupleType::new(types.into_iter().map(|t| t.<span class="number">0</span>).collect())), span)),
+<a href=#146 id=146 data-nosnippet>146</a>            }
+<a href=#147 id=147 data-nosnippet>147</a>        } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::Future {
+<a href=#148 id=148 data-nosnippet>148</a>            <span class="comment">// Parse the `Future` token.
+<a href=#149 id=149 data-nosnippet>149</a>            </span><span class="kw">let </span>span = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Future)<span class="question-mark">?</span>;
+<a href=#150 id=150 data-nosnippet>150</a>            <span class="comment">// Parse the explicit future type, e.g. `Future&lt;Fn(u32, u32)&gt;`, `Future&lt;Fn(u32, Future&lt;Fn(u32, u32, u64)&gt;)&gt;` etc.
+<a href=#151 id=151 data-nosnippet>151</a>            </span><span class="kw">if </span><span class="self">self</span>.token.token == Token::Lt {
+<a href=#152 id=152 data-nosnippet>152</a>                <span class="comment">// Expect the sequence `&lt;`, `Fn`.
+<a href=#153 id=153 data-nosnippet>153</a>                </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Lt)<span class="question-mark">?</span>;
+<a href=#154 id=154 data-nosnippet>154</a>                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Fn)<span class="question-mark">?</span>;
+<a href=#155 id=155 data-nosnippet>155</a>                <span class="comment">// Parse the parenthesized list of function arguments.
+<a href=#156 id=156 data-nosnippet>156</a>                </span><span class="kw">let </span>(types, <span class="kw">_</span>, full_span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_type().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+<a href=#157 id=157 data-nosnippet>157</a>                <span class="comment">// Expect the closing `&gt;`.
+<a href=#158 id=158 data-nosnippet>158</a>                </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Gt)<span class="question-mark">?</span>;
+<a href=#159 id=159 data-nosnippet>159</a>                <span class="prelude-val">Ok</span>((
+<a href=#160 id=160 data-nosnippet>160</a>                    Type::Future(FutureType::new(types.into_iter().map(|t| t.<span class="number">0</span>).collect(), <span class="prelude-val">None</span>, <span class="bool-val">true</span>)),
+<a href=#161 id=161 data-nosnippet>161</a>                    span + full_span,
+<a href=#162 id=162 data-nosnippet>162</a>                ))
+<a href=#163 id=163 data-nosnippet>163</a>            } <span class="kw">else </span>{
+<a href=#164 id=164 data-nosnippet>164</a>                <span class="prelude-val">Ok</span>((Type::Future(Default::default()), span))
+<a href=#165 id=165 data-nosnippet>165</a>            }
+<a href=#166 id=166 data-nosnippet>166</a>        } <span class="kw">else </span>{
+<a href=#167 id=167 data-nosnippet>167</a>            <span class="self">self</span>.parse_primitive_type()
+<a href=#168 id=168 data-nosnippet>168</a>        }
+<a href=#169 id=169 data-nosnippet>169</a>    }
+<a href=#170 id=170 data-nosnippet>170</a>}</code></pre></div></section></main></body></html>

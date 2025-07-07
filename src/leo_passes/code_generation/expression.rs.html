@@ -276,7 +276,7 @@
 <a href=#276 id=276 data-nosnippet>276</a>                </span><span class="macro">format!</span>(<span class="string">"{}.{type_}"</span>, input.name)
 <a href=#277 id=277 data-nosnippet>277</a>            } <span class="kw">else </span>{
 <a href=#278 id=278 data-nosnippet>278</a>                <span class="comment">// foo; // no visibility for structs
-<a href=#279 id=279 data-nosnippet>279</a>                </span>input.name.to_string()
+<a href=#279 id=279 data-nosnippet>279</a>                </span><span class="self">Self</span>::legalize_struct_name(input.name.to_string())
 <a href=#280 id=280 data-nosnippet>280</a>            }
 <a href=#281 id=281 data-nosnippet>281</a>        } <span class="kw">else </span>{
 <a href=#282 id=282 data-nosnippet>282</a>            <span class="macro">panic!</span>(<span class="string">"All composite types should be known at this phase of compilation"</span>)
