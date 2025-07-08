@@ -330,12 +330,15 @@ fn handle_execute<A: Aleo>(
     if command.action.broadcast {
         println!("📡 Broadcasting execution for {program_name}...");
         // Get and confirm the fee with the user.
-        let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
-        if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.extra.yes)? {
-            println!("❌ Execution aborted.");
-            return Ok(());
+        let mut fee_id = None;
+        if let Some(fee) = transaction.fee_transition() {
+            // Most transactions will have fees, but some, like credits.aleo/upgrade executions, may not.
+            if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.extra.yes)? {
+                println!("❌ Execution aborted.");
+                return Ok(());
+            }
+            fee_id = Some(fee.id().to_string());
         }
-        let fee_id = fee.id().to_string();
         let id = transaction.id().to_string();
         let height_before = check_transaction::current_height(&endpoint, network)?;
         // Broadcast the transaction to the network.
@@ -351,7 +354,7 @@ fn handle_execute<A: Aleo>(
             200..=299 => {
                 let status = check_transaction::check_transaction_with_message(
                     &id,
-                    Some(&fee_id),
+                    fee_id.as_deref(),
                     &endpoint,
                     network,
                     height_before + 1,
