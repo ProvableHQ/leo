@@ -125,15 +125,20 @@ version = "0.10.9"
 # snarkvm doesn't use semantic versioning, so pin to a
 # specific version.
 [workspace.dependencies.snarkvm]
-version = "=3.8.0"
+version = "=4.0.0"
+features = [ "cli" ]
 
 # ditto
 [workspace.dependencies.snarkvm-circuit]
-version = "=3.8.0"
+version = "=4.0.0"
 
 # ditto
 [workspace.dependencies.snarkvm-synthesizer-program]
-version = "=3.8.0"
+version = "=4.0.0"
+
+# ditto
+[workspace.dependencies.snarkvm-console-network]
+version = "=4.0.0"
 
 [workspace.dependencies.serde]
 version = "1.0.214"
@@ -153,7 +158,7 @@ version = "3.13"
 version = "0.1"
 
 [workspace.dependencies.ureq]
-version = "2.10.1"
+version = "3.0.12"
 
 [workspace.dependencies.walkdir]
 version = "2.5"

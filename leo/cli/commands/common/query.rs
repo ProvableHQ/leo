@@ -22,7 +22,6 @@ use super::*;
 
 use leo_package::{NetworkName, ProgramData};
 use leo_span::Symbol;
-use ureq::Response;
 
 /// A helper function to query the public balance of an address.
 pub fn get_public_balance<N: Network>(
@@ -78,16 +77,23 @@ pub fn get_latest_block_height(endpoint: &str, network: NetworkName, context: &C
 }
 
 /// Determine if the transaction should be broadcast or displayed to user.
-pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>, operation: &str) -> Result<Response> {
+///
+/// Returns (body, status code).
+pub fn handle_broadcast<N: Network>(
+    endpoint: &str,
+    transaction: &Transaction<N>,
+    operation: &str,
+) -> Result<(String, u16)> {
     // Send the deployment request to the endpoint.
-    let response = ureq::AgentBuilder::new()
-        .redirects(0)
+    let mut response = ureq::Agent::config_builder()
+        .max_redirects(0)
         .build()
+        .new_agent()
         .post(endpoint)
-        .set("X-Leo-Version", env!("CARGO_PKG_VERSION"))
+        .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .send_json(transaction)
         .map_err(|err| CliError::broadcast_error(err.to_string()))?;
-    match response.status() {
+    match response.status().as_u16() {
         200..=299 => {
             println!(
                 "✉️ Broadcasted transaction with:\n  - transaction ID: '{}'",
@@ -97,7 +103,7 @@ pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>
                 // Most transactions will have fees, but some, like credits.aleo/upgrade executions, may not.
                 println!("  - fee ID: '{}'", fee.id().to_string().bold().yellow());
             }
-            Ok(response)
+            Ok((response.body_mut().read_to_string().unwrap(), response.status().as_u16()))
         }
         301 => {
             let msg = format!(
@@ -107,7 +113,7 @@ pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>
         }
         _ => {
             let code = response.status();
-            let error_message = match response.into_string() {
+            let error_message = match response.body_mut().read_to_string() {
                 Ok(response) => format!("(status code {code}: {:?})", response),
                 Err(err) => format!("({err})"),
             };

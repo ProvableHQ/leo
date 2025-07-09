@@ -191,6 +191,10 @@ pub fn get_consensus_version<N: Network>(
         Some(2) => Ok(ConsensusVersion::V2),
         Some(3) => Ok(ConsensusVersion::V3),
         Some(4) => Ok(ConsensusVersion::V4),
+        Some(5) => Ok(ConsensusVersion::V5),
+        Some(6) => Ok(ConsensusVersion::V6),
+        Some(7) => Ok(ConsensusVersion::V7),
+        Some(8) => Ok(ConsensusVersion::V8),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");

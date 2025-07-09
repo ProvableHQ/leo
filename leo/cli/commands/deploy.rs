@@ -22,13 +22,14 @@ use leo_package::{Manifest, NetworkName, Package, fetch_program_from_network};
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
-    ledger::query::Query as SnarkVMQuery,
+    ledger::store::helpers::memory::BlockMemory,
     prelude::{
         Deployment,
         Program,
         TestnetV0,
         VM,
         deployment_cost,
+        query::Query as SnarkVMQuery,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
@@ -44,6 +45,12 @@ type DeploymentTask<N> =
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]
 pub struct LeoDeploy {
+    #[clap(
+        long,
+        help = "Deploy the programs twice (this is temporarily necessary on local devnets with consensus version 8)",
+        default_value = "false"
+    )]
+    twice: bool,
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
     #[clap(flatten)]
@@ -188,27 +195,34 @@ fn handle_deploy<N: Network>(
     }
 
     // Specify the query
-    let query = SnarkVMQuery::from(&endpoint);
+    let query = SnarkVMQuery::<_, BlockMemory<_>>::from(&endpoint);
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
     for (program_id, program, manifest, _, priority_fee, fee_record) in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
-        if manifest.is_some() && !skipped.contains(&program_id) {
-            println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
-            // Generate the transaction.
-            let transaction = vm
-                .deploy(&private_key, &program, fee_record, priority_fee.unwrap_or(0), Some(query.clone()), rng)
-                .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
-            // Get the deployment.
-            let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
-            // Print the deployment stats.
-            print_deployment_stats(&program_id.to_string(), deployment, priority_fee)?;
-            // Save the transaction.
-            transactions.push((program_id, transaction));
-        }
+        let mut deploy = || -> Result<()> {
+            if manifest.is_some() && !skipped.contains(&program_id) {
+                println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
+                // Generate the transaction.
+                let transaction = vm
+                    .deploy(&private_key, &program, fee_record.clone(), priority_fee.unwrap_or(0), Some(&query), rng)
+                    .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
+                // Get the deployment.
+                let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+                // Print the deployment stats.
+                print_deployment_stats(&program_id.to_string(), deployment, priority_fee)?;
+                // Save the transaction.
+                transactions.push((program_id, transaction));
+            }
+            Ok(())
+        };
+        deploy()?;
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
+        if command.twice {
+            deploy()?;
+        }
     }
 
     for (program_id, transaction) in transactions.iter() {
@@ -259,7 +273,7 @@ fn handle_deploy<N: Network>(
             let id = transaction.id().to_string();
             let height_before = check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
-            let response = handle_broadcast(
+            let (message, status) = handle_broadcast(
                 &format!("{}/{}/transaction/broadcast", endpoint, network),
                 transaction,
                 &program_id.to_string(),
@@ -276,7 +290,7 @@ fn handle_deploy<N: Network>(
                 }
             };
 
-            match response.status() {
+            match status {
                 200..=299 => {
                     let status = check_transaction::check_transaction_with_message(
                         &id,
@@ -296,10 +310,7 @@ fn handle_deploy<N: Network>(
                     }
                 }
                 _ => {
-                    let error_message = response
-                        .into_string()
-                        .map_err(|e| CliError::custom(format!("Failed to read response: {e}")))?;
-                    if fail_and_prompt(&error_message)? {
+                    if fail_and_prompt(&message)? {
                         continue;
                     } else {
                         return Ok(());

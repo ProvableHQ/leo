@@ -7,7 +7,8 @@ function check_starting_height:
 
 finalize check_starting_height:
     input r0 as u32.public;
-    assert.eq block.height r0;
+    lte r0 block.height into r1;
+    assert.eq r1 true;
 verified: true
 status: accepted
 errors:
@@ -15,26 +16,26 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1cvgqz8grnrv9sn4plhw77zr8efwnhye8kfrx4evlpdtn82v4pvys5qt99s",
+      "id": "au1tv3y4dglcpspwx395qwexu45v90qaejj55y9phmnw53kv225tggq7eqanf",
       "program": "test.aleo",
       "function": "check_starting_height",
       "inputs": [
         {
           "type": "private",
-          "id": "207068411876741613006416436603737297262568266435340772291018961336883036841field",
-          "value": "ciphertext1qyq2x2eh8pwsjgwsumhjkncusgajwtfletav2cf5gsee67yxup995qsv2g0j4"
+          "id": "4731037915914211177530442114816388530459368928127604004067791314466302105323field",
+          "value": "ciphertext1qyqrf78n3v25cm493tkln8a35rusvccm26qw60zxzh5cf5x24qd8kzg6laqe8"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "4130626760294597148053169955584576546182635920462508248766222202538382666472field",
-          "value": "{\n  program_id: test.aleo,\n  function_name: check_starting_height,\n  arguments: [\n    10u32\n  ]\n}"
+          "id": "1701305574806046519199906496739024493075982167213011990991859779581000626652field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: check_starting_height,\n  arguments: [\n    16u32\n  ]\n}"
         }
       ],
-      "tpk": "4386673624754187747787875034545646492684119333493539789091498938948477664999group",
-      "tcm": "6313023038654777956164755873577075995230436005413144692106593530439603041492field",
-      "scm": "6107448559679829934582733554409652871504557041995218115052011108695423188522field"
+      "tpk": "3387254221377120437908579358077235029303814104724791131714552819088121668421group",
+      "tcm": "7560204289155435437410005742544017405689981972453992850577964247300376481696field",
+      "scm": "379913890020016012285374203862794003302591555183599825510691012344496998043field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
