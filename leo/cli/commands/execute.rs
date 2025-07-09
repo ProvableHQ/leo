@@ -29,6 +29,7 @@ use std::{convert::TryFrom, path::PathBuf};
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
+    ledger::store::helpers::memory::BlockMemory,
     prelude::{
         ConsensusVersion,
         Identifier,
@@ -267,7 +268,7 @@ fn handle_execute<A: Aleo>(
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
     // Specify the query
-    let query = SnarkVMQuery::from(&endpoint);
+    let query = SnarkVMQuery::<_, BlockMemory<_>>::from(&endpoint);
 
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
@@ -279,17 +280,19 @@ fn handle_execute<A: Aleo>(
     // Add the programs to the VM.
     println!("Adding programs to the VM ...");
     for (_, program) in programs {
+        // Add programs twice until upgradability.
+        vm.process().write().add_program(&program)?;
         vm.process().write().add_program(&program)?;
     }
 
     // Execute the program and produce a transaction.
-    let transaction = vm.execute(
+    let (transaction, response) = vm.execute_with_response(
         &private_key,
         (&program_name, &function_name),
         inputs.iter(),
         record,
         priority_fee.unwrap_or(0),
-        Some(query),
+        Some(&query),
         rng,
     )?;
 
@@ -326,6 +329,16 @@ fn handle_execute<A: Aleo>(
             .map_err(|e| CliError::custom(format!("Failed to write transaction to file: {e}")))?;
     }
 
+    match response.outputs().len() {
+        0 => (),
+        1 => println!("\n➡️  Output\n"),
+        _ => println!("\n➡️  Outputs\n"),
+    };
+    for output in response.outputs() {
+        println!(" • {output}");
+    }
+    println!();
+
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
         println!("📡 Broadcasting execution for {program_name}...");
@@ -342,7 +355,7 @@ fn handle_execute<A: Aleo>(
         let id = transaction.id().to_string();
         let height_before = check_transaction::current_height(&endpoint, network)?;
         // Broadcast the transaction to the network.
-        let response =
+        let (message, status) =
             handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), &transaction, &program_name)?;
 
         let fail = |msg| {
@@ -350,7 +363,7 @@ fn handle_execute<A: Aleo>(
             Ok(())
         };
 
-        match response.status() {
+        match status {
             200..=299 => {
                 let status = check_transaction::check_transaction_with_message(
                     &id,
@@ -366,9 +379,7 @@ fn handle_execute<A: Aleo>(
                 }
             }
             _ => {
-                let error_message =
-                    response.into_string().map_err(|e| CliError::custom(format!("Failed to read response: {e}")))?;
-                return fail(&error_message);
+                return fail(&message);
             }
         }
     }

@@ -157,15 +157,16 @@ pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
 }
 
 pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
-    let response = ureq::AgentBuilder::new()
-        .redirects(0)
+    let mut response = ureq::Agent::config_builder()
+        .max_redirects(0)
         .build()
+        .new_agent()
         .get(url)
-        .set("X-Leo-Version", env!("CARGO_PKG_VERSION"))
+        .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .call()
         .map_err(UtilError::failed_to_retrieve_from_endpoint)?;
-    match response.status() {
-        200..=299 => Ok(response.into_string().unwrap()),
+    match response.status().as_u16() {
+        200..=299 => Ok(response.body_mut().read_to_string().unwrap()),
         301 => Err(UtilError::endpoint_moved_error(url)),
         _ => Err(UtilError::network_error(url, response.status())),
     }

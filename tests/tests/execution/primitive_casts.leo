@@ -1,5 +1,6 @@
 /*
-seed = 1234567890
+seed = 2234567890
+min_height = 16
 
 [case]
 program = "test.aleo"

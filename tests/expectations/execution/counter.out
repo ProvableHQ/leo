@@ -42,32 +42,6 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1s64rpytm32y7mfg8uqq7qh28e07v5kp3nlpc0lgj87kqp5aq7qpqzu35hz",
-      "program": "test.aleo",
-      "function": "dubble",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "future",
-          "id": "7191352823579230046285919935370311473274117933732529314412203055376418950919field",
-          "value": "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
-        }
-      ],
-      "tpk": "6682489916228081312778178108531003714461761013112636001839944069174573925065group",
-      "tcm": "1912369598019754237458133943204969319512277933633590413980222178290570708943field",
-      "scm": "5175625012098059211897639075092715894731093471492557902763513869780613929141field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-errors:
-warnings:
-{
-  "transitions": [
-    {
       "id": "au1n9tf9y7cvgfwmaxng5cvrk77ujcr8tk5zwdl59hgw8cpqe9lecrqsc0v4n",
       "program": "test.aleo",
       "function": "dubble",
@@ -134,6 +108,32 @@ warnings:
       "tpk": "2795253348613714889070669194123341394984620093907971324165775885551643510247group",
       "tcm": "1022016318595684329246984634414413296739872565905970957553084398645693190064field",
       "scm": "7998033201805185269339029981430047248658230330706615275487087959812030748206field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au167je5wg3g75vses05ndv6uw3yn9rzg7a5rvap9rmnjlf7zpc85rqe6ct9a",
+      "program": "test.aleo",
+      "function": "dubble",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4846320990885023537551955489754863979395086425739454840282964942834178935617field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
+        }
+      ],
+      "tpk": "28828870754762616289177301885929816655905261386576449215270048951832257420group",
+      "tcm": "2923038486852870600786843251346528995396043170860784644885747998494573793129field",
+      "scm": "3835006215510423891015523522716556452725943693378694494430400013645658057972field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
