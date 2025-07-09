@@ -330,139 +330,142 @@
 <a href=#330 id=330 data-nosnippet>330</a>    </span><span class="kw">if </span>command.action.broadcast {
 <a href=#331 id=331 data-nosnippet>331</a>        <span class="macro">println!</span>(<span class="string">"📡 Broadcasting execution for {program_name}..."</span>);
 <a href=#332 id=332 data-nosnippet>332</a>        <span class="comment">// Get and confirm the fee with the user.
-<a href=#333 id=333 data-nosnippet>333</a>        </span><span class="kw">let </span>fee = transaction.fee_transition().expect(<span class="string">"Expected a fee in the transaction"</span>);
-<a href=#334 id=334 data-nosnippet>334</a>        <span class="kw">if </span>!confirm_fee(<span class="kw-2">&amp;</span>fee, <span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>address, <span class="kw-2">&amp;</span>endpoint, network, <span class="kw-2">&amp;</span>context, command.extra.yes)<span class="question-mark">? </span>{
-<a href=#335 id=335 data-nosnippet>335</a>            <span class="macro">println!</span>(<span class="string">"❌ Execution aborted."</span>);
-<a href=#336 id=336 data-nosnippet>336</a>            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#337 id=337 data-nosnippet>337</a>        }
-<a href=#338 id=338 data-nosnippet>338</a>        <span class="kw">let </span>fee_id = fee.id().to_string();
-<a href=#339 id=339 data-nosnippet>339</a>        <span class="kw">let </span>id = transaction.id().to_string();
-<a href=#340 id=340 data-nosnippet>340</a>        <span class="kw">let </span>height_before = check_transaction::current_height(<span class="kw-2">&amp;</span>endpoint, network)<span class="question-mark">?</span>;
-<a href=#341 id=341 data-nosnippet>341</a>        <span class="comment">// Broadcast the transaction to the network.
-<a href=#342 id=342 data-nosnippet>342</a>        </span><span class="kw">let </span>response =
-<a href=#343 id=343 data-nosnippet>343</a>            handle_broadcast(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, endpoint, network), <span class="kw-2">&amp;</span>transaction, <span class="kw-2">&amp;</span>program_name)<span class="question-mark">?</span>;
-<a href=#344 id=344 data-nosnippet>344</a>
-<a href=#345 id=345 data-nosnippet>345</a>        <span class="kw">let </span>fail = |msg| {
-<a href=#346 id=346 data-nosnippet>346</a>            <span class="macro">println!</span>(<span class="string">"❌ Failed to broadcast execution: {}."</span>, msg);
-<a href=#347 id=347 data-nosnippet>347</a>            <span class="prelude-val">Ok</span>(())
-<a href=#348 id=348 data-nosnippet>348</a>        };
-<a href=#349 id=349 data-nosnippet>349</a>
-<a href=#350 id=350 data-nosnippet>350</a>        <span class="kw">match </span>response.status() {
-<a href=#351 id=351 data-nosnippet>351</a>            <span class="number">200</span>..=<span class="number">299 </span>=&gt; {
-<a href=#352 id=352 data-nosnippet>352</a>                <span class="kw">let </span>status = check_transaction::check_transaction_with_message(
-<a href=#353 id=353 data-nosnippet>353</a>                    <span class="kw-2">&amp;</span>id,
-<a href=#354 id=354 data-nosnippet>354</a>                    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>fee_id),
-<a href=#355 id=355 data-nosnippet>355</a>                    <span class="kw-2">&amp;</span>endpoint,
-<a href=#356 id=356 data-nosnippet>356</a>                    network,
-<a href=#357 id=357 data-nosnippet>357</a>                    height_before + <span class="number">1</span>,
-<a href=#358 id=358 data-nosnippet>358</a>                    command.extra.max_wait,
-<a href=#359 id=359 data-nosnippet>359</a>                    command.extra.blocks_to_check,
-<a href=#360 id=360 data-nosnippet>360</a>                )<span class="question-mark">?</span>;
-<a href=#361 id=361 data-nosnippet>361</a>                <span class="kw">if </span>status == <span class="prelude-val">Some</span>(TransactionStatus::Accepted) {
-<a href=#362 id=362 data-nosnippet>362</a>                    <span class="macro">println!</span>(<span class="string">"✅ Execution confirmed!"</span>);
-<a href=#363 id=363 data-nosnippet>363</a>                }
-<a href=#364 id=364 data-nosnippet>364</a>            }
-<a href=#365 id=365 data-nosnippet>365</a>            <span class="kw">_ </span>=&gt; {
-<a href=#366 id=366 data-nosnippet>366</a>                <span class="kw">let </span>error_message =
-<a href=#367 id=367 data-nosnippet>367</a>                    response.into_string().map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to read response: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#368 id=368 data-nosnippet>368</a>                <span class="kw">return </span>fail(<span class="kw-2">&amp;</span>error_message);
-<a href=#369 id=369 data-nosnippet>369</a>            }
-<a href=#370 id=370 data-nosnippet>370</a>        }
-<a href=#371 id=371 data-nosnippet>371</a>    }
-<a href=#372 id=372 data-nosnippet>372</a>
-<a href=#373 id=373 data-nosnippet>373</a>    <span class="prelude-val">Ok</span>(())
-<a href=#374 id=374 data-nosnippet>374</a>}
+<a href=#333 id=333 data-nosnippet>333</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>fee_id = <span class="prelude-val">None</span>;
+<a href=#334 id=334 data-nosnippet>334</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(fee) = transaction.fee_transition() {
+<a href=#335 id=335 data-nosnippet>335</a>            <span class="comment">// Most transactions will have fees, but some, like credits.aleo/upgrade executions, may not.
+<a href=#336 id=336 data-nosnippet>336</a>            </span><span class="kw">if </span>!confirm_fee(<span class="kw-2">&amp;</span>fee, <span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>address, <span class="kw-2">&amp;</span>endpoint, network, <span class="kw-2">&amp;</span>context, command.extra.yes)<span class="question-mark">? </span>{
+<a href=#337 id=337 data-nosnippet>337</a>                <span class="macro">println!</span>(<span class="string">"❌ Execution aborted."</span>);
+<a href=#338 id=338 data-nosnippet>338</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#339 id=339 data-nosnippet>339</a>            }
+<a href=#340 id=340 data-nosnippet>340</a>            fee_id = <span class="prelude-val">Some</span>(fee.id().to_string());
+<a href=#341 id=341 data-nosnippet>341</a>        }
+<a href=#342 id=342 data-nosnippet>342</a>        <span class="kw">let </span>id = transaction.id().to_string();
+<a href=#343 id=343 data-nosnippet>343</a>        <span class="kw">let </span>height_before = check_transaction::current_height(<span class="kw-2">&amp;</span>endpoint, network)<span class="question-mark">?</span>;
+<a href=#344 id=344 data-nosnippet>344</a>        <span class="comment">// Broadcast the transaction to the network.
+<a href=#345 id=345 data-nosnippet>345</a>        </span><span class="kw">let </span>response =
+<a href=#346 id=346 data-nosnippet>346</a>            handle_broadcast(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, endpoint, network), <span class="kw-2">&amp;</span>transaction, <span class="kw-2">&amp;</span>program_name)<span class="question-mark">?</span>;
+<a href=#347 id=347 data-nosnippet>347</a>
+<a href=#348 id=348 data-nosnippet>348</a>        <span class="kw">let </span>fail = |msg| {
+<a href=#349 id=349 data-nosnippet>349</a>            <span class="macro">println!</span>(<span class="string">"❌ Failed to broadcast execution: {}."</span>, msg);
+<a href=#350 id=350 data-nosnippet>350</a>            <span class="prelude-val">Ok</span>(())
+<a href=#351 id=351 data-nosnippet>351</a>        };
+<a href=#352 id=352 data-nosnippet>352</a>
+<a href=#353 id=353 data-nosnippet>353</a>        <span class="kw">match </span>response.status() {
+<a href=#354 id=354 data-nosnippet>354</a>            <span class="number">200</span>..=<span class="number">299 </span>=&gt; {
+<a href=#355 id=355 data-nosnippet>355</a>                <span class="kw">let </span>status = check_transaction::check_transaction_with_message(
+<a href=#356 id=356 data-nosnippet>356</a>                    <span class="kw-2">&amp;</span>id,
+<a href=#357 id=357 data-nosnippet>357</a>                    fee_id.as_deref(),
+<a href=#358 id=358 data-nosnippet>358</a>                    <span class="kw-2">&amp;</span>endpoint,
+<a href=#359 id=359 data-nosnippet>359</a>                    network,
+<a href=#360 id=360 data-nosnippet>360</a>                    height_before + <span class="number">1</span>,
+<a href=#361 id=361 data-nosnippet>361</a>                    command.extra.max_wait,
+<a href=#362 id=362 data-nosnippet>362</a>                    command.extra.blocks_to_check,
+<a href=#363 id=363 data-nosnippet>363</a>                )<span class="question-mark">?</span>;
+<a href=#364 id=364 data-nosnippet>364</a>                <span class="kw">if </span>status == <span class="prelude-val">Some</span>(TransactionStatus::Accepted) {
+<a href=#365 id=365 data-nosnippet>365</a>                    <span class="macro">println!</span>(<span class="string">"✅ Execution confirmed!"</span>);
+<a href=#366 id=366 data-nosnippet>366</a>                }
+<a href=#367 id=367 data-nosnippet>367</a>            }
+<a href=#368 id=368 data-nosnippet>368</a>            <span class="kw">_ </span>=&gt; {
+<a href=#369 id=369 data-nosnippet>369</a>                <span class="kw">let </span>error_message =
+<a href=#370 id=370 data-nosnippet>370</a>                    response.into_string().map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to read response: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#371 id=371 data-nosnippet>371</a>                <span class="kw">return </span>fail(<span class="kw-2">&amp;</span>error_message);
+<a href=#372 id=372 data-nosnippet>372</a>            }
+<a href=#373 id=373 data-nosnippet>373</a>        }
+<a href=#374 id=374 data-nosnippet>374</a>    }
 <a href=#375 id=375 data-nosnippet>375</a>
-<a href=#376 id=376 data-nosnippet>376</a><span class="doccomment">/// Pretty-print the execution plan in a readable format.
-<a href=#377 id=377 data-nosnippet>377</a></span><span class="attr">#[allow(clippy::too_many_arguments)]
-<a href=#378 id=378 data-nosnippet>378</a></span><span class="kw">fn </span>print_execution_plan&lt;N: Network&gt;(
-<a href=#379 id=379 data-nosnippet>379</a>    private_key: <span class="kw-2">&amp;</span>PrivateKey&lt;N&gt;,
-<a href=#380 id=380 data-nosnippet>380</a>    address: <span class="kw-2">&amp;</span>Address&lt;N&gt;,
-<a href=#381 id=381 data-nosnippet>381</a>    endpoint: <span class="kw-2">&amp;</span>str,
-<a href=#382 id=382 data-nosnippet>382</a>    network: <span class="kw-2">&amp;</span>NetworkName,
-<a href=#383 id=383 data-nosnippet>383</a>    program_name: <span class="kw-2">&amp;</span>str,
-<a href=#384 id=384 data-nosnippet>384</a>    function_name: <span class="kw-2">&amp;</span>str,
-<a href=#385 id=385 data-nosnippet>385</a>    is_local: bool,
-<a href=#386 id=386 data-nosnippet>386</a>    priority_fee: u64,
-<a href=#387 id=387 data-nosnippet>387</a>    fee_record: bool,
-<a href=#388 id=388 data-nosnippet>388</a>    action: <span class="kw-2">&amp;</span>TransactionAction,
-<a href=#389 id=389 data-nosnippet>389</a>    consensus_version: ConsensusVersion,
-<a href=#390 id=390 data-nosnippet>390</a>) {
-<a href=#391 id=391 data-nosnippet>391</a>    <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"🚀 Execution Plan Summary"</span>.bold().underline());
-<a href=#392 id=392 data-nosnippet>392</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
-<a href=#393 id=393 data-nosnippet>393</a>
-<a href=#394 id=394 data-nosnippet>394</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"🔧 Configuration:"</span>.bold());
-<a href=#395 id=395 data-nosnippet>395</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Private Key:"</span>.cyan(), <span class="macro">format!</span>(<span class="string">"{}..."</span>, <span class="kw-2">&amp;</span>private_key.to_string()[..<span class="number">24</span>]).yellow());
-<a href=#396 id=396 data-nosnippet>396</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Address:"</span>.cyan(), <span class="macro">format!</span>(<span class="string">"{}..."</span>, <span class="kw-2">&amp;</span>address.to_string()[..<span class="number">24</span>]).yellow());
-<a href=#397 id=397 data-nosnippet>397</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Endpoint:"</span>, endpoint.yellow());
-<a href=#398 id=398 data-nosnippet>398</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Network:"</span>, network.to_string().yellow());
-<a href=#399 id=399 data-nosnippet>399</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Consensus Version:"</span>, (consensus_version <span class="kw">as </span>u8).to_string().yellow());
-<a href=#400 id=400 data-nosnippet>400</a>
-<a href=#401 id=401 data-nosnippet>401</a>    <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"🎯 Execution Target:"</span>.bold());
-<a href=#402 id=402 data-nosnippet>402</a>    <span class="macro">println!</span>(<span class="string">"  {:16}{}"</span>, <span class="string">"Program:"</span>, program_name.cyan());
-<a href=#403 id=403 data-nosnippet>403</a>    <span class="macro">println!</span>(<span class="string">"  {:16}{}"</span>, <span class="string">"Function:"</span>, function_name.cyan());
-<a href=#404 id=404 data-nosnippet>404</a>    <span class="macro">println!</span>(<span class="string">"  {:16}{}"</span>, <span class="string">"Source:"</span>, <span class="kw">if </span>is_local { <span class="string">"local" </span>} <span class="kw">else </span>{ <span class="string">"remote" </span>});
-<a href=#405 id=405 data-nosnippet>405</a>
-<a href=#406 id=406 data-nosnippet>406</a>    <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"💸 Fee Info:"</span>.bold());
-<a href=#407 id=407 data-nosnippet>407</a>    <span class="macro">println!</span>(<span class="string">"  {:16}{}"</span>, <span class="string">"Priority Fee:"</span>, <span class="macro">format!</span>(<span class="string">"{} μcredits"</span>, priority_fee).green());
-<a href=#408 id=408 data-nosnippet>408</a>    <span class="macro">println!</span>(<span class="string">"  {:16}{}"</span>, <span class="string">"Fee Record:"</span>, <span class="kw">if </span>fee_record { <span class="string">"yes" </span>} <span class="kw">else </span>{ <span class="string">"no (public fee)" </span>});
-<a href=#409 id=409 data-nosnippet>409</a>
-<a href=#410 id=410 data-nosnippet>410</a>    <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"⚙️ Actions:"</span>.bold());
-<a href=#411 id=411 data-nosnippet>411</a>    <span class="kw">if </span>!is_local {
-<a href=#412 id=412 data-nosnippet>412</a>        <span class="macro">println!</span>(<span class="string">"  - Program and its dependencies will be downloaded from the network."</span>);
-<a href=#413 id=413 data-nosnippet>413</a>    }
-<a href=#414 id=414 data-nosnippet>414</a>    <span class="kw">if </span>action.print {
-<a href=#415 id=415 data-nosnippet>415</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will be printed to the console."</span>);
-<a href=#416 id=416 data-nosnippet>416</a>    } <span class="kw">else </span>{
-<a href=#417 id=417 data-nosnippet>417</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will NOT be printed to the console."</span>);
-<a href=#418 id=418 data-nosnippet>418</a>    }
-<a href=#419 id=419 data-nosnippet>419</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>action.save {
-<a href=#420 id=420 data-nosnippet>420</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will be saved to {}"</span>, path.bold());
-<a href=#421 id=421 data-nosnippet>421</a>    } <span class="kw">else </span>{
-<a href=#422 id=422 data-nosnippet>422</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will NOT be saved to a file."</span>);
-<a href=#423 id=423 data-nosnippet>423</a>    }
-<a href=#424 id=424 data-nosnippet>424</a>    <span class="kw">if </span>action.broadcast {
-<a href=#425 id=425 data-nosnippet>425</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will be broadcast to {}"</span>, endpoint.bold());
-<a href=#426 id=426 data-nosnippet>426</a>    } <span class="kw">else </span>{
-<a href=#427 id=427 data-nosnippet>427</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will NOT be broadcast to the network."</span>);
-<a href=#428 id=428 data-nosnippet>428</a>    }
-<a href=#429 id=429 data-nosnippet>429</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────\n"</span>.dimmed());
-<a href=#430 id=430 data-nosnippet>430</a>}
-<a href=#431 id=431 data-nosnippet>431</a>
-<a href=#432 id=432 data-nosnippet>432</a><span class="doccomment">/// Pretty‑print execution statistics without a table, using the same UI
-<a href=#433 id=433 data-nosnippet>433</a>/// conventions as `print_deployment_plan`.
-<a href=#434 id=434 data-nosnippet>434</a></span><span class="kw">fn </span>print_execution_stats&lt;N: Network&gt;(
-<a href=#435 id=435 data-nosnippet>435</a>    vm: <span class="kw-2">&amp;</span>VM&lt;N, ConsensusMemory&lt;N&gt;&gt;,
-<a href=#436 id=436 data-nosnippet>436</a>    program_name: <span class="kw-2">&amp;</span>str,
-<a href=#437 id=437 data-nosnippet>437</a>    execution: <span class="kw-2">&amp;</span>Execution&lt;N&gt;,
-<a href=#438 id=438 data-nosnippet>438</a>    priority_fee: <span class="prelude-ty">Option</span>&lt;u64&gt;,
-<a href=#439 id=439 data-nosnippet>439</a>    consensus_version: ConsensusVersion,
-<a href=#440 id=440 data-nosnippet>440</a>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#441 id=441 data-nosnippet>441</a>    <span class="kw">use </span>colored::<span class="kw-2">*</span>;
-<a href=#442 id=442 data-nosnippet>442</a>
-<a href=#443 id=443 data-nosnippet>443</a>    <span class="comment">// ── Gather cost components ────────────────────────────────────────────
-<a href=#444 id=444 data-nosnippet>444</a>    </span><span class="kw">let </span>(base_fee, (storage_cost, execution_cost)) = <span class="kw">if </span>consensus_version == ConsensusVersion::V1 {
-<a href=#445 id=445 data-nosnippet>445</a>        execution_cost_v1(<span class="kw-2">&amp;</span>vm.process().read(), execution)<span class="question-mark">?
-<a href=#446 id=446 data-nosnippet>446</a>    </span>} <span class="kw">else </span>{
-<a href=#447 id=447 data-nosnippet>447</a>        execution_cost_v2(<span class="kw-2">&amp;</span>vm.process().read(), execution)<span class="question-mark">?
-<a href=#448 id=448 data-nosnippet>448</a>    </span>};
-<a href=#449 id=449 data-nosnippet>449</a>
-<a href=#450 id=450 data-nosnippet>450</a>    <span class="kw">let </span>base_cr = base_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>;
-<a href=#451 id=451 data-nosnippet>451</a>    <span class="kw">let </span>prio_cr = priority_fee.unwrap_or(<span class="number">0</span>) <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>;
-<a href=#452 id=452 data-nosnippet>452</a>    <span class="kw">let </span>total_cr = base_cr + prio_cr;
-<a href=#453 id=453 data-nosnippet>453</a>
-<a href=#454 id=454 data-nosnippet>454</a>    <span class="comment">// ── Header ────────────────────────────────────────────────────────────
-<a href=#455 id=455 data-nosnippet>455</a>    </span><span class="macro">println!</span>(<span class="string">"\n{} {}"</span>, <span class="string">"📊 Execution Summary for"</span>.bold(), program_name.bold());
-<a href=#456 id=456 data-nosnippet>456</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
-<a href=#457 id=457 data-nosnippet>457</a>
-<a href=#458 id=458 data-nosnippet>458</a>    <span class="comment">// ── Cost breakdown ────────────────────────────────────────────────────
-<a href=#459 id=459 data-nosnippet>459</a>    </span><span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"💰 Cost Breakdown (credits)"</span>.bold());
-<a href=#460 id=460 data-nosnippet>460</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Transaction Storage:"</span>.cyan(), <span class="string">""</span>.yellow(), storage_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
-<a href=#461 id=461 data-nosnippet>461</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"On‑chain Execution:"</span>.cyan(), <span class="string">""</span>.yellow(), execution_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
-<a href=#462 id=462 data-nosnippet>462</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Priority Fee:"</span>.cyan(), <span class="string">""</span>.yellow(), prio_cr);
-<a href=#463 id=463 data-nosnippet>463</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Total Fee:"</span>.cyan(), <span class="string">""</span>.yellow(), total_cr);
-<a href=#464 id=464 data-nosnippet>464</a>
-<a href=#465 id=465 data-nosnippet>465</a>    <span class="comment">// ── Footer rule ───────────────────────────────────────────────────────
-<a href=#466 id=466 data-nosnippet>466</a>    </span><span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
-<a href=#467 id=467 data-nosnippet>467</a>    <span class="prelude-val">Ok</span>(())
-<a href=#468 id=468 data-nosnippet>468</a>}</code></pre></div></section></main></body></html>
+<a href=#376 id=376 data-nosnippet>376</a>    <span class="prelude-val">Ok</span>(())
+<a href=#377 id=377 data-nosnippet>377</a>}
+<a href=#378 id=378 data-nosnippet>378</a>
+<a href=#379 id=379 data-nosnippet>379</a><span class="doccomment">/// Pretty-print the execution plan in a readable format.
+<a href=#380 id=380 data-nosnippet>380</a></span><span class="attr">#[allow(clippy::too_many_arguments)]
+<a href=#381 id=381 data-nosnippet>381</a></span><span class="kw">fn </span>print_execution_plan&lt;N: Network&gt;(
+<a href=#382 id=382 data-nosnippet>382</a>    private_key: <span class="kw-2">&amp;</span>PrivateKey&lt;N&gt;,
+<a href=#383 id=383 data-nosnippet>383</a>    address: <span class="kw-2">&amp;</span>Address&lt;N&gt;,
+<a href=#384 id=384 data-nosnippet>384</a>    endpoint: <span class="kw-2">&amp;</span>str,
+<a href=#385 id=385 data-nosnippet>385</a>    network: <span class="kw-2">&amp;</span>NetworkName,
+<a href=#386 id=386 data-nosnippet>386</a>    program_name: <span class="kw-2">&amp;</span>str,
+<a href=#387 id=387 data-nosnippet>387</a>    function_name: <span class="kw-2">&amp;</span>str,
+<a href=#388 id=388 data-nosnippet>388</a>    is_local: bool,
+<a href=#389 id=389 data-nosnippet>389</a>    priority_fee: u64,
+<a href=#390 id=390 data-nosnippet>390</a>    fee_record: bool,
+<a href=#391 id=391 data-nosnippet>391</a>    action: <span class="kw-2">&amp;</span>TransactionAction,
+<a href=#392 id=392 data-nosnippet>392</a>    consensus_version: ConsensusVersion,
+<a href=#393 id=393 data-nosnippet>393</a>) {
+<a href=#394 id=394 data-nosnippet>394</a>    <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"🚀 Execution Plan Summary"</span>.bold().underline());
+<a href=#395 id=395 data-nosnippet>395</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
+<a href=#396 id=396 data-nosnippet>396</a>
+<a href=#397 id=397 data-nosnippet>397</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"🔧 Configuration:"</span>.bold());
+<a href=#398 id=398 data-nosnippet>398</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Private Key:"</span>.cyan(), <span class="macro">format!</span>(<span class="string">"{}..."</span>, <span class="kw-2">&amp;</span>private_key.to_string()[..<span class="number">24</span>]).yellow());
+<a href=#399 id=399 data-nosnippet>399</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Address:"</span>.cyan(), <span class="macro">format!</span>(<span class="string">"{}..."</span>, <span class="kw-2">&amp;</span>address.to_string()[..<span class="number">24</span>]).yellow());
+<a href=#400 id=400 data-nosnippet>400</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Endpoint:"</span>, endpoint.yellow());
+<a href=#401 id=401 data-nosnippet>401</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Network:"</span>, network.to_string().yellow());
+<a href=#402 id=402 data-nosnippet>402</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Consensus Version:"</span>, (consensus_version <span class="kw">as </span>u8).to_string().yellow());
+<a href=#403 id=403 data-nosnippet>403</a>
+<a href=#404 id=404 data-nosnippet>404</a>    <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"🎯 Execution Target:"</span>.bold());
+<a href=#405 id=405 data-nosnippet>405</a>    <span class="macro">println!</span>(<span class="string">"  {:16}{}"</span>, <span class="string">"Program:"</span>, program_name.cyan());
+<a href=#406 id=406 data-nosnippet>406</a>    <span class="macro">println!</span>(<span class="string">"  {:16}{}"</span>, <span class="string">"Function:"</span>, function_name.cyan());
+<a href=#407 id=407 data-nosnippet>407</a>    <span class="macro">println!</span>(<span class="string">"  {:16}{}"</span>, <span class="string">"Source:"</span>, <span class="kw">if </span>is_local { <span class="string">"local" </span>} <span class="kw">else </span>{ <span class="string">"remote" </span>});
+<a href=#408 id=408 data-nosnippet>408</a>
+<a href=#409 id=409 data-nosnippet>409</a>    <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"💸 Fee Info:"</span>.bold());
+<a href=#410 id=410 data-nosnippet>410</a>    <span class="macro">println!</span>(<span class="string">"  {:16}{}"</span>, <span class="string">"Priority Fee:"</span>, <span class="macro">format!</span>(<span class="string">"{} μcredits"</span>, priority_fee).green());
+<a href=#411 id=411 data-nosnippet>411</a>    <span class="macro">println!</span>(<span class="string">"  {:16}{}"</span>, <span class="string">"Fee Record:"</span>, <span class="kw">if </span>fee_record { <span class="string">"yes" </span>} <span class="kw">else </span>{ <span class="string">"no (public fee)" </span>});
+<a href=#412 id=412 data-nosnippet>412</a>
+<a href=#413 id=413 data-nosnippet>413</a>    <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"⚙️ Actions:"</span>.bold());
+<a href=#414 id=414 data-nosnippet>414</a>    <span class="kw">if </span>!is_local {
+<a href=#415 id=415 data-nosnippet>415</a>        <span class="macro">println!</span>(<span class="string">"  - Program and its dependencies will be downloaded from the network."</span>);
+<a href=#416 id=416 data-nosnippet>416</a>    }
+<a href=#417 id=417 data-nosnippet>417</a>    <span class="kw">if </span>action.print {
+<a href=#418 id=418 data-nosnippet>418</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will be printed to the console."</span>);
+<a href=#419 id=419 data-nosnippet>419</a>    } <span class="kw">else </span>{
+<a href=#420 id=420 data-nosnippet>420</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will NOT be printed to the console."</span>);
+<a href=#421 id=421 data-nosnippet>421</a>    }
+<a href=#422 id=422 data-nosnippet>422</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>action.save {
+<a href=#423 id=423 data-nosnippet>423</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will be saved to {}"</span>, path.bold());
+<a href=#424 id=424 data-nosnippet>424</a>    } <span class="kw">else </span>{
+<a href=#425 id=425 data-nosnippet>425</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will NOT be saved to a file."</span>);
+<a href=#426 id=426 data-nosnippet>426</a>    }
+<a href=#427 id=427 data-nosnippet>427</a>    <span class="kw">if </span>action.broadcast {
+<a href=#428 id=428 data-nosnippet>428</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will be broadcast to {}"</span>, endpoint.bold());
+<a href=#429 id=429 data-nosnippet>429</a>    } <span class="kw">else </span>{
+<a href=#430 id=430 data-nosnippet>430</a>        <span class="macro">println!</span>(<span class="string">"  - Transaction will NOT be broadcast to the network."</span>);
+<a href=#431 id=431 data-nosnippet>431</a>    }
+<a href=#432 id=432 data-nosnippet>432</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────\n"</span>.dimmed());
+<a href=#433 id=433 data-nosnippet>433</a>}
+<a href=#434 id=434 data-nosnippet>434</a>
+<a href=#435 id=435 data-nosnippet>435</a><span class="doccomment">/// Pretty‑print execution statistics without a table, using the same UI
+<a href=#436 id=436 data-nosnippet>436</a>/// conventions as `print_deployment_plan`.
+<a href=#437 id=437 data-nosnippet>437</a></span><span class="kw">fn </span>print_execution_stats&lt;N: Network&gt;(
+<a href=#438 id=438 data-nosnippet>438</a>    vm: <span class="kw-2">&amp;</span>VM&lt;N, ConsensusMemory&lt;N&gt;&gt;,
+<a href=#439 id=439 data-nosnippet>439</a>    program_name: <span class="kw-2">&amp;</span>str,
+<a href=#440 id=440 data-nosnippet>440</a>    execution: <span class="kw-2">&amp;</span>Execution&lt;N&gt;,
+<a href=#441 id=441 data-nosnippet>441</a>    priority_fee: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+<a href=#442 id=442 data-nosnippet>442</a>    consensus_version: ConsensusVersion,
+<a href=#443 id=443 data-nosnippet>443</a>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#444 id=444 data-nosnippet>444</a>    <span class="kw">use </span>colored::<span class="kw-2">*</span>;
+<a href=#445 id=445 data-nosnippet>445</a>
+<a href=#446 id=446 data-nosnippet>446</a>    <span class="comment">// ── Gather cost components ────────────────────────────────────────────
+<a href=#447 id=447 data-nosnippet>447</a>    </span><span class="kw">let </span>(base_fee, (storage_cost, execution_cost)) = <span class="kw">if </span>consensus_version == ConsensusVersion::V1 {
+<a href=#448 id=448 data-nosnippet>448</a>        execution_cost_v1(<span class="kw-2">&amp;</span>vm.process().read(), execution)<span class="question-mark">?
+<a href=#449 id=449 data-nosnippet>449</a>    </span>} <span class="kw">else </span>{
+<a href=#450 id=450 data-nosnippet>450</a>        execution_cost_v2(<span class="kw-2">&amp;</span>vm.process().read(), execution)<span class="question-mark">?
+<a href=#451 id=451 data-nosnippet>451</a>    </span>};
+<a href=#452 id=452 data-nosnippet>452</a>
+<a href=#453 id=453 data-nosnippet>453</a>    <span class="kw">let </span>base_cr = base_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>;
+<a href=#454 id=454 data-nosnippet>454</a>    <span class="kw">let </span>prio_cr = priority_fee.unwrap_or(<span class="number">0</span>) <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>;
+<a href=#455 id=455 data-nosnippet>455</a>    <span class="kw">let </span>total_cr = base_cr + prio_cr;
+<a href=#456 id=456 data-nosnippet>456</a>
+<a href=#457 id=457 data-nosnippet>457</a>    <span class="comment">// ── Header ────────────────────────────────────────────────────────────
+<a href=#458 id=458 data-nosnippet>458</a>    </span><span class="macro">println!</span>(<span class="string">"\n{} {}"</span>, <span class="string">"📊 Execution Summary for"</span>.bold(), program_name.bold());
+<a href=#459 id=459 data-nosnippet>459</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
+<a href=#460 id=460 data-nosnippet>460</a>
+<a href=#461 id=461 data-nosnippet>461</a>    <span class="comment">// ── Cost breakdown ────────────────────────────────────────────────────
+<a href=#462 id=462 data-nosnippet>462</a>    </span><span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"💰 Cost Breakdown (credits)"</span>.bold());
+<a href=#463 id=463 data-nosnippet>463</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Transaction Storage:"</span>.cyan(), <span class="string">""</span>.yellow(), storage_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
+<a href=#464 id=464 data-nosnippet>464</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"On‑chain Execution:"</span>.cyan(), <span class="string">""</span>.yellow(), execution_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
+<a href=#465 id=465 data-nosnippet>465</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Priority Fee:"</span>.cyan(), <span class="string">""</span>.yellow(), prio_cr);
+<a href=#466 id=466 data-nosnippet>466</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Total Fee:"</span>.cyan(), <span class="string">""</span>.yellow(), total_cr);
+<a href=#467 id=467 data-nosnippet>467</a>
+<a href=#468 id=468 data-nosnippet>468</a>    <span class="comment">// ── Footer rule ───────────────────────────────────────────────────────
+<a href=#469 id=469 data-nosnippet>469</a>    </span><span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
+<a href=#470 id=470 data-nosnippet>470</a>    <span class="prelude-val">Ok</span>(())
+<a href=#471 id=471 data-nosnippet>471</a>}</code></pre></div></section></main></body></html>
