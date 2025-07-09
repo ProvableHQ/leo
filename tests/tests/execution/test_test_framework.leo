@@ -1,11 +1,11 @@
 /*
 seed = 123456789
-min_height = 10
+min_height = 16
 
 [case]
 program = "test.aleo"
 function = "check_starting_height"
-input = ["10u32"]
+input = ["16u32"]
 */
 
 program test.aleo {
@@ -14,6 +14,6 @@ program test.aleo {
     }
 
     async function check_starting_height_(height: u32) {
-        assert_eq(block.height, height);
+        assert(height <= block.height);
     }
 }

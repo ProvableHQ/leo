@@ -62,6 +62,10 @@ workspace = true
 
 [dev-dependencies.snarkvm]
 workspace = true
+# During execution tests, we need to use the "test" configuration of each network, so that
+# we only have to get to block 16 to produce records. This is only available by enabling
+# the "test" feature.
+features = [ "test" ]
 
 [dev-dependencies.serde]
 workspace = true

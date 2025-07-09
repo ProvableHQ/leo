@@ -17,32 +17,33 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1fends3ymltfkrqwautlmerwcy2hv0h4usprcvddrtufxsh4gycgsk8x6ju",
+      "id": "au166fymhyw05whmz35ljc6ydrnqz9rgszews7cdls9prnatknqwurq4n5vew",
       "program": "test.aleo",
       "function": "mint",
       "inputs": [
         {
           "type": "private",
-          "id": "6354147352321181902152131173058446077993271795736347476451395305335239294996field",
-          "value": "ciphertext1qgq2ezxauepcjgtn8tlcz3m83yy29tvamjhrnj8wr6c8pwrdqeuw5qazgfhx66hgnek009t9guz2up72vpkuguwg3nr5k2p2jw0xc0v0py9dslfm"
+          "id": "2481156563084554919221846166530159763993248192081220703788018749672199744204field",
+          "value": "ciphertext1qgqfhfc92qcagfycnl3xka0hxtgzrrgl2shwh4wy3n6af9sjgtrmqqcp6f84c8pd449jcrauan6malqd2dm93f8v69nnt752kvdw84azpq26yhhu"
         },
         {
           "type": "private",
-          "id": "7501550042005314876738488732492260239893109117210051911723877070376418136172field",
-          "value": "ciphertext1qyqyhzdkdew7fugfy7uld6uzyxkmqrwt696tp84v8s9484032m4f7qgn6x4t6"
+          "id": "2352321336166682523275591969544384653541282392928347925633590601088344300146field",
+          "value": "ciphertext1qyq2ylfz6fy677v94e6zza2hhc45j3zvn42kya5laknmzuvgt660jrs9acjc7"
         }
       ],
       "outputs": [
         {
           "type": "record",
-          "id": "5102686944489838544646501493504844664414028928880226559845817953621984736981field",
-          "checksum": "8411679455847531992333904476524782553391385867558299895528749231845772953430field",
-          "value": "record1qyqsq6nm2hn4pfchr3ahtmnkdy5pu40f6lx9ek05lvu986x94h6mszszqgrxzmt0w4h8ggcqqgqsqlnd9nnmupf68j5hmp98nrp0tqvsm60ugqutfjru0n5nptf97psvq3nxcct8q5qqqqqpqqqeesqcf8296tpyx9vn3hjxzx9stj5gcp8q4n9xhcldzzv0mc9nszsxpv9f6"
+          "id": "7006050013859886496170289582471765763397117840753468349610196502084938248054field",
+          "checksum": "5907482960406854625592237063712793266882695548835828741536489179660846335270field",
+          "value": "record1qvqsp2v95j2z9nlmmlkcennx9nunvkzpncwmurqwh5afy9y60u2e4mqqqgrxzmt0w4h8ggcqqgqsqm86mqh4zff8a6u444dntx8ukevhv65dlqzl3kzash7jp8ku7kcqq3nxcct8q5qqqqqpqqqhlc42nytnxngsr3ddk8x3v3unealxgqtw6cx2udpysgzulmzz6zgddz6jz",
+          "sender_ciphertext": "7107374427282844182598048959998288602983204337070913612567339289416546470824field"
         }
       ],
-      "tpk": "1125751779820110922259266316531932857435762921127020307646524422737202247873group",
-      "tcm": "3303550557774170583983368803183807179252168144840260494245877299843447647356field",
-      "scm": "377363393025301023203166451440458021239370805176616568134321138574899970113field"
+      "tpk": "164260937853689831429502965884031087419268696476180087708433034005485178087group",
+      "tcm": "1780346683145729153385936784612450122458414849469113192143658747712054502391field",
+      "scm": "5011397359844693219496368168011355535657139594730525920065546500163204771150field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -55,32 +56,33 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1whjh7267vxa2a7ufgquchvsqgggycaw30f0fneaqjgsk7pw8sqrseux238",
+      "id": "au12r3uzzrjwsrvla53gfr7a8xwe6f6lva9rsx2p6ulhq46j48h2vrswj0c7c",
       "program": "test.aleo",
       "function": "mint",
       "inputs": [
         {
           "type": "private",
-          "id": "275176340670655234098398674695152421003585009257600803725154579838320549878field",
-          "value": "ciphertext1qgq0r9ewuzfvsyvhfmtyncvrt3zuv9xkl5xgyf0348skzw66vu8hczcrfl5fdyf0vfmn96j3wj6ejwwvx8u3dts8fzrte9shqn5g24emqy8gxazr"
+          "id": "7028349803586418270200953853665433340027073912312019944578027943890028151679field",
+          "value": "ciphertext1qgq9dtk49k995r290lmtwnpllslmxnn3m29sla3kakqzth607jznjpc59q60kvhj0ud96dzz3pza0ea6z847kfu6ydqcw934dddvleuypuss4jfl"
         },
         {
           "type": "private",
-          "id": "5985121399418260294182634828228886098133954368158434369195543739002947586560field",
-          "value": "ciphertext1qyqgrsx7ru9eh8lqtpp7ah9xa45749eevhgpzty24lhp0zy4sjywspcauqvz0"
+          "id": "2130107055726598840179923504397044422054897200257712885568141960656180188167field",
+          "value": "ciphertext1qyq8cd6jtakqj69hn246qtdpe247eqtdah7d2ahcsgndm8yl2l2wjqsk8fc70"
         }
       ],
       "outputs": [
         {
           "type": "record",
-          "id": "197057454779097123361234380224728767498227924541346819910570883333913975435field",
-          "checksum": "1946196297027428701657593037696444558077941572165586456068629080700958760289field",
-          "value": "record1qyqsqvgw72nzk2dkl4rd2lweh35hmms2wqgyechjfj85myuxdas4jeqqqgrxzmt0w4h8ggcqqgqsqu47zrtxnun2kuuuctgnv3w742czjf74apwwksmhpneutl05jrgdq3nxcct8q5qqqqqpqqq5xq0d2jluh3drrtltjttpuhc7pqq94kw6q2cemrxxwq3gngjdkzsgefyxz"
+          "id": "6796209010320982664708790713497971706194392208310278862197684019628407530783field",
+          "checksum": "970721404498865342289883045749275631519084894130074554421238797439130967257field",
+          "value": "record1qvqsqslnl7ffyz2urx2k4stfef07xrvwdclru33jfgcdm62uv3untlgvqgrxzmt0w4h8ggcqqgqsq5zpdduhr2vsn3vzfaqszhyce0fge38vvpd4jmupmwcen3uk4tc3q3nxcct8q5qqqqqpqqqc9v93xmkqg339qddm8yyrugrumvw6xnzy0kdlh0js50cm4xvwwpsc7tp99",
+          "sender_ciphertext": "7779372603264459428309844245118138997816400489754215920912436328252813961710field"
         }
       ],
-      "tpk": "3336599740351344486850220590127320504055948124029257874695083571626776752789group",
-      "tcm": "3142979157043492992598432507989457614480801185896742251385882859248819031041field",
-      "scm": "5310758700378337379278462358450592580931855813831259700140996672041116192750field"
+      "tpk": "3510702031187761951993868443154376019139325313844079278645545878928926265680group",
+      "tcm": "730157370073043404976521336071814464008856324726892451513985473956616630004field",
+      "scm": "4844602220649173016838365777191874643769767580692491201115778045671255224922field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
