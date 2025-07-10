@@ -1,6 +1,6 @@
 [package]
 name = "leo-ast"
-version = "2.7.1"
+version = "2.7.2"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Abstract syntax tree (AST) for the Leo programming language"
 homepage = "https://leo-lang.org"
