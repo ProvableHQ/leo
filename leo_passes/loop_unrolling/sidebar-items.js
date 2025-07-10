@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["duplicate","program","range_iterator","statement","visitor"],"struct":["Unrolling","UnrollingOutput"]};
+window.SIDEBAR_ITEMS = {"mod":["ast","duplicate","program","range_iterator","visitor"],"struct":["Unrolling","UnrollingOutput"]};

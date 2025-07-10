@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["ExpressionVisitor","ProgramVisitor","StatementVisitor","TypeVisitor"]};
+window.SIDEBAR_ITEMS = {"trait":["AstVisitor","ProgramVisitor"]};

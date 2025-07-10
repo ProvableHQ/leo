@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["expression","program","statement","visitor"],"struct":["Destructuring"]};
+window.SIDEBAR_ITEMS = {"mod":["ast","program","visitor"],"struct":["Destructuring"]};

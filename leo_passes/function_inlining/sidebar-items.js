@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["expression","program","statement","visitor"],"struct":["FunctionInlining"]};
+window.SIDEBAR_ITEMS = {"mod":["ast","program","visitor"],"struct":["FunctionInlining"]};
