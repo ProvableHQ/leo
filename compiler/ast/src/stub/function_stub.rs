@@ -156,7 +156,11 @@ impl FunctionStub {
                 }],
                 ValueType::Record(id) => vec![Output {
                     mode: Mode::None,
-                    type_: Type::Composite(CompositeType { id: Identifier::from(id), program: Some(program) }),
+                    type_: Type::Composite(CompositeType {
+                        id: Identifier::from(id),
+                        const_arguments: Vec::new(),
+                        program: Some(program),
+                    }),
                     span: Default::default(),
                     id: Default::default(),
                 }],
@@ -167,6 +171,7 @@ impl FunctionStub {
                         id: Default::default(),
                         type_: Type::Composite(CompositeType {
                             id: Identifier::from(loc.resource()),
+                            const_arguments: Vec::new(),
                             program: Some(ProgramId::from(loc.program_id()).name.name),
                         }),
                     }]
@@ -229,7 +234,11 @@ impl FunctionStub {
                         ValueType::Record(id) => Input {
                             identifier: arg_name,
                             mode: Mode::None,
-                            type_: Type::Composite(CompositeType { id: Identifier::from(id), program: Some(program) }),
+                            type_: Type::Composite(CompositeType {
+                                id: Identifier::from(id),
+                                const_arguments: Vec::new(),
+                                program: Some(program),
+                            }),
                             span: Default::default(),
                             id: Default::default(),
                         },
@@ -240,6 +249,7 @@ impl FunctionStub {
                             id: Default::default(),
                             type_: Type::Composite(CompositeType {
                                 id: Identifier::from(loc.resource()),
+                                const_arguments: Vec::new(),
                                 program: Some(ProgramId::from(loc.program_id()).name.name),
                             }),
                         },

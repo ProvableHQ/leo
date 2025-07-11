@@ -15,27 +15,34 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::TypeCheckingVisitor;
-use leo_ast::{ArrayType, Expression, ExpressionVisitor, IntegerType, Node, Type, TypeVisitor};
+use leo_ast::{ArrayType, CompositeType, ExpressionVisitor, TypeVisitor};
+use leo_errors::TypeCheckerError;
 
 impl TypeVisitor for TypeCheckingVisitor<'_> {
     fn visit_array_type(&mut self, input: &ArrayType) {
         self.visit_type(&input.element_type);
-        let mut length_type = self.visit_expression(&input.length, &None);
-        if length_type == Type::Numeric {
-            // Infer `U32` as the default type for array lengths.
-            length_type = Type::Integer(IntegerType::U32);
+        self.visit_expression_infer_default_u32(&input.length);
+    }
 
-            let Expression::Literal(literal) = &*input.length else {
-                panic!("only literals can have Type::Numeric");
-            };
-
-            // Do not forget to ensure validity of the literal as `U32`
-            if !self.check_numeric_literal(literal, &length_type) {
-                length_type = Type::Err;
+    fn visit_composite_type(&mut self, input: &CompositeType) {
+        let struct_ = self.lookup_struct(self.scope_state.program_name, input.id.name).clone();
+        if let Some(struct_) = struct_ {
+            // Check the number of const arguments against the number of the struct's const parameters
+            if struct_.const_parameters.len() != input.const_arguments.len() {
+                self.emit_err(TypeCheckerError::incorrect_num_const_args(
+                    "Struct type",
+                    struct_.const_parameters.len(),
+                    input.const_arguments.len(),
+                    input.id.span,
+                ));
             }
-        }
 
-        // Keep track of the type of the length expression in type_table
-        self.state.type_table.insert(input.length.id(), length_type);
+            // Check the types of const arguments against the types of the struct's const parameters
+            for (expected, argument) in struct_.const_parameters.iter().zip(input.const_arguments.iter()) {
+                self.visit_expression(argument, &Some(expected.type_().clone()));
+            }
+        } else if !input.const_arguments.is_empty() {
+            self.emit_err(TypeCheckerError::unexpected_const_args(input, input.id.span));
+        }
     }
 }

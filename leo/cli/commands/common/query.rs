@@ -91,12 +91,15 @@ pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>
         .send_json(transaction)
         .map_err(|err| CliError::broadcast_error(err.to_string()))?;
     match response.status() {
-        200 => {
+        200..=299 => {
             println!(
-                "✉️ Broadcasted transaction with:\n  - transaction ID: '{}'\n  - fee ID: '{}'",
+                "✉️ Broadcasted transaction with:\n  - transaction ID: '{}'",
                 transaction.id().to_string().bold().yellow(),
-                transaction.fee_transition().expect("Expected a fee in transactions").id().to_string().bold().yellow()
             );
+            if let Some(fee) = transaction.fee_transition() {
+                // Most transactions will have fees, but some, like credits.aleo/upgrade executions, may not.
+                println!("  - fee ID: '{}'", fee.id().to_string().bold().yellow());
+            }
             Ok(response)
         }
         301 => {

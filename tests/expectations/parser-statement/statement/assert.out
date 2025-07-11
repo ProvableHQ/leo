@@ -46,6 +46,7 @@
               },
               "id": 0
             },
+            "const_arguments": [],
             "members": [
               {
                 "identifier": {
@@ -90,6 +91,7 @@
               },
               "id": 5
             },
+            "const_arguments": [],
             "members": [
               {
                 "identifier": {

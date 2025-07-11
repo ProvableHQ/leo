@@ -1,0 +1,22 @@
+program b28668.aleo;
+
+struct Foo__2rFGm7eiSQp:
+    x as boolean;
+
+struct Foo__EnAOzcWpQDB:
+    x as boolean;
+
+mapping map:
+    key as Foo__2rFGm7eiSQp.public;
+    value as Foo__EnAOzcWpQDB.public;
+
+function main:
+    input r0 as u32.private;
+    async main into r1;
+    output true as boolean.private;
+    output r1 as b28668.aleo/main.future;
+
+finalize main:
+    cast false into r0 as Foo__2rFGm7eiSQp;
+    cast true into r1 as Foo__EnAOzcWpQDB;
+    set r1 into map[r0];

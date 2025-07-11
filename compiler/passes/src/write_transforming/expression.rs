@@ -99,6 +99,7 @@ impl ExpressionReconstructor for WriteTransformingVisitor<'_> {
                 panic!("The type of a struct init should be a composite.");
             };
             let expr = StructExpression {
+                const_arguments: Vec::new(), // All const arguments should have been resolved by now
                 members: struct_members
                     // This clone is unfortunate, but both `struct_members` and the closure below borrow self.
                     .clone()

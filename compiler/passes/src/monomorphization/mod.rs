@@ -44,7 +44,7 @@
 
 use crate::Pass;
 
-use leo_ast::ProgramReconstructor as _;
+use leo_ast::{CompositeType, ProgramReconstructor as _, StructExpression};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -52,17 +52,22 @@ mod expression;
 
 mod program;
 
+mod type_;
+
 mod visitor;
 use visitor::*;
 
 pub struct MonomorphizationOutput {
     /// If we encountered calls to const generic functions that were not resolved, keep track of them in this vector
     pub unresolved_calls: Vec<leo_ast::CallExpression>,
-    /// Did we monomorphize any const generic functions?
-    pub resolved_some_calls: bool,
+    /// If we encountered const generic struct expressions that were not resolved, keep track of them in this vector
+    pub unresolved_struct_exprs: Vec<StructExpression>,
+    /// If we encountered const generic struct type instantiations that were not resolved, keep track of them in this
+    /// vector
+    pub unresolved_struct_types: Vec<CompositeType>,
+    /// Did we change anything in this program?
+    pub changed: bool,
 }
-
-impl leo_ast::StatementReconstructor for MonomorphizationVisitor<'_> {}
 
 pub struct Monomorphization;
 
@@ -77,10 +82,14 @@ impl Pass for Monomorphization {
         let mut visitor = MonomorphizationVisitor {
             state,
             program: Symbol::intern(""),
-            function: Symbol::intern(""),
             reconstructed_functions: indexmap::IndexMap::new(),
             monomorphized_functions: indexmap::IndexSet::new(),
+            reconstructed_structs: indexmap::IndexMap::new(),
+            monomorphized_structs: indexmap::IndexSet::new(),
             unresolved_calls: Vec::new(),
+            unresolved_struct_exprs: Vec::new(),
+            unresolved_struct_types: Vec::new(),
+            changed: false,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err().map_err(|e| *e)?;
@@ -88,7 +97,9 @@ impl Pass for Monomorphization {
 
         Ok(MonomorphizationOutput {
             unresolved_calls: visitor.unresolved_calls,
-            resolved_some_calls: !visitor.monomorphized_functions.is_empty(),
+            unresolved_struct_exprs: visitor.unresolved_struct_exprs,
+            unresolved_struct_types: visitor.unresolved_struct_types,
+            changed: visitor.changed,
         })
     }
 }

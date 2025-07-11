@@ -176,6 +176,7 @@
                       },
                       "id": 15
                     },
+                    "const_arguments": [],
                     "program": null
                   }
                 },
@@ -205,6 +206,7 @@
                       },
                       "id": 18
                     },
+                    "const_arguments": [],
                     "program": null
                   }
                 },
@@ -228,6 +230,7 @@
                       },
                       "id": 20
                     },
+                    "const_arguments": [],
                     "program": null
                   }
                 },
@@ -248,6 +251,7 @@
                   },
                   "id": 20
                 },
+                "const_arguments": [],
                 "program": null
               }
             },

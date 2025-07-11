@@ -47,12 +47,12 @@ pub trait TypeVisitor: ExpressionVisitor {
     fn visit_type(&mut self, input: &Type) {
         match input {
             Type::Array(array_type) => self.visit_array_type(array_type),
+            Type::Composite(composite_type) => self.visit_composite_type(composite_type),
             Type::Future(future_type) => self.visit_future_type(future_type),
             Type::Mapping(mapping_type) => self.visit_mapping_type(mapping_type),
             Type::Tuple(tuple_type) => self.visit_tuple_type(tuple_type),
             Type::Address
             | Type::Boolean
-            | Type::Composite(_)
             | Type::Field
             | Type::Group
             | Type::Identifier(_)
@@ -69,6 +69,12 @@ pub trait TypeVisitor: ExpressionVisitor {
     fn visit_array_type(&mut self, input: &ArrayType) {
         self.visit_type(&input.element_type);
         self.visit_expression(&input.length, &Default::default());
+    }
+
+    fn visit_composite_type(&mut self, input: &CompositeType) {
+        input.const_arguments.iter().for_each(|expr| {
+            self.visit_expression(expr, &Default::default());
+        });
     }
 
     fn visit_future_type(&mut self, input: &FutureType) {
@@ -163,6 +169,9 @@ pub trait ExpressionVisitor {
     }
 
     fn visit_call(&mut self, input: &CallExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        input.const_arguments.iter().for_each(|expr| {
+            self.visit_expression(expr, additional);
+        });
         input.arguments.iter().for_each(|expr| {
             self.visit_expression(expr, additional);
         });
@@ -175,6 +184,9 @@ pub trait ExpressionVisitor {
     }
 
     fn visit_struct_init(&mut self, input: &StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        input.const_arguments.iter().for_each(|expr| {
+            self.visit_expression(expr, additional);
+        });
         for StructVariableInitializer { expression, .. } in input.members.iter() {
             if let Some(expression) = expression {
                 self.visit_expression(expression, additional);
@@ -326,6 +338,7 @@ pub trait ProgramVisitor: StatementVisitor {
     }
 
     fn visit_struct(&mut self, input: &Composite) {
+        input.const_parameters.iter().for_each(|input| self.visit_type(&input.type_));
         input.members.iter().for_each(|member| self.visit_type(&member.type_));
     }
 

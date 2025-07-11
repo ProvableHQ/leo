@@ -91,6 +91,13 @@ version = "1.0"
 version = "1.0.1"
 default-features = false
 
+[workspace.dependencies.aleo-std-storage]
+version = "1.0.1"
+default-features = false
+
+[workspace.dependencies.base62]
+version = "2.2.1"
+
 [workspace.dependencies.colored]
 version = "2.0"
 
@@ -112,6 +119,11 @@ default-features = false
 [workspace.dependencies.regex]
 version = "1.11.1"
 
+[workspace.dependencies.sha2]
+version = "0.10.9"
+
+# snarkvm doesn't use semantic versioning, so pin to a
+# specific version.
 [workspace.dependencies.snarkvm]
 #version = "=3.8.0"
 git = "https://github.com/ProvableHQ/snarkVM.git"

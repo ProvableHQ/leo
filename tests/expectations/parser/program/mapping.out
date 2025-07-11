@@ -67,6 +67,7 @@
                   },
                   "id": 5
                 },
+                "const_arguments": [],
                 "program": null
               }
             },
@@ -80,6 +81,7 @@
                   },
                   "id": 6
                 },
+                "const_arguments": [],
                 "program": null
               }
             },

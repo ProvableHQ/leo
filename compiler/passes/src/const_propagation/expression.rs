@@ -78,6 +78,9 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_struct_init(&mut self, mut input: StructExpression) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
+        input.const_arguments.iter_mut().for_each(|arg| {
+            *arg = self.reconstruct_expression(std::mem::take(arg)).0;
+        });
         for member in input.members.iter_mut() {
             if let Some(expr) = std::mem::take(&mut member.expression) {
                 let (new_expr, value_opt) = self.reconstruct_expression(expr);
@@ -87,7 +90,8 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
                 }
             }
         }
-        if values.len() == input.members.len() {
+
+        if values.len() == input.members.len() && input.const_arguments.is_empty() {
             let value = Value::Struct(StructContents {
                 name: input.name.name,
                 contents: input.members.iter().map(|mem| mem.identifier.name).zip(values).collect(),

@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
+use super::TypeCheckingVisitor;
+use crate::{VariableSymbol, VariableType};
 
 use leo_ast::{DiGraphError, Type, *};
 use leo_errors::TypeCheckerError;
@@ -151,7 +152,51 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_struct(&mut self, input: &Composite) {
-        input.members.iter().for_each(|member| self.visit_type(&member.type_));
+        self.in_conditional_scope(|slf| {
+            slf.in_scope(input.id, |slf| {
+                if input.is_record && !input.const_parameters.is_empty() {
+                    slf.emit_err(TypeCheckerError::unexpected_record_const_parameters(input.span));
+                } else {
+                    input
+                        .const_parameters
+                        .iter()
+                        .for_each(|const_param| slf.insert_symbol_conditional_scope(const_param.identifier.name));
+
+                    for const_param in &input.const_parameters {
+                        slf.visit_type(const_param.type_());
+
+                        // Restrictions for const parameters
+                        if !matches!(
+                            const_param.type_(),
+                            Type::Boolean | Type::Integer(_) | Type::Address | Type::Scalar | Type::Group | Type::Field
+                        ) {
+                            slf.emit_err(TypeCheckerError::bad_const_generic_type(
+                                const_param.type_(),
+                                const_param.span(),
+                            ));
+                        }
+
+                        // Add the input to the symbol table.
+                        if let Err(err) = slf.state.symbol_table.insert_variable(
+                            slf.scope_state.program_name.unwrap(),
+                            const_param.identifier().name,
+                            VariableSymbol {
+                                type_: const_param.type_().clone(),
+                                span: const_param.identifier.span(),
+                                declaration: VariableType::ConstParameter,
+                            },
+                        ) {
+                            slf.state.handler.emit_err(err);
+                        }
+
+                        // Add the input to the type table.
+                        slf.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
+                    }
+                }
+
+                input.members.iter().for_each(|member| slf.visit_type(&member.type_));
+            })
+        });
 
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
@@ -289,12 +334,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     fn visit_function(&mut self, function: &Function) {
         // Reset the scope state.
         self.scope_state.reset();
-        // Check that the function's annotations are valid.
-        // Note that Leo does not natively support any specific annotations.
-        for annotation in function.annotations.iter() {
-            // TODO: Change to compiler warning.
-            self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
-        }
 
         // Set the scope state before traversing the function.
         self.scope_state.variant = Some(function.variant);

@@ -243,6 +243,12 @@ impl ParserContext<'_> {
 
         let struct_name = self.expect_identifier()?;
 
+        let const_parameters = if self.eat(&Token::DoubleColon) {
+            self.parse_bracket_comma_list(|p| p.parse_const_parameter().map(Some))?.0
+        } else {
+            vec![]
+        };
+
         self.expect(&Token::LeftCurly)?;
         let (members, end) = self.parse_struct_members()?;
 
@@ -251,6 +257,7 @@ impl ParserContext<'_> {
 
         Ok((struct_name.name, Composite {
             identifier: struct_name,
+            const_parameters,
             members,
             external,
             is_record,
@@ -300,17 +307,6 @@ impl ParserContext<'_> {
                 Err(ParserError::inputs_multiple_variable_modes_specified(summed_span).into())
             }
         }
-    }
-
-    /// Returns a [`ConstParameter`] AST node if the next tokens represent a function input.
-    fn parse_const_parameter(&mut self) -> Result<ConstParameter> {
-        let name = self.expect_identifier()?;
-        self.expect(&Token::Colon)?;
-
-        let (type_, type_span) = self.parse_type()?;
-        let span = name.span() + type_span;
-
-        Ok(ConstParameter { identifier: name, type_, span, id: self.node_builder.next_id() })
     }
 
     /// Returns an [`Input`] AST node if the next tokens represent a function input.
@@ -412,7 +408,7 @@ impl ParserContext<'_> {
         };
         let name = self.expect_identifier()?;
 
-        let const_params = if self.eat(&Token::DoubleColon) {
+        let const_parameters = if self.eat(&Token::DoubleColon) {
             self.parse_bracket_comma_list(|p| p.parse_const_parameter().map(Some))?.0
         } else {
             vec![]
@@ -455,7 +451,7 @@ impl ParserContext<'_> {
                 annotations,
                 variant,
                 name,
-                const_params,
+                const_parameters,
                 inputs,
                 output,
                 block,

@@ -1,0 +1,49 @@
+program test.aleo;
+
+struct Foo__6h1mBzWS4b:
+    arr as [u32; 10u32];
+
+struct Baz:
+    f as Foo__6h1mBzWS4b;
+
+struct Foo__1E6DpDLvy1c:
+    arr as [u32; 7u32];
+
+struct Goo__ClXeT7XOB3o:
+    f as Foo__1E6DpDLvy1c;
+
+struct Foo__9mDhqPfVudH:
+    arr as [u32; 6u32];
+
+struct Goo__G7IrmA3ERmR:
+    f as Foo__9mDhqPfVudH;
+
+struct Foo__1aDLngv82QW:
+    arr as [u32; 8u32];
+
+struct Foo__D1bzlHdvaiB:
+    arr as [u32; 9u32];
+
+struct Goo__66lvYV7poRf:
+    f as Foo__D1bzlHdvaiB;
+
+struct Boo__5ygSFS854E4:
+    g as Goo__66lvYV7poRf;
+
+function main:
+    input r0 as Goo__ClXeT7XOB3o.private;
+    input r1 as Baz.private;
+    input r2 as u32.private;
+    cast 42u32 42u32 42u32 42u32 42u32 42u32 into r3 as [u32; 6u32];
+    cast r3 into r4 as Foo__9mDhqPfVudH;
+    cast r4 into r5 as Goo__G7IrmA3ERmR;
+    cast 3u32 3u32 3u32 3u32 3u32 3u32 3u32 3u32 into r6 as [u32; 8u32];
+    cast r6 into r7 as Foo__1aDLngv82QW;
+    cast 42u32 42u32 42u32 42u32 42u32 42u32 42u32 42u32 42u32 into r8 as [u32; 9u32];
+    cast r8 into r9 as Foo__D1bzlHdvaiB;
+    cast r9 into r10 as Goo__66lvYV7poRf;
+    cast r10 into r11 as Boo__5ygSFS854E4;
+    add r0.f.arr[6u32] r7.arr[7u32] into r12;
+    add r12 r5.f.arr[5u32] into r13;
+    add r13 r11.g.f.arr[8u32] into r14;
+    output r14 as u32.private;
