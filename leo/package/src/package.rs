@@ -460,7 +460,7 @@ program {name}.aleo {{
     //  - @checksum(mapping="credits.aleo/fixme", key="0field")
     //  - @custom
     // For more information, please refer to the documentation: <TODO>.
-    @no_upgrade
+    @noupgrade
     async constructor() {{}}
 }}
 "#
