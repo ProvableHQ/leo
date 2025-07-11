@@ -16,10 +16,13 @@
 
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
+use snarkvm::prelude::{Locator, Network};
 use std::fmt::Display;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Location {
+    /// The program name. e.g. `credits`.
+    /// Note. This does not include the `.aleo` network suffix.
     pub program: Symbol,
     pub name: Symbol,
 }
@@ -32,6 +35,15 @@ impl Location {
 
 impl Display for Location {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}/{}", self.program, self.name)
+        write!(f, "{}.aleo/{}", self.program, self.name)
+    }
+}
+
+impl<N: Network> From<Locator<N>> for Location {
+    fn from(locator: Locator<N>) -> Self {
+        Location {
+            program: Symbol::intern(&locator.program_id().name().to_string()),
+            name: Symbol::intern(&locator.resource().to_string()),
+        }
     }
 }

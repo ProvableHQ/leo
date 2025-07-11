@@ -40,8 +40,6 @@ impl ExpressionReconstructor for MonomorphizationVisitor<'_> {
             return (input_call.into(), Default::default());
         }
 
-        println!("Input: {:?}", input_call);
-
         // Look up the already reconstructed function by name.
         let callee_fn = self
             .reconstructed_functions

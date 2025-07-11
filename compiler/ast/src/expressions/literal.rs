@@ -120,7 +120,7 @@ impl Literal {
         if let LiteralVariant::Integer(_, s) = &self.variant {
             u32::from_str_by_radix(&s.replace("_", "")).ok()
         } else {
-            panic!("`as_u32` must only be called on integer literals");
+            None
         }
     }
 }

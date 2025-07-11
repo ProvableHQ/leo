@@ -22,6 +22,7 @@ use leo_errors::TypeCheckerError;
 use leo_span::{Symbol, sym};
 
 use itertools::Itertools;
+use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 use std::collections::{BTreeMap, HashSet};
 
 impl ProgramVisitor for TypeCheckingVisitor<'_> {
@@ -453,10 +454,79 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         self.scope_state.function = Some(sym::constructor);
         self.scope_state.variant = Some(Variant::AsyncFunction);
         self.scope_state.is_constructor = true;
-        // Check that the block is not empty.
-        if constructor.block.statements.is_empty() {
-            self.emit_err(TypeCheckerError::custom_error("A constructor cannot be empty", constructor.span));
+
+        // Get the upgrade variant.
+        // Note, `get_upgrade_variant` will return an error if the constructor is not well-formed.
+        let result = match self.state.network {
+            NetworkName::CanaryV0 => constructor.get_upgrade_variant::<CanaryV0>(),
+            NetworkName::TestnetV0 => constructor.get_upgrade_variant::<TestnetV0>(),
+            NetworkName::MainnetV0 => constructor.get_upgrade_variant::<MainnetV0>(),
+        };
+        let upgrade_variant = match result {
+            Ok(upgrade_variant) => upgrade_variant,
+            Err(e) => {
+                self.emit_err(TypeCheckerError::custom_error(format!("{e}"), constructor.span));
+                return;
+            }
+        };
+
+        // Validate the number of statements.
+        match (&upgrade_variant, constructor.block.statements.is_empty()) {
+            (UpgradeVariant::Custom, true) => {
+                self.emit_err(TypeCheckerError::custom_error(
+                    "A 'custom' constructor cannot be empty",
+                    constructor.span,
+                ));
+            }
+            (UpgradeVariant::NoUpgrade | UpgradeVariant::Admin { .. } | UpgradeVariant::Checksum { .. }, false) => {
+                self.emit_err(TypeCheckerError::custom_error("A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.", constructor.span));
+            }
+            _ => {}
         }
+
+        // For the checksum variant, check that the mapping exists and that the type matches.
+        if let UpgradeVariant::Checksum { mapping, key, key_type } = &upgrade_variant {
+            // Look up the mapping type.
+            let Some(VariableSymbol { type_: Type::Mapping(mapping_type), .. }) =
+                self.state.symbol_table.lookup_global(*mapping)
+            else {
+                self.emit_err(TypeCheckerError::custom_error(
+                    format!("The mapping '{mapping}' does not exist. Please ensure that it is imported or defined in your program."),
+                    constructor.annotations[0].span,
+                ));
+                return;
+            };
+            // Check that the mapping key type matches the expected key type.
+            if *mapping_type.key != *key_type {
+                self.emit_err(TypeCheckerError::custom_error(
+                    format!(
+                        "The mapping '{}' key type '{}' does not match the key '{}' in the `@checksum` annotation",
+                        mapping, mapping_type.key, key
+                    ),
+                    constructor.annotations[0].span,
+                ));
+            }
+            // Check that the value type is a `[u8; 32]`.
+            let check_value_type = |type_: &Type| -> bool {
+                if let Type::Array(array_type) = type_ {
+                    if !matches!(array_type.element_type.as_ref(), &Type::Integer(_)) {
+                        return false;
+                    }
+                    if let Some(length) = array_type.length.as_u32() {
+                        return length == 32;
+                    }
+                    return false;
+                }
+                false
+            };
+            if !check_value_type(&mapping_type.value) {
+                self.emit_err(TypeCheckerError::custom_error(
+                    format!("The mapping '{}' value type '{}' must be a '[u8; 32]'", mapping, mapping_type.value),
+                    constructor.annotations[0].span,
+                ));
+            }
+        }
+
         // Traverse the constructor.
         self.in_conditional_scope(|slf| {
             slf.in_scope(constructor.id, |slf| {

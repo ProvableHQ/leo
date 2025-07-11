@@ -18,7 +18,7 @@ use super::*;
 
 use check_transaction::TransactionStatus;
 use leo_ast::NetworkName;
-use leo_package::{Manifest, Package, UpgradeConfig, fetch_program_from_network};
+use leo_package::{Manifest, Package, fetch_program_from_network};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
@@ -196,14 +196,24 @@ fn handle_deploy<N: Network>(
     for (program_id, program, manifest, _, priority_fee, fee_record) in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
         if manifest.is_some() && !skipped.contains(&program_id) {
-            println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
             // If the program contains an upgrade config, confirm with the user that they want to proceed.
-            if let Some(upgrade) = &manifest.expect("Local program should have a manifest").upgrade {
-                if !confirm_upgrade_mechanism(&program, upgrade, command.extra.yes)? {
+            if let Some(constructor) = program.constructor() {
+                let prompt = format!(
+                    r"
+   Your program has the following constructor.
+   ```
+   {constructor}
+   ```
+   Once it is deployed, it CANNOT be changed.
+   Would you like to proceed?
+    "
+                );
+                if !confirm(&prompt, command.extra.yes)? {
                     println!("❌ Deployment aborted.");
                     return Ok(());
                 }
             }
+            println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
             // Generate the transaction.
             let transaction = vm
                 .deploy(&private_key, &program, fee_record, priority_fee.unwrap_or(0), Some(query.clone()), rng)
@@ -318,40 +328,6 @@ fn handle_deploy<N: Network>(
     }
 
     Ok(())
-}
-
-/// If the program contains an upgrade mechanism, prompt the user to confirm that they want to proceed.
-fn confirm_upgrade_mechanism<N: Network>(program: &Program<N>, upgrade: &UpgradeConfig, yes: bool) -> Result<bool> {
-    match upgrade {
-        UpgradeConfig::Admin { address } => {
-            println!(
-                "ANYONE with access to the private key for '{}' can upgrade '{}'.",
-                address.to_string().bold(),
-                program.id().to_string().bold(),
-            );
-            println!("You MUST ensure that the key is securely stored and operated.");
-        }
-        UpgradeConfig::Checksum { mapping, key } => {
-            println!(
-                "Every upgrade for '{}' will be verified against the checksum stored at '{}' using the key '{}'.",
-                program.id().to_string().bold(),
-                mapping.to_string().bold(),
-                key
-            );
-            println!("You MUST ensure that this entry in the mapping cannot be misused.")
-        }
-        UpgradeConfig::Custom => {
-            println!("'{}' uses a custom constructor for upgrades.", program.id().to_string().bold());
-            println!("You MUST ensure that the constructor logic is thoroughly tested and audited.");
-        }
-        UpgradeConfig::NoUpgrade => {
-            println!(
-                "'{}' does not allow upgrades and CANNOT be changed after deployment.",
-                program.id().to_string().bold()
-            );
-        }
-    }
-    confirm("\nDo you want to proceed?", yes)
 }
 
 /// Check the tasks to warn the user about any potential issues.

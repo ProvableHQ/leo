@@ -18,7 +18,6 @@ use crate::{Assigner, SymbolTable, TypeTable};
 
 use leo_ast::{Ast, CallGraph, NetworkName, NodeBuilder, StructGraph};
 use leo_errors::{Handler, LeoWarning, Result};
-use leo_package::UpgradeConfig;
 
 use std::collections::HashSet;
 
@@ -41,8 +40,6 @@ pub struct CompilerState {
     pub struct_graph: StructGraph,
     /// A graph of which functions call each other.
     pub call_graph: CallGraph,
-    /// An optional upgrade config.
-    pub upgrade_config: Option<UpgradeConfig>,
     /// A set of the warnings collected. This is used to make sure we don't emit the same exact warning twice.
     pub warnings: HashSet<LeoWarning>,
     /// Is this a test program?

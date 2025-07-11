@@ -107,6 +107,6 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
 
         self.fold_returns(&mut block, expression_returns);
 
-        Constructor { block, span: constructor.span, id: constructor.id }
+        Constructor { annotations: constructor.annotations, block, span: constructor.span, id: constructor.id }
     }
 }

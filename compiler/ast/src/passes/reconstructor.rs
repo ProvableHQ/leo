@@ -502,7 +502,12 @@ pub trait ProgramReconstructor: StatementReconstructor {
     }
 
     fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
-        Constructor { block: self.reconstruct_block(input.block).0, span: input.span, id: input.id }
+        Constructor {
+            annotations: input.annotations,
+            block: self.reconstruct_block(input.block).0,
+            span: input.span,
+            id: input.id,
+        }
     }
 
     fn reconstruct_function_stub(&mut self, input: FunctionStub) -> FunctionStub {

@@ -1,8 +1,3 @@
-Error [ETYC0372027]: Unknown annotation: `@test`.
-    --> compiler-test:3:5
-     |
-   3 |     @test
-     |     ^^^^^
 Error [ETYC0372130]: Invalid annotation: Test annotation @test appears outside of tests.
     --> compiler-test:3:5
      |
@@ -18,11 +13,6 @@ Error [ETYC0372130]: Invalid annotation: A test procedure cannot have inputs.
      |
    4 |     function foo(a: u8, b: u8) -> u8 {
      |                  ^^^^^
-Error [ETYC0372027]: Unknown annotation: `@program`.
-    --> compiler-test:8:5
-     |
-   8 |     @program
-     |     ^^^^^^^^
 Error [ETYC0372027]: Unknown annotation: `@program`.
     --> compiler-test:8:5
      |

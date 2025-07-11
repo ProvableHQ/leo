@@ -14,7 +14,7 @@ program test.aleo {
 
     transition foo() {}
 
-    @checksum(mapping = "dependent.aleo/floo", key = "1field")
+    @checksum(mapping = "dependent.aleo/bar", key = "1field")
     async constructor() {}
 
     transition food() {

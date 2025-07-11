@@ -1,10 +1,10 @@
 Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
-    --> compiler-test:14:9
+    --> compiler-test:11:9
      |
-  14 |         foo(true);
+  11 |         foo(true);
      |         ^^^^^^^^^
 Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `inline`.
-    --> compiler-test:15:9
+    --> compiler-test:12:9
      |
-  15 |         bar();
+  12 |         bar();
      |         ^^^^^

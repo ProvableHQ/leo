@@ -1,5 +1,5 @@
 Error [ETYC0372126]: A program can only have one constructor.
-    --> compiler-test:12:5
+    --> compiler-test:10:5
      |
-  12 |     async constructor() {
+  10 |     async constructor() {
      |     ^^^^^

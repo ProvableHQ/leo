@@ -45,6 +45,8 @@ pub(crate) struct ParserContext<'a> {
     pub(crate) program_name: Option<Symbol>,
     /// The network.
     pub(crate) network: NetworkName,
+    /// The accumulated annotations.
+    pub(crate) annotations: Vec<Annotation>,
 }
 
 /// Dummy span used to appease borrow checker.
@@ -73,6 +75,7 @@ impl<'a> ParserContext<'a> {
             tokens,
             program_name: None,
             network,
+            annotations: Vec::new(),
         };
         p.bump();
         p

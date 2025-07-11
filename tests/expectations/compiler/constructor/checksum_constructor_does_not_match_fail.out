@@ -1,29 +1,17 @@
-Error [ESAZ0374011]: The constructor is not well-formed for the 'checksum' upgrade configuration.
-    --> compiler-test:11:5
+Error [ETYC0372126]: A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.
+    --> compiler-test:7:5
      |
-  11 |     async constructor() {
+   7 |     @checksum(mapping = "test.aleo/expected_checksum", key = "true")
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 |     async constructor() {
      |     ^^^^^^^^^^^^^^^^^^^^^
-  12 |         if self.edition >= 0u16 {
+   9 |         if self.edition >= 0u16 {
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^
-  13 |             let expected: [u8; 32] = Mapping::get(expected_checksum, true);
+  10 |             let expected: [u8; 32] = Mapping::get(expected_checksum, true);
      |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  14 |             assert_eq(self.checksum, expected);
+  11 |             assert_eq(self.checksum, expected);
      |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  15 |         }
+  12 |         }
      |         ^
-  16 |     }
+  13 |     }
      |     ^
-     |
-     = 
-The expected constructor is:
-```
-async constructor() {
-    if self.edition > 0u16 {
-        let expected: [u8; 32] = Mapping::get(expected_checksum, true);
-        assert_eq(self.checksum, expected);
-    }
-}
-```
-
-For more information, please refer to the documentation: TODO
-    

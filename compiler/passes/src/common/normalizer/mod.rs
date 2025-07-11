@@ -177,7 +177,12 @@ impl TypeReconstructor for Normalizer {}
 impl ProgramReconstructor for Normalizer {
     fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
         let input = normalize_node(input);
-        Constructor { block: self.reconstruct_block(input.block).0, span: input.span, id: input.id }
+        Constructor {
+            annotations: input.annotations,
+            block: self.reconstruct_block(input.block).0,
+            span: input.span,
+            id: input.id,
+        }
     }
 }
 

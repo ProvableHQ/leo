@@ -30,12 +30,6 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
         input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
-        } else if self.state.upgrade_config.is_some() {
-            self.state.handler.emit_err(StaticAnalyzerError::custom_error(
-                "An upgrade configuration was provided, but no constructor was found.",
-                Option::<String>::None,
-                input.program_id.name.span,
-            ));
         }
     }
 
@@ -125,7 +119,7 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
         }
     }
 
-    fn visit_constructor(&mut self, constructor: &Constructor) {
-        self.check_constructor_matches(constructor);
+    fn visit_constructor(&mut self, _: &Constructor) {
+        // Do nothing, since constructors do not have awaits or futures.
     }
 }

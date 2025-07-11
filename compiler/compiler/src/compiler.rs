@@ -23,7 +23,6 @@ use crate::{AstSnapshots, CompilerOptions};
 pub use leo_ast::Ast;
 use leo_ast::{NetworkName, Stub};
 use leo_errors::{CompilerError, Handler, Result};
-use leo_package::UpgradeConfig;
 use leo_passes::*;
 use leo_span::{Symbol, source_map::FileName, with_session_globals};
 
@@ -103,11 +102,10 @@ impl Compiler {
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
         import_stubs: IndexMap<Symbol, Stub>,
-        upgrade_config: Option<UpgradeConfig>,
         network: NetworkName,
     ) -> Self {
         Self {
-            state: CompilerState { handler, upgrade_config, is_test, network, ..Default::default() },
+            state: CompilerState { handler, is_test, network, ..Default::default() },
             output_directory,
             program_name: expected_program_name,
             compiler_options: compiler_options.unwrap_or_default(),

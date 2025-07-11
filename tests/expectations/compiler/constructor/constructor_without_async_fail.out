@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', 'script', '}' -- found 'constructor'
-    --> compiler-test:8:5
+    --> compiler-test:5:5
      |
-   8 |     constructor() {
+   5 |     constructor() {
      |     ^^^^^^^^^^^

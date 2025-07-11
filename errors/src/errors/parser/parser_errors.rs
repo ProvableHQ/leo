@@ -381,4 +381,11 @@ create_messages!(
         msg: format!("Expected an identifier."),
         help: None,
     }
+
+    @formatted
+    custom {
+        args: (msg: impl Display),
+        msg: format!("{msg}"),
+        help: None,
+    }
 );

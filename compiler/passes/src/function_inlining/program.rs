@@ -98,6 +98,7 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
 
     fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
         Constructor {
+            annotations: input.annotations,
             block: {
                 // Set the `is_async` flag before reconstructing the block.
                 self.is_async = true;

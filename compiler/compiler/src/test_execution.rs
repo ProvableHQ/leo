@@ -44,7 +44,6 @@ fn whole_compile(
         "/fakedirectory-wont-use".into(),
         None,
         import_stubs,
-        None,
         NetworkName::TestnetV0,
     );
 

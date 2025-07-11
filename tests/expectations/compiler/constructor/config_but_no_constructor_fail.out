@@ -1,5 +1,0 @@
-Error [ESAZ0374011]: An upgrade configuration was provided, but no constructor was found.
-    --> compiler-test:5:9
-     |
-   5 | program test.aleo {
-     |         ^^^^

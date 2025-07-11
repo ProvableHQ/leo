@@ -239,6 +239,10 @@ symbols! {
     // annotations
     should_fail,
     test,
+    noupgrade,
+    custom,
+    admin,
+    key,
 
     // annotation keys
     private_key,

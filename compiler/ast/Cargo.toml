@@ -27,6 +27,9 @@ workspace = true
 [dependencies.leo-span]
 workspace = true
 
+[dependencies.anyhow]
+workspace = true
+
 [dependencies.indexmap]
 workspace = true
 

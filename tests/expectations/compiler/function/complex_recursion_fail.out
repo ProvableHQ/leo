@@ -48,4 +48,4 @@ Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `
      |
   17 |         return one(n);
      |                ^^^^^^
-Error [ETYC0372059]: Cyclic dependency between functions: `test/five` --> `test/six` --> `test/seven` --> `test/five`
+Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/five` --> `test.aleo/six` --> `test.aleo/seven` --> `test.aleo/five`

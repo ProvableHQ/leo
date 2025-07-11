@@ -1,7 +1,3 @@
-/*
-upgrade = { "mode": "custom" }
-*/
-
 program test.aleo {
     mapping expected: bool => [u8; 32];
     mapping admin: bool => address;
@@ -14,7 +10,8 @@ program test.aleo {
         assert_eq(addr, admin.get(true));
         expected.set(true, checksum);
     }
-    
+
+    @custom
     async constructor() {
         let current_edition: u16 = self.edition;
         if current_edition > 0u16 {

@@ -18,4 +18,4 @@ Error [ETYC0372042]: A `constructor`, `function`, or `inline` can only call an `
      |
    7 |             return fib(n - 1u8) + fib(n - 2u8);
      |                                   ^^^^^^^^^^^^
-Error [ETYC0372059]: Cyclic dependency between functions: `test/foo` --> `test/foo`
+Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/foo` --> `test.aleo/foo`

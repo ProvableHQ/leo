@@ -1519,6 +1519,7 @@ dependencies = [
 name = "leo-ast"
 version = "2.7.1"
 dependencies = [
+ "anyhow",
  "indexmap",
  "itertools 0.13.0",
  "leo-errors",

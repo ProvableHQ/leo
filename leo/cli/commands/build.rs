@@ -19,7 +19,7 @@ use super::*;
 use leo_ast::{NetworkName, Stub};
 use leo_compiler::{AstSnapshots, Compiler, CompilerOptions};
 use leo_errors::{CliError, UtilError};
-use leo_package::{Manifest, Package, UpgradeConfig};
+use leo_package::{Manifest, Package};
 use leo_span::Symbol;
 
 use snarkvm::prelude::{CanaryV0, Itertools, MainnetV0, Program, TestnetV0};
@@ -109,7 +109,7 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
                 // This was a network dependency, and we've downloaded its bytecode.
                 (bytecode.clone(), imports_directory.join(format!("{}.aleo", program.name)))
             }
-            leo_package::ProgramData::SourcePath { directory, source, .. } => {
+            leo_package::ProgramData::SourcePath { source, .. } => {
                 // This is a local dependency, so we must compile it.
                 let build_path = if source == &main_source_path {
                     build_directory.join("main.aleo")
@@ -117,7 +117,6 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
                     imports_directory.join(format!("{}.aleo", program.name))
                 };
                 // Load the manifest in local dependency.
-                let manifest = Manifest::read_from_file(directory.join(leo_package::MANIFEST_FILENAME))?;
                 let bytecode = compile_leo_file(
                     source,
                     program.name,
@@ -126,7 +125,6 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
                     &handler,
                     command.options.clone(),
                     stubs.clone(),
-                    manifest.upgrade,
                     network,
                 )?;
                 (bytecode, build_path)
@@ -155,7 +153,6 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
         license: String::new(),
         dependencies: None,
         dev_dependencies: None,
-        upgrade: None,
     };
     fake_manifest.write_to_file(build_manifest_path)?;
 
@@ -172,7 +169,6 @@ fn compile_leo_file(
     handler: &Handler,
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
-    upgrade_config: Option<UpgradeConfig>,
     network: NetworkName,
 ) -> Result<String> {
     // Create a new instance of the Leo compiler.
@@ -183,7 +179,6 @@ fn compile_leo_file(
         output_path.to_path_buf(),
         Some(options.into()),
         stubs,
-        upgrade_config,
         network,
     );
 

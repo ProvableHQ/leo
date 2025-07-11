@@ -1,5 +1,7 @@
-Error [ETYC0372126]: A constructor cannot be empty
-    --> compiler-test:8:5
+Error [ETYC0372126]: A 'custom' constructor cannot be empty
+    --> compiler-test:4:5
      |
-   8 |     async constructor() {}
+   4 |     @custom
+     |     ^^^^^^^
+   5 |     async constructor() {}
      |     ^^^^^^^^^^^^^^^^^^^^^^

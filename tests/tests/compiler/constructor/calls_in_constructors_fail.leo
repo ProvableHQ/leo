@@ -1,7 +1,3 @@
-/*
-upgrade = { "mode": "custom" }
-*/
-
 program test.aleo {
     
     function foo(a: bool) {
@@ -9,7 +5,8 @@ program test.aleo {
     }
     
     transition bar() {}
-    
+
+    @custom
     async constructor() {
         foo(true);
         bar();

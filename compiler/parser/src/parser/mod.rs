@@ -82,20 +82,3 @@ pub fn parse_statement(
         Err(ParserError::unexpected(context.token.token, Token::Eof, context.token.span).into())
     }
 }
-
-pub fn parse_constructor(
-    handler: Handler,
-    node_builder: &NodeBuilder,
-    source: &str,
-    start_pos: u32,
-    network: NetworkName,
-) -> Result<Constructor> {
-    let mut context = ParserContext::new(handler, node_builder, crate::tokenize(source, start_pos)?, network);
-
-    let constructor = context.parse_constructor()?;
-    if context.token.token == Token::Eof {
-        Ok(constructor)
-    } else {
-        Err(ParserError::unexpected(context.token.token, Token::Eof, context.token.span).into())
-    }
-}

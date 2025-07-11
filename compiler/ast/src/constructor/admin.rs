@@ -17,11 +17,10 @@
 /// This is the required Leo constructor code for a program that is only upgradable by a fixed admin.
 pub fn leo_admin_constructor(admin: impl std::fmt::Display) -> String {
     format!(
-        r"
-async constructor() {{
-    assert_eq(self.program_owner, {admin});
-}}
-"
+        r#"
+@admin(address="{admin}")
+async constructor() {{}}
+"#
     )
 }
 

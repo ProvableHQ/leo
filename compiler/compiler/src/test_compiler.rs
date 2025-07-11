@@ -19,7 +19,6 @@ use crate::Compiler;
 use leo_ast::{NetworkName, Stub};
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
-use leo_package::UpgradeConfig;
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 
 use snarkvm::{
@@ -38,7 +37,6 @@ pub fn whole_compile(
     source: &str,
     handler: &Handler,
     import_stubs: IndexMap<Symbol, Stub>,
-    upgrade_config: Option<UpgradeConfig>,
 ) -> Result<(String, String), LeoError> {
     let mut compiler = Compiler::new(
         None,
@@ -47,7 +45,6 @@ pub fn whole_compile(
         "/fakedirectory-wont-use".into(),
         None,
         import_stubs,
-        upgrade_config,
         NetworkName::TestnetV0,
     );
 
@@ -68,18 +65,7 @@ fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
 
     // Compile each source file separately.
     for source in test.split(PROGRAM_DELIMITER) {
-        // The optional upgrade config.
-        let mut upgrade_config = None;
-        for line in source.lines() {
-            if let Some(rest) = line.strip_prefix("upgrade = ") {
-                upgrade_config = Some(
-                    serde_json::from_str::<UpgradeConfig>(rest.trim_matches('"')).expect("Invalid upgrade config"),
-                );
-            }
-        }
-
-        let (bytecode, program_name) =
-            handler.extend_if_error(whole_compile(source, handler, import_stubs.clone(), upgrade_config))?;
+        let (bytecode, program_name) = handler.extend_if_error(whole_compile(source, handler, import_stubs.clone()))?;
 
         // Parse the bytecode as an Aleo program.
         // Note that this function checks that the bytecode is well-formed.

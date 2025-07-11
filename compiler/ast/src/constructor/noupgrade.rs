@@ -17,9 +17,8 @@
 /// This is the required Leo constructor code for a program that is not upgradable.
 pub fn leo_noupgrade_constructor() -> String {
     r"
-async constructor() {
-    assert_eq(self.edition, 0u16);
-}
+@noupgrade
+async constructor() {}
 "
     .to_string()
 }

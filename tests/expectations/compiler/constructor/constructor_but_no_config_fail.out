@@ -1,4 +1,4 @@
-Error [ESAZ0374011]: A constructor was specified in the program but no upgrade configuration was provided in the `program.json`.
+Error [ETYC0372126]: A constructor must have exactly one of the following annotations: `@admin`, `@checksum`, `@custom`, or `@noupgrade`.
     --> compiler-test:4:5
      |
    4 |     async constructor() {
