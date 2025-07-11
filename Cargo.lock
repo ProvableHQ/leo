@@ -1509,7 +1509,7 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "leo-abnf"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "abnf",
  "anyhow",
@@ -1517,7 +1517,7 @@ dependencies = [
 
 [[package]]
 name = "leo-ast"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -1533,7 +1533,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "aleo-std",
  "indexmap",
@@ -1555,7 +1555,7 @@ dependencies = [
 
 [[package]]
 name = "leo-disassembler"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "leo-ast",
  "leo-errors",
@@ -1565,7 +1565,7 @@ dependencies = [
 
 [[package]]
 name = "leo-errors"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -1580,7 +1580,7 @@ dependencies = [
 
 [[package]]
 name = "leo-interpreter"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "colored",
  "crossterm",
@@ -1589,7 +1589,6 @@ dependencies = [
  "leo-ast",
  "leo-errors",
  "leo-parser",
- "leo-passes",
  "leo-span",
  "leo-test-framework",
  "rand",
@@ -1602,7 +1601,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "aleo-std",
  "ansi_term",
@@ -1640,7 +1639,7 @@ dependencies = [
 
 [[package]]
 name = "leo-package"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "indexmap",
  "leo-ast",
@@ -1655,7 +1654,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "clap",
  "indexmap",
@@ -1672,7 +1671,7 @@ dependencies = [
 
 [[package]]
 name = "leo-passes"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "base62",
  "indexmap",
@@ -1692,7 +1691,7 @@ dependencies = [
 
 [[package]]
 name = "leo-span"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "fxhash",
  "indexmap",
@@ -1702,7 +1701,7 @@ dependencies = [
 
 [[package]]
 name = "leo-test-framework"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "rayon",
  "walkdir",

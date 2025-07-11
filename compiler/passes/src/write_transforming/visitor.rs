@@ -17,17 +17,21 @@
 use crate::CompilerState;
 
 use leo_ast::{
+    ArrayAccess,
     AssignStatement,
+    AstVisitor,
+    DefinitionPlace,
+    DefinitionStatement,
     Expression,
-    ExpressionVisitor,
     Identifier,
+    IntegerType,
+    Literal,
     Location,
+    MemberAccess,
     Node as _,
     Program,
-    StatementVisitor,
+    Statement,
     Type,
-    TypeReconstructor,
-    TypeVisitor,
 };
 use leo_span::Symbol;
 
@@ -64,24 +68,187 @@ impl<'a> WriteTransformingVisitor<'a> {
         wtf.fill(program);
         wtf.0
     }
+
+    /// If `name` is a struct or array whose members are written to, make
+    /// `DefinitionStatement`s for each of its variables that will correspond to
+    /// the members. Note that we create them for all members; unnecessary ones
+    /// will be removed by DCE.
+    pub fn define_variable_members(&mut self, name: Identifier, accumulate: &mut Vec<Statement>) {
+        // The `cloned` here and in the branch below are unfortunate but we need
+        // to mutably borrow `self` again below.
+        if let Some(members) = self.array_members.get(&name.name).cloned() {
+            for (i, member) in members.iter().cloned().enumerate() {
+                // Create a definition for each array index.
+                let index = Literal::integer(
+                    IntegerType::U8,
+                    i.to_string(),
+                    Default::default(),
+                    self.state.node_builder.next_id(),
+                );
+                self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
+                let access = ArrayAccess {
+                    array: name.into(),
+                    index: index.into(),
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                };
+                self.state.type_table.insert(access.id(), self.state.type_table.get(&member.id()).unwrap().clone());
+                let def = DefinitionStatement {
+                    place: DefinitionPlace::Single(member),
+                    type_: None,
+                    value: access.into(),
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                };
+                accumulate.push(def.into());
+                // And recurse - maybe its members are also written to.
+                self.define_variable_members(member, accumulate);
+            }
+        } else if let Some(members) = self.struct_members.get(&name.name) {
+            for (&field_name, &member) in members.clone().iter() {
+                // Create a definition for each field.
+                let access = MemberAccess {
+                    inner: name.into(),
+                    name: Identifier::new(field_name, self.state.node_builder.next_id()),
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                };
+                self.state.type_table.insert(access.id(), self.state.type_table.get(&member.id()).unwrap().clone());
+                let def = DefinitionStatement {
+                    place: DefinitionPlace::Single(member),
+                    type_: None,
+                    value: access.into(),
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                };
+                accumulate.push(def.into());
+                // And recurse - maybe its members are also written to.
+                self.define_variable_members(member, accumulate);
+            }
+        }
+    }
+
+    /// If we're assigning to a struct or array member, find the variable name we're actually writing to,
+    /// recursively if necessary.
+    /// That is, if we have
+    /// `arr[0u32][1u32] = ...`,
+    /// we find the corresponding variable `arr_0_1`.
+    pub fn reconstruct_assign_place(&mut self, input: Expression) -> Identifier {
+        use Expression::*;
+        match input {
+            ArrayAccess(array_access) => {
+                let identifier = self.reconstruct_assign_place(array_access.array);
+                self.get_array_member(identifier.name, &array_access.index).expect("We have visited all array writes.")
+            }
+            Identifier(identifier) => identifier,
+            MemberAccess(member_access) => {
+                let identifier = self.reconstruct_assign_place(member_access.inner);
+                self.get_struct_member(identifier.name, member_access.name.name)
+                    .expect("We have visited all struct writes.")
+            }
+            TupleAccess(_) => panic!("TupleAccess writes should have been removed by Destructuring"),
+            _ => panic!("Type checking should have ensured there are no other places for assignments"),
+        }
+    }
+
+    /// If we're assigning to a struct or array, create assignments to the individual members, if applicable.
+    pub fn reconstruct_assign_recurse(&self, place: Identifier, value: Expression, accumulate: &mut Vec<Statement>) {
+        if let Some(array_members) = self.array_members.get(&place.name) {
+            if let Expression::Array(value_array) = value {
+                // This was an assignment like
+                // `arr = [a, b, c];`
+                // Change it to this:
+                // `arr_0 = a; arr_1 = b; arr_2 = c`
+                for (&member, rhs_element) in array_members.iter().zip(value_array.elements) {
+                    self.reconstruct_assign_recurse(member, rhs_element, accumulate);
+                }
+            } else {
+                // This was an assignment like
+                // `arr = x;`
+                // Change it to this:
+                // `arr = x; arr_0 = x[0]; arr_1 = x[1]; arr_2 = x[2];`
+                let one_assign = AssignStatement {
+                    place: place.into(),
+                    value,
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                }
+                .into();
+                accumulate.push(one_assign);
+                for (i, &member) in array_members.iter().enumerate() {
+                    let access = ArrayAccess {
+                        array: place.into(),
+                        index: Literal::integer(
+                            IntegerType::U32,
+                            format!("{i}u32"),
+                            Default::default(),
+                            self.state.node_builder.next_id(),
+                        )
+                        .into(),
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    };
+                    self.reconstruct_assign_recurse(member, access.into(), accumulate);
+                }
+            }
+        } else if let Some(struct_members) = self.struct_members.get(&place.name) {
+            if let Expression::Struct(value_struct) = value {
+                // This was an assignment like
+                // `struc = S { field0: a, field1: b };`
+                // Change it to this:
+                // `struc_field0 = a; struc_field1 = b;`
+                for initializer in value_struct.members.into_iter() {
+                    let member_name = struct_members.get(&initializer.identifier.name).expect("Member should exist.");
+                    let rhs_expression =
+                        initializer.expression.expect("This should have been normalized to have a value.");
+                    self.reconstruct_assign_recurse(*member_name, rhs_expression, accumulate);
+                }
+            } else {
+                // This was an assignment like
+                // `struc = x;`
+                // Change it to this:
+                // `struc = x; struc_field0 = x.field0; struc_field1 = x.field1;`
+                let one_assign = AssignStatement {
+                    place: place.into(),
+                    value,
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                }
+                .into();
+                accumulate.push(one_assign);
+                for (field, member_name) in struct_members.iter() {
+                    let access = MemberAccess {
+                        inner: place.into(),
+                        name: Identifier::new(*field, self.state.node_builder.next_id()),
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    };
+                    self.reconstruct_assign_recurse(*member_name, access.into(), accumulate);
+                }
+            }
+        } else {
+            let stmt = AssignStatement {
+                value,
+                place: place.into(),
+                id: self.state.node_builder.next_id(),
+                span: Default::default(),
+            }
+            .into();
+            accumulate.push(stmt);
+        }
+    }
 }
 
 struct WriteTransformingFiller<'a>(WriteTransformingVisitor<'a>);
 
-// We don't actually need to visit expressions here; we're only implementing
-// `ExpressionVisitor` because `StatementVisitor` requires it.
-impl ExpressionVisitor for WriteTransformingFiller<'_> {
+impl AstVisitor for WriteTransformingFiller<'_> {
     type AdditionalInput = ();
     type Output = ();
 
+    /* Expressions */
     fn visit_expression(&mut self, _input: &Expression, _additional: &Self::AdditionalInput) -> Self::Output {}
-}
 
-// All we actually need is `visit_assign`; we're just using `StatementVisitor`'s
-// default traversal.
-impl TypeVisitor for WriteTransformingFiller<'_> {}
-
-impl StatementVisitor for WriteTransformingFiller<'_> {
+    /* Statements */
     fn visit_assign(&mut self, input: &AssignStatement) {
         self.access_recurse(&input.place);
     }
@@ -162,5 +329,3 @@ impl WriteTransformingFiller<'_> {
         }
     }
 }
-
-impl TypeReconstructor for WriteTransformingVisitor<'_> {}

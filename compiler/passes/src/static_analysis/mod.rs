@@ -19,10 +19,6 @@ use self::await_checker::AwaitChecker;
 
 mod future_checker;
 
-mod expression;
-
-mod statement;
-
 mod program;
 
 mod visitor;

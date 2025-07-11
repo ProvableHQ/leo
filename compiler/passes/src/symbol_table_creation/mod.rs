@@ -17,8 +17,8 @@
 use crate::{CompilerState, Pass, VariableSymbol, VariableType};
 
 use leo_ast::{
+    AstVisitor,
     Composite,
-    ExpressionVisitor,
     Function,
     FunctionStub,
     Location,
@@ -27,10 +27,8 @@ use leo_ast::{
     Program,
     ProgramScope,
     ProgramVisitor,
-    StatementVisitor,
     Stub,
     Type,
-    TypeVisitor,
     Variant,
 };
 use leo_errors::{AstError, LeoError, Result};
@@ -75,14 +73,10 @@ struct SymbolTableCreationVisitor<'a> {
     structs: IndexSet<Symbol>,
 }
 
-impl ExpressionVisitor for SymbolTableCreationVisitor<'_> {
+impl AstVisitor for SymbolTableCreationVisitor<'_> {
     type AdditionalInput = ();
     type Output = ();
 }
-
-impl TypeVisitor for SymbolTableCreationVisitor<'_> {}
-
-impl StatementVisitor for SymbolTableCreationVisitor<'_> {}
 
 impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {

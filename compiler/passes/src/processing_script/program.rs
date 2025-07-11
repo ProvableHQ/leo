@@ -16,7 +16,7 @@
 
 use super::ProcessingScriptVisitor;
 
-use leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor as _, Variant};
+use leo_ast::{AstReconstructor as _, Function, ProgramReconstructor, ProgramScope, Variant};
 use leo_errors::TypeCheckerError;
 
 impl ProgramReconstructor for ProcessingScriptVisitor<'_> {

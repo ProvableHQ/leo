@@ -16,7 +16,7 @@
 
 use super::DestructuringVisitor;
 
-use leo_ast::{Constructor, Function, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor};
 
 impl ProgramReconstructor for DestructuringVisitor<'_> {
     fn reconstruct_function(&mut self, input: Function) -> Function {

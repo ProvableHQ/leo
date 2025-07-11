@@ -16,7 +16,7 @@
 
 use super::DeadCodeEliminatingVisitor;
 
-use leo_ast::{Constructor, Function, ProgramReconstructor, StatementReconstructor as _};
+use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor};
 
 impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
     fn reconstruct_function(&mut self, mut input: Function) -> Function {

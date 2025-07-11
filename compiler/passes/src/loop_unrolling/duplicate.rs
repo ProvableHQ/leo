@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Block, ExpressionReconstructor, Statement, StatementReconstructor, *};
+use leo_ast::{AstReconstructor, Block, Statement, *};
 
 use crate::SymbolTable;
 
@@ -38,13 +38,10 @@ impl Duplicator<'_> {
     }
 }
 
-impl TypeReconstructor for Duplicator<'_> {}
-
-impl ExpressionReconstructor for Duplicator<'_> {
+impl AstReconstructor for Duplicator<'_> {
     type AdditionalOutput = ();
-}
 
-impl StatementReconstructor for Duplicator<'_> {
+    /* Statements */
     fn reconstruct_statement(&mut self, input: Statement) -> (Statement, Self::AdditionalOutput) {
         match input {
             Statement::Block(stmt) => {

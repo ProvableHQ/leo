@@ -16,12 +16,12 @@
 
 use leo_ast::{
     AssociatedFunctionExpression,
+    AstReconstructor,
     Block,
     Constructor,
     DefinitionPlace,
     DefinitionStatement,
     Expression,
-    ExpressionReconstructor,
     Literal,
     LocatorExpression,
     MemberAccess,
@@ -29,15 +29,13 @@ use leo_ast::{
     ProgramId,
     ProgramReconstructor,
     Statement,
-    StatementReconstructor,
-    TypeReconstructor,
 };
 
 /// A `Normalizer` normalizes all NodeID and Span values in the AST.
 /// Note: This implementation is **NOT** complete and only normalizes up to `Constructor`.
 pub struct Normalizer;
 
-impl ExpressionReconstructor for Normalizer {
+impl AstReconstructor for Normalizer {
     type AdditionalOutput = ();
 
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
@@ -119,10 +117,8 @@ impl ExpressionReconstructor for Normalizer {
             Default::default(),
         )
     }
-}
 
-impl StatementReconstructor for Normalizer {
-    fn reconstruct_statement(&mut self, input: leo_ast::Statement) -> (leo_ast::Statement, Self::AdditionalOutput) {
+    fn reconstruct_statement(&mut self, input: Statement) -> (Statement, Self::AdditionalOutput) {
         // Set the ID and span to 0.
         let input = normalize_node(input);
         // Reconstruct the sub-components.
@@ -171,8 +167,6 @@ impl StatementReconstructor for Normalizer {
         )
     }
 }
-
-impl TypeReconstructor for Normalizer {}
 
 impl ProgramReconstructor for Normalizer {
     fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {

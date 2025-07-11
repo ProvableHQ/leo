@@ -23,11 +23,9 @@ use leo_ast::ProgramReconstructor as _;
 
 use leo_errors::Result;
 
-mod expression;
+mod ast;
 
 mod program;
-
-mod statement;
 
 mod visitor;
 use visitor::*;

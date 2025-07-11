@@ -43,7 +43,8 @@ use crate::*;
 // }
 
 /// A Visitor trait for types in the AST.
-pub trait TypeVisitor: ExpressionVisitor {
+pub trait AstVisitor {
+    /* Types */
     fn visit_type(&mut self, input: &Type) {
         match input {
             Type::Array(array_type) => self.visit_array_type(array_type),
@@ -89,10 +90,8 @@ pub trait TypeVisitor: ExpressionVisitor {
     fn visit_tuple_type(&mut self, input: &TupleType) {
         input.elements().iter().for_each(|input| self.visit_type(input));
     }
-}
 
-/// A Visitor trait for expressions in the AST.
-pub trait ExpressionVisitor {
+    /* Expressions */
     type AdditionalInput: Default;
     type Output: Default;
 
@@ -239,10 +238,8 @@ pub trait ExpressionVisitor {
     fn visit_unit(&mut self, _input: &UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
-}
 
-/// A Visitor trait for statements in the AST.
-pub trait StatementVisitor: TypeVisitor {
+    /* Statements */
     fn visit_statement(&mut self, input: &Statement) {
         match input {
             Statement::Assert(stmt) => self.visit_assert(stmt),
@@ -314,7 +311,7 @@ pub trait StatementVisitor: TypeVisitor {
 }
 
 /// A Visitor trait for the program represented by the AST.
-pub trait ProgramVisitor: StatementVisitor {
+pub trait ProgramVisitor: AstVisitor {
     fn visit_program(&mut self, input: &Program) {
         input.imports.values().for_each(|import| self.visit_import(&import.0));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));

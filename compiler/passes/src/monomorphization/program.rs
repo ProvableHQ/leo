@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{Composite, Function, ProgramReconstructor, ProgramScope, Statement, StatementReconstructor};
+use leo_ast::{AstReconstructor, Composite, Function, ProgramReconstructor, ProgramScope, Statement};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;

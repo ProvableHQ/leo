@@ -21,7 +21,10 @@
 use crate::*;
 
 /// A Reconstructor trait for types in the AST.
-pub trait TypeReconstructor: ExpressionReconstructor {
+pub trait AstReconstructor {
+    type AdditionalOutput: Default;
+
+    /* Types */
     fn reconstruct_type(&mut self, input: Type) -> (Type, Self::AdditionalOutput) {
         match input {
             Type::Array(array_type) => self.reconstruct_array_type(array_type),
@@ -97,12 +100,8 @@ pub trait TypeReconstructor: ExpressionReconstructor {
             Default::default(),
         )
     }
-}
 
-/// A Reconstructor trait for expressions in the AST.
-pub trait ExpressionReconstructor {
-    type AdditionalOutput: Default;
-
+    /* Expressions */
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         match input {
             Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
@@ -302,10 +301,7 @@ pub trait ExpressionReconstructor {
     fn reconstruct_unit(&mut self, input: UnitExpression) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
-}
 
-/// A Reconstructor trait for statements in the AST.
-pub trait StatementReconstructor: TypeReconstructor {
     fn reconstruct_statement(&mut self, input: Statement) -> (Statement, Self::AdditionalOutput) {
         match input {
             Statement::Assert(assert) => self.reconstruct_assert(assert),
@@ -426,7 +422,7 @@ pub trait StatementReconstructor: TypeReconstructor {
 }
 
 /// A Reconstructor trait for the program represented by the AST.
-pub trait ProgramReconstructor: StatementReconstructor {
+pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
         Program {
             imports: input

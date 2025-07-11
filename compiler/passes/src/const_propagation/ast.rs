@@ -15,22 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
-    ArrayAccess,
-    BinaryExpression,
-    CastExpression,
-    CoreFunction,
-    Expression,
-    ExpressionReconstructor,
-    LiteralVariant,
-    MemberAccess,
-    Node,
-    RepeatExpression,
-    StructExpression,
-    TernaryExpression,
-    TupleAccess,
-    Type,
-    UnaryExpression,
     interpreter_value::{self, StructContents, Value},
+    *,
 };
 use leo_errors::StaticAnalyzerError;
 use leo_span::sym;
@@ -39,9 +25,28 @@ use super::{ConstPropagationVisitor, value_to_expression};
 
 const VALUE_ERROR: &str = "A non-future value should always be able to be converted into an expression";
 
-impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
+impl AstReconstructor for ConstPropagationVisitor<'_> {
     type AdditionalOutput = Option<Value>;
 
+    /* Types */
+    fn reconstruct_array_type(&mut self, input: leo_ast::ArrayType) -> (leo_ast::Type, Self::AdditionalOutput) {
+        let (length, opt_value) = self.reconstruct_expression(*input.length);
+
+        // If we can't evaluate this array length, keep track of it for error reporting later
+        if opt_value.is_none() {
+            self.array_length_not_evaluated = Some(length.span());
+        }
+
+        (
+            leo_ast::Type::Array(leo_ast::ArrayType {
+                element_type: Box::new(self.reconstruct_type(*input.element_type).0),
+                length: Box::new(length),
+            }),
+            Default::default(),
+        )
+    }
+
+    /* Expressions */
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         let old_id = input.id();
         let (new_expr, opt_value) = match input {
@@ -298,13 +303,20 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_binary(&mut self, input: leo_ast::BinaryExpression) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
+        let input_id = input.id();
 
         let (left, lhs_opt_value) = self.reconstruct_expression(input.left);
         let (right, rhs_opt_value) = self.reconstruct_expression(input.right);
 
         if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
-            match interpreter_value::evaluate_binary(span, input.op, &lhs_value, &rhs_value) {
+            match interpreter_value::evaluate_binary(
+                span,
+                input.op,
+                &lhs_value,
+                &rhs_value,
+                &self.state.type_table.get(&input_id),
+            ) {
                 Ok(new_value) => {
                     let new_expr = value_to_expression(&new_value, span, &self.state.node_builder).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
@@ -399,12 +411,13 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (receiver, opt_value) = self.reconstruct_expression(input.receiver);
+        let input_id = input.id();
         let span = input.span;
+        let (receiver, opt_value) = self.reconstruct_expression(input.receiver);
 
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
-            match interpreter_value::evaluate_unary(span, input.op, &value) {
+            match interpreter_value::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
                 Ok(new_value) => {
                     let new_expr = value_to_expression(&new_value, span, &self.state.node_builder).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
@@ -417,5 +430,122 @@ impl ExpressionReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_unit(&mut self, input: leo_ast::UnitExpression) -> (Expression, Self::AdditionalOutput) {
         (input.into(), None)
+    }
+
+    /* Statements */
+    fn reconstruct_assert(&mut self, mut input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
+        // Catching asserts at compile time is not feasible here due to control flow, but could be done in
+        // a later pass after loops are unrolled and conditionals are flattened.
+        input.variant = match input.variant {
+            AssertVariant::Assert(expr) => AssertVariant::Assert(self.reconstruct_expression(expr).0),
+
+            AssertVariant::AssertEq(lhs, rhs) => {
+                AssertVariant::AssertEq(self.reconstruct_expression(lhs).0, self.reconstruct_expression(rhs).0)
+            }
+
+            AssertVariant::AssertNeq(lhs, rhs) => {
+                AssertVariant::AssertNeq(self.reconstruct_expression(lhs).0, self.reconstruct_expression(rhs).0)
+            }
+        };
+
+        (input.into(), None)
+    }
+
+    fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        let value = self.reconstruct_expression(assign.value).0;
+        let place = self.reconstruct_expression(assign.place).0;
+        (AssignStatement { value, place, ..assign }.into(), None)
+    }
+
+    fn reconstruct_block(&mut self, mut block: Block) -> (Block, Self::AdditionalOutput) {
+        self.in_scope(block.id(), |slf| {
+            block.statements.retain_mut(|statement| {
+                let bogus_statement = Statement::dummy();
+                let this_statement = std::mem::replace(statement, bogus_statement);
+                *statement = slf.reconstruct_statement(this_statement).0;
+                !statement.is_empty()
+            });
+            (block, None)
+        })
+    }
+
+    fn reconstruct_conditional(
+        &mut self,
+        mut conditional: ConditionalStatement,
+    ) -> (Statement, Self::AdditionalOutput) {
+        conditional.condition = self.reconstruct_expression(conditional.condition).0;
+        conditional.then = self.reconstruct_block(conditional.then).0;
+        if let Some(mut otherwise) = conditional.otherwise {
+            *otherwise = self.reconstruct_statement(*otherwise).0;
+            conditional.otherwise = Some(otherwise);
+        }
+
+        (Statement::Conditional(conditional), None)
+    }
+
+    fn reconstruct_const(&mut self, mut input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
+        let span = input.span();
+
+        let type_ = self.reconstruct_type(input.type_).0;
+        let (expr, opt_value) = self.reconstruct_expression(input.value);
+
+        if opt_value.is_some() {
+            self.state.symbol_table.insert_const(self.program, input.place.name, expr.clone());
+        } else {
+            self.const_not_evaluated = Some(span);
+        }
+
+        input.type_ = type_;
+        input.value = expr;
+
+        (Statement::Const(input), None)
+    }
+
+    fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        (
+            DefinitionStatement {
+                type_: definition.type_.map(|ty| self.reconstruct_type(ty).0),
+                value: self.reconstruct_expression(definition.value).0,
+                ..definition
+            }
+            .into(),
+            None,
+        )
+    }
+
+    fn reconstruct_expression_statement(
+        &mut self,
+        mut input: ExpressionStatement,
+    ) -> (Statement, Self::AdditionalOutput) {
+        input.expression = self.reconstruct_expression(input.expression).0;
+
+        if matches!(&input.expression, Expression::Unit(..) | Expression::Literal(..)) {
+            // We were able to evaluate this at compile time, but we need to get rid of this statement as
+            // we can't have expression statements that aren't calls.
+            (Statement::dummy(), Default::default())
+        } else {
+            (input.into(), Default::default())
+        }
+    }
+
+    fn reconstruct_iteration(&mut self, iteration: IterationStatement) -> (Statement, Self::AdditionalOutput) {
+        let id = iteration.id();
+        let type_ = iteration.type_.map(|ty| self.reconstruct_type(ty).0);
+        let start = self.reconstruct_expression(iteration.start).0;
+        let stop = self.reconstruct_expression(iteration.stop).0;
+        self.in_scope(id, |slf| {
+            (
+                IterationStatement { type_, start, stop, block: slf.reconstruct_block(iteration.block).0, ..iteration }
+                    .into(),
+                None,
+            )
+        })
+    }
+
+    fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
+        (
+            ReturnStatement { expression: self.reconstruct_expression(input.expression).0, ..input }.into(),
+            Default::default(),
+        )
     }
 }
