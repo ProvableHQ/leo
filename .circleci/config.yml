@@ -107,6 +107,13 @@ jobs:
       name: windows/default
       size: xlarge
     steps:
+      - run:
+          name: Force git → HTTPS
+          shell: powershell.exe
+          command: |
+            git config --global url."https://github.com/".insteadOf "git@github.com:"
+            git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+            # then checkout as normal
       - checkout
       - restore_cache:
           keys:
