@@ -1,6 +1,6 @@
 [package]
 name = "leo-package"
-version = "2.7.2"
+version = "2.7.3"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Package parser for the Leo programming language"
 homepage = "https://leo-lang.org"

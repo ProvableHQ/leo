@@ -1,6 +1,6 @@
 [package]
 name = "leo-abnf"
-version = "2.7.2"
+version = "2.7.3"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "ABNF to Markdown converter for the Leo programming language"
 homepage = "https://leo-lang.org"
