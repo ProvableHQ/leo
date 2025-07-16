@@ -141,6 +141,32 @@ impl Value {
             (Field(x), Field(y)) => x == y,
             (Group(x), Group(y)) => x == y,
             (Scalar(x), Scalar(y)) => x == y,
+            (Address(x), Address(y)) => x == y,
+            (Struct(x), Struct(y)) => {
+                // They must have the same name
+                if x.name != y.name {
+                    return Ok(false);
+                }
+
+                // They must have the same number of fields
+                if x.contents.len() != y.contents.len() {
+                    return Ok(false);
+                }
+
+                // For each field in x, find the matching field in y and compare
+                for (lhs_name, lhs_value) in x.contents.iter() {
+                    match y.contents.get(lhs_name) {
+                        Some(rhs_value) => match lhs_value.eq(rhs_value) {
+                            Ok(true) => {}                 // Fields match, continue checking
+                            Ok(false) => return Ok(false), // Values differ
+                            Err(e) => return Err(e),       // Error in comparison
+                        },
+                        None => return Ok(false), // Field missing in y
+                    }
+                }
+
+                true
+            }
             (Array(x), Array(y)) => {
                 if x.len() != y.len() {
                     return Ok(false);
@@ -750,11 +776,6 @@ pub fn evaluate_binary(
                 (Value::U32(x), Value::U32(y)) => x.checked_rem(y).map(Value::U32),
                 (Value::U64(x), Value::U64(y)) => x.checked_rem(y).map(Value::U64),
                 (Value::U128(x), Value::U128(y)) => x.checked_rem(y).map(Value::U128),
-                (Value::I8(x), Value::I8(y)) => x.checked_rem(y).map(Value::I8),
-                (Value::I16(x), Value::I16(y)) => x.checked_rem(y).map(Value::I16),
-                (Value::I32(x), Value::I32(y)) => x.checked_rem(y).map(Value::I32),
-                (Value::I64(x), Value::I64(y)) => x.checked_rem(y).map(Value::I64),
-                (Value::I128(x), Value::I128(y)) => x.checked_rem(y).map(Value::I128),
                 _ => halt!(span, "Type error"),
             }) else {
                 halt!(span, "mod overflow");
