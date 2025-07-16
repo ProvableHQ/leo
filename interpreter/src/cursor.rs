@@ -489,7 +489,7 @@ impl Cursor {
                         let b =
                             if matches!(assert.variant, AssertVariant::AssertEq(..)) { x.eq(&y)? } else { x.neq(&y)? };
                         if !b {
-                            halt!(assert.span(), "assert failure");
+                            halt!(assert.span(), "assert failure: {} != {}", y, x);
                         }
                     }
                 };
