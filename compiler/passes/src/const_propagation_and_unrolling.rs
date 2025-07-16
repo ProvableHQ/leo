@@ -25,6 +25,7 @@ use crate::{
     TypeCheckingInput,
     Unrolling,
 };
+use itertools::Itertools;
 
 use leo_errors::{CompilerError, Result};
 
@@ -96,7 +97,7 @@ impl Pass for ConstPropagationAndUnrolling {
                     {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "struct expression",
-                            expr.name.name,
+                            expr.path.path.iter().format("::"),
                             arg,
                             expr.span,
                         ));
@@ -110,7 +111,7 @@ impl Pass for ConstPropagationAndUnrolling {
                     {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "struct type",
-                            ty.id.name,
+                            ty.id.path.last().unwrap(),
                             arg,
                             ty.id.span,
                         ));

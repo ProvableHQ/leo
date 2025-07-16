@@ -361,8 +361,18 @@ impl<N: Network> ParserContext<'_, N> {
             return Err(ParserError::invalid_associated_access(&module_name, module_name.span()).into());
         };
 
+        let mut path_elements = vec![variant];
+        loop {
+            path_elements.push(self.expect_identifier()?);
+            if !self.eat(&Token::DoubleColon) {
+                break;
+            }
+        }
+
         // Parse the constant or function name.
-        let member_name = self.expect_identifier()?;
+        let member_name = path_elements[1]; //self.expect_identifier()?;
+
+        self.next_paths.push(path_elements.iter().map(|id| id.name).collect());
 
         // Check if there are arguments.
         let expression = if self.check(&Token::LeftParen) {
@@ -379,13 +389,18 @@ impl<N: Network> ParserContext<'_, N> {
             }
             .into()
         } else {
+            dbg!(Path {
+                path: path_elements.iter().map(|i| i.name).collect(),
+                span: module_name.span() + member_name.span(),
+                id: self.node_builder.next_id(),
+            })
             // Return the associated constant.
-            AssociatedConstantExpression {
+            /*AssociatedConstantExpression {
                 span: module_name.span() + member_name.span(),
                 ty: Type::Identifier(variant),
                 name: member_name,
                 id: self.node_builder.next_id(),
-            }
+            }*/
             .into()
         };
 
@@ -552,7 +567,10 @@ impl<N: Network> ParserContext<'_, N> {
                     } else if !self.disallow_struct_construction && self.check(&Token::LeftCurly) {
                         // Parse struct and records inits as struct expressions with const arguments.
                         // Enforce struct or record type later at type checking.
-                        expr = self.parse_struct_init_expression(*ident, const_arguments)?;
+                        expr = self.parse_struct_init_expression(
+                            Path { path: vec![ident.name], span: ident.span, id: self.node_builder.next_id() },
+                            const_arguments,
+                        )?;
                     } else {
                         self.emit_err(ParserError::unexpected(expr.to_string(), "( or {{", expr.span()))
                     }
@@ -668,22 +686,12 @@ impl<N: Network> ParserContext<'_, N> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// struct initialization expression.
     /// let foo = Foo { x: 1u8 };
-    pub fn parse_struct_init_expression(
-        &mut self,
-        identifier: Identifier,
-        const_arguments: Vec<Expression>,
-    ) -> Result<Expression> {
+    pub fn parse_struct_init_expression(&mut self, path: Path, const_arguments: Vec<Expression>) -> Result<Expression> {
         let (members, _, end) =
             self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| p.parse_struct_member().map(Some))?;
 
-        Ok(StructExpression {
-            span: identifier.span + end,
-            name: identifier,
-            const_arguments,
-            members,
-            id: self.node_builder.next_id(),
-        }
-        .into())
+        Ok(StructExpression { span: path.span + end, path, const_arguments, members, id: self.node_builder.next_id() }
+            .into())
     }
 
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
@@ -769,14 +777,48 @@ impl<N: Network> ParserContext<'_, N> {
             Token::StaticString(value) => {
                 Literal { span, id: self.node_builder.next_id(), variant: LiteralVariant::String(value) }.into()
             }
-            Token::Identifier(name) => {
-                let ident = Identifier { name, span, id: self.node_builder.next_id() };
+            Token::Identifier(first_ident) => {
+                let mut span = span;
+                let mut path_segments = vec![Identifier { name: first_ident, span, id: self.node_builder.next_id() }];
+
+                // Parse `::` separated path segments
+                while self.check(&Token::DoubleColon) {
+                    self.bump(); // consume `::`
+
+                    match self.token.token.clone() {
+                        Token::Identifier(next_ident) => {
+                            span = span + self.token.span;
+                            path_segments.push(Identifier {
+                                name: next_ident,
+                                span: self.token.span,
+                                id: self.node_builder.next_id(),
+                            });
+                            self.bump(); // consume identifier
+                        }
+                        _ => {
+                            // return Err(ParserError::expected_ident_after_coloncolon(self.token.span).into());
+                            todo!()
+                        }
+                    }
+                }
+
+                let path = Path {
+                    path: path_segments.iter().map(|i| i.name).collect(),
+                    span: path_segments[0].span() + path_segments[path_segments.len() - 1].span(),
+                    id: self.node_builder.next_id(),
+                };
+
+                // Check for struct initializer
                 if !self.disallow_struct_construction && self.check(&Token::LeftCurly) {
-                    // Parse struct and records inits as struct expressions without const arguments.
-                    // Enforce struct or record type later at type checking.
-                    self.parse_struct_init_expression(ident, Vec::new())?
+                    self.parse_struct_init_expression(path.clone(), vec![])?
+                } else if path_segments.len() == 1 {
+                    // Just a plain identifier
+                    path_segments.pop().unwrap().into()
+                } else if path_segments.len() == 1 {
+                    Identifier { name: first_ident, span, id: self.node_builder.next_id() }.into()
                 } else {
-                    ident.into()
+                    self.next_paths.push(path_segments.iter().map(|id| id.name).collect());
+                    path.into()
                 }
             }
             Token::SelfLower => Identifier { name: sym::SelfLower, span, id: self.node_builder.next_id() }.into(),

@@ -32,7 +32,7 @@ pub struct CodeGeneratingVisitor<'a> {
     /// Mapping of composite names to a tuple containing metadata associated with the name.
     /// The first element of the tuple indicate whether the composite is a record or not.
     /// The second element of the tuple is a string modifier used for code generation.
-    pub composite_mapping: IndexMap<Symbol, (bool, String)>,
+    pub composite_mapping: IndexMap<Vec<Symbol>, (bool, String)>,
     /// Mapping of global identifiers to their associated names.
     pub global_mapping: IndexMap<Symbol, String>,
     /// The variant of the function we are currently traversing.

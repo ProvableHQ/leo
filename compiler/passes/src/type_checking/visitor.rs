@@ -35,7 +35,7 @@ pub struct TypeCheckingVisitor<'a> {
     /// Mapping from async function name to the names of async transition callers.
     pub async_function_callers: IndexMap<Location, IndexSet<Location>>,
     /// The set of used composites.
-    pub used_structs: IndexSet<Symbol>,
+    pub used_structs: IndexSet<Vec<Symbol>>,
     /// So we can check if we exceed limits on array size, number of mappings, or number of functions.
     pub limits: TypeCheckingInput,
     /// For detecting the error `TypeCheckerError::async_cannot_assign_outside_conditional`.
@@ -822,10 +822,14 @@ impl TypeCheckingVisitor<'_> {
         match type_ {
             Type::Composite(struct_)
                 if self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
+                    .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.path.clone())
                     .is_some_and(|struct_| struct_.is_record) =>
             {
-                self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
+                self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
+                    parent,
+                    struct_.id.clone(),
+                    span,
+                ))
             }
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.elements().iter() {
@@ -849,9 +853,11 @@ impl TypeCheckingVisitor<'_> {
             }
             // Check that the named composite type has been defined.
             Type::Composite(struct_)
-                if self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name).is_none() =>
+                if self
+                    .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.path.clone())
+                    .is_none() =>
             {
-                self.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
+                self.emit_err(TypeCheckerError::undefined_type(struct_.id.path.last().unwrap(), span));
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
@@ -889,9 +895,10 @@ impl TypeCheckingVisitor<'_> {
                     // Array elements cannot be records.
                     Type::Composite(struct_type) => {
                         // Look up the type.
-                        if let Some(struct_) = self
-                            .lookup_struct(struct_type.program.or(self.scope_state.program_name), struct_type.id.name)
-                        {
+                        if let Some(struct_) = self.lookup_struct(
+                            struct_type.program.or(self.scope_state.program_name),
+                            struct_type.id.path.clone(),
+                        ) {
                             // Check that the type is not a record.
                             if struct_.is_record {
                                 self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
@@ -935,12 +942,12 @@ impl TypeCheckingVisitor<'_> {
             // this async function.
             let mut caller_finalizers = self
                 .async_function_callers
-                .get(&Location::new(self.scope_state.program_name.unwrap(), function.identifier.name))
+                .get(&Location::new(self.scope_state.program_name.unwrap(), vec![], function.identifier.name))
                 .map(|callers| {
                     callers
                         .iter()
                         .flat_map(|caller| {
-                            let caller = Location::new(caller.program, caller.name);
+                            let caller = Location::new(caller.program, vec![], caller.name);
                             self.state.symbol_table.lookup_function(caller)
                         })
                         .flat_map(|fn_symbol| fn_symbol.finalizer.clone())
@@ -987,6 +994,7 @@ impl TypeCheckingVisitor<'_> {
             // Add the input to the symbol table.
             if let Err(err) = self.state.symbol_table.insert_variable(
                 self.scope_state.program_name.unwrap(),
+                vec![],
                 const_param.identifier().name,
                 VariableSymbol {
                     type_: const_param.type_().clone(),
@@ -1021,13 +1029,13 @@ impl TypeCheckingVisitor<'_> {
                 // Throw error for undefined type.
                 if !function.variant.is_transition() {
                     if let Some(elem) =
-                        self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
+                        self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.path.clone())
                     {
                         if elem.is_record {
                             self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
                         }
                     } else {
-                        self.emit_err(TypeCheckerError::undefined_type(struct_.id, input.span()));
+                        self.emit_err(TypeCheckerError::undefined_type(struct_.id.clone(), input.span()));
                     }
                 }
             }
@@ -1060,6 +1068,7 @@ impl TypeCheckingVisitor<'_> {
                 // Add the input to the symbol table.
                 if let Err(err) = self.state.symbol_table.insert_variable(
                     self.scope_state.program_name.unwrap(),
+                    vec![],
                     input.identifier().name,
                     VariableSymbol {
                         type_: table_type.clone(),
@@ -1084,7 +1093,7 @@ impl TypeCheckingVisitor<'_> {
             // Note that an external output must always be a record.
             if let Type::Composite(struct_) = function_output.type_.clone() {
                 if let Some(val) =
-                    self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
+                    self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.path)
                 {
                     if val.is_record && !function.variant.is_transition() {
                         self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
@@ -1190,7 +1199,7 @@ impl TypeCheckingVisitor<'_> {
                 let left_program = left.program.or(self.scope_state.program_name);
                 let right_program = right.program.or(self.scope_state.program_name);
 
-                left.id.name == right.id.name && left_program == right_program
+                left.id.path == right.id.path && left_program == right_program
             }
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
             (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
@@ -1203,14 +1212,15 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Wrapper around lookup_struct that additionally records all structs that are used in the program.
-    pub fn lookup_struct(&mut self, program: Option<Symbol>, name: Symbol) -> Option<Composite> {
-        let record_comp = program.and_then(|prog| self.state.symbol_table.lookup_record(Location::new(prog, name)));
-        let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(name));
+    pub fn lookup_struct(&mut self, program: Option<Symbol>, name: Vec<Symbol>) -> Option<Composite> {
+        let record_comp = program
+            .and_then(|prog| self.state.symbol_table.lookup_record(Location::new(prog, vec![], name[name.len() - 1])));
+        let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(name.clone()));
         // Record the usage.
         if let Some(s) = comp {
             // If it's a struct or internal record, mark it used.
             if !s.is_record || program == self.scope_state.program_name {
-                self.used_structs.insert(s.identifier.name);
+                self.used_structs.insert(name);
             }
         }
         comp.cloned()
@@ -1229,8 +1239,8 @@ impl TypeCheckingVisitor<'_> {
         if is_future {
             // It can happen that the call location has not been set if there was an error
             // in the call that produced the Future.
-            if let Some(call_location) = self.scope_state.call_location {
-                self.scope_state.futures.insert(name.name, call_location);
+            if let Some(call_location) = &self.scope_state.call_location {
+                self.scope_state.futures.insert(name.name, call_location.clone());
             }
         }
 
@@ -1241,13 +1251,12 @@ impl TypeCheckingVisitor<'_> {
         };
 
         // Insert the variable into the symbol table.
-        if let Err(err) =
-            self.state.symbol_table.insert_variable(self.scope_state.program_name.unwrap(), name.name, VariableSymbol {
-                type_: ty.clone(),
-                span,
-                declaration: VariableType::Mut,
-            })
-        {
+        if let Err(err) = self.state.symbol_table.insert_variable(
+            self.scope_state.program_name.unwrap(),
+            vec![],
+            name.name,
+            VariableSymbol { type_: ty.clone(), span, declaration: VariableType::Mut },
+        ) {
             self.state.handler.emit_err(err);
         }
     }
@@ -1269,7 +1278,11 @@ impl TypeCheckingVisitor<'_> {
             let this_program = self.scope_state.program_name.unwrap();
             let program = typ.program.unwrap_or(this_program);
             program != this_program
-                && self.state.symbol_table.lookup_record(Location::new(program, typ.id.name)).is_some()
+                && self
+                    .state
+                    .symbol_table
+                    .lookup_record(Location::new(program, vec![], *typ.id.path.last().unwrap()))
+                    .is_some()
         } else {
             false
         }

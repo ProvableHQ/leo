@@ -54,7 +54,7 @@ impl Pass for TypeChecking {
         let struct_names = state
             .symbol_table
             .iter_records()
-            .map(|(loc, _)| loc.name)
+            .map(|(loc, _)| vec![loc.name])
             .chain(state.symbol_table.iter_structs().map(|(name, _)| name))
             .collect();
         let function_names = state.symbol_table.iter_functions().map(|(loc, _)| loc.name).collect();

@@ -21,6 +21,7 @@ use leo_ast::{
     ConstParameter,
     Function,
     Input,
+    Module,
     Node,
     Output,
     ProgramReconstructor,
@@ -48,6 +49,25 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
             input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect();
 
         input
+    }
+
+    fn reconstruct_module(&mut self, input: Module) -> Module {
+        self.program = input.program_name;
+        self.module = input.path.clone();
+        Module {
+            program_name: input.program_name,
+            path: input.path,
+            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+        }
     }
 
     fn reconstruct_function(&mut self, mut function: Function) -> Function {

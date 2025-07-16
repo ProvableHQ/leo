@@ -60,6 +60,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
             Expression::Err(err) => self.reconstruct_err(err),
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
+            Expression::Path(path) => self.reconstruct_path(path),
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
@@ -98,7 +99,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
         if values.len() == input.members.len() && input.const_arguments.is_empty() {
             let value = Value::Struct(StructContents {
-                name: input.name.name,
+                name: input.path.path[input.path.path.len() - 1],
                 contents: input.members.iter().map(|mem| mem.identifier.name).zip(values).collect(),
             });
             (input.into(), Some(value))
@@ -371,6 +372,18 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (input.into(), None)
     }
 
+    fn reconstruct_path(&mut self, input: leo_ast::Path) -> (Expression, Self::AdditionalOutput) {
+        // Substitute the identifier with the constant value if it is a constant that's been evaluated.
+        if let Some(expression) = self.state.symbol_table.lookup_const_path(self.program, input.path.clone()) {
+            let (expression, opt_value) = self.reconstruct_expression(expression);
+            if opt_value.is_some() {
+                return (expression, opt_value);
+            }
+        }
+
+        (input.into(), None)
+    }
+
     fn reconstruct_literal(&mut self, mut input: leo_ast::Literal) -> (Expression, Self::AdditionalOutput) {
         let type_info = self.state.type_table.get(&input.id());
 
@@ -490,7 +503,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (expr, opt_value) = self.reconstruct_expression(input.value);
 
         if opt_value.is_some() {
-            self.state.symbol_table.insert_const(self.program, input.place.name, expr.clone());
+            let mut path = self.module.clone();
+            path.push(input.place.name);
+            self.state.symbol_table.insert_const(self.program, path, expr.clone());
         } else {
             self.const_not_evaluated = Some(span);
         }

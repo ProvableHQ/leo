@@ -27,7 +27,8 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
 
         // We first reconstruct all structs. Struct fields can instantiate other generic structs that we need to handle
         // first. We'll then address struct expressions and other struct type instantiations.
-        let mut struct_map: IndexMap<Symbol, Composite> = input.structs.clone().into_iter().collect();
+        let mut struct_map: IndexMap<Vec<Symbol>, Composite> =
+            input.structs.clone().into_iter().map(|(name, c)| (vec![name], c)).collect();
         let struct_order = self.state.struct_graph.post_order().unwrap();
 
         // Reconstruct structs in post-order.
@@ -36,7 +37,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 // Perform monomorphization or other reconstruction logic.
                 let reconstructed_struct = self.reconstruct_struct(r#struct);
                 // Store the reconstructed struct for inclusion in the output scope.
-                self.reconstructed_structs.insert(*struct_name, reconstructed_struct);
+                self.reconstructed_structs.insert(struct_name[struct_name.len() - 1], reconstructed_struct);
             }
         }
 

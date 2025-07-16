@@ -42,8 +42,9 @@ mod test;
 pub fn parse_ast<N: Network>(
     handler: Handler,
     node_builder: &NodeBuilder,
+    filename: &std::path::Path,
     source: &str,
     start_pos: u32,
 ) -> Result<Ast> {
-    Ok(Ast::new(parse::<N>(handler, node_builder, source, start_pos)?))
+    Ok(Ast::new(parse::<N>(handler, node_builder, filename, source, start_pos)?))
 }

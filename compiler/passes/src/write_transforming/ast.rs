@@ -94,7 +94,7 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
                         }
                     })
                     .collect(),
-                name: comp_type.id,
+                path: comp_type.id,
                 span: Default::default(),
                 id,
             };

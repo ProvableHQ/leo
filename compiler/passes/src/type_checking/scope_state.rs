@@ -27,6 +27,8 @@ pub struct ScopeState {
     pub(crate) has_return: bool,
     /// Current program name.
     pub(crate) program_name: Option<Symbol>,
+    /// Current module name.
+    pub(crate) module_name: Vec<Symbol>,
     /// Whether or not we are currently traversing a stub.
     pub(crate) is_stub: bool,
     /// The futures that must be propagated to an async function.
@@ -49,6 +51,7 @@ impl ScopeState {
             variant: None,
             has_return: false,
             program_name: None,
+            module_name: vec![],
             is_stub: true,
             futures: IndexMap::new(),
             has_called_finalize: false,
@@ -69,6 +72,7 @@ impl ScopeState {
     pub fn location(&self) -> Location {
         Location::new(
             self.program_name.expect("Only call ScopeState::location when visiting a function or function stub."),
+            vec![],
             self.function.expect("Only call ScopeState::location when visiting a function or function stub."),
         )
     }

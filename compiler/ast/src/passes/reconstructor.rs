@@ -114,6 +114,7 @@ pub trait AstReconstructor {
             Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
             Expression::Err(err) => self.reconstruct_err(err),
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
+            Expression::Path(path) => self.reconstruct_path(path),
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
@@ -255,6 +256,10 @@ pub trait AstReconstructor {
     }
 
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
+        (input.into(), Default::default())
+    }
+
+    fn reconstruct_path(&mut self, input: Path) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
 
@@ -425,6 +430,7 @@ pub trait AstReconstructor {
 pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
         Program {
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
             imports: input
                 .imports
                 .into_iter()
@@ -466,6 +472,23 @@ pub trait ProgramReconstructor: AstReconstructor {
                 })
                 .collect(),
             span: input.span,
+        }
+    }
+
+    fn reconstruct_module(&mut self, input: Module) -> Module {
+        Module {
+            program_name: input.program_name,
+            path: input.path,
+            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
         }
     }
 

@@ -14,35 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Path};
-use itertools::Itertools as _;
+//! A Leo module consists of ...
+use crate::{Composite, ConstDeclaration, Function};
+
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A composite type of a identifier and external program name.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CompositeType {
-    /// The identifier of the composite definition.
-    pub id: Path,
-    /// Expressions for the const arguments passed to the struct's const parameters.
-    pub const_arguments: Vec<Expression>,
-    /// The external program that this composite is defined in.
-    pub program: Option<Symbol>,
+/// Stores the Leo program scope abstract syntax tree.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct Module {
+    pub program_name: Symbol,
+    /// The module path.
+    pub path: Vec<Symbol>,
+    /// A vector of const definitions.
+    pub consts: Vec<(Symbol, ConstDeclaration)>,
+    /// A vector of struct definitions.
+    pub structs: Vec<(Symbol, Composite)>,
+    /// A vector of function definitions.
+    pub functions: Vec<(Symbol, Function)>,
 }
 
-impl fmt::Display for CompositeType {
+impl fmt::Display for Module {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(program) = self.program.as_ref() {
-            write!(f, "{}.aleo/{}", program, self.id)?;
-        } else {
-            write!(f, "{}", self.id)?;
+        for (_, const_decl) in self.consts.iter() {
+            writeln!(f, "{};", const_decl)?;
         }
-
-        if !self.const_arguments.is_empty() {
-            write!(f, "::[{}]", self.const_arguments.iter().format(", "))?;
+        for (_, struct_) in self.structs.iter() {
+            writeln!(f, "{}", struct_)?;
         }
-
+        for (_, function) in self.functions.iter() {
+            writeln!(f, "{}", function)?;
+        }
         Ok(())
     }
 }

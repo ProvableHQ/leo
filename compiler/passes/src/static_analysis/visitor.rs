@@ -79,7 +79,7 @@ impl StaticAnalyzingVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(Location::new(program, function_name))
+            .lookup_function(Location::new(program, vec![], function_name))
             .expect("Type checking guarantees functions are present.");
 
         // If it is not an async transition, return.
@@ -95,7 +95,7 @@ impl StaticAnalyzingVisitor<'_> {
         let async_function = self
             .state
             .symbol_table
-            .lookup_function(finalizer.location)
+            .lookup_function(finalizer.location.clone())
             .expect("Type checking guarantees functions are present.");
 
         // If the async function takes a future as an argument, emit an error.
@@ -145,7 +145,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(Location::new(function_program, input.function.name))
+            .lookup_function(Location::new(function_program, vec![], input.function.name))
             .expect("Type checking guarantees functions exist.");
 
         if func_symbol.function.variant == Variant::Transition {

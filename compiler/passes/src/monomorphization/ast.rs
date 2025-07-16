@@ -23,6 +23,7 @@ use leo_ast::{
     CompositeType,
     Expression,
     Identifier,
+    Path,
     ProgramReconstructor,
     StructExpression,
     StructVariableInitializer,
@@ -56,8 +57,8 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         self.changed = true;
         (
             Type::Composite(CompositeType {
-                id: Identifier {
-                    name: self.monomorphize_struct(&input.id.name, &input.const_arguments), // use the new name
+                id: Path {
+                    path: vec![self.monomorphize_struct(input.id.path.last().unwrap(), &input.const_arguments)], // use the new name
                     span: input.id.span,
                     id: self.state.node_builder.next_id(),
                 },
@@ -204,9 +205,11 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // Finally, construct the updated struct expression that points to a monomorphized version and return it.
         (
             StructExpression {
-                name: Identifier {
-                    name: self.monomorphize_struct(&input.name.name, &input.const_arguments),
-                    span: input.name.span,
+                path: Path {
+                    path: vec![
+                        self.monomorphize_struct(&input.path.path[input.path.path.len() - 1], &input.const_arguments),
+                    ],
+                    span: input.path.span,
                     id: self.state.node_builder.next_id(),
                 },
                 members,

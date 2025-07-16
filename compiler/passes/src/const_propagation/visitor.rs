@@ -24,6 +24,7 @@ use leo_ast::{
     Literal,
     NodeBuilder,
     NodeID,
+    Path,
     RepeatExpression,
     StructExpression,
     StructVariableInitializer,
@@ -37,6 +38,8 @@ pub struct ConstPropagationVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// The program name.
     pub program: Symbol,
+    /// The module name.
+    pub module: Vec<Symbol>,
     /// Have we actually modified the program at all?
     pub changed: bool,
     /// The RHS of a const declaration we were not able to evaluate.
@@ -122,7 +125,7 @@ pub fn value_to_expression(value: &Value, span: Span, node_builder: &NodeBuilder
         }
         .into(),
         Struct(x) => StructExpression {
-            name: Identifier { name: x.name, id: node_builder.next_id(), span },
+            path: Path { path: vec![x.name], id: node_builder.next_id(), span },
             const_arguments: Vec::new(), // `Value`s don't have const arguments
             members: {
                 let mut members = Vec::with_capacity(x.contents.len());

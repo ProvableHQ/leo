@@ -31,6 +31,7 @@ use leo_ast::{
     Location,
     LocatorExpression,
     MemberAccess,
+    Path,
     RepeatExpression,
     Statement,
     StructExpression,
@@ -175,8 +176,8 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         let struct_definition: &Composite = self
             .state
             .symbol_table
-            .lookup_record(Location::new(self.program, input.name.name))
-            .or_else(|| self.state.symbol_table.lookup_struct(input.name.name))
+            .lookup_record(Location::new(self.program, vec![], input.path.path[input.path.path.len() - 1]))
+            .or_else(|| self.state.symbol_table.lookup_struct(input.path.path.clone()))
             .expect("Type checking guarantees this definition exists.");
 
         // Initialize the list of reordered members.
@@ -215,6 +216,16 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         // If lookup fails, either it's the name of a mapping or we didn't rename it.
         let name = *self.rename_table.lookup(identifier.name).unwrap_or(&identifier.name);
         (Identifier { name, ..identifier }.into(), Default::default())
+    }
+
+    /// Retrieve the new name for this `Identifier`.
+    ///
+    /// Note that this shouldn't be used for `Identifier`s on the lhs of definitions or
+    /// assignments.
+    fn consume_path(&mut self, path: Path) -> Self::Output {
+        // If lookup fails, either it's the name of a mapping or we didn't rename it.
+        let _name = *self.rename_table.lookup(path.path[0]).unwrap_or(&path.path[0]);
+        (Path { ..path }.into(), Default::default())
     }
 
     /// Consumes and returns the literal without making any modifications.

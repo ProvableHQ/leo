@@ -118,6 +118,7 @@ impl ProgramConsumer for SsaFormingVisitor<'_> {
 
     fn consume_program(&mut self, input: Program) -> Self::Output {
         Program {
+            modules: input.modules.clone(),
             imports: input
                 .imports
                 .into_iter()

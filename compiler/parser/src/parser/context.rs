@@ -28,7 +28,7 @@ use std::{fmt::Display, marker::PhantomData, mem};
 /// May be converted into a [`Program`] AST by parsing all tokens.
 pub(crate) struct ParserContext<'a, N: Network> {
     /// Handler used to side-channel emit errors from the parser.
-    pub(crate) handler: Handler,
+    pub(crate) handler: &'a Handler,
     /// Counter used to generate unique node ids.
     pub(crate) node_builder: &'a NodeBuilder,
     /// All un-bumped tokens.
@@ -43,6 +43,8 @@ pub(crate) struct ParserContext<'a, N: Network> {
     pub(crate) disallow_struct_construction: bool,
     /// The name of the program being parsed.
     pub(crate) program_name: Option<Symbol>,
+
+    pub(crate) next_paths: Vec<Vec<Symbol>>,
     // Allows the parser to be generic over the network.
     phantom: PhantomData<N>,
 }
@@ -52,7 +54,7 @@ const DUMMY_EOF: SpannedToken = SpannedToken { token: Token::Eof, span: Span::du
 
 impl<'a, N: Network> ParserContext<'a, N> {
     /// Returns a new [`ParserContext`] type given a vector of tokens.
-    pub fn new(handler: Handler, node_builder: &'a NodeBuilder, mut tokens: Vec<SpannedToken>) -> Self {
+    pub fn new(handler: &'a Handler, node_builder: &'a NodeBuilder, mut tokens: Vec<SpannedToken>) -> Self {
         // Strip out comments.
         tokens.retain(|x| !matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)));
         // For performance we reverse so that we get cheap `.pop()`s.
@@ -67,6 +69,7 @@ impl<'a, N: Network> ParserContext<'a, N> {
             token,
             tokens,
             program_name: None,
+            next_paths: Vec::new(),
             phantom: Default::default(),
         };
         p.bump();

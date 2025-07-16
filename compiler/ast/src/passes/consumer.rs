@@ -35,6 +35,7 @@ pub trait ExpressionConsumer {
             Expression::Struct(struct_) => self.consume_struct_init(struct_),
             Expression::Err(err) => self.consume_err(err),
             Expression::Identifier(identifier) => self.consume_identifier(identifier),
+            Expression::Path(path) => self.consume_path(path),
             Expression::Literal(value) => self.consume_literal(value),
             Expression::Locator(locator) => self.consume_locator(locator),
             Expression::MemberAccess(access) => self.consume_member_access(*access),
@@ -72,6 +73,8 @@ pub trait ExpressionConsumer {
     }
 
     fn consume_identifier(&mut self, _input: Identifier) -> Self::Output;
+
+    fn consume_path(&mut self, _input: Path) -> Self::Output;
 
     fn consume_literal(&mut self, _input: Literal) -> Self::Output;
 

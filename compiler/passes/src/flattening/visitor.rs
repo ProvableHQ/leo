@@ -34,6 +34,7 @@ use leo_ast::{
     MemberAccess,
     Node,
     NonNegativeNumber,
+    Path,
     ReturnStatement,
     Statement,
     StructExpression,
@@ -503,7 +504,11 @@ impl FlatteningVisitor<'_> {
             .collect();
 
         let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
-            name: struct_.identifier,
+            path: Path {
+                path: vec![struct_.identifier.name],
+                span: struct_.identifier.span,
+                id: self.state.node_builder.next_id(),
+            },
             const_arguments: Vec::new(), // All const arguments should have been resolved by now
             members,
             span: Default::default(),
@@ -514,7 +519,11 @@ impl FlatteningVisitor<'_> {
                 self.state.type_table.insert(
                     id,
                     Type::Composite(CompositeType {
-                        id: struct_.identifier,
+                        id: Path {
+                            path: vec![struct_.identifier.name],
+                            span: struct_.identifier.span,
+                            id: self.state.node_builder.next_id(),
+                        },
                         const_arguments: Vec::new(), // all const generics should have been resolved by now
                         program: struct_.external,
                     }),

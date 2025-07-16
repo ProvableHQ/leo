@@ -302,12 +302,13 @@ impl WriteTransformingFiller<'_> {
                         .0
                         .state
                         .symbol_table
-                        .lookup_struct(comp.id.name)
+                        .lookup_struct(comp.id.path.clone())
                         .or_else(|| {
-                            self.0
-                                .state
-                                .symbol_table
-                                .lookup_record(Location::new(comp.program.unwrap_or(self.0.program), comp.id.name))
+                            self.0.state.symbol_table.lookup_record(Location::new(
+                                comp.program.unwrap_or(self.0.program),
+                                vec![],
+                                *comp.id.path.last().unwrap(),
+                            ))
                         })
                         .unwrap();
                     struct_

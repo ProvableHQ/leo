@@ -36,7 +36,7 @@ pub struct SymbolTable {
     records: IndexMap<Location, Composite>,
 
     /// Structs indexed by location.
-    structs: IndexMap<Symbol, Composite>,
+    structs: IndexMap<Vec<Symbol>, Composite>,
 
     /// Consts that have been successfully evaluated.
     global_consts: IndexMap<Location, Expression>,
@@ -92,23 +92,24 @@ impl LocalTable {
 
 impl SymbolTable {
     /// Iterator over all the structs (not records) in this program.
-    pub fn iter_structs(&self) -> impl Iterator<Item = (Symbol, &Composite)> {
-        self.structs.iter().map(|(name, comp)| (*name, comp))
+    pub fn iter_structs(&self) -> impl Iterator<Item = (Vec<Symbol>, &Composite)> {
+        self.structs.iter().map(|(name, comp)| (name.clone(), comp))
     }
 
     /// Iterator over all the records in this program.
     pub fn iter_records(&self) -> impl Iterator<Item = (Location, &Composite)> {
-        self.records.iter().map(|(loc, comp)| (*loc, comp))
+        self.records.iter().map(|(loc, comp)| (loc.clone(), comp))
     }
 
     /// Iterator over all the functions in this program.
     pub fn iter_functions(&self) -> impl Iterator<Item = (Location, &FunctionSymbol)> {
-        self.functions.iter().map(|(loc, func_symbol)| (*loc, func_symbol))
+        self.functions.iter().map(|(loc, func_symbol)| (loc.clone(), func_symbol))
     }
 
     /// Access the struct by this name if it exists.
-    pub fn lookup_struct(&self, name: Symbol) -> Option<&Composite> {
-        self.structs.get(&name)
+    pub fn lookup_struct(&self, path: Vec<Symbol>) -> Option<&Composite> {
+        dbg!(&self.structs);
+        self.structs.get(&path)
     }
 
     /// Access the record at this location if it exists.
@@ -135,7 +136,12 @@ impl SymbolTable {
             current = borrowed.parent.and_then(|id| self.all_locals.get(&id));
         }
 
-        self.globals.get(&Location::new(program, name)).cloned()
+        self.globals.get(&Location::new(program, vec![], name)).cloned()
+    }
+
+    /// Access the variable accessible by this name in the current scope.
+    pub fn lookup_path(&self, program: Symbol, path: Vec<Symbol>) -> Option<VariableSymbol> {
+        self.globals.get(&Location::new(program, path.clone(), path[path.len() - 1])).cloned()
     }
 
     /// Enter the scope of this `NodeID`, creating a table if it doesn't exist yet.
@@ -169,11 +175,11 @@ impl SymbolTable {
     }
 
     /// Insert an evaluated const into the current scope.
-    pub fn insert_const(&mut self, program: Symbol, name: Symbol, value: Expression) {
+    pub fn insert_const(&mut self, program: Symbol, path: Vec<Symbol>, value: Expression) {
         if let Some(table) = self.local.as_mut() {
-            table.inner.borrow_mut().consts.insert(name, value);
+            table.inner.borrow_mut().consts.insert(path[0], value);
         } else {
-            self.global_consts.insert(Location::new(program, name), value);
+            self.global_consts.insert(Location::new(program, path.clone(), path[path.len() - 1]), value);
         }
     }
 
@@ -191,45 +197,62 @@ impl SymbolTable {
             current = borrowed.parent.and_then(|id| self.all_locals.get(&id));
         }
 
-        self.global_consts.get(&Location::new(program, name)).cloned()
+        self.global_consts.get(&Location::new(program, vec![], name)).cloned()
+    }
+
+    /// Find the evaluated const accessible by the given name in the current scope.
+    pub fn lookup_const_path(&self, program: Symbol, path: Vec<Symbol>) -> Option<Expression> {
+        let mut current = self.local.as_ref();
+
+        while let Some(table) = current {
+            let borrowed = table.inner.borrow();
+            let value = borrowed.consts.get(&path[0]);
+            if value.is_some() {
+                return value.cloned();
+            }
+
+            current = borrowed.parent.and_then(|id| self.all_locals.get(&id));
+        }
+
+        self.global_consts.get(&Location::new(program, path.clone(), path[path.len() - 1])).cloned()
     }
 
     /// Insert a struct at this name.
     ///
     /// Since structs are indexed only by name, the program is used only to check shadowing.
-    pub fn insert_struct(&mut self, program: Symbol, name: Symbol, composite: Composite) -> Result<()> {
-        if let Some(old_composite) = self.structs.get(&name) {
+    pub fn insert_struct(&mut self, program: Symbol, path: Vec<Symbol>, composite: Composite) -> Result<()> {
+        if let Some(old_composite) = self.structs.get(&path) {
             if eq_struct(&composite, old_composite) {
                 Ok(())
             } else {
-                Err(AstError::redefining_external_struct(name, composite.span).into())
+                Err(AstError::redefining_external_struct(path[path.len() - 1], composite.span).into())
             }
         } else {
-            let location = Location::new(program, name);
-            self.check_shadow_global(location, composite.span)?;
-            self.structs.insert(name, composite);
+            let location = Location::new(program, path.clone(), path[path.len() - 1]);
+            self.check_shadow_global(&location, composite.span)?;
+            self.structs.insert(path, composite);
             Ok(())
         }
     }
 
     /// Insert a record at this location.
     pub fn insert_record(&mut self, location: Location, composite: Composite) -> Result<()> {
-        self.check_shadow_global(location, composite.span)?;
-        self.records.insert(location, composite);
+        self.check_shadow_global(&location, composite.span)?;
+        self.records.insert(location.clone(), composite);
         Ok(())
     }
 
     /// Insert a function at this location.
     pub fn insert_function(&mut self, location: Location, function: Function) -> Result<()> {
-        self.check_shadow_global(location, function.span)?;
-        self.functions.insert(location, FunctionSymbol { function, finalizer: None });
+        self.check_shadow_global(&location, function.span)?;
+        self.functions.insert(location.clone(), FunctionSymbol { function, finalizer: None });
         Ok(())
     }
 
     /// Insert a global at this location.
     pub fn insert_global(&mut self, location: Location, var: VariableSymbol) -> Result<()> {
-        self.check_shadow_global(location, var.span)?;
-        self.globals.insert(location, var);
+        self.check_shadow_global(&location, var.span)?;
+        self.globals.insert(location.clone(), var);
         Ok(())
     }
 
@@ -238,14 +261,14 @@ impl SymbolTable {
         self.globals.get(&location)
     }
 
-    fn check_shadow_global(&self, location: Location, span: Span) -> Result<()> {
-        if self.functions.contains_key(&location) {
+    fn check_shadow_global(&self, location: &Location, span: Span) -> Result<()> {
+        if self.functions.contains_key(location) {
             Err(AstError::shadowed_function(location.name, span).into())
-        } else if self.records.contains_key(&location) {
+        } else if self.records.contains_key(location) {
             Err(AstError::shadowed_record(location.name, span).into())
-        } else if self.structs.contains_key(&location.name) {
+        } else if self.structs.contains_key(&vec![location.name]) {
             Err(AstError::shadowed_struct(location.name, span).into())
-        } else if self.globals.contains_key(&location) {
+        } else if self.globals.contains_key(location) {
             Err(AstError::shadowed_variable(location.name, span).into())
         } else {
             Ok(())
@@ -262,19 +285,25 @@ impl SymbolTable {
             current = table.inner.borrow().parent.map(|id| self.all_locals.get(&id).expect("Parent should exist."));
         }
 
-        self.check_shadow_global(Location::new(program, name), span)?;
+        self.check_shadow_global(&Location::new(program, vec![], name), span)?;
 
         Ok(())
     }
 
     /// Insert a variable into the current scope.
-    pub fn insert_variable(&mut self, program: Symbol, name: Symbol, var: VariableSymbol) -> Result<()> {
+    pub fn insert_variable(
+        &mut self,
+        program: Symbol,
+        path: Vec<Symbol>,
+        name: Symbol,
+        var: VariableSymbol,
+    ) -> Result<()> {
         self.check_shadow_variable(program, name, var.span)?;
 
         if let Some(table) = self.local.as_mut() {
             table.inner.borrow_mut().variables.insert(name, var);
         } else {
-            self.globals.insert(Location::new(program, name), var);
+            self.globals.insert(Location::new(program, path, name), var);
         }
 
         Ok(())
@@ -288,7 +317,7 @@ impl SymbolTable {
         future_inputs: Vec<Location>,
         inferred_inputs: Vec<Type>,
     ) -> Result<()> {
-        let callee_location = Location::new(callee.program, callee.name);
+        let callee_location = Location::new(callee.program, vec![], callee.name);
 
         if let Some(func) = self.functions.get_mut(&caller) {
             func.finalizer = Some(Finalizer { location: callee_location, future_inputs, inferred_inputs });

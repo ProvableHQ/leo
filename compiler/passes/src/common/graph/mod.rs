@@ -20,7 +20,7 @@ use indexmap::{IndexMap, IndexSet};
 use std::{fmt::Debug, hash::Hash};
 
 /// A struct dependency graph.
-pub type StructGraph = DiGraph<Symbol>;
+pub type StructGraph = DiGraph<Vec<Symbol>>;
 
 /// A call graph.
 pub type CallGraph = DiGraph<Symbol>;
@@ -29,9 +29,10 @@ pub type CallGraph = DiGraph<Symbol>;
 pub type ImportGraph = DiGraph<Symbol>;
 
 /// A node in a graph.
-pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
+pub trait Node: Clone + 'static + Eq + PartialEq + Debug + Hash {}
 
 impl Node for Symbol {}
+impl Node for Vec<Symbol> {}
 
 /// Errors in directed graph operations.
 #[derive(Debug)]
@@ -63,8 +64,8 @@ impl<N: Node> DiGraph<N> {
     /// Adds an edge to the graph.
     pub fn add_edge(&mut self, from: N, to: N) {
         // Add `from` and `to` to the set of nodes if they are not already in the set.
-        self.nodes.insert(from);
-        self.nodes.insert(to);
+        self.nodes.insert(from.clone());
+        self.nodes.insert(to.clone());
 
         // Add the edge to the adjacency list.
         let entry = self.edges.entry(from).or_default();
@@ -123,14 +124,14 @@ impl<N: Node> DiGraph<N> {
                 // The set of nodes that are on the path to the current node in the search.
                 let mut discovered: IndexSet<N> = IndexSet::new();
                 // Check if there is a cycle in the graph starting from `node`.
-                if let Some(node) = self.contains_cycle_from(*node, &mut discovered, &mut finished) {
-                    let mut path = vec![node];
+                if let Some(cycle_start) = self.contains_cycle_from(node.clone(), &mut discovered, &mut finished) {
+                    let mut path = vec![cycle_start.clone()];
                     // Backtrack through the discovered nodes to find the cycle.
                     while let Some(next) = discovered.pop() {
                         // Add the node to the path.
-                        path.push(next);
+                        path.push(next.clone());
                         // If the node is the same as the first node in the path, we have found the cycle.
-                        if next == node {
+                        if next == cycle_start {
                             break;
                         }
                     }
@@ -162,7 +163,7 @@ impl<N: Node> DiGraph<N> {
     // Nodes are added to `finished` in post-order order.
     fn contains_cycle_from(&self, node: N, discovered: &mut IndexSet<N>, finished: &mut IndexSet<N>) -> Option<N> {
         // Add the node to the set of discovered nodes.
-        discovered.insert(node);
+        discovered.insert(node.clone());
 
         // Check each outgoing edge of the node.
         if let Some(children) = self.edges.get(&node) {
@@ -171,12 +172,12 @@ impl<N: Node> DiGraph<N> {
                 if discovered.contains(child) {
                     // Insert the child node into the set of discovered nodes; this is used to reconstruct the cycle.
                     // Note that this case is always hit when there is a cycle.
-                    return Some(*child);
+                    return Some(child.clone());
                 }
                 // If the node has not been explored, explore it.
                 if !finished.contains(child) {
-                    if let Some(child) = self.contains_cycle_from(*child, discovered, finished) {
-                        return Some(child);
+                    if let Some(child_cycle) = self.contains_cycle_from(child.clone(), discovered, finished) {
+                        return Some(child_cycle);
                     }
                 }
             }

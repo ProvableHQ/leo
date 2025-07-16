@@ -45,7 +45,8 @@ struct Opt {
 }
 
 fn main() -> Result<(), String> {
-    let opt = Opt::parse();
+    todo!()
+    /*let opt = Opt::parse();
     // Parses the Leo file constructing an ast which is then serialized.
     let serialized_leo_tree = create_session_if_not_set_then(|s| {
         let code = s.source_map.load_file(&opt.input_path).expect("failed to open file");
@@ -86,5 +87,5 @@ fn main() -> Result<(), String> {
 
     fs::write(Path::new(&out_path), serialized_leo_tree).expect("failed to write output");
 
-    Ok(())
+    Ok(())*/
 }

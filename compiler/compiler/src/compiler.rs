@@ -57,12 +57,14 @@ pub struct Compiler<N: Network> {
 impl<N: Network> Compiler<N> {
     pub fn parse(&mut self, source: &str, filename: FileName) -> Result<()> {
         // Register the source in the source map.
+        let FileName::Real(file_name) = filename.clone() else { panic!() };
         let source_file = with_session_globals(|s| s.source_map.new_source(source, filename));
 
         // Use the parser to construct the abstract syntax tree (ast).
         self.state.ast = leo_parser::parse_ast::<N>(
             self.state.handler.clone(),
             &self.state.node_builder,
+            &file_name,
             &source_file.src,
             source_file.absolute_start,
         )?;
@@ -72,13 +74,18 @@ impl<N: Network> Compiler<N> {
         let program_scope = self.state.ast.ast.program_scopes.values().next().unwrap();
         if self.program_name.is_none() {
             self.program_name = Some(program_scope.program_id.name.to_string());
-        } else if self.program_name != Some(program_scope.program_id.name.to_string()) {
-            return Err(CompilerError::program_name_should_match_file_name(
-                program_scope.program_id.name,
-                self.program_name.as_ref().unwrap(),
-                program_scope.program_id.name.span,
-            )
-            .into());
+        } else {
+            for (_, module) in &mut self.state.ast.ast.modules {
+                module.program_name = leo_span::Symbol::intern(&self.program_name.clone().unwrap().to_string());
+            }
+            if self.program_name != Some(program_scope.program_id.name.to_string()) {
+                return Err(CompilerError::program_name_should_match_file_name(
+                    program_scope.program_id.name,
+                    self.program_name.as_ref().unwrap(),
+                    program_scope.program_id.name.span,
+                )
+                .into());
+            }
         }
 
         if self.compiler_options.initial_ast {

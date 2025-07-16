@@ -40,6 +40,10 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         });
         self.scope_state.is_stub = false;
 
+        self.scope_state.program_name = Some(*input.program_scopes.iter().next().unwrap().0);
+
+        input.modules.values().for_each(|module| self.visit_module(module));
+
         // Typecheck the program scopes.
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
     }
@@ -80,7 +84,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the struct dependency graph does not have any cycles.
         if let Err(DiGraphError::CycleDetected(path)) = self.state.struct_graph.post_order() {
-            self.emit_err(TypeCheckerError::cyclic_struct_dependency(path));
+            self.emit_err(TypeCheckerError::cyclic_struct_dependency(path.last().unwrap().clone()));
         }
 
         // Typecheck each mapping definition.
@@ -127,6 +131,27 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         }
     }
 
+    fn visit_module(&mut self, input: &Module) {
+        // Set the current program name.
+        self.scope_state.module_name = input.path.clone();
+
+        // Typecheck each const definition, and append to symbol table.
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+
+        // Typecheck each struct definition.
+        input.structs.iter().for_each(|(_, function)| self.visit_struct(function));
+
+        // Check that the struct dependency graph does not have any cycles.
+        /*if let Err(DiGraphError::CycleDetected(path)) = self.state.struct_graph.post_order() {
+            self.emit_err(TypeCheckerError::cyclic_struct_dependency(path));
+        }*/
+
+        // Check that the call graph does not have any cycles.
+        /*if let Err(DiGraphError::CycleDetected(path)) = self.state.call_graph.post_order() {
+            self.emit_err(TypeCheckerError::cyclic_function_dependency(path));
+        }*/
+    }
+
     fn visit_stub(&mut self, input: &Stub) {
         // Set the current program name.
         self.scope_state.program_name = Some(input.stub_id.name.name);
@@ -171,6 +196,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                         // Add the input to the symbol table.
                         if let Err(err) = slf.state.symbol_table.insert_variable(
                             slf.scope_state.program_name.unwrap(),
+                            vec![],
                             const_param.identifier().name,
                             VariableSymbol {
                                 type_: const_param.type_().clone(),
@@ -256,13 +282,17 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 // Note that we have already checked that each member is defined and valid.
                 if let Type::Composite(struct_member_type) = type_ {
                     // Note that since there are no cycles in the program dependency graph, there are no cycles in the struct dependency graph caused by external structs.
-                    self.state.struct_graph.add_edge(input.identifier.name, struct_member_type.id.name);
+                    let mut full_name = self.scope_state.module_name.clone();
+                    full_name.push(input.identifier.name.clone());
+                    self.state.struct_graph.add_edge(full_name, struct_member_type.id.path.clone());
                 } else if let Type::Array(array_type) = type_ {
                     // Get the base element type.
                     let base_element_type = array_type.base_element_type();
                     // If the base element type is a struct, then add it to the struct dependency graph.
                     if let Type::Composite(member_type) = base_element_type {
-                        self.state.struct_graph.add_edge(input.identifier.name, member_type.id.name);
+                        let mut full_name = self.scope_state.module_name.clone();
+                        full_name.push(input.identifier.name.clone());
+                        self.state.struct_graph.add_edge(full_name, member_type.id.path.clone());
                     }
                 }
 
@@ -286,7 +316,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
             Type::Composite(struct_type) => {
                 if let Some(comp) =
-                    self.lookup_struct(struct_type.program.or(self.scope_state.program_name), struct_type.id.name)
+                    self.lookup_struct(struct_type.program.or(self.scope_state.program_name), struct_type.id.path)
                 {
                     if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
@@ -308,7 +338,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
             Type::Composite(struct_type) => {
                 if let Some(comp) =
-                    self.lookup_struct(struct_type.program.or(self.scope_state.program_name), struct_type.id.name)
+                    self.lookup_struct(struct_type.program.or(self.scope_state.program_name), struct_type.id.path)
                 {
                     if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
@@ -457,7 +487,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                             // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
                             Type::Future(FutureType::new(
                                 finalize_input_map.get(f.location.as_ref().unwrap()).unwrap().clone(),
-                                f.location,
+                                f.location.clone(),
                                 true,
                             ))
                         }
@@ -466,8 +496,10 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 })
                 .collect();
 
-            finalize_input_map
-                .insert(Location::new(self.scope_state.program_name.unwrap(), input.identifier.name), resolved_inputs);
+            finalize_input_map.insert(
+                Location::new(self.scope_state.program_name.unwrap(), vec![], input.identifier.name),
+                resolved_inputs,
+            );
         }
 
         // Query helper function to type check function parameters and outputs.

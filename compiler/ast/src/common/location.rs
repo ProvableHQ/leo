@@ -17,14 +17,15 @@
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Location {
     pub program: Symbol,
+    pub path: Vec<Symbol>,
     pub name: Symbol,
 }
 
 impl Location {
-    pub fn new(program: Symbol, name: Symbol) -> Location {
-        Location { program, name }
+    pub fn new(program: Symbol, path: Vec<Symbol>, name: Symbol) -> Location {
+        Location { program, path, name }
     }
 }

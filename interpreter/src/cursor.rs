@@ -1011,7 +1011,8 @@ impl Cursor {
             Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal, expected_ty)?),
             Expression::Locator(_locator) => todo!(),
             Expression::Struct(struct_) if step == 0 => {
-                let members = self.structs.get(&struct_.name.name).expect_tc(struct_.span())?;
+                let members =
+                    self.structs.get(&struct_.path.path[struct_.path.path.len() - 1]).expect_tc(struct_.span())?;
                 for StructVariableInitializer { identifier: field_init_name, expression: init, .. } in &struct_.members
                 {
                     let Some(type_) = members.get(&field_init_name.name) else { tc_fail!() };
@@ -1034,7 +1035,8 @@ impl Cursor {
                 }
 
                 // And now put them into an IndexMap in the correct order.
-                let members = self.structs.get(&struct_.name.name).expect_tc(struct_.span())?;
+                let members =
+                    self.structs.get(&struct_.path.path[struct_.path.path.len() - 1]).expect_tc(struct_.span())?;
                 let contents = members
                     .iter()
                     .map(|(identifier, _)| {
@@ -1042,7 +1044,7 @@ impl Cursor {
                     })
                     .collect();
 
-                Some(Value::Struct(StructContents { name: struct_.name.name, contents }))
+                Some(Value::Struct(StructContents { name: struct_.path.path[struct_.path.path.len() - 1], contents }))
             }
             Expression::Ternary(ternary) if step == 0 => {
                 push!()(&ternary.condition, &None);

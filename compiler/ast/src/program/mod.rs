@@ -24,7 +24,7 @@ pub use program_scope::*;
 
 use leo_span::{Span, Symbol};
 
-use crate::Stub;
+use crate::{Module, Stub};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -32,6 +32,7 @@ use std::fmt;
 /// Stores the Leo program abstract syntax tree.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
+    pub modules: IndexMap<Vec<Symbol>, Module>,
     /// A map from import names to import definitions.
     pub imports: IndexMap<Symbol, (Program, Span)>,
     /// A map from program stub names to program stub scopes.
@@ -58,6 +59,11 @@ impl fmt::Display for Program {
 impl Default for Program {
     /// Constructs an empty program node.
     fn default() -> Self {
-        Self { imports: IndexMap::new(), stubs: IndexMap::new(), program_scopes: IndexMap::new() }
+        Self {
+            modules: IndexMap::new(),
+            imports: IndexMap::new(),
+            stubs: IndexMap::new(),
+            program_scopes: IndexMap::new(),
+        }
     }
 }

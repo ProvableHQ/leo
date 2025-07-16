@@ -78,7 +78,7 @@ impl Interpreter {
         let text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))?;
         let filename = FileName::Real(path.to_path_buf());
         let source_file = with_session_globals(|s| s.source_map.new_source(&text, filename));
-        leo_parser::parse_ast::<TestnetV0>(handler.clone(), node_builder, &text, source_file.absolute_start)
+        leo_parser::parse_ast::<TestnetV0>(handler.clone(), node_builder, path, &text, source_file.absolute_start)
     }
 
     fn new_impl(

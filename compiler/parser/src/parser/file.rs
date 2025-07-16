@@ -56,7 +56,7 @@ impl<N: Network> ParserContext<'_, N> {
             return Err(ParserError::missing_program_scope(self.token.span).into());
         }
 
-        Ok(Program { imports, stubs: IndexMap::new(), program_scopes })
+        Ok(Program { modules: IndexMap::new(), imports, stubs: IndexMap::new(), program_scopes })
     }
 
     fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
@@ -178,6 +178,51 @@ impl<N: Network> ParserContext<'_, N> {
             mappings,
             span: start + end,
         })
+    }
+
+    /// Parses a module.
+    pub fn parse_module(&mut self, path: &[Symbol]) -> Result<Module> {
+        // Parse the body of the program scope.
+        let mut consts: Vec<(Symbol, ConstDeclaration)> = Vec::new();
+        let mut functions = Vec::new();
+        let mut structs: Vec<(Symbol, Composite)> = Vec::new();
+
+        while self.has_next() {
+            match &self.token.token {
+                Token::Const => {
+                    let declaration = self.parse_const_declaration_statement()?;
+                    consts.push((Symbol::intern(&declaration.place.to_string()), declaration));
+                }
+                Token::Struct | Token::Record => {
+                    let (id, struct_) = self.parse_struct()?;
+                    structs.push((id, struct_));
+                }
+                Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline | Token::Script => {
+                    let (id, function) = self.parse_function()?;
+
+                    functions.push((id, function));
+                }
+                Token::RightCurly => break,
+                _ => {
+                    return Err(Self::unexpected_item(&self.token, &[
+                        Token::Const,
+                        Token::Struct,
+                        Token::Record,
+                        Token::Mapping,
+                        Token::At,
+                        Token::Async,
+                        Token::Function,
+                        Token::Transition,
+                        Token::Inline,
+                        Token::Script,
+                        Token::RightCurly,
+                    ])
+                    .into());
+                }
+            }
+        }
+
+        Ok(Module { program_name: Symbol::intern(""), path: path.to_owned(), consts, functions, structs })
     }
 
     /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.

@@ -28,7 +28,7 @@ impl AstReconstructor for ProcessingScriptVisitor<'_> {
             let callee_program = input.program.unwrap_or(self.program_name);
 
             let Some(func_symbol) =
-                self.state.symbol_table.lookup_function(Location::new(callee_program, input.function.name))
+                self.state.symbol_table.lookup_function(Location::new(callee_program, vec![], input.function.name))
             else {
                 panic!("Type checking should have prevented this.");
             };

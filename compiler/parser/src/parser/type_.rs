@@ -101,7 +101,11 @@ impl<N: Network> ParserContext<'_, N> {
                     // Return the external type
                     return Ok((
                         Type::Composite(CompositeType {
-                            id: record_name,
+                            id: Path {
+                                path: vec![record_name.name],
+                                span: record_name.span,
+                                id: self.node_builder.next_id(),
+                            },
                             const_arguments: Vec::new(), // For now, external composite types can't have const generics
                             program: Some(ident.name),
                         }),
@@ -119,7 +123,14 @@ impl<N: Network> ParserContext<'_, N> {
                 Vec::new()
             };
 
-            Ok((Type::Composite(CompositeType { id: ident, const_arguments, program: None }), ident.span))
+            Ok((
+                Type::Composite(CompositeType {
+                    id: Path { path: vec![ident.name], span: ident.span, id: self.node_builder.next_id() },
+                    const_arguments,
+                    program: None,
+                }),
+                ident.span,
+            ))
         } else if self.token.token == Token::LeftSquare {
             // Parse the left bracket.
             self.expect(&Token::LeftSquare)?;
