@@ -1015,7 +1015,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ),
             Variant::Transition | Variant::AsyncTransition
                 if matches!(func.variant, Variant::Transition)
-                    && input.program.unwrap() == self.scope_state.program_name.unwrap() =>
+                    && input.program.is_none_or(|program| program == self.scope_state.program_name.unwrap()) =>
             {
                 self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(input.span))
             }
@@ -1023,7 +1023,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         // Check that the call is not to an external `inline` function.
-        if func.variant == Variant::Inline && input.program.unwrap() != self.scope_state.program_name.unwrap() {
+        if func.variant == Variant::Inline
+            && input.program.is_some_and(|program| program != self.scope_state.program_name.unwrap())
+        {
             self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
         }
 

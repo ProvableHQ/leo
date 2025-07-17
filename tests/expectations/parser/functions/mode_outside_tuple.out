@@ -1,4 +1,4 @@
-Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
+Error [EPAR0370005]: expected an identifier -- found '('
     --> test:3:15
      |
    3 |     transition(a: u8) -> public (u8, u8) {

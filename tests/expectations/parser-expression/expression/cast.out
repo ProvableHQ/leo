@@ -9,7 +9,7 @@
             "lo": 0,
             "hi": 3
           },
-          "id": 0
+          "id": 2
         },
         "absolute_path": null,
         "span": {
@@ -26,7 +26,7 @@
       "lo": 0,
       "hi": 9
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -38,7 +38,7 @@
           "lo": 10,
           "hi": 15
         },
-        "id": 0,
+        "id": 1,
         "variant": {
           "Integer": [
             "U128",
@@ -54,7 +54,7 @@
       "lo": 10,
       "hi": 21
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -70,14 +70,14 @@
               "lo": 22,
               "hi": 25
             },
-            "id": 0
+            "id": 5
           },
           "absolute_path": null,
           "span": {
             "lo": 22,
             "hi": 25
           },
-          "id": 1
+          "id": 6
         },
         "const_arguments": [],
         "members": [
@@ -88,47 +88,43 @@
                 "lo": 28,
                 "hi": 31
               },
-              "id": 2
+              "id": 3
             },
             "expression": {
-              "Path": {
-                "qualifier": [],
-                "identifier": {
-                  "name": "u8",
-                  "span": {
-                    "lo": 33,
-                    "hi": 35
-                  },
-                  "id": 3
-                },
-                "absolute_path": null,
+              "Literal": {
                 "span": {
                   "lo": 33,
-                  "hi": 35
+                  "hi": 36
                 },
-                "id": 3
+                "id": 2,
+                "variant": {
+                  "Integer": [
+                    "U8",
+                    "0"
+                  ]
+                }
               }
             },
             "span": {
               "lo": 28,
-              "hi": 35
+              "hi": 36
             },
             "id": 4
           }
         ],
         "span": {
           "lo": 22,
-          "hi": 37
+          "hi": 38
         },
-        "id": 5
+        "id": 1
       }
     },
     "type_": "Scalar",
     "span": {
       "lo": 22,
-      "hi": 47
+      "hi": 48
     },
-    "id": 6
+    "id": 0
   }
 }
 
@@ -140,15 +136,15 @@
         "identifier": {
           "name": "flag",
           "span": {
-            "lo": 48,
-            "hi": 52
+            "lo": 49,
+            "hi": 53
           },
-          "id": 0
+          "id": 2
         },
         "absolute_path": null,
         "span": {
-          "lo": 48,
-          "hi": 52
+          "lo": 49,
+          "hi": 53
         },
         "id": 1
       }
@@ -156,10 +152,10 @@
     "if_true": {
       "Literal": {
         "span": {
-          "lo": 55,
-          "hi": 58
+          "lo": 56,
+          "hi": 59
         },
-        "id": 2,
+        "id": 3,
         "variant": {
           "Integer": [
             "U8",
@@ -173,10 +169,10 @@
         "expression": {
           "Literal": {
             "span": {
-              "lo": 61,
-              "hi": 64
+              "lo": 62,
+              "hi": 65
             },
-            "id": 3,
+            "id": 5,
             "variant": {
               "Integer": [
                 "U8",
@@ -187,17 +183,17 @@
         },
         "type_": "Scalar",
         "span": {
-          "lo": 61,
-          "hi": 74
+          "lo": 62,
+          "hi": 75
         },
         "id": 4
       }
     },
     "span": {
-      "lo": 48,
-      "hi": 74
+      "lo": 49,
+      "hi": 75
     },
-    "id": 5
+    "id": 0
   }
 }
 
@@ -211,26 +207,26 @@
             "identifier": {
               "name": "flag",
               "span": {
-                "lo": 76,
-                "hi": 80
+                "lo": 77,
+                "hi": 81
               },
-              "id": 0
+              "id": 4
             },
             "absolute_path": null,
             "span": {
-              "lo": 76,
-              "hi": 80
+              "lo": 77,
+              "hi": 81
             },
-            "id": 1
+            "id": 3
           }
         },
         "if_true": {
           "Literal": {
             "span": {
-              "lo": 83,
-              "hi": 86
+              "lo": 84,
+              "hi": 87
             },
-            "id": 2,
+            "id": 5,
             "variant": {
               "Integer": [
                 "U8",
@@ -242,10 +238,10 @@
         "if_false": {
           "Literal": {
             "span": {
-              "lo": 89,
-              "hi": 92
+              "lo": 90,
+              "hi": 93
             },
-            "id": 3,
+            "id": 6,
             "variant": {
               "Integer": [
                 "U8",
@@ -255,18 +251,18 @@
           }
         },
         "span": {
-          "lo": 76,
-          "hi": 92
+          "lo": 77,
+          "hi": 93
         },
-        "id": 4
+        "id": 2
       }
     },
     "type_": "Scalar",
     "span": {
       "lo": 76,
-      "hi": 103
+      "hi": 104
     },
-    "id": 5
+    "id": 0
   }
 }
 
@@ -275,10 +271,10 @@
     "expression": {
       "Literal": {
         "span": {
-          "lo": 104,
-          "hi": 108
+          "lo": 105,
+          "hi": 109
         },
-        "id": 0,
+        "id": 1,
         "variant": {
           "Integer": [
             "I8",
@@ -289,10 +285,10 @@
     },
     "type_": "Field",
     "span": {
-      "lo": 104,
-      "hi": 117
+      "lo": 105,
+      "hi": 118
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -301,10 +297,10 @@
     "expression": {
       "Literal": {
         "span": {
-          "lo": 118,
-          "hi": 136
+          "lo": 119,
+          "hi": 137
         },
-        "id": 0,
+        "id": 1,
         "variant": {
           "Field": "0925348043850"
         }
@@ -314,10 +310,10 @@
       "Integer": "I8"
     },
     "span": {
-      "lo": 118,
-      "hi": 142
+      "lo": 119,
+      "hi": 143
     },
-    "id": 1
+    "id": 0
   }
 }
 

@@ -120,7 +120,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
 
     fn reconstruct_call(&mut self, input_call: CallExpression) -> (Expression, Self::AdditionalOutput) {
         // Skip calls to functions from other programs.
-        if input_call.program.unwrap() != self.program {
+        if input_call.program.is_some_and(|prog| prog != self.program) {
             return (input_call.into(), Default::default());
         }
 

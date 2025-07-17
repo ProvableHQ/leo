@@ -1,4 +1,4 @@
-Error [EPAR0370009]: unexpected string: expected 'identifier', found 'let'
+Error [EPAR0370005]: expected an identifier, ')', 'constant', 'private', 'public' -- found 'let'
     --> compiler-test:7:19
      |
    7 |     function main(let x: u8, y: bool) -> bool {

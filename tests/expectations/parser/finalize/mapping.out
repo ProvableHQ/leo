@@ -11,7 +11,7 @@
             "lo": 9,
             "hi": 13
           },
-          "id": 0
+          "id": 8
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 14,
             "hi": 18
           },
-          "id": 1
+          "id": 9
         }
       },
       "consts": [],
@@ -34,7 +34,7 @@
                 "lo": 33,
                 "hi": 36
               },
-              "id": 2
+              "id": 0
             },
             "key_type": {
               "Composite": {
@@ -46,14 +46,14 @@
                       "lo": 38,
                       "hi": 41
                     },
-                    "id": 3
+                    "id": 1
                   },
                   "absolute_path": null,
                   "span": {
                     "lo": 38,
                     "hi": 41
                   },
-                  "id": 4
+                  "id": 2
                 },
                 "const_arguments": [],
                 "program": null
@@ -69,14 +69,14 @@
                       "lo": 45,
                       "hi": 48
                     },
-                    "id": 5
+                    "id": 3
                   },
                   "absolute_path": null,
                   "span": {
                     "lo": 45,
                     "hi": 48
                   },
-                  "id": 6
+                  "id": 4
                 },
                 "const_arguments": [],
                 "program": null
@@ -86,7 +86,7 @@
               "lo": 25,
               "hi": 49
             },
-            "id": 7
+            "id": 5
           }
         ],
         [
@@ -98,7 +98,7 @@
                 "lo": 63,
                 "hi": 66
               },
-              "id": 8
+              "id": 6
             },
             "key_type": {
               "Integer": "U8"
@@ -110,14 +110,14 @@
               "lo": 55,
               "hi": 77
             },
-            "id": 9
+            "id": 7
           }
         ]
       ],
       "functions": [],
       "constructor": null,
       "span": {
-        "lo": 1,
+        "lo": 0,
         "hi": 79
       }
     }

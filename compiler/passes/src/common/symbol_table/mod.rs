@@ -313,7 +313,7 @@ impl SymbolTable {
             if eq_struct(&composite, old_composite) {
                 Ok(())
             } else {
-                Err(AstError::redefining_external_struct(path.iter().format("::"), composite.span).into())
+                Err(AstError::redefining_external_struct(path.iter().format("::"), old_composite.span).into())
             }
         } else {
             let location = Location::new(program, path.to_vec());

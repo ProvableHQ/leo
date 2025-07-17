@@ -59,7 +59,7 @@ impl Pass for SymbolTableCreation {
             is_stub: false,
         };
         visitor.visit_program(ast.as_repr());
-        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())
     }

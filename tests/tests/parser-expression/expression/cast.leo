@@ -3,7 +3,7 @@ foo as u8
 
 1u128 as i8
 
-baz { foo: u8 } as scalar
+baz { foo: 0u8 } as scalar
 
 flag ? 1u8 : 0u8 as scalar
 

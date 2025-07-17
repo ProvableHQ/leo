@@ -1,2 +1,6 @@
-Error [EPAR0370016]: Could not lex the following content: `'\u}`.
+Error [EPAR0370050]: Could not lex the following content: `'`.
 
+    --> test:4:23
+     |
+   4 |         let d: char = '\u}
+     |                       ^

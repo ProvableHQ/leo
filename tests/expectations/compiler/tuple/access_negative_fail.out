@@ -1,4 +1,4 @@
-Error [EPAR0370009]: unexpected string: expected 'identifier', found '-'
+Error [EPAR0370005]: expected an identifier, an integer literal -- found '-'
     --> compiler-test:6:24
      |
    6 |         return (t.0, t.-1); // Index `t.-1` is invalid.

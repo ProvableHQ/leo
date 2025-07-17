@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected ; -- found '}'
+Error [EPAR0370005]: expected ';' -- found '}'
     --> compiler-test:16:5
      |
   16 |     }}

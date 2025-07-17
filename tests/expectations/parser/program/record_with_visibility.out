@@ -11,7 +11,7 @@
             "lo": 9,
             "hi": 13
           },
-          "id": 0
+          "id": 4
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 14,
             "hi": 18
           },
-          "id": 1
+          "id": 5
         }
       },
       "consts": [],
@@ -45,23 +45,23 @@
                     "lo": 56,
                     "hi": 61
                   },
-                  "id": 3
+                  "id": 0
                 },
                 "type_": "Address",
                 "span": {
-                  "lo": 56,
+                  "lo": 48,
                   "hi": 70
                 },
-                "id": 4
+                "id": 1
               }
             ],
-            "external": "test",
+            "external": null,
             "is_record": true,
             "span": {
               "lo": 25,
               "hi": 77
             },
-            "id": 5
+            "id": 3
           }
         ]
       ],
@@ -69,7 +69,7 @@
       "functions": [],
       "constructor": null,
       "span": {
-        "lo": 1,
+        "lo": 0,
         "hi": 79
       }
     }

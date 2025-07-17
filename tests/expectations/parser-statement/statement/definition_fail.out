@@ -7,7 +7,7 @@
           "lo": 4,
           "hi": 5
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": null,
@@ -20,7 +20,7 @@
             "lo": 8,
             "hi": 12
           },
-          "id": 1
+          "id": 3
         },
         "absolute_path": null,
         "span": {
@@ -32,9 +32,9 @@
     },
     "span": {
       "lo": 0,
-      "hi": 12
+      "hi": 13
     },
-    "id": 3
+    "id": 0
   }
 }
 
@@ -43,27 +43,27 @@ Error [EPAR0370029]: A tuple expression must have at least two elements.
      |
    1 | let x = ();
      |         ^^
-Error [EPAR0370005]: expected : -- found '='
+Error [EPAR0370005]: expected ':' -- found '='
     --> test_5:1:9
      |
    1 | const x = expr;
      |         ^
-Error [EPAR0370005]: expected : -- found '='
+Error [EPAR0370005]: expected ':' -- found '='
     --> test_6:1:9
      |
    1 | const x = ();
      |         ^
-Error [EPAR0370005]: expected : -- found '='
+Error [EPAR0370005]: expected ':' -- found '='
     --> test_7:1:9
      |
    1 | const x = x+y;
      |         ^
-Error [EPAR0370005]: expected : -- found '='
+Error [EPAR0370005]: expected ':' -- found '='
     --> test_8:1:9
      |
    1 | const x = (x,y);
      |         ^
-Error [EPAR0370005]: expected : -- found '='
+Error [EPAR0370005]: expected ':' -- found '='
     --> test_9:1:9
      |
    1 | const x = x();
@@ -78,124 +78,128 @@ Error [EPAR0370029]: A tuple expression must have at least two elements.
      |
    1 | const x: u32 = ();
      |                ^^
-Error [EPAR0370045]: Expected an identifier.
+Error [EPAR0370005]: expected an identifier -- found ','
     --> test_20:1:10
      |
    1 | let (x,y,,) = ();
      |          ^
-Error [EPAR0370045]: Expected an identifier.
+Error [EPAR0370005]: expected an identifier -- found ','
     --> test_21:1:6
      |
    1 | let (,x,y) = ();
      |      ^
-Error [EPAR0370045]: Expected an identifier.
+Error [EPAR0370005]: expected an identifier -- found ','
     --> test_22:1:8
      |
    1 | let (x,,y) = ();
      |        ^
-Error [EPAR0370009]: unexpected string: expected 'expression', found ','
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', ')', '[', 'true', 'false', 'signature', 'async', 'block', 'network', 'self' -- found ','
     --> test_23:1:16
      |
    1 | let x: [u8; (2,,)] = [[0,0], [0,0]];
      |                ^
-Error [EPAR0370005]: expected 'address', 'bool', 'field', 'Future', 'group', 'scalar', 'signature', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'const'
+Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'future' -- found 'const'
     --> test_24:1:8
      |
    1 | let x: const = expr;
      |        ^^^^^
-Error [EPAR0370005]: expected 'address', 'bool', 'field', 'Future', 'group', 'scalar', 'signature', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'let'
+Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'future' -- found 'let'
     --> test_25:1:10
      |
    1 | const x: let = expr;
      |          ^^^
-Error [EPAR0370005]: expected ( -- found '<eof>'
-    --> test_26:1:1
+Error [EPAR0370003]: unexpected EOF
+    --> test_26:1:3
      |
    1 | let
-     | ^^^
-Error [EPAR0370005]: expected = -- found '<eof>'
+     |   ^
+Error [EPAR0370003]: unexpected EOF
     --> test_27:1:5
      |
    1 | let x
      |     ^
-Error [EPAR0370005]: expected 'address', 'bool', 'field', 'Future', 'group', 'scalar', 'signature', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '<eof>'
+Error [EPAR0370003]: unexpected EOF
     --> test_28:1:6
      |
    1 | let x:
      |      ^
-Error [EPAR0370005]: expected ) -- found ']'
+Error [EPAR0370005]: expected ')', ',' -- found ']'
     --> test_29:1:14
      |
    1 | let x = (a, y]);
      |              ^
-Error [EPAR0370005]: expected ( -- found '='
+Error [EPAR0370005]: expected an identifier, '(' -- found '='
     --> test_30:1:5
      |
    1 | let = 1u8;
      |     ^
-Error [EPAR0370005]: expected ( -- found ';'
+Error [EPAR0370005]: expected an identifier, '(' -- found ';'
     --> test_31:1:4
      |
    1 | let;
      |    ^
-Error [EPAR0370005]: expected = -- found '1'
+Error [EPAR0370005]: expected '=', ':' -- found '1'
     --> test_32:1:7
      |
    1 | let x 1u8;
      |       ^
-Error [EPAR0370005]: expected = -- found ';'
+Error [EPAR0370005]: expected '=' -- found ';'
     --> test_33:1:10
      |
    1 | let x: u8;
      |          ^
-Error [EPAR0370005]: expected = -- found '<eof>'
-    --> test_34:1:8
+Error [EPAR0370003]: unexpected EOF
+    --> test_34:1:9
      |
    1 | let x: u8
-     |        ^^
-Error [EPAR0370005]: expected 'address', 'bool', 'field', 'Future', 'group', 'scalar', 'signature', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '='
+     |         ^
+Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'future' -- found '='
     --> test_35:1:8
      |
    1 | let x: = 1;
      |        ^
-Error [EPAR0370005]: expected ; -- found ']'
+Error [EPAR0370005]: expected ';' -- found ']'
     --> test_36:1:11
      |
    1 | let x: [u8] = 1;
      |           ^
-Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
+Error [EPAR0370003]: unexpected EOF
     --> test_37:1:11
      |
    1 | let x: [u8;
      |           ^
-Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
+Error [EPAR0370003]: unexpected EOF
     --> test_38:1:22
      |
    1 | let x: [u8; 1u8] = [1,
      |                      ^
-Error [EPAR0370009]: unexpected string: expected 'expression', found ']'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'signature', 'async', 'block', 'network', 'self' -- found ']'
     --> test_39:1:15
      |
    1 | let dbg: u8 = ];
      |               ^
-Error [EPAR0370016]: Could not lex the following content: `🦀:`.
+Error [EPAR0370050]: Could not lex the following content: `🦀`.
 
-Error [EPAR0370009]: unexpected string: expected 'expression', found '..'
-    --> test_41:1:11
+    --> test_40:1:5
+     |
+   1 | let 🦀: u8 = 0;
+     |     ^^^^
+Error [EPAR0370005]: expected ',' -- found ')'
+    --> test_41:1:7
      |
    1 | let (x) = ...;
-     |           ^^
-Error [EPAR0370009]: unexpected string: expected 'expression', found '..'
-    --> test_42:1:12
+     |       ^
+Error [EPAR0370005]: expected an identifier -- found ')'
+    --> test_42:1:8
      |
    1 | let (x,) = ...;
-     |            ^^
-Error [EPAR0370005]: expected ( -- found '_'
+     |        ^
+Error [EPAR0370005]: expected an identifier, '(' -- found '_'
     --> test_43:1:5
      |
    1 | let _1: u8 = 1u8;
      |     ^
-Error [EPAR0370005]: expected ( -- found '1___091'
+Error [EPAR0370005]: expected an identifier, '(' -- found '1___091'
     --> test_44:1:5
      |
    1 | let 1___091: u8 = 12u8;

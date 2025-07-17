@@ -35,8 +35,8 @@ Error [ETYC0372053]: An expression statement must be a function call.
 Error [ETYC0372053]: An expression statement must be a function call.
     --> compiler-test:17:9
      |
-  17 |         -i8;
-     |         ^^^^
+  17 |         -1i8;
+     |         ^^^^^
 Error [ETYC0372053]: An expression statement must be a function call.
     --> compiler-test:18:9
      |

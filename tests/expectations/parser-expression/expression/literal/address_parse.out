@@ -15,9 +15,9 @@
   "Literal": {
     "span": {
       "lo": 64,
-      "hi": 69
+      "hi": 74
     },
-    "id": 2,
+    "id": 0,
     "variant": {
       "Address": "hello.aleo"
     }
@@ -28,9 +28,9 @@
   "Literal": {
     "span": {
       "lo": 75,
-      "hi": 81
+      "hi": 86
     },
-    "id": 2,
+    "id": 0,
     "variant": {
       "Address": "fooooo.aleo"
     }
@@ -41,9 +41,9 @@
   "Literal": {
     "span": {
       "lo": 87,
-      "hi": 90
+      "hi": 95
     },
-    "id": 2,
+    "id": 0,
     "variant": {
       "Address": "bar.aleo"
     }

@@ -17,7 +17,7 @@ Error [ETYC0372049]: A tuple type cannot contain a tuple.
     --> compiler-test:7:9
      |
    7 |         let t3: (u32, (u32, u32)) = (x, (y, z));
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
     --> compiler-test:7:41
      |
@@ -32,7 +32,7 @@ Error [ETYC0372072]: Expected a tuple with 3 elements, found one with 2 elements
     --> compiler-test:9:9
      |
    9 |         let (a, b) = (x, y, z);
-     |         ^^^^^^^^^^^^^^^^^^^^^^
+     |         ^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected u32 but type `(u32, u32)` was found.
     --> compiler-test:10:27
      |

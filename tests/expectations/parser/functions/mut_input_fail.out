@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected : -- found 'a'
+Error [EPAR0370005]: expected ':' -- found 'a'
     --> test:3:20
      |
    3 |     function f(mut a: u8) {}}

@@ -1,4 +1,4 @@
-Error [EPAR0370009]: unexpected string: expected 'identifier', found '('
+Error [EPAR0370005]: expected an identifier -- found '('
     --> compiler-test:3:11
      |
    3 |     const (HELLO,GOODBYE): (u8,u8) = (1u8, 1u8);

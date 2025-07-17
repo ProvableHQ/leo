@@ -320,10 +320,10 @@ pub trait AstVisitor {
 /// A Visitor trait for the program represented by the AST.
 pub trait ProgramVisitor: AstVisitor {
     fn visit_program(&mut self, input: &Program) {
+        input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
         input.modules.values().for_each(|module| self.visit_module(module));
         input.imports.values().for_each(|import| self.visit_import(&import.0));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
-        input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {

@@ -2,7 +2,7 @@
 name = "leo-parser"
 version = "3.2.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
-description = "Parser for the Leo programming language"
+description = "Translating from the lossless syntax tree to the AST for the Leo language language"
 homepage = "https://leo-lang.org"
 repository = "https://github.com/ProvableHQ/leo"
 keywords = [
@@ -24,26 +24,22 @@ workspace = true
 [dependencies.leo-errors]
 workspace = true
 
+[dependencies.leo-parser-lossless]
+workspace = true
+
 [dependencies.leo-span]
 workspace = true
 
 [dependencies.snarkvm]
 workspace = true
 
-[dependencies.clap]
-version = "4.5"
-features = [ "derive" ]
-
 [dependencies.indexmap]
-workspace = true
-
-[dependencies.serde]
 workspace = true
 
 [dependencies.itertools]
 workspace = true
 
-[dev-dependencies.leo-test-framework]
+[dev-dependencies.serde]
 workspace = true
 
 [dev-dependencies.serde_json]
@@ -52,6 +48,5 @@ workspace = true
 [dev-dependencies.serial_test]
 workspace = true
 
-[features]
-default = [ ]
-ci_skip = [ ]
+[dev-dependencies.leo-test-framework]
+workspace = true

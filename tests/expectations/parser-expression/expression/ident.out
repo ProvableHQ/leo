@@ -7,14 +7,14 @@
         "lo": 0,
         "hi": 1
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 0,
       "hi": 1
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -27,14 +27,14 @@
         "lo": 2,
         "hi": 3
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 2,
       "hi": 3
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -47,14 +47,14 @@
         "lo": 4,
         "hi": 7
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 4,
       "hi": 7
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -67,14 +67,14 @@
         "lo": 8,
         "hi": 11
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 8,
       "hi": 11
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -87,14 +87,14 @@
         "lo": 12,
         "hi": 14
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 12,
       "hi": 14
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -107,14 +107,14 @@
         "lo": 15,
         "hi": 19
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 15,
       "hi": 19
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -127,14 +127,14 @@
         "lo": 20,
         "hi": 25
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 20,
       "hi": 25
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -147,14 +147,14 @@
         "lo": 26,
         "hi": 31
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 26,
       "hi": 31
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -167,14 +167,14 @@
         "lo": 32,
         "hi": 36
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 32,
       "hi": 36
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -187,14 +187,14 @@
         "lo": 37,
         "hi": 42
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 37,
       "hi": 42
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -207,14 +207,14 @@
         "lo": 43,
         "hi": 47
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 43,
       "hi": 47
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -227,14 +227,14 @@
         "lo": 48,
         "hi": 54
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 48,
       "hi": 54
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -247,14 +247,14 @@
         "lo": 55,
         "hi": 64
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 55,
       "hi": 64
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -262,12 +262,12 @@
   "Path": {
     "qualifier": [],
     "identifier": {
-      "name": "self",
+      "name": "Self",
       "span": {
         "lo": 65,
         "hi": 69
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
@@ -282,39 +282,19 @@
   "Path": {
     "qualifier": [],
     "identifier": {
-      "name": "Self",
+      "name": "input",
       "span": {
         "lo": 70,
-        "hi": 74
+        "hi": 75
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
       "lo": 70,
-      "hi": 74
+      "hi": 75
     },
-    "id": 1
-  }
-}
-
-{
-  "Path": {
-    "qualifier": [],
-    "identifier": {
-      "name": "input",
-      "span": {
-        "lo": 75,
-        "hi": 80
-      },
-      "id": 0
-    },
-    "absolute_path": null,
-    "span": {
-      "lo": 75,
-      "hi": 80
-    },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -324,17 +304,17 @@
     "identifier": {
       "name": "selfX",
       "span": {
-        "lo": 81,
-        "hi": 86
+        "lo": 76,
+        "hi": 81
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
-      "lo": 81,
-      "hi": 86
+      "lo": 76,
+      "hi": 81
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -344,17 +324,17 @@
     "identifier": {
       "name": "SelfX",
       "span": {
-        "lo": 87,
-        "hi": 92
+        "lo": 82,
+        "hi": 87
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
-      "lo": 87,
-      "hi": 92
+      "lo": 82,
+      "hi": 87
     },
-    "id": 1
+    "id": 0
   }
 }
 
@@ -364,17 +344,17 @@
     "identifier": {
       "name": "inputX",
       "span": {
-        "lo": 93,
-        "hi": 99
+        "lo": 88,
+        "hi": 94
       },
-      "id": 0
+      "id": 1
     },
     "absolute_path": null,
     "span": {
-      "lo": 93,
-      "hi": 99
+      "lo": 88,
+      "hi": 94
     },
-    "id": 1
+    "id": 0
   }
 }
 

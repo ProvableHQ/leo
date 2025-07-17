@@ -437,6 +437,8 @@ pub trait AstReconstructor {
 /// A Reconstructor trait for the program represented by the AST.
 pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
+        let program_scopes =
+            input.program_scopes.into_iter().map(|(id, scope)| (id, self.reconstruct_program_scope(scope))).collect();
         Program {
             imports: input
                 .imports
@@ -445,11 +447,7 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .collect(),
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
             modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
-            program_scopes: input
-                .program_scopes
-                .into_iter()
-                .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
-                .collect(),
+            program_scopes,
         }
     }
 

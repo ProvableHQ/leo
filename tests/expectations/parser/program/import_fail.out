@@ -1,5 +1,5 @@
-Error [EPAR0370028]: Invalid network identifier. The only supported identifier is `.aleo`.
-    --> test:1:14
+Error [EPAR0370005]: expected a program id -- found 'hello'
+    --> test:1:8
      |
    1 | import hello.leo;
-     |              ^^^
+     |        ^^^^^

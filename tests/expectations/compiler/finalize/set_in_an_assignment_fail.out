@@ -2,7 +2,7 @@ Error [ETYC0372123]: The unit type () may appear only as the return type of a fu
     --> compiler-test:10:9
      |
   10 |         let result: () = Mapping::set(amounts, addr, amount);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `u128` but type `()` was found.
     --> compiler-test:11:28
      |

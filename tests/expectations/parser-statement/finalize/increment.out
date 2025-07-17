@@ -10,14 +10,14 @@
               "lo": 0,
               "hi": 9
             },
-            "id": 0
+            "id": 8
           },
           "absolute_path": null,
           "span": {
             "lo": 0,
             "hi": 9
           },
-          "id": 1
+          "id": 9
         },
         "const_arguments": [],
         "arguments": [
@@ -30,14 +30,14 @@
                   "lo": 10,
                   "hi": 13
                 },
-                "id": 2
+                "id": 3
               },
               "absolute_path": null,
               "span": {
                 "lo": 10,
                 "hi": 13
               },
-              "id": 3
+              "id": 2
             }
           },
           {
@@ -49,14 +49,14 @@
                   "lo": 15,
                   "hi": 18
                 },
-                "id": 4
+                "id": 5
               },
               "absolute_path": null,
               "span": {
                 "lo": 15,
                 "hi": 18
               },
-              "id": 5
+              "id": 4
             }
           },
           {
@@ -68,14 +68,14 @@
                   "lo": 20,
                   "hi": 23
                 },
-                "id": 6
+                "id": 7
               },
               "absolute_path": null,
               "span": {
                 "lo": 20,
                 "hi": 23
               },
-              "id": 7
+              "id": 6
             }
           }
         ],
@@ -84,14 +84,14 @@
           "lo": 0,
           "hi": 24
         },
-        "id": 8
+        "id": 1
       }
     },
     "span": {
       "lo": 0,
       "hi": 25
     },
-    "id": 9
+    "id": 0
   }
 }
 
@@ -107,14 +107,14 @@
               "lo": 26,
               "hi": 35
             },
-            "id": 0
+            "id": 6
           },
           "absolute_path": null,
           "span": {
             "lo": 26,
             "hi": 35
           },
-          "id": 1
+          "id": 7
         },
         "const_arguments": [],
         "arguments": [
@@ -127,14 +127,14 @@
                   "lo": 36,
                   "hi": 39
                 },
-                "id": 2
+                "id": 3
               },
               "absolute_path": null,
               "span": {
                 "lo": 36,
                 "hi": 39
               },
-              "id": 3
+              "id": 2
             }
           },
           {
@@ -173,14 +173,14 @@
           "lo": 26,
           "hi": 50
         },
-        "id": 6
+        "id": 1
       }
     },
     "span": {
       "lo": 26,
       "hi": 51
     },
-    "id": 7
+    "id": 0
   }
 }
 
@@ -196,14 +196,14 @@
               "lo": 52,
               "hi": 61
             },
-            "id": 0
+            "id": 6
           },
           "absolute_path": null,
           "span": {
             "lo": 52,
             "hi": 61
           },
-          "id": 1
+          "id": 7
         },
         "const_arguments": [],
         "arguments": [
@@ -216,14 +216,14 @@
                   "lo": 62,
                   "hi": 65
                 },
-                "id": 2
+                "id": 3
               },
               "absolute_path": null,
               "span": {
                 "lo": 62,
                 "hi": 65
               },
-              "id": 3
+              "id": 2
             }
           },
           {
@@ -235,14 +235,14 @@
                   "lo": 67,
                   "hi": 70
                 },
-                "id": 4
+                "id": 5
               },
               "absolute_path": null,
               "span": {
                 "lo": 67,
                 "hi": 70
               },
-              "id": 5
+              "id": 4
             }
           }
         ],
@@ -251,14 +251,14 @@
           "lo": 52,
           "hi": 71
         },
-        "id": 6
+        "id": 1
       }
     },
     "span": {
       "lo": 52,
       "hi": 72
     },
-    "id": 7
+    "id": 0
   }
 }
 
@@ -274,14 +274,14 @@
               "lo": 73,
               "hi": 82
             },
-            "id": 0
+            "id": 2
           },
           "absolute_path": null,
           "span": {
             "lo": 73,
             "hi": 82
           },
-          "id": 1
+          "id": 3
         },
         "const_arguments": [],
         "arguments": [],
@@ -290,14 +290,14 @@
           "lo": 73,
           "hi": 84
         },
-        "id": 2
+        "id": 1
       }
     },
     "span": {
       "lo": 73,
       "hi": 85
     },
-    "id": 3
+    "id": 0
   }
 }
 

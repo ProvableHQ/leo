@@ -1,4 +1,4 @@
-Error [EPAR0370041]: Each member declaration in a struct or record must be followed by a comma (except the last).
+Error [EPAR0370005]: expected '}', ',' -- found 'y'
     --> test:4:9
      |
    4 |         y: u8

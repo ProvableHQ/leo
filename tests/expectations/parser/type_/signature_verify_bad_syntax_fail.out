@@ -1,10 +1,5 @@
-Error [EPAR0370021]: The type of `signature` has no associated function `verify` that takes 3 argument(s).
-    --> test:4:23
+Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found '('
+    --> test:4:39
      |
    4 |         let a: bool = signature.verify(s, a, v);
-     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370005]: expected ) -- found ','
-    --> test:5:17
-     |
-   5 |         assert(a, b);
-     |                 ^
+     |                                       ^

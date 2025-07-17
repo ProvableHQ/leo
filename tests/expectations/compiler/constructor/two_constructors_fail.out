@@ -1,5 +1,11 @@
 Error [ETYC0372156]: A program can only have one constructor.
-    --> compiler-test:10:5
+    --> compiler-test:9:5
      |
+   9 |     @custom
+     |     ^^^^^^^
   10 |     async constructor() {
-     |     ^^^^^
+     |     ^^^^^^^^^^^^^^^^^^^^^
+  11 |         assert_eq(true, true);
+     |         ^^^^^^^^^^^^^^^^^^^^^^
+  12 |     }
+     |     ^
