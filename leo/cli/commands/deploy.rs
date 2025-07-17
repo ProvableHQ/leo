@@ -91,6 +91,7 @@ impl Command for LeoDeploy {
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Get the network, accounting for overrides.
         let network = context.get_network(&self.env_override.network)?.parse()?;
+        println!("NETWORK {network}");
         // Handle each network with the appropriate parameterization.
         match network {
             NetworkName::TestnetV0 => handle_deploy::<TestnetV0>(&self, context, network, input),

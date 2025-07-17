@@ -1,0 +1,49 @@
+[package]
+name = "leo-parser-translate"
+version = "3.1.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "Translating from the lossless syntax tree to the AST for the Leo language language"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "compilers", "cryptography", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+rust-version = "1.88.0"
+
+[dependencies.leo-ast]
+workspace = true
+
+[dependencies.leo-errors]
+workspace = true
+
+[dependencies.leo-parser-lossless]
+workspace = true
+
+[dependencies.leo-span]
+workspace = true
+
+[dependencies.indexmap]
+workspace = true
+
+[dependencies.itertools]
+workspace = true
+
+[dev-dependencies.serde]
+workspace = true
+
+[dev-dependencies.serde_json]
+workspace = true
+
+[dev-dependencies.serial_test]
+workspace = true
+
+[dev-dependencies.leo-test-framework]
+workspace = true

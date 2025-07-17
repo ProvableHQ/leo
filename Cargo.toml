@@ -38,6 +38,8 @@ members = [
   "compiler/ast",
   "compiler/compiler",
   "compiler/parser",
+  "compiler/parser-lossless",
+  "compiler/parser-translate",
   "compiler/passes",
   "compiler/span",
   "docs/grammar",
@@ -99,6 +101,14 @@ version = "=3.1.0"
 
 [workspace.dependencies.leo-parser]
 path = "./compiler/parser"
+version = "=3.1.0"
+
+[workspace.dependencies.leo-parser-lossless]
+path = "./compiler/parser-lossless"
+version = "=3.1.0"
+
+[workspace.dependencies.leo-parser-translate]
+path = "./compiler/parser-translate"
 version = "=3.1.0"
 
 [workspace.dependencies.leo-passes]
@@ -366,4 +376,4 @@ debug-assertions = true
 inherits = "test"
 incremental = false
 debug = false
-[dependencies]
+
