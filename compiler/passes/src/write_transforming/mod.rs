@@ -71,7 +71,7 @@ impl Pass for WriteTransforming {
         let mut ast = std::mem::take(&mut state.ast);
         let mut visitor = WriteTransformingVisitor::new(state, ast.as_repr());
         ast.ast = visitor.reconstruct_program(ast.ast);
-        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())
     }

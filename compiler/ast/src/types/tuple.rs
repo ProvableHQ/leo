@@ -48,3 +48,9 @@ impl fmt::Display for TupleType {
         write!(f, "({})", self.elements.iter().format(", "))
     }
 }
+
+impl From<TupleType> for Type {
+    fn from(value: TupleType) -> Self {
+        Type::Tuple(value)
+    }
+}

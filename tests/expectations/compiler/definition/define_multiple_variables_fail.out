@@ -2,12 +2,12 @@ Error [ETYC0372072]: Expected a tuple with 2 elements, found one with 3 elements
     --> compiler-test:4:9
      |
    4 |         let (a,b,c): (u8,u8) = (2u8,3u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372072]: Expected a tuple with 3 elements, found one with 2 elements
     --> compiler-test:5:9
      |
    5 |         let (d,e): (u8,u8,u8) = (1u8,2u8,3u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `(u8, u8, u8)` but type `u8` was found.
     --> compiler-test:6:36
      |

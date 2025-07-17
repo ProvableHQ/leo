@@ -17,4 +17,4 @@ Error [ETYC0372115]: An array cannot have a future as an element type.
     --> compiler-test:11:9
      |
   11 |         let an_array: [Future; 1] = [future];
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

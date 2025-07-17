@@ -72,3 +72,9 @@ impl fmt::Display for ArrayType {
         write!(f, "[{}; {}]", self.element_type, self.length)
     }
 }
+
+impl From<ArrayType> for Type {
+    fn from(value: ArrayType) -> Self {
+        Type::Array(value)
+    }
+}

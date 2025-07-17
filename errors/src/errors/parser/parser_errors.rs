@@ -422,4 +422,26 @@ create_messages!(
             ))
         },
     }
+
+    @formatted
+    could_not_lex_span {
+    args: (input: impl Display),
+    msg: format!("Could not lex the following content: `{input}`.\n"),
+    help: None,
+    }
+
+    /// For when the lexer encountered a bidi override character
+    @formatted
+    lexer_bidi_override_span {
+        args: (),
+        msg: "Unicode bidi override code point encountered.",
+        help: None,
+    }
+
+    @formatted
+    wrong_digit_for_radix_span {
+        args: (digit: char, radix: u32, token: impl Display),
+        msg: format!("Digit {digit} invalid in radix {radix} (token {token})."),
+        help: None,
+    }
 );

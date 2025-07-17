@@ -1,4 +1,5 @@
-Error [EPAR0370004]: Unexpected white space between terms 1 and scalar
-    --> compiler-test:4:16
+Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found 'scalar'
+    --> compiler-test:4:17
      |
    4 |       let f = 1 scalar;
+     |                 ^^^^^^

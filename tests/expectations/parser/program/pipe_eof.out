@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected 'const', 'struct', 'record', 'mapping', '@', 'async', 'function', 'transition', 'inline', 'script', '}' -- found '|'
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'async', 'const', 'function', 'inline', 'mapping', 'script', 'transition' -- found '|'
     --> test:6:5
      |
    6 |     |}

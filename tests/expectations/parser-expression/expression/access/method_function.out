@@ -9,14 +9,14 @@
             "lo": 0,
             "hi": 1
           },
-          "id": 0
+          "id": 3
         },
         "absolute_path": null,
         "span": {
           "lo": 0,
           "hi": 1
         },
-        "id": 1
+        "id": 2
       }
     },
     "op": "ToXCoordinate",
@@ -24,7 +24,7 @@
       "lo": 0,
       "hi": 19
     },
-    "id": 3
+    "id": 0
   }
 }
 
@@ -39,14 +39,14 @@
             "lo": 20,
             "hi": 21
           },
-          "id": 0
+          "id": 3
         },
         "absolute_path": null,
         "span": {
           "lo": 20,
           "hi": 21
         },
-        "id": 1
+        "id": 2
       }
     },
     "op": "ToYCoordinate",
@@ -54,7 +54,7 @@
       "lo": 20,
       "hi": 39
     },
-    "id": 3
+    "id": 0
   }
 }
 

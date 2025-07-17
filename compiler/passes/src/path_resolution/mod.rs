@@ -71,7 +71,7 @@ impl Pass for PathResolution {
         let mut ast = std::mem::take(&mut state.ast);
         let mut visitor = PathResolutionVisitor { state, module: Vec::new() };
         ast.ast = visitor.reconstruct_program(ast.ast);
-        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
 
         Ok(())

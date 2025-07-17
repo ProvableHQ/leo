@@ -36,9 +36,6 @@ workspace = true
 [dependencies.leo-package]
 workspace = true
 
-[dependencies.leo-parser]
-workspace = true
-
 [dependencies.leo-span]
 workspace = true
 

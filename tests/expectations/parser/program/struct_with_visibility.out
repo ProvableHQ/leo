@@ -11,7 +11,7 @@
             "lo": 9,
             "hi": 13
           },
-          "id": 0
+          "id": 8
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 14,
             "hi": 18
           },
-          "id": 1
+          "id": 9
         }
       },
       "consts": [],
@@ -33,7 +33,7 @@
                 "lo": 32,
                 "hi": 35
               },
-              "id": 2
+              "id": 6
             },
             "const_parameters": [],
             "members": [
@@ -45,14 +45,14 @@
                     "lo": 53,
                     "hi": 56
                   },
-                  "id": 3
+                  "id": 0
                 },
                 "type_": "Address",
                 "span": {
-                  "lo": 53,
+                  "lo": 46,
                   "hi": 65
                 },
-                "id": 4
+                "id": 1
               },
               {
                 "mode": "Private",
@@ -62,16 +62,16 @@
                     "lo": 83,
                     "hi": 87
                   },
-                  "id": 5
+                  "id": 2
                 },
                 "type_": {
                   "Integer": "U64"
                 },
                 "span": {
-                  "lo": 83,
+                  "lo": 75,
                   "hi": 92
                 },
-                "id": 6
+                "id": 3
               },
               {
                 "mode": "None",
@@ -81,14 +81,14 @@
                     "lo": 102,
                     "hi": 106
                   },
-                  "id": 7
+                  "id": 4
                 },
                 "type_": "Boolean",
                 "span": {
                   "lo": 102,
                   "hi": 112
                 },
-                "id": 8
+                "id": 5
               }
             ],
             "external": null,
@@ -97,7 +97,7 @@
               "lo": 25,
               "hi": 119
             },
-            "id": 9
+            "id": 7
           }
         ]
       ],
@@ -105,7 +105,7 @@
       "functions": [],
       "constructor": null,
       "span": {
-        "lo": 1,
+        "lo": 0,
         "hi": 121
       }
     }

@@ -11,7 +11,7 @@
             "lo": 9,
             "hi": 13
           },
-          "id": 0
+          "id": 8
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 14,
             "hi": 18
           },
-          "id": 1
+          "id": 9
         }
       },
       "consts": [],
@@ -34,7 +34,7 @@
                 "lo": 33,
                 "hi": 41
               },
-              "id": 2
+              "id": 0
             },
             "key_type": "Address",
             "value_type": {
@@ -44,7 +44,7 @@
               "lo": 25,
               "hi": 59
             },
-            "id": 3
+            "id": 1
           }
         ],
         [
@@ -56,7 +56,7 @@
                 "lo": 73,
                 "hi": 76
               },
-              "id": 4
+              "id": 2
             },
             "key_type": {
               "Composite": {
@@ -68,14 +68,14 @@
                       "lo": 78,
                       "hi": 81
                     },
-                    "id": 5
+                    "id": 3
                   },
                   "absolute_path": null,
                   "span": {
                     "lo": 78,
                     "hi": 81
                   },
-                  "id": 6
+                  "id": 4
                 },
                 "const_arguments": [],
                 "program": null
@@ -91,14 +91,14 @@
                       "lo": 85,
                       "hi": 88
                     },
-                    "id": 7
+                    "id": 5
                   },
                   "absolute_path": null,
                   "span": {
                     "lo": 85,
                     "hi": 88
                   },
-                  "id": 8
+                  "id": 6
                 },
                 "const_arguments": [],
                 "program": null
@@ -108,14 +108,14 @@
               "lo": 65,
               "hi": 89
             },
-            "id": 9
+            "id": 7
           }
         ]
       ],
       "functions": [],
       "constructor": null,
       "span": {
-        "lo": 1,
+        "lo": 0,
         "hi": 91
       }
     }

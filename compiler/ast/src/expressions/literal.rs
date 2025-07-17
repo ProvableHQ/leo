@@ -74,6 +74,10 @@ crate::simple_node_impl!(Literal);
 struct DisplayDecimal<'a>(&'a Literal);
 
 impl Literal {
+    pub fn string(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::String(s), span, id }
+    }
+
     pub fn field(s: String, span: Span, id: NodeID) -> Self {
         Literal { variant: LiteralVariant::Field(s), span, id }
     }

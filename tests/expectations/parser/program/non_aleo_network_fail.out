@@ -1,5 +1,5 @@
-Error [EPAR0370028]: Invalid network identifier. The only supported identifier is `.aleo`.
-    --> test:2:14
+Error [EPAR0370005]: expected a program id -- found 'test'
+    --> test:2:9
      |
    2 | program test.eth {
-     |              ^^^
+     |         ^^^^

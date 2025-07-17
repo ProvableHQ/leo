@@ -1,5 +1,21 @@
-Error [EPAR0370043]: Digit G invalid in radix 16 (token 0xGA).
-Error [EPAR0370043]: Digit 2 invalid in radix 2 (token 0b02).
-Error [EPAR0370043]: Digit 9 invalid in radix 8 (token 0o90).
-Error [EPAR0370016]: Could not lex the following content: `☺23`.
+Error [EPAR0370052]: Digit G invalid in radix 16 (token 0xGA).
+    --> test_0:1:1
+     |
+   1 | 0xGAu32
+     | ^^^^
+Error [EPAR0370052]: Digit 2 invalid in radix 2 (token 0b02).
+    --> test_1:1:1
+     |
+   1 | 0b02u32
+     | ^^^^
+Error [EPAR0370052]: Digit 9 invalid in radix 8 (token 0o90).
+    --> test_2:1:1
+     |
+   1 | 0o90u32
+     | ^^^^
+Error [EPAR0370050]: Could not lex the following content: `☺`.
 
+    --> test_3:1:4
+     |
+   1 | 0xA☺23
+     |    ^^^
