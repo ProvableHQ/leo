@@ -39,7 +39,10 @@ use snarkvm::{
         execution_cost_v1,
         execution_cost_v2,
         query::Query as SnarkVMQuery,
-        store::{ConsensusStore, helpers::memory::ConsensusMemory},
+        store::{
+            ConsensusStore,
+            helpers::memory::{BlockMemory, ConsensusMemory},
+        },
     },
 };
 
@@ -268,7 +271,7 @@ fn handle_execute<A: Aleo>(
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
     // Specify the query
-    let query = SnarkVMQuery::from(&endpoint);
+    let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint);
 
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
@@ -290,7 +293,7 @@ fn handle_execute<A: Aleo>(
         inputs.iter(),
         record,
         priority_fee.unwrap_or(0),
-        Some(query),
+        Some(&query),
         rng,
     )?;
 
@@ -344,10 +347,10 @@ fn handle_execute<A: Aleo>(
         let height_before = check_transaction::current_height(&endpoint, network)?;
         // Broadcast the transaction to the network.
         let response =
-            handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), &transaction, &program_name)?;
+            handle_broadcast(&format!("{endpoint}/{network}/transaction/broadcast"), &transaction, &program_name)?;
 
         let fail = |msg| {
-            println!("❌ Failed to broadcast execution: {}.", msg);
+            println!("❌ Failed to broadcast execution: {msg}.");
             Ok(())
         };
 
@@ -405,8 +408,7 @@ fn check_task_for_warnings<N: Network>(
             }
         } else {
             warnings.push(format!(
-                "The program '{}' does not exist on the network. You may use `leo deploy --broadcast` to deploy it.",
-                program_id
+                "The program '{program_id}' does not exist on the network. You may use `leo deploy --broadcast` to deploy it.",
             ));
         }
     }
@@ -445,7 +447,7 @@ fn print_execution_plan<N: Network>(
     println!("  {:16}{}", "Source:", if is_local { "local" } else { "remote" });
 
     println!("\n{}", "💸 Fee Info:".bold());
-    println!("  {:16}{}", "Priority Fee:", format!("{} μcredits", priority_fee).green());
+    println!("  {:16}{}", "Priority Fee:", format!("{priority_fee} μcredits").green());
     println!("  {:16}{}", "Fee Record:", if fee_record { "yes" } else { "no (public fee)" });
 
     println!("\n{}", "⚙️ Actions:".bold());

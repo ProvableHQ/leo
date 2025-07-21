@@ -215,7 +215,7 @@ impl CodeGeneratingVisitor<'_> {
         let array_type: String = Self::visit_type(&array_type);
 
         let array_instruction =
-            format!("    cast {expression_operands} into {destination_register} as {};\n", array_type);
+            format!("    cast {expression_operands} into {destination_register} as {array_type};\n");
 
         // Concatenate the instructions.
         instructions.push_str(&array_instruction);
@@ -384,7 +384,7 @@ impl CodeGeneratingVisitor<'_> {
         let array_type: String = Self::visit_type(&array_type);
 
         let array_instruction =
-            format!("    cast {expression_operands} into {destination_register} as {};\n", array_type);
+            format!("    cast {expression_operands} into {destination_register} as {array_type};\n");
 
         // Concatenate the instructions.
         operand_instructions.push_str(&array_instruction);
@@ -667,7 +667,7 @@ impl CodeGeneratingVisitor<'_> {
         if !destinations.is_empty() {
             write!(call_instruction, " into").expect("failed to write to string");
             for destination in &destinations {
-                write!(call_instruction, " {}", destination).expect("failed to write to string");
+                write!(call_instruction, " {destination}").expect("failed to write to string");
             }
         }
 

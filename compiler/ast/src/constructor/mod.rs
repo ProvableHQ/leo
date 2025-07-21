@@ -119,7 +119,7 @@ impl fmt::Display for Constructor {
 
 impl fmt::Debug for Constructor {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self)
+        write!(f, "{self}")
     }
 }
 

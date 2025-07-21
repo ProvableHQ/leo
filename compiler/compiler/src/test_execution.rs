@@ -98,7 +98,7 @@ fn execution_run_test(
         .programs
         .into_iter()
         .map(|program| program.bytecode)
-        .format(&format!("{}\n", PROGRAM_DELIMITER))
+        .format(&format!("{PROGRAM_DELIMITER}\n"))
         .to_string();
 
     // Output each case outcome.

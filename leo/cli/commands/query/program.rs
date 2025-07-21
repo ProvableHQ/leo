@@ -70,11 +70,11 @@ impl Command for LeoProgram {
         };
         // Build custom url to fetch from based on the flags and user's input.
         let url = if let Some(mapping_info) = self.mapping_value {
-            format!("program/{}/mapping/{}/{}", program, mapping_info[0], mapping_info[1])
+            format!("program/{program}/mapping/{}/{}", mapping_info[0], mapping_info[1])
         } else if self.mappings {
-            format!("program/{}/mappings", program)
+            format!("program/{program}/mappings")
         } else {
-            format!("program/{}/{}", program, edition)
+            format!("program/{program}/{edition}")
         };
 
         Ok(url)

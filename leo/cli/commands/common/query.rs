@@ -111,7 +111,7 @@ pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>
         _ => {
             let code = response.status();
             let error_message = match response.into_string() {
-                Ok(response) => format!("(status code {code}: {:?})", response),
+                Ok(response) => format!("(status code {code}: {response:?})"),
                 Err(err) => format!("({err})"),
             };
 

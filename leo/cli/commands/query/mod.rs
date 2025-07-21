@@ -113,11 +113,11 @@ fn handle_query(
     };
 
     // Make GET request to retrieve on-chain state.
-    let url = format!("{}/{}/{output}", endpoint, network);
+    let url = format!("{endpoint}/{network}/{output}");
     let result = fetch_from_network(&url)?;
     if !recursive {
         tracing::info!("✅ Successfully retrieved data from '{url}'.\n");
-        println!("{}\n", result);
+        println!("{result}\n");
     }
 
     // Verify that the source file parses into a valid Aleo program.

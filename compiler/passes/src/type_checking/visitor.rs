@@ -81,11 +81,6 @@ impl TypeCheckingVisitor<'_> {
     pub fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
             (Some(t1), Some(t2)) if !Type::eq_flat_relaxed(t1, t2) => {
-                // If both types are futures, print them out.
-                if let (Type::Future(f1), Type::Future(f2)) = (t1, t2) {
-                    println!("Future 1: {:?}", f1);
-                    println!("Future 2: {:?}", f2);
-                }
                 self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
             }
             (Some(type_), None) | (None, Some(type_)) => {

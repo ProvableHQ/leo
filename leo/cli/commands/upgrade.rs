@@ -34,7 +34,7 @@ use snarkvm::{
 use crate::cli::{check_transaction::TransactionStatus, commands::deploy::validate_deployment_limits};
 use aleo_std::StorageMode;
 use colored::*;
-use snarkvm::prelude::{ConsensusVersion, ProgramID, Stack};
+use snarkvm::prelude::{ConsensusVersion, ProgramID, Stack, store::helpers::memory::BlockMemory};
 use std::path::PathBuf;
 
 /// Upgrades an Aleo program.
@@ -117,7 +117,7 @@ fn handle_upgrade<N: Network>(
         .into_iter()
         .map(|(program_name, program_string, _, manifest)| {
             // Parse the program ID from the program name.
-            let program_id = ProgramID::<N>::from_str(&format!("{}.aleo", program_name))
+            let program_id = ProgramID::<N>::from_str(&format!("{program_name}.aleo"))
                 .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
             // Parse the program bytecode.
             let bytecode = Program::<N>::from_str(&program_string)
@@ -193,7 +193,7 @@ fn handle_upgrade<N: Network>(
     }
 
     // Specify the query
-    let query = SnarkVMQuery::from(&endpoint);
+    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint);
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
@@ -203,7 +203,7 @@ fn handle_upgrade<N: Network>(
             println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
             // Generate the transaction.
             let transaction = vm
-                .deploy(&private_key, &program, fee_record, priority_fee.unwrap_or(0), Some(query.clone()), rng)
+                .deploy(&private_key, &program, fee_record, priority_fee.unwrap_or(0), Some(&query), rng)
                 .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
@@ -261,7 +261,7 @@ fn handle_upgrade<N: Network>(
             let height_before = check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
             let response = handle_broadcast(
-                &format!("{}/{}/transaction/broadcast", endpoint, network),
+                &format!("{endpoint}/{network}/transaction/broadcast"),
                 transaction,
                 &program_id.to_string(),
             )?;
@@ -350,20 +350,18 @@ fn check_tasks_for_warnings<N: Network>(
             }
         } else {
             warnings.push(format!(
-                "The program '{}' does not exist on the network. The upgrade will likely fail.",
-                program_id
+                "The program '{program_id}' does not exist on the network. The upgrade will likely fail.",
             ));
         }
 
-        // Check if the program uses V8 features.
-        if consensus_version < ConsensusVersion::V8 && program.contains_v8_syntax() {
-            warnings.push(format!("The program '{}' uses V8 features but the consensus version is less than V8. The upgrade will likely fail", program_id));
+        // Check if the program uses V9 features.
+        if consensus_version < ConsensusVersion::V9 && program.contains_v9_syntax() {
+            warnings.push(format!("The program '{program_id}' uses V( features but the consensus version is less than V9. The upgrade will likely fail"));
         }
         // Check if the program contains a constructor.
-        if consensus_version >= ConsensusVersion::V8 && !program.contains_constructor() {
+        if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
             warnings.push(format!(
-                "The program '{}' does not contain a constructor. The upgrade will likely fail",
-                program_id
+                "The program '{program_id}' does not contain a constructor. The upgrade will likely fail",
             ));
         }
     }

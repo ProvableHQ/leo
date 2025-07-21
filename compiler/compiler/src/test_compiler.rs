@@ -57,7 +57,7 @@ pub fn whole_compile(
 
 fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
     // Initialize a `Process`. This should always succeed.
-    let process = Process::<TestnetV0>::load().unwrap();
+    let mut process = Process::<TestnetV0>::load().unwrap();
 
     let mut import_stubs = IndexMap::new();
 
@@ -88,7 +88,7 @@ fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
         bytecodes.push(bytecode);
     }
 
-    Ok(bytecodes.iter().format(&format!("{}\n", PROGRAM_DELIMITER)).to_string())
+    Ok(bytecodes.iter().format(&format!("{PROGRAM_DELIMITER}\n")).to_string())
 }
 
 fn runner(source: &str) -> String {

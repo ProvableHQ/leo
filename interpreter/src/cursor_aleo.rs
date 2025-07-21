@@ -956,7 +956,7 @@ impl Cursor {
                 }
             }
         }
-        panic!("branch to nonexistent label {}", label);
+        panic!("branch to nonexistent label {label}");
     }
 
     pub fn step_aleo(&mut self) -> Result<()> {

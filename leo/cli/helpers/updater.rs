@@ -111,7 +111,7 @@ impl Updater {
                 "\n🟢 {} {} {}",
                 "A new version is available! Run".bold().green(),
                 "`leo update`".bold().white(),
-                format!("to update to v{}.", latest_version).bold().green()
+                format!("to update to v{latest_version}.").bold().green()
             );
             Ok(Some(colorized_message))
         } else {
@@ -122,7 +122,7 @@ impl Updater {
     /// Display the CLI message if a new version is available.
     pub fn print_cli() -> Result<(), CliError> {
         if let Some(message) = Self::get_cli_string()? {
-            println!("{}", message);
+            println!("{message}");
         }
         Ok(())
     }
@@ -200,7 +200,7 @@ impl Updater {
                 // Parse the last check timestamp from the file.
                 let last_check = contents
                     .parse::<u64>()
-                    .map_err(|e| CliError::cli_runtime_error(format!("Failed to parse last check time: {}", e)))?;
+                    .map_err(|e| CliError::cli_runtime_error(format!("Failed to parse last check time: {e}")))?;
 
                 // Get the current time.
                 let current_time = Self::get_current_time()?;
@@ -217,7 +217,7 @@ impl Updater {
     fn get_current_time() -> Result<u64, CliError> {
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .map_err(|e| CliError::cli_runtime_error(format!("System time error: {}", e)))
+            .map_err(|e| CliError::cli_runtime_error(format!("System time error: {e}")))
             .map(|duration| duration.as_secs())
     }
 

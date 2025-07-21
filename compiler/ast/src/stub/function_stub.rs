@@ -41,7 +41,7 @@ use snarkvm::{
         RegisterType::{ExternalRecord, Future, Plaintext, Record},
     },
     prelude::{Network, ValueType},
-    synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
+    synthesizer::program::{ClosureCore, FunctionCore},
 };
 use std::fmt;
 
@@ -128,10 +128,7 @@ impl FunctionStub {
     }
 
     /// Converts from snarkvm function type to leo FunctionStub, while also carrying the parent program name.
-    pub fn from_function_core<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
-        function: &FunctionCore<N, Instruction, Command>,
-        program: Symbol,
-    ) -> Self {
+    pub fn from_function_core<N: Network>(function: &FunctionCore<N>, program: Symbol) -> Self {
         let outputs = function
             .outputs()
             .iter()
@@ -264,11 +261,7 @@ impl FunctionStub {
         }
     }
 
-    pub fn from_finalize<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
-        function: &FunctionCore<N, Instruction, Command>,
-        key_name: Symbol,
-        program: Symbol,
-    ) -> Self {
+    pub fn from_finalize<N: Network>(function: &FunctionCore<N>, key_name: Symbol, program: Symbol) -> Self {
         Self {
             annotations: Vec::new(),
             variant: Variant::AsyncFunction,
@@ -304,10 +297,7 @@ impl FunctionStub {
         }
     }
 
-    pub fn from_closure<N: Network, Instruction: InstructionTrait<N>>(
-        closure: &ClosureCore<N, Instruction>,
-        program: Symbol,
-    ) -> Self {
+    pub fn from_closure<N: Network>(closure: &ClosureCore<N>, program: Symbol) -> Self {
         let outputs = closure
             .outputs()
             .iter()

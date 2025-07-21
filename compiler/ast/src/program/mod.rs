@@ -46,10 +46,10 @@ impl fmt::Display for Program {
             writeln!(f, "import {id}.aleo;")?;
         }
         for (_, stub) in self.stubs.iter() {
-            writeln!(f, "{}", stub)?;
+            writeln!(f, "{stub}")?;
         }
         for (_, program_scope) in self.program_scopes.iter() {
-            writeln!(f, "{}", program_scope)?;
+            writeln!(f, "{program_scope}")?;
         }
         Ok(())
     }

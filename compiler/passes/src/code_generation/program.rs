@@ -49,7 +49,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         // Print out the dependencies of the program. Already arranged in post order by Retriever module.
         input.stubs.iter().for_each(|(program_name, _)| {
-            writeln!(program_string, "import {}.aleo;", program_name).expect(EXPECT_STR);
+            writeln!(program_string, "import {program_name}.aleo;").expect(EXPECT_STR);
         });
 
         // Retrieve the program scope.

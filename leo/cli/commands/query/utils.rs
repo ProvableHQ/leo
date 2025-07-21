@@ -70,7 +70,7 @@ pub fn is_valid_field(field: &str) -> Result<String, LeoError> {
     let split = field.split("field").collect::<Vec<&str>>();
 
     if split.len() == 1 && split[0].chars().all(|c| c.is_numeric()) {
-        Ok(format!("{}field", field))
+        Ok(format!("{field}field"))
     } else if split.len() == 2 && split[0].chars().all(|c| c.is_numeric()) && split[1].is_empty() {
         Ok(field.to_string())
     } else {
