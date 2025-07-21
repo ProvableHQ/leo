@@ -28,7 +28,7 @@ executors:
   macos-executor:
     macos:
       xcode: "16.0.0"  # Use appropriate Xcode version
-    resource_class: m2pro.large
+    resource_class: m2pro.xlarge
 
   linux-executor:
     docker:
@@ -84,13 +84,13 @@ commands:
     steps:
       - run:
           name: Build
-          no_output_timeout: 30m
+          no_output_timeout: 45m
           command: |
             cargo-mtime . ~/.cache/mtimes/project.db
             cargo test --no-run --all --locked --profile ci --features only_testnet
       - run:
           name: Run tests
-          no_output_timeout: 30m
+          no_output_timeout: 45m
           # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
           command: |
             cargo-mtime . ~/.cache/mtimes/project.db

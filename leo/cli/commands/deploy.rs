@@ -198,17 +198,17 @@ fn handle_deploy<N: Network>(
         if manifest.is_some() && !skipped.contains(&program_id) {
             // If the program contains an upgrade config, confirm with the user that they want to proceed.
             if let Some(constructor) = program.constructor() {
-                let prompt = format!(
+                println!(
                     r"
-   Your program has the following constructor.
-   ```
-   {constructor}
-   ```
-   Once it is deployed, it CANNOT be changed.
-   Would you like to proceed?
-    "
+🔧 Your program '{}' has the following constructor.
+──────────────────────────────────────────────
+{constructor}
+──────────────────────────────────────────────
+Once it is deployed, it CANNOT be changed.
+",
+                    program_id.to_string().bold()
                 );
-                if !confirm(&prompt, command.extra.yes)? {
+                if !confirm("Would you like to proceed?", command.extra.yes)? {
                     println!("❌ Deployment aborted.");
                     return Ok(());
                 }
