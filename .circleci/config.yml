@@ -28,7 +28,7 @@ executors:
   macos-executor:
     macos:
       xcode: "16.0.0"  # Use appropriate Xcode version
-    resource_class: m2pro.xlarge
+    resource_class: m2pro.large
 
   linux-executor:
     docker:
