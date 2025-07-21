@@ -34,6 +34,9 @@ program test0.aleo {
             x: 0field,
         };
     }
+
+    @noupgrade
+    async constructor() {}
 }
 
 // --- Next Program --- //
@@ -67,6 +70,9 @@ program test1.aleo {
         };
         return (x, x, y, y, 2field, 2field, 1u8, 1u8);
     }
+
+    @noupgrade
+    async constructor() {}
 }
 
 // --- Next Program --- //
@@ -81,4 +87,7 @@ program test2.aleo {
         let r2: (test0.aleo/R, test0.aleo/R) = (r, r);
         return test1.aleo/pass_through(r2.1);
     }
+
+    @noupgrade
+    async constructor() {}
 }

@@ -33,4 +33,9 @@ program test.aleo {
         }
         return sum;
     }
+
+    @custom
+    async constructor() {
+        assert_eq(self.edition, 0u16);
+    }
 }

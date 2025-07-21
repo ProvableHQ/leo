@@ -3,6 +3,9 @@ program test.aleo;
 function main:
     cast 1u32 2u32 3u32 into r0 as [u32; 3u32];
     output r0[2u32] as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
 verified: true
 status: accepted
 errors:
@@ -10,20 +13,20 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1phrwgkxsattf7z6prvhcr2uvccfu2wd3szphfyep8xhlauxr2vys6z4xyr",
+      "id": "au1xdrvjk6094wsl05kht0m8v8sd90sgxwxafj9t5q86nwl9zghvszql2xjnx",
       "program": "test.aleo",
       "function": "main",
       "inputs": [],
       "outputs": [
         {
           "type": "private",
-          "id": "5084423468939825060538130033201630818262626287455782920263130347645504854802field",
-          "value": "ciphertext1qyq8ch8mum8aw3ferw5s6333d02zfkddnc8w4yq76x9mfrt6rrp05zqsqpf3e"
+          "id": "7436827438089626533985187020888956761997783615432343144166454173567216631694field",
+          "value": "ciphertext1qyqdevsusa0lv5phptwr9lspme7uhs7zzdemzfef4l05za7nalhvzqq3rwy4k"
         }
       ],
-      "tpk": "1591703393543314415338793528822828705598549884408373108004070441897119952758group",
-      "tcm": "7425642878252279545349012318163473871813519702004165494419629069965094894844field",
-      "scm": "7641300893166473038899116715557541668720675567934043706719494919418703578913field"
+      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
+      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
+      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

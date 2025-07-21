@@ -33,4 +33,7 @@ program test.aleo {
         assert(false);
         return true;
     }
+
+    @noupgrade
+    async constructor() {}
 }

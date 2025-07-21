@@ -1,5 +1,5 @@
 /*
-seed = 1234567890
+seed = 1234567
 
 [case]
 program = "test.aleo"
@@ -123,6 +123,9 @@ program test.aleo {
     transition scalar_cast(s: scalar) -> (address, bool, field, group, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, scalar) {
         return (s as address, s as bool, s as field, s as group, s as i8, s as i16, s as i32, s as i64, s as i128, s as u8, s as u16, s as u32, s as u64, s as u128, s as scalar);
     }
+
+    @noupgrade
+    async constructor() {}
 }
 
 

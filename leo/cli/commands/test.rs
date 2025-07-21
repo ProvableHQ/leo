@@ -165,7 +165,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
     let (handler, buf) = Handler::new_with_buf();
 
     let outcomes = run_with_ledger::run_with_ledger(
-        &run_with_ledger::Config { seed: 0, min_height: 1, programs },
+        &run_with_ledger::Config { seed: 0, start_height: None, programs },
         &cases,
         &handler,
         &buf,

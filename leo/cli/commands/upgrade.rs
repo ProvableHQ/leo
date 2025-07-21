@@ -317,8 +317,8 @@ fn handle_upgrade<N: Network>(
 /// The following properties are checked:
 /// - If the transaction is to be broadcast:
 ///     - The program exists on the network and the new program is a valid upgrade.
-///     - If the consensus version is less than V8, the program does not use V8 features.
-///     - If the consensus version is V8 or greater, the program contains a constructor.
+///     - If the consensus version is less than V9, the program does not use V9 features.
+///     - If the consensus version is V9 or greater, the program contains a constructor.
 fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,

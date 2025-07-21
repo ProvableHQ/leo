@@ -24,4 +24,7 @@ program test.aleo {
         }
         return sum;
     }
+
+    @noupgrade
+    async constructor() {}
 }

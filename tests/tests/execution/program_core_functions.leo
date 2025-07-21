@@ -7,6 +7,9 @@ input = []
 
 program child.aleo {
     transition dummy() {}
+
+    @noupgrade
+    async constructor() {}
 }
 
 // --- Next Program --- //
@@ -27,4 +30,7 @@ program test.aleo {
         let f: u16 = Program::edition("child.aleo");
         assert_eq(e, f);
     }
+
+    @noupgrade
+    async constructor() {}
 }

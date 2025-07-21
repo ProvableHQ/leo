@@ -29,4 +29,7 @@ program cond_exec_in_finalize.aleo {
       assert_eq(a / b, 1u64);
     }
   }
+
+  @noupgrade
+  async constructor() {}
 }

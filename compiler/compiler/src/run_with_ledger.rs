@@ -44,7 +44,7 @@ type CurrentNetwork = TestnetV0;
 /// Programs and configuration to run.
 pub struct Config {
     pub seed: u64,
-    pub min_height: u32,
+    pub start_height: Option<u32>,
     pub programs: Vec<Program>,
 }
 
@@ -127,10 +127,11 @@ pub fn run_with_ledger(
         Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Production)
             .unwrap();
 
-    // Advance the `VM` to the height for the latest consensus version.
+    // Advance the `VM` to the start height, defaulting to the height for the latest consensus version.
     let latest_consensus_version = ConsensusVersion::latest();
-    let target_height = CurrentNetwork::CONSENSUS_HEIGHT(latest_consensus_version).unwrap();
-    while target_height < ledger.latest_height() {
+    let start_height =
+        config.start_height.unwrap_or(CurrentNetwork::CONSENSUS_HEIGHT(latest_consensus_version).unwrap());
+    while ledger.latest_height() < start_height {
         let block = ledger
             .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![], &mut rng)
             .map_err(|_| anyhow!("Failed to prepare advance to next beacon block"))?;
@@ -199,16 +200,6 @@ pub fn run_with_ledger(
     assert_eq!(block.transactions().num_rejected(), 0);
     // Advance the ledger to the next block.
     ledger.advance_to_next_block(&block).expect("Failed to advance to next block");
-
-    // Advance the ledger with empty blocks until the specified height.
-    let current_height = ledger.vm().block_store().current_block_height();
-    let num_blocks = config.min_height.saturating_sub(current_height).saturating_sub(1);
-    for _ in 0..num_blocks {
-        let block = ledger
-            .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![], &mut rng)
-            .expect("Failed to prepare advance to next beacon block");
-        ledger.advance_to_next_block(&block).expect("Failed to advance to next block");
-    }
 
     let mut case_outcomes = Vec::new();
 

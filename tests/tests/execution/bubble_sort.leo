@@ -30,4 +30,7 @@ program bubble_sort.aleo {
         }
         return xs;
     }
+
+    @noupgrade
+    async constructor() {}
 }

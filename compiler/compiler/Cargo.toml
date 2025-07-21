@@ -24,9 +24,6 @@ workspace = true
 [dependencies.leo-errors]
 workspace = true
 
-[dependencies.leo-package]
-workspace = true
-
 [dependencies.leo-passes]
 workspace = true
 
@@ -69,3 +66,4 @@ workspace = true
 [features]
 default = [ ]
 ci_skip = [ "leo-ast/ci_skip" ]
+test_network = ["snarkvm/test_consensus_heights"]

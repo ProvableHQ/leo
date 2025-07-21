@@ -33,4 +33,7 @@ program test.aleo {
     inline other::[Q: u32]() -> u32 {
         return Q;
     }
+
+    @noupgrade
+    async constructor() {}
 }

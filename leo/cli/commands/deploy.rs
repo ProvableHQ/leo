@@ -334,8 +334,8 @@ fn handle_deploy<N: Network>(
 /// The following properties are checked:
 /// - If the transaction is to be broadcast:
 ///     - The program does not exist on the network.
-///     - If the consensus version is less than V8, the program does not use V8 features.
-///     - If the consensus version is V8 or greater, the program contains a constructor.
+///     - If the consensus version is less than V9, the program does not use V9 features.
+///     - If the consensus version is V9 or greater, the program contains a constructor.
 fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
@@ -356,7 +356,7 @@ fn check_tasks_for_warnings<N: Network>(
         }
         // Check if the program uses V9 features.
         if consensus_version < ConsensusVersion::V9 && program.contains_v9_syntax() {
-            warnings.push(format!("The program '{program_id}' uses V9 features but the consensus version is less than V8. The deployment will likely fail"));
+            warnings.push(format!("The program '{program_id}' uses V9 features but the consensus version is less than V9. The deployment will likely fail"));
         }
         // Check if the program contains a constructor.
         if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {

@@ -1516,7 +1516,6 @@ dependencies = [
  "leo-ast",
  "leo-disassembler",
  "leo-errors",
- "leo-package",
  "leo-parser",
  "leo-passes",
  "leo-span",
