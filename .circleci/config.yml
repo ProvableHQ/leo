@@ -112,7 +112,7 @@ jobs:
           command: |
             git config --global url."https://github.com/".insteadOf "git@github.com:"
             git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
-            export CARGO_NET_GIT_FETCH_WITH_CLI=true
+            $env:CARGO_NET_GIT_FETCH_WITH_CLI = "true"
       - checkout
       - restore_cache:
           keys:
