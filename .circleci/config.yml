@@ -106,13 +106,14 @@ jobs:
     executor:
       name: windows/default
       size: xlarge
+    environment:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
     steps:
       - run:
           name: Force git to use HTTPS
           command: |
             git config --global url."https://github.com/".insteadOf "git@github.com:"
             git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
-            $env:CARGO_NET_GIT_FETCH_WITH_CLI = "true"
       - checkout
       - restore_cache:
           keys:
