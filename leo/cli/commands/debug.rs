@@ -70,7 +70,7 @@ fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) 
         let private_key = context.get_private_key(&None)?;
         let address = Address::try_from(&private_key)?;
 
-        // Get the paths of all local dependencies.
+        // Get the paths of all local Leo dependencies.
         let local_dependency_paths: Vec<PathBuf> = package
             .programs
             .iter()
@@ -85,11 +85,11 @@ fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) 
             .iter()
             .flat_map(|program| match &program.data {
                 ProgramData::SourcePath(..) => {
-                    // It's a local dependency.
+                    // It's a local Leo dependency.
                     Some(program.name)
                 }
                 ProgramData::Bytecode(..) => {
-                    // It's a network dependency.
+                    // It's a network dependency or local .aleo dependency.
                     None
                 }
             })

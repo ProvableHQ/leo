@@ -105,11 +105,11 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
     for program in package.programs.iter() {
         let (bytecode, build_path) = match &program.data {
             leo_package::ProgramData::Bytecode(bytecode) => {
-                // This was a network dependency, and we've downloaded its bytecode.
+                // This was a network dependency or local .aleo dependency, and we have its bytecode.
                 (bytecode.clone(), imports_directory.join(format!("{}.aleo", program.name)))
             }
             leo_package::ProgramData::SourcePath(path) => {
-                // This is a local dependency, so we must compile it.
+                // This is a local Leo dependency, so we must compile it.
                 let build_path = if path == &main_source_path {
                     build_directory.join("main.aleo")
                 } else {

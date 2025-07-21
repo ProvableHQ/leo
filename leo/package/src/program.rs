@@ -31,17 +31,34 @@ pub struct Program {
     pub name: Symbol,
     pub data: ProgramData,
     pub dependencies: IndexSet<Dependency>,
+    pub is_local: bool,
     pub is_test: bool,
 }
 
 impl Program {
-    /// Given the location `path` of a local Leo package, read the filesystem
+    /// Given the location `path` of a `.aleo` file, read the filesystem
     /// to obtain a `Program`.
-    pub fn from_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
-        Self::from_path_impl(name, path.as_ref())
+    pub fn from_aleo_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
+        Self::from_aleo_path_impl(name, path.as_ref())
     }
 
-    fn from_path_impl(name: Symbol, path: &Path) -> Result<Self> {
+    fn from_aleo_path_impl(name: Symbol, path: &Path) -> Result<Self> {
+        let bytecode = std::fs::read_to_string(path).map_err(|e| {
+            UtilError::util_file_io_error(format_args!("Trying to read aleo file at {}", path.display()), e)
+        })?;
+
+        let dependencies = parse_dependencies_from_aleo(name, &bytecode)?;
+
+        Ok(Program { name, data: ProgramData::Bytecode(bytecode), dependencies, is_local: true, is_test: false })
+    }
+
+    /// Given the location `path` of a local Leo package, read the filesystem
+    /// to obtain a `Program`.
+    pub fn from_package_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
+        Self::from_package_path_impl(name, path.as_ref())
+    }
+
+    fn from_package_path_impl(name: Symbol, path: &Path) -> Result<Self> {
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
         let manifest_symbol = crate::symbol(&manifest.program)?;
         if name != manifest_symbol {
@@ -77,17 +94,18 @@ impl Program {
                 .into_iter()
                 .map(|dependency| canonicalize_dependency_path_relative_to(path, dependency))
                 .collect::<Result<IndexSet<_>, _>>()?,
+            is_local: true,
             is_test: false,
         })
     }
 
     /// Given the path to the source file of a test, create a `Program`.
     ///
-    /// Unlike `Program::from_path`, the path is to the source file,
+    /// Unlike `Program::from_package_path`, the path is to the source file,
     /// and the name of the program is determined from the filename.
     ///
     /// `main_program` must be provided since every test is dependent on it.
-    pub fn from_path_test<P: AsRef<Path>>(source_path: P, main_program: Dependency) -> Result<Self> {
+    pub fn from_test_path<P: AsRef<Path>>(source_path: P, main_program: Dependency) -> Result<Self> {
         Self::from_path_test_impl(source_path.as_ref(), main_program)
     }
 
@@ -110,6 +128,7 @@ impl Program {
             name: Symbol::intern(name),
             data: ProgramData::SourcePath(source_path.to_path_buf()),
             dependencies,
+            is_local: true,
             is_test: true,
         })
     }
@@ -189,19 +208,9 @@ impl Program {
             }
         };
 
-        // Parse the program so we can get its imports.
-        let svm_program: SvmProgram<TestnetV0> =
-            bytecode.parse().map_err(|_| UtilError::snarkvm_parsing_error(name))?;
-        let dependencies = svm_program
-            .imports()
-            .keys()
-            .map(|program_id| {
-                let name = program_id.to_string();
-                Dependency { name, location: Location::Network, path: None }
-            })
-            .collect();
+        let dependencies = parse_dependencies_from_aleo(name, &bytecode)?;
 
-        Ok(Program { name, data: ProgramData::Bytecode(bytecode), dependencies, is_test: false })
+        Ok(Program { name, data: ProgramData::Bytecode(bytecode), dependencies, is_local: false, is_test: false })
     }
 }
 
@@ -217,4 +226,18 @@ fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Depende
         }
     }
     Ok(dependency)
+}
+
+/// Parse the `.aleo` file's imports and construct `Dependency`s.
+fn parse_dependencies_from_aleo(name: Symbol, bytecode: &str) -> Result<IndexSet<Dependency>> {
+    let svm_program: SvmProgram<TestnetV0> = bytecode.parse().map_err(|_| UtilError::snarkvm_parsing_error(name))?;
+    let dependencies = svm_program
+        .imports()
+        .keys()
+        .map(|program_id| {
+            let name = program_id.to_string();
+            Dependency { name, location: Location::Network, path: None }
+        })
+        .collect();
+    Ok(dependencies)
 }
