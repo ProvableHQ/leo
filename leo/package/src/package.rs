@@ -453,6 +453,7 @@ program {name}.aleo {{
     }}
     
     // This is the constructor for the program.
+    // The constructor allows you to manage program upgrades.
     // It is called when the program is deployed or upgraded.
     // It is currently configured to **prevent** upgrades.
     // Other configurations include: 
