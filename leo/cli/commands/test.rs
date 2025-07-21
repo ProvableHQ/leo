@@ -64,7 +64,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
     let private_key = context.get_private_key::<TestnetV0>(&None)?;
     let address = Address::try_from(&private_key)?;
 
-    // Get the paths of all local dependencies.
+    // Get the paths of all local Leo dependencies.
     let leo_paths: Vec<PathBuf> = package
         .programs
         .iter()
@@ -78,18 +78,18 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
         .iter()
         .flat_map(|program| match &program.data {
             ProgramData::SourcePath(..) => {
-                // It's a local dependency.
+                // It's a local Leo dependency.
                 Some(program.name)
             }
             ProgramData::Bytecode(..) => {
-                // It's a network dependency.
+                // It's a network dependency or a local .aleo dependency.
                 None
             }
         })
         .collect();
     let imports_directory = package.imports_directory();
 
-    // Get the paths to .aleo files in `imports` - but filter out the ones corresponding to local dependencies.
+    // Get the paths to .aleo files in `imports` - but filter out the ones corresponding to local Leo dependencies.
     let aleo_paths: Vec<PathBuf> = imports_directory
         .read_dir()
         .ok()

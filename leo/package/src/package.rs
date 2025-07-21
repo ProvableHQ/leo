@@ -334,12 +334,16 @@ impl Package {
                 let program = match (new.path.as_ref(), new.location) {
                     (Some(path), Location::Local) => {
                         // It's a local dependency.
-                        Program::from_path(name_symbol, path.clone())?
+                        if path.extension().and_then(|p| p.to_str()) == Some("aleo") && path.is_file() {
+                            Program::from_aleo_path(name_symbol, path)?
+                        } else {
+                            Program::from_package_path(name_symbol, path)?
+                        }
                     }
                     (Some(path), Location::Test) => {
                         // It's a test dependency - the path points to the source file,
                         // not a package.
-                        Program::from_path_test(path, main_program.clone())?
+                        Program::from_test_path(path, main_program.clone())?
                     }
                     (_, Location::Network) => {
                         // It's a network dependency.
