@@ -1,6 +1,6 @@
 [package]
 name = "leo-passes"
-version = "2.7.3"
+version = "3.0.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Compiler passes for the Leo programming language"
 homepage = "https://leo-lang.org"
