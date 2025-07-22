@@ -167,7 +167,7 @@ pub fn run_with_ledger(
                     ("credits.aleo", "transfer_public"),
                     [
                         Value::from_str(&format!("{address}")).expect("Failed to parse recipient address"),
-                        Value::from_str("1_000_000_000_000u64").expect("Failed to parse amount"),
+                        Value::from_str("20_000_000_000_000u64").expect("Failed to parse amount"),
                     ]
                     .iter(),
                     None,

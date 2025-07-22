@@ -232,7 +232,7 @@ pub struct Cursor {
     pub values: Vec<Value>,
 
     /// All functions (or transitions or inlines) in any program being interpreted.
-    pub functions: HashMap<GlobalId, FunctionVariant>,
+    pub functions: IndexMap<GlobalId, FunctionVariant>,
 
     /// Consts are stored here.
     pub globals: HashMap<GlobalId, Value>,
