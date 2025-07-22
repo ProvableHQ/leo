@@ -191,29 +191,33 @@
 <a href=#191 id=191 data-nosnippet>191</a>        <span class="prelude-val">Some</span>(<span class="number">2</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V2),
 <a href=#192 id=192 data-nosnippet>192</a>        <span class="prelude-val">Some</span>(<span class="number">3</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V3),
 <a href=#193 id=193 data-nosnippet>193</a>        <span class="prelude-val">Some</span>(<span class="number">4</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V4),
-<a href=#194 id=194 data-nosnippet>194</a>        <span class="comment">// If none is provided, then attempt to query the current block height and use it to determine the version.
-<a href=#195 id=195 data-nosnippet>195</a>        </span><span class="prelude-val">None </span>=&gt; {
-<a href=#196 id=196 data-nosnippet>196</a>            <span class="macro">println!</span>(<span class="string">"Attempting to determine the consensus version from the latest block height at {endpoint}..."</span>);
-<a href=#197 id=197 data-nosnippet>197</a>            get_latest_block_height(endpoint, network, context)
-<a href=#198 id=198 data-nosnippet>198</a>                .and_then(|current_block_height| <span class="prelude-val">Ok</span>(N::CONSENSUS_VERSION(current_block_height)<span class="question-mark">?</span>))
-<a href=#199 id=199 data-nosnippet>199</a>                .map_err(|<span class="kw">_</span>| {
-<a href=#200 id=200 data-nosnippet>200</a>                    CliError::custom(
-<a href=#201 id=201 data-nosnippet>201</a>                        <span class="string">"Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus-version`"</span>,
-<a href=#202 id=202 data-nosnippet>202</a>                    )
-<a href=#203 id=203 data-nosnippet>203</a>                        .into()
-<a href=#204 id=204 data-nosnippet>204</a>                })
-<a href=#205 id=205 data-nosnippet>205</a>        }
-<a href=#206 id=206 data-nosnippet>206</a>        <span class="prelude-val">Some</span>(version) =&gt; <span class="prelude-val">Err</span>(CliError::custom(<span class="macro">format!</span>(<span class="string">"Invalid consensus version: {version}"</span>)).into()),
-<a href=#207 id=207 data-nosnippet>207</a>    }
-<a href=#208 id=208 data-nosnippet>208</a>}
-<a href=#209 id=209 data-nosnippet>209</a>
-<a href=#210 id=210 data-nosnippet>210</a><span class="doccomment">/// What to do with a transaction produced by the CLI.
-<a href=#211 id=211 data-nosnippet>211</a></span><span class="attr">#[derive(Args, Clone, Debug)]
-<a href=#212 id=212 data-nosnippet>212</a></span><span class="kw">pub struct </span>TransactionAction {
-<a href=#213 id=213 data-nosnippet>213</a>    <span class="attr">#[arg(long, help = <span class="string">"Print the transaction to stdout."</span>)]
-<a href=#214 id=214 data-nosnippet>214</a>    </span><span class="kw">pub </span>print: bool,
-<a href=#215 id=215 data-nosnippet>215</a>    <span class="attr">#[arg(long, help = <span class="string">"Broadcast the transaction to the network."</span>)]
-<a href=#216 id=216 data-nosnippet>216</a>    </span><span class="kw">pub </span>broadcast: bool,
-<a href=#217 id=217 data-nosnippet>217</a>    <span class="attr">#[arg(long, help = <span class="string">"Save the transaction to the provided directory."</span>)]
-<a href=#218 id=218 data-nosnippet>218</a>    </span><span class="kw">pub </span>save: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#219 id=219 data-nosnippet>219</a>}</code></pre></div></section></main></body></html>
+<a href=#194 id=194 data-nosnippet>194</a>        <span class="prelude-val">Some</span>(<span class="number">5</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V5),
+<a href=#195 id=195 data-nosnippet>195</a>        <span class="prelude-val">Some</span>(<span class="number">6</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V6),
+<a href=#196 id=196 data-nosnippet>196</a>        <span class="prelude-val">Some</span>(<span class="number">7</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V7),
+<a href=#197 id=197 data-nosnippet>197</a>        <span class="prelude-val">Some</span>(<span class="number">8</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V8),
+<a href=#198 id=198 data-nosnippet>198</a>        <span class="comment">// If none is provided, then attempt to query the current block height and use it to determine the version.
+<a href=#199 id=199 data-nosnippet>199</a>        </span><span class="prelude-val">None </span>=&gt; {
+<a href=#200 id=200 data-nosnippet>200</a>            <span class="macro">println!</span>(<span class="string">"Attempting to determine the consensus version from the latest block height at {endpoint}..."</span>);
+<a href=#201 id=201 data-nosnippet>201</a>            get_latest_block_height(endpoint, network, context)
+<a href=#202 id=202 data-nosnippet>202</a>                .and_then(|current_block_height| <span class="prelude-val">Ok</span>(N::CONSENSUS_VERSION(current_block_height)<span class="question-mark">?</span>))
+<a href=#203 id=203 data-nosnippet>203</a>                .map_err(|<span class="kw">_</span>| {
+<a href=#204 id=204 data-nosnippet>204</a>                    CliError::custom(
+<a href=#205 id=205 data-nosnippet>205</a>                        <span class="string">"Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus-version`"</span>,
+<a href=#206 id=206 data-nosnippet>206</a>                    )
+<a href=#207 id=207 data-nosnippet>207</a>                        .into()
+<a href=#208 id=208 data-nosnippet>208</a>                })
+<a href=#209 id=209 data-nosnippet>209</a>        }
+<a href=#210 id=210 data-nosnippet>210</a>        <span class="prelude-val">Some</span>(version) =&gt; <span class="prelude-val">Err</span>(CliError::custom(<span class="macro">format!</span>(<span class="string">"Invalid consensus version: {version}"</span>)).into()),
+<a href=#211 id=211 data-nosnippet>211</a>    }
+<a href=#212 id=212 data-nosnippet>212</a>}
+<a href=#213 id=213 data-nosnippet>213</a>
+<a href=#214 id=214 data-nosnippet>214</a><span class="doccomment">/// What to do with a transaction produced by the CLI.
+<a href=#215 id=215 data-nosnippet>215</a></span><span class="attr">#[derive(Args, Clone, Debug)]
+<a href=#216 id=216 data-nosnippet>216</a></span><span class="kw">pub struct </span>TransactionAction {
+<a href=#217 id=217 data-nosnippet>217</a>    <span class="attr">#[arg(long, help = <span class="string">"Print the transaction to stdout."</span>)]
+<a href=#218 id=218 data-nosnippet>218</a>    </span><span class="kw">pub </span>print: bool,
+<a href=#219 id=219 data-nosnippet>219</a>    <span class="attr">#[arg(long, help = <span class="string">"Broadcast the transaction to the network."</span>)]
+<a href=#220 id=220 data-nosnippet>220</a>    </span><span class="kw">pub </span>broadcast: bool,
+<a href=#221 id=221 data-nosnippet>221</a>    <span class="attr">#[arg(long, help = <span class="string">"Save the transaction to the provided directory."</span>)]
+<a href=#222 id=222 data-nosnippet>222</a>    </span><span class="kw">pub </span>save: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#223 id=223 data-nosnippet>223</a>}</code></pre></div></section></main></body></html>
