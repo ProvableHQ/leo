@@ -105,11 +105,11 @@
 <a href=#105 id=105 data-nosnippet>105</a>    <span class="kw">for </span>program <span class="kw">in </span>package.programs.iter() {
 <a href=#106 id=106 data-nosnippet>106</a>        <span class="kw">let </span>(bytecode, build_path) = <span class="kw">match </span><span class="kw-2">&amp;</span>program.data {
 <a href=#107 id=107 data-nosnippet>107</a>            leo_package::ProgramData::Bytecode(bytecode) =&gt; {
-<a href=#108 id=108 data-nosnippet>108</a>                <span class="comment">// This was a network dependency, and we've downloaded its bytecode.
+<a href=#108 id=108 data-nosnippet>108</a>                <span class="comment">// This was a network dependency or local .aleo dependency, and we have its bytecode.
 <a href=#109 id=109 data-nosnippet>109</a>                </span>(bytecode.clone(), imports_directory.join(<span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, program.name)))
 <a href=#110 id=110 data-nosnippet>110</a>            }
 <a href=#111 id=111 data-nosnippet>111</a>            leo_package::ProgramData::SourcePath(path) =&gt; {
-<a href=#112 id=112 data-nosnippet>112</a>                <span class="comment">// This is a local dependency, so we must compile it.
+<a href=#112 id=112 data-nosnippet>112</a>                <span class="comment">// This is a local Leo dependency, so we must compile it.
 <a href=#113 id=113 data-nosnippet>113</a>                </span><span class="kw">let </span>build_path = <span class="kw">if </span>path == <span class="kw-2">&amp;</span>main_source_path {
 <a href=#114 id=114 data-nosnippet>114</a>                    build_directory.join(<span class="string">"main.aleo"</span>)
 <a href=#115 id=115 data-nosnippet>115</a>                } <span class="kw">else </span>{

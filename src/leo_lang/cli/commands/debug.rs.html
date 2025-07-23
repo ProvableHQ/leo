@@ -70,7 +70,7 @@
 <a href=#70 id=70 data-nosnippet>70</a>        </span><span class="kw">let </span>private_key = context.get_private_key(<span class="kw-2">&amp;</span><span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 <a href=#71 id=71 data-nosnippet>71</a>        <span class="kw">let </span>address = Address::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
 <a href=#72 id=72 data-nosnippet>72</a>
-<a href=#73 id=73 data-nosnippet>73</a>        <span class="comment">// Get the paths of all local dependencies.
+<a href=#73 id=73 data-nosnippet>73</a>        <span class="comment">// Get the paths of all local Leo dependencies.
 <a href=#74 id=74 data-nosnippet>74</a>        </span><span class="kw">let </span>local_dependency_paths: Vec&lt;PathBuf&gt; = package
 <a href=#75 id=75 data-nosnippet>75</a>            .programs
 <a href=#76 id=76 data-nosnippet>76</a>            .iter()
@@ -85,11 +85,11 @@
 <a href=#85 id=85 data-nosnippet>85</a>            .iter()
 <a href=#86 id=86 data-nosnippet>86</a>            .flat_map(|program| <span class="kw">match </span><span class="kw-2">&amp;</span>program.data {
 <a href=#87 id=87 data-nosnippet>87</a>                ProgramData::SourcePath(..) =&gt; {
-<a href=#88 id=88 data-nosnippet>88</a>                    <span class="comment">// It's a local dependency.
+<a href=#88 id=88 data-nosnippet>88</a>                    <span class="comment">// It's a local Leo dependency.
 <a href=#89 id=89 data-nosnippet>89</a>                    </span><span class="prelude-val">Some</span>(program.name)
 <a href=#90 id=90 data-nosnippet>90</a>                }
 <a href=#91 id=91 data-nosnippet>91</a>                ProgramData::Bytecode(..) =&gt; {
-<a href=#92 id=92 data-nosnippet>92</a>                    <span class="comment">// It's a network dependency.
+<a href=#92 id=92 data-nosnippet>92</a>                    <span class="comment">// It's a network dependency or local .aleo dependency.
 <a href=#93 id=93 data-nosnippet>93</a>                    </span><span class="prelude-val">None
 <a href=#94 id=94 data-nosnippet>94</a>                </span>}
 <a href=#95 id=95 data-nosnippet>95</a>            })

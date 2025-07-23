@@ -64,7 +64,7 @@
 <a href=#64 id=64 data-nosnippet>64</a>    </span><span class="kw">let </span>private_key = context.get_private_key::&lt;TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 <a href=#65 id=65 data-nosnippet>65</a>    <span class="kw">let </span>address = Address::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
 <a href=#66 id=66 data-nosnippet>66</a>
-<a href=#67 id=67 data-nosnippet>67</a>    <span class="comment">// Get the paths of all local dependencies.
+<a href=#67 id=67 data-nosnippet>67</a>    <span class="comment">// Get the paths of all local Leo dependencies.
 <a href=#68 id=68 data-nosnippet>68</a>    </span><span class="kw">let </span>leo_paths: Vec&lt;PathBuf&gt; = package
 <a href=#69 id=69 data-nosnippet>69</a>        .programs
 <a href=#70 id=70 data-nosnippet>70</a>        .iter()
@@ -78,18 +78,18 @@
 <a href=#78 id=78 data-nosnippet>78</a>        .iter()
 <a href=#79 id=79 data-nosnippet>79</a>        .flat_map(|program| <span class="kw">match </span><span class="kw-2">&amp;</span>program.data {
 <a href=#80 id=80 data-nosnippet>80</a>            ProgramData::SourcePath(..) =&gt; {
-<a href=#81 id=81 data-nosnippet>81</a>                <span class="comment">// It's a local dependency.
+<a href=#81 id=81 data-nosnippet>81</a>                <span class="comment">// It's a local Leo dependency.
 <a href=#82 id=82 data-nosnippet>82</a>                </span><span class="prelude-val">Some</span>(program.name)
 <a href=#83 id=83 data-nosnippet>83</a>            }
 <a href=#84 id=84 data-nosnippet>84</a>            ProgramData::Bytecode(..) =&gt; {
-<a href=#85 id=85 data-nosnippet>85</a>                <span class="comment">// It's a network dependency.
+<a href=#85 id=85 data-nosnippet>85</a>                <span class="comment">// It's a network dependency or a local .aleo dependency.
 <a href=#86 id=86 data-nosnippet>86</a>                </span><span class="prelude-val">None
 <a href=#87 id=87 data-nosnippet>87</a>            </span>}
 <a href=#88 id=88 data-nosnippet>88</a>        })
 <a href=#89 id=89 data-nosnippet>89</a>        .collect();
 <a href=#90 id=90 data-nosnippet>90</a>    <span class="kw">let </span>imports_directory = package.imports_directory();
 <a href=#91 id=91 data-nosnippet>91</a>
-<a href=#92 id=92 data-nosnippet>92</a>    <span class="comment">// Get the paths to .aleo files in `imports` - but filter out the ones corresponding to local dependencies.
+<a href=#92 id=92 data-nosnippet>92</a>    <span class="comment">// Get the paths to .aleo files in `imports` - but filter out the ones corresponding to local Leo dependencies.
 <a href=#93 id=93 data-nosnippet>93</a>    </span><span class="kw">let </span>aleo_paths: Vec&lt;PathBuf&gt; = imports_directory
 <a href=#94 id=94 data-nosnippet>94</a>        .read_dir()
 <a href=#95 id=95 data-nosnippet>95</a>        .ok()

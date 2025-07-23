@@ -334,109 +334,73 @@
 <a href=#334 id=334 data-nosnippet>334</a>                <span class="kw">let </span>program = <span class="kw">match </span>(new.path.as_ref(), new.location) {
 <a href=#335 id=335 data-nosnippet>335</a>                    (<span class="prelude-val">Some</span>(path), Location::Local) =&gt; {
 <a href=#336 id=336 data-nosnippet>336</a>                        <span class="comment">// It's a local dependency.
-<a href=#337 id=337 data-nosnippet>337</a>                        </span>Program::from_path(name_symbol, path.clone())<span class="question-mark">?
-<a href=#338 id=338 data-nosnippet>338</a>                    </span>}
-<a href=#339 id=339 data-nosnippet>339</a>                    (<span class="prelude-val">Some</span>(path), Location::Test) =&gt; {
-<a href=#340 id=340 data-nosnippet>340</a>                        <span class="comment">// It's a test dependency - the path points to the source file,
-<a href=#341 id=341 data-nosnippet>341</a>                        // not a package.
-<a href=#342 id=342 data-nosnippet>342</a>                        </span>Program::from_path_test(path, main_program.clone())<span class="question-mark">?
-<a href=#343 id=343 data-nosnippet>343</a>                    </span>}
-<a href=#344 id=344 data-nosnippet>344</a>                    (<span class="kw">_</span>, Location::Network) =&gt; {
-<a href=#345 id=345 data-nosnippet>345</a>                        <span class="comment">// It's a network dependency.
-<a href=#346 id=346 data-nosnippet>346</a>                        </span>Program::fetch(name_symbol, home_path, network, endpoint, no_cache)<span class="question-mark">?
+<a href=#337 id=337 data-nosnippet>337</a>                        </span><span class="kw">if </span>path.extension().and_then(|p| p.to_str()) == <span class="prelude-val">Some</span>(<span class="string">"aleo"</span>) &amp;&amp; path.is_file() {
+<a href=#338 id=338 data-nosnippet>338</a>                            Program::from_aleo_path(name_symbol, path)<span class="question-mark">?
+<a href=#339 id=339 data-nosnippet>339</a>                        </span>} <span class="kw">else </span>{
+<a href=#340 id=340 data-nosnippet>340</a>                            Program::from_package_path(name_symbol, path)<span class="question-mark">?
+<a href=#341 id=341 data-nosnippet>341</a>                        </span>}
+<a href=#342 id=342 data-nosnippet>342</a>                    }
+<a href=#343 id=343 data-nosnippet>343</a>                    (<span class="prelude-val">Some</span>(path), Location::Test) =&gt; {
+<a href=#344 id=344 data-nosnippet>344</a>                        <span class="comment">// It's a test dependency - the path points to the source file,
+<a href=#345 id=345 data-nosnippet>345</a>                        // not a package.
+<a href=#346 id=346 data-nosnippet>346</a>                        </span>Program::from_test_path(path, main_program.clone())<span class="question-mark">?
 <a href=#347 id=347 data-nosnippet>347</a>                    </span>}
-<a href=#348 id=348 data-nosnippet>348</a>                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"Invalid dependency data for {} (path must be given)."</span>, new.name).into()),
-<a href=#349 id=349 data-nosnippet>349</a>                };
-<a href=#350 id=350 data-nosnippet>350</a>
-<a href=#351 id=351 data-nosnippet>351</a>                vacant.insert((new, program.clone()));
-<a href=#352 id=352 data-nosnippet>352</a>
-<a href=#353 id=353 data-nosnippet>353</a>                program
-<a href=#354 id=354 data-nosnippet>354</a>            }
-<a href=#355 id=355 data-nosnippet>355</a>        };
+<a href=#348 id=348 data-nosnippet>348</a>                    (<span class="kw">_</span>, Location::Network) =&gt; {
+<a href=#349 id=349 data-nosnippet>349</a>                        <span class="comment">// It's a network dependency.
+<a href=#350 id=350 data-nosnippet>350</a>                        </span>Program::fetch(name_symbol, home_path, network, endpoint, no_cache)<span class="question-mark">?
+<a href=#351 id=351 data-nosnippet>351</a>                    </span>}
+<a href=#352 id=352 data-nosnippet>352</a>                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"Invalid dependency data for {} (path must be given)."</span>, new.name).into()),
+<a href=#353 id=353 data-nosnippet>353</a>                };
+<a href=#354 id=354 data-nosnippet>354</a>
+<a href=#355 id=355 data-nosnippet>355</a>                vacant.insert((new, program.clone()));
 <a href=#356 id=356 data-nosnippet>356</a>
-<a href=#357 id=357 data-nosnippet>357</a>        graph.add_node(name_symbol);
-<a href=#358 id=358 data-nosnippet>358</a>
-<a href=#359 id=359 data-nosnippet>359</a>        <span class="kw">for </span>dependency <span class="kw">in </span>program.dependencies.iter() {
-<a href=#360 id=360 data-nosnippet>360</a>            <span class="kw">let </span>dependency_symbol = <span class="kw">crate</span>::symbol(<span class="kw-2">&amp;</span>dependency.name)<span class="question-mark">?</span>;
-<a href=#361 id=361 data-nosnippet>361</a>            graph.add_edge(name_symbol, dependency_symbol);
-<a href=#362 id=362 data-nosnippet>362</a>            <span class="self">Self</span>::graph_build(home_path, network, endpoint, main_program, dependency.clone(), map, graph, no_cache)<span class="question-mark">?</span>;
-<a href=#363 id=363 data-nosnippet>363</a>        }
-<a href=#364 id=364 data-nosnippet>364</a>
-<a href=#365 id=365 data-nosnippet>365</a>        <span class="prelude-val">Ok</span>(())
-<a href=#366 id=366 data-nosnippet>366</a>    }
-<a href=#367 id=367 data-nosnippet>367</a>
-<a href=#368 id=368 data-nosnippet>368</a>    <span class="doccomment">/// Get the program ID, program, and optional manifest for all programs in the package.
-<a href=#369 id=369 data-nosnippet>369</a>    /// This method assumes that the package has already been built (`leo build` has been run).
-<a href=#370 id=370 data-nosnippet>370</a>    </span><span class="attr">#[allow(clippy::type_complexity)]
-<a href=#371 id=371 data-nosnippet>371</a>    </span><span class="kw">pub fn </span>get_programs_and_manifests&lt;P: AsRef&lt;Path&gt;&gt;(
-<a href=#372 id=372 data-nosnippet>372</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
-<a href=#373 id=373 data-nosnippet>373</a>        home_path: P,
-<a href=#374 id=374 data-nosnippet>374</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;(String, String, <span class="prelude-ty">Option</span>&lt;Manifest&gt;)&gt;&gt; {
-<a href=#375 id=375 data-nosnippet>375</a>        <span class="self">self</span>.get_programs_and_manifests_impl(home_path.as_ref())
-<a href=#376 id=376 data-nosnippet>376</a>    }
-<a href=#377 id=377 data-nosnippet>377</a>
-<a href=#378 id=378 data-nosnippet>378</a>    <span class="attr">#[allow(clippy::type_complexity)]
-<a href=#379 id=379 data-nosnippet>379</a>    </span><span class="kw">fn </span>get_programs_and_manifests_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, home_path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;(String, String, <span class="prelude-ty">Option</span>&lt;Manifest&gt;)&gt;&gt; {
-<a href=#380 id=380 data-nosnippet>380</a>        <span class="self">self</span>.programs
-<a href=#381 id=381 data-nosnippet>381</a>            .iter()
-<a href=#382 id=382 data-nosnippet>382</a>            .map(|program| {
-<a href=#383 id=383 data-nosnippet>383</a>                <span class="kw">match </span><span class="kw-2">&amp;</span>program.data {
-<a href=#384 id=384 data-nosnippet>384</a>                    ProgramData::Bytecode(bytecode) =&gt; <span class="prelude-val">Ok</span>((program.name.to_string(), bytecode.clone(), <span class="prelude-val">None</span>)),
-<a href=#385 id=385 data-nosnippet>385</a>                    ProgramData::SourcePath(path) =&gt; {
-<a href=#386 id=386 data-nosnippet>386</a>                        <span class="comment">// Get the path to the built bytecode.
-<a href=#387 id=387 data-nosnippet>387</a>                        </span><span class="kw">let </span>bytecode_path = <span class="kw">if </span>path.as_path() == <span class="self">self</span>.source_directory().join(<span class="string">"main.leo"</span>) {
-<a href=#388 id=388 data-nosnippet>388</a>                            <span class="self">self</span>.build_directory().join(<span class="string">"main.aleo"</span>)
-<a href=#389 id=389 data-nosnippet>389</a>                        } <span class="kw">else </span>{
-<a href=#390 id=390 data-nosnippet>390</a>                            <span class="self">self</span>.imports_directory().join(<span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, program.name))
-<a href=#391 id=391 data-nosnippet>391</a>                        };
-<a href=#392 id=392 data-nosnippet>392</a>                        <span class="comment">// Fetch the bytecode.
-<a href=#393 id=393 data-nosnippet>393</a>                        </span><span class="kw">let </span>bytecode = std::fs::read_to_string(<span class="kw-2">&amp;</span>bytecode_path)
-<a href=#394 id=394 data-nosnippet>394</a>                            .map_err(|e| PackageError::failed_to_read_file(bytecode_path.display(), e))<span class="question-mark">?</span>;
-<a href=#395 id=395 data-nosnippet>395</a>                        <span class="comment">// Get the package from the directory.
-<a href=#396 id=396 data-nosnippet>396</a>                        </span><span class="kw">let </span><span class="kw-2">mut </span>path = path.clone();
-<a href=#397 id=397 data-nosnippet>397</a>                        path.pop();
-<a href=#398 id=398 data-nosnippet>398</a>                        path.pop();
-<a href=#399 id=399 data-nosnippet>399</a>                        <span class="kw">let </span>package = Package::from_directory_no_graph(<span class="kw-2">&amp;</span>path, home_path)<span class="question-mark">?</span>;
-<a href=#400 id=400 data-nosnippet>400</a>                        <span class="comment">// Return the bytecode and the manifest.
-<a href=#401 id=401 data-nosnippet>401</a>                        </span><span class="prelude-val">Ok</span>((program.name.to_string(), bytecode, <span class="prelude-val">Some</span>(package.manifest.clone())))
-<a href=#402 id=402 data-nosnippet>402</a>                    }
-<a href=#403 id=403 data-nosnippet>403</a>                }
-<a href=#404 id=404 data-nosnippet>404</a>            })
-<a href=#405 id=405 data-nosnippet>405</a>            .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()
-<a href=#406 id=406 data-nosnippet>406</a>    }
-<a href=#407 id=407 data-nosnippet>407</a>}
-<a href=#408 id=408 data-nosnippet>408</a>
-<a href=#409 id=409 data-nosnippet>409</a><span class="kw">fn </span>main_template(name: <span class="kw-2">&amp;</span>str) -&gt; String {
-<a href=#410 id=410 data-nosnippet>410</a>    <span class="macro">format!</span>(
-<a href=#411 id=411 data-nosnippet>411</a>        <span class="string">r#"// The '{name}' program.
-<a href=#412 id=412 data-nosnippet>412</a>program {name}.aleo {{
-<a href=#413 id=413 data-nosnippet>413</a>    transition main(public a: u32, b: u32) -&gt; u32 {{
-<a href=#414 id=414 data-nosnippet>414</a>        let c: u32 = a + b;
-<a href=#415 id=415 data-nosnippet>415</a>        return c;
-<a href=#416 id=416 data-nosnippet>416</a>    }}
-<a href=#417 id=417 data-nosnippet>417</a>}}
-<a href=#418 id=418 data-nosnippet>418</a>"#
-<a href=#419 id=419 data-nosnippet>419</a>    </span>)
-<a href=#420 id=420 data-nosnippet>420</a>}
-<a href=#421 id=421 data-nosnippet>421</a>
-<a href=#422 id=422 data-nosnippet>422</a><span class="kw">fn </span>test_template(name: <span class="kw-2">&amp;</span>str) -&gt; String {
-<a href=#423 id=423 data-nosnippet>423</a>    <span class="macro">format!</span>(
-<a href=#424 id=424 data-nosnippet>424</a>        <span class="string">r#"// The 'test_{name}' test program.
-<a href=#425 id=425 data-nosnippet>425</a>import {name}.aleo;
-<a href=#426 id=426 data-nosnippet>426</a>program test_{name}.aleo {{
-<a href=#427 id=427 data-nosnippet>427</a>    @test
-<a href=#428 id=428 data-nosnippet>428</a>    script test_it() {{
-<a href=#429 id=429 data-nosnippet>429</a>        let result: u32 = {name}.aleo/main(1u32, 2u32);
-<a href=#430 id=430 data-nosnippet>430</a>        assert_eq(result, 3u32);
-<a href=#431 id=431 data-nosnippet>431</a>    }}
-<a href=#432 id=432 data-nosnippet>432</a>
-<a href=#433 id=433 data-nosnippet>433</a>    @test
-<a href=#434 id=434 data-nosnippet>434</a>    @should_fail
-<a href=#435 id=435 data-nosnippet>435</a>    transition do_nothing() {{
-<a href=#436 id=436 data-nosnippet>436</a>        let result: u32 = {name}.aleo/main(2u32, 3u32);
-<a href=#437 id=437 data-nosnippet>437</a>        assert_eq(result, 3u32);
-<a href=#438 id=438 data-nosnippet>438</a>    }}
-<a href=#439 id=439 data-nosnippet>439</a>}}
-<a href=#440 id=440 data-nosnippet>440</a>"#
-<a href=#441 id=441 data-nosnippet>441</a>    </span>)
-<a href=#442 id=442 data-nosnippet>442</a>}</code></pre></div></section></main></body></html>
+<a href=#357 id=357 data-nosnippet>357</a>                program
+<a href=#358 id=358 data-nosnippet>358</a>            }
+<a href=#359 id=359 data-nosnippet>359</a>        };
+<a href=#360 id=360 data-nosnippet>360</a>
+<a href=#361 id=361 data-nosnippet>361</a>        graph.add_node(name_symbol);
+<a href=#362 id=362 data-nosnippet>362</a>
+<a href=#363 id=363 data-nosnippet>363</a>        <span class="kw">for </span>dependency <span class="kw">in </span>program.dependencies.iter() {
+<a href=#364 id=364 data-nosnippet>364</a>            <span class="kw">let </span>dependency_symbol = <span class="kw">crate</span>::symbol(<span class="kw-2">&amp;</span>dependency.name)<span class="question-mark">?</span>;
+<a href=#365 id=365 data-nosnippet>365</a>            graph.add_edge(name_symbol, dependency_symbol);
+<a href=#366 id=366 data-nosnippet>366</a>            <span class="self">Self</span>::graph_build(home_path, network, endpoint, main_program, dependency.clone(), map, graph, no_cache)<span class="question-mark">?</span>;
+<a href=#367 id=367 data-nosnippet>367</a>        }
+<a href=#368 id=368 data-nosnippet>368</a>
+<a href=#369 id=369 data-nosnippet>369</a>        <span class="prelude-val">Ok</span>(())
+<a href=#370 id=370 data-nosnippet>370</a>    }
+<a href=#371 id=371 data-nosnippet>371</a>}
+<a href=#372 id=372 data-nosnippet>372</a>
+<a href=#373 id=373 data-nosnippet>373</a><span class="kw">fn </span>main_template(name: <span class="kw-2">&amp;</span>str) -&gt; String {
+<a href=#374 id=374 data-nosnippet>374</a>    <span class="macro">format!</span>(
+<a href=#375 id=375 data-nosnippet>375</a>        <span class="string">r#"// The '{name}' program.
+<a href=#376 id=376 data-nosnippet>376</a>program {name}.aleo {{
+<a href=#377 id=377 data-nosnippet>377</a>    transition main(public a: u32, b: u32) -&gt; u32 {{
+<a href=#378 id=378 data-nosnippet>378</a>        let c: u32 = a + b;
+<a href=#379 id=379 data-nosnippet>379</a>        return c;
+<a href=#380 id=380 data-nosnippet>380</a>    }}
+<a href=#381 id=381 data-nosnippet>381</a>}}
+<a href=#382 id=382 data-nosnippet>382</a>"#
+<a href=#383 id=383 data-nosnippet>383</a>    </span>)
+<a href=#384 id=384 data-nosnippet>384</a>}
+<a href=#385 id=385 data-nosnippet>385</a>
+<a href=#386 id=386 data-nosnippet>386</a><span class="kw">fn </span>test_template(name: <span class="kw-2">&amp;</span>str) -&gt; String {
+<a href=#387 id=387 data-nosnippet>387</a>    <span class="macro">format!</span>(
+<a href=#388 id=388 data-nosnippet>388</a>        <span class="string">r#"// The 'test_{name}' test program.
+<a href=#389 id=389 data-nosnippet>389</a>import {name}.aleo;
+<a href=#390 id=390 data-nosnippet>390</a>program test_{name}.aleo {{
+<a href=#391 id=391 data-nosnippet>391</a>    @test
+<a href=#392 id=392 data-nosnippet>392</a>    script test_it() {{
+<a href=#393 id=393 data-nosnippet>393</a>        let result: u32 = {name}.aleo/main(1u32, 2u32);
+<a href=#394 id=394 data-nosnippet>394</a>        assert_eq(result, 3u32);
+<a href=#395 id=395 data-nosnippet>395</a>    }}
+<a href=#396 id=396 data-nosnippet>396</a>
+<a href=#397 id=397 data-nosnippet>397</a>    @test
+<a href=#398 id=398 data-nosnippet>398</a>    @should_fail
+<a href=#399 id=399 data-nosnippet>399</a>    transition do_nothing() {{
+<a href=#400 id=400 data-nosnippet>400</a>        let result: u32 = {name}.aleo/main(2u32, 3u32);
+<a href=#401 id=401 data-nosnippet>401</a>        assert_eq(result, 3u32);
+<a href=#402 id=402 data-nosnippet>402</a>    }}
+<a href=#403 id=403 data-nosnippet>403</a>}}
+<a href=#404 id=404 data-nosnippet>404</a>"#
+<a href=#405 id=405 data-nosnippet>405</a>    </span>)
+<a href=#406 id=406 data-nosnippet>406</a>}</code></pre></div></section></main></body></html>
