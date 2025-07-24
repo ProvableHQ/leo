@@ -141,7 +141,7 @@ fn filter_stdout(data: &str) -> String {
 
     let mut cow = Cow::Borrowed(data);
     for (regex, replacement) in regexes {
-        if let Cow::Owned(s) = regex.replace_all(&*cow, replacement) {
+        if let Cow::Owned(s) = regex.replace_all(&cow, replacement) {
             cow = Cow::Owned(s);
         }
     }
@@ -366,7 +366,7 @@ fn run_snarkos_clean(i: usize) -> io::Result<()> {
 }
 
 fn current_height() -> Result<usize, anyhow::Error> {
-    let height_url = format!("http://localhost:3030/testnet/block/height/latest");
-    let height_str = leo_package::fetch_from_network_plain(&height_url)?;
+    let height_url = "http://127.0.0.1:3030/testnet/block/height/latest";
+    let height_str = leo_package::fetch_from_network_plain(height_url)?;
     height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))
 }
