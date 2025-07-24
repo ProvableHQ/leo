@@ -124,7 +124,7 @@ pub fn run_with_ledger(
 
     // Initialize a `Ledger`. This should always succeed.
     let ledger =
-        Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Production)
+        Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Test(None))
             .unwrap();
 
     // Advance the `VM` to the start height, defaulting to the height for the latest consensus version.
@@ -145,21 +145,29 @@ pub fn run_with_ledger(
         let aleo_program =
             ProgramCore::from_str(bytecode).map_err(|_| anyhow!("Failed to parse bytecode of program {name}"))?;
 
-        // Add the program to the ledger.
-        // Note that this function performs an additional validity check on the bytecode.
-        let deployment = ledger
-            .vm()
-            .deploy(&genesis_private_key, &aleo_program, None, 0, None, &mut rng)
-            .map_err(|_| anyhow!("Failed to deploy program {name}"))?;
-        let block = ledger
-            .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![deployment], &mut rng)
-            .map_err(|_| anyhow!("Failed to prepare to advance block for program {name}"))?;
-        ledger.advance_to_next_block(&block).map_err(|_| anyhow!("Failed to advance block for program {name}"))?;
+        let mut deploy = || -> Result<()> {
+            // Add the program to the ledger.
+            // Note that this function performs an additional validity check on the bytecode.
+            let deployment = ledger
+                .vm()
+                .deploy(&genesis_private_key, &aleo_program, None, 0, None, &mut rng)
+                .map_err(|_| anyhow!("Failed to deploy program {name}"))?;
+            let block = ledger
+                .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![deployment], &mut rng)
+                .map_err(|_| anyhow!("Failed to prepare to advance block for program {name}"))?;
+            ledger.advance_to_next_block(&block).map_err(|_| anyhow!("Failed to advance block for program {name}"))?;
 
-        // Check that the deployment transaction was accepted.
-        if block.transactions().num_accepted() != 1 {
-            return Err(anyhow!("Deployment transaction for program {name} not accepted.").into());
-        }
+            // Check that the deployment transaction was accepted.
+            if block.transactions().num_accepted() != 1 {
+                return Err(anyhow!("Deployment transaction for program {name} not accepted.").into());
+            }
+            Ok(())
+        };
+
+        // Temporarily deploy each program twice, to get it to edition 1. This won't be necessary
+        // after upgrades are in place.
+        deploy()?;
+        deploy()?;
     }
 
     // Fund each private key used in the test cases with 1M ALEO.

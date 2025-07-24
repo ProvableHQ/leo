@@ -178,7 +178,7 @@ fn handle_execute<A: Aleo>(
                 let program_id = ProgramID::<A::Network>::from_str(&format!("{}.aleo", program.name))
                     .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
                 match &program.data {
-                    ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string())),
+                    ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), program.edition)),
                     ProgramData::SourcePath { source, .. } => {
                         // Get the path to the built bytecode.
                         let bytecode_path = if source.as_path() == source_directory.join("main.leo") {
@@ -191,7 +191,7 @@ fn handle_execute<A: Aleo>(
                             CliError::custom(format!("Failed to read bytecode at {}: {e}", bytecode_path.display()))
                         })?;
                         // Return the bytecode and the manifest.
-                        Ok((program_id, bytecode))
+                        Ok((program_id, bytecode, program.edition))
                     }
                 }
             })
@@ -203,22 +203,25 @@ fn handle_execute<A: Aleo>(
     // Parse the program strings into AVM programs.
     let mut programs = programs
         .into_iter()
-        .map(|(name, bytecode)| {
+        .map(|(_, bytecode, edition)| {
             // Parse the program.
             let program = snarkvm::prelude::Program::<A::Network>::from_str(&bytecode)
                 .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
             // Return the program and its name.
-            Ok((name, program))
+            Ok((program, edition))
         })
         .collect::<Result<Vec<_>>>()?;
 
     // Determine whether the program is local or remote.
-    let is_local = programs.iter().any(|(name, _)| name == &program_id);
+    let is_local = programs.iter().any(|(program, _)| program.id() == &program_id);
 
     // If the program is local, then check that the function exists.
     if is_local {
-        let program =
-            &programs.iter().find(|(name, _)| name == &program_id).expect("Program should exist since it is local").1;
+        let program = &programs
+            .iter()
+            .find(|(program, _)| program.id() == &program_id)
+            .expect("Program should exist since it is local")
+            .0;
         if !program.contains_function(&function_id) {
             return Err(CliError::custom(format!(
                 "Function `{function_name}` does not exist in program `{program_name}`."
@@ -268,7 +271,7 @@ fn handle_execute<A: Aleo>(
     let rng = &mut rand::thread_rng();
 
     // Initialize a new VM.
-    let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
+    let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Test(None))?)?;
 
     // Specify the query
     let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint);
@@ -282,12 +285,17 @@ fn handle_execute<A: Aleo>(
 
     // Add the programs to the VM.
     println!("Adding programs to the VM...");
-    for (_, program) in programs {
-        vm.process().write().add_program(&program)?;
-    }
+    let programs_and_editions = programs
+        .into_iter()
+        .map(|(program, edition)| {
+            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
+            (program, edition.unwrap_or(1))
+        })
+        .collect::<Vec<_>>();
+    vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Execute the program and produce a transaction.
-    let transaction = vm.execute(
+    let (transaction, response) = vm.execute_with_response(
         &private_key,
         (&program_name, &function_name),
         inputs.iter(),
@@ -330,6 +338,16 @@ fn handle_execute<A: Aleo>(
             .map_err(|e| CliError::custom(format!("Failed to write transaction to file: {e}")))?;
     }
 
+    match response.outputs().len() {
+        0 => (),
+        1 => println!("\n➡️  Output\n"),
+        _ => println!("\n➡️  Outputs\n"),
+    };
+    for output in response.outputs() {
+        println!(" • {output}");
+    }
+    println!();
+
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
         println!("📡 Broadcasting execution for {program_name}...");
@@ -346,7 +364,7 @@ fn handle_execute<A: Aleo>(
         let id = transaction.id().to_string();
         let height_before = check_transaction::current_height(&endpoint, network)?;
         // Broadcast the transaction to the network.
-        let response =
+        let (message, status) =
             handle_broadcast(&format!("{endpoint}/{network}/transaction/broadcast"), &transaction, &program_name)?;
 
         let fail = |msg| {
@@ -354,7 +372,7 @@ fn handle_execute<A: Aleo>(
             Ok(())
         };
 
-        match response.status() {
+        match status {
             200..=299 => {
                 let status = check_transaction::check_transaction_with_message(
                     &id,
@@ -370,9 +388,7 @@ fn handle_execute<A: Aleo>(
                 }
             }
             _ => {
-                let error_message =
-                    response.into_string().map_err(|e| CliError::custom(format!("Failed to read response: {e}")))?;
-                return fail(&error_message);
+                return fail(&message);
             }
         }
     }
@@ -386,29 +402,31 @@ fn handle_execute<A: Aleo>(
 fn check_task_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
-    programs: &[(ProgramID<N>, Program<N>)],
+    programs: &[(Program<N>, Option<u16>)],
 ) -> Vec<String> {
     let mut warnings = Vec::new();
-    for (program_id, program) in programs {
+    for (program, _) in programs {
         // Check if the program exists on the network.
-        if let Ok(remote_program) = fetch_program_from_network(&program_id.to_string(), endpoint, network) {
+        if let Ok(remote_program) = fetch_program_from_network(&program.id().to_string(), endpoint, network) {
             // Parse the program.
             let remote_program = match Program::<N>::from_str(&remote_program) {
                 Ok(program) => program,
                 Err(e) => {
-                    warnings.push(format!("Could not parse '{program_id}' from the network. Error: {e}",));
+                    warnings.push(format!("Could not parse '{}' from the network. Error: {e}", program.id()));
                     continue;
                 }
             };
             // Check if the program matches the local one.
             if remote_program != *program {
                 warnings.push(format!(
-                    "The program '{program_id}' on the network does not match the local copy. If you have a local dependency, you may use the `--no-local` flag to use the network version instead.",
+                    "The program '{}' on the network does not match the local copy. If you have a local dependency, you may use the `--no-local` flag to use the network version instead.",
+                    program.id()
                 ));
             }
         } else {
             warnings.push(format!(
-                "The program '{program_id}' does not exist on the network. You may use `leo deploy --broadcast` to deploy it.",
+                "The program '{}' does not exist on the network. You may use `leo deploy --broadcast` to deploy it.",
+                program.id()
             ));
         }
     }

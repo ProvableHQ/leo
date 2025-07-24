@@ -34,7 +34,7 @@ pub use debug::LeoDebug;
 
 mod deploy;
 pub use deploy::LeoDeploy;
-use deploy::{DeploymentTask, print_deployment_plan, print_deployment_stats};
+use deploy::{Task, print_deployment_plan, print_deployment_stats};
 
 mod execute;
 pub use execute::LeoExecute;

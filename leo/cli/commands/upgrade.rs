@@ -15,9 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use std::{collections::HashSet, fs};
 
 use leo_ast::NetworkName;
-use leo_package::{Package, fetch_program_from_network};
+use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
@@ -34,6 +35,7 @@ use snarkvm::{
 use crate::cli::{check_transaction::TransactionStatus, commands::deploy::validate_deployment_limits};
 use aleo_std::StorageMode;
 use colored::*;
+use leo_span::Symbol;
 use snarkvm::prelude::{ConsensusVersion, ProgramID, Stack, store::helpers::memory::BlockMemory};
 use std::path::PathBuf;
 
@@ -111,45 +113,70 @@ fn handle_upgrade<N: Network>(
     // Get the endpoint, accounting for overrides.
     let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
 
-    // Get the programs and optional manifests for all the programs.
-    let programs_and_manifests = package
-        .get_programs_and_manifests(context.home()?)?
-        .into_iter()
-        .map(|(program_name, program_string, _, manifest)| {
-            // Parse the program ID from the program name.
-            let program_id = ProgramID::<N>::from_str(&format!("{program_name}.aleo"))
-                .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
-            // Parse the program bytecode.
-            let bytecode = Program::<N>::from_str(&program_string)
-                .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
-            Ok((program_id, bytecode, manifest))
-        })
-        .collect::<Result<Vec<_>>>()?;
+    // Get all the programs but tests.
+    let programs = package.programs.iter().filter(|program| !program.is_test).cloned();
 
-    // Get all of the program IDs.
-    let program_ids = programs_and_manifests.iter().map(|(program_id, _, _)| program_id).copied().collect::<Vec<_>>();
+    let programs_and_bytecode: Vec<(leo_package::Program, String)> = programs
+        .into_iter()
+        .map(|program| {
+            let bytecode = match &program.data {
+                ProgramData::Bytecode(s) => s.clone(),
+                ProgramData::SourcePath { .. } => {
+                    // We need to read the bytecode from the filesystem.
+                    let aleo_name = format!("{}.aleo", program.name);
+                    let aleo_path = if package.manifest.program == aleo_name {
+                        // The main program in the package, so its .aleo file
+                        // will be in the build directory.
+                        package.build_directory().join("main.aleo")
+                    } else {
+                        // Some other dependency, so look in `imports`.
+                        package.imports_directory().join(aleo_name)
+                    };
+                    fs::read_to_string(aleo_path.clone())
+                        .map_err(|e| CliError::custom(format!("Failed to read file {}: {e}", aleo_path.display())))?
+                }
+            };
+
+            Ok((program, bytecode))
+        })
+        .collect::<Result<_>>()?;
 
     // Parse the fee options.
-    let fee_options = parse_fee_options(&private_key, &command.fee_options, programs_and_manifests.len())?;
+    let fee_options = parse_fee_options(&private_key, &command.fee_options, programs_and_bytecode.len())?;
 
-    // Zip up the programs and manifests with the fee options.
-    let tasks = programs_and_manifests
+    let tasks: Vec<Task<N>> = programs_and_bytecode
         .into_iter()
         .zip(fee_options)
-        .map(|((program, data, manifest), (base_fee, priority_fee, record))| {
-            (program, data, manifest, base_fee, priority_fee, record)
+        .map(|((program, bytecode), (_base_fee, priority_fee, record))| {
+            let id_str = format!("{}.aleo", program.name);
+            let id =
+                id_str.parse().map_err(|e| CliError::custom(format!("Failed to parse program ID {id_str}: {e}")))?;
+            let bytecode = bytecode.parse().map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+            Ok(Task {
+                id,
+                program: bytecode,
+                edition: program.edition,
+                is_local: program.is_local,
+                priority_fee,
+                record,
+            })
         })
-        .collect::<Vec<_>>();
+        .collect::<Result<_>>()?;
+
+    // Get the program IDs.
+    let program_ids = tasks.iter().map(|task| task.id).collect::<Vec<_>>();
 
     // Split the tasks into local and remote dependencies.
-    let (local, remote) = tasks.into_iter().partition::<Vec<_>, _>(|(_, _, manifest, _, _, _)| manifest.is_some());
+    let (local, remote) = tasks.into_iter().partition::<Vec<_>, _>(|task| task.is_local);
 
     // Get the skipped programs.
-    let skipped = local
+    let skipped: HashSet<ProgramID<N>> = local
         .iter()
-        .filter(|(program_id, _, _, _, _, _)| command.skip.iter().any(|skip| program_id.to_string().contains(skip)))
-        .map(|(program_id, _, _, _, _, _)| *program_id)
-        .collect::<Vec<_>>();
+        .filter_map(|task| {
+            let id_string = task.id.to_string();
+            command.skip.iter().any(|skip| id_string.contains(skip)).then_some(task.id)
+        })
+        .collect();
 
     // Get the consensus version.
     let consensus_version = get_consensus_version(&command.extra.consensus_version, &endpoint, network, &context)?;
@@ -178,41 +205,55 @@ fn handle_upgrade<N: Network>(
     let rng = &mut rand::thread_rng();
 
     // Initialize a new VM.
-    let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
+    let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Test(None))?)?;
 
     // Load all the programs from the network into the VM.
-    for program_id in program_ids {
-        // Load the program from the network.
-        let bytecode = fetch_program_from_network(&program_id.to_string(), &endpoint, network)
-            .map_err(|e| CliError::custom(format!("Failed to fetch program from network: {e}")))?;
-        // Parse the program bytecode.
-        let program =
-            Program::<N>::from_str(&bytecode).map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
-        // Add the program to the VM.
-        vm.process().write().add_program(&program)?;
-    }
+    let programs_and_editions = program_ids
+        .iter()
+        .map(|id| {
+            // Load the program from the network.
+            let program = leo_package::Program::fetch(
+                Symbol::intern(&id.name().to_string()),
+                None,
+                context.home()?,
+                network,
+                &endpoint,
+                true,
+            )?;
+            let ProgramData::Bytecode(bytecode) = program.data else {
+                panic!("Expected bytecode when fetching a remote program");
+            };
+            // Parse the program bytecode.
+            let bytecode = Program::<N>::from_str(&bytecode)
+                .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+            // Return the bytecode and edition.
+            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
+            Ok((bytecode, program.edition.unwrap_or(1)))
+        })
+        .collect::<Result<Vec<_>>>()?;
+    vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Specify the query
     let query = SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint);
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
-    for (program_id, program, manifest, _, priority_fee, fee_record) in local {
+    for Task { id, program, priority_fee, record, .. } in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
-        if manifest.is_some() && !skipped.contains(&program_id) {
-            println!("📦 Creating deployment transaction for '{}'...\n", program_id.to_string().bold());
+        if !skipped.contains(&id) {
+            println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
             // Generate the transaction.
-            let transaction = vm
-                .deploy(&private_key, &program, fee_record, priority_fee.unwrap_or(0), Some(&query), rng)
-                .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
+            let transaction =
+                vm.deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
+                    .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
-            print_deployment_stats(&vm, &program_id.to_string(), deployment, priority_fee)?;
+            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee)?;
             // Validate the deployment limits.
-            validate_deployment_limits(deployment, &program_id, &network)?;
+            validate_deployment_limits(deployment, &id, &network)?;
             // Save the transaction.
-            transactions.push((program_id, transaction));
+            transactions.push((id, transaction));
         }
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
@@ -260,7 +301,7 @@ fn handle_upgrade<N: Network>(
             let id = transaction.id().to_string();
             let height_before = check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
-            let response = handle_broadcast(
+            let (message, status) = handle_broadcast(
                 &format!("{endpoint}/{network}/transaction/broadcast"),
                 transaction,
                 &program_id.to_string(),
@@ -277,8 +318,8 @@ fn handle_upgrade<N: Network>(
                 }
             };
 
-            match response.status() {
-                200 => {
+            match status {
+                200..=299 => {
                     let status = check_transaction::check_transaction_with_message(
                         &id,
                         Some(&fee_id),
@@ -290,17 +331,14 @@ fn handle_upgrade<N: Network>(
                     )?;
                     if status == Some(TransactionStatus::Accepted) {
                         println!("✅ Upgrade confirmed!");
-                    } else if fail_and_prompt("Transaction apparently not accepted")? {
+                    } else if fail_and_prompt("could not find the transaction on the network")? {
                         continue;
                     } else {
                         return Ok(());
                     }
                 }
                 _ => {
-                    let error_message = response
-                        .into_string()
-                        .map_err(|e| CliError::custom(format!("Failed to read response: {e}")))?;
-                    if fail_and_prompt(&error_message)? {
+                    if fail_and_prompt(&message)? {
                         continue;
                     } else {
                         return Ok(());
@@ -322,47 +360,43 @@ fn handle_upgrade<N: Network>(
 fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
-    tasks: &[DeploymentTask<N>],
+    tasks: &[Task<N>],
     consensus_version: ConsensusVersion,
     command: &LeoUpgrade,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
-    for (program_id, program, manifest, _, _, _) in tasks {
-        if manifest.is_none() || !command.action.broadcast {
+    for Task { id, program: snarkvm_program, is_local, .. } in tasks {
+        if !is_local || !command.action.broadcast {
             continue;
         }
 
         // Check if the program exists on the network.
-        if let Ok(remote_program) = fetch_program_from_network(&program_id.to_string(), endpoint, network) {
+        if let Ok(remote_program) = fetch_program_from_network(&id.to_string(), endpoint, network) {
             // Parse the program.
             let remote_program = match Program::<N>::from_str(&remote_program) {
                 Ok(program) => program,
                 Err(e) => {
-                    warnings.push(format!("Could not parse '{program_id}' from the network. Error: {e}",));
+                    warnings.push(format!("Could not parse '{id}' from the network. Error: {e}",));
                     continue;
                 }
             };
             // Check if the program is a valid upgrade.
-            if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, program) {
+            if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, snarkvm_program) {
                 warnings.push(format!(
-                    "The program '{program_id}' is not a valid upgrade. The upgrade will likely fail. Error: {e}",
+                    "The program '{id}' is not a valid upgrade. The upgrade will likely fail. Error: {e}",
                 ));
             }
         } else {
-            warnings.push(format!(
-                "The program '{program_id}' does not exist on the network. The upgrade will likely fail.",
-            ));
+            warnings.push(format!("The program '{id}' does not exist on the network. The upgrade will likely fail.",));
         }
 
         // Check if the program uses V9 features.
-        if consensus_version < ConsensusVersion::V9 && program.contains_v9_syntax() {
-            warnings.push(format!("The program '{program_id}' uses V( features but the consensus version is less than V9. The upgrade will likely fail"));
+        if consensus_version < ConsensusVersion::V9 && snarkvm_program.contains_v9_syntax() {
+            warnings.push(format!("The program '{id}' uses V9 features but the consensus version is less than V9. The upgrade will likely fail"));
         }
         // Check if the program contains a constructor.
-        if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
-            warnings.push(format!(
-                "The program '{program_id}' does not contain a constructor. The upgrade will likely fail",
-            ));
+        if consensus_version >= ConsensusVersion::V9 && !snarkvm_program.contains_constructor() {
+            warnings.push(format!("The program '{id}' does not contain a constructor. The upgrade will likely fail",));
         }
     }
     warnings

@@ -359,12 +359,16 @@ impl Package {
                 let program = match (new.path.as_ref(), new.location) {
                     (Some(path), Location::Local) if !no_local => {
                         // It's a local dependency.
-                        Program::from_path(name_symbol, path.clone())?
+                        if path.extension().and_then(|p| p.to_str()) == Some("aleo") && path.is_file() {
+                            Program::from_aleo_path(name_symbol, path)?
+                        } else {
+                            Program::from_package_path(name_symbol, path)?
+                        }
                     }
                     (Some(path), Location::Test) => {
                         // It's a test dependency - the path points to the source file,
                         // not a package.
-                        Program::from_path_test(path, main_program.clone())?
+                        Program::from_test_path(path, main_program.clone())?
                     }
                     (_, Location::Network) | (Some(_), Location::Local) => {
                         // It's a network dependency.
@@ -398,48 +402,6 @@ impl Package {
         }
 
         Ok(())
-    }
-
-    /// Get the program ID, program, optional edition, and optional manifest for all programs in the package.
-    /// This method assumes that the package has already been built (`leo build` has been run).
-    #[allow(clippy::type_complexity)]
-    pub fn get_programs_and_manifests<P: AsRef<Path>>(
-        &self,
-        home_path: P,
-    ) -> Result<Vec<(String, String, Option<u16>, Option<Manifest>)>> {
-        self.get_programs_and_manifests_impl(home_path.as_ref())
-    }
-
-    #[allow(clippy::type_complexity)]
-    fn get_programs_and_manifests_impl(
-        &self,
-        home_path: &Path,
-    ) -> Result<Vec<(String, String, Option<u16>, Option<Manifest>)>> {
-        self.programs
-            .iter()
-            .map(|program| {
-                match &program.data {
-                    ProgramData::Bytecode(bytecode) => {
-                        Ok((program.name.to_string(), bytecode.clone(), program.edition, None))
-                    }
-                    ProgramData::SourcePath { directory, source } => {
-                        // Get the path to the built bytecode.
-                        let bytecode_path = if source.as_path() == self.source_directory().join("main.leo") {
-                            self.build_directory().join("main.aleo")
-                        } else {
-                            self.imports_directory().join(format!("{}.aleo", program.name))
-                        };
-                        // Fetch the bytecode.
-                        let bytecode = std::fs::read_to_string(&bytecode_path)
-                            .map_err(|e| PackageError::failed_to_read_file(bytecode_path.display(), e))?;
-                        // Get the package from the directory.
-                        let package = Package::from_directory_no_graph(directory, home_path)?;
-                        // Return the bytecode and the manifest.
-                        Ok((program.name.to_string(), bytecode, program.edition, Some(package.manifest.clone())))
-                    }
-                }
-            })
-            .collect::<Result<Vec<_>>>()
     }
 }
 

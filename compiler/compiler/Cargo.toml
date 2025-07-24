@@ -1,6 +1,6 @@
 [package]
 name = "leo-compiler"
-version = "2.7.2"
+version = "3.0.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Compiler for Leo programming language"
 homepage = "https://leo-lang.org"
@@ -55,6 +55,16 @@ path = "../../utils/disassembler"
 workspace = true
 
 [dev-dependencies.itertools]
+workspace = true
+
+[dev-dependencies.snarkvm]
+workspace = true
+# During execution tests, we need to use the "test" configuration of each network, so that
+# we only have to get to block 16 to produce records. This is only available by enabling
+# the "test" feature.
+features = [ "test" ]
+
+[dev-dependencies.serde]
 workspace = true
 
 [dev-dependencies.regex]

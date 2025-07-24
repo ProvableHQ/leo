@@ -24,8 +24,6 @@ use leo_ast::NetworkName;
 use leo_package::ProgramData;
 use leo_span::Symbol;
 
-use ureq::Response;
-
 /// A helper function to query the public balance of an address.
 pub fn get_public_balance<N: Network>(
     private_key: &PrivateKey<N>,
@@ -81,16 +79,23 @@ pub fn get_latest_block_height(endpoint: &str, network: NetworkName, context: &C
 }
 
 /// Determine if the transaction should be broadcast or displayed to user.
-pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>, operation: &str) -> Result<Response> {
+///
+/// Returns (body, status code).
+pub fn handle_broadcast<N: Network>(
+    endpoint: &str,
+    transaction: &Transaction<N>,
+    operation: &str,
+) -> Result<(String, u16)> {
     // Send the deployment request to the endpoint.
-    let response = ureq::AgentBuilder::new()
-        .redirects(0)
+    let mut response = ureq::Agent::config_builder()
+        .max_redirects(0)
         .build()
+        .new_agent()
         .post(endpoint)
-        .set("X-Leo-Version", env!("CARGO_PKG_VERSION"))
+        .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .send_json(transaction)
         .map_err(|err| CliError::broadcast_error(err.to_string()))?;
-    match response.status() {
+    match response.status().as_u16() {
         200..=299 => {
             println!(
                 "✉️ Broadcasted transaction with:\n  - transaction ID: '{}'",
@@ -100,7 +105,7 @@ pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>
                 // Most transactions will have fees, but some, like credits.aleo/upgrade executions, may not.
                 println!("  - fee ID: '{}'", fee.id().to_string().bold().yellow());
             }
-            Ok(response)
+            Ok((response.body_mut().read_to_string().unwrap(), response.status().as_u16()))
         }
         301 => {
             let msg = format!(
@@ -110,7 +115,7 @@ pub fn handle_broadcast<N: Network>(endpoint: &str, transaction: &Transaction<N>
         }
         _ => {
             let code = response.status();
-            let error_message = match response.into_string() {
+            let error_message = match response.body_mut().read_to_string() {
                 Ok(response) => format!("(status code {code}: {response:?})"),
                 Err(err) => format!("({err})"),
             };
@@ -143,7 +148,7 @@ pub fn load_programs_from_network<N: Network>(
     program_id: ProgramID<N>,
     network: NetworkName,
     endpoint: &str,
-) -> Result<Vec<(ProgramID<N>, Program<N>)>> {
+) -> Result<Vec<(Program<N>, Option<u16>)>> {
     use snarkvm::prelude::Program;
     use std::collections::HashSet;
 
@@ -162,7 +167,7 @@ pub fn load_programs_from_network<N: Network>(
         }
 
         // Fetch the program source from the network.
-        let ProgramData::Bytecode(program_src) = leo_package::Program::fetch(
+        let program = leo_package::Program::fetch(
             Symbol::intern(&current_id.name().to_string()),
             None,
             &context.home()?,
@@ -170,25 +175,24 @@ pub fn load_programs_from_network<N: Network>(
             endpoint,
             true,
         )
-        .map_err(|_| CliError::custom(format!("Failed to fetch program source for ID: {current_id}")))?
-        .data
-        else {
+        .map_err(|_| CliError::custom(format!("Failed to fetch program source for ID: {current_id}")))?;
+        let ProgramData::Bytecode(program_src) = program.data else {
             panic!("Expected bytecode when fetching a remote program");
         };
 
         // Parse the program source into a Program object.
-        let program = Program::<N>::from_str(&program_src)
+        let bytecode = Program::<N>::from_str(&program_src)
             .map_err(|_| CliError::custom(format!("Failed to parse program source for ID: {current_id}")))?;
 
         // Queue all imported programs for future processing.
-        for import_id in program.imports().keys() {
+        for import_id in bytecode.imports().keys() {
             stack.push(*import_id);
         }
 
         // Add the program to our ordered set.
-        programs.insert(current_id, program);
+        programs.insert(current_id, (bytecode, program.edition));
     }
 
     // Return all loaded programs in insertion order.
-    Ok(programs.into_iter().rev().collect())
+    Ok(programs.into_iter().map(|(_, v)| v).rev().collect())
 }
