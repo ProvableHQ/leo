@@ -192,7 +192,7 @@ fn integration_tests() {
     }
 
     // Sleep for a bit to let snarkos get started.
-    std::thread::sleep(std::time::Duration::from_secs(20));
+    std::thread::sleep(std::time::Duration::from_secs(60 * 10));
 
     // Wait until block height 16.
     loop {
@@ -366,7 +366,7 @@ fn run_snarkos_clean(i: usize) -> io::Result<()> {
 }
 
 fn current_height() -> Result<usize, anyhow::Error> {
-    let height_url = "http://127.0.0.1:3030/testnet/block/height/latest";
+    let height_url = "http://localhost:3030/testnet/block/height/latest";
     let height_str = leo_package::fetch_from_network_plain(height_url)?;
     height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))
 }
