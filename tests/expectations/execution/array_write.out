@@ -1,1 +1,197 @@
-Deployment transaction for program test not accepted.
+program test.aleo;
+
+struct S:
+    x as u32;
+    y as [u32; 3u32];
+
+function some_assignments:
+    input r0 as boolean.public;
+    input r1 as boolean.public;
+    cast 0u32 1u32 2u32 into r2 as [u32; 3u32];
+    ternary r0 10u32 r2[0u32] into r3;
+    cast r3 r2[1u32] r2[2u32] into r4 as [u32; 3u32];
+    cast 3u32 r4 into r5 as S;
+    cast 50u32 60u32 70u32 into r6 as [u32; 3u32];
+    ternary r0 r6[0u32] r5.y[0u32] into r7;
+    ternary r0 r6[1u32] r5.y[1u32] into r8;
+    ternary r0 r6[2u32] r5.y[2u32] into r9;
+    cast r7 r8 r9 into r10 as [u32; 3u32];
+    cast 20u32 r5.y[1u32] r5.y[2u32] into r11 as [u32; 3u32];
+    cast r5.x r11 into r12 as S;
+    ternary r0 r5.y[0u32] r12.y[0u32] into r13;
+    ternary r0 r5.y[1u32] r12.y[1u32] into r14;
+    ternary r0 r5.y[2u32] r12.y[2u32] into r15;
+    cast r13 r14 r15 into r16 as [u32; 3u32];
+    ternary r0 r5.x r12.x into r17;
+    cast r17 r16 into r18 as S;
+    ternary r1 20u32 r5.y[0u32] into r19;
+    ternary r1 30u32 r5.x into r20;
+    ternary r1 r10[0u32] r5.y[0u32] into r21;
+    ternary r1 r10[1u32] r5.y[1u32] into r22;
+    ternary r1 r10[2u32] r5.y[2u32] into r23;
+    cast r21 r22 r23 into r24 as [u32; 3u32];
+    cast r19 r5.y[1u32] r5.y[2u32] into r25 as [u32; 3u32];
+    cast r5.x r25 into r26 as S;
+    ternary r1 r18.y[0u32] r26.y[0u32] into r27;
+    ternary r1 r18.y[1u32] r26.y[1u32] into r28;
+    ternary r1 r18.y[2u32] r26.y[2u32] into r29;
+    cast r27 r28 r29 into r30 as [u32; 3u32];
+    ternary r1 r18.x r26.x into r31;
+    cast r31 r30 into r32 as S;
+    cast r20 r24 into r33 as S;
+    cast r20 r24 into r34 as S;
+    cast r20 r24 into r35 as S;
+    cast r20 r24 into r36 as S;
+    cast r3 r2[1u32] r2[2u32] r32.x r32.y[0u32] r32.y[1u32] r32.y[2u32] r33.x r34.y[0u32] r35.y[1u32] r36.y[2u32] into r37 as [u32; 11u32];
+    output r37 as [u32; 11u32].public;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au10dd5aj0k75zr32vdj9wkg0tq4axklsnjlkv0azwk46hesg2jcyqsvl2sgj",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "7665050420009666610887749294586246327464573175996391978263974745104490877280field",
+          "value": "false"
+        },
+        {
+          "type": "public",
+          "id": "3269031323044967357222539338853924791915609009372064310193243624432787029186field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "1533706163440093545527627467333910106148099186837584591212219875083643881623field",
+          "value": "[\n  0u32,\n  1u32,\n  2u32,\n  3u32,\n  0u32,\n  1u32,\n  2u32,\n  3u32,\n  0u32,\n  1u32,\n  2u32\n]"
+        }
+      ],
+      "tpk": "3576276464574415057725144546371070462751582367174318407997137094973708750825group",
+      "tcm": "4395778109025763012924864239448470540640858754646831929686310011850578722708field",
+      "scm": "3813630996071591342313619700889972179880488254211160761934807526492621732105field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1can4azkdcq38y4x69ggmxk8827st9756cat0v3wczkupl2urdsxqa28qnx",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "3804253240729889521513222695552369139271432829218245579599014476491662064677field",
+          "value": "false"
+        },
+        {
+          "type": "public",
+          "id": "6979971906188769464653278081896975049668816886081118249712804024015031999468field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "4530769817242934342958360674512322881766675205353093157969573817797726616941field",
+          "value": "[\n  0u32,\n  1u32,\n  2u32,\n  3u32,\n  20u32,\n  1u32,\n  2u32,\n  30u32,\n  0u32,\n  1u32,\n  2u32\n]"
+        }
+      ],
+      "tpk": "3686971154734529435912308702416647240067119592419074789142457499926410389082group",
+      "tcm": "8233719258397336791769274555010829375115371988151662148083570217575974240043field",
+      "scm": "5968805024853873013613561591080699526871019034307440817245359460073260179545field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1lgsfmcl0rqga04luvwvvrrn3kdeq570vahs8ms6gdj93hgpr0c9suu90nf",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "3019677440095595866021606404243457450279729026504076935675431261755464342288field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "1663097320084986019868702024985216335930489778215263719277495522612076804255field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "7942154908628828791201367550364984213603320067277188533343992000983886352554field",
+          "value": "[\n  10u32,\n  1u32,\n  2u32,\n  3u32,\n  10u32,\n  1u32,\n  2u32,\n  3u32,\n  10u32,\n  1u32,\n  2u32\n]"
+        }
+      ],
+      "tpk": "1548682675461104821311377121258172032487952259447772841367400276310231472443group",
+      "tcm": "375137269907275324780158992714647550604482199917396955028653028443912834402field",
+      "scm": "1961772236814751039336330980979442973913181074690522546904863315800895554678field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au16l248qgttn44q94uw7ccan2x0rj9capzdy3g42h35l26v93avvpqg70kyh",
+      "program": "test.aleo",
+      "function": "some_assignments",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "5611585829219268692970421626363946552625215484363093438333016173015262511987field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "6901420859897316748803579070455519345519427913152594233963667914493004959019field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "1159218513908361884008608326860108629481781046953551573715525907831355225576field",
+          "value": "[\n  10u32,\n  1u32,\n  2u32,\n  3u32,\n  10u32,\n  1u32,\n  2u32,\n  30u32,\n  50u32,\n  60u32,\n  70u32\n]"
+        }
+      ],
+      "tpk": "308161306487393783357391021137921895312889746637884830281163969229809875209group",
+      "tcm": "2254166100179545116665484710234046959525693576245402132547268633892968335041field",
+      "scm": "1460985531421116898659828603813578519589131261983748294208236988653799123916field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

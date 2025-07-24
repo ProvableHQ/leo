@@ -1,1 +1,146 @@
-Deployment transaction for program test not accepted.
+program test.aleo;
+
+function main:
+    input r0 as u32.private;
+    lt r0 5u32 into r1;
+    or false r1 into r2;
+    assert.eq r2 true;
+    ternary r1 true true into r3;
+    output r3 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1xeqjmks6r20qj58zthkwzhcw6pep2c5g4vda7ltefnnskr25xu9q57sgtx",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "3474711316281773957349219841765932876384214764215689474811856769608882083988field",
+          "value": "ciphertext1qyqfm2c57qq5j968x2ga4kldcx3c2uufcxzetnwvrat60yz2zyjjkrcysnvxu"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "6552637285381745012128285070377258481570174222478814901485764427312129650577field",
+          "value": "ciphertext1qyqxppwfmxa9fsn5ugvvyjc5w5pc9aadceg6e6wnjm2kj2eqlrspvpsmzt8ph"
+        }
+      ],
+      "tpk": "4882743570445341726620077478577102280855320113774942204872742266821207697604group",
+      "tcm": "5018667622457603975228608012860145720148149473407318168842184331561135237786field",
+      "scm": "5512066215730384480579974031891378370456789752265258457116347819010387517472field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au16nhxk7uvq098zfewuh8vr0c6p9n6dzd8q4cuvgxswhfpn8sdzv8sqn9gr2",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "3361260625454219704254942896783836488926947274763423189284936978550358289275field",
+          "value": "ciphertext1qyqvy3gp9329pzrtf49hg3d6s6k0kuksn33h2qw9575lg34lg2n0vrg73hf5l"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "8195708070159104654756033333057909729927036094979636264678877199907532771906field",
+          "value": "ciphertext1qyqttp0fg8geemuvezqfw9n6xm9zwfxmt9jnp5xw343vnyzqul9fgpgzs7h8e"
+        }
+      ],
+      "tpk": "1239423761263998501725340376467139741276777311797856277396840440489597877894group",
+      "tcm": "5472923504004960381457777490708024190729276139362400584915000374181015780242field",
+      "scm": "1533491233655967385784543928299323261719959642387012798367516343811590743686field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1s65c3jcz7g4fa2ywxk3lyvqm9l29v58uk8vshp2c98nprx6lcqzqklnf0k",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7407843419870639082211010003673667723157930808683633158750358682935973097139field",
+          "value": "ciphertext1qyqrkpekn8nnky0njp4z5ff056lmh0ujsg3d9wn55ykshah9mqls5ys6y4yc8"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "5951187768324204513966467480788994276613997832089875603396209732535132572553field",
+          "value": "ciphertext1qyq2xwkqjuwam3eg3z73j82tkpswe3aqmmdhk55ce54zumx3tvfzvqqeyrfu4"
+        }
+      ],
+      "tpk": "3822367679873585688243549404574294930046714231995632534501508420100503530648group",
+      "tcm": "4289223164197355407091492821082504000146654852620505171351064742219355108501field",
+      "scm": "596772221371289213611881948548537859477631992942129305403072632730027496327field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1f4kjgc5v35y3wynyuetaspp0l43egdax5xwuyd038xee8zr505pqwyuj90",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6002218208649040187311903101009527571047243118851759704583279420363700870824field",
+          "value": "ciphertext1qyq9etkxerecmuzcsx60u0jxh9h60rtmhcrwhkgyqhkaf99wlakv5zq79t5xf"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "2062696103302296287469290116933578130238191127932282753664962240245038166201field",
+          "value": "ciphertext1qyqqccu6e7qs4ula54q8kz46z0xst7rzgq7qrj3vslesfr63n4c0kqs6t9qkc"
+        }
+      ],
+      "tpk": "452800569164169432538164131947329860997037420455789560425493206668088568911group",
+      "tcm": "5002497956759236893773129479231265863429417339801763667809285970362400729631field",
+      "scm": "5508107789924175476957293577844858160061673059103854745865299228129564374591field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: false
+status: none
+errors: Failed to evaluate instruction (assert.eq r2 true;): 'assert.eq' failed: 'false' is not equal to 'true' (should be equal)
+warnings:
+null
+

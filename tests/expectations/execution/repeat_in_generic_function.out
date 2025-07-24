@@ -1,1 +1,51 @@
-Deployment transaction for program test not accepted.
+program test.aleo;
+
+function main:
+    cast 1u32 into r0 as [u32; 1u32];
+    add 0u32 r0[0u32] into r1;
+    cast 2u32 2u32 into r2 as [u32; 2u32];
+    add r1 r2[1u32] into r3;
+    cast 3u32 3u32 3u32 into r4 as [u32; 3u32];
+    add r3 r4[2u32] into r5;
+    cast 4u32 4u32 4u32 4u32 into r6 as [u32; 4u32];
+    add r5 r6[3u32] into r7;
+    cast 5u32 5u32 5u32 5u32 5u32 into r8 as [u32; 5u32];
+    add r7 r8[4u32] into r9;
+    cast 6u32 6u32 6u32 6u32 6u32 6u32 into r10 as [u32; 6u32];
+    add r9 r10[5u32] into r11;
+    cast 7u32 7u32 7u32 7u32 7u32 7u32 7u32 into r12 as [u32; 7u32];
+    add r11 r12[6u32] into r13;
+    cast 8u32 8u32 8u32 8u32 8u32 8u32 8u32 8u32 into r14 as [u32; 8u32];
+    add r13 r14[7u32] into r15;
+    cast 9u32 9u32 9u32 9u32 9u32 9u32 9u32 9u32 9u32 into r16 as [u32; 9u32];
+    add r15 r16[8u32] into r17;
+    output r17 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au167tehm0n96pcy2q9gjcvfh944tamyngp9fsagxlnlhnr0a2u8ypqd7zwpr",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "192925060498474579486267411423008302744223262139599254409381934539984898065field",
+          "value": "ciphertext1qyqdevsu9as0v5phptwr9lspme7uhs7zzdemzfef4l05za7nalhvzqqkkpppt"
+        }
+      ],
+      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
+      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
+      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

@@ -1,1 +1,83 @@
-Deployment transaction for program test not accepted.
+program test.aleo;
+
+function sum_manually:
+    input r0 as [u64; 4u32].private;
+    add r0[0u32] r0[1u32] into r1;
+    add r1 r0[2u32] into r2;
+    add r2 r0[3u32] into r3;
+    output r3 as u64.private;
+
+function sum_with_loop:
+    input r0 as [u64; 4u32].private;
+    add 0u64 r0[0u32] into r1;
+    add r1 r0[1u32] into r2;
+    add r2 r0[2u32] into r3;
+    add r3 r0[3u32] into r4;
+    output r4 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1mnhgcjgqauz2wzzv99stxlvg0glxn73y9eczag6e0e5fyphux58qsg0dt7",
+      "program": "test.aleo",
+      "function": "sum_manually",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5536625901423708295600291591400270770234060208571279466618619736675971084254field",
+          "value": "ciphertext1qgqgkjfukhtgncfpj6qjx44ev4m2przc03ezxhf4t9z63zy2enl0cppq2ce82my9qsz59zpznthvxtmdxnh03k6pjpyxjdyt8gs33l07pqcv46n3"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "247858629375005386762738790951863118904039605651930143695407575014342564405field",
+          "value": "ciphertext1qyq89d6p3gvnh9635f73ppasjp5cl5097mjh3se83gtlqajyj9ppqpg02em86"
+        }
+      ],
+      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
+      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
+      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1m2zx36z9zrn5ddgha2m8f6s492s9g9t5fy4rx6ueymllhj9kfyqq3mssj8",
+      "program": "test.aleo",
+      "function": "sum_with_loop",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6501522708704550330062672132999183386885395707435261451375649193303110419950field",
+          "value": "ciphertext1qgqpwf56pwz6ryhjk53valqdhfvjygetsxr54e2taejpa9sc9jl57rv8dr95vdd88pm7wtmuzvprk2rtfx3gh2s30fpwrutts0uwgth6qshmljrj"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "937910523596040389960869122381819773587754158596610741651402285583515697151field",
+          "value": "ciphertext1qyq83xx9vlkh8uc3k6k7dne8w83l9z6w2ue0n5p6l9aa86vp37df6pqqa6v63"
+        }
+      ],
+      "tpk": "209923920366316979358835823024524595725466082699377569762700210131035917463group",
+      "tcm": "4972663126249935768762313800081143256565302075358692358234187986117099072922field",
+      "scm": "4173904850343490045907797727384617256297345307958493992977439426479269378380field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

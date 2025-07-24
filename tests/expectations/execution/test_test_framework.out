@@ -1,1 +1,46 @@
-Deployment transaction for program test not accepted.
+program test.aleo;
+
+function check_starting_height:
+    input r0 as u32.private;
+    async check_starting_height r0 into r1;
+    output r1 as test.aleo/check_starting_height.future;
+
+finalize check_starting_height:
+    input r0 as u32.public;
+    lte r0 block.height into r1;
+    assert.eq r1 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au17llhrna5m80ydfza2lh2pga0su65d6d9vgvfya2vs7yqem3tpv9qw2x0a8",
+      "program": "test.aleo",
+      "function": "check_starting_height",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "2565257712875420950702648395553988278995012498040770906728620269071056492588field",
+          "value": "ciphertext1qyqds2c20xsan65m7ww0qe8ru36a8tlecer046gs4njxq6ju6gnkwqqp78kt3"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5724483248545040318560568887010374936627268801826409464372234371248920440296field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: check_starting_height,\n  arguments: [\n    16u32\n  ]\n}"
+        }
+      ],
+      "tpk": "7075792356147365194046963806309527613727846999359195828289935218437226816248group",
+      "tcm": "7755987982855262222852349044961448573159488604717986402081831336655321841404field",
+      "scm": "1396792818603869506423600159334507465346604725574674231706471289138572981452field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
