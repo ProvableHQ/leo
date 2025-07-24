@@ -1005,13 +1005,6 @@ create_messages!(
     }
 
     @formatted
-    custom_error {
-        args: (msg: impl Display),
-        msg: msg.to_string(),
-        help: None,
-    }
-
-    @formatted
     records_not_allowed_inside_finalize {
         args: (),
         msg: format!("records cannot be instantiated in an async function context."),
@@ -1164,5 +1157,12 @@ create_messages!(
         args: (item: impl Display),
         msg: format!("unexpected generic const argment for {item}."),
         help: Some("If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments".to_string()),
+    }
+
+    @formatted
+    custom {
+        args: (msg: impl Display),
+        msg: msg.to_string(),
+        help: None,
     }
 );

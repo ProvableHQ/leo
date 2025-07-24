@@ -1,4 +1,4 @@
-Error [ETYC0372126]: A program can only have one constructor.
+Error [ETYC0372147]: A program can only have one constructor.
     --> compiler-test:10:5
      |
   10 |     async constructor() {

@@ -17,8 +17,10 @@
 use super::*;
 
 use check_transaction::TransactionStatus;
+use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
+use aleo_std::StorageMode;
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
@@ -36,9 +38,7 @@ use snarkvm::{
     },
 };
 
-use aleo_std::StorageMode;
 use colored::*;
-use leo_ast::NetworkName;
 use std::{collections::HashSet, fs, path::PathBuf};
 
 /// Deploys an Aleo program.
@@ -213,7 +213,7 @@ fn handle_deploy<N: Network>(
     let rng = &mut rand::thread_rng();
 
     // Initialize a new VM.
-    let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Test(None))?)?;
+    let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
 
     // Load the remote dependencies into the VM.
     let programs_and_editions = remote
@@ -378,7 +378,7 @@ fn check_tasks_for_warnings<N: Network>(
     command: &LeoDeploy,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
-    for Task { id, is_local, program: snarkvm_program, .. } in tasks {
+    for Task { id, is_local, program, .. } in tasks {
         if !is_local || !command.action.broadcast {
             continue;
         }
@@ -393,11 +393,11 @@ fn check_tasks_for_warnings<N: Network>(
                 .push(format!("The program '{id}' already exists on the network. The deployment will likely fail.",));
         }
         // Check if the program uses V9 features.
-        if consensus_version < ConsensusVersion::V9 && snarkvm_program.contains_v9_syntax() {
+        if consensus_version < ConsensusVersion::V9 && program.contains_v9_syntax() {
             warnings.push(format!("The program '{id}' uses V9 features but the consensus version is less than V9. The deployment will likely fail"));
         }
         // Check if the program contains a constructor.
-        if consensus_version >= ConsensusVersion::V9 && !snarkvm_program.contains_constructor() {
+        if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
             warnings
                 .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
         }

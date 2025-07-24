@@ -1,9 +1,9 @@
-Error [ETYC0372142]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but (u32, u32) was found
+Error [ETYC0372141]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but (u32, u32) was found
     --> compiler-test:2:18
      |
    2 |     struct Foo::[N: (u32, u32), A: [u32; 3]] {
      |                  ^^^^^^^^^^^^^
-Error [ETYC0372142]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but [u32; 3] was found
+Error [ETYC0372141]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but [u32; 3] was found
     --> compiler-test:2:33
      |
    2 |     struct Foo::[N: (u32, u32), A: [u32; 3]] {
@@ -18,12 +18,12 @@ Error [ETYC0372117]: Expected type `scalar` but type `u32` was found.
      |
    7 |         return bar::[9u16, 0u32]();
      |                            ^^^^
-Error [ETYC0372142]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but (u32, u32) was found
+Error [ETYC0372141]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but (u32, u32) was found
     --> compiler-test:14:18
      |
   14 |     inline foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
      |                  ^^^^^^^^^^^^^
-Error [ETYC0372142]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but [u32; 3] was found
+Error [ETYC0372141]: A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but [u32; 3] was found
     --> compiler-test:14:33
      |
   14 |     inline foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {

@@ -865,7 +865,6 @@ impl CoreFunction {
             Self::ProgramEdition => 1,
             Self::ProgramOwner => 1,
             Self::ProgramNameToAddress => 1,
-
             Self::CheatCodePrintMapping => 1,
             Self::CheatCodeSetBlockHeight => 1,
         }
@@ -895,6 +894,8 @@ impl CoreFunction {
             | CoreFunction::MappingSet
             | CoreFunction::MappingRemove
             | CoreFunction::MappingContains
+            | CoreFunction::ProgramChecksum
+            | CoreFunction::ProgramEdition
             | CoreFunction::ProgramOwner => true,
             CoreFunction::BHP256CommitToAddress
             | CoreFunction::BHP256CommitToField
@@ -1127,8 +1128,6 @@ impl CoreFunction {
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
             | CoreFunction::SignatureVerify
-            | CoreFunction::ProgramChecksum
-            | CoreFunction::ProgramEdition
             | CoreFunction::ProgramNameToAddress
             | CoreFunction::CheatCodePrintMapping
             | CoreFunction::CheatCodeSetBlockHeight => false,

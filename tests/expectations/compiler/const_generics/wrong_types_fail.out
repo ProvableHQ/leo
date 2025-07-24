@@ -3,12 +3,12 @@ Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
      |
    4 |     transition main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
      |                              ^^^^
-Error [ETYC0372141]: Struct type expected `1` const args, but got `0`
+Error [ETYC0372140]: Struct type expected `1` const args, but got `0`
     --> compiler-test:4:40
      |
    4 |     transition main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
      |                                        ^^^
-Error [ETYC0372141]: Struct type expected `1` const args, but got `2`
+Error [ETYC0372140]: Struct type expected `1` const args, but got `2`
     --> compiler-test:4:52
      |
    4 |     transition main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
@@ -18,12 +18,12 @@ Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
      |
    5 |         let x = foo::[5u16]();
      |                       ^^^^
-Error [ETYC0372141]: Call expected `1` const args, but got `0`
+Error [ETYC0372140]: Call expected `1` const args, but got `0`
     --> compiler-test:6:17
      |
    6 |         let y = foo::[]();
      |                 ^^^^^^^^^
-Error [ETYC0372141]: Call expected `1` const args, but got `2`
+Error [ETYC0372140]: Call expected `1` const args, but got `2`
     --> compiler-test:7:17
      |
    7 |         let z = foo::[5u32, 5u32]();
@@ -38,22 +38,22 @@ Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
      |
    9 |         let f1: Foo::[5u16] = Foo::[5u16] { x: 0 };
      |                                     ^^^^
-Error [ETYC0372141]: Struct type expected `1` const args, but got `0`
+Error [ETYC0372140]: Struct type expected `1` const args, but got `0`
     --> compiler-test:10:17
      |
   10 |         let f2: Foo::[] = Foo::[] { x: 0 };
      |                 ^^^
-Error [ETYC0372141]: Struct expression expected `1` const args, but got `0`
+Error [ETYC0372140]: Struct expression expected `1` const args, but got `0`
     --> compiler-test:10:27
      |
   10 |         let f2: Foo::[] = Foo::[] { x: 0 };
      |                           ^^^^^^^^^^^^^^^^
-Error [ETYC0372141]: Struct type expected `1` const args, but got `2`
+Error [ETYC0372140]: Struct type expected `1` const args, but got `2`
     --> compiler-test:11:17
      |
   11 |         let f3: Foo::[5u32, 5u32] = Foo::[5u32, 5u32] { x: 0 };
      |                 ^^^
-Error [ETYC0372141]: Struct expression expected `1` const args, but got `2`
+Error [ETYC0372140]: Struct expression expected `1` const args, but got `2`
     --> compiler-test:11:37
      |
   11 |         let f3: Foo::[5u32, 5u32] = Foo::[5u32, 5u32] { x: 0 };

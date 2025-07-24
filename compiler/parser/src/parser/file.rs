@@ -151,7 +151,7 @@ impl ParserContext<'_> {
                 Token::Async if self.look_ahead(1, |t| &t.token) == &Token::Constructor => {
                     // If a constructor already exists, return an error.
                     if constructor.is_some() {
-                        return Err(TypeCheckerError::custom_error(
+                        return Err(TypeCheckerError::custom(
                             "A program can only have one constructor.",
                             self.token.span,
                         )
@@ -411,7 +411,7 @@ impl ParserContext<'_> {
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     fn parse_function(&mut self) -> Result<(Symbol, Function)> {
-        // Get any accumulated annotations, if they exist.
+        // Get any accumulated annotations.
         let annotations = self.annotations.drain(..).collect();
         // Parse a potential async signifier.
         let (is_async, start_async) =
@@ -486,7 +486,7 @@ impl ParserContext<'_> {
 
     /// Returns a `Constructor` AST node if the next tokens represent a constructor.
     pub(crate) fn parse_constructor(&mut self) -> Result<Constructor> {
-        // Get any accumulated annotations, if they exist.
+        // Get any accumulated annotations.
         let annotations = self.annotations.drain(..).collect_vec();
         // Parse the `async` keyword.
         let start = self.expect(&Token::Async)?;

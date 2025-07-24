@@ -1,19 +1,9 @@
-Error [ETYC0372117]: Expected type `string` but type `address` was found.
-    --> compiler-test:4:51
-     |
-   4 |         let a: address = Program::name_to_address(test.aleo);
-     |                                                   ^^^^
-Error [ETYC0372126]: Expected a string literal
-    --> compiler-test:4:51
-     |
-   4 |         let a: address = Program::name_to_address(test.aleo);
-     |                                                   ^^^^
 Error [ETYC0372117]: Expected type `string` but type `field` was found.
     --> compiler-test:5:49
      |
    5 |         let b: field = Program::name_to_address(0field);
      |                                                 ^^^^^^
-Error [ETYC0372126]: Expected a string literal
+Error [ETYC0372147]: Expected a string literal
     --> compiler-test:5:49
      |
    5 |         let b: field = Program::name_to_address(0field);
@@ -47,7 +37,7 @@ Error [ETYC0372117]: Expected type `string` but type `[u8; 31]` was found.
      |
   12 |         let e: u16 = Program::edition(d);
      |                                       ^
-Error [ETYC0372126]: Expected a string literal
+Error [ETYC0372147]: Expected a string literal
     --> compiler-test:12:39
      |
   12 |         let e: u16 = Program::edition(d);

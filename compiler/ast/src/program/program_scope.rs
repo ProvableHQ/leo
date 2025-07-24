@@ -45,7 +45,6 @@ impl From<Stub> for ProgramScope {
     fn from(stub: Stub) -> Self {
         Self {
             program_id: stub.stub_id,
-            constructor: None,
             consts: stub.consts,
             structs: stub.structs,
             mappings: stub.mappings,
@@ -54,6 +53,8 @@ impl From<Stub> for ProgramScope {
                 .into_iter()
                 .map(|(symbol, function)| (symbol, Function::from(function)))
                 .collect(),
+            // A program scope constructed from a stub does not need a constructor, since they are not externally callable.
+            constructor: None,
             span: stub.span,
         }
     }

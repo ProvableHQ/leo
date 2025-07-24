@@ -124,7 +124,7 @@ pub fn run_with_ledger(
 
     // Initialize a `Ledger`. This should always succeed.
     let ledger =
-        Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Test(None))
+        Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Production)
             .unwrap();
 
     // Advance the `VM` to the start height, defaulting to the height for the latest consensus version.
@@ -164,10 +164,12 @@ pub fn run_with_ledger(
             Ok(())
         };
 
-        // Temporarily deploy each program twice, to get it to edition 1. This won't be necessary
-        // after upgrades are in place.
+        // Deploy the program.
         deploy()?;
-        deploy()?;
+        // If the program does not have a constructor, deploy it twice to satisfy the edition requirement.
+        if !aleo_program.contains_constructor() {
+            deploy()?;
+        }
     }
 
     // Fund each private key used in the test cases with 1M ALEO.

@@ -21,9 +21,10 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
+use snarkvm::prelude::{Execution, Network, Program};
+
 use clap::Parser;
 use colored::*;
-use snarkvm::prelude::{Execution, Network, Program};
 use std::{convert::TryFrom, path::PathBuf};
 
 #[cfg(not(feature = "only_testnet"))]
@@ -271,7 +272,7 @@ fn handle_execute<A: Aleo>(
     let rng = &mut rand::thread_rng();
 
     // Initialize a new VM.
-    let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Test(None))?)?;
+    let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
     // Specify the query
     let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint);

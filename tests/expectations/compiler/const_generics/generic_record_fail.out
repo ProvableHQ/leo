@@ -1,4 +1,4 @@
-Error [ETYC0372146]: Records cannot be declared with generic const parameters.
+Error [ETYC0372145]: Records cannot be declared with generic const parameters.
     --> compiler-test:2:5
      |
    2 |     record Foo::[N: u32] {
@@ -14,7 +14,7 @@ Error [ETYC0372005]: Unknown variable `N`
      |
    4 |         arr: [u8; N],
      |                   ^
-Error [ETYC0372146]: Records cannot be declared with generic const parameters.
+Error [ETYC0372145]: Records cannot be declared with generic const parameters.
     --> compiler-test:7:5
      |
    7 |     record Bar::[N: field] {

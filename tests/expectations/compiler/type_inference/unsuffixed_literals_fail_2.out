@@ -153,17 +153,17 @@ Error [ETYC0372004]: Could not determine the type of `1`
      |                      ^
      |
      = Consider using explicit type annotations.
-Error [ETYC0372139]: Hex, octal, and binary literals may only be used for integer types.
+Error [ETYC0372138]: Hex, octal, and binary literals may only be used for integer types.
     --> compiler-test:17:24
      |
   17 |         let f: field = 0x0;
      |                        ^^^
-Error [ETYC0372139]: Hex, octal, and binary literals may only be used for integer types.
+Error [ETYC0372138]: Hex, octal, and binary literals may only be used for integer types.
     --> compiler-test:18:25
      |
   18 |         let s: scalar = 0b0;
      |                         ^^^
-Error [ETYC0372139]: Hex, octal, and binary literals may only be used for integer types.
+Error [ETYC0372138]: Hex, octal, and binary literals may only be used for integer types.
     --> compiler-test:19:24
      |
   19 |         let g: group = 0o0;

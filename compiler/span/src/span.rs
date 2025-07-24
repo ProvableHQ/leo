@@ -17,6 +17,7 @@
 //! Defines the `Span` type used to track where code comes from.
 
 use crate::symbol::with_session_globals;
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

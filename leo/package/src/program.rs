@@ -175,15 +175,21 @@ impl Program {
 
         // If the edition is not specified, then query the network for the latest edition.
         let edition = match edition {
-            Some(edition) => edition,
+            Some(edition) => Ok(edition),
             None => {
                 let url = format!("{endpoint}/{network}/program/{name}.aleo/latest_edition");
                 let contents = fetch_from_network(&url)?;
                 contents.parse::<u16>().map_err(|e| {
                     UtilError::failed_to_retrieve_from_endpoint(format!("Failed to parse edition as u16: {e}"))
-                })?
+                })
             }
         };
+
+        // If we failed to get the edition, default to 0.
+        let edition = edition.unwrap_or_else(|err| {
+            println!("Warning: Could not fetch edition for program `{name}`: {err}. Defaulting to edition 0.");
+            0
+        });
 
         // Define the full cache path for the program.
         let cache_directory = cache_directory.join(format!("{name}/{edition}"));
@@ -215,8 +221,15 @@ impl Program {
             // Otherwise, we need to fetch it from the network.
             (existing, _) => {
                 // We need to fetch it from the network.
-                let url = format!("{endpoint}/{network}/program/{name}.aleo");
-                let contents = fetch_from_network(&url)?;
+                let edition_url = format!("{endpoint}/{network}/program/{name}.aleo/{edition}");
+                let no_edition_url = format!("{endpoint}/{network}/program/{name}.aleo");
+                let contents = fetch_from_network(&edition_url)
+                    .or_else(|_| fetch_from_network(&no_edition_url))
+                    .map_err(|err| {
+                        UtilError::failed_to_retrieve_from_endpoint(format_args!(
+                            "Failed to fetch program `{name}` from network `{network}`: {err}"
+                        ))
+                    })?;
 
                 // If the file already exists, compare it to the new contents.
                 if let Some(existing_contents) = existing {

@@ -853,7 +853,7 @@ impl TypeCheckingVisitor<'_> {
                     // Attempt to convert the program ID into an address.
                     if let Err(e) = program_id.to_address_string(self.state.network) {
                         // Emit an error if the conversion fails.
-                        self.emit_err(TypeCheckerError::custom_error(
+                        self.emit_err(TypeCheckerError::custom(
                             format!("Failed to convert program ID into address: {e}"),
                             span,
                         ));
@@ -1327,7 +1327,7 @@ impl TypeCheckingVisitor<'_> {
             match ProgramId::from_str_with_network(program_id_string, self.state.network) {
                 Ok(program_id) => Some(program_id),
                 Err(e) => {
-                    self.emit_err(TypeCheckerError::custom_error(
+                    self.emit_err(TypeCheckerError::custom(
                         format!("Unable to parse string literal as program ID: {e}"),
                         expression.span(),
                     ));
@@ -1335,7 +1335,7 @@ impl TypeCheckingVisitor<'_> {
                 }
             }
         } else {
-            self.emit_err(TypeCheckerError::custom_error("Expected a string literal".to_string(), expression.span()));
+            self.emit_err(TypeCheckerError::custom("Expected a string literal".to_string(), expression.span()));
             None
         }
     }

@@ -465,7 +465,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         let upgrade_variant = match result {
             Ok(upgrade_variant) => upgrade_variant,
             Err(e) => {
-                self.emit_err(TypeCheckerError::custom_error(format!("{e}"), constructor.span));
+                self.emit_err(TypeCheckerError::custom(format!("{e}"), constructor.span));
                 return;
             }
         };
@@ -473,13 +473,10 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // Validate the number of statements.
         match (&upgrade_variant, constructor.block.statements.is_empty()) {
             (UpgradeVariant::Custom, true) => {
-                self.emit_err(TypeCheckerError::custom_error(
-                    "A 'custom' constructor cannot be empty",
-                    constructor.span,
-                ));
+                self.emit_err(TypeCheckerError::custom("A 'custom' constructor cannot be empty", constructor.span));
             }
             (UpgradeVariant::NoUpgrade | UpgradeVariant::Admin { .. } | UpgradeVariant::Checksum { .. }, false) => {
-                self.emit_err(TypeCheckerError::custom_error("A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.", constructor.span));
+                self.emit_err(TypeCheckerError::custom("A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.", constructor.span));
             }
             _ => {}
         }
@@ -490,7 +487,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             let Some(VariableSymbol { type_: Type::Mapping(mapping_type), .. }) =
                 self.state.symbol_table.lookup_global(*mapping)
             else {
-                self.emit_err(TypeCheckerError::custom_error(
+                self.emit_err(TypeCheckerError::custom(
                     format!("The mapping '{mapping}' does not exist. Please ensure that it is imported or defined in your program."),
                     constructor.annotations[0].span,
                 ));
@@ -498,7 +495,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             };
             // Check that the mapping key type matches the expected key type.
             if *mapping_type.key != *key_type {
-                self.emit_err(TypeCheckerError::custom_error(
+                self.emit_err(TypeCheckerError::custom(
                     format!(
                         "The mapping '{}' key type '{}' does not match the key '{}' in the `@checksum` annotation",
                         mapping, mapping_type.key, key
@@ -520,7 +517,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 false
             };
             if !check_value_type(&mapping_type.value) {
-                self.emit_err(TypeCheckerError::custom_error(
+                self.emit_err(TypeCheckerError::custom(
                     format!("The mapping '{}' value type '{}' must be a '[u8; 32]'", mapping, mapping_type.value),
                     constructor.annotations[0].span,
                 ));

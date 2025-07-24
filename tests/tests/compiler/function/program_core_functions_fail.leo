@@ -1,7 +1,7 @@
 
 program test.aleo {
-    transition foo() {
-        let a: address = Program::name_to_address(test.aleo);
+    async function foo() {
+        let a: address = Program::name_to_address("test.aleo");
         let b: field = Program::name_to_address(0field);
         assert_neq(a, b);
 
@@ -12,5 +12,9 @@ program test.aleo {
         let e: u16 = Program::edition(d);
         let f: u8 = Program::edition("credits.aleo");
         assert_neq(e, f);
+    }
+
+    async transition bar() -> Future {
+        return foo();
     }
 }

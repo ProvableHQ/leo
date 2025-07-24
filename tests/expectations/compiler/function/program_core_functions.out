@@ -1,15 +1,11 @@
-DCE_ENABLED:
 program test.aleo;
 
-function foo:
-    assert.neq aleo1xcghmjnj0rklgpm5mnnqqhnt39zp54vwd5qkpmd3m6aztgp20cxs9zw7cr aleo1lqmly7ez2k48ajf5hs92ulphaqr05qm4n8qwzj8v0yprmasgpqgsez59gg;
-    assert.neq test.aleo/checksum credits.aleo/checksum;
-    assert.neq test.aleo/edition credits.aleo/edition;
+function bar:
+    async bar into r0;
+    output r0 as test.aleo/bar.future;
 
-DCE_DISABLED:
-program test.aleo;
-
-function foo:
-    assert.neq aleo1xcghmjnj0rklgpm5mnnqqhnt39zp54vwd5qkpmd3m6aztgp20cxs9zw7cr aleo1lqmly7ez2k48ajf5hs92ulphaqr05qm4n8qwzj8v0yprmasgpqgsez59gg;
-    assert.neq test.aleo/checksum credits.aleo/checksum;
-    assert.neq test.aleo/edition credits.aleo/edition;
+finalize bar:
+    assert.eq aleo1xcghmjnj0rklgpm5mnnqqhnt39zp54vwd5qkpmd3m6aztgp20cxs9zw7cr aleo1lqmly7ez2k48ajf5hs92ulphaqr05qm4n8qwzj8v0yprmasgpqgsez59gg;
+    assert.eq checksum credits.aleo/checksum;
+    assert.eq edition credits.aleo/edition;
+    assert.eq program_owner credits.aleo/program_owner;

@@ -205,7 +205,7 @@ fn handle_upgrade<N: Network>(
     let rng = &mut rand::thread_rng();
 
     // Initialize a new VM.
-    let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Test(None))?)?;
+    let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
 
     // Load all the programs from the network into the VM.
     let programs_and_editions = program_ids
@@ -365,7 +365,7 @@ fn check_tasks_for_warnings<N: Network>(
     command: &LeoUpgrade,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
-    for Task { id, program: snarkvm_program, is_local, .. } in tasks {
+    for Task { id, program, is_local, .. } in tasks {
         if !is_local || !command.action.broadcast {
             continue;
         }
@@ -381,7 +381,7 @@ fn check_tasks_for_warnings<N: Network>(
                 }
             };
             // Check if the program is a valid upgrade.
-            if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, snarkvm_program) {
+            if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, program) {
                 warnings.push(format!(
                     "The program '{id}' is not a valid upgrade. The upgrade will likely fail. Error: {e}",
                 ));
@@ -391,11 +391,11 @@ fn check_tasks_for_warnings<N: Network>(
         }
 
         // Check if the program uses V9 features.
-        if consensus_version < ConsensusVersion::V9 && snarkvm_program.contains_v9_syntax() {
+        if consensus_version < ConsensusVersion::V9 && program.contains_v9_syntax() {
             warnings.push(format!("The program '{id}' uses V9 features but the consensus version is less than V9. The upgrade will likely fail"));
         }
         // Check if the program contains a constructor.
-        if consensus_version >= ConsensusVersion::V9 && !snarkvm_program.contains_constructor() {
+        if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
             warnings.push(format!("The program '{id}' does not contain a constructor. The upgrade will likely fail",));
         }
     }
