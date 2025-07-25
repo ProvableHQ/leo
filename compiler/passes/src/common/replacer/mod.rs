@@ -18,23 +18,34 @@ use leo_ast::{
     AstReconstructor,
     Block,
     Expression,
-    Identifier,
     IterationStatement,
+    Node as _,
     NodeBuilder,
     ProgramReconstructor,
     Statement,
 };
 
-/// A `Replacer` applies `replacer` to all `Identifier`s in an AST.
-/// `Replacer`s are used to rename identifiers.
-/// `Replacer`s are used to interpolate function arguments.
+/// A `Replacer` traverses and reconstructs the AST, applying a user-defined replacement function to each `Expression`.
 ///
-/// All scopes are given new node IDs to avoid stale parent/children relationship between nodes.
+/// For example, this can be used to:
+/// - **Rename identifiers**: to systematically rename identifiers throughout the AST.
+/// - **Expression interpolation**: such as substituting arguments into function bodies.
 ///
-/// TODO: should we give new IDs to everything?
+/// During reconstruction, node IDs for blocks and loop bodies are regenerated using a `NodeBuilder` to ensure
+/// that the resulting scopes are different from the original. This avoids issues with stale or conflicting
+/// parent-child relationships between scopes.
+///
+/// The replacement function (`replace`) is applied early in expression reconstruction. If it produces a new
+/// expression (i.e., with a different node ID), it replaces the original; otherwise, the expression is
+/// recursively reconstructed as usual.
+///
+/// Note: Only `Expression` nodes are currently subject to replacement logic; all other AST nodes are
+/// reconstructed structurally.
+///
+/// TODO: Consider whether all nodes (not just scopes) should receive new IDs for consistency.
 pub struct Replacer<'a, F>
 where
-    F: Fn(&Identifier) -> Expression,
+    F: Fn(&Expression) -> Expression,
 {
     node_builder: &'a NodeBuilder,
     replace: F,
@@ -42,7 +53,7 @@ where
 
 impl<'a, F> Replacer<'a, F>
 where
-    F: Fn(&Identifier) -> Expression,
+    F: Fn(&Expression) -> Expression,
 {
     pub fn new(replace: F, node_builder: &'a NodeBuilder) -> Self {
         Self { replace, node_builder }
@@ -51,12 +62,41 @@ where
 
 impl<F> AstReconstructor for Replacer<'_, F>
 where
-    F: Fn(&Identifier) -> Expression,
+    F: Fn(&Expression) -> Expression,
 {
     type AdditionalOutput = ();
 
-    fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
-        ((self.replace)(&input), Default::default())
+    fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
+        // If the replacement expression is a new one, then return it. Otherwise, proceed as in the default
+        // implementation of `reconstruct_expression`.
+        let new_expr = (self.replace)(&input);
+        if new_expr.id() != input.id() {
+            return (new_expr, Default::default());
+        }
+
+        // Same as the default implementation
+        match input {
+            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
+            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
+            Expression::Async(async_) => self.reconstruct_async(async_),
+            Expression::Array(array) => self.reconstruct_array(array),
+            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
+            Expression::Binary(binary) => self.reconstruct_binary(*binary),
+            Expression::Call(call) => self.reconstruct_call(*call),
+            Expression::Cast(cast) => self.reconstruct_cast(*cast),
+            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
+            Expression::Err(err) => self.reconstruct_err(err),
+            Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
+            Expression::Literal(value) => self.reconstruct_literal(value),
+            Expression::Locator(locator) => self.reconstruct_locator(locator),
+            Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
+            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
+            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
+            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
+            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
+            Expression::Unary(unary) => self.reconstruct_unary(*unary),
+            Expression::Unit(unit) => self.reconstruct_unit(unit),
+        }
     }
 
     fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
@@ -86,4 +126,4 @@ where
     }
 }
 
-impl<F> ProgramReconstructor for Replacer<'_, F> where F: Fn(&Identifier) -> Expression {}
+impl<F> ProgramReconstructor for Replacer<'_, F> where F: Fn(&Expression) -> Expression {}

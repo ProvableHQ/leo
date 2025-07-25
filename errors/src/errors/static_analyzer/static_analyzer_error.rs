@@ -103,6 +103,13 @@ create_messages!(
     }
 
     @formatted
+    async_block_capturing_too_many_vars {
+        args: (size: impl Display, max: impl Display),
+        msg: format!("An `async` block cannot capture more than {max} variables, found one attempting to capture {size} variables."),
+        help: None,
+    }
+
+    @formatted
     custom_error {
         args: (msg: impl Display, help: Option<impl Display>),
         msg: format!("{msg}"),

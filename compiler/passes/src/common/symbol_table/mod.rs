@@ -64,6 +64,9 @@ struct LocalTableInner {
     /// The parent `NodeID` of this scope, if it exists.
     parent: Option<NodeID>,
 
+    /// The children of `NodeID` of this scope
+    children: Vec<NodeID>,
+
     /// The consts we've evaluated in this scope.
     consts: HashMap<Symbol, Expression>,
 
@@ -72,17 +75,30 @@ struct LocalTableInner {
 }
 
 impl LocalTable {
-    fn new(id: NodeID, parent: Option<NodeID>) -> Self {
+    fn new(symbol_table: &mut SymbolTable, id: NodeID, parent: Option<NodeID>) -> Self {
+        // If parent exists, register this scope as its child
+        if let Some(parent_id) = parent {
+            if let Some(parent_table) = symbol_table.all_locals.get_mut(&parent_id) {
+                parent_table.inner.borrow_mut().children.push(id);
+            }
+        }
+
         LocalTable {
             inner: Rc::new(RefCell::new(LocalTableInner {
                 id,
                 parent,
                 consts: HashMap::new(),
                 variables: HashMap::new(),
+                children: vec![], // Must still initialize our own children list
             })),
         }
     }
 
+    /// Creates a duplicate of this local scope with a new `NodeID`.
+    ///
+    /// TODO: This currently clones the `children` list, which is incorrect. The new scope may incorrectly
+    /// appear to have descendants that still belong to the original scope. This breaks the structure of
+    /// the scope tree and may cause symbol resolution to behave incorrectly.
     fn dup(&self, new_id: NodeID) -> Self {
         let mut inner = self.inner.borrow().clone();
         inner.id = new_id;
@@ -144,7 +160,14 @@ impl SymbolTable {
     pub fn enter_scope(&mut self, id: Option<NodeID>) {
         self.local = id.map(|id| {
             let parent = self.local.as_ref().map(|table| table.inner.borrow().id);
-            let new_local_table = self.all_locals.entry(id).or_insert_with(|| LocalTable::new(id, parent));
+            let new_local_table = if let Some(existing) = self.all_locals.get(&id) {
+                existing.clone()
+            } else {
+                let new_table = LocalTable::new(self, id, parent);
+                self.all_locals.insert(id, new_table.clone());
+                new_table
+            };
+
             assert_eq!(parent, new_local_table.inner.borrow().parent, "Entered scopes out of order.");
             new_local_table.clone()
         });
@@ -166,6 +189,57 @@ impl SymbolTable {
     pub fn enter_parent(&mut self) {
         let parent: Option<NodeID> = self.local.as_ref().and_then(|table| table.inner.borrow().parent);
         self.local = parent.map(|id| self.all_locals.get(&id).expect("Parent should exist.")).cloned();
+    }
+
+    /// Checks if a `symbol` is local to `scope`.
+    pub fn is_local_to(&self, scope: NodeID, symbol: Symbol) -> bool {
+        self.all_locals.get(&scope).map(|locals| locals.inner.borrow().variables.contains_key(&symbol)).unwrap_or(false)
+    }
+
+    /// Checks whether `symbol` is defined in the current scope (self.local) or any of its
+    /// ancestor scopes, up to and including `scope`.
+    ///
+    /// Returns `false` if the current scope is not a descendant of `scope`.
+    pub fn is_defined_in_scope_or_ancestor_until(&self, scope: NodeID, symbol: Symbol) -> bool {
+        let mut current = self.local.as_ref();
+
+        while let Some(table) = current {
+            let inner = table.inner.borrow();
+
+            // Check if symbol is defined in this scope
+            if inner.variables.contains_key(&symbol) {
+                return true;
+            }
+
+            // Stop when we reach the given upper-bound scope
+            if inner.id == scope {
+                break;
+            }
+
+            // Move to parent
+            current = inner.parent.and_then(|parent_id| self.all_locals.get(&parent_id));
+        }
+
+        false
+    }
+
+    /// Checks if a `symbol` is local to `scope` or any of its child scopes.
+    pub fn is_local_to_or_in_child_scope(&self, scope: NodeID, symbol: Symbol) -> bool {
+        let mut stack = vec![scope];
+
+        while let Some(current_id) = stack.pop() {
+            if let Some(table) = self.all_locals.get(&current_id) {
+                let inner = table.inner.borrow();
+
+                if inner.variables.contains_key(&symbol) {
+                    return true;
+                }
+
+                stack.extend(&inner.children);
+            }
+        }
+
+        false
     }
 
     /// Insert an evaluated const into the current scope.

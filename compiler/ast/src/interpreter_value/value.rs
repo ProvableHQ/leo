@@ -28,6 +28,7 @@ use snarkvm::prelude::{
 };
 
 use std::{
+    collections::BTreeMap,
     fmt,
     hash::{Hash, Hasher},
 };
@@ -72,9 +73,16 @@ impl Hash for StructContents {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub struct AsyncExecution {
-    pub function: GlobalId,
-    pub arguments: Vec<Value>,
+pub enum AsyncExecution {
+    AsyncFunctionCall {
+        function: GlobalId,
+        arguments: Vec<Value>,
+    },
+    AsyncBlock {
+        containing_function: GlobalId, // The function that contains the async block.
+        block: crate::NodeID,
+        names: BTreeMap<Symbol, Value>, // Use a `BTreeMap` here because `HashMap` does not implement `Hash`.
+    },
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq, Hash)]
@@ -85,10 +93,20 @@ impl fmt::Display for Future {
         write!(f, "Future")?;
         if !self.0.is_empty() {
             write!(f, " with calls to ")?;
-            let mut names = self.0.iter().map(|async_ex| async_ex.function).peekable();
-            while let Some(name) = names.next() {
-                write!(f, "{name}")?;
-                if names.peek().is_some() {
+
+            let mut entries = self.0.iter().peekable();
+
+            while let Some(async_ex) = entries.next() {
+                match async_ex {
+                    AsyncExecution::AsyncFunctionCall { function, .. } => {
+                        write!(f, "{function}")?;
+                    }
+                    AsyncExecution::AsyncBlock { containing_function, .. } => {
+                        write!(f, "{containing_function}/<async block>")?;
+                    }
+                }
+
+                if entries.peek().is_some() {
                     write!(f, ", ")?;
                 }
             }

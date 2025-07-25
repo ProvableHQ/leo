@@ -33,6 +33,8 @@ pub struct ScopeState {
     pub(crate) futures: IndexMap<Symbol, Location>,
     /// Whether the finalize caller has called the finalize function.
     pub(crate) has_called_finalize: bool,
+    /// Whether this function already contains an `async` block.
+    pub(crate) already_contains_an_async_block: bool,
     /// Whether we are currently traversing a conditional statement.
     pub(crate) is_conditional: bool,
     /// Location of most recent external call that produced a future.
@@ -52,6 +54,7 @@ impl ScopeState {
             is_stub: false,
             futures: IndexMap::new(),
             has_called_finalize: false,
+            already_contains_an_async_block: false,
             is_conditional: false,
             call_location: None,
             is_constructor: false,
@@ -64,11 +67,12 @@ impl ScopeState {
         self.variant = None;
         self.has_return = false;
         self.is_stub = false;
-        self.futures.clear();
         self.has_called_finalize = false;
         self.is_conditional = false;
         self.call_location = None;
         self.is_constructor = false;
+        self.already_contains_an_async_block = false;
+        self.futures = IndexMap::new();
     }
 
     /// Get the current location.

@@ -1,0 +1,5 @@
+Error [ETYC0372042]: Only `inline` can be called from an async block.
+    --> compiler-test:4:13
+     |
+   4 |             bar();
+     |             ^^^^^

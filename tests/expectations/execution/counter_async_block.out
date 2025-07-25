@@ -1,0 +1,145 @@
+program test.aleo;
+
+mapping counter:
+    key as address.public;
+    value as u64.public;
+
+function dubble:
+    async dubble self.caller into r0;
+    output r0 as test.aleo/dubble.future;
+
+finalize dubble:
+    input r0 as address.public;
+    get.or_use counter[r0] 235u64 into r1;
+    add r1 1u64 into r2;
+    set r2 into counter[r0];
+    get counter[r0] into r3;
+    add r3 1u64 into r4;
+    set r4 into counter[r0];
+    get counter[r0] into r5;
+    add r3 1u64 into r6;
+    is.eq r5 r6 into r7;
+    assert.eq r7 true;
+
+function unsafe_increment:
+    async unsafe_increment self.caller into r0;
+    output r0 as test.aleo/unsafe_increment.future;
+
+finalize unsafe_increment:
+    input r0 as address.public;
+    get counter[r0] into r1;
+    add r1 1u64 into r2;
+    add r2 1u64 into r3;
+    add r3 1u64 into r4;
+    add r4 1u64 into r5;
+    add r5 1u64 into r6;
+    add r6 1u64 into r7;
+    add r7 1u64 into r8;
+    add r8 1u64 into r9;
+    add r9 1u64 into r10;
+    add r10 1u64 into r11;
+    set r11 into counter[r0];
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1n9tf9y7cvgfwmaxng5cvrk77ujcr8tk5zwdl59hgw8cpqe9lecrqsc0v4n",
+      "program": "test.aleo",
+      "function": "dubble",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3803605367834137751498513114171103026218006930059784817730640977563866692069field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
+        }
+      ],
+      "tpk": "6731417546062280423475871478427167214561374492033899759947737162067186957757group",
+      "tcm": "5930263185296809365949889262668076748490232858933307317330825449949853877602field",
+      "scm": "5868021432835990346129599616590223482249444248945651322686956654279487446460field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1ym7kf9cw5nmxvupzp3kep7run56qywyd7rqrs3afkffkn82n65yqvv50hf",
+      "program": "test.aleo",
+      "function": "dubble",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7624457996260197448904181549107036807986667284245117247531512663804064492744field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
+        }
+      ],
+      "tpk": "3225234966682919703094159753887521325841796349733216356015316995608031528426group",
+      "tcm": "7845885190113781485142509013687732137797450259137798948705190665923046983338field",
+      "scm": "8082215019648755180901116144349135716995158509168049676689090777627724218354field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1t7lwxywugqmme28jjz4zyup67jpzq257ra94kxh3x0wgs5l9hu9szfps6j",
+      "program": "test.aleo",
+      "function": "dubble",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4450544711904245046952086798176742251824910110488423338758778535064185858073field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
+        }
+      ],
+      "tpk": "2795253348613714889070669194123341394984620093907971324165775885551643510247group",
+      "tcm": "1022016318595684329246984634414413296739872565905970957553084398645693190064field",
+      "scm": "7998033201805185269339029981430047248658230330706615275487087959812030748206field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au167je5wg3g75vses05ndv6uw3yn9rzg7a5rvap9rmnjlf7zpc85rqe6ct9a",
+      "program": "test.aleo",
+      "function": "dubble",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4846320990885023537551955489754863979395086425739454840282964942834178935617field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
+        }
+      ],
+      "tpk": "28828870754762616289177301885929816655905261386576449215270048951832257420group",
+      "tcm": "2923038486852870600786843251346528995396043170860784644885747998494573793129field",
+      "scm": "3835006215510423891015523522716556452725943693378694494430400013645658057972field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

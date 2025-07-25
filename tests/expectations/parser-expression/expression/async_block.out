@@ -1,0 +1,160 @@
+{
+  "Async": {
+    "block": {
+      "statements": [],
+      "span": {
+        "lo": 6,
+        "hi": 8
+      },
+      "id": 0
+    },
+    "span": {
+      "lo": 0,
+      "hi": 8
+    },
+    "id": 1
+  }
+}
+
+{
+  "Async": {
+    "block": {
+      "statements": [
+        {
+          "Definition": {
+            "place": {
+              "Single": {
+                "name": "x",
+                "span": {
+                  "lo": 21,
+                  "hi": 22
+                },
+                "id": 0
+              }
+            },
+            "type_": null,
+            "value": {
+              "Literal": {
+                "span": {
+                  "lo": 25,
+                  "hi": 26
+                },
+                "id": 1,
+                "variant": {
+                  "Unsuffixed": "0"
+                }
+              }
+            },
+            "span": {
+              "lo": 17,
+              "hi": 26
+            },
+            "id": 2
+          }
+        }
+      ],
+      "span": {
+        "lo": 15,
+        "hi": 29
+      },
+      "id": 3
+    },
+    "span": {
+      "lo": 9,
+      "hi": 29
+    },
+    "id": 4
+  }
+}
+
+{
+  "Async": {
+    "block": {
+      "statements": [
+        {
+          "Definition": {
+            "place": {
+              "Single": {
+                "name": "x",
+                "span": {
+                  "lo": 42,
+                  "hi": 43
+                },
+                "id": 0
+              }
+            },
+            "type_": null,
+            "value": {
+              "Literal": {
+                "span": {
+                  "lo": 46,
+                  "hi": 47
+                },
+                "id": 1,
+                "variant": {
+                  "Unsuffixed": "0"
+                }
+              }
+            },
+            "span": {
+              "lo": 38,
+              "hi": 47
+            },
+            "id": 2
+          }
+        },
+        {
+          "Definition": {
+            "place": {
+              "Single": {
+                "name": "y",
+                "span": {
+                  "lo": 53,
+                  "hi": 54
+                },
+                "id": 3
+              }
+            },
+            "type_": null,
+            "value": {
+              "Call": {
+                "function": {
+                  "name": "foo",
+                  "span": {
+                    "lo": 57,
+                    "hi": 60
+                  },
+                  "id": 4
+                },
+                "const_arguments": [],
+                "arguments": [],
+                "program": null,
+                "span": {
+                  "lo": 57,
+                  "hi": 62
+                },
+                "id": 5
+              }
+            },
+            "span": {
+              "lo": 49,
+              "hi": 62
+            },
+            "id": 6
+          }
+        }
+      ],
+      "span": {
+        "lo": 36,
+        "hi": 65
+      },
+      "id": 7
+    },
+    "span": {
+      "lo": 30,
+      "hi": 65
+    },
+    "id": 8
+  }
+}
+

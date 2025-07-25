@@ -1,0 +1,60 @@
+Error [ETYC0372155]: Cannot assign to `y` inside an `async` block because it was declared outside the block.
+    --> compiler-test:11:13
+     |
+  11 |             y = (1u32, 2u8, 3u16);
+     |             ^
+Error [ETYC0372155]: Cannot assign to `y` inside an `async` block because it was declared outside the block.
+    --> compiler-test:12:13
+     |
+  12 |             y.0 = 1u32;
+     |             ^
+Error [ETYC0372155]: Cannot assign to `a` inside an `async` block because it was declared outside the block.
+    --> compiler-test:13:13
+     |
+  13 |             a = [1u32, 2u32];
+     |             ^
+Error [ETYC0372155]: Cannot assign to `a` inside an `async` block because it was declared outside the block.
+    --> compiler-test:14:13
+     |
+  14 |             a[0] = 3;
+     |             ^
+Error [ETYC0372155]: Cannot assign to `x` inside an `async` block because it was declared outside the block.
+    --> compiler-test:15:13
+     |
+  15 |             x = 2;
+     |             ^
+Error [ETYC0372155]: Cannot assign to `s` inside an `async` block because it was declared outside the block.
+    --> compiler-test:16:13
+     |
+  16 |             s.x = 99;
+     |             ^
+Error [ETYC0372155]: Cannot assign to `y` inside an `async` block because it was declared outside the block.
+    --> compiler-test:20:21
+     |
+  20 |                     y = (1u32, 2u8, 3u16);
+     |                     ^
+Error [ETYC0372155]: Cannot assign to `y` inside an `async` block because it was declared outside the block.
+    --> compiler-test:21:21
+     |
+  21 |                     y.0 = 1u32;
+     |                     ^
+Error [ETYC0372155]: Cannot assign to `a` inside an `async` block because it was declared outside the block.
+    --> compiler-test:22:21
+     |
+  22 |                     a = [1u32, 2u32];
+     |                     ^
+Error [ETYC0372155]: Cannot assign to `a` inside an `async` block because it was declared outside the block.
+    --> compiler-test:23:21
+     |
+  23 |                     a[0] = 3;
+     |                     ^
+Error [ETYC0372155]: Cannot assign to `x` inside an `async` block because it was declared outside the block.
+    --> compiler-test:24:21
+     |
+  24 |                     x = 2;
+     |                     ^
+Error [ETYC0372155]: Cannot assign to `s` inside an `async` block because it was declared outside the block.
+    --> compiler-test:25:21
+     |
+  25 |                     s.x = 99;
+     |                     ^

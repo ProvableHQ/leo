@@ -1,4 +1,4 @@
-Error [ETYC0372147]: The mapping 'dependent.aleo/bar' does not exist. Please ensure that it is imported or defined in your program.
+Error [ETYC0372156]: The mapping 'dependent.aleo/bar' does not exist. Please ensure that it is imported or defined in your program.
     --> compiler-test:8:5
      |
    8 |     @checksum(mapping = "dependent.aleo/bar", key = "1field")

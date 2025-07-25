@@ -19,6 +19,7 @@ use super::*;
 use leo_ast::{
     ArrayType,
     AssertVariant,
+    AsyncExpression,
     BinaryOperation,
     Block,
     CoreConstant,
@@ -26,6 +27,7 @@ use leo_ast::{
     DefinitionPlace,
     Expression,
     Function,
+    NodeID,
     Statement,
     StructVariableInitializer,
     Type,
@@ -87,7 +89,14 @@ impl ContextStack {
         self.current_len
     }
 
-    fn push(&mut self, name: Symbol, program: Symbol, caller: SvmAddress, is_async: bool) {
+    fn push(
+        &mut self,
+        name: Symbol,
+        program: Symbol,
+        caller: SvmAddress,
+        is_async: bool,
+        names: HashMap<Symbol, Value>, // a map of variable names that are already known
+    ) {
         if self.current_len == self.contexts.len() {
             self.contexts.push(FunctionContext {
                 name,
@@ -99,7 +108,7 @@ impl ContextStack {
             });
         }
         self.contexts[self.current_len].accumulated_futures.0.clear();
-        self.contexts[self.current_len].names.clear();
+        self.contexts[self.current_len].names = names;
         self.contexts[self.current_len].caller = caller;
         self.contexts[self.current_len].program = program;
         self.contexts[self.current_len].is_async = is_async;
@@ -190,6 +199,11 @@ pub enum Element {
     },
 
     DelayedCall(GlobalId),
+    DelayedAsyncBlock {
+        program: Symbol,
+        block: NodeID,
+        names: HashMap<Symbol, Value>,
+    },
 }
 
 impl Element {
@@ -199,7 +213,7 @@ impl Element {
             Statement(statement) => statement.span(),
             Expression(expression, _) => expression.span(),
             Block { block, .. } => block.span(),
-            AleoExecution { .. } | DelayedCall(..) => Default::default(),
+            AleoExecution { .. } | DelayedCall(..) | DelayedAsyncBlock { .. } => Default::default(),
         }
     }
 }
@@ -233,6 +247,9 @@ pub struct Cursor {
 
     /// All functions (or transitions or inlines) in any program being interpreted.
     pub functions: HashMap<GlobalId, FunctionVariant>,
+
+    /// All the async blocks encountered. We identify them by their `NodeID`.
+    pub async_blocks: HashMap<NodeID, Block>,
 
     /// Consts are stored here.
     pub globals: HashMap<GlobalId, Value>,
@@ -288,6 +305,7 @@ impl Cursor {
             frames: Default::default(),
             values: Default::default(),
             functions: Default::default(),
+            async_blocks: Default::default(),
             globals: Default::default(),
             user_values: Default::default(),
             mappings: Default::default(),
@@ -731,6 +749,26 @@ impl Cursor {
                 }
             }
 
+            Expression::Async(AsyncExpression { block, .. }) if step == 0 => {
+                // Keep track of the async block, but nothing else to do at this point
+                self.async_blocks.insert(block.id, block.clone());
+                None
+            }
+            Expression::Async(AsyncExpression { block, .. }) if step == 1 => {
+                // Keep track of this block as a `Future` containing an `AsyncExecution` but nothing else to do here.
+                // The block actually executes when an `await` is called on its future.
+                if let Some(context) = self.contexts.last() {
+                    let async_ex = AsyncExecution::AsyncBlock {
+                        containing_function: GlobalId { program: context.program, name: context.name },
+                        block: block.id,
+                        names: context.names.clone().into_iter().collect(),
+                    };
+                    self.values.push(Value::Future(Future(vec![async_ex])));
+                }
+                None
+            }
+            Expression::Async(_) if step == 2 => Some(self.pop_value()?),
+
             Expression::MemberAccess(access) => match &access.inner {
                 Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
                     sym::signer => Some(Value::Address(self.signer)),
@@ -855,12 +893,29 @@ impl Cursor {
                         halt!(span, "Invalid value for await: {value}");
                     };
                     for async_execution in future.0 {
-                        self.values.extend(async_execution.arguments.into_iter());
-                        self.frames.push(Frame {
-                            step: 0,
-                            element: Element::DelayedCall(async_execution.function),
-                            user_initiated: false,
-                        });
+                        match async_execution {
+                            AsyncExecution::AsyncFunctionCall { function, arguments } => {
+                                self.values.extend(arguments.into_iter());
+                                self.frames.push(Frame {
+                                    step: 0,
+                                    element: Element::DelayedCall(function),
+                                    user_initiated: false,
+                                });
+                            }
+                            AsyncExecution::AsyncBlock { containing_function, block, names, .. } => {
+                                self.frames.push(Frame {
+                                    step: 0,
+                                    element: Element::DelayedAsyncBlock {
+                                        program: containing_function.program,
+                                        block,
+                                        // Keep track of all the known variables up to this point.
+                                        // These are available to use inside the block when we actually execute it.
+                                        names: names.clone().into_iter().collect(),
+                                    },
+                                    user_initiated: false,
+                                });
+                            }
+                        }
                     }
                     // For an await, we have one extra step - first we must evaluate the delayed call.
                     None
@@ -1152,6 +1207,7 @@ impl Cursor {
                             gid.program,
                             self.signer,
                             true, // is_async
+                            HashMap::new(),
                         );
                         let param_names = function.input.iter().map(|input| input.identifier.name);
                         for (name, value) in param_names.zip(values) {
@@ -1176,6 +1232,7 @@ impl Cursor {
                             gid.program,
                             self.signer,
                             true, // is_async
+                            HashMap::new(),
                         );
                         self.frames.last_mut().unwrap().step = 1;
                         self.frames.push(Frame {
@@ -1193,6 +1250,31 @@ impl Cursor {
                 }
             }
             Element::DelayedCall(_gid) => {
+                assert_eq!(step, 1);
+                let value = self.values.pop();
+                self.frames.pop();
+                Ok(StepResult { finished: true, value })
+            }
+            Element::DelayedAsyncBlock { program, block, names } if step == 0 => {
+                self.contexts.push(
+                    Symbol::intern(""),
+                    program,
+                    self.signer,
+                    true,
+                    names.clone().into_iter().collect(), // Set the known names to the previously preserved `names`.
+                );
+                self.frames.last_mut().unwrap().step = 1;
+                self.frames.push(Frame {
+                    step: 0,
+                    element: Element::Block {
+                        block: self.async_blocks.get(&block).unwrap().clone(),
+                        function_body: true,
+                    },
+                    user_initiated: false,
+                });
+                Ok(StepResult { finished: false, value: None })
+            }
+            Element::DelayedAsyncBlock { .. } => {
                 assert_eq!(step, 1);
                 let value = self.values.pop();
                 self.frames.pop();
@@ -1221,14 +1303,14 @@ impl Cursor {
                 };
                 if self.really_async && function.variant == Variant::AsyncFunction {
                     // Don't actually run the call now.
-                    let async_ex = AsyncExecution {
+                    let async_ex = AsyncExecution::AsyncFunctionCall {
                         function: GlobalId { name: function_name, program: function_program },
                         arguments: arguments.collect(),
                     };
                     self.values.push(Value::Future(Future(vec![async_ex])));
                 } else {
                     let is_async = function.variant == Variant::AsyncFunction;
-                    self.contexts.push(function_name, function_program, caller, is_async);
+                    self.contexts.push(function_name, function_program, caller, is_async, HashMap::new());
                     // Treat const generic parameters as regular inputs
                     let param_names = function
                         .const_parameters
@@ -1246,7 +1328,7 @@ impl Cursor {
                 }
             }
             FunctionVariant::AleoClosure(closure) => {
-                self.contexts.push(function_name, function_program, self.signer, false);
+                self.contexts.push(function_name, function_program, self.signer, false, HashMap::new());
                 let context = AleoContext::Closure(closure);
                 self.frames.push(Frame {
                     step: 0,
@@ -1260,7 +1342,7 @@ impl Cursor {
             }
             FunctionVariant::AleoFunction(function) => {
                 let caller = self.new_caller();
-                self.contexts.push(function_name, function_program, caller, false);
+                self.contexts.push(function_name, function_program, caller, false, HashMap::new());
                 let context = if finalize {
                     let Some(finalize_f) = function.finalize_logic() else {
                         panic!("finalize call with no finalize logic");

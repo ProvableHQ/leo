@@ -1,0 +1,38 @@
+program test.aleo;
+
+mapping account:
+    key as address.public;
+    value as u64.public;
+
+mapping values:
+    key as u8.public;
+    value as u8.public;
+
+function mint_public:
+    input r0 as address.public;
+    input r1 as u64.public;
+    async mint_public r0 r1 into r2;
+    output r2 as test.aleo/mint_public.future;
+
+finalize mint_public:
+    input r0 as address.public;
+    input r1 as u64.public;
+    get.or_use account[r0] 0u64 into r2;
+    add r2 r1 into r3;
+    set r3 into account[r0];
+
+function finalize_self_caller:
+    async finalize_self_caller self.caller into r0;
+    output r0 as test.aleo/finalize_self_caller.future;
+
+finalize finalize_self_caller:
+    input r0 as address.public;
+    get.or_use values[0u8] 0u8 into r1;
+    add r1 1u8 into r2;
+    set r2 into values[0u8];
+    get.or_use account[r0] 0u64 into r3;
+    add r3 1u64 into r4;
+    set r4 into account[r0];
+    get account[r0] into r5;
+    add r5 1u64 into r6;
+    set r6 into account[r0];

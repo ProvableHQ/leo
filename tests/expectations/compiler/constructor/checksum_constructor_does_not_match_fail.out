@@ -1,4 +1,4 @@
-Error [ETYC0372147]: A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.
+Error [ETYC0372156]: A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.
     --> compiler-test:7:5
      |
    7 |     @checksum(mapping = "test.aleo/expected_checksum", key = "true")

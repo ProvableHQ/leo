@@ -1,0 +1,38 @@
+program dependent.aleo;
+
+function t1:
+    async t1 1u8 2u16 into r0;
+    output r0 as dependent.aleo/t1.future;
+
+finalize t1:
+    input r0 as u8.public;
+    input r1 as u16.public;
+    assert.eq r0 1u8;
+    assert.eq r1 2u16;
+// --- Next Program --- //
+import dependent.aleo;
+program dependent2.aleo;
+
+function t1:
+    call dependent.aleo/t1 into r0;
+    async t1 r0 into r1;
+    output r1 as dependent2.aleo/t1.future;
+
+finalize t1:
+    input r0 as dependent.aleo/t1.future;
+    await r0;
+// --- Next Program --- //
+import dependent.aleo;
+import dependent2.aleo;
+program test.aleo;
+
+function t1:
+    call dependent2.aleo/t1 into r0;
+    assert.eq 1u8 r0[0u32][0u32];
+    assert.eq 1u16 r0[0u32][1u32];
+    async t1 r0 into r1;
+    output r1 as test.aleo/t1.future;
+
+finalize t1:
+    input r0 as dependent2.aleo/t1.future;
+    await r0;

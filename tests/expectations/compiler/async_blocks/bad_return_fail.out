@@ -1,0 +1,10 @@
+Error [ETYC0372153]: An `async` block cannot contain a `return` statement.
+    --> compiler-test:4:13
+     |
+   4 |             return 0u32;
+     |             ^^^^^^^^^^^^
+Error [ETYC0372153]: An `async` block cannot contain a `return` statement.
+    --> compiler-test:11:13
+     |
+  11 |             return;
+     |             ^^^^^^^

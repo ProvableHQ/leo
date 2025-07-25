@@ -1,4 +1,4 @@
-Error [ETYC0372067]: This operation can only be used in an async function or script.
+Error [ETYC0372067]: This operation can only be used in an async function, an async block, or script.
     --> compiler-test:7:25
      |
    7 |         let a: scalar = ChaCha::rand_scalar();

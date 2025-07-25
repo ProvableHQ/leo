@@ -1,0 +1,279 @@
+program zero_program.aleo;
+
+mapping counts:
+    key as address.public;
+    value as u64.public;
+
+function c:
+    async c self.signer into r0;
+    output r0 as zero_program.aleo/c.future;
+
+finalize c:
+    input r0 as address.public;
+    get.or_use counts[r0] 0u64 into r1;
+    add r1 1u64 into r2;
+    set r2 into counts[r0];
+// --- Next Program --- //
+program one_program.aleo;
+
+mapping counts:
+    key as address.public;
+    value as u64.public;
+
+function d:
+    async d self.signer into r0;
+    output r0 as one_program.aleo/d.future;
+
+finalize d:
+    input r0 as address.public;
+    get.or_use counts[r0] 0u64 into r1;
+    add r1 1u64 into r2;
+    set r2 into counts[r0];
+// --- Next Program --- //
+import zero_program.aleo;
+import one_program.aleo;
+program two_program.aleo;
+
+mapping counts:
+    key as address.public;
+    value as u64.public;
+
+function b:
+    call zero_program.aleo/c into r0;
+    call one_program.aleo/d into r1;
+    async b r0 r1 self.signer into r2;
+    output r2 as two_program.aleo/b.future;
+
+finalize b:
+    input r0 as zero_program.aleo/c.future;
+    input r1 as one_program.aleo/d.future;
+    input r2 as address.public;
+    await r0;
+    await r1;
+    get.or_use counts[r2] 0u64 into r3;
+    add r3 1u64 into r4;
+    set r4 into counts[r2];
+// --- Next Program --- //
+import zero_program.aleo;
+import one_program.aleo;
+import two_program.aleo;
+program three_program.aleo;
+
+mapping counts:
+    key as address.public;
+    value as u64.public;
+
+function e:
+    call two_program.aleo/b into r0;
+    call one_program.aleo/d into r1;
+    call zero_program.aleo/c into r2;
+    async e r0 r1 r2 self.signer into r3;
+    output r3 as three_program.aleo/e.future;
+
+finalize e:
+    input r0 as two_program.aleo/b.future;
+    input r1 as one_program.aleo/d.future;
+    input r2 as zero_program.aleo/c.future;
+    input r3 as address.public;
+    await r0;
+    await r1;
+    await r2;
+    get.or_use counts[r3] 0u64 into r4;
+    add r4 1u64 into r5;
+    set r5 into counts[r3];
+// --- Next Program --- //
+import zero_program.aleo;
+import one_program.aleo;
+import two_program.aleo;
+import three_program.aleo;
+program four_program.aleo;
+
+mapping counts:
+    key as address.public;
+    value as u64.public;
+
+function a:
+    call two_program.aleo/b into r0;
+    call three_program.aleo/e into r1;
+    async a r0 r1 self.signer into r2;
+    output r2 as four_program.aleo/a.future;
+
+finalize a:
+    input r0 as two_program.aleo/b.future;
+    input r1 as three_program.aleo/e.future;
+    input r2 as address.public;
+    await r0;
+    await r1;
+    get.or_use counts[r2] 0u64 into r3;
+    add r3 1u64 into r4;
+    set r4 into counts[r2];
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au179mz0d02cwcl3ppawxre3u6kv7f4lw6fqzxynn07swu8drwklcrssgdnvv",
+      "program": "zero_program.aleo",
+      "function": "c",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1384230808199265781150185872818469124400460112804280155828108650121542815189field",
+          "value": "{\n  program_id: zero_program.aleo,\n  function_name: c,\n  arguments: [\n    aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n  ]\n}"
+        }
+      ],
+      "tpk": "5910928036799937205029604896857483802310891820912374974440288724624194726498group",
+      "tcm": "3461794642657795197274769060270443240879523424335611463481461485844929972999field",
+      "scm": "1086751918311582767802367286112789226489085872877868296302503241732542029820field"
+    },
+    {
+      "id": "au1js47fvdq2z702qqsyjg080sjs7tuu3t2ydk3agpp68wnmmzv2yxqvcu4m3",
+      "program": "one_program.aleo",
+      "function": "d",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "2073241792033312118273740757733705843202074329507279427964331433183758159385field",
+          "value": "{\n  program_id: one_program.aleo,\n  function_name: d,\n  arguments: [\n    aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n  ]\n}"
+        }
+      ],
+      "tpk": "1616040001518613555040785409981469504623799712154511926841387358030455476812group",
+      "tcm": "3627530537712200535189187623239151825180458389607172557683295936461581485194field",
+      "scm": "1086751918311582767802367286112789226489085872877868296302503241732542029820field"
+    },
+    {
+      "id": "au1day2defcj0wu8n4fwmf465f56erecy2wq37tpw6xt9d7ntfs2uzqjkdv8x",
+      "program": "two_program.aleo",
+      "function": "b",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "6724553078825894261588066110127491795676567743079908097923533700748882092745field",
+          "value": "{\n  program_id: two_program.aleo,\n  function_name: b,\n  arguments: [\n    {\n      program_id: zero_program.aleo,\n      function_name: c,\n      arguments: [\n        aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n      ]\n    },\n    {\n      program_id: one_program.aleo,\n      function_name: d,\n      arguments: [\n        aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n      ]\n    },\n    aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n  ]\n}"
+        }
+      ],
+      "tpk": "3166797726498134656357696032161122866444991805970344697896010832843548902162group",
+      "tcm": "8422592671304705062335293377557215060722725488585782932190124901630134714715field",
+      "scm": "1086751918311582767802367286112789226489085872877868296302503241732542029820field"
+    },
+    {
+      "id": "au1nrfkc2aju6dg0gafqr6vtlv7q90qcw5ztdpg2l9wmzftn5xtf5yscqjcmu",
+      "program": "zero_program.aleo",
+      "function": "c",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1550436277933617241381434835193012851934067531673609784983505204121711928496field",
+          "value": "{\n  program_id: zero_program.aleo,\n  function_name: c,\n  arguments: [\n    aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n  ]\n}"
+        }
+      ],
+      "tpk": "6281768877149016578989358968323535661650602794353326098753385758062010890434group",
+      "tcm": "4848704325776486901943094444870394830707574048682891417177929008740626801260field",
+      "scm": "1086751918311582767802367286112789226489085872877868296302503241732542029820field"
+    },
+    {
+      "id": "au1j5whc9k4dgcw8muyt9v99qydp2yc5ssuw3yk76wnfwyks6a5av9qgakvrz",
+      "program": "one_program.aleo",
+      "function": "d",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "526830883765812771505577229409321304467628476429996785537475938637570645110field",
+          "value": "{\n  program_id: one_program.aleo,\n  function_name: d,\n  arguments: [\n    aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n  ]\n}"
+        }
+      ],
+      "tpk": "5465092623470234017660114890178796393088328264822593069498404975962556007510group",
+      "tcm": "2215834626270174922593004524269021472966654665352284899827865431592260613205field",
+      "scm": "1086751918311582767802367286112789226489085872877868296302503241732542029820field"
+    },
+    {
+      "id": "au17ry6vkrxqpuu84xs2qdmu6r98jd8mc654uxnlydas5l2tfk3xsfqlq7fn5",
+      "program": "two_program.aleo",
+      "function": "b",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1299433984335327118896738335851341772291672580712416817974689357143726368554field",
+          "value": "{\n  program_id: two_program.aleo,\n  function_name: b,\n  arguments: [\n    {\n      program_id: zero_program.aleo,\n      function_name: c,\n      arguments: [\n        aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n      ]\n    },\n    {\n      program_id: one_program.aleo,\n      function_name: d,\n      arguments: [\n        aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n      ]\n    },\n    aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n  ]\n}"
+        }
+      ],
+      "tpk": "8391907856753738332898614676633997300351076398385281808402473475901054512117group",
+      "tcm": "4281969011989641144890271548902518106165158276592217343064734713294683706351field",
+      "scm": "1086751918311582767802367286112789226489085872877868296302503241732542029820field"
+    },
+    {
+      "id": "au1kl48p2kvdjlx94zhffl684nksx3hrta28qde7g5wmdwdwx9rvu9quu4535",
+      "program": "one_program.aleo",
+      "function": "d",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4455767870204759186286569318081286163769856019966326263258113286027199525543field",
+          "value": "{\n  program_id: one_program.aleo,\n  function_name: d,\n  arguments: [\n    aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n  ]\n}"
+        }
+      ],
+      "tpk": "6168124482796856659754936745674898034609966479033764902042347269704157305075group",
+      "tcm": "3068574903872779788656645474177973869337924937872891778218519678973941136551field",
+      "scm": "1086751918311582767802367286112789226489085872877868296302503241732542029820field"
+    },
+    {
+      "id": "au12aft8x6z5g850ftkj7962n26krne5fjch4fqets47p6mj4x7cvpqxq0dcl",
+      "program": "zero_program.aleo",
+      "function": "c",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4245116830164878570413556795873667052056541322464397232461872228458732166658field",
+          "value": "{\n  program_id: zero_program.aleo,\n  function_name: c,\n  arguments: [\n    aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n  ]\n}"
+        }
+      ],
+      "tpk": "94786203186617244230365853225273920756363474291044209740334385748506011819group",
+      "tcm": "8056228691377239488216480867440328311143372231432957332174740865851152551671field",
+      "scm": "1086751918311582767802367286112789226489085872877868296302503241732542029820field"
+    },
+    {
+      "id": "au12w7r2ljktqrqmwldkeqa6wlxk5jg0jwv5qzwus7248wq89v0pcxq026ygg",
+      "program": "three_program.aleo",
+      "function": "e",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8266983418674639078154674830000725656068241524630190922445751874128449824551field",
+          "value": "{\n  program_id: three_program.aleo,\n  function_name: e,\n  arguments: [\n    {\n      program_id: two_program.aleo,\n      function_name: b,\n      arguments: [\n        {\n          program_id: zero_program.aleo,\n          function_name: c,\n          arguments: [\n            aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n          ]\n        },\n        {\n          program_id: one_program.aleo,\n          function_name: d,\n          arguments: [\n            aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n          ]\n        },\n        aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n      ]\n    },\n    {\n      program_id: one_program.aleo,\n      function_name: d,\n      arguments: [\n        aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n      ]\n    },\n    {\n      program_id: zero_program.aleo,\n      function_name: c,\n      arguments: [\n        aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n      ]\n    },\n    aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n  ]\n}"
+        }
+      ],
+      "tpk": "6033154428588323135026266379899937090700822316400243598202284476699182047048group",
+      "tcm": "6379033480501592871895943272720418235262894563291819787326422909769751770144field",
+      "scm": "1086751918311582767802367286112789226489085872877868296302503241732542029820field"
+    },
+    {
+      "id": "au1ad0s3nqslk28lfn9gdr8r0pggvlnp7hld57qdwsaztnxx0wa8ufqxzljfy",
+      "program": "four_program.aleo",
+      "function": "a",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4820482702164355217852563957310960277140103122118976730578750066987453084163field",
+          "value": "{\n  program_id: four_program.aleo,\n  function_name: a,\n  arguments: [\n    {\n      program_id: two_program.aleo,\n      function_name: b,\n      arguments: [\n        {\n          program_id: zero_program.aleo,\n          function_name: c,\n          arguments: [\n            aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n          ]\n        },\n        {\n          program_id: one_program.aleo,\n          function_name: d,\n          arguments: [\n            aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n          ]\n        },\n        aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n      ]\n    },\n    {\n      program_id: three_program.aleo,\n      function_name: e,\n      arguments: [\n        {\n          program_id: two_program.aleo,\n          function_name: b,\n          arguments: [\n            {\n              program_id: zero_program.aleo,\n              function_name: c,\n              arguments: [\n                aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n              ]\n            },\n            {\n              program_id: one_program.aleo,\n              function_name: d,\n              arguments: [\n                aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n              ]\n            },\n            aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n          ]\n        },\n        {\n          program_id: one_program.aleo,\n          function_name: d,\n          arguments: [\n            aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n          ]\n        },\n        {\n          program_id: zero_program.aleo,\n          function_name: c,\n          arguments: [\n            aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n          ]\n        },\n        aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n      ]\n    },\n    aleo1wqsrgjffvnlmkp9h9qdh69pd0j3x4hn8t9dhramxgl8x9qvn8g9sf8j0vk\n  ]\n}"
+        }
+      ],
+      "tpk": "1685408610923897430945967834110396612216998890784550386415528759923022294177group",
+      "tcm": "7338604459042947106705526855451195172165817278725541663619496545111199774122field",
+      "scm": "1086751918311582767802367286112789226489085872877868296302503241732542029820field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

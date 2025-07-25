@@ -1,4 +1,4 @@
-Error [ETYC0372088]: An async transition must call an async function.
+Error [ETYC0372088]: An `async` transition must contain at least one async operation — either a call to an `async` function or an `async` block.
     --> compiler-test:5:5
      |
    5 |     async transition mint_public(public receiver: address, public amount: u64) {

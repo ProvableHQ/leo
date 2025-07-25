@@ -39,21 +39,30 @@ pub struct TypeCheckingInput {
     pub max_array_elements: usize,
     pub max_mappings: usize,
     pub max_functions: usize,
+    pub max_inputs: usize,
 }
 
 impl TypeCheckingInput {
     /// Create a new `TypeCheckingInput` from the given network.
     pub fn new(network: NetworkName) -> Self {
-        let (max_array_elements, max_mappings, max_functions) = match network {
-            NetworkName::MainnetV0 => {
-                (MainnetV0::MAX_ARRAY_ELEMENTS, MainnetV0::MAX_MAPPINGS, MainnetV0::MAX_FUNCTIONS)
+        let (max_array_elements, max_mappings, max_functions, max_inputs) = match network {
+            NetworkName::MainnetV0 => (
+                MainnetV0::MAX_ARRAY_ELEMENTS,
+                MainnetV0::MAX_MAPPINGS,
+                MainnetV0::MAX_FUNCTIONS,
+                MainnetV0::MAX_INPUTS,
+            ),
+            NetworkName::TestnetV0 => (
+                TestnetV0::MAX_ARRAY_ELEMENTS,
+                TestnetV0::MAX_MAPPINGS,
+                TestnetV0::MAX_FUNCTIONS,
+                TestnetV0::MAX_INPUTS,
+            ),
+            NetworkName::CanaryV0 => {
+                (CanaryV0::MAX_ARRAY_ELEMENTS, CanaryV0::MAX_MAPPINGS, CanaryV0::MAX_FUNCTIONS, CanaryV0::MAX_INPUTS)
             }
-            NetworkName::TestnetV0 => {
-                (TestnetV0::MAX_ARRAY_ELEMENTS, TestnetV0::MAX_MAPPINGS, TestnetV0::MAX_FUNCTIONS)
-            }
-            NetworkName::CanaryV0 => (CanaryV0::MAX_ARRAY_ELEMENTS, CanaryV0::MAX_MAPPINGS, CanaryV0::MAX_FUNCTIONS),
         };
-        Self { max_array_elements, max_mappings, max_functions }
+        Self { max_array_elements, max_mappings, max_functions, max_inputs }
     }
 }
 
@@ -92,6 +101,7 @@ impl Pass for TypeChecking {
             used_structs: IndexSet::new(),
             conditional_scopes: Vec::new(),
             limits: input,
+            async_block_id: None,
         };
         visitor.visit_program(ast.as_repr());
         visitor.state.handler.last_err().map_err(|e| *e)?;

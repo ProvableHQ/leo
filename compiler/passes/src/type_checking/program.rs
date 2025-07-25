@@ -442,8 +442,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         });
 
         // Make sure that async transitions call finalize.
-        if self.scope_state.variant == Some(Variant::AsyncTransition) && !self.scope_state.has_called_finalize {
-            self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
+        if self.scope_state.variant == Some(Variant::AsyncTransition)
+            && !self.scope_state.has_called_finalize
+            && !self.scope_state.already_contains_an_async_block
+        {
+            self.emit_err(TypeCheckerError::missing_async_operation_in_async_transition(function.span));
         }
     }
 
@@ -530,6 +533,16 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 slf.visit_block(&constructor.block);
             })
         });
+
+        // Check that the constructor does not call `finalize`.
+        if self.scope_state.has_called_finalize {
+            self.emit_err(TypeCheckerError::custom("The constructor cannot call `finalize`.", constructor.span));
+        }
+
+        // Check that the constructor does not have an `async` block.
+        if self.scope_state.already_contains_an_async_block {
+            self.emit_err(TypeCheckerError::custom("The constructor cannot have an `async` block.", constructor.span));
+        }
     }
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {
