@@ -1,20 +1,29 @@
 {
   "Return": {
     "expression": {
-      "Identifier": {
-        "name": "expr",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "expr",
+          "span": {
+            "lo": 7,
+            "hi": 11
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 7,
           "hi": 11
         },
-        "id": 0
+        "id": 1
       }
     },
     "span": {
       "lo": 0,
       "hi": 12
     },
-    "id": 1
+    "id": 2
   }
 }
 

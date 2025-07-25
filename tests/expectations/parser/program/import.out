@@ -1,7 +1,9 @@
 {
+  "modules": {},
   "imports": {
     "hello": [
       {
+        "modules": {},
         "imports": {},
         "stubs": {},
         "program_scopes": {}

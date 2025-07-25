@@ -19,7 +19,7 @@ use leo_ast::{
     *,
 };
 use leo_errors::StaticAnalyzerError;
-use leo_span::sym;
+use leo_span::{Symbol, sym};
 
 use super::{ConstPropagationVisitor, value_to_expression};
 
@@ -48,7 +48,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     /* Expressions */
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
-        let old_id = input.id();
         let (new_expr, opt_value) = match input {
             Expression::Array(array) => self.reconstruct_array(array),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
@@ -60,7 +59,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Cast(cast) => self.reconstruct_cast(*cast),
             Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
             Expression::Err(err) => self.reconstruct_err(err),
-            Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
+            Expression::Path(path) => self.reconstruct_path(path),
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
@@ -72,13 +71,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Unit(unit) => self.reconstruct_unit(unit),
         };
 
-        if old_id != new_expr.id() {
-            self.changed = true;
-            let old_type =
-                self.state.type_table.get(&old_id).expect("Type checking guarantees that all expressions have a type.");
-            self.state.type_table.insert(new_expr.id(), old_type);
-        }
-
         (new_expr, opt_value)
     }
 
@@ -88,7 +80,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             *arg = self.reconstruct_expression(std::mem::take(arg)).0;
         });
         for member in input.members.iter_mut() {
-            let expression = member.expression.take().unwrap_or_else(|| member.identifier.into());
+            let expression = member.expression.take().unwrap_or_else(|| {
+                Path::from(member.identifier).with_absolute_path(Some(vec![member.identifier.name])).into()
+            });
             let (new_expr, value_opt) = self.reconstruct_expression(expression);
             member.expression = Some(new_expr);
             if let Some(value) = value_opt {
@@ -98,7 +92,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
         if values.len() == input.members.len() && input.const_arguments.is_empty() {
             let value = Value::Struct(StructContents {
-                name: input.name.name,
+                path: input.path.absolute_path().to_vec(),
                 contents: input.members.iter().map(|mem| mem.identifier.name).zip(values).collect(),
             });
             (input.into(), Some(value))
@@ -129,8 +123,8 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let array_id = input.array.id();
-        let (array, value_opt) = self.reconstruct_expression(input.array);
-        let (index, opt_value) = self.reconstruct_expression(input.index);
+        let (array, value_opt) = self.reconstruct_expression(input.array.clone());
+        let (index, opt_value) = self.reconstruct_expression(input.index.clone());
         if let Some(value) = opt_value {
             // We can perform compile time bounds checking.
 
@@ -359,9 +353,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_identifier(&mut self, input: leo_ast::Identifier) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_path(&mut self, input: leo_ast::Path) -> (Expression, Self::AdditionalOutput) {
         // Substitute the identifier with the constant value if it is a constant that's been evaluated.
-        if let Some(expression) = self.state.symbol_table.lookup_const(self.program, input.name) {
+        if let Some(expression) = self.state.symbol_table.lookup_const(self.program, input.absolute_path()) {
             let (expression, opt_value) = self.reconstruct_expression(expression);
             if opt_value.is_some() {
                 return (expression, opt_value);
@@ -490,7 +484,20 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (expr, opt_value) = self.reconstruct_expression(input.value);
 
         if opt_value.is_some() {
-            self.state.symbol_table.insert_const(self.program, input.place.name, expr.clone());
+            let path: &[Symbol] = if self.state.symbol_table.global_scope() {
+                // Then we need to insert the const with its full module-scoped path.
+                &self.module.iter().copied().chain(std::iter::once(input.place.name)).collect::<Vec<_>>()
+            } else {
+                &[input.place.name]
+            };
+            if self.state.symbol_table.lookup_const(self.program, path).is_none() {
+                // It wasn't already evaluated - insert it and record that we've made a change.
+                self.state.symbol_table.insert_const(self.program, path, expr.clone());
+                if self.state.symbol_table.global_scope() {
+                    // We made a change in the global scope, so this was a real change.
+                    self.changed = true;
+                }
+            }
         } else {
             self.const_not_evaluated = Some(span);
         }

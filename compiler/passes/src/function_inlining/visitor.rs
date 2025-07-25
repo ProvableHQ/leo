@@ -22,9 +22,11 @@ use leo_span::Symbol;
 pub struct FunctionInliningVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_functions: Vec<(Symbol, Function)>,
+    pub reconstructed_functions: Vec<(Vec<Symbol>, Function)>,
     /// The main program.
     pub program: Symbol,
+    /// A map to provide faster lookup of functions.
+    pub function_map: indexmap::IndexMap<Vec<Symbol>, Function>,
     /// Whether or not we are currently traversing an async function block.
     pub is_async: bool,
 }

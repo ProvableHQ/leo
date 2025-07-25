@@ -28,7 +28,7 @@ use std::{fmt::Display, mem};
 /// May be converted into a [`Program`] AST by parsing all tokens.
 pub(crate) struct ParserContext<'a> {
     /// Handler used to side-channel emit errors from the parser.
-    pub(crate) handler: Handler,
+    pub(crate) handler: &'a Handler,
     /// Counter used to generate unique node ids.
     pub(crate) node_builder: &'a NodeBuilder,
     /// All un-bumped tokens.
@@ -55,9 +55,10 @@ const DUMMY_EOF: SpannedToken = SpannedToken { token: Token::Eof, span: Span::du
 impl<'a> ParserContext<'a> {
     /// Returns a new [`ParserContext`] type given a vector of tokens.
     pub fn new(
-        handler: Handler,
+        handler: &'a Handler,
         node_builder: &'a NodeBuilder,
         mut tokens: Vec<SpannedToken>,
+        program_name: Option<Symbol>,
         network: NetworkName,
     ) -> Self {
         // Strip out comments.
@@ -73,7 +74,7 @@ impl<'a> ParserContext<'a> {
             prev_token: token.clone(),
             token,
             tokens,
-            program_name: None,
+            program_name,
             network,
             annotations: Vec::new(),
         };

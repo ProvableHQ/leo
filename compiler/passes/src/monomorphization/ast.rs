@@ -75,11 +75,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         self.changed = true;
         (
             Type::Composite(CompositeType {
-                id: Identifier {
-                    name: self.monomorphize_struct(&input.id.name, &evaluated_const_args), // use the new name
-                    span: input.id.span,
-                    id: self.state.node_builder.next_id(),
-                },
+                path: self.monomorphize_struct(&input.path, &evaluated_const_args),
                 const_arguments: vec![], // remove const arguments
                 program: input.program,
             }),
@@ -111,7 +107,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // Look up the already reconstructed function by name.
         let callee_fn = self
             .reconstructed_functions
-            .get(&input_call.function.name)
+            .get(input_call.function.absolute_path())
             .expect("Callee should already be reconstructed (post-order traversal).");
 
         // Proceed only if the function variant is `inline`.
@@ -124,15 +120,15 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // For a function `fn foo::[x: u32, y: u32](..)`, the generated name would be `"foo::[1u32, 2u32]"` for a call
         // that sets `x` to `1u32` and `y` to `2u32`. We know this name is safe to use because it's not a valid
         // identifier in the user code.
-        let new_callee_name = leo_span::Symbol::intern(&format!(
+        let new_callee_path = input_call.function.clone().with_updated_last_symbol(leo_span::Symbol::intern(&format!(
             "\"{}::[{}]\"",
-            input_call.function.name,
+            input_call.function.identifier().name,
             evaluated_const_args.iter().format(", ")
-        ));
+        )));
 
         // Check if the new callee name is not already present in `reconstructed_functions`. This ensures that we do not
         // add a duplicate definition for the same function.
-        if self.reconstructed_functions.get(&new_callee_name).is_none() {
+        if self.reconstructed_functions.get(new_callee_path.absolute_path()).is_none() {
             // Build mapping from const parameters to const argument values.
             let const_param_map: IndexMap<_, _> = callee_fn
                 .const_parameters
@@ -143,13 +139,13 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
 
             // Function to replace identifier expressions with their corresponding const argument or keep them unchanged.
             let replace_identifier = |expr: &Expression| match expr {
-                Expression::Identifier(ident) => {
-                    const_param_map.get(&ident.name).map_or(Expression::Identifier(*ident), |&expr| expr.clone())
-                }
+                Expression::Path(path) => const_param_map
+                    .get(&path.identifier().name)
+                    .map_or(Expression::Path(path.clone()), |&expr| expr.clone()),
                 _ => expr.clone(),
             };
 
-            let mut replacer = Replacer::new(replace_identifier, &self.state.node_builder);
+            let mut replacer = Replacer::new(replace_identifier, true /* refresh IDs */, &self.state.node_builder);
 
             // Create a new version of `callee_fn` that has a new name, no const parameters, and a new function ID.
 
@@ -160,7 +156,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             // Now, reconstruct the function to actually monomorphize its content such as generic struct expressions.
             function = self.reconstruct_function(function);
             function.identifier = Identifier {
-                name: new_callee_name,
+                name: new_callee_path.identifier().name,
                 span: leo_span::Span::default(),
                 id: self.state.node_builder.next_id(),
             };
@@ -168,22 +164,19 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             function.id = self.state.node_builder.next_id();
 
             // Keep track of the new function in case other functions need it.
-            self.reconstructed_functions.insert(new_callee_name, function);
+            self.reconstructed_functions.insert(new_callee_path.absolute_path().to_vec(), function);
 
             // Now keep track of the function we just monomorphized
-            self.monomorphized_functions.insert(input_call.function.name);
+            self.monomorphized_functions.insert(input_call.function.absolute_path().to_vec());
         }
+
         // At this stage, we know that we're going to modify the program
         self.changed = true;
 
         // Finally, construct the updated call expression that points to a monomorphized version and return it.
         (
             CallExpression {
-                function: Identifier {
-                    name: new_callee_name, // use the new name
-                    span: leo_span::Span::default(),
-                    id: self.state.node_builder.next_id(),
-                },
+                function: new_callee_path,
                 const_arguments: vec![], // remove const arguments
                 arguments: input_call.arguments,
                 program: input_call.program,
@@ -231,11 +224,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // Finally, construct the updated struct expression that points to a monomorphized version and return it.
         (
             StructExpression {
-                name: Identifier {
-                    name: self.monomorphize_struct(&input.name.name, &evaluated_const_args),
-                    span: input.name.span,
-                    id: self.state.node_builder.next_id(),
-                },
+                path: self.monomorphize_struct(&input.path, &evaluated_const_args),
                 members,
                 const_arguments: vec![], // remove const arguments
                 span: input.span,        // Keep pointing to the original struct expression

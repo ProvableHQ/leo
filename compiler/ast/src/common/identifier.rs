@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, NodeID, simple_node_impl};
+use crate::{Expression, Node, NodeID, Path, simple_node_impl};
 
 use leo_span::{Span, Symbol};
 
@@ -87,8 +87,20 @@ impl<N: Network> From<&IdentifierCore<N>> for Identifier {
     }
 }
 
+// Converts an `Identifier` to a `Path` expression
+// Note that this sets the `absolute_path` field in `Path` to `None`.
+// It's up to the caller of this method to figure out what to do `absolute_path`.
 impl From<Identifier> for Expression {
     fn from(value: Identifier) -> Self {
-        Expression::Identifier(value)
+        Expression::Path(crate::Path::from(value))
+    }
+}
+
+// Converts an `Identifier` to a `Path`
+// Note that this sets the `absolute_path` field in `Path` to `None`.
+// It's up to the caller of this method to figure out what to do `absolute_path`.
+impl From<Identifier> for Path {
+    fn from(value: Identifier) -> Self {
+        Path::new(vec![], value, None, value.span, value.id)
     }
 }

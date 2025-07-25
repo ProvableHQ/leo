@@ -24,6 +24,7 @@ use leo_ast::{
     Expression,
     Function,
     Identifier,
+    Path,
     ProgramReconstructor,
     StructExpression,
 };
@@ -33,16 +34,20 @@ pub struct MonomorphizationVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// The main program.
     pub program: Symbol,
+    /// A map to provide faster lookup of functions.
+    pub function_map: IndexMap<Vec<Symbol>, Function>,
+    /// A map to provide faster lookup of structs.
+    pub struct_map: IndexMap<Vec<Symbol>, Composite>,
     /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_functions: IndexMap<Symbol, Function>,
+    pub reconstructed_functions: IndexMap<Vec<Symbol>, Function>,
     /// A set of all functions that have been monomorphized at least once. This keeps track of the _original_ names of
     /// the functions not the names of the monomorphized versions.
-    pub monomorphized_functions: IndexSet<Symbol>,
+    pub monomorphized_functions: IndexSet<Vec<Symbol>>,
     /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_structs: IndexMap<Symbol, Composite>,
+    pub reconstructed_structs: IndexMap<Vec<Symbol>, Composite>,
     /// A set of all functions that have been monomorphized at least once. This keeps track of the _original_ names of
     /// the functions not the names of the monomorphized versions.
-    pub monomorphized_structs: IndexSet<Symbol>,
+    pub monomorphized_structs: IndexSet<Vec<Symbol>>,
     /// A vector of all the calls to const generic functions that have not been resolved.
     pub unresolved_calls: Vec<CallExpression>,
     /// A vector of all the struct expressions of const generic structs that have not been resolved.
@@ -57,7 +62,7 @@ impl MonomorphizationVisitor<'_> {
     /// Monomorphizes a generic struct by substituting const parameters with concrete arguments and caching result.
     /// Generates a unique name like `Foo::[1u32, 2u32]` based on the original name and the provided const arguments.
     /// Replaces all const parameter references in the struct body with values, then resolves nested generics.
-    /// Assigns a new identifier and struct ID, clears const params, and stores the result to avoid reprocessing.
+    /// Assigns a new name and struct ID, clears const params, and stores the result to avoid reprocessing.
     /// Panics if the original struct is not found in `reconstructed_structs` (should already be reconstructed).
     ///
     /// # Arguments
@@ -66,7 +71,7 @@ impl MonomorphizationVisitor<'_> {
     /// * Returns a `Symbol` for the newly monomorphized struct.
     ///
     /// Note: this functions already assumes that all provided const arguments are literals.
-    pub(crate) fn monomorphize_struct(&mut self, name: &Symbol, const_arguments: &Vec<Expression>) -> Symbol {
+    pub(crate) fn monomorphize_struct(&mut self, path: &Path, const_arguments: &Vec<Expression>) -> Path {
         // Generate a unique name for the monomorphized struct based on const arguments.
         //
         // For `struct Foo::[x: u32, y: u32](..)`, the generated name would be `Foo::[1u32, 2u32]` for a struct
@@ -74,30 +79,35 @@ impl MonomorphizationVisitor<'_> {
         // valid identifier in the user code.
         //
         // Later, we have to legalize these names because they are not valid Aleo identifiers. We do this in codegen.
-        let new_struct_name = leo_span::Symbol::intern(&format!("{}::[{}]", name, const_arguments.iter().format(", ")));
+        let new_struct_path = path.clone().with_updated_last_symbol(leo_span::Symbol::intern(&format!(
+            "{}::[{}]",
+            path.identifier().name,
+            const_arguments.iter().format(", ")
+        )));
 
         // Check if the new struct name is not already present in `reconstructed_structs`. This ensures that we do not
         // add a duplicate definition for the same struct.
-        if self.reconstructed_structs.get(&new_struct_name).is_none() {
+        if self.reconstructed_structs.get(new_struct_path.absolute_path()).is_none() {
+            let full_name = path.absolute_path();
             // Look up the already reconstructed struct by name.
             let struct_ = self
                 .reconstructed_structs
-                .get(name)
+                .get(full_name)
                 .expect("Struct should already be reconstructed (post-order traversal).");
 
             // Build mapping from const parameters to const argument values.
             let const_param_map: IndexMap<_, _> =
                 struct_.const_parameters.iter().map(|param| param.identifier().name).zip_eq(const_arguments).collect();
 
-            // Function to replace identifier expressions with their corresponding const argument or keep them unchanged.
-            let replace_identifier = |expr: &Expression| match expr {
-                Expression::Identifier(ident) => {
-                    const_param_map.get(&ident.name).map_or(Expression::Identifier(*ident), |&expr| expr.clone())
-                }
+            // Function to replace path expressions with their corresponding const argument or keep them unchanged.
+            let replace_path = |expr: &Expression| match expr {
+                Expression::Path(path) => const_param_map
+                    .get(&path.identifier().name)
+                    .map_or(Expression::Path(path.clone()), |&expr| expr.clone()),
                 _ => expr.clone(),
             };
 
-            let mut replacer = Replacer::new(replace_identifier, &self.state.node_builder);
+            let mut replacer = Replacer::new(replace_path, true /* refresh IDs */, &self.state.node_builder);
 
             // Create a new version of `struct_` that has a new name, no const parameters, and a new struct ID.
             //
@@ -108,21 +118,17 @@ impl MonomorphizationVisitor<'_> {
             // Now, reconstruct the struct to actually monomorphize its content such as generic struct type
             // instantiations.
             struct_ = self.reconstruct_struct(struct_);
-            struct_.identifier = Identifier {
-                name: new_struct_name,
-                span: leo_span::Span::default(),
-                id: self.state.node_builder.next_id(),
-            };
+            struct_.identifier = Identifier::new(new_struct_path.identifier().name, self.state.node_builder.next_id());
             struct_.const_parameters = vec![];
             struct_.id = self.state.node_builder.next_id();
 
             // Keep track of the new struct in case other structs need it.
-            self.reconstructed_structs.insert(new_struct_name, struct_);
+            self.reconstructed_structs.insert(new_struct_path.absolute_path().to_vec(), struct_);
 
             // Now keep track of the struct we just monomorphized
-            self.monomorphized_structs.insert(*name);
+            self.monomorphized_structs.insert(full_name.to_vec());
         }
 
-        new_struct_name
+        new_struct_path
     }
 }

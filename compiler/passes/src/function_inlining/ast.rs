@@ -34,8 +34,11 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
 
         // Lookup the reconstructed callee function.
         // Since this pass processes functions in post-order, the callee function is guaranteed to exist in `self.reconstructed_functions`
-        let (_, callee) =
-            self.reconstructed_functions.iter().find(|(symbol, _)| *symbol == input.function.name).unwrap();
+        let (_, callee) = self
+            .reconstructed_functions
+            .iter()
+            .find(|(path, _)| path == input.function.absolute_path())
+            .expect("guaranteed to exist due to post-order traversal of the call graph.");
 
         // Inline the callee function, if required, otherwise, return the call expression.
         match callee.variant {
@@ -48,18 +51,19 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
                     .zip_eq(input.arguments)
                     .collect::<IndexMap<_, _>>();
 
-                // Function to replace identifier expressions with their corresponding const argument or keep them unchanged.
-                let replace_identifier = |expr: &Expression| match expr {
-                    Expression::Identifier(ident) => parameter_to_argument
-                        .get(&ident.name)
-                        .map_or(Expression::Identifier(*ident), |expr| expr.clone()),
+                // Function to replace path expressions with their corresponding const argument or keep them unchanged.
+                let replace_path = |expr: &Expression| match expr {
+                    Expression::Path(path) => parameter_to_argument
+                        .get(&path.identifier().name)
+                        .map_or(Expression::Path(path.clone()), |expr| expr.clone()),
                     _ => expr.clone(),
                 };
 
-                let mut inlined_statements = Replacer::new(replace_identifier, &self.state.node_builder)
-                    .reconstruct_block(callee.block.clone())
-                    .0
-                    .statements;
+                let mut inlined_statements =
+                    Replacer::new(replace_path, false /* refresh IDs */, &self.state.node_builder)
+                        .reconstruct_block(callee.block.clone())
+                        .0
+                        .statements;
 
                 // If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
                 let result = match inlined_statements.last() {

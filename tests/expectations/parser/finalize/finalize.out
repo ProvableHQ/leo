@@ -1,4 +1,5 @@
 {
+  "modules": {},
   "imports": {},
   "stubs": {},
   "program_scopes": {
@@ -168,13 +169,22 @@
                 "mode": "None",
                 "type_": {
                   "Composite": {
-                    "id": {
-                      "name": "foo",
+                    "path": {
+                      "qualifier": [],
+                      "identifier": {
+                        "name": "foo",
+                        "span": {
+                          "lo": 176,
+                          "hi": 179
+                        },
+                        "id": 15
+                      },
+                      "absolute_path": null,
                       "span": {
                         "lo": 176,
                         "hi": 179
                       },
-                      "id": 15
+                      "id": 16
                     },
                     "const_arguments": [],
                     "program": null
@@ -184,7 +194,7 @@
                   "lo": 173,
                   "hi": 179
                 },
-                "id": 16
+                "id": 17
               },
               {
                 "identifier": {
@@ -193,18 +203,27 @@
                     "lo": 181,
                     "hi": 182
                   },
-                  "id": 17
+                  "id": 18
                 },
                 "mode": "None",
                 "type_": {
                   "Composite": {
-                    "id": {
-                      "name": "bar",
+                    "path": {
+                      "qualifier": [],
+                      "identifier": {
+                        "name": "bar",
+                        "span": {
+                          "lo": 184,
+                          "hi": 187
+                        },
+                        "id": 19
+                      },
+                      "absolute_path": null,
                       "span": {
                         "lo": 184,
                         "hi": 187
                       },
-                      "id": 18
+                      "id": 20
                     },
                     "const_arguments": [],
                     "program": null
@@ -214,7 +233,7 @@
                   "lo": 181,
                   "hi": 187
                 },
-                "id": 19
+                "id": 21
               }
             ],
             "output": [
@@ -222,13 +241,22 @@
                 "mode": "None",
                 "type_": {
                   "Composite": {
-                    "id": {
-                      "name": "baz",
+                    "path": {
+                      "qualifier": [],
+                      "identifier": {
+                        "name": "baz",
+                        "span": {
+                          "lo": 192,
+                          "hi": 195
+                        },
+                        "id": 22
+                      },
+                      "absolute_path": null,
                       "span": {
                         "lo": 192,
                         "hi": 195
                       },
-                      "id": 20
+                      "id": 23
                     },
                     "const_arguments": [],
                     "program": null
@@ -238,18 +266,27 @@
                   "lo": 192,
                   "hi": 195
                 },
-                "id": 21
+                "id": 24
               }
             ],
             "output_type": {
               "Composite": {
-                "id": {
-                  "name": "baz",
+                "path": {
+                  "qualifier": [],
+                  "identifier": {
+                    "name": "baz",
+                    "span": {
+                      "lo": 192,
+                      "hi": 195
+                    },
+                    "id": 22
+                  },
+                  "absolute_path": null,
                   "span": {
                     "lo": 192,
                     "hi": 195
                   },
-                  "id": 20
+                  "id": 23
                 },
                 "const_arguments": [],
                 "program": null
@@ -261,13 +298,13 @@
                 "lo": 196,
                 "hi": 204
               },
-              "id": 22
+              "id": 25
             },
             "span": {
               "lo": 153,
               "hi": 204
             },
-            "id": 23
+            "id": 26
           }
         ]
       ],

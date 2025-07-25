@@ -1,4 +1,5 @@
 {
+  "modules": {},
   "imports": {},
   "stubs": {},
   "program_scopes": {
@@ -63,12 +64,21 @@
                     "expression": {
                       "Call": {
                         "function": {
-                          "name": "inf",
+                          "qualifier": [],
+                          "identifier": {
+                            "name": "inf",
+                            "span": {
+                              "lo": 56,
+                              "hi": 59
+                            },
+                            "id": 4
+                          },
+                          "absolute_path": null,
                           "span": {
                             "lo": 56,
                             "hi": 59
                           },
-                          "id": 4
+                          "id": 5
                         },
                         "const_arguments": [],
                         "arguments": [],
@@ -77,14 +87,14 @@
                           "lo": 56,
                           "hi": 61
                         },
-                        "id": 5
+                        "id": 6
                       }
                     },
                     "span": {
                       "lo": 56,
                       "hi": 62
                     },
-                    "id": 6
+                    "id": 7
                   }
                 }
               ],
@@ -92,13 +102,13 @@
                 "lo": 46,
                 "hi": 68
               },
-              "id": 7
+              "id": 8
             },
             "span": {
               "lo": 25,
               "hi": 68
             },
-            "id": 8
+            "id": 9
           }
         ],
         [
@@ -112,7 +122,7 @@
                 "lo": 83,
                 "hi": 87
               },
-              "id": 9
+              "id": 10
             },
             "const_parameters": [],
             "input": [
@@ -123,7 +133,7 @@
                     "lo": 88,
                     "hi": 89
                   },
-                  "id": 10
+                  "id": 11
                 },
                 "mode": "None",
                 "type_": "Boolean",
@@ -131,7 +141,7 @@
                   "lo": 88,
                   "hi": 95
                 },
-                "id": 11
+                "id": 12
               }
             ],
             "output": [
@@ -142,7 +152,7 @@
                   "lo": 100,
                   "hi": 104
                 },
-                "id": 12
+                "id": 13
               }
             ],
             "output_type": "Boolean",
@@ -153,12 +163,21 @@
                     "expression": {
                       "Call": {
                         "function": {
-                          "name": "inf",
+                          "qualifier": [],
+                          "identifier": {
+                            "name": "inf",
+                            "span": {
+                              "lo": 115,
+                              "hi": 118
+                            },
+                            "id": 14
+                          },
+                          "absolute_path": null,
                           "span": {
                             "lo": 115,
                             "hi": 118
                           },
-                          "id": 13
+                          "id": 15
                         },
                         "const_arguments": [],
                         "arguments": [],
@@ -167,33 +186,42 @@
                           "lo": 115,
                           "hi": 120
                         },
-                        "id": 14
+                        "id": 16
                       }
                     },
                     "span": {
                       "lo": 115,
                       "hi": 121
                     },
-                    "id": 15
+                    "id": 17
                   }
                 },
                 {
                   "Return": {
                     "expression": {
-                      "Identifier": {
-                        "name": "y",
+                      "Path": {
+                        "qualifier": [],
+                        "identifier": {
+                          "name": "y",
+                          "span": {
+                            "lo": 137,
+                            "hi": 138
+                          },
+                          "id": 18
+                        },
+                        "absolute_path": null,
                         "span": {
                           "lo": 137,
                           "hi": 138
                         },
-                        "id": 16
+                        "id": 19
                       }
                     },
                     "span": {
                       "lo": 130,
                       "hi": 139
                     },
-                    "id": 17
+                    "id": 20
                   }
                 }
               ],
@@ -201,13 +229,13 @@
                 "lo": 105,
                 "hi": 145
               },
-              "id": 18
+              "id": 21
             },
             "span": {
               "lo": 74,
               "hi": 145
             },
-            "id": 19
+            "id": 22
           }
         ]
       ],

@@ -54,6 +54,7 @@
 
 use crate::Pass;
 
+use indexmap::IndexMap;
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
 use leo_span::Symbol;
@@ -79,6 +80,7 @@ impl Pass for FunctionInlining {
             state,
             reconstructed_functions: Vec::new(),
             program: Symbol::intern(""),
+            function_map: IndexMap::new(),
             is_async: false,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);

@@ -1,7 +1,9 @@
 {
+  "modules": {},
   "imports": {
     "hello": [
       {
+        "modules": {},
         "imports": {},
         "stubs": {},
         "program_scopes": {}
@@ -174,7 +176,7 @@
                                     "lo": 173,
                                     "hi": 178
                                   },
-                                  "id": 14
+                                  "id": 15
                                 },
                                 "network": {
                                   "name": "aleo",
@@ -182,7 +184,7 @@
                                     "lo": 179,
                                     "hi": 183
                                   },
-                                  "id": 16
+                                  "id": 18
                                 }
                               },
                               "name": "counter",
@@ -190,29 +192,47 @@
                                 "lo": 173,
                                 "hi": 191
                               },
-                              "id": 17
+                              "id": 19
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "addr",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "addr",
+                                "span": {
+                                  "lo": 193,
+                                  "hi": 197
+                                },
+                                "id": 20
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 193,
                                 "hi": 197
                               },
-                              "id": 18
+                              "id": 21
                             }
                           },
                           {
                             "Binary": {
                               "left": {
-                                "Identifier": {
-                                  "name": "current_value",
+                                "Path": {
+                                  "qualifier": [],
+                                  "identifier": {
+                                    "name": "current_value",
+                                    "span": {
+                                      "lo": 199,
+                                      "hi": 212
+                                    },
+                                    "id": 22
+                                  },
+                                  "absolute_path": null,
                                   "span": {
                                     "lo": 199,
                                     "hi": 212
                                   },
-                                  "id": 19
+                                  "id": 23
                                 }
                               },
                               "right": {
@@ -221,7 +241,7 @@
                                     "lo": 215,
                                     "hi": 219
                                   },
-                                  "id": 20,
+                                  "id": 24,
                                   "variant": {
                                     "Integer": [
                                       "U64",
@@ -235,7 +255,7 @@
                                 "lo": 199,
                                 "hi": 219
                               },
-                              "id": 21
+                              "id": 25
                             }
                           }
                         ],
@@ -243,14 +263,14 @@
                           "lo": 160,
                           "hi": 220
                         },
-                        "id": 22
+                        "id": 26
                       }
                     },
                     "span": {
                       "lo": 160,
                       "hi": 221
                     },
-                    "id": 23
+                    "id": 27
                   }
                 },
                 {
@@ -263,7 +283,7 @@
                             "lo": 230,
                             "hi": 237
                           },
-                          "id": 24
+                          "id": 28
                         },
                         "name": {
                           "name": "remove",
@@ -271,7 +291,7 @@
                             "lo": 239,
                             "hi": 245
                           },
-                          "id": 25
+                          "id": 29
                         },
                         "arguments": [
                           {
@@ -283,7 +303,7 @@
                                     "lo": 246,
                                     "hi": 251
                                   },
-                                  "id": 26
+                                  "id": 31
                                 },
                                 "network": {
                                   "name": "aleo",
@@ -291,7 +311,7 @@
                                     "lo": 252,
                                     "hi": 256
                                   },
-                                  "id": 28
+                                  "id": 34
                                 }
                               },
                               "name": "foo",
@@ -299,17 +319,26 @@
                                 "lo": 246,
                                 "hi": 260
                               },
-                              "id": 29
+                              "id": 35
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "addr",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "addr",
+                                "span": {
+                                  "lo": 262,
+                                  "hi": 266
+                                },
+                                "id": 36
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 262,
                                 "hi": 266
                               },
-                              "id": 30
+                              "id": 37
                             }
                           }
                         ],
@@ -317,14 +346,14 @@
                           "lo": 230,
                           "hi": 267
                         },
-                        "id": 31
+                        "id": 38
                       }
                     },
                     "span": {
                       "lo": 230,
                       "hi": 268
                     },
-                    "id": 32
+                    "id": 39
                   }
                 },
                 {
@@ -336,7 +365,7 @@
                           "lo": 281,
                           "hi": 282
                         },
-                        "id": 33
+                        "id": 40
                       }
                     },
                     "type_": {
@@ -350,7 +379,7 @@
                             "lo": 289,
                             "hi": 296
                           },
-                          "id": 34
+                          "id": 41
                         },
                         "name": {
                           "name": "get",
@@ -358,7 +387,7 @@
                             "lo": 298,
                             "hi": 301
                           },
-                          "id": 35
+                          "id": 42
                         },
                         "arguments": [
                           {
@@ -370,7 +399,7 @@
                                     "lo": 302,
                                     "hi": 307
                                   },
-                                  "id": 36
+                                  "id": 44
                                 },
                                 "network": {
                                   "name": "aleo",
@@ -378,7 +407,7 @@
                                     "lo": 308,
                                     "hi": 312
                                   },
-                                  "id": 38
+                                  "id": 47
                                 }
                               },
                               "name": "foo",
@@ -386,17 +415,26 @@
                                 "lo": 302,
                                 "hi": 316
                               },
-                              "id": 39
+                              "id": 48
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "addr",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "addr",
+                                "span": {
+                                  "lo": 318,
+                                  "hi": 322
+                                },
+                                "id": 49
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 318,
                                 "hi": 322
                               },
-                              "id": 40
+                              "id": 50
                             }
                           }
                         ],
@@ -404,14 +442,14 @@
                           "lo": 289,
                           "hi": 323
                         },
-                        "id": 41
+                        "id": 51
                       }
                     },
                     "span": {
                       "lo": 277,
                       "hi": 323
                     },
-                    "id": 42
+                    "id": 52
                   }
                 },
                 {
@@ -423,7 +461,7 @@
                           "lo": 337,
                           "hi": 338
                         },
-                        "id": 43
+                        "id": 53
                       }
                     },
                     "type_": {
@@ -437,7 +475,7 @@
                             "lo": 345,
                             "hi": 352
                           },
-                          "id": 44
+                          "id": 54
                         },
                         "name": {
                           "name": "get_or_use",
@@ -445,7 +483,7 @@
                             "lo": 354,
                             "hi": 364
                           },
-                          "id": 45
+                          "id": 55
                         },
                         "arguments": [
                           {
@@ -457,7 +495,7 @@
                                     "lo": 365,
                                     "hi": 370
                                   },
-                                  "id": 46
+                                  "id": 57
                                 },
                                 "network": {
                                   "name": "aleo",
@@ -465,7 +503,7 @@
                                     "lo": 371,
                                     "hi": 375
                                   },
-                                  "id": 48
+                                  "id": 60
                                 }
                               },
                               "name": "foo",
@@ -473,17 +511,26 @@
                                 "lo": 365,
                                 "hi": 379
                               },
-                              "id": 49
+                              "id": 61
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "addr",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "addr",
+                                "span": {
+                                  "lo": 381,
+                                  "hi": 385
+                                },
+                                "id": 62
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 381,
                                 "hi": 385
                               },
-                              "id": 50
+                              "id": 63
                             }
                           },
                           {
@@ -492,7 +539,7 @@
                                 "lo": 387,
                                 "hi": 391
                               },
-                              "id": 51,
+                              "id": 64,
                               "variant": {
                                 "Integer": [
                                   "U64",
@@ -506,14 +553,14 @@
                           "lo": 345,
                           "hi": 392
                         },
-                        "id": 52
+                        "id": 65
                       }
                     },
                     "span": {
                       "lo": 333,
                       "hi": 392
                     },
-                    "id": 53
+                    "id": 66
                   }
                 },
                 {
@@ -525,7 +572,7 @@
                           "lo": 406,
                           "hi": 407
                         },
-                        "id": 54
+                        "id": 67
                       }
                     },
                     "type_": {
@@ -539,7 +586,7 @@
                             "lo": 414,
                             "hi": 421
                           },
-                          "id": 55
+                          "id": 68
                         },
                         "name": {
                           "name": "contains",
@@ -547,7 +594,7 @@
                             "lo": 423,
                             "hi": 431
                           },
-                          "id": 56
+                          "id": 69
                         },
                         "arguments": [
                           {
@@ -559,7 +606,7 @@
                                     "lo": 432,
                                     "hi": 437
                                   },
-                                  "id": 57
+                                  "id": 71
                                 },
                                 "network": {
                                   "name": "aleo",
@@ -567,7 +614,7 @@
                                     "lo": 438,
                                     "hi": 442
                                   },
-                                  "id": 59
+                                  "id": 74
                                 }
                               },
                               "name": "foo",
@@ -575,17 +622,26 @@
                                 "lo": 432,
                                 "hi": 446
                               },
-                              "id": 60
+                              "id": 75
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "addr",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "addr",
+                                "span": {
+                                  "lo": 448,
+                                  "hi": 452
+                                },
+                                "id": 76
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 448,
                                 "hi": 452
                               },
-                              "id": 61
+                              "id": 77
                             }
                           }
                         ],
@@ -593,14 +649,14 @@
                           "lo": 414,
                           "hi": 453
                         },
-                        "id": 62
+                        "id": 78
                       }
                     },
                     "span": {
                       "lo": 402,
                       "hi": 453
                     },
-                    "id": 63
+                    "id": 79
                   }
                 }
               ],
@@ -608,13 +664,13 @@
                 "lo": 150,
                 "hi": 460
               },
-              "id": 64
+              "id": 80
             },
             "span": {
               "lo": 119,
               "hi": 460
             },
-            "id": 65
+            "id": 81
           }
         ]
       ],

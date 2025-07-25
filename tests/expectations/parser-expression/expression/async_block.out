@@ -119,12 +119,21 @@
             "value": {
               "Call": {
                 "function": {
-                  "name": "foo",
+                  "qualifier": [],
+                  "identifier": {
+                    "name": "foo",
+                    "span": {
+                      "lo": 57,
+                      "hi": 60
+                    },
+                    "id": 4
+                  },
+                  "absolute_path": null,
                   "span": {
                     "lo": 57,
                     "hi": 60
                   },
-                  "id": 4
+                  "id": 5
                 },
                 "const_arguments": [],
                 "arguments": [],
@@ -133,14 +142,14 @@
                   "lo": 57,
                   "hi": 62
                 },
-                "id": 5
+                "id": 6
               }
             },
             "span": {
               "lo": 49,
               "hi": 62
             },
-            "id": 6
+            "id": 7
           }
         }
       ],
@@ -148,13 +157,13 @@
         "lo": 36,
         "hi": 65
       },
-      "id": 7
+      "id": 8
     },
     "span": {
       "lo": 30,
       "hi": 65
     },
-    "id": 8
+    "id": 9
   }
 }
 

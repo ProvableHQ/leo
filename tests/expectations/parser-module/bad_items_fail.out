@@ -1,0 +1,45 @@
+Error [EPAR0370005]: expected 'const', 'struct', 'inline', '}' -- found 'let'
+    --> test_0:1:1
+     |
+   1 | let x: u32 = 0;
+     | ^^^
+Error [EPAR0370005]: expected 'const', 'struct', 'inline', '}' -- found 'function'
+    --> test_1:1:1
+     |
+   1 | function foo() {}
+     | ^^^^^^^^
+Error [EPAR0370005]: expected 'const', 'struct', 'inline', '}' -- found 'async'
+    --> test_2:1:1
+     |
+   1 | async function foo() {}
+     | ^^^^^
+Error [EPAR0370005]: expected 'const', 'struct', 'inline', '}' -- found 'transition'
+    --> test_3:1:1
+     |
+   1 | transition foo() {}
+     | ^^^^^^^^^^
+Error [EPAR0370005]: expected 'const', 'struct', 'inline', '}' -- found 'async'
+    --> test_4:1:1
+     |
+   1 | async transition foo() {}
+     | ^^^^^
+Error [EPAR0370005]: expected 'const', 'struct', 'inline', '}' -- found 'record'
+    --> test_5:1:1
+     |
+   1 | record Foo {}
+     | ^^^^^^
+Error [EPAR0370005]: expected 'const', 'struct', 'inline', '}' -- found 'mapping'
+    --> test_6:1:1
+     |
+   1 | mapping Map
+     | ^^^^^^^
+Error [EPAR0370005]: expected 'const', 'struct', 'inline', '}' -- found 'program'
+    --> test_7:1:1
+     |
+   1 | program foo.aleo {}
+     | ^^^^^^^
+Error [EPAR0370005]: expected 'const', 'struct', 'inline', '}' -- found '{'
+    --> test_8:1:1
+     |
+   1 | {
+     | ^

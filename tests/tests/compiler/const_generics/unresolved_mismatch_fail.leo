@@ -5,7 +5,7 @@ program foo.aleo {
         let f = foo::[0]();
     }
 
-    // Here, `Foo::[2 * N]` can be resolved but `Foo::[2 * N * x]` can't. 
+    // Here, `Foo::[2 * N]` can be resolved but `Foo::[2 * N * x]` can't.
     // Ensure we emit a monomorphization error (not a type check error).
     inline foo::[N: u32]() -> Foo::[2 * N] {
         let x: u32 = 1u32;

@@ -29,6 +29,7 @@ use leo_ast::{
     Location,
     MemberAccess,
     Node as _,
+    Path,
     Program,
     Statement,
     Type,
@@ -87,7 +88,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 );
                 self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
                 let access = ArrayAccess {
-                    array: name.into(),
+                    array: Path::from(name).into(),
                     index: index.into(),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
@@ -108,7 +109,7 @@ impl<'a> WriteTransformingVisitor<'a> {
             for (&field_name, &member) in members.clone().iter() {
                 // Create a definition for each field.
                 let access = MemberAccess {
-                    inner: name.into(),
+                    inner: Path::from(name).into(),
                     name: Identifier::new(field_name, self.state.node_builder.next_id()),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
@@ -140,7 +141,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 let identifier = self.reconstruct_assign_place(array_access.array);
                 self.get_array_member(identifier.name, &array_access.index).expect("We have visited all array writes.")
             }
-            Identifier(identifier) => identifier,
+            Path(path) => leo_ast::Identifier { name: path.identifier().name, span: path.span, id: path.id },
             MemberAccess(member_access) => {
                 let identifier = self.reconstruct_assign_place(member_access.inner);
                 self.get_struct_member(identifier.name, member_access.name.name)
@@ -168,7 +169,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 // Change it to this:
                 // `arr = x; arr_0 = x[0]; arr_1 = x[1]; arr_2 = x[2];`
                 let one_assign = AssignStatement {
-                    place: place.into(),
+                    place: Path::from(place).into(),
                     value,
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
@@ -177,7 +178,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 accumulate.push(one_assign);
                 for (i, &member) in array_members.iter().enumerate() {
                     let access = ArrayAccess {
-                        array: place.into(),
+                        array: Path::from(place).into(),
                         index: Literal::integer(
                             IntegerType::U32,
                             format!("{i}u32"),
@@ -209,7 +210,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 // Change it to this:
                 // `struc = x; struc_field0 = x.field0; struc_field1 = x.field1;`
                 let one_assign = AssignStatement {
-                    place: place.into(),
+                    place: Path::from(place).into(),
                     value,
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
@@ -218,7 +219,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 accumulate.push(one_assign);
                 for (field, member_name) in struct_members.iter() {
                     let access = MemberAccess {
-                        inner: place.into(),
+                        inner: Path::from(place).into(),
                         name: Identifier::new(*field, self.state.node_builder.next_id()),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
@@ -229,7 +230,7 @@ impl<'a> WriteTransformingVisitor<'a> {
         } else {
             let stmt = AssignStatement {
                 value,
-                place: place.into(),
+                place: Path::from(place).into(),
                 id: self.state.node_builder.next_id(),
                 span: Default::default(),
             }
@@ -256,6 +257,12 @@ impl AstVisitor for WriteTransformingFiller<'_> {
 
 impl WriteTransformingFiller<'_> {
     fn fill(&mut self, program: &Program) {
+        for (_, module) in program.modules.iter() {
+            self.0.program = module.program_name;
+            for (_, function) in module.functions.iter() {
+                self.visit_block(&function.block);
+            }
+        }
         for (_, scope) in program.program_scopes.iter() {
             for (_, function) in scope.functions.iter() {
                 self.0.program = scope.program_id.name.name;
@@ -268,7 +275,7 @@ impl WriteTransformingFiller<'_> {
     /// variables names.
     fn access_recurse(&mut self, place: &Expression) -> Identifier {
         match place {
-            Expression::Identifier(identifier) => *identifier,
+            Expression::Path(path) => Identifier { name: path.identifier().name, span: path.span, id: path.id },
             Expression::ArrayAccess(array_access) => {
                 let array_name = self.access_recurse(&array_access.array);
                 let members = self.0.array_members.entry(array_name.name).or_insert_with(|| {
@@ -302,12 +309,12 @@ impl WriteTransformingFiller<'_> {
                         .0
                         .state
                         .symbol_table
-                        .lookup_struct(comp.id.name)
+                        .lookup_struct(comp.path.absolute_path())
                         .or_else(|| {
-                            self.0
-                                .state
-                                .symbol_table
-                                .lookup_record(Location::new(comp.program.unwrap_or(self.0.program), comp.id.name))
+                            self.0.state.symbol_table.lookup_record(&Location::new(
+                                comp.program.unwrap_or(self.0.program),
+                                comp.path.absolute_path().to_vec(),
+                            ))
                         })
                         .unwrap();
                     struct_

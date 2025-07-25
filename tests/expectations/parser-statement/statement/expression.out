@@ -1,20 +1,29 @@
 {
   "Expression": {
     "expression": {
-      "Identifier": {
-        "name": "expr",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "expr",
+          "span": {
+            "lo": 0,
+            "hi": 4
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 0,
           "hi": 4
         },
-        "id": 0
+        "id": 1
       }
     },
     "span": {
       "lo": 0,
       "hi": 5
     },
-    "id": 1
+    "id": 2
   }
 }
 
@@ -23,23 +32,41 @@
     "expression": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 6,
+                "hi": 7
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 6,
               "hi": 7
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 8,
+                "hi": 9
+              },
+              "id": 2
+            },
+            "absolute_path": null,
             "span": {
               "lo": 8,
               "hi": 9
             },
-            "id": 1
+            "id": 3
           }
         },
         "op": "Add",
@@ -47,14 +74,14 @@
           "lo": 6,
           "hi": 9
         },
-        "id": 2
+        "id": 4
       }
     },
     "span": {
       "lo": 6,
       "hi": 10
     },
-    "id": 3
+    "id": 5
   }
 }
 
@@ -63,12 +90,21 @@
     "expression": {
       "Call": {
         "function": {
-          "name": "x",
+          "qualifier": [],
+          "identifier": {
+            "name": "x",
+            "span": {
+              "lo": 11,
+              "hi": 12
+            },
+            "id": 0
+          },
+          "absolute_path": null,
           "span": {
             "lo": 11,
             "hi": 12
           },
-          "id": 0
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [],
@@ -77,14 +113,14 @@
           "lo": 11,
           "hi": 14
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 11,
       "hi": 15
     },
-    "id": 2
+    "id": 3
   }
 }
 

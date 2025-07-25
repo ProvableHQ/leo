@@ -27,9 +27,12 @@ pub struct ScopeState {
     pub(crate) has_return: bool,
     /// Current program name.
     pub(crate) program_name: Option<Symbol>,
-    /// Whether we are currently traversing a stub.
+    /// Current module name.
+    pub(crate) module_name: Vec<Symbol>,
+    /// Whether or not we are currently traversing a stub.
     pub(crate) is_stub: bool,
     /// The futures that must be propagated to an async function.
+    /// We only expect futures in the top level program scope at this stage so just refer to them by their names.
     pub(crate) futures: IndexMap<Symbol, Location>,
     /// Whether the finalize caller has called the finalize function.
     pub(crate) has_called_finalize: bool,
@@ -51,6 +54,7 @@ impl ScopeState {
             variant: None,
             has_return: false,
             program_name: None,
+            module_name: vec![],
             is_stub: false,
             futures: IndexMap::new(),
             has_called_finalize: false,
@@ -77,9 +81,18 @@ impl ScopeState {
 
     /// Get the current location.
     pub fn location(&self) -> Location {
+        let function_path = self
+            .module_name
+            .iter()
+            .cloned()
+            .chain(std::iter::once(
+                self.function.expect("Only call ScopeState::location when visiting a function or function stub."),
+            ))
+            .collect::<Vec<Symbol>>();
+
         Location::new(
             self.program_name.expect("Only call ScopeState::location when visiting a function or function stub."),
-            self.function.expect("Only call ScopeState::location when visiting a function or function stub."),
+            function_path,
         )
     }
 }

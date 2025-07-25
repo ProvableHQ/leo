@@ -144,7 +144,7 @@ impl Value {
             (Address(x), Address(y)) => x == y,
             (Struct(x), Struct(y)) => {
                 // They must have the same name
-                if x.name != y.name {
+                if x.path != y.path {
                     return Ok(false);
                 }
 
@@ -358,7 +358,7 @@ impl ToBits for Value {
             Field(x) => SvmLiteral::Field(*x).into(),
             Scalar(x) => SvmLiteral::Scalar(*x).into(),
             Address(x) => SvmLiteral::Address(*x).into(),
-            Struct(StructContents { name: _, contents }) => {
+            Struct(StructContents { path: _, contents }) => {
                 (contents.len() as u8).write_bits_le(vec);
                 for (name, value) in contents.iter() {
                     let name_s = name.to_string();

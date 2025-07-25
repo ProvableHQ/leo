@@ -57,7 +57,7 @@ impl ParserContext<'_> {
             return Err(ParserError::missing_program_scope(self.token.span).into());
         }
 
-        Ok(Program { imports, stubs: IndexMap::new(), program_scopes })
+        Ok(Program { modules: IndexMap::new(), imports, stubs: IndexMap::new(), program_scopes })
     }
 
     fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
@@ -206,6 +206,51 @@ impl ParserContext<'_> {
             constructor,
             functions: [transitions, functions].concat(),
             span: start + end,
+        })
+    }
+
+    /// Parses a module.
+    pub fn parse_module(&mut self, path: &[Symbol]) -> Result<Module> {
+        // Parse the body of the program scope.
+        let mut consts: Vec<(Symbol, ConstDeclaration)> = Vec::new();
+        let mut functions = Vec::new();
+        let mut structs: Vec<(Symbol, Composite)> = Vec::new();
+
+        while self.has_next() {
+            // Only allow consts, structs, and inlines in modules. This restriction may be relaxed in the future.
+            match &self.token.token {
+                Token::Const => {
+                    let declaration = self.parse_const_declaration_statement()?;
+                    consts.push((Symbol::intern(&declaration.place.to_string()), declaration));
+                }
+                Token::Struct => {
+                    let (id, struct_) = self.parse_struct()?;
+                    structs.push((id, struct_));
+                }
+                Token::Inline => {
+                    let (id, function) = self.parse_function()?;
+
+                    functions.push((id, function));
+                }
+                Token::RightCurly => break,
+                _ => {
+                    return Err(Self::unexpected_item(&self.token, &[
+                        Token::Const,
+                        Token::Struct,
+                        Token::Inline,
+                        Token::RightCurly,
+                    ])
+                    .into());
+                }
+            }
+        }
+
+        Ok(Module {
+            program_name: self.program_name.unwrap_or_default(),
+            path: path.to_owned(),
+            consts,
+            functions,
+            structs,
         })
     }
 

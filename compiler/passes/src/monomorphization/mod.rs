@@ -55,6 +55,7 @@ mod program;
 mod visitor;
 use visitor::*;
 
+#[derive(Debug)]
 pub struct MonomorphizationOutput {
     /// If we encountered calls to const generic functions that were not resolved, keep track of them in this vector
     pub unresolved_calls: Vec<leo_ast::CallExpression>,
@@ -81,6 +82,8 @@ impl Pass for Monomorphization {
             state,
             program: Symbol::intern(""),
             reconstructed_functions: indexmap::IndexMap::new(),
+            function_map: indexmap::IndexMap::new(),
+            struct_map: indexmap::IndexMap::new(),
             monomorphized_functions: indexmap::IndexSet::new(),
             reconstructed_structs: indexmap::IndexMap::new(),
             monomorphized_structs: indexmap::IndexSet::new(),

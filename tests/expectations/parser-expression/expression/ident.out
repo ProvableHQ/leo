@@ -1,149 +1,275 @@
 {
-  "Identifier": {
-    "name": "x",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "x",
+      "span": {
+        "lo": 0,
+        "hi": 1
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 0,
       "hi": 1
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "X",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "X",
+      "span": {
+        "lo": 2,
+        "hi": 3
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 2,
       "hi": 3
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "xxx",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "xxx",
+      "span": {
+        "lo": 4,
+        "hi": 7
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 4,
       "hi": 7
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "XXX",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "XXX",
+      "span": {
+        "lo": 8,
+        "hi": 11
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 8,
       "hi": 11
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "x1",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "x1",
+      "span": {
+        "lo": 12,
+        "hi": 14
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 12,
       "hi": 14
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "xu32",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "xu32",
+      "span": {
+        "lo": 15,
+        "hi": 19
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 15,
       "hi": 19
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "testx",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "testx",
+      "span": {
+        "lo": 20,
+        "hi": 25
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 20,
       "hi": 25
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "truex",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "truex",
+      "span": {
+        "lo": 26,
+        "hi": 31
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 26,
       "hi": 31
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "TRUE",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "TRUE",
+      "span": {
+        "lo": 32,
+        "hi": 36
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 32,
       "hi": 36
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "testX",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "testX",
+      "span": {
+        "lo": 37,
+        "hi": 42
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 37,
       "hi": 42
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "letX",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "letX",
+      "span": {
+        "lo": 43,
+        "hi": 47
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 43,
       "hi": 47
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "constX",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "constX",
+      "span": {
+        "lo": 48,
+        "hi": 54
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 48,
       "hi": 54
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "test_test",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "test_test",
+      "span": {
+        "lo": 55,
+        "hi": 64
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 55,
       "hi": 64
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "self",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "self",
+      "span": {
+        "lo": 65,
+        "hi": 69
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 65,
       "hi": 69
@@ -153,57 +279,102 @@
 }
 
 {
-  "Identifier": {
-    "name": "Self",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "Self",
+      "span": {
+        "lo": 70,
+        "hi": 74
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 70,
       "hi": 74
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "input",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "input",
+      "span": {
+        "lo": 75,
+        "hi": 80
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 75,
       "hi": 80
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "selfX",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "selfX",
+      "span": {
+        "lo": 81,
+        "hi": 86
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 81,
       "hi": 86
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "SelfX",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "SelfX",
+      "span": {
+        "lo": 87,
+        "hi": 92
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 87,
       "hi": 92
     },
-    "id": 0
+    "id": 1
   }
 }
 
 {
-  "Identifier": {
-    "name": "inputX",
+  "Path": {
+    "qualifier": [],
+    "identifier": {
+      "name": "inputX",
+      "span": {
+        "lo": 93,
+        "hi": 99
+      },
+      "id": 0
+    },
+    "absolute_path": null,
     "span": {
       "lo": 93,
       "hi": 99
     },
-    "id": 0
+    "id": 1
   }
 }
 

@@ -1,0 +1,26 @@
+program flat_module_corner.aleo;
+
+struct Data__L3bYhFC4bsQ:
+    values as [u32; 3u32];
+
+struct Data__4KOghWdEoSH:
+    values as [u32; 4u32];
+
+function main:
+    cast 10u32 20u32 30u32 into r0 as [u32; 3u32];
+    cast r0 into r1 as Data__L3bYhFC4bsQ;
+    cast 100u32 100u32 100u32 100u32 into r2 as [u32; 4u32];
+    cast r2 into r3 as Data__4KOghWdEoSH;
+    cast 1u32 2u32 3u32 into r4 as [u32; 3u32];
+    cast r4 into r5 as Data__L3bYhFC4bsQ;
+    cast 5u32 5u32 5u32 5u32 into r6 as [u32; 4u32];
+    cast r6 into r7 as Data__4KOghWdEoSH;
+    add 3u32 4u32 into r8;
+    mul r8 2u32 into r9;
+    add 3u32 4u32 into r10;
+    add r10 r1.values[1u32] into r11;
+    add r11 r3.values[2u32] into r12;
+    add r12 r5.values[0u32] into r13;
+    add r13 r7.values[1u32] into r14;
+    add r14 r9 into r15;
+    output r15 as u32.private;

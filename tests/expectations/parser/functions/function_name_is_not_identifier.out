@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected an identifier -- found '100u8'
+Error [EPAR0370005]: expected a path -- found '100u8'
     --> test:4:16
      |
    4 |         return 100u8(0u8);

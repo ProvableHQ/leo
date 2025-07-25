@@ -3,23 +3,41 @@
     "expression": {
       "Call": {
         "function": {
-          "name": "finalize",
+          "qualifier": [],
+          "identifier": {
+            "name": "finalize",
+            "span": {
+              "lo": 0,
+              "hi": 8
+            },
+            "id": 0
+          },
+          "absolute_path": null,
           "span": {
             "lo": 0,
             "hi": 8
           },
-          "id": 0
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [
           {
-            "Identifier": {
-              "name": "foo",
+            "Path": {
+              "qualifier": [],
+              "identifier": {
+                "name": "foo",
+                "span": {
+                  "lo": 9,
+                  "hi": 12
+                },
+                "id": 2
+              },
+              "absolute_path": null,
               "span": {
                 "lo": 9,
                 "hi": 12
               },
-              "id": 1
+              "id": 3
             }
           }
         ],
@@ -28,14 +46,14 @@
           "lo": 0,
           "hi": 13
         },
-        "id": 2
+        "id": 4
       }
     },
     "span": {
       "lo": 0,
       "hi": 14
     },
-    "id": 3
+    "id": 5
   }
 }
 

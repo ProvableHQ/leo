@@ -1,13 +1,22 @@
 {
   "Cast": {
     "expression": {
-      "Identifier": {
-        "name": "foo",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "foo",
+          "span": {
+            "lo": 0,
+            "hi": 3
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 0,
           "hi": 3
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
@@ -17,7 +26,7 @@
       "lo": 0,
       "hi": 9
     },
-    "id": 1
+    "id": 2
   }
 }
 
@@ -53,13 +62,22 @@
   "Cast": {
     "expression": {
       "Struct": {
-        "name": {
-          "name": "baz",
+        "path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "baz",
+            "span": {
+              "lo": 22,
+              "hi": 25
+            },
+            "id": 0
+          },
+          "absolute_path": null,
           "span": {
             "lo": 22,
             "hi": 25
           },
-          "id": 0
+          "id": 1
         },
         "const_arguments": [],
         "members": [
@@ -70,30 +88,39 @@
                 "lo": 28,
                 "hi": 31
               },
-              "id": 1
+              "id": 2
             },
             "expression": {
-              "Identifier": {
-                "name": "u8",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "u8",
+                  "span": {
+                    "lo": 33,
+                    "hi": 35
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 33,
                   "hi": 35
                 },
-                "id": 2
+                "id": 3
               }
             },
             "span": {
               "lo": 28,
               "hi": 35
             },
-            "id": 3
+            "id": 4
           }
         ],
         "span": {
           "lo": 22,
           "hi": 37
         },
-        "id": 4
+        "id": 5
       }
     },
     "type_": "Scalar",
@@ -101,20 +128,29 @@
       "lo": 22,
       "hi": 47
     },
-    "id": 5
+    "id": 6
   }
 }
 
 {
   "Ternary": {
     "condition": {
-      "Identifier": {
-        "name": "flag",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "flag",
+          "span": {
+            "lo": 48,
+            "hi": 52
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 48,
           "hi": 52
         },
-        "id": 0
+        "id": 1
       }
     },
     "if_true": {
@@ -123,7 +159,7 @@
           "lo": 55,
           "hi": 58
         },
-        "id": 1,
+        "id": 2,
         "variant": {
           "Integer": [
             "U8",
@@ -140,7 +176,7 @@
               "lo": 61,
               "hi": 64
             },
-            "id": 2,
+            "id": 3,
             "variant": {
               "Integer": [
                 "U8",
@@ -154,14 +190,14 @@
           "lo": 61,
           "hi": 74
         },
-        "id": 3
+        "id": 4
       }
     },
     "span": {
       "lo": 48,
       "hi": 74
     },
-    "id": 4
+    "id": 5
   }
 }
 
@@ -170,13 +206,22 @@
     "expression": {
       "Ternary": {
         "condition": {
-          "Identifier": {
-            "name": "flag",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "flag",
+              "span": {
+                "lo": 76,
+                "hi": 80
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 76,
               "hi": 80
             },
-            "id": 0
+            "id": 1
           }
         },
         "if_true": {
@@ -185,7 +230,7 @@
               "lo": 83,
               "hi": 86
             },
-            "id": 1,
+            "id": 2,
             "variant": {
               "Integer": [
                 "U8",
@@ -200,7 +245,7 @@
               "lo": 89,
               "hi": 92
             },
-            "id": 2,
+            "id": 3,
             "variant": {
               "Integer": [
                 "U8",
@@ -213,7 +258,7 @@
           "lo": 76,
           "hi": 92
         },
-        "id": 3
+        "id": 4
       }
     },
     "type_": "Scalar",
@@ -221,7 +266,7 @@
       "lo": 76,
       "hi": 103
     },
-    "id": 4
+    "id": 5
   }
 }
 

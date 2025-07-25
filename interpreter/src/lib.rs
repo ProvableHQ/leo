@@ -18,10 +18,10 @@ use leo_ast::{
     Ast,
     CallExpression,
     ExpressionStatement,
-    Identifier,
     NetworkName,
     Node as _,
     NodeBuilder,
+    Path,
     Statement,
     interpreter_value::{GlobalId, SvmAddress},
 };
@@ -31,11 +31,12 @@ use leo_span::{Span, Symbol, source_map::FileName, sym, with_session_globals};
 use snarkvm::prelude::{Network, Program, TestnetV0};
 
 use indexmap::IndexMap;
+use itertools::Itertools;
 use std::{
     collections::HashMap,
     fmt::{Display, Write as _},
     fs,
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 #[cfg(test)]
@@ -182,7 +183,7 @@ pub fn find_and_run_tests(
             let private_key = annotation.map.get(&private_key_symbol).cloned();
             native_test_functions.push(TestFunction {
                 program: id.program.to_string(),
-                function: id.name.to_string(),
+                function: id.path.iter().format("::").to_string(),
                 should_fail,
                 private_key,
             });
@@ -192,7 +193,7 @@ pub fn find_and_run_tests(
         assert!(function.variant.is_script(), "Type checking should ensure test functions are transitions or scripts.");
 
         let call = CallExpression {
-            function: Identifier::new(function.identifier.name, interpreter.node_builder.next_id()),
+            function: function.identifier.into(),
             const_arguments: vec![], // scripts don't have const parameters for now
             arguments: Vec::new(),
             program: Some(id.program),

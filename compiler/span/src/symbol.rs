@@ -252,6 +252,7 @@ symbols! {
     assert,
     assert_eq,
     assert_neq,
+    Async: "async",
     caller,
     Const: "const",
     constant,

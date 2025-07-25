@@ -45,6 +45,9 @@ pub mod interpreter_value;
 mod mapping;
 pub use self::mapping::*;
 
+mod module;
+pub use self::module::*;
+
 mod passes;
 pub use self::passes::*;
 

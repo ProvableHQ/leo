@@ -1,4 +1,5 @@
 {
+  "modules": {},
   "imports": {},
   "stubs": {},
   "program_scopes": {
@@ -186,13 +187,22 @@
                 },
                 "type_": {
                   "Composite": {
-                    "id": {
-                      "name": "Foo2",
+                    "path": {
+                      "qualifier": [],
+                      "identifier": {
+                        "name": "Foo2",
+                        "span": {
+                          "lo": 169,
+                          "hi": 173
+                        },
+                        "id": 18
+                      },
+                      "absolute_path": null,
                       "span": {
                         "lo": 169,
                         "hi": 173
                       },
-                      "id": 18
+                      "id": 20
                     },
                     "const_arguments": [
                       {
@@ -215,7 +225,7 @@
                   "lo": 166,
                   "hi": 173
                 },
-                "id": 20
+                "id": 21
               }
             ],
             "external": null,
@@ -224,7 +234,7 @@
               "lo": 122,
               "hi": 185
             },
-            "id": 21
+            "id": 22
           }
         ]
       ],
@@ -241,7 +251,7 @@
                 "lo": 202,
                 "hi": 206
               },
-              "id": 22
+              "id": 23
             },
             "const_parameters": [],
             "input": [],
@@ -253,13 +263,13 @@
                 "lo": 209,
                 "hi": 216
               },
-              "id": 23
+              "id": 24
             },
             "span": {
               "lo": 191,
               "hi": 216
             },
-            "id": 24
+            "id": 25
           }
         ]
       ],
