@@ -349,14 +349,7 @@ impl CodeGeneratingVisitor<'_> {
                 }
                 // Return the appropriate snarkVM operand.
                 name @ (sym::checksum | sym::edition | sym::program_owner) => {
-                    // If the program does not match the current program ID, then fully qualify the operand.
-                    if program_id.to_string()
-                        == self.program_id.expect("The program ID is set before traversing the program").to_string()
-                    {
-                        return (name.to_string(), String::new());
-                    }
-                    // Otherwise, use the name directly.
-                    return (format!("{program_id}/{name}"), String::new());
+                    return (name.to_string(), String::new());
                 }
                 _ => {} // Do nothing as `self.signer` and `self.caller` are handled below.
             }
@@ -564,7 +557,7 @@ impl CodeGeneratingVisitor<'_> {
                         let program_id =
                             ProgramId::from_str_with_network(&arguments[0].replace("\"", ""), self.state.network)
                                 .expect("Type checking guarantees that the program name is valid");
-                        // If the program name matches the current program ID, then use `checksum`, otherwise fully qualify the operand.
+                        // If the program name matches the current program ID, then use the operand directly, otherwise fully qualify the operand.
                         let operand = match program_id.to_string()
                             == self.program_id.expect("The program ID is set before traversing the program").to_string()
                         {
@@ -573,21 +566,10 @@ impl CodeGeneratingVisitor<'_> {
                         };
                         (operand, String::new())
                     }
-                    // Generate code for `Program::name_to_address`
-                    sym::name_to_address => {
-                        // Parse the argument string as a snarkVM address.
-                        let program_id =
-                            ProgramId::from_str_with_network(&arguments[0].replace("\"", ""), self.state.network)
-                                .expect("Type checking guarantees that the program name is valid");
-                        // Convert the program ID into an address.
-                        let address = program_id.to_address_string(self.state.network).expect(
-                            "Type checking guarantees that the program ID can be converted into a valid address",
-                        );
-                        // Return the address.
-                        (address, String::new())
-                    }
                     // No other variants are allowed.
-                    _ => panic!("The only associated methods of `Program` are `address`, `checksum`, and `edition`"),
+                    _ => panic!(
+                        "The only associated methods of `Program` are `checksum`, `edition`, and `program_owner`"
+                    ),
                 }
             }
             sym::CheatCode => {

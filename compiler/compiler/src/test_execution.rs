@@ -155,7 +155,9 @@ fn execution_runner(source: &str) -> String {
 
     create_session_if_not_set_then(|_| match execution_run_test(&config, &cases, &handler, &buf) {
         Ok(s) => s,
-        Err(e) => e.to_string(),
+        Err(e) => {
+            format!("Error while running execution tests:\n{e}\n\nErrors:\n{}", buf.extract_errs())
+        }
     })
 }
 

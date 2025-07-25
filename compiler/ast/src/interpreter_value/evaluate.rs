@@ -450,7 +450,7 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
         LiteralVariant::Unsuffixed(s) => {
             Value::Unsuffixed(s.clone()).resolve_if_unsuffixed(expected_ty, literal.span())?
         }
-        LiteralVariant::String(s) => Value::String(s.clone()),
+        LiteralVariant::String(_) => tc_fail!(),
     })
 }
 

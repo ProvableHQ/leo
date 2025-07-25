@@ -19,26 +19,26 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au17llhrna5m80ydfza2lh2pga0su65d6d9vgvfya2vs7yqem3tpv9qw2x0a8",
+      "id": "au1f0egtr47qkg4f8pk3sj5yrs2t9qav2wfgwzxl3j987dxsr3hhc9sqpy3px",
       "program": "test.aleo",
       "function": "check_starting_height",
       "inputs": [
         {
           "type": "private",
-          "id": "2565257712875420950702648395553988278995012498040770906728620269071056492588field",
-          "value": "ciphertext1qyqds2c20xsan65m7ww0qe8ru36a8tlecer046gs4njxq6ju6gnkwqqp78kt3"
+          "id": "473160645009144393707806193695022302299233884648031844011049798524734432668field",
+          "value": "ciphertext1qyqdv4yk636wmtc9pd8lcz9zphuv4zt7esfe2ktjmda85t28zeq5wpqw34tn0"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "5724483248545040318560568887010374936627268801826409464372234371248920440296field",
-          "value": "{\n  program_id: test.aleo,\n  function_name: check_starting_height,\n  arguments: [\n    16u32\n  ]\n}"
+          "id": "3777173429824206545670540837362767177819922310365285761903554890468837761959field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: check_starting_height,\n  arguments: [\n    23u32\n  ]\n}"
         }
       ],
-      "tpk": "7075792356147365194046963806309527613727846999359195828289935218437226816248group",
-      "tcm": "7755987982855262222852349044961448573159488604717986402081831336655321841404field",
-      "scm": "1396792818603869506423600159334507465346604725574674231706471289138572981452field"
+      "tpk": "908360825709631317953159254724553545720474507537331703758336103561549853147group",
+      "tcm": "8014162907210337999815476476235242230252150874146462841852297853320304523488field",
+      "scm": "5940940960702541536377624413684142270200483974494281681814390986492808615714field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

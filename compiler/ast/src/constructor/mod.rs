@@ -26,10 +26,10 @@ pub use noupgrade::*;
 use crate::{Annotation, Block, Indent, IntegerType, Location, Node, NodeID, Type};
 use leo_span::{Span, sym};
 
-use anyhow::bail;
+use anyhow::{anyhow, bail};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use snarkvm::prelude::{Address, Literal, Locator, Network, error};
+use snarkvm::prelude::{Address, Literal, Locator, Network};
 use std::{fmt, str::FromStr};
 
 /// A constructor definition.
@@ -72,7 +72,7 @@ impl Constructor {
                 };
                 // Parse the address.
                 let address = Address::<N>::from_str(address_string)
-                    .map_err(|e| error(format!("Invalid address in `@admin` annotation: `{e}`.")))?;
+                    .map_err(|e| anyhow!("Invalid address in `@admin` annotation: `{e}`."))?;
                 Ok(UpgradeVariant::Admin { address: address.to_string() })
             }
             sym::checksum => {
@@ -82,7 +82,7 @@ impl Constructor {
                 };
                 // Parse the mapping string as a locator.
                 let mapping = Locator::<N>::from_str(mapping_string)
-                    .map_err(|e| error(format!("Invalid mapping in `@checksum` annotation: `{e}`.")))?;
+                    .map_err(|e| anyhow!("Invalid mapping in `@checksum` annotation: `{e}`."))?;
 
                 // Parse the key string from the annotation.
                 let Some(key_string) = annotation.map.get(&sym::key) else {
@@ -90,7 +90,7 @@ impl Constructor {
                 };
                 // Parse the key as a plaintext value.
                 let key = Literal::<N>::from_str(key_string)
-                    .map_err(|e| error(format!("Invalid key in `@checksum` annotation: `{e}`.")))?;
+                    .map_err(|e| anyhow!("Invalid key in `@checksum` annotation: `{e}`."))?;
                 // Get the literal type.
                 let key_type = get_type_from_snarkvm_literal(&key);
                 Ok(UpgradeVariant::Checksum { mapping: mapping.into(), key: key.to_string(), key_type })

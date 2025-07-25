@@ -1,5 +1,5 @@
 Error [ETYC0372147]: The mapping 'dependent.aleo/bar' does not exist. Please ensure that it is imported or defined in your program.
-    --> compiler-test:9:5
+    --> compiler-test:8:5
      |
-   9 |     @checksum(mapping = "dependent.aleo/bar", key = "1field")
+   8 |     @checksum(mapping = "dependent.aleo/bar", key = "1field")
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

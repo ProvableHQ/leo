@@ -1320,7 +1320,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             LiteralVariant::Boolean(..) => Type::Boolean,
             LiteralVariant::Field(..) => Type::Field,
             LiteralVariant::Scalar(..) => Type::Scalar,
-            LiteralVariant::String(..) => Type::String,
+            LiteralVariant::String(..) => {
+                self.emit_err(TypeCheckerError::strings_are_not_supported(span));
+                Type::String
+            }
             LiteralVariant::Integer(kind, string) => match kind {
                 IntegerType::U8 => parse_and_return!(u8, IntegerType::U8, string, "u8"),
                 IntegerType::U16 => parse_and_return!(u16, IntegerType::U16, string, "u16"),

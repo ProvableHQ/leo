@@ -14,17 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// This is the required Leo constructor code for a program that is only upgradable
-/// if the new program's checksum matches the one declared in a pre-determined mapping.
-pub fn leo_checksum_constructor(mapping: impl std::fmt::Display, key: impl std::fmt::Display) -> String {
-    format!(
-        r#"
-@checksum(mapping="{mapping}", key="{key}")
-async constructor() {{}}
-"#
-    )
-}
-
 /// This is the required snarkVM constructor bytecode for a program that is only upgradable
 /// if the new program's checksum matches the one declared in a pre-determined mapping.
 pub fn snarkvm_checksum_constructor(mapping: impl std::fmt::Display, key: impl std::fmt::Display) -> String {

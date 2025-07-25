@@ -14,15 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// This is the required Leo constructor code for a program that is not upgradable.
-pub fn leo_noupgrade_constructor() -> String {
-    r"
-@noupgrade
-async constructor() {}
-"
-    .to_string()
-}
-
 /// This is the expected snarkVM constructor bytecode for a program that is not upgradable.
 pub fn snarkvm_noupgrade_constructor() -> String {
     r"

@@ -1,56 +1,34 @@
-Error [ETYC0372117]: Expected type `string` but type `field` was found.
-    --> compiler-test:5:49
+Error [ETYC0372117]: Expected type `[u8; 31]` but type `[u8; 32]` was found.
+    --> compiler-test:5:27
      |
-   5 |         let b: field = Program::name_to_address(0field);
-     |                                                 ^^^^^^
-Error [ETYC0372147]: Expected a string literal
-    --> compiler-test:5:49
-     |
-   5 |         let b: field = Program::name_to_address(0field);
-     |                                                 ^^^^^^
-Error [ETYC0372117]: Expected type `field` but type `address` was found.
-    --> compiler-test:5:24
-     |
-   5 |         let b: field = Program::name_to_address(0field);
-     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372119]: Received different types `address` and `field` for the operation `assert_neq`.
+   5 |         let d: [u8; 31] = Program::checksum(credits.aleo);
+     |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372119]: Received different types `[u8; 32]` and `[u8; 31]` for the operation `assert_neq`.
     --> compiler-test:6:9
      |
-   6 |         assert_neq(a, b);
+   6 |         assert_neq(c, d);
      |         ^^^^^^^^^^
      |
      = Make both operands the same type.
-Error [ETYC0372117]: Expected type `[u8; 31]` but type `[u8; 32]` was found.
-    --> compiler-test:9:27
+Error [ETYC0372147]: `Program::edition` must be called on a program ID, e.g. `foo.aleo`
+    --> compiler-test:8:39
      |
-   9 |         let d: [u8; 31] = Program::checksum("credits.aleo");
-     |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372119]: Received different types `[u8; 32]` and `[u8; 31]` for the operation `assert_neq`.
-    --> compiler-test:10:9
-     |
-  10 |         assert_neq(c, d);
-     |         ^^^^^^^^^^
-     |
-     = Make both operands the same type.
-Error [ETYC0372117]: Expected type `string` but type `[u8; 31]` was found.
-    --> compiler-test:12:39
-     |
-  12 |         let e: u16 = Program::edition(d);
+   8 |         let e: u16 = Program::edition(d);
      |                                       ^
-Error [ETYC0372147]: Expected a string literal
-    --> compiler-test:12:39
+Error [ETYC0372117]: Expected type `address` but type `[u8; 31]` was found.
+    --> compiler-test:8:39
      |
-  12 |         let e: u16 = Program::edition(d);
+   8 |         let e: u16 = Program::edition(d);
      |                                       ^
 Error [ETYC0372117]: Expected type `u8` but type `u16` was found.
-    --> compiler-test:13:21
+    --> compiler-test:9:21
      |
-  13 |         let f: u8 = Program::edition("credits.aleo");
-     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 |         let f: u8 = Program::edition(credits.aleo);
+     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372119]: Received different types `u16` and `u8` for the operation `assert_neq`.
-    --> compiler-test:14:9
+    --> compiler-test:10:9
      |
-  14 |         assert_neq(e, f);
+  10 |         assert_neq(e, f);
      |         ^^^^^^^^^^
      |
      = Make both operands the same type.

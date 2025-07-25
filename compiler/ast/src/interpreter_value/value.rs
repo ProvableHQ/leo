@@ -126,7 +126,7 @@ pub enum Value {
     Future(Future),
     Struct(StructContents),
     Unsuffixed(String),
-    String(String),
+    // String(String),
 }
 
 impl Value {
@@ -173,7 +173,6 @@ impl fmt::Display for Value {
             Group(x) => write!(f, "{x}"),
             Field(x) => write!(f, "{x}"),
             Scalar(x) => write!(f, "{x}"),
-            String(x) => write!(f, "{x}"),
             Array(x) => {
                 write!(f, "[")?;
                 let mut iter = x.iter().peekable();
@@ -212,6 +211,7 @@ impl fmt::Display for Value {
             Future(future) => write!(f, "{future}"),
             Unsuffixed(s) => write!(f, "{s}"),
             // Signature(x) => write!(f, "{x}"),
+            // String(_) => todo!(),
         }
     }
 }

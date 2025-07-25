@@ -1,10 +1,5 @@
 /*
-<<<<<<< HEAD
-seed = 1234567
-=======
 seed = 2234567890
-min_height = 16
->>>>>>> mainnet
 
 [case]
 program = "test.aleo"

@@ -109,7 +109,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         }
 
         // Typecheck the constructor.
-        // Note: Constructors are required for all programs once they are supported in the AVM.
+        // Note: Constructors are required for all **new** programs once they are supported in the AVM.
         //  However, we do not require them to exist to ensure backwards compatibility with existing programs.
         if let Some(constructor) = &input.constructor {
             self.visit_constructor(constructor);
@@ -465,7 +465,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         let upgrade_variant = match result {
             Ok(upgrade_variant) => upgrade_variant,
             Err(e) => {
-                self.emit_err(TypeCheckerError::custom(format!("{e}"), constructor.span));
+                self.emit_err(TypeCheckerError::custom(e, constructor.span));
                 return;
             }
         };

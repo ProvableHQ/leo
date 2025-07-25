@@ -60,7 +60,7 @@ impl TypeCheckingInput {
 /// A pass to check types.
 ///
 /// Also constructs the struct graph, call graph, and local symbol table data.
-pub struct TypeChecking {}
+pub struct TypeChecking;
 
 impl Pass for TypeChecking {
     type Input = TypeCheckingInput;

@@ -98,10 +98,6 @@ impl Literal {
         Literal { variant: LiteralVariant::Integer(integer_type, s), span, id }
     }
 
-    pub fn string(s: String, span: Span, id: NodeID) -> Self {
-        Literal { variant: LiteralVariant::String(s), span, id }
-    }
-
     pub fn unsuffixed(s: String, span: Span, id: NodeID) -> Self {
         Literal { variant: LiteralVariant::Unsuffixed(s), span, id }
     }

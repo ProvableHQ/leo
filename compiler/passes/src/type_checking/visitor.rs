@@ -284,6 +284,9 @@ impl TypeCheckingVisitor<'_> {
             }
         };
 
+        // Define a regex to match valid program IDs.
+        let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]*\.aleo$").unwrap();
+
         // Check that the arguments are of the correct type.
         match core_function {
             CoreFunction::BHP256CommitToAddress
@@ -805,10 +808,19 @@ impl TypeCheckingVisitor<'_> {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
+                // Check that the expression is a program ID.
+                match expression {
+                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
+                        if program_id_regex.is_match(s) => {}
+                    _ => {
+                        self.emit_err(TypeCheckerError::custom(
+                            "`Program::checksum` must be called on a program ID, e.g. `foo.aleo`",
+                            span,
+                        ));
+                    }
+                }
                 // Verify that the argument is a string.
-                self.assert_type(type_, &Type::String, span);
-                // Verify that the argument is a valid program ID.
-                self.assert_and_return_program_id(expression);
+                self.assert_type(type_, &Type::Address, span);
                 // Return the type.
                 Type::Array(ArrayType::new(
                     Type::Integer(IntegerType::U8),
@@ -824,10 +836,19 @@ impl TypeCheckingVisitor<'_> {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
+                // Check that the expression is a member access.
+                match expression {
+                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
+                        if program_id_regex.is_match(s) => {}
+                    _ => {
+                        self.emit_err(TypeCheckerError::custom(
+                            "`Program::edition` must be called on a program ID, e.g. `foo.aleo`",
+                            span,
+                        ));
+                    }
+                }
                 // Verify that the argument is a string.
-                self.assert_type(type_, &Type::String, span);
-                // Verify that the argument is a valid program ID.
-                self.assert_and_return_program_id(expression);
+                self.assert_type(type_, &Type::Address, span);
                 // Return the type.
                 Type::Integer(IntegerType::U16)
             }
@@ -835,30 +856,19 @@ impl TypeCheckingVisitor<'_> {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
-                // Verify that the argument is a string.
-                self.assert_type(type_, &Type::String, span);
-                // Verify that the argument is a valid program ID.
-                self.assert_and_return_program_id(expression);
-                // Return the type.
-                Type::Address
-            }
-            CoreFunction::ProgramNameToAddress => {
-                // Get the argument type, expression, and span.
-                let (type_, expression) = &arguments[0];
-                let span = expression.span();
-                // Verify that the argument is a string.
-                self.assert_type(type_, &Type::String, span);
-                // Verify that the argument is a valid program ID.
-                if let Some(program_id) = self.assert_and_return_program_id(expression) {
-                    // Attempt to convert the program ID into an address.
-                    if let Err(e) = program_id.to_address_string(self.state.network) {
-                        // Emit an error if the conversion fails.
+                // Check that the expression is a member access.
+                match expression {
+                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
+                        if program_id_regex.is_match(s) => {}
+                    _ => {
                         self.emit_err(TypeCheckerError::custom(
-                            format!("Failed to convert program ID into address: {e}"),
+                            "`Program::program_owner` must be called on a program ID, e.g. `foo.aleo`",
                             span,
                         ));
                     }
                 }
+                // Verify that the argument is a string.
+                self.assert_type(type_, &Type::Address, span);
                 // Return the type.
                 Type::Address
             }
@@ -1317,26 +1327,6 @@ impl TypeCheckingVisitor<'_> {
             && finalize_op
         {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
-        }
-    }
-
-    // Asserts that an expression is a valid program ID and returns the program ID.
-    fn assert_and_return_program_id(&mut self, expression: &Expression) -> Option<ProgramId> {
-        if let Expression::Literal(Literal { variant: LiteralVariant::String(program_id_string), .. }) = expression {
-            // Check that the program ID is valid and return it.
-            match ProgramId::from_str_with_network(program_id_string, self.state.network) {
-                Ok(program_id) => Some(program_id),
-                Err(e) => {
-                    self.emit_err(TypeCheckerError::custom(
-                        format!("Unable to parse string literal as program ID: {e}"),
-                        expression.span(),
-                    ));
-                    None
-                }
-            }
-        } else {
-            self.emit_err(TypeCheckerError::custom("Expected a string literal".to_string(), expression.span()));
-            None
         }
     }
 

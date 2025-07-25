@@ -1048,7 +1048,6 @@ fn value_to_snarkvm_literal(value: Value) -> Literal<TestnetV0> {
         | Value::Unit
         | Value::Future(_)
         | Value::Struct(_)
-        | Value::String(_)
         | Value::Unsuffixed(_) => {
             tc_fail!()
         }

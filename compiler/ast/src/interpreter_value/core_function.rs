@@ -1173,10 +1173,6 @@ pub fn evaluate_core_function(
             // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its owner.
             return Ok(None);
         }
-        CoreFunction::ProgramNameToAddress => {
-            // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its address.
-            return Ok(None);
-        }
     };
 
     Ok(Some(value))

@@ -17,9 +17,6 @@
 mod assigner;
 pub use assigner::*;
 
-mod normalizer;
-pub use normalizer::*;
-
 mod rename_table;
 pub use rename_table::*;
 

@@ -1,5 +1,4 @@
 program test.aleo {
-    
     function foo(a: bool) {
         assert_eq(true, a);
     }
