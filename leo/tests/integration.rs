@@ -201,7 +201,7 @@ fn integration_tests() {
     }
 
     // Sleep for a bit to let snarkos get started.
-    std::thread::sleep(std::time::Duration::from_secs(60 * 10));
+    std::thread::sleep(std::time::Duration::from_secs(60 * 1));
 
     // Wait until block height 16.
     loop {
@@ -252,6 +252,8 @@ fn copy_recursively(src: &Path, dst: &Path) -> io::Result<()> {
         let file_type = entry.file_type()?;
         let src_path = entry.path();
         let dst_path = dst.join(entry.file_name());
+        println!("SOURCE PATH {}", src_path.display());
+        println!("DEST PATH {}", dst_path.display());
 
         if file_type.is_dir() {
             copy_recursively(&src_path, &dst_path)?;
