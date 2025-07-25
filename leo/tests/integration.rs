@@ -100,6 +100,9 @@ fn run_test(test: &Test, force_rewrite: bool) -> bool {
 
     let _raii = CwdRaii::cwd(&contents_path);
 
+    Command::new("pwd").status().unwrap();
+    Command::new("ls").arg("-a").status().unwrap();
+
     let commands_path = test_context_directory.path().join("COMMANDS");
 
     let output = Command::new(&commands_path).arg(BINARY_PATH).output().expect("Failed to execute COMMANDS");
