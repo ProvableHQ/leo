@@ -142,12 +142,7 @@ fn handle_execute<A: Aleo>(
             Some(package) => (
                 format!(
                     "{}.aleo",
-                    package
-                        .programs
-                        .last()
-                        .expect("There must be at least one program in a Leo package")
-                        .name
-                        .to_string()
+                    package.programs.last().expect("There must be at least one program in a Leo package").name
                 ),
                 command.name,
             ),
