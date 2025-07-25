@@ -143,7 +143,7 @@ pub fn run_with_ledger(
         // Parse the bytecode as an Aleo program.
         // Note that this function checks that the bytecode is well-formed.
         let aleo_program =
-            ProgramCore::from_str(bytecode).map_err(|_| anyhow!("Failed to parse bytecode of program {name}"))?;
+            ProgramCore::from_str(bytecode).map_err(|e| anyhow!("Failed to parse bytecode of program {name}: {e}"))?;
 
         let mut deploy = || -> Result<()> {
             // Add the program to the ledger.
@@ -151,11 +151,13 @@ pub fn run_with_ledger(
             let deployment = ledger
                 .vm()
                 .deploy(&genesis_private_key, &aleo_program, None, 0, None, &mut rng)
-                .map_err(|_| anyhow!("Failed to deploy program {name}"))?;
+                .map_err(|e| anyhow!("Failed to deploy program {name}: {e}"))?;
             let block = ledger
                 .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![deployment], &mut rng)
-                .map_err(|_| anyhow!("Failed to prepare to advance block for program {name}"))?;
-            ledger.advance_to_next_block(&block).map_err(|_| anyhow!("Failed to advance block for program {name}"))?;
+                .map_err(|e| anyhow!("Failed to prepare to advance block for program {name}: {e}"))?;
+            ledger
+                .advance_to_next_block(&block)
+                .map_err(|e| anyhow!("Failed to advance block for program {name}: {e}"))?;
 
             // Check that the deployment transaction was accepted.
             if block.transactions().num_accepted() != 1 {
