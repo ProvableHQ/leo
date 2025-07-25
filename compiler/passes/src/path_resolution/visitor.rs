@@ -16,17 +16,24 @@
 
 use crate::CompilerState;
 
-use leo_ast::Function;
 use leo_span::Symbol;
 
-pub struct FunctionInliningVisitor<'a> {
+pub struct PathResolutionVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_functions: Vec<(Vec<Symbol>, Function)>,
-    /// The main program.
-    pub program: Symbol,
-    /// A map to provide faster lookup of functions
-    pub function_map: indexmap::IndexMap<Vec<Symbol>, Function>,
-    /// Whether or not we are currently traversing an async function block.
-    pub is_async: bool,
+    pub module: Vec<Symbol>,
+    /// Indicates whether this pass actually processed any async blocks.
+    #[allow(dead_code)]
+    pub modified: bool,
+}
+
+impl PathResolutionVisitor<'_> {
+    /// Enter module scope with path `module`, execute `func`, and then return to the parent module.
+    pub fn in_module_scope<T>(&mut self, module: &[Symbol], func: impl FnOnce(&mut Self) -> T) -> T {
+        let parent_module = self.module.clone();
+        self.module = module.to_vec();
+        let result = func(self);
+        self.module = parent_module;
+        result
+    }
 }

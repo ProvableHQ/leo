@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use crate::Identifier;
 
 use itertools::Itertools as _;
 
@@ -48,8 +49,8 @@ impl fmt::Display for StructVariableInitializer {
 /// A struct initialization expression, e.g., `Foo { bar: 42, baz }`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct StructExpression {
-    /// The name of the structure type to initialize.
-    pub name: Identifier,
+    /// A path to a structure type to initialize.
+    pub path: Path,
     /// Expressions for the const arguments passed to the struct's const parameters.
     pub const_arguments: Vec<Expression>,
     /// Initializer expressions for each of the fields in the struct.
@@ -65,7 +66,7 @@ pub struct StructExpression {
 
 impl fmt::Display for StructExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.name)?;
+        write!(f, "{}", self.path)?;
         if !self.const_arguments.is_empty() {
             write!(f, "::[{}]", self.const_arguments.iter().format(", "))?;
         }

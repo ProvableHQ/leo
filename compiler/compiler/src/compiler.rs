@@ -59,8 +59,7 @@ impl Compiler {
         self.state.ast = leo_parser::parse_ast(
             self.state.handler.clone(),
             &self.state.node_builder,
-            &source_file.src,
-            source_file.absolute_start,
+            &source_file,
             self.state.network,
         )?;
 
@@ -134,6 +133,8 @@ impl Compiler {
     /// Runs the compiler stages.
     pub fn intermediate_passes(&mut self) -> Result<()> {
         let type_checking_config = TypeCheckingInput::new(self.state.network);
+
+        self.do_pass::<PathResolution>(())?;
 
         self.do_pass::<SymbolTableCreation>(())?;
 

@@ -30,13 +30,16 @@ pub struct CodeGeneratingVisitor<'a> {
     pub next_register: u64,
     /// Reference to the current function.
     pub current_function: Option<&'a Function>,
-    /// Mapping of variables to registers.
+    /// Mapping of local variables to registers.
+    /// Because these are local, we can identify them using only a `Symbol` (i.e. a path is not necessary here).
     pub variable_mapping: IndexMap<Symbol, String>,
     /// Mapping of composite names to a tuple containing metadata associated with the name.
     /// The first element of the tuple indicate whether the composite is a record or not.
     /// The second element of the tuple is a string modifier used for code generation.
-    pub composite_mapping: IndexMap<Symbol, (bool, String)>,
+    pub composite_mapping: IndexMap<Vec<Symbol>, (bool, String)>,
     /// Mapping of global identifiers to their associated names.
+    /// Because we only allow mappings in the top level program scope at this stage, we can identify them using only a
+    /// `Symbol` (i.e. a path is not necessary here currently).
     pub global_mapping: IndexMap<Symbol, String>,
     /// The variant of the function we are currently traversing.
     pub variant: Option<Variant>,
@@ -45,6 +48,8 @@ pub struct CodeGeneratingVisitor<'a> {
     /// The program ID of the current program.
     pub program_id: Option<ProgramId>,
     /// A reference to the finalize caller.
+    /// Because `async transition`s  can only appear in the top level program scope at this stage,
+    /// it's safe to keep this a `Symbol` (i.e. a path is not necessary).
     pub finalize_caller: Option<Symbol>,
     /// A counter to track the next available label.
     pub next_label: u64,

@@ -402,7 +402,7 @@ impl Cursor {
                     let struct_type = self.structs.get(&name).expect("struct type should exist");
                     let operands = cast.operands().iter().map(|op| self.operand_value(op));
                     Value::Struct(StructContents {
-                        name,
+                        path: vec![name],
                         contents: struct_type.iter().map(|(name, _)| *name).zip(operands).collect(),
                     })
                 };

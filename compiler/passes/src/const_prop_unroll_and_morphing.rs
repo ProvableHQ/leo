@@ -82,7 +82,7 @@ impl Pass for ConstPropUnrollAndMorphing {
                     {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "call to generic function",
-                            call.function.name,
+                            call.function.clone(),
                             arg,
                             call.span,
                         ));
@@ -96,7 +96,7 @@ impl Pass for ConstPropUnrollAndMorphing {
                     {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "struct expression",
-                            expr.name.name,
+                            expr.path.clone(),
                             arg,
                             expr.span,
                         ));
@@ -110,9 +110,9 @@ impl Pass for ConstPropUnrollAndMorphing {
                     {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "struct type",
-                            ty.id.name,
+                            ty.path.clone(),
                             arg,
-                            ty.id.span,
+                            ty.path.span,
                         ));
                     }
                 }

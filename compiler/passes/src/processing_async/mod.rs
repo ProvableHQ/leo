@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Pass, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
+use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
@@ -54,6 +54,7 @@ impl Pass for ProcessingAsync {
             // checking again. That's because this pass introduces new `async function`s to the program.
             visitor.state.symbol_table = SymbolTable::default();
             SymbolTableCreation::do_pass((), state)?;
+            PathResolution::do_pass((), state)?;
             TypeChecking::do_pass(input.clone(), state)?;
         }
 

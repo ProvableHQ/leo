@@ -18,10 +18,10 @@ use leo_ast::{
     Ast,
     CallExpression,
     ExpressionStatement,
-    Identifier,
     NetworkName,
     Node as _,
     NodeBuilder,
+    Path,
     Statement,
     interpreter_value::{GlobalId, SvmAddress},
 };
@@ -35,7 +35,7 @@ use std::{
     collections::HashMap,
     fmt::{Display, Write as _},
     fs,
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 #[cfg(test)]
@@ -192,7 +192,7 @@ pub fn find_and_run_tests(
         assert!(function.variant.is_script(), "Type checking should ensure test functions are transitions or scripts.");
 
         let call = CallExpression {
-            function: Identifier::new(function.identifier.name, interpreter.node_builder.next_id()),
+            function: function.identifier.into(),
             const_arguments: vec![], // scripts don't have const parameters for now
             arguments: Vec::new(),
             program: Some(id.program),

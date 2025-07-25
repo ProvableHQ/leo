@@ -14,34 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod const_parameter;
-pub use const_parameter::*;
+use crate::Pass;
 
-mod graph;
-pub use graph::*;
+use leo_ast::ProgramReconstructor as _;
+use leo_errors::Result;
 
-mod location;
-pub use location::*;
+mod ast;
 
-mod identifier;
-pub use identifier::*;
+mod program;
 
-mod imported_modules;
-pub use imported_modules::*;
+mod visitor;
+use visitor::*;
 
-mod path;
-pub use path::*;
+pub struct PathResolution;
 
-mod positive_number;
-pub use positive_number::*;
+impl Pass for PathResolution {
+    type Input = ();
+    type Output = ();
 
-mod network_name;
-pub use network_name::*;
+    const NAME: &str = "PathResolution";
 
-pub mod node;
+    fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+        let mut ast = std::mem::take(&mut state.ast);
+        let mut visitor = PathResolutionVisitor { state, module: Vec::new(), modified: false };
+        ast.ast = visitor.reconstruct_program(ast.ast);
+        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.ast = ast;
 
-mod node_builder;
-pub use node_builder::*;
-
-mod static_string;
-pub use static_string::*;
+        Ok(())
+    }
+}

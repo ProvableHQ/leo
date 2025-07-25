@@ -68,6 +68,7 @@ impl Pass for ConstPropagation {
         let mut visitor = ConstPropagationVisitor {
             state,
             program: Symbol::intern(""),
+            module: vec![],
             changed: false,
             const_not_evaluated: None,
             array_index_not_evaluated: None,

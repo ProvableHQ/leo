@@ -60,7 +60,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Cast(cast) => self.reconstruct_cast(*cast),
             Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
             Expression::Err(err) => self.reconstruct_err(err),
-            Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
+            Expression::Path(path) => self.reconstruct_path(path),
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
@@ -99,7 +99,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
         if values.len() == input.members.len() && input.const_arguments.is_empty() {
             let value = Value::Struct(StructContents {
-                name: input.name.name,
+                path: input.path.absolute_path().to_vec(),
                 contents: input.members.iter().map(|mem| mem.identifier.name).zip(values).collect(),
             });
             (input.into(), Some(value))
@@ -360,9 +360,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_identifier(&mut self, input: leo_ast::Identifier) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_path(&mut self, input: leo_ast::Path) -> (Expression, Self::AdditionalOutput) {
         // Substitute the identifier with the constant value if it is a constant that's been evaluated.
-        if let Some(expression) = self.state.symbol_table.lookup_const(self.program, input.name) {
+        if let Some(expression) = self.state.symbol_table.lookup_const(self.program, input.absolute_path()) {
             let (expression, opt_value) = self.reconstruct_expression(expression);
             if opt_value.is_some() {
                 return (expression, opt_value);
@@ -491,7 +491,8 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (expr, opt_value) = self.reconstruct_expression(input.value);
 
         if opt_value.is_some() {
-            self.state.symbol_table.insert_const(self.program, input.place.name, expr.clone());
+            let path = self.module.iter().copied().chain(std::iter::once(input.place.name)).collect::<Vec<_>>();
+            self.state.symbol_table.insert_const(self.program, &path, expr.clone());
         } else {
             self.const_not_evaluated = Some(span);
         }

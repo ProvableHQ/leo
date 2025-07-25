@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, NodeID};
+use crate::{Node, NodeID, Path};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -99,8 +99,8 @@ pub enum Expression {
     /// An expression of type "error".
     /// Will result in a compile error eventually.
     Err(ErrExpression),
-    /// An identifier.
-    Identifier(Identifier),
+    /// A path to some item, e.g., `foo::bar::x`.
+    Path(Path),
     /// A literal expression.
     Literal(Literal),
     /// A locator expression, e.g., `hello.aleo/foo`.
@@ -142,7 +142,7 @@ impl Node for Expression {
             Call(n) => n.span(),
             Cast(n) => n.span(),
             Err(n) => n.span(),
-            Identifier(n) => n.span(),
+            Path(n) => n.span(),
             Literal(n) => n.span(),
             Locator(n) => n.span(),
             MemberAccess(n) => n.span(),
@@ -168,7 +168,7 @@ impl Node for Expression {
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
             Err(n) => n.set_span(span),
-            Identifier(n) => n.set_span(span),
+            Path(n) => n.set_span(span),
             Literal(n) => n.set_span(span),
             Locator(n) => n.set_span(span),
             MemberAccess(n) => n.set_span(span),
@@ -193,7 +193,7 @@ impl Node for Expression {
             Binary(n) => n.id(),
             Call(n) => n.id(),
             Cast(n) => n.id(),
-            Identifier(n) => n.id(),
+            Path(n) => n.id(),
             Literal(n) => n.id(),
             Locator(n) => n.id(),
             MemberAccess(n) => n.id(),
@@ -219,7 +219,7 @@ impl Node for Expression {
             Binary(n) => n.set_id(id),
             Call(n) => n.set_id(id),
             Cast(n) => n.set_id(id),
-            Identifier(n) => n.set_id(id),
+            Path(n) => n.set_id(id),
             Literal(n) => n.set_id(id),
             Locator(n) => n.set_id(id),
             MemberAccess(n) => n.set_id(id),
@@ -248,7 +248,7 @@ impl fmt::Display for Expression {
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
             Err(n) => n.fmt(f),
-            Identifier(n) => n.fmt(f),
+            Path(n) => n.fmt(f),
             Literal(n) => n.fmt(f),
             Locator(n) => n.fmt(f),
             MemberAccess(n) => n.fmt(f),
@@ -284,7 +284,7 @@ impl Expression {
             | Async(_)
             | Call(_)
             | Err(_)
-            | Identifier(_)
+            | Path(_)
             | Literal(_)
             | Locator(_)
             | MemberAccess(_)

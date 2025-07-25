@@ -37,11 +37,8 @@ impl WriteTransformingVisitor<'_> {
     }
 }
 
-impl AstReconstructor for WriteTransformingVisitor<'_> {
-    type AdditionalOutput = Vec<Statement>;
-
-    /* Expressions */
-    fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
+impl WriteTransformingVisitor<'_> {
+    fn reconstruct_identifier_(&mut self, input: Identifier) -> (Expression, Vec<Statement>) {
         let ty = self.state.type_table.get(&input.id()).unwrap();
         let mut statements = Vec::new();
         if let Some(array_members) = self.array_members.get(&input.name) {
@@ -54,7 +51,7 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
                     .clone()
                     .iter()
                     .map(|identifier| {
-                        let (expr, statements2) = self.reconstruct_identifier(*identifier);
+                        let (expr, statements2) = self.reconstruct_identifier_(*identifier);
                         statements.extend(statements2);
                         expr
                     })
@@ -63,13 +60,13 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
                 id,
             };
             let statement = AssignStatement {
-                place: input.into(),
+                place: Path::from(input).into(),
                 value: expr.into(),
                 span: Default::default(),
                 id: self.state.node_builder.next_id(),
             };
             statements.push(statement.into());
-            (input.into(), statements)
+            (Path::from(input).into(), statements)
         } else if let Some(struct_members) = self.struct_members.get(&input.name) {
             // Build the struct expression from the members.
             let id = self.state.node_builder.next_id();
@@ -84,7 +81,7 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
                     .clone()
                     .iter()
                     .map(|(field_name, ident)| {
-                        let (expr, statements2) = self.reconstruct_identifier(*ident);
+                        let (expr, statements2) = self.reconstruct_identifier_(*ident);
                         statements.extend(statements2);
                         StructVariableInitializer {
                             identifier: Identifier::new(*field_name, self.state.node_builder.next_id()),
@@ -94,41 +91,58 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
                         }
                     })
                     .collect(),
-                name: comp_type.id,
+                path: comp_type.path,
                 span: Default::default(),
                 id,
             };
             let statement = AssignStatement {
-                place: input.into(),
+                place: Path::from(input).into(),
                 value: expr.into(),
                 span: Default::default(),
                 id: self.state.node_builder.next_id(),
             };
             statements.push(statement.into());
-            (input.into(), statements)
+            (Path::from(input).into(), statements)
         } else {
             // This is not a struct or array whose members are written to, so there's nothing to do.
+            (Path::from(input).into(), Default::default())
+        }
+    }
+}
+
+impl AstReconstructor for WriteTransformingVisitor<'_> {
+    type AdditionalOutput = Vec<Statement>;
+
+    /* Expressions */
+    fn reconstruct_path(&mut self, input: Path) -> (Expression, Self::AdditionalOutput) {
+        if input.segments.len() == 1 {
+            self.reconstruct_identifier_(Identifier {
+                name: *input.symbols().last().unwrap(),
+                span: input.span,
+                id: input.id,
+            })
+        } else {
             (input.into(), Default::default())
         }
     }
 
     fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
-        let Expression::Identifier(array_name) = input.array else {
-            panic!("SSA ensures that this is an Identifier.");
+        let Expression::Path(ref array_name) = input.array else {
+            panic!("SSA ensures that this is a Path.");
         };
-        if let Some(member) = self.get_array_member(array_name.name, &input.index) {
-            self.reconstruct_identifier(member)
+        if let Some(member) = self.get_array_member(*array_name.symbols().last().unwrap(), &input.index) {
+            self.reconstruct_identifier_(member)
         } else {
             (input.into(), Default::default())
         }
     }
 
     fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
-        let Expression::Identifier(array_name) = input.inner else {
-            panic!("SSA ensures that this is an Identifier.");
+        let Expression::Path(ref struct_name) = input.inner else {
+            panic!("SSA ensures that this is a Path.");
         };
-        if let Some(member) = self.get_struct_member(array_name.name, input.name.name) {
-            self.reconstruct_identifier(member)
+        if let Some(member) = self.get_struct_member(*struct_name.symbols().last().unwrap(), input.name.name) {
+            self.reconstruct_identifier_(member)
         } else {
             (input.into(), Default::default())
         }

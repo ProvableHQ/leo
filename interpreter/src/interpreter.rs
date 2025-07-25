@@ -65,7 +65,7 @@ pub enum InterpreterAction {
 }
 
 impl Interpreter {
-    pub fn new<'a, P: 'a + AsRef<Path>, Q: 'a + AsRef<Path>>(
+    pub fn new<'a, P: 'a + AsRef<std::path::Path>, Q: 'a + AsRef<std::path::Path>>(
         leo_source_files: impl IntoIterator<Item = &'a P>,
         aleo_source_files: impl IntoIterator<Item = &'a Q>,
         signer: SvmAddress,
@@ -81,16 +81,20 @@ impl Interpreter {
         )
     }
 
-    fn get_ast(path: &Path, handler: &Handler, node_builder: &NodeBuilder, network: NetworkName) -> Result<Ast> {
+    fn get_ast(
+        path: &std::path::Path,
+        handler: &Handler,
+        node_builder: &NodeBuilder,
+        network: NetworkName,
+    ) -> Result<Ast> {
         let text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))?;
-        let filename = FileName::Real(path.to_path_buf());
-        let source_file = with_session_globals(|s| s.source_map.new_source(&text, filename));
-        leo_parser::parse_ast(handler.clone(), node_builder, &text, source_file.absolute_start, network)
+        let source_file = with_session_globals(|s| s.source_map.new_source(&text, FileName::Real(path.to_path_buf())));
+        leo_parser::parse_ast(handler.clone(), node_builder, &source_file, network)
     }
 
     fn new_impl(
-        leo_source_files: &mut dyn Iterator<Item = &Path>,
-        aleo_source_files: &mut dyn Iterator<Item = &Path>,
+        leo_source_files: &mut dyn Iterator<Item = &std::path::Path>,
+        aleo_source_files: &mut dyn Iterator<Item = &std::path::Path>,
         signer: SvmAddress,
         block_height: u32,
         network: NetworkName,
@@ -227,7 +231,7 @@ impl Interpreter {
         }
     }
 
-    fn get_aleo_program(path: &Path) -> Result<Program<TestnetV0>> {
+    fn get_aleo_program(path: &std::path::Path) -> Result<Program<TestnetV0>> {
         let text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))?;
         let program = text.parse()?;
         Ok(program)

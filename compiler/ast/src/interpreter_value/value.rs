@@ -34,6 +34,7 @@ use std::{
 };
 
 use indexmap::IndexMap;
+use itertools::Itertools;
 
 pub type SvmAddress = SvmAddressParam<TestnetV0>;
 pub type SvmBoolean = SvmBooleanParam<TestnetV0>;
@@ -59,13 +60,13 @@ impl fmt::Display for GlobalId {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct StructContents {
-    pub name: Symbol,
+    pub path: Vec<Symbol>,
     pub contents: IndexMap<Symbol, Value>,
 }
 
 impl Hash for StructContents {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.name.hash(state);
+        self.path.hash(state);
         for (_symbol, value) in self.contents.iter() {
             value.hash(state);
         }
@@ -203,8 +204,8 @@ impl fmt::Display for Value {
                 write!(f, "]")
             }
             Repeat(expr, count) => write!(f, "[{expr}; {count}]"),
-            Struct(StructContents { name, contents }) => {
-                write!(f, "{name} {{")?;
+            Struct(StructContents { path, contents }) => {
+                write!(f, "{} {{", path.iter().format("::"))?;
                 let mut iter = contents.iter().peekable();
                 while let Some((member_name, value)) = iter.next() {
                     write!(f, "{member_name}: {value}")?;

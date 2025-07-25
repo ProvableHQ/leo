@@ -102,7 +102,14 @@ impl Type {
                 .iter()
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
-            (Type::Composite(left), Type::Composite(right)) => left.id.name == right.id.name,
+            (Type::Composite(left), Type::Composite(right)) => {
+                // Two composite types are the same if their programs and their _absolute_ paths match.
+                (left.program == right.program)
+                    && match (&left.path.resolved_path, &right.path.resolved_path) {
+                        (Some(l), Some(r)) => l == r,
+                        _ => false,
+                    }
+            }
             // Don't type check when type hasn't been explicitly defined.
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
             (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
@@ -136,7 +143,7 @@ impl Type {
                 snarkvm::prelude::LiteralType::String => Type::String,
             },
             Struct(s) => {
-                Type::Composite(CompositeType { id: common::Identifier::from(s), const_arguments: Vec::new(), program })
+                Type::Composite(CompositeType { path: common::Path::from(s), const_arguments: Vec::new(), program })
             }
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }

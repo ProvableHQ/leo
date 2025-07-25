@@ -520,19 +520,23 @@ impl Cursor {
             Statement::Assign(assign) if step == 1 => {
                 let value = self.values.pop().unwrap();
                 match &assign.place {
-                    Expression::Identifier(name) => self.set_variable(
-                        name.name,
-                        // Resolve the type of the RHS using the same type is the previous value of this variable
-                        value.resolve_if_unsuffixed(
-                            &self.lookup(name.name).expect_tc(name.span())?.get_numeric_type(),
-                            assign.span(),
-                        )?,
-                    ),
+                    Expression::Path(path) => {
+                        let name = path.segments.last().unwrap().name;
+                        self.set_variable(
+                            name,
+                            // Resolve the type of the RHS using the same type is the previous value of this variable
+                            value.resolve_if_unsuffixed(
+                                &self.lookup(name).expect_tc(path.span())?.get_numeric_type(),
+                                assign.span(),
+                            )?,
+                        )
+                    }
                     Expression::TupleAccess(tuple_access) => {
-                        let Expression::Identifier(identifier) = tuple_access.tuple else {
+                        let Expression::Path(ref path) = tuple_access.tuple else {
                             halt!(assign.span(), "tuple assignments must refer to identifiers.");
                         };
-                        let mut current_tuple = self.lookup(identifier.name).expect_tc(identifier.span())?;
+                        let name = path.segments.last().unwrap().name;
+                        let mut current_tuple = self.lookup(name).expect_tc(path.span())?;
                         let Value::Tuple(tuple) = &mut current_tuple else {
                             halt!(tuple_access.span(), "Type error: this must be a tuple.");
                         };
@@ -541,7 +545,7 @@ impl Cursor {
                             &tuple[tuple_access.index.value()].get_numeric_type(),
                             assign.span(),
                         )?;
-                        self.set_variable(identifier.name, current_tuple);
+                        self.set_variable(name, current_tuple);
                     }
                     _ => halt!(assign.span(), "Invalid assignment place."),
                 }
@@ -770,7 +774,7 @@ impl Cursor {
             Expression::Async(_) if step == 2 => Some(self.pop_value()?),
 
             Expression::MemberAccess(access) => match &access.inner {
-                Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
+                Expression::Path(path) if *path.symbols() == vec![sym::SelfLower] => match access.name.name {
                     sym::signer => Some(Value::Address(self.signer)),
                     sym::caller => {
                         if let Some(function_context) = self.contexts.last() {
@@ -781,7 +785,7 @@ impl Cursor {
                     }
                     _ => halt!(access.span(), "unknown member of self"),
                 },
-                Expression::Identifier(identifier) if identifier.name == sym::block => match access.name.name {
+                Expression::Path(path) if *path.symbols() == vec![sym::block] => match access.name.name {
                     sym::height => Some(Value::U32(self.block_height)),
                     _ => halt!(access.span(), "unknown member of block"),
                 },
@@ -979,7 +983,7 @@ impl Cursor {
                 let (function_program, function_name) = {
                     let maybe_program = call.program.or_else(|| self.current_program());
                     if let Some(program) = maybe_program {
-                        (program, call.function.name)
+                        (program, call.function.segments.last().unwrap().name)
                     } else {
                         halt!(call.span, "No current program");
                     }
@@ -1028,7 +1032,7 @@ impl Cursor {
                 let (program, name) = {
                     let maybe_program = call.program.or_else(|| self.current_program());
                     if let Some(program) = maybe_program {
-                        (program, call.function.name)
+                        (program, call.function.segments.last().unwrap().name)
                     } else {
                         halt!(call.span, "No current program");
                     }
@@ -1060,17 +1064,21 @@ impl Cursor {
                 }
             }
             Expression::Err(_) => todo!(),
-            Expression::Identifier(identifier) if step == 0 => {
-                Some(self.lookup(identifier.name).expect_tc(identifier.span())?)
+            Expression::Path(path) if step == 0 => {
+                Some(self.lookup(path.segments.last().unwrap().name).expect_tc(path.span())?)
             }
             Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal, expected_ty)?),
             Expression::Locator(_locator) => todo!(),
             Expression::Struct(struct_) if step == 0 => {
-                let members = self.structs.get(&struct_.name.name).expect_tc(struct_.span())?;
+                let members =
+                    self.structs.get(&struct_.path.segments.last().unwrap().name).expect_tc(struct_.span())?;
                 for StructVariableInitializer { identifier: field_init_name, expression: init, .. } in &struct_.members
                 {
                     let Some(type_) = members.get(&field_init_name.name) else { tc_fail!() };
-                    push!()(init.as_ref().unwrap_or(&Expression::Identifier(*field_init_name)), &Some(type_.clone()))
+                    push!()(
+                        init.as_ref().unwrap_or(&Expression::Path(Path::from(*field_init_name))),
+                        &Some(type_.clone()),
+                    )
                 }
 
                 None
@@ -1089,7 +1097,8 @@ impl Cursor {
                 }
 
                 // And now put them into an IndexMap in the correct order.
-                let members = self.structs.get(&struct_.name.name).expect_tc(struct_.span())?;
+                let members =
+                    self.structs.get(&struct_.path.segments.last().unwrap().name).expect_tc(struct_.span())?;
                 let contents = members
                     .iter()
                     .map(|(identifier, _)| {
@@ -1097,7 +1106,9 @@ impl Cursor {
                     })
                     .collect();
 
-                Some(Value::Struct(StructContents { name: struct_.name.name, contents }))
+                // TODO: this only works for structs defined in the top level module.. must figure
+                // something out for structs defined in modules
+                Some(Value::Struct(StructContents { path: struct_.path.symbols(), contents }))
             }
             Expression::Ternary(ternary) if step == 0 => {
                 push!()(&ternary.condition, &None);

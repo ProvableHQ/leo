@@ -77,21 +77,11 @@ impl Program {
             .into());
         }
         let source_directory = path.join(SOURCE_DIRECTORY);
-        let count = source_directory
-            .read_dir()
-            .map_err(|e| {
-                UtilError::util_file_io_error(
-                    format_args!("Failed to read directory {}", source_directory.display()),
-                    e,
-                )
-            })?
-            .count();
+        source_directory.read_dir().map_err(|e| {
+            UtilError::util_file_io_error(format_args!("Failed to read directory {}", source_directory.display()), e)
+        })?;
 
         let source_path = source_directory.join(MAIN_FILENAME);
-
-        if !source_path.exists() || count != 1 {
-            return Err(PackageError::source_directory_can_contain_only_one_file(source_directory.display()).into());
-        }
 
         Ok(Program {
             name,

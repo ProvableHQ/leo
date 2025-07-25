@@ -16,6 +16,8 @@
 
 use super::*;
 
+use indexmap::IndexMap;
+use itertools::Itertools;
 use leo_ast::{
     Composite,
     Constructor,
@@ -35,8 +37,6 @@ use leo_ast::{
     snarkvm_noupgrade_constructor,
 };
 use leo_span::{Symbol, sym};
-
-use indexmap::IndexMap;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 use std::fmt::Write as _;
 
@@ -67,17 +67,17 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         let this_program = self.program_id.unwrap().name.name;
 
-        let lookup = |name: Symbol| {
+        let lookup = |name: &[Symbol]| {
             self.state
                 .symbol_table
                 .lookup_struct(name)
-                .or_else(|| self.state.symbol_table.lookup_record(Location::new(this_program, name)))
+                .or_else(|| self.state.symbol_table.lookup_record(&Location::new(this_program, name.to_vec())))
         };
 
         // Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         for name in order.into_iter() {
-            if let Some(struct_) = lookup(name) {
-                program_string.push_str(&self.visit_struct_or_record(struct_));
+            if let Some(struct_) = lookup(&name) {
+                program_string.push_str(&self.visit_struct_or_record(struct_, &name));
             }
         }
 
@@ -101,16 +101,26 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     let finalize = &self
                         .state
                         .symbol_table
-                        .lookup_function(Location::new(self.program_id.unwrap().name.name, function.identifier.name))
+                        .lookup_function(&Location::new(
+                            self.program_id.unwrap().name.name,
+                            vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
+                        ))
                         .unwrap()
                         .clone()
                         .finalizer
                         .unwrap();
                     // Write the finalize string.
-                    function_string.push_str(&self.visit_function_with(
-                        &program_scope.functions.iter().find(|(name, _f)| name == &finalize.location.name).unwrap().1,
-                        &finalize.future_inputs,
-                    ));
+                    function_string.push_str(
+                        &self.visit_function_with(
+                            &program_scope
+                                .functions
+                                .iter()
+                                .find(|(name, _f)| vec![*name] == finalize.location.path)
+                                .unwrap()
+                                .1,
+                            &finalize.future_inputs,
+                        ),
+                    );
                 }
 
                 program_string.push_str(&function_string);
@@ -126,13 +136,17 @@ impl<'a> CodeGeneratingVisitor<'a> {
         program_string
     }
 
-    fn visit_struct_or_record(&mut self, struct_: &'a Composite) -> String {
-        if struct_.is_record { self.visit_record(struct_) } else { self.visit_struct(struct_) }
+    fn visit_struct_or_record(&mut self, struct_: &'a Composite, absolute_path: &[Symbol]) -> String {
+        if struct_.is_record {
+            self.visit_record(struct_, absolute_path)
+        } else {
+            self.visit_struct(struct_, absolute_path)
+        }
     }
 
-    fn visit_struct(&mut self, struct_: &'a Composite) -> String {
+    fn visit_struct(&mut self, struct_: &'a Composite, absolute_path: &[Symbol]) -> String {
         // Add private symbol to composite types.
-        self.composite_mapping.insert(struct_.identifier.name, (false, String::from("private"))); // todo: private by default here.
+        self.composite_mapping.insert(absolute_path.to_vec(), (false, String::from("private"))); // todo: private by default here.
 
         let mut output_string =
             format!("\nstruct {}:\n", Self::legalize_struct_name(struct_.identifier.name.to_string())); // todo: check if this is safe from name conflicts.
@@ -145,9 +159,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
         output_string
     }
 
-    fn visit_record(&mut self, record: &'a Composite) -> String {
+    fn visit_record(&mut self, record: &'a Composite, absolute_path: &[Symbol]) -> String {
         // Add record symbol to composite types.
-        self.composite_mapping.insert(record.identifier.name, (true, "record".into()));
+        self.composite_mapping.insert(absolute_path.to_vec(), (true, "record".into()));
 
         let mut output_string = format!("\nrecord {}:\n", record.identifier); // todo: check if this is safe from name conflicts.
 
@@ -215,7 +229,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
             // Track all internal record inputs.
             if let Type::Composite(comp) = &input.type_ {
                 let program = comp.program.unwrap_or(self.program_id.unwrap().name.name);
-                if let Some(record) = self.state.symbol_table.lookup_record(Location::new(program, comp.id.name)) {
+                if let Some(record) =
+                    self.state.symbol_table.lookup_record(&Location::new(program, comp.path.absolute_path().to_vec()))
+                {
                     if record.external.is_none() || record.external == self.program_id.map(|id| id.name.name) {
                         self.internal_record_inputs.insert(register_string.clone());
                     }
@@ -232,10 +248,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 };
                 // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
                 if matches!(input.type_, Type::Future(_)) {
-                    let location = *futures
+                    let location = futures
                         .next()
                         .expect("Type checking guarantees we have future locations for each future input");
-                    format!("{}.aleo/{}.future", location.program, location.name)
+                    format!("{}.aleo/{}.future", location.program, location.path.iter().format("::"))
                 } else {
                     self.visit_type_with_visibility(&input.type_, visibility)
                 }
@@ -289,7 +305,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 if mapping.program
                     == self.program_id.expect("Program ID should be set before traversing the program").name.name
                 {
-                    snarkvm_checksum_constructor(mapping.name, key)
+                    let [mapping_name] = &mapping.path[..] else {
+                        panic!("Mappings are only allowed in the top level program at this stage");
+                    };
+                    snarkvm_checksum_constructor(mapping_name, key)
                 } else {
                     snarkvm_checksum_constructor(mapping, key)
                 }
@@ -322,7 +341,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 Type::Identifier(identifier) => {
                     // Lookup the type in the composite mapping.
                     // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
-                    let (is_record, _) = self.composite_mapping.get(&identifier.name).unwrap();
+                    let (is_record, _) = self.composite_mapping.get(&vec![identifier.name]).unwrap();
                     assert!(!is_record, "Type checking guarantees that mappings cannot contain records.");
                     self.visit_type_with_visibility(type_, Mode::Public)
                 }

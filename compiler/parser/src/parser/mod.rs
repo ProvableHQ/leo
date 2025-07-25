@@ -23,11 +23,16 @@ use crate::{Token, tokenizer::*};
 
 use leo_ast::*;
 use leo_errors::{Handler, ParserError, Result};
-use leo_span::Span;
+use leo_span::{
+    Span,
+    Symbol,
+    source_map::{FileName, SourceFile},
+    with_session_globals,
+};
+use walkdir::WalkDir;
 
 use indexmap::IndexMap;
-use std::unreachable;
-
+use std::{fs, unreachable};
 mod context;
 pub(super) use context::ParserContext;
 
@@ -40,13 +45,68 @@ pub(super) mod type_;
 pub fn parse(
     handler: Handler,
     node_builder: &NodeBuilder,
-    source: &str,
-    start_pos: u32,
+    source: &SourceFile,
     network: NetworkName,
 ) -> Result<Program> {
-    let mut tokens = ParserContext::new(handler, node_builder, crate::tokenize(source, start_pos)?, network);
+    // Parse the main file
+    let mut tokens =
+        ParserContext::new(&handler, node_builder, crate::tokenize(&source.src, source.absolute_start)?, None, network);
+    let mut program = tokens.parse_program()?;
+    let program_name = tokens.program_name;
 
-    tokens.parse_program()
+    if let FileName::Real(entry_file_path) = &source.name {
+        let root_dir = entry_file_path.parent().expect("Expected file to have a parent directory").to_path_buf();
+
+        let mut start_pos = source.absolute_end + 1;
+
+        // Insert the main file under the empty Vec (vec![])
+        // It's assumed that tokens.parse_program already fills the main body
+
+        // Walk all files under root_dir (including subdirectories)
+        for entry in WalkDir::new(&root_dir).into_iter().filter_map(Result::ok).filter(|e| e.file_type().is_file()) {
+            let path = entry.path();
+
+            // Skip the original file
+            if path == entry_file_path {
+                continue;
+            }
+
+            // Read file content
+            let source = fs::read_to_string(path).expect("Unable to read module file");
+
+            // Track the source file and get its end position
+            let source_file =
+                with_session_globals(|s| s.source_map.new_source(&source, FileName::Real(path.to_path_buf())));
+
+            let mut module_tokens = ParserContext::new(
+                &handler,
+                node_builder,
+                crate::tokenize(&source, start_pos)?,
+                program_name, // we know the program name by now
+                network,
+            );
+
+            // Compute the module key: Vec<Symbol> representing path relative to root_dir
+            let rel_path = path.strip_prefix(&root_dir).expect("Path should be under root dir");
+            let mut key: Vec<Symbol> =
+                rel_path.components().map(|comp| Symbol::intern(&comp.as_os_str().to_string_lossy())).collect();
+
+            // Strip file extension from the last component (if any)
+            if let Some(last) = rel_path.file_name() {
+                if let Some(stem) = std::path::Path::new(last).file_stem() {
+                    key.pop(); // Remove the current (with-extension) last Symbol
+                    key.push(Symbol::intern(&stem.to_string_lossy())); // Add stem-only Symbol
+                }
+            }
+
+            let module = module_tokens.parse_module(&key)?;
+            program.modules.insert(key, module);
+
+            start_pos = source_file.absolute_end + 1;
+        }
+    }
+
+    Ok(program)
 }
 
 pub fn parse_expression(
@@ -56,7 +116,7 @@ pub fn parse_expression(
     start_pos: u32,
     network: NetworkName,
 ) -> Result<Expression> {
-    let mut context = ParserContext::new(handler, node_builder, crate::tokenize(source, start_pos)?, network);
+    let mut context = ParserContext::new(&handler, node_builder, crate::tokenize(source, start_pos)?, None, network);
 
     let expression = context.parse_expression()?;
     if context.token.token == Token::Eof {
@@ -73,7 +133,7 @@ pub fn parse_statement(
     start_pos: u32,
     network: NetworkName,
 ) -> Result<Statement> {
-    let mut context = ParserContext::new(handler, node_builder, crate::tokenize(source, start_pos)?, network);
+    let mut context = ParserContext::new(&handler, node_builder, crate::tokenize(source, start_pos)?, None, network);
 
     let statement = context.parse_statement()?;
     if context.token.token == Token::Eof {
