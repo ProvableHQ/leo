@@ -707,99 +707,104 @@
 <a href=#707 id=707 data-nosnippet>707</a>            <span class="kw">return </span><span class="self">self</span>.parse_tuple_expression();
 <a href=#708 id=708 data-nosnippet>708</a>        } <span class="kw">else if let </span>Token::LeftSquare = <span class="self">self</span>.token.token {
 <a href=#709 id=709 data-nosnippet>709</a>            <span class="kw">return </span><span class="self">self</span>.parse_array_or_repeat_expression();
-<a href=#710 id=710 data-nosnippet>710</a>        }
-<a href=#711 id=711 data-nosnippet>711</a>
-<a href=#712 id=712 data-nosnippet>712</a>        <span class="kw">let </span>SpannedToken { token, span } = <span class="self">self</span>.token.clone();
-<a href=#713 id=713 data-nosnippet>713</a>        <span class="self">self</span>.bump();
-<a href=#714 id=714 data-nosnippet>714</a>
-<a href=#715 id=715 data-nosnippet>715</a>        <span class="prelude-val">Ok</span>(<span class="kw">match </span>token {
-<a href=#716 id=716 data-nosnippet>716</a>            Token::Integer(value) =&gt; {
-<a href=#717 id=717 data-nosnippet>717</a>                <span class="kw">let </span>suffix_span = <span class="self">self</span>.token.span;
-<a href=#718 id=718 data-nosnippet>718</a>                <span class="kw">let </span>full_span = span + suffix_span;
-<a href=#719 id=719 data-nosnippet>719</a>                <span class="kw">let </span>assert_no_whitespace = |x| assert_no_whitespace(span, suffix_span, <span class="kw-2">&amp;</span>value, x);
-<a href=#720 id=720 data-nosnippet>720</a>
-<a href=#721 id=721 data-nosnippet>721</a>                <span class="kw">match </span><span class="self">self</span>.eat_any(INT_TYPES).then_some(<span class="kw-2">&amp;</span><span class="self">self</span>.prev_token.token) {
-<a href=#722 id=722 data-nosnippet>722</a>                    <span class="comment">// Hex, octal, binary literal on a noninteger is an error.
-<a href=#723 id=723 data-nosnippet>723</a>                    </span><span class="prelude-val">Some</span>(Token::Field) | <span class="prelude-val">Some</span>(Token::Group) | <span class="prelude-val">Some</span>(Token::Scalar)
-<a href=#724 id=724 data-nosnippet>724</a>                        <span class="kw">if </span>value.starts_with(<span class="string">"0x"</span>)
-<a href=#725 id=725 data-nosnippet>725</a>                            || value.starts_with(<span class="string">"0o"</span>)
-<a href=#726 id=726 data-nosnippet>726</a>                            || value.starts_with(<span class="string">"0b"</span>)
-<a href=#727 id=727 data-nosnippet>727</a>                            || value.starts_with(<span class="string">"-0x"</span>)
-<a href=#728 id=728 data-nosnippet>728</a>                            || value.starts_with(<span class="string">"-0o"</span>)
-<a href=#729 id=729 data-nosnippet>729</a>                            || value.starts_with(<span class="string">"-0b"</span>) =&gt;
-<a href=#730 id=730 data-nosnippet>730</a>                    {
-<a href=#731 id=731 data-nosnippet>731</a>                        <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::hexbin_literal_nonintegers(span).into());
-<a href=#732 id=732 data-nosnippet>732</a>                    }
-<a href=#733 id=733 data-nosnippet>733</a>                    <span class="comment">// Literal followed by `field`, e.g., `42field`.
-<a href=#734 id=734 data-nosnippet>734</a>                    </span><span class="prelude-val">Some</span>(Token::Field) =&gt; {
-<a href=#735 id=735 data-nosnippet>735</a>                        assert_no_whitespace(<span class="string">"field"</span>)<span class="question-mark">?</span>;
-<a href=#736 id=736 data-nosnippet>736</a>                        Literal::field(value, full_span, <span class="self">self</span>.node_builder.next_id()).into()
+<a href=#710 id=710 data-nosnippet>710</a>        } <span class="kw">else if let </span>Token::Async = <span class="self">self</span>.token.token {
+<a href=#711 id=711 data-nosnippet>711</a>            <span class="kw">let </span>async_keyword_span = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Async)<span class="question-mark">?</span>;
+<a href=#712 id=712 data-nosnippet>712</a>            <span class="kw">let </span>block = <span class="self">self</span>.parse_block()<span class="question-mark">?</span>;
+<a href=#713 id=713 data-nosnippet>713</a>            <span class="kw">let </span>span = async_keyword_span + block.span;
+<a href=#714 id=714 data-nosnippet>714</a>            <span class="kw">return </span><span class="prelude-val">Ok</span>(AsyncExpression { block, span, id: <span class="self">self</span>.node_builder.next_id() }.into());
+<a href=#715 id=715 data-nosnippet>715</a>        }
+<a href=#716 id=716 data-nosnippet>716</a>
+<a href=#717 id=717 data-nosnippet>717</a>        <span class="kw">let </span>SpannedToken { token, span } = <span class="self">self</span>.token.clone();
+<a href=#718 id=718 data-nosnippet>718</a>        <span class="self">self</span>.bump();
+<a href=#719 id=719 data-nosnippet>719</a>
+<a href=#720 id=720 data-nosnippet>720</a>        <span class="prelude-val">Ok</span>(<span class="kw">match </span>token {
+<a href=#721 id=721 data-nosnippet>721</a>            Token::Integer(value) =&gt; {
+<a href=#722 id=722 data-nosnippet>722</a>                <span class="kw">let </span>suffix_span = <span class="self">self</span>.token.span;
+<a href=#723 id=723 data-nosnippet>723</a>                <span class="kw">let </span>full_span = span + suffix_span;
+<a href=#724 id=724 data-nosnippet>724</a>                <span class="kw">let </span>assert_no_whitespace = |x| assert_no_whitespace(span, suffix_span, <span class="kw-2">&amp;</span>value, x);
+<a href=#725 id=725 data-nosnippet>725</a>
+<a href=#726 id=726 data-nosnippet>726</a>                <span class="kw">match </span><span class="self">self</span>.eat_any(INT_TYPES).then_some(<span class="kw-2">&amp;</span><span class="self">self</span>.prev_token.token) {
+<a href=#727 id=727 data-nosnippet>727</a>                    <span class="comment">// Hex, octal, binary literal on a noninteger is an error.
+<a href=#728 id=728 data-nosnippet>728</a>                    </span><span class="prelude-val">Some</span>(Token::Field) | <span class="prelude-val">Some</span>(Token::Group) | <span class="prelude-val">Some</span>(Token::Scalar)
+<a href=#729 id=729 data-nosnippet>729</a>                        <span class="kw">if </span>value.starts_with(<span class="string">"0x"</span>)
+<a href=#730 id=730 data-nosnippet>730</a>                            || value.starts_with(<span class="string">"0o"</span>)
+<a href=#731 id=731 data-nosnippet>731</a>                            || value.starts_with(<span class="string">"0b"</span>)
+<a href=#732 id=732 data-nosnippet>732</a>                            || value.starts_with(<span class="string">"-0x"</span>)
+<a href=#733 id=733 data-nosnippet>733</a>                            || value.starts_with(<span class="string">"-0o"</span>)
+<a href=#734 id=734 data-nosnippet>734</a>                            || value.starts_with(<span class="string">"-0b"</span>) =&gt;
+<a href=#735 id=735 data-nosnippet>735</a>                    {
+<a href=#736 id=736 data-nosnippet>736</a>                        <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::hexbin_literal_nonintegers(span).into());
 <a href=#737 id=737 data-nosnippet>737</a>                    }
-<a href=#738 id=738 data-nosnippet>738</a>                    <span class="comment">// Literal followed by `group`, e.g., `42group`.
-<a href=#739 id=739 data-nosnippet>739</a>                    </span><span class="prelude-val">Some</span>(Token::Group) =&gt; {
-<a href=#740 id=740 data-nosnippet>740</a>                        assert_no_whitespace(<span class="string">"group"</span>)<span class="question-mark">?</span>;
-<a href=#741 id=741 data-nosnippet>741</a>                        Literal::group(value, full_span, <span class="self">self</span>.node_builder.next_id()).into()
+<a href=#738 id=738 data-nosnippet>738</a>                    <span class="comment">// Literal followed by `field`, e.g., `42field`.
+<a href=#739 id=739 data-nosnippet>739</a>                    </span><span class="prelude-val">Some</span>(Token::Field) =&gt; {
+<a href=#740 id=740 data-nosnippet>740</a>                        assert_no_whitespace(<span class="string">"field"</span>)<span class="question-mark">?</span>;
+<a href=#741 id=741 data-nosnippet>741</a>                        Literal::field(value, full_span, <span class="self">self</span>.node_builder.next_id()).into()
 <a href=#742 id=742 data-nosnippet>742</a>                    }
-<a href=#743 id=743 data-nosnippet>743</a>                    <span class="comment">// Literal followed by `scalar` e.g., `42scalar`.
-<a href=#744 id=744 data-nosnippet>744</a>                    </span><span class="prelude-val">Some</span>(Token::Scalar) =&gt; {
-<a href=#745 id=745 data-nosnippet>745</a>                        assert_no_whitespace(<span class="string">"scalar"</span>)<span class="question-mark">?</span>;
-<a href=#746 id=746 data-nosnippet>746</a>                        Literal::scalar(value, full_span, <span class="self">self</span>.node_builder.next_id()).into()
+<a href=#743 id=743 data-nosnippet>743</a>                    <span class="comment">// Literal followed by `group`, e.g., `42group`.
+<a href=#744 id=744 data-nosnippet>744</a>                    </span><span class="prelude-val">Some</span>(Token::Group) =&gt; {
+<a href=#745 id=745 data-nosnippet>745</a>                        assert_no_whitespace(<span class="string">"group"</span>)<span class="question-mark">?</span>;
+<a href=#746 id=746 data-nosnippet>746</a>                        Literal::group(value, full_span, <span class="self">self</span>.node_builder.next_id()).into()
 <a href=#747 id=747 data-nosnippet>747</a>                    }
-<a href=#748 id=748 data-nosnippet>748</a>                    <span class="comment">// Literal followed by other type suffix, e.g., `42u8`.
-<a href=#749 id=749 data-nosnippet>749</a>                    </span><span class="prelude-val">Some</span>(suffix) =&gt; {
-<a href=#750 id=750 data-nosnippet>750</a>                        assert_no_whitespace(<span class="kw-2">&amp;</span>suffix.to_string())<span class="question-mark">?</span>;
-<a href=#751 id=751 data-nosnippet>751</a>                        <span class="kw">let </span>int_ty = <span class="self">Self</span>::token_to_int_type(suffix).expect(<span class="string">"unknown int type token"</span>);
-<a href=#752 id=752 data-nosnippet>752</a>                        Literal::integer(int_ty, value, full_span, <span class="self">self</span>.node_builder.next_id()).into()
-<a href=#753 id=753 data-nosnippet>753</a>                    }
-<a href=#754 id=754 data-nosnippet>754</a>                    <span class="prelude-val">None </span>=&gt; {
-<a href=#755 id=755 data-nosnippet>755</a>                        <span class="comment">// `Integer` tokens with no suffix are `unsuffixed`. We try to infer their
-<a href=#756 id=756 data-nosnippet>756</a>                        // type in the type inference phase of the type checker.
-<a href=#757 id=757 data-nosnippet>757</a>                        </span>Literal::unsuffixed(value, span, <span class="self">self</span>.node_builder.next_id()).into()
+<a href=#748 id=748 data-nosnippet>748</a>                    <span class="comment">// Literal followed by `scalar` e.g., `42scalar`.
+<a href=#749 id=749 data-nosnippet>749</a>                    </span><span class="prelude-val">Some</span>(Token::Scalar) =&gt; {
+<a href=#750 id=750 data-nosnippet>750</a>                        assert_no_whitespace(<span class="string">"scalar"</span>)<span class="question-mark">?</span>;
+<a href=#751 id=751 data-nosnippet>751</a>                        Literal::scalar(value, full_span, <span class="self">self</span>.node_builder.next_id()).into()
+<a href=#752 id=752 data-nosnippet>752</a>                    }
+<a href=#753 id=753 data-nosnippet>753</a>                    <span class="comment">// Literal followed by other type suffix, e.g., `42u8`.
+<a href=#754 id=754 data-nosnippet>754</a>                    </span><span class="prelude-val">Some</span>(suffix) =&gt; {
+<a href=#755 id=755 data-nosnippet>755</a>                        assert_no_whitespace(<span class="kw-2">&amp;</span>suffix.to_string())<span class="question-mark">?</span>;
+<a href=#756 id=756 data-nosnippet>756</a>                        <span class="kw">let </span>int_ty = <span class="self">Self</span>::token_to_int_type(suffix).expect(<span class="string">"unknown int type token"</span>);
+<a href=#757 id=757 data-nosnippet>757</a>                        Literal::integer(int_ty, value, full_span, <span class="self">self</span>.node_builder.next_id()).into()
 <a href=#758 id=758 data-nosnippet>758</a>                    }
-<a href=#759 id=759 data-nosnippet>759</a>                }
-<a href=#760 id=760 data-nosnippet>760</a>            }
-<a href=#761 id=761 data-nosnippet>761</a>            Token::True =&gt; Literal::boolean(<span class="bool-val">true</span>, span, <span class="self">self</span>.node_builder.next_id()).into(),
-<a href=#762 id=762 data-nosnippet>762</a>            Token::False =&gt; Literal::boolean(<span class="bool-val">false</span>, span, <span class="self">self</span>.node_builder.next_id()).into(),
-<a href=#763 id=763 data-nosnippet>763</a>            Token::AddressLit(address_string) =&gt; {
-<a href=#764 id=764 data-nosnippet>764</a>                <span class="kw">if </span>address_string.parse::&lt;Address&lt;N&gt;&gt;().is_err() {
-<a href=#765 id=765 data-nosnippet>765</a>                    <span class="self">self</span>.emit_err(ParserError::invalid_address_lit(<span class="kw-2">&amp;</span>address_string, span));
-<a href=#766 id=766 data-nosnippet>766</a>                }
-<a href=#767 id=767 data-nosnippet>767</a>                Literal::address(address_string, span, <span class="self">self</span>.node_builder.next_id()).into()
-<a href=#768 id=768 data-nosnippet>768</a>            }
-<a href=#769 id=769 data-nosnippet>769</a>            Token::StaticString(value) =&gt; {
-<a href=#770 id=770 data-nosnippet>770</a>                Literal { span, id: <span class="self">self</span>.node_builder.next_id(), variant: LiteralVariant::String(value) }.into()
-<a href=#771 id=771 data-nosnippet>771</a>            }
-<a href=#772 id=772 data-nosnippet>772</a>            Token::Identifier(name) =&gt; {
-<a href=#773 id=773 data-nosnippet>773</a>                <span class="kw">let </span>ident = Identifier { name, span, id: <span class="self">self</span>.node_builder.next_id() };
-<a href=#774 id=774 data-nosnippet>774</a>                <span class="kw">if </span>!<span class="self">self</span>.disallow_struct_construction &amp;&amp; <span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftCurly) {
-<a href=#775 id=775 data-nosnippet>775</a>                    <span class="comment">// Parse struct and records inits as struct expressions without const arguments.
-<a href=#776 id=776 data-nosnippet>776</a>                    // Enforce struct or record type later at type checking.
-<a href=#777 id=777 data-nosnippet>777</a>                    </span><span class="self">self</span>.parse_struct_init_expression(ident, Vec::new())<span class="question-mark">?
-<a href=#778 id=778 data-nosnippet>778</a>                </span>} <span class="kw">else </span>{
-<a href=#779 id=779 data-nosnippet>779</a>                    ident.into()
-<a href=#780 id=780 data-nosnippet>780</a>                }
-<a href=#781 id=781 data-nosnippet>781</a>            }
-<a href=#782 id=782 data-nosnippet>782</a>            Token::SelfLower =&gt; Identifier { name: sym::SelfLower, span, id: <span class="self">self</span>.node_builder.next_id() }.into(),
-<a href=#783 id=783 data-nosnippet>783</a>            Token::Block =&gt; Identifier { name: sym::block, span, id: <span class="self">self</span>.node_builder.next_id() }.into(),
-<a href=#784 id=784 data-nosnippet>784</a>            Token::Future =&gt; Identifier { name: sym::Future, span, id: <span class="self">self</span>.node_builder.next_id() }.into(),
-<a href=#785 id=785 data-nosnippet>785</a>            Token::Network =&gt; Identifier { name: sym::network, span, id: <span class="self">self</span>.node_builder.next_id() }.into(),
-<a href=#786 id=786 data-nosnippet>786</a>            t <span class="kw">if </span><span class="kw">crate</span>::type_::TYPE_TOKENS.contains(<span class="kw-2">&amp;</span>t) =&gt; Expression::Identifier(Identifier {
-<a href=#787 id=787 data-nosnippet>787</a>                name: t.keyword_to_symbol().unwrap(),
-<a href=#788 id=788 data-nosnippet>788</a>                span,
-<a href=#789 id=789 data-nosnippet>789</a>                id: <span class="self">self</span>.node_builder.next_id(),
-<a href=#790 id=790 data-nosnippet>790</a>            }),
-<a href=#791 id=791 data-nosnippet>791</a>            token =&gt; {
-<a href=#792 id=792 data-nosnippet>792</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::unexpected_str(token, <span class="string">"expression"</span>, span).into());
-<a href=#793 id=793 data-nosnippet>793</a>            }
-<a href=#794 id=794 data-nosnippet>794</a>        })
-<a href=#795 id=795 data-nosnippet>795</a>    }
-<a href=#796 id=796 data-nosnippet>796</a>}
-<a href=#797 id=797 data-nosnippet>797</a>
-<a href=#798 id=798 data-nosnippet>798</a><span class="kw">fn </span>assert_no_whitespace(left_span: Span, right_span: Span, left: <span class="kw-2">&amp;</span>str, right: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#799 id=799 data-nosnippet>799</a>    <span class="kw">if </span>left_span.hi != right_span.lo {
-<a href=#800 id=800 data-nosnippet>800</a>        <span class="kw">let </span>error_span = Span::new(left_span.hi, right_span.lo); <span class="comment">// The span between them.
-<a href=#801 id=801 data-nosnippet>801</a>        </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::unexpected_whitespace(left, right, error_span).into());
-<a href=#802 id=802 data-nosnippet>802</a>    }
-<a href=#803 id=803 data-nosnippet>803</a>
-<a href=#804 id=804 data-nosnippet>804</a>    <span class="prelude-val">Ok</span>(())
-<a href=#805 id=805 data-nosnippet>805</a>}</code></pre></div></section></main></body></html>
+<a href=#759 id=759 data-nosnippet>759</a>                    <span class="prelude-val">None </span>=&gt; {
+<a href=#760 id=760 data-nosnippet>760</a>                        <span class="comment">// `Integer` tokens with no suffix are `unsuffixed`. We try to infer their
+<a href=#761 id=761 data-nosnippet>761</a>                        // type in the type inference phase of the type checker.
+<a href=#762 id=762 data-nosnippet>762</a>                        </span>Literal::unsuffixed(value, span, <span class="self">self</span>.node_builder.next_id()).into()
+<a href=#763 id=763 data-nosnippet>763</a>                    }
+<a href=#764 id=764 data-nosnippet>764</a>                }
+<a href=#765 id=765 data-nosnippet>765</a>            }
+<a href=#766 id=766 data-nosnippet>766</a>            Token::True =&gt; Literal::boolean(<span class="bool-val">true</span>, span, <span class="self">self</span>.node_builder.next_id()).into(),
+<a href=#767 id=767 data-nosnippet>767</a>            Token::False =&gt; Literal::boolean(<span class="bool-val">false</span>, span, <span class="self">self</span>.node_builder.next_id()).into(),
+<a href=#768 id=768 data-nosnippet>768</a>            Token::AddressLit(address_string) =&gt; {
+<a href=#769 id=769 data-nosnippet>769</a>                <span class="kw">if </span>address_string.parse::&lt;Address&lt;N&gt;&gt;().is_err() {
+<a href=#770 id=770 data-nosnippet>770</a>                    <span class="self">self</span>.emit_err(ParserError::invalid_address_lit(<span class="kw-2">&amp;</span>address_string, span));
+<a href=#771 id=771 data-nosnippet>771</a>                }
+<a href=#772 id=772 data-nosnippet>772</a>                Literal::address(address_string, span, <span class="self">self</span>.node_builder.next_id()).into()
+<a href=#773 id=773 data-nosnippet>773</a>            }
+<a href=#774 id=774 data-nosnippet>774</a>            Token::StaticString(value) =&gt; {
+<a href=#775 id=775 data-nosnippet>775</a>                Literal { span, id: <span class="self">self</span>.node_builder.next_id(), variant: LiteralVariant::String(value) }.into()
+<a href=#776 id=776 data-nosnippet>776</a>            }
+<a href=#777 id=777 data-nosnippet>777</a>            Token::Identifier(name) =&gt; {
+<a href=#778 id=778 data-nosnippet>778</a>                <span class="kw">let </span>ident = Identifier { name, span, id: <span class="self">self</span>.node_builder.next_id() };
+<a href=#779 id=779 data-nosnippet>779</a>                <span class="kw">if </span>!<span class="self">self</span>.disallow_struct_construction &amp;&amp; <span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftCurly) {
+<a href=#780 id=780 data-nosnippet>780</a>                    <span class="comment">// Parse struct and records inits as struct expressions without const arguments.
+<a href=#781 id=781 data-nosnippet>781</a>                    // Enforce struct or record type later at type checking.
+<a href=#782 id=782 data-nosnippet>782</a>                    </span><span class="self">self</span>.parse_struct_init_expression(ident, Vec::new())<span class="question-mark">?
+<a href=#783 id=783 data-nosnippet>783</a>                </span>} <span class="kw">else </span>{
+<a href=#784 id=784 data-nosnippet>784</a>                    ident.into()
+<a href=#785 id=785 data-nosnippet>785</a>                }
+<a href=#786 id=786 data-nosnippet>786</a>            }
+<a href=#787 id=787 data-nosnippet>787</a>            Token::SelfLower =&gt; Identifier { name: sym::SelfLower, span, id: <span class="self">self</span>.node_builder.next_id() }.into(),
+<a href=#788 id=788 data-nosnippet>788</a>            Token::Block =&gt; Identifier { name: sym::block, span, id: <span class="self">self</span>.node_builder.next_id() }.into(),
+<a href=#789 id=789 data-nosnippet>789</a>            Token::Future =&gt; Identifier { name: sym::Future, span, id: <span class="self">self</span>.node_builder.next_id() }.into(),
+<a href=#790 id=790 data-nosnippet>790</a>            Token::Network =&gt; Identifier { name: sym::network, span, id: <span class="self">self</span>.node_builder.next_id() }.into(),
+<a href=#791 id=791 data-nosnippet>791</a>            t <span class="kw">if </span><span class="kw">crate</span>::type_::TYPE_TOKENS.contains(<span class="kw-2">&amp;</span>t) =&gt; Expression::Identifier(Identifier {
+<a href=#792 id=792 data-nosnippet>792</a>                name: t.keyword_to_symbol().unwrap(),
+<a href=#793 id=793 data-nosnippet>793</a>                span,
+<a href=#794 id=794 data-nosnippet>794</a>                id: <span class="self">self</span>.node_builder.next_id(),
+<a href=#795 id=795 data-nosnippet>795</a>            }),
+<a href=#796 id=796 data-nosnippet>796</a>            token =&gt; {
+<a href=#797 id=797 data-nosnippet>797</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::unexpected_str(token, <span class="string">"expression"</span>, span).into());
+<a href=#798 id=798 data-nosnippet>798</a>            }
+<a href=#799 id=799 data-nosnippet>799</a>        })
+<a href=#800 id=800 data-nosnippet>800</a>    }
+<a href=#801 id=801 data-nosnippet>801</a>}
+<a href=#802 id=802 data-nosnippet>802</a>
+<a href=#803 id=803 data-nosnippet>803</a><span class="kw">fn </span>assert_no_whitespace(left_span: Span, right_span: Span, left: <span class="kw-2">&amp;</span>str, right: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#804 id=804 data-nosnippet>804</a>    <span class="kw">if </span>left_span.hi != right_span.lo {
+<a href=#805 id=805 data-nosnippet>805</a>        <span class="kw">let </span>error_span = Span::new(left_span.hi, right_span.lo); <span class="comment">// The span between them.
+<a href=#806 id=806 data-nosnippet>806</a>        </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::unexpected_whitespace(left, right, error_span).into());
+<a href=#807 id=807 data-nosnippet>807</a>    }
+<a href=#808 id=808 data-nosnippet>808</a>
+<a href=#809 id=809 data-nosnippet>809</a>    <span class="prelude-val">Ok</span>(())
+<a href=#810 id=810 data-nosnippet>810</a>}</code></pre></div></section></main></body></html>

@@ -284,878 +284,947 @@
 <a href=#284 id=284 data-nosnippet>284</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Consider removing the mode or using the keyword `transition` instead of `function`."</span>.to_string()),
 <a href=#285 id=285 data-nosnippet>285</a>    }
 <a href=#286 id=286 data-nosnippet>286</a>
-<a href=#287 id=287 data-nosnippet>287</a>    @formatted
-<a href=#288 id=288 data-nosnippet>288</a>    async_function_input_cannot_be_private {
-<a href=#289 id=289 data-nosnippet>289</a>        args: (),
-<a href=#290 id=290 data-nosnippet>290</a>        msg: <span class="macro">format!</span>(<span class="string">"Async functions cannot have private inputs."</span>),
-<a href=#291 id=291 data-nosnippet>291</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely."</span>.to_string()),
-<a href=#292 id=292 data-nosnippet>292</a>    }
-<a href=#293 id=293 data-nosnippet>293</a>
-<a href=#294 id=294 data-nosnippet>294</a>    @formatted
-<a href=#295 id=295 data-nosnippet>295</a>    struct_or_record_cannot_contain_record {
-<a href=#296 id=296 data-nosnippet>296</a>        args: (parent: <span class="kw">impl </span>Display, child: <span class="kw">impl </span>Display),
-<a href=#297 id=297 data-nosnippet>297</a>        msg: <span class="macro">format!</span>(<span class="string">"A struct or record cannot contain another record."</span>),
-<a href=#298 id=298 data-nosnippet>298</a>        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"Remove the record `{child}` from `{parent}`."</span>)),
-<a href=#299 id=299 data-nosnippet>299</a>    }
-<a href=#300 id=300 data-nosnippet>300</a>
-<a href=#301 id=301 data-nosnippet>301</a>    @formatted
-<a href=#302 id=302 data-nosnippet>302</a>    invalid_mapping_type {
-<a href=#303 id=303 data-nosnippet>303</a>        args: (component: <span class="kw">impl </span>Display, type_: <span class="kw">impl </span>Display),
-<a href=#304 id=304 data-nosnippet>304</a>        msg: <span class="macro">format!</span>(<span class="string">"A mapping's {component} cannot be a {type_}"</span>),
-<a href=#305 id=305 data-nosnippet>305</a>        help: <span class="prelude-val">None</span>,
-<a href=#306 id=306 data-nosnippet>306</a>    }
-<a href=#307 id=307 data-nosnippet>307</a>
-<a href=#308 id=308 data-nosnippet>308</a>    @formatted
-<a href=#309 id=309 data-nosnippet>309</a>    async_function_input_must_be_public {
-<a href=#310 id=310 data-nosnippet>310</a>        args: (),
-<a href=#311 id=311 data-nosnippet>311</a>        msg: <span class="macro">format!</span>(<span class="string">"An input to an async function must be public."</span>),
-<a href=#312 id=312 data-nosnippet>312</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely."</span>.to_string()),
-<a href=#313 id=313 data-nosnippet>313</a>    }
-<a href=#314 id=314 data-nosnippet>314</a>
-<a href=#315 id=315 data-nosnippet>315</a>    @formatted
-<a href=#316 id=316 data-nosnippet>316</a>    finalize_output_mode_must_be_public {
-<a href=#317 id=317 data-nosnippet>317</a>        args: (),
-<a href=#318 id=318 data-nosnippet>318</a>        msg: <span class="macro">format!</span>(<span class="string">"An output from an async function block must be public."</span>),
-<a href=#319 id=319 data-nosnippet>319</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Use a `public` modifier to the output type declaration or remove the visibility modifier entirely."</span>.to_string()),
-<a href=#320 id=320 data-nosnippet>320</a>    }
-<a href=#321 id=321 data-nosnippet>321</a>
-<a href=#322 id=322 data-nosnippet>322</a>    @formatted
-<a href=#323 id=323 data-nosnippet>323</a>    invalid_operation_outside_finalize {
-<a href=#324 id=324 data-nosnippet>324</a>        args: (operation: <span class="kw">impl </span>Display),
-<a href=#325 id=325 data-nosnippet>325</a>        msg: <span class="macro">format!</span>(<span class="string">"`{operation}` must be inside an async function block."</span>),
-<a href=#326 id=326 data-nosnippet>326</a>        help: <span class="prelude-val">None</span>,
-<a href=#327 id=327 data-nosnippet>327</a>    }
-<a href=#328 id=328 data-nosnippet>328</a>
-<a href=#329 id=329 data-nosnippet>329</a>    @formatted
-<a href=#330 id=330 data-nosnippet>330</a>    loop_body_contains_finalize {
-<a href=#331 id=331 data-nosnippet>331</a>        args: (),
-<a href=#332 id=332 data-nosnippet>332</a>        msg: <span class="macro">format!</span>(<span class="string">"Loop body contains an async function call."</span>),
-<a href=#333 id=333 data-nosnippet>333</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Remove the async function call."</span>.to_string()),
-<a href=#334 id=334 data-nosnippet>334</a>    }
-<a href=#335 id=335 data-nosnippet>335</a>
-<a href=#336 id=336 data-nosnippet>336</a>    @formatted
-<a href=#337 id=337 data-nosnippet>337</a>    missing_return {
-<a href=#338 id=338 data-nosnippet>338</a>        args: (),
-<a href=#339 id=339 data-nosnippet>339</a>        msg: <span class="macro">format!</span>(<span class="string">"Function must return a value."</span>),
-<a href=#340 id=340 data-nosnippet>340</a>        help: <span class="prelude-val">None</span>,
-<a href=#341 id=341 data-nosnippet>341</a>    }
-<a href=#342 id=342 data-nosnippet>342</a>
-<a href=#343 id=343 data-nosnippet>343</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
-<a href=#344 id=344 data-nosnippet>344</a>    </span>@formatted
-<a href=#345 id=345 data-nosnippet>345</a>    finalize_block_must_not_be_empty {
-<a href=#346 id=346 data-nosnippet>346</a>        args: (),
-<a href=#347 id=347 data-nosnippet>347</a>        msg: <span class="macro">format!</span>(<span class="string">"An async function call block cannot be empty."</span>),
-<a href=#348 id=348 data-nosnippet>348</a>        help: <span class="prelude-val">None</span>,
-<a href=#349 id=349 data-nosnippet>349</a>    }
-<a href=#350 id=350 data-nosnippet>350</a>
-<a href=#351 id=351 data-nosnippet>351</a>    @formatted
-<a href=#352 id=352 data-nosnippet>352</a>    cannot_have_constant_output_mode {
-<a href=#353 id=353 data-nosnippet>353</a>        args: (),
-<a href=#354 id=354 data-nosnippet>354</a>        msg: <span class="macro">format!</span>(<span class="string">"A returned value cannot be a constant."</span>),
-<a href=#355 id=355 data-nosnippet>355</a>        help: <span class="prelude-val">None</span>,
-<a href=#356 id=356 data-nosnippet>356</a>    }
-<a href=#357 id=357 data-nosnippet>357</a>
-<a href=#358 id=358 data-nosnippet>358</a>    @formatted
-<a href=#359 id=359 data-nosnippet>359</a>    transition_function_inputs_cannot_be_const {
-<a href=#360 id=360 data-nosnippet>360</a>        args: (),
-<a href=#361 id=361 data-nosnippet>361</a>        msg: <span class="macro">format!</span>(<span class="string">"Transition functions cannot have constant inputs."</span>),
-<a href=#362 id=362 data-nosnippet>362</a>        help: <span class="prelude-val">None</span>,
-<a href=#363 id=363 data-nosnippet>363</a>    }
-<a href=#364 id=364 data-nosnippet>364</a>
-<a href=#365 id=365 data-nosnippet>365</a>    @formatted
-<a href=#366 id=366 data-nosnippet>366</a>    invalid_self_access {
-<a href=#367 id=367 data-nosnippet>367</a>        args: (),
-<a href=#368 id=368 data-nosnippet>368</a>        msg: <span class="macro">format!</span>(<span class="string">"The allowed accesses to `self` are `self.caller` and `self.signer`."</span>),
-<a href=#369 id=369 data-nosnippet>369</a>        help: <span class="prelude-val">None</span>,
-<a href=#370 id=370 data-nosnippet>370</a>    }
-<a href=#371 id=371 data-nosnippet>371</a>
-<a href=#372 id=372 data-nosnippet>372</a>    @formatted
-<a href=#373 id=373 data-nosnippet>373</a>    invalid_type {
-<a href=#374 id=374 data-nosnippet>374</a>        args: (type_: <span class="kw">impl </span>Display),
-<a href=#375 id=375 data-nosnippet>375</a>        msg: <span class="macro">format!</span>(<span class="string">"Invalid type `{type_}`"</span>),
-<a href=#376 id=376 data-nosnippet>376</a>        help: <span class="prelude-val">None</span>,
-<a href=#377 id=377 data-nosnippet>377</a>    }
-<a href=#378 id=378 data-nosnippet>378</a>
-<a href=#379 id=379 data-nosnippet>379</a>    @formatted
-<a href=#380 id=380 data-nosnippet>380</a>    can_only_call_inline_function {
-<a href=#381 id=381 data-nosnippet>381</a>        args: (),
-<a href=#382 id=382 data-nosnippet>382</a>        msg: <span class="macro">format!</span>(<span class="string">"Only `inline` can be called from a `function` or `inline`."</span>),
-<a href=#383 id=383 data-nosnippet>383</a>        help: <span class="prelude-val">None</span>,
-<a href=#384 id=384 data-nosnippet>384</a>    }
-<a href=#385 id=385 data-nosnippet>385</a>
-<a href=#386 id=386 data-nosnippet>386</a>    @formatted
-<a href=#387 id=387 data-nosnippet>387</a>    cannot_invoke_call_to_local_transition_function {
-<a href=#388 id=388 data-nosnippet>388</a>        args: (),
-<a href=#389 id=389 data-nosnippet>389</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot call a local transition function from a transition function."</span>),
-<a href=#390 id=390 data-nosnippet>390</a>        help: <span class="prelude-val">None</span>,
-<a href=#391 id=391 data-nosnippet>391</a>    }
-<a href=#392 id=392 data-nosnippet>392</a>
-<a href=#393 id=393 data-nosnippet>393</a>    @formatted
-<a href=#394 id=394 data-nosnippet>394</a>    loop_bound_must_be_a_literal {
-<a href=#395 id=395 data-nosnippet>395</a>        args: (),
-<a href=#396 id=396 data-nosnippet>396</a>        msg: <span class="macro">format!</span>(<span class="string">"Loop bound must be a literal."</span>),
-<a href=#397 id=397 data-nosnippet>397</a>        help: <span class="prelude-val">None</span>,
-<a href=#398 id=398 data-nosnippet>398</a>    }
-<a href=#399 id=399 data-nosnippet>399</a>
-<a href=#400 id=400 data-nosnippet>400</a>    @formatted
-<a href=#401 id=401 data-nosnippet>401</a>    strings_are_not_supported {
-<a href=#402 id=402 data-nosnippet>402</a>        args: (),
-<a href=#403 id=403 data-nosnippet>403</a>        msg: <span class="macro">format!</span>(<span class="string">"Strings are not yet supported."</span>),
-<a href=#404 id=404 data-nosnippet>404</a>        help: <span class="prelude-val">None</span>,
-<a href=#405 id=405 data-nosnippet>405</a>    }
-<a href=#406 id=406 data-nosnippet>406</a>
-<a href=#407 id=407 data-nosnippet>407</a>    @formatted
-<a href=#408 id=408 data-nosnippet>408</a>    imported_program_cannot_import_program {
-<a href=#409 id=409 data-nosnippet>409</a>        args: (),
-<a href=#410 id=410 data-nosnippet>410</a>        msg: <span class="macro">format!</span>(<span class="string">"An imported program cannot import another program."</span>),
-<a href=#411 id=411 data-nosnippet>411</a>        help: <span class="prelude-val">None</span>,
-<a href=#412 id=412 data-nosnippet>412</a>    }
-<a href=#413 id=413 data-nosnippet>413</a>
-<a href=#414 id=414 data-nosnippet>414</a>    @formatted
-<a href=#415 id=415 data-nosnippet>415</a>    too_many_transitions {
-<a href=#416 id=416 data-nosnippet>416</a>        args: (max: <span class="kw">impl </span>Display),
-<a href=#417 id=417 data-nosnippet>417</a>        msg: <span class="macro">format!</span>(<span class="string">"The number of transitions exceeds the maximum. snarkVM allows up to {max} transitions within a single program."</span>),
-<a href=#418 id=418 data-nosnippet>418</a>        help: <span class="prelude-val">None</span>,
-<a href=#419 id=419 data-nosnippet>419</a>    }
-<a href=#420 id=420 data-nosnippet>420</a>
-<a href=#421 id=421 data-nosnippet>421</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
-<a href=#422 id=422 data-nosnippet>422</a>    </span>@formatted
-<a href=#423 id=423 data-nosnippet>423</a>    assign_unit_expression_to_variable {
-<a href=#424 id=424 data-nosnippet>424</a>        args: (),
-<a href=#425 id=425 data-nosnippet>425</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign a unit expression to a variable."</span>),
-<a href=#426 id=426 data-nosnippet>426</a>        help: <span class="prelude-val">None</span>,
-<a href=#427 id=427 data-nosnippet>427</a>    }
-<a href=#428 id=428 data-nosnippet>428</a>
-<a href=#429 id=429 data-nosnippet>429</a>    @formatted
-<a href=#430 id=430 data-nosnippet>430</a>    nested_tuple_type {
-<a href=#431 id=431 data-nosnippet>431</a>        args: (),
-<a href=#432 id=432 data-nosnippet>432</a>        msg: <span class="macro">format!</span>(<span class="string">"A tuple type cannot contain a tuple."</span>),
-<a href=#433 id=433 data-nosnippet>433</a>        help: <span class="prelude-val">None</span>,
-<a href=#434 id=434 data-nosnippet>434</a>    }
-<a href=#435 id=435 data-nosnippet>435</a>
-<a href=#436 id=436 data-nosnippet>436</a>    @formatted
-<a href=#437 id=437 data-nosnippet>437</a>    composite_data_type_cannot_contain_tuple {
-<a href=#438 id=438 data-nosnippet>438</a>        args: (data_type: <span class="kw">impl </span>Display),
-<a href=#439 id=439 data-nosnippet>439</a>        msg: <span class="macro">format!</span>(<span class="string">"A {data_type} cannot contain a tuple."</span>),
-<a href=#440 id=440 data-nosnippet>440</a>        help: <span class="prelude-val">None</span>,
-<a href=#441 id=441 data-nosnippet>441</a>    }
-<a href=#442 id=442 data-nosnippet>442</a>
-<a href=#443 id=443 data-nosnippet>443</a>    @formatted
-<a href=#444 id=444 data-nosnippet>444</a>    function_cannot_take_tuple_as_input {
-<a href=#445 id=445 data-nosnippet>445</a>        args: (),
-<a href=#446 id=446 data-nosnippet>446</a>        msg: <span class="macro">format!</span>(<span class="string">"A function cannot take in a tuple as input."</span>),
-<a href=#447 id=447 data-nosnippet>447</a>        help: <span class="prelude-val">None</span>,
-<a href=#448 id=448 data-nosnippet>448</a>    }
-<a href=#449 id=449 data-nosnippet>449</a>
-<a href=#450 id=450 data-nosnippet>450</a>    @formatted
-<a href=#451 id=451 data-nosnippet>451</a>    nested_tuple_expression {
-<a href=#452 id=452 data-nosnippet>452</a>        args: (),
-<a href=#453 id=453 data-nosnippet>453</a>        msg: <span class="macro">format!</span>(<span class="string">"A tuple expression cannot contain another tuple expression."</span>),
-<a href=#454 id=454 data-nosnippet>454</a>        help: <span class="prelude-val">None</span>,
-<a href=#455 id=455 data-nosnippet>455</a>    }
-<a href=#456 id=456 data-nosnippet>456</a>
-<a href=#457 id=457 data-nosnippet>457</a>    @formatted
-<a href=#458 id=458 data-nosnippet>458</a>    expression_statement_must_be_function_call {
-<a href=#459 id=459 data-nosnippet>459</a>        args: (),
-<a href=#460 id=460 data-nosnippet>460</a>        msg: <span class="macro">format!</span>(<span class="string">"An expression statement must be a function call."</span>),
-<a href=#461 id=461 data-nosnippet>461</a>        help: <span class="prelude-val">None</span>,
-<a href=#462 id=462 data-nosnippet>462</a>    }
-<a href=#463 id=463 data-nosnippet>463</a>
-<a href=#464 id=464 data-nosnippet>464</a>    @formatted
-<a href=#465 id=465 data-nosnippet>465</a>    lhs_tuple_element_must_be_an_identifier {
-<a href=#466 id=466 data-nosnippet>466</a>        args: (),
-<a href=#467 id=467 data-nosnippet>467</a>        msg: <span class="macro">format!</span>(<span class="string">"Tuples on the left-hand side of a `DefinitionStatement` can only contain identifiers."</span>),
-<a href=#468 id=468 data-nosnippet>468</a>        help: <span class="prelude-val">None</span>,
-<a href=#469 id=469 data-nosnippet>469</a>    }
-<a href=#470 id=470 data-nosnippet>470</a>
-<a href=#471 id=471 data-nosnippet>471</a>    @formatted
-<a href=#472 id=472 data-nosnippet>472</a>    lhs_must_be_identifier_or_tuple {
-<a href=#473 id=473 data-nosnippet>473</a>        args: (),
-<a href=#474 id=474 data-nosnippet>474</a>        msg: <span class="macro">format!</span>(<span class="string">"The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements."</span>),
-<a href=#475 id=475 data-nosnippet>475</a>        help: <span class="prelude-val">None</span>,
-<a href=#476 id=476 data-nosnippet>476</a>    }
-<a href=#477 id=477 data-nosnippet>477</a>
-<a href=#478 id=478 data-nosnippet>478</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
-<a href=#479 id=479 data-nosnippet>479</a>    </span>@formatted
-<a href=#480 id=480 data-nosnippet>480</a>    unit_expression_only_in_return_statements {
-<a href=#481 id=481 data-nosnippet>481</a>        args: (),
-<a href=#482 id=482 data-nosnippet>482</a>        msg: <span class="macro">format!</span>(<span class="string">"Unit expressions can only be used in return statements."</span>),
-<a href=#483 id=483 data-nosnippet>483</a>        help: <span class="prelude-val">None</span>,
-<a href=#484 id=484 data-nosnippet>484</a>    }
-<a href=#485 id=485 data-nosnippet>485</a>
-<a href=#486 id=486 data-nosnippet>486</a>    @formatted
-<a href=#487 id=487 data-nosnippet>487</a>    function_cannot_input_or_output_a_record {
-<a href=#488 id=488 data-nosnippet>488</a>        args: (),
-<a href=#489 id=489 data-nosnippet>489</a>        msg: <span class="macro">format!</span>(<span class="string">"Only `transition` functions can have a record as input or output."</span>),
-<a href=#490 id=490 data-nosnippet>490</a>        help: <span class="prelude-val">None</span>,
-<a href=#491 id=491 data-nosnippet>491</a>    }
-<a href=#492 id=492 data-nosnippet>492</a>
-<a href=#493 id=493 data-nosnippet>493</a>    @backtraced
-<a href=#494 id=494 data-nosnippet>494</a>    cyclic_struct_dependency {
-<a href=#495 id=495 data-nosnippet>495</a>        args: (path: Vec&lt;<span class="kw">impl </span>Display&gt;),
-<a href=#496 id=496 data-nosnippet>496</a>        msg: {
-<a href=#497 id=497 data-nosnippet>497</a>            <span class="kw">let </span>path_string = path.into_iter().map(|name| <span class="macro">format!</span>(<span class="string">"`{name}`"</span>)).collect::&lt;Vec&lt;String&gt;&gt;().join(<span class="string">" --&gt; "</span>);
-<a href=#498 id=498 data-nosnippet>498</a>            <span class="macro">format!</span>(<span class="string">"Cyclic dependency between structs: {path_string}"</span>)
-<a href=#499 id=499 data-nosnippet>499</a>        },
-<a href=#500 id=500 data-nosnippet>500</a>        help: <span class="prelude-val">None</span>,
-<a href=#501 id=501 data-nosnippet>501</a>    }
-<a href=#502 id=502 data-nosnippet>502</a>
-<a href=#503 id=503 data-nosnippet>503</a>    @backtraced
-<a href=#504 id=504 data-nosnippet>504</a>    cyclic_function_dependency {
-<a href=#505 id=505 data-nosnippet>505</a>        args: (path: Vec&lt;<span class="kw">impl </span>Display&gt;),
-<a href=#506 id=506 data-nosnippet>506</a>        msg: {
-<a href=#507 id=507 data-nosnippet>507</a>            <span class="kw">let </span>path_string = path.into_iter().map(|name| <span class="macro">format!</span>(<span class="string">"`{name}`"</span>)).collect::&lt;Vec&lt;String&gt;&gt;().join(<span class="string">" --&gt; "</span>);
-<a href=#508 id=508 data-nosnippet>508</a>            <span class="macro">format!</span>(<span class="string">"Cyclic dependency between functions: {path_string}"</span>)
-<a href=#509 id=509 data-nosnippet>509</a>        },
-<a href=#510 id=510 data-nosnippet>510</a>        help: <span class="prelude-val">None</span>,
-<a href=#511 id=511 data-nosnippet>511</a>    }
-<a href=#512 id=512 data-nosnippet>512</a>
-<a href=#513 id=513 data-nosnippet>513</a>    @formatted
-<a href=#514 id=514 data-nosnippet>514</a>    struct_cannot_have_member_mode {
-<a href=#515 id=515 data-nosnippet>515</a>        args: (),
-<a href=#516 id=516 data-nosnippet>516</a>        msg: <span class="macro">format!</span>(<span class="string">"A struct cannot have a member with mode `constant`, `private`, or `public`."</span>),
-<a href=#517 id=517 data-nosnippet>517</a>        help: <span class="prelude-val">None</span>,
-<a href=#518 id=518 data-nosnippet>518</a>    }
-<a href=#519 id=519 data-nosnippet>519</a>
-<a href=#520 id=520 data-nosnippet>520</a>    @formatted
-<a href=#521 id=521 data-nosnippet>521</a>    cannot_call_external_inline_function {
-<a href=#522 id=522 data-nosnippet>522</a>        args: (),
-<a href=#523 id=523 data-nosnippet>523</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot call an external `inline` function."</span>),
-<a href=#524 id=524 data-nosnippet>524</a>        help: <span class="prelude-val">None</span>,
-<a href=#525 id=525 data-nosnippet>525</a>    }
-<a href=#526 id=526 data-nosnippet>526</a>
-<a href=#527 id=527 data-nosnippet>527</a>    @formatted
-<a href=#528 id=528 data-nosnippet>528</a>    too_many_mappings {
-<a href=#529 id=529 data-nosnippet>529</a>        args: (max: <span class="kw">impl </span>Display),
-<a href=#530 id=530 data-nosnippet>530</a>        msg: <span class="macro">format!</span>(<span class="string">"The number of mappings exceeds the maximum. snarkVM allows up to {max} mappings within a single program."</span>),
-<a href=#531 id=531 data-nosnippet>531</a>        help: <span class="prelude-val">None</span>,
-<a href=#532 id=532 data-nosnippet>532</a>    }
-<a href=#533 id=533 data-nosnippet>533</a>
-<a href=#534 id=534 data-nosnippet>534</a>    <span class="doccomment">/// A call to an invalid associated constant is made e.g., `bool::MAX`
-<a href=#535 id=535 data-nosnippet>535</a>    </span>@formatted
-<a href=#536 id=536 data-nosnippet>536</a>    invalid_associated_constant {
-<a href=#537 id=537 data-nosnippet>537</a>        args: (expr: <span class="kw">impl </span>Display),
-<a href=#538 id=538 data-nosnippet>538</a>        msg: <span class="macro">format!</span>(
-<a href=#539 id=539 data-nosnippet>539</a>            <span class="string">"{expr} is not a valid associated constant."
-<a href=#540 id=540 data-nosnippet>540</a>        </span>),
-<a href=#541 id=541 data-nosnippet>541</a>        help: <span class="prelude-val">None</span>,
-<a href=#542 id=542 data-nosnippet>542</a>    }
-<a href=#543 id=543 data-nosnippet>543</a>
-<a href=#544 id=544 data-nosnippet>544</a>    <span class="doccomment">/// For when an invalid core constant is called.
-<a href=#545 id=545 data-nosnippet>545</a>    </span>@formatted
-<a href=#546 id=546 data-nosnippet>546</a>    invalid_core_constant {
-<a href=#547 id=547 data-nosnippet>547</a>        args: (type_: <span class="kw">impl </span>Display, constant: <span class="kw">impl </span>Display),
-<a href=#548 id=548 data-nosnippet>548</a>        msg: <span class="macro">format!</span> (
-<a href=#549 id=549 data-nosnippet>549</a>            <span class="string">"{type_}::{constant} is not a valid core constant."</span>,
-<a href=#550 id=550 data-nosnippet>550</a>        ),
-<a href=#551 id=551 data-nosnippet>551</a>        help: <span class="prelude-val">None</span>,
-<a href=#552 id=552 data-nosnippet>552</a>    }
-<a href=#553 id=553 data-nosnippet>553</a>
-<a href=#554 id=554 data-nosnippet>554</a>    <span class="doccomment">/// For when an invalid field of block is called.
-<a href=#555 id=555 data-nosnippet>555</a>    </span>@formatted
-<a href=#556 id=556 data-nosnippet>556</a>    invalid_block_access {
-<a href=#557 id=557 data-nosnippet>557</a>        args: (),
-<a href=#558 id=558 data-nosnippet>558</a>        msg: <span class="macro">format!</span>(<span class="string">"The allowed accesses to `block` are `block.height`."</span>),
-<a href=#559 id=559 data-nosnippet>559</a>        help: <span class="prelude-val">None</span>,
-<a href=#560 id=560 data-nosnippet>560</a>    }
-<a href=#561 id=561 data-nosnippet>561</a>
-<a href=#562 id=562 data-nosnippet>562</a>    @formatted
-<a href=#563 id=563 data-nosnippet>563</a>    invalid_operation_inside_finalize {
-<a href=#564 id=564 data-nosnippet>564</a>        args: (operation: <span class="kw">impl </span>Display),
-<a href=#565 id=565 data-nosnippet>565</a>        msg: <span class="macro">format!</span>(<span class="string">"`{operation}` is not a valid operand in an async function call context."</span>),
-<a href=#566 id=566 data-nosnippet>566</a>        help: <span class="prelude-val">None</span>,
-<a href=#567 id=567 data-nosnippet>567</a>    }
-<a href=#568 id=568 data-nosnippet>568</a>
-<a href=#569 id=569 data-nosnippet>569</a>    @formatted
-<a href=#570 id=570 data-nosnippet>570</a>    operation_must_be_in_finalize_block {
-<a href=#571 id=571 data-nosnippet>571</a>        args: (),
-<a href=#572 id=572 data-nosnippet>572</a>        msg: <span class="string">"This operation can only be used in an async function or script."</span>.to_string(),
-<a href=#573 id=573 data-nosnippet>573</a>        help: <span class="prelude-val">None</span>,
-<a href=#574 id=574 data-nosnippet>574</a>    }
-<a href=#575 id=575 data-nosnippet>575</a>
-<a href=#576 id=576 data-nosnippet>576</a>    @formatted
-<a href=#577 id=577 data-nosnippet>577</a>    loop_range_decreasing {
-<a href=#578 id=578 data-nosnippet>578</a>        args: (),
-<a href=#579 id=579 data-nosnippet>579</a>        msg: <span class="macro">format!</span>(<span class="string">"The loop range must be increasing."</span>),
-<a href=#580 id=580 data-nosnippet>580</a>        help: <span class="prelude-val">None</span>,
-<a href=#581 id=581 data-nosnippet>581</a>    }
-<a href=#582 id=582 data-nosnippet>582</a>
-<a href=#583 id=583 data-nosnippet>583</a>    @formatted
-<a href=#584 id=584 data-nosnippet>584</a>    loop_bound_type_mismatch {
-<a href=#585 id=585 data-nosnippet>585</a>        args: (),
-<a href=#586 id=586 data-nosnippet>586</a>        msg: <span class="macro">format!</span>(<span class="string">"The loop bounds must be same type"</span>),
-<a href=#587 id=587 data-nosnippet>587</a>        help: <span class="prelude-val">None</span>,
-<a href=#588 id=588 data-nosnippet>588</a>    }
-<a href=#589 id=589 data-nosnippet>589</a>
-<a href=#590 id=590 data-nosnippet>590</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
-<a href=#591 id=591 data-nosnippet>591</a>    </span>@formatted
-<a href=#592 id=592 data-nosnippet>592</a>    const_declaration_must_be_literal_or_tuple_of_literals {
-<a href=#593 id=593 data-nosnippet>593</a>        args: (),
-<a href=#594 id=594 data-nosnippet>594</a>        msg: <span class="macro">format!</span>(<span class="string">"The value of a const declaration must be a literal"</span>),
-<a href=#595 id=595 data-nosnippet>595</a>        help: <span class="prelude-val">None</span>,
-<a href=#596 id=596 data-nosnippet>596</a>    }
-<a href=#597 id=597 data-nosnippet>597</a>
-<a href=#598 id=598 data-nosnippet>598</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
-<a href=#599 id=599 data-nosnippet>599</a>    </span>@formatted
-<a href=#600 id=600 data-nosnippet>600</a>    loop_bound_must_be_literal_or_const {
-<a href=#601 id=601 data-nosnippet>601</a>        args: (),
-<a href=#602 id=602 data-nosnippet>602</a>        msg: <span class="macro">format!</span>(<span class="string">"The loop bound must be a literal or a const"</span>),
-<a href=#603 id=603 data-nosnippet>603</a>        help: <span class="prelude-val">None</span>,
-<a href=#604 id=604 data-nosnippet>604</a>    }
-<a href=#605 id=605 data-nosnippet>605</a>
-<a href=#606 id=606 data-nosnippet>606</a>    @formatted
-<a href=#607 id=607 data-nosnippet>607</a>    incorrect_num_tuple_elements {
-<a href=#608 id=608 data-nosnippet>608</a>        args: (identifiers: <span class="kw">impl </span>Display, types: <span class="kw">impl </span>Display),
-<a href=#609 id=609 data-nosnippet>609</a>        msg: <span class="macro">format!</span>(<span class="string">"Expected a tuple with {types} elements, found one with {identifiers} elements"</span>),
-<a href=#610 id=610 data-nosnippet>610</a>        help: <span class="prelude-val">None</span>,
-<a href=#611 id=611 data-nosnippet>611</a>    }
-<a href=#612 id=612 data-nosnippet>612</a>
-<a href=#613 id=613 data-nosnippet>613</a>    @formatted
-<a href=#614 id=614 data-nosnippet>614</a>    const_declaration_can_only_have_one_binding {
-<a href=#615 id=615 data-nosnippet>615</a>        args: (),
-<a href=#616 id=616 data-nosnippet>616</a>        msg: <span class="macro">format!</span>(<span class="string">"A constant declaration statement can only bind a single value"</span>),
-<a href=#617 id=617 data-nosnippet>617</a>        help: <span class="prelude-val">None</span>,
-<a href=#618 id=618 data-nosnippet>618</a>    }
-<a href=#619 id=619 data-nosnippet>619</a>
-<a href=#620 id=620 data-nosnippet>620</a>    @formatted
-<a href=#621 id=621 data-nosnippet>621</a>    stub_functions_must_not_be_inlines {
-<a href=#622 id=622 data-nosnippet>622</a>        args: (),
-<a href=#623 id=623 data-nosnippet>623</a>        msg: <span class="macro">format!</span>(<span class="string">"Function stubs must be transitions or functions not inlines"</span>),
-<a href=#624 id=624 data-nosnippet>624</a>        help: <span class="prelude-val">None</span>,
-<a href=#625 id=625 data-nosnippet>625</a>    }
-<a href=#626 id=626 data-nosnippet>626</a>
-<a href=#627 id=627 data-nosnippet>627</a>    @formatted
-<a href=#628 id=628 data-nosnippet>628</a>    stub_functions_must_be_empty {
-<a href=#629 id=629 data-nosnippet>629</a>        args: (),
-<a href=#630 id=630 data-nosnippet>630</a>        msg: <span class="macro">format!</span>(<span class="string">"Functions stubs must be empty"</span>),
-<a href=#631 id=631 data-nosnippet>631</a>        help: <span class="prelude-val">None</span>,
-<a href=#632 id=632 data-nosnippet>632</a>    }
-<a href=#633 id=633 data-nosnippet>633</a>
-<a href=#634 id=634 data-nosnippet>634</a>    @formatted
-<a href=#635 id=635 data-nosnippet>635</a>    array_empty {
-<a href=#636 id=636 data-nosnippet>636</a>        args: (),
-<a href=#637 id=637 data-nosnippet>637</a>        msg: <span class="macro">format!</span>(<span class="string">"An array cannot be empty"</span>),
-<a href=#638 id=638 data-nosnippet>638</a>        help: <span class="prelude-val">None</span>,
-<a href=#639 id=639 data-nosnippet>639</a>    }
-<a href=#640 id=640 data-nosnippet>640</a>
-<a href=#641 id=641 data-nosnippet>641</a>    @formatted
-<a href=#642 id=642 data-nosnippet>642</a>    array_too_large {
-<a href=#643 id=643 data-nosnippet>643</a>        args: (size: <span class="kw">impl </span>Display, max: <span class="kw">impl </span>Display),
-<a href=#644 id=644 data-nosnippet>644</a>        msg: <span class="macro">format!</span>(<span class="string">"An array cannot have more than {max} elements, found one with {size} elements"</span>),
-<a href=#645 id=645 data-nosnippet>645</a>        help: <span class="prelude-val">None</span>,
-<a href=#646 id=646 data-nosnippet>646</a>    }
-<a href=#647 id=647 data-nosnippet>647</a>
-<a href=#648 id=648 data-nosnippet>648</a>    @formatted
-<a href=#649 id=649 data-nosnippet>649</a>    array_element_cannot_be_tuple {
-<a href=#650 id=650 data-nosnippet>650</a>        args: (),
-<a href=#651 id=651 data-nosnippet>651</a>        msg: <span class="macro">format!</span>(<span class="string">"An array cannot have a tuple as an element type"</span>),
-<a href=#652 id=652 data-nosnippet>652</a>        help: <span class="prelude-val">None</span>,
-<a href=#653 id=653 data-nosnippet>653</a>    }
-<a href=#654 id=654 data-nosnippet>654</a>
-<a href=#655 id=655 data-nosnippet>655</a>    @formatted
-<a href=#656 id=656 data-nosnippet>656</a>    array_element_cannot_be_record {
-<a href=#657 id=657 data-nosnippet>657</a>        args: (),
-<a href=#658 id=658 data-nosnippet>658</a>        msg: <span class="macro">format!</span>(<span class="string">"An array cannot have a record as an element type"</span>),
-<a href=#659 id=659 data-nosnippet>659</a>        help: <span class="prelude-val">None</span>,
-<a href=#660 id=660 data-nosnippet>660</a>    }
-<a href=#661 id=661 data-nosnippet>661</a>
-<a href=#662 id=662 data-nosnippet>662</a>    @formatted
-<a href=#663 id=663 data-nosnippet>663</a>    stubs_cannot_have_non_record_structs {
-<a href=#664 id=664 data-nosnippet>664</a>        args: (),
-<a href=#665 id=665 data-nosnippet>665</a>        msg: <span class="macro">format!</span>(<span class="string">"Stubs can only have records, transitions, functions, mappings and imports -- found non-record struct"</span>),
-<a href=#666 id=666 data-nosnippet>666</a>        help: <span class="prelude-val">None</span>,
-<a href=#667 id=667 data-nosnippet>667</a>    }
-<a href=#668 id=668 data-nosnippet>668</a>
-<a href=#669 id=669 data-nosnippet>669</a>    @formatted
-<a href=#670 id=670 data-nosnippet>670</a>    stubs_cannot_have_const_declarations {
-<a href=#671 id=671 data-nosnippet>671</a>        args: (),
-<a href=#672 id=672 data-nosnippet>672</a>        msg: <span class="macro">format!</span>(<span class="string">"Stubs can only have records, transitions, functions, mappings and imports -- found const declaration"</span>),
-<a href=#673 id=673 data-nosnippet>673</a>        help: <span class="prelude-val">None</span>,
-<a href=#674 id=674 data-nosnippet>674</a>    }
-<a href=#675 id=675 data-nosnippet>675</a>
-<a href=#676 id=676 data-nosnippet>676</a>    @formatted
-<a href=#677 id=677 data-nosnippet>677</a>    stub_name_mismatch {
-<a href=#678 id=678 data-nosnippet>678</a>        args: (stub_name: <span class="kw">impl </span>Display, program_name: <span class="kw">impl </span>Display),
-<a href=#679 id=679 data-nosnippet>679</a>        msg: <span class="macro">format!</span>(<span class="string">"`stub` name `{stub_name}` does not match program name `{program_name}`"</span>),
-<a href=#680 id=680 data-nosnippet>680</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Check that the name you used as a dependency in program.json matches the name you used to import the program in the main leo file."</span>.to_string()),
-<a href=#681 id=681 data-nosnippet>681</a>    }
-<a href=#682 id=682 data-nosnippet>682</a>
-<a href=#683 id=683 data-nosnippet>683</a>    @formatted
-<a href=#684 id=684 data-nosnippet>684</a>    no_transitions {
-<a href=#685 id=685 data-nosnippet>685</a>        args: (),
-<a href=#686 id=686 data-nosnippet>686</a>        msg: <span class="string">"A program must have at least one transition function."</span>.to_string(),
-<a href=#687 id=687 data-nosnippet>687</a>        help: <span class="prelude-val">None</span>,
-<a href=#688 id=688 data-nosnippet>688</a>    }
-<a href=#689 id=689 data-nosnippet>689</a>
-<a href=#690 id=690 data-nosnippet>690</a>    @formatted
-<a href=#691 id=691 data-nosnippet>691</a>    cannot_define_external_struct {
-<a href=#692 id=692 data-nosnippet>692</a>        args: (struct_: <span class="kw">impl </span>Display),
-<a href=#693 id=693 data-nosnippet>693</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot define external struct `{struct_}`"</span>),
-<a href=#694 id=694 data-nosnippet>694</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Copy the external definition of the struct into the current program, and then define without the `.aleo` extension."</span>.to_string()),
-<a href=#695 id=695 data-nosnippet>695</a>    }
-<a href=#696 id=696 data-nosnippet>696</a>
-<a href=#697 id=697 data-nosnippet>697</a>    @formatted
-<a href=#698 id=698 data-nosnippet>698</a>    struct_definitions_dont_match {
-<a href=#699 id=699 data-nosnippet>699</a>        args: (struct_: <span class="kw">impl </span>Display, program_1: <span class="kw">impl </span>Display, program_2: <span class="kw">impl </span>Display),
-<a href=#700 id=700 data-nosnippet>700</a>        msg: <span class="macro">format!</span>(<span class="string">"The definition for `{struct_}` in program `{program_1}.aleo` does not match the definition in program `{program_2}.aleo`"</span>),
-<a href=#701 id=701 data-nosnippet>701</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Check that the struct definition in the current program matches the definition in the imported program."</span>.to_string()),
-<a href=#702 id=702 data-nosnippet>702</a>    }
-<a href=#703 id=703 data-nosnippet>703</a>
-<a href=#704 id=704 data-nosnippet>704</a>    @formatted
-<a href=#705 id=705 data-nosnippet>705</a>    async_transition_invalid_output {
-<a href=#706 id=706 data-nosnippet>706</a>        args: (),
-<a href=#707 id=707 data-nosnippet>707</a>        msg: <span class="string">"An async transition must return a future as the final output, and in no other position return a future."</span>.to_string(),
-<a href=#708 id=708 data-nosnippet>708</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Example: `async transition foo() -&gt; (u8, bool, Future) {...}`"</span>.to_string()),
-<a href=#709 id=709 data-nosnippet>709</a>    }
-<a href=#710 id=710 data-nosnippet>710</a>
-<a href=#711 id=711 data-nosnippet>711</a>    @formatted
-<a href=#712 id=712 data-nosnippet>712</a>    must_propagate_all_futures {
-<a href=#713 id=713 data-nosnippet>713</a>        args: (never_propagated: <span class="kw">impl </span>Display),
-<a href=#714 id=714 data-nosnippet>714</a>        msg: <span class="macro">format!</span>(<span class="string">"All futures generated from external transition calls must be inserted into an async function call in the order they were called. The following were never were: {never_propagated}"</span>),
-<a href=#715 id=715 data-nosnippet>715</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Example: `async transition foo() -&gt; Future { let a: Future = b.aleo/bar(); return await_futures(a); }`"</span>.to_string()),
-<a href=#716 id=716 data-nosnippet>716</a>    }
-<a href=#717 id=717 data-nosnippet>717</a>
-<a href=#718 id=718 data-nosnippet>718</a>    @formatted
-<a href=#719 id=719 data-nosnippet>719</a>    async_transition_must_call_async_function {
-<a href=#720 id=720 data-nosnippet>720</a>        args: (),
-<a href=#721 id=721 data-nosnippet>721</a>        msg: <span class="string">"An async transition must call an async function."</span>.to_string(),
-<a href=#722 id=722 data-nosnippet>722</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Example: `async transition foo() -&gt; Future { let a: Future = bar(); return await_futures(a); }`"</span>.to_string()),
-<a href=#723 id=723 data-nosnippet>723</a>    }
-<a href=#724 id=724 data-nosnippet>724</a>
-<a href=#725 id=725 data-nosnippet>725</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
-<a href=#726 id=726 data-nosnippet>726</a>    </span>@formatted
-<a href=#727 id=727 data-nosnippet>727</a>    async_function_input_length_mismatch {
-<a href=#728 id=728 data-nosnippet>728</a>        args: (expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
-<a href=#729 id=729 data-nosnippet>729</a>        msg: <span class="macro">format!</span>(<span class="string">"Expected `{expected}` inputs, but got `{received}`"</span>),
-<a href=#730 id=730 data-nosnippet>730</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Check that the number of arguments passed in are the same as the number in the function signature. Ex: `async function foo(a: u8, b: u8)` has two input arguments."</span>.to_string()),
-<a href=#731 id=731 data-nosnippet>731</a>    }
-<a href=#732 id=732 data-nosnippet>732</a>
-<a href=#733 id=733 data-nosnippet>733</a>    @formatted
-<a href=#734 id=734 data-nosnippet>734</a>    invalid_future_access {
-<a href=#735 id=735 data-nosnippet>735</a>        args: (num: <span class="kw">impl </span>Display, len: <span class="kw">impl </span>Display),
-<a href=#736 id=736 data-nosnippet>736</a>        msg: <span class="macro">format!</span>(
-<a href=#737 id=737 data-nosnippet>737</a>            <span class="string">"Cannot access argument `{num}` from future. The future only has `{len}` arguments."
-<a href=#738 id=738 data-nosnippet>738</a>        </span>),
-<a href=#739 id=739 data-nosnippet>739</a>        help: <span class="prelude-val">None</span>,
-<a href=#740 id=740 data-nosnippet>740</a>    }
-<a href=#741 id=741 data-nosnippet>741</a>
-<a href=#742 id=742 data-nosnippet>742</a>    @formatted
-<a href=#743 id=743 data-nosnippet>743</a>    future_access_must_be_number {
-<a href=#744 id=744 data-nosnippet>744</a>        args: (name: <span class="kw">impl </span>Display),
-<a href=#745 id=745 data-nosnippet>745</a>        msg: <span class="macro">format!</span>(<span class="string">"Future access must be a number not `{name}`."</span>),
-<a href=#746 id=746 data-nosnippet>746</a>        help: <span class="prelude-val">Some</span>(<span class="string">" Future arguments must be addressed by their index. Ex: `f.1.3`."</span>.to_string()),
-<a href=#747 id=747 data-nosnippet>747</a>    }
-<a href=#748 id=748 data-nosnippet>748</a>
-<a href=#749 id=749 data-nosnippet>749</a>    <span class="comment">// TODO: This error is deprecated. Remove.
-<a href=#750 id=750 data-nosnippet>750</a>    </span>@formatted
-<a href=#751 id=751 data-nosnippet>751</a>    no_path_awaits_all_futures_exactly_once {
-<a href=#752 id=752 data-nosnippet>752</a>        args: (num_total_paths: <span class="kw">impl </span>Display),
-<a href=#753 id=753 data-nosnippet>753</a>        msg: <span class="macro">format!</span>(<span class="string">"Futures must be awaited exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all futures are awaited exactly once."</span>),
-<a href=#754 id=754 data-nosnippet>754</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` to await a future. Remove duplicate future await redundancies, and add future awaits for un-awaited futures."</span>.to_string()),
-<a href=#755 id=755 data-nosnippet>755</a>    }
-<a href=#756 id=756 data-nosnippet>756</a>
-<a href=#757 id=757 data-nosnippet>757</a>    <span class="comment">// TODO: This error is deprecated. Remove.
-<a href=#758 id=758 data-nosnippet>758</a>    </span>@formatted
-<a href=#759 id=759 data-nosnippet>759</a>    future_awaits_missing {
-<a href=#760 id=760 data-nosnippet>760</a>        args: (unawaited: <span class="kw">impl </span>Display),
-<a href=#761 id=761 data-nosnippet>761</a>        msg: <span class="macro">format!</span>(<span class="string">"The following futures were never awaited: {unawaited}"</span>),
-<a href=#762 id=762 data-nosnippet>762</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` to await a future."</span>.to_string()),
-<a href=#763 id=763 data-nosnippet>763</a>    }
-<a href=#764 id=764 data-nosnippet>764</a>
-<a href=#765 id=765 data-nosnippet>765</a>    @formatted
-<a href=#766 id=766 data-nosnippet>766</a>    cannot_reassign_future_variable {
-<a href=#767 id=767 data-nosnippet>767</a>        args: (var: <span class="kw">impl </span>Display),
-<a href=#768 id=768 data-nosnippet>768</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot reassign variable `{var}` since it has type Future."</span>),
-<a href=#769 id=769 data-nosnippet>769</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Futures can only be defined as the result of async calls."</span>.to_string()),
-<a href=#770 id=770 data-nosnippet>770</a>    }
-<a href=#771 id=771 data-nosnippet>771</a>
-<a href=#772 id=772 data-nosnippet>772</a>    <span class="comment">// TODO: This error is deprecated. Remove.
-<a href=#773 id=773 data-nosnippet>773</a>    </span>@formatted
-<a href=#774 id=774 data-nosnippet>774</a>    invalid_await_call {
-<a href=#775 id=775 data-nosnippet>775</a>        args: (),
-<a href=#776 id=776 data-nosnippet>776</a>        msg: <span class="string">"Not a valid await call."</span>.to_string(),
-<a href=#777 id=777 data-nosnippet>777</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future."</span>.to_string()),
-<a href=#778 id=778 data-nosnippet>778</a>    }
-<a href=#779 id=779 data-nosnippet>779</a>
-<a href=#780 id=780 data-nosnippet>780</a>    @formatted
-<a href=#781 id=781 data-nosnippet>781</a>    can_only_await_one_future_at_a_time {
-<a href=#782 id=782 data-nosnippet>782</a>        args: (),
-<a href=#783 id=783 data-nosnippet>783</a>        msg: <span class="string">"Must await exactly one future at a time"</span>.to_string(),
-<a href=#784 id=784 data-nosnippet>784</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future."</span>.to_string()),
-<a href=#785 id=785 data-nosnippet>785</a>    }
-<a href=#786 id=786 data-nosnippet>786</a>
-<a href=#787 id=787 data-nosnippet>787</a>    <span class="comment">// TODO: This error is deprecated. Remove.
-<a href=#788 id=788 data-nosnippet>788</a>    </span>@formatted
-<a href=#789 id=789 data-nosnippet>789</a>    expected_future {
-<a href=#790 id=790 data-nosnippet>790</a>        args: (type_: <span class="kw">impl </span>Display),
-<a href=#791 id=791 data-nosnippet>791</a>        msg: <span class="macro">format!</span>(<span class="string">"Expected a future, but found `{type_}`"</span>),
-<a href=#792 id=792 data-nosnippet>792</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Only futures can be awaited."</span>.to_string()),
-<a href=#793 id=793 data-nosnippet>793</a>    }
-<a href=#794 id=794 data-nosnippet>794</a>
-<a href=#795 id=795 data-nosnippet>795</a>    @formatted
-<a href=#796 id=796 data-nosnippet>796</a>    invalid_method_call {
-<a href=#797 id=797 data-nosnippet>797</a>        args: (),
-<a href=#798 id=798 data-nosnippet>798</a>        msg: <span class="string">"Not a valid method call."</span>.to_string(),
-<a href=#799 id=799 data-nosnippet>799</a>        help: <span class="prelude-val">Some</span>(<span class="string">"For a `f: Future`, call the associated method `f.await()`."</span>.to_string()),
-<a href=#800 id=800 data-nosnippet>800</a>    }
-<a href=#801 id=801 data-nosnippet>801</a>
-<a href=#802 id=802 data-nosnippet>802</a>    @formatted
-<a href=#803 id=803 data-nosnippet>803</a>    async_call_in_conditional {
-<a href=#804 id=804 data-nosnippet>804</a>        args: (),
-<a href=#805 id=805 data-nosnippet>805</a>        msg: <span class="string">"Cannot call an async function in a conditional block."</span>.to_string(),
-<a href=#806 id=806 data-nosnippet>806</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call outside of the conditional block."</span>.to_string()),
-<a href=#807 id=807 data-nosnippet>807</a>    }
-<a href=#808 id=808 data-nosnippet>808</a>
-<a href=#809 id=809 data-nosnippet>809</a>    @formatted
-<a href=#810 id=810 data-nosnippet>810</a>    must_call_async_function_once {
-<a href=#811 id=811 data-nosnippet>811</a>        args: (),
-<a href=#812 id=812 data-nosnippet>812</a>        msg: <span class="string">"Must call exactly one local async function per transition function."</span>.to_string(),
-<a href=#813 id=813 data-nosnippet>813</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call outside of the transition block."</span>.to_string()),
-<a href=#814 id=814 data-nosnippet>814</a>    }
-<a href=#815 id=815 data-nosnippet>815</a>
-<a href=#816 id=816 data-nosnippet>816</a>    @formatted
-<a href=#817 id=817 data-nosnippet>817</a>    async_call_can_only_be_done_from_async_transition {
-<a href=#818 id=818 data-nosnippet>818</a>        args: (),
-<a href=#819 id=819 data-nosnippet>819</a>        msg: <span class="string">"Can only make an async call from an async transition."</span>.to_string(),
-<a href=#820 id=820 data-nosnippet>820</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call inside of the async transition block."</span>.to_string()),
-<a href=#821 id=821 data-nosnippet>821</a>    }
-<a href=#822 id=822 data-nosnippet>822</a>
-<a href=#823 id=823 data-nosnippet>823</a>    @formatted
-<a href=#824 id=824 data-nosnippet>824</a>    external_transition_call_must_be_before_finalize {
-<a href=#825 id=825 data-nosnippet>825</a>        args: (),
-<a href=#826 id=826 data-nosnippet>826</a>        msg: <span class="string">"External transition calls cannot be made after local async function call"</span>.to_string(),
-<a href=#827 id=827 data-nosnippet>827</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async function call before the transition call."</span>.to_string()),
-<a href=#828 id=828 data-nosnippet>828</a>    }
-<a href=#829 id=829 data-nosnippet>829</a>
-<a href=#830 id=830 data-nosnippet>830</a>    @formatted
-<a href=#831 id=831 data-nosnippet>831</a>    unknown_future_consumed {
-<a href=#832 id=832 data-nosnippet>832</a>        args: (future: <span class="kw">impl </span>Display),
-<a href=#833 id=833 data-nosnippet>833</a>        msg: <span class="macro">format!</span>(<span class="string">"Unknown future consumed: `{future}`"</span>),
-<a href=#834 id=834 data-nosnippet>834</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Make sure the future is defined and consumed exactly once."</span>.to_string()),
-<a href=#835 id=835 data-nosnippet>835</a>    }
-<a href=#836 id=836 data-nosnippet>836</a>
-<a href=#837 id=837 data-nosnippet>837</a>    @formatted
-<a href=#838 id=838 data-nosnippet>838</a>    not_all_futures_consumed {
-<a href=#839 id=839 data-nosnippet>839</a>        args: (unconsumed: <span class="kw">impl </span>Display),
-<a href=#840 id=840 data-nosnippet>840</a>        msg: <span class="macro">format!</span>(<span class="string">"Not all futures were consumed: {unconsumed}"</span>),
-<a href=#841 id=841 data-nosnippet>841</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Make sure all futures are consumed exactly once. Consume by passing to an async function call."</span>.to_string()),
-<a href=#842 id=842 data-nosnippet>842</a>    }
-<a href=#843 id=843 data-nosnippet>843</a>
-<a href=#844 id=844 data-nosnippet>844</a>    @formatted
-<a href=#845 id=845 data-nosnippet>845</a>    async_transition_missing_future_to_return {
-<a href=#846 id=846 data-nosnippet>846</a>        args: (),
-<a href=#847 id=847 data-nosnippet>847</a>        msg: <span class="string">"An async transition must return a future."</span>.to_string(),
-<a href=#848 id=848 data-nosnippet>848</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Call an async function inside of the async transition body so that there is a future to return."</span>.to_string()),
-<a href=#849 id=849 data-nosnippet>849</a>    }
-<a href=#850 id=850 data-nosnippet>850</a>
-<a href=#851 id=851 data-nosnippet>851</a>    @formatted
-<a href=#852 id=852 data-nosnippet>852</a>    async_function_cannot_return_value {
-<a href=#853 id=853 data-nosnippet>853</a>        args: (),
-<a href=#854 id=854 data-nosnippet>854</a>        msg: <span class="string">"An async function is not allowed to return a value."</span>.to_string(),
-<a href=#855 id=855 data-nosnippet>855</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written."</span>.to_string()),
-<a href=#856 id=856 data-nosnippet>856</a>    }
-<a href=#857 id=857 data-nosnippet>857</a>
-<a href=#858 id=858 data-nosnippet>858</a>    @formatted
-<a href=#859 id=859 data-nosnippet>859</a>    return_type_of_finalize_function_is_future {
-<a href=#860 id=860 data-nosnippet>860</a>        args: (),
-<a href=#861 id=861 data-nosnippet>861</a>        msg: <span class="string">"The output of an async function must be assigned to a `Future` type.."</span>.to_string(),
-<a href=#862 id=862 data-nosnippet>862</a>        help: <span class="prelude-val">None</span>,
-<a href=#863 id=863 data-nosnippet>863</a>    }
-<a href=#864 id=864 data-nosnippet>864</a>    @formatted
-<a href=#865 id=865 data-nosnippet>865</a>    cannot_modify_external_mapping {
-<a href=#866 id=866 data-nosnippet>866</a>        args: (operation: <span class="kw">impl </span>Display),
-<a href=#867 id=867 data-nosnippet>867</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot use operation `{operation}` on external mapping."</span>),
-<a href=#868 id=868 data-nosnippet>868</a>        help: <span class="prelude-val">Some</span>(<span class="string">"The only valid operations on external mappings are contains, get, and get_or_use."</span>.to_string()),
-<a href=#869 id=869 data-nosnippet>869</a>    }
-<a href=#870 id=870 data-nosnippet>870</a>
-<a href=#871 id=871 data-nosnippet>871</a>    @formatted
-<a href=#872 id=872 data-nosnippet>872</a>    async_cannot_assign_outside_conditional {
-<a href=#873 id=873 data-nosnippet>873</a>        args: (variable: <span class="kw">impl </span>Display),
-<a href=#874 id=874 data-nosnippet>874</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot re-assign to `{variable}` from a conditional scope to an outer scope in an async function."</span>),
-<a href=#875 id=875 data-nosnippet>875</a>        help: <span class="prelude-val">Some</span>(<span class="string">"This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/ProvableHQ/ARCs) will support more complex assignments in async functions."</span>.to_string()),
-<a href=#876 id=876 data-nosnippet>876</a>    }
-<a href=#877 id=877 data-nosnippet>877</a>
-<a href=#878 id=878 data-nosnippet>878</a>    @formatted
-<a href=#879 id=879 data-nosnippet>879</a>    only_async_transition_can_return_future {
-<a href=#880 id=880 data-nosnippet>880</a>        args: (),
-<a href=#881 id=881 data-nosnippet>881</a>        msg: <span class="string">"Only `async transition` can return a future."</span>.to_string(),
-<a href=#882 id=882 data-nosnippet>882</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Use an `async transition` instead."</span>.to_string()),
-<a href=#883 id=883 data-nosnippet>883</a>    }
-<a href=#884 id=884 data-nosnippet>884</a>
-<a href=#885 id=885 data-nosnippet>885</a>    @formatted
-<a href=#886 id=886 data-nosnippet>886</a>    async_function_not_found {
-<a href=#887 id=887 data-nosnippet>887</a>        args: (name: <span class="kw">impl </span>Display),
-<a href=#888 id=888 data-nosnippet>888</a>        msg: <span class="macro">format!</span>(<span class="string">"The async function `{name}` does not exist."</span>),
-<a href=#889 id=889 data-nosnippet>889</a>        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"Ensure that `{name}` is defined as an async function in the current program."</span>)),
-<a href=#890 id=890 data-nosnippet>890</a>    }
-<a href=#891 id=891 data-nosnippet>891</a>
-<a href=#892 id=892 data-nosnippet>892</a>    @formatted
-<a href=#893 id=893 data-nosnippet>893</a>    empty_struct {
-<a href=#894 id=894 data-nosnippet>894</a>        args: (),
-<a href=#895 id=895 data-nosnippet>895</a>        msg: <span class="string">"A struct must have at least one member."</span>.to_string(),
-<a href=#896 id=896 data-nosnippet>896</a>        help: <span class="prelude-val">None</span>,
-<a href=#897 id=897 data-nosnippet>897</a>    }
-<a href=#898 id=898 data-nosnippet>898</a>
-<a href=#899 id=899 data-nosnippet>899</a>    @formatted
-<a href=#900 id=900 data-nosnippet>900</a>    empty_function_arglist {
-<a href=#901 id=901 data-nosnippet>901</a>        args: (),
-<a href=#902 id=902 data-nosnippet>902</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot define a function with no parameters."</span>),
-<a href=#903 id=903 data-nosnippet>903</a>        help: <span class="prelude-val">None</span>,
-<a href=#904 id=904 data-nosnippet>904</a>    }
-<a href=#905 id=905 data-nosnippet>905</a>
-<a href=#906 id=906 data-nosnippet>906</a>    @formatted
-<a href=#907 id=907 data-nosnippet>907</a>    composite_data_type_cannot_contain_future {
-<a href=#908 id=908 data-nosnippet>908</a>        args: (data_type: <span class="kw">impl </span>Display),
-<a href=#909 id=909 data-nosnippet>909</a>        msg: <span class="macro">format!</span>(<span class="string">"A {data_type} cannot contain a future."</span>),
-<a href=#910 id=910 data-nosnippet>910</a>        help: <span class="prelude-val">None</span>,
-<a href=#911 id=911 data-nosnippet>911</a>    }
-<a href=#912 id=912 data-nosnippet>912</a>
-<a href=#913 id=913 data-nosnippet>913</a>    @formatted
-<a href=#914 id=914 data-nosnippet>914</a>    array_element_cannot_be_future {
-<a href=#915 id=915 data-nosnippet>915</a>        args: (),
-<a href=#916 id=916 data-nosnippet>916</a>        msg: <span class="macro">format!</span>(<span class="string">"An array cannot have a future as an element type."</span>),
-<a href=#917 id=917 data-nosnippet>917</a>        help: <span class="prelude-val">None</span>,
-<a href=#918 id=918 data-nosnippet>918</a>    }
-<a href=#919 id=919 data-nosnippet>919</a>
-<a href=#920 id=920 data-nosnippet>920</a>    @formatted
-<a href=#921 id=921 data-nosnippet>921</a>    no_future_parameters {
-<a href=#922 id=922 data-nosnippet>922</a>        args: (),
-<a href=#923 id=923 data-nosnippet>923</a>        msg: <span class="macro">format!</span>(<span class="string">"Futures may only appear as parameters to async functions."</span>),
-<a href=#924 id=924 data-nosnippet>924</a>        help: <span class="prelude-val">None</span>,
-<a href=#925 id=925 data-nosnippet>925</a>    }
-<a href=#926 id=926 data-nosnippet>926</a>
-<a href=#927 id=927 data-nosnippet>927</a>    <span class="doccomment">/// For when the user tries to assign to a const input.
-<a href=#928 id=928 data-nosnippet>928</a>    ///
-<a href=#929 id=929 data-nosnippet>929</a>    /// This is a replacement for `type_should_be` with a slightly better message.
-<a href=#930 id=930 data-nosnippet>930</a>    </span>@formatted
-<a href=#931 id=931 data-nosnippet>931</a>    type_should_be2 {
-<a href=#932 id=932 data-nosnippet>932</a>        args: (type_: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display),
-<a href=#933 id=933 data-nosnippet>933</a>        msg: <span class="macro">format!</span>(
-<a href=#934 id=934 data-nosnippet>934</a>            <span class="string">"Expected {expected} but type `{type_}` was found."</span>,
-<a href=#935 id=935 data-nosnippet>935</a>        ),
-<a href=#936 id=936 data-nosnippet>936</a>        help: <span class="prelude-val">None</span>,
-<a href=#937 id=937 data-nosnippet>937</a>    }
-<a href=#938 id=938 data-nosnippet>938</a>
-<a href=#939 id=939 data-nosnippet>939</a>    @formatted
-<a href=#940 id=940 data-nosnippet>940</a>    ternary_branch_mismatch {
-<a href=#941 id=941 data-nosnippet>941</a>        args: (type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
-<a href=#942 id=942 data-nosnippet>942</a>        msg: <span class="macro">format!</span>(
-<a href=#943 id=943 data-nosnippet>943</a>            <span class="string">"Received different types `{type1}` and `{type2}` for the arms of a ternary conditional."
-<a href=#944 id=944 data-nosnippet>944</a>        </span>),
-<a href=#945 id=945 data-nosnippet>945</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Make both branches the same type."</span>.into()),
-<a href=#946 id=946 data-nosnippet>946</a>    }
-<a href=#947 id=947 data-nosnippet>947</a>
-<a href=#948 id=948 data-nosnippet>948</a>    @formatted
-<a href=#949 id=949 data-nosnippet>949</a>    operation_types_mismatch {
-<a href=#950 id=950 data-nosnippet>950</a>        args: (operation: <span class="kw">impl </span>Display, type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
-<a href=#951 id=951 data-nosnippet>951</a>        msg: <span class="macro">format!</span>(
-<a href=#952 id=952 data-nosnippet>952</a>            <span class="string">"Received different types `{type1}` and `{type2}` for the operation `{operation}`."
-<a href=#953 id=953 data-nosnippet>953</a>        </span>),
-<a href=#954 id=954 data-nosnippet>954</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Make both operands the same type."</span>.into()),
-<a href=#955 id=955 data-nosnippet>955</a>    }
-<a href=#956 id=956 data-nosnippet>956</a>
-<a href=#957 id=957 data-nosnippet>957</a>    @formatted
-<a href=#958 id=958 data-nosnippet>958</a>    mul_types_mismatch {
-<a href=#959 id=959 data-nosnippet>959</a>        args: (type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
-<a href=#960 id=960 data-nosnippet>960</a>        msg: <span class="macro">format!</span>(
-<a href=#961 id=961 data-nosnippet>961</a>            <span class="string">"Received types `{type1}` and `{type2}` for the operation `*`."
-<a href=#962 id=962 data-nosnippet>962</a>        </span>),
-<a href=#963 id=963 data-nosnippet>963</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Valid operands are two integers of the same type, two fields, or a scalar and a group."</span>.into()),
-<a href=#964 id=964 data-nosnippet>964</a>    }
-<a href=#965 id=965 data-nosnippet>965</a>
-<a href=#966 id=966 data-nosnippet>966</a>    @formatted
-<a href=#967 id=967 data-nosnippet>967</a>    pow_types_mismatch {
-<a href=#968 id=968 data-nosnippet>968</a>        args: (type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
-<a href=#969 id=969 data-nosnippet>969</a>        msg: <span class="macro">format!</span>(
-<a href=#970 id=970 data-nosnippet>970</a>            <span class="string">"Received types `{type1}` and `{type2}` for the operation `pow`."
-<a href=#971 id=971 data-nosnippet>971</a>        </span>),
-<a href=#972 id=972 data-nosnippet>972</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Valid operands are two fields, or an integer base and a `u8`, `u16`, or `u32` exponent."</span>.into()),
-<a href=#973 id=973 data-nosnippet>973</a>    }
-<a href=#974 id=974 data-nosnippet>974</a>
-<a href=#975 id=975 data-nosnippet>975</a>    @formatted
-<a href=#976 id=976 data-nosnippet>976</a>    shift_type_magnitude {
-<a href=#977 id=977 data-nosnippet>977</a>        args: (operation: <span class="kw">impl </span>Display, rhs_type: <span class="kw">impl </span>Display),
-<a href=#978 id=978 data-nosnippet>978</a>        msg: <span class="macro">format!</span>(
-<a href=#979 id=979 data-nosnippet>979</a>            <span class="string">"Received type `{rhs_type}` for the second operand of the operation `{operation}`."
-<a href=#980 id=980 data-nosnippet>980</a>        </span>),
-<a href=#981 id=981 data-nosnippet>981</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Valid second operands are `u8`, `u16`, or `u32`"</span>.into()),
-<a href=#982 id=982 data-nosnippet>982</a>    }
-<a href=#983 id=983 data-nosnippet>983</a>
-<a href=#984 id=984 data-nosnippet>984</a>    @formatted
-<a href=#985 id=985 data-nosnippet>985</a>    unit_type_only_return {
-<a href=#986 id=986 data-nosnippet>986</a>        args: (),
-<a href=#987 id=987 data-nosnippet>987</a>        msg: <span class="string">"The unit type () may appear only as the return type of a function."</span>.to_string(),
-<a href=#988 id=988 data-nosnippet>988</a>        help: <span class="prelude-val">None</span>,
-<a href=#989 id=989 data-nosnippet>989</a>    }
-<a href=#990 id=990 data-nosnippet>990</a>
-<a href=#991 id=991 data-nosnippet>991</a>    @formatted
-<a href=#992 id=992 data-nosnippet>992</a>    future_error_member {
-<a href=#993 id=993 data-nosnippet>993</a>        args: (num: <span class="kw">impl </span>Display),
-<a href=#994 id=994 data-nosnippet>994</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot access argument `{num}` from future."</span>),
-<a href=#995 id=995 data-nosnippet>995</a>        help: <span class="prelude-val">Some</span>(
-<a href=#996 id=996 data-nosnippet>996</a>            <span class="string">"Ensure that the async function is not called with multiple times with incompatible types."</span>.to_string()
-<a href=#997 id=997 data-nosnippet>997</a>        ),
-<a href=#998 id=998 data-nosnippet>998</a>    }
-<a href=#999 id=999 data-nosnippet>999</a>
-<a href=#1000 id=1000 data-nosnippet>1000</a>    @formatted
-<a href=#1001 id=1001 data-nosnippet>1001</a>    cannot_reassign_mapping {
-<a href=#1002 id=1002 data-nosnippet>1002</a>        args: (var: <span class="kw">impl </span>Display),
-<a href=#1003 id=1003 data-nosnippet>1003</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the mapping `{var}`."</span>),
-<a href=#1004 id=1004 data-nosnippet>1004</a>        help: <span class="prelude-val">None</span>,
-<a href=#1005 id=1005 data-nosnippet>1005</a>    }
-<a href=#1006 id=1006 data-nosnippet>1006</a>
-<a href=#1007 id=1007 data-nosnippet>1007</a>    @formatted
-<a href=#1008 id=1008 data-nosnippet>1008</a>    records_not_allowed_inside_finalize {
-<a href=#1009 id=1009 data-nosnippet>1009</a>        args: (),
-<a href=#1010 id=1010 data-nosnippet>1010</a>        msg: <span class="macro">format!</span>(<span class="string">"records cannot be instantiated in an async function context."</span>),
-<a href=#1011 id=1011 data-nosnippet>1011</a>        help: <span class="prelude-val">None</span>,
-<a href=#1012 id=1012 data-nosnippet>1012</a>    }
-<a href=#1013 id=1013 data-nosnippet>1013</a>
-<a href=#1014 id=1014 data-nosnippet>1014</a>    @formatted
-<a href=#1015 id=1015 data-nosnippet>1015</a>    script_in_non_test {
-<a href=#1016 id=1016 data-nosnippet>1016</a>        args: (func: <span class="kw">impl </span>Display),
-<a href=#1017 id=1017 data-nosnippet>1017</a>        msg: <span class="macro">format!</span>(<span class="string">"`script` {func} appears in a non-test program."</span>),
-<a href=#1018 id=1018 data-nosnippet>1018</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Move this to a test program, or replace it with a function or transition"</span>.to_string()),
-<a href=#1019 id=1019 data-nosnippet>1019</a>    }
-<a href=#1020 id=1020 data-nosnippet>1020</a>
-<a href=#1021 id=1021 data-nosnippet>1021</a>    @formatted
-<a href=#1022 id=1022 data-nosnippet>1022</a>    non_script_calls_script {
-<a href=#1023 id=1023 data-nosnippet>1023</a>        args: (call: <span class="kw">impl </span>Display),
-<a href=#1024 id=1024 data-nosnippet>1024</a>        msg: <span class="macro">format!</span>(<span class="string">"`script` {call} is called by a non-`script`."</span>),
-<a href=#1025 id=1025 data-nosnippet>1025</a>        help: <span class="prelude-val">None</span>,
-<a href=#1026 id=1026 data-nosnippet>1026</a>    }
-<a href=#1027 id=1027 data-nosnippet>1027</a>
-<a href=#1028 id=1028 data-nosnippet>1028</a>    @formatted
-<a href=#1029 id=1029 data-nosnippet>1029</a>    annotation_error {
-<a href=#1030 id=1030 data-nosnippet>1030</a>        args: (message: <span class="kw">impl </span>Display),
-<a href=#1031 id=1031 data-nosnippet>1031</a>        msg: <span class="macro">format!</span>(<span class="string">"Invalid annotation: {message}."</span>),
-<a href=#1032 id=1032 data-nosnippet>1032</a>        help: <span class="prelude-val">None</span>,
-<a href=#1033 id=1033 data-nosnippet>1033</a>    }
-<a href=#1034 id=1034 data-nosnippet>1034</a>
-<a href=#1035 id=1035 data-nosnippet>1035</a>    @formatted
-<a href=#1036 id=1036 data-nosnippet>1036</a>    ternary_over_external_records {
-<a href=#1037 id=1037 data-nosnippet>1037</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1038 id=1038 data-nosnippet>1038</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot apply ternary conditional to type `{ty}`."</span>),
-<a href=#1039 id=1039 data-nosnippet>1039</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ternary conditionals may not contain an external record type."</span>.to_string()),
-<a href=#1040 id=1040 data-nosnippet>1040</a>    }
-<a href=#1041 id=1041 data-nosnippet>1041</a>
-<a href=#1042 id=1042 data-nosnippet>1042</a>    <span class="comment">// TODO: unused.
-<a href=#1043 id=1043 data-nosnippet>1043</a>    </span>@formatted
-<a href=#1044 id=1044 data-nosnippet>1044</a>    assignment_to_external_record {
-<a href=#1045 id=1045 data-nosnippet>1045</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1046 id=1046 data-nosnippet>1046</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to type `{ty}` or a member thereof."</span>),
-<a href=#1047 id=1047 data-nosnippet>1047</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record types and tuples containing them may not be assigned to."</span>.to_string()),
-<a href=#1048 id=1048 data-nosnippet>1048</a>    }
-<a href=#1049 id=1049 data-nosnippet>1049</a>
-<a href=#1050 id=1050 data-nosnippet>1050</a>    @formatted
-<a href=#1051 id=1051 data-nosnippet>1051</a>    illegal_name {
-<a href=#1052 id=1052 data-nosnippet>1052</a>        args: (item_name: <span class="kw">impl </span>Display, item_type: <span class="kw">impl </span>Display, keyword: <span class="kw">impl </span>Display),
-<a href=#1053 id=1053 data-nosnippet>1053</a>        msg: <span class="macro">format!</span>(<span class="string">"`{item_name}` is an invalid {item_type} name. A {item_type} cannot have \"{keyword}\" in its name."</span>),
-<a href=#1054 id=1054 data-nosnippet>1054</a>        help: <span class="prelude-val">None</span>,
-<a href=#1055 id=1055 data-nosnippet>1055</a>    }
-<a href=#1056 id=1056 data-nosnippet>1056</a>
-<a href=#1057 id=1057 data-nosnippet>1057</a>    @formatted
-<a href=#1058 id=1058 data-nosnippet>1058</a>    record_prefixed_by_other_record {
-<a href=#1059 id=1059 data-nosnippet>1059</a>        args: (r1: <span class="kw">impl </span>Display, r2: <span class="kw">impl </span>Display),
-<a href=#1060 id=1060 data-nosnippet>1060</a>        msg: <span class="macro">format!</span>(<span class="string">"Record name `{r1}` is prefixed by the record name `{r2}`. Record names must not be prefixes of other record names."</span>),
-<a href=#1061 id=1061 data-nosnippet>1061</a>        help: <span class="prelude-val">None</span>,
-<a href=#1062 id=1062 data-nosnippet>1062</a>    }
-<a href=#1063 id=1063 data-nosnippet>1063</a>
-<a href=#1064 id=1064 data-nosnippet>1064</a>    @formatted
-<a href=#1065 id=1065 data-nosnippet>1065</a>    range_bounds_type_mismatch{
-<a href=#1066 id=1066 data-nosnippet>1066</a>        args: (),
-<a href=#1067 id=1067 data-nosnippet>1067</a>        msg: <span class="macro">format!</span>(<span class="string">"mismatched types in loop iterator range bounds"</span>),
-<a href=#1068 id=1068 data-nosnippet>1068</a>        help: <span class="prelude-val">None</span>,
-<a href=#1069 id=1069 data-nosnippet>1069</a>    }
-<a href=#1070 id=1070 data-nosnippet>1070</a>
-<a href=#1071 id=1071 data-nosnippet>1071</a>    @formatted
-<a href=#1072 id=1072 data-nosnippet>1072</a>    assignment_to_external_record_member {
-<a href=#1073 id=1073 data-nosnippet>1073</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1074 id=1074 data-nosnippet>1074</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to a member of the external record `{ty}`."</span>),
-<a href=#1075 id=1075 data-nosnippet>1075</a>        help: <span class="prelude-val">None</span>,
-<a href=#1076 id=1076 data-nosnippet>1076</a>    }
-<a href=#1077 id=1077 data-nosnippet>1077</a>
-<a href=#1078 id=1078 data-nosnippet>1078</a>    @formatted
-<a href=#1079 id=1079 data-nosnippet>1079</a>    assignment_to_external_record_cond {
-<a href=#1080 id=1080 data-nosnippet>1080</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1081 id=1081 data-nosnippet>1081</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the external record type `{ty}` in this location."</span>),
-<a href=#1082 id=1082 data-nosnippet>1082</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record variables may not be assigned to in narrower conditional scopes than they were defined."</span>.into()),
-<a href=#1083 id=1083 data-nosnippet>1083</a>    }
-<a href=#1084 id=1084 data-nosnippet>1084</a>
-<a href=#1085 id=1085 data-nosnippet>1085</a>    @formatted
-<a href=#1086 id=1086 data-nosnippet>1086</a>    assignment_to_external_record_tuple_cond {
-<a href=#1087 id=1087 data-nosnippet>1087</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1088 id=1088 data-nosnippet>1088</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the tuple type `{ty}` containing an external record in this location."</span>),
-<a href=#1089 id=1089 data-nosnippet>1089</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Tuples containing external records may not be assigned to in narrower conditional scopes than they were defined."</span>.into()),
-<a href=#1090 id=1090 data-nosnippet>1090</a>    }
-<a href=#1091 id=1091 data-nosnippet>1091</a>
-<a href=#1092 id=1092 data-nosnippet>1092</a>    @formatted
-<a href=#1093 id=1093 data-nosnippet>1093</a>    hexbin_literal_nonintegers {
-<a href=#1094 id=1094 data-nosnippet>1094</a>        args: (),
-<a href=#1095 id=1095 data-nosnippet>1095</a>        msg: <span class="macro">format!</span>(<span class="string">"Hex, octal, and binary literals may only be used for integer types."</span>),
-<a href=#1096 id=1096 data-nosnippet>1096</a>        help: <span class="prelude-val">None</span>,
-<a href=#1097 id=1097 data-nosnippet>1097</a>    }
-<a href=#1098 id=1098 data-nosnippet>1098</a>
-<a href=#1099 id=1099 data-nosnippet>1099</a>    @formatted
-<a href=#1100 id=1100 data-nosnippet>1100</a>    unexpected_unsuffixed_numeral {
-<a href=#1101 id=1101 data-nosnippet>1101</a>        args: (expected: <span class="kw">impl </span>Display),
-<a href=#1102 id=1102 data-nosnippet>1102</a>        msg: <span class="macro">format!</span>(
-<a href=#1103 id=1103 data-nosnippet>1103</a>            <span class="string">"Expected {expected} but an unsuffixed numeral was found."</span>,
-<a href=#1104 id=1104 data-nosnippet>1104</a>        ),
-<a href=#1105 id=1105 data-nosnippet>1105</a>        help: <span class="prelude-val">None</span>,
-<a href=#1106 id=1106 data-nosnippet>1106</a>    }
-<a href=#1107 id=1107 data-nosnippet>1107</a>
-<a href=#1108 id=1108 data-nosnippet>1108</a>    @formatted
-<a href=#1109 id=1109 data-nosnippet>1109</a>    incorrect_num_const_args {
-<a href=#1110 id=1110 data-nosnippet>1110</a>        args: (kind: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
-<a href=#1111 id=1111 data-nosnippet>1111</a>        msg: <span class="macro">format!</span>(
-<a href=#1112 id=1112 data-nosnippet>1112</a>            <span class="string">"{kind} expected `{expected}` const args, but got `{received}`"</span>,
-<a href=#1113 id=1113 data-nosnippet>1113</a>        ),
-<a href=#1114 id=1114 data-nosnippet>1114</a>        help: <span class="prelude-val">None</span>,
-<a href=#1115 id=1115 data-nosnippet>1115</a>    }
-<a href=#1116 id=1116 data-nosnippet>1116</a>
-<a href=#1117 id=1117 data-nosnippet>1117</a>    @formatted
-<a href=#1118 id=1118 data-nosnippet>1118</a>    bad_const_generic_type {
-<a href=#1119 id=1119 data-nosnippet>1119</a>        args: (found: <span class="kw">impl </span>Display),
-<a href=#1120 id=1120 data-nosnippet>1120</a>        msg: <span class="macro">format!</span>(<span class="string">"A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but {found} was found"</span>),
-<a href=#1121 id=1121 data-nosnippet>1121</a>        help: <span class="prelude-val">None</span>,
-<a href=#1122 id=1122 data-nosnippet>1122</a>    }
-<a href=#1123 id=1123 data-nosnippet>1123</a>
-<a href=#1124 id=1124 data-nosnippet>1124</a>    <span class="doccomment">/// For when the user tries to assign to a generic const function parameter.
-<a href=#1125 id=1125 data-nosnippet>1125</a>    </span>@formatted
-<a href=#1126 id=1126 data-nosnippet>1126</a>    cannot_assign_to_generic_const_function_parameter {
-<a href=#1127 id=1127 data-nosnippet>1127</a>        args: (param: <span class="kw">impl </span>Display),
-<a href=#1128 id=1128 data-nosnippet>1128</a>        msg: <span class="macro">format!</span>(
-<a href=#1129 id=1129 data-nosnippet>1129</a>            <span class="string">"Cannot assign to const parameter `{param}`"</span>,
-<a href=#1130 id=1130 data-nosnippet>1130</a>        ),
-<a href=#1131 id=1131 data-nosnippet>1131</a>        help: <span class="prelude-val">None</span>,
-<a href=#1132 id=1132 data-nosnippet>1132</a>    }
-<a href=#1133 id=1133 data-nosnippet>1133</a>
-<a href=#1134 id=1134 data-nosnippet>1134</a>    @formatted
-<a href=#1135 id=1135 data-nosnippet>1135</a>    only_inline_can_have_const_generics {
-<a href=#1136 id=1136 data-nosnippet>1136</a>        args: (),
-<a href=#1137 id=1137 data-nosnippet>1137</a>        msg: <span class="macro">format!</span>(<span class="string">"Only `inline` functions can have generic const parameters."</span>),
-<a href=#1138 id=1138 data-nosnippet>1138</a>        help: <span class="prelude-val">None</span>,
-<a href=#1139 id=1139 data-nosnippet>1139</a>    }
-<a href=#1140 id=1140 data-nosnippet>1140</a>
-<a href=#1141 id=1141 data-nosnippet>1141</a>    @formatted
-<a href=#1142 id=1142 data-nosnippet>1142</a>    array_too_large_for_u32 {
-<a href=#1143 id=1143 data-nosnippet>1143</a>        args: (),
-<a href=#1144 id=1144 data-nosnippet>1144</a>        msg: <span class="macro">format!</span>(<span class="string">"An array length must be small enough to fit in a `u32`"</span>),
-<a href=#1145 id=1145 data-nosnippet>1145</a>        help: <span class="prelude-val">None</span>,
-<a href=#1146 id=1146 data-nosnippet>1146</a>    }
-<a href=#1147 id=1147 data-nosnippet>1147</a>
-<a href=#1148 id=1148 data-nosnippet>1148</a>    @formatted
-<a href=#1149 id=1149 data-nosnippet>1149</a>    unexpected_record_const_parameters {
-<a href=#1150 id=1150 data-nosnippet>1150</a>        args: (),
-<a href=#1151 id=1151 data-nosnippet>1151</a>        msg: <span class="macro">format!</span>(<span class="string">"Records cannot be declared with generic const parameters."</span>),
-<a href=#1152 id=1152 data-nosnippet>1152</a>        help: <span class="prelude-val">None</span>,
-<a href=#1153 id=1153 data-nosnippet>1153</a>    }
-<a href=#1154 id=1154 data-nosnippet>1154</a>
-<a href=#1155 id=1155 data-nosnippet>1155</a>    @formatted
-<a href=#1156 id=1156 data-nosnippet>1156</a>    unexpected_const_args {
-<a href=#1157 id=1157 data-nosnippet>1157</a>        args: (item: <span class="kw">impl </span>Display),
-<a href=#1158 id=1158 data-nosnippet>1158</a>        msg: <span class="macro">format!</span>(<span class="string">"unexpected generic const argment for {item}."</span>),
-<a href=#1159 id=1159 data-nosnippet>1159</a>        help: <span class="prelude-val">Some</span>(<span class="string">"If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments"</span>.to_string()),
-<a href=#1160 id=1160 data-nosnippet>1160</a>    }
-<a href=#1161 id=1161 data-nosnippet>1161</a>);</code></pre></div></section></main></body></html>
+<a href=#287 id=287 data-nosnippet>287</a>    <span class="comment">// Not currently used
+<a href=#288 id=288 data-nosnippet>288</a>    </span>@formatted
+<a href=#289 id=289 data-nosnippet>289</a>    async_function_input_cannot_be_private {
+<a href=#290 id=290 data-nosnippet>290</a>        args: (),
+<a href=#291 id=291 data-nosnippet>291</a>        msg: <span class="macro">format!</span>(<span class="string">"Async functions cannot have private inputs."</span>),
+<a href=#292 id=292 data-nosnippet>292</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely."</span>.to_string()),
+<a href=#293 id=293 data-nosnippet>293</a>    }
+<a href=#294 id=294 data-nosnippet>294</a>
+<a href=#295 id=295 data-nosnippet>295</a>    @formatted
+<a href=#296 id=296 data-nosnippet>296</a>    struct_or_record_cannot_contain_record {
+<a href=#297 id=297 data-nosnippet>297</a>        args: (parent: <span class="kw">impl </span>Display, child: <span class="kw">impl </span>Display),
+<a href=#298 id=298 data-nosnippet>298</a>        msg: <span class="macro">format!</span>(<span class="string">"A struct or record cannot contain another record."</span>),
+<a href=#299 id=299 data-nosnippet>299</a>        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"Remove the record `{child}` from `{parent}`."</span>)),
+<a href=#300 id=300 data-nosnippet>300</a>    }
+<a href=#301 id=301 data-nosnippet>301</a>
+<a href=#302 id=302 data-nosnippet>302</a>    @formatted
+<a href=#303 id=303 data-nosnippet>303</a>    invalid_mapping_type {
+<a href=#304 id=304 data-nosnippet>304</a>        args: (component: <span class="kw">impl </span>Display, type_: <span class="kw">impl </span>Display),
+<a href=#305 id=305 data-nosnippet>305</a>        msg: <span class="macro">format!</span>(<span class="string">"A mapping's {component} cannot be a {type_}"</span>),
+<a href=#306 id=306 data-nosnippet>306</a>        help: <span class="prelude-val">None</span>,
+<a href=#307 id=307 data-nosnippet>307</a>    }
+<a href=#308 id=308 data-nosnippet>308</a>
+<a href=#309 id=309 data-nosnippet>309</a>    @formatted
+<a href=#310 id=310 data-nosnippet>310</a>    async_function_input_must_be_public {
+<a href=#311 id=311 data-nosnippet>311</a>        args: (),
+<a href=#312 id=312 data-nosnippet>312</a>        msg: <span class="macro">format!</span>(<span class="string">"An input to an async function must be public."</span>),
+<a href=#313 id=313 data-nosnippet>313</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely."</span>.to_string()),
+<a href=#314 id=314 data-nosnippet>314</a>    }
+<a href=#315 id=315 data-nosnippet>315</a>
+<a href=#316 id=316 data-nosnippet>316</a>    <span class="comment">// Not currently used
+<a href=#317 id=317 data-nosnippet>317</a>    </span>@formatted
+<a href=#318 id=318 data-nosnippet>318</a>    finalize_output_mode_must_be_public {
+<a href=#319 id=319 data-nosnippet>319</a>        args: (),
+<a href=#320 id=320 data-nosnippet>320</a>        msg: <span class="macro">format!</span>(<span class="string">"An output from an async function block must be public."</span>),
+<a href=#321 id=321 data-nosnippet>321</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Use a `public` modifier to the output type declaration or remove the visibility modifier entirely."</span>.to_string()),
+<a href=#322 id=322 data-nosnippet>322</a>    }
+<a href=#323 id=323 data-nosnippet>323</a>
+<a href=#324 id=324 data-nosnippet>324</a>    @formatted
+<a href=#325 id=325 data-nosnippet>325</a>    invalid_operation_outside_finalize {
+<a href=#326 id=326 data-nosnippet>326</a>        args: (operation: <span class="kw">impl </span>Display),
+<a href=#327 id=327 data-nosnippet>327</a>        msg: <span class="macro">format!</span>(<span class="string">"`{operation}` must be inside an async function block."</span>),
+<a href=#328 id=328 data-nosnippet>328</a>        help: <span class="prelude-val">None</span>,
+<a href=#329 id=329 data-nosnippet>329</a>    }
+<a href=#330 id=330 data-nosnippet>330</a>
+<a href=#331 id=331 data-nosnippet>331</a>    @formatted
+<a href=#332 id=332 data-nosnippet>332</a>    loop_body_contains_async {
+<a href=#333 id=333 data-nosnippet>333</a>        args: (kind: <span class="kw">impl </span>Display),
+<a href=#334 id=334 data-nosnippet>334</a>        msg: <span class="macro">format!</span>(<span class="string">"Loop body contains an async {kind}."</span>),
+<a href=#335 id=335 data-nosnippet>335</a>        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"Remove the async {kind}."</span>)),
+<a href=#336 id=336 data-nosnippet>336</a>    }
+<a href=#337 id=337 data-nosnippet>337</a>
+<a href=#338 id=338 data-nosnippet>338</a>    @formatted
+<a href=#339 id=339 data-nosnippet>339</a>    missing_return {
+<a href=#340 id=340 data-nosnippet>340</a>        args: (),
+<a href=#341 id=341 data-nosnippet>341</a>        msg: <span class="macro">format!</span>(<span class="string">"Function must return a value."</span>),
+<a href=#342 id=342 data-nosnippet>342</a>        help: <span class="prelude-val">None</span>,
+<a href=#343 id=343 data-nosnippet>343</a>    }
+<a href=#344 id=344 data-nosnippet>344</a>
+<a href=#345 id=345 data-nosnippet>345</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
+<a href=#346 id=346 data-nosnippet>346</a>    </span>@formatted
+<a href=#347 id=347 data-nosnippet>347</a>    finalize_block_must_not_be_empty {
+<a href=#348 id=348 data-nosnippet>348</a>        args: (),
+<a href=#349 id=349 data-nosnippet>349</a>        msg: <span class="macro">format!</span>(<span class="string">"An async function call block cannot be empty."</span>),
+<a href=#350 id=350 data-nosnippet>350</a>        help: <span class="prelude-val">None</span>,
+<a href=#351 id=351 data-nosnippet>351</a>    }
+<a href=#352 id=352 data-nosnippet>352</a>
+<a href=#353 id=353 data-nosnippet>353</a>    @formatted
+<a href=#354 id=354 data-nosnippet>354</a>    cannot_have_constant_output_mode {
+<a href=#355 id=355 data-nosnippet>355</a>        args: (),
+<a href=#356 id=356 data-nosnippet>356</a>        msg: <span class="macro">format!</span>(<span class="string">"A returned value cannot be a constant."</span>),
+<a href=#357 id=357 data-nosnippet>357</a>        help: <span class="prelude-val">None</span>,
+<a href=#358 id=358 data-nosnippet>358</a>    }
+<a href=#359 id=359 data-nosnippet>359</a>
+<a href=#360 id=360 data-nosnippet>360</a>    @formatted
+<a href=#361 id=361 data-nosnippet>361</a>    transition_function_inputs_cannot_be_const {
+<a href=#362 id=362 data-nosnippet>362</a>        args: (),
+<a href=#363 id=363 data-nosnippet>363</a>        msg: <span class="macro">format!</span>(<span class="string">"Transition functions cannot have constant inputs."</span>),
+<a href=#364 id=364 data-nosnippet>364</a>        help: <span class="prelude-val">None</span>,
+<a href=#365 id=365 data-nosnippet>365</a>    }
+<a href=#366 id=366 data-nosnippet>366</a>
+<a href=#367 id=367 data-nosnippet>367</a>    @formatted
+<a href=#368 id=368 data-nosnippet>368</a>    invalid_self_access {
+<a href=#369 id=369 data-nosnippet>369</a>        args: (),
+<a href=#370 id=370 data-nosnippet>370</a>        msg: <span class="macro">format!</span>(<span class="string">"The allowed accesses to `self` are `self.caller` and `self.signer`."</span>),
+<a href=#371 id=371 data-nosnippet>371</a>        help: <span class="prelude-val">None</span>,
+<a href=#372 id=372 data-nosnippet>372</a>    }
+<a href=#373 id=373 data-nosnippet>373</a>
+<a href=#374 id=374 data-nosnippet>374</a>    @formatted
+<a href=#375 id=375 data-nosnippet>375</a>    invalid_type {
+<a href=#376 id=376 data-nosnippet>376</a>        args: (type_: <span class="kw">impl </span>Display),
+<a href=#377 id=377 data-nosnippet>377</a>        msg: <span class="macro">format!</span>(<span class="string">"Invalid type `{type_}`"</span>),
+<a href=#378 id=378 data-nosnippet>378</a>        help: <span class="prelude-val">None</span>,
+<a href=#379 id=379 data-nosnippet>379</a>    }
+<a href=#380 id=380 data-nosnippet>380</a>
+<a href=#381 id=381 data-nosnippet>381</a>    @formatted
+<a href=#382 id=382 data-nosnippet>382</a>    can_only_call_inline_function {
+<a href=#383 id=383 data-nosnippet>383</a>        args: (kind: <span class="kw">impl </span>Display),
+<a href=#384 id=384 data-nosnippet>384</a>        msg: <span class="macro">format!</span>(<span class="string">"Only `inline` can be called from {kind}."</span>),
+<a href=#385 id=385 data-nosnippet>385</a>        help: <span class="prelude-val">None</span>,
+<a href=#386 id=386 data-nosnippet>386</a>    }
+<a href=#387 id=387 data-nosnippet>387</a>
+<a href=#388 id=388 data-nosnippet>388</a>    @formatted
+<a href=#389 id=389 data-nosnippet>389</a>    cannot_invoke_call_to_local_transition_function {
+<a href=#390 id=390 data-nosnippet>390</a>        args: (),
+<a href=#391 id=391 data-nosnippet>391</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot call a local transition function from a transition function."</span>),
+<a href=#392 id=392 data-nosnippet>392</a>        help: <span class="prelude-val">None</span>,
+<a href=#393 id=393 data-nosnippet>393</a>    }
+<a href=#394 id=394 data-nosnippet>394</a>
+<a href=#395 id=395 data-nosnippet>395</a>    @formatted
+<a href=#396 id=396 data-nosnippet>396</a>    loop_bound_must_be_a_literal {
+<a href=#397 id=397 data-nosnippet>397</a>        args: (),
+<a href=#398 id=398 data-nosnippet>398</a>        msg: <span class="macro">format!</span>(<span class="string">"Loop bound must be a literal."</span>),
+<a href=#399 id=399 data-nosnippet>399</a>        help: <span class="prelude-val">None</span>,
+<a href=#400 id=400 data-nosnippet>400</a>    }
+<a href=#401 id=401 data-nosnippet>401</a>
+<a href=#402 id=402 data-nosnippet>402</a>    @formatted
+<a href=#403 id=403 data-nosnippet>403</a>    strings_are_not_supported {
+<a href=#404 id=404 data-nosnippet>404</a>        args: (),
+<a href=#405 id=405 data-nosnippet>405</a>        msg: <span class="macro">format!</span>(<span class="string">"Strings are not yet supported."</span>),
+<a href=#406 id=406 data-nosnippet>406</a>        help: <span class="prelude-val">None</span>,
+<a href=#407 id=407 data-nosnippet>407</a>    }
+<a href=#408 id=408 data-nosnippet>408</a>
+<a href=#409 id=409 data-nosnippet>409</a>    @formatted
+<a href=#410 id=410 data-nosnippet>410</a>    imported_program_cannot_import_program {
+<a href=#411 id=411 data-nosnippet>411</a>        args: (),
+<a href=#412 id=412 data-nosnippet>412</a>        msg: <span class="macro">format!</span>(<span class="string">"An imported program cannot import another program."</span>),
+<a href=#413 id=413 data-nosnippet>413</a>        help: <span class="prelude-val">None</span>,
+<a href=#414 id=414 data-nosnippet>414</a>    }
+<a href=#415 id=415 data-nosnippet>415</a>
+<a href=#416 id=416 data-nosnippet>416</a>    @formatted
+<a href=#417 id=417 data-nosnippet>417</a>    too_many_transitions {
+<a href=#418 id=418 data-nosnippet>418</a>        args: (max: <span class="kw">impl </span>Display),
+<a href=#419 id=419 data-nosnippet>419</a>        msg: <span class="macro">format!</span>(<span class="string">"The number of transitions exceeds the maximum. snarkVM allows up to {max} transitions within a single program."</span>),
+<a href=#420 id=420 data-nosnippet>420</a>        help: <span class="prelude-val">None</span>,
+<a href=#421 id=421 data-nosnippet>421</a>    }
+<a href=#422 id=422 data-nosnippet>422</a>
+<a href=#423 id=423 data-nosnippet>423</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
+<a href=#424 id=424 data-nosnippet>424</a>    </span>@formatted
+<a href=#425 id=425 data-nosnippet>425</a>    assign_unit_expression_to_variable {
+<a href=#426 id=426 data-nosnippet>426</a>        args: (),
+<a href=#427 id=427 data-nosnippet>427</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign a unit expression to a variable."</span>),
+<a href=#428 id=428 data-nosnippet>428</a>        help: <span class="prelude-val">None</span>,
+<a href=#429 id=429 data-nosnippet>429</a>    }
+<a href=#430 id=430 data-nosnippet>430</a>
+<a href=#431 id=431 data-nosnippet>431</a>    @formatted
+<a href=#432 id=432 data-nosnippet>432</a>    nested_tuple_type {
+<a href=#433 id=433 data-nosnippet>433</a>        args: (),
+<a href=#434 id=434 data-nosnippet>434</a>        msg: <span class="macro">format!</span>(<span class="string">"A tuple type cannot contain a tuple."</span>),
+<a href=#435 id=435 data-nosnippet>435</a>        help: <span class="prelude-val">None</span>,
+<a href=#436 id=436 data-nosnippet>436</a>    }
+<a href=#437 id=437 data-nosnippet>437</a>
+<a href=#438 id=438 data-nosnippet>438</a>    @formatted
+<a href=#439 id=439 data-nosnippet>439</a>    composite_data_type_cannot_contain_tuple {
+<a href=#440 id=440 data-nosnippet>440</a>        args: (data_type: <span class="kw">impl </span>Display),
+<a href=#441 id=441 data-nosnippet>441</a>        msg: <span class="macro">format!</span>(<span class="string">"A {data_type} cannot contain a tuple."</span>),
+<a href=#442 id=442 data-nosnippet>442</a>        help: <span class="prelude-val">None</span>,
+<a href=#443 id=443 data-nosnippet>443</a>    }
+<a href=#444 id=444 data-nosnippet>444</a>
+<a href=#445 id=445 data-nosnippet>445</a>    @formatted
+<a href=#446 id=446 data-nosnippet>446</a>    function_cannot_take_tuple_as_input {
+<a href=#447 id=447 data-nosnippet>447</a>        args: (),
+<a href=#448 id=448 data-nosnippet>448</a>        msg: <span class="macro">format!</span>(<span class="string">"A function cannot take in a tuple as input."</span>),
+<a href=#449 id=449 data-nosnippet>449</a>        help: <span class="prelude-val">None</span>,
+<a href=#450 id=450 data-nosnippet>450</a>    }
+<a href=#451 id=451 data-nosnippet>451</a>
+<a href=#452 id=452 data-nosnippet>452</a>    @formatted
+<a href=#453 id=453 data-nosnippet>453</a>    nested_tuple_expression {
+<a href=#454 id=454 data-nosnippet>454</a>        args: (),
+<a href=#455 id=455 data-nosnippet>455</a>        msg: <span class="macro">format!</span>(<span class="string">"A tuple expression cannot contain another tuple expression."</span>),
+<a href=#456 id=456 data-nosnippet>456</a>        help: <span class="prelude-val">None</span>,
+<a href=#457 id=457 data-nosnippet>457</a>    }
+<a href=#458 id=458 data-nosnippet>458</a>
+<a href=#459 id=459 data-nosnippet>459</a>    @formatted
+<a href=#460 id=460 data-nosnippet>460</a>    expression_statement_must_be_function_call {
+<a href=#461 id=461 data-nosnippet>461</a>        args: (),
+<a href=#462 id=462 data-nosnippet>462</a>        msg: <span class="macro">format!</span>(<span class="string">"An expression statement must be a function call."</span>),
+<a href=#463 id=463 data-nosnippet>463</a>        help: <span class="prelude-val">None</span>,
+<a href=#464 id=464 data-nosnippet>464</a>    }
+<a href=#465 id=465 data-nosnippet>465</a>
+<a href=#466 id=466 data-nosnippet>466</a>    @formatted
+<a href=#467 id=467 data-nosnippet>467</a>    lhs_tuple_element_must_be_an_identifier {
+<a href=#468 id=468 data-nosnippet>468</a>        args: (),
+<a href=#469 id=469 data-nosnippet>469</a>        msg: <span class="macro">format!</span>(<span class="string">"Tuples on the left-hand side of a `DefinitionStatement` can only contain identifiers."</span>),
+<a href=#470 id=470 data-nosnippet>470</a>        help: <span class="prelude-val">None</span>,
+<a href=#471 id=471 data-nosnippet>471</a>    }
+<a href=#472 id=472 data-nosnippet>472</a>
+<a href=#473 id=473 data-nosnippet>473</a>    @formatted
+<a href=#474 id=474 data-nosnippet>474</a>    lhs_must_be_identifier_or_tuple {
+<a href=#475 id=475 data-nosnippet>475</a>        args: (),
+<a href=#476 id=476 data-nosnippet>476</a>        msg: <span class="macro">format!</span>(<span class="string">"The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements."</span>),
+<a href=#477 id=477 data-nosnippet>477</a>        help: <span class="prelude-val">None</span>,
+<a href=#478 id=478 data-nosnippet>478</a>    }
+<a href=#479 id=479 data-nosnippet>479</a>
+<a href=#480 id=480 data-nosnippet>480</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
+<a href=#481 id=481 data-nosnippet>481</a>    </span>@formatted
+<a href=#482 id=482 data-nosnippet>482</a>    unit_expression_only_in_return_statements {
+<a href=#483 id=483 data-nosnippet>483</a>        args: (),
+<a href=#484 id=484 data-nosnippet>484</a>        msg: <span class="macro">format!</span>(<span class="string">"Unit expressions can only be used in return statements."</span>),
+<a href=#485 id=485 data-nosnippet>485</a>        help: <span class="prelude-val">None</span>,
+<a href=#486 id=486 data-nosnippet>486</a>    }
+<a href=#487 id=487 data-nosnippet>487</a>
+<a href=#488 id=488 data-nosnippet>488</a>    @formatted
+<a href=#489 id=489 data-nosnippet>489</a>    function_cannot_input_or_output_a_record {
+<a href=#490 id=490 data-nosnippet>490</a>        args: (),
+<a href=#491 id=491 data-nosnippet>491</a>        msg: <span class="macro">format!</span>(<span class="string">"Only `transition` functions can have a record as input or output."</span>),
+<a href=#492 id=492 data-nosnippet>492</a>        help: <span class="prelude-val">None</span>,
+<a href=#493 id=493 data-nosnippet>493</a>    }
+<a href=#494 id=494 data-nosnippet>494</a>
+<a href=#495 id=495 data-nosnippet>495</a>    @backtraced
+<a href=#496 id=496 data-nosnippet>496</a>    cyclic_struct_dependency {
+<a href=#497 id=497 data-nosnippet>497</a>        args: (path: Vec&lt;<span class="kw">impl </span>Display&gt;),
+<a href=#498 id=498 data-nosnippet>498</a>        msg: {
+<a href=#499 id=499 data-nosnippet>499</a>            <span class="kw">let </span>path_string = path.into_iter().map(|name| <span class="macro">format!</span>(<span class="string">"`{name}`"</span>)).collect::&lt;Vec&lt;String&gt;&gt;().join(<span class="string">" --&gt; "</span>);
+<a href=#500 id=500 data-nosnippet>500</a>            <span class="macro">format!</span>(<span class="string">"Cyclic dependency between structs: {path_string}"</span>)
+<a href=#501 id=501 data-nosnippet>501</a>        },
+<a href=#502 id=502 data-nosnippet>502</a>        help: <span class="prelude-val">None</span>,
+<a href=#503 id=503 data-nosnippet>503</a>    }
+<a href=#504 id=504 data-nosnippet>504</a>
+<a href=#505 id=505 data-nosnippet>505</a>    @backtraced
+<a href=#506 id=506 data-nosnippet>506</a>    cyclic_function_dependency {
+<a href=#507 id=507 data-nosnippet>507</a>        args: (path: Vec&lt;<span class="kw">impl </span>Display&gt;),
+<a href=#508 id=508 data-nosnippet>508</a>        msg: {
+<a href=#509 id=509 data-nosnippet>509</a>            <span class="kw">let </span>path_string = path.into_iter().map(|name| <span class="macro">format!</span>(<span class="string">"`{name}`"</span>)).collect::&lt;Vec&lt;String&gt;&gt;().join(<span class="string">" --&gt; "</span>);
+<a href=#510 id=510 data-nosnippet>510</a>            <span class="macro">format!</span>(<span class="string">"Cyclic dependency between functions: {path_string}"</span>)
+<a href=#511 id=511 data-nosnippet>511</a>        },
+<a href=#512 id=512 data-nosnippet>512</a>        help: <span class="prelude-val">None</span>,
+<a href=#513 id=513 data-nosnippet>513</a>    }
+<a href=#514 id=514 data-nosnippet>514</a>
+<a href=#515 id=515 data-nosnippet>515</a>    @formatted
+<a href=#516 id=516 data-nosnippet>516</a>    struct_cannot_have_member_mode {
+<a href=#517 id=517 data-nosnippet>517</a>        args: (),
+<a href=#518 id=518 data-nosnippet>518</a>        msg: <span class="macro">format!</span>(<span class="string">"A struct cannot have a member with mode `constant`, `private`, or `public`."</span>),
+<a href=#519 id=519 data-nosnippet>519</a>        help: <span class="prelude-val">None</span>,
+<a href=#520 id=520 data-nosnippet>520</a>    }
+<a href=#521 id=521 data-nosnippet>521</a>
+<a href=#522 id=522 data-nosnippet>522</a>    @formatted
+<a href=#523 id=523 data-nosnippet>523</a>    cannot_call_external_inline_function {
+<a href=#524 id=524 data-nosnippet>524</a>        args: (),
+<a href=#525 id=525 data-nosnippet>525</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot call an external `inline` function."</span>),
+<a href=#526 id=526 data-nosnippet>526</a>        help: <span class="prelude-val">None</span>,
+<a href=#527 id=527 data-nosnippet>527</a>    }
+<a href=#528 id=528 data-nosnippet>528</a>
+<a href=#529 id=529 data-nosnippet>529</a>    @formatted
+<a href=#530 id=530 data-nosnippet>530</a>    too_many_mappings {
+<a href=#531 id=531 data-nosnippet>531</a>        args: (max: <span class="kw">impl </span>Display),
+<a href=#532 id=532 data-nosnippet>532</a>        msg: <span class="macro">format!</span>(<span class="string">"The number of mappings exceeds the maximum. snarkVM allows up to {max} mappings within a single program."</span>),
+<a href=#533 id=533 data-nosnippet>533</a>        help: <span class="prelude-val">None</span>,
+<a href=#534 id=534 data-nosnippet>534</a>    }
+<a href=#535 id=535 data-nosnippet>535</a>
+<a href=#536 id=536 data-nosnippet>536</a>    <span class="doccomment">/// A call to an invalid associated constant is made e.g., `bool::MAX`
+<a href=#537 id=537 data-nosnippet>537</a>    </span>@formatted
+<a href=#538 id=538 data-nosnippet>538</a>    invalid_associated_constant {
+<a href=#539 id=539 data-nosnippet>539</a>        args: (expr: <span class="kw">impl </span>Display),
+<a href=#540 id=540 data-nosnippet>540</a>        msg: <span class="macro">format!</span>(
+<a href=#541 id=541 data-nosnippet>541</a>            <span class="string">"{expr} is not a valid associated constant."
+<a href=#542 id=542 data-nosnippet>542</a>        </span>),
+<a href=#543 id=543 data-nosnippet>543</a>        help: <span class="prelude-val">None</span>,
+<a href=#544 id=544 data-nosnippet>544</a>    }
+<a href=#545 id=545 data-nosnippet>545</a>
+<a href=#546 id=546 data-nosnippet>546</a>    <span class="doccomment">/// For when an invalid core constant is called.
+<a href=#547 id=547 data-nosnippet>547</a>    </span>@formatted
+<a href=#548 id=548 data-nosnippet>548</a>    invalid_core_constant {
+<a href=#549 id=549 data-nosnippet>549</a>        args: (type_: <span class="kw">impl </span>Display, constant: <span class="kw">impl </span>Display),
+<a href=#550 id=550 data-nosnippet>550</a>        msg: <span class="macro">format!</span> (
+<a href=#551 id=551 data-nosnippet>551</a>            <span class="string">"{type_}::{constant} is not a valid core constant."</span>,
+<a href=#552 id=552 data-nosnippet>552</a>        ),
+<a href=#553 id=553 data-nosnippet>553</a>        help: <span class="prelude-val">None</span>,
+<a href=#554 id=554 data-nosnippet>554</a>    }
+<a href=#555 id=555 data-nosnippet>555</a>
+<a href=#556 id=556 data-nosnippet>556</a>    <span class="doccomment">/// For when an invalid field of block is called.
+<a href=#557 id=557 data-nosnippet>557</a>    </span>@formatted
+<a href=#558 id=558 data-nosnippet>558</a>    invalid_block_access {
+<a href=#559 id=559 data-nosnippet>559</a>        args: (),
+<a href=#560 id=560 data-nosnippet>560</a>        msg: <span class="macro">format!</span>(<span class="string">"The allowed accesses to `block` are `block.height`."</span>),
+<a href=#561 id=561 data-nosnippet>561</a>        help: <span class="prelude-val">None</span>,
+<a href=#562 id=562 data-nosnippet>562</a>    }
+<a href=#563 id=563 data-nosnippet>563</a>
+<a href=#564 id=564 data-nosnippet>564</a>    @formatted
+<a href=#565 id=565 data-nosnippet>565</a>    invalid_operation_inside_finalize {
+<a href=#566 id=566 data-nosnippet>566</a>        args: (operation: <span class="kw">impl </span>Display),
+<a href=#567 id=567 data-nosnippet>567</a>        msg: <span class="macro">format!</span>(<span class="string">"`{operation}` is not a valid operand in an async function call context."</span>),
+<a href=#568 id=568 data-nosnippet>568</a>        help: <span class="prelude-val">None</span>,
+<a href=#569 id=569 data-nosnippet>569</a>    }
+<a href=#570 id=570 data-nosnippet>570</a>
+<a href=#571 id=571 data-nosnippet>571</a>    @formatted
+<a href=#572 id=572 data-nosnippet>572</a>    operation_must_be_in_async_block_or_function {
+<a href=#573 id=573 data-nosnippet>573</a>        args: (),
+<a href=#574 id=574 data-nosnippet>574</a>        msg: <span class="string">"This operation can only be used in an async function, an async block, or script."</span>.to_string(),
+<a href=#575 id=575 data-nosnippet>575</a>        help: <span class="prelude-val">None</span>,
+<a href=#576 id=576 data-nosnippet>576</a>    }
+<a href=#577 id=577 data-nosnippet>577</a>
+<a href=#578 id=578 data-nosnippet>578</a>    @formatted
+<a href=#579 id=579 data-nosnippet>579</a>    loop_range_decreasing {
+<a href=#580 id=580 data-nosnippet>580</a>        args: (),
+<a href=#581 id=581 data-nosnippet>581</a>        msg: <span class="macro">format!</span>(<span class="string">"The loop range must be increasing."</span>),
+<a href=#582 id=582 data-nosnippet>582</a>        help: <span class="prelude-val">None</span>,
+<a href=#583 id=583 data-nosnippet>583</a>    }
+<a href=#584 id=584 data-nosnippet>584</a>
+<a href=#585 id=585 data-nosnippet>585</a>    @formatted
+<a href=#586 id=586 data-nosnippet>586</a>    loop_bound_type_mismatch {
+<a href=#587 id=587 data-nosnippet>587</a>        args: (),
+<a href=#588 id=588 data-nosnippet>588</a>        msg: <span class="macro">format!</span>(<span class="string">"The loop bounds must be same type"</span>),
+<a href=#589 id=589 data-nosnippet>589</a>        help: <span class="prelude-val">None</span>,
+<a href=#590 id=590 data-nosnippet>590</a>    }
+<a href=#591 id=591 data-nosnippet>591</a>
+<a href=#592 id=592 data-nosnippet>592</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
+<a href=#593 id=593 data-nosnippet>593</a>    </span>@formatted
+<a href=#594 id=594 data-nosnippet>594</a>    const_declaration_must_be_literal_or_tuple_of_literals {
+<a href=#595 id=595 data-nosnippet>595</a>        args: (),
+<a href=#596 id=596 data-nosnippet>596</a>        msg: <span class="macro">format!</span>(<span class="string">"The value of a const declaration must be a literal"</span>),
+<a href=#597 id=597 data-nosnippet>597</a>        help: <span class="prelude-val">None</span>,
+<a href=#598 id=598 data-nosnippet>598</a>    }
+<a href=#599 id=599 data-nosnippet>599</a>
+<a href=#600 id=600 data-nosnippet>600</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
+<a href=#601 id=601 data-nosnippet>601</a>    </span>@formatted
+<a href=#602 id=602 data-nosnippet>602</a>    loop_bound_must_be_literal_or_const {
+<a href=#603 id=603 data-nosnippet>603</a>        args: (),
+<a href=#604 id=604 data-nosnippet>604</a>        msg: <span class="macro">format!</span>(<span class="string">"The loop bound must be a literal or a const"</span>),
+<a href=#605 id=605 data-nosnippet>605</a>        help: <span class="prelude-val">None</span>,
+<a href=#606 id=606 data-nosnippet>606</a>    }
+<a href=#607 id=607 data-nosnippet>607</a>
+<a href=#608 id=608 data-nosnippet>608</a>    @formatted
+<a href=#609 id=609 data-nosnippet>609</a>    incorrect_num_tuple_elements {
+<a href=#610 id=610 data-nosnippet>610</a>        args: (identifiers: <span class="kw">impl </span>Display, types: <span class="kw">impl </span>Display),
+<a href=#611 id=611 data-nosnippet>611</a>        msg: <span class="macro">format!</span>(<span class="string">"Expected a tuple with {types} elements, found one with {identifiers} elements"</span>),
+<a href=#612 id=612 data-nosnippet>612</a>        help: <span class="prelude-val">None</span>,
+<a href=#613 id=613 data-nosnippet>613</a>    }
+<a href=#614 id=614 data-nosnippet>614</a>
+<a href=#615 id=615 data-nosnippet>615</a>    @formatted
+<a href=#616 id=616 data-nosnippet>616</a>    const_declaration_can_only_have_one_binding {
+<a href=#617 id=617 data-nosnippet>617</a>        args: (),
+<a href=#618 id=618 data-nosnippet>618</a>        msg: <span class="macro">format!</span>(<span class="string">"A constant declaration statement can only bind a single value"</span>),
+<a href=#619 id=619 data-nosnippet>619</a>        help: <span class="prelude-val">None</span>,
+<a href=#620 id=620 data-nosnippet>620</a>    }
+<a href=#621 id=621 data-nosnippet>621</a>
+<a href=#622 id=622 data-nosnippet>622</a>    @formatted
+<a href=#623 id=623 data-nosnippet>623</a>    stub_functions_must_not_be_inlines {
+<a href=#624 id=624 data-nosnippet>624</a>        args: (),
+<a href=#625 id=625 data-nosnippet>625</a>        msg: <span class="macro">format!</span>(<span class="string">"Function stubs must be transitions or functions not inlines"</span>),
+<a href=#626 id=626 data-nosnippet>626</a>        help: <span class="prelude-val">None</span>,
+<a href=#627 id=627 data-nosnippet>627</a>    }
+<a href=#628 id=628 data-nosnippet>628</a>
+<a href=#629 id=629 data-nosnippet>629</a>    @formatted
+<a href=#630 id=630 data-nosnippet>630</a>    stub_functions_must_be_empty {
+<a href=#631 id=631 data-nosnippet>631</a>        args: (),
+<a href=#632 id=632 data-nosnippet>632</a>        msg: <span class="macro">format!</span>(<span class="string">"Functions stubs must be empty"</span>),
+<a href=#633 id=633 data-nosnippet>633</a>        help: <span class="prelude-val">None</span>,
+<a href=#634 id=634 data-nosnippet>634</a>    }
+<a href=#635 id=635 data-nosnippet>635</a>
+<a href=#636 id=636 data-nosnippet>636</a>    @formatted
+<a href=#637 id=637 data-nosnippet>637</a>    array_empty {
+<a href=#638 id=638 data-nosnippet>638</a>        args: (),
+<a href=#639 id=639 data-nosnippet>639</a>        msg: <span class="macro">format!</span>(<span class="string">"An array cannot be empty"</span>),
+<a href=#640 id=640 data-nosnippet>640</a>        help: <span class="prelude-val">None</span>,
+<a href=#641 id=641 data-nosnippet>641</a>    }
+<a href=#642 id=642 data-nosnippet>642</a>
+<a href=#643 id=643 data-nosnippet>643</a>    @formatted
+<a href=#644 id=644 data-nosnippet>644</a>    array_too_large {
+<a href=#645 id=645 data-nosnippet>645</a>        args: (size: <span class="kw">impl </span>Display, max: <span class="kw">impl </span>Display),
+<a href=#646 id=646 data-nosnippet>646</a>        msg: <span class="macro">format!</span>(<span class="string">"An array cannot have more than {max} elements, found one with {size} elements"</span>),
+<a href=#647 id=647 data-nosnippet>647</a>        help: <span class="prelude-val">None</span>,
+<a href=#648 id=648 data-nosnippet>648</a>    }
+<a href=#649 id=649 data-nosnippet>649</a>
+<a href=#650 id=650 data-nosnippet>650</a>    @formatted
+<a href=#651 id=651 data-nosnippet>651</a>    array_element_cannot_be_tuple {
+<a href=#652 id=652 data-nosnippet>652</a>        args: (),
+<a href=#653 id=653 data-nosnippet>653</a>        msg: <span class="macro">format!</span>(<span class="string">"An array cannot have a tuple as an element type"</span>),
+<a href=#654 id=654 data-nosnippet>654</a>        help: <span class="prelude-val">None</span>,
+<a href=#655 id=655 data-nosnippet>655</a>    }
+<a href=#656 id=656 data-nosnippet>656</a>
+<a href=#657 id=657 data-nosnippet>657</a>    @formatted
+<a href=#658 id=658 data-nosnippet>658</a>    array_element_cannot_be_record {
+<a href=#659 id=659 data-nosnippet>659</a>        args: (),
+<a href=#660 id=660 data-nosnippet>660</a>        msg: <span class="macro">format!</span>(<span class="string">"An array cannot have a record as an element type"</span>),
+<a href=#661 id=661 data-nosnippet>661</a>        help: <span class="prelude-val">None</span>,
+<a href=#662 id=662 data-nosnippet>662</a>    }
+<a href=#663 id=663 data-nosnippet>663</a>
+<a href=#664 id=664 data-nosnippet>664</a>    @formatted
+<a href=#665 id=665 data-nosnippet>665</a>    stubs_cannot_have_non_record_structs {
+<a href=#666 id=666 data-nosnippet>666</a>        args: (),
+<a href=#667 id=667 data-nosnippet>667</a>        msg: <span class="macro">format!</span>(<span class="string">"Stubs can only have records, transitions, functions, mappings and imports -- found non-record struct"</span>),
+<a href=#668 id=668 data-nosnippet>668</a>        help: <span class="prelude-val">None</span>,
+<a href=#669 id=669 data-nosnippet>669</a>    }
+<a href=#670 id=670 data-nosnippet>670</a>
+<a href=#671 id=671 data-nosnippet>671</a>    @formatted
+<a href=#672 id=672 data-nosnippet>672</a>    stubs_cannot_have_const_declarations {
+<a href=#673 id=673 data-nosnippet>673</a>        args: (),
+<a href=#674 id=674 data-nosnippet>674</a>        msg: <span class="macro">format!</span>(<span class="string">"Stubs can only have records, transitions, functions, mappings and imports -- found const declaration"</span>),
+<a href=#675 id=675 data-nosnippet>675</a>        help: <span class="prelude-val">None</span>,
+<a href=#676 id=676 data-nosnippet>676</a>    }
+<a href=#677 id=677 data-nosnippet>677</a>
+<a href=#678 id=678 data-nosnippet>678</a>    @formatted
+<a href=#679 id=679 data-nosnippet>679</a>    stub_name_mismatch {
+<a href=#680 id=680 data-nosnippet>680</a>        args: (stub_name: <span class="kw">impl </span>Display, program_name: <span class="kw">impl </span>Display),
+<a href=#681 id=681 data-nosnippet>681</a>        msg: <span class="macro">format!</span>(<span class="string">"`stub` name `{stub_name}` does not match program name `{program_name}`"</span>),
+<a href=#682 id=682 data-nosnippet>682</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Check that the name you used as a dependency in program.json matches the name you used to import the program in the main leo file."</span>.to_string()),
+<a href=#683 id=683 data-nosnippet>683</a>    }
+<a href=#684 id=684 data-nosnippet>684</a>
+<a href=#685 id=685 data-nosnippet>685</a>    @formatted
+<a href=#686 id=686 data-nosnippet>686</a>    no_transitions {
+<a href=#687 id=687 data-nosnippet>687</a>        args: (),
+<a href=#688 id=688 data-nosnippet>688</a>        msg: <span class="string">"A program must have at least one transition function."</span>.to_string(),
+<a href=#689 id=689 data-nosnippet>689</a>        help: <span class="prelude-val">None</span>,
+<a href=#690 id=690 data-nosnippet>690</a>    }
+<a href=#691 id=691 data-nosnippet>691</a>
+<a href=#692 id=692 data-nosnippet>692</a>    @formatted
+<a href=#693 id=693 data-nosnippet>693</a>    cannot_define_external_struct {
+<a href=#694 id=694 data-nosnippet>694</a>        args: (struct_: <span class="kw">impl </span>Display),
+<a href=#695 id=695 data-nosnippet>695</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot define external struct `{struct_}`"</span>),
+<a href=#696 id=696 data-nosnippet>696</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Copy the external definition of the struct into the current program, and then define without the `.aleo` extension."</span>.to_string()),
+<a href=#697 id=697 data-nosnippet>697</a>    }
+<a href=#698 id=698 data-nosnippet>698</a>
+<a href=#699 id=699 data-nosnippet>699</a>    @formatted
+<a href=#700 id=700 data-nosnippet>700</a>    struct_definitions_dont_match {
+<a href=#701 id=701 data-nosnippet>701</a>        args: (struct_: <span class="kw">impl </span>Display, program_1: <span class="kw">impl </span>Display, program_2: <span class="kw">impl </span>Display),
+<a href=#702 id=702 data-nosnippet>702</a>        msg: <span class="macro">format!</span>(<span class="string">"The definition for `{struct_}` in program `{program_1}.aleo` does not match the definition in program `{program_2}.aleo`"</span>),
+<a href=#703 id=703 data-nosnippet>703</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Check that the struct definition in the current program matches the definition in the imported program."</span>.to_string()),
+<a href=#704 id=704 data-nosnippet>704</a>    }
+<a href=#705 id=705 data-nosnippet>705</a>
+<a href=#706 id=706 data-nosnippet>706</a>    @formatted
+<a href=#707 id=707 data-nosnippet>707</a>    async_transition_invalid_output {
+<a href=#708 id=708 data-nosnippet>708</a>        args: (),
+<a href=#709 id=709 data-nosnippet>709</a>        msg: <span class="string">"An async transition must return a future as the final output, and in no other position return a future."</span>.to_string(),
+<a href=#710 id=710 data-nosnippet>710</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Example: `async transition foo() -&gt; (u8, bool, Future) {...}`"</span>.to_string()),
+<a href=#711 id=711 data-nosnippet>711</a>    }
+<a href=#712 id=712 data-nosnippet>712</a>
+<a href=#713 id=713 data-nosnippet>713</a>    @formatted
+<a href=#714 id=714 data-nosnippet>714</a>    must_propagate_all_futures {
+<a href=#715 id=715 data-nosnippet>715</a>        args: (never_propagated: <span class="kw">impl </span>Display),
+<a href=#716 id=716 data-nosnippet>716</a>        msg: <span class="macro">format!</span>(<span class="string">"All futures generated from external transition calls must be inserted into an async function call in the order they were called. The following were never were: {never_propagated}"</span>),
+<a href=#717 id=717 data-nosnippet>717</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Example: `async transition foo() -&gt; Future { let a: Future = b.aleo/bar(); return await_futures(a); }`"</span>.to_string()),
+<a href=#718 id=718 data-nosnippet>718</a>    }
+<a href=#719 id=719 data-nosnippet>719</a>
+<a href=#720 id=720 data-nosnippet>720</a>    @formatted
+<a href=#721 id=721 data-nosnippet>721</a>    missing_async_operation_in_async_transition {
+<a href=#722 id=722 data-nosnippet>722</a>        args: (),
+<a href=#723 id=723 data-nosnippet>723</a>        msg: <span class="string">"An `async` transition must contain at least one async operation — either a call to an `async` function or an `async` block."</span>.to_string(),
+<a href=#724 id=724 data-nosnippet>724</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Example: `async transition foo() -&gt; Future { let a: Future = bar(); return await_futures(a); }`"</span>.to_string()),
+<a href=#725 id=725 data-nosnippet>725</a>    }
+<a href=#726 id=726 data-nosnippet>726</a>
+<a href=#727 id=727 data-nosnippet>727</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
+<a href=#728 id=728 data-nosnippet>728</a>    </span>@formatted
+<a href=#729 id=729 data-nosnippet>729</a>    async_function_input_length_mismatch {
+<a href=#730 id=730 data-nosnippet>730</a>        args: (expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
+<a href=#731 id=731 data-nosnippet>731</a>        msg: <span class="macro">format!</span>(<span class="string">"Expected `{expected}` inputs, but got `{received}`"</span>),
+<a href=#732 id=732 data-nosnippet>732</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Check that the number of arguments passed in are the same as the number in the function signature. Ex: `async function foo(a: u8, b: u8)` has two input arguments."</span>.to_string()),
+<a href=#733 id=733 data-nosnippet>733</a>    }
+<a href=#734 id=734 data-nosnippet>734</a>
+<a href=#735 id=735 data-nosnippet>735</a>    @formatted
+<a href=#736 id=736 data-nosnippet>736</a>    invalid_future_access {
+<a href=#737 id=737 data-nosnippet>737</a>        args: (num: <span class="kw">impl </span>Display, len: <span class="kw">impl </span>Display),
+<a href=#738 id=738 data-nosnippet>738</a>        msg: <span class="macro">format!</span>(
+<a href=#739 id=739 data-nosnippet>739</a>            <span class="string">"Cannot access argument `{num}` from future. The future only has `{len}` arguments."
+<a href=#740 id=740 data-nosnippet>740</a>        </span>),
+<a href=#741 id=741 data-nosnippet>741</a>        help: <span class="prelude-val">None</span>,
+<a href=#742 id=742 data-nosnippet>742</a>    }
+<a href=#743 id=743 data-nosnippet>743</a>
+<a href=#744 id=744 data-nosnippet>744</a>    @formatted
+<a href=#745 id=745 data-nosnippet>745</a>    future_access_must_be_number {
+<a href=#746 id=746 data-nosnippet>746</a>        args: (name: <span class="kw">impl </span>Display),
+<a href=#747 id=747 data-nosnippet>747</a>        msg: <span class="macro">format!</span>(<span class="string">"Future access must be a number not `{name}`."</span>),
+<a href=#748 id=748 data-nosnippet>748</a>        help: <span class="prelude-val">Some</span>(<span class="string">" Future arguments must be addressed by their index. Ex: `f.1.3`."</span>.to_string()),
+<a href=#749 id=749 data-nosnippet>749</a>    }
+<a href=#750 id=750 data-nosnippet>750</a>
+<a href=#751 id=751 data-nosnippet>751</a>    <span class="comment">// TODO: This error is deprecated. Remove.
+<a href=#752 id=752 data-nosnippet>752</a>    </span>@formatted
+<a href=#753 id=753 data-nosnippet>753</a>    no_path_awaits_all_futures_exactly_once {
+<a href=#754 id=754 data-nosnippet>754</a>        args: (num_total_paths: <span class="kw">impl </span>Display),
+<a href=#755 id=755 data-nosnippet>755</a>        msg: <span class="macro">format!</span>(<span class="string">"Futures must be awaited exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all futures are awaited exactly once."</span>),
+<a href=#756 id=756 data-nosnippet>756</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` to await a future. Remove duplicate future await redundancies, and add future awaits for un-awaited futures."</span>.to_string()),
+<a href=#757 id=757 data-nosnippet>757</a>    }
+<a href=#758 id=758 data-nosnippet>758</a>
+<a href=#759 id=759 data-nosnippet>759</a>    <span class="comment">// TODO: This error is deprecated. Remove.
+<a href=#760 id=760 data-nosnippet>760</a>    </span>@formatted
+<a href=#761 id=761 data-nosnippet>761</a>    future_awaits_missing {
+<a href=#762 id=762 data-nosnippet>762</a>        args: (unawaited: <span class="kw">impl </span>Display),
+<a href=#763 id=763 data-nosnippet>763</a>        msg: <span class="macro">format!</span>(<span class="string">"The following futures were never awaited: {unawaited}"</span>),
+<a href=#764 id=764 data-nosnippet>764</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` to await a future."</span>.to_string()),
+<a href=#765 id=765 data-nosnippet>765</a>    }
+<a href=#766 id=766 data-nosnippet>766</a>
+<a href=#767 id=767 data-nosnippet>767</a>    @formatted
+<a href=#768 id=768 data-nosnippet>768</a>    cannot_reassign_future_variable {
+<a href=#769 id=769 data-nosnippet>769</a>        args: (var: <span class="kw">impl </span>Display),
+<a href=#770 id=770 data-nosnippet>770</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot reassign variable `{var}` since it has type Future."</span>),
+<a href=#771 id=771 data-nosnippet>771</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Futures can only be defined as the result of async calls."</span>.to_string()),
+<a href=#772 id=772 data-nosnippet>772</a>    }
+<a href=#773 id=773 data-nosnippet>773</a>
+<a href=#774 id=774 data-nosnippet>774</a>    <span class="comment">// TODO: This error is deprecated. Remove.
+<a href=#775 id=775 data-nosnippet>775</a>    </span>@formatted
+<a href=#776 id=776 data-nosnippet>776</a>    invalid_await_call {
+<a href=#777 id=777 data-nosnippet>777</a>        args: (),
+<a href=#778 id=778 data-nosnippet>778</a>        msg: <span class="string">"Not a valid await call."</span>.to_string(),
+<a href=#779 id=779 data-nosnippet>779</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future."</span>.to_string()),
+<a href=#780 id=780 data-nosnippet>780</a>    }
+<a href=#781 id=781 data-nosnippet>781</a>
+<a href=#782 id=782 data-nosnippet>782</a>    @formatted
+<a href=#783 id=783 data-nosnippet>783</a>    can_only_await_one_future_at_a_time {
+<a href=#784 id=784 data-nosnippet>784</a>        args: (),
+<a href=#785 id=785 data-nosnippet>785</a>        msg: <span class="string">"Must await exactly one future at a time"</span>.to_string(),
+<a href=#786 id=786 data-nosnippet>786</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future."</span>.to_string()),
+<a href=#787 id=787 data-nosnippet>787</a>    }
+<a href=#788 id=788 data-nosnippet>788</a>
+<a href=#789 id=789 data-nosnippet>789</a>    <span class="comment">// TODO: This error is deprecated. Remove.
+<a href=#790 id=790 data-nosnippet>790</a>    </span>@formatted
+<a href=#791 id=791 data-nosnippet>791</a>    expected_future {
+<a href=#792 id=792 data-nosnippet>792</a>        args: (type_: <span class="kw">impl </span>Display),
+<a href=#793 id=793 data-nosnippet>793</a>        msg: <span class="macro">format!</span>(<span class="string">"Expected a future, but found `{type_}`"</span>),
+<a href=#794 id=794 data-nosnippet>794</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Only futures can be awaited."</span>.to_string()),
+<a href=#795 id=795 data-nosnippet>795</a>    }
+<a href=#796 id=796 data-nosnippet>796</a>
+<a href=#797 id=797 data-nosnippet>797</a>    @formatted
+<a href=#798 id=798 data-nosnippet>798</a>    invalid_method_call {
+<a href=#799 id=799 data-nosnippet>799</a>        args: (),
+<a href=#800 id=800 data-nosnippet>800</a>        msg: <span class="string">"Not a valid method call."</span>.to_string(),
+<a href=#801 id=801 data-nosnippet>801</a>        help: <span class="prelude-val">Some</span>(<span class="string">"For a `f: Future`, call the associated method `f.await()`."</span>.to_string()),
+<a href=#802 id=802 data-nosnippet>802</a>    }
+<a href=#803 id=803 data-nosnippet>803</a>
+<a href=#804 id=804 data-nosnippet>804</a>    @formatted
+<a href=#805 id=805 data-nosnippet>805</a>    async_call_in_conditional {
+<a href=#806 id=806 data-nosnippet>806</a>        args: (),
+<a href=#807 id=807 data-nosnippet>807</a>        msg: <span class="string">"Cannot call an async function in a conditional block."</span>.to_string(),
+<a href=#808 id=808 data-nosnippet>808</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call outside of the conditional block."</span>.to_string()),
+<a href=#809 id=809 data-nosnippet>809</a>    }
+<a href=#810 id=810 data-nosnippet>810</a>
+<a href=#811 id=811 data-nosnippet>811</a>    @formatted
+<a href=#812 id=812 data-nosnippet>812</a>    must_call_async_function_once {
+<a href=#813 id=813 data-nosnippet>813</a>        args: (),
+<a href=#814 id=814 data-nosnippet>814</a>        msg: <span class="string">"Must call exactly one local async function per transition function."</span>.to_string(),
+<a href=#815 id=815 data-nosnippet>815</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call outside of the transition block."</span>.to_string()),
+<a href=#816 id=816 data-nosnippet>816</a>    }
+<a href=#817 id=817 data-nosnippet>817</a>
+<a href=#818 id=818 data-nosnippet>818</a>    @formatted
+<a href=#819 id=819 data-nosnippet>819</a>    async_call_can_only_be_done_from_async_transition {
+<a href=#820 id=820 data-nosnippet>820</a>        args: (),
+<a href=#821 id=821 data-nosnippet>821</a>        msg: <span class="string">"Can only make an async call from an async transition."</span>.to_string(),
+<a href=#822 id=822 data-nosnippet>822</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Move the async call inside of the async transition block."</span>.to_string()),
+<a href=#823 id=823 data-nosnippet>823</a>    }
+<a href=#824 id=824 data-nosnippet>824</a>
+<a href=#825 id=825 data-nosnippet>825</a>    @formatted
+<a href=#826 id=826 data-nosnippet>826</a>    external_call_after_async {
+<a href=#827 id=827 data-nosnippet>827</a>        args: (kind: <span class="kw">impl </span>Display),
+<a href=#828 id=828 data-nosnippet>828</a>        msg: <span class="macro">format!</span>(<span class="string">"External transition calls must appear before the local async {kind}."</span>),
+<a href=#829 id=829 data-nosnippet>829</a>        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"Reorder your code so the external transition call happens before the local async {kind}."</span>)),
+<a href=#830 id=830 data-nosnippet>830</a>    }
+<a href=#831 id=831 data-nosnippet>831</a>
+<a href=#832 id=832 data-nosnippet>832</a>    @formatted
+<a href=#833 id=833 data-nosnippet>833</a>    unknown_future_consumed {
+<a href=#834 id=834 data-nosnippet>834</a>        args: (future: <span class="kw">impl </span>Display),
+<a href=#835 id=835 data-nosnippet>835</a>        msg: <span class="macro">format!</span>(<span class="string">"Unknown future consumed: `{future}`"</span>),
+<a href=#836 id=836 data-nosnippet>836</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Make sure the future is defined and consumed exactly once."</span>.to_string()),
+<a href=#837 id=837 data-nosnippet>837</a>    }
+<a href=#838 id=838 data-nosnippet>838</a>
+<a href=#839 id=839 data-nosnippet>839</a>    @formatted
+<a href=#840 id=840 data-nosnippet>840</a>    not_all_futures_consumed {
+<a href=#841 id=841 data-nosnippet>841</a>        args: (unconsumed: <span class="kw">impl </span>Display),
+<a href=#842 id=842 data-nosnippet>842</a>        msg: <span class="macro">format!</span>(<span class="string">"Not all futures were consumed: {unconsumed}"</span>),
+<a href=#843 id=843 data-nosnippet>843</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Make sure all futures are consumed exactly once. Consume by passing to an async function call or async block."</span>.to_string()),
+<a href=#844 id=844 data-nosnippet>844</a>    }
+<a href=#845 id=845 data-nosnippet>845</a>
+<a href=#846 id=846 data-nosnippet>846</a>    @formatted
+<a href=#847 id=847 data-nosnippet>847</a>    async_transition_missing_future_to_return {
+<a href=#848 id=848 data-nosnippet>848</a>        args: (),
+<a href=#849 id=849 data-nosnippet>849</a>        msg: <span class="string">"An async transition must return a future."</span>.to_string(),
+<a href=#850 id=850 data-nosnippet>850</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Call an async function or instantiate an async block inside of the async transition body so that there is a future to return."</span>.to_string()),
+<a href=#851 id=851 data-nosnippet>851</a>    }
+<a href=#852 id=852 data-nosnippet>852</a>
+<a href=#853 id=853 data-nosnippet>853</a>    @formatted
+<a href=#854 id=854 data-nosnippet>854</a>    async_function_cannot_return_value {
+<a href=#855 id=855 data-nosnippet>855</a>        args: (),
+<a href=#856 id=856 data-nosnippet>856</a>        msg: <span class="string">"An async function is not allowed to return a value."</span>.to_string(),
+<a href=#857 id=857 data-nosnippet>857</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written."</span>.to_string()),
+<a href=#858 id=858 data-nosnippet>858</a>    }
+<a href=#859 id=859 data-nosnippet>859</a>
+<a href=#860 id=860 data-nosnippet>860</a>    @formatted
+<a href=#861 id=861 data-nosnippet>861</a>    return_type_of_finalize_function_is_future {
+<a href=#862 id=862 data-nosnippet>862</a>        args: (),
+<a href=#863 id=863 data-nosnippet>863</a>        msg: <span class="string">"The output of an async function must be assigned to a `Future` type.."</span>.to_string(),
+<a href=#864 id=864 data-nosnippet>864</a>        help: <span class="prelude-val">None</span>,
+<a href=#865 id=865 data-nosnippet>865</a>    }
+<a href=#866 id=866 data-nosnippet>866</a>    @formatted
+<a href=#867 id=867 data-nosnippet>867</a>    cannot_modify_external_mapping {
+<a href=#868 id=868 data-nosnippet>868</a>        args: (operation: <span class="kw">impl </span>Display),
+<a href=#869 id=869 data-nosnippet>869</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot use operation `{operation}` on external mapping."</span>),
+<a href=#870 id=870 data-nosnippet>870</a>        help: <span class="prelude-val">Some</span>(<span class="string">"The only valid operations on external mappings are contains, get, and get_or_use."</span>.to_string()),
+<a href=#871 id=871 data-nosnippet>871</a>    }
+<a href=#872 id=872 data-nosnippet>872</a>
+<a href=#873 id=873 data-nosnippet>873</a>    @formatted
+<a href=#874 id=874 data-nosnippet>874</a>    async_cannot_assign_outside_conditional {
+<a href=#875 id=875 data-nosnippet>875</a>        args: (variable: <span class="kw">impl </span>Display, kind: <span class="kw">impl </span>Display),
+<a href=#876 id=876 data-nosnippet>876</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot re-assign to `{variable}` from a conditional scope to an outer scope in an async {kind}."</span>),
+<a href=#877 id=877 data-nosnippet>877</a>        help: <span class="prelude-val">Some</span>(<span class="string">"This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/ProvableHQ/ARCs) will support more complex assignments in async functions."</span>.to_string()),
+<a href=#878 id=878 data-nosnippet>878</a>    }
+<a href=#879 id=879 data-nosnippet>879</a>
+<a href=#880 id=880 data-nosnippet>880</a>    @formatted
+<a href=#881 id=881 data-nosnippet>881</a>    only_async_transition_can_return_future {
+<a href=#882 id=882 data-nosnippet>882</a>        args: (),
+<a href=#883 id=883 data-nosnippet>883</a>        msg: <span class="string">"Only `async transition` can return a future."</span>.to_string(),
+<a href=#884 id=884 data-nosnippet>884</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Use an `async transition` instead."</span>.to_string()),
+<a href=#885 id=885 data-nosnippet>885</a>    }
+<a href=#886 id=886 data-nosnippet>886</a>
+<a href=#887 id=887 data-nosnippet>887</a>    @formatted
+<a href=#888 id=888 data-nosnippet>888</a>    async_function_not_found {
+<a href=#889 id=889 data-nosnippet>889</a>        args: (name: <span class="kw">impl </span>Display),
+<a href=#890 id=890 data-nosnippet>890</a>        msg: <span class="macro">format!</span>(<span class="string">"The async function `{name}` does not exist."</span>),
+<a href=#891 id=891 data-nosnippet>891</a>        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"Ensure that `{name}` is defined as an async function in the current program."</span>)),
+<a href=#892 id=892 data-nosnippet>892</a>    }
+<a href=#893 id=893 data-nosnippet>893</a>
+<a href=#894 id=894 data-nosnippet>894</a>    @formatted
+<a href=#895 id=895 data-nosnippet>895</a>    empty_struct {
+<a href=#896 id=896 data-nosnippet>896</a>        args: (),
+<a href=#897 id=897 data-nosnippet>897</a>        msg: <span class="string">"A struct must have at least one member."</span>.to_string(),
+<a href=#898 id=898 data-nosnippet>898</a>        help: <span class="prelude-val">None</span>,
+<a href=#899 id=899 data-nosnippet>899</a>    }
+<a href=#900 id=900 data-nosnippet>900</a>
+<a href=#901 id=901 data-nosnippet>901</a>    @formatted
+<a href=#902 id=902 data-nosnippet>902</a>    empty_function_arglist {
+<a href=#903 id=903 data-nosnippet>903</a>        args: (),
+<a href=#904 id=904 data-nosnippet>904</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot define a function with no parameters."</span>),
+<a href=#905 id=905 data-nosnippet>905</a>        help: <span class="prelude-val">None</span>,
+<a href=#906 id=906 data-nosnippet>906</a>    }
+<a href=#907 id=907 data-nosnippet>907</a>
+<a href=#908 id=908 data-nosnippet>908</a>    @formatted
+<a href=#909 id=909 data-nosnippet>909</a>    composite_data_type_cannot_contain_future {
+<a href=#910 id=910 data-nosnippet>910</a>        args: (data_type: <span class="kw">impl </span>Display),
+<a href=#911 id=911 data-nosnippet>911</a>        msg: <span class="macro">format!</span>(<span class="string">"A {data_type} cannot contain a future."</span>),
+<a href=#912 id=912 data-nosnippet>912</a>        help: <span class="prelude-val">None</span>,
+<a href=#913 id=913 data-nosnippet>913</a>    }
+<a href=#914 id=914 data-nosnippet>914</a>
+<a href=#915 id=915 data-nosnippet>915</a>    @formatted
+<a href=#916 id=916 data-nosnippet>916</a>    array_element_cannot_be_future {
+<a href=#917 id=917 data-nosnippet>917</a>        args: (),
+<a href=#918 id=918 data-nosnippet>918</a>        msg: <span class="macro">format!</span>(<span class="string">"An array cannot have a future as an element type."</span>),
+<a href=#919 id=919 data-nosnippet>919</a>        help: <span class="prelude-val">None</span>,
+<a href=#920 id=920 data-nosnippet>920</a>    }
+<a href=#921 id=921 data-nosnippet>921</a>
+<a href=#922 id=922 data-nosnippet>922</a>    @formatted
+<a href=#923 id=923 data-nosnippet>923</a>    no_future_parameters {
+<a href=#924 id=924 data-nosnippet>924</a>        args: (),
+<a href=#925 id=925 data-nosnippet>925</a>        msg: <span class="macro">format!</span>(<span class="string">"Futures may only appear as parameters to async functions."</span>),
+<a href=#926 id=926 data-nosnippet>926</a>        help: <span class="prelude-val">None</span>,
+<a href=#927 id=927 data-nosnippet>927</a>    }
+<a href=#928 id=928 data-nosnippet>928</a>
+<a href=#929 id=929 data-nosnippet>929</a>    <span class="doccomment">/// For when the user tries to assign to a const input.
+<a href=#930 id=930 data-nosnippet>930</a>    ///
+<a href=#931 id=931 data-nosnippet>931</a>    /// This is a replacement for `type_should_be` with a slightly better message.
+<a href=#932 id=932 data-nosnippet>932</a>    </span>@formatted
+<a href=#933 id=933 data-nosnippet>933</a>    type_should_be2 {
+<a href=#934 id=934 data-nosnippet>934</a>        args: (type_: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display),
+<a href=#935 id=935 data-nosnippet>935</a>        msg: <span class="macro">format!</span>(
+<a href=#936 id=936 data-nosnippet>936</a>            <span class="string">"Expected {expected} but type `{type_}` was found."</span>,
+<a href=#937 id=937 data-nosnippet>937</a>        ),
+<a href=#938 id=938 data-nosnippet>938</a>        help: <span class="prelude-val">None</span>,
+<a href=#939 id=939 data-nosnippet>939</a>    }
+<a href=#940 id=940 data-nosnippet>940</a>
+<a href=#941 id=941 data-nosnippet>941</a>    @formatted
+<a href=#942 id=942 data-nosnippet>942</a>    ternary_branch_mismatch {
+<a href=#943 id=943 data-nosnippet>943</a>        args: (type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
+<a href=#944 id=944 data-nosnippet>944</a>        msg: <span class="macro">format!</span>(
+<a href=#945 id=945 data-nosnippet>945</a>            <span class="string">"Received different types `{type1}` and `{type2}` for the arms of a ternary conditional."
+<a href=#946 id=946 data-nosnippet>946</a>        </span>),
+<a href=#947 id=947 data-nosnippet>947</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Make both branches the same type."</span>.into()),
+<a href=#948 id=948 data-nosnippet>948</a>    }
+<a href=#949 id=949 data-nosnippet>949</a>
+<a href=#950 id=950 data-nosnippet>950</a>    @formatted
+<a href=#951 id=951 data-nosnippet>951</a>    operation_types_mismatch {
+<a href=#952 id=952 data-nosnippet>952</a>        args: (operation: <span class="kw">impl </span>Display, type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
+<a href=#953 id=953 data-nosnippet>953</a>        msg: <span class="macro">format!</span>(
+<a href=#954 id=954 data-nosnippet>954</a>            <span class="string">"Received different types `{type1}` and `{type2}` for the operation `{operation}`."
+<a href=#955 id=955 data-nosnippet>955</a>        </span>),
+<a href=#956 id=956 data-nosnippet>956</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Make both operands the same type."</span>.into()),
+<a href=#957 id=957 data-nosnippet>957</a>    }
+<a href=#958 id=958 data-nosnippet>958</a>
+<a href=#959 id=959 data-nosnippet>959</a>    @formatted
+<a href=#960 id=960 data-nosnippet>960</a>    mul_types_mismatch {
+<a href=#961 id=961 data-nosnippet>961</a>        args: (type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
+<a href=#962 id=962 data-nosnippet>962</a>        msg: <span class="macro">format!</span>(
+<a href=#963 id=963 data-nosnippet>963</a>            <span class="string">"Received types `{type1}` and `{type2}` for the operation `*`."
+<a href=#964 id=964 data-nosnippet>964</a>        </span>),
+<a href=#965 id=965 data-nosnippet>965</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Valid operands are two integers of the same type, two fields, or a scalar and a group."</span>.into()),
+<a href=#966 id=966 data-nosnippet>966</a>    }
+<a href=#967 id=967 data-nosnippet>967</a>
+<a href=#968 id=968 data-nosnippet>968</a>    @formatted
+<a href=#969 id=969 data-nosnippet>969</a>    pow_types_mismatch {
+<a href=#970 id=970 data-nosnippet>970</a>        args: (type1: <span class="kw">impl </span>Display, type2: <span class="kw">impl </span>Display),
+<a href=#971 id=971 data-nosnippet>971</a>        msg: <span class="macro">format!</span>(
+<a href=#972 id=972 data-nosnippet>972</a>            <span class="string">"Received types `{type1}` and `{type2}` for the operation `pow`."
+<a href=#973 id=973 data-nosnippet>973</a>        </span>),
+<a href=#974 id=974 data-nosnippet>974</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Valid operands are two fields, or an integer base and a `u8`, `u16`, or `u32` exponent."</span>.into()),
+<a href=#975 id=975 data-nosnippet>975</a>    }
+<a href=#976 id=976 data-nosnippet>976</a>
+<a href=#977 id=977 data-nosnippet>977</a>    @formatted
+<a href=#978 id=978 data-nosnippet>978</a>    shift_type_magnitude {
+<a href=#979 id=979 data-nosnippet>979</a>        args: (operation: <span class="kw">impl </span>Display, rhs_type: <span class="kw">impl </span>Display),
+<a href=#980 id=980 data-nosnippet>980</a>        msg: <span class="macro">format!</span>(
+<a href=#981 id=981 data-nosnippet>981</a>            <span class="string">"Received type `{rhs_type}` for the second operand of the operation `{operation}`."
+<a href=#982 id=982 data-nosnippet>982</a>        </span>),
+<a href=#983 id=983 data-nosnippet>983</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Valid second operands are `u8`, `u16`, or `u32`"</span>.into()),
+<a href=#984 id=984 data-nosnippet>984</a>    }
+<a href=#985 id=985 data-nosnippet>985</a>
+<a href=#986 id=986 data-nosnippet>986</a>    @formatted
+<a href=#987 id=987 data-nosnippet>987</a>    unit_type_only_return {
+<a href=#988 id=988 data-nosnippet>988</a>        args: (),
+<a href=#989 id=989 data-nosnippet>989</a>        msg: <span class="string">"The unit type () may appear only as the return type of a function."</span>.to_string(),
+<a href=#990 id=990 data-nosnippet>990</a>        help: <span class="prelude-val">None</span>,
+<a href=#991 id=991 data-nosnippet>991</a>    }
+<a href=#992 id=992 data-nosnippet>992</a>
+<a href=#993 id=993 data-nosnippet>993</a>    @formatted
+<a href=#994 id=994 data-nosnippet>994</a>    future_error_member {
+<a href=#995 id=995 data-nosnippet>995</a>        args: (num: <span class="kw">impl </span>Display),
+<a href=#996 id=996 data-nosnippet>996</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot access argument `{num}` from future."</span>),
+<a href=#997 id=997 data-nosnippet>997</a>        help: <span class="prelude-val">Some</span>(
+<a href=#998 id=998 data-nosnippet>998</a>            <span class="string">"Ensure that the async function is not called with multiple times with incompatible types."</span>.to_string()
+<a href=#999 id=999 data-nosnippet>999</a>        ),
+<a href=#1000 id=1000 data-nosnippet>1000</a>    }
+<a href=#1001 id=1001 data-nosnippet>1001</a>
+<a href=#1002 id=1002 data-nosnippet>1002</a>    @formatted
+<a href=#1003 id=1003 data-nosnippet>1003</a>    cannot_reassign_mapping {
+<a href=#1004 id=1004 data-nosnippet>1004</a>        args: (var: <span class="kw">impl </span>Display),
+<a href=#1005 id=1005 data-nosnippet>1005</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the mapping `{var}`."</span>),
+<a href=#1006 id=1006 data-nosnippet>1006</a>        help: <span class="prelude-val">None</span>,
+<a href=#1007 id=1007 data-nosnippet>1007</a>    }
+<a href=#1008 id=1008 data-nosnippet>1008</a>
+<a href=#1009 id=1009 data-nosnippet>1009</a>    @formatted
+<a href=#1010 id=1010 data-nosnippet>1010</a>    records_not_allowed_inside_async {
+<a href=#1011 id=1011 data-nosnippet>1011</a>        args: (kind: <span class="kw">impl </span>Display),
+<a href=#1012 id=1012 data-nosnippet>1012</a>        msg: <span class="macro">format!</span>(<span class="string">"records cannot be instantiated in an async {kind} context."</span>),
+<a href=#1013 id=1013 data-nosnippet>1013</a>        help: <span class="prelude-val">None</span>,
+<a href=#1014 id=1014 data-nosnippet>1014</a>    }
+<a href=#1015 id=1015 data-nosnippet>1015</a>
+<a href=#1016 id=1016 data-nosnippet>1016</a>    @formatted
+<a href=#1017 id=1017 data-nosnippet>1017</a>    script_in_non_test {
+<a href=#1018 id=1018 data-nosnippet>1018</a>        args: (func: <span class="kw">impl </span>Display),
+<a href=#1019 id=1019 data-nosnippet>1019</a>        msg: <span class="macro">format!</span>(<span class="string">"`script` {func} appears in a non-test program."</span>),
+<a href=#1020 id=1020 data-nosnippet>1020</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Move this to a test program, or replace it with a function or transition"</span>.to_string()),
+<a href=#1021 id=1021 data-nosnippet>1021</a>    }
+<a href=#1022 id=1022 data-nosnippet>1022</a>
+<a href=#1023 id=1023 data-nosnippet>1023</a>    @formatted
+<a href=#1024 id=1024 data-nosnippet>1024</a>    non_script_calls_script {
+<a href=#1025 id=1025 data-nosnippet>1025</a>        args: (call: <span class="kw">impl </span>Display),
+<a href=#1026 id=1026 data-nosnippet>1026</a>        msg: <span class="macro">format!</span>(<span class="string">"`script` {call} is called by a non-`script`."</span>),
+<a href=#1027 id=1027 data-nosnippet>1027</a>        help: <span class="prelude-val">None</span>,
+<a href=#1028 id=1028 data-nosnippet>1028</a>    }
+<a href=#1029 id=1029 data-nosnippet>1029</a>
+<a href=#1030 id=1030 data-nosnippet>1030</a>    @formatted
+<a href=#1031 id=1031 data-nosnippet>1031</a>    annotation_error {
+<a href=#1032 id=1032 data-nosnippet>1032</a>        args: (message: <span class="kw">impl </span>Display),
+<a href=#1033 id=1033 data-nosnippet>1033</a>        msg: <span class="macro">format!</span>(<span class="string">"Invalid annotation: {message}."</span>),
+<a href=#1034 id=1034 data-nosnippet>1034</a>        help: <span class="prelude-val">None</span>,
+<a href=#1035 id=1035 data-nosnippet>1035</a>    }
+<a href=#1036 id=1036 data-nosnippet>1036</a>
+<a href=#1037 id=1037 data-nosnippet>1037</a>    @formatted
+<a href=#1038 id=1038 data-nosnippet>1038</a>    ternary_over_external_records {
+<a href=#1039 id=1039 data-nosnippet>1039</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1040 id=1040 data-nosnippet>1040</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot apply ternary conditional to type `{ty}`."</span>),
+<a href=#1041 id=1041 data-nosnippet>1041</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Ternary conditionals may not contain an external record type."</span>.to_string()),
+<a href=#1042 id=1042 data-nosnippet>1042</a>    }
+<a href=#1043 id=1043 data-nosnippet>1043</a>
+<a href=#1044 id=1044 data-nosnippet>1044</a>    <span class="comment">// TODO: unused.
+<a href=#1045 id=1045 data-nosnippet>1045</a>    </span>@formatted
+<a href=#1046 id=1046 data-nosnippet>1046</a>    assignment_to_external_record {
+<a href=#1047 id=1047 data-nosnippet>1047</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1048 id=1048 data-nosnippet>1048</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to type `{ty}` or a member thereof."</span>),
+<a href=#1049 id=1049 data-nosnippet>1049</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record types and tuples containing them may not be assigned to."</span>.to_string()),
+<a href=#1050 id=1050 data-nosnippet>1050</a>    }
+<a href=#1051 id=1051 data-nosnippet>1051</a>
+<a href=#1052 id=1052 data-nosnippet>1052</a>    @formatted
+<a href=#1053 id=1053 data-nosnippet>1053</a>    illegal_name {
+<a href=#1054 id=1054 data-nosnippet>1054</a>        args: (item_name: <span class="kw">impl </span>Display, item_type: <span class="kw">impl </span>Display, keyword: <span class="kw">impl </span>Display),
+<a href=#1055 id=1055 data-nosnippet>1055</a>        msg: <span class="macro">format!</span>(<span class="string">"`{item_name}` is an invalid {item_type} name. A {item_type} cannot have \"{keyword}\" in its name."</span>),
+<a href=#1056 id=1056 data-nosnippet>1056</a>        help: <span class="prelude-val">None</span>,
+<a href=#1057 id=1057 data-nosnippet>1057</a>    }
+<a href=#1058 id=1058 data-nosnippet>1058</a>
+<a href=#1059 id=1059 data-nosnippet>1059</a>    @formatted
+<a href=#1060 id=1060 data-nosnippet>1060</a>    record_prefixed_by_other_record {
+<a href=#1061 id=1061 data-nosnippet>1061</a>        args: (r1: <span class="kw">impl </span>Display, r2: <span class="kw">impl </span>Display),
+<a href=#1062 id=1062 data-nosnippet>1062</a>        msg: <span class="macro">format!</span>(<span class="string">"Record name `{r1}` is prefixed by the record name `{r2}`. Record names must not be prefixes of other record names."</span>),
+<a href=#1063 id=1063 data-nosnippet>1063</a>        help: <span class="prelude-val">None</span>,
+<a href=#1064 id=1064 data-nosnippet>1064</a>    }
+<a href=#1065 id=1065 data-nosnippet>1065</a>
+<a href=#1066 id=1066 data-nosnippet>1066</a>    @formatted
+<a href=#1067 id=1067 data-nosnippet>1067</a>    range_bounds_type_mismatch{
+<a href=#1068 id=1068 data-nosnippet>1068</a>        args: (),
+<a href=#1069 id=1069 data-nosnippet>1069</a>        msg: <span class="macro">format!</span>(<span class="string">"mismatched types in loop iterator range bounds"</span>),
+<a href=#1070 id=1070 data-nosnippet>1070</a>        help: <span class="prelude-val">None</span>,
+<a href=#1071 id=1071 data-nosnippet>1071</a>    }
+<a href=#1072 id=1072 data-nosnippet>1072</a>
+<a href=#1073 id=1073 data-nosnippet>1073</a>    @formatted
+<a href=#1074 id=1074 data-nosnippet>1074</a>    assignment_to_external_record_member {
+<a href=#1075 id=1075 data-nosnippet>1075</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1076 id=1076 data-nosnippet>1076</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to a member of the external record `{ty}`."</span>),
+<a href=#1077 id=1077 data-nosnippet>1077</a>        help: <span class="prelude-val">None</span>,
+<a href=#1078 id=1078 data-nosnippet>1078</a>    }
+<a href=#1079 id=1079 data-nosnippet>1079</a>
+<a href=#1080 id=1080 data-nosnippet>1080</a>    @formatted
+<a href=#1081 id=1081 data-nosnippet>1081</a>    assignment_to_external_record_cond {
+<a href=#1082 id=1082 data-nosnippet>1082</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1083 id=1083 data-nosnippet>1083</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the external record type `{ty}` in this location."</span>),
+<a href=#1084 id=1084 data-nosnippet>1084</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record variables may not be assigned to in narrower conditional scopes than they were defined."</span>.into()),
+<a href=#1085 id=1085 data-nosnippet>1085</a>    }
+<a href=#1086 id=1086 data-nosnippet>1086</a>
+<a href=#1087 id=1087 data-nosnippet>1087</a>    @formatted
+<a href=#1088 id=1088 data-nosnippet>1088</a>    assignment_to_external_record_tuple_cond {
+<a href=#1089 id=1089 data-nosnippet>1089</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1090 id=1090 data-nosnippet>1090</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the tuple type `{ty}` containing an external record in this location."</span>),
+<a href=#1091 id=1091 data-nosnippet>1091</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Tuples containing external records may not be assigned to in narrower conditional scopes than they were defined."</span>.into()),
+<a href=#1092 id=1092 data-nosnippet>1092</a>    }
+<a href=#1093 id=1093 data-nosnippet>1093</a>
+<a href=#1094 id=1094 data-nosnippet>1094</a>    @formatted
+<a href=#1095 id=1095 data-nosnippet>1095</a>    hexbin_literal_nonintegers {
+<a href=#1096 id=1096 data-nosnippet>1096</a>        args: (),
+<a href=#1097 id=1097 data-nosnippet>1097</a>        msg: <span class="macro">format!</span>(<span class="string">"Hex, octal, and binary literals may only be used for integer types."</span>),
+<a href=#1098 id=1098 data-nosnippet>1098</a>        help: <span class="prelude-val">None</span>,
+<a href=#1099 id=1099 data-nosnippet>1099</a>    }
+<a href=#1100 id=1100 data-nosnippet>1100</a>
+<a href=#1101 id=1101 data-nosnippet>1101</a>    @formatted
+<a href=#1102 id=1102 data-nosnippet>1102</a>    unexpected_unsuffixed_numeral {
+<a href=#1103 id=1103 data-nosnippet>1103</a>        args: (expected: <span class="kw">impl </span>Display),
+<a href=#1104 id=1104 data-nosnippet>1104</a>        msg: <span class="macro">format!</span>(
+<a href=#1105 id=1105 data-nosnippet>1105</a>            <span class="string">"Expected {expected} but an unsuffixed numeral was found."</span>,
+<a href=#1106 id=1106 data-nosnippet>1106</a>        ),
+<a href=#1107 id=1107 data-nosnippet>1107</a>        help: <span class="prelude-val">None</span>,
+<a href=#1108 id=1108 data-nosnippet>1108</a>    }
+<a href=#1109 id=1109 data-nosnippet>1109</a>
+<a href=#1110 id=1110 data-nosnippet>1110</a>    @formatted
+<a href=#1111 id=1111 data-nosnippet>1111</a>    incorrect_num_const_args {
+<a href=#1112 id=1112 data-nosnippet>1112</a>        args: (kind: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
+<a href=#1113 id=1113 data-nosnippet>1113</a>        msg: <span class="macro">format!</span>(
+<a href=#1114 id=1114 data-nosnippet>1114</a>            <span class="string">"{kind} expected `{expected}` const args, but got `{received}`"</span>,
+<a href=#1115 id=1115 data-nosnippet>1115</a>        ),
+<a href=#1116 id=1116 data-nosnippet>1116</a>        help: <span class="prelude-val">None</span>,
+<a href=#1117 id=1117 data-nosnippet>1117</a>    }
+<a href=#1118 id=1118 data-nosnippet>1118</a>
+<a href=#1119 id=1119 data-nosnippet>1119</a>    @formatted
+<a href=#1120 id=1120 data-nosnippet>1120</a>    bad_const_generic_type {
+<a href=#1121 id=1121 data-nosnippet>1121</a>        args: (found: <span class="kw">impl </span>Display),
+<a href=#1122 id=1122 data-nosnippet>1122</a>        msg: <span class="macro">format!</span>(<span class="string">"A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but {found} was found"</span>),
+<a href=#1123 id=1123 data-nosnippet>1123</a>        help: <span class="prelude-val">None</span>,
+<a href=#1124 id=1124 data-nosnippet>1124</a>    }
+<a href=#1125 id=1125 data-nosnippet>1125</a>
+<a href=#1126 id=1126 data-nosnippet>1126</a>    <span class="doccomment">/// For when the user tries to assign to a generic const function parameter.
+<a href=#1127 id=1127 data-nosnippet>1127</a>    </span>@formatted
+<a href=#1128 id=1128 data-nosnippet>1128</a>    cannot_assign_to_generic_const_function_parameter {
+<a href=#1129 id=1129 data-nosnippet>1129</a>        args: (param: <span class="kw">impl </span>Display),
+<a href=#1130 id=1130 data-nosnippet>1130</a>        msg: <span class="macro">format!</span>(
+<a href=#1131 id=1131 data-nosnippet>1131</a>            <span class="string">"Cannot assign to const parameter `{param}`"</span>,
+<a href=#1132 id=1132 data-nosnippet>1132</a>        ),
+<a href=#1133 id=1133 data-nosnippet>1133</a>        help: <span class="prelude-val">None</span>,
+<a href=#1134 id=1134 data-nosnippet>1134</a>    }
+<a href=#1135 id=1135 data-nosnippet>1135</a>
+<a href=#1136 id=1136 data-nosnippet>1136</a>    @formatted
+<a href=#1137 id=1137 data-nosnippet>1137</a>    only_inline_can_have_const_generics {
+<a href=#1138 id=1138 data-nosnippet>1138</a>        args: (),
+<a href=#1139 id=1139 data-nosnippet>1139</a>        msg: <span class="macro">format!</span>(<span class="string">"Only `inline` functions can have generic const parameters."</span>),
+<a href=#1140 id=1140 data-nosnippet>1140</a>        help: <span class="prelude-val">None</span>,
+<a href=#1141 id=1141 data-nosnippet>1141</a>    }
+<a href=#1142 id=1142 data-nosnippet>1142</a>
+<a href=#1143 id=1143 data-nosnippet>1143</a>    @formatted
+<a href=#1144 id=1144 data-nosnippet>1144</a>    array_too_large_for_u32 {
+<a href=#1145 id=1145 data-nosnippet>1145</a>        args: (),
+<a href=#1146 id=1146 data-nosnippet>1146</a>        msg: <span class="macro">format!</span>(<span class="string">"An array length must be small enough to fit in a `u32`"</span>),
+<a href=#1147 id=1147 data-nosnippet>1147</a>        help: <span class="prelude-val">None</span>,
+<a href=#1148 id=1148 data-nosnippet>1148</a>    }
+<a href=#1149 id=1149 data-nosnippet>1149</a>
+<a href=#1150 id=1150 data-nosnippet>1150</a>    @formatted
+<a href=#1151 id=1151 data-nosnippet>1151</a>    unexpected_record_const_parameters {
+<a href=#1152 id=1152 data-nosnippet>1152</a>        args: (),
+<a href=#1153 id=1153 data-nosnippet>1153</a>        msg: <span class="macro">format!</span>(<span class="string">"Records cannot be declared with generic const parameters."</span>),
+<a href=#1154 id=1154 data-nosnippet>1154</a>        help: <span class="prelude-val">None</span>,
+<a href=#1155 id=1155 data-nosnippet>1155</a>    }
+<a href=#1156 id=1156 data-nosnippet>1156</a>
+<a href=#1157 id=1157 data-nosnippet>1157</a>    @formatted
+<a href=#1158 id=1158 data-nosnippet>1158</a>    unexpected_const_args {
+<a href=#1159 id=1159 data-nosnippet>1159</a>        args: (item: <span class="kw">impl </span>Display),
+<a href=#1160 id=1160 data-nosnippet>1160</a>        msg: <span class="macro">format!</span>(<span class="string">"unexpected generic const argment for {item}."</span>),
+<a href=#1161 id=1161 data-nosnippet>1161</a>        help: <span class="prelude-val">Some</span>(<span class="string">"If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments"</span>.to_string()),
+<a href=#1162 id=1162 data-nosnippet>1162</a>    }
+<a href=#1163 id=1163 data-nosnippet>1163</a>
+<a href=#1164 id=1164 data-nosnippet>1164</a>    @formatted
+<a href=#1165 id=1165 data-nosnippet>1165</a>    invalid_operation_inside_async_block {
+<a href=#1166 id=1166 data-nosnippet>1166</a>        args: (operation: <span class="kw">impl </span>Display),
+<a href=#1167 id=1167 data-nosnippet>1167</a>        msg: <span class="macro">format!</span>(<span class="string">"Invalid expression in an async block. `{operation}` cannot be used directly here"</span>),
+<a href=#1168 id=1168 data-nosnippet>1168</a>        help: <span class="prelude-val">None</span>,
+<a href=#1169 id=1169 data-nosnippet>1169</a>    }
+<a href=#1170 id=1170 data-nosnippet>1170</a>
+<a href=#1171 id=1171 data-nosnippet>1171</a>    @formatted
+<a href=#1172 id=1172 data-nosnippet>1172</a>    illegal_async_block_location {
+<a href=#1173 id=1173 data-nosnippet>1173</a>        args: (),
+<a href=#1174 id=1174 data-nosnippet>1174</a>        msg: <span class="string">"`async` blocks are only allowed inside an `async` transition or a script function."</span>.to_string(),
+<a href=#1175 id=1175 data-nosnippet>1175</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Try moving this `async` block into an `async` transition or a script function."</span>.to_string()),
+<a href=#1176 id=1176 data-nosnippet>1176</a>    }
+<a href=#1177 id=1177 data-nosnippet>1177</a>
+<a href=#1178 id=1178 data-nosnippet>1178</a>    @formatted
+<a href=#1179 id=1179 data-nosnippet>1179</a>    conflicting_async_call_and_block {
+<a href=#1180 id=1180 data-nosnippet>1180</a>        args: (),
+<a href=#1181 id=1181 data-nosnippet>1181</a>        msg: <span class="string">"A transition function cannot contain both an `async` function call and an `async` block at the same time."</span>.to_string(),
+<a href=#1182 id=1182 data-nosnippet>1182</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Refactor the transition to use either an `async` call or an `async` block, but not both."</span>.to_string()),
+<a href=#1183 id=1183 data-nosnippet>1183</a>    }
+<a href=#1184 id=1184 data-nosnippet>1184</a>
+<a href=#1185 id=1185 data-nosnippet>1185</a>    @formatted
+<a href=#1186 id=1186 data-nosnippet>1186</a>    multiple_async_blocks_not_allowed {
+<a href=#1187 id=1187 data-nosnippet>1187</a>        args: (),
+<a href=#1188 id=1188 data-nosnippet>1188</a>        msg: <span class="string">"A transition function cannot contain more than one `async` block."</span>.to_string(),
+<a href=#1189 id=1189 data-nosnippet>1189</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Combine the logic into a single `async` block, or restructure your code to avoid multiple async blocks within the same transition."</span>.to_string()),
+<a href=#1190 id=1190 data-nosnippet>1190</a>    }
+<a href=#1191 id=1191 data-nosnippet>1191</a>
+<a href=#1192 id=1192 data-nosnippet>1192</a>    @formatted
+<a href=#1193 id=1193 data-nosnippet>1193</a>    async_block_in_conditional {
+<a href=#1194 id=1194 data-nosnippet>1194</a>        args: (),
+<a href=#1195 id=1195 data-nosnippet>1195</a>        msg: <span class="string">"`async` blocks are not allowed inside conditional blocks."</span>.to_string(),
+<a href=#1196 id=1196 data-nosnippet>1196</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Refactor your code to move the `async` block outside of the conditional block."</span>.to_string()),
+<a href=#1197 id=1197 data-nosnippet>1197</a>    }
+<a href=#1198 id=1198 data-nosnippet>1198</a>
+<a href=#1199 id=1199 data-nosnippet>1199</a>    @formatted
+<a href=#1200 id=1200 data-nosnippet>1200</a>    cannot_use_private_inpt_in_async_block {
+<a href=#1201 id=1201 data-nosnippet>1201</a>        args: (),
+<a href=#1202 id=1202 data-nosnippet>1202</a>        msg: <span class="macro">format!</span>(<span class="string">"`private` inputs cannot be used inside async blocks."</span>),
+<a href=#1203 id=1203 data-nosnippet>1203</a>        help: <span class="prelude-val">None</span>,
+<a href=#1204 id=1204 data-nosnippet>1204</a>    }
+<a href=#1205 id=1205 data-nosnippet>1205</a>
+<a href=#1206 id=1206 data-nosnippet>1206</a>    @formatted
+<a href=#1207 id=1207 data-nosnippet>1207</a>    async_block_cannot_return {
+<a href=#1208 id=1208 data-nosnippet>1208</a>        args: (),
+<a href=#1209 id=1209 data-nosnippet>1209</a>        msg: <span class="string">"An `async` block cannot contain a `return` statement."</span>.to_string(),
+<a href=#1210 id=1210 data-nosnippet>1210</a>        help: <span class="prelude-val">None</span>,
+<a href=#1211 id=1211 data-nosnippet>1211</a>    }
+<a href=#1212 id=1212 data-nosnippet>1212</a>
+<a href=#1213 id=1213 data-nosnippet>1213</a>    @formatted
+<a href=#1214 id=1214 data-nosnippet>1214</a>    invalid_async_block_future_access {
+<a href=#1215 id=1215 data-nosnippet>1215</a>        args: (),
+<a href=#1216 id=1216 data-nosnippet>1216</a>        msg: <span class="macro">format!</span>(
+<a href=#1217 id=1217 data-nosnippet>1217</a>            <span class="string">"Cannot access argument from future produced by an `async` block."
+<a href=#1218 id=1218 data-nosnippet>1218</a>        </span>),
+<a href=#1219 id=1219 data-nosnippet>1219</a>        help: <span class="prelude-val">None</span>,
+<a href=#1220 id=1220 data-nosnippet>1220</a>    }
+<a href=#1221 id=1221 data-nosnippet>1221</a>
+<a href=#1222 id=1222 data-nosnippet>1222</a>    @formatted
+<a href=#1223 id=1223 data-nosnippet>1223</a>    cannot_assign_to_vars_outside_async_block {
+<a href=#1224 id=1224 data-nosnippet>1224</a>        args: (input: <span class="kw">impl </span>Display),
+<a href=#1225 id=1225 data-nosnippet>1225</a>        msg: <span class="macro">format!</span>(
+<a href=#1226 id=1226 data-nosnippet>1226</a>            <span class="string">"Cannot assign to `{input}` inside an `async` block because it was declared outside the block."
+<a href=#1227 id=1227 data-nosnippet>1227</a>        </span>),
+<a href=#1228 id=1228 data-nosnippet>1228</a>        help: <span class="prelude-val">None</span>,
+<a href=#1229 id=1229 data-nosnippet>1229</a>    }
+<a href=#1230 id=1230 data-nosnippet>1230</a>);</code></pre></div></section></main></body></html>

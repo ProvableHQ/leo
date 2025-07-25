@@ -89,37 +89,40 @@
 <a href=#89 id=89 data-nosnippet>89</a>            </span><span class="kw">let </span>const_param_map: IndexMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; =
 <a href=#90 id=90 data-nosnippet>90</a>                struct_.const_parameters.iter().map(|param| param.identifier().name).zip_eq(const_arguments).collect();
 <a href=#91 id=91 data-nosnippet>91</a>
-<a href=#92 id=92 data-nosnippet>92</a>            <span class="comment">// Function to replace identifiers with their corresponding const argument or keep them unchanged.
-<a href=#93 id=93 data-nosnippet>93</a>            </span><span class="kw">let </span>replace_identifier = |ident: <span class="kw-2">&amp;</span>Identifier| {
-<a href=#94 id=94 data-nosnippet>94</a>                const_param_map.get(<span class="kw-2">&amp;</span>ident.name).map_or(Expression::Identifier(<span class="kw-2">*</span>ident), |<span class="kw-2">&amp;</span>expr| expr.clone())
-<a href=#95 id=95 data-nosnippet>95</a>            };
-<a href=#96 id=96 data-nosnippet>96</a>
-<a href=#97 id=97 data-nosnippet>97</a>            <span class="kw">let </span><span class="kw-2">mut </span>replacer = Replacer::new(replace_identifier, <span class="kw-2">&amp;</span><span class="self">self</span>.state.node_builder);
-<a href=#98 id=98 data-nosnippet>98</a>
-<a href=#99 id=99 data-nosnippet>99</a>            <span class="comment">// Create a new version of `struct_` that has a new name, no const parameters, and a new struct ID.
-<a href=#100 id=100 data-nosnippet>100</a>            //
-<a href=#101 id=101 data-nosnippet>101</a>            // First, reconstruct the struct by changing all instances of const generic parameters to literals
-<a href=#102 id=102 data-nosnippet>102</a>            // according to `const_param_map`.
-<a href=#103 id=103 data-nosnippet>103</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>struct_ = replacer.reconstruct_struct(struct_.clone());
-<a href=#104 id=104 data-nosnippet>104</a>
-<a href=#105 id=105 data-nosnippet>105</a>            <span class="comment">// Now, reconstruct the struct to actually monomorphize its content such as generic struct type
-<a href=#106 id=106 data-nosnippet>106</a>            // instantiations.
-<a href=#107 id=107 data-nosnippet>107</a>            </span>struct_ = <span class="self">self</span>.reconstruct_struct(struct_);
-<a href=#108 id=108 data-nosnippet>108</a>            struct_.identifier = Identifier {
-<a href=#109 id=109 data-nosnippet>109</a>                name: new_struct_name,
-<a href=#110 id=110 data-nosnippet>110</a>                span: leo_span::Span::default(),
-<a href=#111 id=111 data-nosnippet>111</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
-<a href=#112 id=112 data-nosnippet>112</a>            };
-<a href=#113 id=113 data-nosnippet>113</a>            struct_.const_parameters = <span class="macro">vec!</span>[];
-<a href=#114 id=114 data-nosnippet>114</a>            struct_.id = <span class="self">self</span>.state.node_builder.next_id();
-<a href=#115 id=115 data-nosnippet>115</a>
-<a href=#116 id=116 data-nosnippet>116</a>            <span class="comment">// Keep track of the new struct in case other structs need it.
-<a href=#117 id=117 data-nosnippet>117</a>            </span><span class="self">self</span>.reconstructed_structs.insert(new_struct_name, struct_);
+<a href=#92 id=92 data-nosnippet>92</a>            <span class="comment">// Function to replace identifier expressions with their corresponding const argument or keep them unchanged.
+<a href=#93 id=93 data-nosnippet>93</a>            </span><span class="kw">let </span>replace_identifier = |expr: <span class="kw-2">&amp;</span>Expression| <span class="kw">match </span>expr {
+<a href=#94 id=94 data-nosnippet>94</a>                Expression::Identifier(ident) =&gt; {
+<a href=#95 id=95 data-nosnippet>95</a>                    const_param_map.get(<span class="kw-2">&amp;</span>ident.name).map_or(Expression::Identifier(<span class="kw-2">*</span>ident), |<span class="kw-2">&amp;</span>expr| expr.clone())
+<a href=#96 id=96 data-nosnippet>96</a>                }
+<a href=#97 id=97 data-nosnippet>97</a>                <span class="kw">_ </span>=&gt; expr.clone(),
+<a href=#98 id=98 data-nosnippet>98</a>            };
+<a href=#99 id=99 data-nosnippet>99</a>
+<a href=#100 id=100 data-nosnippet>100</a>            <span class="kw">let </span><span class="kw-2">mut </span>replacer = Replacer::new(replace_identifier, <span class="kw-2">&amp;</span><span class="self">self</span>.state.node_builder);
+<a href=#101 id=101 data-nosnippet>101</a>
+<a href=#102 id=102 data-nosnippet>102</a>            <span class="comment">// Create a new version of `struct_` that has a new name, no const parameters, and a new struct ID.
+<a href=#103 id=103 data-nosnippet>103</a>            //
+<a href=#104 id=104 data-nosnippet>104</a>            // First, reconstruct the struct by changing all instances of const generic parameters to literals
+<a href=#105 id=105 data-nosnippet>105</a>            // according to `const_param_map`.
+<a href=#106 id=106 data-nosnippet>106</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>struct_ = replacer.reconstruct_struct(struct_.clone());
+<a href=#107 id=107 data-nosnippet>107</a>
+<a href=#108 id=108 data-nosnippet>108</a>            <span class="comment">// Now, reconstruct the struct to actually monomorphize its content such as generic struct type
+<a href=#109 id=109 data-nosnippet>109</a>            // instantiations.
+<a href=#110 id=110 data-nosnippet>110</a>            </span>struct_ = <span class="self">self</span>.reconstruct_struct(struct_);
+<a href=#111 id=111 data-nosnippet>111</a>            struct_.identifier = Identifier {
+<a href=#112 id=112 data-nosnippet>112</a>                name: new_struct_name,
+<a href=#113 id=113 data-nosnippet>113</a>                span: leo_span::Span::default(),
+<a href=#114 id=114 data-nosnippet>114</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
+<a href=#115 id=115 data-nosnippet>115</a>            };
+<a href=#116 id=116 data-nosnippet>116</a>            struct_.const_parameters = <span class="macro">vec!</span>[];
+<a href=#117 id=117 data-nosnippet>117</a>            struct_.id = <span class="self">self</span>.state.node_builder.next_id();
 <a href=#118 id=118 data-nosnippet>118</a>
-<a href=#119 id=119 data-nosnippet>119</a>            <span class="comment">// Now keep track of the struct we just monomorphized
-<a href=#120 id=120 data-nosnippet>120</a>            </span><span class="self">self</span>.monomorphized_structs.insert(<span class="kw-2">*</span>name);
-<a href=#121 id=121 data-nosnippet>121</a>        }
-<a href=#122 id=122 data-nosnippet>122</a>
-<a href=#123 id=123 data-nosnippet>123</a>        new_struct_name
-<a href=#124 id=124 data-nosnippet>124</a>    }
-<a href=#125 id=125 data-nosnippet>125</a>}</code></pre></div></section></main></body></html>
+<a href=#119 id=119 data-nosnippet>119</a>            <span class="comment">// Keep track of the new struct in case other structs need it.
+<a href=#120 id=120 data-nosnippet>120</a>            </span><span class="self">self</span>.reconstructed_structs.insert(new_struct_name, struct_);
+<a href=#121 id=121 data-nosnippet>121</a>
+<a href=#122 id=122 data-nosnippet>122</a>            <span class="comment">// Now keep track of the struct we just monomorphized
+<a href=#123 id=123 data-nosnippet>123</a>            </span><span class="self">self</span>.monomorphized_structs.insert(<span class="kw-2">*</span>name);
+<a href=#124 id=124 data-nosnippet>124</a>        }
+<a href=#125 id=125 data-nosnippet>125</a>
+<a href=#126 id=126 data-nosnippet>126</a>        new_struct_name
+<a href=#127 id=127 data-nosnippet>127</a>    }
+<a href=#128 id=128 data-nosnippet>128</a>}</code></pre></div></section></main></body></html>
