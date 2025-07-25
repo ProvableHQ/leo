@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, TupleType, common};
+use crate::{ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, Path, TupleType};
 
 use itertools::Itertools;
 use leo_span::Symbol;
@@ -116,7 +116,14 @@ impl Type {
                     return true;
                 }
 
-                left.id.name == right.id.name
+                // Two composite types are the same if their programs and their _absolute_ paths match.
+                // If the absolute paths are not available, then we really can't compare the two
+                // types and we just return `false` to be conservative.
+                (left.program == right.program)
+                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
+                        (Some(l), Some(r)) => l == r,
+                        _ => false,
+                    }
             }
             // Don't type check when type hasn't been explicitly defined.
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
@@ -150,9 +157,14 @@ impl Type {
                 snarkvm::prelude::LiteralType::Signature => Type::Signature,
                 snarkvm::prelude::LiteralType::String => Type::String,
             },
-            Struct(s) => {
-                Type::Composite(CompositeType { id: common::Identifier::from(s), const_arguments: Vec::new(), program })
-            }
+            Struct(s) => Type::Composite(CompositeType {
+                path: {
+                    let ident = Identifier::from(s);
+                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                },
+                const_arguments: Vec::new(),
+                program,
+            }),
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }
     }

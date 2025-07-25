@@ -3,43 +3,79 @@
     "expression": {
       "Call": {
         "function": {
-          "name": "increment",
+          "qualifier": [],
+          "identifier": {
+            "name": "increment",
+            "span": {
+              "lo": 0,
+              "hi": 9
+            },
+            "id": 0
+          },
+          "absolute_path": null,
           "span": {
             "lo": 0,
             "hi": 9
           },
-          "id": 0
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [
           {
-            "Identifier": {
-              "name": "foo",
+            "Path": {
+              "qualifier": [],
+              "identifier": {
+                "name": "foo",
+                "span": {
+                  "lo": 10,
+                  "hi": 13
+                },
+                "id": 2
+              },
+              "absolute_path": null,
               "span": {
                 "lo": 10,
                 "hi": 13
               },
-              "id": 1
+              "id": 3
             }
           },
           {
-            "Identifier": {
-              "name": "bar",
+            "Path": {
+              "qualifier": [],
+              "identifier": {
+                "name": "bar",
+                "span": {
+                  "lo": 15,
+                  "hi": 18
+                },
+                "id": 4
+              },
+              "absolute_path": null,
               "span": {
                 "lo": 15,
                 "hi": 18
               },
-              "id": 2
+              "id": 5
             }
           },
           {
-            "Identifier": {
-              "name": "baz",
+            "Path": {
+              "qualifier": [],
+              "identifier": {
+                "name": "baz",
+                "span": {
+                  "lo": 20,
+                  "hi": 23
+                },
+                "id": 6
+              },
+              "absolute_path": null,
               "span": {
                 "lo": 20,
                 "hi": 23
               },
-              "id": 3
+              "id": 7
             }
           }
         ],
@@ -48,14 +84,14 @@
           "lo": 0,
           "hi": 24
         },
-        "id": 4
+        "id": 8
       }
     },
     "span": {
       "lo": 0,
       "hi": 25
     },
-    "id": 5
+    "id": 9
   }
 }
 
@@ -64,23 +100,41 @@
     "expression": {
       "Call": {
         "function": {
-          "name": "increment",
+          "qualifier": [],
+          "identifier": {
+            "name": "increment",
+            "span": {
+              "lo": 26,
+              "hi": 35
+            },
+            "id": 0
+          },
+          "absolute_path": null,
           "span": {
             "lo": 26,
             "hi": 35
           },
-          "id": 0
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [
           {
-            "Identifier": {
-              "name": "foo",
+            "Path": {
+              "qualifier": [],
+              "identifier": {
+                "name": "foo",
+                "span": {
+                  "lo": 36,
+                  "hi": 39
+                },
+                "id": 2
+              },
+              "absolute_path": null,
               "span": {
                 "lo": 36,
                 "hi": 39
               },
-              "id": 1
+              "id": 3
             }
           },
           {
@@ -89,7 +143,7 @@
                 "lo": 41,
                 "hi": 44
               },
-              "id": 2,
+              "id": 4,
               "variant": {
                 "Integer": [
                   "U8",
@@ -104,7 +158,7 @@
                 "lo": 46,
                 "hi": 49
               },
-              "id": 3,
+              "id": 5,
               "variant": {
                 "Integer": [
                   "U8",
@@ -119,14 +173,14 @@
           "lo": 26,
           "hi": 50
         },
-        "id": 4
+        "id": 6
       }
     },
     "span": {
       "lo": 26,
       "hi": 51
     },
-    "id": 5
+    "id": 7
   }
 }
 
@@ -135,33 +189,60 @@
     "expression": {
       "Call": {
         "function": {
-          "name": "increment",
+          "qualifier": [],
+          "identifier": {
+            "name": "increment",
+            "span": {
+              "lo": 52,
+              "hi": 61
+            },
+            "id": 0
+          },
+          "absolute_path": null,
           "span": {
             "lo": 52,
             "hi": 61
           },
-          "id": 0
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [
           {
-            "Identifier": {
-              "name": "foo",
+            "Path": {
+              "qualifier": [],
+              "identifier": {
+                "name": "foo",
+                "span": {
+                  "lo": 62,
+                  "hi": 65
+                },
+                "id": 2
+              },
+              "absolute_path": null,
               "span": {
                 "lo": 62,
                 "hi": 65
               },
-              "id": 1
+              "id": 3
             }
           },
           {
-            "Identifier": {
-              "name": "bar",
+            "Path": {
+              "qualifier": [],
+              "identifier": {
+                "name": "bar",
+                "span": {
+                  "lo": 67,
+                  "hi": 70
+                },
+                "id": 4
+              },
+              "absolute_path": null,
               "span": {
                 "lo": 67,
                 "hi": 70
               },
-              "id": 2
+              "id": 5
             }
           }
         ],
@@ -170,14 +251,14 @@
           "lo": 52,
           "hi": 71
         },
-        "id": 3
+        "id": 6
       }
     },
     "span": {
       "lo": 52,
       "hi": 72
     },
-    "id": 4
+    "id": 7
   }
 }
 
@@ -186,12 +267,21 @@
     "expression": {
       "Call": {
         "function": {
-          "name": "increment",
+          "qualifier": [],
+          "identifier": {
+            "name": "increment",
+            "span": {
+              "lo": 73,
+              "hi": 82
+            },
+            "id": 0
+          },
+          "absolute_path": null,
           "span": {
             "lo": 73,
             "hi": 82
           },
-          "id": 0
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [],
@@ -200,14 +290,14 @@
           "lo": 73,
           "hi": 84
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 73,
       "hi": 85
     },
-    "id": 2
+    "id": 3
   }
 }
 

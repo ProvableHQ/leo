@@ -18,10 +18,11 @@ use crate::Location;
 use leo_span::Symbol;
 
 use indexmap::{IndexMap, IndexSet};
-use std::{fmt::Debug, hash::Hash};
+use std::{fmt::Debug, hash::Hash, rc::Rc};
 
 /// A struct dependency graph.
-pub type StructGraph = DiGraph<Symbol>;
+/// The `Vec<Symbol>` is to the absolute path to each struct
+pub type StructGraph = DiGraph<Vec<Symbol>>;
 
 /// A call graph.
 pub type CallGraph = DiGraph<Location>;
@@ -30,9 +31,9 @@ pub type CallGraph = DiGraph<Location>;
 pub type ImportGraph = DiGraph<Symbol>;
 
 /// A node in a graph.
-pub trait GraphNode: Copy + 'static + Eq + PartialEq + Debug + Hash {}
+pub trait GraphNode: Clone + 'static + Eq + PartialEq + Debug + Hash {}
 
-impl<T> GraphNode for T where T: 'static + Copy + Eq + PartialEq + Debug + Hash {}
+impl<T> GraphNode for T where T: 'static + Clone + Eq + PartialEq + Debug + Hash {}
 
 /// Errors in directed graph operations.
 #[derive(Debug)]
@@ -41,14 +42,15 @@ pub enum DiGraphError<N: GraphNode> {
     CycleDetected(Vec<N>),
 }
 
-/// A directed graph.
+/// A directed graph using reference-counted nodes.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DiGraph<N: GraphNode> {
     /// The set of nodes in the graph.
-    nodes: IndexSet<N>,
+    nodes: IndexSet<Rc<N>>,
+
     /// The directed edges in the graph.
     /// Each entry in the map is a node in the graph, and the set of nodes that it points to.
-    edges: IndexMap<N, IndexSet<N>>,
+    edges: IndexMap<Rc<N>, IndexSet<Rc<N>>>,
 }
 
 impl<N: GraphNode> Default for DiGraph<N> {
@@ -58,57 +60,59 @@ impl<N: GraphNode> Default for DiGraph<N> {
 }
 
 impl<N: GraphNode> DiGraph<N> {
-    /// Initializes a new `DiGraph` from a vector of source nodes.
+    /// Initializes a new `DiGraph` from a set of source nodes.
     pub fn new(nodes: IndexSet<N>) -> Self {
+        let nodes: IndexSet<_> = nodes.into_iter().map(Rc::new).collect();
         Self { nodes, edges: IndexMap::new() }
     }
 
     /// Adds a node to the graph.
     pub fn add_node(&mut self, node: N) {
-        self.nodes.insert(node);
+        self.nodes.insert(Rc::new(node));
     }
 
     /// Returns an iterator over the nodes in the graph.
     pub fn nodes(&self) -> impl Iterator<Item = &N> {
-        self.nodes.iter()
+        self.nodes.iter().map(|rc| rc.as_ref())
     }
 
     /// Adds an edge to the graph.
     pub fn add_edge(&mut self, from: N, to: N) {
         // Add `from` and `to` to the set of nodes if they are not already in the set.
-        self.nodes.insert(from);
-        self.nodes.insert(to);
+        let from_rc = self.get_or_insert(from);
+        let to_rc = self.get_or_insert(to);
 
         // Add the edge to the adjacency list.
-        let entry = self.edges.entry(from).or_default();
-        entry.insert(to);
+        self.edges.entry(from_rc).or_default().insert(to_rc);
     }
 
     /// Removes a node and all associated edges from the graph.
     pub fn remove_node(&mut self, node: &N) -> bool {
-        let existed = self.nodes.shift_remove(node);
-
-        if existed {
+        if let Some(rc_node) = self.nodes.shift_take(&Rc::new(node.clone())) {
             // Remove all outgoing edges from the node
-            self.edges.shift_remove(node);
+            self.edges.shift_remove(&rc_node);
 
             // Remove all incoming edges to the node
             for targets in self.edges.values_mut() {
-                targets.shift_remove(node);
+                targets.shift_remove(&rc_node);
             }
+            true
+        } else {
+            false
         }
-
-        existed
     }
 
-    /// Returns the set of immediate neighbors of a given node.
-    pub fn neighbors(&self, node: &N) -> Option<IndexSet<N>> {
-        self.edges.get(node).cloned()
+    /// Returns an iterator to the immediate neighbors of a given node.
+    pub fn neighbors(&self, node: &N) -> impl Iterator<Item = &N> {
+        self.edges
+            .get(node) // ← no Rc::from() needed!
+            .into_iter()
+            .flat_map(|neighbors| neighbors.iter().map(|rc| rc.as_ref()))
     }
 
     /// Returns `true` if the graph contains the given node.
     pub fn contains_node(&self, node: N) -> bool {
-        self.nodes.contains(&node)
+        self.nodes.contains(&Rc::new(node))
     }
 
     /// Returns the post-order ordering of the graph.
@@ -126,24 +130,24 @@ impl<N: GraphNode> DiGraph<N> {
         F: Fn(&N) -> bool,
     {
         // The set of nodes that do not need to be visited again.
-        let mut finished: IndexSet<N> = IndexSet::with_capacity(self.nodes.len());
+        let mut finished = IndexSet::with_capacity(self.nodes.len());
 
         // Perform a depth-first search of the graph, starting from `node`, for each node in the graph that satisfies
         // `is_entry_point`.
-        for node in self.nodes.iter().filter(|n| filter(n)) {
+        for node_rc in self.nodes.iter().filter(|n| filter(n.as_ref())) {
             // If the node has not been explored, explore it.
-            if !finished.contains(node) {
-                // The set of nodes that are on the path to the current node in the search.
-                let mut discovered: IndexSet<N> = IndexSet::new();
+            if !finished.contains(node_rc) {
+                // The set of nodes that are on the path to the current node in the searc
+                let mut discovered = IndexSet::new();
                 // Check if there is a cycle in the graph starting from `node`.
-                if let Some(node) = self.contains_cycle_from(*node, &mut discovered, &mut finished) {
-                    let mut path = vec![node];
+                if let Some(cycle_node) = self.contains_cycle_from(node_rc, &mut discovered, &mut finished) {
+                    let mut path = vec![cycle_node.as_ref().clone()];
                     // Backtrack through the discovered nodes to find the cycle.
                     while let Some(next) = discovered.pop() {
                         // Add the node to the path.
-                        path.push(next);
+                        path.push(next.as_ref().clone());
                         // If the node is the same as the first node in the path, we have found the cycle.
-                        if next == node {
+                        if Rc::ptr_eq(&next, &cycle_node) {
                             break;
                         }
                     }
@@ -154,18 +158,20 @@ impl<N: GraphNode> DiGraph<N> {
                 }
             }
         }
+
         // No cycle was found. Return the set of nodes in topological order.
-        Ok(finished)
+        Ok(finished.iter().map(|rc| (**rc).clone()).collect())
     }
 
     /// Retains a subset of the nodes, and removes all edges in which the source or destination is not in the subset.
-    pub fn retain_nodes(&mut self, nodes: &IndexSet<N>) {
+    pub fn retain_nodes(&mut self, keep: &IndexSet<N>) {
+        let keep: IndexSet<_> = keep.iter().map(|n| Rc::new(n.clone())).collect();
         // Remove the nodes from the set of nodes.
-        self.nodes.retain(|node| nodes.contains(node));
-        self.edges.retain(|node, _| nodes.contains(node));
+        self.nodes.retain(|n| keep.contains(n));
+        self.edges.retain(|n, _| keep.contains(n));
         // Remove the edges that reference the nodes.
-        for (_, children) in self.edges.iter_mut() {
-            children.retain(|child| nodes.contains(child));
+        for targets in self.edges.values_mut() {
+            targets.retain(|t| keep.contains(t));
         }
     }
 
@@ -173,23 +179,28 @@ impl<N: GraphNode> DiGraph<N> {
     // If there is no cycle, returns `None`.
     // If there is a cycle, returns the node that was most recently discovered.
     // Nodes are added to `finished` in post-order order.
-    fn contains_cycle_from(&self, node: N, discovered: &mut IndexSet<N>, finished: &mut IndexSet<N>) -> Option<N> {
+    fn contains_cycle_from(
+        &self,
+        node: &Rc<N>,
+        discovered: &mut IndexSet<Rc<N>>,
+        finished: &mut IndexSet<Rc<N>>,
+    ) -> Option<Rc<N>> {
         // Add the node to the set of discovered nodes.
-        discovered.insert(node);
+        discovered.insert(node.clone());
 
         // Check each outgoing edge of the node.
-        if let Some(children) = self.edges.get(&node) {
-            for child in children.iter() {
+        if let Some(children) = self.edges.get(node) {
+            for child in children {
                 // If the node already been discovered, there is a cycle.
                 if discovered.contains(child) {
                     // Insert the child node into the set of discovered nodes; this is used to reconstruct the cycle.
                     // Note that this case is always hit when there is a cycle.
-                    return Some(*child);
+                    return Some(child.clone());
                 }
                 // If the node has not been explored, explore it.
                 if !finished.contains(child) {
-                    if let Some(child) = self.contains_cycle_from(*child, discovered, finished) {
-                        return Some(child);
+                    if let Some(cycle_node) = self.contains_cycle_from(child, discovered, finished) {
+                        return Some(cycle_node);
                     }
                 }
             }
@@ -198,9 +209,18 @@ impl<N: GraphNode> DiGraph<N> {
         // Remove the node from the set of discovered nodes.
         discovered.pop();
         // Add the node to the set of finished nodes.
-        finished.insert(node);
-
+        finished.insert(node.clone());
         None
+    }
+
+    /// Helper: get or insert Rc<N> into the graph.
+    fn get_or_insert(&mut self, node: N) -> Rc<N> {
+        if let Some(existing) = self.nodes.get(&node) {
+            return existing.clone();
+        }
+        let rc = Rc::new(node);
+        self.nodes.insert(rc.clone());
+        rc
     }
 }
 
@@ -299,7 +319,7 @@ mod test {
         expected.add_edge(1, 2);
         expected.add_edge(1, 3);
         expected.add_edge(2, 3);
-        expected.edges.insert(3, IndexSet::new());
+        expected.edges.insert(3.into(), IndexSet::new());
 
         assert_eq!(graph, expected);
     }

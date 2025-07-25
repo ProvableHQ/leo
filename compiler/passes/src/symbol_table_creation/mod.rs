@@ -19,11 +19,13 @@ use crate::{CompilerState, Pass, VariableSymbol, VariableType};
 use leo_ast::{
     AstVisitor,
     Composite,
+    ConstDeclaration,
     Function,
     FunctionStub,
     Location,
     Mapping,
     MappingType,
+    Module,
     Program,
     ProgramScope,
     ProgramVisitor,
@@ -53,6 +55,7 @@ impl Pass for SymbolTableCreation {
             state,
             structs: IndexSet::new(),
             program_name: Symbol::intern(""),
+            module: vec![],
             is_stub: false,
         };
         visitor.visit_program(ast.as_repr());
@@ -67,15 +70,41 @@ struct SymbolTableCreationVisitor<'a> {
     state: &'a mut CompilerState,
     /// The current program name.
     program_name: Symbol,
+    /// The current module name.
+    module: Vec<Symbol>,
     /// Whether or not traversing stub.
     is_stub: bool,
     /// The set of local structs that have been successfully visited.
-    structs: IndexSet<Symbol>,
+    structs: IndexSet<Vec<Symbol>>,
+}
+
+impl SymbolTableCreationVisitor<'_> {
+    /// Enter module scope with path `module`, execute `func`, and then return to the parent module.
+    pub fn in_module_scope<T>(&mut self, module: &[Symbol], func: impl FnOnce(&mut Self) -> T) -> T {
+        let parent_module = self.module.clone();
+        self.module = module.to_vec();
+        let result = func(self);
+        self.module = parent_module;
+        result
+    }
 }
 
 impl AstVisitor for SymbolTableCreationVisitor<'_> {
     type AdditionalInput = ();
     type Output = ();
+
+    fn visit_const(&mut self, input: &ConstDeclaration) {
+        // Just add the const to the symbol table without validating it; that will happen later
+        // in type checking.
+        let const_path: Vec<Symbol> = self.module.iter().cloned().chain(std::iter::once(input.place.name)).collect();
+        if let Err(err) = self.state.symbol_table.insert_variable(self.program_name, &const_path, VariableSymbol {
+            type_: input.type_.clone(),
+            span: input.place.span,
+            declaration: VariableType::Const,
+        }) {
+            self.state.handler.emit_err(err);
+        }
+    }
 }
 
 impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
@@ -94,23 +123,36 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         }
     }
 
+    fn visit_module(&mut self, input: &Module) {
+        self.program_name = input.program_name;
+        self.in_module_scope(&input.path.clone(), |slf| {
+            input.structs.iter().for_each(|(_, c)| (slf.visit_struct(c)));
+            input.functions.iter().for_each(|(_, c)| (slf.visit_function(c)));
+            input.consts.iter().for_each(|(_, c)| (slf.visit_const(c)));
+        })
+    }
+
     fn visit_import(&mut self, input: &Program) {
         self.visit_program(input)
     }
 
     fn visit_struct(&mut self, input: &Composite) {
         // Allow up to one local redefinition for each external struct.
-        if !input.is_record && !self.structs.insert(input.name()) {
+        let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
+
+        if !input.is_record && !self.structs.insert(full_name.clone()) {
             return self.state.handler.emit_err::<LeoError>(AstError::shadowed_struct(input.name(), input.span).into());
         }
         if input.is_record {
+            // While records are not allowed in submodules, we stll use their full name in the records table.
+            // We don't expect the full name to have more than a single Symbol though.
             let program_name = input.external.unwrap_or(self.program_name);
             if let Err(err) =
-                self.state.symbol_table.insert_record(Location::new(program_name, input.name()), input.clone())
+                self.state.symbol_table.insert_record(Location::new(program_name, full_name), input.clone())
             {
                 self.state.handler.emit_err(err);
             }
-        } else if let Err(err) = self.state.symbol_table.insert_struct(self.program_name, input.name(), input.clone()) {
+        } else if let Err(err) = self.state.symbol_table.insert_struct(self.program_name, &full_name, input.clone()) {
             self.state.handler.emit_err(err);
         }
     }
@@ -118,7 +160,7 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
     fn visit_mapping(&mut self, input: &Mapping) {
         // Add the variable associated with the mapping to the symbol table.
         if let Err(err) = self.state.symbol_table.insert_global(
-            Location::new(self.program_name, input.identifier.name),
+            Location::new(self.program_name, vec![input.identifier.name]),
             VariableSymbol {
                 type_: Type::Mapping(MappingType {
                     key: Box::new(input.key_type.clone()),
@@ -134,8 +176,9 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
     }
 
     fn visit_function(&mut self, input: &Function) {
+        let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
         if let Err(err) =
-            self.state.symbol_table.insert_function(Location::new(self.program_name, input.name()), input.clone())
+            self.state.symbol_table.insert_function(Location::new(self.program_name, full_name), input.clone())
         {
             self.state.handler.emit_err(err);
         }
@@ -151,9 +194,9 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {
         // Construct the location for the function.
-        let location = Location::new(self.program_name, input.name());
+        let location = Location::new(self.program_name, vec![input.name()]);
         // Initialize the function symbol.
-        if let Err(err) = self.state.symbol_table.insert_function(location, Function::from(input.clone())) {
+        if let Err(err) = self.state.symbol_table.insert_function(location.clone(), Function::from(input.clone())) {
             self.state.handler.emit_err(err);
         }
 
@@ -166,7 +209,7 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
             let name = Symbol::intern(&format!("finalize/{}", input.name()));
             if let Err(err) = self.state.symbol_table.attach_finalizer(
                 location,
-                Location::new(self.program_name, name),
+                Location::new(self.program_name, vec![name]),
                 Vec::new(),
                 Vec::new(),
             ) {
@@ -183,11 +226,13 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         if input.is_record {
             let program_name = input.external.unwrap_or(self.program_name);
             if let Err(err) =
-                self.state.symbol_table.insert_record(Location::new(program_name, input.name()), input.clone())
+                self.state.symbol_table.insert_record(Location::new(program_name, vec![input.name()]), input.clone())
             {
                 self.state.handler.emit_err(err);
             }
-        } else if let Err(err) = self.state.symbol_table.insert_struct(self.program_name, input.name(), input.clone()) {
+        } else if let Err(err) =
+            self.state.symbol_table.insert_struct(self.program_name, &[input.name()], input.clone())
+        {
             self.state.handler.emit_err(err);
         }
     }

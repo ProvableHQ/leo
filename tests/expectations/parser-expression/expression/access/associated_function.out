@@ -18,13 +18,22 @@
     },
     "arguments": [
       {
-        "Identifier": {
-          "name": "a",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "a",
+            "span": {
+              "lo": 23,
+              "hi": 24
+            },
+            "id": 2
+          },
+          "absolute_path": null,
           "span": {
             "lo": 23,
             "hi": 24
           },
-          "id": 2
+          "id": 3
         }
       }
     ],
@@ -32,7 +41,7 @@
       "lo": 0,
       "hi": 25
     },
-    "id": 3
+    "id": 4
   }
 }
 
@@ -56,13 +65,22 @@
     },
     "arguments": [
       {
-        "Identifier": {
-          "name": "a",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "a",
+            "span": {
+              "lo": 49,
+              "hi": 50
+            },
+            "id": 2
+          },
+          "absolute_path": null,
           "span": {
             "lo": 49,
             "hi": 50
           },
-          "id": 2
+          "id": 3
         }
       }
     ],
@@ -70,7 +88,7 @@
       "lo": 26,
       "hi": 51
     },
-    "id": 3
+    "id": 4
   }
 }
 

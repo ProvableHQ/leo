@@ -1,13 +1,22 @@
 {
   "Unary": {
     "receiver": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 0,
+            "hi": 1
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 0,
           "hi": 1
         },
-        "id": 0
+        "id": 1
       }
     },
     "op": "Abs",
@@ -15,7 +24,7 @@
       "lo": 0,
       "hi": 7
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -26,13 +35,22 @@
         "receiver": {
           "Unary": {
             "receiver": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 8,
+                    "hi": 9
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 8,
                   "hi": 9
                 },
-                "id": 0
+                "id": 1
               }
             },
             "op": "Abs",
@@ -40,7 +58,7 @@
               "lo": 8,
               "hi": 15
             },
-            "id": 2
+            "id": 3
           }
         },
         "op": "Abs",
@@ -48,13 +66,183 @@
           "lo": 8,
           "hi": 21
         },
-        "id": 4
+        "id": 5
       }
     },
     "op": "Abs",
     "span": {
       "lo": 8,
       "hi": 27
+    },
+    "id": 7
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 29,
+                "hi": 30
+              },
+              "id": 0
+            },
+            "absolute_path": null,
+            "span": {
+              "lo": 29,
+              "hi": 30
+            },
+            "id": 1
+          }
+        },
+        "op": "Abs",
+        "span": {
+          "lo": 29,
+          "hi": 36
+        },
+        "id": 3
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 28,
+      "hi": 36
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 39,
+                "hi": 40
+              },
+              "id": 0
+            },
+            "absolute_path": null,
+            "span": {
+              "lo": 39,
+              "hi": 40
+            },
+            "id": 1
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 38,
+          "hi": 40
+        },
+        "id": 2
+      }
+    },
+    "op": "Abs",
+    "span": {
+      "lo": 38,
+      "hi": 47
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 50,
+                "hi": 51
+              },
+              "id": 0
+            },
+            "absolute_path": null,
+            "span": {
+              "lo": 50,
+              "hi": 51
+            },
+            "id": 1
+          }
+        },
+        "op": "Abs",
+        "span": {
+          "lo": 50,
+          "hi": 57
+        },
+        "id": 3
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 48,
+      "hi": 57
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Unary": {
+            "receiver": {
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 61,
+                    "hi": 62
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
+                "span": {
+                  "lo": 61,
+                  "hi": 62
+                },
+                "id": 1
+              }
+            },
+            "op": "Abs",
+            "span": {
+              "lo": 61,
+              "hi": 68
+            },
+            "id": 3
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 60,
+          "hi": 68
+        },
+        "id": 4
+      }
+    },
+    "op": "Abs",
+    "span": {
+      "lo": 60,
+      "hi": 75
     },
     "id": 6
   }
@@ -65,147 +253,22 @@
     "receiver": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 29,
-              "hi": 30
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 77,
+                "hi": 78
+              },
+              "id": 0
             },
-            "id": 0
-          }
-        },
-        "op": "Abs",
-        "span": {
-          "lo": 29,
-          "hi": 36
-        },
-        "id": 2
-      }
-    },
-    "op": "Negate",
-    "span": {
-      "lo": 28,
-      "hi": 36
-    },
-    "id": 3
-  }
-}
-
-{
-  "Unary": {
-    "receiver": {
-      "Unary": {
-        "receiver": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 39,
-              "hi": 40
-            },
-            "id": 0
-          }
-        },
-        "op": "Negate",
-        "span": {
-          "lo": 38,
-          "hi": 40
-        },
-        "id": 1
-      }
-    },
-    "op": "Abs",
-    "span": {
-      "lo": 38,
-      "hi": 47
-    },
-    "id": 3
-  }
-}
-
-{
-  "Unary": {
-    "receiver": {
-      "Unary": {
-        "receiver": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 50,
-              "hi": 51
-            },
-            "id": 0
-          }
-        },
-        "op": "Abs",
-        "span": {
-          "lo": 50,
-          "hi": 57
-        },
-        "id": 2
-      }
-    },
-    "op": "Negate",
-    "span": {
-      "lo": 48,
-      "hi": 57
-    },
-    "id": 3
-  }
-}
-
-{
-  "Unary": {
-    "receiver": {
-      "Unary": {
-        "receiver": {
-          "Unary": {
-            "receiver": {
-              "Identifier": {
-                "name": "x",
-                "span": {
-                  "lo": 61,
-                  "hi": 62
-                },
-                "id": 0
-              }
-            },
-            "op": "Abs",
-            "span": {
-              "lo": 61,
-              "hi": 68
-            },
-            "id": 2
-          }
-        },
-        "op": "Negate",
-        "span": {
-          "lo": 60,
-          "hi": 68
-        },
-        "id": 3
-      }
-    },
-    "op": "Abs",
-    "span": {
-      "lo": 60,
-      "hi": 75
-    },
-    "id": 5
-  }
-}
-
-{
-  "Unary": {
-    "receiver": {
-      "Unary": {
-        "receiver": {
-          "Identifier": {
-            "name": "x",
+            "absolute_path": null,
             "span": {
               "lo": 77,
               "hi": 78
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Abs",
@@ -213,7 +276,7 @@
           "lo": 77,
           "hi": 84
         },
-        "id": 2
+        "id": 3
       }
     },
     "op": "Not",
@@ -221,7 +284,7 @@
       "lo": 76,
       "hi": 84
     },
-    "id": 3
+    "id": 4
   }
 }
 
@@ -230,13 +293,22 @@
     "receiver": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 87,
+                "hi": 88
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 87,
               "hi": 88
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Not",
@@ -244,7 +316,7 @@
           "lo": 86,
           "hi": 88
         },
-        "id": 1
+        "id": 2
       }
     },
     "op": "Abs",
@@ -252,7 +324,7 @@
       "lo": 86,
       "hi": 95
     },
-    "id": 3
+    "id": 4
   }
 }
 
@@ -261,13 +333,22 @@
     "receiver": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 98,
+                "hi": 99
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 98,
               "hi": 99
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Abs",
@@ -275,7 +356,7 @@
           "lo": 98,
           "hi": 105
         },
-        "id": 2
+        "id": 3
       }
     },
     "op": "Not",
@@ -283,7 +364,7 @@
       "lo": 96,
       "hi": 105
     },
-    "id": 3
+    "id": 4
   }
 }
 
@@ -294,13 +375,22 @@
         "receiver": {
           "Unary": {
             "receiver": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 109,
+                    "hi": 110
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 109,
                   "hi": 110
                 },
-                "id": 0
+                "id": 1
               }
             },
             "op": "Abs",
@@ -308,7 +398,7 @@
               "lo": 109,
               "hi": 116
             },
-            "id": 2
+            "id": 3
           }
         },
         "op": "Not",
@@ -316,7 +406,7 @@
           "lo": 108,
           "hi": 116
         },
-        "id": 3
+        "id": 4
       }
     },
     "op": "Abs",
@@ -324,7 +414,7 @@
       "lo": 108,
       "hi": 123
     },
-    "id": 5
+    "id": 6
   }
 }
 

@@ -26,11 +26,11 @@ use leo_ast::{
     Composite,
     Expression,
     ExpressionConsumer,
-    Identifier,
     Literal,
     Location,
     LocatorExpression,
     MemberAccess,
+    Path,
     RepeatExpression,
     Statement,
     StructExpression,
@@ -49,12 +49,12 @@ impl SsaFormingVisitor<'_> {
     /// Consume this expression and assign it to a variable (unless it's already an Identifier).
     pub fn consume_expression_and_define(&mut self, input: Expression) -> (Expression, Vec<Statement>) {
         let (expr, mut statements) = self.consume_expression(input);
-        if matches!(expr, Expression::Identifier(..) | Expression::Unit(..) | Expression::Err(..)) {
+        if matches!(expr, Expression::Path(..) | Expression::Unit(..) | Expression::Err(..)) {
             (expr, statements)
         } else {
             let (place, statement) = self.unique_simple_definition(expr);
             statements.push(statement);
-            (place.into(), statements)
+            (Path::from(place).into(), statements)
         }
     }
 }
@@ -69,8 +69,8 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
 
     fn consume_member_access(&mut self, input: MemberAccess) -> Self::Output {
         // If the access expression is of the form `self.<name>`, then don't rename it.
-        if let Expression::Identifier(Identifier { name, .. }) = input.inner {
-            if name == sym::SelfLower {
+        if let Expression::Path(path) = &input.inner {
+            if path.identifier().name == sym::SelfLower {
                 return (input.into(), Vec::new());
             }
         }
@@ -159,7 +159,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
                 let (expression, mut stmts) = if let Some(expr) = arg.expression {
                     self.consume_expression_and_define(expr)
                 } else {
-                    self.consume_identifier(arg.identifier)
+                    self.consume_path(Path::from(arg.identifier))
                 };
                 // Accumulate any statements produced.
                 statements.append(&mut stmts);
@@ -175,8 +175,8 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         let struct_definition: &Composite = self
             .state
             .symbol_table
-            .lookup_record(Location::new(self.program, input.name.name))
-            .or_else(|| self.state.symbol_table.lookup_struct(input.name.name))
+            .lookup_record(&Location::new(self.program, input.path.absolute_path().to_vec()))
+            .or_else(|| self.state.symbol_table.lookup_struct(input.path.absolute_path()))
             .expect("Type checking guarantees this definition exists.");
 
         // Initialize the list of reordered members.
@@ -211,10 +211,10 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
     ///
     /// Note that this shouldn't be used for `Identifier`s on the lhs of definitions or
     /// assignments.
-    fn consume_identifier(&mut self, identifier: Identifier) -> Self::Output {
+    fn consume_path(&mut self, path: Path) -> Self::Output {
         // If lookup fails, either it's the name of a mapping or we didn't rename it.
-        let name = *self.rename_table.lookup(identifier.name).unwrap_or(&identifier.name);
-        (Identifier { name, ..identifier }.into(), Default::default())
+        let name = *self.rename_table.lookup(path.identifier().name).unwrap_or(&path.identifier().name);
+        (path.with_updated_last_symbol(name).into(), Default::default())
     }
 
     /// Consumes and returns the literal without making any modifications.

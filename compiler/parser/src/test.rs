@@ -88,6 +88,29 @@ fn tokenizer_tests() {
     leo_test_framework::run_tests("parser-tokenizer", runner_tokenizer_test);
 }
 
+#[test]
+#[serial]
+fn parse_module_tests() {
+    leo_test_framework::run_tests("parser-module", runner_module_test);
+}
+
+// Parse module tests.
+
+fn runner_module_test(test: &str) -> String {
+    let test_cases: Vec<String> = test
+        .lines()
+        .map(str::trim)
+        .collect::<Vec<_>>()
+        .split(|line| line.is_empty())
+        .map(|paragraph| paragraph.join("\n"))
+        .filter(|s| !s.trim().is_empty())
+        .collect();
+
+    runner_parse_many_test(test_cases.iter().map(|s| s.as_str()), |handler, node_builder, source, start_pos| {
+        crate::parse_module(handler, node_builder, &[], source, start_pos, NetworkName::TestnetV0)
+    })
+}
+
 // Parse expression tests.
 
 fn runner_expression_test(test: &str) -> String {
@@ -124,13 +147,8 @@ fn parse_statement_tests() {
 
 fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
     let source_file = with_session_globals(|s| s.source_map.new_source(test, FileName::Custom("test".into())));
-    let result = crate::parse_ast(
-        handler.clone(),
-        &Default::default(),
-        &source_file.src,
-        source_file.absolute_start,
-        NetworkName::TestnetV0,
-    );
+    let result =
+        crate::parse_ast(handler.clone(), &Default::default(), &source_file, &Vec::new(), NetworkName::TestnetV0);
     let ast = handler.extend_if_error(result)?;
     let value = serde_json::to_value(&ast.ast).expect("Serialization failure");
     let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");

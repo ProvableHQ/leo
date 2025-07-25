@@ -1,4 +1,5 @@
 {
+  "modules": {},
   "imports": {},
   "stubs": {},
   "program_scopes": {
@@ -113,12 +114,21 @@
                     "value": {
                       "Call": {
                         "function": {
-                          "name": "finalize_main",
+                          "qualifier": [],
+                          "identifier": {
+                            "name": "finalize_main",
+                            "span": {
+                              "lo": 114,
+                              "hi": 127
+                            },
+                            "id": 7
+                          },
+                          "absolute_path": null,
                           "span": {
                             "lo": 114,
                             "hi": 127
                           },
-                          "id": 7
+                          "id": 8
                         },
                         "const_arguments": [],
                         "arguments": [
@@ -128,7 +138,7 @@
                                 "lo": 128,
                                 "hi": 132
                               },
-                              "id": 8,
+                              "id": 9,
                               "variant": {
                                 "Integer": [
                                   "U32",
@@ -143,7 +153,7 @@
                                 "lo": 134,
                                 "hi": 138
                               },
-                              "id": 9,
+                              "id": 10,
                               "variant": {
                                 "Integer": [
                                   "U32",
@@ -158,33 +168,42 @@
                           "lo": 114,
                           "hi": 139
                         },
-                        "id": 10
+                        "id": 11
                       }
                     },
                     "span": {
                       "lo": 98,
                       "hi": 139
                     },
-                    "id": 11
+                    "id": 12
                   }
                 },
                 {
                   "Return": {
                     "expression": {
-                      "Identifier": {
-                        "name": "f",
+                      "Path": {
+                        "qualifier": [],
+                        "identifier": {
+                          "name": "f",
+                          "span": {
+                            "lo": 156,
+                            "hi": 157
+                          },
+                          "id": 13
+                        },
+                        "absolute_path": null,
                         "span": {
                           "lo": 156,
                           "hi": 157
                         },
-                        "id": 12
+                        "id": 14
                       }
                     },
                     "span": {
                       "lo": 149,
                       "hi": 158
                     },
-                    "id": 13
+                    "id": 15
                   }
                 }
               ],
@@ -192,13 +211,13 @@
                 "lo": 88,
                 "hi": 164
               },
-              "id": 14
+              "id": 16
             },
             "span": {
               "lo": 54,
               "hi": 164
             },
-            "id": 15
+            "id": 17
           }
         ],
         [
@@ -212,7 +231,7 @@
                 "lo": 185,
                 "hi": 198
               },
-              "id": 16
+              "id": 18
             },
             "const_parameters": [],
             "input": [
@@ -223,7 +242,7 @@
                     "lo": 199,
                     "hi": 200
                   },
-                  "id": 17
+                  "id": 19
                 },
                 "mode": "None",
                 "type_": {
@@ -233,7 +252,7 @@
                   "lo": 199,
                   "hi": 204
                 },
-                "id": 18
+                "id": 20
               },
               {
                 "identifier": {
@@ -242,7 +261,7 @@
                     "lo": 206,
                     "hi": 207
                   },
-                  "id": 19
+                  "id": 21
                 },
                 "mode": "None",
                 "type_": {
@@ -252,7 +271,7 @@
                   "lo": 206,
                   "hi": 211
                 },
-                "id": 20
+                "id": 22
               }
             ],
             "output": [
@@ -269,7 +288,7 @@
                   "lo": 216,
                   "hi": 222
                 },
-                "id": 21
+                "id": 23
               }
             ],
             "output_type": {
@@ -291,7 +310,7 @@
                             "lo": 233,
                             "hi": 240
                           },
-                          "id": 22
+                          "id": 24
                         },
                         "name": {
                           "name": "set",
@@ -299,37 +318,64 @@
                             "lo": 242,
                             "hi": 245
                           },
-                          "id": 23
+                          "id": 25
                         },
                         "arguments": [
                           {
-                            "Identifier": {
-                              "name": "Yo",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "Yo",
+                                "span": {
+                                  "lo": 246,
+                                  "hi": 248
+                                },
+                                "id": 27
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 246,
                                 "hi": 248
                               },
-                              "id": 24
+                              "id": 28
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "a",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "a",
+                                "span": {
+                                  "lo": 250,
+                                  "hi": 251
+                                },
+                                "id": 29
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 250,
                                 "hi": 251
                               },
-                              "id": 25
+                              "id": 30
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "b",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "b",
+                                "span": {
+                                  "lo": 253,
+                                  "hi": 254
+                                },
+                                "id": 31
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 253,
                                 "hi": 254
                               },
-                              "id": 26
+                              "id": 32
                             }
                           }
                         ],
@@ -337,14 +383,14 @@
                           "lo": 233,
                           "hi": 255
                         },
-                        "id": 27
+                        "id": 33
                       }
                     },
                     "span": {
                       "lo": 233,
                       "hi": 256
                     },
-                    "id": 28
+                    "id": 34
                   }
                 }
               ],
@@ -352,13 +398,13 @@
                 "lo": 223,
                 "hi": 262
               },
-              "id": 29
+              "id": 35
             },
             "span": {
               "lo": 170,
               "hi": 262
             },
-            "id": 30
+            "id": 36
           }
         ]
       ],

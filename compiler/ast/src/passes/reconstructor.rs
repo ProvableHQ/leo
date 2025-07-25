@@ -114,7 +114,7 @@ pub trait AstReconstructor {
             Expression::Cast(cast) => self.reconstruct_cast(*cast),
             Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
             Expression::Err(err) => self.reconstruct_err(err),
-            Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
+            Expression::Path(path) => self.reconstruct_path(path),
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
@@ -259,7 +259,7 @@ pub trait AstReconstructor {
         panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_path(&mut self, input: Path) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
 
@@ -346,7 +346,15 @@ pub trait AstReconstructor {
     }
 
     fn reconstruct_assign(&mut self, input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        (AssignStatement { value: self.reconstruct_expression(input.value).0, ..input }.into(), Default::default())
+        (
+            AssignStatement {
+                place: self.reconstruct_expression(input.place).0,
+                value: self.reconstruct_expression(input.value).0,
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
     }
 
     fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
@@ -436,6 +444,7 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .map(|(id, import)| (id, (self.reconstruct_import(import.0), import.1)))
                 .collect(),
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
             program_scopes: input
                 .program_scopes
                 .into_iter()
@@ -472,6 +481,23 @@ pub trait ProgramReconstructor: AstReconstructor {
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
+        }
+    }
+
+    fn reconstruct_module(&mut self, input: Module) -> Module {
+        Module {
+            program_name: input.program_name,
+            path: input.path,
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
         }
     }
 

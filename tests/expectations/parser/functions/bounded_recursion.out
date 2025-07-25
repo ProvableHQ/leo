@@ -1,4 +1,5 @@
 {
+  "modules": {},
   "imports": {},
   "stubs": {},
   "program_scopes": {
@@ -83,13 +84,22 @@
                     "condition": {
                       "Binary": {
                         "left": {
-                          "Identifier": {
-                            "name": "y",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "y",
+                              "span": {
+                                "lo": 72,
+                                "hi": 73
+                              },
+                              "id": 6
+                            },
+                            "absolute_path": null,
                             "span": {
                               "lo": 72,
                               "hi": 73
                             },
-                            "id": 6
+                            "id": 7
                           }
                         },
                         "right": {
@@ -98,7 +108,7 @@
                               "lo": 76,
                               "hi": 80
                             },
-                            "id": 7,
+                            "id": 8,
                             "variant": {
                               "Integer": [
                                 "U32",
@@ -112,7 +122,7 @@
                           "lo": 72,
                           "hi": 80
                         },
-                        "id": 8
+                        "id": 9
                       }
                     },
                     "then": {
@@ -122,25 +132,43 @@
                             "expression": {
                               "Call": {
                                 "function": {
-                                  "name": "x",
+                                  "qualifier": [],
+                                  "identifier": {
+                                    "name": "x",
+                                    "span": {
+                                      "lo": 95,
+                                      "hi": 96
+                                    },
+                                    "id": 10
+                                  },
+                                  "absolute_path": null,
                                   "span": {
                                     "lo": 95,
                                     "hi": 96
                                   },
-                                  "id": 9
+                                  "id": 11
                                 },
                                 "const_arguments": [],
                                 "arguments": [
                                   {
                                     "Binary": {
                                       "left": {
-                                        "Identifier": {
-                                          "name": "y",
+                                        "Path": {
+                                          "qualifier": [],
+                                          "identifier": {
+                                            "name": "y",
+                                            "span": {
+                                              "lo": 97,
+                                              "hi": 98
+                                            },
+                                            "id": 12
+                                          },
+                                          "absolute_path": null,
                                           "span": {
                                             "lo": 97,
                                             "hi": 98
                                           },
-                                          "id": 10
+                                          "id": 13
                                         }
                                       },
                                       "right": {
@@ -149,7 +177,7 @@
                                             "lo": 99,
                                             "hi": 103
                                           },
-                                          "id": 11,
+                                          "id": 14,
                                           "variant": {
                                             "Integer": [
                                               "U32",
@@ -163,7 +191,7 @@
                                         "lo": 97,
                                         "hi": 103
                                       },
-                                      "id": 12
+                                      "id": 15
                                     }
                                   }
                                 ],
@@ -172,14 +200,14 @@
                                   "lo": 95,
                                   "hi": 104
                                 },
-                                "id": 13
+                                "id": 16
                               }
                             },
                             "span": {
                               "lo": 95,
                               "hi": 105
                             },
-                            "id": 14
+                            "id": 17
                           }
                         }
                       ],
@@ -187,14 +215,14 @@
                         "lo": 81,
                         "hi": 115
                       },
-                      "id": 15
+                      "id": 18
                     },
                     "otherwise": null,
                     "span": {
                       "lo": 69,
                       "hi": 115
                     },
-                    "id": 16
+                    "id": 19
                   }
                 }
               ],
@@ -202,13 +230,13 @@
                 "lo": 59,
                 "hi": 121
               },
-              "id": 17
+              "id": 20
             },
             "span": {
               "lo": 25,
               "hi": 121
             },
-            "id": 18
+            "id": 21
           }
         ],
         [
@@ -222,7 +250,7 @@
                 "lo": 136,
                 "hi": 140
               },
-              "id": 19
+              "id": 22
             },
             "const_parameters": [],
             "input": [
@@ -233,7 +261,7 @@
                     "lo": 141,
                     "hi": 142
                   },
-                  "id": 20
+                  "id": 23
                 },
                 "mode": "None",
                 "type_": "Boolean",
@@ -241,7 +269,7 @@
                   "lo": 141,
                   "hi": 148
                 },
-                "id": 21
+                "id": 24
               }
             ],
             "output": [
@@ -252,7 +280,7 @@
                   "lo": 153,
                   "hi": 157
                 },
-                "id": 22
+                "id": 25
               }
             ],
             "output_type": "Boolean",
@@ -263,12 +291,21 @@
                     "expression": {
                       "Call": {
                         "function": {
-                          "name": "x",
+                          "qualifier": [],
+                          "identifier": {
+                            "name": "x",
+                            "span": {
+                              "lo": 168,
+                              "hi": 169
+                            },
+                            "id": 26
+                          },
+                          "absolute_path": null,
                           "span": {
                             "lo": 168,
                             "hi": 169
                           },
-                          "id": 23
+                          "id": 27
                         },
                         "const_arguments": [],
                         "arguments": [
@@ -278,7 +315,7 @@
                                 "lo": 170,
                                 "hi": 174
                               },
-                              "id": 24,
+                              "id": 28,
                               "variant": {
                                 "Integer": [
                                   "U32",
@@ -293,33 +330,42 @@
                           "lo": 168,
                           "hi": 175
                         },
-                        "id": 25
+                        "id": 29
                       }
                     },
                     "span": {
                       "lo": 168,
                       "hi": 176
                     },
-                    "id": 26
+                    "id": 30
                   }
                 },
                 {
                   "Return": {
                     "expression": {
-                      "Identifier": {
-                        "name": "y",
+                      "Path": {
+                        "qualifier": [],
+                        "identifier": {
+                          "name": "y",
+                          "span": {
+                            "lo": 192,
+                            "hi": 193
+                          },
+                          "id": 31
+                        },
+                        "absolute_path": null,
                         "span": {
                           "lo": 192,
                           "hi": 193
                         },
-                        "id": 27
+                        "id": 32
                       }
                     },
                     "span": {
                       "lo": 185,
                       "hi": 194
                     },
-                    "id": 28
+                    "id": 33
                   }
                 }
               ],
@@ -327,13 +373,13 @@
                 "lo": 158,
                 "hi": 200
               },
-              "id": 29
+              "id": 34
             },
             "span": {
               "lo": 127,
               "hi": 200
             },
-            "id": 30
+            "id": 35
           }
         ]
       ],

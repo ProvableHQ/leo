@@ -19,6 +19,7 @@ use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
+use itertools::Itertools;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 mod symbols;
@@ -35,8 +36,8 @@ pub struct SymbolTable {
     /// Records indexed by location.
     records: IndexMap<Location, Composite>,
 
-    /// Structs indexed by location.
-    structs: IndexMap<Symbol, Composite>,
+    /// Structs indexed by a path.
+    structs: IndexMap<Vec<Symbol>, Composite>,
 
     /// Consts that have been successfully evaluated.
     global_consts: IndexMap<Location, Expression>,
@@ -107,38 +108,73 @@ impl LocalTable {
 }
 
 impl SymbolTable {
+    /// Reset everything except leave global consts that have been evaluated.
+    pub fn reset_but_consts(&mut self) {
+        self.functions.clear();
+        self.records.clear();
+        self.structs.clear();
+        self.globals.clear();
+        self.all_locals.clear();
+        self.local = None;
+    }
+
+    /// Are we currently in the global scope?
+    pub fn global_scope(&self) -> bool {
+        self.local.is_none()
+    }
+
     /// Iterator over all the structs (not records) in this program.
-    pub fn iter_structs(&self) -> impl Iterator<Item = (Symbol, &Composite)> {
-        self.structs.iter().map(|(name, comp)| (*name, comp))
+    pub fn iter_structs(&self) -> impl Iterator<Item = (&Vec<Symbol>, &Composite)> {
+        self.structs.iter()
     }
 
     /// Iterator over all the records in this program.
-    pub fn iter_records(&self) -> impl Iterator<Item = (Location, &Composite)> {
-        self.records.iter().map(|(loc, comp)| (*loc, comp))
+    pub fn iter_records(&self) -> impl Iterator<Item = (&Location, &Composite)> {
+        self.records.iter()
     }
 
     /// Iterator over all the functions in this program.
-    pub fn iter_functions(&self) -> impl Iterator<Item = (Location, &FunctionSymbol)> {
-        self.functions.iter().map(|(loc, func_symbol)| (*loc, func_symbol))
+    pub fn iter_functions(&self) -> impl Iterator<Item = (&Location, &FunctionSymbol)> {
+        self.functions.iter()
     }
 
     /// Access the struct by this name if it exists.
-    pub fn lookup_struct(&self, name: Symbol) -> Option<&Composite> {
-        self.structs.get(&name)
+    pub fn lookup_struct(&self, path: &[Symbol]) -> Option<&Composite> {
+        self.structs.get(path)
     }
 
     /// Access the record at this location if it exists.
-    pub fn lookup_record(&self, location: Location) -> Option<&Composite> {
-        self.records.get(&location)
+    pub fn lookup_record(&self, location: &Location) -> Option<&Composite> {
+        self.records.get(location)
     }
 
     /// Access the function at this location if it exists.
-    pub fn lookup_function(&self, location: Location) -> Option<&FunctionSymbol> {
-        self.functions.get(&location)
+    pub fn lookup_function(&self, location: &Location) -> Option<&FunctionSymbol> {
+        self.functions.get(location)
+    }
+
+    /// Attempts to look up a variable by a path.
+    ///
+    /// First, it tries to resolve the symbol as a global using the full path under the given program.
+    /// If that fails and the path is non-empty, it falls back to resolving the last component
+    /// of the path as a local symbol.
+    ///
+    /// # Arguments
+    ///
+    /// * `program` - The root symbol representing the program or module context.
+    /// * `path` - A slice of symbols representing the absolute path to the variable.
+    ///
+    /// # Returns
+    ///
+    /// An `Option<VariableSymbol>` containing the resolved symbol if found, otherwise `None`.
+    pub fn lookup_path(&self, program: Symbol, path: &[Symbol]) -> Option<VariableSymbol> {
+        self.lookup_global(&Location::new(program, path.to_vec()))
+            .cloned()
+            .or_else(|| path.last().copied().and_then(|name| self.lookup_local(name)))
     }
 
     /// Access the variable accessible by this name in the current scope.
-    pub fn lookup_variable(&self, program: Symbol, name: Symbol) -> Option<VariableSymbol> {
+    pub fn lookup_local(&self, name: Symbol) -> Option<VariableSymbol> {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
@@ -151,7 +187,7 @@ impl SymbolTable {
             current = borrowed.parent.and_then(|id| self.all_locals.get(&id));
         }
 
-        self.globals.get(&Location::new(program, name)).cloned()
+        None
     }
 
     /// Enter the scope of this `NodeID`, creating a table if it doesn't exist yet.
@@ -243,21 +279,22 @@ impl SymbolTable {
     }
 
     /// Insert an evaluated const into the current scope.
-    pub fn insert_const(&mut self, program: Symbol, name: Symbol, value: Expression) {
+    pub fn insert_const(&mut self, program: Symbol, path: &[Symbol], value: Expression) {
         if let Some(table) = self.local.as_mut() {
-            table.inner.borrow_mut().consts.insert(name, value);
+            let [const_name] = &path else { panic!("Local consts cannot have paths with more than 1 segment.") };
+            table.inner.borrow_mut().consts.insert(*const_name, value);
         } else {
-            self.global_consts.insert(Location::new(program, name), value);
+            self.global_consts.insert(Location::new(program, path.to_vec()), value);
         }
     }
 
     /// Find the evaluated const accessible by the given name in the current scope.
-    pub fn lookup_const(&self, program: Symbol, name: Symbol) -> Option<Expression> {
+    pub fn lookup_const(&self, program: Symbol, path: &[Symbol]) -> Option<Expression> {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
             let borrowed = table.inner.borrow();
-            let value = borrowed.consts.get(&name);
+            let value = borrowed.consts.get(path.last().expect("all paths must have at least 1 segment"));
             if value.is_some() {
                 return value.cloned();
             }
@@ -265,90 +302,94 @@ impl SymbolTable {
             current = borrowed.parent.and_then(|id| self.all_locals.get(&id));
         }
 
-        self.global_consts.get(&Location::new(program, name)).cloned()
+        self.global_consts.get(&Location::new(program, path.to_vec())).cloned()
     }
 
     /// Insert a struct at this name.
     ///
     /// Since structs are indexed only by name, the program is used only to check shadowing.
-    pub fn insert_struct(&mut self, program: Symbol, name: Symbol, composite: Composite) -> Result<()> {
-        if let Some(old_composite) = self.structs.get(&name) {
+    pub fn insert_struct(&mut self, program: Symbol, path: &[Symbol], composite: Composite) -> Result<()> {
+        if let Some(old_composite) = self.structs.get(path) {
             if eq_struct(&composite, old_composite) {
                 Ok(())
             } else {
-                Err(AstError::redefining_external_struct(name, composite.span).into())
+                Err(AstError::redefining_external_struct(path.iter().format("::"), composite.span).into())
             }
         } else {
-            let location = Location::new(program, name);
-            self.check_shadow_global(location, composite.span)?;
-            self.structs.insert(name, composite);
+            let location = Location::new(program, path.to_vec());
+            self.check_shadow_global(&location, composite.span)?;
+            self.structs.insert(path.to_vec(), composite);
             Ok(())
         }
     }
 
     /// Insert a record at this location.
     pub fn insert_record(&mut self, location: Location, composite: Composite) -> Result<()> {
-        self.check_shadow_global(location, composite.span)?;
+        self.check_shadow_global(&location, composite.span)?;
         self.records.insert(location, composite);
         Ok(())
     }
 
     /// Insert a function at this location.
     pub fn insert_function(&mut self, location: Location, function: Function) -> Result<()> {
-        self.check_shadow_global(location, function.span)?;
+        self.check_shadow_global(&location, function.span)?;
         self.functions.insert(location, FunctionSymbol { function, finalizer: None });
         Ok(())
     }
 
     /// Insert a global at this location.
     pub fn insert_global(&mut self, location: Location, var: VariableSymbol) -> Result<()> {
-        self.check_shadow_global(location, var.span)?;
+        self.check_shadow_global(&location, var.span)?;
         self.globals.insert(location, var);
         Ok(())
     }
 
     /// Access the global at this location if it exists.
-    pub fn lookup_global(&self, location: Location) -> Option<&VariableSymbol> {
-        self.globals.get(&location)
+    pub fn lookup_global(&self, location: &Location) -> Option<&VariableSymbol> {
+        self.globals.get(location)
     }
 
-    fn check_shadow_global(&self, location: Location, span: Span) -> Result<()> {
-        if self.functions.contains_key(&location) {
-            Err(AstError::shadowed_function(location.name, span).into())
-        } else if self.records.contains_key(&location) {
-            Err(AstError::shadowed_record(location.name, span).into())
-        } else if self.structs.contains_key(&location.name) {
-            Err(AstError::shadowed_struct(location.name, span).into())
-        } else if self.globals.contains_key(&location) {
-            Err(AstError::shadowed_variable(location.name, span).into())
+    fn check_shadow_global(&self, location: &Location, span: Span) -> Result<()> {
+        let display_name = location.path.iter().format("::");
+        if self.functions.contains_key(location) {
+            Err(AstError::shadowed_function(display_name, span).into())
+        } else if self.records.contains_key(location) {
+            Err(AstError::shadowed_record(display_name, span).into())
+        } else if self.structs.contains_key(&location.path) {
+            Err(AstError::shadowed_struct(display_name, span).into())
+        } else if self.globals.contains_key(location) {
+            Err(AstError::shadowed_variable(display_name, span).into())
         } else {
             Ok(())
         }
     }
 
-    fn check_shadow_variable(&self, program: Symbol, name: Symbol, span: Span) -> Result<()> {
+    fn check_shadow_variable(&self, program: Symbol, path: &[Symbol], span: Span) -> Result<()> {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
-            if table.inner.borrow().variables.contains_key(&name) {
-                return Err(AstError::shadowed_variable(name, span).into());
+            if let [name] = &path {
+                if table.inner.borrow().variables.contains_key(name) {
+                    return Err(AstError::shadowed_variable(name, span).into());
+                }
             }
             current = table.inner.borrow().parent.map(|id| self.all_locals.get(&id).expect("Parent should exist."));
         }
 
-        self.check_shadow_global(Location::new(program, name), span)?;
+        self.check_shadow_global(&Location::new(program, path.to_vec()), span)?;
 
         Ok(())
     }
 
     /// Insert a variable into the current scope.
-    pub fn insert_variable(&mut self, program: Symbol, name: Symbol, var: VariableSymbol) -> Result<()> {
-        self.check_shadow_variable(program, name, var.span)?;
+    pub fn insert_variable(&mut self, program: Symbol, path: &[Symbol], var: VariableSymbol) -> Result<()> {
+        self.check_shadow_variable(program, path, var.span)?;
 
         if let Some(table) = self.local.as_mut() {
-            table.inner.borrow_mut().variables.insert(name, var);
+            let [name] = &path else { panic!("Local variables cannot have paths with more than 1 segment.") };
+            table.inner.borrow_mut().variables.insert(*name, var);
         } else {
-            self.globals.insert(Location::new(program, name), var);
+            self.globals.insert(Location::new(program, path.to_vec()), var);
         }
 
         Ok(())
@@ -362,13 +403,13 @@ impl SymbolTable {
         future_inputs: Vec<Location>,
         inferred_inputs: Vec<Type>,
     ) -> Result<()> {
-        let callee_location = Location::new(callee.program, callee.name);
+        let callee_location = Location::new(callee.program, callee.path);
 
         if let Some(func) = self.functions.get_mut(&caller) {
             func.finalizer = Some(Finalizer { location: callee_location, future_inputs, inferred_inputs });
             Ok(())
         } else {
-            Err(AstError::function_not_found(caller.name).into())
+            Err(AstError::function_not_found(caller.path.iter().format("::")).into())
         }
     }
 }

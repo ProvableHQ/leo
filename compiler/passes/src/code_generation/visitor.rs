@@ -22,6 +22,7 @@ use leo_span::Symbol;
 use snarkvm::prelude::Network;
 
 use indexmap::{IndexMap, IndexSet};
+use itertools::Itertools;
 use std::str::FromStr;
 
 pub struct CodeGeneratingVisitor<'a> {
@@ -30,13 +31,16 @@ pub struct CodeGeneratingVisitor<'a> {
     pub next_register: u64,
     /// Reference to the current function.
     pub current_function: Option<&'a Function>,
-    /// Mapping of variables to registers.
+    /// Mapping of local variables to registers.
+    /// Because these are local, we can identify them using only a `Symbol` (i.e. a path is not necessary here).
     pub variable_mapping: IndexMap<Symbol, String>,
     /// Mapping of composite names to a tuple containing metadata associated with the name.
     /// The first element of the tuple indicate whether the composite is a record or not.
     /// The second element of the tuple is a string modifier used for code generation.
-    pub composite_mapping: IndexMap<Symbol, (bool, String)>,
+    pub composite_mapping: IndexMap<Vec<Symbol>, (bool, String)>,
     /// Mapping of global identifiers to their associated names.
+    /// Because we only allow mappings in the top level program scope at this stage, we can identify them using only a
+    /// `Symbol` (i.e. a path is not necessary here currently).
     pub global_mapping: IndexMap<Symbol, String>,
     /// The variant of the function we are currently traversing.
     pub variant: Option<Variant>,
@@ -45,6 +49,8 @@ pub struct CodeGeneratingVisitor<'a> {
     /// The program ID of the current program.
     pub program_id: Option<ProgramId>,
     /// A reference to the finalize caller.
+    /// Because `async transition`s  can only appear in the top level program scope at this stage,
+    /// it's safe to keep this a `Symbol` (i.e. a path is not necessary).
     pub finalize_caller: Option<Symbol>,
     /// A counter to track the next available label.
     pub next_label: u64,
@@ -71,52 +77,75 @@ impl CodeGeneratingVisitor<'_> {
         format!("r{}", self.next_register - 1)
     }
 
-    /// Legalize a struct name. If it's already legal, then just keep it as is. For now, this
-    /// expects two possible struct name formats:
-    /// - Names that are generated for const generic structs during monomorphization such as: `Foo::[1u32, 2u32]`. These
-    ///   names are modified according to `transform_generic_struct_name`.
-    /// - All other names which are assumed to be legal (this is not really checked but probably should be).
-    pub(crate) fn legalize_struct_name(input: String) -> String {
-        Self::transform_generic_struct_name(&input).unwrap_or(input)
-    }
+    /// Converts a path into a legal Aleo identifier, if possible.
+    ///
+    /// # Behavior
+    /// - If the path is a single valid Leo identifier (`[a-zA-Z][a-zA-Z0-9_]*`), it's returned as-is.
+    /// - If the last segment matches `Name::[args]` (e.g. `Vec3::[3, 4]`), it's converted to a legal identifier using hashing.
+    /// - If the path has multiple segments, and all segments are valid identifiers except the last one (which may be `Name::[args]`),
+    ///   it's hashed using the last segment as base.
+    /// - Returns `None` if:
+    ///   - The path is empty
+    ///   - Any segment other than the last is not a valid identifier
+    ///   - The last segment is invalid and not legalizable
+    ///
+    /// # Parameters
+    /// - `path`: A slice of `Symbol`s representing a path to an item.
+    ///
+    /// # Returns
+    /// - `Some(String)`: A valid Leo identifier.
+    /// - `None`: If the path is invalid or cannot be legalized.
+    pub(crate) fn legalize_path(path: &[Symbol]) -> Option<String> {
+        /// Checks if a string is a legal Leo identifier: [a-zA-Z][a-zA-Z0-9_]*
+        fn is_legal_identifier(s: &str) -> bool {
+            let mut chars = s.chars();
+            matches!(chars.next(), Some(c) if c.is_ascii_alphabetic())
+                && chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
+        }
 
-    /// Given a struct name as a `&str`, transform it into a legal name if the it happens to be a const generic struct.
-    /// For example, if the name of the struct is `Foo::[1u32, 2u32]`, then transform it to `Foo__90ViPfqSIPb`. The
-    /// suffix is computed using the hash of the string `Foo::[1u32, 2u32]`
-    fn transform_generic_struct_name(input: &str) -> Option<String> {
-        use base62::encode;
-        use regex::Regex;
-        use sha2::{Digest, Sha256};
+        /// Generates a hashed Leo identifier from the full path, using the given base segment.
+        fn generate_hashed_name(path: &[Symbol], base: &str) -> String {
+            use base62::encode;
+            use sha2::{Digest, Sha256};
+            use std::fmt::Write;
 
-        // Match format like: foo::[1, 2]
-        let re = Regex::new(r#"^([a-zA-Z_][\w]*)::\[(.*?)\]$"#).unwrap();
-        let captures = re.captures(input)?;
+            let full_path = path.iter().format("::").to_string();
 
-        let ident = captures.get(1)?.as_str();
+            let mut hasher = Sha256::new();
+            hasher.update(full_path.as_bytes());
+            let hash = hasher.finalize();
 
-        // Compute SHA-256 hash of the entire input
-        let mut hasher = Sha256::new();
-        hasher.update(input.as_bytes());
-        let hash = hasher.finalize();
+            let hash_number = u64::from_be_bytes(hash[..8].try_into().unwrap());
+            let hash_base62 = encode(hash_number);
 
-        // Take first 8 bytes and encode as base62
-        let hash_prefix = &hash[..8]; // 4 bytes = 32 bits
-        let hash_number = u64::from_be_bytes([
-            hash_prefix[0],
-            hash_prefix[1],
-            hash_prefix[2],
-            hash_prefix[3],
-            hash_prefix[4],
-            hash_prefix[5],
-            hash_prefix[6],
-            hash_prefix[7],
-        ]);
-        let hash_base62 = encode(hash_number);
+            let fixed_suffix_len = 2 + hash_base62.len(); // "__" + hash
+            let max_ident_len = 31 - fixed_suffix_len;
 
-        // Format: <truncated_ident>__<hash>
-        let fixed_suffix_len = 2 + hash_base62.len(); // __ + hash
-        let max_ident_len = 31 - fixed_suffix_len;
+            let mut result = String::new();
+            write!(&mut result, "{base:.max_ident_len$}__{hash_base62}").unwrap();
+            result
+        }
 
-        Some(format!("{ident:.max_ident_len$}__{hash_base62}"))
+        let last = path.last()?.to_string();
+
+        // Validate all segments except the last
+        if path.len() > 1 && !path[..path.len() - 1].iter().all(|sym| is_legal_identifier(&sym.to_string())) {
+            return None;
+        }
+
+        // === Case 1: Single, legal identifier ===
+        if path.len() == 1 && is_legal_identifier(&last) {
+            return Some(last);
+        }
+
+        // === Case 2: Matches special form like `Name::[3, 4]` ===
+        let re = regex::Regex::new(r#"^([a-zA-Z_][\w]*)(?:::\[.*?\])?$"#).unwrap();
+        if let Some(captures) = re.captures(&last) {
+            let ident = captures.get(1)?.as_str();
+            return Some(generate_hashed_name(path, ident));
+        }
+
+        // Last segment is neither legal nor matches special pattern
+        None
     }
 }

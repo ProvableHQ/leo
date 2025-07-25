@@ -1,4 +1,5 @@
 {
+  "modules": {},
   "imports": {},
   "stubs": {},
   "program_scopes": {
@@ -166,12 +167,21 @@
                     "value": {
                       "Call": {
                         "function": {
-                          "name": "add",
+                          "qualifier": [],
+                          "identifier": {
+                            "name": "add",
+                            "span": {
+                              "lo": 167,
+                              "hi": 170
+                            },
+                            "id": 7
+                          },
+                          "absolute_path": null,
                           "span": {
                             "lo": 167,
                             "hi": 170
                           },
-                          "id": 6
+                          "id": 7
                         },
                         "const_arguments": [],
                         "arguments": [],
@@ -180,14 +190,14 @@
                           "lo": 158,
                           "hi": 172
                         },
-                        "id": 7
+                        "id": 8
                       }
                     },
                     "span": {
                       "lo": 135,
                       "hi": 172
                     },
-                    "id": 8
+                    "id": 9
                   }
                 },
                 {
@@ -199,7 +209,7 @@
                           "lo": 186,
                           "hi": 188
                         },
-                        "id": 9
+                        "id": 10
                       }
                     },
                     "type_": {
@@ -230,12 +240,21 @@
                     "value": {
                       "Call": {
                         "function": {
-                          "name": "nested_fn",
+                          "qualifier": [],
+                          "identifier": {
+                            "name": "nested_fn",
+                            "span": {
+                              "lo": 241,
+                              "hi": 250
+                            },
+                            "id": 13
+                          },
+                          "absolute_path": null,
                           "span": {
                             "lo": 241,
                             "hi": 250
                           },
-                          "id": 11
+                          "id": 13
                         },
                         "const_arguments": [],
                         "arguments": [],
@@ -244,14 +263,14 @@
                           "lo": 230,
                           "hi": 252
                         },
-                        "id": 12
+                        "id": 14
                       }
                     },
                     "span": {
                       "lo": 182,
                       "hi": 252
                     },
-                    "id": 13
+                    "id": 15
                   }
                 },
                 {
@@ -263,7 +282,7 @@
                           "lo": 266,
                           "hi": 268
                         },
-                        "id": 14
+                        "id": 16
                       }
                     },
                     "type_": {
@@ -315,12 +334,21 @@
                     "value": {
                       "Call": {
                         "function": {
-                          "name": "finalize_main",
+                          "qualifier": [],
+                          "identifier": {
+                            "name": "finalize_main",
+                            "span": {
+                              "lo": 346,
+                              "hi": 359
+                            },
+                            "id": 17
+                          },
+                          "absolute_path": null,
                           "span": {
                             "lo": 346,
                             "hi": 359
                           },
-                          "id": 15
+                          "id": 18
                         },
                         "const_arguments": [],
                         "arguments": [
@@ -330,7 +358,7 @@
                                 "lo": 360,
                                 "hi": 364
                               },
-                              "id": 16,
+                              "id": 19,
                               "variant": {
                                 "Integer": [
                                   "U32",
@@ -345,7 +373,7 @@
                                 "lo": 366,
                                 "hi": 370
                               },
-                              "id": 17,
+                              "id": 20,
                               "variant": {
                                 "Integer": [
                                   "U32",
@@ -355,23 +383,41 @@
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "f0",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "f0",
+                                "span": {
+                                  "lo": 372,
+                                  "hi": 374
+                                },
+                                "id": 21
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 372,
                                 "hi": 374
                               },
-                              "id": 18
+                              "id": 22
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "f1",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "f1",
+                                "span": {
+                                  "lo": 376,
+                                  "hi": 378
+                                },
+                                "id": 23
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 376,
                                 "hi": 378
                               },
-                              "id": 19
+                              "id": 24
                             }
                           }
                         ],
@@ -380,33 +426,42 @@
                           "lo": 346,
                           "hi": 379
                         },
-                        "id": 20
+                        "id": 25
                       }
                     },
                     "span": {
                       "lo": 262,
                       "hi": 379
                     },
-                    "id": 21
+                    "id": 26
                   }
                 },
                 {
                   "Return": {
                     "expression": {
-                      "Identifier": {
-                        "name": "f2",
+                      "Path": {
+                        "qualifier": [],
+                        "identifier": {
+                          "name": "f2",
+                          "span": {
+                            "lo": 396,
+                            "hi": 398
+                          },
+                          "id": 27
+                        },
+                        "absolute_path": null,
                         "span": {
                           "lo": 396,
                           "hi": 398
                         },
-                        "id": 22
+                        "id": 28
                       }
                     },
                     "span": {
                       "lo": 389,
                       "hi": 399
                     },
-                    "id": 23
+                    "id": 29
                   }
                 }
               ],
@@ -414,13 +469,13 @@
                 "lo": 125,
                 "hi": 405
               },
-              "id": 24
+              "id": 30
             },
             "span": {
               "lo": 24,
               "hi": 405
             },
-            "id": 25
+            "id": 31
           }
         ],
         [
@@ -434,7 +489,7 @@
                 "lo": 425,
                 "hi": 438
               },
-              "id": 26
+              "id": 32
             },
             "const_parameters": [],
             "input": [
@@ -445,7 +500,7 @@
                     "lo": 439,
                     "hi": 440
                   },
-                  "id": 27
+                  "id": 33
                 },
                 "mode": "None",
                 "type_": {
@@ -455,7 +510,7 @@
                   "lo": 439,
                   "hi": 445
                 },
-                "id": 28
+                "id": 34
               },
               {
                 "identifier": {
@@ -464,7 +519,7 @@
                     "lo": 447,
                     "hi": 448
                   },
-                  "id": 29
+                  "id": 35
                 },
                 "mode": "None",
                 "type_": {
@@ -474,7 +529,7 @@
                   "lo": 447,
                   "hi": 453
                 },
-                "id": 30
+                "id": 36
               },
               {
                 "identifier": {
@@ -483,7 +538,7 @@
                     "lo": 455,
                     "hi": 457
                   },
-                  "id": 31
+                  "id": 37
                 },
                 "mode": "None",
                 "type_": {
@@ -497,7 +552,7 @@
                   "lo": 455,
                   "hi": 470
                 },
-                "id": 32
+                "id": 38
               },
               {
                 "identifier": {
@@ -506,7 +561,7 @@
                     "lo": 473,
                     "hi": 475
                   },
-                  "id": 33
+                  "id": 39
                 },
                 "mode": "None",
                 "type_": {
@@ -538,7 +593,7 @@
                   "lo": 473,
                   "hi": 513
                 },
-                "id": 34
+                "id": 40
               }
             ],
             "output": [],
@@ -555,7 +610,7 @@
                             "lo": 0,
                             "hi": 0
                           },
-                          "id": 37
+                          "id": 44
                         },
                         "name": {
                           "name": "await",
@@ -563,17 +618,26 @@
                             "lo": 529,
                             "hi": 534
                           },
-                          "id": 36
+                          "id": 43
                         },
                         "arguments": [
                           {
-                            "Identifier": {
-                              "name": "f0",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "f0",
+                                "span": {
+                                  "lo": 526,
+                                  "hi": 528
+                                },
+                                "id": 41
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 526,
                                 "hi": 528
                               },
-                              "id": 35
+                              "id": 42
                             }
                           }
                         ],
@@ -581,14 +645,14 @@
                           "lo": 526,
                           "hi": 536
                         },
-                        "id": 38
+                        "id": 45
                       }
                     },
                     "span": {
                       "lo": 526,
                       "hi": 537
                     },
-                    "id": 39
+                    "id": 46
                   }
                 },
                 {
@@ -601,7 +665,7 @@
                             "lo": 0,
                             "hi": 0
                           },
-                          "id": 42
+                          "id": 50
                         },
                         "name": {
                           "name": "await",
@@ -609,17 +673,26 @@
                             "lo": 549,
                             "hi": 554
                           },
-                          "id": 41
+                          "id": 49
                         },
                         "arguments": [
                           {
-                            "Identifier": {
-                              "name": "f1",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "f1",
+                                "span": {
+                                  "lo": 546,
+                                  "hi": 548
+                                },
+                                "id": 47
+                              },
+                              "absolute_path": null,
                               "span": {
                                 "lo": 546,
                                 "hi": 548
                               },
-                              "id": 40
+                              "id": 48
                             }
                           }
                         ],
@@ -627,14 +700,14 @@
                           "lo": 546,
                           "hi": 556
                         },
-                        "id": 43
+                        "id": 51
                       }
                     },
                     "span": {
                       "lo": 546,
                       "hi": 557
                     },
-                    "id": 44
+                    "id": 52
                   }
                 },
                 {
@@ -642,23 +715,41 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "Identifier": {
-                            "name": "a",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "a",
+                              "span": {
+                                "lo": 576,
+                                "hi": 577
+                              },
+                              "id": 53
+                            },
+                            "absolute_path": null,
                             "span": {
                               "lo": 576,
                               "hi": 577
                             },
-                            "id": 45
+                            "id": 54
                           }
                         },
                         {
-                          "Identifier": {
-                            "name": "b",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "b",
+                              "span": {
+                                "lo": 578,
+                                "hi": 579
+                              },
+                              "id": 55
+                            },
+                            "absolute_path": null,
                             "span": {
                               "lo": 578,
                               "hi": 579
                             },
-                            "id": 46
+                            "id": 56
                           }
                         }
                       ]
@@ -667,7 +758,7 @@
                       "lo": 566,
                       "hi": 575
                     },
-                    "id": 47
+                    "id": 57
                   }
                 }
               ],
@@ -675,13 +766,13 @@
                 "lo": 516,
                 "hi": 587
               },
-              "id": 48
+              "id": 58
             },
             "span": {
               "lo": 410,
               "hi": 587
             },
-            "id": 49
+            "id": 59
           }
         ]
       ],

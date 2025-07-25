@@ -1,9 +1,4 @@
-Error [ETYC0372064]: group::GENERATOR is not a valid core constant.
-    --> compiler-test:6:24
-     |
-   6 |         let a: group = group::GENERATOR;
-     |                        ^^^^^
-Error [ETYC0372063]: group::GENERATOR is not a valid associated constant.
+Error [ETYC0372005]: Unknown variable `group::GENERATOR`
     --> compiler-test:6:24
      |
    6 |         let a: group = group::GENERATOR;

@@ -1,0 +1,36 @@
+program module_resolution_corner.aleo;
+
+struct Foo__8n3BEGIXogs:
+    a as [u32; 2u32];
+
+struct Foo__2Rn9ACFPIh3:
+    a as [u32; 3u32];
+
+struct Foo__KN4SHuYiDFN:
+    a as [u32; 4u32];
+
+function main:
+    cast 1u32 1u32 into r0 as [u32; 2u32];
+    cast r0 into r1 as Foo__8n3BEGIXogs;
+    cast 2u32 2u32 2u32 into r2 as [u32; 3u32];
+    cast r2 into r3 as Foo__2Rn9ACFPIh3;
+    cast 3u32 3u32 3u32 3u32 into r4 as [u32; 4u32];
+    cast r4 into r5 as Foo__KN4SHuYiDFN;
+    add 2u32 3u32 into r6;
+    add r6 4u32 into r7;
+    add r7 r1.a[0u32] into r8;
+    add r8 r3.a[1u32] into r9;
+    add r9 r5.a[2u32] into r10;
+    cast 10u32 10u32 10u32 into r11 as [u32; 3u32];
+    cast r11 into r12 as Foo__2Rn9ACFPIh3;
+    add r12.a[1u32] 4u32 into r13;
+    cast 20u32 20u32 20u32 20u32 into r14 as [u32; 4u32];
+    cast r14 into r15 as Foo__KN4SHuYiDFN;
+    add 4u32 r15.a[2u32] into r16;
+    add r13 r16 into r17;
+    add r10 r17 into r18;
+    cast 20u32 20u32 20u32 20u32 into r19 as [u32; 4u32];
+    cast r19 into r20 as Foo__KN4SHuYiDFN;
+    add 4u32 r20.a[2u32] into r21;
+    add r18 r21 into r22;
+    output r22 as u32.private;

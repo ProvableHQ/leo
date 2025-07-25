@@ -131,7 +131,7 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
                 // This was a network dependency or local .aleo dependency, and we have its bytecode.
                 (bytecode.clone(), imports_directory.join(format!("{}.aleo", program.name)))
             }
-            leo_package::ProgramData::SourcePath { source, .. } => {
+            leo_package::ProgramData::SourcePath { directory, source } => {
                 // This is a local dependency, so we must compile it.
                 let build_path = if source == &main_source_path {
                     build_directory.join("main.aleo")
@@ -139,8 +139,9 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
                     imports_directory.join(format!("{}.aleo", program.name))
                 };
                 // Load the manifest in local dependency.
-                let bytecode = compile_leo_file(
-                    source,
+                let bytecode = compile_leo_source_directory(
+                    source, // entry file
+                    directory,
                     program.name,
                     program.is_test,
                     &outputs_directory,
@@ -184,8 +185,9 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
 
 /// Compiles a Leo file. Writes and returns the compiled bytecode.
 #[allow(clippy::too_many_arguments)]
-fn compile_leo_file(
-    source_file_path: &Path,
+fn compile_leo_source_directory(
+    entry_file_path: &Path,
+    source_directory: &Path,
     program_name: Symbol,
     is_test: bool,
     output_path: &Path,
@@ -206,7 +208,7 @@ fn compile_leo_file(
     );
 
     // Compile the Leo program into Aleo instructions.
-    let bytecode = compiler.compile_from_file(source_file_path)?;
+    let bytecode = compiler.compile_from_directory(entry_file_path, source_directory)?;
 
     // Check the program size limit.
     use leo_package::MAX_PROGRAM_SIZE;

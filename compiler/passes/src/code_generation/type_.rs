@@ -30,7 +30,9 @@ impl CodeGeneratingVisitor<'_> {
             | Type::Future(..)
             | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
-            Type::Composite(CompositeType { id, .. }) => Self::legalize_struct_name(id.name.to_string()),
+            Type::Composite(CompositeType { path, .. }) => {
+                Self::legalize_path(path.absolute_path()).expect("path format cannot be legalized at this point")
+            }
             Type::Boolean => {
                 // Leo calls this just `bool`, which isn't what we need.
                 "boolean".into()
@@ -57,13 +59,17 @@ impl CodeGeneratingVisitor<'_> {
     pub fn visit_type_with_visibility(&self, type_: &Type, visibility: Mode) -> String {
         // If the type is a record, handle it separately.
         if let Type::Composite(composite) = type_ {
+            let name = composite.path.absolute_path();
             let this_program_name = self.program_id.unwrap().name.name;
             let program_name = composite.program.unwrap_or(this_program_name);
-            if self.state.symbol_table.lookup_record(Location::new(program_name, composite.id.name)).is_some() {
+            if self.state.symbol_table.lookup_record(&Location::new(program_name, name.to_vec())).is_some() {
+                let [record_name] = &name else {
+                    panic!("Absolute paths to records can only have a single segment at this stage.")
+                };
                 if program_name == this_program_name {
-                    return format!("{}.record", composite.id.name);
+                    return format!("{record_name}.record");
                 } else {
-                    return format!("{}.aleo/{}.record", program_name, composite.id.name);
+                    return format!("{program_name}.aleo/{record_name}.record");
                 }
             }
         }

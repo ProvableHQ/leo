@@ -120,13 +120,22 @@
       {
         "Conditional": {
           "condition": {
-            "Identifier": {
-              "name": "x",
+            "Path": {
+              "qualifier": [],
+              "identifier": {
+                "name": "x",
+                "span": {
+                  "lo": 73,
+                  "hi": 74
+                },
+                "id": 0
+              },
+              "absolute_path": null,
               "span": {
                 "lo": 73,
                 "hi": 74
               },
-              "id": 0
+              "id": 1
             }
           },
           "then": {
@@ -139,7 +148,7 @@
                         "lo": 92,
                         "hi": 95
                       },
-                      "id": 1,
+                      "id": 2,
                       "variant": {
                         "Integer": [
                           "U8",
@@ -152,7 +161,7 @@
                     "lo": 85,
                     "hi": 96
                   },
-                  "id": 2
+                  "id": 3
                 }
               }
             ],
@@ -160,14 +169,14 @@
               "lo": 75,
               "hi": 102
             },
-            "id": 3
+            "id": 4
           },
           "otherwise": null,
           "span": {
             "lo": 70,
             "hi": 102
           },
-          "id": 4
+          "id": 5
         }
       }
     ],
@@ -175,7 +184,7 @@
       "lo": 64,
       "hi": 104
     },
-    "id": 5
+    "id": 6
   }
 }
 

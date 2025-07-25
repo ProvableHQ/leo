@@ -81,10 +81,10 @@ impl Pass for TypeChecking {
         let struct_names = state
             .symbol_table
             .iter_records()
-            .map(|(loc, _)| loc.name)
-            .chain(state.symbol_table.iter_structs().map(|(name, _)| name))
+            .map(|(loc, _)| loc.path.clone())
+            .chain(state.symbol_table.iter_structs().map(|(name, _)| name.clone()))
             .collect();
-        let function_names = state.symbol_table.iter_functions().map(|(name, _)| name).collect();
+        let function_names = state.symbol_table.iter_functions().map(|(loc, _)| loc.clone()).collect();
 
         let ast = std::mem::take(&mut state.ast);
 

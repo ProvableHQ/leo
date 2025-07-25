@@ -358,9 +358,12 @@ impl ParserContext<'_> {
     /// static access expression.
     fn parse_associated_access_expression(&mut self, module_name: Expression) -> Result<Expression> {
         // Ensure that the preceding expression is an identifier (a named type).
-        let variant = if let Expression::Identifier(ident) = module_name {
-            ident
-        } else {
+        let Expression::Path(ref path) = module_name else {
+            return Err(ParserError::invalid_associated_access(&module_name, module_name.span()).into());
+        };
+
+        let variant = path.identifier();
+        if !path.qualifier().is_empty() {
             return Err(ParserError::invalid_associated_access(&module_name, module_name.span()).into());
         };
 
@@ -381,7 +384,7 @@ impl ParserContext<'_> {
                 id: self.node_builder.next_id(),
             }
             .into()
-        } else {
+        } else if CoreConstant::from_symbols(variant.name, member_name.name).is_some() {
             // Return the associated constant.
             AssociatedConstantExpression {
                 span: module_name.span() + member_name.span(),
@@ -390,6 +393,9 @@ impl ParserContext<'_> {
                 id: self.node_builder.next_id(),
             }
             .into()
+        } else {
+            Path::new(vec![variant], member_name, None, variant.span + member_name.span, self.node_builder.next_id())
+                .into()
         };
 
         Ok(expression)
@@ -414,10 +420,15 @@ impl ParserContext<'_> {
         let name = self.expect_identifier()?;
 
         // Ensure the preceding expression is a (program) identifier.
-        let program: Identifier = match expr {
-            Expression::Identifier(identifier) => identifier,
-            _ => unreachable!("Function called must be preceded by a program identifier."),
+        let Expression::Path(ref path) = expr else {
+            unreachable!("Function must be preceded by a program identifier.");
         };
+
+        if !path.qualifier().is_empty() {
+            unreachable!("Function must be preceded by a single-segment path.");
+        };
+
+        let program = path.identifier();
 
         // Parsing a '{' means that user is trying to illegally define an external record.
         if self.token.token == Token::LeftCurly {
@@ -444,7 +455,7 @@ impl ParserContext<'_> {
 
         Ok(CallExpression {
             span: expr.span() + span,
-            function: name,
+            function: name.into(),
             program: Some(program.name),
             const_arguments: vec![], // we do not expect const arguments for external calls at this time
             arguments,
@@ -479,8 +490,8 @@ impl ParserContext<'_> {
                         expr = self.parse_external_resource(expr, self.prev_token.span)?;
                     } else {
                         // Parse as address literal, e.g. `hello.aleo`.
-                        if !matches!(expr, Expression::Identifier(_)) {
-                            self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()))
+                        if !matches!(expr, Expression::Path(ref path) if path.qualifier().is_empty()) {
+                            self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()));
                         }
 
                         expr =
@@ -489,7 +500,7 @@ impl ParserContext<'_> {
                 } else {
                     // Parse instances of `self.address`.
                     // This needs to be handled as a special case because `address` is a keyword in Leo,
-                    if matches!(expr, Expression::Identifier(id) if id.name == sym::SelfLower)
+                    if matches!(expr, Expression::Path(ref path) if path.identifier().name == sym::SelfLower && path.qualifier().is_empty())
                         && self.token.token == Token::Address
                     {
                         // Eat the address token.
@@ -527,11 +538,11 @@ impl ParserContext<'_> {
                 // If we see a `::`, then we either expect a core associated expression or a list of const arguments in
                 // square brackets.
                 if self.check(&Token::LeftSquare) {
-                    // Check that the expression is an identifier.
-                    let Expression::Identifier(ident) = &expr else {
+                    // Check that the expression is a path.
+                    let Expression::Path(path) = &expr else {
                         return Err(leo_errors::LeoError::ParserError(ParserError::unexpected(
                             expr.to_string(),
-                            "an identifier",
+                            "a path",
                             expr.span(),
                         )));
                     };
@@ -548,7 +559,7 @@ impl ParserContext<'_> {
                         // Now form a `CallExpression`
                         expr = CallExpression {
                             span: expr.span() + span,
-                            function: *ident,
+                            function: path.clone(),
                             program: self.program_name,
                             const_arguments,
                             arguments,
@@ -558,7 +569,7 @@ impl ParserContext<'_> {
                     } else if !self.disallow_struct_construction && self.check(&Token::LeftCurly) {
                         // Parse struct and records inits as struct expressions with const arguments.
                         // Enforce struct or record type later at type checking.
-                        expr = self.parse_struct_init_expression(*ident, const_arguments)?;
+                        expr = self.parse_struct_init_expression(path.clone(), const_arguments)?;
                     } else {
                         self.emit_err(ParserError::unexpected(expr.to_string(), "( or {{", expr.span()))
                     }
@@ -575,26 +586,41 @@ impl ParserContext<'_> {
                 expr =
                     ArrayAccess { array: expr, index, span: expr_span + span, id: self.node_builder.next_id() }.into();
             } else if self.check(&Token::LeftParen) {
-                // Check that the expression is an identifier.
-                let Expression::Identifier(ident) = &expr else {
+                // Check that the expression is a path.
+                let Expression::Path(path) = &expr else {
                     return Err(leo_errors::LeoError::ParserError(ParserError::unexpected(
                         expr.to_string(),
-                        "an identifier",
+                        "a path",
                         expr.span(),
                     )));
                 };
 
                 // Parse a function call that's by itself.
                 let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
-                expr = CallExpression {
-                    span: expr.span() + span,
-                    function: *ident,
-                    program: self.program_name,
-                    const_arguments: vec![],
-                    arguments,
-                    id: self.node_builder.next_id(),
-                }
-                .into();
+
+                // Check for a core function otherwise treat as regular call.
+                expr = if path.qualifier().len() == 1
+                    && CoreFunction::from_symbols(path.qualifier()[0].name, path.identifier().name).is_some()
+                {
+                    AssociatedFunctionExpression {
+                        variant: path.qualifier()[0],
+                        name: path.identifier(),
+                        arguments,
+                        span: expr.span() + span,
+                        id: self.node_builder.next_id(),
+                    }
+                    .into()
+                } else {
+                    CallExpression {
+                        span: expr.span() + span,
+                        function: path.clone(),
+                        program: self.program_name,
+                        const_arguments: vec![],
+                        arguments,
+                        id: self.node_builder.next_id(),
+                    }
+                    .into()
+                };
             }
             // Stop parsing the postfix expression unless a dot or square bracket follows.
             if !(self.check(&Token::Dot) || self.check(&Token::LeftSquare)) {
@@ -674,22 +700,12 @@ impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// struct initialization expression.
     /// let foo = Foo { x: 1u8 };
-    pub fn parse_struct_init_expression(
-        &mut self,
-        identifier: Identifier,
-        const_arguments: Vec<Expression>,
-    ) -> Result<Expression> {
+    pub fn parse_struct_init_expression(&mut self, path: Path, const_arguments: Vec<Expression>) -> Result<Expression> {
         let (members, _, end) =
             self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| p.parse_struct_member().map(Some))?;
 
-        Ok(StructExpression {
-            span: identifier.span + end,
-            name: identifier,
-            const_arguments,
-            members,
-            id: self.node_builder.next_id(),
-        }
-        .into())
+        Ok(StructExpression { span: path.span + end, path, const_arguments, members, id: self.node_builder.next_id() }
+            .into())
     }
 
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
@@ -784,25 +800,45 @@ impl ParserContext<'_> {
             Token::StaticString(value) => {
                 Literal { span, id: self.node_builder.next_id(), variant: LiteralVariant::String(value) }.into()
             }
-            Token::Identifier(name) => {
-                let ident = Identifier { name, span, id: self.node_builder.next_id() };
+            Token::Identifier(first_ident) => {
+                let mut path_span = span;
+                let identifier = Identifier { name: first_ident, span, id: self.node_builder.next_id() };
+                let mut segments = vec![identifier];
+
+                // Parse `::`-separated path segments
+                while self.check(&Token::DoubleColon) {
+                    // Look ahead to see if the next token after `::` is a `[` — if so, stop for const generics
+                    if self.look_ahead(1, |next| matches!(next.token, Token::LeftSquare)) {
+                        break;
+                    }
+
+                    self.bump(); // consume `::`
+
+                    let next_ident = self.expect_identifier()?;
+                    path_span = path_span + next_ident.span;
+                    segments.push(next_ident);
+                }
+
+                let (identifier, qualifier) = segments.split_last().expect("guaranateed to have at least one segment");
+
+                let path = Path::new(qualifier.to_vec(), *identifier, None, path_span, self.node_builder.next_id());
+
+                // Check for struct initializer
                 if !self.disallow_struct_construction && self.check(&Token::LeftCurly) {
                     // Parse struct and records inits as struct expressions without const arguments.
                     // Enforce struct or record type later at type checking.
-                    self.parse_struct_init_expression(ident, Vec::new())?
+                    self.parse_struct_init_expression(path.clone(), Vec::new())?
                 } else {
-                    ident.into()
+                    path.into()
                 }
             }
             Token::SelfLower => Identifier { name: sym::SelfLower, span, id: self.node_builder.next_id() }.into(),
             Token::Block => Identifier { name: sym::block, span, id: self.node_builder.next_id() }.into(),
             Token::Future => Identifier { name: sym::Future, span, id: self.node_builder.next_id() }.into(),
             Token::Network => Identifier { name: sym::network, span, id: self.node_builder.next_id() }.into(),
-            t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
-                name: t.keyword_to_symbol().unwrap(),
-                span,
-                id: self.node_builder.next_id(),
-            }),
+            t if crate::type_::TYPE_TOKENS.contains(&t) => {
+                Identifier { name: t.keyword_to_symbol().unwrap(), span, id: self.node_builder.next_id() }.into()
+            }
             token => {
                 return Err(ParserError::unexpected_str(token, "expression", span).into());
             }

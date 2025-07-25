@@ -14,20 +14,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aimport",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aimport",
+          "span": {
+            "lo": 12,
+            "hi": 19
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 12,
           "hi": 19
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 0,
       "hi": 19
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -47,20 +56,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "a_",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "a_",
+          "span": {
+            "lo": 33,
+            "hi": 35
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 33,
           "hi": 35
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 21,
       "hi": 35
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -80,20 +98,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aas",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aas",
+          "span": {
+            "lo": 49,
+            "hi": 52
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 49,
           "hi": 52
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 37,
       "hi": 52
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -113,20 +140,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aconsole",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aconsole",
+          "span": {
+            "lo": 66,
+            "hi": 74
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 66,
           "hi": 74
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 54,
       "hi": 74
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -146,20 +182,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aconst",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aconst",
+          "span": {
+            "lo": 88,
+            "hi": 94
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 88,
           "hi": 94
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 76,
       "hi": 94
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -179,20 +224,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "alet",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "alet",
+          "span": {
+            "lo": 108,
+            "hi": 112
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 108,
           "hi": 112
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 96,
       "hi": 112
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -212,20 +266,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "afor",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "afor",
+          "span": {
+            "lo": 126,
+            "hi": 130
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 126,
           "hi": 130
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 114,
       "hi": 130
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -245,20 +308,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aif",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aif",
+          "span": {
+            "lo": 144,
+            "hi": 147
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 144,
           "hi": 147
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 132,
       "hi": 147
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -278,20 +350,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aelse",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aelse",
+          "span": {
+            "lo": 161,
+            "hi": 166
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 161,
           "hi": 166
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 149,
       "hi": 166
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -311,20 +392,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "ai8",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "ai8",
+          "span": {
+            "lo": 180,
+            "hi": 183
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 180,
           "hi": 183
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 168,
       "hi": 183
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -344,20 +434,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "ai16",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "ai16",
+          "span": {
+            "lo": 197,
+            "hi": 201
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 197,
           "hi": 201
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 185,
       "hi": 201
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -377,20 +476,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "ai32",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "ai32",
+          "span": {
+            "lo": 215,
+            "hi": 219
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 215,
           "hi": 219
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 203,
       "hi": 219
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -410,20 +518,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "ai64",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "ai64",
+          "span": {
+            "lo": 233,
+            "hi": 237
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 233,
           "hi": 237
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 221,
       "hi": 237
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -443,20 +560,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "ai128",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "ai128",
+          "span": {
+            "lo": 251,
+            "hi": 256
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 251,
           "hi": 256
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 239,
       "hi": 256
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -476,20 +602,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "au8",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "au8",
+          "span": {
+            "lo": 270,
+            "hi": 273
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 270,
           "hi": 273
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 258,
       "hi": 273
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -509,20 +644,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "au16",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "au16",
+          "span": {
+            "lo": 287,
+            "hi": 291
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 287,
           "hi": 291
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 275,
       "hi": 291
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -542,20 +686,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "au32",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "au32",
+          "span": {
+            "lo": 305,
+            "hi": 309
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 305,
           "hi": 309
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 293,
       "hi": 309
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -575,20 +728,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "au64",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "au64",
+          "span": {
+            "lo": 323,
+            "hi": 327
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 323,
           "hi": 327
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 311,
       "hi": 327
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -608,20 +770,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "au128",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "au128",
+          "span": {
+            "lo": 341,
+            "hi": 346
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 341,
           "hi": 346
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 329,
       "hi": 346
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -641,20 +812,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "areturn",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "areturn",
+          "span": {
+            "lo": 360,
+            "hi": 367
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 360,
           "hi": 367
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 348,
       "hi": 367
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -674,20 +854,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aself",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aself",
+          "span": {
+            "lo": 381,
+            "hi": 386
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 381,
           "hi": 386
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 369,
       "hi": 386
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -707,20 +896,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aSelf",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aSelf",
+          "span": {
+            "lo": 400,
+            "hi": 405
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 400,
           "hi": 405
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 388,
       "hi": 405
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -740,20 +938,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "atrue",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "atrue",
+          "span": {
+            "lo": 419,
+            "hi": 424
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 419,
           "hi": 424
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 407,
       "hi": 424
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -773,20 +980,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "afalse",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "afalse",
+          "span": {
+            "lo": 438,
+            "hi": 444
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 438,
           "hi": 444
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 426,
       "hi": 444
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -806,20 +1022,29 @@
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "a0",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "a0",
+          "span": {
+            "lo": 458,
+            "hi": 460
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 458,
           "hi": 460
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 446,
       "hi": 460
     },
-    "id": 2
+    "id": 3
   }
 }
 

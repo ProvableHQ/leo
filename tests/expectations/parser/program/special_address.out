@@ -1,4 +1,5 @@
 {
+  "modules": {},
   "imports": {},
   "stubs": {},
   "program_scopes": {
@@ -90,25 +91,43 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "Identifier": {
-                            "name": "a",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "a",
+                              "span": {
+                                "lo": 106,
+                                "hi": 107
+                              },
+                              "id": 7
+                            },
+                            "absolute_path": null,
                             "span": {
                               "lo": 106,
                               "hi": 107
                             },
-                            "id": 7
+                            "id": 8
                           }
                         },
                         {
                           "MemberAccess": {
                             "inner": {
-                              "Identifier": {
-                                "name": "self",
+                              "Path": {
+                                "qualifier": [],
+                                "identifier": {
+                                  "name": "self",
+                                  "span": {
+                                    "lo": 109,
+                                    "hi": 113
+                                  },
+                                  "id": 9
+                                },
+                                "absolute_path": null,
                                 "span": {
                                   "lo": 109,
                                   "hi": 113
                                 },
-                                "id": 8
+                                "id": 9
                               }
                             },
                             "name": {
@@ -117,13 +136,13 @@
                                 "lo": 114,
                                 "hi": 120
                               },
-                              "id": 9
+                              "id": 10
                             },
                             "span": {
                               "lo": 109,
                               "hi": 120
                             },
-                            "id": 10
+                            "id": 11
                           }
                         }
                       ]
@@ -132,7 +151,7 @@
                       "lo": 96,
                       "hi": 105
                     },
-                    "id": 11
+                    "id": 12
                   }
                 },
                 {
@@ -140,25 +159,43 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "Identifier": {
-                            "name": "a",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "a",
+                              "span": {
+                                "lo": 141,
+                                "hi": 142
+                              },
+                              "id": 13
+                            },
+                            "absolute_path": null,
                             "span": {
                               "lo": 141,
                               "hi": 142
                             },
-                            "id": 12
+                            "id": 14
                           }
                         },
                         {
                           "MemberAccess": {
                             "inner": {
-                              "Identifier": {
-                                "name": "self",
+                              "Path": {
+                                "qualifier": [],
+                                "identifier": {
+                                  "name": "self",
+                                  "span": {
+                                    "lo": 144,
+                                    "hi": 148
+                                  },
+                                  "id": 15
+                                },
+                                "absolute_path": null,
                                 "span": {
                                   "lo": 144,
                                   "hi": 148
                                 },
-                                "id": 13
+                                "id": 15
                               }
                             },
                             "name": {
@@ -167,13 +204,13 @@
                                 "lo": 149,
                                 "hi": 156
                               },
-                              "id": 14
+                              "id": 16
                             },
                             "span": {
                               "lo": 144,
                               "hi": 156
                             },
-                            "id": 15
+                            "id": 17
                           }
                         }
                       ]
@@ -182,7 +219,7 @@
                       "lo": 131,
                       "hi": 140
                     },
-                    "id": 16
+                    "id": 18
                   }
                 },
                 {
@@ -190,13 +227,22 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "Identifier": {
-                            "name": "a",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "a",
+                              "span": {
+                                "lo": 177,
+                                "hi": 178
+                              },
+                              "id": 19
+                            },
+                            "absolute_path": null,
                             "span": {
                               "lo": 177,
                               "hi": 178
                             },
-                            "id": 17
+                            "id": 20
                           }
                         },
                         {
@@ -205,7 +251,7 @@
                               "lo": 180,
                               "hi": 185
                             },
-                            "id": 19,
+                            "id": 23,
                             "variant": {
                               "Address": "hello.aleo"
                             }
@@ -217,7 +263,7 @@
                       "lo": 167,
                       "hi": 176
                     },
-                    "id": 20
+                    "id": 24
                   }
                 },
                 {
@@ -228,7 +274,7 @@
                           "lo": 208,
                           "hi": 211
                         },
-                        "id": 22,
+                        "id": 27,
                         "variant": {
                           "Address": "foo.aleo"
                         }
@@ -238,7 +284,7 @@
                       "lo": 201,
                       "hi": 217
                     },
-                    "id": 23
+                    "id": 28
                   }
                 }
               ],
@@ -246,13 +292,13 @@
                 "lo": 86,
                 "hi": 223
               },
-              "id": 24
+              "id": 29
             },
             "span": {
               "lo": 58,
               "hi": 223
             },
-            "id": 25
+            "id": 30
           }
         ]
       ],

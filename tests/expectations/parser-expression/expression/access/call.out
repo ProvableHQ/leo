@@ -1,12 +1,21 @@
 {
   "Call": {
     "function": {
-      "name": "x",
+      "qualifier": [],
+      "identifier": {
+        "name": "x",
+        "span": {
+          "lo": 0,
+          "hi": 1
+        },
+        "id": 0
+      },
+      "absolute_path": null,
       "span": {
         "lo": 0,
         "hi": 1
       },
-      "id": 0
+      "id": 1
     },
     "const_arguments": [],
     "arguments": [],
@@ -15,19 +24,28 @@
       "lo": 0,
       "hi": 3
     },
-    "id": 1
+    "id": 2
   }
 }
 
 {
   "Call": {
     "function": {
-      "name": "X",
+      "qualifier": [],
+      "identifier": {
+        "name": "X",
+        "span": {
+          "lo": 4,
+          "hi": 5
+        },
+        "id": 0
+      },
+      "absolute_path": null,
       "span": {
         "lo": 4,
         "hi": 5
       },
-      "id": 0
+      "id": 1
     },
     "const_arguments": [],
     "arguments": [],
@@ -36,30 +54,48 @@
       "lo": 4,
       "hi": 7
     },
-    "id": 1
+    "id": 2
   }
 }
 
 {
   "Call": {
     "function": {
-      "name": "x",
+      "qualifier": [],
+      "identifier": {
+        "name": "x",
+        "span": {
+          "lo": 8,
+          "hi": 9
+        },
+        "id": 0
+      },
+      "absolute_path": null,
       "span": {
         "lo": 8,
         "hi": 9
       },
-      "id": 0
+      "id": 1
     },
     "const_arguments": [],
     "arguments": [
       {
-        "Identifier": {
-          "name": "y",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "y",
+            "span": {
+              "lo": 10,
+              "hi": 11
+            },
+            "id": 2
+          },
+          "absolute_path": null,
           "span": {
             "lo": 10,
             "hi": 11
           },
-          "id": 1
+          "id": 3
         }
       }
     ],
@@ -68,40 +104,67 @@
       "lo": 8,
       "hi": 12
     },
-    "id": 2
+    "id": 4
   }
 }
 
 {
   "Call": {
     "function": {
-      "name": "x",
+      "qualifier": [],
+      "identifier": {
+        "name": "x",
+        "span": {
+          "lo": 13,
+          "hi": 14
+        },
+        "id": 0
+      },
+      "absolute_path": null,
       "span": {
         "lo": 13,
         "hi": 14
       },
-      "id": 0
+      "id": 1
     },
     "const_arguments": [],
     "arguments": [
       {
-        "Identifier": {
-          "name": "y",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "y",
+            "span": {
+              "lo": 15,
+              "hi": 16
+            },
+            "id": 2
+          },
+          "absolute_path": null,
           "span": {
             "lo": 15,
             "hi": 16
           },
-          "id": 1
+          "id": 3
         }
       },
       {
-        "Identifier": {
-          "name": "z",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "z",
+            "span": {
+              "lo": 18,
+              "hi": 19
+            },
+            "id": 4
+          },
+          "absolute_path": null,
           "span": {
             "lo": 18,
             "hi": 19
           },
-          "id": 2
+          "id": 5
         }
       }
     ],
@@ -110,50 +173,86 @@
       "lo": 13,
       "hi": 20
     },
-    "id": 3
+    "id": 6
   }
 }
 
 {
   "Call": {
     "function": {
-      "name": "x",
+      "qualifier": [],
+      "identifier": {
+        "name": "x",
+        "span": {
+          "lo": 21,
+          "hi": 22
+        },
+        "id": 0
+      },
+      "absolute_path": null,
       "span": {
         "lo": 21,
         "hi": 22
       },
-      "id": 0
+      "id": 1
     },
     "const_arguments": [],
     "arguments": [
       {
-        "Identifier": {
-          "name": "x",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "x",
+            "span": {
+              "lo": 23,
+              "hi": 24
+            },
+            "id": 2
+          },
+          "absolute_path": null,
           "span": {
             "lo": 23,
             "hi": 24
           },
-          "id": 1
+          "id": 3
         }
       },
       {
-        "Identifier": {
-          "name": "y",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "y",
+            "span": {
+              "lo": 26,
+              "hi": 27
+            },
+            "id": 4
+          },
+          "absolute_path": null,
           "span": {
             "lo": 26,
             "hi": 27
           },
-          "id": 2
+          "id": 5
         }
       },
       {
-        "Identifier": {
-          "name": "z",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "z",
+            "span": {
+              "lo": 29,
+              "hi": 30
+            },
+            "id": 6
+          },
+          "absolute_path": null,
           "span": {
             "lo": 29,
             "hi": 30
           },
-          "id": 3
+          "id": 7
         }
       }
     ],
@@ -162,50 +261,86 @@
       "lo": 21,
       "hi": 31
     },
-    "id": 4
+    "id": 8
   }
 }
 
 {
   "Call": {
     "function": {
-      "name": "x",
+      "qualifier": [],
+      "identifier": {
+        "name": "x",
+        "span": {
+          "lo": 32,
+          "hi": 33
+        },
+        "id": 0
+      },
+      "absolute_path": null,
       "span": {
         "lo": 32,
         "hi": 33
       },
-      "id": 0
+      "id": 1
     },
     "const_arguments": [],
     "arguments": [
       {
-        "Identifier": {
-          "name": "x",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "x",
+            "span": {
+              "lo": 38,
+              "hi": 39
+            },
+            "id": 2
+          },
+          "absolute_path": null,
           "span": {
             "lo": 38,
             "hi": 39
           },
-          "id": 1
+          "id": 3
         }
       },
       {
-        "Identifier": {
-          "name": "y",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "y",
+            "span": {
+              "lo": 41,
+              "hi": 42
+            },
+            "id": 4
+          },
+          "absolute_path": null,
           "span": {
             "lo": 41,
             "hi": 42
           },
-          "id": 2
+          "id": 5
         }
       },
       {
-        "Identifier": {
-          "name": "z",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "z",
+            "span": {
+              "lo": 44,
+              "hi": 45
+            },
+            "id": 6
+          },
+          "absolute_path": null,
           "span": {
             "lo": 44,
             "hi": 45
           },
-          "id": 3
+          "id": 7
         }
       }
     ],
@@ -214,61 +349,106 @@
       "lo": 32,
       "hi": 46
     },
-    "id": 4
+    "id": 8
   }
 }
 
 {
   "Call": {
     "function": {
-      "name": "x",
+      "qualifier": [],
+      "identifier": {
+        "name": "x",
+        "span": {
+          "lo": 47,
+          "hi": 48
+        },
+        "id": 0
+      },
+      "absolute_path": null,
       "span": {
         "lo": 47,
         "hi": 48
       },
-      "id": 0
+      "id": 1
     },
     "const_arguments": [
       {
-        "Identifier": {
-          "name": "p",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "p",
+            "span": {
+              "lo": 51,
+              "hi": 52
+            },
+            "id": 2
+          },
+          "absolute_path": null,
           "span": {
             "lo": 51,
             "hi": 52
           },
-          "id": 1
+          "id": 3
         }
       }
     ],
     "arguments": [
       {
-        "Identifier": {
-          "name": "x",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "x",
+            "span": {
+              "lo": 54,
+              "hi": 55
+            },
+            "id": 4
+          },
+          "absolute_path": null,
           "span": {
             "lo": 54,
             "hi": 55
           },
-          "id": 2
+          "id": 5
         }
       },
       {
-        "Identifier": {
-          "name": "y",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "y",
+            "span": {
+              "lo": 57,
+              "hi": 58
+            },
+            "id": 6
+          },
+          "absolute_path": null,
           "span": {
             "lo": 57,
             "hi": 58
           },
-          "id": 3
+          "id": 7
         }
       },
       {
-        "Identifier": {
-          "name": "z",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "z",
+            "span": {
+              "lo": 60,
+              "hi": 61
+            },
+            "id": 8
+          },
+          "absolute_path": null,
           "span": {
             "lo": 60,
             "hi": 61
           },
-          "id": 4
+          "id": 9
         }
       }
     ],
@@ -277,19 +457,28 @@
       "lo": 47,
       "hi": 62
     },
-    "id": 5
+    "id": 10
   }
 }
 
 {
   "Call": {
     "function": {
-      "name": "x",
+      "qualifier": [],
+      "identifier": {
+        "name": "x",
+        "span": {
+          "lo": 63,
+          "hi": 64
+        },
+        "id": 0
+      },
+      "absolute_path": null,
       "span": {
         "lo": 63,
         "hi": 64
       },
-      "id": 0
+      "id": 1
     },
     "const_arguments": [
       {
@@ -298,7 +487,7 @@
             "lo": 67,
             "hi": 68
           },
-          "id": 1,
+          "id": 2,
           "variant": {
             "Unsuffixed": "1"
           }
@@ -310,20 +499,29 @@
             "lo": 70,
             "hi": 71
           },
-          "id": 2,
+          "id": 3,
           "variant": {
             "Unsuffixed": "2"
           }
         }
       },
       {
-        "Identifier": {
-          "name": "z",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "z",
+            "span": {
+              "lo": 73,
+              "hi": 74
+            },
+            "id": 4
+          },
+          "absolute_path": null,
           "span": {
             "lo": 73,
             "hi": 74
           },
-          "id": 3
+          "id": 5
         }
       },
       {
@@ -334,20 +532,29 @@
                 "lo": 76,
                 "hi": 77
               },
-              "id": 4,
+              "id": 6,
               "variant": {
                 "Unsuffixed": "1"
               }
             }
           },
           "right": {
-            "Identifier": {
-              "name": "y",
+            "Path": {
+              "qualifier": [],
+              "identifier": {
+                "name": "y",
+                "span": {
+                  "lo": 80,
+                  "hi": 81
+                },
+                "id": 7
+              },
+              "absolute_path": null,
               "span": {
                 "lo": 80,
                 "hi": 81
               },
-              "id": 5
+              "id": 8
             }
           },
           "op": "Add",
@@ -355,39 +562,66 @@
             "lo": 76,
             "hi": 81
           },
-          "id": 6
+          "id": 9
         }
       }
     ],
     "arguments": [
       {
-        "Identifier": {
-          "name": "x",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "x",
+            "span": {
+              "lo": 83,
+              "hi": 84
+            },
+            "id": 10
+          },
+          "absolute_path": null,
           "span": {
             "lo": 83,
             "hi": 84
           },
-          "id": 7
+          "id": 11
         }
       },
       {
-        "Identifier": {
-          "name": "y",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "y",
+            "span": {
+              "lo": 86,
+              "hi": 87
+            },
+            "id": 12
+          },
+          "absolute_path": null,
           "span": {
             "lo": 86,
             "hi": 87
           },
-          "id": 8
+          "id": 13
         }
       },
       {
-        "Identifier": {
-          "name": "z",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "z",
+            "span": {
+              "lo": 89,
+              "hi": 90
+            },
+            "id": 14
+          },
+          "absolute_path": null,
           "span": {
             "lo": 89,
             "hi": 90
           },
-          "id": 9
+          "id": 15
         }
       }
     ],
@@ -396,7 +630,7 @@
       "lo": 63,
       "hi": 91
     },
-    "id": 10
+    "id": 16
   }
 }
 

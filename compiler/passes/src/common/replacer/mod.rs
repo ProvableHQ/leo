@@ -48,6 +48,7 @@ where
     F: Fn(&Expression) -> Expression,
 {
     node_builder: &'a NodeBuilder,
+    refresh_expr_ids: bool,
     replace: F,
 }
 
@@ -55,8 +56,8 @@ impl<'a, F> Replacer<'a, F>
 where
     F: Fn(&Expression) -> Expression,
 {
-    pub fn new(replace: F, node_builder: &'a NodeBuilder) -> Self {
-        Self { replace, node_builder }
+    pub fn new(replace: F, refresh_expr_ids: bool, node_builder: &'a NodeBuilder) -> Self {
+        Self { replace, refresh_expr_ids, node_builder }
     }
 }
 
@@ -75,7 +76,7 @@ where
         }
 
         // Same as the default implementation
-        match input {
+        let mut new_expr = match input {
             Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
             Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
             Expression::Async(async_) => self.reconstruct_async(async_),
@@ -86,7 +87,7 @@ where
             Expression::Cast(cast) => self.reconstruct_cast(*cast),
             Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
             Expression::Err(err) => self.reconstruct_err(err),
-            Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
+            Expression::Path(path) => self.reconstruct_path(path),
             Expression::Literal(value) => self.reconstruct_literal(value),
             Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
@@ -96,7 +97,13 @@ where
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
             Expression::Unary(unary) => self.reconstruct_unary(*unary),
             Expression::Unit(unit) => self.reconstruct_unit(unit),
+        };
+
+        // Refresh IDs if required
+        if self.refresh_expr_ids {
+            new_expr.0.set_id(self.node_builder.next_id());
         }
+        new_expr
     }
 
     fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {

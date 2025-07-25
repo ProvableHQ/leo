@@ -451,23 +451,41 @@
         "receiver": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 117,
+                    "hi": 118
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 117,
                   "hi": 118
                 },
-                "id": 0
+                "id": 1
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 123,
+                    "hi": 124
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 123,
                   "hi": 124
                 },
-                "id": 2
+                "id": 4
               }
             },
             "op": "Shr",
@@ -475,7 +493,7 @@
               "lo": 117,
               "hi": 125
             },
-            "id": 3
+            "id": 5
           }
         },
         "op": "Negate",
@@ -483,7 +501,7 @@
           "lo": 116,
           "hi": 125
         },
-        "id": 4
+        "id": 6
       }
     },
     "op": "Not",
@@ -491,7 +509,7 @@
       "lo": 115,
       "hi": 125
     },
-    "id": 5
+    "id": 7
   }
 }
 
@@ -502,23 +520,41 @@
         "left": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 126,
+                    "hi": 127
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 126,
                   "hi": 127
                 },
-                "id": 0
+                "id": 1
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 132,
+                    "hi": 133
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 132,
                   "hi": 133
                 },
-                "id": 2
+                "id": 4
               }
             },
             "op": "Shr",
@@ -526,17 +562,26 @@
               "lo": 126,
               "hi": 134
             },
-            "id": 3
+            "id": 5
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 139,
+                "hi": 140
+              },
+              "id": 7
+            },
+            "absolute_path": null,
             "span": {
               "lo": 139,
               "hi": 140
             },
-            "id": 5
+            "id": 8
           }
         },
         "op": "Shr",
@@ -544,17 +589,26 @@
           "lo": 126,
           "hi": 141
         },
-        "id": 6
+        "id": 9
       }
     },
     "right": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 146,
+            "hi": 147
+          },
+          "id": 11
+        },
+        "absolute_path": null,
         "span": {
           "lo": 146,
           "hi": 147
         },
-        "id": 8
+        "id": 12
       }
     },
     "op": "Shr",
@@ -562,7 +616,7 @@
       "lo": 126,
       "hi": 148
     },
-    "id": 9
+    "id": 13
   }
 }
 
@@ -571,23 +625,41 @@
     "receiver": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 150,
+                "hi": 151
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 150,
               "hi": 151
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 156,
+                "hi": 157
+              },
+              "id": 3
+            },
+            "absolute_path": null,
             "span": {
               "lo": 156,
               "hi": 157
             },
-            "id": 2
+            "id": 4
           }
         },
         "op": "Shr",
@@ -595,7 +667,7 @@
           "lo": 150,
           "hi": 158
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Negate",
@@ -603,7 +675,7 @@
       "lo": 149,
       "hi": 158
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -612,13 +684,22 @@
     "left": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 161,
+                "hi": 162
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 161,
               "hi": 162
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Negate",
@@ -626,17 +707,26 @@
           "lo": 160,
           "hi": 162
         },
-        "id": 1
+        "id": 2
       }
     },
     "right": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 168,
+            "hi": 169
+          },
+          "id": 4
+        },
+        "absolute_path": null,
         "span": {
           "lo": 168,
           "hi": 169
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Shr",
@@ -644,7 +734,7 @@
       "lo": 160,
       "hi": 170
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -653,23 +743,41 @@
     "receiver": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 173,
+                "hi": 174
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 173,
               "hi": 174
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 179,
+                "hi": 180
+              },
+              "id": 3
+            },
+            "absolute_path": null,
             "span": {
               "lo": 179,
               "hi": 180
             },
-            "id": 2
+            "id": 4
           }
         },
         "op": "Shr",
@@ -677,7 +785,7 @@
           "lo": 173,
           "hi": 181
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Negate",
@@ -685,7 +793,7 @@
       "lo": 171,
       "hi": 181
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -696,23 +804,41 @@
         "receiver": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 185,
+                    "hi": 186
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 185,
                   "hi": 186
                 },
-                "id": 0
+                "id": 1
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 191,
+                    "hi": 192
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 191,
                   "hi": 192
                 },
-                "id": 2
+                "id": 4
               }
             },
             "op": "Shr",
@@ -720,7 +846,7 @@
               "lo": 185,
               "hi": 193
             },
-            "id": 3
+            "id": 5
           }
         },
         "op": "Negate",
@@ -728,17 +854,26 @@
           "lo": 184,
           "hi": 193
         },
-        "id": 4
+        "id": 6
       }
     },
     "right": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 199,
+            "hi": 200
+          },
+          "id": 8
+        },
+        "absolute_path": null,
         "span": {
           "lo": 199,
           "hi": 200
         },
-        "id": 6
+        "id": 9
       }
     },
     "op": "Shr",
@@ -746,7 +881,7 @@
       "lo": 184,
       "hi": 201
     },
-    "id": 7
+    "id": 10
   }
 }
 
@@ -755,23 +890,41 @@
     "receiver": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 203,
+                "hi": 204
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 203,
               "hi": 204
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 209,
+                "hi": 210
+              },
+              "id": 3
+            },
+            "absolute_path": null,
             "span": {
               "lo": 209,
               "hi": 210
             },
-            "id": 2
+            "id": 4
           }
         },
         "op": "Shr",
@@ -779,7 +932,7 @@
           "lo": 203,
           "hi": 211
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Not",
@@ -787,7 +940,7 @@
       "lo": 202,
       "hi": 211
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -796,13 +949,22 @@
     "left": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 214,
+                "hi": 215
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 214,
               "hi": 215
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Not",
@@ -810,17 +972,26 @@
           "lo": 213,
           "hi": 215
         },
-        "id": 1
+        "id": 2
       }
     },
     "right": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 221,
+            "hi": 222
+          },
+          "id": 4
+        },
+        "absolute_path": null,
         "span": {
           "lo": 221,
           "hi": 222
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Shr",
@@ -828,7 +999,7 @@
       "lo": 213,
       "hi": 223
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -837,23 +1008,41 @@
     "receiver": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 226,
+                "hi": 227
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 226,
               "hi": 227
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 232,
+                "hi": 233
+              },
+              "id": 3
+            },
+            "absolute_path": null,
             "span": {
               "lo": 232,
               "hi": 233
             },
-            "id": 2
+            "id": 4
           }
         },
         "op": "Shr",
@@ -861,7 +1050,7 @@
           "lo": 226,
           "hi": 234
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Not",
@@ -869,7 +1058,7 @@
       "lo": 224,
       "hi": 234
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -880,23 +1069,41 @@
         "receiver": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 238,
+                    "hi": 239
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 238,
                   "hi": 239
                 },
-                "id": 0
+                "id": 1
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 244,
+                    "hi": 245
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 244,
                   "hi": 245
                 },
-                "id": 2
+                "id": 4
               }
             },
             "op": "Shr",
@@ -904,7 +1111,7 @@
               "lo": 238,
               "hi": 246
             },
-            "id": 3
+            "id": 5
           }
         },
         "op": "Not",
@@ -912,17 +1119,26 @@
           "lo": 237,
           "hi": 246
         },
-        "id": 4
+        "id": 6
       }
     },
     "right": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 252,
+            "hi": 253
+          },
+          "id": 8
+        },
+        "absolute_path": null,
         "span": {
           "lo": 252,
           "hi": 253
         },
-        "id": 6
+        "id": 9
       }
     },
     "op": "Shr",
@@ -930,7 +1146,7 @@
       "lo": 237,
       "hi": 254
     },
-    "id": 7
+    "id": 10
   }
 }
 
@@ -941,23 +1157,41 @@
         "left": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 256,
+                    "hi": 257
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 256,
                   "hi": 257
                 },
-                "id": 0
+                "id": 1
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 262,
+                    "hi": 263
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 262,
                   "hi": 263
                 },
-                "id": 2
+                "id": 4
               }
             },
             "op": "Shr",
@@ -965,29 +1199,47 @@
               "lo": 256,
               "hi": 264
             },
-            "id": 3
+            "id": 5
           }
         },
         "right": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 268,
+                    "hi": 269
+                  },
+                  "id": 6
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 268,
                   "hi": 269
                 },
-                "id": 4
+                "id": 7
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 274,
+                    "hi": 275
+                  },
+                  "id": 9
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 274,
                   "hi": 275
                 },
-                "id": 6
+                "id": 10
               }
             },
             "op": "Shr",
@@ -995,7 +1247,7 @@
               "lo": 268,
               "hi": 276
             },
-            "id": 7
+            "id": 11
           }
         },
         "op": "Shr",
@@ -1003,7 +1255,7 @@
           "lo": 256,
           "hi": 276
         },
-        "id": 8
+        "id": 12
       }
     },
     "right": {
@@ -1011,23 +1263,41 @@
         "left": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 282,
+                    "hi": 283
+                  },
+                  "id": 14
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 282,
                   "hi": 283
                 },
-                "id": 10
+                "id": 15
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 288,
+                    "hi": 289
+                  },
+                  "id": 17
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 288,
                   "hi": 289
                 },
-                "id": 12
+                "id": 18
               }
             },
             "op": "Shr",
@@ -1035,29 +1305,47 @@
               "lo": 282,
               "hi": 290
             },
-            "id": 13
+            "id": 19
           }
         },
         "right": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 294,
+                    "hi": 295
+                  },
+                  "id": 20
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 294,
                   "hi": 295
                 },
-                "id": 14
+                "id": 21
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 300,
+                    "hi": 301
+                  },
+                  "id": 23
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 300,
                   "hi": 301
                 },
-                "id": 16
+                "id": 24
               }
             },
             "op": "Shr",
@@ -1065,7 +1353,7 @@
               "lo": 294,
               "hi": 302
             },
-            "id": 17
+            "id": 25
           }
         },
         "op": "Shr",
@@ -1073,7 +1361,7 @@
           "lo": 282,
           "hi": 302
         },
-        "id": 18
+        "id": 26
       }
     },
     "op": "Shr",
@@ -1081,7 +1369,7 @@
       "lo": 256,
       "hi": 303
     },
-    "id": 19
+    "id": 27
   }
 }
 
