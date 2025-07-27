@@ -79,7 +79,11 @@ impl Context {
 
     /// Returns the private key from the .env file specified in the directory.
     pub fn dotenv_private_key<N: Network>(&self) -> Result<PrivateKey<N>> {
-        dotenvy::from_path(self.dir()?.join(".env")).map_err(|_| CliError::failed_to_get_private_key_from_env())?;
+        let mut path = self.dir()?.join(".env");
+        if !path.exists() {
+            path = self.dir()?.join("env");
+        }
+        dotenvy::from_path(path).map_err(|_| CliError::failed_to_get_private_key_from_env())?;
         // Load the private key from the environment.
         let private_key = dotenvy::var("PRIVATE_KEY").map_err(|_| CliError::failed_to_get_private_key_from_env())?;
         // Parse the private key.
@@ -88,14 +92,22 @@ impl Context {
 
     /// Returns the endpoint from the .env file specified in the directory.
     pub fn dotenv_endpoint(&self) -> Result<String> {
-        dotenvy::from_path(self.dir()?.join(".env")).map_err(|_| CliError::failed_to_get_endpoint_from_env())?;
+        let mut path = self.dir()?.join(".env");
+        if !path.exists() {
+            path = self.dir()?.join("env");
+        }
+        dotenvy::from_path(path).map_err(|_| CliError::failed_to_get_endpoint_from_env())?;
         // Load the endpoint from the environment.
         Ok(dotenvy::var("ENDPOINT").map_err(|_| CliError::failed_to_get_endpoint_from_env())?)
     }
 
     /// Returns the network from the .env file specified in the directory.
     pub fn dotenv_network(&self) -> Result<String> {
-        dotenvy::from_path(self.dir()?.join(".env")).map_err(|_| CliError::failed_to_get_network_from_env())?;
+        let mut path = self.dir()?.join(".env");
+        if !path.exists() {
+            path = self.dir()?.join("env");
+        }
+        dotenvy::from_path(path).map_err(|_| CliError::failed_to_get_network_from_env())?;
         // Load the network from the environment.
         Ok(dotenvy::var("NETWORK").map_err(|_| CliError::failed_to_get_network_from_env())?)
     }
