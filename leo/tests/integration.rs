@@ -100,9 +100,6 @@ fn run_test(test: &Test, force_rewrite: bool) -> bool {
 
     let _raii = CwdRaii::cwd(&contents_path);
 
-    Command::new("pwd").status().unwrap();
-    Command::new("ls").arg("-a").status().unwrap();
-
     let commands_path = test_context_directory.path().join("COMMANDS");
 
     let output = Command::new(&commands_path).arg(BINARY_PATH).output().expect("Failed to execute COMMANDS");
@@ -123,12 +120,6 @@ fn run_test(test: &Test, force_rewrite: bool) -> bool {
         true
     } else {
         copy_recursively(test_context_directory.path(), &test.mismatch_directory).expect("Failed to copy directory.");
-        Command::new("diff")
-            .arg(test.expectation_directory.display().to_string())
-            .arg(test.mismatch_directory.display().to_string())
-            .status()
-            .unwrap();
-
         false
     }
 }
@@ -252,8 +243,6 @@ fn copy_recursively(src: &Path, dst: &Path) -> io::Result<()> {
         let file_type = entry.file_type()?;
         let src_path = entry.path();
         let dst_path = dst.join(entry.file_name());
-        println!("SOURCE PATH {}", src_path.display());
-        println!("DEST PATH {}", dst_path.display());
 
         if file_type.is_dir() {
             copy_recursively(&src_path, &dst_path)?;
