@@ -2,4 +2,4 @@
 
 LEO_BIN=${1}
 
-${LEO_BIN} deploy -y --broadcast --twice
+${LEO_BIN} deploy -y --broadcast --twice --endpoint 'http://localhost:3030' --network testnet --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH

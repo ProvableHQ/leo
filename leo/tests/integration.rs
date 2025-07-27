@@ -201,7 +201,7 @@ fn integration_tests() {
     }
 
     // Sleep for a bit to let snarkos get started.
-    std::thread::sleep(std::time::Duration::from_secs(60 * 10));
+    std::thread::sleep(std::time::Duration::from_secs(60 * 1));
 
     // Wait until block height 16.
     loop {
