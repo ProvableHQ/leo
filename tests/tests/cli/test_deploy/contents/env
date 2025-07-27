@@ -1,0 +1,3 @@
+NETWORK=testnet
+PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+ENDPOINT=http://localhost:3030

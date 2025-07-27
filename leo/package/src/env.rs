@@ -22,6 +22,8 @@ use std::{fmt, fs, path::Path};
 
 pub const ENV_FILENAME: &str = ".env";
 
+pub const ENV_FILENAME2: &str = "env";
+
 #[derive(Clone, Debug)]
 pub struct Env {
     pub network: NetworkName,
@@ -47,10 +49,11 @@ impl Env {
         let mut contents = String::new();
         let mut current_path = path;
         while current_path.exists() {
-            let env_path = current_path.join(ENV_FILENAME);
-            if env_path.exists() {
-                contents = fs::read_to_string(env_path).map_err(PackageError::io_error_env_file)?;
-                break;
+            for env_path in [current_path.join(ENV_FILENAME), current_path.join(ENV_FILENAME2)] {
+                if env_path.exists() {
+                    contents = fs::read_to_string(env_path).map_err(PackageError::io_error_env_file)?;
+                    break;
+                }
             }
             current_path = match current_path.parent() {
                 Some(parent) => parent.to_path_buf(),
