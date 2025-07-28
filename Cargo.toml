@@ -175,6 +175,7 @@ default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 only_testnet = [ ]
+test_network = [ "snarkvm/test_consensus_heights" ]
 
 [dependencies]
 dialoguer = "0.11.0"

@@ -140,7 +140,10 @@ fn handle_execute<A: Aleo>(
         Some((program_name, function_name)) => (program_name.to_string(), function_name.to_string()),
         None => match &package {
             Some(package) => (
-                package.programs.last().expect("There must be at least one program in a Leo package").name.to_string(),
+                format!(
+                    "{}.aleo",
+                    package.programs.last().expect("There must be at least one program in a Leo package").name
+                ),
                 command.name,
             ),
             None => {
