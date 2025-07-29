@@ -21,6 +21,9 @@
 //! It relies on a snarkOS with the `test_network` feature. If snarkos is not installed,
 //! it will be installed. If snarkos is installed, it will use the existing version
 //! (which may or may not be the correct one).
+//!
+//! The leo binary will also need to have the `test_network` feature. This can be enforced by
+//! doing `cargo test -p leo-lang --features test_network`.
 
 use std::{
     borrow::Cow,
@@ -102,7 +105,9 @@ fn run_test(test: &Test, force_rewrite: bool) -> bool {
 
     let commands_path = test_context_directory.path().join("COMMANDS");
 
+    println!("YYY 0");
     let output = Command::new(&commands_path).arg(BINARY_PATH).output().expect("Failed to execute COMMANDS");
+    println!("YYY 1");
 
     let stdout_path = test_context_directory.path().join("STDOUT");
     let stdout_utf8 = std::str::from_utf8(&output.stdout).expect("stdout should be utf8");
@@ -197,7 +202,7 @@ fn integration_tests() {
     }
 
     // Sleep for a bit to let snarkos get started.
-    std::thread::sleep(std::time::Duration::from_secs(60 * 10));
+    std::thread::sleep(std::time::Duration::from_secs(60 * 1));
 
     // Wait until block height 16.
     loop {
@@ -344,6 +349,7 @@ fn run_snarkos_validator(i: usize, num_validators: usize) -> io::Result<Child> {
     Command::new("snarkos")
         .arg("start")
         .arg("--nodisplay")
+        .arg("--no-dev-txs")
         .arg("--network")
         .arg("1")
         .arg("--dev")
