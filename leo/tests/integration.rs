@@ -120,10 +120,10 @@ fn run_test(test: &Test, force_rewrite: bool) -> bool {
         true
     } else {
         copy_recursively(test_context_directory.path(), &test.mismatch_directory).expect("Failed to copy directory.");
-        Command::new("diff")                                                                                                                                    ┊
-            .arg(test.expectation_directory.display().to_string())                                                                                              ┊
-            .arg(test.mismatch_directory.display().to_string())                                                                                                 ┊
-            .status()                                                                                                                                           ┊
+        Command::new("diff")
+            .arg(test.expectation_directory.display().to_string())
+            .arg(test.mismatch_directory.display().to_string())
+            .status()
             .unwrap();
         false
     }
