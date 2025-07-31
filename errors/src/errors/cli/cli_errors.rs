@@ -261,7 +261,7 @@ create_messages!(
     @backtraced
     broadcast_error {
         args: (error: impl Display),
-        msg: format!("{error}"),
+        msg: format!("Broadcast error: {error}"),
         help: None,
     }
 

@@ -92,7 +92,10 @@ pub fn handle_broadcast<N: Network>(
         .post(endpoint)
         .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .send_json(transaction)
-        .map_err(|err| CliError::broadcast_error(err.to_string()))?;
+        .map_err(|err| {
+            println!("HERE IS THE ERROR {err}");
+            CliError::broadcast_error(err.to_string())
+        })?;
     match response.status().as_u16() {
         200..=299 => {
             println!(

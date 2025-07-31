@@ -205,6 +205,7 @@ fn integration_tests() {
     // Wait until block height 16.
     loop {
         let height = current_height().expect("net");
+        let height2 = current_height2().expect("net2");
         if height >= 16 {
             break;
         }
@@ -283,8 +284,6 @@ fn dirs_equal(dir1: &Path, dir2: &Path) -> io::Result<bool> {
         let bytes2 = fs::read(&path2)?;
 
         if bytes1 != bytes2 {
-            println!("FIRST {}: {}", path1.display(), std::str::from_utf8(&bytes1).unwrap());
-            println!("SECOND {}: {}", path2.display(), std::str::from_utf8(&bytes2).unwrap());
             return Ok(false);
         }
     }
@@ -378,6 +377,16 @@ fn run_snarkos_clean(i: usize) -> io::Result<()> {
 
 fn current_height() -> Result<usize, anyhow::Error> {
     let height_url = "http://localhost:3030/testnet/block/height/latest";
+    println!("FETCHING 1");
     let height_str = leo_package::fetch_from_network_plain(height_url)?;
+    println!("FETCHING 2 {height_str}");
+    height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))
+}
+
+fn current_height2() -> Result<usize, anyhow::Error> {
+    let height_url = "http://127.0.0.1:3030/testnet/block/height/latest";
+    println!("FETCHING 1");
+    let height_str = leo_package::fetch_from_network_plain(height_url)?;
+    println!("FETCHING 2 {height_str}");
     height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))
 }
