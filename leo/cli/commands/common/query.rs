@@ -93,7 +93,8 @@ pub fn handle_broadcast<N: Network>(
         .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .send_json(transaction)
         .map_err(|err| {
-            panic!("HERE IS THE ERROR {err}; endpoint {endpoint}");
+            let val = serde_json::to_string_pretty(&transaction).unwrap();
+            panic!("HERE IS THE ERROR {err}; endpoint {endpoint}; sent {val}");
             CliError::broadcast_error(err.to_string())
         })?;
     match response.status().as_u16() {
