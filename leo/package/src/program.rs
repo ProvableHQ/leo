@@ -243,7 +243,7 @@ fn parse_dependencies_from_aleo(
             // If the dependency already exists, use it.
             // Otherwise, assume it's a network dependency.
             if let Some(dependency) = existing.get(&Symbol::intern(&program_id.name().to_string())) {
-                return dependency.clone();
+                dependency.clone()
             } else {
                 println!(
                     "Warning: Dependency for program `{program_id}` not found, assuming that it is network dependency."
