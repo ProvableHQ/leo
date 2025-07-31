@@ -93,7 +93,7 @@ pub fn handle_broadcast<N: Network>(
         .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .send_json(transaction)
         .map_err(|err| {
-            println!("HERE IS THE ERROR {err}");
+            panic!("HERE IS THE ERROR {err}");
             CliError::broadcast_error(err.to_string())
         })?;
     match response.status().as_u16() {
@@ -112,6 +112,7 @@ pub fn handle_broadcast<N: Network>(
             let msg = format!(
                 "⚠️ The endpoint `{endpoint}` has been permanently moved. Try using `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag."
             );
+            panic!("ERR 2 {msg}");
             Err(CliError::broadcast_error(msg).into())
         }
         _ => {
@@ -138,6 +139,7 @@ pub fn handle_broadcast<N: Network>(
                 }
             };
 
+            panic!("ERR 3 {msg}");
             Err(CliError::broadcast_error(msg).into())
         }
     }

@@ -4,11 +4,11 @@ LEO_BIN=${1}
 
 cd test_program1
 echo "DEPLOYMENT 1"
-${LEO_BIN} deploy -y --broadcast --twice
+RUST_BACKTRACE=1 ${LEO_BIN} deploy -y --broadcast --twice
 
 cd ../test_program2
 echo "DEPLOYMENT 2"
-${LEO_BIN} deploy -y --broadcast --twice
+RUST_BACKTRACE=1 ${LEO_BIN} deploy -y --broadcast --twice
 
 echo "EXECUTION"
-${LEO_BIN} execute test_program2.aleo/main -y --broadcast
+RUST_BACKTRACE=1 ${LEO_BIN} execute test_program2.aleo/main -y --broadcast
