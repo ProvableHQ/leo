@@ -319,6 +319,9 @@ impl Package {
     ) -> Result<()> {
         let name_symbol = crate::symbol(&new.name)?;
 
+        // Get the existing dependencies.
+        let dependencies = map.clone().into_iter().map(|(name, (dep, _))| (name, dep)).collect();
+
         let program = match map.entry(name_symbol) {
             Entry::Occupied(occupied) => {
                 // We've already visited this dependency. Just make sure it's compatible with
@@ -335,7 +338,7 @@ impl Package {
                     (Some(path), Location::Local) => {
                         // It's a local dependency.
                         if path.extension().and_then(|p| p.to_str()) == Some("aleo") && path.is_file() {
-                            Program::from_aleo_path(name_symbol, path)?
+                            Program::from_aleo_path(name_symbol, path, &dependencies)?
                         } else {
                             Program::from_package_path(name_symbol, path)?
                         }

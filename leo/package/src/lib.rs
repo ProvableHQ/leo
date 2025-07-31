@@ -164,7 +164,7 @@ pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
         .get(url)
         .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .call()
-        .map_err(UtilError::failed_to_retrieve_from_endpoint)?;
+        .map_err(|e| UtilError::failed_to_retrieve_from_endpoint(url, e))?;
     match response.status().as_u16() {
         200..=299 => Ok(response.body_mut().read_to_string().unwrap()),
         301 => Err(UtilError::endpoint_moved_error(url)),

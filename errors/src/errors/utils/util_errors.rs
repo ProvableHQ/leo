@@ -75,6 +75,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO: Unused, remove.
     @backtraced
     reqwest_error {
         args: (error: impl Display),
@@ -140,8 +141,8 @@ create_messages!(
 
     @backtraced
     failed_to_retrieve_from_endpoint {
-        args: (error: impl ErrorArg),
-        msg: format!("{error}"),
+        args: (url: impl Display, error: impl ErrorArg),
+        msg: format!("Failed to retrieve from endpoint `{url}`: {error}"),
         help: None,
     }
 

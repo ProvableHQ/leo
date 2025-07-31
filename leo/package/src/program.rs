@@ -21,7 +21,7 @@ use leo_span::Symbol;
 
 use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
 
-use indexmap::IndexSet;
+use indexmap::{IndexMap, IndexSet};
 use std::path::Path;
 
 /// Information about an Aleo program.
@@ -38,16 +38,16 @@ pub struct Program {
 impl Program {
     /// Given the location `path` of a `.aleo` file, read the filesystem
     /// to obtain a `Program`.
-    pub fn from_aleo_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
-        Self::from_aleo_path_impl(name, path.as_ref())
+    pub fn from_aleo_path<P: AsRef<Path>>(name: Symbol, path: P, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
+        Self::from_aleo_path_impl(name, path.as_ref(), map)
     }
 
-    fn from_aleo_path_impl(name: Symbol, path: &Path) -> Result<Self> {
+    fn from_aleo_path_impl(name: Symbol, path: &Path, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
         let bytecode = std::fs::read_to_string(path).map_err(|e| {
             UtilError::util_file_io_error(format_args!("Trying to read aleo file at {}", path.display()), e)
         })?;
 
-        let dependencies = parse_dependencies_from_aleo(name, &bytecode)?;
+        let dependencies = parse_dependencies_from_aleo(name, &bytecode, map)?;
 
         Ok(Program { name, data: ProgramData::Bytecode(bytecode), dependencies, is_local: true, is_test: false })
     }
@@ -208,7 +208,7 @@ impl Program {
             }
         };
 
-        let dependencies = parse_dependencies_from_aleo(name, &bytecode)?;
+        let dependencies = parse_dependencies_from_aleo(name, &bytecode, &IndexMap::new())?;
 
         Ok(Program { name, data: ProgramData::Bytecode(bytecode), dependencies, is_local: false, is_test: false })
     }
@@ -229,14 +229,28 @@ fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Depende
 }
 
 /// Parse the `.aleo` file's imports and construct `Dependency`s.
-fn parse_dependencies_from_aleo(name: Symbol, bytecode: &str) -> Result<IndexSet<Dependency>> {
+fn parse_dependencies_from_aleo(
+    name: Symbol,
+    bytecode: &str,
+    existing: &IndexMap<Symbol, Dependency>,
+) -> Result<IndexSet<Dependency>> {
+    // Parse the bytecode into an SVM program.
     let svm_program: SvmProgram<TestnetV0> = bytecode.parse().map_err(|_| UtilError::snarkvm_parsing_error(name))?;
     let dependencies = svm_program
         .imports()
         .keys()
         .map(|program_id| {
-            let name = program_id.to_string();
-            Dependency { name, location: Location::Network, path: None }
+            // If the dependency already exists, use it.
+            // Otherwise, assume it's a network dependency.
+            if let Some(dependency) = existing.get(&Symbol::intern(&program_id.name().to_string())) {
+                return dependency.clone();
+            } else {
+                println!(
+                    "Warning: Dependency for program `{program_id}` not found, assuming that it is network dependency."
+                );
+                let name = program_id.to_string();
+                Dependency { name, location: Location::Network, path: None }
+            }
         })
         .collect();
     Ok(dependencies)
