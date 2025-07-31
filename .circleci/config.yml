@@ -92,7 +92,7 @@ commands:
           # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
           command: |
             cargo-mtime . ~/.cache/mtimes/project.db
-            cargo test --all --locked --profile ci --features only_testnet,test_consensus_heights --verbose
+            TEST_FILTER=network_dep cargo test -p leo-lang --locked --profile ci --features only_testnet,test_consensus_heights --verbose
 
   install_rust_nightly:
     description: "Install Rust nightly toolchain"

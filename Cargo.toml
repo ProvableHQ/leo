@@ -329,4 +329,4 @@ debug-assertions = true
 [profile.ci]
 inherits = "test"
 incremental = false
-debug = false
+debug = true
