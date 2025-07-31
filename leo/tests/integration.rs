@@ -283,6 +283,8 @@ fn dirs_equal(dir1: &Path, dir2: &Path) -> io::Result<bool> {
         let bytes2 = fs::read(&path2)?;
 
         if bytes1 != bytes2 {
+            println!("FIRST {}: {}", path1.display(), std::str::from_utf8(&bytes1).unwrap());
+            println!("SECOND {}: {}", path2.display(), std::str::from_utf8(&bytes2).unwrap());
             return Ok(false);
         }
     }
