@@ -296,6 +296,7 @@ workspace = true
 opt-level = 3
 lto = "thin"
 incremental = true
+debug = true
 
 [profile.bench]
 opt-level = 3
