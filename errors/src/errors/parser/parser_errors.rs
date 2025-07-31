@@ -376,16 +376,16 @@ create_messages!(
     }
 
     @formatted
-    identifier_cannot_contain_double_underscore {
-        args : (ident: impl Display),
-        msg: format!("Identifier {ident} cannot contain a double underscore `__`"),
+    expected_identifier {
+        args: (),
+        msg: format!("Expected an identifier."),
         help: None,
     }
 
     @formatted
-    expected_identifier {
-        args: (),
-        msg: format!("Expected an identifier."),
+    identifier_cannot_contain_double_underscore {
+        args : (ident: impl Display),
+        msg: format!("Identifier {ident} cannot contain a double underscore `__`"),
         help: None,
     }
 );
