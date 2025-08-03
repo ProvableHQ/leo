@@ -18,21 +18,21 @@ use leo_errors::{InterpreterHalt, Result};
 use leo_span::Span;
 
 #[macro_export]
-macro_rules! tc_fail {
+macro_rules! tc_fail2 {
     () => {
         panic!("type checker failure")
     };
 }
 
 #[macro_export]
-macro_rules! halt_no_span {
+macro_rules! halt_no_span2 {
     ($($x:tt)*) => {
         return Err(InterpreterHalt::new(format!($($x)*)).into())
     }
 }
 
 #[macro_export]
-macro_rules! halt {
+macro_rules! halt2 {
     ($span: expr) => {
         return Err(InterpreterHalt::new_spanned(String::new(), $span).into())
 
@@ -40,6 +40,18 @@ macro_rules! halt {
 
     ($span: expr, $($x:tt)*) => {
         return Err(InterpreterHalt::new_spanned(format!($($x)*), $span).into())
+    };
+}
+
+#[macro_export]
+macro_rules! fail2 {
+    ($span: expr) => {
+        InterpreterHalt::new_spanned(String::new(), $span).into()
+
+    };
+
+    ($span: expr, $($x:tt)*) => {
+        InterpreterHalt::new_spanned(format!($($x)*), $span).into()
     };
 }
 

@@ -37,4 +37,4 @@ function main:
     output r19 as address.private;
     output r20 as address.private;
     output r21 as address.private;
-    output aleo18f23qqzkegen7qlglgpptu29a47ln8ylwdlhfft968rthldmlcqq7ch9vx as address.private;
+    output aleo1araatnvpq9dpz0swv4rp2ytrxu2z6khy5qgfj829h5vtzcuqp5ysmruraw as address.private;

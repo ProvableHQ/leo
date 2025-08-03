@@ -39,4 +39,4 @@ function main:
     output r20 as i128.private;
     output r21 as i128.private;
     output r22 as i128.private;
-    output -28948586005064539489572168400667412540i128 as i128.private;
+    output -25020987961429607653831404393242360885i128 as i128.private;

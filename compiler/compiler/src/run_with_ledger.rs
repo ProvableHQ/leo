@@ -14,9 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_ast::interpreter_value::Value;
 use leo_errors::{BufferEmitter, ErrBuffer, Handler, LeoError, Result, WarningBuffer};
 
-use aleo_std::StorageMode;
+use aleo_std_storage::StorageMode;
+use anyhow::anyhow;
 use snarkvm::{
     prelude::{
         Address,
@@ -27,8 +29,7 @@ use snarkvm::{
         TestnetV0,
         Transaction,
         VM,
-        Value,
-        anyhow,
+        Value as SvmValue,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
     synthesizer::program::ProgramCore,
@@ -42,6 +43,7 @@ use std::{fmt, str::FromStr as _};
 type CurrentNetwork = TestnetV0;
 
 /// Programs and configuration to run.
+#[derive(Debug)]
 pub struct Config {
     pub seed: u64,
     pub start_height: Option<u32>,
@@ -65,7 +67,7 @@ pub struct Case {
 }
 
 /// The status of a case that was run.
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Status {
     None,
     Aborted,
@@ -87,12 +89,14 @@ impl fmt::Display for Status {
 }
 
 /// All details about the result of a case that was run.
+#[derive(Debug)]
 pub struct CaseOutcome {
     pub status: Status,
     pub verified: bool,
     pub errors: ErrBuffer,
     pub warnings: WarningBuffer,
     pub execution: String,
+    pub output: Value,
 }
 
 /// Run the functions indicated by `cases` from the programs in `config`.
@@ -190,8 +194,8 @@ pub fn run_with_ledger(
                     &genesis_private_key,
                     ("credits.aleo", "transfer_public"),
                     [
-                        Value::from_str(&format!("{address}")).expect("Failed to parse recipient address"),
-                        Value::from_str("1_000_000_000_000u64").expect("Failed to parse amount"),
+                        SvmValue::from_str(&format!("{address}")).expect("Failed to parse recipient address"),
+                        SvmValue::from_str("1_000_000_000_000u64").expect("Failed to parse amount"),
                     ]
                     .iter(),
                     None,
@@ -236,7 +240,7 @@ pub fn run_with_ledger(
         // I'm not thrilled about this usage of `AssertUnwindSafe`, but it seems to be
         // used frequently in SnarkVM anyway.
         let execute_output = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            ledger.vm().execute(
+            ledger.vm().execute_with_response(
                 &private_key,
                 (&case.program_name, &case.function),
                 case.input.iter(),
@@ -258,35 +262,49 @@ pub fn run_with_ledger(
                 errors: buf.extract_errs(),
                 warnings: buf.extract_warnings(),
                 execution: "".to_string(),
+                output: Value::make_unit(),
             });
             continue;
         }
 
-        let result = execute_output
-            .unwrap()
-            .and_then(|transaction| {
-                verified = ledger.vm().check_transaction(&transaction, None, &mut rng).is_ok();
-                execution = Some(transaction.clone());
-                ledger.prepare_advance_to_next_beacon_block(&private_key, vec![], vec![], vec![transaction], &mut rng)
-            })
-            .and_then(|block| {
-                status = match (block.aborted_transaction_ids().is_empty(), block.transactions().num_accepted() == 1) {
-                    (false, _) => Status::Aborted,
-                    (true, true) => Status::Accepted,
-                    (true, false) => Status::Rejected,
-                };
-                ledger.advance_to_next_block(&block)
-            });
+        let result = execute_output.unwrap().and_then(|(transaction, response)| {
+            verified = ledger.vm().check_transaction(&transaction, None, &mut rng).is_ok();
+            execution = Some(transaction.clone());
+            let block = ledger.prepare_advance_to_next_beacon_block(
+                &private_key,
+                vec![],
+                vec![],
+                vec![transaction],
+                &mut rng,
+            )?;
+            status = match (block.aborted_transaction_ids().is_empty(), block.transactions().num_accepted() == 1) {
+                (false, _) => Status::Aborted,
+                (true, true) => Status::Accepted,
+                (true, false) => Status::Rejected,
+            };
+            ledger.advance_to_next_block(&block)?;
+            Ok(response)
+        });
 
-        if let Err(e) = result {
-            handler.emit_err(LeoError::Anyhow(e));
-        }
+        let output = match result {
+            Ok(response) => {
+                let outputs = response.outputs();
+                match outputs.len() {
+                    0 => Value::make_unit(),
+                    1 => outputs[0].clone().into(),
+                    _ => Value::make_tuple(outputs.iter().map(|x| x.clone().into())),
+                }
+            }
+            Err(e) => {
+                handler.emit_err(LeoError::Anyhow(e));
+                Value::make_unit()
+            }
+        };
 
         // Extract the execution, removing the global state root and proof.
         // This is necessary as they are not deterministic across runs, even with RNG fixed.
         let execution = if let Some(Transaction::Execute(_, _, execution, _)) = execution {
-            let transitions = execution.into_transitions();
-            Some(Execution::from(transitions, Default::default(), None).unwrap())
+            Some(Execution::from(execution.into_transitions(), Default::default(), None).unwrap())
         } else {
             None
         };
@@ -297,6 +315,7 @@ pub fn run_with_ledger(
             errors: buf.extract_errs(),
             warnings: buf.extract_warnings(),
             execution: serde_json::to_string_pretty(&execution).expect("Serialization failure"),
+            output,
         });
     }
 

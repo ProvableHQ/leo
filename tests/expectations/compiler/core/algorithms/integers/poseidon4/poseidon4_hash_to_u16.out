@@ -39,4 +39,4 @@ function main:
     output r20 as u16.private;
     output r21 as u16.private;
     output r22 as u16.private;
-    output 60711u16 as u16.private;
+    output 2990u16 as u16.private;

@@ -25,7 +25,7 @@ mod ast;
 mod program;
 
 mod visitor;
-pub use visitor::{ConstPropagationVisitor, value_to_expression};
+pub use visitor::ConstPropagationVisitor;
 
 pub struct ConstPropagationOutput {
     /// Something about the program was actually changed during the pass.

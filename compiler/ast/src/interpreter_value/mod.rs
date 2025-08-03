@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod util;
-
 mod core_function;
 pub use core_function::*;
 
@@ -24,3 +22,6 @@ pub use evaluate::*;
 
 mod value;
 pub use value::*;
+
+mod util;
+pub use util::*;

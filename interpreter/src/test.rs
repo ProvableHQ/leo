@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! These tests compare interpreter runs against previous interpreter runs.
+
 use crate::{Interpreter, InterpreterAction};
 
 use leo_ast::NetworkName;
@@ -63,8 +65,9 @@ fn runner_leo_test(test: &str) -> String {
             let address = Address::try_from(&private_key).expect("should create address");
 
             let empty: [&PathBuf; 0] = [];
-            let mut interpreter = Interpreter::new(&[(filename, vec![])], empty, address, 0, NetworkName::TestnetV0)
-                .expect("creating interpreter");
+            let mut interpreter =
+                Interpreter::new(&[(filename, vec![])], empty, address.into(), 0, NetworkName::TestnetV0)
+                    .expect("creating interpreter");
 
             match interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into())) {
                 Err(e) => format!("{e}\n"),
@@ -140,7 +143,7 @@ fn runner_leo_test(test: &str) -> String {
             let empty: [&PathBuf; 0] = [];
 
             let mut interpreter =
-                Interpreter::new(&[(main_path, module_paths)], empty, address, 0, NetworkName::TestnetV0)
+                Interpreter::new(&[(main_path, module_paths)], empty, address.into(), 0, NetworkName::TestnetV0)
                     .expect("creating interpreter");
 
             match interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into())) {
