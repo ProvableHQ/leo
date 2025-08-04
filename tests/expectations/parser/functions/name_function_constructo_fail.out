@@ -1,0 +1,5 @@
+Error [EPAR0370009]: unexpected string: expected 'identifier', found 'constructor'
+    --> test:2:22
+     |
+   2 |     async transition constructor(x: u8) -> u8 {
+     |                      ^^^^^^^^^^^

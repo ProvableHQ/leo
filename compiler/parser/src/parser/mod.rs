@@ -25,8 +25,6 @@ use leo_ast::*;
 use leo_errors::{Handler, ParserError, Result};
 use leo_span::Span;
 
-use snarkvm::prelude::Network;
-
 use indexmap::IndexMap;
 use std::unreachable;
 
@@ -39,24 +37,26 @@ mod statement;
 pub(super) mod type_;
 
 /// Creates a new program from a given file path and source code text.
-pub fn parse<N: Network>(
+pub fn parse(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
     start_pos: u32,
+    network: NetworkName,
 ) -> Result<Program> {
-    let mut tokens = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
+    let mut tokens = ParserContext::new(handler, node_builder, crate::tokenize(source, start_pos)?, network);
 
     tokens.parse_program()
 }
 
-pub fn parse_expression<N: Network>(
+pub fn parse_expression(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
     start_pos: u32,
+    network: NetworkName,
 ) -> Result<Expression> {
-    let mut context = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
+    let mut context = ParserContext::new(handler, node_builder, crate::tokenize(source, start_pos)?, network);
 
     let expression = context.parse_expression()?;
     if context.token.token == Token::Eof {
@@ -66,13 +66,14 @@ pub fn parse_expression<N: Network>(
     }
 }
 
-pub fn parse_statement<N: Network>(
+pub fn parse_statement(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &str,
     start_pos: u32,
+    network: NetworkName,
 ) -> Result<Statement> {
-    let mut context = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
+    let mut context = ParserContext::new(handler, node_builder, crate::tokenize(source, start_pos)?, network);
 
     let statement = context.parse_statement()?;
     if context.token.token == Token::Eof {

@@ -1074,11 +1074,11 @@ pub fn evaluate_core_function(
                 // Print the name of the mapping.
                 println!(
                     "Mapping: {}",
-                    if let Some(program) = program { format!("{}/{}", program, name) } else { name.to_string() }
+                    if let Some(program) = program { format!("{program}/{name}") } else { name.to_string() }
                 );
                 // Print the contents of the mapping.
                 for (key, value) in mapping {
-                    println!("  {} -> {}", key, value);
+                    println!("  {key} -> {value}");
                 }
             } else {
                 tc_fail!();
@@ -1161,6 +1161,18 @@ pub fn evaluate_core_function(
         }
         CoreFunction::SignatureVerify => todo!(),
         CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),
+        CoreFunction::ProgramChecksum => {
+            // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its checksum.
+            return Ok(None);
+        }
+        CoreFunction::ProgramEdition => {
+            // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its edition.
+            return Ok(None);
+        }
+        CoreFunction::ProgramOwner => {
+            // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its owner.
+            return Ok(None);
+        }
     };
 
     Ok(Some(value))

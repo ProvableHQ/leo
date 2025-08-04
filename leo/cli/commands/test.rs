@@ -69,7 +69,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
         .programs
         .iter()
         .flat_map(|program| match &program.data {
-            ProgramData::SourcePath(path) => Some(path.clone()),
+            ProgramData::SourcePath { source, .. } => Some(source.clone()),
             ProgramData::Bytecode(..) => None,
         })
         .collect();
@@ -77,7 +77,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
         .programs
         .iter()
         .flat_map(|program| match &program.data {
-            ProgramData::SourcePath(..) => {
+            ProgramData::SourcePath { .. } => {
                 // It's a local Leo dependency.
                 Some(program.name)
             }
@@ -108,8 +108,14 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
         })
         .collect();
 
-    let (native_test_functions, interpreter_result) =
-        leo_interpreter::find_and_run_tests(&leo_paths, &aleo_paths, address, 0u32, &command.test_name)?;
+    let (native_test_functions, interpreter_result) = leo_interpreter::find_and_run_tests(
+        &leo_paths,
+        &aleo_paths,
+        address,
+        0u32,
+        &command.test_name,
+        package.env.network,
+    )?;
 
     // Now for native tests.
 
@@ -130,7 +136,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
             }
             let bytecode = match &program.data {
                 ProgramData::Bytecode(c) => c.clone(),
-                ProgramData::SourcePath(..) => {
+                ProgramData::SourcePath { .. } => {
                     // This was not a network dependency, so get its bytecode from the filesystem.
                     let aleo_path = if program.name == program_name_symbol {
                         build_directory.join("main.aleo")
@@ -159,7 +165,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
     let (handler, buf) = Handler::new_with_buf();
 
     let outcomes = run_with_ledger::run_with_ledger(
-        &run_with_ledger::Config { seed: 0, min_height: 1, programs },
+        &run_with_ledger::Config { seed: 0, start_height: None, programs },
         &cases,
         &handler,
         &buf,

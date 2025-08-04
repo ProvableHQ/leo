@@ -22,4 +22,7 @@ program test.aleo {
         let arr = [P; P];
         return arr[P-1];
     }
+
+    @noupgrade
+    async constructor() {}
 }

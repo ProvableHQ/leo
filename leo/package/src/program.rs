@@ -30,6 +30,7 @@ pub struct Program {
     // The name of the program (no ".aleo" suffix).
     pub name: Symbol,
     pub data: ProgramData,
+    pub edition: Option<u16>,
     pub dependencies: IndexSet<Dependency>,
     pub is_local: bool,
     pub is_test: bool,
@@ -49,7 +50,14 @@ impl Program {
 
         let dependencies = parse_dependencies_from_aleo(name, &bytecode)?;
 
-        Ok(Program { name, data: ProgramData::Bytecode(bytecode), dependencies, is_local: true, is_test: false })
+        Ok(Program {
+            name,
+            data: ProgramData::Bytecode(bytecode),
+            edition: None,
+            dependencies,
+            is_local: true,
+            is_test: false,
+        })
     }
 
     /// Given the location `path` of a local Leo package, read the filesystem
@@ -87,7 +95,8 @@ impl Program {
 
         Ok(Program {
             name,
-            data: ProgramData::SourcePath(source_path),
+            data: ProgramData::SourcePath { directory: path.to_path_buf(), source: source_path },
+            edition: None,
             dependencies: manifest
                 .dependencies
                 .unwrap_or_default()
@@ -112,7 +121,10 @@ impl Program {
     fn from_path_test_impl(source_path: &Path, main_program: Dependency) -> Result<Self> {
         let name = filename_no_leo_extension(source_path)
             .ok_or_else(|| PackageError::failed_path(source_path.display(), ""))?;
-        let package_directory = source_path.parent().and_then(|parent| parent.parent()).ok_or_else(|| {
+        let test_directory = source_path.parent().ok_or_else(|| {
+            UtilError::failed_to_open_file(format_args!("Failed to find directory for test {}", source_path.display()))
+        })?;
+        let package_directory = test_directory.parent().ok_or_else(|| {
             UtilError::failed_to_open_file(format_args!("Failed to find package for test {}", source_path.display()))
         })?;
         let manifest = Manifest::read_from_file(package_directory.join(MANIFEST_FILENAME))?;
@@ -126,7 +138,11 @@ impl Program {
 
         Ok(Program {
             name: Symbol::intern(name),
-            data: ProgramData::SourcePath(source_path.to_path_buf()),
+            edition: None,
+            data: ProgramData::SourcePath {
+                directory: test_directory.to_path_buf(),
+                source: source_path.to_path_buf(),
+            },
             dependencies,
             is_local: true,
             is_test: true,
@@ -134,18 +150,21 @@ impl Program {
     }
 
     /// Given an Aleo program on a network, fetch it to build a `Program`.
+    /// If no edition is found, the latest edition is pulled from the network.
     pub fn fetch<P: AsRef<Path>>(
         name: Symbol,
+        edition: Option<u16>,
         home_path: P,
         network: NetworkName,
         endpoint: &str,
         no_cache: bool,
     ) -> Result<Self> {
-        Self::fetch_impl(name, home_path.as_ref(), network, endpoint, no_cache)
+        Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, no_cache)
     }
 
     fn fetch_impl(
         name: Symbol,
+        edition: Option<u16>,
         home_path: &Path,
         network: NetworkName,
         endpoint: &str,
@@ -153,6 +172,29 @@ impl Program {
     ) -> Result<Self> {
         // It's not a local program; let's check the cache.
         let cache_directory = home_path.join(format!("registry/{network}"));
+
+        // If the edition is not specified, then query the network for the latest edition.
+        let edition = match edition {
+            Some(edition) => Ok(edition),
+            None => {
+                let url = format!("{endpoint}/{network}/program/{name}.aleo/latest_edition");
+                fetch_from_network(&url).and_then(|contents| {
+                    contents.parse::<u16>().map_err(|e| {
+                        UtilError::failed_to_retrieve_from_endpoint(format!("Failed to parse edition as u16: {e}"))
+                    })
+                })
+            }
+        };
+
+        // If we failed to get the edition, default to 0.
+        let edition = edition.unwrap_or_else(|err| {
+            println!("Warning: Could not fetch edition for program `{name}`: {err}. Defaulting to edition 0.");
+            0
+        });
+
+        // Define the full cache path for the program.
+        let cache_directory = cache_directory.join(format!("{name}/{edition}"));
+        let full_cache_path = cache_directory.join(format!("{name}.aleo"));
         if !cache_directory.exists() {
             // Create directory if it doesn't exist.
             std::fs::create_dir_all(&cache_directory).map_err(|err| {
@@ -160,13 +202,10 @@ impl Program {
             })?;
         }
 
-        let full_cache_path = cache_directory.join(format!("{name}.aleo"));
-
         // Get the existing bytecode if the file exists.
         let existing_bytecode = match full_cache_path.exists() {
             false => None,
             true => {
-                // If the file exists, read it and compare it to the new contents.
                 let existing_contents = std::fs::read_to_string(&full_cache_path).map_err(|e| {
                     UtilError::util_file_io_error(
                         format_args!("Trying to read cached file at {}", full_cache_path.display()),
@@ -183,8 +222,15 @@ impl Program {
             // Otherwise, we need to fetch it from the network.
             (existing, _) => {
                 // We need to fetch it from the network.
-                let url = format!("{endpoint}/{network}/program/{name}.aleo");
-                let contents = fetch_from_network(&url)?;
+                let edition_url = format!("{endpoint}/{network}/program/{name}.aleo/{edition}");
+                let no_edition_url = format!("{endpoint}/{network}/program/{name}.aleo");
+                let contents = fetch_from_network(&edition_url)
+                    .or_else(|_| fetch_from_network(&no_edition_url))
+                    .map_err(|err| {
+                        UtilError::failed_to_retrieve_from_endpoint(format_args!(
+                            "Failed to fetch program `{name}` from network `{network}`: {err}"
+                        ))
+                    })?;
 
                 // If the file already exists, compare it to the new contents.
                 if let Some(existing_contents) = existing {
@@ -210,7 +256,14 @@ impl Program {
 
         let dependencies = parse_dependencies_from_aleo(name, &bytecode)?;
 
-        Ok(Program { name, data: ProgramData::Bytecode(bytecode), dependencies, is_local: false, is_test: false })
+        Ok(Program {
+            name,
+            data: ProgramData::Bytecode(bytecode),
+            edition: Some(edition),
+            dependencies,
+            is_local: false,
+            is_test: false,
+        })
     }
 }
 
@@ -236,7 +289,7 @@ fn parse_dependencies_from_aleo(name: Symbol, bytecode: &str) -> Result<IndexSet
         .keys()
         .map(|program_id| {
             let name = program_id.to_string();
-            Dependency { name, location: Location::Network, path: None }
+            Dependency { name, location: Location::Network, path: None, edition: None }
         })
         .collect();
     Ok(dependencies)

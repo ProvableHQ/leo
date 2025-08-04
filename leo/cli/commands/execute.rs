@@ -17,19 +17,20 @@
 use super::*;
 
 use check_transaction::TransactionStatus;
-use leo_package::{NetworkName, Package, ProgramData};
+use leo_ast::NetworkName;
+use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
+use snarkvm::prelude::{Execution, Network, Program};
+
 use clap::Parser;
 use colored::*;
-use snarkvm::prelude::{Execution, Network};
 use std::{convert::TryFrom, path::PathBuf};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
-    ledger::store::helpers::memory::BlockMemory,
     prelude::{
         ConsensusVersion,
         Identifier,
@@ -39,7 +40,10 @@ use snarkvm::{
         execution_cost_v1,
         execution_cost_v2,
         query::Query as SnarkVMQuery,
-        store::{ConsensusStore, helpers::memory::ConsensusMemory},
+        store::{
+            ConsensusStore,
+            helpers::memory::{BlockMemory, ConsensusMemory},
+        },
     },
 };
 
@@ -107,13 +111,13 @@ impl Command for LeoExecute {
                 #[cfg(feature = "only_testnet")]
                 panic!("Mainnet chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                return handle_execute::<AleoV0>(self, context, network, input);
+                handle_execute::<AleoV0>(self, context, network, input)
             }
             NetworkName::CanaryV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Canary chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                return handle_execute::<AleoCanaryV0>(self, context, network, input);
+                handle_execute::<AleoCanaryV0>(self, context, network, input)
             }
         }
     }
@@ -178,10 +182,10 @@ fn handle_execute<A: Aleo>(
                 let program_id = ProgramID::<A::Network>::from_str(&format!("{}.aleo", program.name))
                     .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
                 match &program.data {
-                    ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string())),
-                    ProgramData::SourcePath(path) => {
+                    ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), program.edition)),
+                    ProgramData::SourcePath { source, .. } => {
                         // Get the path to the built bytecode.
-                        let bytecode_path = if path.as_path() == source_directory.join("main.leo") {
+                        let bytecode_path = if source.as_path() == source_directory.join("main.leo") {
                             build_directory.join("main.aleo")
                         } else {
                             imports_directory.join(format!("{}.aleo", program.name))
@@ -191,7 +195,7 @@ fn handle_execute<A: Aleo>(
                             CliError::custom(format!("Failed to read bytecode at {}: {e}", bytecode_path.display()))
                         })?;
                         // Return the bytecode and the manifest.
-                        Ok((program_id, bytecode))
+                        Ok((program_id, bytecode, program.edition))
                     }
                 }
             })
@@ -203,22 +207,25 @@ fn handle_execute<A: Aleo>(
     // Parse the program strings into AVM programs.
     let mut programs = programs
         .into_iter()
-        .map(|(name, bytecode)| {
+        .map(|(_, bytecode, edition)| {
             // Parse the program.
             let program = snarkvm::prelude::Program::<A::Network>::from_str(&bytecode)
                 .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
             // Return the program and its name.
-            Ok((name, program))
+            Ok((program, edition))
         })
         .collect::<Result<Vec<_>>>()?;
 
     // Determine whether the program is local or remote.
-    let is_local = programs.iter().any(|(name, _)| name == &program_id);
+    let is_local = programs.iter().any(|(program, _)| program.id() == &program_id);
 
     // If the program is local, then check that the function exists.
     if is_local {
-        let program =
-            &programs.iter().find(|(name, _)| name == &program_id).expect("Program should exist since it is local").1;
+        let program = &programs
+            .iter()
+            .find(|(program, _)| program.id() == &program_id)
+            .expect("Program should exist since it is local")
+            .0;
         if !program.contains_function(&function_id) {
             return Err(CliError::custom(format!(
                 "Function `{function_name}` does not exist in program `{program_name}`."
@@ -240,8 +247,7 @@ fn handle_execute<A: Aleo>(
         parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
 
     // Get the consensus version.
-    let consensus_version =
-        get_consensus_version::<A::Network>(&command.extra.consensus_version, &endpoint, network, &context)?;
+    let consensus_version = get_consensus_version(&command.extra.consensus_version, &endpoint, network, &context)?;
 
     // Print the execution plan.
     print_execution_plan::<A::Network>(
@@ -256,6 +262,7 @@ fn handle_execute<A: Aleo>(
         record.is_some(),
         &command.action,
         consensus_version,
+        &check_task_for_warnings(&endpoint, network, &programs),
     );
 
     // Prompt the user to confirm the plan.
@@ -271,7 +278,7 @@ fn handle_execute<A: Aleo>(
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
     // Specify the query
-    let query = SnarkVMQuery::<_, BlockMemory<_>>::from(&endpoint);
+    let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint);
 
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
@@ -281,12 +288,15 @@ fn handle_execute<A: Aleo>(
     };
 
     // Add the programs to the VM.
-    println!("Adding programs to the VM ...");
-    for (_, program) in programs {
-        // Add programs twice until upgradability.
-        vm.process().write().add_program(&program)?;
-        vm.process().write().add_program(&program)?;
-    }
+    println!("Adding programs to the VM...");
+    let programs_and_editions = programs
+        .into_iter()
+        .map(|(program, edition)| {
+            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
+            (program, edition.unwrap_or(1))
+        })
+        .collect::<Vec<_>>();
+    vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Execute the program and produce a transaction.
     let (transaction, response) = vm.execute_with_response(
@@ -359,10 +369,10 @@ fn handle_execute<A: Aleo>(
         let height_before = check_transaction::current_height(&endpoint, network)?;
         // Broadcast the transaction to the network.
         let (message, status) =
-            handle_broadcast(&format!("{}/{}/transaction/broadcast", endpoint, network), &transaction, &program_name)?;
+            handle_broadcast(&format!("{endpoint}/{network}/transaction/broadcast"), &transaction, &program_name)?;
 
         let fail = |msg| {
-            println!("❌ Failed to broadcast execution: {}.", msg);
+            println!("❌ Failed to broadcast execution: {msg}.");
             Ok(())
         };
 
@@ -390,6 +400,43 @@ fn handle_execute<A: Aleo>(
     Ok(())
 }
 
+/// Check the execution task for warnings.
+/// The following properties are checked:
+///   - The component programs exist on the network and match the local ones.
+fn check_task_for_warnings<N: Network>(
+    endpoint: &str,
+    network: NetworkName,
+    programs: &[(Program<N>, Option<u16>)],
+) -> Vec<String> {
+    let mut warnings = Vec::new();
+    for (program, _) in programs {
+        // Check if the program exists on the network.
+        if let Ok(remote_program) = fetch_program_from_network(&program.id().to_string(), endpoint, network) {
+            // Parse the program.
+            let remote_program = match Program::<N>::from_str(&remote_program) {
+                Ok(program) => program,
+                Err(e) => {
+                    warnings.push(format!("Could not parse '{}' from the network. Error: {e}", program.id()));
+                    continue;
+                }
+            };
+            // Check if the program matches the local one.
+            if remote_program != *program {
+                warnings.push(format!(
+                    "The program '{}' on the network does not match the local copy. If you have a local dependency, you may use the `--no-local` flag to use the network version instead.",
+                    program.id()
+                ));
+            }
+        } else {
+            warnings.push(format!(
+                "The program '{}' does not exist on the network. You may use `leo deploy --broadcast` to deploy it.",
+                program.id()
+            ));
+        }
+    }
+    warnings
+}
+
 /// Pretty-print the execution plan in a readable format.
 #[allow(clippy::too_many_arguments)]
 fn print_execution_plan<N: Network>(
@@ -404,6 +451,7 @@ fn print_execution_plan<N: Network>(
     fee_record: bool,
     action: &TransactionAction,
     consensus_version: ConsensusVersion,
+    warnings: &[String],
 ) {
     println!("\n{}", "🚀 Execution Plan Summary".bold().underline());
     println!("{}", "──────────────────────────────────────────────".dimmed());
@@ -421,7 +469,7 @@ fn print_execution_plan<N: Network>(
     println!("  {:16}{}", "Source:", if is_local { "local" } else { "remote" });
 
     println!("\n{}", "💸 Fee Info:".bold());
-    println!("  {:16}{}", "Priority Fee:", format!("{} μcredits", priority_fee).green());
+    println!("  {:16}{}", "Priority Fee:", format!("{priority_fee} μcredits").green());
     println!("  {:16}{}", "Fee Record:", if fee_record { "yes" } else { "no (public fee)" });
 
     println!("\n{}", "⚙️ Actions:".bold());
@@ -443,6 +491,15 @@ fn print_execution_plan<N: Network>(
     } else {
         println!("  - Transaction will NOT be broadcast to the network.");
     }
+
+    // ── Warnings ─────────────────────────────────────────────────────────
+    if !warnings.is_empty() {
+        println!("\n{}", "⚠️ Warnings:".bold().red());
+        for warning in warnings {
+            println!("  • {}", warning.dimmed());
+        }
+    }
+
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }
 

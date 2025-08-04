@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::TypeCheckingVisitor;
+use super::*;
 use crate::{VariableSymbol, VariableType};
 
 use leo_ast::{
@@ -124,12 +124,37 @@ impl TypeCheckingVisitor<'_> {
                 // If the access expression is of the form `self.<name>`, then check the <name> is valid.
                 Expression::Identifier(identifier) if identifier.name == sym::SelfLower => {
                     match input.name.name {
+                        sym::address => {
+                            return Type::Address;
+                        }
                         sym::caller => {
                             // Check that the operation is not invoked in a `finalize` block.
                             self.check_access_allowed("self.caller", false, input.name.span());
                             let ty = Type::Address;
                             self.maybe_assert_type(&ty, expected, input.span());
                             return ty;
+                        }
+                        sym::checksum => {
+                            return Type::Array(ArrayType::new(
+                                Type::Integer(IntegerType::U8),
+                                Expression::Literal(Literal::integer(
+                                    IntegerType::U8,
+                                    "32".to_string(),
+                                    Default::default(),
+                                    Default::default(),
+                                )),
+                            ));
+                        }
+                        sym::edition => {
+                            return Type::Integer(IntegerType::U16);
+                        }
+                        sym::id => {
+                            return Type::Address;
+                        }
+                        sym::program_owner => {
+                            // Check that the operation is only invoked in a `finalize` block.
+                            self.check_access_allowed("self.program_owner", true, input.name.span());
+                            return Type::Address;
                         }
                         sym::signer => {
                             // Check that operation is not invoked in a `finalize` block.
@@ -549,14 +574,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Get the types of the arguments. Error out on arguments that have `Type::Numeric`. We could potentially do
         // better for some of the core functions, but that can get pretty tedious because it would have to be function
         // specific.
-        let argument_types = input
+        let arguments_with_types = input
             .arguments
             .iter()
-            .map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg.span()))
+            .map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg))
             .collect::<Vec<_>>();
 
         // Check that the types of the arguments are valid.
-        let return_type = self.check_core_function_call(core_instruction.clone(), &argument_types, input.span());
+        let return_type = self.check_core_function_call(core_instruction.clone(), &arguments_with_types, input.span());
 
         // Check return type if the expected type is known.
         self.maybe_assert_type(&return_type, expected, input.span());
@@ -976,9 +1001,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check that the call is valid.
         // We always set the variant before entering the body of a function, so this unwrap works.
         match self.scope_state.variant.unwrap() {
-            Variant::AsyncFunction | Variant::Function if !matches!(func.variant, Variant::Inline) => {
-                self.emit_err(TypeCheckerError::can_only_call_inline_function("a `function` or `inline`", input.span))
-            }
+            Variant::AsyncFunction | Variant::Function if !matches!(func.variant, Variant::Inline) => self.emit_err(
+                TypeCheckerError::can_only_call_inline_function("a `function`, `inline`, or `constructor`", input.span),
+            ),
             Variant::Transition | Variant::AsyncTransition
                 if matches!(func.variant, Variant::Transition)
                     && input.program.unwrap() == self.scope_state.program_name.unwrap() =>
@@ -1076,7 +1101,6 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.visit_expression(argument, &Some(expected.type_().clone()));
         }
 
-        self.scope_state.is_call = true;
         let (mut input_futures, mut inferred_finalize_inputs) = (Vec::new(), Vec::new());
         for (expected, argument) in func.input.iter().zip(input.arguments.iter()) {
             // Get the type of the expression. If the type is not known, do not attempt to attempt any further inference.
@@ -1130,17 +1154,23 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 inferred_finalize_inputs.push(ty);
             }
         }
-        self.scope_state.is_call = false;
 
-        // Add the call to the call graph.
         let Some(caller_name) = self.scope_state.function else {
             panic!("`self.function` is set every time a function is visited.");
         };
 
-        // Don't add external functions to call graph. Since imports are acyclic, these can never produce a cycle.
-        if input.program.unwrap() == self.scope_state.program_name.unwrap() {
-            self.state.call_graph.add_edge(caller_name, input.function.name);
-        }
+        let caller_program =
+            self.scope_state.program_name.expect("`program_name` is always set before traversing a program scope");
+        // Note: Constructors are added to the call graph under the `constructor` symbol.
+        // This is safe since `constructor` is a reserved token and cannot be used as a function name.
+        let caller_function = if self.scope_state.is_constructor {
+            sym::constructor
+        } else {
+            self.scope_state.function.expect("`function` is always set before traversing a function scope")
+        };
+        let caller = Location::new(caller_program, caller_function);
+        let callee = Location::new(callee_program, input.function.name);
+        self.state.call_graph.add_edge(caller, callee);
 
         if func.variant.is_transition() && self.scope_state.variant == Some(Variant::AsyncTransition) {
             if self.scope_state.has_called_finalize {

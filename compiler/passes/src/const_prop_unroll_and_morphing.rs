@@ -28,14 +28,14 @@ use crate::{
 
 use leo_errors::{CompilerError, Result};
 
-/// Pass that runs const propagation and loop unrolling until a fixed point.
-pub struct ConstPropagationAndUnrolling;
+/// Pass that runs const propagation, loop unrolling, and monomorphization until a fixed point.
+pub struct ConstPropUnrollAndMorphing;
 
-impl Pass for ConstPropagationAndUnrolling {
+impl Pass for ConstPropUnrollAndMorphing {
     type Input = TypeCheckingInput;
     type Output = ();
 
-    const NAME: &str = "ConstPropagationAndUnrolling";
+    const NAME: &str = "ConstantPropogation+LoopUnrolling+Monomorphization";
 
     fn do_pass(input: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         const LARGE_LOOP_BOUND: usize = 1024usize;

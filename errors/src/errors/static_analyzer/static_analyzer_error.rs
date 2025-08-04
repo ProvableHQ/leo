@@ -108,4 +108,11 @@ create_messages!(
         msg: format!("An `async` block cannot capture more than {max} variables, found one attempting to capture {size} variables."),
         help: None,
     }
+
+    @formatted
+    custom_error {
+        args: (msg: impl Display, help: Option<impl Display>),
+        msg: format!("{msg}"),
+        help: help.map(|h| h.to_string()),
+    }
 );

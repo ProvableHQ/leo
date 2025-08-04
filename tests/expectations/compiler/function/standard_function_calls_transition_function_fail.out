@@ -1,9 +1,9 @@
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
     --> compiler-test:5:19
      |
    5 |            return adder(a, b);
      |                   ^^^^^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
     --> compiler-test:7:20
      |
    7 |             return subber(a, b);

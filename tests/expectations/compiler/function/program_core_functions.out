@@ -1,0 +1,10 @@
+program test.aleo;
+
+function bar:
+    async bar into r0;
+    output r0 as test.aleo/bar.future;
+
+finalize bar:
+    assert.eq checksum checksum;
+    assert.eq edition edition;
+    assert.eq program_owner program_owner;

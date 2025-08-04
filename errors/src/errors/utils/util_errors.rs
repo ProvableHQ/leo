@@ -140,7 +140,7 @@ create_messages!(
 
     @backtraced
     failed_to_retrieve_from_endpoint {
-        args: (error: impl ErrorArg),
+        args: (error: impl Display),
         msg: format!("{error}"),
         help: None,
     }

@@ -148,7 +148,6 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             // Now keep track of the function we just monomorphized
             self.monomorphized_functions.insert(input_call.function.name);
         }
-
         // At this stage, we know that we're going to modify the program
         self.changed = true;
 

@@ -1,0 +1,11 @@
+Error [ETYC0372156]: A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.
+    --> compiler-test:4:5
+     |
+   4 |     @noupgrade
+     |     ^^^^^^^^^^
+   5 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+   6 |         assert_eq(self.edition, 0u16);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   7 |     }
+     |     ^

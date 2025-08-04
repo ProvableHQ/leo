@@ -79,7 +79,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
 
         fn as_identifier(ident_expr: Expression) -> Identifier {
             let Expression::Identifier(identifier) = ident_expr else {
-                panic!("SSA form should have guaranteed this is an identifier: {}.", ident_expr);
+                panic!("SSA form should have guaranteed this is an identifier: {ident_expr}.");
             };
             identifier
         }

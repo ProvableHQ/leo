@@ -1,0 +1,12 @@
+program test.aleo;
+
+mapping foo:
+    key as u8.public;
+    value as u8.public;
+
+function food:
+
+constructor:
+    get foo[0u8] into r0;
+    assert.eq r0 0u8;
+

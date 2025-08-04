@@ -1,0 +1,21 @@
+program dependent.aleo;
+
+mapping floo:
+    key as field.public;
+    value as [u8; 32u32].public;
+
+function foo:
+// --- Next Program --- //
+import dependent.aleo;
+program test.aleo;
+
+function foo:
+
+function food:
+    call dependent.aleo/foo;
+
+constructor:
+    branch.eq edition 0u16 to end;
+    get dependent.aleo/floo[1field] into r0;
+    assert.eq checksum r0;
+    position end;

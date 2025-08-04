@@ -20,13 +20,13 @@ use leo_ast::*;
 use leo_errors::{Handler, ParserError, Result};
 use leo_span::{Span, Symbol, with_session_globals};
 
-use snarkvm::prelude::{Field, Network};
+use snarkvm::prelude::{CanaryV0, Field, MainnetV0, TestnetV0};
 
-use std::{fmt::Display, marker::PhantomData, mem};
+use std::{fmt::Display, mem};
 
 /// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
-pub(crate) struct ParserContext<'a, N: Network> {
+pub(crate) struct ParserContext<'a> {
     /// Handler used to side-channel emit errors from the parser.
     pub(crate) handler: Handler,
     /// Counter used to generate unique node ids.
@@ -43,16 +43,23 @@ pub(crate) struct ParserContext<'a, N: Network> {
     pub(crate) disallow_struct_construction: bool,
     /// The name of the program being parsed.
     pub(crate) program_name: Option<Symbol>,
-    // Allows the parser to be generic over the network.
-    phantom: PhantomData<N>,
+    /// The network.
+    pub(crate) network: NetworkName,
+    /// The accumulated annotations.
+    pub(crate) annotations: Vec<Annotation>,
 }
 
 /// Dummy span used to appease borrow checker.
 const DUMMY_EOF: SpannedToken = SpannedToken { token: Token::Eof, span: Span::dummy() };
 
-impl<'a, N: Network> ParserContext<'a, N> {
+impl<'a> ParserContext<'a> {
     /// Returns a new [`ParserContext`] type given a vector of tokens.
-    pub fn new(handler: Handler, node_builder: &'a NodeBuilder, mut tokens: Vec<SpannedToken>) -> Self {
+    pub fn new(
+        handler: Handler,
+        node_builder: &'a NodeBuilder,
+        mut tokens: Vec<SpannedToken>,
+        network: NetworkName,
+    ) -> Self {
         // Strip out comments.
         tokens.retain(|x| !matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)));
         // For performance we reverse so that we get cheap `.pop()`s.
@@ -67,7 +74,8 @@ impl<'a, N: Network> ParserContext<'a, N> {
             token,
             tokens,
             program_name: None,
-            phantom: Default::default(),
+            network,
+            annotations: Vec::new(),
         };
         p.bump();
         p
@@ -258,7 +266,11 @@ impl<'a, N: Network> ParserContext<'a, N> {
 
     /// Error on identifiers that are longer than SnarkVM allows.
     pub(crate) fn check_identifier(&mut self, identifier: &Identifier) {
-        let field_capacity_bytes: usize = Field::<N>::SIZE_IN_DATA_BITS / 8;
+        let field_capacity_bytes = match self.network {
+            NetworkName::MainnetV0 => Field::<MainnetV0>::SIZE_IN_DATA_BITS / 8,
+            NetworkName::TestnetV0 => Field::<TestnetV0>::SIZE_IN_DATA_BITS / 8,
+            NetworkName::CanaryV0 => Field::<CanaryV0>::SIZE_IN_DATA_BITS / 8,
+        };
         with_session_globals(|sg| {
             identifier.name.as_str(sg, |s| {
                 if s.len() > field_capacity_bytes {

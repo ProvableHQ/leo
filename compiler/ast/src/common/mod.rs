@@ -17,6 +17,9 @@
 mod const_parameter;
 pub use const_parameter::*;
 
+mod graph;
+pub use graph::*;
+
 mod location;
 pub use location::*;
 
@@ -28,6 +31,9 @@ pub use imported_modules::*;
 
 mod positive_number;
 pub use positive_number::*;
+
+mod network_name;
+pub use network_name::*;
 
 pub mod node;
 

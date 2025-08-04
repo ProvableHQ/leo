@@ -16,7 +16,7 @@
 
 #![forbid(unsafe_code)]
 
-use leo_ast::{Ast, NodeBuilder};
+use leo_ast::{Ast, NetworkName, NodeBuilder};
 use leo_errors::Handler;
 use leo_span::create_session_if_not_set_then;
 
@@ -53,17 +53,19 @@ fn main() -> Result<(), String> {
         Handler::with(|h| {
             let node_builder = NodeBuilder::default();
             let ast = match opt.network.as_str() {
-                "mainnet" => leo_parser::parse_ast::<snarkvm::prelude::MainnetV0>(
+                "mainnet" => leo_parser::parse_ast(
                     h.clone(),
                     &node_builder,
                     &code.src,
                     code.absolute_start,
+                    NetworkName::TestnetV0,
                 ),
-                "testnet" => leo_parser::parse_ast::<snarkvm::prelude::TestnetV0>(
+                "testnet" => leo_parser::parse_ast(
                     h.clone(),
                     &node_builder,
                     &code.src,
                     code.absolute_start,
+                    NetworkName::TestnetV0,
                 ),
                 _ => panic!("Invalid network"),
             }?;

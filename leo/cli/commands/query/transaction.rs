@@ -88,7 +88,7 @@ impl Command for LeoTransaction {
             if !leo_package::is_valid_aleo_name(&program) {
                 return Err(CliError::invalid_program_name(program).into());
             }
-            format!("find/transactionID/deployment/{}", program)
+            format!("find/transactionID/deployment/{program}")
         } else if let Some(id) = self.id {
             is_valid_transaction_id(&id)?;
             if self.confirmed {

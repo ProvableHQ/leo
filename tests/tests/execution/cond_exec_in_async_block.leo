@@ -26,4 +26,7 @@ program cond_exec_in_finalize.aleo {
             }
         };
     }
+
+    @noupgrade
+    async constructor() {}
 }

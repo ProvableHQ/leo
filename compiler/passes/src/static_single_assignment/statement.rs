@@ -214,7 +214,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
 
                 // Get the ID for the new name of the variable.
                 let id = *self.rename_table.lookup_id(symbol).unwrap_or_else(|| {
-                    panic!("The ID for the symbol `{}` should already exist in the rename table.", symbol)
+                    panic!("The ID for the symbol `{symbol}` should already exist in the rename table.")
                 });
 
                 // Update the `RenameTable` with the new name of the variable.

@@ -15,11 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use snarkvm::prelude::Itertools;
 
-use leo_errors::{ParserError, Result};
+use leo_errors::{ParserError, Result, TypeCheckerError};
 use leo_span::{Symbol, sym};
 
-impl<N: Network> ParserContext<'_, N> {
+impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut imports = IndexMap::new();
@@ -117,11 +118,17 @@ impl<N: Network> ParserContext<'_, N> {
         // Parse `{`.
         self.expect(&Token::LeftCurly)?;
 
+        // Check that there are no annotations.
+        if !self.annotations.is_empty() {
+            self.emit_err(ParserError::custom("Unexpected dangling annotation", self.annotations[0].span))
+        }
+
         // Parse the body of the program scope.
         let mut consts: Vec<(Symbol, ConstDeclaration)> = Vec::new();
         let (mut transitions, mut functions) = (Vec::new(), Vec::new());
         let mut structs: Vec<(Symbol, Composite)> = Vec::new();
         let mut mappings: Vec<(Symbol, Mapping)> = Vec::new();
+        let mut constructor = None;
 
         while self.has_next() {
             match &self.token.token {
@@ -137,7 +144,23 @@ impl<N: Network> ParserContext<'_, N> {
                     let (id, mapping) = self.parse_mapping()?;
                     mappings.push((id, mapping));
                 }
-                Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline | Token::Script => {
+                Token::At => {
+                    let annotation = self.parse_annotation()?;
+                    self.annotations.push(annotation);
+                }
+                Token::Async if self.look_ahead(1, |t| &t.token) == &Token::Constructor => {
+                    // If a constructor already exists, return an error.
+                    if constructor.is_some() {
+                        return Err(TypeCheckerError::custom(
+                            "A program can only have one constructor.",
+                            self.token.span,
+                        )
+                        .into());
+                    }
+                    let constructor_ = self.parse_constructor()?;
+                    constructor = Some(constructor_);
+                }
+                Token::Async | Token::Function | Token::Transition | Token::Inline | Token::Script => {
                     let (id, function) = self.parse_function()?;
 
                     // Partition into transitions and functions so that we don't have to sort later.
@@ -167,15 +190,21 @@ impl<N: Network> ParserContext<'_, N> {
             }
         }
 
+        // Check that there are no dangling annotations.
+        if !self.annotations.is_empty() {
+            self.emit_err(ParserError::custom("Unexpected dangling annotation", self.annotations[0].span))
+        }
+
         // Parse `}`.
         let end = self.expect(&Token::RightCurly)?;
 
         Ok(ProgramScope {
             program_id,
             consts,
-            functions: [transitions, functions].concat(),
             structs,
             mappings,
+            constructor,
+            functions: [transitions, functions].concat(),
             span: start + end,
         })
     }
@@ -336,7 +365,19 @@ impl<N: Network> ParserContext<'_, N> {
 
         if self.eat(&Token::LeftParen) {
             loop {
-                let key = self.expect_identifier()?;
+                let key = match self.token.token {
+                    Token::Mapping => Identifier {
+                        name: sym::mapping,
+                        span: self.expect(&Token::Mapping)?,
+                        id: self.node_builder.next_id(),
+                    },
+                    Token::Address => Identifier {
+                        name: sym::address,
+                        span: self.expect(&Token::Address)?,
+                        id: self.node_builder.next_id(),
+                    },
+                    _ => self.expect_identifier()?,
+                };
                 self.expect(&Token::Assign)?;
                 if let Token::StaticString(s) = &self.token.token {
                     map.insert(key.name, s.clone());
@@ -370,12 +411,8 @@ impl<N: Network> ParserContext<'_, N> {
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     fn parse_function(&mut self) -> Result<(Symbol, Function)> {
-        // TODO: Handle dangling annotations.
-        // Parse annotations, if they exist.
-        let mut annotations = Vec::new();
-        while self.look_ahead(0, |t| &t.token) == &Token::At {
-            annotations.push(self.parse_annotation()?)
-        }
+        // Get any accumulated annotations.
+        let annotations = self.annotations.drain(..).collect();
         // Parse a potential async signifier.
         let (is_async, start_async) =
             if self.token.token == Token::Async { (true, self.expect(&Token::Async)?) } else { (false, Span::dummy()) };
@@ -445,5 +482,29 @@ impl<N: Network> ParserContext<'_, N> {
                 self.node_builder.next_id(),
             ),
         ))
+    }
+
+    /// Returns a `Constructor` AST node if the next tokens represent a constructor.
+    pub(crate) fn parse_constructor(&mut self) -> Result<Constructor> {
+        // Get any accumulated annotations.
+        let annotations = self.annotations.drain(..).collect_vec();
+        // Parse the `async` keyword.
+        let start = self.expect(&Token::Async)?;
+        // Parse the `constructor` keyword.
+        let _ = self.expect(&Token::Constructor)?;
+        // Parse the opening parenthesis.
+        let _ = self.expect(&Token::LeftParen)?;
+        // Parse the closing parenthesis.
+        let _ = self.expect(&Token::RightParen)?;
+        // Parse the constructor body, which must be a block.
+        let block = self.parse_block()?;
+
+        // Correctly handle the starting span.
+        let start = match annotations.is_empty() {
+            true => start,
+            false => annotations[0].span,
+        };
+
+        Ok(Constructor { span: start + block.span, annotations, block, id: self.node_builder.next_id() })
     }
 }

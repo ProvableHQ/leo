@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod future_checker;
-
 mod await_checker;
 use self::await_checker::AwaitChecker;
+
+mod future_checker;
 
 mod program;
 

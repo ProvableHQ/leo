@@ -1,0 +1,5 @@
+Error [ETYC0372156]: The mapping 'test.aleo/expected_checksum' key type 'bool' does not match the key '1field' in the `@checksum` annotation
+    --> compiler-test:7:5
+     |
+   7 |     @checksum(mapping = "test.aleo/expected_checksum", key = "1field")
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

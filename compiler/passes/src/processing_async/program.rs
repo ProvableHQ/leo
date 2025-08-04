@@ -54,6 +54,7 @@ impl ProgramReconstructor for ProcessingAsyncVisitor<'_> {
             structs: input.structs.into_iter().map(|(id, def)| (id, self.reconstruct_struct(def))).collect(),
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
             functions: reconstructed_functions,
+            constructor: input.constructor,
             consts: input
                 .consts
                 .into_iter()

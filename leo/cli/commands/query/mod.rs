@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_ast::NetworkName;
 use leo_errors::UtilError;
-use leo_package::{NetworkName, fetch_from_network, verify_valid_program};
+use leo_package::{fetch_from_network, verify_valid_program};
 
 use super::*;
 
@@ -112,11 +113,11 @@ fn handle_query(
     };
 
     // Make GET request to retrieve on-chain state.
-    let url = format!("{}/{}/{output}", endpoint, network);
+    let url = format!("{endpoint}/{network}/{output}");
     let result = fetch_from_network(&url)?;
     if !recursive {
         tracing::info!("✅ Successfully retrieved data from '{url}'.\n");
-        println!("{}\n", result);
+        println!("{result}\n");
     }
 
     // Verify that the source file parses into a valid Aleo program.

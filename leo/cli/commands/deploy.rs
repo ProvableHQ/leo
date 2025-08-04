@@ -17,8 +17,10 @@
 use super::*;
 
 use check_transaction::TransactionStatus;
-use leo_package::{NetworkName, Package, ProgramData, fetch_program_from_network};
+use leo_ast::NetworkName;
+use leo_package::{Package, ProgramData, fetch_program_from_network};
 
+use aleo_std::StorageMode;
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
@@ -36,19 +38,12 @@ use snarkvm::{
     },
 };
 
-use aleo_std::StorageMode;
 use colored::*;
 use std::{collections::HashSet, fs, path::PathBuf};
 
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]
 pub struct LeoDeploy {
-    #[clap(
-        long,
-        help = "Deploy the programs twice (this is temporarily necessary on local devnets with consensus version 8)",
-        default_value = "false"
-    )]
-    twice: bool,
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
     #[clap(flatten)]
@@ -63,12 +58,13 @@ pub struct LeoDeploy {
     pub(crate) build_options: BuildOptions,
 }
 
-struct Task<N: Network> {
-    id: ProgramID<N>,
-    snarkvm_program: Program<N>,
-    is_local: bool,
-    priority_fee: Option<u64>,
-    record: Option<Record<N, Plaintext<N>>>,
+pub struct Task<N: Network> {
+    pub id: ProgramID<N>,
+    pub program: Program<N>,
+    pub edition: Option<u16>,
+    pub is_local: bool,
+    pub priority_fee: Option<u64>,
+    pub record: Option<Record<N, Plaintext<N>>>,
 }
 
 impl Command for LeoDeploy {
@@ -136,7 +132,7 @@ fn handle_deploy<N: Network>(
         .map(|program| {
             let bytecode = match &program.data {
                 ProgramData::Bytecode(s) => s.clone(),
-                ProgramData::SourcePath(..) => {
+                ProgramData::SourcePath { .. } => {
                     // We need to read the bytecode from the filesystem.
                     let aleo_name = format!("{}.aleo", program.name);
                     let aleo_path = if package.manifest.program == aleo_name {
@@ -166,9 +162,15 @@ fn handle_deploy<N: Network>(
             let id_str = format!("{}.aleo", program.name);
             let id =
                 id_str.parse().map_err(|e| CliError::custom(format!("Failed to parse program ID {id_str}: {e}")))?;
-            let snarkvm_program =
-                bytecode.parse().map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
-            Ok(Task { id, snarkvm_program, is_local: program.is_local, priority_fee, record })
+            let bytecode = bytecode.parse().map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+            Ok(Task {
+                id,
+                program: bytecode,
+                edition: program.edition,
+                is_local: program.is_local,
+                priority_fee,
+                record,
+            })
         })
         .collect::<Result<_>>()?;
 
@@ -185,7 +187,7 @@ fn handle_deploy<N: Network>(
         .collect();
 
     // Get the consensus version.
-    let consensus_version = get_consensus_version::<N>(&command.extra.consensus_version, &endpoint, network, &context)?;
+    let consensus_version = get_consensus_version(&command.extra.consensus_version, &endpoint, network, &context)?;
 
     // Print a summary of the deployment plan.
     print_deployment_plan(
@@ -196,7 +198,7 @@ fn handle_deploy<N: Network>(
         &local,
         &skipped,
         &remote,
-        &check_tasks_for_warnings(&endpoint, network, &local, &command.action),
+        &check_tasks_for_warnings(&endpoint, network, &local, consensus_version, command),
         consensus_version,
         command,
     );
@@ -214,47 +216,54 @@ fn handle_deploy<N: Network>(
     let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
 
     // Load the remote dependencies into the VM.
-    for Task { snarkvm_program, .. } in remote {
-        // If the program is a remote dependency, add it to the VM.
-        vm.process().write().add_program(&snarkvm_program)?;
-    }
+    let programs_and_editions = remote
+        .into_iter()
+        .map(|task| {
+            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
+            (task.program, task.edition.unwrap_or(1))
+        })
+        .collect::<Vec<_>>();
+    vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Specify the query
-    let query = SnarkVMQuery::<_, BlockMemory<_>>::from(&endpoint);
+    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint);
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
-    for Task { id, snarkvm_program, priority_fee, record, .. } in local {
+    for Task { id, program, priority_fee, record, .. } in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
-        let mut deploy = || -> Result<()> {
-            if !skipped.contains(&id) {
-                println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
-                // Generate the transaction.
-                let transaction = vm
-                    .deploy(
-                        &private_key,
-                        &snarkvm_program,
-                        record.clone(),
-                        priority_fee.unwrap_or(0),
-                        Some(&query),
-                        rng,
-                    )
-                    .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
-                // Get the deployment.
-                let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
-                // Print the deployment stats.
-                print_deployment_stats(&id.to_string(), deployment, priority_fee)?;
-                // Save the transaction.
-                transactions.push((id, transaction));
+        if !skipped.contains(&id) {
+            // If the program contains an upgrade config, confirm with the user that they want to proceed.
+            if let Some(constructor) = program.constructor() {
+                println!(
+                    r"
+🔧 Your program '{}' has the following constructor.
+──────────────────────────────────────────────
+{constructor}
+──────────────────────────────────────────────
+Once it is deployed, it CANNOT be changed.
+",
+                    id.to_string().bold()
+                );
+                if !confirm("Would you like to proceed?", command.extra.yes)? {
+                    println!("❌ Deployment aborted.");
+                    return Ok(());
+                }
             }
-            Ok(())
-        };
-        deploy()?;
-        // Add the program to the VM.
-        vm.process().write().add_program(&snarkvm_program)?;
-        if command.twice {
-            deploy()?;
+            println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
+            // Generate the transaction.
+            let transaction =
+                vm.deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
+                    .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
+            // Get the deployment.
+            let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+            // Print the deployment stats.
+            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee)?;
+            // Save the transaction.
+            transactions.push((id, transaction));
         }
+        // Add the program to the VM.
+        vm.process().write().add_program(&program)?;
     }
 
     for (program_id, transaction) in transactions.iter() {
@@ -306,7 +315,7 @@ fn handle_deploy<N: Network>(
             let height_before = check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
             let (message, status) = handle_broadcast(
-                &format!("{}/{}/transaction/broadcast", endpoint, network),
+                &format!("{endpoint}/{network}/transaction/broadcast"),
                 transaction,
                 &program_id.to_string(),
             )?;
@@ -335,7 +344,7 @@ fn handle_deploy<N: Network>(
                     )?;
                     if status == Some(TransactionStatus::Accepted) {
                         println!("✅ Deployment confirmed!");
-                    } else if fail_and_prompt("Transaction apparently not accepted")? {
+                    } else if fail_and_prompt("could not find the transaction on the network")? {
                         continue;
                     } else {
                         return Ok(());
@@ -356,20 +365,21 @@ fn handle_deploy<N: Network>(
 }
 
 /// Check the tasks to warn the user about any potential issues.
-/// Only local programs are checked.
 /// The following properties are checked:
 /// - If the transaction is to be broadcast:
 ///     - The program does not exist on the network.
-/// - The program's external dependencies are the latest version.
+///     - If the consensus version is less than V9, the program does not use V9 features.
+///     - If the consensus version is V9 or greater, the program contains a constructor.
 fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
     tasks: &[Task<N>],
-    action: &TransactionAction,
+    consensus_version: ConsensusVersion,
+    command: &LeoDeploy,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
-    for Task { id, is_local, .. } in tasks {
-        if !is_local || !action.broadcast {
+    for Task { id, is_local, program, .. } in tasks {
+        if !is_local || !command.action.broadcast {
             continue;
         }
         // Check if the program exists on the network.
@@ -377,12 +387,26 @@ fn check_tasks_for_warnings<N: Network>(
             warnings
                 .push(format!("The program '{id}' already exists on the network. The deployment will likely fail.",));
         }
+        // If the upgrade flag is not set, check that the program exists on the network.
+        if fetch_program_from_network(&id.to_string(), endpoint, network).is_ok() {
+            warnings
+                .push(format!("The program '{id}' already exists on the network. The deployment will likely fail.",));
+        }
+        // Check if the program uses V9 features.
+        if consensus_version < ConsensusVersion::V9 && program.contains_v9_syntax() {
+            warnings.push(format!("The program '{id}' uses V9 features but the consensus version is less than V9. The deployment will likely fail"));
+        }
+        // Check if the program contains a constructor.
+        if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
+            warnings
+                .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
+        }
     }
     warnings
 }
 
 /// Check if the number of variables and constraints are within the limits.
-fn validate_deployment_limits<N: Network>(
+pub(crate) fn validate_deployment_limits<N: Network>(
     deployment: &Deployment<N>,
     program_id: &ProgramID<N>,
     network: &NetworkName,
@@ -416,7 +440,7 @@ fn validate_deployment_limits<N: Network>(
 
 /// Pretty‑print the deployment plan without using a table.
 #[allow(clippy::too_many_arguments)]
-fn print_deployment_plan<N: Network>(
+pub(crate) fn print_deployment_plan<N: Network>(
     private_key: &PrivateKey<N>,
     address: &Address<N>,
     endpoint: &str,
@@ -506,7 +530,8 @@ fn print_deployment_plan<N: Network>(
 
 /// Pretty‑print deployment statistics without a table, using the same UI
 /// conventions as `print_deployment_plan`.
-fn print_deployment_stats<N: Network>(
+pub(crate) fn print_deployment_stats<N: Network>(
+    vm: &VM<N, ConsensusMemory<N>>,
     program_id: &str,
     deployment: &Deployment<N>,
     priority_fee: Option<u64>,
@@ -517,7 +542,8 @@ fn print_deployment_stats<N: Network>(
     // ── Collect statistics ────────────────────────────────────────────────
     let variables = deployment.num_combined_variables()?;
     let constraints = deployment.num_combined_constraints()?;
-    let (base_fee, (storage_cost, synthesis_cost, namespace_cost)) = deployment_cost(deployment)?;
+    let (base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
+        deployment_cost(&vm.process().read(), deployment)?;
 
     let base_fee_cr = base_fee as f64 / 1_000_000.0;
     let prio_fee_cr = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;
@@ -551,6 +577,7 @@ fn print_deployment_stats<N: Network>(
     );
     println!("  {:22}{}{:.6}", "Program Synthesis:".cyan(), "".yellow(), synthesis_cost as f64 / 1_000_000.0);
     println!("  {:22}{}{:.6}", "Namespace:".cyan(), "".yellow(), namespace_cost as f64 / 1_000_000.0);
+    println!("  {:22}{}{:.6}", "Constructor:".cyan(), "".yellow(), constructor_cost as f64 / 1_000_000.0);
     println!("  {:22}{}{:.6}", "Priority Fee:".cyan(), "".yellow(), prio_fee_cr);
     println!("  {:22}{}{:.6}", "Total Fee:".cyan(), "".yellow(), total_fee_cr);
 

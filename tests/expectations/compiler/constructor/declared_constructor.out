@@ -1,0 +1,32 @@
+program test.aleo;
+
+mapping expected:
+    key as boolean.public;
+    value as [u8; 32u32].public;
+
+mapping admin:
+    key as boolean.public;
+    value as address.public;
+
+function set_expected:
+    input r0 as [u8; 32u32].private;
+    async set_expected self.caller r0 into r1;
+    output r1 as test.aleo/set_expected.future;
+
+finalize set_expected:
+    input r0 as address.public;
+    input r1 as [u8; 32u32].public;
+    get admin[true] into r2;
+    assert.eq r0 r2;
+    set r1 into expected[true];
+
+constructor:
+    gt edition 0u16 into r0;
+    branch.eq r0 false to end_then_0_0;
+    get expected[true] into r1;
+    assert.eq r1 checksum;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    set program_owner into admin[true];
+    position end_otherwise_0_1;
+

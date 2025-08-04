@@ -54,4 +54,7 @@ program test.aleo {
         }
         return arr;
     }
+
+    @noupgrade
+    async constructor() {}
 }

@@ -24,10 +24,12 @@ mod visitor;
 use visitor::*;
 
 use self::scope_state::ScopeState;
-use crate::{CallGraph, CompilerState, Pass, StructGraph};
+use crate::{CompilerState, Pass};
 
-use leo_ast::ProgramVisitor;
+use leo_ast::{CallGraph, NetworkName, ProgramVisitor, StructGraph};
 use leo_errors::Result;
+
+use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
 
 use indexmap::{IndexMap, IndexSet};
 
@@ -38,6 +40,30 @@ pub struct TypeCheckingInput {
     pub max_mappings: usize,
     pub max_functions: usize,
     pub max_inputs: usize,
+}
+
+impl TypeCheckingInput {
+    /// Create a new `TypeCheckingInput` from the given network.
+    pub fn new(network: NetworkName) -> Self {
+        let (max_array_elements, max_mappings, max_functions, max_inputs) = match network {
+            NetworkName::MainnetV0 => (
+                MainnetV0::MAX_ARRAY_ELEMENTS,
+                MainnetV0::MAX_MAPPINGS,
+                MainnetV0::MAX_FUNCTIONS,
+                MainnetV0::MAX_INPUTS,
+            ),
+            NetworkName::TestnetV0 => (
+                TestnetV0::MAX_ARRAY_ELEMENTS,
+                TestnetV0::MAX_MAPPINGS,
+                TestnetV0::MAX_FUNCTIONS,
+                TestnetV0::MAX_INPUTS,
+            ),
+            NetworkName::CanaryV0 => {
+                (CanaryV0::MAX_ARRAY_ELEMENTS, CanaryV0::MAX_MAPPINGS, CanaryV0::MAX_FUNCTIONS, CanaryV0::MAX_INPUTS)
+            }
+        };
+        Self { max_array_elements, max_mappings, max_functions, max_inputs }
+    }
 }
 
 /// A pass to check types.
@@ -58,12 +84,13 @@ impl Pass for TypeChecking {
             .map(|(loc, _)| loc.name)
             .chain(state.symbol_table.iter_structs().map(|(name, _)| name))
             .collect();
-        let function_names = state.symbol_table.iter_functions().map(|(loc, _)| loc.name).collect();
+        let function_names = state.symbol_table.iter_functions().map(|(name, _)| name).collect();
 
         let ast = std::mem::take(&mut state.ast);
 
-        // Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
+        // Initialize the struct graph with all the structs in the program.
         state.struct_graph = StructGraph::new(struct_names);
+        // Initialize the call graph with all the functions in the program.
         state.call_graph = CallGraph::new(function_names);
 
         let mut visitor = TypeCheckingVisitor {

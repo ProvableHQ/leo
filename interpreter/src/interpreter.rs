@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_ast::interpreter_value::{AsyncExecution, GlobalId, Value};
+use leo_ast::{
+    NetworkName,
+    interpreter_value::{AsyncExecution, GlobalId, Value},
+};
 use leo_errors::{CompilerError, Handler, InterpreterHalt, LeoError, Result};
 
 /// Contains the state of interpretation, in the form of the `Cursor`,
@@ -31,6 +34,8 @@ pub struct Interpreter {
     saved_cursors: Vec<Cursor>,
     filename_to_program: HashMap<PathBuf, String>,
     parsed_inputs: u32,
+    /// The network.
+    network: NetworkName,
 }
 
 #[derive(Clone, Debug)]
@@ -65,20 +70,22 @@ impl Interpreter {
         aleo_source_files: impl IntoIterator<Item = &'a Q>,
         signer: SvmAddress,
         block_height: u32,
+        network: NetworkName,
     ) -> Result<Self> {
         Self::new_impl(
             &mut leo_source_files.into_iter().map(|p| p.as_ref()),
             &mut aleo_source_files.into_iter().map(|p| p.as_ref()),
             signer,
             block_height,
+            network,
         )
     }
 
-    fn get_ast(path: &Path, handler: &Handler, node_builder: &NodeBuilder) -> Result<Ast> {
+    fn get_ast(path: &Path, handler: &Handler, node_builder: &NodeBuilder, network: NetworkName) -> Result<Ast> {
         let text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))?;
         let filename = FileName::Real(path.to_path_buf());
         let source_file = with_session_globals(|s| s.source_map.new_source(&text, filename));
-        leo_parser::parse_ast::<TestnetV0>(handler.clone(), node_builder, &text, source_file.absolute_start)
+        leo_parser::parse_ast(handler.clone(), node_builder, &text, source_file.absolute_start, network)
     }
 
     fn new_impl(
@@ -86,6 +93,7 @@ impl Interpreter {
         aleo_source_files: &mut dyn Iterator<Item = &Path>,
         signer: SvmAddress,
         block_height: u32,
+        network: NetworkName,
     ) -> Result<Self> {
         let handler = Handler::default();
         let node_builder = Default::default();
@@ -97,7 +105,7 @@ impl Interpreter {
         let mut filename_to_program = HashMap::new();
 
         for path in leo_source_files {
-            let ast = Self::get_ast(path, &handler, &node_builder)?;
+            let ast = Self::get_ast(path, &handler, &node_builder, network)?;
             for (&program, scope) in ast.ast.program_scopes.iter() {
                 filename_to_program.insert(path.to_path_buf(), program.to_string());
                 for (name, function) in scope.functions.iter() {
@@ -201,6 +209,7 @@ impl Interpreter {
             saved_cursors: Vec::new(),
             filename_to_program,
             parsed_inputs: 0,
+            network,
         })
     }
 
@@ -287,11 +296,12 @@ impl Interpreter {
                 let source_file = with_session_globals(|globals| globals.source_map.new_source(s, filename));
                 let s = s.trim();
                 if s.ends_with(';') {
-                    let statement = leo_parser::parse_statement::<TestnetV0>(
+                    let statement = leo_parser::parse_statement(
                         self.handler.clone(),
                         &self.node_builder,
                         s,
                         source_file.absolute_start,
+                        self.network,
                     )
                     .map_err(|_e| {
                         LeoError::InterpreterHalt(InterpreterHalt::new("failed to parse statement".into()))
@@ -303,11 +313,12 @@ impl Interpreter {
                         user_initiated: true,
                     });
                 } else {
-                    let expression = leo_parser::parse_expression::<TestnetV0>(
+                    let expression = leo_parser::parse_expression(
                         self.handler.clone(),
                         &self.node_builder,
                         s,
                         source_file.absolute_start,
+                        self.network,
                     )
                     .map_err(|e| {
                         LeoError::InterpreterHalt(InterpreterHalt::new(format!("Failed to parse expression: {e}")))

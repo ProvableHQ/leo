@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_package::NetworkName;
+use leo_ast::NetworkName;
 
 /// Asks the user to confirm an action, with an optional `--yes` override.
 pub fn confirm(prompt: &str, skip_confirmation: bool) -> Result<bool> {

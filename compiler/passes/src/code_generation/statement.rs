@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::CodeGeneratingVisitor;
+use super::*;
 
 use leo_ast::{
     AssertStatement,
@@ -217,7 +217,7 @@ impl CodeGeneratingVisitor<'_> {
             }
 
             // Add a label for the end of the `then` block.
-            instructions.push_str(&format!("    position {};\n", end_then_label));
+            instructions.push_str(&format!("    position {end_then_label};\n"));
 
             // Visit the `otherwise` block.
             if let Some(else_block) = &_input.otherwise {

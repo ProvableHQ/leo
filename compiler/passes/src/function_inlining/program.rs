@@ -15,10 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::FunctionInliningVisitor;
-use leo_ast::{AstReconstructor, Function, ProgramReconstructor, ProgramScope};
+use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor, ProgramScope};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
+use snarkvm::prelude::Itertools;
 
 impl ProgramReconstructor for FunctionInliningVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
@@ -28,9 +29,16 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
         // Get the post-order ordering of the call graph.
         // Note that the post-order always contains all nodes in the call graph.
         // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
-        let order = self.state.call_graph.post_order().unwrap();
+        let order = self
+            .state
+            .call_graph
+            .post_order()
+            .unwrap()
+            .into_iter()
+            .filter_map(|location| (location.program == self.program).then_some(location.name))
+            .collect_vec();
 
-        // Construct map to provide faster lookup of functions
+        // Construct map to provide faster lookup of functions.
         let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
 
         // Reconstruct and accumulate each of the functions in post-order.
@@ -47,6 +55,10 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
         // This is a sanity check to ensure that functions in the program scope have been processed.
         assert!(function_map.is_empty(), "All functions in the program scope should have been processed.");
 
+        // Reconstruct the constructor.
+        // Note: This must be done after the functions have been reconstructed to ensure that every callee function has been inlined.
+        let constructor = input.constructor.map(|constructor| self.reconstruct_constructor(constructor));
+
         // Note that this intentionally clears `self.reconstructed_functions` for the next program scope.
         let functions = core::mem::take(&mut self.reconstructed_functions).into_iter().collect();
 
@@ -54,6 +66,7 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
             program_id: input.program_id,
             structs: input.structs,
             mappings: input.mappings,
+            constructor,
             functions,
             consts: input.consts,
             span: input.span,
@@ -72,6 +85,23 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
             block: {
                 // Set the `is_async` flag before reconstructing the block.
                 self.is_async = input.variant.is_async_function();
+                // Reconstruct the block.
+                let block = self.reconstruct_block(input.block).0;
+                // Reset the `is_async` flag.
+                self.is_async = false;
+                block
+            },
+            span: input.span,
+            id: input.id,
+        }
+    }
+
+    fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
+        Constructor {
+            annotations: input.annotations,
+            block: {
+                // Set the `is_async` flag before reconstructing the block.
+                self.is_async = true;
                 // Reconstruct the block.
                 let block = self.reconstruct_block(input.block).0;
                 // Reset the `is_async` flag.

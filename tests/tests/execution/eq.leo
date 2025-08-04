@@ -25,4 +25,7 @@ program test.aleo {
         assert_eq(x, y);
         return x == y;
     }
+
+    @noupgrade
+    async constructor() {}
 }

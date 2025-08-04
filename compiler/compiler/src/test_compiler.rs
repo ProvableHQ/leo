@@ -16,7 +16,7 @@
 
 use crate::Compiler;
 
-use leo_ast::Stub;
+use leo_ast::{NetworkName, Stub};
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
@@ -38,13 +38,14 @@ pub fn whole_compile(
     handler: &Handler,
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<(String, String), LeoError> {
-    let mut compiler = Compiler::<TestnetV0>::new(
+    let mut compiler = Compiler::new(
         None,
         /* is_test (a Leo test) */ false,
         handler.clone(),
         "/fakedirectory-wont-use".into(),
         None,
         import_stubs,
+        NetworkName::TestnetV0,
     );
 
     let filename = FileName::Custom("compiler-test".into());
@@ -87,7 +88,7 @@ fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
         bytecodes.push(bytecode);
     }
 
-    Ok(bytecodes.iter().format(&format!("{}\n", PROGRAM_DELIMITER)).to_string())
+    Ok(bytecodes.iter().format(&format!("{PROGRAM_DELIMITER}\n")).to_string())
 }
 
 fn runner(source: &str) -> String {

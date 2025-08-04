@@ -1,4 +1,4 @@
-Error [ETYC0372040]: The allowed accesses to `self` are `self.caller` and `self.signer`.
+Error [ETYC0372040]: The allowed accesses to `self` are `self.{caller, checksum, edition, program_owner, signer}`.
     --> compiler-test:4:21
      |
    4 |         return self.foo == addr;

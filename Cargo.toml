@@ -27,7 +27,7 @@ include = [
 ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.85.1"
+rust-version = "1.88.0"
 
 [workspace]
 members = [
@@ -125,20 +125,10 @@ version = "0.10.9"
 # snarkvm doesn't use semantic versioning, so pin to a
 # specific version.
 [workspace.dependencies.snarkvm]
-version = "=4.0.0"
+#version = "=4.0.0"
+git = "https://github.com/ProvableHQ/snarkVM.git"
+rev = "e1365a7"
 features = [ "cli" ]
-
-# ditto
-[workspace.dependencies.snarkvm-circuit]
-version = "=4.0.0"
-
-# ditto
-[workspace.dependencies.snarkvm-synthesizer-program]
-version = "=4.0.0"
-
-# ditto
-[workspace.dependencies.snarkvm-console-network]
-version = "=4.0.0"
 
 [workspace.dependencies.serde]
 version = "1.0.214"
@@ -175,7 +165,11 @@ default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 only_testnet = [ ]
-test_network = [ "snarkvm/test_consensus_heights" ]
+test_network = [
+  "snarkvm/test_targets",
+  "snarkvm/test_consensus_heights",
+  "leo-compiler/test_network"
+]
 
 [dependencies]
 dialoguer = "0.11.0"
@@ -268,6 +262,7 @@ version = "7.3.1"
 
 [dependencies.ureq]
 workspace = true
+features = ["json"]
 
 [dependencies.walkdir]
 workspace = true

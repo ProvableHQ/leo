@@ -19,7 +19,10 @@ use crate::CompilerState;
 use leo_ast::{Function, Program, ProgramId, Variant};
 use leo_span::Symbol;
 
+use snarkvm::prelude::Network;
+
 use indexmap::{IndexMap, IndexSet};
+use std::str::FromStr;
 
 pub struct CodeGeneratingVisitor<'a> {
     pub state: &'a CompilerState,
@@ -50,6 +53,16 @@ pub struct CodeGeneratingVisitor<'a> {
     /// Internal record input registers of the current function.
     /// This is necessary as if we output them, we need to clone them.
     pub internal_record_inputs: IndexSet<String>,
+}
+
+/// This function checks whether the constructor is well-formed.
+/// If an upgrade configuration is provided, it checks that the constructor matches the configuration.
+pub(crate) fn check_snarkvm_constructor<N: Network>(actual: &str) -> snarkvm::prelude::Result<()> {
+    use snarkvm::synthesizer::program::Constructor as SVMConstructor;
+    // Parse the constructor as a snarkVM constructor.
+    SVMConstructor::<N>::from_str(actual.trim())?;
+
+    Ok(())
 }
 
 impl CodeGeneratingVisitor<'_> {

@@ -33,4 +33,7 @@ program test.aleo {
         }
         return c == x;
     }
+
+    @noupgrade
+    async constructor() {}
 }

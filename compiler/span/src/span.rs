@@ -16,10 +16,10 @@
 
 //! Defines the `Span` type used to track where code comes from.
 
+use crate::symbol::with_session_globals;
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
-
-use crate::symbol::with_session_globals;
 
 /// The span type which tracks where formatted errors originate from in a Leo file.
 /// This is used in many spots throughout the rest of the Leo crates.

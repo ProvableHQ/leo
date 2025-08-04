@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::CodeGeneratingVisitor;
+use super::*;
 
 use leo_ast::{
     ArrayAccess,
@@ -35,6 +35,7 @@ use leo_ast::{
     LocatorExpression,
     MemberAccess,
     Node,
+    ProgramId,
     RepeatExpression,
     StructExpression,
     TernaryExpression,
@@ -47,7 +48,7 @@ use leo_ast::{
 };
 use leo_span::sym;
 
-use std::fmt::Write as _;
+use std::{borrow::Borrow, fmt::Write as _};
 
 /// Implement the necessary methods to visit nodes in the AST.
 impl CodeGeneratingVisitor<'_> {
@@ -216,7 +217,7 @@ impl CodeGeneratingVisitor<'_> {
         let array_type: String = Self::visit_type(&array_type);
 
         let array_instruction =
-            format!("    cast {expression_operands} into {destination_register} as {};\n", array_type);
+            format!("    cast {expression_operands} into {destination_register} as {array_type};\n");
 
         // Concatenate the instructions.
         instructions.push_str(&array_instruction);
@@ -338,6 +339,24 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_member_access(&mut self, input: &MemberAccess) -> (String, String) {
+        // Handle `self.address`, `self.caller`, `self.checksum`, `self.edition`, `self.id`, `self.program_owner`, `self.signer`.
+        if let Expression::Identifier(Identifier { name: sym::SelfLower, .. }) = input.inner.borrow() {
+            // Get the current program ID.
+            let program_id = self.program_id.expect("Program ID should be set before traversing the program");
+
+            match input.name.name {
+                // Return the program ID directly.
+                sym::address | sym::id => {
+                    return (program_id.to_string(), String::new());
+                }
+                // Return the appropriate snarkVM operand.
+                name @ (sym::checksum | sym::edition | sym::program_owner) => {
+                    return (name.to_string(), String::new());
+                }
+                _ => {} // Do nothing as `self.signer` and `self.caller` are handled below.
+            }
+        }
+
         let (inner_expr, _) = self.visit_expression(&input.inner);
         let member_access = format!("{}.{}", inner_expr, input.name);
 
@@ -348,7 +367,7 @@ impl CodeGeneratingVisitor<'_> {
         let (operand, mut operand_instructions) = self.visit_expression(&input.expr);
         let count = input.count.as_u32().expect("repeat count should be known at this point");
 
-        let expression_operands = std::iter::repeat(operand).take(count as usize).collect::<Vec<_>>().join(" ");
+        let expression_operands = std::iter::repeat_n(operand, count as usize).collect::<Vec<_>>().join(" ");
 
         // Construct the destination register.
         let destination_register = self.next_register();
@@ -360,7 +379,7 @@ impl CodeGeneratingVisitor<'_> {
         let array_type: String = Self::visit_type(&array_type);
 
         let array_instruction =
-            format!("    cast {expression_operands} into {destination_register} as {};\n", array_type);
+            format!("    cast {expression_operands} into {destination_register} as {array_type};\n");
 
         // Concatenate the instructions.
         operand_instructions.push_str(&array_instruction);
@@ -485,7 +504,7 @@ impl CodeGeneratingVisitor<'_> {
                             .expect("failed to write to string");
                         (destination_register, instruction)
                     }
-                    _ => panic!("The only associated methods of group are to_x_coordinate and to_y_coordinate"),
+                    _ => panic!("The only associated methods of `group` are `to_x_coordinate` and `to_y_coordinate`"),
                 }
             }
             sym::ChaCha => {
@@ -531,6 +550,29 @@ impl CodeGeneratingVisitor<'_> {
                 let mut instruction = "    await".to_string();
                 writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
                 (String::new(), instruction)
+            }
+            sym::ProgramCore => {
+                match input.name.name {
+                    // Generate code for `Program::checksum`, `Program::edition`, and `Program::program_owner`
+                    name @ (sym::checksum | sym::edition | sym::program_owner) => {
+                        // Get the program ID from the first argument.
+                        let program_id =
+                            ProgramId::from_str_with_network(&arguments[0].replace("\"", ""), self.state.network)
+                                .expect("Type checking guarantees that the program name is valid");
+                        // If the program name matches the current program ID, then use the operand directly, otherwise fully qualify the operand.
+                        let operand = match program_id.to_string()
+                            == self.program_id.expect("The program ID is set before traversing the program").to_string()
+                        {
+                            true => name.to_string(),
+                            false => format!("{program_id}/{name}"),
+                        };
+                        (operand, String::new())
+                    }
+                    // No other variants are allowed.
+                    _ => panic!(
+                        "The only associated methods of `Program` are `checksum`, `edition`, and `program_owner`"
+                    ),
+                }
             }
             sym::CheatCode => {
                 (String::new(), String::new())
@@ -613,7 +655,7 @@ impl CodeGeneratingVisitor<'_> {
         if !destinations.is_empty() {
             write!(call_instruction, " into").expect("failed to write to string");
             for destination in &destinations {
-                write!(call_instruction, " {}", destination).expect("failed to write to string");
+                write!(call_instruction, " {destination}").expect("failed to write to string");
             }
         }
 

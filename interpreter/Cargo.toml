@@ -16,15 +16,9 @@ categories = [ "compilers", "cryptography", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.85.1"
+rust-version = "1.88.0"
 
 [dependencies.snarkvm]
-workspace = true
-
-[dependencies.snarkvm-circuit]
-workspace = true
-
-[dependencies.snarkvm-synthesizer-program]
 workspace = true
 
 [dependencies.leo-ast]

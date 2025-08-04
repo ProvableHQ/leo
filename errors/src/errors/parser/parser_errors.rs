@@ -388,4 +388,11 @@ create_messages!(
         msg: format!("Identifier {ident} cannot contain a double underscore `__`"),
         help: None,
     }
+
+    @formatted
+    custom {
+        args: (msg: impl Display),
+        msg: format!("{msg}"),
+        help: None,
+    }
 );

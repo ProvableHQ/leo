@@ -8,5 +8,6 @@ function main:
     input r0 as address.private;
     assert.eq r0 self.caller;
     assert.eq r0 test.aleo;
+    assert.eq r0 test.aleo;
     assert.eq r0 hello.aleo;
     output foo.aleo as address.private;

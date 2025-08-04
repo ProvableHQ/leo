@@ -1,0 +1,47 @@
+program child.aleo;
+
+function dummy:
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program test.aleo;
+
+function bar:
+    async bar into r0;
+    output r0 as test.aleo/bar.future;
+
+finalize bar:
+    assert.neq checksum child.aleo/checksum;
+    assert.eq edition child.aleo/edition;
+    assert.eq program_owner child.aleo/program_owner;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1t6xjjqktqt8fzpjjk9p82tcck7mvnlh94a662f6ypckvqche5ggs67kr8w",
+      "program": "test.aleo",
+      "function": "bar",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5452038081840518386744902223377179404839210202315869758489324932017890973184field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: bar,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "7225244287393613890517575934789757289434724021549354260630313527208523817631group",
+      "tcm": "6831188806834079829320728980913317729568481316514923791628302799269793572080field",
+      "scm": "4007544575991576067546983388028207587579401947076125204159341817695244488456field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

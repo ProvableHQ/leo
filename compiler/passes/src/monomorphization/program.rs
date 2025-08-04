@@ -16,7 +16,7 @@
 
 use super::MonomorphizationVisitor;
 use leo_ast::{AstReconstructor, Composite, Function, ProgramReconstructor, ProgramScope, Statement, Variant};
-use leo_span::Symbol;
+use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
 
@@ -51,15 +51,23 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Create a map of function names to their definitions for fast access.
         let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
 
-        // Compute a post-order traversal of the call graph. This ensures that functions are processed after all their
-        // callees. Make sure to only to compute the post order by considering the entry points of the program, which
-        // are `async transition`, `transition` and `function`.
+        // Compute a post-order traversal of the call graph. This ensures that functions are processed after all their callees.
+        // Make sure to only compute the post order by considering the entry points of the program, which are `async transition`, `transition` and `function`.
+        // We must consider entry points to ignore const generic inlines that have already been monomorphized but never called.
         let order = self
             .state
             .call_graph
-            .post_order_from_entry_points(|node| {
+            .post_order_with_filter(|location| {
+                // Filter out locations that are not from this program.
+                if location.program != self.program {
+                    return false;
+                }
+                // Allow constructors.
+                if location.program == self.program && location.name == sym::constructor {
+                    return true;
+                }
                 function_map
-                    .get(node)
+                    .get(&location.name)
                     .map(|f| {
                         matches!(
                             f.variant,
@@ -68,18 +76,23 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                     })
                     .unwrap_or(false)
             })
-            .unwrap(); // This unwrap is safe because the type checker guarantees an acyclic graph.
+            .unwrap() // This unwrap is safe because the type checker guarantees an acyclic graph.
+            .into_iter()
+            .filter(|location| location.program == self.program).collect::<Vec<_>>();
+
+        // Determine any ca
 
         // Reconstruct functions in post-order.
-        for function_name in &order {
-            // Skip external functions (i.e., not in the input map).
-            if let Some(function) = function_map.swap_remove(function_name) {
+        for location in &order {
+            if let Some(function) = function_map.swap_remove(&location.name) {
                 // Perform monomorphization or other reconstruction logic.
                 let reconstructed_function = self.reconstruct_function(function);
                 // Store the reconstructed function for inclusion in the output scope.
-                self.reconstructed_functions.insert(*function_name, reconstructed_function);
+                self.reconstructed_functions.insert(location.name, reconstructed_function);
             }
         }
+
+        // Get any
 
         // Now reconstruct mappings
         let mappings =
@@ -94,6 +107,9 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
             })
             .collect();
+
+        // Reconstruct the constructor last, as it cannot be called by any other function.
+        let constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
 
         // Now retain only functions that are either not yet monomorphized or are still referenced by calls.
         self.reconstructed_functions.retain(|f, _| {
@@ -120,6 +136,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             structs,
             mappings,
             functions: all_functions,
+            constructor,
             consts,
             span: input.span,
         }

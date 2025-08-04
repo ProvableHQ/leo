@@ -135,10 +135,10 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                 match index_opt {
                     Some(index) => {
                         let Type::Tuple(TupleType { elements }) = var_type else {
-                            panic!("Expected tuple type when accessing tuple field: {}.{}", symbol, index);
+                            panic!("Expected tuple type when accessing tuple field: {symbol}.{index}");
                         };
 
-                        let synthetic_name = format!("\"{}.{}\"", symbol, index);
+                        let synthetic_name = format!("\"{symbol}.{index}\"");
                         let synthetic_symbol = Symbol::intern(&synthetic_name);
                         let identifier = make_identifier(synthetic_symbol);
 
@@ -179,7 +179,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                                 }
 
                                 // Otherwise, synthesize identifier and input
-                                let synthetic_name = format!("\"{}.{}\"", symbol, i);
+                                let synthetic_name = format!("\"{symbol}.{i}\"");
                                 let synthetic_symbol = Symbol::intern(&synthetic_name);
                                 let identifier = make_identifier(synthetic_symbol);
 

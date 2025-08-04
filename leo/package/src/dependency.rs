@@ -29,10 +29,6 @@ pub struct Dependency {
     pub location: Location,
     /// For a local dependency, where is its package? Or, for a test, where is its source file?
     pub path: Option<PathBuf>,
-}
-
-impl Dependency {
-    pub fn new(name: String, location: Location, path: Option<PathBuf>) -> Self {
-        Self { name, location, path }
-    }
+    /// For a network dependency, what is its edition?
+    pub edition: Option<u16>,
 }

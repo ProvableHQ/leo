@@ -1,0 +1,17 @@
+Error [ETYC0372156]: A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.
+    --> compiler-test:7:5
+     |
+   7 |     @checksum(mapping = "test.aleo/expected_checksum", key = "true")
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+   9 |         if self.edition >= 0u16 {
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 |             let expected: [u8; 32] = Mapping::get(expected_checksum, true);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |             assert_eq(self.checksum, expected);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  12 |         }
+     |         ^
+  13 |     }
+     |     ^
