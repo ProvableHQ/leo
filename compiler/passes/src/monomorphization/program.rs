@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{AstReconstructor, Composite, Function, ProgramReconstructor, ProgramScope, Statement};
-use leo_span::Symbol;
+use leo_ast::{AstReconstructor, Composite, Function, ProgramReconstructor, ProgramScope, Statement, Variant};
+use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
 
@@ -51,16 +51,39 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Create a map of function names to their definitions for fast access.
         let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
 
-        // Compute a post-order traversal of the call graph.
-        // This ensures that functions are processed after all their callees.
-        let order = self.state.call_graph.post_order().unwrap(); // This unwrap is safe because the type checker guarantees an acyclic graph.
+        // Compute a post-order traversal of the call graph. This ensures that functions are processed after all their callees.
+        // Make sure to only compute the post order by considering the entry points of the program, which are `async transition`, `transition` and `function`.
+        // We must consider entry points to ignore const generic inlines that have already been monomorphized but never called.
+        let order = self
+            .state
+            .call_graph
+            .post_order_with_filter(|location| {
+                // Filter out locations that are not from this program.
+                if location.program != self.program.clone() {
+                    return false;
+                }
+                // Allow constructors.
+                if location.program == self.program && location.name == sym::constructor {
+                    return true;
+                }
+                function_map
+                    .get(&location.name)
+                    .map(|f| {
+                        matches!(
+                            f.variant,
+                            Variant::AsyncTransition | Variant::Transition | Variant::Function | Variant::Script
+                        )
+                    })
+                    .unwrap_or(false)
+            })
+            .unwrap() // This unwrap is safe because the type checker guarantees an acyclic graph.
+            .into_iter()
+            .filter(|location| location.program == self.program.clone()).collect::<Vec<_>>();
+
+        // Determine any ca
 
         // Reconstruct functions in post-order.
         for location in &order {
-            // Skip external functions.
-            if location.program != self.program {
-                continue;
-            }
             if let Some(function) = function_map.swap_remove(&location.name) {
                 // Perform monomorphization or other reconstruction logic.
                 let reconstructed_function = self.reconstruct_function(function);
@@ -68,6 +91,8 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 self.reconstructed_functions.insert(location.name, reconstructed_function);
             }
         }
+
+        // Get any
 
         // Now reconstruct mappings
         let mappings =

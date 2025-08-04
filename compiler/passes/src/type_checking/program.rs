@@ -455,6 +455,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         self.scope_state.reset();
         // Set the scope state before traversing the constructor.
         self.scope_state.function = Some(sym::constructor);
+        // Note: We set the variant to `AsyncFunction` since constructors have similar semantics.
         self.scope_state.variant = Some(Variant::AsyncFunction);
         self.scope_state.is_constructor = true;
 

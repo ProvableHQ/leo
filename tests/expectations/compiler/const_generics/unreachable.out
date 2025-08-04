@@ -1,5 +1,16 @@
-Error [ECMP0376012]: Unable to resolve call to generic function `def`. A non-const expression `C` was provided where a const generic parameter is required.
-    --> compiler-test:16:16
-     |
-  16 |         return def::[C]();
-     |                ^^^^^^^^^^
+program const_generics.aleo;
+
+function main:
+    output 0field as field.private;
+
+function main2:
+    async main2 into r0;
+    output r0 as const_generics.aleo/main2.future;
+
+finalize main2:
+    assert.eq true true;
+
+closure bar:
+    input r0 as field;
+    assert.eq true true;
+    output r0 as field;

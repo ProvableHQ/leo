@@ -1159,18 +1159,18 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             panic!("`self.function` is set every time a function is visited.");
         };
 
-        // If we are traversing a constructor, don't add it to the call graph.
-        // Constructors cannot be invoked directly and thus are always source nodes in the graph.
-        // Note that external calls are added to the call graph because program upgradability enables import cycles.
-        if !self.scope_state.is_constructor {
-            let caller_program =
-                self.scope_state.program_name.expect("`program_name` is always set before traversing a program scope");
-            let caller_function =
-                self.scope_state.function.expect("`function` is always set before traversing a function scope");
-            let caller = Location::new(caller_program, caller_function);
-            let callee = Location::new(callee_program, input.function.name);
-            self.state.call_graph.add_edge(caller, callee);
-        }
+        let caller_program =
+            self.scope_state.program_name.expect("`program_name` is always set before traversing a program scope");
+        // Note: Constructors are added to the call graph under the `constructor` symbol.
+        // This is safe since `constructor` is a reserved token and cannot be used as a function name.
+        let caller_function = if self.scope_state.is_constructor {
+            sym::constructor
+        } else {
+            self.scope_state.function.expect("`function` is always set before traversing a function scope")
+        };
+        let caller = Location::new(caller_program, caller_function);
+        let callee = Location::new(callee_program, input.function.name);
+        self.state.call_graph.add_edge(caller, callee);
 
         if func.variant.is_transition() && self.scope_state.variant == Some(Variant::AsyncTransition) {
             if self.scope_state.has_called_finalize {
