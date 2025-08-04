@@ -271,15 +271,25 @@ impl<'a> ParserContext<'a> {
             NetworkName::TestnetV0 => Field::<TestnetV0>::SIZE_IN_DATA_BITS / 8,
             NetworkName::CanaryV0 => Field::<CanaryV0>::SIZE_IN_DATA_BITS / 8,
         };
-        let len = with_session_globals(|sg| identifier.name.as_str(sg, |s| s.len()));
-        if len > field_capacity_bytes {
-            self.emit_err(ParserError::identifier_too_long(
-                identifier.name,
-                len,
-                field_capacity_bytes,
-                identifier.span,
-            ));
-        }
+        with_session_globals(|sg| {
+            identifier.name.as_str(sg, |s| {
+                if s.len() > field_capacity_bytes {
+                    self.emit_err(ParserError::identifier_too_long(
+                        identifier.name,
+                        s.len(),
+                        field_capacity_bytes,
+                        identifier.span,
+                    ));
+                }
+                // These are reserved for compiler-generated names.
+                if s.contains("__") {
+                    self.emit_err(ParserError::identifier_cannot_contain_double_underscore(
+                        identifier.name,
+                        identifier.span,
+                    ));
+                }
+            })
+        });
     }
 
     /// Returns a [`ConstParameter`] AST node if the next tokens represent a generic const parameter.
