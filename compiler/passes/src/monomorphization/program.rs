@@ -59,7 +59,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             .call_graph
             .post_order_with_filter(|location| {
                 // Filter out locations that are not from this program.
-                if location.program != self.program.clone() {
+                if location.program != self.program {
                     return false;
                 }
                 // Allow constructors.
@@ -78,7 +78,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             })
             .unwrap() // This unwrap is safe because the type checker guarantees an acyclic graph.
             .into_iter()
-            .filter(|location| location.program == self.program.clone()).collect::<Vec<_>>();
+            .filter(|location| location.program == self.program).collect::<Vec<_>>();
 
         // Determine any ca
 
