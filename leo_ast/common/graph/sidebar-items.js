@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DiGraphError"],"struct":["DiGraph"],"trait":["GraphNode"],"type":["CallGraph","ImportGraph","StructGraph"]};

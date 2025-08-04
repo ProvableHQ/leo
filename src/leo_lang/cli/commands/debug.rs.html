@@ -75,7 +75,7 @@
 <a href=#75 id=75 data-nosnippet>75</a>            .programs
 <a href=#76 id=76 data-nosnippet>76</a>            .iter()
 <a href=#77 id=77 data-nosnippet>77</a>            .flat_map(|program| <span class="kw">match </span><span class="kw-2">&amp;</span>program.data {
-<a href=#78 id=78 data-nosnippet>78</a>                ProgramData::SourcePath(path) =&gt; <span class="prelude-val">Some</span>(path.clone()),
+<a href=#78 id=78 data-nosnippet>78</a>                ProgramData::SourcePath { source, .. } =&gt; <span class="prelude-val">Some</span>(source.clone()),
 <a href=#79 id=79 data-nosnippet>79</a>                ProgramData::Bytecode(..) =&gt; <span class="prelude-val">None</span>,
 <a href=#80 id=80 data-nosnippet>80</a>            })
 <a href=#81 id=81 data-nosnippet>81</a>            .collect();
@@ -84,7 +84,7 @@
 <a href=#84 id=84 data-nosnippet>84</a>            .programs
 <a href=#85 id=85 data-nosnippet>85</a>            .iter()
 <a href=#86 id=86 data-nosnippet>86</a>            .flat_map(|program| <span class="kw">match </span><span class="kw-2">&amp;</span>program.data {
-<a href=#87 id=87 data-nosnippet>87</a>                ProgramData::SourcePath(..) =&gt; {
+<a href=#87 id=87 data-nosnippet>87</a>                ProgramData::SourcePath { .. } =&gt; {
 <a href=#88 id=88 data-nosnippet>88</a>                    <span class="comment">// It's a local Leo dependency.
 <a href=#89 id=89 data-nosnippet>89</a>                    </span><span class="prelude-val">Some</span>(program.name)
 <a href=#90 id=90 data-nosnippet>90</a>                }
@@ -116,27 +116,44 @@
 <a href=#116 id=116 data-nosnippet>116</a>            })
 <a href=#117 id=117 data-nosnippet>117</a>            .collect();
 <a href=#118 id=118 data-nosnippet>118</a>
-<a href=#119 id=119 data-nosnippet>119</a>        <span class="comment">// No need to keep this around while the interpreter runs.
-<a href=#120 id=120 data-nosnippet>120</a>        </span>std::mem::drop(package);
+<a href=#119 id=119 data-nosnippet>119</a>        <span class="comment">// Get the network from the package environment.
+<a href=#120 id=120 data-nosnippet>120</a>        </span><span class="kw">let </span>network = package.env.network;
 <a href=#121 id=121 data-nosnippet>121</a>
-<a href=#122 id=122 data-nosnippet>122</a>        leo_interpreter::interpret(<span class="kw-2">&amp;</span>local_dependency_paths, <span class="kw-2">&amp;</span>aleo_paths, address, command.block_height, command.tui)
-<a href=#123 id=123 data-nosnippet>123</a>    } <span class="kw">else </span>{
-<a href=#124 id=124 data-nosnippet>124</a>        <span class="kw">let </span>private_key: PrivateKey&lt;TestnetV0&gt; = PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY)<span class="question-mark">?</span>;
-<a href=#125 id=125 data-nosnippet>125</a>        <span class="kw">let </span>address = Address::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
-<a href=#126 id=126 data-nosnippet>126</a>
-<a href=#127 id=127 data-nosnippet>127</a>        <span class="kw">let </span>leo_paths: Vec&lt;PathBuf&gt; = command
-<a href=#128 id=128 data-nosnippet>128</a>            .paths
-<a href=#129 id=129 data-nosnippet>129</a>            .iter()
-<a href=#130 id=130 data-nosnippet>130</a>            .filter(|path_str| path_str.ends_with(<span class="string">".leo"</span>))
-<a href=#131 id=131 data-nosnippet>131</a>            .map(|path_str| path_str.into())
-<a href=#132 id=132 data-nosnippet>132</a>            .collect();
-<a href=#133 id=133 data-nosnippet>133</a>        <span class="kw">let </span>aleo_paths: Vec&lt;PathBuf&gt; = command
-<a href=#134 id=134 data-nosnippet>134</a>            .paths
-<a href=#135 id=135 data-nosnippet>135</a>            .iter()
-<a href=#136 id=136 data-nosnippet>136</a>            .filter(|path_str| !path_str.ends_with(<span class="string">".leo"</span>))
-<a href=#137 id=137 data-nosnippet>137</a>            .map(|path_str| path_str.into())
-<a href=#138 id=138 data-nosnippet>138</a>            .collect();
-<a href=#139 id=139 data-nosnippet>139</a>
-<a href=#140 id=140 data-nosnippet>140</a>        leo_interpreter::interpret(<span class="kw-2">&amp;</span>leo_paths, <span class="kw-2">&amp;</span>aleo_paths, address, command.block_height, command.tui)
-<a href=#141 id=141 data-nosnippet>141</a>    }
-<a href=#142 id=142 data-nosnippet>142</a>}</code></pre></div></section></main></body></html>
+<a href=#122 id=122 data-nosnippet>122</a>        <span class="comment">// No need to keep this around while the interpreter runs.
+<a href=#123 id=123 data-nosnippet>123</a>        </span>std::mem::drop(package);
+<a href=#124 id=124 data-nosnippet>124</a>
+<a href=#125 id=125 data-nosnippet>125</a>        leo_interpreter::interpret(
+<a href=#126 id=126 data-nosnippet>126</a>            <span class="kw-2">&amp;</span>local_dependency_paths,
+<a href=#127 id=127 data-nosnippet>127</a>            <span class="kw-2">&amp;</span>aleo_paths,
+<a href=#128 id=128 data-nosnippet>128</a>            address,
+<a href=#129 id=129 data-nosnippet>129</a>            command.block_height,
+<a href=#130 id=130 data-nosnippet>130</a>            command.tui,
+<a href=#131 id=131 data-nosnippet>131</a>            network,
+<a href=#132 id=132 data-nosnippet>132</a>        )
+<a href=#133 id=133 data-nosnippet>133</a>    } <span class="kw">else </span>{
+<a href=#134 id=134 data-nosnippet>134</a>        <span class="kw">let </span>private_key: PrivateKey&lt;TestnetV0&gt; = PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY)<span class="question-mark">?</span>;
+<a href=#135 id=135 data-nosnippet>135</a>        <span class="kw">let </span>address = Address::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
+<a href=#136 id=136 data-nosnippet>136</a>
+<a href=#137 id=137 data-nosnippet>137</a>        <span class="kw">let </span>leo_paths: Vec&lt;PathBuf&gt; = command
+<a href=#138 id=138 data-nosnippet>138</a>            .paths
+<a href=#139 id=139 data-nosnippet>139</a>            .iter()
+<a href=#140 id=140 data-nosnippet>140</a>            .filter(|path_str| path_str.ends_with(<span class="string">".leo"</span>))
+<a href=#141 id=141 data-nosnippet>141</a>            .map(|path_str| path_str.into())
+<a href=#142 id=142 data-nosnippet>142</a>            .collect();
+<a href=#143 id=143 data-nosnippet>143</a>        <span class="kw">let </span>aleo_paths: Vec&lt;PathBuf&gt; = command
+<a href=#144 id=144 data-nosnippet>144</a>            .paths
+<a href=#145 id=145 data-nosnippet>145</a>            .iter()
+<a href=#146 id=146 data-nosnippet>146</a>            .filter(|path_str| !path_str.ends_with(<span class="string">".leo"</span>))
+<a href=#147 id=147 data-nosnippet>147</a>            .map(|path_str| path_str.into())
+<a href=#148 id=148 data-nosnippet>148</a>            .collect();
+<a href=#149 id=149 data-nosnippet>149</a>
+<a href=#150 id=150 data-nosnippet>150</a>        leo_interpreter::interpret(
+<a href=#151 id=151 data-nosnippet>151</a>            <span class="kw-2">&amp;</span>leo_paths,
+<a href=#152 id=152 data-nosnippet>152</a>            <span class="kw-2">&amp;</span>aleo_paths,
+<a href=#153 id=153 data-nosnippet>153</a>            address,
+<a href=#154 id=154 data-nosnippet>154</a>            command.block_height,
+<a href=#155 id=155 data-nosnippet>155</a>            command.tui,
+<a href=#156 id=156 data-nosnippet>156</a>            package.map(|p| p.env.network).unwrap_or_default(),
+<a href=#157 id=157 data-nosnippet>157</a>        )
+<a href=#158 id=158 data-nosnippet>158</a>    }
+<a href=#159 id=159 data-nosnippet>159</a>}</code></pre></div></section></main></body></html>

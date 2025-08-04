@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_consensus_version","parse_amount","parse_fee_options","parse_record","parse_record_string"],"struct":["BuildOptions","EnvOptions","ExtraOptions","FeeOptions","TransactionAction"]};
+window.SIDEBAR_ITEMS = {"fn":["get_consensus_version","get_consensus_version_from_height","parse_amount","parse_fee_options","parse_record","parse_record_string"],"struct":["BuildOptions","EnvOptions","ExtraOptions","FeeOptions","TransactionAction"]};

@@ -108,4 +108,11 @@
 <a href=#108 id=108 data-nosnippet>108</a>        msg: <span class="macro">format!</span>(<span class="string">"An `async` block cannot capture more than {max} variables, found one attempting to capture {size} variables."</span>),
 <a href=#109 id=109 data-nosnippet>109</a>        help: <span class="prelude-val">None</span>,
 <a href=#110 id=110 data-nosnippet>110</a>    }
-<a href=#111 id=111 data-nosnippet>111</a>);</code></pre></div></section></main></body></html>
+<a href=#111 id=111 data-nosnippet>111</a>
+<a href=#112 id=112 data-nosnippet>112</a>    @formatted
+<a href=#113 id=113 data-nosnippet>113</a>    custom_error {
+<a href=#114 id=114 data-nosnippet>114</a>        args: (msg: <span class="kw">impl </span>Display, help: <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Display&gt;),
+<a href=#115 id=115 data-nosnippet>115</a>        msg: <span class="macro">format!</span>(<span class="string">"{msg}"</span>),
+<a href=#116 id=116 data-nosnippet>116</a>        help: help.map(|h| h.to_string()),
+<a href=#117 id=117 data-nosnippet>117</a>    }
+<a href=#118 id=118 data-nosnippet>118</a>);</code></pre></div></section></main></body></html>

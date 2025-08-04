@@ -111,7 +111,7 @@
 <a href=#111 id=111 data-nosnippet>111</a>                <span class="string">"\n🟢 {} {} {}"</span>,
 <a href=#112 id=112 data-nosnippet>112</a>                <span class="string">"A new version is available! Run"</span>.bold().green(),
 <a href=#113 id=113 data-nosnippet>113</a>                <span class="string">"`leo update`"</span>.bold().white(),
-<a href=#114 id=114 data-nosnippet>114</a>                <span class="macro">format!</span>(<span class="string">"to update to v{}."</span>, latest_version).bold().green()
+<a href=#114 id=114 data-nosnippet>114</a>                <span class="macro">format!</span>(<span class="string">"to update to v{latest_version}."</span>).bold().green()
 <a href=#115 id=115 data-nosnippet>115</a>            );
 <a href=#116 id=116 data-nosnippet>116</a>            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(colorized_message))
 <a href=#117 id=117 data-nosnippet>117</a>        } <span class="kw">else </span>{
@@ -122,7 +122,7 @@
 <a href=#122 id=122 data-nosnippet>122</a>    <span class="doccomment">/// Display the CLI message if a new version is available.
 <a href=#123 id=123 data-nosnippet>123</a>    </span><span class="kw">pub fn </span>print_cli() -&gt; <span class="prelude-ty">Result</span>&lt;(), CliError&gt; {
 <a href=#124 id=124 data-nosnippet>124</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(message) = <span class="self">Self</span>::get_cli_string()<span class="question-mark">? </span>{
-<a href=#125 id=125 data-nosnippet>125</a>            <span class="macro">println!</span>(<span class="string">"{}"</span>, message);
+<a href=#125 id=125 data-nosnippet>125</a>            <span class="macro">println!</span>(<span class="string">"{message}"</span>);
 <a href=#126 id=126 data-nosnippet>126</a>        }
 <a href=#127 id=127 data-nosnippet>127</a>        <span class="prelude-val">Ok</span>(())
 <a href=#128 id=128 data-nosnippet>128</a>    }
@@ -200,7 +200,7 @@
 <a href=#200 id=200 data-nosnippet>200</a>                <span class="comment">// Parse the last check timestamp from the file.
 <a href=#201 id=201 data-nosnippet>201</a>                </span><span class="kw">let </span>last_check = contents
 <a href=#202 id=202 data-nosnippet>202</a>                    .parse::&lt;u64&gt;()
-<a href=#203 id=203 data-nosnippet>203</a>                    .map_err(|e| CliError::cli_runtime_error(<span class="macro">format!</span>(<span class="string">"Failed to parse last check time: {}"</span>, e)))<span class="question-mark">?</span>;
+<a href=#203 id=203 data-nosnippet>203</a>                    .map_err(|e| CliError::cli_runtime_error(<span class="macro">format!</span>(<span class="string">"Failed to parse last check time: {e}"</span>)))<span class="question-mark">?</span>;
 <a href=#204 id=204 data-nosnippet>204</a>
 <a href=#205 id=205 data-nosnippet>205</a>                <span class="comment">// Get the current time.
 <a href=#206 id=206 data-nosnippet>206</a>                </span><span class="kw">let </span>current_time = <span class="self">Self</span>::get_current_time()<span class="question-mark">?</span>;
@@ -217,7 +217,7 @@
 <a href=#217 id=217 data-nosnippet>217</a>    </span><span class="kw">fn </span>get_current_time() -&gt; <span class="prelude-ty">Result</span>&lt;u64, CliError&gt; {
 <a href=#218 id=218 data-nosnippet>218</a>        SystemTime::now()
 <a href=#219 id=219 data-nosnippet>219</a>            .duration_since(UNIX_EPOCH)
-<a href=#220 id=220 data-nosnippet>220</a>            .map_err(|e| CliError::cli_runtime_error(<span class="macro">format!</span>(<span class="string">"System time error: {}"</span>, e)))
+<a href=#220 id=220 data-nosnippet>220</a>            .map_err(|e| CliError::cli_runtime_error(<span class="macro">format!</span>(<span class="string">"System time error: {e}"</span>)))
 <a href=#221 id=221 data-nosnippet>221</a>            .map(|duration| duration.as_secs())
 <a href=#222 id=222 data-nosnippet>222</a>    }
 <a href=#223 id=223 data-nosnippet>223</a>

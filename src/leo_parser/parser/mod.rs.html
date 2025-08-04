@@ -25,38 +25,38 @@
 <a href=#25 id=25 data-nosnippet>25</a><span class="kw">use </span>leo_errors::{Handler, ParserError, <span class="prelude-ty">Result</span>};
 <a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span>leo_span::Span;
 <a href=#27 id=27 data-nosnippet>27</a>
-<a href=#28 id=28 data-nosnippet>28</a><span class="kw">use </span>snarkvm::prelude::Network;
-<a href=#29 id=29 data-nosnippet>29</a>
-<a href=#30 id=30 data-nosnippet>30</a><span class="kw">use </span>indexmap::IndexMap;
-<a href=#31 id=31 data-nosnippet>31</a><span class="kw">use </span>std::unreachable;
-<a href=#32 id=32 data-nosnippet>32</a>
-<a href=#33 id=33 data-nosnippet>33</a><span class="kw">mod </span>context;
-<a href=#34 id=34 data-nosnippet>34</a><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span>context::ParserContext;
-<a href=#35 id=35 data-nosnippet>35</a>
-<a href=#36 id=36 data-nosnippet>36</a><span class="kw">mod </span>expression;
-<a href=#37 id=37 data-nosnippet>37</a><span class="kw">mod </span>file;
-<a href=#38 id=38 data-nosnippet>38</a><span class="kw">mod </span>statement;
-<a href=#39 id=39 data-nosnippet>39</a><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>type_;
-<a href=#40 id=40 data-nosnippet>40</a>
-<a href=#41 id=41 data-nosnippet>41</a><span class="doccomment">/// Creates a new program from a given file path and source code text.
-<a href=#42 id=42 data-nosnippet>42</a></span><span class="kw">pub fn </span>parse&lt;N: Network&gt;(
-<a href=#43 id=43 data-nosnippet>43</a>    handler: Handler,
-<a href=#44 id=44 data-nosnippet>44</a>    node_builder: <span class="kw-2">&amp;</span>NodeBuilder,
-<a href=#45 id=45 data-nosnippet>45</a>    source: <span class="kw-2">&amp;</span>str,
-<a href=#46 id=46 data-nosnippet>46</a>    start_pos: u32,
-<a href=#47 id=47 data-nosnippet>47</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Program&gt; {
-<a href=#48 id=48 data-nosnippet>48</a>    <span class="kw">let </span><span class="kw-2">mut </span>tokens = ParserContext::&lt;N&gt;::new(handler, node_builder, <span class="kw">crate</span>::tokenize(source, start_pos)<span class="question-mark">?</span>);
-<a href=#49 id=49 data-nosnippet>49</a>
-<a href=#50 id=50 data-nosnippet>50</a>    tokens.parse_program()
-<a href=#51 id=51 data-nosnippet>51</a>}
-<a href=#52 id=52 data-nosnippet>52</a>
-<a href=#53 id=53 data-nosnippet>53</a><span class="kw">pub fn </span>parse_expression&lt;N: Network&gt;(
-<a href=#54 id=54 data-nosnippet>54</a>    handler: Handler,
-<a href=#55 id=55 data-nosnippet>55</a>    node_builder: <span class="kw-2">&amp;</span>NodeBuilder,
-<a href=#56 id=56 data-nosnippet>56</a>    source: <span class="kw-2">&amp;</span>str,
-<a href=#57 id=57 data-nosnippet>57</a>    start_pos: u32,
+<a href=#28 id=28 data-nosnippet>28</a><span class="kw">use </span>indexmap::IndexMap;
+<a href=#29 id=29 data-nosnippet>29</a><span class="kw">use </span>std::unreachable;
+<a href=#30 id=30 data-nosnippet>30</a>
+<a href=#31 id=31 data-nosnippet>31</a><span class="kw">mod </span>context;
+<a href=#32 id=32 data-nosnippet>32</a><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span>context::ParserContext;
+<a href=#33 id=33 data-nosnippet>33</a>
+<a href=#34 id=34 data-nosnippet>34</a><span class="kw">mod </span>expression;
+<a href=#35 id=35 data-nosnippet>35</a><span class="kw">mod </span>file;
+<a href=#36 id=36 data-nosnippet>36</a><span class="kw">mod </span>statement;
+<a href=#37 id=37 data-nosnippet>37</a><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>type_;
+<a href=#38 id=38 data-nosnippet>38</a>
+<a href=#39 id=39 data-nosnippet>39</a><span class="doccomment">/// Creates a new program from a given file path and source code text.
+<a href=#40 id=40 data-nosnippet>40</a></span><span class="kw">pub fn </span>parse(
+<a href=#41 id=41 data-nosnippet>41</a>    handler: Handler,
+<a href=#42 id=42 data-nosnippet>42</a>    node_builder: <span class="kw-2">&amp;</span>NodeBuilder,
+<a href=#43 id=43 data-nosnippet>43</a>    source: <span class="kw-2">&amp;</span>str,
+<a href=#44 id=44 data-nosnippet>44</a>    start_pos: u32,
+<a href=#45 id=45 data-nosnippet>45</a>    network: NetworkName,
+<a href=#46 id=46 data-nosnippet>46</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Program&gt; {
+<a href=#47 id=47 data-nosnippet>47</a>    <span class="kw">let </span><span class="kw-2">mut </span>tokens = ParserContext::new(handler, node_builder, <span class="kw">crate</span>::tokenize(source, start_pos)<span class="question-mark">?</span>, network);
+<a href=#48 id=48 data-nosnippet>48</a>
+<a href=#49 id=49 data-nosnippet>49</a>    tokens.parse_program()
+<a href=#50 id=50 data-nosnippet>50</a>}
+<a href=#51 id=51 data-nosnippet>51</a>
+<a href=#52 id=52 data-nosnippet>52</a><span class="kw">pub fn </span>parse_expression(
+<a href=#53 id=53 data-nosnippet>53</a>    handler: Handler,
+<a href=#54 id=54 data-nosnippet>54</a>    node_builder: <span class="kw-2">&amp;</span>NodeBuilder,
+<a href=#55 id=55 data-nosnippet>55</a>    source: <span class="kw-2">&amp;</span>str,
+<a href=#56 id=56 data-nosnippet>56</a>    start_pos: u32,
+<a href=#57 id=57 data-nosnippet>57</a>    network: NetworkName,
 <a href=#58 id=58 data-nosnippet>58</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
-<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">let </span><span class="kw-2">mut </span>context = ParserContext::&lt;N&gt;::new(handler, node_builder, <span class="kw">crate</span>::tokenize(source, start_pos)<span class="question-mark">?</span>);
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">let </span><span class="kw-2">mut </span>context = ParserContext::new(handler, node_builder, <span class="kw">crate</span>::tokenize(source, start_pos)<span class="question-mark">?</span>, network);
 <a href=#60 id=60 data-nosnippet>60</a>
 <a href=#61 id=61 data-nosnippet>61</a>    <span class="kw">let </span>expression = context.parse_expression()<span class="question-mark">?</span>;
 <a href=#62 id=62 data-nosnippet>62</a>    <span class="kw">if </span>context.token.token == Token::Eof {
@@ -66,18 +66,19 @@
 <a href=#66 id=66 data-nosnippet>66</a>    }
 <a href=#67 id=67 data-nosnippet>67</a>}
 <a href=#68 id=68 data-nosnippet>68</a>
-<a href=#69 id=69 data-nosnippet>69</a><span class="kw">pub fn </span>parse_statement&lt;N: Network&gt;(
+<a href=#69 id=69 data-nosnippet>69</a><span class="kw">pub fn </span>parse_statement(
 <a href=#70 id=70 data-nosnippet>70</a>    handler: Handler,
 <a href=#71 id=71 data-nosnippet>71</a>    node_builder: <span class="kw-2">&amp;</span>NodeBuilder,
 <a href=#72 id=72 data-nosnippet>72</a>    source: <span class="kw-2">&amp;</span>str,
 <a href=#73 id=73 data-nosnippet>73</a>    start_pos: u32,
-<a href=#74 id=74 data-nosnippet>74</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
-<a href=#75 id=75 data-nosnippet>75</a>    <span class="kw">let </span><span class="kw-2">mut </span>context = ParserContext::&lt;N&gt;::new(handler, node_builder, <span class="kw">crate</span>::tokenize(source, start_pos)<span class="question-mark">?</span>);
-<a href=#76 id=76 data-nosnippet>76</a>
-<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">let </span>statement = context.parse_statement()<span class="question-mark">?</span>;
-<a href=#78 id=78 data-nosnippet>78</a>    <span class="kw">if </span>context.token.token == Token::Eof {
-<a href=#79 id=79 data-nosnippet>79</a>        <span class="prelude-val">Ok</span>(statement)
-<a href=#80 id=80 data-nosnippet>80</a>    } <span class="kw">else </span>{
-<a href=#81 id=81 data-nosnippet>81</a>        <span class="prelude-val">Err</span>(ParserError::unexpected(context.token.token, Token::Eof, context.token.span).into())
-<a href=#82 id=82 data-nosnippet>82</a>    }
-<a href=#83 id=83 data-nosnippet>83</a>}</code></pre></div></section></main></body></html>
+<a href=#74 id=74 data-nosnippet>74</a>    network: NetworkName,
+<a href=#75 id=75 data-nosnippet>75</a>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="kw">let </span><span class="kw-2">mut </span>context = ParserContext::new(handler, node_builder, <span class="kw">crate</span>::tokenize(source, start_pos)<span class="question-mark">?</span>, network);
+<a href=#77 id=77 data-nosnippet>77</a>
+<a href=#78 id=78 data-nosnippet>78</a>    <span class="kw">let </span>statement = context.parse_statement()<span class="question-mark">?</span>;
+<a href=#79 id=79 data-nosnippet>79</a>    <span class="kw">if </span>context.token.token == Token::Eof {
+<a href=#80 id=80 data-nosnippet>80</a>        <span class="prelude-val">Ok</span>(statement)
+<a href=#81 id=81 data-nosnippet>81</a>    } <span class="kw">else </span>{
+<a href=#82 id=82 data-nosnippet>82</a>        <span class="prelude-val">Err</span>(ParserError::unexpected(context.token.token, Token::Eof, context.token.span).into())
+<a href=#83 id=83 data-nosnippet>83</a>    }
+<a href=#84 id=84 data-nosnippet>84</a>}</code></pre></div></section></main></body></html>

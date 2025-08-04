@@ -88,7 +88,7 @@
 <a href=#88 id=88 data-nosnippet>88</a>            </span><span class="kw">if </span>!leo_package::is_valid_aleo_name(<span class="kw-2">&amp;</span>program) {
 <a href=#89 id=89 data-nosnippet>89</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::invalid_program_name(program).into());
 <a href=#90 id=90 data-nosnippet>90</a>            }
-<a href=#91 id=91 data-nosnippet>91</a>            <span class="macro">format!</span>(<span class="string">"find/transactionID/deployment/{}"</span>, program)
+<a href=#91 id=91 data-nosnippet>91</a>            <span class="macro">format!</span>(<span class="string">"find/transactionID/deployment/{program}"</span>)
 <a href=#92 id=92 data-nosnippet>92</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.id {
 <a href=#93 id=93 data-nosnippet>93</a>            is_valid_transaction_id(<span class="kw-2">&amp;</span>id)<span class="question-mark">?</span>;
 <a href=#94 id=94 data-nosnippet>94</a>            <span class="kw">if </span><span class="self">self</span>.confirmed {

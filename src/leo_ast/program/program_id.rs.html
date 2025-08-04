@@ -14,39 +14,69 @@
 <a href=#14 id=14 data-nosnippet>14</a>// You should have received a copy of the GNU General Public License
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span><span class="kw">crate</span>::Identifier;
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{Identifier, NetworkName};
 <a href=#18 id=18 data-nosnippet>18</a>
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>core::fmt;
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>leo_span::Symbol;
 <a href=#21 id=21 data-nosnippet>21</a><span class="kw">use </span>serde::{Deserialize, Serialize};
-<a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>snarkvm::{console::program::ProgramID, prelude::Network};
-<a href=#23 id=23 data-nosnippet>23</a>
-<a href=#24 id=24 data-nosnippet>24</a><span class="doccomment">/// An identifier for a program that is eventually deployed to the network.
-<a href=#25 id=25 data-nosnippet>25</a></span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
-<a href=#26 id=26 data-nosnippet>26</a></span><span class="kw">pub struct </span>ProgramId {
-<a href=#27 id=27 data-nosnippet>27</a>    <span class="doccomment">/// The name of the program.
-<a href=#28 id=28 data-nosnippet>28</a>    </span><span class="kw">pub </span>name: Identifier,
-<a href=#29 id=29 data-nosnippet>29</a>    <span class="doccomment">/// The network associated with the program.
-<a href=#30 id=30 data-nosnippet>30</a>    </span><span class="kw">pub </span>network: Identifier,
-<a href=#31 id=31 data-nosnippet>31</a>}
-<a href=#32 id=32 data-nosnippet>32</a>
-<a href=#33 id=33 data-nosnippet>33</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>ProgramId {
-<a href=#34 id=34 data-nosnippet>34</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-<a href=#35 id=35 data-nosnippet>35</a>        <span class="macro">write!</span>(f, <span class="string">"{}.{}"</span>, <span class="self">self</span>.name, <span class="self">self</span>.network)
-<a href=#36 id=36 data-nosnippet>36</a>    }
-<a href=#37 id=37 data-nosnippet>37</a>}
-<a href=#38 id=38 data-nosnippet>38</a>
-<a href=#39 id=39 data-nosnippet>39</a><span class="kw">impl</span>&lt;N: Network&gt; From&lt;<span class="kw-2">&amp;</span>ProgramID&lt;N&gt;&gt; <span class="kw">for </span>ProgramId {
-<a href=#40 id=40 data-nosnippet>40</a>    <span class="kw">fn </span>from(program: <span class="kw-2">&amp;</span>ProgramID&lt;N&gt;) -&gt; <span class="self">Self </span>{
-<a href=#41 id=41 data-nosnippet>41</a>        <span class="self">Self </span>{ name: Identifier::from(program.name()), network: Identifier::from(program.network()) }
-<a href=#42 id=42 data-nosnippet>42</a>    }
-<a href=#43 id=43 data-nosnippet>43</a>}
-<a href=#44 id=44 data-nosnippet>44</a>
-<a href=#45 id=45 data-nosnippet>45</a><span class="kw">impl </span>From&lt;Identifier&gt; <span class="kw">for </span>ProgramId {
-<a href=#46 id=46 data-nosnippet>46</a>    <span class="kw">fn </span>from(name: Identifier) -&gt; <span class="self">Self </span>{
-<a href=#47 id=47 data-nosnippet>47</a>        <span class="self">Self </span>{
-<a href=#48 id=48 data-nosnippet>48</a>            name,
-<a href=#49 id=49 data-nosnippet>49</a>            network: Identifier { name: Symbol::intern(<span class="string">"aleo"</span>), span: Default::default(), id: Default::default() },
-<a href=#50 id=50 data-nosnippet>50</a>        }
-<a href=#51 id=51 data-nosnippet>51</a>    }
-<a href=#52 id=52 data-nosnippet>52</a>}</code></pre></div></section></main></body></html>
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">use </span>snarkvm::{
+<a href=#23 id=23 data-nosnippet>23</a>    console::program::ProgramID,
+<a href=#24 id=24 data-nosnippet>24</a>    prelude::{CanaryV0, MainnetV0, Network, <span class="prelude-ty">Result</span>, TestnetV0},
+<a href=#25 id=25 data-nosnippet>25</a>};
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">use </span>std::str::FromStr;
+<a href=#27 id=27 data-nosnippet>27</a>
+<a href=#28 id=28 data-nosnippet>28</a><span class="doccomment">/// An identifier for a program that is eventually deployed to the network.
+<a href=#29 id=29 data-nosnippet>29</a></span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+<a href=#30 id=30 data-nosnippet>30</a></span><span class="kw">pub struct </span>ProgramId {
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="doccomment">/// The name of the program.
+<a href=#32 id=32 data-nosnippet>32</a>    </span><span class="kw">pub </span>name: Identifier,
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="doccomment">/// The network associated with the program.
+<a href=#34 id=34 data-nosnippet>34</a>    </span><span class="kw">pub </span>network: Identifier,
+<a href=#35 id=35 data-nosnippet>35</a>}
+<a href=#36 id=36 data-nosnippet>36</a>
+<a href=#37 id=37 data-nosnippet>37</a><span class="kw">impl </span>ProgramId {
+<a href=#38 id=38 data-nosnippet>38</a>    <span class="doccomment">/// Initializes a new `ProgramId` from a string, using a network parameter to validate using snarkVM.
+<a href=#39 id=39 data-nosnippet>39</a>    </span><span class="kw">pub fn </span>from_str_with_network(string: <span class="kw-2">&amp;</span>str, network: NetworkName) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+<a href=#40 id=40 data-nosnippet>40</a>        <span class="kw">match </span>network {
+<a href=#41 id=41 data-nosnippet>41</a>            NetworkName::MainnetV0 =&gt; ProgramID::&lt;MainnetV0&gt;::from_str(string).map(|id| (<span class="kw-2">&amp;</span>id).into()),
+<a href=#42 id=42 data-nosnippet>42</a>            NetworkName::TestnetV0 =&gt; ProgramID::&lt;TestnetV0&gt;::from_str(string).map(|id| (<span class="kw-2">&amp;</span>id).into()),
+<a href=#43 id=43 data-nosnippet>43</a>            NetworkName::CanaryV0 =&gt; ProgramID::&lt;CanaryV0&gt;::from_str(string).map(|id| (<span class="kw-2">&amp;</span>id).into()),
+<a href=#44 id=44 data-nosnippet>44</a>        }
+<a href=#45 id=45 data-nosnippet>45</a>    }
+<a href=#46 id=46 data-nosnippet>46</a>
+<a href=#47 id=47 data-nosnippet>47</a>    <span class="doccomment">/// Converts the `ProgramId` into an address string.
+<a href=#48 id=48 data-nosnippet>48</a>    </span><span class="kw">pub fn </span>to_address_string(<span class="kw-2">&amp;</span><span class="self">self</span>, network: NetworkName) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+<a href=#49 id=49 data-nosnippet>49</a>        <span class="kw">match </span>network {
+<a href=#50 id=50 data-nosnippet>50</a>            NetworkName::MainnetV0 =&gt; {
+<a href=#51 id=51 data-nosnippet>51</a>                ProgramID::&lt;MainnetV0&gt;::from_str(<span class="kw-2">&amp;</span><span class="self">self</span>.to_string())<span class="question-mark">?</span>.to_address().map(|addr| addr.to_string())
+<a href=#52 id=52 data-nosnippet>52</a>            }
+<a href=#53 id=53 data-nosnippet>53</a>            NetworkName::TestnetV0 =&gt; {
+<a href=#54 id=54 data-nosnippet>54</a>                ProgramID::&lt;TestnetV0&gt;::from_str(<span class="kw-2">&amp;</span><span class="self">self</span>.to_string())<span class="question-mark">?</span>.to_address().map(|addr| addr.to_string())
+<a href=#55 id=55 data-nosnippet>55</a>            }
+<a href=#56 id=56 data-nosnippet>56</a>            NetworkName::CanaryV0 =&gt; {
+<a href=#57 id=57 data-nosnippet>57</a>                ProgramID::&lt;CanaryV0&gt;::from_str(<span class="kw-2">&amp;</span><span class="self">self</span>.to_string())<span class="question-mark">?</span>.to_address().map(|addr| addr.to_string())
+<a href=#58 id=58 data-nosnippet>58</a>            }
+<a href=#59 id=59 data-nosnippet>59</a>        }
+<a href=#60 id=60 data-nosnippet>60</a>    }
+<a href=#61 id=61 data-nosnippet>61</a>}
+<a href=#62 id=62 data-nosnippet>62</a>
+<a href=#63 id=63 data-nosnippet>63</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>ProgramId {
+<a href=#64 id=64 data-nosnippet>64</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+<a href=#65 id=65 data-nosnippet>65</a>        <span class="macro">write!</span>(f, <span class="string">"{}.{}"</span>, <span class="self">self</span>.name, <span class="self">self</span>.network)
+<a href=#66 id=66 data-nosnippet>66</a>    }
+<a href=#67 id=67 data-nosnippet>67</a>}
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a><span class="kw">impl</span>&lt;N: Network&gt; From&lt;<span class="kw-2">&amp;</span>ProgramID&lt;N&gt;&gt; <span class="kw">for </span>ProgramId {
+<a href=#70 id=70 data-nosnippet>70</a>    <span class="kw">fn </span>from(program: <span class="kw-2">&amp;</span>ProgramID&lt;N&gt;) -&gt; <span class="self">Self </span>{
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="self">Self </span>{ name: Identifier::from(program.name()), network: Identifier::from(program.network()) }
+<a href=#72 id=72 data-nosnippet>72</a>    }
+<a href=#73 id=73 data-nosnippet>73</a>}
+<a href=#74 id=74 data-nosnippet>74</a>
+<a href=#75 id=75 data-nosnippet>75</a><span class="kw">impl </span>From&lt;Identifier&gt; <span class="kw">for </span>ProgramId {
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="kw">fn </span>from(name: Identifier) -&gt; <span class="self">Self </span>{
+<a href=#77 id=77 data-nosnippet>77</a>        <span class="self">Self </span>{
+<a href=#78 id=78 data-nosnippet>78</a>            name,
+<a href=#79 id=79 data-nosnippet>79</a>            network: Identifier { name: Symbol::intern(<span class="string">"aleo"</span>), span: Default::default(), id: Default::default() },
+<a href=#80 id=80 data-nosnippet>80</a>        }
+<a href=#81 id=81 data-nosnippet>81</a>    }
+<a href=#82 id=82 data-nosnippet>82</a>}</code></pre></div></section></main></body></html>

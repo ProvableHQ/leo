@@ -14,7 +14,7 @@
 <a href=#14 id=14 data-nosnippet>14</a>// You should have received a copy of the GNU General Public License
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span><span class="kw">super</span>::CodeGeneratingVisitor;
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#18 id=18 data-nosnippet>18</a>
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_ast::{
 <a href=#20 id=20 data-nosnippet>20</a>    AssertStatement,
@@ -217,7 +217,7 @@
 <a href=#217 id=217 data-nosnippet>217</a>            }
 <a href=#218 id=218 data-nosnippet>218</a>
 <a href=#219 id=219 data-nosnippet>219</a>            <span class="comment">// Add a label for the end of the `then` block.
-<a href=#220 id=220 data-nosnippet>220</a>            </span>instructions.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"    position {};\n"</span>, end_then_label));
+<a href=#220 id=220 data-nosnippet>220</a>            </span>instructions.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"    position {end_then_label};\n"</span>));
 <a href=#221 id=221 data-nosnippet>221</a>
 <a href=#222 id=222 data-nosnippet>222</a>            <span class="comment">// Visit the `otherwise` block.
 <a href=#223 id=223 data-nosnippet>223</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(else_block) = <span class="kw-2">&amp;</span>_input.otherwise {

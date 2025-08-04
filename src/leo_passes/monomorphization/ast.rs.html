@@ -148,77 +148,76 @@
 <a href=#148 id=148 data-nosnippet>148</a>            <span class="comment">// Now keep track of the function we just monomorphized
 <a href=#149 id=149 data-nosnippet>149</a>            </span><span class="self">self</span>.monomorphized_functions.insert(input_call.function.name);
 <a href=#150 id=150 data-nosnippet>150</a>        }
-<a href=#151 id=151 data-nosnippet>151</a>
-<a href=#152 id=152 data-nosnippet>152</a>        <span class="comment">// At this stage, we know that we're going to modify the program
-<a href=#153 id=153 data-nosnippet>153</a>        </span><span class="self">self</span>.changed = <span class="bool-val">true</span>;
-<a href=#154 id=154 data-nosnippet>154</a>
-<a href=#155 id=155 data-nosnippet>155</a>        <span class="comment">// Finally, construct the updated call expression that points to a monomorphized version and return it.
-<a href=#156 id=156 data-nosnippet>156</a>        </span>(
-<a href=#157 id=157 data-nosnippet>157</a>            CallExpression {
-<a href=#158 id=158 data-nosnippet>158</a>                function: Identifier {
-<a href=#159 id=159 data-nosnippet>159</a>                    name: new_callee_name, <span class="comment">// use the new name
-<a href=#160 id=160 data-nosnippet>160</a>                    </span>span: leo_span::Span::default(),
-<a href=#161 id=161 data-nosnippet>161</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
-<a href=#162 id=162 data-nosnippet>162</a>                },
-<a href=#163 id=163 data-nosnippet>163</a>                const_arguments: <span class="macro">vec!</span>[], <span class="comment">// remove const arguments
-<a href=#164 id=164 data-nosnippet>164</a>                </span>arguments: input_call.arguments,
-<a href=#165 id=165 data-nosnippet>165</a>                program: input_call.program,
-<a href=#166 id=166 data-nosnippet>166</a>                span: input_call.span, <span class="comment">// Keep pointing to the original call expression
-<a href=#167 id=167 data-nosnippet>167</a>                </span>id: input_call.id,
-<a href=#168 id=168 data-nosnippet>168</a>            }
-<a href=#169 id=169 data-nosnippet>169</a>            .into(),
-<a href=#170 id=170 data-nosnippet>170</a>            Default::default(),
-<a href=#171 id=171 data-nosnippet>171</a>        )
-<a href=#172 id=172 data-nosnippet>172</a>    }
-<a href=#173 id=173 data-nosnippet>173</a>
-<a href=#174 id=174 data-nosnippet>174</a>    <span class="kw">fn </span>reconstruct_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: StructExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#175 id=175 data-nosnippet>175</a>        <span class="comment">// Handle all the struct members first
-<a href=#176 id=176 data-nosnippet>176</a>        </span><span class="kw">let </span>members = input
-<a href=#177 id=177 data-nosnippet>177</a>            .members
-<a href=#178 id=178 data-nosnippet>178</a>            .clone()
-<a href=#179 id=179 data-nosnippet>179</a>            .into_iter()
-<a href=#180 id=180 data-nosnippet>180</a>            .map(|member| StructVariableInitializer {
-<a href=#181 id=181 data-nosnippet>181</a>                identifier: member.identifier,
-<a href=#182 id=182 data-nosnippet>182</a>                expression: member.expression.map(|expr| <span class="self">self</span>.reconstruct_expression(expr).<span class="number">0</span>),
-<a href=#183 id=183 data-nosnippet>183</a>                span: member.span,
-<a href=#184 id=184 data-nosnippet>184</a>                id: member.id,
-<a href=#185 id=185 data-nosnippet>185</a>            })
-<a href=#186 id=186 data-nosnippet>186</a>            .collect();
-<a href=#187 id=187 data-nosnippet>187</a>
-<a href=#188 id=188 data-nosnippet>188</a>        <span class="comment">// Proceed only if there are some const arguments.
-<a href=#189 id=189 data-nosnippet>189</a>        </span><span class="kw">if </span>input.const_arguments.is_empty() {
-<a href=#190 id=190 data-nosnippet>190</a>            input.members = members;
-<a href=#191 id=191 data-nosnippet>191</a>            <span class="kw">return </span>(input.into(), Default::default());
-<a href=#192 id=192 data-nosnippet>192</a>        }
-<a href=#193 id=193 data-nosnippet>193</a>
-<a href=#194 id=194 data-nosnippet>194</a>        <span class="comment">// Ensure all const arguments are literals; if not, we skip this struct expression for now and mark it as
-<a href=#195 id=195 data-nosnippet>195</a>        // unresolved.
-<a href=#196 id=196 data-nosnippet>196</a>        //
-<a href=#197 id=197 data-nosnippet>197</a>        // The types of the const arguments are checked in the type checking pass.
-<a href=#198 id=198 data-nosnippet>198</a>        </span><span class="kw">if </span>input.const_arguments.iter().any(|arg| !<span class="macro">matches!</span>(arg, Expression::Literal(<span class="kw">_</span>))) {
-<a href=#199 id=199 data-nosnippet>199</a>            <span class="self">self</span>.unresolved_struct_exprs.push(input.clone());
-<a href=#200 id=200 data-nosnippet>200</a>            input.members = members;
-<a href=#201 id=201 data-nosnippet>201</a>            <span class="kw">return </span>(input.into(), Default::default());
-<a href=#202 id=202 data-nosnippet>202</a>        }
-<a href=#203 id=203 data-nosnippet>203</a>
-<a href=#204 id=204 data-nosnippet>204</a>        <span class="comment">// At this stage, we know that we're going to modify the program
-<a href=#205 id=205 data-nosnippet>205</a>        </span><span class="self">self</span>.changed = <span class="bool-val">true</span>;
-<a href=#206 id=206 data-nosnippet>206</a>
-<a href=#207 id=207 data-nosnippet>207</a>        <span class="comment">// Finally, construct the updated struct expression that points to a monomorphized version and return it.
-<a href=#208 id=208 data-nosnippet>208</a>        </span>(
-<a href=#209 id=209 data-nosnippet>209</a>            StructExpression {
-<a href=#210 id=210 data-nosnippet>210</a>                name: Identifier {
-<a href=#211 id=211 data-nosnippet>211</a>                    name: <span class="self">self</span>.monomorphize_struct(<span class="kw-2">&amp;</span>input.name.name, <span class="kw-2">&amp;</span>input.const_arguments),
-<a href=#212 id=212 data-nosnippet>212</a>                    span: input.name.span,
-<a href=#213 id=213 data-nosnippet>213</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
-<a href=#214 id=214 data-nosnippet>214</a>                },
-<a href=#215 id=215 data-nosnippet>215</a>                members,
-<a href=#216 id=216 data-nosnippet>216</a>                const_arguments: <span class="macro">vec!</span>[], <span class="comment">// remove const arguments
-<a href=#217 id=217 data-nosnippet>217</a>                </span>span: input.span,        <span class="comment">// Keep pointing to the original struct expression
-<a href=#218 id=218 data-nosnippet>218</a>                </span>id: input.id,
-<a href=#219 id=219 data-nosnippet>219</a>            }
-<a href=#220 id=220 data-nosnippet>220</a>            .into(),
-<a href=#221 id=221 data-nosnippet>221</a>            Default::default(),
-<a href=#222 id=222 data-nosnippet>222</a>        )
-<a href=#223 id=223 data-nosnippet>223</a>    }
-<a href=#224 id=224 data-nosnippet>224</a>}</code></pre></div></section></main></body></html>
+<a href=#151 id=151 data-nosnippet>151</a>        <span class="comment">// At this stage, we know that we're going to modify the program
+<a href=#152 id=152 data-nosnippet>152</a>        </span><span class="self">self</span>.changed = <span class="bool-val">true</span>;
+<a href=#153 id=153 data-nosnippet>153</a>
+<a href=#154 id=154 data-nosnippet>154</a>        <span class="comment">// Finally, construct the updated call expression that points to a monomorphized version and return it.
+<a href=#155 id=155 data-nosnippet>155</a>        </span>(
+<a href=#156 id=156 data-nosnippet>156</a>            CallExpression {
+<a href=#157 id=157 data-nosnippet>157</a>                function: Identifier {
+<a href=#158 id=158 data-nosnippet>158</a>                    name: new_callee_name, <span class="comment">// use the new name
+<a href=#159 id=159 data-nosnippet>159</a>                    </span>span: leo_span::Span::default(),
+<a href=#160 id=160 data-nosnippet>160</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
+<a href=#161 id=161 data-nosnippet>161</a>                },
+<a href=#162 id=162 data-nosnippet>162</a>                const_arguments: <span class="macro">vec!</span>[], <span class="comment">// remove const arguments
+<a href=#163 id=163 data-nosnippet>163</a>                </span>arguments: input_call.arguments,
+<a href=#164 id=164 data-nosnippet>164</a>                program: input_call.program,
+<a href=#165 id=165 data-nosnippet>165</a>                span: input_call.span, <span class="comment">// Keep pointing to the original call expression
+<a href=#166 id=166 data-nosnippet>166</a>                </span>id: input_call.id,
+<a href=#167 id=167 data-nosnippet>167</a>            }
+<a href=#168 id=168 data-nosnippet>168</a>            .into(),
+<a href=#169 id=169 data-nosnippet>169</a>            Default::default(),
+<a href=#170 id=170 data-nosnippet>170</a>        )
+<a href=#171 id=171 data-nosnippet>171</a>    }
+<a href=#172 id=172 data-nosnippet>172</a>
+<a href=#173 id=173 data-nosnippet>173</a>    <span class="kw">fn </span>reconstruct_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: StructExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#174 id=174 data-nosnippet>174</a>        <span class="comment">// Handle all the struct members first
+<a href=#175 id=175 data-nosnippet>175</a>        </span><span class="kw">let </span>members = input
+<a href=#176 id=176 data-nosnippet>176</a>            .members
+<a href=#177 id=177 data-nosnippet>177</a>            .clone()
+<a href=#178 id=178 data-nosnippet>178</a>            .into_iter()
+<a href=#179 id=179 data-nosnippet>179</a>            .map(|member| StructVariableInitializer {
+<a href=#180 id=180 data-nosnippet>180</a>                identifier: member.identifier,
+<a href=#181 id=181 data-nosnippet>181</a>                expression: member.expression.map(|expr| <span class="self">self</span>.reconstruct_expression(expr).<span class="number">0</span>),
+<a href=#182 id=182 data-nosnippet>182</a>                span: member.span,
+<a href=#183 id=183 data-nosnippet>183</a>                id: member.id,
+<a href=#184 id=184 data-nosnippet>184</a>            })
+<a href=#185 id=185 data-nosnippet>185</a>            .collect();
+<a href=#186 id=186 data-nosnippet>186</a>
+<a href=#187 id=187 data-nosnippet>187</a>        <span class="comment">// Proceed only if there are some const arguments.
+<a href=#188 id=188 data-nosnippet>188</a>        </span><span class="kw">if </span>input.const_arguments.is_empty() {
+<a href=#189 id=189 data-nosnippet>189</a>            input.members = members;
+<a href=#190 id=190 data-nosnippet>190</a>            <span class="kw">return </span>(input.into(), Default::default());
+<a href=#191 id=191 data-nosnippet>191</a>        }
+<a href=#192 id=192 data-nosnippet>192</a>
+<a href=#193 id=193 data-nosnippet>193</a>        <span class="comment">// Ensure all const arguments are literals; if not, we skip this struct expression for now and mark it as
+<a href=#194 id=194 data-nosnippet>194</a>        // unresolved.
+<a href=#195 id=195 data-nosnippet>195</a>        //
+<a href=#196 id=196 data-nosnippet>196</a>        // The types of the const arguments are checked in the type checking pass.
+<a href=#197 id=197 data-nosnippet>197</a>        </span><span class="kw">if </span>input.const_arguments.iter().any(|arg| !<span class="macro">matches!</span>(arg, Expression::Literal(<span class="kw">_</span>))) {
+<a href=#198 id=198 data-nosnippet>198</a>            <span class="self">self</span>.unresolved_struct_exprs.push(input.clone());
+<a href=#199 id=199 data-nosnippet>199</a>            input.members = members;
+<a href=#200 id=200 data-nosnippet>200</a>            <span class="kw">return </span>(input.into(), Default::default());
+<a href=#201 id=201 data-nosnippet>201</a>        }
+<a href=#202 id=202 data-nosnippet>202</a>
+<a href=#203 id=203 data-nosnippet>203</a>        <span class="comment">// At this stage, we know that we're going to modify the program
+<a href=#204 id=204 data-nosnippet>204</a>        </span><span class="self">self</span>.changed = <span class="bool-val">true</span>;
+<a href=#205 id=205 data-nosnippet>205</a>
+<a href=#206 id=206 data-nosnippet>206</a>        <span class="comment">// Finally, construct the updated struct expression that points to a monomorphized version and return it.
+<a href=#207 id=207 data-nosnippet>207</a>        </span>(
+<a href=#208 id=208 data-nosnippet>208</a>            StructExpression {
+<a href=#209 id=209 data-nosnippet>209</a>                name: Identifier {
+<a href=#210 id=210 data-nosnippet>210</a>                    name: <span class="self">self</span>.monomorphize_struct(<span class="kw-2">&amp;</span>input.name.name, <span class="kw-2">&amp;</span>input.const_arguments),
+<a href=#211 id=211 data-nosnippet>211</a>                    span: input.name.span,
+<a href=#212 id=212 data-nosnippet>212</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
+<a href=#213 id=213 data-nosnippet>213</a>                },
+<a href=#214 id=214 data-nosnippet>214</a>                members,
+<a href=#215 id=215 data-nosnippet>215</a>                const_arguments: <span class="macro">vec!</span>[], <span class="comment">// remove const arguments
+<a href=#216 id=216 data-nosnippet>216</a>                </span>span: input.span,        <span class="comment">// Keep pointing to the original struct expression
+<a href=#217 id=217 data-nosnippet>217</a>                </span>id: input.id,
+<a href=#218 id=218 data-nosnippet>218</a>            }
+<a href=#219 id=219 data-nosnippet>219</a>            .into(),
+<a href=#220 id=220 data-nosnippet>220</a>            Default::default(),
+<a href=#221 id=221 data-nosnippet>221</a>        )
+<a href=#222 id=222 data-nosnippet>222</a>    }
+<a href=#223 id=223 data-nosnippet>223</a>}</code></pre></div></section></main></body></html>

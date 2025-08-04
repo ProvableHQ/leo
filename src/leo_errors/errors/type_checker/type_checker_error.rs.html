@@ -367,7 +367,7 @@
 <a href=#367 id=367 data-nosnippet>367</a>    @formatted
 <a href=#368 id=368 data-nosnippet>368</a>    invalid_self_access {
 <a href=#369 id=369 data-nosnippet>369</a>        args: (),
-<a href=#370 id=370 data-nosnippet>370</a>        msg: <span class="macro">format!</span>(<span class="string">"The allowed accesses to `self` are `self.caller` and `self.signer`."</span>),
+<a href=#370 id=370 data-nosnippet>370</a>        msg: <span class="macro">format!</span>(<span class="string">"The allowed accesses to `self` are `self.{{caller, checksum, edition, program_owner, signer}}`."</span>),
 <a href=#371 id=371 data-nosnippet>371</a>        help: <span class="prelude-val">None</span>,
 <a href=#372 id=372 data-nosnippet>372</a>    }
 <a href=#373 id=373 data-nosnippet>373</a>
@@ -1064,7 +1064,7 @@
 <a href=#1064 id=1064 data-nosnippet>1064</a>    }
 <a href=#1065 id=1065 data-nosnippet>1065</a>
 <a href=#1066 id=1066 data-nosnippet>1066</a>    @formatted
-<a href=#1067 id=1067 data-nosnippet>1067</a>    range_bounds_type_mismatch{
+<a href=#1067 id=1067 data-nosnippet>1067</a>    range_bounds_type_mismatch {
 <a href=#1068 id=1068 data-nosnippet>1068</a>        args: (),
 <a href=#1069 id=1069 data-nosnippet>1069</a>        msg: <span class="macro">format!</span>(<span class="string">"mismatched types in loop iterator range bounds"</span>),
 <a href=#1070 id=1070 data-nosnippet>1070</a>        help: <span class="prelude-val">None</span>,
@@ -1227,4 +1227,11 @@
 <a href=#1227 id=1227 data-nosnippet>1227</a>        </span>),
 <a href=#1228 id=1228 data-nosnippet>1228</a>        help: <span class="prelude-val">None</span>,
 <a href=#1229 id=1229 data-nosnippet>1229</a>    }
-<a href=#1230 id=1230 data-nosnippet>1230</a>);</code></pre></div></section></main></body></html>
+<a href=#1230 id=1230 data-nosnippet>1230</a>
+<a href=#1231 id=1231 data-nosnippet>1231</a>    @formatted
+<a href=#1232 id=1232 data-nosnippet>1232</a>    custom {
+<a href=#1233 id=1233 data-nosnippet>1233</a>        args: (msg: <span class="kw">impl </span>Display),
+<a href=#1234 id=1234 data-nosnippet>1234</a>        msg: msg.to_string(),
+<a href=#1235 id=1235 data-nosnippet>1235</a>        help: <span class="prelude-val">None</span>,
+<a href=#1236 id=1236 data-nosnippet>1236</a>    }
+<a href=#1237 id=1237 data-nosnippet>1237</a>);</code></pre></div></section></main></body></html>

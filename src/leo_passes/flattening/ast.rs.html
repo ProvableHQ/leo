@@ -79,7 +79,7 @@
 <a href=#79 id=79 data-nosnippet>79</a>
 <a href=#80 id=80 data-nosnippet>80</a>        <span class="kw">fn </span>as_identifier(ident_expr: Expression) -&gt; Identifier {
 <a href=#81 id=81 data-nosnippet>81</a>            <span class="kw">let </span>Expression::Identifier(identifier) = ident_expr <span class="kw">else </span>{
-<a href=#82 id=82 data-nosnippet>82</a>                <span class="macro">panic!</span>(<span class="string">"SSA form should have guaranteed this is an identifier: {}."</span>, ident_expr);
+<a href=#82 id=82 data-nosnippet>82</a>                <span class="macro">panic!</span>(<span class="string">"SSA form should have guaranteed this is an identifier: {ident_expr}."</span>);
 <a href=#83 id=83 data-nosnippet>83</a>            };
 <a href=#84 id=84 data-nosnippet>84</a>            identifier
 <a href=#85 id=85 data-nosnippet>85</a>        }

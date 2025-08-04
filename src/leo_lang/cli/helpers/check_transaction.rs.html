@@ -14,8 +14,8 @@
 <a href=#14 id=14 data-nosnippet>14</a>// You should have received a copy of the GNU General Public License
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span>leo_errors::Result;
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>leo_package::NetworkName;
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span>leo_ast::NetworkName;
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>leo_errors::Result;
 <a href=#19 id=19 data-nosnippet>19</a>
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>anyhow::anyhow;
 <a href=#21 id=21 data-nosnippet>21</a><span class="kw">use </span>serde::Deserialize;
@@ -141,7 +141,7 @@
 <a href=#141 id=141 data-nosnippet>141</a>) -&gt; <span class="prelude-ty">Result</span>&lt;CheckedTransaction&gt; {
 <a href=#142 id=142 data-nosnippet>142</a>    <span class="comment">// It appears that the default rate limit for snarkOS is 10 requests per second per IP,
 <a href=#143 id=143 data-nosnippet>143</a>    // and this value seems to avoid rate limits in practice, so let's go with this.
-<a href=#144 id=144 data-nosnippet>144</a>    </span><span class="kw">const </span>DELAY_MILLIS: u64 = <span class="number">101</span>;
+<a href=#144 id=144 data-nosnippet>144</a>    </span><span class="kw">const </span>DELAY_MILLIS: u64 = <span class="number">201</span>;
 <a href=#145 id=145 data-nosnippet>145</a>
 <a href=#146 id=146 data-nosnippet>146</a>    <span class="kw">for </span>use_height <span class="kw">in </span>start_height..start_height + blocks_to_check {
 <a href=#147 id=147 data-nosnippet>147</a>        <span class="kw">let </span>status = status_at_height(id, maybe_fee_id, endpoint, network, use_height, max_wait)<span class="question-mark">?</span>;
@@ -167,7 +167,7 @@
 <a href=#167 id=167 data-nosnippet>167</a>    max_wait: usize,
 <a href=#168 id=168 data-nosnippet>168</a>    blocks_to_check: usize,
 <a href=#169 id=169 data-nosnippet>169</a>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;TransactionStatus&gt;&gt; {
-<a href=#170 id=170 data-nosnippet>170</a>    <span class="macro">println!</span>(<span class="string">"Searching up to {blocks_to_check} blocks to find transaction (this may take several seconds)..."</span>);
+<a href=#170 id=170 data-nosnippet>170</a>    <span class="macro">println!</span>(<span class="string">"🔄 Searching up to {blocks_to_check} blocks to confirm transaction (this may take several seconds)..."</span>);
 <a href=#171 id=171 data-nosnippet>171</a>    <span class="kw">let </span>checked = <span class="kw">crate</span>::cli::check_transaction::check_transaction(
 <a href=#172 id=172 data-nosnippet>172</a>        id,
 <a href=#173 id=173 data-nosnippet>173</a>        maybe_fee_id,
@@ -182,7 +182,7 @@
 <a href=#182 id=182 data-nosnippet>182</a>        <span class="prelude-val">Some</span>(TransactionStatus::Accepted) =&gt; <span class="macro">println!</span>(<span class="string">"Transaction accepted."</span>),
 <a href=#183 id=183 data-nosnippet>183</a>        <span class="prelude-val">Some</span>(TransactionStatus::Rejected) =&gt; <span class="macro">println!</span>(<span class="string">"Transaction rejected."</span>),
 <a href=#184 id=184 data-nosnippet>184</a>        <span class="prelude-val">Some</span>(TransactionStatus::Aborted) =&gt; <span class="macro">println!</span>(<span class="string">"Transaction aborted."</span>),
-<a href=#185 id=185 data-nosnippet>185</a>        <span class="prelude-val">None </span>=&gt; <span class="macro">println!</span>(<span class="string">"Couldn't find the transaction."</span>),
+<a href=#185 id=185 data-nosnippet>185</a>        <span class="prelude-val">None </span>=&gt; <span class="macro">println!</span>(<span class="string">"Could not find the transaction."</span>),
 <a href=#186 id=186 data-nosnippet>186</a>    }
 <a href=#187 id=187 data-nosnippet>187</a>    <span class="prelude-val">Ok</span>(checked.status)
 <a href=#188 id=188 data-nosnippet>188</a>}</code></pre></div></section></main></body></html>

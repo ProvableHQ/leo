@@ -83,10 +83,10 @@
 <a href=#83 id=83 data-nosnippet>83</a>        } <span class="kw">else if </span><span class="self">self</span>.to_height {
 <a href=#84 id=84 data-nosnippet>84</a>            <span class="kw">let </span>id = <span class="self">self</span>.id.unwrap();
 <a href=#85 id=85 data-nosnippet>85</a>            is_valid_hash(<span class="kw-2">&amp;</span>id)<span class="question-mark">?</span>;
-<a href=#86 id=86 data-nosnippet>86</a>            <span class="macro">format!</span>(<span class="string">"height/{}"</span>, id).to_string()
+<a href=#86 id=86 data-nosnippet>86</a>            <span class="macro">format!</span>(<span class="string">"height/{id}"</span>).to_string()
 <a href=#87 id=87 data-nosnippet>87</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.id {
 <a href=#88 id=88 data-nosnippet>88</a>            is_valid_height_or_hash(<span class="kw-2">&amp;</span>id)<span class="question-mark">?</span>;
-<a href=#89 id=89 data-nosnippet>89</a>            <span class="macro">format!</span>(<span class="string">"block/{}"</span>, id)
+<a href=#89 id=89 data-nosnippet>89</a>            <span class="macro">format!</span>(<span class="string">"block/{id}"</span>)
 <a href=#90 id=90 data-nosnippet>90</a>        } <span class="kw">else </span>{
 <a href=#91 id=91 data-nosnippet>91</a>            <span class="macro">unreachable!</span>(<span class="string">"All cases are covered"</span>)
 <a href=#92 id=92 data-nosnippet>92</a>        };

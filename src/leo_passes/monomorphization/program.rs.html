@@ -16,7 +16,7 @@
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span><span class="kw">super</span>::MonomorphizationVisitor;
 <a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>leo_ast::{AstReconstructor, Composite, Function, ProgramReconstructor, ProgramScope, Statement, Variant};
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_span::Symbol;
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_span::{Symbol, sym};
 <a href=#20 id=20 data-nosnippet>20</a>
 <a href=#21 id=21 data-nosnippet>21</a><span class="kw">use </span>indexmap::IndexMap;
 <a href=#22 id=22 data-nosnippet>22</a>
@@ -51,77 +51,94 @@
 <a href=#51 id=51 data-nosnippet>51</a>        // Create a map of function names to their definitions for fast access.
 <a href=#52 id=52 data-nosnippet>52</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>function_map: IndexMap&lt;Symbol, Function&gt; = input.functions.into_iter().collect();
 <a href=#53 id=53 data-nosnippet>53</a>
-<a href=#54 id=54 data-nosnippet>54</a>        <span class="comment">// Compute a post-order traversal of the call graph. This ensures that functions are processed after all their
-<a href=#55 id=55 data-nosnippet>55</a>        // callees. Make sure to only to compute the post order by considering the entry points of the program, which
-<a href=#56 id=56 data-nosnippet>56</a>        // are `async transition`, `transition` and `function`.
+<a href=#54 id=54 data-nosnippet>54</a>        <span class="comment">// Compute a post-order traversal of the call graph. This ensures that functions are processed after all their callees.
+<a href=#55 id=55 data-nosnippet>55</a>        // Make sure to only compute the post order by considering the entry points of the program, which are `async transition`, `transition` and `function`.
+<a href=#56 id=56 data-nosnippet>56</a>        // We must consider entry points to ignore const generic inlines that have already been monomorphized but never called.
 <a href=#57 id=57 data-nosnippet>57</a>        </span><span class="kw">let </span>order = <span class="self">self
 <a href=#58 id=58 data-nosnippet>58</a>            </span>.state
 <a href=#59 id=59 data-nosnippet>59</a>            .call_graph
-<a href=#60 id=60 data-nosnippet>60</a>            .post_order_from_entry_points(|node| {
-<a href=#61 id=61 data-nosnippet>61</a>                function_map
-<a href=#62 id=62 data-nosnippet>62</a>                    .get(node)
-<a href=#63 id=63 data-nosnippet>63</a>                    .map(|f| {
-<a href=#64 id=64 data-nosnippet>64</a>                        <span class="macro">matches!</span>(
-<a href=#65 id=65 data-nosnippet>65</a>                            f.variant,
-<a href=#66 id=66 data-nosnippet>66</a>                            Variant::AsyncTransition | Variant::Transition | Variant::Function | Variant::Script
-<a href=#67 id=67 data-nosnippet>67</a>                        )
-<a href=#68 id=68 data-nosnippet>68</a>                    })
-<a href=#69 id=69 data-nosnippet>69</a>                    .unwrap_or(<span class="bool-val">false</span>)
-<a href=#70 id=70 data-nosnippet>70</a>            })
-<a href=#71 id=71 data-nosnippet>71</a>            .unwrap(); <span class="comment">// This unwrap is safe because the type checker guarantees an acyclic graph.
-<a href=#72 id=72 data-nosnippet>72</a>
-<a href=#73 id=73 data-nosnippet>73</a>        // Reconstruct functions in post-order.
-<a href=#74 id=74 data-nosnippet>74</a>        </span><span class="kw">for </span>function_name <span class="kw">in </span><span class="kw-2">&amp;</span>order {
-<a href=#75 id=75 data-nosnippet>75</a>            <span class="comment">// Skip external functions (i.e., not in the input map).
-<a href=#76 id=76 data-nosnippet>76</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(function) = function_map.swap_remove(function_name) {
-<a href=#77 id=77 data-nosnippet>77</a>                <span class="comment">// Perform monomorphization or other reconstruction logic.
-<a href=#78 id=78 data-nosnippet>78</a>                </span><span class="kw">let </span>reconstructed_function = <span class="self">self</span>.reconstruct_function(function);
-<a href=#79 id=79 data-nosnippet>79</a>                <span class="comment">// Store the reconstructed function for inclusion in the output scope.
-<a href=#80 id=80 data-nosnippet>80</a>                </span><span class="self">self</span>.reconstructed_functions.insert(<span class="kw-2">*</span>function_name, reconstructed_function);
-<a href=#81 id=81 data-nosnippet>81</a>            }
-<a href=#82 id=82 data-nosnippet>82</a>        }
-<a href=#83 id=83 data-nosnippet>83</a>
-<a href=#84 id=84 data-nosnippet>84</a>        <span class="comment">// Now reconstruct mappings
-<a href=#85 id=85 data-nosnippet>85</a>        </span><span class="kw">let </span>mappings =
-<a href=#86 id=86 data-nosnippet>86</a>            input.mappings.into_iter().map(|(id, mapping)| (id, <span class="self">self</span>.reconstruct_mapping(mapping))).collect();
-<a href=#87 id=87 data-nosnippet>87</a>
-<a href=#88 id=88 data-nosnippet>88</a>        <span class="comment">// Then consts
-<a href=#89 id=89 data-nosnippet>89</a>        </span><span class="kw">let </span>consts = input
-<a href=#90 id=90 data-nosnippet>90</a>            .consts
-<a href=#91 id=91 data-nosnippet>91</a>            .into_iter()
-<a href=#92 id=92 data-nosnippet>92</a>            .map(|(i, c)| <span class="kw">match </span><span class="self">self</span>.reconstruct_const(c) {
-<a href=#93 id=93 data-nosnippet>93</a>                (Statement::Const(declaration), <span class="kw">_</span>) =&gt; (i, declaration),
-<a href=#94 id=94 data-nosnippet>94</a>                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"`reconstruct_const` can only return `Statement::Const`"</span>),
-<a href=#95 id=95 data-nosnippet>95</a>            })
-<a href=#96 id=96 data-nosnippet>96</a>            .collect();
-<a href=#97 id=97 data-nosnippet>97</a>
-<a href=#98 id=98 data-nosnippet>98</a>        <span class="comment">// Now retain only functions that are either not yet monomorphized or are still referenced by calls.
-<a href=#99 id=99 data-nosnippet>99</a>        </span><span class="self">self</span>.reconstructed_functions.retain(|f, <span class="kw">_</span>| {
-<a href=#100 id=100 data-nosnippet>100</a>            <span class="kw">let </span>is_monomorphized = <span class="self">self</span>.monomorphized_functions.contains(f);
-<a href=#101 id=101 data-nosnippet>101</a>            <span class="kw">let </span>is_still_called = <span class="self">self</span>.unresolved_calls.iter().any(|c| c.function.name == <span class="kw-2">*</span>f);
-<a href=#102 id=102 data-nosnippet>102</a>            !is_monomorphized || is_still_called
-<a href=#103 id=103 data-nosnippet>103</a>        });
-<a href=#104 id=104 data-nosnippet>104</a>
-<a href=#105 id=105 data-nosnippet>105</a>        <span class="comment">// Move reconstructed structs into the final `ProgramScope`, clearing the temporary storage for the next scope.
-<a href=#106 id=106 data-nosnippet>106</a>        </span><span class="kw">let </span>structs = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.reconstructed_structs).into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-<a href=#107 id=107 data-nosnippet>107</a>
-<a href=#108 id=108 data-nosnippet>108</a>        <span class="comment">// Move reconstructed functions into the final `ProgramScope`, clearing the temporary storage for the next scope.
-<a href=#109 id=109 data-nosnippet>109</a>        // Make sure to place transitions before all the other functions.
-<a href=#110 id=110 data-nosnippet>110</a>        </span><span class="kw">let </span>(transitions, <span class="kw-2">mut </span>non_transitions): (Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;) = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.reconstructed_functions)
-<a href=#111 id=111 data-nosnippet>111</a>            .into_iter()
-<a href=#112 id=112 data-nosnippet>112</a>            .partition(|(<span class="kw">_</span>, f)| f.variant.is_transition());
+<a href=#60 id=60 data-nosnippet>60</a>            .post_order_with_filter(|location| {
+<a href=#61 id=61 data-nosnippet>61</a>                <span class="comment">// Filter out locations that are not from this program.
+<a href=#62 id=62 data-nosnippet>62</a>                </span><span class="kw">if </span>location.program != <span class="self">self</span>.program {
+<a href=#63 id=63 data-nosnippet>63</a>                    <span class="kw">return </span><span class="bool-val">false</span>;
+<a href=#64 id=64 data-nosnippet>64</a>                }
+<a href=#65 id=65 data-nosnippet>65</a>                <span class="comment">// Allow constructors.
+<a href=#66 id=66 data-nosnippet>66</a>                </span><span class="kw">if </span>location.program == <span class="self">self</span>.program &amp;&amp; location.name == sym::constructor {
+<a href=#67 id=67 data-nosnippet>67</a>                    <span class="kw">return </span><span class="bool-val">true</span>;
+<a href=#68 id=68 data-nosnippet>68</a>                }
+<a href=#69 id=69 data-nosnippet>69</a>                function_map
+<a href=#70 id=70 data-nosnippet>70</a>                    .get(<span class="kw-2">&amp;</span>location.name)
+<a href=#71 id=71 data-nosnippet>71</a>                    .map(|f| {
+<a href=#72 id=72 data-nosnippet>72</a>                        <span class="macro">matches!</span>(
+<a href=#73 id=73 data-nosnippet>73</a>                            f.variant,
+<a href=#74 id=74 data-nosnippet>74</a>                            Variant::AsyncTransition | Variant::Transition | Variant::Function | Variant::Script
+<a href=#75 id=75 data-nosnippet>75</a>                        )
+<a href=#76 id=76 data-nosnippet>76</a>                    })
+<a href=#77 id=77 data-nosnippet>77</a>                    .unwrap_or(<span class="bool-val">false</span>)
+<a href=#78 id=78 data-nosnippet>78</a>            })
+<a href=#79 id=79 data-nosnippet>79</a>            .unwrap() <span class="comment">// This unwrap is safe because the type checker guarantees an acyclic graph.
+<a href=#80 id=80 data-nosnippet>80</a>            </span>.into_iter()
+<a href=#81 id=81 data-nosnippet>81</a>            .filter(|location| location.program == <span class="self">self</span>.program).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#82 id=82 data-nosnippet>82</a>
+<a href=#83 id=83 data-nosnippet>83</a>        <span class="comment">// Determine any ca
+<a href=#84 id=84 data-nosnippet>84</a>
+<a href=#85 id=85 data-nosnippet>85</a>        // Reconstruct functions in post-order.
+<a href=#86 id=86 data-nosnippet>86</a>        </span><span class="kw">for </span>location <span class="kw">in </span><span class="kw-2">&amp;</span>order {
+<a href=#87 id=87 data-nosnippet>87</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(function) = function_map.swap_remove(<span class="kw-2">&amp;</span>location.name) {
+<a href=#88 id=88 data-nosnippet>88</a>                <span class="comment">// Perform monomorphization or other reconstruction logic.
+<a href=#89 id=89 data-nosnippet>89</a>                </span><span class="kw">let </span>reconstructed_function = <span class="self">self</span>.reconstruct_function(function);
+<a href=#90 id=90 data-nosnippet>90</a>                <span class="comment">// Store the reconstructed function for inclusion in the output scope.
+<a href=#91 id=91 data-nosnippet>91</a>                </span><span class="self">self</span>.reconstructed_functions.insert(location.name, reconstructed_function);
+<a href=#92 id=92 data-nosnippet>92</a>            }
+<a href=#93 id=93 data-nosnippet>93</a>        }
+<a href=#94 id=94 data-nosnippet>94</a>
+<a href=#95 id=95 data-nosnippet>95</a>        <span class="comment">// Get any
+<a href=#96 id=96 data-nosnippet>96</a>
+<a href=#97 id=97 data-nosnippet>97</a>        // Now reconstruct mappings
+<a href=#98 id=98 data-nosnippet>98</a>        </span><span class="kw">let </span>mappings =
+<a href=#99 id=99 data-nosnippet>99</a>            input.mappings.into_iter().map(|(id, mapping)| (id, <span class="self">self</span>.reconstruct_mapping(mapping))).collect();
+<a href=#100 id=100 data-nosnippet>100</a>
+<a href=#101 id=101 data-nosnippet>101</a>        <span class="comment">// Then consts
+<a href=#102 id=102 data-nosnippet>102</a>        </span><span class="kw">let </span>consts = input
+<a href=#103 id=103 data-nosnippet>103</a>            .consts
+<a href=#104 id=104 data-nosnippet>104</a>            .into_iter()
+<a href=#105 id=105 data-nosnippet>105</a>            .map(|(i, c)| <span class="kw">match </span><span class="self">self</span>.reconstruct_const(c) {
+<a href=#106 id=106 data-nosnippet>106</a>                (Statement::Const(declaration), <span class="kw">_</span>) =&gt; (i, declaration),
+<a href=#107 id=107 data-nosnippet>107</a>                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"`reconstruct_const` can only return `Statement::Const`"</span>),
+<a href=#108 id=108 data-nosnippet>108</a>            })
+<a href=#109 id=109 data-nosnippet>109</a>            .collect();
+<a href=#110 id=110 data-nosnippet>110</a>
+<a href=#111 id=111 data-nosnippet>111</a>        <span class="comment">// Reconstruct the constructor last, as it cannot be called by any other function.
+<a href=#112 id=112 data-nosnippet>112</a>        </span><span class="kw">let </span>constructor = input.constructor.map(|c| <span class="self">self</span>.reconstruct_constructor(c));
 <a href=#113 id=113 data-nosnippet>113</a>
-<a href=#114 id=114 data-nosnippet>114</a>        <span class="kw">let </span><span class="kw-2">mut </span>all_functions = transitions;
-<a href=#115 id=115 data-nosnippet>115</a>        all_functions.append(<span class="kw-2">&amp;mut </span>non_transitions);
-<a href=#116 id=116 data-nosnippet>116</a>
-<a href=#117 id=117 data-nosnippet>117</a>        <span class="comment">// Return the fully reconstructed scope with updated functions.
-<a href=#118 id=118 data-nosnippet>118</a>        </span>ProgramScope {
-<a href=#119 id=119 data-nosnippet>119</a>            program_id: input.program_id,
-<a href=#120 id=120 data-nosnippet>120</a>            structs,
-<a href=#121 id=121 data-nosnippet>121</a>            mappings,
-<a href=#122 id=122 data-nosnippet>122</a>            functions: all_functions,
-<a href=#123 id=123 data-nosnippet>123</a>            consts,
-<a href=#124 id=124 data-nosnippet>124</a>            span: input.span,
-<a href=#125 id=125 data-nosnippet>125</a>        }
-<a href=#126 id=126 data-nosnippet>126</a>    }
-<a href=#127 id=127 data-nosnippet>127</a>}</code></pre></div></section></main></body></html>
+<a href=#114 id=114 data-nosnippet>114</a>        <span class="comment">// Now retain only functions that are either not yet monomorphized or are still referenced by calls.
+<a href=#115 id=115 data-nosnippet>115</a>        </span><span class="self">self</span>.reconstructed_functions.retain(|f, <span class="kw">_</span>| {
+<a href=#116 id=116 data-nosnippet>116</a>            <span class="kw">let </span>is_monomorphized = <span class="self">self</span>.monomorphized_functions.contains(f);
+<a href=#117 id=117 data-nosnippet>117</a>            <span class="kw">let </span>is_still_called = <span class="self">self</span>.unresolved_calls.iter().any(|c| c.function.name == <span class="kw-2">*</span>f);
+<a href=#118 id=118 data-nosnippet>118</a>            !is_monomorphized || is_still_called
+<a href=#119 id=119 data-nosnippet>119</a>        });
+<a href=#120 id=120 data-nosnippet>120</a>
+<a href=#121 id=121 data-nosnippet>121</a>        <span class="comment">// Move reconstructed structs into the final `ProgramScope`, clearing the temporary storage for the next scope.
+<a href=#122 id=122 data-nosnippet>122</a>        </span><span class="kw">let </span>structs = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.reconstructed_structs).into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#123 id=123 data-nosnippet>123</a>
+<a href=#124 id=124 data-nosnippet>124</a>        <span class="comment">// Move reconstructed functions into the final `ProgramScope`, clearing the temporary storage for the next scope.
+<a href=#125 id=125 data-nosnippet>125</a>        // Make sure to place transitions before all the other functions.
+<a href=#126 id=126 data-nosnippet>126</a>        </span><span class="kw">let </span>(transitions, <span class="kw-2">mut </span>non_transitions): (Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;) = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.reconstructed_functions)
+<a href=#127 id=127 data-nosnippet>127</a>            .into_iter()
+<a href=#128 id=128 data-nosnippet>128</a>            .partition(|(<span class="kw">_</span>, f)| f.variant.is_transition());
+<a href=#129 id=129 data-nosnippet>129</a>
+<a href=#130 id=130 data-nosnippet>130</a>        <span class="kw">let </span><span class="kw-2">mut </span>all_functions = transitions;
+<a href=#131 id=131 data-nosnippet>131</a>        all_functions.append(<span class="kw-2">&amp;mut </span>non_transitions);
+<a href=#132 id=132 data-nosnippet>132</a>
+<a href=#133 id=133 data-nosnippet>133</a>        <span class="comment">// Return the fully reconstructed scope with updated functions.
+<a href=#134 id=134 data-nosnippet>134</a>        </span>ProgramScope {
+<a href=#135 id=135 data-nosnippet>135</a>            program_id: input.program_id,
+<a href=#136 id=136 data-nosnippet>136</a>            structs,
+<a href=#137 id=137 data-nosnippet>137</a>            mappings,
+<a href=#138 id=138 data-nosnippet>138</a>            functions: all_functions,
+<a href=#139 id=139 data-nosnippet>139</a>            constructor,
+<a href=#140 id=140 data-nosnippet>140</a>            consts,
+<a href=#141 id=141 data-nosnippet>141</a>            span: input.span,
+<a href=#142 id=142 data-nosnippet>142</a>        }
+<a href=#143 id=143 data-nosnippet>143</a>    }
+<a href=#144 id=144 data-nosnippet>144</a>}</code></pre></div></section></main></body></html>

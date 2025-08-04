@@ -35,7 +35,7 @@
 <a href=#35 id=35 data-nosnippet>35</a>    Token::ShlAssign,
 <a href=#36 id=36 data-nosnippet>36</a>];
 <a href=#37 id=37 data-nosnippet>37</a>
-<a href=#38 id=38 data-nosnippet>38</a><span class="kw">impl</span>&lt;N: Network&gt; ParserContext&lt;<span class="lifetime">'_</span>, N&gt; {
+<a href=#38 id=38 data-nosnippet>38</a><span class="kw">impl </span>ParserContext&lt;<span class="lifetime">'_</span>&gt; {
 <a href=#39 id=39 data-nosnippet>39</a>    <span class="doccomment">/// Returns a [`Statement`] AST node if the next tokens represent a statement.
 <a href=#40 id=40 data-nosnippet>40</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
 <a href=#41 id=41 data-nosnippet>41</a>        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.token.token {

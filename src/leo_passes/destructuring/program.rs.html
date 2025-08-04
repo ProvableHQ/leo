@@ -16,16 +16,24 @@
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span><span class="kw">super</span>::DestructuringVisitor;
 <a href=#18 id=18 data-nosnippet>18</a>
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_ast::{AstReconstructor, Function, ProgramReconstructor};
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor};
 <a href=#20 id=20 data-nosnippet>20</a>
 <a href=#21 id=21 data-nosnippet>21</a><span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>DestructuringVisitor&lt;<span class="lifetime">'_</span>&gt; {
 <a href=#22 id=22 data-nosnippet>22</a>    <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Function) -&gt; Function {
 <a href=#23 id=23 data-nosnippet>23</a>        <span class="comment">// Set the `is_async` flag before reconstructing the block.
-<a href=#24 id=24 data-nosnippet>24</a>        </span><span class="self">self</span>.is_async = input.variant.is_async_function();
-<a href=#25 id=25 data-nosnippet>25</a>        <span class="comment">// Reconstruct the block.
-<a href=#26 id=26 data-nosnippet>26</a>        </span><span class="kw">let </span>block = <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>;
-<a href=#27 id=27 data-nosnippet>27</a>        <span class="comment">// Reset the `is_async` flag.
-<a href=#28 id=28 data-nosnippet>28</a>        </span><span class="self">self</span>.is_async = <span class="bool-val">false</span>;
-<a href=#29 id=29 data-nosnippet>29</a>        Function { block, ..input }
-<a href=#30 id=30 data-nosnippet>30</a>    }
-<a href=#31 id=31 data-nosnippet>31</a>}</code></pre></div></section></main></body></html>
+<a href=#24 id=24 data-nosnippet>24</a>        // Note: There is no need to reset this flag as it is appropriately assigned before visiting a function or constructor.
+<a href=#25 id=25 data-nosnippet>25</a>        </span><span class="self">self</span>.is_async = input.variant.is_async_function();
+<a href=#26 id=26 data-nosnippet>26</a>        <span class="comment">// Reconstruct the block.
+<a href=#27 id=27 data-nosnippet>27</a>        </span><span class="kw">let </span>block = <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>;
+<a href=#28 id=28 data-nosnippet>28</a>        Function { block, ..input }
+<a href=#29 id=29 data-nosnippet>29</a>    }
+<a href=#30 id=30 data-nosnippet>30</a>
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="kw">fn </span>reconstruct_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Constructor) -&gt; Constructor {
+<a href=#32 id=32 data-nosnippet>32</a>        <span class="comment">// Set the `is_async` flag before reconstructing the block.
+<a href=#33 id=33 data-nosnippet>33</a>        // Note: There is no need to reset this flag as it is appropriately assigned before visiting a function or constructor.
+<a href=#34 id=34 data-nosnippet>34</a>        </span><span class="self">self</span>.is_async = <span class="bool-val">true</span>;
+<a href=#35 id=35 data-nosnippet>35</a>        <span class="comment">// Reconstruct the block.
+<a href=#36 id=36 data-nosnippet>36</a>        </span><span class="kw">let </span>block = <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>;
+<a href=#37 id=37 data-nosnippet>37</a>        Constructor { block, ..input }
+<a href=#38 id=38 data-nosnippet>38</a>    }
+<a href=#39 id=39 data-nosnippet>39</a>}</code></pre></div></section></main></body></html>

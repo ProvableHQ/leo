@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["handle_execute","print_execution_plan","print_execution_stats"],"struct":["LeoExecute"]};
+window.SIDEBAR_ITEMS = {"fn":["check_task_for_warnings","handle_execute","print_execution_plan","print_execution_stats"],"struct":["LeoExecute"]};
