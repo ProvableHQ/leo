@@ -49,4 +49,7 @@ program test.aleo {
 
         return tuple;
     }
+
+      @noupgrade
+      async constructor() {}
 }

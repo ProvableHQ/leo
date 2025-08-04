@@ -42,7 +42,8 @@
 //! Such a directory structure, together with a `.gitignore` file, may be created
 //! on the file system using `Package::initialize`.
 //! ```no_run
-//! # use leo_package::{NetworkName, Package};
+//! # use leo_ast::NetworkName;
+//! # use leo_package::{Package};
 //! let path = Package::initialize("my_package", "path/to/parent", NetworkName::TestnetV0, "http://localhost:3030").unwrap();
 //! ```
 //!
@@ -52,7 +53,7 @@
 //! `Package::from_directory`:
 //! ```no_run
 //! # use leo_package::Package;
-//! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false).unwrap();
+//! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false).unwrap();
 //! ```
 //! This will read the manifest and env file and keep their data in `package.manifest` and `package.env`.
 //! It will also process dependencies and store them in topological order in `package.programs`. This processing
@@ -68,6 +69,7 @@
 
 #![forbid(unsafe_code)]
 
+use leo_ast::NetworkName;
 use leo_errors::{PackageError, Result, UtilError};
 use leo_span::Symbol;
 
@@ -84,9 +86,6 @@ pub use location::*;
 
 mod manifest;
 pub use manifest::*;
-
-mod network_name;
-pub use network_name::*;
 
 mod package;
 pub use package::*;
@@ -173,6 +172,7 @@ pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
 }
 
 /// Fetch the given program from the network and return the program as a string.
+// TODO (@d0cd) Unify with `leo_package::Program::fetch`.
 pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkName) -> Result<String, UtilError> {
     let url = format!("{endpoint}/{network}/program/{name}");
     let program = fetch_from_network(&url)?;

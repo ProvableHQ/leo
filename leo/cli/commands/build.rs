@@ -16,16 +16,15 @@
 
 use super::*;
 
-use leo_ast::Stub;
+use leo_ast::{NetworkName, Stub};
 use leo_compiler::{AstSnapshots, Compiler, CompilerOptions};
 use leo_errors::{CliError, UtilError};
-use leo_package::{Manifest, NetworkName, Package};
+use leo_package::{Manifest, Package};
 use leo_span::Symbol;
 
-use snarkvm::prelude::{MainnetV0, Network, TestnetV0};
+use snarkvm::prelude::{CanaryV0, Itertools, MainnetV0, Program, TestnetV0};
 
 use indexmap::IndexMap;
-use snarkvm::prelude::CanaryV0;
 use std::path::Path;
 
 impl From<BuildOptions> for CompilerOptions {
@@ -66,23 +65,25 @@ impl Command for LeoBuild {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
         let network: NetworkName = context.get_network(&self.env_override.network)?.parse()?;
-        match network {
-            NetworkName::MainnetV0 => handle_build::<MainnetV0>(&self, context),
-            NetworkName::TestnetV0 => handle_build::<TestnetV0>(&self, context),
-            NetworkName::CanaryV0 => handle_build::<CanaryV0>(&self, context),
-        }
+        // Build the program.
+        handle_build(&self, context, network)
     }
 }
 
 // A helper function to handle the build command.
-fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Command>::Output> {
+fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> Result<<LeoBuild as Command>::Output> {
     let package_path = context.dir()?;
     let home_path = context.home()?;
 
     let package = if command.options.build_tests {
-        leo_package::Package::from_directory_with_tests(&package_path, &home_path, command.options.no_cache)?
+        Package::from_directory_with_tests(
+            &package_path,
+            &home_path,
+            command.options.no_cache,
+            command.options.no_local,
+        )?
     } else {
-        leo_package::Package::from_directory(&package_path, &home_path, command.options.no_cache)?
+        Package::from_directory(&package_path, &home_path, command.options.no_cache, command.options.no_local)?
     };
 
     let outputs_directory = package.outputs_directory();
@@ -108,21 +109,23 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
                 // This was a network dependency or local .aleo dependency, and we have its bytecode.
                 (bytecode.clone(), imports_directory.join(format!("{}.aleo", program.name)))
             }
-            leo_package::ProgramData::SourcePath(path) => {
-                // This is a local Leo dependency, so we must compile it.
-                let build_path = if path == &main_source_path {
+            leo_package::ProgramData::SourcePath { source, .. } => {
+                // This is a local dependency, so we must compile it.
+                let build_path = if source == &main_source_path {
                     build_directory.join("main.aleo")
                 } else {
                     imports_directory.join(format!("{}.aleo", program.name))
                 };
-                let bytecode = compile_leo_file::<N>(
-                    path,
+                // Load the manifest in local dependency.
+                let bytecode = compile_leo_file(
+                    source,
                     program.name,
                     program.is_test,
                     &outputs_directory,
                     &handler,
                     command.options.clone(),
                     stubs.clone(),
+                    network,
                 )?;
                 (bytecode, build_path)
             }
@@ -132,7 +135,11 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
         std::fs::write(build_path, &bytecode).map_err(CliError::failed_to_load_instructions)?;
 
         // Track the Stub.
-        let stub = leo_disassembler::disassemble_from_str::<N>(program.name, &bytecode)?;
+        let stub = match network {
+            NetworkName::MainnetV0 => leo_disassembler::disassemble_from_str::<MainnetV0>(program.name, &bytecode),
+            NetworkName::TestnetV0 => leo_disassembler::disassemble_from_str::<TestnetV0>(program.name, &bytecode),
+            NetworkName::CanaryV0 => leo_disassembler::disassemble_from_str::<CanaryV0>(program.name, &bytecode),
+        }?;
         stubs.insert(program.name, stub);
     }
 
@@ -154,7 +161,7 @@ fn handle_build<N: Network>(command: &LeoBuild, context: Context) -> Result<<Leo
 
 /// Compiles a Leo file. Writes and returns the compiled bytecode.
 #[allow(clippy::too_many_arguments)]
-fn compile_leo_file<N: Network>(
+fn compile_leo_file(
     source_file_path: &Path,
     program_name: Symbol,
     is_test: bool,
@@ -162,23 +169,33 @@ fn compile_leo_file<N: Network>(
     handler: &Handler,
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
+    network: NetworkName,
 ) -> Result<String> {
     // Create a new instance of the Leo compiler.
-    let mut compiler = Compiler::<N>::new(
+    let mut compiler = Compiler::new(
         Some(program_name.to_string()),
         is_test,
         handler.clone(),
         output_path.to_path_buf(),
         Some(options.into()),
         stubs,
+        network,
     );
 
     // Compile the Leo program into Aleo instructions.
     let bytecode = compiler.compile_from_file(source_file_path)?;
 
-    tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
-    tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
+    // Get the AVM bytecode.
+    let checksum: String = match network {
+        NetworkName::MainnetV0 => Program::<MainnetV0>::from_str(&bytecode)?.to_checksum().iter().join(", "),
+        NetworkName::TestnetV0 => Program::<TestnetV0>::from_str(&bytecode)?.to_checksum().iter().join(", "),
+        NetworkName::CanaryV0 => Program::<CanaryV0>::from_str(&bytecode)?.to_checksum().iter().join(", "),
+    };
 
-    tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
+    tracing::info!("    \n{} statements before dead code elimination.", compiler.statements_before_dce);
+    tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
+    tracing::info!("    The program checksum is: '[{checksum}]'.");
+
+    tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions.");
     Ok(bytecode)
 }

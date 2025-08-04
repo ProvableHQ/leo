@@ -144,7 +144,7 @@ pub enum Value {
     Future(Future),
     Struct(StructContents),
     Unsuffixed(String),
-    // String(()),
+    // String(String),
 }
 
 impl Value {

@@ -34,6 +34,7 @@ pub use debug::LeoDebug;
 
 mod deploy;
 pub use deploy::LeoDeploy;
+use deploy::{Task, print_deployment_plan, print_deployment_stats};
 
 mod execute;
 pub use execute::LeoExecute;
@@ -43,9 +44,6 @@ pub use query::LeoQuery;
 
 mod new;
 pub use new::LeoNew;
-
-// mod node;
-// pub use node::Node;
 
 mod remove;
 pub use remove::LeoRemove;
@@ -58,6 +56,9 @@ pub use test::LeoTest;
 
 mod update;
 pub use update::LeoUpdate;
+
+pub mod upgrade;
+pub use upgrade::LeoUpgrade;
 
 use super::*;
 use crate::cli::helpers::context::*;

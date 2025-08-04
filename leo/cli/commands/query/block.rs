@@ -83,10 +83,10 @@ impl Command for LeoBlock {
         } else if self.to_height {
             let id = self.id.unwrap();
             is_valid_hash(&id)?;
-            format!("height/{}", id).to_string()
+            format!("height/{id}").to_string()
         } else if let Some(id) = self.id {
             is_valid_height_or_hash(&id)?;
-            format!("block/{}", id)
+            format!("block/{id}")
         } else {
             unreachable!("All cases are covered")
         };

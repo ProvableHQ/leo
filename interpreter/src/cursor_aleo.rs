@@ -33,7 +33,6 @@ use snarkvm::{
         Identifier,
         Literal,
         LiteralType,
-        Network as _,
         PlaintextType,
         Register,
         TestnetV0,
@@ -41,9 +40,12 @@ use snarkvm::{
         ToBytes as _,
         integers::Integer,
     },
-    synthesizer::{Command, Instruction},
+    synthesizer::{
+        Command,
+        Instruction,
+        program::{CallOperator, CastType, Operand},
+    },
 };
-use snarkvm_synthesizer_program::{CallOperator, CastType, Operand};
 
 use rand::Rng as _;
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
@@ -191,6 +193,9 @@ impl Cursor {
             }
             Operand::BlockHeight => Value::U32(self.block_height),
             Operand::NetworkID => todo!(),
+            Operand::Checksum(_) => todo!("Look up the program in the global namespace and get its checksum"),
+            Operand::Edition(_) => todo!("Look up the program in the global namespace and get its edition"),
+            Operand::ProgramOwner(_) => todo!("Prompt user if not set"),
         }
     }
 
@@ -952,7 +957,7 @@ impl Cursor {
                 }
             }
         }
-        panic!("branch to nonexistent label {}", label);
+        panic!("branch to nonexistent label {label}");
     }
 
     pub fn step_aleo(&mut self) -> Result<()> {

@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::Location;
 use leo_span::Symbol;
 
 use indexmap::{IndexMap, IndexSet};
@@ -23,26 +24,26 @@ use std::{fmt::Debug, hash::Hash};
 pub type StructGraph = DiGraph<Symbol>;
 
 /// A call graph.
-pub type CallGraph = DiGraph<Symbol>;
+pub type CallGraph = DiGraph<Location>;
 
 /// An import dependency graph.
 pub type ImportGraph = DiGraph<Symbol>;
 
 /// A node in a graph.
-pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
+pub trait GraphNode: Copy + 'static + Eq + PartialEq + Debug + Hash {}
 
-impl Node for Symbol {}
+impl<T> GraphNode for T where T: 'static + Copy + Eq + PartialEq + Debug + Hash {}
 
 /// Errors in directed graph operations.
 #[derive(Debug)]
-pub enum DiGraphError<N: Node> {
+pub enum DiGraphError<N: GraphNode> {
     /// An error that is emitted when a cycle is detected in the directed graph. Contains the path of the cycle.
     CycleDetected(Vec<N>),
 }
 
 /// A directed graph.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct DiGraph<N: Node> {
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct DiGraph<N: GraphNode> {
     /// The set of nodes in the graph.
     nodes: IndexSet<N>,
     /// The directed edges in the graph.
@@ -50,14 +51,26 @@ pub struct DiGraph<N: Node> {
     edges: IndexMap<N, IndexSet<N>>,
 }
 
-impl<N: Node> DiGraph<N> {
+impl<N: GraphNode> Default for DiGraph<N> {
+    fn default() -> Self {
+        Self { nodes: IndexSet::new(), edges: IndexMap::new() }
+    }
+}
+
+impl<N: GraphNode> DiGraph<N> {
     /// Initializes a new `DiGraph` from a vector of source nodes.
     pub fn new(nodes: IndexSet<N>) -> Self {
         Self { nodes, edges: IndexMap::new() }
     }
 
+    /// Adds a node to the graph.
     pub fn add_node(&mut self, node: N) {
         self.nodes.insert(node);
+    }
+
+    /// Returns an iterator over the nodes in the graph.
+    pub fn nodes(&self) -> impl Iterator<Item = &N> {
+        self.nodes.iter()
     }
 
     /// Adds an edge to the graph.
@@ -101,14 +114,14 @@ impl<N: Node> DiGraph<N> {
     /// Returns the post-order ordering of the graph.
     /// Detects if there is a cycle in the graph.
     pub fn post_order(&self) -> Result<IndexSet<N>, DiGraphError<N>> {
-        self.post_order_from_entry_points(|_| true)
+        self.post_order_with_filter(|_| true)
     }
 
-    /// Returns the post-order ordering of the graph but only considering a subset of the nodes as "entry points".
-    /// Meaning, nodes that are not accessible from the entry nodes are not considered in the post order.
+    /// Returns the post-order ordering of the graph but only considering a subset of the nodes that
+    /// satisfy the given filter.
     ///
     /// Detects if there is a cycle in the graph.
-    pub fn post_order_from_entry_points<F>(&self, is_entry_point: F) -> Result<IndexSet<N>, DiGraphError<N>>
+    pub fn post_order_with_filter<F>(&self, filter: F) -> Result<IndexSet<N>, DiGraphError<N>>
     where
         F: Fn(&N) -> bool,
     {
@@ -117,7 +130,7 @@ impl<N: Node> DiGraph<N> {
 
         // Perform a depth-first search of the graph, starting from `node`, for each node in the graph that satisfies
         // `is_entry_point`.
-        for node in self.nodes.iter().filter(|n| is_entry_point(n)) {
+        for node in self.nodes.iter().filter(|n| filter(n)) {
             // If the node has not been explored, explore it.
             if !finished.contains(node) {
                 // The set of nodes that are on the path to the current node in the search.
@@ -195,9 +208,7 @@ impl<N: Node> DiGraph<N> {
 mod test {
     use super::*;
 
-    impl Node for u32 {}
-
-    fn check_post_order<N: Node>(graph: &DiGraph<N>, expected: &[N]) {
+    fn check_post_order<N: GraphNode>(graph: &DiGraph<N>, expected: &[N]) {
         let result = graph.post_order();
         assert!(result.is_ok());
 

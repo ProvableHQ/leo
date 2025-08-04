@@ -20,14 +20,12 @@ use leo_span::Symbol;
 
 use snarkvm::{
     prelude::{Itertools, Network},
-    synthesizer::program::{CommandTrait, InstructionTrait, Program, ProgramCore},
+    synthesizer::program::{Program, ProgramCore},
 };
 
 use std::{fmt, str::FromStr};
 
-pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
-    program: ProgramCore<N, Instruction, Command>,
-) -> Stub {
+pub fn disassemble<N: Network>(program: ProgramCore<N>) -> Stub {
     let program_id = ProgramId::from(program.id());
     Stub {
         imports: program.imports().into_iter().map(|(id, _)| ProgramId::from(id)).collect(),
@@ -110,10 +108,10 @@ mod tests {
             match program {
                 Ok(p) => {
                     let disassembled = disassemble(p);
-                    println!("{}", disassembled);
+                    println!("{disassembled}");
                 }
                 Err(e) => {
-                    println!("{}", e);
+                    println!("{e}");
                 }
             }
         });

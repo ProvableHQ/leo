@@ -381,4 +381,18 @@ create_messages!(
         msg: format!("Expected an identifier."),
         help: None,
     }
+
+    @formatted
+    identifier_cannot_contain_double_underscore {
+        args : (ident: impl Display),
+        msg: format!("Identifier {ident} cannot contain a double underscore `__`"),
+        help: None,
+    }
+
+    @formatted
+    custom {
+        args: (msg: impl Display),
+        msg: format!("{msg}"),
+        help: None,
+    }
 );

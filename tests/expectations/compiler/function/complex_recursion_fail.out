@@ -23,29 +23,29 @@ Error [ETYC0372043]: Cannot call a local transition function from a transition f
      |
   33 |         return five(n);
      |                ^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
     --> compiler-test:5:16
      |
    5 |         return two(n);
      |                ^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
     --> compiler-test:9:16
      |
    9 |         return three(n) + four(n);
      |                ^^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
     --> compiler-test:9:27
      |
    9 |         return three(n) + four(n);
      |                           ^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
     --> compiler-test:13:16
      |
   13 |         return one(n);
      |                ^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
     --> compiler-test:17:16
      |
   17 |         return one(n);
      |                ^^^^^^
-Error [ETYC0372059]: Cyclic dependency between functions: `five` --> `six` --> `seven` --> `five`
+Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/five` --> `test.aleo/six` --> `test.aleo/seven` --> `test.aleo/five`

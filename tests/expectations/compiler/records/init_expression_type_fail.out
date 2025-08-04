@@ -13,7 +13,7 @@ Error [ETYC0372117]: Expected type `u64` but type `address` was found.
      |
   13 |             amount: r0, // This variable should be type u64.
      |                     ^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
     --> compiler-test:19:24
      |
   19 |         let t: Token = mint(x, c);

@@ -290,6 +290,10 @@ pub enum CoreFunction {
     SignatureVerify,
     FutureAwait,
 
+    ProgramChecksum,
+    ProgramEdition,
+    ProgramOwner,
+
     CheatCodePrintMapping,
     CheatCodeSetBlockHeight,
 }
@@ -566,6 +570,10 @@ impl CoreFunction {
 
             (sym::group, sym::to_x_coordinate) => Self::GroupToXCoordinate,
             (sym::group, sym::to_y_coordinate) => Self::GroupToYCoordinate,
+
+            (sym::ProgramCore, sym::checksum) => Self::ProgramChecksum,
+            (sym::ProgramCore, sym::edition) => Self::ProgramEdition,
+            (sym::ProgramCore, sym::program_owner) => Self::ProgramOwner,
 
             (sym::signature, sym::verify) => Self::SignatureVerify,
             (sym::Future, sym::Await) => Self::FutureAwait,
@@ -851,6 +859,9 @@ impl CoreFunction {
             Self::SignatureVerify => 3,
             Self::FutureAwait => 1,
 
+            Self::ProgramChecksum => 1,
+            Self::ProgramEdition => 1,
+            Self::ProgramOwner => 1,
             Self::CheatCodePrintMapping => 1,
             Self::CheatCodeSetBlockHeight => 1,
         }
@@ -879,7 +890,10 @@ impl CoreFunction {
             | CoreFunction::ChaChaRandScalar
             | CoreFunction::MappingSet
             | CoreFunction::MappingRemove
-            | CoreFunction::MappingContains => true,
+            | CoreFunction::MappingContains
+            | CoreFunction::ProgramChecksum
+            | CoreFunction::ProgramEdition
+            | CoreFunction::ProgramOwner => true,
             CoreFunction::BHP256CommitToAddress
             | CoreFunction::BHP256CommitToField
             | CoreFunction::BHP256CommitToGroup

@@ -28,6 +28,9 @@ pub use self::r#struct::*;
 pub mod common;
 pub use self::common::*;
 
+pub mod constructor;
+pub use self::constructor::*;
+
 mod expressions;
 pub use self::expressions::*;
 

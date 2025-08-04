@@ -1,0 +1,45 @@
+Error [EPAR0370046]: Identifier My__Struct cannot contain a double underscore `__`
+    --> test:2:12
+     |
+   2 |     struct My__Struct {
+     |            ^^^^^^^^^^
+Error [EPAR0370046]: Identifier field__name cannot contain a double underscore `__`
+    --> test:3:9
+     |
+   3 |         field__name: u8
+     |         ^^^^^^^^^^^
+Error [EPAR0370046]: Identifier test__function cannot contain a double underscore `__`
+    --> test:6:14
+     |
+   6 |     function test__function(param__name: u8) -> bool {
+     |              ^^^^^^^^^^^^^^
+Error [EPAR0370046]: Identifier param__name cannot contain a double underscore `__`
+    --> test:6:29
+     |
+   6 |     function test__function(param__name: u8) -> bool {
+     |                             ^^^^^^^^^^^
+Error [EPAR0370046]: Identifier triple___underscore cannot contain a double underscore `__`
+    --> test:10:14
+     |
+  10 |     function triple___underscore(param___name: u8) -> bool {
+     |              ^^^^^^^^^^^^^^^^^^^
+Error [EPAR0370046]: Identifier param___name cannot contain a double underscore `__`
+    --> test:10:34
+     |
+  10 |     function triple___underscore(param___name: u8) -> bool {
+     |                                  ^^^^^^^^^^^^
+Error [EPAR0370046]: Identifier test__var cannot contain a double underscore `__`
+    --> test:15:13
+     |
+  15 |         let test__var: u32 = 42u32;
+     |             ^^^^^^^^^
+Error [EPAR0370046]: Identifier trailing_double_underscore__ cannot contain a double underscore `__`
+    --> test:16:13
+     |
+  16 |         let trailing_double_underscore__: bool = true;
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [EPAR0370005]: expected ( -- found '_'
+    --> test:20:13
+     |
+  20 |         let __leading_double_underscore: bool = false;
+     |             ^

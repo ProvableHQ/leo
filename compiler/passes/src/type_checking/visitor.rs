@@ -16,7 +16,7 @@
 
 use crate::{CompilerState, VariableSymbol, VariableType, type_checking::scope_state::ScopeState};
 
-use super::TypeCheckingInput;
+use super::*;
 
 use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
@@ -83,11 +83,6 @@ impl TypeCheckingVisitor<'_> {
     pub fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
             (Some(t1), Some(t2)) if !Type::eq_flat_relaxed(t1, t2) => {
-                // If both types are futures, print them out.
-                if let (Type::Future(f1), Type::Future(f2)) = (t1, t2) {
-                    println!("Future 1: {:?}", f1);
-                    println!("Future 2: {:?}", f2);
-                }
                 self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
             }
             (Some(type_), None) | (None, Some(type_)) => {
@@ -221,7 +216,7 @@ impl TypeCheckingVisitor<'_> {
     pub fn check_core_function_call(
         &mut self,
         core_function: CoreFunction,
-        arguments: &[(Type, Span)],
+        arguments: &[(Type, &Expression)],
         function_span: Span,
     ) -> Type {
         // Check that the number of arguments is correct.
@@ -291,30 +286,33 @@ impl TypeCheckingVisitor<'_> {
             }
         };
 
+        // Define a regex to match valid program IDs.
+        let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]*\.aleo$").unwrap();
+
         // Check that the arguments are of the correct type.
         match core_function {
             CoreFunction::BHP256CommitToAddress
             | CoreFunction::BHP512CommitToAddress
             | CoreFunction::BHP768CommitToAddress
             | CoreFunction::BHP1024CommitToAddress => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
+                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 Type::Address
             }
             CoreFunction::BHP256CommitToField
             | CoreFunction::BHP512CommitToField
             | CoreFunction::BHP768CommitToField
             | CoreFunction::BHP1024CommitToField => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
+                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 Type::Field
             }
             CoreFunction::BHP256CommitToGroup
             | CoreFunction::BHP512CommitToGroup
             | CoreFunction::BHP768CommitToGroup
             | CoreFunction::BHP1024CommitToGroup => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
+                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 Type::Group
             }
             CoreFunction::BHP256HashToAddress
@@ -330,7 +328,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToAddress
             | CoreFunction::SHA3_384HashToAddress
             | CoreFunction::SHA3_512HashToAddress => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Address
             }
             CoreFunction::BHP256HashToField
@@ -346,7 +344,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToField
             | CoreFunction::SHA3_384HashToField
             | CoreFunction::SHA3_512HashToField => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Field
             }
             CoreFunction::BHP256HashToGroup
@@ -362,7 +360,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToGroup
             | CoreFunction::SHA3_384HashToGroup
             | CoreFunction::SHA3_512HashToGroup => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Group
             }
             CoreFunction::BHP256HashToI8
@@ -378,7 +376,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToI8
             | CoreFunction::SHA3_384HashToI8
             | CoreFunction::SHA3_512HashToI8 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I8)
             }
             CoreFunction::BHP256HashToI16
@@ -394,7 +392,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToI16
             | CoreFunction::SHA3_384HashToI16
             | CoreFunction::SHA3_512HashToI16 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I16)
             }
             CoreFunction::BHP256HashToI32
@@ -410,7 +408,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToI32
             | CoreFunction::SHA3_384HashToI32
             | CoreFunction::SHA3_512HashToI32 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I32)
             }
             CoreFunction::BHP256HashToI64
@@ -426,7 +424,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToI64
             | CoreFunction::SHA3_384HashToI64
             | CoreFunction::SHA3_512HashToI64 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I64)
             }
             CoreFunction::BHP256HashToI128
@@ -442,7 +440,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToI128
             | CoreFunction::SHA3_384HashToI128
             | CoreFunction::SHA3_512HashToI128 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I128)
             }
             CoreFunction::BHP256HashToU8
@@ -458,7 +456,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToU8
             | CoreFunction::SHA3_384HashToU8
             | CoreFunction::SHA3_512HashToU8 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U8)
             }
             CoreFunction::BHP256HashToU16
@@ -474,7 +472,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToU16
             | CoreFunction::SHA3_384HashToU16
             | CoreFunction::SHA3_512HashToU16 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U16)
             }
             CoreFunction::BHP256HashToU32
@@ -490,7 +488,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToU32
             | CoreFunction::SHA3_384HashToU32
             | CoreFunction::SHA3_512HashToU32 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U32)
             }
             CoreFunction::BHP256HashToU64
@@ -506,7 +504,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToU64
             | CoreFunction::SHA3_384HashToU64
             | CoreFunction::SHA3_512HashToU64 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U64)
             }
             CoreFunction::BHP256HashToU128
@@ -522,7 +520,7 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToU128
             | CoreFunction::SHA3_384HashToU128
             | CoreFunction::SHA3_512HashToU128 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U128)
             }
             CoreFunction::BHP256HashToScalar
@@ -538,166 +536,166 @@ impl TypeCheckingVisitor<'_> {
             | CoreFunction::SHA3_256HashToScalar
             | CoreFunction::SHA3_384HashToScalar
             | CoreFunction::SHA3_512HashToScalar => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1);
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Scalar
             }
             CoreFunction::Pedersen64CommitToAddress => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 // Check that the second argument is a scalar.
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1);
+                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 Type::Address
             }
             CoreFunction::Pedersen64CommitToField => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 // Check that the second argument is a scalar.
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1);
+                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 Type::Field
             }
             CoreFunction::Pedersen64CommitToGroup => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 // Check that the second argument is a scalar.
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1);
+                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 Type::Group
             }
             CoreFunction::Pedersen64HashToAddress => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Address
             }
             CoreFunction::Pedersen64HashToField => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Field
             }
             CoreFunction::Pedersen64HashToGroup => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Group
             }
             CoreFunction::Pedersen64HashToI8 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I8)
             }
             CoreFunction::Pedersen64HashToI16 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I16)
             }
             CoreFunction::Pedersen64HashToI32 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I32)
             }
             CoreFunction::Pedersen64HashToI64 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I64)
             }
             CoreFunction::Pedersen64HashToI128 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I128)
             }
             CoreFunction::Pedersen64HashToU8 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U8)
             }
             CoreFunction::Pedersen64HashToU16 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U16)
             }
             CoreFunction::Pedersen64HashToU32 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U32)
             }
             CoreFunction::Pedersen64HashToU64 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U64)
             }
             CoreFunction::Pedersen64HashToU128 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U128)
             }
             CoreFunction::Pedersen64HashToScalar => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Scalar
             }
             CoreFunction::Pedersen128CommitToAddress => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
+                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 Type::Address
             }
             CoreFunction::Pedersen128CommitToField => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
+                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 Type::Field
             }
             CoreFunction::Pedersen128CommitToGroup => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
+                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 Type::Group
             }
             CoreFunction::Pedersen128HashToAddress => {
                 // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Address
             }
             CoreFunction::Pedersen128HashToField => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Field
             }
             CoreFunction::Pedersen128HashToGroup => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Group
             }
             CoreFunction::Pedersen128HashToI8 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I8)
             }
             CoreFunction::Pedersen128HashToI16 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I16)
             }
             CoreFunction::Pedersen128HashToI32 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I32)
             }
             CoreFunction::Pedersen128HashToI64 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I64)
             }
             CoreFunction::Pedersen128HashToI128 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::I128)
             }
             CoreFunction::Pedersen128HashToU8 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U8)
             }
             CoreFunction::Pedersen128HashToU16 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U16)
             }
             CoreFunction::Pedersen128HashToU32 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U32)
             }
             CoreFunction::Pedersen128HashToU64 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U64)
             }
             CoreFunction::Pedersen128HashToU128 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Integer(IntegerType::U128)
             }
             CoreFunction::Pedersen128HashToScalar => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1);
+                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                 Type::Scalar
             }
             CoreFunction::MappingGet => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::get", true, function_span);
                 // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1);
+                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
                 let Type::Mapping(mapping_type) = &arguments[0].0 else {
                     // We will have already handled the error in the assertion.
                     return Type::Err;
                 };
 
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
 
                 mapping_type.value.deref().clone()
             }
@@ -705,7 +703,7 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::get_or_use", true, function_span);
                 // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1);
+                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
 
                 let Type::Mapping(mapping_type) = &arguments[0].0 else {
                     // We will have already handled the error in the assertion.
@@ -713,9 +711,9 @@ impl TypeCheckingVisitor<'_> {
                 };
 
                 // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
                 // Check that the third argument matches the value type of the mapping.
-                self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1);
+                self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1.span());
 
                 mapping_type.value.deref().clone()
             }
@@ -723,7 +721,7 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::set", true, function_span);
                 // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1);
+                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
 
                 let Type::Mapping(mapping_type) = &arguments[0].0 else {
                     // We will have already handled the error in the assertion.
@@ -731,9 +729,9 @@ impl TypeCheckingVisitor<'_> {
                 };
 
                 // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
                 // Check that the third argument matches the value type of the mapping.
-                self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1);
+                self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1.span());
 
                 Type::Unit
             }
@@ -741,7 +739,7 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::remove", true, function_span);
                 // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1);
+                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
 
                 let Type::Mapping(mapping_type) = &arguments[0].0 else {
                     // We will have already handled the error in the assertion.
@@ -756,7 +754,7 @@ impl TypeCheckingVisitor<'_> {
                 }
 
                 // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
 
                 Type::Unit
             }
@@ -764,7 +762,7 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::contains", true, function_span);
                 // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1);
+                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
 
                 let Type::Mapping(mapping_type) = &arguments[0].0 else {
                     // We will have already handled the error in the assertion.
@@ -772,13 +770,13 @@ impl TypeCheckingVisitor<'_> {
                 };
 
                 // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
 
                 Type::Boolean
             }
             CoreFunction::GroupToXCoordinate | CoreFunction::GroupToYCoordinate => {
                 // Check that the first argument is a group.
-                self.assert_type(&arguments[0].0, &Type::Group, arguments[0].1);
+                self.assert_type(&arguments[0].0, &Type::Group, arguments[0].1.span());
                 Type::Field
             }
             CoreFunction::ChaChaRandAddress => Type::Address,
@@ -799,21 +797,89 @@ impl TypeCheckingVisitor<'_> {
             CoreFunction::SignatureVerify => {
                 // Check that the third argument is not a mapping nor a tuple. We have to do this
                 // before the other checks below to appease the borrow checker
-                assert_not_mapping_tuple_unit(&arguments[2].0, arguments[2].1);
+                assert_not_mapping_tuple_unit(&arguments[2].0, arguments[2].1.span());
 
                 // Check that the first argument is a signature.
-                self.assert_type(&arguments[0].0, &Type::Signature, arguments[0].1);
+                self.assert_type(&arguments[0].0, &Type::Signature, arguments[0].1.span());
                 // Check that the second argument is an address.
-                self.assert_type(&arguments[1].0, &Type::Address, arguments[1].1);
+                self.assert_type(&arguments[1].0, &Type::Address, arguments[1].1.span());
                 Type::Boolean
             }
             CoreFunction::FutureAwait => Type::Unit,
+            CoreFunction::ProgramChecksum => {
+                // Get the argument type, expression, and span.
+                let (type_, expression) = &arguments[0];
+                let span = expression.span();
+                // Check that the expression is a program ID.
+                match expression {
+                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
+                        if program_id_regex.is_match(s) => {}
+                    _ => {
+                        self.emit_err(TypeCheckerError::custom(
+                            "`Program::checksum` must be called on a program ID, e.g. `foo.aleo`",
+                            span,
+                        ));
+                    }
+                }
+                // Verify that the argument is a string.
+                self.assert_type(type_, &Type::Address, span);
+                // Return the type.
+                Type::Array(ArrayType::new(
+                    Type::Integer(IntegerType::U8),
+                    Expression::Literal(Literal::integer(
+                        IntegerType::U8,
+                        "32".to_string(),
+                        Default::default(),
+                        Default::default(),
+                    )),
+                ))
+            }
+            CoreFunction::ProgramEdition => {
+                // Get the argument type, expression, and span.
+                let (type_, expression) = &arguments[0];
+                let span = expression.span();
+                // Check that the expression is a member access.
+                match expression {
+                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
+                        if program_id_regex.is_match(s) => {}
+                    _ => {
+                        self.emit_err(TypeCheckerError::custom(
+                            "`Program::edition` must be called on a program ID, e.g. `foo.aleo`",
+                            span,
+                        ));
+                    }
+                }
+                // Verify that the argument is a string.
+                self.assert_type(type_, &Type::Address, span);
+                // Return the type.
+                Type::Integer(IntegerType::U16)
+            }
+            CoreFunction::ProgramOwner => {
+                // Get the argument type, expression, and span.
+                let (type_, expression) = &arguments[0];
+                let span = expression.span();
+                // Check that the expression is a member access.
+                match expression {
+                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
+                        if program_id_regex.is_match(s) => {}
+                    _ => {
+                        self.emit_err(TypeCheckerError::custom(
+                            "`Program::program_owner` must be called on a program ID, e.g. `foo.aleo`",
+                            span,
+                        ));
+                    }
+                }
+                // Verify that the argument is a string.
+                self.assert_type(type_, &Type::Address, span);
+                // Return the type.
+                Type::Address
+            }
             CoreFunction::CheatCodePrintMapping => {
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1);
+                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
                 Type::Unit
             }
             CoreFunction::CheatCodeSetBlockHeight => {
-                self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::U32), arguments[0].1);
+                self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::U32), arguments[0].1.span());
                 Type::Unit
             }
         }

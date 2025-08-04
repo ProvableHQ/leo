@@ -9,6 +9,9 @@ finalize check_starting_height:
     input r0 as u32.public;
     lte r0 block.height into r1;
     assert.eq r1 true;
+
+constructor:
+    assert.eq edition 0u16;
 verified: true
 status: accepted
 errors:
@@ -16,26 +19,26 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1tv3y4dglcpspwx395qwexu45v90qaejj55y9phmnw53kv225tggq7eqanf",
+      "id": "au1f0egtr47qkg4f8pk3sj5yrs2t9qav2wfgwzxl3j987dxsr3hhc9sqpy3px",
       "program": "test.aleo",
       "function": "check_starting_height",
       "inputs": [
         {
           "type": "private",
-          "id": "4731037915914211177530442114816388530459368928127604004067791314466302105323field",
-          "value": "ciphertext1qyqrf78n3v25cm493tkln8a35rusvccm26qw60zxzh5cf5x24qd8kzg6laqe8"
+          "id": "473160645009144393707806193695022302299233884648031844011049798524734432668field",
+          "value": "ciphertext1qyqdv4yk636wmtc9pd8lcz9zphuv4zt7esfe2ktjmda85t28zeq5wpqw34tn0"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "1701305574806046519199906496739024493075982167213011990991859779581000626652field",
-          "value": "{\n  program_id: test.aleo,\n  function_name: check_starting_height,\n  arguments: [\n    16u32\n  ]\n}"
+          "id": "3777173429824206545670540837362767177819922310365285761903554890468837761959field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: check_starting_height,\n  arguments: [\n    23u32\n  ]\n}"
         }
       ],
-      "tpk": "3387254221377120437908579358077235029303814104724791131714552819088121668421group",
-      "tcm": "7560204289155435437410005742544017405689981972453992850577964247300376481696field",
-      "scm": "379913890020016012285374203862794003302591555183599825510691012344496998043field"
+      "tpk": "908360825709631317953159254724553545720474507537331703758336103561549853147group",
+      "tcm": "8014162907210337999815476476235242230252150874146462841852297853320304523488field",
+      "scm": "5940940960702541536377624413684142270200483974494281681814390986492808615714field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

@@ -96,6 +96,9 @@ function main:
     add r79 r91 into r92;
     add r92 5u32 into r93;
     output r93 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
 verified: true
 status: accepted
 errors:
@@ -103,20 +106,20 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1elly37mfmyn86aa0e7l2sa4ztzkx0wq2tfzvctuxfpcscf2rlsps48d0hq",
+      "id": "au1kztycdtz896xjnpveya3t0q6wrv4gddqk2cy8ydry5xgxxwq8sps0x47n0",
       "program": "test.aleo",
       "function": "main",
       "inputs": [],
       "outputs": [
         {
           "type": "private",
-          "id": "4516022085356023439949296695158884975405295173606272205029648100577088647471field",
-          "value": "ciphertext1qyqfslc445y23399fpfwlda8pvnf6nlrn0538ga06grkk975lczduzczre8y6"
+          "id": "2458825249762738302178667815220057650947616150706332813754501256206864514037field",
+          "value": "ciphertext1qyqdevsuhaslv5phptwr9lspme7uhs7zzdemzfef4l05za7nalhvzqqjp98gg"
         }
       ],
-      "tpk": "2796564055865928933000541352429457716550844704963905942506565594546716650583group",
-      "tcm": "6662749277121087007002965620221283173485121971491206364588478025447183214612field",
-      "scm": "2232718398028466489128313341539783590042888635214882448357194061913160516103field"
+      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
+      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
+      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

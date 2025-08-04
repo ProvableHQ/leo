@@ -16,7 +16,7 @@
 
 use crate::{Compiler, run_with_ledger};
 
-use leo_ast::Stub;
+use leo_ast::{NetworkName, Stub};
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError, Result};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
@@ -37,13 +37,14 @@ fn whole_compile(
     handler: &Handler,
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<(String, String), LeoError> {
-    let mut compiler = Compiler::<TestnetV0>::new(
+    let mut compiler = Compiler::new(
         None,
         /* is_test (a Leo test) */ false,
         handler.clone(),
         "/fakedirectory-wont-use".into(),
         None,
         import_stubs,
+        NetworkName::TestnetV0,
     );
 
     let filename = FileName::Custom("execution-test".into());
@@ -57,13 +58,13 @@ fn whole_compile(
 #[derive(Debug)]
 struct Config {
     seed: u64,
-    min_height: u32,
+    start_height: Option<u32>,
     sources: Vec<String>,
 }
 
 impl Default for Config {
     fn default() -> Self {
-        Self { seed: 1234567890, min_height: 1, sources: Vec::new() }
+        Self { seed: 1234567890, start_height: None, sources: Vec::new() }
     }
 }
 
@@ -76,7 +77,7 @@ fn execution_run_test(
     let mut import_stubs = IndexMap::new();
 
     let mut ledger_config =
-        run_with_ledger::Config { seed: config.seed, min_height: config.min_height, programs: Vec::new() };
+        run_with_ledger::Config { seed: config.seed, start_height: config.start_height, programs: Vec::new() };
 
     // Compile each source file.
     for source in &config.sources {
@@ -97,7 +98,7 @@ fn execution_run_test(
         .programs
         .into_iter()
         .map(|program| program.bytecode)
-        .format(&format!("{}\n", PROGRAM_DELIMITER))
+        .format(&format!("{PROGRAM_DELIMITER}\n"))
         .to_string();
 
     // Output each case outcome.
@@ -144,8 +145,8 @@ fn execution_runner(source: &str) -> String {
             cases.last_mut().unwrap().input = re_input.captures_iter(rest).map(|s| s[1].to_string()).collect();
         } else if let Some(rest) = line.strip_prefix("seed = ") {
             config.seed = rest.parse::<u64>().unwrap();
-        } else if let Some(rest) = line.strip_prefix("min_height = ") {
-            config.min_height = rest.parse::<u32>().unwrap();
+        } else if let Some(rest) = line.strip_prefix("start_height = ") {
+            config.start_height = Some(rest.parse::<u32>().unwrap())
         }
     }
 
@@ -154,7 +155,9 @@ fn execution_runner(source: &str) -> String {
 
     create_session_if_not_set_then(|_| match execution_run_test(&config, &cases, &handler, &buf) {
         Ok(s) => s,
-        Err(e) => e.to_string(),
+        Err(e) => {
+            format!("Error while running execution tests:\n{e}\n\nErrors:\n{}", buf.extract_errs())
+        }
     })
 }
 

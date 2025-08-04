@@ -367,7 +367,7 @@ create_messages!(
     @formatted
     invalid_self_access {
         args: (),
-        msg: format!("The allowed accesses to `self` are `self.caller` and `self.signer`."),
+        msg: format!("The allowed accesses to `self` are `self.{{caller, checksum, edition, program_owner, signer}}`."),
         help: None,
     }
 
@@ -1064,7 +1064,7 @@ create_messages!(
     }
 
     @formatted
-    range_bounds_type_mismatch{
+    range_bounds_type_mismatch {
         args: (),
         msg: format!("mismatched types in loop iterator range bounds"),
         help: None,
@@ -1225,6 +1225,13 @@ create_messages!(
         msg: format!(
             "Cannot assign to `{input}` inside an `async` block because it was declared outside the block."
         ),
+        help: None,
+    }
+
+    @formatted
+    custom {
+        args: (msg: impl Display),
+        msg: msg.to_string(),
         help: None,
     }
 );

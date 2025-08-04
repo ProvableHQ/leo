@@ -16,8 +16,7 @@
 
 use leo_errors::{BufferEmitter, ErrBuffer, Handler, LeoError, Result, WarningBuffer};
 
-use aleo_std_storage::StorageMode;
-use anyhow::anyhow;
+use aleo_std::StorageMode;
 use snarkvm::{
     prelude::{
         Address,
@@ -29,6 +28,7 @@ use snarkvm::{
         Transaction,
         VM,
         Value,
+        anyhow,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
     synthesizer::program::ProgramCore,
@@ -36,6 +36,7 @@ use snarkvm::{
 
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
 use serde_json;
+use snarkvm::prelude::{ConsensusVersion, Network};
 use std::{fmt, str::FromStr as _};
 
 type CurrentNetwork = TestnetV0;
@@ -43,7 +44,7 @@ type CurrentNetwork = TestnetV0;
 /// Programs and configuration to run.
 pub struct Config {
     pub seed: u64,
-    pub min_height: u32,
+    pub start_height: Option<u32>,
     pub programs: Vec<Program>,
 }
 
@@ -126,14 +127,15 @@ pub fn run_with_ledger(
         Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Production)
             .unwrap();
 
-    // Advance the ledger with empty blocks until the specified height.
-    let current_height = ledger.vm().block_store().current_block_height();
-    let num_blocks = config.min_height.saturating_sub(current_height);
-    for _ in 0..num_blocks {
+    // Advance the `VM` to the start height, defaulting to the height for the latest consensus version.
+    let latest_consensus_version = ConsensusVersion::latest();
+    let start_height =
+        config.start_height.unwrap_or(CurrentNetwork::CONSENSUS_HEIGHT(latest_consensus_version).unwrap());
+    while ledger.latest_height() < start_height {
         let block = ledger
             .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![], &mut rng)
-            .expect("Failed to prepare advance to next beacon block");
-        ledger.advance_to_next_block(&block).expect("Failed to advance to next block");
+            .map_err(|_| anyhow!("Failed to prepare advance to next beacon block"))?;
+        ledger.advance_to_next_block(&block).map_err(|_| anyhow!("Failed to advance to next block"))?;
     }
 
     // Deploy each bytecode separately.
@@ -141,7 +143,7 @@ pub fn run_with_ledger(
         // Parse the bytecode as an Aleo program.
         // Note that this function checks that the bytecode is well-formed.
         let aleo_program =
-            ProgramCore::from_str(bytecode).map_err(|_| anyhow!("Failed to parse bytecode of program {name}"))?;
+            ProgramCore::from_str(bytecode).map_err(|e| anyhow!("Failed to parse bytecode of program {name}: {e}"))?;
 
         let mut deploy = || -> Result<()> {
             // Add the program to the ledger.
@@ -149,11 +151,13 @@ pub fn run_with_ledger(
             let deployment = ledger
                 .vm()
                 .deploy(&genesis_private_key, &aleo_program, None, 0, None, &mut rng)
-                .map_err(|_| anyhow!("Failed to deploy program {name}"))?;
+                .map_err(|e| anyhow!("Failed to deploy program {name}: {e}"))?;
             let block = ledger
                 .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![deployment], &mut rng)
-                .map_err(|_| anyhow!("Failed to prepare to advance block for program {name}"))?;
-            ledger.advance_to_next_block(&block).map_err(|_| anyhow!("Failed to advance block for program {name}"))?;
+                .map_err(|e| anyhow!("Failed to prepare to advance block for program {name}: {e}"))?;
+            ledger
+                .advance_to_next_block(&block)
+                .map_err(|e| anyhow!("Failed to advance block for program {name}: {e}"))?;
 
             // Check that the deployment transaction was accepted.
             if block.transactions().num_accepted() != 1 {
@@ -162,10 +166,12 @@ pub fn run_with_ledger(
             Ok(())
         };
 
-        // Temporarily deploy each program twice, to get it to edition 1. This won't be necessary
-        // after upgrades are in place.
+        // Deploy the program.
         deploy()?;
-        deploy()?;
+        // If the program does not have a constructor, deploy it twice to satisfy the edition requirement.
+        if !aleo_program.contains_constructor() {
+            deploy()?;
+        }
     }
 
     // Fund each private key used in the test cases with 1M ALEO.

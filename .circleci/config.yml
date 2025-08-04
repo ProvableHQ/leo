@@ -6,7 +6,7 @@ version: 2.1
 # - Incremental builds should be disabled in CI, since they don't provide much benefit.
 # - Enabling `--only_testnet` feature flag to reduce the amount of time spent building leo-lang, since it's not needed for the test suite.
 
-# Rust Version: 1.85.1
+# Rust Version: 1.88.0
 # Ensure that this matches the `rust-version` in `Cargo.toml`.
 # If this is changed, propogate the changes to all places in this file, including the `install-rust` command.
 
@@ -20,7 +20,7 @@ environment:
   RUSTFLAGS: "-D warnings"
 
 orbs:
-  windows: circleci/windows@5.0
+  windows: circleci/windows@5.1.0
   codecov: codecov/codecov@1.0.2
 
 executors:
@@ -31,7 +31,7 @@ executors:
 
   linux-executor:
     docker:
-      - image: "cimg/rust:1.85"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
+      - image: "cimg/rust:1.88"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
     resource_class: xlarge
 
 commands:
@@ -42,12 +42,12 @@ commands:
           name: Install Rust
           command: |
             # If Rust is not installed on the machine, install it
-            # (temporarily install it regardless, as we want 1.85.1, not 1.85.0)
+            # (temporarily install it regardless, as we want 1.88.0, not 1.85.0)
             # if ! command -v rustc &> /dev/null; then
               curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
               source "$HOME/.cargo/env"
-              rustup install 1.85.1
-              rustup override set 1.85.1
+              rustup install 1.88.0
+              rustup override set 1.88.0
               cargo --version --verbose
               rustc --version
             # fi
@@ -69,8 +69,8 @@ commands:
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
             Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
-            rustup install 1.85.1
-            rustup default 1.85.1
+            rustup install 1.88.0
+            rustup default 1.88.0
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
@@ -86,14 +86,14 @@ commands:
           no_output_timeout: 30m
           command: |
             cargo-mtime . ~/.cache/mtimes/project.db
-            cargo test --no-run --all --locked --profile ci --features only_testnet
+            cargo test --no-run --all --locked --profile ci --features only_testnet,test_network
       - run:
           name: Run tests
           no_output_timeout: 30m
           # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
           command: |
             cargo-mtime . ~/.cache/mtimes/project.db
-            cargo test --all --locked --profile ci --features only_testnet --verbose
+            cargo test --all --locked --profile ci --features only_testnet,test_network --verbose
 
   install_rust_nightly:
     description: "Install Rust nightly toolchain"
@@ -105,7 +105,14 @@ jobs:
     executor:
       name: windows/default
       size: xlarge
+    environment:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
     steps:
+      - run:
+          name: Force git to use HTTPS
+          command: |
+            git config --global url."https://github.com/".insteadOf "git@github.com:"
+            git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
       - checkout
       - restore_cache:
           keys:
@@ -248,7 +255,7 @@ jobs:
 
   leo-new:
     docker:
-      - image: cimg/rust:1.85
+      - image: cimg/rust:1.88
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -261,7 +268,7 @@ jobs:
 
   leo-clean:
     docker:
-      - image: cimg/rust:1.85
+      - image: cimg/rust:1.88
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -274,7 +281,7 @@ jobs:
 
   test-examples:
     docker:
-      - image: cimg/rust:1.85
+      - image: cimg/rust:1.88
     resource_class: xlarge
     steps:
       - attach_workspace:

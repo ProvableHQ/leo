@@ -35,6 +35,9 @@ program zero_program.aleo {
     counts.set(addr, count + 1u64);
   }
 
+  @noupgrade
+  async constructor() {}
+
 }
 
 
@@ -53,6 +56,9 @@ program one_program.aleo {
     let count: u64 = counts.get_or_use(addr, 0u64);
     counts.set(addr, count + 1u64);
   }
+
+  @noupgrade
+  async constructor() {}
 
 }
 
@@ -79,6 +85,9 @@ program two_program.aleo {
       let count: u64 = counts.get_or_use(addr, 0u64);
       counts.set(addr, count + 1u64);
   }
+
+  @noupgrade
+  async constructor() {}
 
 }
 
@@ -109,6 +118,9 @@ program three_program.aleo {
       counts.set(addr, count + 1u64);
   }
 
+  @noupgrade
+  async constructor() {}
+
 }
 
 
@@ -134,5 +146,8 @@ program four_program.aleo {
     let count: u64 = counts.get_or_use(addr, 0u64);
     counts.set(addr, count + 1u64);
   }
+
+  @noupgrade
+  async constructor() {}
 
 }

@@ -10,6 +10,9 @@ function mint:
     input r1 as u64.private;
     cast r0 r1 true into r2 as Token.record;
     output r2 as Token.record;
+
+constructor:
+    assert.eq edition 0u16;
 verified: true
 status: accepted
 errors:
@@ -17,33 +20,33 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au166fymhyw05whmz35ljc6ydrnqz9rgszews7cdls9prnatknqwurq4n5vew",
+      "id": "au1jxn5zw47txd574nn7q5unsxwc0yfqmcs6rvg2k8uc9ykmj0x2cqs7xhpey",
       "program": "test.aleo",
       "function": "mint",
       "inputs": [
         {
           "type": "private",
-          "id": "2481156563084554919221846166530159763993248192081220703788018749672199744204field",
-          "value": "ciphertext1qgqfhfc92qcagfycnl3xka0hxtgzrrgl2shwh4wy3n6af9sjgtrmqqcp6f84c8pd449jcrauan6malqd2dm93f8v69nnt752kvdw84azpq26yhhu"
+          "id": "3284317217427854357424425805083666040345685208901125191588737995584400483229field",
+          "value": "ciphertext1qgqt4rtve5evmpny0cglm08mvxfr90fd3wzr2k3hjj4j3mffxfntzqmv7lh9s8qa0kgw6v0082q8yvy2wuw4wld47qllm50acrxh2yfwq5usk7r5"
         },
         {
           "type": "private",
-          "id": "2352321336166682523275591969544384653541282392928347925633590601088344300146field",
-          "value": "ciphertext1qyq2ylfz6fy677v94e6zza2hhc45j3zvn42kya5laknmzuvgt660jrs9acjc7"
+          "id": "2460638529191101904167167745535740703218288073896336514114996128653918132947field",
+          "value": "ciphertext1qyqzww7pcehsayk52qjcs58d46gau9fkh44g0gp7slxx0mtwqh63yqqupgcey"
         }
       ],
       "outputs": [
         {
           "type": "record",
-          "id": "7006050013859886496170289582471765763397117840753468349610196502084938248054field",
-          "checksum": "5907482960406854625592237063712793266882695548835828741536489179660846335270field",
-          "value": "record1qvqsp2v95j2z9nlmmlkcennx9nunvkzpncwmurqwh5afy9y60u2e4mqqqgrxzmt0w4h8ggcqqgqsqm86mqh4zff8a6u444dntx8ukevhv65dlqzl3kzash7jp8ku7kcqq3nxcct8q5qqqqqpqqqhlc42nytnxngsr3ddk8x3v3unealxgqtw6cx2udpysgzulmzz6zgddz6jz",
-          "sender_ciphertext": "7107374427282844182598048959998288602983204337070913612567339289416546470824field"
+          "id": "1049977471235097989302666914896662690555558605760668014994148793827437401623field",
+          "checksum": "4402691276183219543194757894991666837066368711881291682479284940079815723221field",
+          "value": "record1qvqsq7pw95eulnkv8ecl67wylgx63f93rtp8awjfvetnk0deqp5553crqgrxzmt0w4h8ggcqqgqsqfe4vnvfwjs0dn3du8xzufamgu78579nmrxhua0xtyp35lr60vsrq3nxcct8q5qqqqqpqqqce6jcky2wg67yrehc5urep2838dsmpyl64tmrgdmxspkr7xjjwzsa88xz3",
+          "sender_ciphertext": "3284158033372574546418502744402884507724656235922436149233187652752657095248field"
         }
       ],
-      "tpk": "164260937853689831429502965884031087419268696476180087708433034005485178087group",
-      "tcm": "1780346683145729153385936784612450122458414849469113192143658747712054502391field",
-      "scm": "5011397359844693219496368168011355535657139594730525920065546500163204771150field"
+      "tpk": "6024390772959220991990115739838340485919777979471956422015701664029940870410group",
+      "tcm": "984439685235452252708504945641277897298737225597973795331512764481551063406field",
+      "scm": "7737954977943277565132357506659602375636602738020116083608807606102751331472field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -56,33 +59,33 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au12r3uzzrjwsrvla53gfr7a8xwe6f6lva9rsx2p6ulhq46j48h2vrswj0c7c",
+      "id": "au1nvc2cpjlrwz0vgrxrdlmwve7xqjmjvh6zdt9lxwdtxs9xh04uqxsqm54q4",
       "program": "test.aleo",
       "function": "mint",
       "inputs": [
         {
           "type": "private",
-          "id": "7028349803586418270200953853665433340027073912312019944578027943890028151679field",
-          "value": "ciphertext1qgq9dtk49k995r290lmtwnpllslmxnn3m29sla3kakqzth607jznjpc59q60kvhj0ud96dzz3pza0ea6z847kfu6ydqcw934dddvleuypuss4jfl"
+          "id": "6125135596943541118704703224233453726920961216604741912833216664777169575559field",
+          "value": "ciphertext1qgqx5u82h9cn762prkqkyryxlahh6m6d0z2v69xdxted62exarckjzz7z6pgl5nnmj06rcca96cvqf9s663glr45hzfxurv52gqdds5cpcrn42zz"
         },
         {
           "type": "private",
-          "id": "2130107055726598840179923504397044422054897200257712885568141960656180188167field",
-          "value": "ciphertext1qyq8cd6jtakqj69hn246qtdpe247eqtdah7d2ahcsgndm8yl2l2wjqsk8fc70"
+          "id": "1638151216440259005082431931275443355550793889423387911909103486858399353844field",
+          "value": "ciphertext1qyq2qklznqj9p9l607lpah42m9wdwqulp5wk4h5faeupsqjmy2gujrg7c767g"
         }
       ],
       "outputs": [
         {
           "type": "record",
-          "id": "6796209010320982664708790713497971706194392208310278862197684019628407530783field",
-          "checksum": "970721404498865342289883045749275631519084894130074554421238797439130967257field",
-          "value": "record1qvqsqslnl7ffyz2urx2k4stfef07xrvwdclru33jfgcdm62uv3untlgvqgrxzmt0w4h8ggcqqgqsq5zpdduhr2vsn3vzfaqszhyce0fge38vvpd4jmupmwcen3uk4tc3q3nxcct8q5qqqqqpqqqc9v93xmkqg339qddm8yyrugrumvw6xnzy0kdlh0js50cm4xvwwpsc7tp99",
-          "sender_ciphertext": "7779372603264459428309844245118138997816400489754215920912436328252813961710field"
+          "id": "7513238404586595764696572684652439363202137721046447869248086748677852059676field",
+          "checksum": "5682641703881353081583255318185754739166384327328428964127908157124094920115field",
+          "value": "record1qvqsq4y55mgcqfg3nud53sk5y24z86wmx7l2ytmy8r8rcdcj9xctqwcwqgrxzmt0w4h8ggcqqgqspese7mfyt0qun3jg45yfu8dnra3s4mchx90275ed8hu7hqfv05q0q3nxcct8q5qqqqqpqqqeddxz4kmpglhkyzryclvaa9v978seee7306e4stzrvgmfrq5wsqcx82tz6",
+          "sender_ciphertext": "1309115557446208358163687080999632294049055932435218760484050524295527400294field"
         }
       ],
-      "tpk": "3510702031187761951993868443154376019139325313844079278645545878928926265680group",
-      "tcm": "730157370073043404976521336071814464008856324726892451513985473956616630004field",
-      "scm": "4844602220649173016838365777191874643769767580692491201115778045671255224922field"
+      "tpk": "1036970581264907207334564841430461809572441559293704378053459633061384381779group",
+      "tcm": "970427810727002400554165952751014019935082634600151468411437507819391799931field",
+      "scm": "4529275885787559461079573048317458557121409584078408931172149196303750635852field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

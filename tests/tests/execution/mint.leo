@@ -30,4 +30,7 @@ program test.aleo {
             flag: true,
         };
     }
+
+    @noupgrade
+    async constructor() {}
 }

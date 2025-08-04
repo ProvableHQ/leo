@@ -16,7 +16,7 @@
 
 //! A Leo program scope consists of struct, function, and mapping definitions.
 
-use crate::{Composite, ConstDeclaration, Function, Indent, Mapping, ProgramId, Stub};
+use crate::{Composite, ConstDeclaration, Constructor, Function, Indent, Mapping, ProgramId, Stub};
 
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
@@ -27,7 +27,7 @@ use std::fmt;
 pub struct ProgramScope {
     /// The program id of the program scope.
     pub program_id: ProgramId,
-    /// A vector of const definitions
+    /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// A vector of struct definitions.
     pub structs: Vec<(Symbol, Composite)>,
@@ -35,6 +35,8 @@ pub struct ProgramScope {
     pub mappings: Vec<(Symbol, Mapping)>,
     /// A vector of function definitions.
     pub functions: Vec<(Symbol, Function)>,
+    /// An optional constructor.
+    pub constructor: Option<Constructor>,
     /// The span associated with the program scope.
     pub span: Span,
 }
@@ -51,6 +53,8 @@ impl From<Stub> for ProgramScope {
                 .into_iter()
                 .map(|(symbol, function)| (symbol, Function::from(function)))
                 .collect(),
+            // A program scope constructed from a stub does not need a constructor, since they are not externally callable.
+            constructor: None,
             span: stub.span,
         }
     }
@@ -61,6 +65,9 @@ impl fmt::Display for ProgramScope {
         writeln!(f, "program {} {{", self.program_id)?;
         for (_, const_decl) in self.consts.iter() {
             writeln!(f, "{};", Indent(const_decl))?;
+        }
+        if let Some(constructor) = &self.constructor {
+            writeln!(f, "{}", Indent(constructor))?;
         }
         for (_, struct_) in self.structs.iter() {
             writeln!(f, "{}", Indent(struct_))?;

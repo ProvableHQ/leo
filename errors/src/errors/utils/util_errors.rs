@@ -141,7 +141,7 @@ create_messages!(
 
     @backtraced
     failed_to_retrieve_from_endpoint {
-        args: (url: impl Display, error: impl ErrorArg),
+        args: (url: impl Display, error: impl Display),
         msg: format!("Failed to retrieve from endpoint `{url}`: {error}"),
         help: None,
     }

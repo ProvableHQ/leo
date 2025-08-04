@@ -1,0 +1,7 @@
+program test.aleo;
+
+function foo:
+
+constructor:
+    assert.eq true true;
+

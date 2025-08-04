@@ -16,7 +16,8 @@
 
 use super::*;
 
-use leo_package::{NetworkName, Package};
+use leo_ast::NetworkName;
+use leo_package::Package;
 
 /// Create new Leo project
 #[derive(Parser, Debug)]
@@ -29,7 +30,7 @@ pub struct LeoNew {
         short = 'e',
         long,
         help = "Endpoint to retrieve network state from.",
-        default_value = "https://api.explorer.provable.com/v1"
+        default_value = "http://localhost:3030"
     )]
     pub(crate) endpoint: String,
 }

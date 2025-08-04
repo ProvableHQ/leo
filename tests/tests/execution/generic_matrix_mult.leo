@@ -88,4 +88,7 @@ program test.aleo {
         }
         return true;
     }
+
+    @noupgrade
+    async constructor() {}
 }

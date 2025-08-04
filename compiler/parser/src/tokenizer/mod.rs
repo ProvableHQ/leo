@@ -90,6 +90,7 @@ mod tests {
     async
     bool
     const
+    constructor
     else
     false
     field
@@ -169,7 +170,7 @@ mod tests {
 
             assert_eq!(
                 output,
-                r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" test_ident 12345 address as assert assert_eq assert_neq async bool const else false field for function Future group i128 i64 i32 i16 i8 if in inline input let mut private program public return scalar script self signature string struct test transition true u128 u64 u32 u16 u8 ! != && ( ) * ** + , - -> => _ . .. / : ; < <= = == > >= [ ] { { } } || ? @ // test
+                r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" test_ident 12345 address as assert assert_eq assert_neq async bool const constructor else false field for function Future group i128 i64 i32 i16 i8 if in inline input let mut private program public return scalar script self signature string struct test transition true u128 u64 u32 u16 u8 ! != && ( ) * ** + , - -> => _ . .. / : ; < <= = == > >= [ ] { { } } || ? @ // test
  /* test */ // "#
             );
         });

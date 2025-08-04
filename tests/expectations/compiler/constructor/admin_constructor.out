@@ -1,0 +1,6 @@
+program test.aleo;
+
+function foo:
+
+constructor:
+    assert.eq program_owner aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;

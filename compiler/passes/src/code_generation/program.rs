@@ -14,12 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::CodeGeneratingVisitor;
+use super::*;
 
-use leo_ast::{Composite, Function, Location, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
+use leo_ast::{
+    Composite,
+    Constructor,
+    Function,
+    Location,
+    Mapping,
+    Member,
+    Mode,
+    NetworkName,
+    Program,
+    ProgramScope,
+    Type,
+    UpgradeVariant,
+    Variant,
+    snarkvm_admin_constructor,
+    snarkvm_checksum_constructor,
+    snarkvm_noupgrade_constructor,
+};
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
+use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 use std::fmt::Write as _;
 
 const EXPECT_STR: &str = "Failed to write code";
@@ -31,7 +49,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         // Print out the dependencies of the program. Already arranged in post order by Retriever module.
         input.stubs.iter().for_each(|(program_name, _)| {
-            writeln!(program_string, "import {}.aleo;", program_name).expect(EXPECT_STR);
+            writeln!(program_string, "import {program_name}.aleo;").expect(EXPECT_STR);
         });
 
         // Retrieve the program scope.
@@ -97,6 +115,12 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
                 program_string.push_str(&function_string);
             }
+        }
+
+        // If the constructor exists, visit it and produce an Aleo constructor.
+        if let Some(constructor) = program_scope.constructor.as_ref() {
+            // Generate code for the constructor.
+            program_string.push_str(&self.visit_constructor(constructor));
         }
 
         program_string
@@ -237,6 +261,54 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
     fn visit_function(&mut self, function: &'a Function) -> String {
         self.visit_function_with(function, &[])
+    }
+
+    fn visit_constructor(&mut self, constructor: &'a Constructor) -> String {
+        // Initialize the state of `self` with the appropriate values before visiting `constructor`.
+        self.next_register = 0;
+        self.variable_mapping = IndexMap::new();
+        self.variant = Some(Variant::AsyncFunction);
+        // TODO: Figure out a better way to initialize.
+        self.variable_mapping.insert(sym::SelfLower, "self".to_string());
+        self.variable_mapping.insert(sym::block, "block".to_string());
+        self.variable_mapping.insert(sym::network, "network".to_string());
+
+        // Get the upgrade variant.
+        let upgrade_variant = match self.state.network {
+            NetworkName::CanaryV0 => constructor.get_upgrade_variant::<CanaryV0>(),
+            NetworkName::MainnetV0 => constructor.get_upgrade_variant::<MainnetV0>(),
+            NetworkName::TestnetV0 => constructor.get_upgrade_variant::<TestnetV0>(),
+        }
+        .expect("Type checking should have validated the upgrade variant");
+
+        // Construct the constructor.
+        // If the constructor is one of the standard constructors, use the hardcoded defaults.
+        let constructor = match &upgrade_variant {
+            UpgradeVariant::Admin { address } => snarkvm_admin_constructor(address),
+            UpgradeVariant::Checksum { mapping, key, .. } => {
+                if mapping.program
+                    == self.program_id.expect("Program ID should be set before traversing the program").name.name
+                {
+                    snarkvm_checksum_constructor(mapping.name, key)
+                } else {
+                    snarkvm_checksum_constructor(mapping, key)
+                }
+            }
+            UpgradeVariant::Custom => format!("\nconstructor:\n{}\n", self.visit_block(&constructor.block)),
+            UpgradeVariant::NoUpgrade => snarkvm_noupgrade_constructor(),
+        };
+
+        // Check that the constructor is well-formed.
+        if match self.state.network {
+            NetworkName::MainnetV0 => check_snarkvm_constructor::<MainnetV0>(&constructor).is_err(),
+            NetworkName::TestnetV0 => check_snarkvm_constructor::<TestnetV0>(&constructor).is_err(),
+            NetworkName::CanaryV0 => check_snarkvm_constructor::<CanaryV0>(&constructor).is_err(),
+        } {
+            panic!("Constructors are checked for well-formedness during static analysis");
+        };
+
+        // Return the constructor string.
+        constructor
     }
 
     fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {

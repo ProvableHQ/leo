@@ -25,6 +25,7 @@
       "structs": [],
       "mappings": [],
       "functions": [],
+      "constructor": null,
       "span": {
         "lo": 112,
         "hi": 193

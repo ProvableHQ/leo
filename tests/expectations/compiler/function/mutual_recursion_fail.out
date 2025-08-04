@@ -8,14 +8,14 @@ Error [ETYC0372043]: Cannot call a local transition function from a transition f
      |
   16 |         return baz(n);
      |                ^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
     --> compiler-test:4:16
      |
    4 |         return bar(n);
      |                ^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function` or `inline`.
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
     --> compiler-test:8:16
      |
    8 |         return foo(n);
      |                ^^^^^^
-Error [ETYC0372059]: Cyclic dependency between functions: `baz` --> `bax` --> `baz`
+Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/baz` --> `test.aleo/bax` --> `test.aleo/baz`

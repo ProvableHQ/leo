@@ -113,4 +113,7 @@ program test.aleo {
         return start;
     }
 
+    @noupgrade
+    async constructor() {}
+
 }

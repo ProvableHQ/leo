@@ -24,10 +24,13 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
         // Set the current program name.
         self.current_program = input.program_id.name.name;
         // Do the default implementation for visiting the program scope.
+        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
         input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
         input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
         input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
-        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
+        if let Some(c) = input.constructor.as_ref() {
+            self.visit_constructor(c);
+        }
     }
 
     fn visit_function(&mut self, function: &Function) {
@@ -114,5 +117,9 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
                 }
             }
         }
+    }
+
+    fn visit_constructor(&mut self, _: &Constructor) {
+        // Do nothing, since constructors do not have awaits or futures.
     }
 }

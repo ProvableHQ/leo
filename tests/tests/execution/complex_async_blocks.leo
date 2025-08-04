@@ -33,6 +33,9 @@ program zero_program.aleo {
         };
         return f;
     }
+
+    @noupgrade
+    async constructor() {}
 }
 
 
@@ -50,6 +53,9 @@ program one_program.aleo {
         };
         return f;
     }
+
+    @noupgrade
+    async constructor() {}
 }
 
 // --- Next Program --- //
@@ -73,6 +79,9 @@ program two_program.aleo {
             counts.set(addr, count + 1u64);
         };
     }
+
+    @noupgrade
+    async constructor() {}
 }
 
 // --- Next Program --- //
@@ -97,6 +106,9 @@ program three_program.aleo {
             counts.set(addr, count + 1u64);
         };
     }
+
+    @noupgrade
+    async constructor() {}
 }
 
 // --- Next Program --- //
@@ -118,4 +130,7 @@ program four_program.aleo {
             counts.set(addr, count + 1u64);
         };
     }
+
+    @noupgrade
+    async constructor() {}
 }

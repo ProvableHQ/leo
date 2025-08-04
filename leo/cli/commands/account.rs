@@ -15,8 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use leo_ast::NetworkName;
 use leo_errors::UtilError;
-use leo_package::{Env, NetworkName};
+use leo_package::Env;
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};

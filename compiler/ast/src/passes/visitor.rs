@@ -325,13 +325,13 @@ pub trait ProgramVisitor: AstVisitor {
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
-
-        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
-
-        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
-
         input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
+        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
+        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
+        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
+        if let Some(c) = input.constructor.as_ref() {
+            self.visit_constructor(c);
+        }
     }
 
     fn visit_stub(&mut self, _input: &Stub) {}
@@ -355,6 +355,10 @@ pub trait ProgramVisitor: AstVisitor {
         input.input.iter().for_each(|input| self.visit_type(&input.type_));
         input.output.iter().for_each(|output| self.visit_type(&output.type_));
         self.visit_type(&input.output_type);
+        self.visit_block(&input.block);
+    }
+
+    fn visit_constructor(&mut self, input: &Constructor) {
         self.visit_block(&input.block);
     }
 

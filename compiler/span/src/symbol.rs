@@ -239,6 +239,10 @@ symbols! {
     // annotations
     should_fail,
     test,
+    noupgrade,
+    custom,
+    admin,
+    key,
 
     // annotation keys
     private_key,
@@ -282,11 +286,15 @@ symbols! {
     owner,
     _nonce,
     program,
+    ProgramCore: "Program",
     stub,
     block,
     height,
     network,
     id,
+    checksum,
+    edition,
+    program_owner,
 }
 
 /// An interned string.

@@ -16,4 +16,7 @@ program test.aleo {
     transition main() -> u32 {
         return foo::[3u32]([1, 2, 3]);
     }
+
+    @noupgrade
+    async constructor() {}
 }

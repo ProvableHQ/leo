@@ -51,4 +51,7 @@ program test.aleo {
             Mapping::set(counter, addr, current_value + 0__1u64);
         };
     }
+
+    @noupgrade
+    async constructor() {}
 }

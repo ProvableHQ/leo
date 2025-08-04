@@ -135,6 +135,13 @@ pub trait FunctionConsumer {
     fn consume_function(&mut self, input: Function) -> Self::Output;
 }
 
+/// A Consumer trait for constructors in the AST.
+pub trait ConstructorConsumer {
+    type Output;
+
+    fn consume_constructor(&mut self, input: Constructor) -> Self::Output;
+}
+
 /// A Consumer trait for structs in the AST.
 pub trait StructConsumer {
     type Output;

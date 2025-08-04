@@ -43,6 +43,14 @@ pub struct DependencySource {
 
     #[clap(short = 'n', long, help = "Whether the dependency is on a live network.", group = "source")]
     pub(crate) network: bool,
+
+    #[clap(
+        short = 'e',
+        long,
+        help = "The expected edition of the program. DO NOT USE THIS UNLESS YOU KNOW WHAT YOU ARE DOING.",
+        group = "source"
+    )]
+    pub(crate) edition: Option<u16>,
 }
 
 impl Command for LeoAdd {
@@ -75,6 +83,7 @@ impl Command for LeoAdd {
             name: name.clone(),
             location: if self.source.local.is_some() { Location::Local } else { Location::Network },
             path: self.source.local.clone(),
+            edition: self.source.edition,
         };
 
         let deps = if self.dev { &mut manifest.dev_dependencies } else { &mut manifest.dependencies };
@@ -82,11 +91,11 @@ impl Command for LeoAdd {
         if let Some(matched_dep) = deps.get_or_insert_default().iter_mut().find(|dep| dep.name == new_dependency.name) {
             if let Some(path) = &matched_dep.path {
                 tracing::warn!(
-                    "⚠️  Program `{name}` already exists as a local dependency at `{}`. Overwriting.",
+                    "⚠️ Program `{name}` already exists as a local dependency at `{}`. Overwriting.",
                     path.display()
                 );
             } else {
-                tracing::warn!("⚠️  Program `{name}` already exists as a network dependency. Overwriting.");
+                tracing::warn!("⚠️ Program `{name}` already exists as a network dependency. Overwriting.");
             }
             *matched_dep = new_dependency;
         } else {

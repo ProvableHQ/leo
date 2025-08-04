@@ -54,4 +54,9 @@ program metadata.aleo {
     async function finalize_is_network_id(network_id: u16) {
         assert_eq(network_id, network.id);
     }
+
+    @custom
+    async constructor() {
+        assert_eq(true, true);
+    }
 }
