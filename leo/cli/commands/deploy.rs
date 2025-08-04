@@ -387,11 +387,6 @@ fn check_tasks_for_warnings<N: Network>(
             warnings
                 .push(format!("The program '{id}' already exists on the network. The deployment will likely fail.",));
         }
-        // If the upgrade flag is not set, check that the program exists on the network.
-        if fetch_program_from_network(&id.to_string(), endpoint, network).is_ok() {
-            warnings
-                .push(format!("The program '{id}' already exists on the network. The deployment will likely fail.",));
-        }
         // Check if the program uses V9 features.
         if consensus_version < ConsensusVersion::V9 && program.contains_v9_syntax() {
             warnings.push(format!("The program '{id}' uses V9 features but the consensus version is less than V9. The deployment will likely fail"));
