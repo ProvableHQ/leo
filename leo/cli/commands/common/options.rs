@@ -20,8 +20,8 @@ use snarkvm::prelude::{
     CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
     ConsensusVersion,
     MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
-    TEST_CONSENSUS_VERSION_HEIGHTS,
     TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
+    load_test_consensus_heights,
 };
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
@@ -76,12 +76,17 @@ impl Default for BuildOptions {
 /// Overrides for the `.env` file.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct EnvOptions {
-    #[clap(long, help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` in the `.env` file.")]
+    #[clap(
+        long,
+        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable."
+    )]
     pub(crate) private_key: Option<String>,
-    #[clap(long, help = "The network to deploy to. Overrides the `NETWORK` in the .env file.")]
+    #[clap(long, help = "The network to deploy to. Overrides the `NETWORK` environment variable.")]
     pub(crate) network: Option<String>,
-    #[clap(long, help = "The endpoint to deploy to. Overrides the `ENDPOINT` in the .env file.")]
+    #[clap(long, help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable.")]
     pub(crate) endpoint: Option<String>,
+    #[clap(long, help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable.")]
+    pub(crate) devnet: bool,
 }
 
 /// The fee options for the transactions.
@@ -192,6 +197,7 @@ pub fn get_consensus_version(
     consensus_version: &Option<u8>,
     endpoint: &str,
     network: NetworkName,
+    is_devnet: bool,
     context: &Context,
 ) -> Result<ConsensusVersion> {
     // Get the consensus version.
@@ -209,7 +215,7 @@ pub fn get_consensus_version(
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
             get_latest_block_height(endpoint, network, context)
-                .and_then(|current_block_height| get_consensus_version_from_height(current_block_height, network))
+                .and_then(|current_block_height| get_consensus_version_from_height(current_block_height, network, is_devnet))
                 .map_err(|_| {
                     CliError::custom(
                         "Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus-version`",
@@ -223,16 +229,12 @@ pub fn get_consensus_version(
 
 // A helper function to get the consensus version based on the block height.
 // Note. This custom implementation is necessary because we use `snarkVM` with the `test_heights` feature enabled, which does not reflect the actual consensus version heights.
-pub fn get_consensus_version_from_height(seek_height: u32, network_name: NetworkName) -> Result<ConsensusVersion> {
-    let heights = if cfg!(feature = "test_network") {
-        TEST_CONSENSUS_VERSION_HEIGHTS
-    } else {
-        match network_name {
-            NetworkName::TestnetV0 => TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
-            NetworkName::MainnetV0 => MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
-            NetworkName::CanaryV0 => CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
-        }
-    };
+pub fn get_consensus_version_from_height(
+    seek_height: u32,
+    network_name: NetworkName,
+    is_devnet: bool,
+) -> Result<ConsensusVersion> {
+    let heights = get_consensus_heights(network_name, is_devnet);
 
     // Find the consensus version based on the block height.
     match heights.binary_search_by(|(_, height)| height.cmp(&seek_height)) {
@@ -246,6 +248,21 @@ pub fn get_consensus_version_from_height(seek_height: u32, network_name: Network
                 // Return the appropriate version belonging to the height *lower* than the sought height.
                 Ok(heights[index - 1].0)
             }
+        }
+    }
+}
+
+/// Get the consensus heights for the current network.
+/// If `is_devnet` is true, first , then return the test consensus heights.
+pub fn get_consensus_heights(network_name: NetworkName, is_devnet: bool) -> [(ConsensusVersion, u32); 10] {
+    if is_devnet {
+        // Read the environment for `CONSENSUS_VERSION_HEIGHTS`, otherwise use the default test consensus heights.
+        load_test_consensus_heights()
+    } else {
+        match network_name {
+            NetworkName::CanaryV0 => CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
+            NetworkName::MainnetV0 => MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
+            NetworkName::TestnetV0 => TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
         }
     }
 }

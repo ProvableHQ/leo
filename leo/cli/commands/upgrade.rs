@@ -113,6 +113,9 @@ fn handle_upgrade<N: Network>(
     // Get the endpoint, accounting for overrides.
     let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
 
+    // Get whether the network is a devnet, accounting for overrides.
+    let is_devnet = context.get_is_devnet(command.env_override.devnet);
+
     // Get all the programs but tests.
     let programs = package.programs.iter().filter(|program| !program.is_test).cloned();
 
@@ -179,7 +182,8 @@ fn handle_upgrade<N: Network>(
         .collect();
 
     // Get the consensus version.
-    let consensus_version = get_consensus_version(&command.extra.consensus_version, &endpoint, network, &context)?;
+    let consensus_version =
+        get_consensus_version(&command.extra.consensus_version, &endpoint, network, is_devnet, &context)?;
 
     // Print a summary of the deployment plan.
     print_deployment_plan(

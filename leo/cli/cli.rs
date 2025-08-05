@@ -126,6 +126,9 @@ pub fn handle_error<T>(res: Result<T>) -> T {
 
 /// Run command with custom build arguments.
 pub fn run_with_args(cli: CLI) -> Result<()> {
+    // Initialize the `.env` file.
+    dotenvy::dotenv().ok();
+
     if !cli.quiet {
         // Init logger with optional debug flag.
         logger::init_logger("leo", match cli.debug {

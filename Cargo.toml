@@ -127,8 +127,9 @@ version = "0.10.9"
 [workspace.dependencies.snarkvm]
 #version = "=4.0.0"
 git = "https://github.com/ProvableHQ/snarkVM.git"
-rev = "b40bb19"
-features = [ "cli" ]
+rev = "3b1c59d"
+#path = "../snarkVM"
+features = [ "cli", "test_consensus_heights" ]
 
 [workspace.dependencies.serde]
 version = "1.0.214"
@@ -165,11 +166,6 @@ default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 only_testnet = [ ]
-test_network = [
-  "snarkvm/test_targets",
-  "snarkvm/test_consensus_heights",
-  "leo-compiler/test_network"
-]
 
 [dependencies]
 dialoguer = "0.11.0"

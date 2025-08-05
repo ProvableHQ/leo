@@ -138,6 +138,9 @@ fn handle_execute<A: Aleo>(
     // Get the endpoint, accounting for overrides.
     let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
 
+    // Get whether the network is a devnet, accounting for overrides.
+    let is_devnet = context.get_is_devnet(command.env_override.devnet);
+
     // Parse the <NAME> into an optional program name and a function name.
     // If only a function name is provided, then use the program name from the package.
     let (program_name, function_name) = match command.name.split_once('/') {
@@ -247,7 +250,8 @@ fn handle_execute<A: Aleo>(
         parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
 
     // Get the consensus version.
-    let consensus_version = get_consensus_version(&command.extra.consensus_version, &endpoint, network, &context)?;
+    let consensus_version =
+        get_consensus_version(&command.extra.consensus_version, &endpoint, network, is_devnet, &context)?;
 
     // Print the execution plan.
     print_execution_plan::<A::Network>(
@@ -284,16 +288,18 @@ fn handle_execute<A: Aleo>(
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
         println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
-        programs = load_programs_from_network(&context, program_id, network, &endpoint)?;
+        programs = load_latest_programs_from_network(&context, program_id, network, &endpoint)?;
     };
 
     // Add the programs to the VM.
-    println!("Adding programs to the VM...");
+    println!("Adding programs to the VM in the following order:");
     let programs_and_editions = programs
         .into_iter()
         .map(|(program, edition)| {
             // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-            (program, edition.unwrap_or(1))
+            let result = (program, edition.unwrap_or(1));
+            println!("  - {} (edition: {})", result.0.id(), result.1);
+            result
         })
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
