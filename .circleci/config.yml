@@ -86,14 +86,14 @@ commands:
           no_output_timeout: 30m
           command: |
             cargo-mtime . ~/.cache/mtimes/project.db
-            cargo test --no-run --all --locked --profile ci --features only_testnet,test_network
+            cargo test --no-run --all --locked --profile ci --features only_testnet
       - run:
           name: Run tests
           no_output_timeout: 30m
           # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
           command: |
             cargo-mtime . ~/.cache/mtimes/project.db
-            cargo test --all --locked --profile ci --features only_testnet,test_network --verbose
+            cargo test --all --locked --profile ci --features only_testnet --verbose
 
   install_rust_nightly:
     description: "Install Rust nightly toolchain"

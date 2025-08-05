@@ -21,7 +21,7 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
-use snarkvm::prelude::{Execution, Network, Program};
+use snarkvm::prelude::{Execution, Itertools, Network, Program};
 
 use clap::Parser;
 use colored::*;
@@ -140,6 +140,20 @@ fn handle_execute<A: Aleo>(
 
     // Get whether the network is a devnet, accounting for overrides.
     let is_devnet = context.get_is_devnet(command.env_override.devnet);
+
+    // Set the consensus heights in the environment.
+    let consensus_heights = get_consensus_heights(network, is_devnet).iter().map(|(_, v)| *v).join(",");
+    #[allow(unsafe_code)]
+    unsafe {
+        // SAFETY:
+        //  - `CONSENSUS_VERSION_HEIGHTS` is only set once and is only read in `snarkvm::prelude::load_consensus_heights`.
+        //  - There are no concurrent threads running at this point in the execution.
+        // WHY:
+        //  - This is needed because there is no way to set the desired consensus heights for a particular `VM` instance
+        //    without using the environment variable `CONSENSUS_VERSION_HEIGHTS`. Which is itself read once, and stored in a
+        //    `OnceLock`.
+        std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights)
+    }
 
     // Parse the <NAME> into an optional program name and a function name.
     // If only a function name is provided, then use the program name from the package.

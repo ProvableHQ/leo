@@ -39,6 +39,7 @@ use snarkvm::{
 };
 
 use colored::*;
+use snarkvm::prelude::Itertools;
 use std::{collections::HashSet, fs, path::PathBuf};
 
 /// Deploys an Aleo program.
@@ -126,6 +127,20 @@ fn handle_deploy<N: Network>(
 
     // Get whether the network is a devnet, accounting for overrides.
     let is_devnet = context.get_is_devnet(command.env_override.devnet);
+
+    // Set the consensus heights in the environment.
+    let consensus_heights = get_consensus_heights(network, is_devnet).iter().map(|(_, v)| *v).join(",");
+    #[allow(unsafe_code)]
+    unsafe {
+        // SAFETY:
+        //  - `CONSENSUS_VERSION_HEIGHTS` is only set once and is only read in `snarkvm::prelude::load_consensus_heights`.
+        //  - There are no concurrent threads running at this point in the execution.
+        // WHY:
+        //  - This is needed because there is no way to set the desired consensus heights for a particular `VM` instance
+        //    without using the environment variable `CONSENSUS_VERSION_HEIGHTS`. Which is itself read once, and stored in a
+        //    `OnceLock`.
+        std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights)
+    }
 
     // Get all the programs but tests.
     let programs = package.programs.iter().filter(|program| !program.is_test).cloned();
