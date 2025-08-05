@@ -163,7 +163,7 @@
 <a href=#163 id=163 data-nosnippet>163</a>        .get(url)
 <a href=#164 id=164 data-nosnippet>164</a>        .header(<span class="string">"X-Leo-Version"</span>, <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>))
 <a href=#165 id=165 data-nosnippet>165</a>        .call()
-<a href=#166 id=166 data-nosnippet>166</a>        .map_err(UtilError::failed_to_retrieve_from_endpoint)<span class="question-mark">?</span>;
+<a href=#166 id=166 data-nosnippet>166</a>        .map_err(|e| UtilError::failed_to_retrieve_from_endpoint(url, e))<span class="question-mark">?</span>;
 <a href=#167 id=167 data-nosnippet>167</a>    <span class="kw">match </span>response.status().as_u16() {
 <a href=#168 id=168 data-nosnippet>168</a>        <span class="number">200</span>..=<span class="number">299 </span>=&gt; <span class="prelude-val">Ok</span>(response.body_mut().read_to_string().unwrap()),
 <a href=#169 id=169 data-nosnippet>169</a>        <span class="number">301 </span>=&gt; <span class="prelude-val">Err</span>(UtilError::endpoint_moved_error(url)),
