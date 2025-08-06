@@ -160,14 +160,12 @@ impl LeoDevnet {
         println!("  • Verbosity: {}", self.verbosity);
         println!("  • tmux: {}", if self.tmux { "yes" } else { "no" });
 
-        // Confirm the options with the user.
-        confirm("\nProceed with devnet startup? (y/N)", self.yes)?;
-
         //───────────────────────────────────────────────────────────────────
         // 1. snarkOS binary  (+ optional build)
         //───────────────────────────────────────────────────────────────────
         let snarkos = self.snarkos.clone().unwrap_or_else(default_snarkos);
         if self.install {
+            confirm("\nProceed with snarkOS installation? (y/N)", self.yes)?;
             let snarkos_dir = snarkos.parent().context("snarkos path must have a parent directory")?;
             let root_dir = snarkos_dir.parent().unwrap_or(snarkos_dir);
             std::fs::create_dir_all(root_dir)?;
@@ -212,9 +210,12 @@ impl LeoDevnet {
         //───────────────────────────────────────────────────────────────────
         // 2. Resolve storage & create log dir
         //───────────────────────────────────────────────────────────────────
-        let storage_dir = canonicalize(&self.storage).with_context(|| format!("Cannot access {}", self.storage))?;
+        // Resolve the storage directory, ensuring it exists.
+        let storage_dir = canonicalize(&self.storage)
+            .with_context(|| format!("Failed to resolve storage directory: {}", self.storage))?;
+        // Create the log directory inside the storage directory.
         let log_dir = {
-            let ts = Local::now().format(".logs-%Y%m%d%H%M%S").to_string();
+            let ts = Local::now().format(".logs-%Y-%m-%d-%H-%M-%S").to_string();
             let p = storage_dir.join(ts);
             std::fs::create_dir_all(&p)?;
             p
