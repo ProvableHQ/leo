@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use anyhow::{bail, ensure};
 use leo_ast::NetworkName;
 use snarkvm::prelude::{
     CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
@@ -211,6 +212,7 @@ pub fn get_consensus_version(
         Some(7) => Ok(ConsensusVersion::V7),
         Some(8) => Ok(ConsensusVersion::V8),
         Some(9) => Ok(ConsensusVersion::V9),
+        Some(10) => Ok(ConsensusVersion::V10),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -267,6 +269,23 @@ pub fn get_consensus_heights(network_name: NetworkName, is_devnet: bool) -> [(Co
     }
 }
 
+/// Validates a vector of heights as consensus heights.
+pub fn validate_consensus_heights(heights: &[usize]) -> anyhow::Result<()> {
+    // Check that the correct number of heights were provided.
+    let actual = heights.len();
+    let expected = ConsensusVersion::latest() as usize;
+    ensure!(actual == expected, "Expected exactly {expected} consensus heights, but found: {actual}");
+    // Assert that the genesis height is 0.
+    ensure!(heights[0] == 0, "Genesis height must be 0.");
+    // Assert that the consensus heights are strictly increasing.
+    for window in heights.windows(2) {
+        if window[0] >= window[1] {
+            bail!("Heights must be strictly increasing, but found: {window:?}");
+        }
+    }
+    Ok(())
+}
+
 /// What to do with a transaction produced by the CLI.
 #[derive(Args, Clone, Debug)]
 pub struct TransactionAction {
@@ -284,6 +303,6 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V9); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V10); // If this fails, update the test and any code that matches on `ConsensusVersion`.
     }
 }

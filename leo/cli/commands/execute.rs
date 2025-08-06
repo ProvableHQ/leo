@@ -150,8 +150,7 @@ fn handle_execute<A: Aleo>(
         //  - There are no concurrent threads running at this point in the execution.
         // WHY:
         //  - This is needed because there is no way to set the desired consensus heights for a particular `VM` instance
-        //    without using the environment variable `CONSENSUS_VERSION_HEIGHTS`. Which is itself read once, and stored in a
-        //    `OnceLock`.
+        //    without using the environment variable `CONSENSUS_VERSION_HEIGHTS`. Which is itself read once, and stored in a `OnceLock`.
         std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights)
     }
 

@@ -28,8 +28,10 @@ use anyhow::{Context as AnyhowContext, Result as AnyhowResult, anyhow, bail, ens
 use chrono::Local;
 use clap::Parser;
 use dunce::canonicalize;
+use itertools::Itertools;
 use signal_hook::{consts::signal::*, iterator::Signals};
 use std::{
+    env,
     ffi::OsStr,
     path::{Path, PathBuf},
     process::{Child, Command as StdCommand, Stdio},
@@ -74,6 +76,12 @@ pub struct LeoDevnet {
     pub(crate) version: Option<String>,
     #[clap(long, help = "(Re)install snarkOS at the provided `--snarkos` path with the given `--features`")]
     pub(crate) install: bool,
+    #[clap(
+        long,
+        help = "Optional consensus heights to use. The `test_network` feature must be enabled for this to work.",
+        value_delimiter = ','
+    )]
+    pub(crate) consensus_heights: Option<Vec<usize>>,
     #[clap(long, help = "Run nodes in tmux (only available on Unix)")]
     pub(crate) tmux: bool,
     #[clap(long, help = "snarkOS verbosity (0-4)", default_value = "1")]
@@ -112,6 +120,14 @@ impl LeoDevnet {
             bail!("Nested tmux session detected.  Unset $TMUX and retry.");
         }
 
+        // If the devnet heights are provided, ensure the `test_network` feature is enabled, and validate the heights.
+        if let Some(ref heights) = self.consensus_heights {
+            if !self.features.contains(&"test_network".to_string()) {
+                bail!("The `test_network` feature must be enabled to use consensus heights.");
+            }
+            validate_consensus_heights(heights)?;
+        }
+
         // Confirm with the user the options they provided.
         println!("🔧  Starting devnet with the following options:");
         println!("  • Network: {}", self.network);
@@ -134,6 +150,11 @@ impl LeoDevnet {
                 "  • Using snarkOS binary at: {}",
                 self.snarkos.as_ref().map_or("default $PATH".to_string(), |p| p.display().to_string())
             );
+        }
+        if let Some(ref heights) = self.consensus_heights {
+            println!("  • Consensus heights: {}", heights.iter().map(|h| h.to_string()).collect::<Vec<_>>().join(", "));
+        } else {
+            println!("  • Consensus heights: default (based on your snarkOS binary)");
         }
         println!("  • Clear storage: {}", if self.clear_storage { "yes" } else { "no" });
         println!("  • Verbosity: {}", self.verbosity);
@@ -222,7 +243,7 @@ impl LeoDevnet {
         //───────────────────────────────────────────────────────────────────
         // 5. Spawn nodes (tmux **or** background)
         //───────────────────────────────────────────────────────────────────
-        const REST_RPS: &str = "1000";
+        const REST_RPS: &str = "999999999";
 
         fn build_args(
             role: &str,
@@ -267,10 +288,97 @@ impl LeoDevnet {
             base
         }
 
-        //────────────── tmux branch ──────────────  (logic unchanged) ─────────
+        // Set the environment variable for the consensus heights if provided.
+        // These are used by all child processes.
+        if let Some(ref heights) = self.consensus_heights {
+            let heights = heights.iter().join(",");
+            println!("🔧  Setting consensus heights: {heights}");
+            #[allow(unsafe_code)]
+            unsafe {
+                // SAFETY:
+                //  - `CONSENSUS_VERSION_HEIGHTS` is only set once and is only read in `snarkvm::prelude::load_consensus_heights`.
+                //  - There are no concurrent threads running at this point in the execution.
+                // WHY:
+                //  - This is needed because there is no way to set the desired consensus heights for a particular `VM` instance in a node
+                //    without using the environment variable `CONSENSUS_VERSION_HEIGHTS`. Which is itself read once, and stored in a `OnceLock`.
+                env::set_var("CONSENSUS_VERSION_HEIGHTS", heights);
+            }
+        }
+
+        //────────────── tmux branch ──────────────
         if self.tmux {
-            // (kept identical to original; quoting fixes could be added later)
-            unimplemented!("tmux mode unchanged for brevity");
+            // Create session.
+            ensure!(
+                StdCommand::new("tmux")
+                    .args(["new-session", "-d", "-s", "devnet", "-n", "validator-0"])
+                    .status()?
+                    .success(),
+                "tmux failed to create session"
+            );
+
+            // Determine base-index.
+            let base_index = {
+                let out = StdCommand::new("tmux").args(["show-option", "-gv", "base-index"]).output()?;
+                String::from_utf8_lossy(&out.stdout).trim().parse::<usize>().unwrap_or(0)
+            };
+
+            // Validators
+            for idx in 0..self.num_validators {
+                let win_idx = idx + base_index;
+                let window_name = format!("validator-{idx}");
+                if idx != 0 {
+                    StdCommand::new("tmux")
+                        .args(["new-window", "-t", &format!("devnet:{win_idx}"), "-n", &window_name])
+                        .status()?;
+                }
+                let log_file = log_dir.join(format!("{window_name}.log"));
+                let metrics_port = 9000 + idx as u16;
+                let cmd = std::iter::once(snarkos_bin.to_string_lossy().into_owned())
+                    .chain(build_args(
+                        "validator",
+                        self.verbosity,
+                        self.network as usize,
+                        self.num_validators,
+                        idx,
+                        log_file.as_path(),
+                        Some(metrics_port),
+                    ))
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                StdCommand::new("tmux")
+                    .args(["send-keys", "-t", &format!("devnet:{win_idx}"), &cmd, "C-m"])
+                    .status()?;
+            }
+
+            // Clients
+            for idx in 0..self.num_clients {
+                let dev_idx = idx + self.num_validators;
+                let win_idx = dev_idx + base_index;
+                let window_name = format!("client-{idx}");
+                StdCommand::new("tmux")
+                    .args(["new-window", "-t", &format!("devnet:{win_idx}"), "-n", &window_name])
+                    .status()?;
+                let log_file = log_dir.join(format!("{window_name}.log"));
+                let cmd = std::iter::once(snarkos_bin.to_string_lossy().into_owned())
+                    .chain(build_args(
+                        "client",
+                        self.verbosity,
+                        self.network as usize,
+                        self.num_validators,
+                        dev_idx,
+                        log_file.as_path(),
+                        None,
+                    ))
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                StdCommand::new("tmux")
+                    .args(["send-keys", "-t", &format!("devnet:{win_idx}"), &cmd, "C-m"])
+                    .status()?;
+            }
+
+            println!("✅  tmux session \"devnet\" is ready – attaching …");
+            StdCommand::new("tmux").args(["attach-session", "-t", "devnet"]).status()?;
+            return Ok(()); // tmux will hold the terminal
         }
 
         //──────────── background branch ──────────
