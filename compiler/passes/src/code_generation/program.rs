@@ -274,12 +274,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
         self.variable_mapping.insert(sym::network, "network".to_string());
 
         // Get the upgrade variant.
-        let upgrade_variant = match self.state.network {
-            NetworkName::CanaryV0 => constructor.get_upgrade_variant::<CanaryV0>(),
-            NetworkName::MainnetV0 => constructor.get_upgrade_variant::<MainnetV0>(),
-            NetworkName::TestnetV0 => constructor.get_upgrade_variant::<TestnetV0>(),
-        }
-        .expect("Type checking should have validated the upgrade variant");
+        let upgrade_variant = constructor
+            .get_upgrade_variant_with_network(self.state.network)
+            .expect("Type checking should have validated the upgrade variant");
 
         // Construct the constructor.
         // If the constructor is one of the standard constructors, use the hardcoded defaults.
@@ -299,12 +296,12 @@ impl<'a> CodeGeneratingVisitor<'a> {
         };
 
         // Check that the constructor is well-formed.
-        if match self.state.network {
-            NetworkName::MainnetV0 => check_snarkvm_constructor::<MainnetV0>(&constructor).is_err(),
-            NetworkName::TestnetV0 => check_snarkvm_constructor::<TestnetV0>(&constructor).is_err(),
-            NetworkName::CanaryV0 => check_snarkvm_constructor::<CanaryV0>(&constructor).is_err(),
+        if let Err(e) = match self.state.network {
+            NetworkName::MainnetV0 => check_snarkvm_constructor::<MainnetV0>(&constructor),
+            NetworkName::TestnetV0 => check_snarkvm_constructor::<TestnetV0>(&constructor),
+            NetworkName::CanaryV0 => check_snarkvm_constructor::<CanaryV0>(&constructor),
         } {
-            panic!("Constructors are checked for well-formedness during static analysis");
+            panic!("Compilation produced an invalid constructor: {e}");
         };
 
         // Return the constructor string.

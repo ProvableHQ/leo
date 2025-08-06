@@ -346,6 +346,8 @@ impl Package {
                 // We've already visited this dependency. Just make sure it's compatible with
                 // the one we already have.
                 let existing_dep = &occupied.get().0;
+                println!("Existing: {:?}", existing_dep);
+                println!("Dep: {:?}", new);
                 assert_eq!(new.name, existing_dep.name);
                 if new.location != existing_dep.location
                     || new.path != existing_dep.path

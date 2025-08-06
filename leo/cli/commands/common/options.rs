@@ -29,8 +29,6 @@ use snarkvm::prelude::{
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug)]
 pub struct BuildOptions {
-    #[clap(long, help = "Does not recursively compile dependencies.")]
-    pub non_recursive: bool,
     #[clap(long, help = "Enables offline mode.")]
     pub offline: bool,
     #[clap(long, help = "Enable spans in AST snapshots.")]
@@ -58,7 +56,6 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            non_recursive: false,
             offline: false,
             enable_ast_spans: false,
             enable_dce: true,
@@ -88,6 +85,12 @@ pub struct EnvOptions {
     pub(crate) endpoint: Option<String>,
     #[clap(long, help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable.")]
     pub(crate) devnet: bool,
+    #[clap(
+        long,
+        help = "Optional consensus heights to use. This should only be set if you are using a custom devnet.",
+        value_delimiter = ','
+    )]
+    pub(crate) consensus_heights: Option<Vec<usize>>,
 }
 
 /// The fee options for the transactions.

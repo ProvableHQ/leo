@@ -116,8 +116,19 @@ fn handle_upgrade<N: Network>(
     // Get whether the network is a devnet, accounting for overrides.
     let is_devnet = context.get_is_devnet(command.env_override.devnet);
 
+    // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
+    let consensus_heights = if let Some(heights) = &command.env_override.consensus_heights {
+        // Validate the provided consensus heights.
+        validate_consensus_heights(heights)
+            .map_err(|e| CliError::custom(format!("Invalid `--consensus-heights`: {e}")))?;
+        // Return the heights as a string.
+        heights.iter().join(",")
+    } else {
+        get_consensus_heights(network, is_devnet).iter().map(|(_, v)| *v).join(",")
+    };
+    println!("Using the following consensus heights: {consensus_heights}");
+
     // Set the consensus heights in the environment.
-    let consensus_heights = get_consensus_heights(network, is_devnet).iter().map(|(_, v)| *v).join(",");
     #[allow(unsafe_code)]
     unsafe {
         // SAFETY:
