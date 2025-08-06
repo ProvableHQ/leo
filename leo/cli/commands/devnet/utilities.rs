@@ -55,7 +55,7 @@ pub fn install_snarkos(snarkos_path: &Path, version: Option<&str>, features: &[S
     ensure!(cmd.status()?.success(), "`cargo install` failed");
 
     //───────────────── 3. link / copy to requested path ─────────────────
-    let built_bin = install_root.join("bin").join({ if cfg!(windows) { "snarkos.exe" } else { "snarkos" } });
+    let built_bin = install_root.join("bin").join(if cfg!(windows) { "snarkos.exe" } else { "snarkos" });
     if built_bin != snarkos_path {
         if snarkos_path.exists() {
             fs::remove_file(snarkos_path)?; // overwrite consistently
