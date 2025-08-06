@@ -1,18 +1,12 @@
 [package]
 name = "leo-lang"
 version = "3.0.0"
-authors = [ "The Leo Team <leo@provable.com>" ]
+authors = ["The Leo Team <leo@provable.com>"]
 description = "The Leo programming language"
 homepage = "https://leo-lang.org"
 repository = "https://github.com/ProvableHQ/leo"
-keywords = [
-  "aleo",
-  "cryptography",
-  "leo",
-  "programming-language",
-  "zero-knowledge"
-]
-categories = [ "compilers", "cryptography", "web-programming" ]
+keywords = ["aleo", "cryptography", "leo", "programming-language", "zero-knowledge"]
+categories = ["compilers", "cryptography", "web-programming"]
 include = [
   "Cargo.toml",
   "leo",
@@ -43,6 +37,31 @@ members = [
   "test-framework",
   "utils/disassembler",
 ]
+
+# ----------------------------
+# Binaries
+# ----------------------------
+
+[lib]
+path = "leo/lib.rs"
+
+[[bin]]
+name = "leo"
+path = "leo/cli/main.rs"
+
+# ----------------------------
+# Features
+# ----------------------------
+
+[features]
+default = []
+ci_skip = ["leo-compiler/ci_skip"]
+noconfig = []
+only_testnet = []
+
+# ----------------------------
+# Workspace Dependencies
+# ----------------------------
 
 [workspace.dependencies.leo-ast]
 path = "./compiler/ast"
@@ -84,9 +103,6 @@ version = "=3.0.0"
 path = "./test-framework"
 version = "=3.0.0"
 
-[workspace.dependencies.anyhow]
-version = "1.0"
-
 [workspace.dependencies.aleo-std]
 version = "1.0.1"
 default-features = false
@@ -94,6 +110,9 @@ default-features = false
 [workspace.dependencies.aleo-std-storage]
 version = "1.0.1"
 default-features = false
+
+[workspace.dependencies.anyhow]
+version = "1.0"
 
 [workspace.dependencies.base62]
 version = "2.2.1"
@@ -103,7 +122,7 @@ version = "2.0"
 
 [workspace.dependencies.indexmap]
 version = "2.6"
-features = [ "serde" ]
+features = ["serde"]
 
 [workspace.dependencies.itertools]
 version = "0.13.0"
@@ -119,28 +138,28 @@ default-features = false
 [workspace.dependencies.regex]
 version = "1.11.1"
 
-[workspace.dependencies.sha2]
-version = "0.10.9"
-
-# snarkvm doesn't use semantic versioning, so pin to a
-# specific version.
-[workspace.dependencies.snarkvm]
-#version = "=4.0.0"
-git = "https://github.com/ProvableHQ/snarkVM.git"
-rev = "3b1c59d"
-#path = "../snarkVM"
-features = [ "cli", "test_consensus_heights" ]
+[workspace.dependencies.self_update]
+version = "0.41.0"
+features = ["archive-zip", "compression-zip-deflate"]
 
 [workspace.dependencies.serde]
 version = "1.0.214"
-features = [ "derive", "rc" ]
+features = ["derive", "rc"]
 
 [workspace.dependencies.serde_json]
 version = "1.0"
-features = [ "preserve_order" ]
+features = ["preserve_order"]
 
 [workspace.dependencies.serial_test]
 version = "3.1.1"
+
+[workspace.dependencies.sha2]
+version = "0.10.9"
+
+[workspace.dependencies.snarkvm]
+git = "https://github.com/ProvableHQ/snarkVM.git"
+rev = "3b1c59d"
+features = ["cli", "test_consensus_heights"]
 
 [workspace.dependencies.tempfile]
 version = "3.13"
@@ -154,28 +173,9 @@ version = "3.0.12"
 [workspace.dependencies.walkdir]
 version = "2.5"
 
-[lib]
-path = "leo/lib.rs"
-
-[[bin]]
-name = "leo"
-path = "leo/cli/main.rs"
-
-[features]
-default = [ ]
-ci_skip = [ "leo-compiler/ci_skip" ]
-noconfig = [ ]
-only_testnet = [ ]
-
-[dependencies]
-dialoguer = "0.11.0"
-dunce = "1.0.5"
-num-format = "0.4.4"
-which = "8.0.0"
-chrono = "0.4.41"
-signal-hook = "0.3.18"
-nix = { version = "0.30.1", features = ["process"] }
-libc = "0.2.174"
+# ----------------------------
+# Dependencies
+# ----------------------------
 
 [dependencies.leo-ast]
 workspace = true
@@ -210,18 +210,36 @@ workspace = true
 [dependencies.backtrace]
 version = "0.3.74"
 
+[dependencies.chrono]
+version = "0.4.41"
+
 [dependencies.clap]
 version = "4.5"
-features = [ "derive", "env", "color", "unstable-styles" ]
+features = ["derive", "env", "color", "unstable-styles"]
 
 [dependencies.colored]
 workspace = true
 
+[dependencies.crossterm]
+version = "0.28.1"
+
+[dependencies.dialoguer]
+version = "0.11.0"
+
 [dependencies.dotenvy]
 version = "0.15.7"
 
+[dependencies.dunce]
+version = "1.0.5"
+
 [dependencies.indexmap]
 workspace = true
+
+[dependencies.itertools]
+workspace = true
+
+[dependencies.num-format]
+version = "0.4.4"
 
 [dependencies.rand]
 workspace = true
@@ -229,9 +247,14 @@ workspace = true
 [dependencies.rand_chacha]
 workspace = true
 
+[dependencies.regex]
+workspace = true
+
+[dependencies.rpassword]
+version = "7.3.1"
+
 [dependencies.self_update]
-version = "0.41.0"
-features = [ "archive-zip", "compression-zip-deflate" ]
+workspace = true
 
 [dependencies.serde]
 workspace = true
@@ -242,25 +265,28 @@ workspace = true
 [dependencies.serial_test]
 workspace = true
 
+[dependencies.sha2]
+workspace = true
+
+[dependencies.signal-hook]
+version = "0.3.18"
+
 [dependencies.snarkvm]
 workspace = true
-features = [ "circuit", "console" ]
+features = ["circuit", "console"]
 
 [dependencies.sys-info]
 version = "0.9.1"
 
+[dependencies.tempfile]
+workspace = true
+
 [dependencies.tracing]
-version = "0.1"
+workspace = true
 
 [dependencies.tracing-subscriber]
 version = "0.3.18"
-features = [ "fmt" ]
-
-[dependencies.crossterm]
-version = "0.28.1"
-
-[dependencies.rpassword]
-version = "7.3.1"
+features = ["fmt"]
 
 [dependencies.ureq]
 workspace = true
@@ -269,11 +295,36 @@ features = ["json"]
 [dependencies.walkdir]
 workspace = true
 
-[target."cfg(windows)".dependencies.ansi_term]
-version = "0.12.1"
+[dependencies.which]
+version = "8.0.0"
+
+# ----------------------------
+# Platform-specific dependencies
+# ----------------------------
+
+[target.'cfg(unix)'.dependencies]
+nix = { version = "0.30.1", features = ["process"] }
+libc = { version = "0.2.174" }
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.9" }
+windows-sys = { version = "0.60.2", features = [
+  "Win32_Foundation",
+  "Win32_System_Threading",
+  "Win32_System_JobObjects"
+] }
+ansi_term = { version = "0.12.1" }
+
+# ----------------------------
+# Build Dependencies
+# ----------------------------
 
 [build-dependencies.walkdir]
 workspace = true
+
+# ----------------------------
+# Profiles
+# ----------------------------
 
 [profile.release]
 opt-level = 3
@@ -292,13 +343,6 @@ debug-assertions = false
 opt-level = 2
 lto = "off"
 incremental = true
-
-# snarkVM has a lot of verbose output if debug assertions are on. They'll already be off
-# in release builds; let's turn them off in dev builds too. Theoretically we should be
-# able to turn them off only in snarkvm, like this:
-# [profile.dev.package.snarkvm]
-# debug-assertions = false
-# But that doesn't seem to work, so just do it here.
 debug-assertions = false
 
 [profile.test]

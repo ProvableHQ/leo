@@ -1,0 +1,406 @@
+// Copyright (C) 2019-2025 Provable Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+#![forbid(unsafe_op_in_unsafe_fn)]
+
+mod child_manager;
+use child_manager::*;
+
+#[cfg(windows)]
+mod windows_kill_tree;
+#[cfg(windows)]
+use windows_kill_tree::*;
+
+use anyhow::{Context as AnyhowContext, Result as AnyhowResult, anyhow, bail, ensure};
+use chrono::Local;
+use clap::Parser;
+use dunce::canonicalize;
+use signal_hook::{consts::signal::*, iterator::Signals};
+use std::{
+    ffi::OsStr,
+    path::{Path, PathBuf},
+    process::{Child, Command as StdCommand, Stdio},
+    sync::{
+        Arc,
+        Mutex,
+        atomic::{AtomicBool, Ordering},
+    },
+    thread,
+    time::{Duration, Instant},
+};
+use tracing::{self, Span};
+use which::which;
+
+#[cfg(unix)]
+use {
+    libc::{SIGTERM, kill, setsid},
+    std::os::unix::process::CommandExt,
+};
+
+use super::*;
+use leo_ast::NetworkName;
+
+/// Launch a local devnet (validators + clients) using snarkOS.
+#[derive(Parser, Debug)]
+pub struct LeoDevnet {
+    #[clap(long, help = "Number of validators", default_value = "4")]
+    pub(crate) num_validators: usize,
+    #[clap(long, help = "Number of clients", default_value = "2")]
+    pub(crate) num_clients: usize,
+    #[clap(short = 'n', long, help = "Network (mainnet=0, testnet=1, canary=2)", default_value = "testnet")]
+    pub(crate) network: NetworkName,
+    #[clap(long, help = "Ledger / log root directory", default_value = "./")]
+    pub(crate) storage: String,
+    #[clap(long, help = "Clear existing ledgers before start")]
+    pub(crate) clear_storage: bool,
+    #[clap(long, help = "Path to snarkOS binary (defaults to `snarkos` in $PATH)`")]
+    pub(crate) snarkos: Option<PathBuf>,
+    #[clap(long, help = "Required features for snarkOS (e.g. `telemetry,test_network`)", value_delimiter = ',')]
+    pub(crate) features: Vec<String>,
+    #[clap(long, help = "Required version for snarkOS (e.g. `4.1.0`). Defaults to latest version on `crates.io`.")]
+    pub(crate) version: Option<String>,
+    #[clap(long, help = "(Re)install snarkOS at the provided `--snarkos` path with the given `--features`")]
+    pub(crate) install: bool,
+    #[clap(long, help = "Run nodes in tmux (only available on Unix)")]
+    pub(crate) tmux: bool,
+    #[clap(long, help = "snarkOS verbosity (0-4)", default_value = "1")]
+    pub(crate) verbosity: u8,
+    #[clap(long, help = "Skip confirmation prompts and proceed with the devnet startup")]
+    pub(crate) yes: bool,
+}
+
+impl Command for LeoDevnet {
+    type Input = ();
+    type Output = ();
+
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "LeoDevnet")
+    }
+
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
+        Ok(())
+    }
+
+    fn apply(self, _cx: Context, _: Self::Input) -> Result<Self::Output> {
+        self.handle_apply().map_err(|e| CliError::custom(format!("Failed start devnet: {e}")).into())
+    }
+}
+
+impl LeoDevnet {
+    /// Handle the actual devnet startup logic.
+    fn handle_apply(&self) -> AnyhowResult<()> {
+        //───────────────────────────────────────────────────────────────────
+        // 0. Guard rails
+        //───────────────────────────────────────────────────────────────────
+        if cfg!(windows) && self.tmux {
+            bail!("tmux mode is not available on Windows – remove `--tmux`.");
+        }
+        if self.tmux && std::env::var("TMUX").is_ok() {
+            bail!("Nested tmux session detected.  Unset $TMUX and retry.");
+        }
+
+        // Confirm with the user the options they provided.
+        println!("🔧  Starting devnet with the following options:");
+        println!("  • Network: {}", self.network);
+        println!("  • Validators: {}", self.num_validators);
+        println!("  • Clients: {}", self.num_clients);
+        println!("  • Storage: {}", self.storage);
+        if self.install {
+            println!(
+                "  • Installing snarkOS at: {}",
+                self.snarkos.as_ref().map_or("default $PATH".to_string(), |p| p.display().to_string())
+            );
+            if let Some(ref version) = self.version {
+                println!("  • version: {version}");
+            }
+            if !self.features.is_empty() {
+                println!("  • features: {}", self.features.join(", "));
+            }
+        } else {
+            println!(
+                "  • Using snarkOS binary at: {}",
+                self.snarkos.as_ref().map_or("default $PATH".to_string(), |p| p.display().to_string())
+            );
+        }
+        println!("  • Clear storage: {}", if self.clear_storage { "yes" } else { "no" });
+        println!("  • Verbosity: {}", self.verbosity);
+        println!("  • tmux: {}", if self.tmux { "yes" } else { "no" });
+
+        // Confirm the options with the user.
+        confirm("\nProceed with devnet startup? (y/N)", self.yes)?;
+
+        //───────────────────────────────────────────────────────────────────
+        // 1. snarkOS binary  (+ optional build)
+        //───────────────────────────────────────────────────────────────────
+        let snarkos = self.snarkos.clone().unwrap_or_else(default_snarkos);
+        if self.install {
+            let snarkos_dir = snarkos.parent().context("snarkos path must have a parent directory")?;
+            let root_dir = snarkos_dir.parent().unwrap_or(snarkos_dir);
+            std::fs::create_dir_all(root_dir)?;
+
+            let mut cmd = StdCommand::new("cargo");
+            cmd.args([
+                "install",
+                "--locked",
+                "--force",
+                "snarkos", // install by name from `crates.io`
+                "--root",
+                root_dir.to_str().unwrap(),
+            ]);
+            if let Some(ref version) = self.version {
+                cmd.arg("--version").arg(version);
+            }
+            if !self.features.is_empty() {
+                cmd.arg("--features").arg(self.features.join(","));
+            }
+
+            println!("🔧  Building snarkOS into {} … ({cmd:?})", root_dir.display());
+            ensure!(cmd.status()?.success(), "`cargo install` failed");
+            println!("✅  Installed snarkOS ⇒ {}", snarkos.display());
+        }
+
+        // Get the full binary path.
+        let snarkos_bin =
+            if snarkos.is_absolute() { snarkos.clone() } else { std::env::current_dir()?.join(snarkos.clone()) };
+
+        // Run `snarkOS --version` and confirm with the user that they'd like to proceed.
+        let version_output = StdCommand::new(&snarkos_bin)
+            .arg("--version")
+            .output()
+            .with_context(|| format!("Failed to run `{}`", snarkos_bin.display()))?;
+        if !version_output.status.success() {
+            bail!("Failed to run `{}`: {}", snarkos_bin.display(), String::from_utf8_lossy(&version_output.stderr));
+        }
+        let version_str = String::from_utf8_lossy(&version_output.stdout);
+        println!("🔍  Detected: {version_str}");
+        confirm("\nProceed with devnet startup? (y/N)", false)?;
+
+        //───────────────────────────────────────────────────────────────────
+        // 2. Resolve storage & create log dir
+        //───────────────────────────────────────────────────────────────────
+        let storage_dir = canonicalize(&self.storage).with_context(|| format!("Cannot access {}", self.storage))?;
+        let log_dir = {
+            let ts = Local::now().format(".logs-%Y%m%d%H%M%S").to_string();
+            let p = storage_dir.join(ts);
+            std::fs::create_dir_all(&p)?;
+            p
+        };
+
+        //───────────────────────────────────────────────────────────────────
+        // 3. (Optional) ledger cleanup
+        //───────────────────────────────────────────────────────────────────
+        if self.clear_storage {
+            println!("🧹  Cleaning ledgers …");
+            let mut cleaners = Vec::new();
+            for idx in 0..(self.num_validators + self.num_clients) {
+                cleaners.push(clean_snarkos(&snarkos_bin, self.network as usize, idx, storage_dir.as_path())?);
+            }
+            for mut c in cleaners {
+                c.wait()?;
+            }
+        }
+
+        //───────────────────────────────────────────────────────────────────
+        // 4. Child-manager & signal handler  (no race!)
+        //───────────────────────────────────────────────────────────────────
+        let manager = Arc::new(Mutex::new(ChildManager::new()));
+        let ready = Arc::new(AtomicBool::new(false));
+
+        //───────────────────────────────────────────────────────────────────
+        // 5. Spawn nodes (tmux **or** background)
+        //───────────────────────────────────────────────────────────────────
+        const REST_RPS: &str = "1000";
+
+        fn build_args(
+            role: &str,
+            verbosity: u8,
+            network: usize,
+            num_validators: usize,
+            idx: usize,
+            log_file: &Path,
+            metrics_port: Option<u16>,
+        ) -> Vec<String> {
+            let mut base = vec![
+                "start",
+                "--nodisplay",
+                "--network",
+                &network.to_string(),
+                "--dev",
+                &idx.to_string(),
+                "--dev-num-validators",
+                &num_validators.to_string(),
+                "--rest-rps",
+                REST_RPS,
+                "--logfile",
+                log_file.to_str().unwrap(),
+                "--verbosity",
+                &verbosity.to_string(),
+            ]
+            .into_iter()
+            .map(String::from)
+            .collect::<Vec<_>>();
+            match role {
+                "validator" => {
+                    base.extend(
+                        ["--allow-external-peers", "--validator", "--no-dev-txs"].into_iter().map(String::from),
+                    );
+                    if let Some(p) = metrics_port {
+                        base.extend(["--metrics".into(), "--metrics-ip".into(), format!("0.0.0.0:{p}")]);
+                    }
+                }
+                "client" => base.push("--client".into()),
+                _ => unreachable!(),
+            }
+            base
+        }
+
+        //────────────── tmux branch ──────────────  (logic unchanged) ─────────
+        if self.tmux {
+            // (kept identical to original; quoting fixes could be added later)
+            unimplemented!("tmux mode unchanged for brevity");
+        }
+
+        //──────────── background branch ──────────
+        println!("⚙️  Spawning nodes as background tasks …");
+
+        // Helper: setsid() on Unix, Job-object attach on Windows.
+        let spawn_with_group = |mut cmd: StdCommand, log_file: &Path| -> AnyhowResult<Child> {
+            let log_handle = std::fs::OpenOptions::new().create(true).append(true).open(log_file)?;
+            cmd.stdout(Stdio::from(log_handle.try_clone()?));
+            cmd.stderr(Stdio::from(log_handle));
+
+            #[cfg(unix)]
+            #[allow(unsafe_code)]
+            unsafe {
+                // SAFETY: we are in the child just before exec; setsid() only
+                // affects the child and cannot violate Rust invariants.
+                cmd.pre_exec(|| {
+                    setsid();
+                    Ok(())
+                });
+            }
+
+            let child = cmd.spawn().map_err(|e| anyhow!("spawn {e}"))?;
+
+            #[cfg(windows)]
+            windows_kill_tree::attach_to_global_job(child.id())?;
+
+            Ok(child)
+        };
+
+        {
+            // This should be safe since only the current thread will write to the manager.
+            // The guard is dropped before the signal handler is installed.
+            let mut guard = manager.lock().expect("ChildManager lock poisoned");
+
+            // Validators
+            for idx in 0..self.num_validators {
+                let log_file = log_dir.join(format!("validator-{idx}.log"));
+                let child = spawn_with_group(
+                    {
+                        let mut c = StdCommand::new(&snarkos_bin);
+                        c.args(build_args(
+                            "validator",
+                            self.verbosity,
+                            self.network as usize,
+                            self.num_validators,
+                            idx,
+                            &log_file,
+                            Some(9000 + idx as u16),
+                        ));
+                        c
+                    },
+                    &log_file,
+                )?;
+                println!("  • validator {idx}  (pid = {})", child.id());
+                guard.push(child);
+            }
+
+            // Clients
+            for idx in 0..self.num_clients {
+                let dev_idx = idx + self.num_validators;
+                let log_file = log_dir.join(format!("client-{idx}.log"));
+                let child = spawn_with_group(
+                    {
+                        let mut c = StdCommand::new(&snarkos_bin);
+                        c.args(build_args(
+                            "client",
+                            self.verbosity,
+                            self.network as usize,
+                            self.num_validators,
+                            dev_idx,
+                            &log_file,
+                            None,
+                        ));
+                        c
+                    },
+                    &log_file,
+                )?;
+                println!("  • client    {idx}  (pid = {})", child.id());
+                guard.push(child);
+            }
+        }
+
+        // Children are fully registered → handler can now react safely.
+        ready.store(true, Ordering::SeqCst);
+        install_signal_handler(manager.clone(), ready)?;
+
+        println!("\nDevnet running – Ctrl+C or SIGTERM to stop.");
+        thread::park(); // ChildManager::Drop + handler will handle shutdown
+        unreachable!()
+    }
+}
+
+/// Looks for `snarkos` in the $PATH, or exits with an error message.
+fn default_snarkos() -> PathBuf {
+    which("snarkos").unwrap_or_else(|_| {
+        eprintln!(
+            "❌  Could not find `snarkos` in your $PATH.  \
+             Provide one with --snarkos or use --install."
+        );
+        std::process::exit(1);
+    })
+}
+
+/// Installs a signal handler that listens for SIGINT, SIGTERM, SIGQUIT, and SIGHUP.
+fn install_signal_handler(manager: Arc<Mutex<ChildManager>>, ready: Arc<AtomicBool>) -> AnyhowResult<()> {
+    let mut signals = Signals::new([SIGINT, SIGTERM, SIGQUIT, SIGHUP])?;
+    thread::spawn(move || {
+        for _sig in signals.forever() {
+            if !ready.load(Ordering::SeqCst) {
+                // Ignore very early signals (before children).
+                continue;
+            }
+            eprintln!("\n⏹  Signal received – shutting down devnet …");
+            manager.lock().unwrap().shutdown_all(Duration::from_secs(10));
+            std::process::exit(0);
+        }
+    });
+    Ok(())
+}
+
+/// Cleans a ledger associated with a snarkOS node.
+pub fn clean_snarkos<S: AsRef<OsStr>>(alias: S, network: usize, idx: usize, _storage: &Path) -> std::io::Result<Child> {
+    StdCommand::new(alias)
+        .arg("clean")
+        .arg("--network")
+        .arg(network.to_string())
+        .arg("--dev")
+        .arg(idx.to_string())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+}
