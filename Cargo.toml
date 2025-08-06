@@ -169,7 +169,13 @@ only_testnet = [ ]
 
 [dependencies]
 dialoguer = "0.11.0"
+dunce = "1.0.5"
 num-format = "0.4.4"
+which = "8.0.0"
+chrono = "0.4.41"
+signal-hook = "0.3.18"
+nix = { version = "0.30.1", features = ["process"] }
+libc = "0.2.174"
 
 [dependencies.leo-ast]
 workspace = true
