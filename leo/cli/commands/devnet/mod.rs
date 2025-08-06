@@ -21,15 +21,15 @@ use child_manager::*;
 
 #[cfg(windows)]
 mod windows_kill_tree;
-#[cfg(windows)]
-use windows_kill_tree::*;
+
+mod utilities;
+use utilities::*;
 
 use anyhow::{Context as AnyhowContext, Result as AnyhowResult, anyhow, bail, ensure};
 use chrono::Local;
 use clap::Parser;
 use dunce::canonicalize;
 use itertools::Itertools;
-use signal_hook::{consts::signal::*, iterator::Signals};
 use std::{
     env,
     ffi::OsStr,
@@ -49,6 +49,7 @@ use which::which;
 #[cfg(unix)]
 use {
     libc::{SIGTERM, kill, setsid},
+    signal_hook::{consts::signal::*, iterator::Signals},
     std::os::unix::process::CommandExt,
 };
 
@@ -163,45 +164,24 @@ impl LeoDevnet {
         //───────────────────────────────────────────────────────────────────
         // 1. snarkOS binary  (+ optional build)
         //───────────────────────────────────────────────────────────────────
-        let snarkos = self.snarkos.clone().unwrap_or_else(default_snarkos);
-        if self.install {
+        let snarkos = if self.install {
             confirm("\nProceed with snarkOS installation? (y/N)", self.yes)?;
-            let snarkos_dir = snarkos.parent().context("snarkos path must have a parent directory")?;
-            let root_dir = snarkos_dir.parent().unwrap_or(snarkos_dir);
-            std::fs::create_dir_all(root_dir)?;
-
-            let mut cmd = StdCommand::new("cargo");
-            cmd.args([
-                "install",
-                "--locked",
-                "--force",
-                "snarkos", // install by name from `crates.io`
-                "--root",
-                root_dir.to_str().unwrap(),
-            ]);
-            if let Some(ref version) = self.version {
-                cmd.arg("--version").arg(version);
-            }
-            if !self.features.is_empty() {
-                cmd.arg("--features").arg(self.features.join(","));
-            }
-
-            println!("🔧  Building snarkOS into {} … ({cmd:?})", root_dir.display());
-            ensure!(cmd.status()?.success(), "`cargo install` failed");
-            println!("✅  Installed snarkOS ⇒ {}", snarkos.display());
-        }
-
-        // Get the full binary path.
-        let snarkos_bin =
-            if snarkos.is_absolute() { snarkos.clone() } else { std::env::current_dir()?.join(snarkos.clone()) };
+            install_snarkos(
+                &self.snarkos.clone().unwrap_or_else(default_snarkos),
+                self.version.as_deref(),
+                &self.features,
+            )?
+        } else {
+            self.snarkos.clone().unwrap_or_else(default_snarkos)
+        };
 
         // Run `snarkOS --version` and confirm with the user that they'd like to proceed.
-        let version_output = StdCommand::new(&snarkos_bin)
+        let version_output = StdCommand::new(&snarkos)
             .arg("--version")
             .output()
-            .with_context(|| format!("Failed to run `{}`", snarkos_bin.display()))?;
+            .with_context(|| format!("Failed to run `{}`", snarkos.display()))?;
         if !version_output.status.success() {
-            bail!("Failed to run `{}`: {}", snarkos_bin.display(), String::from_utf8_lossy(&version_output.stderr));
+            bail!("Failed to run `{}`: {}", snarkos.display(), String::from_utf8_lossy(&version_output.stderr));
         }
         let version_str = String::from_utf8_lossy(&version_output.stdout);
         println!("🔍  Detected: {version_str}");
@@ -228,7 +208,7 @@ impl LeoDevnet {
             println!("🧹  Cleaning ledgers …");
             let mut cleaners = Vec::new();
             for idx in 0..(self.num_validators + self.num_clients) {
-                cleaners.push(clean_snarkos(&snarkos_bin, self.network as usize, idx, storage_dir.as_path())?);
+                cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, storage_dir.as_path())?);
             }
             for mut c in cleaners {
                 c.wait()?;
@@ -334,7 +314,7 @@ impl LeoDevnet {
                 }
                 let log_file = log_dir.join(format!("{window_name}.log"));
                 let metrics_port = 9000 + idx as u16;
-                let cmd = std::iter::once(snarkos_bin.to_string_lossy().into_owned())
+                let cmd = std::iter::once(snarkos.to_string_lossy().into_owned())
                     .chain(build_args(
                         "validator",
                         self.verbosity,
@@ -360,7 +340,7 @@ impl LeoDevnet {
                     .args(["new-window", "-t", &format!("devnet:{win_idx}"), "-n", &window_name])
                     .status()?;
                 let log_file = log_dir.join(format!("{window_name}.log"));
-                let cmd = std::iter::once(snarkos_bin.to_string_lossy().into_owned())
+                let cmd = std::iter::once(snarkos.to_string_lossy().into_owned())
                     .chain(build_args(
                         "client",
                         self.verbosity,
@@ -420,7 +400,7 @@ impl LeoDevnet {
                 let log_file = log_dir.join(format!("validator-{idx}.log"));
                 let child = spawn_with_group(
                     {
-                        let mut c = StdCommand::new(&snarkos_bin);
+                        let mut c = StdCommand::new(&snarkos);
                         c.args(build_args(
                             "validator",
                             self.verbosity,
@@ -444,7 +424,7 @@ impl LeoDevnet {
                 let log_file = log_dir.join(format!("client-{idx}.log"));
                 let child = spawn_with_group(
                     {
-                        let mut c = StdCommand::new(&snarkos_bin);
+                        let mut c = StdCommand::new(&snarkos);
                         c.args(build_args(
                             "client",
                             self.verbosity,
@@ -471,45 +451,4 @@ impl LeoDevnet {
         thread::park(); // ChildManager::Drop + handler will handle shutdown
         unreachable!()
     }
-}
-
-/// Looks for `snarkos` in the $PATH, or exits with an error message.
-fn default_snarkos() -> PathBuf {
-    which("snarkos").unwrap_or_else(|_| {
-        eprintln!(
-            "❌  Could not find `snarkos` in your $PATH.  \
-             Provide one with --snarkos or use --install."
-        );
-        std::process::exit(1);
-    })
-}
-
-/// Installs a signal handler that listens for SIGINT, SIGTERM, SIGQUIT, and SIGHUP.
-fn install_signal_handler(manager: Arc<Mutex<ChildManager>>, ready: Arc<AtomicBool>) -> AnyhowResult<()> {
-    let mut signals = Signals::new([SIGINT, SIGTERM, SIGQUIT, SIGHUP])?;
-    thread::spawn(move || {
-        for _sig in signals.forever() {
-            if !ready.load(Ordering::SeqCst) {
-                // Ignore very early signals (before children).
-                continue;
-            }
-            eprintln!("\n⏹  Signal received – shutting down devnet …");
-            manager.lock().unwrap().shutdown_all(Duration::from_secs(10));
-            std::process::exit(0);
-        }
-    });
-    Ok(())
-}
-
-/// Cleans a ledger associated with a snarkOS node.
-pub fn clean_snarkos<S: AsRef<OsStr>>(alias: S, network: usize, idx: usize, _storage: &Path) -> std::io::Result<Child> {
-    StdCommand::new(alias)
-        .arg("clean")
-        .arg("--network")
-        .arg(network.to_string())
-        .arg("--dev")
-        .arg(idx.to_string())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
 }

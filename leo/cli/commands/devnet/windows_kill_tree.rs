@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+#![allow(unsafe_code)]
+
 //! A cross-platform parity helper for **Windows**.
 //! It guarantees that *every* descendant of each `snarkos` node dies when the launcher exits
 //! This mirrors the `setsid()` + `killpg()` behaviour on Unix.
@@ -27,15 +29,15 @@
 //! ```
 
 use anyhow::{Context, Result, anyhow};
-use std::sync::OnceLock;
+use once_cell::sync::OnceCell;
 use windows_sys::Win32::{
     Foundation::{CloseHandle, HANDLE},
     System::{
         JobObjects::{
             AssignProcessToJobObject,
             CreateJobObjectW,
-            JOB_OBJECT_EXTENDED_LIMIT_INFORMATION,
             JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+            JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
             JobObjectExtendedLimitInformation,
             SetInformationJobObject,
         },
@@ -54,18 +56,22 @@ use windows_sys::Win32::{
 /// The kernel sends `TerminateProcess` to *all* processes in the job the moment the launcher terminates or the variable is dropped.
 struct Job(HANDLE);
 
+// Windows handles are just integers.
+unsafe impl Send for Job {}
+unsafe impl Sync for Job {}
+
 impl Job {
     /// Create a new job with `KILL_ON_JOB_CLOSE`.
     fn create_kill_on_close() -> Result<Self> {
         // SAFETY: passing null security attributes is safe. The job inherits the default DACL (discretionary access control list).
         let handle = unsafe { CreateJobObjectW(std::ptr::null_mut(), std::ptr::null()) } as HANDLE;
 
-        if handle == 0 {
+        if handle.is_null() {
             return Err(anyhow!("CreateJobObjectW failed"));
         }
 
         // Configure limit flags.
-        let mut limits = JOB_OBJECT_EXTENDED_LIMIT_INFORMATION::default();
+        let mut limits: JOBOBJECT_EXTENDED_LIMIT_INFORMATION = unsafe { core::mem::zeroed() };
         limits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 
         // SAFETY:
@@ -77,7 +83,7 @@ impl Job {
                 handle,
                 JobObjectExtendedLimitInformation,
                 &mut limits as *mut _ as *mut _,
-                std::mem::size_of::<JOB_OBJECT_EXTENDED_LIMIT_INFORMATION>() as u32,
+                std::mem::size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>() as u32,
             )
         };
         if ok == 0 {
@@ -95,7 +101,7 @@ impl Job {
         // * `FALSE` = do not inherit handle.
         let proc = unsafe { OpenProcess(PROCESS_ALL_ACCESS, 0, pid) } as HANDLE;
 
-        if proc == 0 {
+        if proc.is_null() {
             // Child may have exited in the meantime; surface a *non-fatal* error.
             return Err(anyhow!("OpenProcess({pid}) failed")).context("child already exited?");
         }
@@ -123,8 +129,8 @@ impl Drop for Job {
 //  Global accessor  (lazy singleton)
 //──────────────────────────────────────────────────────────────────────────────
 
+static JOB: OnceCell<Job> = OnceCell::new();
 fn global_job() -> Result<&'static Job> {
-    static JOB: OnceLock<Job> = OnceLock::new();
     JOB.get_or_try_init(Job::create_kill_on_close)
 }
 

@@ -1018,6 +1018,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "fs2"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9564fc758e15025b46aa6643b1b77d047d1a56a1aea6e01002ac0c7026876213"
+dependencies = [
+ "libc",
+ "winapi",
+]
+
+[[package]]
 name = "futures"
 version = "0.3.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1674,6 +1684,7 @@ dependencies = [
  "dialoguer",
  "dotenvy",
  "dunce",
+ "fs2",
  "indexmap",
  "itertools 0.13.0",
  "leo-ast",
@@ -1687,26 +1698,24 @@ dependencies = [
  "libc",
  "nix",
  "num-format",
+ "once_cell",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
- "regex",
  "rpassword",
  "self_update 0.41.0",
  "serde",
  "serde_json",
  "serial_test",
- "sha2",
  "signal-hook",
  "snarkvm",
  "sys-info",
- "tempfile",
  "tracing",
  "tracing-subscriber",
  "ureq",
  "walkdir",
  "which",
  "winapi",
- "windows-sys 0.60.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

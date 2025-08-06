@@ -242,6 +242,9 @@ version = "0.15.7"
 [dependencies.dunce]
 version = "1.0.5"
 
+[dependencies.fs2]
+version = "0.4.3"
+
 [dependencies.indexmap]
 workspace = true
 
@@ -251,17 +254,17 @@ workspace = true
 [dependencies.num-format]
 version = "0.4.4"
 
+[dependencies.once_cell]
+version = "1.21.3"
+
 [dependencies.rand]
 workspace = true
 
 [dependencies.rand_chacha]
 workspace = true
 
-[dependencies.regex]
-workspace = true
-
 [dependencies.rpassword]
-version = "7.3.1"
+version = "7.4.0"
 
 [dependencies.self_update]
 workspace = true
@@ -275,21 +278,12 @@ workspace = true
 [dependencies.serial_test]
 workspace = true
 
-[dependencies.sha2]
-workspace = true
-
-[dependencies.signal-hook]
-version = "0.3.18"
-
 [dependencies.snarkvm]
 workspace = true
 features = ["circuit", "console"]
 
 [dependencies.sys-info]
 version = "0.9.1"
-
-[dependencies.tempfile]
-workspace = true
 
 [dependencies.tracing]
 workspace = true
@@ -315,15 +309,14 @@ version = "8.0.0"
 [target.'cfg(unix)'.dependencies]
 nix = { version = "0.30.1", features = ["process"] }
 libc = { version = "0.2.174" }
+signal-hook = { version = "0.3.17", features = ["iterator"] }
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3.9" }
-windows-sys = { version = "0.60.2", features = [
-  "Win32_Foundation",
-  "Win32_System_Threading",
-  "Win32_System_JobObjects"
-] }
 ansi_term = { version = "0.12.1" }
+windows-sys = { version = "0.59", features = ["Win32_Foundation",
+  "Win32_System_Threading",
+  "Win32_System_JobObjects"] }
 
 # ----------------------------
 # Build Dependencies
