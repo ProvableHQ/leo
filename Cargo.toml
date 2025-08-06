@@ -127,7 +127,7 @@ version = "0.10.9"
 [workspace.dependencies.snarkvm]
 #version = "=4.0.0"
 git = "https://github.com/ProvableHQ/snarkVM.git"
-rev = "e1365a7"
+rev = "6c148bf13a76572bb86ce285c0e6ecd76277ab7e" # testnet-v4.1.0
 features = [ "cli" ]
 
 [workspace.dependencies.serde]
