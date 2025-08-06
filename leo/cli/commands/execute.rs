@@ -306,14 +306,20 @@ fn handle_execute<A: Aleo>(
     };
 
     // Add the programs to the VM.
-    println!("Adding programs to the VM in the following order:");
+    println!("\n➕Adding programs to the VM in the following order:");
     let programs_and_editions = programs
         .into_iter()
         .map(|(program, edition)| {
             // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-            let result = (program, edition.unwrap_or(1));
-            println!("  - {} (edition: {})", result.0.id(), result.1);
-            result
+            let edition = edition.unwrap_or(1);
+            // Get the program ID.
+            let id = program.id().to_string();
+            // Print the program ID and edition.
+            match id == "credits.aleo" {
+                true => println!("  - {id} (already included)"),
+                false => println!("  - {id} (edition: {edition})"),
+            }
+            (program, edition)
         })
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
