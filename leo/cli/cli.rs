@@ -191,6 +191,10 @@ mod tests {
         // Create file structure
         test_helpers::sample_nested_package(&temp_dir);
 
+        // Set the env options.
+        let mut env_override: crate::cli::commands::EnvOptions = Default::default();
+        env_override.network = Some("mainnet".to_string());
+
         // Run program
         let run = CLI {
             debug: false,
@@ -200,7 +204,7 @@ mod tests {
                     name: "example".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     compiler_options: Default::default(),
-                    env_override: Default::default(),
+                    env_override,
                 },
             },
             path: Some(project_directory.clone()),

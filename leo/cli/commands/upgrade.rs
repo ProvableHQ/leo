@@ -36,7 +36,10 @@ use crate::cli::{check_transaction::TransactionStatus, commands::deploy::validat
 use aleo_std::StorageMode;
 use colored::*;
 use leo_span::Symbol;
-use snarkvm::prelude::{ConsensusVersion, Itertools, ProgramID, Stack, store::helpers::memory::BlockMemory};
+use snarkvm::{
+    prelude::{ConsensusVersion, Itertools, ProgramID, Stack, store::helpers::memory::BlockMemory},
+    synthesizer::program::StackTrait,
+};
 use std::path::PathBuf;
 
 /// Upgrades an Aleo program.
@@ -260,6 +263,18 @@ fn handle_upgrade<N: Network>(
         })
         .collect::<Result<Vec<_>>>()?;
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
+
+    // Print the programs and their editions in the VM.
+    println!("Loaded the following programs into the VM:");
+    for program_id in vm.process().read().program_ids() {
+        let edition = *vm.process().read().get_stack(&program_id)?.program_edition();
+        if program_id.to_string() == "credits.aleo" {
+            println!(" - credits.aleo (default)");
+        } else {
+            println!(" - {program_id} (edition {edition})");
+        }
+    }
+    println!();
 
     // Specify the query
     let query = SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint);

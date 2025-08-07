@@ -27,7 +27,7 @@ mod clean;
 pub use clean::LeoClean;
 
 mod common;
-use common::*;
+pub use common::*;
 
 mod debug;
 pub use debug::LeoDebug;

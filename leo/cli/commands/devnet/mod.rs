@@ -124,7 +124,7 @@ impl LeoDevnet {
         // If the devnet heights are provided, ensure the `test_network` feature is enabled, and validate the heights.
         if let Some(ref heights) = self.consensus_heights {
             if !self.snarkos_features.contains(&"test_network".to_string()) {
-                bail!("The `test_network` feature must be enabled to use consensus heights.");
+                bail!("The `test_network` feature must be enabled on snarkOS to use `--consensus-heights`.");
             }
             validate_consensus_heights(heights)?;
         }
@@ -144,7 +144,7 @@ impl LeoDevnet {
                 println!("  • version: {version}");
             }
             if !self.snarkos_features.is_empty() {
-                println!("  • features: {}", self.snarkos_features.join(", "));
+                println!("  • features: {}", self.snarkos_features.iter().format(","));
             }
         } else {
             println!(
@@ -152,8 +152,8 @@ impl LeoDevnet {
                 self.snarkos.as_ref().map_or("default $PATH".to_string(), |p| p.display().to_string())
             );
         }
-        if let Some(ref heights) = self.consensus_heights {
-            println!("  • Consensus heights: {}", heights.iter().map(|h| h.to_string()).collect::<Vec<_>>().join(", "));
+        if let Some(heights) = &self.consensus_heights {
+            println!("  • Consensus heights: {}", heights.iter().format(","));
         } else {
             println!("  • Consensus heights: default (based on your snarkOS binary)");
         }
@@ -165,7 +165,10 @@ impl LeoDevnet {
         // 1. snarkOS binary  (+ optional build)
         //───────────────────────────────────────────────────────────────────
         let snarkos = if self.install {
-            confirm("\nProceed with snarkOS installation?", self.yes)?;
+            if !confirm("\nProceed with snarkOS installation?", self.yes)? {
+                println!("❌ Installation aborted.");
+                return Ok(());
+            }
             install_snarkos(
                 &self.snarkos.clone().unwrap_or_else(default_snarkos),
                 self.version.as_deref(),
@@ -183,9 +186,31 @@ impl LeoDevnet {
         if !version_output.status.success() {
             bail!("Failed to run `{}`: {}", snarkos.display(), String::from_utf8_lossy(&version_output.stderr));
         }
+
+        // Print the version output.
         let version_str = String::from_utf8_lossy(&version_output.stdout);
         println!("🔍  Detected: {version_str}");
-        confirm("\nProceed with devnet startup?", false)?;
+
+        // The version string has the following form:
+        // "snarkos refs/heads/staging ace765a42551092fbb47799c2651d6b6df30e49a features=[default,snarkos_node_metrics,test_network]"
+        // Parse the features and see if it matches the expected features.
+        let features_str = version_str
+            .trim()
+            .split("features=[")
+            .nth(1)
+            .and_then(|s| s.split(']').next())
+            .ok_or_else(|| anyhow!("Failed to parse snarkOS features from version string: {version_str}"))?;
+        let found_features: Vec<String> = features_str.split(',').map(|s| s.trim().to_string()).collect();
+        for feature in &self.snarkos_features {
+            if !found_features.contains(feature) {
+                println!("⚠️  Warning: snarkOS does not have the required feature `{}` enabled.", feature);
+            }
+        }
+
+        if !confirm("\nProceed with devnet startup?", false)? {
+            println!("❌ Devnet aborted.");
+            return Ok(());
+        }
 
         //───────────────────────────────────────────────────────────────────
         // 2. Resolve storage & create log dir
@@ -236,24 +261,21 @@ impl LeoDevnet {
             metrics_port: Option<u16>,
         ) -> Vec<String> {
             let mut base = vec![
-                "start",
-                "--nodisplay",
-                "--network",
-                &network.to_string(),
-                "--dev",
-                &idx.to_string(),
-                "--dev-num-validators",
-                &num_validators.to_string(),
-                "--rest-rps",
-                REST_RPS,
-                "--logfile",
-                log_file.to_str().unwrap(),
-                "--verbosity",
-                &verbosity.to_string(),
-            ]
-            .into_iter()
-            .map(String::from)
-            .collect::<Vec<_>>();
+                "start".to_string(),
+                "--nodisplay".to_string(),
+                "--network".to_string(),
+                network.to_string(),
+                "--dev".to_string(),
+                idx.to_string(),
+                "--dev-num-validators".to_string(),
+                num_validators.to_string(),
+                "--rest-rps".to_string(),
+                REST_RPS.to_string(),
+                "--logfile".to_string(),
+                log_file.to_str().unwrap().to_string(),
+                "--verbosity".to_string(),
+                verbosity.to_string(),
+            ];
             match role {
                 "validator" => {
                     base.extend(
@@ -445,6 +467,7 @@ impl LeoDevnet {
 
         // Children are fully registered → handler can now react safely.
         ready.store(true, Ordering::SeqCst);
+        #[cfg(unix)]
         install_signal_handler(manager.clone(), ready)?;
 
         println!("\nDevnet running – Ctrl+C or SIGTERM to stop.");

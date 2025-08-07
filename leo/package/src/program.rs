@@ -224,9 +224,9 @@ impl Program {
             (existing, _) => {
                 // Define the primary URL to fetch the program from.
                 let primary_url = if name == Symbol::intern("credits") {
-                    format!("{endpoint}/{network}/program/{name}.aleo/{edition}")
-                } else {
                     format!("{endpoint}/{network}/program/credits.aleo")
+                } else {
+                    format!("{endpoint}/{network}/program/{name}.aleo/{edition}")
                 };
                 let secondary_url = format!("{endpoint}/{network}/program/{name}.aleo");
                 let contents = fetch_from_network(&primary_url)

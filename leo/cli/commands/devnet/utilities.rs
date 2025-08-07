@@ -91,23 +91,21 @@ pub fn default_snarkos() -> PathBuf {
 }
 
 /// Installs a signal handler that listens for SIGINT, SIGTERM, SIGQUIT, and SIGHUP.
-/// We do not need to do anything on Windows, as this is handled by Job Object.
-pub fn install_signal_handler(_manager: Arc<Mutex<ChildManager>>, _ready: Arc<AtomicBool>) -> AnyhowResult<()> {
-    #[cfg(unix)]
-    {
-        let mut signals = Signals::new([SIGINT, SIGTERM, SIGQUIT, SIGHUP])?;
-        thread::spawn(move || {
-            for _sig in signals.forever() {
-                if !_ready.load(Ordering::SeqCst) {
-                    // Ignore very early signals (before children).
-                    continue;
-                }
-                eprintln!("\n⏹  Signal received – shutting down devnet …");
-                _manager.lock().unwrap().shutdown_all(Duration::from_secs(10));
-                std::process::exit(0);
+/// This is only needed on Unix-like systems, as Windows shutdown is handled by the Job Object.
+#[cfg(unix)]
+pub fn install_signal_handler(manager: Arc<Mutex<ChildManager>>, ready: Arc<AtomicBool>) -> AnyhowResult<()> {
+    let mut signals = Signals::new([SIGINT, SIGTERM, SIGQUIT, SIGHUP])?;
+    thread::spawn(move || {
+        for _sig in signals.forever() {
+            if !ready.load(Ordering::SeqCst) {
+                // Ignore very early signals (before children).
+                continue;
             }
-        });
-    }
+            eprintln!("\n⏹  Signal received – shutting down devnet …");
+            manager.lock().unwrap().shutdown_all(Duration::from_secs(30));
+            std::process::exit(0);
+        }
+    });
     Ok(())
 }
 

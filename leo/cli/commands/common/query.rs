@@ -107,7 +107,7 @@ pub fn handle_broadcast<N: Network>(
                 println!("  - fee ID: '{}'", fee.id().to_string().bold().yellow());
                 // Print the fee as a transaction.
                 println!("  - fee transaction ID: '{}'", Transaction::from_fee(fee)?.id().to_string().bold().yellow());
-                println!("    (use this to check for rejected transactions)");
+                println!("    (use this to check for rejected transactions)\n");
             }
             Ok((response.body_mut().read_to_string().unwrap(), response.status().as_u16()))
         }
