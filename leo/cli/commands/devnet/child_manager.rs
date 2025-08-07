@@ -85,9 +85,12 @@ impl ChildManager {
             }
             #[cfg(windows)]
             {
-                // `.kill()` sends CTRL-BREAK to console apps or TerminateProcess to GUI apps.
-                // The Job Object we attached earlier will do the heavy lifting.
-                let _ = child.kill();
+                use windows_sys::Win32::System::Console::{CTRL_BREAK_EVENT, GenerateConsoleCtrlEvent};
+                #[allow(unsafe_code)]
+                unsafe {
+                    // SAFETY: `GenerateConsoleCtrlEvent` is safe to call with a valid child ID.
+                    GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, child.id())
+                };
             }
         }
 

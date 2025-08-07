@@ -16,8 +16,7 @@
 
 use super::*;
 
-use anyhow::{Context, Result, ensure};
-use fs2::FileExt;
+use anyhow::{Result, ensure};
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 use std::{
@@ -33,13 +32,9 @@ use std::{
 /// * `features`     – `--features ..` list (may be empty)
 pub fn install_snarkos(snarkos_path: &Path, version: Option<&str>, features: &[String]) -> Result<PathBuf> {
     //───────────────── 1. resolve & prepare directories ─────────────────
-    let install_root = snarkos_path.parent().context("`--snarkos` must have a parent directory")?;
-    fs::create_dir_all(install_root)?; // mkdir -p
-
-    // File-based advisory lock → parallel runs wait or fail fast.
-    let lock_file = install_root.join(".leo-devnet.lock");
-    let lock = fs::OpenOptions::new().create(true).truncate(true).write(true).open(&lock_file)?;
-    lock.try_lock_exclusive().context("another snarkOS install is already in progress")?;
+    // Create a temporary install directory.
+    let tempdir = tempfile::tempdir()?;
+    let install_root = tempdir.path();
 
     //───────────────── 2. `cargo install` into <root> ───────────────────
     let mut cmd = Command::new("cargo");
@@ -55,39 +50,29 @@ pub fn install_snarkos(snarkos_path: &Path, version: Option<&str>, features: &[S
     ensure!(cmd.status()?.success(), "`cargo install` failed");
 
     //───────────────── 3. link / copy to requested path ─────────────────
+    // Get the path to the built `snarkos` binary.
     let built_bin = install_root.join("bin").join(if cfg!(windows) { "snarkos.exe" } else { "snarkos" });
-    if built_bin != snarkos_path {
-        if snarkos_path.exists() {
-            fs::remove_file(snarkos_path)?; // overwrite consistently
-        }
 
-        let link_ok = cfg!(windows)
-            // Hard-links on FAT/FAT32 are unreliable → skip.
-            .then(|| false)
-            .unwrap_or_else(|| fs::hard_link(&built_bin, snarkos_path).is_ok());
+    // Remove the existing file if it exists, to ensure we overwrite it.
+    if snarkos_path.exists() {
+        fs::remove_file(snarkos_path)?; // overwrite consistently
+    }
 
-        if !link_ok {
-            fs::copy(&built_bin, snarkos_path)
-                .with_context(|| format!("failed to copy {} → {}", built_bin.display(), snarkos_path.display()))?;
-            #[cfg(unix)]
-            fs::set_permissions(snarkos_path, fs::Permissions::from_mode(0o755))?;
-        }
+    // Move the built binary to the requested path, ensuring the parent directory exists.
+    fs::create_dir_all(snarkos_path.parent().unwrap())?;
+    fs::copy(&built_bin, snarkos_path)?;
+
+    // Set permissions to be executable (if on Unix).
+    #[cfg(unix)]
+    {
+        let mut perms = fs::metadata(snarkos_path)?.permissions();
+        perms.set_mode(0o755); // rwxr-xr-x
+        fs::set_permissions(snarkos_path, perms)?;
     }
 
     ensure!(snarkos_path.is_file(), "snarkOS binary not produced at {}", snarkos_path.display());
     println!("✅  Installed snarkOS ⇒ {}", snarkos_path.display());
     Ok(snarkos_path.to_path_buf())
-}
-
-/// Looks for `snarkos` in the $PATH, or exits with an error message.
-pub fn default_snarkos() -> PathBuf {
-    which("snarkos").unwrap_or_else(|_| {
-        eprintln!(
-            "❌  Could not find `snarkos` in your $PATH.  \
-             Provide one with --snarkos or use --install."
-        );
-        std::process::exit(1);
-    })
 }
 
 /// Installs a signal handler that listens for SIGINT, SIGTERM, SIGQUIT, and SIGHUP.

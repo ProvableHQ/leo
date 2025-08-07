@@ -242,9 +242,6 @@ version = "0.15.7"
 [dependencies.dunce]
 version = "1.0.5"
 
-[dependencies.fs2]
-version = "0.4.3"
-
 [dependencies.indexmap]
 workspace = true
 
@@ -298,9 +295,6 @@ features = ["json"]
 
 [dependencies.walkdir]
 workspace = true
-
-[dependencies.which]
-version = "8.0.0"
 
 # ----------------------------
 # Platform-specific dependencies
@@ -366,3 +360,5 @@ debug-assertions = true
 inherits = "test"
 incremental = false
 debug = false
+[dependencies]
+tempfile = "3.20.0"

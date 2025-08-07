@@ -44,7 +44,6 @@ use std::{
     time::{Duration, Instant},
 };
 use tracing::{self, Span};
-use which::which;
 
 #[cfg(unix)]
 use {
@@ -69,12 +68,12 @@ pub struct LeoDevnet {
     pub(crate) storage: String,
     #[clap(long, help = "Clear existing ledgers before start")]
     pub(crate) clear_storage: bool,
-    #[clap(long, help = "Path to snarkOS binary (defaults to `snarkos` in $PATH)`")]
-    pub(crate) snarkos: Option<PathBuf>,
+    #[clap(long, help = "Path to snarkOS binary. If it does not exist, set `--install` to build it at this path.")]
+    pub(crate) snarkos: PathBuf,
     #[clap(long, help = "Required features for snarkOS (e.g. `test_network`)", value_delimiter = ',')]
     pub(crate) snarkos_features: Vec<String>,
     #[clap(long, help = "Required version for snarkOS (e.g. `4.1.0`). Defaults to latest version on `crates.io`.")]
-    pub(crate) version: Option<String>,
+    pub(crate) snarkos_version: Option<String>,
     #[clap(long, help = "(Re)install snarkOS at the provided `--snarkos` path with the given `--features`")]
     pub(crate) install: bool,
     #[clap(
@@ -129,6 +128,24 @@ impl LeoDevnet {
             validate_consensus_heights(heights)?;
         }
 
+        // If not installing, ensure the snarkOS binary exists at the provided path.
+        let snarkos = if !self.install {
+            // Resolve the snarkOS path to its canonical form.
+            let snarkos = canonicalize(&self.snarkos)
+                .with_context(|| format!("Failed to resolve snarkOS path: {}", self.snarkos.display()))?;
+            // Ensure the path exists.
+            if !snarkos.exists() {
+                bail!(
+                    "The snarkOS binary at `{}` does not exist. Please provide a valid path or use `--install`.",
+                    snarkos.display()
+                );
+            }
+            snarkos
+        } else {
+            // If installing, use the provided path directly.
+            self.snarkos.clone()
+        };
+
         // Confirm with the user the options they provided.
         println!("🔧  Starting devnet with the following options:");
         println!("  • Network: {}", self.network);
@@ -136,21 +153,15 @@ impl LeoDevnet {
         println!("  • Clients: {}", self.num_clients);
         println!("  • Storage: {}", self.storage);
         if self.install {
-            println!(
-                "  • Installing snarkOS at: {}",
-                self.snarkos.as_ref().map_or("default $PATH".to_string(), |p| p.display().to_string())
-            );
-            if let Some(ref version) = self.version {
+            println!("  • Installing snarkOS at: {}", snarkos.display());
+            if let Some(ref version) = self.snarkos_version {
                 println!("  • version: {version}");
             }
             if !self.snarkos_features.is_empty() {
                 println!("  • features: {}", self.snarkos_features.iter().format(","));
             }
         } else {
-            println!(
-                "  • Using snarkOS binary at: {}",
-                self.snarkos.as_ref().map_or("default $PATH".to_string(), |p| p.display().to_string())
-            );
+            println!("  • Using snarkOS binary at: {}", snarkos.display());
         }
         if let Some(heights) = &self.consensus_heights {
             println!("  • Consensus heights: {}", heights.iter().format(","));
@@ -169,13 +180,9 @@ impl LeoDevnet {
                 println!("❌ Installation aborted.");
                 return Ok(());
             }
-            install_snarkos(
-                &self.snarkos.clone().unwrap_or_else(default_snarkos),
-                self.version.as_deref(),
-                &self.snarkos_features,
-            )?
+            install_snarkos(&snarkos, self.snarkos_version.as_deref(), &self.snarkos_features)?
         } else {
-            self.snarkos.clone().unwrap_or_else(default_snarkos)
+            snarkos
         };
 
         // Run `snarkOS --version` and confirm with the user that they'd like to proceed.
