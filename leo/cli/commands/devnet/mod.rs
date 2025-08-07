@@ -165,7 +165,7 @@ impl LeoDevnet {
         // 1. snarkOS binary  (+ optional build)
         //───────────────────────────────────────────────────────────────────
         let snarkos = if self.install {
-            confirm("\nProceed with snarkOS installation? (y/N)", self.yes)?;
+            confirm("\nProceed with snarkOS installation?", self.yes)?;
             install_snarkos(
                 &self.snarkos.clone().unwrap_or_else(default_snarkos),
                 self.version.as_deref(),
@@ -185,7 +185,7 @@ impl LeoDevnet {
         }
         let version_str = String::from_utf8_lossy(&version_output.stdout);
         println!("🔍  Detected: {version_str}");
-        confirm("\nProceed with devnet startup? (y/N)", false)?;
+        confirm("\nProceed with devnet startup?", false)?;
 
         //───────────────────────────────────────────────────────────────────
         // 2. Resolve storage & create log dir

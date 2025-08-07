@@ -105,6 +105,9 @@ pub fn handle_broadcast<N: Network>(
             if let Some(fee) = transaction.fee_transition() {
                 // Most transactions will have fees, but some, like credits.aleo/upgrade executions, may not.
                 println!("  - fee ID: '{}'", fee.id().to_string().bold().yellow());
+                // Print the fee as a transaction.
+                println!("  - fee transaction ID: '{}'", Transaction::from_fee(fee)?.id().to_string().bold().yellow());
+                println!("    (use this to check for rejected transactions)");
             }
             Ok((response.body_mut().read_to_string().unwrap(), response.status().as_u16()))
         }

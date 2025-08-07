@@ -409,10 +409,18 @@ fn check_tasks_for_warnings<N: Network>(
                 }
             };
             // Check if the program is a valid upgrade.
-            if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, program) {
-                warnings.push(format!(
-                    "The program '{id}' is not a valid upgrade. The upgrade will likely fail. Error: {e}",
-                ));
+            if remote_program.contains_constructor() {
+                if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, program) {
+                    warnings.push(format!(
+                        "The program '{id}' is not a valid upgrade. The upgrade will likely fail. Error: {e}",
+                    ));
+                }
+            } else {
+                if consensus_version >= ConsensusVersion::V8 {
+                    warnings.push(format!("The program '{id}' can only ever be upgraded once and its contents cannot be changed. Otherwise, the upgrade will likely fail."));
+                } else {
+                    warnings.push(format!("The program '{id}' does not have a constructor and is not eligible for a one-time upgrade (>= `ConsensusVersion::V8`). The upgrade will likely fail."));
+                }
             }
         } else {
             warnings.push(format!("The program '{id}' does not exist on the network. The upgrade will likely fail.",));
