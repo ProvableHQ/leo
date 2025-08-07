@@ -71,8 +71,8 @@ pub struct LeoDevnet {
     pub(crate) clear_storage: bool,
     #[clap(long, help = "Path to snarkOS binary (defaults to `snarkos` in $PATH)`")]
     pub(crate) snarkos: Option<PathBuf>,
-    #[clap(long, help = "Required features for snarkOS (e.g. `telemetry,test_network`)", value_delimiter = ',')]
-    pub(crate) features: Vec<String>,
+    #[clap(long, help = "Required features for snarkOS (e.g. `test_network`)", value_delimiter = ',')]
+    pub(crate) snarkos_features: Vec<String>,
     #[clap(long, help = "Required version for snarkOS (e.g. `4.1.0`). Defaults to latest version on `crates.io`.")]
     pub(crate) version: Option<String>,
     #[clap(long, help = "(Re)install snarkOS at the provided `--snarkos` path with the given `--features`")]
@@ -123,7 +123,7 @@ impl LeoDevnet {
 
         // If the devnet heights are provided, ensure the `test_network` feature is enabled, and validate the heights.
         if let Some(ref heights) = self.consensus_heights {
-            if !self.features.contains(&"test_network".to_string()) {
+            if !self.snarkos_features.contains(&"test_network".to_string()) {
                 bail!("The `test_network` feature must be enabled to use consensus heights.");
             }
             validate_consensus_heights(heights)?;
@@ -143,8 +143,8 @@ impl LeoDevnet {
             if let Some(ref version) = self.version {
                 println!("  • version: {version}");
             }
-            if !self.features.is_empty() {
-                println!("  • features: {}", self.features.join(", "));
+            if !self.snarkos_features.is_empty() {
+                println!("  • features: {}", self.snarkos_features.join(", "));
             }
         } else {
             println!(
@@ -169,7 +169,7 @@ impl LeoDevnet {
             install_snarkos(
                 &self.snarkos.clone().unwrap_or_else(default_snarkos),
                 self.version.as_deref(),
-                &self.features,
+                &self.snarkos_features,
             )?
         } else {
             self.snarkos.clone().unwrap_or_else(default_snarkos)

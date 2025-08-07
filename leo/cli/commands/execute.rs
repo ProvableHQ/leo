@@ -83,8 +83,12 @@ impl Command for LeoExecute {
         let path = context.dir()?;
         // Get the path to the home directory.
         let home_path = context.home()?;
+        // Get the network, accounting for overrides.
+        let network = context.get_network(&self.env_override.network)?.parse()?;
+        // Get the endpoint, accounting for overrides.
+        let endpoint = context.get_endpoint(&self.env_override.endpoint)?;
         // If the current directory is a valid Leo package, then build it.
-        if Package::from_directory_no_graph(path, home_path).is_ok() {
+        if Package::from_directory_no_graph(path, home_path, network, &endpoint).is_ok() {
             let package = LeoBuild {
                 env_override: self.env_override.clone(),
                 options: {

@@ -175,7 +175,12 @@ impl Package {
     /// Examine the Leo package at `path` to create a `Package`, but don't find dependencies.
     ///
     /// This may be useful if you just need other information like the manifest or env file.
-    pub fn from_directory_no_graph<P: AsRef<Path>, Q: AsRef<Path>>(path: P, home_path: Q) -> Result<Self> {
+    pub fn from_directory_no_graph<P: AsRef<Path>, Q: AsRef<Path>>(
+        path: P,
+        home_path: Q,
+        network: NetworkName,
+        endpoint: &str,
+    ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
             home_path.as_ref(),
@@ -183,6 +188,8 @@ impl Package {
             /* with_tests */ false,
             /* no_cache */ false,
             /* no_local */ false,
+            network,
+            endpoint,
         )
     }
 
@@ -193,6 +200,8 @@ impl Package {
         home_path: Q,
         no_cache: bool,
         no_local: bool,
+        network: NetworkName,
+        endpoint: &str,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -201,6 +210,8 @@ impl Package {
             /* with_tests */ false,
             no_cache,
             no_local,
+            network,
+            endpoint,
         )
     }
 
@@ -211,6 +222,8 @@ impl Package {
         home_path: Q,
         no_cache: bool,
         no_local: bool,
+        network: NetworkName,
+        endpoint: &str,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -219,6 +232,8 @@ impl Package {
             /* with_tests */ true,
             no_cache,
             no_local,
+            network,
+            endpoint,
         )
     }
 
@@ -251,6 +266,7 @@ impl Package {
             })
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn from_directory_impl(
         path: &Path,
         home_path: &Path,
@@ -258,6 +274,8 @@ impl Package {
         with_tests: bool,
         no_cache: bool,
         no_local: bool,
+        network: NetworkName,
+        endpoint: &str,
     ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             UtilError::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
@@ -305,8 +323,8 @@ impl Package {
             for dependency in test_dependencies.into_iter().chain(std::iter::once(first_dependency.clone())) {
                 Self::graph_build(
                     &home_path,
-                    env.network,
-                    &env.endpoint,
+                    network,
+                    endpoint,
                     &first_dependency,
                     dependency,
                     &mut map,
@@ -354,7 +372,7 @@ impl Package {
                     || new.path != existing_dep.path
                     || new.edition != existing_dep.edition
                 {
-                    return Err(PackageError::conflicting_dependency(format_args!("{name_symbol}.aleo")).into());
+                    return Err(PackageError::conflicting_dependency(existing_dep, new).into());
                 }
                 return Ok(());
             }
