@@ -192,8 +192,8 @@ mod tests {
         test_helpers::sample_nested_package(&temp_dir);
 
         // Set the env options.
-        let mut env_override: crate::cli::commands::EnvOptions = Default::default();
-        env_override.network = Some("mainnet".to_string());
+        let env_override =
+            crate::cli::commands::EnvOptions { network: Some("mainnet".to_string()), ..Default::default() };
 
         // Run program
         let run = CLI {

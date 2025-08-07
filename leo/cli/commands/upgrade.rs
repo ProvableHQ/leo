@@ -267,7 +267,7 @@ fn handle_upgrade<N: Network>(
     // Print the programs and their editions in the VM.
     println!("Loaded the following programs into the VM:");
     for program_id in vm.process().read().program_ids() {
-        let edition = *vm.process().read().get_stack(&program_id)?.program_edition();
+        let edition = *vm.process().read().get_stack(program_id)?.program_edition();
         if program_id.to_string() == "credits.aleo" {
             println!(" - credits.aleo (default)");
         } else {

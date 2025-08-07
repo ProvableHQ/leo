@@ -203,7 +203,7 @@ impl LeoDevnet {
         let found_features: Vec<String> = features_str.split(',').map(|s| s.trim().to_string()).collect();
         for feature in &self.snarkos_features {
             if !found_features.contains(feature) {
-                println!("⚠️  Warning: snarkOS does not have the required feature `{}` enabled.", feature);
+                println!("⚠️  Warning: snarkOS does not have the required feature `{feature}` enabled.");
             }
         }
 
