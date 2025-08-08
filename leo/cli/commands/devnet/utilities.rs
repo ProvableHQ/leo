@@ -58,7 +58,7 @@ pub fn install_snarkos(snarkos_path: &Path, version: Option<&str>, features: &[S
         fs::remove_file(snarkos_path)?; // overwrite consistently
     }
 
-    // Move the built binary to the requested path, ensuring the parent directory exists.
+    // Copy the built binary to the requested path, ensuring the parent directory exists.
     fs::create_dir_all(snarkos_path.parent().unwrap())?;
     fs::copy(&built_bin, snarkos_path)?;
 
@@ -87,7 +87,7 @@ pub fn install_signal_handler(manager: Arc<Mutex<ChildManager>>, ready: Arc<Atom
                 continue;
             }
             eprintln!("\n⏹  Signal received – shutting down devnet …");
-            manager.lock().unwrap().shutdown_all(Duration::from_secs(30));
+            manager.lock().shutdown_all(Duration::from_secs(30));
             std::process::exit(0);
         }
     });
@@ -95,13 +95,20 @@ pub fn install_signal_handler(manager: Arc<Mutex<ChildManager>>, ready: Arc<Atom
 }
 
 /// Cleans a ledger associated with a snarkOS node.
-pub fn clean_snarkos<S: AsRef<OsStr>>(alias: S, network: usize, idx: usize, _storage: &Path) -> std::io::Result<Child> {
-    StdCommand::new(alias)
+pub fn clean_snarkos<S: AsRef<OsStr>>(
+    snarkos: S,
+    network: usize,
+    idx: usize,
+    storage: &Path,
+) -> std::io::Result<Child> {
+    StdCommand::new(snarkos)
         .arg("clean")
         .arg("--network")
         .arg(network.to_string())
         .arg("--dev")
         .arg(idx.to_string())
+        .arg("--path")
+        .arg(storage)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()

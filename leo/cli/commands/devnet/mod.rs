@@ -30,6 +30,7 @@ use chrono::Local;
 use clap::Parser;
 use dunce::canonicalize;
 use itertools::Itertools;
+use parking_lot::Mutex;
 use std::{
     env,
     ffi::OsStr,
@@ -37,7 +38,6 @@ use std::{
     process::{Child, Command as StdCommand, Stdio},
     sync::{
         Arc,
-        Mutex,
         atomic::{AtomicBool, Ordering},
     },
     thread,
@@ -222,13 +222,21 @@ impl LeoDevnet {
         //───────────────────────────────────────────────────────────────────
         // 2. Resolve storage & create log dir
         //───────────────────────────────────────────────────────────────────
-        // Resolve the storage directory, ensuring it exists.
-        let storage_dir = canonicalize(&self.storage)
-            .with_context(|| format!("Failed to resolve storage directory: {}", self.storage))?;
+        // Create the storage directory if it does not exist.
+        let storage = PathBuf::from(&self.storage);
+        if !storage.exists() {
+            std::fs::create_dir_all(&storage)
+                .with_context(|| format!("Failed to create storage directory: {}", self.storage))?;
+        } else if !storage.is_dir() {
+            bail!("The storage path `{}` is not a directory.", self.storage);
+        }
+        // Resolve the storage directory to its canonical form.
+        let storage =
+            canonicalize(&storage).with_context(|| format!("Failed to resolve storage path: {}", self.storage))?;
         // Create the log directory inside the storage directory.
         let log_dir = {
             let ts = Local::now().format(".logs-%Y-%m-%d-%H-%M-%S").to_string();
-            let p = storage_dir.join(ts);
+            let p = storage.join(ts);
             std::fs::create_dir_all(&p)?;
             p
         };
@@ -240,7 +248,7 @@ impl LeoDevnet {
             println!("🧹  Cleaning ledgers …");
             let mut cleaners = Vec::new();
             for idx in 0..(self.num_validators + self.num_clients) {
-                cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, storage_dir.as_path())?);
+                cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, storage.as_path())?);
             }
             for mut c in cleaners {
                 c.wait()?;
@@ -258,12 +266,14 @@ impl LeoDevnet {
         //───────────────────────────────────────────────────────────────────
         const REST_RPS: &str = "999999999";
 
+        #[allow(clippy::too_many_arguments)]
         fn build_args(
             role: &str,
             verbosity: u8,
             network: usize,
             num_validators: usize,
             idx: usize,
+            storage: &Path,
             log_file: &Path,
             metrics_port: Option<u16>,
         ) -> Vec<String> {
@@ -276,6 +286,8 @@ impl LeoDevnet {
                 idx.to_string(),
                 "--dev-num-validators".to_string(),
                 num_validators.to_string(),
+                "--storage".to_string(),
+                storage.to_str().unwrap().to_string(),
                 "--rest-rps".to_string(),
                 REST_RPS.to_string(),
                 "--logfile".to_string(),
@@ -350,6 +362,7 @@ impl LeoDevnet {
                         self.network as usize,
                         self.num_validators,
                         idx,
+                        storage.as_path(),
                         log_file.as_path(),
                         Some(metrics_port),
                     ))
@@ -376,6 +389,7 @@ impl LeoDevnet {
                         self.network as usize,
                         self.num_validators,
                         dev_idx,
+                        storage.as_path(),
                         log_file.as_path(),
                         None,
                     ))
@@ -421,8 +435,8 @@ impl LeoDevnet {
 
         {
             // This should be safe since only the current thread will write to the manager.
-            // The guard is dropped before the signal handler is installed.
-            let mut guard = manager.lock().expect("ChildManager lock poisoned");
+            // The guard is then dropped before the signal handler is installed.
+            let mut guard = manager.lock();
 
             // Validators
             for idx in 0..self.num_validators {
@@ -436,6 +450,7 @@ impl LeoDevnet {
                             self.network as usize,
                             self.num_validators,
                             idx,
+                            storage.as_path(),
                             &log_file,
                             Some(9000 + idx as u16),
                         ));
@@ -460,6 +475,7 @@ impl LeoDevnet {
                             self.network as usize,
                             self.num_validators,
                             dev_idx,
+                            storage.as_path(),
                             &log_file,
                             None,
                         ));

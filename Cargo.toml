@@ -254,6 +254,9 @@ version = "0.4.4"
 [dependencies.once_cell]
 version = "1.21.3"
 
+[dependencies.parking_lot]
+version = "0.12.1"
+
 [dependencies.rand]
 workspace = true
 
@@ -281,6 +284,9 @@ features = ["circuit", "console"]
 
 [dependencies.sys-info]
 version = "0.9.1"
+
+[dependencies.tempfile]
+version = "3.20.0"
 
 [dependencies.tracing]
 workspace = true
@@ -360,5 +366,3 @@ debug-assertions = true
 inherits = "test"
 incremental = false
 debug = false
-[dependencies]
-tempfile = "3.20.0"
