@@ -1000,11 +1000,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let Some(func_symbol) =
             self.state.symbol_table.lookup_function(&Location::new(callee_program, callee_path.clone()))
         else {
-            self.emit_err(TypeCheckerError::unknown_sym(
-                "function",
-                *input.function.symbols().last().unwrap(),
-                input.function.span(),
-            ));
+            self.emit_err(TypeCheckerError::unknown_sym("function", input.function.clone(), input.function.span()));
             return Type::Err;
         };
 
@@ -1060,7 +1056,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             let Some(inputs) =
                 self.async_function_input_types.get(&Location::new(callee_program, vec![Symbol::intern(&format!(
                     "finalize/{}",
-                    *input.function.symbols().last().unwrap()
+                    input.function.as_symbol()
                 ))]))
             else {
                 self.emit_err(TypeCheckerError::async_function_not_found(input.function.clone(), input.span));
@@ -1296,11 +1292,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_struct_init(&mut self, input: &StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
         let struct_ = self.lookup_struct(self.scope_state.program_name, input.path.absolute_path()).clone();
         let Some(struct_) = struct_ else {
-            self.emit_err(TypeCheckerError::unknown_sym(
-                "struct or record",
-                input.path.symbols().last().unwrap(),
-                input.path.span(),
-            ));
+            self.emit_err(TypeCheckerError::unknown_sym("struct or record", input.path.clone(), input.path.span()));
             return Type::Err;
         };
 
@@ -1385,7 +1377,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     {
                         if *path.symbols() == vec![sym::SelfLower] {
                             self.emit_warning(TypeCheckerWarning::caller_as_record_owner(
-                                input.path.symbols().last().unwrap(),
+                                input.path.clone(),
                                 access.span(),
                             ));
                         }

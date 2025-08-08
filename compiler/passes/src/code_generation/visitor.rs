@@ -22,6 +22,7 @@ use leo_span::Symbol;
 use snarkvm::prelude::Network;
 
 use indexmap::{IndexMap, IndexSet};
+use itertools::Itertools;
 use std::str::FromStr;
 
 pub struct CodeGeneratingVisitor<'a> {
@@ -81,31 +82,37 @@ impl CodeGeneratingVisitor<'_> {
     /// - Names that are generated for const generic structs during monomorphization such as: `Foo::[1u32, 2u32]`. These
     ///   names are modified according to `transform_generic_struct_name`.
     /// - All other names which are assumed to be legal (this is not really checked but probably should be).
-    pub(crate) fn legalize_struct_name(input: String) -> String {
-        Self::transform_generic_struct_name(&input).unwrap_or(input)
+    pub(crate) fn legalize_struct_path(path: &[Symbol]) -> String {
+        Self::transform_generic_struct_path(path).unwrap_or_else(|| {
+            // If nothing matches, return the last segment
+            path.iter().last().expect("each path must have at last 1 segment").to_string()
+        })
     }
 
     /// Given a struct name as a `&str`, transform it into a legal name if the it happens to be a const generic struct.
     /// For example, if the name of the struct is `Foo::[1u32, 2u32]`, then transform it to `Foo__90ViPfqSIPb`. The
     /// suffix is computed using the hash of the string `Foo::[1u32, 2u32]`
-    fn transform_generic_struct_name(input: &str) -> Option<String> {
+    fn transform_generic_struct_path(path: &[Symbol]) -> Option<String> {
         use base62::encode;
         use regex::Regex;
         use sha2::{Digest, Sha256};
 
-        // Match format like: foo::[1, 2]
+        let last = path.last()?.to_string();
+
+        // Match something like `Vec3::[3, 4]`
         let re = Regex::new(r#"^([a-zA-Z_][\w]*)::\[(.*?)\]$"#).unwrap();
-        let captures = re.captures(input)?;
+        let captures = re.captures(&last)?;
 
         let ident = captures.get(1)?.as_str();
 
-        // Compute SHA-256 hash of the entire input
+        // Compute SHA-256 hash of the full path
+        let full_path = path.iter().format("::").to_string();
         let mut hasher = Sha256::new();
-        hasher.update(input.as_bytes());
+        hasher.update(full_path.as_bytes());
         let hash = hasher.finalize();
 
         // Take first 8 bytes and encode as base62
-        let hash_prefix = &hash[..8]; // 4 bytes = 32 bits
+        let hash_prefix = &hash[..8];
         let hash_number = u64::from_be_bytes([
             hash_prefix[0],
             hash_prefix[1],
@@ -118,8 +125,8 @@ impl CodeGeneratingVisitor<'_> {
         ]);
         let hash_base62 = encode(hash_number);
 
-        // Format: <truncated_ident>__<hash>
-        let fixed_suffix_len = 2 + hash_base62.len(); // __ + hash
+        // Truncate ident to make sure total length is max 31
+        let fixed_suffix_len = 2 + hash_base62.len(); // "__" + hash
         let max_ident_len = 31 - fixed_suffix_len;
 
         Some(format!("{ident:.max_ident_len$}__{hash_base62}"))

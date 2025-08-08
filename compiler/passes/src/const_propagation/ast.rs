@@ -130,8 +130,8 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let array_id = input.array.id();
-        let (array, value_opt) = self.reconstruct_expression(input.array);
-        let (index, opt_value) = self.reconstruct_expression(input.index);
+        let (array, value_opt) = self.reconstruct_expression(input.array.clone());
+        let (index, opt_value) = self.reconstruct_expression(input.index.clone());
         if let Some(value) = opt_value {
             // We can perform compile time bounds checking.
 

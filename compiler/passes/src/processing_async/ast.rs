@@ -289,7 +289,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
         };
 
         // Step 5: Reconstruct the block with replaced references
-        let mut replacer = Replacer::new(replace_expr, &self.state.node_builder);
+        let mut replacer = Replacer::new(replace_expr, true /* refresh IDs */, &self.state.node_builder);
         let new_block = replacer.reconstruct_block(input.block.clone()).0;
 
         // Ensure we're not trying to capture too many variables

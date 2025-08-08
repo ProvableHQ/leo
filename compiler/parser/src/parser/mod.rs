@@ -27,12 +27,10 @@ use leo_span::{
     Span,
     Symbol,
     source_map::{FileName, SourceFile},
-    with_session_globals,
 };
-use walkdir::WalkDir;
 
 use indexmap::IndexMap;
-use std::{fs, unreachable};
+
 mod context;
 pub(super) use context::ParserContext;
 
@@ -46,6 +44,7 @@ pub fn parse(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &SourceFile,
+    modules: &Vec<std::rc::Rc<SourceFile>>,
     network: NetworkName,
 ) -> Result<Program> {
     // Parse the main file
@@ -54,59 +53,50 @@ pub fn parse(
     let mut program = tokens.parse_program()?;
     let program_name = tokens.program_name;
 
-    if let FileName::Real(entry_file_path) = &source.name {
-        let root_dir = entry_file_path.parent().expect("Expected file to have a parent directory").to_path_buf();
+    let root_dir = match &source.name {
+        FileName::Real(path) => path.parent().map(|p| p.to_path_buf()),
+        _ => None,
+    };
 
-        let mut start_pos = source.absolute_end + 1;
+    for module in modules {
+        let mut module_tokens = ParserContext::new(
+            &handler,
+            node_builder,
+            crate::tokenize(&module.src, module.absolute_start)?,
+            program_name,
+            network,
+        );
 
-        // Insert the main file under the empty Vec (vec![])
-        // It's assumed that tokens.parse_program already fills the main body
-
-        // Walk all files under root_dir (including subdirectories)
-        for entry in WalkDir::new(&root_dir).into_iter().filter_map(Result::ok).filter(|e| e.file_type().is_file()) {
-            let path = entry.path();
-
-            // Skip the original file
-            if path == entry_file_path {
-                continue;
-            }
-
-            // Read file content
-            let source = fs::read_to_string(path).expect("Unable to read module file");
-
-            // Track the source file and get its end position
-            let source_file =
-                with_session_globals(|s| s.source_map.new_source(&source, FileName::Real(path.to_path_buf())));
-
-            let mut module_tokens = ParserContext::new(
-                &handler,
-                node_builder,
-                crate::tokenize(&source, start_pos)?,
-                program_name, // we know the program name by now
-                network,
-            );
-
-            // Compute the module key: Vec<Symbol> representing path relative to root_dir
-            let rel_path = path.strip_prefix(&root_dir).expect("Path should be under root dir");
-            let mut key: Vec<Symbol> =
-                rel_path.components().map(|comp| Symbol::intern(&comp.as_os_str().to_string_lossy())).collect();
-
-            // Strip file extension from the last component (if any)
-            if let Some(last) = rel_path.file_name() {
-                if let Some(stem) = std::path::Path::new(last).file_stem() {
-                    key.pop(); // Remove the current (with-extension) last Symbol
-                    key.push(Symbol::intern(&stem.to_string_lossy())); // Add stem-only Symbol
-                }
-            }
-
+        if let Some(key) = compute_module_key(&module.name, root_dir.as_deref()) {
             let module = module_tokens.parse_module(&key)?;
             program.modules.insert(key, module);
-
-            start_pos = source_file.absolute_end + 1;
         }
     }
 
     Ok(program)
+}
+
+fn compute_module_key(name: &FileName, root_dir: Option<&std::path::Path>) -> Option<Vec<Symbol>> {
+    let path = match name {
+        FileName::Custom(name) => std::path::Path::new(name).to_path_buf(),
+        FileName::Real(path) => {
+            let root = root_dir?;
+            path.strip_prefix(root).ok()?.to_path_buf()
+        }
+    };
+
+    let mut key: Vec<Symbol> =
+        path.components().map(|comp| Symbol::intern(&comp.as_os_str().to_string_lossy())).collect();
+
+    // Strip file extension from the last component (if any)
+    if let Some(last) = path.file_name() {
+        if let Some(stem) = std::path::Path::new(last).file_stem() {
+            key.pop();
+            key.push(Symbol::intern(&stem.to_string_lossy()));
+        }
+    }
+
+    Some(key)
 }
 
 pub fn parse_expression(

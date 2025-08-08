@@ -48,6 +48,9 @@ workspace = true
 [dependencies.serde_json]
 workspace = true
 
+[dependencies.walkdir]
+workspace = true
+
 [dev-dependencies.leo-disassembler]
 path = "../../utils/disassembler"
 

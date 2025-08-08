@@ -40,9 +40,6 @@ workspace = true
 [dependencies.serde]
 workspace = true
 
-[dependencies.walkdir]
-workspace = true
-
 [dev-dependencies.leo-test-framework]
 workspace = true
 

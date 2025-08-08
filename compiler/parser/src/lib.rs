@@ -42,7 +42,8 @@ pub fn parse_ast(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &SourceFile,
+    modules: &Vec<std::rc::Rc<SourceFile>>,
     network: NetworkName,
 ) -> Result<Ast> {
-    Ok(Ast::new(parse(handler, node_builder, source, network)?))
+    Ok(Ast::new(parse(handler, node_builder, source, modules, network)?))
 }

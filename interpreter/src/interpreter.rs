@@ -89,7 +89,7 @@ impl Interpreter {
     ) -> Result<Ast> {
         let text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))?;
         let source_file = with_session_globals(|s| s.source_map.new_source(&text, FileName::Real(path.to_path_buf())));
-        leo_parser::parse_ast(handler.clone(), node_builder, &source_file, network)
+        leo_parser::parse_ast(handler.clone(), node_builder, &source_file, &Vec::new(), network)
     }
 
     fn new_impl(

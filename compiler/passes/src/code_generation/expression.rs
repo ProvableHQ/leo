@@ -51,8 +51,6 @@ use leo_span::sym;
 
 use std::{borrow::Borrow, fmt::Write as _};
 
-use itertools::Itertools;
-
 /// Implement the necessary methods to visit nodes in the AST.
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_expression(&mut self, input: &Expression) -> (String, String) {
@@ -288,7 +286,7 @@ impl CodeGeneratingVisitor<'_> {
                 format!("{record_name}.{type_}")
             } else {
                 // foo; // no visibility for structs
-                Self::legalize_struct_name(input.path.absolute_path().iter().format("::").to_string())
+                Self::legalize_struct_path(input.path.absolute_path())
             }
         } else {
             panic!("All composite types should be known at this phase of compilation")

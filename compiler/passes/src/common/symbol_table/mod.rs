@@ -279,11 +279,9 @@ impl SymbolTable {
 
         while let Some(table) = current {
             let borrowed = table.inner.borrow();
-            if let [const_name] = &path {
-                let value = borrowed.consts.get(const_name);
-                if value.is_some() {
-                    return value.cloned();
-                }
+            let value = borrowed.consts.get(path.last().expect("all paths must have at least 1 segment"));
+            if value.is_some() {
+                return value.cloned();
             }
 
             current = borrowed.parent.and_then(|id| self.all_locals.get(&id));

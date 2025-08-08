@@ -26,11 +26,13 @@ use leo_errors::{CompilerError, Handler, Result};
 use leo_passes::*;
 use leo_span::{Symbol, source_map::FileName, with_session_globals};
 
-use indexmap::{IndexMap, IndexSet};
 use std::{
     fs,
     path::{Path, PathBuf},
 };
+
+use indexmap::{IndexMap, IndexSet};
+use walkdir::WalkDir;
 
 /// The primary entry point of the Leo compiler.
 pub struct Compiler {
@@ -51,15 +53,20 @@ pub struct Compiler {
 }
 
 impl Compiler {
-    pub fn parse(&mut self, source: &str, filename: FileName) -> Result<()> {
+    pub fn parse(&mut self, source: &str, filename: FileName, modules: &Vec<(&str, FileName)>) -> Result<()> {
         // Register the source in the source map.
         let source_file = with_session_globals(|s| s.source_map.new_source(source, filename));
+        let modules = modules
+            .iter()
+            .map(|(source, filename)| with_session_globals(|s| s.source_map.new_source(source, filename.clone())))
+            .collect::<Vec<_>>();
 
         // Use the parser to construct the abstract syntax tree (ast).
         self.state.ast = leo_parser::parse_ast(
             self.state.handler.clone(),
             &self.state.node_builder,
             &source_file,
+            &modules,
             self.state.network,
         )?;
 
@@ -89,7 +96,7 @@ impl Compiler {
         // Load the program file.
         let source = fs::read_to_string(&source_file_path)
             .map_err(|e| CompilerError::file_read_error(source_file_path.as_ref().display().to_string(), e))?;
-        self.parse(&source, FileName::Real(source_file_path.as_ref().into()))
+        self.parse(&source, FileName::Real(source_file_path.as_ref().into()), &Vec::new())
     }
 
     /// Returns a new Leo compiler.
@@ -170,9 +177,9 @@ impl Compiler {
     }
 
     /// Returns a compiled Leo program.
-    pub fn compile(&mut self, source: &str, filename: FileName) -> Result<String> {
+    pub fn compile(&mut self, source: &str, filename: FileName, modules: &Vec<(&str, FileName)>) -> Result<String> {
         // Parse the program.
-        self.parse(source, filename)?;
+        self.parse(source, filename, modules)?;
         // Merge the stubs into the AST.
         self.add_import_stubs()?;
         // Run the intermediate compiler stages.
@@ -185,7 +192,45 @@ impl Compiler {
     pub fn compile_from_file(&mut self, source_file_path: impl AsRef<Path>) -> Result<String> {
         let source = fs::read_to_string(&source_file_path)
             .map_err(|e| CompilerError::file_read_error(source_file_path.as_ref().display().to_string(), e))?;
-        self.compile(&source, FileName::Real(source_file_path.as_ref().into()))
+
+        let root_dir =
+            source_file_path.as_ref().parent().expect("Expected file to have a parent directory").to_path_buf();
+
+        // Insert the main file under the empty Vec (vec![])
+        // It's assumed that tokens.parse_program already fills the main body
+
+        // Walk all files under root_dir (including subdirectories)
+        let mut files = WalkDir::new(root_dir.clone())
+            .into_iter()
+            .filter_map(Result::ok)
+            .filter(|e| e.file_type().is_file() && e.path() != source_file_path.as_ref())
+            .collect::<Vec<_>>();
+
+        files.sort_by(|a, b| {
+            let a_rel = a.path().strip_prefix(&root_dir).unwrap();
+            let b_rel = b.path().strip_prefix(&root_dir).unwrap();
+
+            let depth_a = a_rel.components().count();
+            let depth_b = b_rel.components().count();
+
+            // Sort deeper files first
+            depth_b.cmp(&depth_a)
+        });
+
+        let mut module_sources = Vec::new();
+        let mut modules = Vec::new();
+
+        for file in &files {
+            let source = fs::read_to_string(file.path()).expect("todo: must exist");
+            module_sources.push(source); // keep the String alive
+        }
+
+        for (i, file) in files.iter().enumerate() {
+            let source = &module_sources[i]; // borrow from alive String
+            modules.push((&source[..], FileName::Real(file.path().into())));
+        }
+
+        self.compile(&source, FileName::Real(source_file_path.as_ref().into()), &modules)
     }
 
     /// Writes the AST to a JSON file.

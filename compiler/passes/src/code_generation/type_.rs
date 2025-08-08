@@ -18,8 +18,6 @@ use super::*;
 
 use leo_ast::{CompositeType, Location, Mode, Type};
 
-use itertools::Itertools;
-
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_type(input: &Type) -> String {
         match input {
@@ -32,9 +30,7 @@ impl CodeGeneratingVisitor<'_> {
             | Type::Future(..)
             | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
-            Type::Composite(CompositeType { path, .. }) => {
-                Self::legalize_struct_name(path.absolute_path().iter().format("::").to_string())
-            }
+            Type::Composite(CompositeType { path, .. }) => Self::legalize_struct_path(path.absolute_path()),
             Type::Boolean => {
                 // Leo calls this just `bool`, which isn't what we need.
                 "boolean".into()

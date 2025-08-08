@@ -120,7 +120,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
                 _ => expr.clone(),
             };
 
-            let mut replacer = Replacer::new(replace_identifier, &self.state.node_builder);
+            let mut replacer = Replacer::new(replace_identifier, true /* refresh IDs */, &self.state.node_builder);
 
             // Create a new version of `callee_fn` that has a new name, no const parameters, and a new function ID.
 

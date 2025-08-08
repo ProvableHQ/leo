@@ -14,12 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Compiler, run_with_ledger};
+use crate::run_with_ledger;
 
-use leo_ast::{NetworkName, Stub};
 use leo_disassembler::disassemble_from_str;
-use leo_errors::{BufferEmitter, Handler, LeoError, Result};
-use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
+use leo_errors::{BufferEmitter, Handler, Result};
+use leo_span::{Symbol, create_session_if_not_set_then};
 
 use snarkvm::prelude::TestnetV0;
 
@@ -31,28 +30,6 @@ use std::fmt::Write as _;
 type CurrentNetwork = TestnetV0;
 
 const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
-
-fn whole_compile(
-    source: &str,
-    handler: &Handler,
-    import_stubs: IndexMap<Symbol, Stub>,
-) -> Result<(String, String), LeoError> {
-    let mut compiler = Compiler::new(
-        None,
-        /* is_test (a Leo test) */ false,
-        handler.clone(),
-        "/fakedirectory-wont-use".into(),
-        None,
-        import_stubs,
-        NetworkName::TestnetV0,
-    );
-
-    let filename = FileName::Custom("execution-test".into());
-
-    let bytecode = compiler.compile(source, filename)?;
-
-    Ok((bytecode, compiler.program_name.unwrap()))
-}
 
 // Execution test configuration.
 #[derive(Debug)]
@@ -81,7 +58,7 @@ fn execution_run_test(
 
     // Compile each source file.
     for source in &config.sources {
-        let (bytecode, name) = whole_compile(source, handler, import_stubs.clone())?;
+        let (bytecode, name) = super::test_utils::whole_compile(source, handler, import_stubs.clone())?;
 
         let stub = disassemble_from_str::<CurrentNetwork>(&name, &bytecode)?;
         import_stubs.insert(Symbol::intern(&name), stub);

@@ -8,7 +8,7 @@ Error [ETYC0372003]: Expected type `()` but type `Future<Fn(address,u64)>` was f
      |
    7 |          return finalize_mint_public(receiver, amount);
      |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown function `has_key`
+Error [ETYC0372005]: Unknown function `Mapping::has_key`
     --> compiler-test:11:30
      |
   11 |          let has_key: bool = Mapping::has_key(account, receiver);

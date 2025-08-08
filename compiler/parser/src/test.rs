@@ -124,7 +124,8 @@ fn parse_statement_tests() {
 
 fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
     let source_file = with_session_globals(|s| s.source_map.new_source(test, FileName::Custom("test".into())));
-    let result = crate::parse_ast(handler.clone(), &Default::default(), &source_file, NetworkName::TestnetV0);
+    let result =
+        crate::parse_ast(handler.clone(), &Default::default(), &source_file, &Vec::new(), NetworkName::TestnetV0);
     let ast = handler.extend_if_error(result)?;
     let value = serde_json::to_value(&ast.ast).expect("Serialization failure");
     let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");

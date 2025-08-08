@@ -14,12 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Compiler;
-
-use leo_ast::{NetworkName, Stub};
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
-use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
+use leo_span::{Symbol, create_session_if_not_set_then};
 
 use snarkvm::{
     prelude::{Process, TestnetV0},
@@ -33,28 +30,6 @@ use std::str::FromStr;
 
 pub const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
 
-pub fn whole_compile(
-    source: &str,
-    handler: &Handler,
-    import_stubs: IndexMap<Symbol, Stub>,
-) -> Result<(String, String), LeoError> {
-    let mut compiler = Compiler::new(
-        None,
-        /* is_test (a Leo test) */ false,
-        handler.clone(),
-        "/fakedirectory-wont-use".into(),
-        None,
-        import_stubs,
-        NetworkName::TestnetV0,
-    );
-
-    let filename = FileName::Custom("compiler-test".into());
-
-    let bytecode = compiler.compile(source, filename)?;
-
-    Ok((bytecode, compiler.program_name.unwrap()))
-}
-
 fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
     // Initialize a `Process`. This should always succeed.
     let mut process = Process::<TestnetV0>::load().unwrap();
@@ -65,7 +40,8 @@ fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
 
     // Compile each source file separately.
     for source in test.split(PROGRAM_DELIMITER) {
-        let (bytecode, program_name) = handler.extend_if_error(whole_compile(source, handler, import_stubs.clone()))?;
+        let (bytecode, program_name) =
+            handler.extend_if_error(super::test_utils::whole_compile(source, handler, import_stubs.clone()))?;
 
         // Parse the bytecode as an Aleo program.
         // Note that this function checks that the bytecode is well-formed.
