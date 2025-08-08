@@ -218,18 +218,18 @@ impl Command for Account {
             }
             Self::Decrypt { key, key_file, ciphertext, network } => {
                 let result = match network {
-                    NetworkName::TestnetV0 => decrypt_ciphertext::<TestnetV0>(key, key_file, ciphertext),
+                    NetworkName::TestnetV0 => decrypt_ciphertext::<TestnetV0>(key, key_file, &ciphertext),
                     NetworkName::MainnetV0 => {
                         #[cfg(feature = "only_testnet")]
                         panic!("Mainnet chosen with only_testnet feature");
                         #[cfg(not(feature = "only_testnet"))]
-                        decrypt_ciphertext::<MainnetV0>(key, key_file, ciphertext)
+                        decrypt_ciphertext::<MainnetV0>(key, key_file, &ciphertext)
                     }
                     NetworkName::CanaryV0 => {
                         #[cfg(feature = "only_testnet")]
                         panic!("Canary chosen with only_testnet feature");
                         #[cfg(not(feature = "only_testnet"))]
-                        decrypt_ciphertext::<CanaryV0>(key, key_file, ciphertext)
+                        decrypt_ciphertext::<CanaryV0>(key, key_file, &ciphertext)
                     }
                 }?;
                 println!("{result}")
@@ -395,7 +395,7 @@ pub(crate) fn verify_message<N: Network>(
 pub(crate) fn decrypt_ciphertext<N: Network>(
     key: Option<String>,
     key_file: Option<String>,
-    ciphertext: String,
+    ciphertext: &str,
 ) -> Result<String> {
     // Get the key string.
     let key_string = get_key_string(key, key_file, &["PRIVATE_KEY", "VIEW_KEY"])?;
@@ -419,7 +419,7 @@ pub(crate) fn decrypt_ciphertext<N: Network>(
     };
 
     // Parse the ciphertext as record ciphertext.
-    let record_ciphertext = Record::<N, Ciphertext<N>>::from_str(&ciphertext)
+    let record_ciphertext = Record::<N, Ciphertext<N>>::from_str(ciphertext)
         .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid record ciphertext"))?;
 
     // Decrypt the record.
@@ -496,7 +496,21 @@ fn wait_for_keypress() {
 mod tests {
     use super::{decrypt_ciphertext, sign_message, verify_message};
     use snarkvm::{
-        prelude::{Address, Group, Identifier, PrivateKey, Process, ProgramID, Scalar, TestRng, Uniform, ViewKey},
+        prelude::{
+            Address,
+            Identifier,
+            Network,
+            Plaintext,
+            PrivateKey,
+            Process,
+            ProgramID,
+            Record,
+            Scalar,
+            TestRng,
+            U8,
+            Uniform,
+            ViewKey,
+        },
         synthesizer::program::StackTrait,
     };
     use std::str::FromStr;
@@ -582,25 +596,34 @@ mod tests {
         // Test decryption with a private key
         let private_key =
             PrivateKey::<CurrentNetwork>::from_str("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")?;
+        let private_key_string = private_key.to_string();
         let view_key = ViewKey::<CurrentNetwork>::try_from(&private_key)?;
+        let view_key_string = view_key.to_string();
         let address = Address::<CurrentNetwork>::try_from(&view_key)?;
 
         // Create a random record.
         let process = Process::<CurrentNetwork>::load()?;
         let stack = process.get_stack(ProgramID::from_str("credits.aleo")?)?;
-        let record =
-            stack.sample_record(&address, &Identifier::from_str("credits").unwrap(), Group::rand(rng), &mut rng)?;
-        let ciphertext = record.encrypt(Scalar::rand(rng))?;
+        let randomizer = Scalar::<CurrentNetwork>::rand(rng);
+        let nonce = CurrentNetwork::g_scalar_multiply(&randomizer);
+        let record = stack.sample_record(&address, &Identifier::from_str("credits").unwrap(), nonce, &mut rng)?;
+        let record = Record::<CurrentNetwork, Plaintext<CurrentNetwork>>::from_plaintext(
+            record.owner().clone(),
+            record.data().clone(),
+            nonce,
+            U8::new(u8::rand(rng) % 2),
+        )?;
+        let record_string = record.to_string();
+        let ciphertext = record.encrypt(randomizer)?;
+        let ciphertext_string = ciphertext.to_string();
 
         // Test decryption with the private key
-        let candidate =
-            decrypt_ciphertext::<CurrentNetwork>(Some(private_key.to_string()), None, ciphertext.to_string())?;
-        assert_eq!(candidate, record.to_string());
+        let candidate = decrypt_ciphertext::<CurrentNetwork>(Some(private_key_string), None, &ciphertext_string)?;
+        assert_eq!(candidate, record_string);
 
         // Test decryption with a view key
-        let view_key = ViewKey::<CurrentNetwork>::from_str("AViewKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")?;
-        let candidate = decrypt_ciphertext::<CurrentNetwork>(Some(view_key.to_string()), None, ciphertext.to_string())?;
-        assert_eq!(candidate, record.to_string());
+        let candidate = decrypt_ciphertext::<CurrentNetwork>(Some(view_key_string), None, &ciphertext_string)?;
+        assert_eq!(candidate, record_string);
 
         Ok(())
     }
