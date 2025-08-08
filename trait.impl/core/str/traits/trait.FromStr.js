@@ -1,5 +1,5 @@
 (function() {
-    var implementors = Object.fromEntries([["leo_ast",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.88.0/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"enum\" href=\"leo_ast/common/enum.NetworkName.html\" title=\"enum leo_ast::common::NetworkName\">NetworkName</a>"]]]]);
+    var implementors = Object.fromEntries([["leo_ast",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.89.0/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"enum\" href=\"leo_ast/common/enum.NetworkName.html\" title=\"enum leo_ast::common::NetworkName\">NetworkName</a>"]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
