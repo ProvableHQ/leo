@@ -247,8 +247,17 @@ impl LeoDevnet {
         if self.clear_storage {
             println!("🧹  Cleaning ledgers …");
             let mut cleaners = Vec::new();
-            for idx in 0..(self.num_validators + self.num_clients) {
-                cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, storage.as_path())?);
+            for idx in 0..self.num_validators {
+                cleaners.push(clean_snarkos(&snarkos, self.network as usize, "validator", idx, storage.as_path())?);
+            }
+            for idx in 0..self.num_clients {
+                cleaners.push(clean_snarkos(
+                    &snarkos,
+                    self.network as usize,
+                    "client",
+                    idx + self.num_validators,
+                    storage.as_path(),
+                )?);
             }
             for mut c in cleaners {
                 c.wait()?;
@@ -273,7 +282,6 @@ impl LeoDevnet {
             network: usize,
             num_validators: usize,
             idx: usize,
-            storage: &Path,
             log_file: &Path,
             metrics_port: Option<u16>,
         ) -> Vec<String> {
@@ -286,8 +294,6 @@ impl LeoDevnet {
                 idx.to_string(),
                 "--dev-num-validators".to_string(),
                 num_validators.to_string(),
-                "--storage".to_string(),
-                storage.to_str().unwrap().to_string(),
                 "--rest-rps".to_string(),
                 REST_RPS.to_string(),
                 "--logfile".to_string(),
@@ -362,7 +368,6 @@ impl LeoDevnet {
                         self.network as usize,
                         self.num_validators,
                         idx,
-                        storage.as_path(),
                         log_file.as_path(),
                         Some(metrics_port),
                     ))
@@ -389,7 +394,6 @@ impl LeoDevnet {
                         self.network as usize,
                         self.num_validators,
                         dev_idx,
-                        storage.as_path(),
                         log_file.as_path(),
                         None,
                     ))
@@ -450,7 +454,6 @@ impl LeoDevnet {
                             self.network as usize,
                             self.num_validators,
                             idx,
-                            storage.as_path(),
                             &log_file,
                             Some(9000 + idx as u16),
                         ));
@@ -475,7 +478,6 @@ impl LeoDevnet {
                             self.network as usize,
                             self.num_validators,
                             dev_idx,
-                            storage.as_path(),
                             &log_file,
                             None,
                         ));

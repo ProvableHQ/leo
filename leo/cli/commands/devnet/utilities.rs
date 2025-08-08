@@ -98,8 +98,9 @@ pub fn install_signal_handler(manager: Arc<Mutex<ChildManager>>, ready: Arc<Atom
 pub fn clean_snarkos<S: AsRef<OsStr>>(
     snarkos: S,
     network: usize,
+    _role: &str,
     idx: usize,
-    storage: &Path,
+    _storage: &Path,
 ) -> std::io::Result<Child> {
     StdCommand::new(snarkos)
         .arg("clean")
@@ -107,8 +108,6 @@ pub fn clean_snarkos<S: AsRef<OsStr>>(
         .arg(network.to_string())
         .arg("--dev")
         .arg(idx.to_string())
-        .arg("--path")
-        .arg(storage)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()
