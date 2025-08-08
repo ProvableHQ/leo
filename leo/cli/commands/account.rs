@@ -574,6 +574,7 @@ mod tests {
         assert!(verify_message::<CurrentNetwork>(address, signature, message, false).is_ok());
     }
 
+    #[test]
     fn test_decrypt() -> anyhow::Result<()> {
         // Initialize an RNG.
         let mut rng = &mut TestRng::default();
@@ -586,7 +587,7 @@ mod tests {
 
         // Create a random record.
         let process = Process::<CurrentNetwork>::load()?;
-        let stack = process.get_stack(&ProgramID::from_str("credits.aleo")?)?;
+        let stack = process.get_stack(ProgramID::from_str("credits.aleo")?)?;
         let record =
             stack.sample_record(&address, &Identifier::from_str("credits").unwrap(), Group::rand(rng), &mut rng)?;
         let ciphertext = record.encrypt(Scalar::rand(rng))?;
