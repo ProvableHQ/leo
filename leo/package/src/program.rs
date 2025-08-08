@@ -177,12 +177,20 @@ impl Program {
         let edition = match edition {
             Some(edition) => Ok(edition),
             None => {
-                let url = format!("{endpoint}/{network}/program/{name}.aleo/latest_edition");
-                fetch_from_network(&url).and_then(|contents| {
-                    contents.parse::<u16>().map_err(|e| {
-                        UtilError::failed_to_retrieve_from_endpoint(url, format!("Failed to parse edition as u16: {e}"))
+                if name == Symbol::intern("credits") {
+                    // credits.aleo is always edition 0 and fetching from the network won't work.
+                    Ok(0)
+                } else {
+                    let url = format!("{endpoint}/{network}/program/{name}.aleo/latest_edition");
+                    fetch_from_network(&url).and_then(|contents| {
+                        contents.parse::<u16>().map_err(|e| {
+                            UtilError::failed_to_retrieve_from_endpoint(
+                                url,
+                                format!("Failed to parse edition as u16: {e}"),
+                            )
+                        })
                     })
-                })
+                }
             }
         };
 
