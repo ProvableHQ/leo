@@ -66,7 +66,7 @@ pub use upgrade::LeoUpgrade;
 use super::*;
 use crate::cli::helpers::context::*;
 use leo_errors::{CliError, Handler, PackageError, Result};
-use snarkvm::prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey, block::Transaction};
+use snarkvm::prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, Value, ViewKey, block::Transaction};
 
 use clap::{Args, Parser};
 use colored::Colorize;
@@ -136,5 +136,24 @@ pub trait Command {
         Self: std::marker::Sized,
     {
         self.execute(context).map(|_| Ok(()))?
+    }
+}
+
+/// A helper function to parse an input string into a `Value`, handling record ciphertexts as well.
+pub fn parse_input<N: Network>(input: &str, private_key: &PrivateKey<N>) -> Result<Value<N>> {
+    // Trim whitespace from the input.
+    let input = input.trim();
+    // Check if the input is a record ciphertext.
+    if input.starts_with("record1") {
+        // Get the view key from the private key.
+        let view_key = ViewKey::<N>::try_from(private_key)
+            .map_err(|e| CliError::custom(format!("Failed to view key from the private key: {e}")))?;
+        // Parse the input as a record.
+        Record::<N, Ciphertext<N>>::from_str(input)
+            .and_then(|ciphertext| ciphertext.decrypt(&view_key))
+            .map(Value::Record)
+            .map_err(|e| CliError::custom(format!("Failed to parse input as record: {e}")).into())
+    } else {
+        Value::from_str(input).map_err(|e| CliError::custom(format!("Failed to parse input: {e}")).into())
     }
 }
