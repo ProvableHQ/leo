@@ -129,17 +129,16 @@ fn handle_deploy<N: Network>(
     let is_devnet = context.get_is_devnet(command.env_override.devnet);
 
     // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
-    let consensus_heights = if let Some(heights) = &command.env_override.consensus_heights {
-        // Validate the provided consensus heights.
-        validate_consensus_heights(heights)
-            .map_err(|e| CliError::custom(format!("Invalid `--consensus-heights`: {e}")))?;
-        // Return the heights.
-        heights.clone()
-    } else {
-        get_consensus_heights(network, is_devnet)
-    };
+    let consensus_heights =
+        command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
+    // Validate the provided consensus heights.
+    validate_consensus_heights(&consensus_heights)
+        .map_err(|e| CliError::custom(format!("Invalid consensus heights: {e}")))?;
+    // Print the consensus heights being used.
     let consensus_heights_string = consensus_heights.iter().format(",").to_string();
-    println!("Using the following consensus heights: {consensus_heights_string}");
+    println!(
+        "\n📢 Using the following consensus heights: {consensus_heights_string}\n  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.\n"
+    );
 
     // Set the consensus heights in the environment.
     #[allow(unsafe_code)]
@@ -441,6 +440,10 @@ fn check_tasks_for_warnings<N: Network>(
         if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
             warnings
                 .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
+        }
+        // Check for a consensus version mismatch.
+        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+            warnings.push(format!("{e}. In some cases, the deployment may fail"));
         }
     }
     warnings

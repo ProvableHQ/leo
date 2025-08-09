@@ -146,17 +146,16 @@ fn handle_execute<A: Aleo>(
     let is_devnet = context.get_is_devnet(command.env_override.devnet);
 
     // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
-    let consensus_heights = if let Some(heights) = &command.env_override.consensus_heights {
-        // Validate the provided consensus heights.
-        validate_consensus_heights(heights)
-            .map_err(|e| CliError::custom(format!("Invalid `--consensus-heights`: {e}")))?;
-        // Return the heights.
-        heights.clone()
-    } else {
-        get_consensus_heights(network, is_devnet)
-    };
+    let consensus_heights =
+        command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
+    // Validate the provided consensus heights.
+    validate_consensus_heights(&consensus_heights)
+        .map_err(|e| CliError::custom(format!("Invalid consensus heights: {e}")))?;
+    // Print the consensus heights being used.
     let consensus_heights_string = consensus_heights.iter().format(",").to_string();
-    println!("Using the following consensus heights: {consensus_heights_string}");
+    println!(
+        "\n📢 Using the following consensus heights: {consensus_heights_string}\n  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.\n"
+    );
 
     // Set the consensus heights in the environment.
     #[allow(unsafe_code)]
@@ -295,7 +294,7 @@ fn handle_execute<A: Aleo>(
         record.is_some(),
         &command.action,
         consensus_version,
-        &check_task_for_warnings(&endpoint, network, &programs),
+        &check_task_for_warnings(&endpoint, network, &programs, consensus_version),
     );
 
     // Prompt the user to confirm the plan.
@@ -448,6 +447,7 @@ fn check_task_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
     programs: &[(Program<N>, Option<u16>)],
+    consensus_version: ConsensusVersion,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
     for (program, _) in programs {
@@ -473,6 +473,10 @@ fn check_task_for_warnings<N: Network>(
                 "The program '{}' does not exist on the network. You may use `leo deploy --broadcast` to deploy it.",
                 program.id()
             ));
+        }
+        // Check for a consensus version mismatch.
+        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+            warnings.push(format!("{e}. In some cases, the deployment may fail"));
         }
     }
     warnings
