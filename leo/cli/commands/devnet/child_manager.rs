@@ -14,50 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
+use std::{
+    process::Child,
+    thread,
+    time::{Duration, Instant},
+};
 
-//──────────────────────────────────────────────────────────────────────────────
-//  Child-process manager
-//──────────────────────────────────────────────────────────────────────────────
-//
-//  Motivation
-//  ----------
-//  * Every `snarkos` node we start returns a `std::process::Child` handle.
-//  * We want **RAII semantics**: whenever the launcher exits—success, error, or panic—all children (and their descendants) must be terminated.
-//  * On Unix, we rely on `setsid()` + `killpg()` to nuke the *entire* process-group.
-//  * On Windows, we delegate to a Job Object (https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects).
-//
-//  Design invariants
-//  -----------------
-//  1.  `ChildManager` owns the list of children **exclusively**.
-//      Only the manager is allowed to call `wait`, `try_wait`, or `kill`.
-//  2.  All public methods (`push`, `shutdown_all`) are panic-free.
-//      Errors only surface via `std::io::Result` or are swallowed during drop.
-//  3.  Drop performs a *best-effort* forced shutdown, but never panics—even if system calls fail—so that unwinding during a panic doesn’t abort.
-//
-//  Typical lifecycle
-//  -----------------
-//  ```text
-//  ┌──────────────────────┐
-//  │ spawn children …     │
-//  │ manager.push(child)  │
-//  └────────┬─────────────┘
-//           │                ctrl-C / SIGTERM
-//  install_signal_handler ───┘
-//           │
-//  manager.shutdown_all()   ← explicit or via Drop
-//  ```
-//
+#[cfg(unix)]
+use libc::{SIGKILL, SIGTERM, kill};
+
+/// Manages child processes spawned by `snarkos` commands, ensuring they can be gracefully terminated and reaped.
+/// - On Unix, we rely on `setsid()` at spawn + sending signals to the **process group** via `kill(-pid, SIGTERM|SIGKILL)` so helpers die too.
+/// - On Windows, we rely on a **Job Object** (created/managed elsewhere) to ensure the tree is contained and hard-killed as a backstop;
+///   we still explicitly terminate lingering children during shutdown.
 pub struct ChildManager {
-    /// All direct `snarkos` children.  
+    /// All direct `snarkos` children.
     /// *Invariant*: a `Child` is inserted **exactly once** and removed **never**.
     children: Vec<Child>,
+    /// Ensures shutdown is **idempotent** even if called multiple times (explicit + Drop).
+    shut_down: bool,
 }
 
 impl ChildManager {
     /// Create an empty manager.
     pub fn new() -> Self {
-        Self { children: Vec::new() }
+        Self { children: Vec::new(), shut_down: false }
     }
 
     /// Register a freshly–spawned child so it can be reaped later.
@@ -65,55 +46,82 @@ impl ChildManager {
         self.children.push(child);
     }
 
-    /// Graceful-then-forceful termination sequence:
+    /// Graceful-then-forceful termination sequence (idempotent):
     ///
-    /// 1. Send SIGTERM (Unix) or `.kill()` (Windows) to **every** child.  
-    ///    On Unix we target the *process group* (`-PID`) so that any helper processes spawned *by* snarkos die too.
-    /// 2. Poll `try_wait` until either
-    ///      - **all** children exit, or
-    ///      - `timeout` elapses.
-    /// 3. Hard-kill survivors with `.kill()` (this is a no-op on already exited processes).
+    /// 1) **Polite**: ask everyone to exit.
+    ///    - Unix: send `SIGTERM` to the **process group** of each child via `kill(-pid, SIGTERM)`.
+    ///    - Windows: no-op by default — rely on app-level handling and Job Objects.
+    /// 2) **Wait** up to `timeout` for children to exit (polling `try_wait`).
+    /// 3) **Hard kill survivors**:
+    ///    - Unix: `kill(-pid, SIGKILL)`.
+    ///    - Windows: `Child::kill()` (TerminateProcess). Job Object is a safety net.
+    /// 4) **Reap**: call `wait()` on all children to avoid zombies (ignore errors).
     pub fn shutdown_all(&mut self, timeout: Duration) {
-        // ── 1. First “polite” pass ───────────────────────────────────────
-        for child in &mut self.children {
+        if self.shut_down {
+            return;
+        }
+        self.shut_down = true;
+
+        // ── 1) Polite pass ──────────────────────────────────────────────
+        for _child in &mut self.children {
             #[cfg(unix)]
             #[allow(unsafe_code)]
             unsafe {
-                // SAFETY: we created each child in its own session (setsid),
-                // so `-pid` targets precisely that process-group.
-                kill(-(child.id() as i32), SIGTERM);
+                // SAFETY: Each child was created with `setsid()` in pre_exec, so `-pid`
+                // targets precisely that child’s session / process group.
+                let _ = kill(-(_child.id() as i32), SIGTERM);
             }
+
             #[cfg(windows)]
             {
-                use windows_sys::Win32::System::Console::{CTRL_BREAK_EVENT, GenerateConsoleCtrlEvent};
-                #[allow(unsafe_code)]
-                unsafe {
-                    // SAFETY: `GenerateConsoleCtrlEvent` is safe to call with a valid child ID.
-                    GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, child.id())
-                };
+                // On Windows we skip the "polite" console event unless children were spawned with CREATE_NEW_PROCESS_GROUP (not the default).
+                // We rely on:
+                //  * application-level graceful handling (Ctrl+C handler), and
+                //  * the Job Object (KILL_ON_JOB_CLOSE) for containment.
+                // Doing nothing here avoids brittle CTRL_BREAK semantics.
             }
         }
 
-        // ── 2. Wait for orderly exit ─────────────────────────────────────
+        // ── 2) Wait for orderly exit ────────────────────────────────────
         let start = Instant::now();
         while start.elapsed() < timeout {
+            // If all exited, break early; we'll reap below.
             if self.children.iter_mut().all(|c| matches!(c.try_wait(), Ok(Some(_)))) {
-                return; // All children exited gracefully.
+                break;
             }
-            thread::sleep(Duration::from_secs(1));
+            thread::sleep(Duration::from_millis(150));
         }
 
-        // ── 3. Escalate to hard kill ─────────────────────────────────────
+        // ── 3) Escalate to hard kill for survivors ──────────────────────
         for child in &mut self.children {
-            let _ = child.kill(); // ignore errors – we’re in teardown
+            let still_running = matches!(child.try_wait(), Ok(None));
+
+            #[cfg(unix)]
+            if still_running {
+                #[allow(unsafe_code)]
+                unsafe {
+                    let _ = kill(-(child.id() as i32), SIGKILL);
+                }
+            }
+
+            #[cfg(windows)]
+            if still_running {
+                // Terminate the process (the Job Object ensures descendants are contained).
+                let _ = child.kill();
+            }
+        }
+
+        // ── 4) Final reap (avoid zombies) ───────────────────────────────
+        for child in &mut self.children {
+            let _ = child.wait(); // ignore errors during teardown
         }
     }
 }
 
 impl Drop for ChildManager {
     fn drop(&mut self) {
-        // The timeout is hard-coded to 30 seconds.
-        // The caller can choose a custom timeout by invoking `shutdown_all` manually before the drop.
+        // Best-effort, panic-free shutdown on drop.
+        // Callers who need a different timeout should call `shutdown_all` explicitly.
         self.shutdown_all(Duration::from_secs(30));
     }
 }

@@ -35,9 +35,10 @@ use snarkvm::{
 use crate::cli::{check_transaction::TransactionStatus, commands::deploy::validate_deployment_limits};
 use aleo_std::StorageMode;
 use colored::*;
+use itertools::Itertools;
 use leo_span::Symbol;
 use snarkvm::{
-    prelude::{ConsensusVersion, Itertools, ProgramID, Stack, store::helpers::memory::BlockMemory},
+    prelude::{ConsensusVersion, ProgramID, Stack, store::helpers::memory::BlockMemory},
     synthesizer::program::StackTrait,
 };
 use std::path::PathBuf;
@@ -124,12 +125,13 @@ fn handle_upgrade<N: Network>(
         // Validate the provided consensus heights.
         validate_consensus_heights(heights)
             .map_err(|e| CliError::custom(format!("Invalid `--consensus-heights`: {e}")))?;
-        // Return the heights as a string.
-        heights.iter().join(",")
+        // Return the heights.
+        heights.clone()
     } else {
-        get_consensus_heights(network, is_devnet).iter().map(|(_, v)| *v).join(",")
+        get_consensus_heights(network, is_devnet)
     };
-    println!("Using the following consensus heights: {consensus_heights}");
+    let consensus_heights_string = consensus_heights.iter().format(",").to_string();
+    println!("Using the following consensus heights: {consensus_heights_string}");
 
     // Set the consensus heights in the environment.
     #[allow(unsafe_code)]
@@ -140,7 +142,7 @@ fn handle_upgrade<N: Network>(
         // WHY:
         //  - This is needed because there is no way to set the desired consensus heights for a particular `VM` instance
         //    without using the environment variable `CONSENSUS_VERSION_HEIGHTS`. Which is itself read once, and stored in a `OnceLock`.
-        std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights)
+        std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights_string);
     }
 
     // Get all the programs but tests.
@@ -210,7 +212,7 @@ fn handle_upgrade<N: Network>(
 
     // Get the consensus version.
     let consensus_version =
-        get_consensus_version(&command.extra.consensus_version, &endpoint, network, is_devnet, &context)?;
+        get_consensus_version(&command.extra.consensus_version, &endpoint, network, &consensus_heights, &context)?;
 
     // Print a summary of the deployment plan.
     print_deployment_plan(

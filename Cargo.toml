@@ -117,10 +117,6 @@ version = "=3.0.0"
 version = "1.0.1"
 default-features = false
 
-[workspace.dependencies.aleo-std-storage]
-version = "1.0.1"
-default-features = false
-
 [workspace.dependencies.anyhow]
 version = "1.0"
 
@@ -205,9 +201,6 @@ workspace = true
 [dependencies.leo-package]
 workspace = true
 
-[dependencies.leo-parser]
-workspace = true
-
 [dependencies.leo-span]
 workspace = true
 
@@ -231,7 +224,13 @@ features = ["derive", "env", "color", "unstable-styles"]
 workspace = true
 
 [dependencies.crossterm]
-version = "0.28.1"
+version = "0.29.0"
+
+[dependencies.crossbeam-channel]
+version = "0.5.15"
+
+[dependencies.ctrlc]
+version = "3.4.7"
 
 [dependencies.dialoguer]
 version = "0.11.0"
@@ -307,7 +306,7 @@ workspace = true
 # ----------------------------
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.30.1", features = ["process"] }
+nix = { version = "0.30.1", features = ["process", "term", "fs", "poll"] }
 libc = { version = "0.2.174" }
 signal-hook = { version = "0.3.17", features = ["iterator"] }
 
@@ -366,3 +365,4 @@ debug-assertions = true
 inherits = "test"
 incremental = false
 debug = false
+[dependencies]

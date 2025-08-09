@@ -22,6 +22,9 @@ use child_manager::*;
 #[cfg(windows)]
 mod windows_kill_tree;
 
+mod shutdown;
+use shutdown::*;
+
 mod utilities;
 use utilities::*;
 
@@ -36,24 +39,19 @@ use std::{
     ffi::OsStr,
     path::{Path, PathBuf},
     process::{Child, Command as StdCommand, Stdio},
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering},
-    },
-    thread,
-    time::{Duration, Instant},
+    sync::Arc,
+    time::Duration,
 };
 use tracing::{self, Span};
 
 #[cfg(unix)]
-use {
-    libc::{SIGTERM, kill, setsid},
-    signal_hook::{consts::signal::*, iterator::Signals},
-    std::os::unix::process::CommandExt,
-};
+use {libc::setsid, std::os::unix::process::CommandExt};
 
 use super::*;
 use leo_ast::NetworkName;
+
+/// A high REST RPS (requests per second) for snarkOS devnets.
+const REST_RPS: &str = "999999999";
 
 /// Launch a local devnet (validators + clients) using snarkOS.
 #[derive(Parser, Debug)]
@@ -81,7 +79,7 @@ pub struct LeoDevnet {
         help = "Optional consensus heights to use. The `test_network` feature must be enabled for this to work.",
         value_delimiter = ','
     )]
-    pub(crate) consensus_heights: Option<Vec<usize>>,
+    pub(crate) consensus_heights: Option<Vec<u32>>,
     #[clap(long, help = "Run nodes in tmux (only available on Unix)")]
     pub(crate) tmux: bool,
     #[clap(long, help = "snarkOS verbosity (0-4)", default_value = "1")]
@@ -125,14 +123,14 @@ impl LeoDevnet {
             if !self.snarkos_features.contains(&"test_network".to_string()) {
                 bail!("The `test_network` feature must be enabled on snarkOS to use `--consensus-heights`.");
             }
-            validate_consensus_heights(heights)?;
+            validate_consensus_heights(heights.as_slice())?;
         }
 
         // If not installing, ensure the snarkOS binary exists at the provided path.
         let snarkos = if !self.install {
             // Resolve the snarkOS path to its canonical form.
             let snarkos = canonicalize(&self.snarkos)
-                .with_context(|| format!("Failed to resolve snarkOS path: {}", self.snarkos.display()))?;
+                .context(format!("Failed to resolve snarkOS path: {}", self.snarkos.display()))?;
             // Ensure the path exists.
             if !snarkos.exists() {
                 bail!(
@@ -173,7 +171,17 @@ impl LeoDevnet {
         println!("  • tmux: {}", if self.tmux { "yes" } else { "no" });
 
         //───────────────────────────────────────────────────────────────────
-        // 1. snarkOS binary  (+ optional build)
+        // 1. Child-manager & shutdown listener (no race!)
+        //───────────────────────────────────────────────────────────────────
+        let manager = Arc::new(Mutex::new(ChildManager::new()));
+
+        // Install the listener to catch any early shutdown signals.
+        let (tx_shutdown, rx_shutdown) = crossbeam_channel::bounded::<()>(1);
+        let _signal_thread =
+            install_shutdown_listener(tx_shutdown.clone()).context("Failed to install shutdown listener")?;
+
+        //───────────────────────────────────────────────────────────────────
+        // 2. snarkOS binary  (+ optional build)
         //───────────────────────────────────────────────────────────────────
         let snarkos = if self.install {
             if !confirm("\nProceed with snarkOS installation?", self.yes)? {
@@ -189,7 +197,7 @@ impl LeoDevnet {
         let version_output = StdCommand::new(&snarkos)
             .arg("--version")
             .output()
-            .with_context(|| format!("Failed to run `{}`", snarkos.display()))?;
+            .context(format!("Failed to run `{}`", snarkos.display()))?;
         if !version_output.status.success() {
             bail!("Failed to run `{}`: {}", snarkos.display(), String::from_utf8_lossy(&version_output.stderr));
         }
@@ -220,13 +228,13 @@ impl LeoDevnet {
         }
 
         //───────────────────────────────────────────────────────────────────
-        // 2. Resolve storage & create log dir
+        // 3. Resolve storage & create log dir
         //───────────────────────────────────────────────────────────────────
         // Create the storage directory if it does not exist.
         let storage = PathBuf::from(&self.storage);
         if !storage.exists() {
             std::fs::create_dir_all(&storage)
-                .with_context(|| format!("Failed to create storage directory: {}", self.storage))?;
+                .context(format!("Failed to create storage directory: {}", self.storage))?;
         } else if !storage.is_dir() {
             bail!("The storage path `{}` is not a directory.", self.storage);
         }
@@ -242,7 +250,7 @@ impl LeoDevnet {
         };
 
         //───────────────────────────────────────────────────────────────────
-        // 3. (Optional) ledger cleanup
+        // 4. (Optional) ledger cleanup
         //───────────────────────────────────────────────────────────────────
         if self.clear_storage {
             println!("🧹  Cleaning ledgers …");
@@ -265,15 +273,8 @@ impl LeoDevnet {
         }
 
         //───────────────────────────────────────────────────────────────────
-        // 4. Child-manager & signal handler  (no race!)
-        //───────────────────────────────────────────────────────────────────
-        let manager = Arc::new(Mutex::new(ChildManager::new()));
-        let ready = Arc::new(AtomicBool::new(false));
-
-        //───────────────────────────────────────────────────────────────────
         // 5. Spawn nodes (tmux **or** background)
         //───────────────────────────────────────────────────────────────────
-        const REST_RPS: &str = "999999999";
 
         #[allow(clippy::too_many_arguments)]
         fn build_args(
@@ -421,7 +422,7 @@ impl LeoDevnet {
             #[cfg(unix)]
             #[allow(unsafe_code)]
             unsafe {
-                // SAFETY: we are in the child just before exec; setsid() only
+                // SAFETY: We are in the child just before exec; setsid() only
                 // affects the child and cannot violate Rust invariants.
                 cmd.pre_exec(|| {
                     setsid();
@@ -439,7 +440,6 @@ impl LeoDevnet {
 
         {
             // This should be safe since only the current thread will write to the manager.
-            // The guard is then dropped before the signal handler is installed.
             let mut guard = manager.lock();
 
             // Validators
@@ -490,13 +490,14 @@ impl LeoDevnet {
             }
         }
 
-        // Children are fully registered → handler can now react safely.
-        ready.store(true, Ordering::SeqCst);
-        #[cfg(unix)]
-        install_signal_handler(manager.clone(), ready)?;
+        // Print the main process ID.
+        println!("📌  Main process ID: {}", std::process::id());
+        println!("\nDevnet running – Ctrl+C, SIGTERM, or terminal close to stop.");
 
-        println!("\nDevnet running – Ctrl+C or SIGTERM to stop.");
-        thread::park(); // ChildManager::Drop + handler will handle shutdown
-        unreachable!()
+        // Block here until the first (coalesced) shutdown request
+        let _ = rx_shutdown.recv();
+        manager.lock().shutdown_all(Duration::from_secs(30));
+
+        Ok(())
     }
 }

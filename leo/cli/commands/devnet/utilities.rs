@@ -75,25 +75,6 @@ pub fn install_snarkos(snarkos_path: &Path, version: Option<&str>, features: &[S
     Ok(snarkos_path.to_path_buf())
 }
 
-/// Installs a signal handler that listens for SIGINT, SIGTERM, SIGQUIT, and SIGHUP.
-/// This is only needed on Unix-like systems, as Windows shutdown is handled by the Job Object.
-#[cfg(unix)]
-pub fn install_signal_handler(manager: Arc<Mutex<ChildManager>>, ready: Arc<AtomicBool>) -> AnyhowResult<()> {
-    let mut signals = Signals::new([SIGINT, SIGTERM, SIGQUIT, SIGHUP])?;
-    thread::spawn(move || {
-        for _sig in signals.forever() {
-            if !ready.load(Ordering::SeqCst) {
-                // Ignore very early signals (before children).
-                continue;
-            }
-            eprintln!("\n⏹  Signal received – shutting down devnet …");
-            manager.lock().shutdown_all(Duration::from_secs(30));
-            std::process::exit(0);
-        }
-    });
-    Ok(())
-}
-
 /// Cleans a ledger associated with a snarkOS node.
 pub fn clean_snarkos<S: AsRef<OsStr>>(
     snarkos: S,
