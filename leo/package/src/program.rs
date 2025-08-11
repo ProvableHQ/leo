@@ -175,6 +175,7 @@ impl Program {
 
         // If the edition is not specified, then query the network for the latest edition.
         let edition = match edition {
+            _ if name == Symbol::intern("credits") => Ok(0), // Credits program always has edition 0.
             Some(edition) => Ok(edition),
             None => {
                 if name == Symbol::intern("credits") {
@@ -229,14 +230,18 @@ impl Program {
             (Some(bytecode), false) => bytecode,
             // Otherwise, we need to fetch it from the network.
             (existing, _) => {
-                // We need to fetch it from the network.
-                let edition_url = format!("{endpoint}/{network}/program/{name}.aleo/{edition}");
-                let no_edition_url = format!("{endpoint}/{network}/program/{name}.aleo");
-                let contents = fetch_from_network(&edition_url)
-                    .or_else(|_| fetch_from_network(&no_edition_url))
+                // Define the primary URL to fetch the program from.
+                let primary_url = if name == Symbol::intern("credits") {
+                    format!("{endpoint}/{network}/program/credits.aleo")
+                } else {
+                    format!("{endpoint}/{network}/program/{name}.aleo/{edition}")
+                };
+                let secondary_url = format!("{endpoint}/{network}/program/{name}.aleo");
+                let contents = fetch_from_network(&primary_url)
+                    .or_else(|_| fetch_from_network(&secondary_url))
                     .map_err(|err| {
                         UtilError::failed_to_retrieve_from_endpoint(
-                            edition_url,
+                            primary_url,
                             format_args!("Failed to fetch program `{name}` from network `{network}`: {err}"),
                         )
                     })?;
@@ -307,9 +312,6 @@ fn parse_dependencies_from_aleo(
             if let Some(dependency) = existing.get(&Symbol::intern(&program_id.name().to_string())) {
                 dependency.clone()
             } else {
-                println!(
-                    "Warning: Dependency for program `{program_id}` not found, assuming that it is network dependency."
-                );
                 let name = program_id.to_string();
                 Dependency { name, location: Location::Network, path: None, edition: None }
             }

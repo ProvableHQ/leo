@@ -1,0 +1,13 @@
+Error [ESAZ0374012]: The `@custom` constructor has no statements after dead code elimination.
+    --> compiler-test:5:5
+     |
+   5 |     @custom
+     |     ^^^^^^^
+   6 |     async constructor() {
+     |     ^^^^^^^^^^^^^^^^^^^^^
+   7 |         let x = self.program_owner;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 |     }
+     |     ^
+     |
+     = Add a non-trivial implementation

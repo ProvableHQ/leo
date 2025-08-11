@@ -21,7 +21,7 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
-use snarkvm::prelude::{Execution, Network, Program};
+use snarkvm::prelude::{Execution, Itertools, Network, Program};
 
 use clap::Parser;
 use colored::*;
@@ -83,8 +83,12 @@ impl Command for LeoExecute {
         let path = context.dir()?;
         // Get the path to the home directory.
         let home_path = context.home()?;
+        // Get the network, accounting for overrides.
+        let network = context.get_network(&self.env_override.network)?.parse()?;
+        // Get the endpoint, accounting for overrides.
+        let endpoint = context.get_endpoint(&self.env_override.endpoint)?;
         // If the current directory is a valid Leo package, then build it.
-        if Package::from_directory_no_graph(path, home_path).is_ok() {
+        if Package::from_directory_no_graph(path, home_path, network, &endpoint).is_ok() {
             let package = LeoBuild {
                 env_override: self.env_override.clone(),
                 options: {
@@ -137,6 +141,33 @@ fn handle_execute<A: Aleo>(
 
     // Get the endpoint, accounting for overrides.
     let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
+
+    // Get whether the network is a devnet, accounting for overrides.
+    let is_devnet = context.get_is_devnet(command.env_override.devnet);
+
+    // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
+    let consensus_heights =
+        command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
+    // Validate the provided consensus heights.
+    validate_consensus_heights(&consensus_heights)
+        .map_err(|e| CliError::custom(format!("Invalid consensus heights: {e}")))?;
+    // Print the consensus heights being used.
+    let consensus_heights_string = consensus_heights.iter().format(",").to_string();
+    println!(
+        "\n📢 Using the following consensus heights: {consensus_heights_string}\n  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.\n"
+    );
+
+    // Set the consensus heights in the environment.
+    #[allow(unsafe_code)]
+    unsafe {
+        // SAFETY:
+        //  - `CONSENSUS_VERSION_HEIGHTS` is only set once and is only read in `snarkvm::prelude::load_consensus_heights`.
+        //  - There are no concurrent threads running at this point in the execution.
+        // WHY:
+        //  - This is needed because there is no way to set the desired consensus heights for a particular `VM` instance
+        //    without using the environment variable `CONSENSUS_VERSION_HEIGHTS`. Which is itself read once, and stored in a `OnceLock`.
+        std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights_string);
+    }
 
     // Parse the <NAME> into an optional program name and a function name.
     // If only a function name is provided, then use the program name from the package.
@@ -247,7 +278,8 @@ fn handle_execute<A: Aleo>(
         parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
 
     // Get the consensus version.
-    let consensus_version = get_consensus_version(&command.extra.consensus_version, &endpoint, network, &context)?;
+    let consensus_version =
+        get_consensus_version(&command.extra.consensus_version, &endpoint, network, &consensus_heights, &context)?;
 
     // Print the execution plan.
     print_execution_plan::<A::Network>(
@@ -262,7 +294,7 @@ fn handle_execute<A: Aleo>(
         record.is_some(),
         &command.action,
         consensus_version,
-        &check_task_for_warnings(&endpoint, network, &programs),
+        &check_task_for_warnings(&endpoint, network, &programs, consensus_version),
     );
 
     // Prompt the user to confirm the plan.
@@ -284,16 +316,24 @@ fn handle_execute<A: Aleo>(
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
         println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
-        programs = load_programs_from_network(&context, program_id, network, &endpoint)?;
+        programs = load_latest_programs_from_network(&context, program_id, network, &endpoint)?;
     };
 
     // Add the programs to the VM.
-    println!("Adding programs to the VM...");
+    println!("\n➕Adding programs to the VM in the following order:");
     let programs_and_editions = programs
         .into_iter()
         .map(|(program, edition)| {
             // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-            (program, edition.unwrap_or(1))
+            let edition = edition.unwrap_or(1);
+            // Get the program ID.
+            let id = program.id().to_string();
+            // Print the program ID and edition.
+            match id == "credits.aleo" {
+                true => println!("  - {id} (already included)"),
+                false => println!("  - {id} (edition: {edition})"),
+            }
+            (program, edition)
         })
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
@@ -407,6 +447,7 @@ fn check_task_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
     programs: &[(Program<N>, Option<u16>)],
+    consensus_version: ConsensusVersion,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
     for (program, _) in programs {
@@ -432,6 +473,10 @@ fn check_task_for_warnings<N: Network>(
                 "The program '{}' does not exist on the network. You may use `leo deploy --broadcast` to deploy it.",
                 program.id()
             ));
+        }
+        // Check for a consensus version mismatch.
+        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+            warnings.push(format!("{e}. In some cases, the deployment may fail"));
         }
     }
     warnings

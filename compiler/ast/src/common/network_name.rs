@@ -25,11 +25,11 @@ use std::{fmt, str::FromStr};
 pub enum NetworkName {
     #[default]
     #[serde(rename = "testnet")]
-    TestnetV0,
+    TestnetV0 = 1,
     #[serde(rename = "mainnet")]
-    MainnetV0,
+    MainnetV0 = 0,
     #[serde(rename = "canary")]
-    CanaryV0,
+    CanaryV0 = 2,
 }
 
 impl NetworkName {

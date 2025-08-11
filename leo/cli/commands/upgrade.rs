@@ -35,8 +35,12 @@ use snarkvm::{
 use crate::cli::{check_transaction::TransactionStatus, commands::deploy::validate_deployment_limits};
 use aleo_std::StorageMode;
 use colored::*;
+use itertools::Itertools;
 use leo_span::Symbol;
-use snarkvm::prelude::{ConsensusVersion, ProgramID, Stack, store::helpers::memory::BlockMemory};
+use snarkvm::{
+    prelude::{ConsensusVersion, ProgramID, Stack, store::helpers::memory::BlockMemory},
+    synthesizer::program::StackTrait,
+};
 use std::path::PathBuf;
 
 /// Upgrades an Aleo program.
@@ -113,6 +117,33 @@ fn handle_upgrade<N: Network>(
     // Get the endpoint, accounting for overrides.
     let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
 
+    // Get whether the network is a devnet, accounting for overrides.
+    let is_devnet = context.get_is_devnet(command.env_override.devnet);
+
+    // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
+    let consensus_heights =
+        command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
+    // Validate the provided consensus heights.
+    validate_consensus_heights(&consensus_heights)
+        .map_err(|e| CliError::custom(format!("Invalid consensus heights: {e}")))?;
+    // Print the consensus heights being used.
+    let consensus_heights_string = consensus_heights.iter().format(",").to_string();
+    println!(
+        "\n📢 Using the following consensus heights: {consensus_heights_string}\n  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.\n"
+    );
+
+    // Set the consensus heights in the environment.
+    #[allow(unsafe_code)]
+    unsafe {
+        // SAFETY:
+        //  - `CONSENSUS_VERSION_HEIGHTS` is only set once and is only read in `snarkvm::prelude::load_consensus_heights`.
+        //  - There are no concurrent threads running at this point in the execution.
+        // WHY:
+        //  - This is needed because there is no way to set the desired consensus heights for a particular `VM` instance
+        //    without using the environment variable `CONSENSUS_VERSION_HEIGHTS`. Which is itself read once, and stored in a `OnceLock`.
+        std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights_string);
+    }
+
     // Get all the programs but tests.
     let programs = package.programs.iter().filter(|program| !program.is_test).cloned();
 
@@ -179,7 +210,8 @@ fn handle_upgrade<N: Network>(
         .collect();
 
     // Get the consensus version.
-    let consensus_version = get_consensus_version(&command.extra.consensus_version, &endpoint, network, &context)?;
+    let consensus_version =
+        get_consensus_version(&command.extra.consensus_version, &endpoint, network, &consensus_heights, &context)?;
 
     // Print a summary of the deployment plan.
     print_deployment_plan(
@@ -232,6 +264,18 @@ fn handle_upgrade<N: Network>(
         })
         .collect::<Result<Vec<_>>>()?;
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
+
+    // Print the programs and their editions in the VM.
+    println!("Loaded the following programs into the VM:");
+    for program_id in vm.process().read().program_ids() {
+        let edition = *vm.process().read().get_stack(program_id)?.program_edition();
+        if program_id.to_string() == "credits.aleo" {
+            println!(" - credits.aleo (default)");
+        } else {
+            println!(" - {program_id} (edition {edition})");
+        }
+    }
+    println!();
 
     // Specify the query
     let query = SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint);
@@ -381,15 +425,35 @@ fn check_tasks_for_warnings<N: Network>(
                 }
             };
             // Check if the program is a valid upgrade.
-            if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, program) {
-                warnings.push(format!(
-                    "The program '{id}' is not a valid upgrade. The upgrade will likely fail. Error: {e}",
-                ));
+            if remote_program.contains_constructor() {
+                if let Err(e) = Stack::check_upgrade_is_valid(&remote_program, program) {
+                    warnings.push(format!(
+                        "The program '{id}' is not a valid upgrade. The upgrade will likely fail. Error: {e}",
+                    ));
+                }
+            } else if consensus_version >= ConsensusVersion::V8 {
+                warnings.push(format!("The program '{id}' can only ever be upgraded once and its contents cannot be changed. Otherwise, the upgrade will likely fail."));
+            } else {
+                warnings.push(format!("The program '{id}' does not have a constructor and is not eligible for a one-time upgrade (>= `ConsensusVersion::V8`). The upgrade will likely fail."));
             }
         } else {
             warnings.push(format!("The program '{id}' does not exist on the network. The upgrade will likely fail.",));
         }
-
+        // Check if the program has a valid naming scheme.
+        if consensus_version >= ConsensusVersion::V7 {
+            if let Err(e) = program.check_program_naming_structure() {
+                warnings.push(format!(
+                    "The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
+                ));
+            }
+        }
+        // Check if the program contains restricted keywords.
+        if let Err(e) = program.check_restricted_keywords_for_consensus_version(consensus_version) {
+            warnings.push(format!(
+                "The program '{id}' contains restricted keywords for consensus version {}: {e}. The deployment will likely fail.",
+                consensus_version as u8
+            ));
+        }
         // Check if the program uses V9 features.
         if consensus_version < ConsensusVersion::V9 && program.contains_v9_syntax() {
             warnings.push(format!("The program '{id}' uses V9 features but the consensus version is less than V9. The upgrade will likely fail"));
@@ -397,6 +461,10 @@ fn check_tasks_for_warnings<N: Network>(
         // Check if the program contains a constructor.
         if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
             warnings.push(format!("The program '{id}' does not contain a constructor. The upgrade will likely fail",));
+        }
+        // Check for a consensus version mismatch.
+        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+            warnings.push(format!("{e}. In some cases, the deployment may fail"));
         }
     }
     warnings

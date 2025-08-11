@@ -16,9 +16,17 @@
 
 use super::DeadCodeEliminatingVisitor;
 
-use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor};
+use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor, UpgradeVariant};
+use leo_errors::StaticAnalyzerError;
 
 impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
+    fn reconstruct_program_scope(&mut self, mut input: leo_ast::ProgramScope) -> leo_ast::ProgramScope {
+        self.program_name = input.program_id.name.name;
+        input.functions = input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect();
+        input.constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
+        input
+    }
+
     fn reconstruct_function(&mut self, mut input: Function) -> Function {
         // Reset the state of the dead code eliminator.
         self.used_variables.clear();
@@ -32,13 +40,19 @@ impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
         self.used_variables.clear();
         // Traverse the constructor body.
         input.block = self.reconstruct_block(input.block).0;
-        input
-    }
-
-    fn reconstruct_program_scope(&mut self, mut input: leo_ast::ProgramScope) -> leo_ast::ProgramScope {
-        self.program_name = input.program_id.name.name;
-        input.functions = input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect();
-        input.constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
+        // If the reconstructed input has no statements, and the constructor is a custom one, return an error.
+        if input
+            .get_upgrade_variant_with_network(self.state.network)
+            .expect("Type checking guarantees that the upgrade variant is valid")
+            == UpgradeVariant::Custom
+            && input.block.statements.is_empty()
+        {
+            self.state.handler.emit_err(StaticAnalyzerError::custom_error(
+                "The `@custom` constructor has no statements after dead code elimination.",
+                Some("Add a non-trivial implementation"),
+                input.span,
+            ))
+        }
         input
     }
 }

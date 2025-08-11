@@ -75,15 +75,27 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
     let package_path = context.dir()?;
     let home_path = context.home()?;
 
+    // Get the endpoint, accounting for overrides.
+    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
+
     let package = if command.options.build_tests {
         Package::from_directory_with_tests(
             &package_path,
             &home_path,
             command.options.no_cache,
             command.options.no_local,
+            network,
+            &endpoint,
         )?
     } else {
-        Package::from_directory(&package_path, &home_path, command.options.no_cache, command.options.no_local)?
+        Package::from_directory(
+            &package_path,
+            &home_path,
+            command.options.no_cache,
+            command.options.no_local,
+            network,
+            &endpoint,
+        )?
     };
 
     let outputs_directory = package.outputs_directory();

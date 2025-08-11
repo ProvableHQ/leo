@@ -72,6 +72,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoDeploy,
     },
+    #[clap(about = "Run a local devnet")]
+    Devnet {
+        #[clap(flatten)]
+        command: LeoDevnet,
+    },
     #[clap(about = "Query live data from the Aleo network")]
     Query {
         #[clap(flatten)]
@@ -126,6 +131,9 @@ pub fn handle_error<T>(res: Result<T>) -> T {
 
 /// Run command with custom build arguments.
 pub fn run_with_args(cli: CLI) -> Result<()> {
+    // Initialize the `.env` file.
+    dotenvy::dotenv().ok();
+
     if !cli.quiet {
         // Init logger with optional debug flag.
         logger::init_logger("leo", match cli.debug {
@@ -152,6 +160,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Query { command } => command.try_execute(context),
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
+        Commands::Devnet { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Test { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
@@ -182,6 +191,10 @@ mod tests {
         // Create file structure
         test_helpers::sample_nested_package(&temp_dir);
 
+        // Set the env options.
+        let env_override =
+            crate::cli::commands::EnvOptions { network: Some("mainnet".to_string()), ..Default::default() };
+
         // Run program
         let run = CLI {
             debug: false,
@@ -191,7 +204,7 @@ mod tests {
                     name: "example".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     compiler_options: Default::default(),
-                    env_override: Default::default(),
+                    env_override,
                 },
             },
             path: Some(project_directory.clone()),

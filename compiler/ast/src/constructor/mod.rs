@@ -23,7 +23,7 @@ pub use checksum::*;
 mod noupgrade;
 pub use noupgrade::*;
 
-use crate::{Annotation, Block, Indent, IntegerType, Location, Node, NodeID, Type};
+use crate::{Annotation, Block, Indent, IntegerType, Location, NetworkName, Node, NodeID, Type};
 use leo_span::{Span, sym};
 
 use anyhow::{anyhow, bail};
@@ -46,6 +46,7 @@ pub struct Constructor {
 }
 
 /// The upgrade variant.
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum UpgradeVariant {
     Admin { address: String },
     Custom,
@@ -54,6 +55,14 @@ pub enum UpgradeVariant {
 }
 
 impl Constructor {
+    pub fn get_upgrade_variant_with_network(&self, network: NetworkName) -> anyhow::Result<UpgradeVariant> {
+        match network {
+            NetworkName::MainnetV0 => self.get_upgrade_variant::<snarkvm::prelude::MainnetV0>(),
+            NetworkName::TestnetV0 => self.get_upgrade_variant::<snarkvm::prelude::TestnetV0>(),
+            NetworkName::CanaryV0 => self.get_upgrade_variant::<snarkvm::prelude::CanaryV0>(),
+        }
+    }
+
     /// Checks that the constructor's annotations are valid and returns the upgrade variant.
     pub fn get_upgrade_variant<N: Network>(&self) -> anyhow::Result<UpgradeVariant> {
         // Check that there is exactly one annotation.

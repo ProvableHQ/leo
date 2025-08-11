@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use anyhow::{bail, ensure};
+use itertools::Itertools;
 use leo_ast::NetworkName;
+use leo_package::fetch_from_network;
 use snarkvm::prelude::{
     CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
     ConsensusVersion,
@@ -28,8 +31,6 @@ use snarkvm::prelude::{
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug)]
 pub struct BuildOptions {
-    #[clap(long, help = "Does not recursively compile dependencies.")]
-    pub non_recursive: bool,
     #[clap(long, help = "Enables offline mode.")]
     pub offline: bool,
     #[clap(long, help = "Enable spans in AST snapshots.")]
@@ -57,7 +58,6 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            non_recursive: false,
             offline: false,
             enable_ast_spans: false,
             enable_dce: true,
@@ -76,12 +76,23 @@ impl Default for BuildOptions {
 /// Overrides for the `.env` file.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct EnvOptions {
-    #[clap(long, help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` in the `.env` file.")]
+    #[clap(
+        long,
+        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable."
+    )]
     pub(crate) private_key: Option<String>,
-    #[clap(long, help = "The network to deploy to. Overrides the `NETWORK` in the .env file.")]
+    #[clap(long, help = "The network to deploy to. Overrides the `NETWORK` environment variable.")]
     pub(crate) network: Option<String>,
-    #[clap(long, help = "The endpoint to deploy to. Overrides the `ENDPOINT` in the .env file.")]
+    #[clap(long, help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable.")]
     pub(crate) endpoint: Option<String>,
+    #[clap(long, help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable.")]
+    pub(crate) devnet: bool,
+    #[clap(
+        long,
+        help = "Optional consensus heights to use. This should only be set if you are using a custom devnet.",
+        value_delimiter = ','
+    )]
+    pub(crate) consensus_heights: Option<Vec<u32>>,
 }
 
 /// The fee options for the transactions.
@@ -192,10 +203,11 @@ pub fn get_consensus_version(
     consensus_version: &Option<u8>,
     endpoint: &str,
     network: NetworkName,
+    heights: &[u32],
     context: &Context,
 ) -> Result<ConsensusVersion> {
     // Get the consensus version.
-    match consensus_version {
+    let result = match consensus_version {
         Some(1) => Ok(ConsensusVersion::V1),
         Some(2) => Ok(ConsensusVersion::V2),
         Some(3) => Ok(ConsensusVersion::V3),
@@ -205,11 +217,13 @@ pub fn get_consensus_version(
         Some(7) => Ok(ConsensusVersion::V7),
         Some(8) => Ok(ConsensusVersion::V8),
         Some(9) => Ok(ConsensusVersion::V9),
+        Some(10) => Ok(ConsensusVersion::V10),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
+            // Get the consensus heights for the current network.
             get_latest_block_height(endpoint, network, context)
-                .and_then(|current_block_height| get_consensus_version_from_height(current_block_height, network))
+                .and_then(|current_block_height| get_consensus_version_from_height(current_block_height, heights))
                 .map_err(|_| {
                     CliError::custom(
                         "Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus-version`",
@@ -218,36 +232,107 @@ pub fn get_consensus_version(
                 })
         }
         Some(version) => Err(CliError::custom(format!("Invalid consensus version: {version}")).into()),
+    };
+
+    // Check `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
+    // If it returns a result and does not match the given version, print a warning.
+    if let Ok(consensus_version) = result {
+        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+            println!("⚠️ Warning: {e}");
+        }
     }
+
+    result
+}
+
+/// A helper function to check for a consensus version mismatch against the network.
+pub fn check_consensus_version_mismatch(
+    consensus_version: ConsensusVersion,
+    endpoint: &str,
+    network: NetworkName,
+) -> anyhow::Result<()> {
+    // Check the `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
+    if let Ok(response) = fetch_from_network(&format!("{endpoint}/{network}/consensus_version")) {
+        if let Ok(response) = response.parse::<u8>() {
+            let consensus_version = consensus_version as u8;
+            if response != consensus_version {
+                bail!("Expected consensus version {consensus_version} but found {response} at {endpoint}",);
+            }
+        }
+    }
+    Ok(())
 }
 
 // A helper function to get the consensus version based on the block height.
 // Note. This custom implementation is necessary because we use `snarkVM` with the `test_heights` feature enabled, which does not reflect the actual consensus version heights.
-pub fn get_consensus_version_from_height(seek_height: u32, network_name: NetworkName) -> Result<ConsensusVersion> {
-    let heights = if cfg!(feature = "test_network") {
-        TEST_CONSENSUS_VERSION_HEIGHTS
-    } else {
-        match network_name {
-            NetworkName::TestnetV0 => TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
-            NetworkName::MainnetV0 => MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
-            NetworkName::CanaryV0 => CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
-        }
-    };
-
+pub fn get_consensus_version_from_height(seek_height: u32, heights: &[u32]) -> Result<ConsensusVersion> {
     // Find the consensus version based on the block height.
-    match heights.binary_search_by(|(_, height)| height.cmp(&seek_height)) {
+    let index = match heights.binary_search_by(|height| height.cmp(&seek_height)) {
         // If a consensus version was found at this height, return it.
-        Ok(index) => Ok(heights[index].0),
+        Ok(index) => index,
         // If the specified height was not found, determine whether to return an appropriate version.
         Err(index) => {
             if index == 0 {
-                Err(CliError::custom("Expected consensus version 1 to exist at height 0.").into())
+                return Err(CliError::custom("Expected consensus version 1 to exist at height 0.").into());
             } else {
                 // Return the appropriate version belonging to the height *lower* than the sought height.
-                Ok(heights[index - 1].0)
+                index - 1
             }
         }
+    };
+    // Convert the index to a consensus version.
+    Ok(number_to_consensus_version(index + 1))
+}
+
+// A helper to convert an index to a consensus version.
+pub fn number_to_consensus_version(index: usize) -> ConsensusVersion {
+    match index {
+        1 => ConsensusVersion::V1,
+        2 => ConsensusVersion::V2,
+        3 => ConsensusVersion::V3,
+        4 => ConsensusVersion::V4,
+        5 => ConsensusVersion::V5,
+        6 => ConsensusVersion::V6,
+        7 => ConsensusVersion::V7,
+        8 => ConsensusVersion::V8,
+        9 => ConsensusVersion::V9,
+        10 => ConsensusVersion::V10,
+        _ => panic!("Invalid consensus version: {index}"),
     }
+}
+
+/// Get the consensus heights for the current network.
+/// If `is_devnet` is true, first , then return the test consensus heights.
+pub fn get_consensus_heights(network_name: NetworkName, is_devnet: bool) -> Vec<u32> {
+    if is_devnet {
+        TEST_CONSENSUS_VERSION_HEIGHTS.into_iter().map(|(_, v)| v).collect_vec()
+    } else {
+        match network_name {
+            NetworkName::CanaryV0 => CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
+            NetworkName::MainnetV0 => MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
+            NetworkName::TestnetV0 => TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
+        }
+        .into_iter()
+        .map(|(_, v)| v)
+        .collect_vec()
+    }
+}
+
+/// Validates a vector of heights as consensus heights.
+pub fn validate_consensus_heights(heights: &[u32]) -> anyhow::Result<()> {
+    // Check that the correct number of heights were provided.
+    let actual = heights.len();
+    let expected = ConsensusVersion::latest() as usize;
+    ensure!(actual == expected, "Expected exactly {expected} consensus heights, but found: {actual}");
+    // Assert that the genesis height is 0.
+    ensure!(heights[0] == 0, "Genesis height must be 0.");
+    // Assert that the consensus heights are strictly increasing.
+    for window in heights.windows(2) {
+        if window[0] >= window[1] {
+            bail!("Heights must be strictly increasing, but found: {window:?}");
+        }
+    }
+    Ok(())
 }
 
 /// What to do with a transaction produced by the CLI.
@@ -267,6 +352,6 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V9); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V10); // If this fails, update the test and any code that matches on `ConsensusVersion`.
     }
 }

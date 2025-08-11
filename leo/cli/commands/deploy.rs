@@ -39,6 +39,7 @@ use snarkvm::{
 };
 
 use colored::*;
+use itertools::Itertools;
 use std::{collections::HashSet, fs, path::PathBuf};
 
 /// Deploys an Aleo program.
@@ -52,7 +53,7 @@ pub struct LeoDeploy {
     pub(crate) env_override: EnvOptions,
     #[clap(flatten)]
     pub(crate) extra: ExtraOptions,
-    #[clap(long, help = "Skips deployment of any program that contains one of the given substrings.")]
+    #[clap(long, help = "Skips deployment of any program that contains one of the given substrings.", value_delimiter = ',', num_args = 1..)]
     pub(crate) skip: Vec<String>,
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
@@ -124,6 +125,33 @@ fn handle_deploy<N: Network>(
     // Get the endpoint, accounting for overrides.
     let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
 
+    // Get whether the network is a devnet, accounting for overrides.
+    let is_devnet = context.get_is_devnet(command.env_override.devnet);
+
+    // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
+    let consensus_heights =
+        command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
+    // Validate the provided consensus heights.
+    validate_consensus_heights(&consensus_heights)
+        .map_err(|e| CliError::custom(format!("Invalid consensus heights: {e}")))?;
+    // Print the consensus heights being used.
+    let consensus_heights_string = consensus_heights.iter().format(",").to_string();
+    println!(
+        "\n📢 Using the following consensus heights: {consensus_heights_string}\n  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.\n"
+    );
+
+    // Set the consensus heights in the environment.
+    #[allow(unsafe_code)]
+    unsafe {
+        // SAFETY:
+        //  - `CONSENSUS_VERSION_HEIGHTS` is only set once and is only read in `snarkvm::prelude::load_consensus_heights`.
+        //  - There are no concurrent threads running at this point in the execution.
+        // WHY:
+        //  - This is needed because there is no way to set the desired consensus heights for a particular `VM` instance
+        //    without using the environment variable `CONSENSUS_VERSION_HEIGHTS`. Which is itself read once, and stored in a `OnceLock`.
+        std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights_string);
+    }
+
     // Get all the programs but tests.
     let programs = package.programs.iter().filter(|program| !program.is_test).cloned();
 
@@ -187,7 +215,8 @@ fn handle_deploy<N: Network>(
         .collect();
 
     // Get the consensus version.
-    let consensus_version = get_consensus_version(&command.extra.consensus_version, &endpoint, network, &context)?;
+    let consensus_version =
+        get_consensus_version(&command.extra.consensus_version, &endpoint, network, &consensus_heights, &context)?;
 
     // Print a summary of the deployment plan.
     print_deployment_plan(
@@ -385,12 +414,23 @@ fn check_tasks_for_warnings<N: Network>(
         // Check if the program exists on the network.
         if fetch_program_from_network(&id.to_string(), endpoint, network).is_ok() {
             warnings
-                .push(format!("The program '{id}' already exists on the network. The deployment will likely fail.",));
+                .push(format!("The program '{id}' already exists on the network. Please use `leo upgrade` instead.",));
         }
-        // If the upgrade flag is not set, check that the program exists on the network.
-        if fetch_program_from_network(&id.to_string(), endpoint, network).is_ok() {
-            warnings
-                .push(format!("The program '{id}' already exists on the network. The deployment will likely fail.",));
+        // Check if the program has a valid naming scheme.
+        if consensus_version >= ConsensusVersion::V7 {
+            if let Err(e) = program.check_program_naming_structure() {
+                warnings.push(format!(
+                    "The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
+                ));
+            }
+        }
+
+        // Check if the program contains restricted keywords.
+        if let Err(e) = program.check_restricted_keywords_for_consensus_version(consensus_version) {
+            warnings.push(format!(
+                "The program '{id}' contains restricted keywords for consensus version {}: {e}. The deployment will likely fail.",
+                consensus_version as u8
+            ));
         }
         // Check if the program uses V9 features.
         if consensus_version < ConsensusVersion::V9 && program.contains_v9_syntax() {
@@ -400,6 +440,10 @@ fn check_tasks_for_warnings<N: Network>(
         if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
             warnings
                 .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
+        }
+        // Check for a consensus version mismatch.
+        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+            warnings.push(format!("{e}. In some cases, the deployment may fail"));
         }
     }
     warnings

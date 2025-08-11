@@ -27,7 +27,7 @@ mod clean;
 pub use clean::LeoClean;
 
 mod common;
-use common::*;
+pub use common::*;
 
 mod debug;
 pub use debug::LeoDebug;
@@ -35,6 +35,9 @@ pub use debug::LeoDebug;
 mod deploy;
 pub use deploy::LeoDeploy;
 use deploy::{Task, print_deployment_plan, print_deployment_stats};
+
+mod devnet;
+pub use devnet::LeoDevnet;
 
 mod execute;
 pub use execute::LeoExecute;

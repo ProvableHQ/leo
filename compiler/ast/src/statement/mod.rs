@@ -41,7 +41,7 @@ pub use iteration::*;
 mod return_;
 pub use return_::*;
 
-use crate::{Node, NodeID};
+use crate::{Expression, Node, NodeID};
 
 use leo_span::Span;
 
@@ -84,7 +84,11 @@ impl Statement {
     }
 
     pub fn is_empty(self: &Statement) -> bool {
-        matches!(self, Statement::Block(block) if block.statements.is_empty())
+        match self {
+            Statement::Block(block) => block.statements.is_empty(),
+            Statement::Return(return_) => matches!(return_.expression, Expression::Unit(_)),
+            _ => false,
+        }
     }
 }
 
