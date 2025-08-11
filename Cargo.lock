@@ -1573,6 +1573,7 @@ dependencies = [
  "crossterm",
  "dialoguer",
  "indexmap",
+ "itertools 0.13.0",
  "leo-ast",
  "leo-errors",
  "leo-parser",

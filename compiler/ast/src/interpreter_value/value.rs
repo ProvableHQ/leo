@@ -46,15 +46,15 @@ pub type SvmScalar = SvmScalarParam<TestnetV0>;
 
 /// Global values - such as mappings, functions, etc -
 /// are identified by program and name.
-#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq)]
 pub struct GlobalId {
     pub program: Symbol,
-    pub name: Symbol,
+    pub path: Vec<Symbol>, // absolute path
 }
 
 impl fmt::Display for GlobalId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}.aleo/{}", self.program, self.name)
+        write!(f, "{}.aleo/{}", self.program, self.path.iter().format("::"))
     }
 }
 
@@ -82,7 +82,7 @@ pub enum AsyncExecution {
     AsyncBlock {
         containing_function: GlobalId, // The function that contains the async block.
         block: crate::NodeID,
-        names: BTreeMap<Symbol, Value>, // Use a `BTreeMap` here because `HashMap` does not implement `Hash`.
+        names: BTreeMap<Vec<Symbol>, Value>, // Use a `BTreeMap` here because `HashMap` does not implement `Hash`.
     },
 }
 

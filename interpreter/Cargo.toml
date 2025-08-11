@@ -55,6 +55,9 @@ workspace = true
 [dependencies.ratatui]
 version = "0.29.0"
 
+[dependencies.itertools]
+workspace = true
+
 [dev-dependencies.leo-test-framework]
 workspace = true
 

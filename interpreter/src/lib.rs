@@ -31,6 +31,7 @@ use leo_span::{Span, Symbol, source_map::FileName, sym, with_session_globals};
 use snarkvm::prelude::{Network, Program, TestnetV0};
 
 use indexmap::IndexMap;
+use itertools::Itertools;
 use std::{
     collections::HashMap,
     fmt::{Display, Write as _},
@@ -182,7 +183,7 @@ pub fn find_and_run_tests(
             let private_key = annotation.map.get(&private_key_symbol).cloned();
             native_test_functions.push(TestFunction {
                 program: id.program.to_string(),
-                function: id.name.to_string(),
+                function: id.path.iter().format("::").to_string(),
                 should_fail,
                 private_key,
             });
