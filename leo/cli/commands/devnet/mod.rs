@@ -101,7 +101,7 @@ impl Command for LeoDevnet {
     }
 
     fn apply(self, _cx: Context, _: Self::Input) -> Result<Self::Output> {
-        self.handle_apply().map_err(|e| CliError::custom(format!("Failed start devnet: {e}")).into())
+        self.handle_apply().map_err(|e| CliError::custom(format!("Failed to start devnet: {e}")).into())
     }
 }
 

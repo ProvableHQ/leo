@@ -320,10 +320,6 @@ pub fn get_consensus_heights(network_name: NetworkName, is_devnet: bool) -> Vec<
 
 /// Validates a vector of heights as consensus heights.
 pub fn validate_consensus_heights(heights: &[u32]) -> anyhow::Result<()> {
-    // Check that the correct number of heights were provided.
-    let actual = heights.len();
-    let expected = ConsensusVersion::latest() as usize;
-    ensure!(actual == expected, "Expected exactly {expected} consensus heights, but found: {actual}");
     // Assert that the genesis height is 0.
     ensure!(heights[0] == 0, "Genesis height must be 0.");
     // Assert that the consensus heights are strictly increasing.
