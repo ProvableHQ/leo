@@ -412,11 +412,6 @@ fn main_template(name: &str) -> String {
     format!(
         r#"// The '{name}' program.
 program {name}.aleo {{
-    transition main(public a: u32, b: u32) -> u32 {{
-        let c: u32 = a + b;
-        return c;
-    }}
-    
     // This is the constructor for the program.
     // The constructor allows you to manage program upgrades.
     // It is called when the program is deployed or upgraded.
@@ -425,9 +420,14 @@ program {name}.aleo {{
     //  - @admin(address="aleo1...")
     //  - @checksum(mapping="credits.aleo/fixme", key="0field")
     //  - @custom
-    // For more information, please refer to the documentation: <TODO>.
+    // For more information, please refer to the documentation: `https://docs.leo-lang.org/guides/upgradability`
     @noupgrade
     async constructor() {{}}
+    
+    transition main(public a: u32, b: u32) -> u32 {{
+        let c: u32 = a + b;
+        return c;
+    }}
 }}
 "#
     )
