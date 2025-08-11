@@ -435,9 +435,9 @@
 <a href=#435 id=435 data-nosnippet>435</a>
 <a href=#436 id=436 data-nosnippet>436</a>    @backtraced
 <a href=#437 id=437 data-nosnippet>437</a>    conflicting_dependency {
-<a href=#438 id=438 data-nosnippet>438</a>        args: (dependency: <span class="kw">impl </span>Display),
-<a href=#439 id=439 data-nosnippet>439</a>        msg: <span class="macro">format!</span>(<span class="string">"Conflicting data for dependency {dependency}."</span>),
-<a href=#440 id=440 data-nosnippet>440</a>        help: <span class="prelude-val">None</span>,
+<a href=#438 id=438 data-nosnippet>438</a>        args: (existing: <span class="kw">impl </span>Display, new: <span class="kw">impl </span>Display),
+<a href=#439 id=439 data-nosnippet>439</a>        msg: <span class="macro">format!</span>(<span class="string">"Conflicting dependency. The existing dependency is '{existing}', while the new one is '{new}'."</span>),
+<a href=#440 id=440 data-nosnippet>440</a>        help: <span class="prelude-val">Some</span>(<span class="string">"If your project has multiple dependencies on the same program, make sure that they are all network or all local dependencies, with the same editions."</span>.to_string()),
 <a href=#441 id=441 data-nosnippet>441</a>    }
 <a href=#442 id=442 data-nosnippet>442</a>
 <a href=#443 id=443 data-nosnippet>443</a>    @backtraced

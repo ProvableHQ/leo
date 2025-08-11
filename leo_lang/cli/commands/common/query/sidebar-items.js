@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_latest_block_height","get_public_balance","handle_broadcast","load_programs_from_network"]};
+window.SIDEBAR_ITEMS = {"fn":["get_latest_block_height","get_public_balance","handle_broadcast","load_latest_programs_from_network"]};

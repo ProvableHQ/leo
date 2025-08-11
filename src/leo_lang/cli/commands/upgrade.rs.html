@@ -35,383 +35,451 @@
 <a href=#35 id=35 data-nosnippet>35</a><span class="kw">use </span><span class="kw">crate</span>::cli::{check_transaction::TransactionStatus, commands::deploy::validate_deployment_limits};
 <a href=#36 id=36 data-nosnippet>36</a><span class="kw">use </span>aleo_std::StorageMode;
 <a href=#37 id=37 data-nosnippet>37</a><span class="kw">use </span>colored::<span class="kw-2">*</span>;
-<a href=#38 id=38 data-nosnippet>38</a><span class="kw">use </span>leo_span::Symbol;
-<a href=#39 id=39 data-nosnippet>39</a><span class="kw">use </span>snarkvm::prelude::{ConsensusVersion, ProgramID, Stack, store::helpers::memory::BlockMemory};
-<a href=#40 id=40 data-nosnippet>40</a><span class="kw">use </span>std::path::PathBuf;
-<a href=#41 id=41 data-nosnippet>41</a>
-<a href=#42 id=42 data-nosnippet>42</a><span class="doccomment">/// Upgrades an Aleo program.
-<a href=#43 id=43 data-nosnippet>43</a></span><span class="attr">#[derive(Parser, Debug)]
-<a href=#44 id=44 data-nosnippet>44</a></span><span class="kw">pub struct </span>LeoUpgrade {
-<a href=#45 id=45 data-nosnippet>45</a>    <span class="attr">#[clap(flatten)]
-<a href=#46 id=46 data-nosnippet>46</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) fee_options: FeeOptions,
-<a href=#47 id=47 data-nosnippet>47</a>    <span class="attr">#[clap(flatten)]
-<a href=#48 id=48 data-nosnippet>48</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) action: TransactionAction,
+<a href=#38 id=38 data-nosnippet>38</a><span class="kw">use </span>itertools::Itertools;
+<a href=#39 id=39 data-nosnippet>39</a><span class="kw">use </span>leo_span::Symbol;
+<a href=#40 id=40 data-nosnippet>40</a><span class="kw">use </span>snarkvm::{
+<a href=#41 id=41 data-nosnippet>41</a>    prelude::{ConsensusVersion, ProgramID, Stack, store::helpers::memory::BlockMemory},
+<a href=#42 id=42 data-nosnippet>42</a>    synthesizer::program::StackTrait,
+<a href=#43 id=43 data-nosnippet>43</a>};
+<a href=#44 id=44 data-nosnippet>44</a><span class="kw">use </span>std::path::PathBuf;
+<a href=#45 id=45 data-nosnippet>45</a>
+<a href=#46 id=46 data-nosnippet>46</a><span class="doccomment">/// Upgrades an Aleo program.
+<a href=#47 id=47 data-nosnippet>47</a></span><span class="attr">#[derive(Parser, Debug)]
+<a href=#48 id=48 data-nosnippet>48</a></span><span class="kw">pub struct </span>LeoUpgrade {
 <a href=#49 id=49 data-nosnippet>49</a>    <span class="attr">#[clap(flatten)]
-<a href=#50 id=50 data-nosnippet>50</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) env_override: EnvOptions,
+<a href=#50 id=50 data-nosnippet>50</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) fee_options: FeeOptions,
 <a href=#51 id=51 data-nosnippet>51</a>    <span class="attr">#[clap(flatten)]
-<a href=#52 id=52 data-nosnippet>52</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) extra: ExtraOptions,
-<a href=#53 id=53 data-nosnippet>53</a>    <span class="attr">#[clap(long, help = <span class="string">"Skips the upgrade of any program that contains one of the given substrings."</span>)]
-<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) skip: Vec&lt;String&gt;,
+<a href=#52 id=52 data-nosnippet>52</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) action: TransactionAction,
+<a href=#53 id=53 data-nosnippet>53</a>    <span class="attr">#[clap(flatten)]
+<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) env_override: EnvOptions,
 <a href=#55 id=55 data-nosnippet>55</a>    <span class="attr">#[clap(flatten)]
-<a href=#56 id=56 data-nosnippet>56</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) build_options: BuildOptions,
-<a href=#57 id=57 data-nosnippet>57</a>}
-<a href=#58 id=58 data-nosnippet>58</a>
-<a href=#59 id=59 data-nosnippet>59</a><span class="kw">impl </span>Command <span class="kw">for </span>LeoUpgrade {
-<a href=#60 id=60 data-nosnippet>60</a>    <span class="kw">type </span>Input = Package;
-<a href=#61 id=61 data-nosnippet>61</a>    <span class="kw">type </span>Output = ();
+<a href=#56 id=56 data-nosnippet>56</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) extra: ExtraOptions,
+<a href=#57 id=57 data-nosnippet>57</a>    <span class="attr">#[clap(long, help = <span class="string">"Skips the upgrade of any program that contains one of the given substrings."</span>)]
+<a href=#58 id=58 data-nosnippet>58</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) skip: Vec&lt;String&gt;,
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="attr">#[clap(flatten)]
+<a href=#60 id=60 data-nosnippet>60</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) build_options: BuildOptions,
+<a href=#61 id=61 data-nosnippet>61</a>}
 <a href=#62 id=62 data-nosnippet>62</a>
-<a href=#63 id=63 data-nosnippet>63</a>    <span class="kw">fn </span>log_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
-<a href=#64 id=64 data-nosnippet>64</a>        <span class="macro">tracing::span!</span>(tracing::Level::INFO, <span class="string">"Leo"</span>)
-<a href=#65 id=65 data-nosnippet>65</a>    }
+<a href=#63 id=63 data-nosnippet>63</a><span class="kw">impl </span>Command <span class="kw">for </span>LeoUpgrade {
+<a href=#64 id=64 data-nosnippet>64</a>    <span class="kw">type </span>Input = Package;
+<a href=#65 id=65 data-nosnippet>65</a>    <span class="kw">type </span>Output = ();
 <a href=#66 id=66 data-nosnippet>66</a>
-<a href=#67 id=67 data-nosnippet>67</a>    <span class="kw">fn </span>prelude(<span class="kw-2">&amp;</span><span class="self">self</span>, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Input&gt; {
-<a href=#68 id=68 data-nosnippet>68</a>        LeoBuild {
-<a href=#69 id=69 data-nosnippet>69</a>            env_override: <span class="self">self</span>.env_override.clone(),
-<a href=#70 id=70 data-nosnippet>70</a>            options: {
-<a href=#71 id=71 data-nosnippet>71</a>                <span class="kw">let </span><span class="kw-2">mut </span>options = <span class="self">self</span>.build_options.clone();
-<a href=#72 id=72 data-nosnippet>72</a>                options.no_cache = <span class="bool-val">true</span>;
-<a href=#73 id=73 data-nosnippet>73</a>                options
-<a href=#74 id=74 data-nosnippet>74</a>            },
-<a href=#75 id=75 data-nosnippet>75</a>        }
-<a href=#76 id=76 data-nosnippet>76</a>        .execute(context)
-<a href=#77 id=77 data-nosnippet>77</a>    }
-<a href=#78 id=78 data-nosnippet>78</a>
-<a href=#79 id=79 data-nosnippet>79</a>    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-<a href=#80 id=80 data-nosnippet>80</a>        <span class="comment">// Get the network, accounting for overrides.
-<a href=#81 id=81 data-nosnippet>81</a>        </span><span class="kw">let </span>network = context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.network)<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>;
-<a href=#82 id=82 data-nosnippet>82</a>        <span class="comment">// Handle each network with the appropriate parameterization.
-<a href=#83 id=83 data-nosnippet>83</a>        </span><span class="kw">match </span>network {
-<a href=#84 id=84 data-nosnippet>84</a>            NetworkName::TestnetV0 =&gt; handle_upgrade::&lt;TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, input),
-<a href=#85 id=85 data-nosnippet>85</a>            NetworkName::MainnetV0 =&gt; {
-<a href=#86 id=86 data-nosnippet>86</a>                <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
-<a href=#87 id=87 data-nosnippet>87</a>                </span><span class="macro">panic!</span>(<span class="string">"Mainnet chosen with only_testnet feature"</span>);
-<a href=#88 id=88 data-nosnippet>88</a>                <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
-<a href=#89 id=89 data-nosnippet>89</a>                </span>handle_upgrade::&lt;MainnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, input)
-<a href=#90 id=90 data-nosnippet>90</a>            }
-<a href=#91 id=91 data-nosnippet>91</a>            NetworkName::CanaryV0 =&gt; {
-<a href=#92 id=92 data-nosnippet>92</a>                <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
-<a href=#93 id=93 data-nosnippet>93</a>                </span><span class="macro">panic!</span>(<span class="string">"Canary chosen with only_testnet feature"</span>);
-<a href=#94 id=94 data-nosnippet>94</a>                <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
-<a href=#95 id=95 data-nosnippet>95</a>                </span>handle_upgrade::&lt;CanaryV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, input)
-<a href=#96 id=96 data-nosnippet>96</a>            }
-<a href=#97 id=97 data-nosnippet>97</a>        }
-<a href=#98 id=98 data-nosnippet>98</a>    }
-<a href=#99 id=99 data-nosnippet>99</a>}
-<a href=#100 id=100 data-nosnippet>100</a>
-<a href=#101 id=101 data-nosnippet>101</a><span class="comment">// A helper function to handle upgrade logic.
-<a href=#102 id=102 data-nosnippet>102</a></span><span class="kw">fn </span>handle_upgrade&lt;N: Network&gt;(
-<a href=#103 id=103 data-nosnippet>103</a>    command: <span class="kw-2">&amp;</span>LeoUpgrade,
-<a href=#104 id=104 data-nosnippet>104</a>    context: Context,
-<a href=#105 id=105 data-nosnippet>105</a>    network: NetworkName,
-<a href=#106 id=106 data-nosnippet>106</a>    package: Package,
-<a href=#107 id=107 data-nosnippet>107</a>) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;LeoDeploy <span class="kw">as </span>Command&gt;::Output&gt; {
-<a href=#108 id=108 data-nosnippet>108</a>    <span class="comment">// Get the private key and associated address, accounting for overrides.
-<a href=#109 id=109 data-nosnippet>109</a>    </span><span class="kw">let </span>private_key = context.get_private_key(<span class="kw-2">&amp;</span>command.env_override.private_key)<span class="question-mark">?</span>;
-<a href=#110 id=110 data-nosnippet>110</a>    <span class="kw">let </span>address =
-<a href=#111 id=111 data-nosnippet>111</a>        Address::try_from(<span class="kw-2">&amp;</span>private_key).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse address: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#112 id=112 data-nosnippet>112</a>
-<a href=#113 id=113 data-nosnippet>113</a>    <span class="comment">// Get the endpoint, accounting for overrides.
-<a href=#114 id=114 data-nosnippet>114</a>    </span><span class="kw">let </span>endpoint = context.get_endpoint(<span class="kw-2">&amp;</span>command.env_override.endpoint)<span class="question-mark">?</span>;
-<a href=#115 id=115 data-nosnippet>115</a>
-<a href=#116 id=116 data-nosnippet>116</a>    <span class="comment">// Get all the programs but tests.
-<a href=#117 id=117 data-nosnippet>117</a>    </span><span class="kw">let </span>programs = package.programs.iter().filter(|program| !program.is_test).cloned();
-<a href=#118 id=118 data-nosnippet>118</a>
-<a href=#119 id=119 data-nosnippet>119</a>    <span class="kw">let </span>programs_and_bytecode: Vec&lt;(leo_package::Program, String)&gt; = programs
-<a href=#120 id=120 data-nosnippet>120</a>        .into_iter()
-<a href=#121 id=121 data-nosnippet>121</a>        .map(|program| {
-<a href=#122 id=122 data-nosnippet>122</a>            <span class="kw">let </span>bytecode = <span class="kw">match </span><span class="kw-2">&amp;</span>program.data {
-<a href=#123 id=123 data-nosnippet>123</a>                ProgramData::Bytecode(s) =&gt; s.clone(),
-<a href=#124 id=124 data-nosnippet>124</a>                ProgramData::SourcePath { .. } =&gt; {
-<a href=#125 id=125 data-nosnippet>125</a>                    <span class="comment">// We need to read the bytecode from the filesystem.
-<a href=#126 id=126 data-nosnippet>126</a>                    </span><span class="kw">let </span>aleo_name = <span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, program.name);
-<a href=#127 id=127 data-nosnippet>127</a>                    <span class="kw">let </span>aleo_path = <span class="kw">if </span>package.manifest.program == aleo_name {
-<a href=#128 id=128 data-nosnippet>128</a>                        <span class="comment">// The main program in the package, so its .aleo file
-<a href=#129 id=129 data-nosnippet>129</a>                        // will be in the build directory.
-<a href=#130 id=130 data-nosnippet>130</a>                        </span>package.build_directory().join(<span class="string">"main.aleo"</span>)
-<a href=#131 id=131 data-nosnippet>131</a>                    } <span class="kw">else </span>{
-<a href=#132 id=132 data-nosnippet>132</a>                        <span class="comment">// Some other dependency, so look in `imports`.
-<a href=#133 id=133 data-nosnippet>133</a>                        </span>package.imports_directory().join(aleo_name)
-<a href=#134 id=134 data-nosnippet>134</a>                    };
-<a href=#135 id=135 data-nosnippet>135</a>                    fs::read_to_string(aleo_path.clone())
-<a href=#136 id=136 data-nosnippet>136</a>                        .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to read file {}: {e}"</span>, aleo_path.display())))<span class="question-mark">?
-<a href=#137 id=137 data-nosnippet>137</a>                </span>}
-<a href=#138 id=138 data-nosnippet>138</a>            };
-<a href=#139 id=139 data-nosnippet>139</a>
-<a href=#140 id=140 data-nosnippet>140</a>            <span class="prelude-val">Ok</span>((program, bytecode))
-<a href=#141 id=141 data-nosnippet>141</a>        })
-<a href=#142 id=142 data-nosnippet>142</a>        .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
-<a href=#143 id=143 data-nosnippet>143</a>
-<a href=#144 id=144 data-nosnippet>144</a>    <span class="comment">// Parse the fee options.
-<a href=#145 id=145 data-nosnippet>145</a>    </span><span class="kw">let </span>fee_options = parse_fee_options(<span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>command.fee_options, programs_and_bytecode.len())<span class="question-mark">?</span>;
+<a href=#67 id=67 data-nosnippet>67</a>    <span class="kw">fn </span>log_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
+<a href=#68 id=68 data-nosnippet>68</a>        <span class="macro">tracing::span!</span>(tracing::Level::INFO, <span class="string">"Leo"</span>)
+<a href=#69 id=69 data-nosnippet>69</a>    }
+<a href=#70 id=70 data-nosnippet>70</a>
+<a href=#71 id=71 data-nosnippet>71</a>    <span class="kw">fn </span>prelude(<span class="kw-2">&amp;</span><span class="self">self</span>, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Input&gt; {
+<a href=#72 id=72 data-nosnippet>72</a>        LeoBuild {
+<a href=#73 id=73 data-nosnippet>73</a>            env_override: <span class="self">self</span>.env_override.clone(),
+<a href=#74 id=74 data-nosnippet>74</a>            options: {
+<a href=#75 id=75 data-nosnippet>75</a>                <span class="kw">let </span><span class="kw-2">mut </span>options = <span class="self">self</span>.build_options.clone();
+<a href=#76 id=76 data-nosnippet>76</a>                options.no_cache = <span class="bool-val">true</span>;
+<a href=#77 id=77 data-nosnippet>77</a>                options
+<a href=#78 id=78 data-nosnippet>78</a>            },
+<a href=#79 id=79 data-nosnippet>79</a>        }
+<a href=#80 id=80 data-nosnippet>80</a>        .execute(context)
+<a href=#81 id=81 data-nosnippet>81</a>    }
+<a href=#82 id=82 data-nosnippet>82</a>
+<a href=#83 id=83 data-nosnippet>83</a>    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+<a href=#84 id=84 data-nosnippet>84</a>        <span class="comment">// Get the network, accounting for overrides.
+<a href=#85 id=85 data-nosnippet>85</a>        </span><span class="kw">let </span>network = context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.network)<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>;
+<a href=#86 id=86 data-nosnippet>86</a>        <span class="comment">// Handle each network with the appropriate parameterization.
+<a href=#87 id=87 data-nosnippet>87</a>        </span><span class="kw">match </span>network {
+<a href=#88 id=88 data-nosnippet>88</a>            NetworkName::TestnetV0 =&gt; handle_upgrade::&lt;TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, input),
+<a href=#89 id=89 data-nosnippet>89</a>            NetworkName::MainnetV0 =&gt; {
+<a href=#90 id=90 data-nosnippet>90</a>                <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
+<a href=#91 id=91 data-nosnippet>91</a>                </span><span class="macro">panic!</span>(<span class="string">"Mainnet chosen with only_testnet feature"</span>);
+<a href=#92 id=92 data-nosnippet>92</a>                <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+<a href=#93 id=93 data-nosnippet>93</a>                </span>handle_upgrade::&lt;MainnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, input)
+<a href=#94 id=94 data-nosnippet>94</a>            }
+<a href=#95 id=95 data-nosnippet>95</a>            NetworkName::CanaryV0 =&gt; {
+<a href=#96 id=96 data-nosnippet>96</a>                <span class="attr">#[cfg(feature = <span class="string">"only_testnet"</span>)]
+<a href=#97 id=97 data-nosnippet>97</a>                </span><span class="macro">panic!</span>(<span class="string">"Canary chosen with only_testnet feature"</span>);
+<a href=#98 id=98 data-nosnippet>98</a>                <span class="attr">#[cfg(not(feature = <span class="string">"only_testnet"</span>))]
+<a href=#99 id=99 data-nosnippet>99</a>                </span>handle_upgrade::&lt;CanaryV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, input)
+<a href=#100 id=100 data-nosnippet>100</a>            }
+<a href=#101 id=101 data-nosnippet>101</a>        }
+<a href=#102 id=102 data-nosnippet>102</a>    }
+<a href=#103 id=103 data-nosnippet>103</a>}
+<a href=#104 id=104 data-nosnippet>104</a>
+<a href=#105 id=105 data-nosnippet>105</a><span class="comment">// A helper function to handle upgrade logic.
+<a href=#106 id=106 data-nosnippet>106</a></span><span class="kw">fn </span>handle_upgrade&lt;N: Network&gt;(
+<a href=#107 id=107 data-nosnippet>107</a>    command: <span class="kw-2">&amp;</span>LeoUpgrade,
+<a href=#108 id=108 data-nosnippet>108</a>    context: Context,
+<a href=#109 id=109 data-nosnippet>109</a>    network: NetworkName,
+<a href=#110 id=110 data-nosnippet>110</a>    package: Package,
+<a href=#111 id=111 data-nosnippet>111</a>) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;LeoDeploy <span class="kw">as </span>Command&gt;::Output&gt; {
+<a href=#112 id=112 data-nosnippet>112</a>    <span class="comment">// Get the private key and associated address, accounting for overrides.
+<a href=#113 id=113 data-nosnippet>113</a>    </span><span class="kw">let </span>private_key = context.get_private_key(<span class="kw-2">&amp;</span>command.env_override.private_key)<span class="question-mark">?</span>;
+<a href=#114 id=114 data-nosnippet>114</a>    <span class="kw">let </span>address =
+<a href=#115 id=115 data-nosnippet>115</a>        Address::try_from(<span class="kw-2">&amp;</span>private_key).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse address: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#116 id=116 data-nosnippet>116</a>
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="comment">// Get the endpoint, accounting for overrides.
+<a href=#118 id=118 data-nosnippet>118</a>    </span><span class="kw">let </span>endpoint = context.get_endpoint(<span class="kw-2">&amp;</span>command.env_override.endpoint)<span class="question-mark">?</span>;
+<a href=#119 id=119 data-nosnippet>119</a>
+<a href=#120 id=120 data-nosnippet>120</a>    <span class="comment">// Get whether the network is a devnet, accounting for overrides.
+<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="kw">let </span>is_devnet = context.get_is_devnet(command.env_override.devnet);
+<a href=#122 id=122 data-nosnippet>122</a>
+<a href=#123 id=123 data-nosnippet>123</a>    <span class="comment">// If the consensus heights are provided, use them; otherwise, use the default heights for the network.
+<a href=#124 id=124 data-nosnippet>124</a>    </span><span class="kw">let </span>consensus_heights =
+<a href=#125 id=125 data-nosnippet>125</a>        command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
+<a href=#126 id=126 data-nosnippet>126</a>    <span class="comment">// Validate the provided consensus heights.
+<a href=#127 id=127 data-nosnippet>127</a>    </span>validate_consensus_heights(<span class="kw-2">&amp;</span>consensus_heights)
+<a href=#128 id=128 data-nosnippet>128</a>        .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Invalid consensus heights: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#129 id=129 data-nosnippet>129</a>    <span class="comment">// Print the consensus heights being used.
+<a href=#130 id=130 data-nosnippet>130</a>    </span><span class="kw">let </span>consensus_heights_string = consensus_heights.iter().format(<span class="string">","</span>).to_string();
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="macro">println!</span>(
+<a href=#132 id=132 data-nosnippet>132</a>        <span class="string">"\n📢 Using the following consensus heights: {consensus_heights_string}\n  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.\n"
+<a href=#133 id=133 data-nosnippet>133</a>    </span>);
+<a href=#134 id=134 data-nosnippet>134</a>
+<a href=#135 id=135 data-nosnippet>135</a>    <span class="comment">// Set the consensus heights in the environment.
+<a href=#136 id=136 data-nosnippet>136</a>    </span><span class="attr">#[allow(unsafe_code)]
+<a href=#137 id=137 data-nosnippet>137</a>    </span><span class="kw">unsafe </span>{
+<a href=#138 id=138 data-nosnippet>138</a>        <span class="comment">// SAFETY:
+<a href=#139 id=139 data-nosnippet>139</a>        //  - `CONSENSUS_VERSION_HEIGHTS` is only set once and is only read in `snarkvm::prelude::load_consensus_heights`.
+<a href=#140 id=140 data-nosnippet>140</a>        //  - There are no concurrent threads running at this point in the execution.
+<a href=#141 id=141 data-nosnippet>141</a>        // WHY:
+<a href=#142 id=142 data-nosnippet>142</a>        //  - This is needed because there is no way to set the desired consensus heights for a particular `VM` instance
+<a href=#143 id=143 data-nosnippet>143</a>        //    without using the environment variable `CONSENSUS_VERSION_HEIGHTS`. Which is itself read once, and stored in a `OnceLock`.
+<a href=#144 id=144 data-nosnippet>144</a>        </span>std::env::set_var(<span class="string">"CONSENSUS_VERSION_HEIGHTS"</span>, consensus_heights_string);
+<a href=#145 id=145 data-nosnippet>145</a>    }
 <a href=#146 id=146 data-nosnippet>146</a>
-<a href=#147 id=147 data-nosnippet>147</a>    <span class="kw">let </span>tasks: Vec&lt;Task&lt;N&gt;&gt; = programs_and_bytecode
-<a href=#148 id=148 data-nosnippet>148</a>        .into_iter()
-<a href=#149 id=149 data-nosnippet>149</a>        .zip(fee_options)
-<a href=#150 id=150 data-nosnippet>150</a>        .map(|((program, bytecode), (_base_fee, priority_fee, record))| {
-<a href=#151 id=151 data-nosnippet>151</a>            <span class="kw">let </span>id_str = <span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, program.name);
-<a href=#152 id=152 data-nosnippet>152</a>            <span class="kw">let </span>id =
-<a href=#153 id=153 data-nosnippet>153</a>                id_str.parse().map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse program ID {id_str}: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#154 id=154 data-nosnippet>154</a>            <span class="kw">let </span>bytecode = bytecode.parse().map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse program: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#155 id=155 data-nosnippet>155</a>            <span class="prelude-val">Ok</span>(Task {
-<a href=#156 id=156 data-nosnippet>156</a>                id,
-<a href=#157 id=157 data-nosnippet>157</a>                program: bytecode,
-<a href=#158 id=158 data-nosnippet>158</a>                edition: program.edition,
-<a href=#159 id=159 data-nosnippet>159</a>                is_local: program.is_local,
-<a href=#160 id=160 data-nosnippet>160</a>                priority_fee,
-<a href=#161 id=161 data-nosnippet>161</a>                record,
-<a href=#162 id=162 data-nosnippet>162</a>            })
-<a href=#163 id=163 data-nosnippet>163</a>        })
-<a href=#164 id=164 data-nosnippet>164</a>        .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
-<a href=#165 id=165 data-nosnippet>165</a>
-<a href=#166 id=166 data-nosnippet>166</a>    <span class="comment">// Get the program IDs.
-<a href=#167 id=167 data-nosnippet>167</a>    </span><span class="kw">let </span>program_ids = tasks.iter().map(|task| task.id).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-<a href=#168 id=168 data-nosnippet>168</a>
-<a href=#169 id=169 data-nosnippet>169</a>    <span class="comment">// Split the tasks into local and remote dependencies.
-<a href=#170 id=170 data-nosnippet>170</a>    </span><span class="kw">let </span>(local, remote) = tasks.into_iter().partition::&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;(|task| task.is_local);
-<a href=#171 id=171 data-nosnippet>171</a>
-<a href=#172 id=172 data-nosnippet>172</a>    <span class="comment">// Get the skipped programs.
-<a href=#173 id=173 data-nosnippet>173</a>    </span><span class="kw">let </span>skipped: HashSet&lt;ProgramID&lt;N&gt;&gt; = local
-<a href=#174 id=174 data-nosnippet>174</a>        .iter()
-<a href=#175 id=175 data-nosnippet>175</a>        .filter_map(|task| {
-<a href=#176 id=176 data-nosnippet>176</a>            <span class="kw">let </span>id_string = task.id.to_string();
-<a href=#177 id=177 data-nosnippet>177</a>            command.skip.iter().any(|skip| id_string.contains(skip)).then_some(task.id)
-<a href=#178 id=178 data-nosnippet>178</a>        })
-<a href=#179 id=179 data-nosnippet>179</a>        .collect();
-<a href=#180 id=180 data-nosnippet>180</a>
-<a href=#181 id=181 data-nosnippet>181</a>    <span class="comment">// Get the consensus version.
-<a href=#182 id=182 data-nosnippet>182</a>    </span><span class="kw">let </span>consensus_version = get_consensus_version(<span class="kw-2">&amp;</span>command.extra.consensus_version, <span class="kw-2">&amp;</span>endpoint, network, <span class="kw-2">&amp;</span>context)<span class="question-mark">?</span>;
-<a href=#183 id=183 data-nosnippet>183</a>
-<a href=#184 id=184 data-nosnippet>184</a>    <span class="comment">// Print a summary of the deployment plan.
-<a href=#185 id=185 data-nosnippet>185</a>    </span>print_deployment_plan(
-<a href=#186 id=186 data-nosnippet>186</a>        <span class="kw-2">&amp;</span>private_key,
-<a href=#187 id=187 data-nosnippet>187</a>        <span class="kw-2">&amp;</span>address,
-<a href=#188 id=188 data-nosnippet>188</a>        <span class="kw-2">&amp;</span>endpoint,
-<a href=#189 id=189 data-nosnippet>189</a>        <span class="kw-2">&amp;</span>network,
-<a href=#190 id=190 data-nosnippet>190</a>        <span class="kw-2">&amp;</span>local,
-<a href=#191 id=191 data-nosnippet>191</a>        <span class="kw-2">&amp;</span>skipped,
-<a href=#192 id=192 data-nosnippet>192</a>        <span class="kw-2">&amp;</span>remote,
-<a href=#193 id=193 data-nosnippet>193</a>        <span class="kw-2">&amp;</span>check_tasks_for_warnings(<span class="kw-2">&amp;</span>endpoint, network, <span class="kw-2">&amp;</span>local, consensus_version, command),
-<a href=#194 id=194 data-nosnippet>194</a>        consensus_version,
-<a href=#195 id=195 data-nosnippet>195</a>        <span class="kw-2">&amp;</span>command.into(),
-<a href=#196 id=196 data-nosnippet>196</a>    );
-<a href=#197 id=197 data-nosnippet>197</a>
-<a href=#198 id=198 data-nosnippet>198</a>    <span class="comment">// Prompt the user to confirm the plan.
-<a href=#199 id=199 data-nosnippet>199</a>    </span><span class="kw">if </span>!confirm(<span class="string">"Do you want to proceed with upgrade?"</span>, command.extra.yes)<span class="question-mark">? </span>{
-<a href=#200 id=200 data-nosnippet>200</a>        <span class="macro">println!</span>(<span class="string">"❌ Upgrade aborted."</span>);
-<a href=#201 id=201 data-nosnippet>201</a>        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#202 id=202 data-nosnippet>202</a>    }
-<a href=#203 id=203 data-nosnippet>203</a>
-<a href=#204 id=204 data-nosnippet>204</a>    <span class="comment">// Initialize an RNG.
-<a href=#205 id=205 data-nosnippet>205</a>    </span><span class="kw">let </span>rng = <span class="kw-2">&amp;mut </span>rand::thread_rng();
-<a href=#206 id=206 data-nosnippet>206</a>
-<a href=#207 id=207 data-nosnippet>207</a>    <span class="comment">// Initialize a new VM.
-<a href=#208 id=208 data-nosnippet>208</a>    </span><span class="kw">let </span>vm = VM::from(ConsensusStore::&lt;N, ConsensusMemory&lt;N&gt;&gt;::open(StorageMode::Production)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-<a href=#209 id=209 data-nosnippet>209</a>
-<a href=#210 id=210 data-nosnippet>210</a>    <span class="comment">// Load all the programs from the network into the VM.
-<a href=#211 id=211 data-nosnippet>211</a>    </span><span class="kw">let </span>programs_and_editions = program_ids
-<a href=#212 id=212 data-nosnippet>212</a>        .iter()
-<a href=#213 id=213 data-nosnippet>213</a>        .map(|id| {
-<a href=#214 id=214 data-nosnippet>214</a>            <span class="comment">// Load the program from the network.
-<a href=#215 id=215 data-nosnippet>215</a>            </span><span class="kw">let </span>program = leo_package::Program::fetch(
-<a href=#216 id=216 data-nosnippet>216</a>                Symbol::intern(<span class="kw-2">&amp;</span>id.name().to_string()),
-<a href=#217 id=217 data-nosnippet>217</a>                <span class="prelude-val">None</span>,
-<a href=#218 id=218 data-nosnippet>218</a>                context.home()<span class="question-mark">?</span>,
-<a href=#219 id=219 data-nosnippet>219</a>                network,
-<a href=#220 id=220 data-nosnippet>220</a>                <span class="kw-2">&amp;</span>endpoint,
-<a href=#221 id=221 data-nosnippet>221</a>                <span class="bool-val">true</span>,
-<a href=#222 id=222 data-nosnippet>222</a>            )<span class="question-mark">?</span>;
-<a href=#223 id=223 data-nosnippet>223</a>            <span class="kw">let </span>ProgramData::Bytecode(bytecode) = program.data <span class="kw">else </span>{
-<a href=#224 id=224 data-nosnippet>224</a>                <span class="macro">panic!</span>(<span class="string">"Expected bytecode when fetching a remote program"</span>);
-<a href=#225 id=225 data-nosnippet>225</a>            };
-<a href=#226 id=226 data-nosnippet>226</a>            <span class="comment">// Parse the program bytecode.
-<a href=#227 id=227 data-nosnippet>227</a>            </span><span class="kw">let </span>bytecode = Program::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>bytecode)
-<a href=#228 id=228 data-nosnippet>228</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse program: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#229 id=229 data-nosnippet>229</a>            <span class="comment">// Return the bytecode and edition.
-<a href=#230 id=230 data-nosnippet>230</a>            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-<a href=#231 id=231 data-nosnippet>231</a>            </span><span class="prelude-val">Ok</span>((bytecode, program.edition.unwrap_or(<span class="number">1</span>)))
-<a href=#232 id=232 data-nosnippet>232</a>        })
-<a href=#233 id=233 data-nosnippet>233</a>        .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>;
-<a href=#234 id=234 data-nosnippet>234</a>    vm.process().write().add_programs_with_editions(<span class="kw-2">&amp;</span>programs_and_editions)<span class="question-mark">?</span>;
+<a href=#147 id=147 data-nosnippet>147</a>    <span class="comment">// Get all the programs but tests.
+<a href=#148 id=148 data-nosnippet>148</a>    </span><span class="kw">let </span>programs = package.programs.iter().filter(|program| !program.is_test).cloned();
+<a href=#149 id=149 data-nosnippet>149</a>
+<a href=#150 id=150 data-nosnippet>150</a>    <span class="kw">let </span>programs_and_bytecode: Vec&lt;(leo_package::Program, String)&gt; = programs
+<a href=#151 id=151 data-nosnippet>151</a>        .into_iter()
+<a href=#152 id=152 data-nosnippet>152</a>        .map(|program| {
+<a href=#153 id=153 data-nosnippet>153</a>            <span class="kw">let </span>bytecode = <span class="kw">match </span><span class="kw-2">&amp;</span>program.data {
+<a href=#154 id=154 data-nosnippet>154</a>                ProgramData::Bytecode(s) =&gt; s.clone(),
+<a href=#155 id=155 data-nosnippet>155</a>                ProgramData::SourcePath { .. } =&gt; {
+<a href=#156 id=156 data-nosnippet>156</a>                    <span class="comment">// We need to read the bytecode from the filesystem.
+<a href=#157 id=157 data-nosnippet>157</a>                    </span><span class="kw">let </span>aleo_name = <span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, program.name);
+<a href=#158 id=158 data-nosnippet>158</a>                    <span class="kw">let </span>aleo_path = <span class="kw">if </span>package.manifest.program == aleo_name {
+<a href=#159 id=159 data-nosnippet>159</a>                        <span class="comment">// The main program in the package, so its .aleo file
+<a href=#160 id=160 data-nosnippet>160</a>                        // will be in the build directory.
+<a href=#161 id=161 data-nosnippet>161</a>                        </span>package.build_directory().join(<span class="string">"main.aleo"</span>)
+<a href=#162 id=162 data-nosnippet>162</a>                    } <span class="kw">else </span>{
+<a href=#163 id=163 data-nosnippet>163</a>                        <span class="comment">// Some other dependency, so look in `imports`.
+<a href=#164 id=164 data-nosnippet>164</a>                        </span>package.imports_directory().join(aleo_name)
+<a href=#165 id=165 data-nosnippet>165</a>                    };
+<a href=#166 id=166 data-nosnippet>166</a>                    fs::read_to_string(aleo_path.clone())
+<a href=#167 id=167 data-nosnippet>167</a>                        .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to read file {}: {e}"</span>, aleo_path.display())))<span class="question-mark">?
+<a href=#168 id=168 data-nosnippet>168</a>                </span>}
+<a href=#169 id=169 data-nosnippet>169</a>            };
+<a href=#170 id=170 data-nosnippet>170</a>
+<a href=#171 id=171 data-nosnippet>171</a>            <span class="prelude-val">Ok</span>((program, bytecode))
+<a href=#172 id=172 data-nosnippet>172</a>        })
+<a href=#173 id=173 data-nosnippet>173</a>        .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
+<a href=#174 id=174 data-nosnippet>174</a>
+<a href=#175 id=175 data-nosnippet>175</a>    <span class="comment">// Parse the fee options.
+<a href=#176 id=176 data-nosnippet>176</a>    </span><span class="kw">let </span>fee_options = parse_fee_options(<span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>command.fee_options, programs_and_bytecode.len())<span class="question-mark">?</span>;
+<a href=#177 id=177 data-nosnippet>177</a>
+<a href=#178 id=178 data-nosnippet>178</a>    <span class="kw">let </span>tasks: Vec&lt;Task&lt;N&gt;&gt; = programs_and_bytecode
+<a href=#179 id=179 data-nosnippet>179</a>        .into_iter()
+<a href=#180 id=180 data-nosnippet>180</a>        .zip(fee_options)
+<a href=#181 id=181 data-nosnippet>181</a>        .map(|((program, bytecode), (_base_fee, priority_fee, record))| {
+<a href=#182 id=182 data-nosnippet>182</a>            <span class="kw">let </span>id_str = <span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, program.name);
+<a href=#183 id=183 data-nosnippet>183</a>            <span class="kw">let </span>id =
+<a href=#184 id=184 data-nosnippet>184</a>                id_str.parse().map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse program ID {id_str}: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#185 id=185 data-nosnippet>185</a>            <span class="kw">let </span>bytecode = bytecode.parse().map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse program: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#186 id=186 data-nosnippet>186</a>            <span class="prelude-val">Ok</span>(Task {
+<a href=#187 id=187 data-nosnippet>187</a>                id,
+<a href=#188 id=188 data-nosnippet>188</a>                program: bytecode,
+<a href=#189 id=189 data-nosnippet>189</a>                edition: program.edition,
+<a href=#190 id=190 data-nosnippet>190</a>                is_local: program.is_local,
+<a href=#191 id=191 data-nosnippet>191</a>                priority_fee,
+<a href=#192 id=192 data-nosnippet>192</a>                record,
+<a href=#193 id=193 data-nosnippet>193</a>            })
+<a href=#194 id=194 data-nosnippet>194</a>        })
+<a href=#195 id=195 data-nosnippet>195</a>        .collect::&lt;<span class="prelude-ty">Result</span>&lt;<span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
+<a href=#196 id=196 data-nosnippet>196</a>
+<a href=#197 id=197 data-nosnippet>197</a>    <span class="comment">// Get the program IDs.
+<a href=#198 id=198 data-nosnippet>198</a>    </span><span class="kw">let </span>program_ids = tasks.iter().map(|task| task.id).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#199 id=199 data-nosnippet>199</a>
+<a href=#200 id=200 data-nosnippet>200</a>    <span class="comment">// Split the tasks into local and remote dependencies.
+<a href=#201 id=201 data-nosnippet>201</a>    </span><span class="kw">let </span>(local, remote) = tasks.into_iter().partition::&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;(|task| task.is_local);
+<a href=#202 id=202 data-nosnippet>202</a>
+<a href=#203 id=203 data-nosnippet>203</a>    <span class="comment">// Get the skipped programs.
+<a href=#204 id=204 data-nosnippet>204</a>    </span><span class="kw">let </span>skipped: HashSet&lt;ProgramID&lt;N&gt;&gt; = local
+<a href=#205 id=205 data-nosnippet>205</a>        .iter()
+<a href=#206 id=206 data-nosnippet>206</a>        .filter_map(|task| {
+<a href=#207 id=207 data-nosnippet>207</a>            <span class="kw">let </span>id_string = task.id.to_string();
+<a href=#208 id=208 data-nosnippet>208</a>            command.skip.iter().any(|skip| id_string.contains(skip)).then_some(task.id)
+<a href=#209 id=209 data-nosnippet>209</a>        })
+<a href=#210 id=210 data-nosnippet>210</a>        .collect();
+<a href=#211 id=211 data-nosnippet>211</a>
+<a href=#212 id=212 data-nosnippet>212</a>    <span class="comment">// Get the consensus version.
+<a href=#213 id=213 data-nosnippet>213</a>    </span><span class="kw">let </span>consensus_version =
+<a href=#214 id=214 data-nosnippet>214</a>        get_consensus_version(<span class="kw-2">&amp;</span>command.extra.consensus_version, <span class="kw-2">&amp;</span>endpoint, network, <span class="kw-2">&amp;</span>consensus_heights, <span class="kw-2">&amp;</span>context)<span class="question-mark">?</span>;
+<a href=#215 id=215 data-nosnippet>215</a>
+<a href=#216 id=216 data-nosnippet>216</a>    <span class="comment">// Print a summary of the deployment plan.
+<a href=#217 id=217 data-nosnippet>217</a>    </span>print_deployment_plan(
+<a href=#218 id=218 data-nosnippet>218</a>        <span class="kw-2">&amp;</span>private_key,
+<a href=#219 id=219 data-nosnippet>219</a>        <span class="kw-2">&amp;</span>address,
+<a href=#220 id=220 data-nosnippet>220</a>        <span class="kw-2">&amp;</span>endpoint,
+<a href=#221 id=221 data-nosnippet>221</a>        <span class="kw-2">&amp;</span>network,
+<a href=#222 id=222 data-nosnippet>222</a>        <span class="kw-2">&amp;</span>local,
+<a href=#223 id=223 data-nosnippet>223</a>        <span class="kw-2">&amp;</span>skipped,
+<a href=#224 id=224 data-nosnippet>224</a>        <span class="kw-2">&amp;</span>remote,
+<a href=#225 id=225 data-nosnippet>225</a>        <span class="kw-2">&amp;</span>check_tasks_for_warnings(<span class="kw-2">&amp;</span>endpoint, network, <span class="kw-2">&amp;</span>local, consensus_version, command),
+<a href=#226 id=226 data-nosnippet>226</a>        consensus_version,
+<a href=#227 id=227 data-nosnippet>227</a>        <span class="kw-2">&amp;</span>command.into(),
+<a href=#228 id=228 data-nosnippet>228</a>    );
+<a href=#229 id=229 data-nosnippet>229</a>
+<a href=#230 id=230 data-nosnippet>230</a>    <span class="comment">// Prompt the user to confirm the plan.
+<a href=#231 id=231 data-nosnippet>231</a>    </span><span class="kw">if </span>!confirm(<span class="string">"Do you want to proceed with upgrade?"</span>, command.extra.yes)<span class="question-mark">? </span>{
+<a href=#232 id=232 data-nosnippet>232</a>        <span class="macro">println!</span>(<span class="string">"❌ Upgrade aborted."</span>);
+<a href=#233 id=233 data-nosnippet>233</a>        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#234 id=234 data-nosnippet>234</a>    }
 <a href=#235 id=235 data-nosnippet>235</a>
-<a href=#236 id=236 data-nosnippet>236</a>    <span class="comment">// Specify the query
-<a href=#237 id=237 data-nosnippet>237</a>    </span><span class="kw">let </span>query = SnarkVMQuery::&lt;N, BlockMemory&lt;N&gt;&gt;::from(<span class="kw-2">&amp;</span>endpoint);
+<a href=#236 id=236 data-nosnippet>236</a>    <span class="comment">// Initialize an RNG.
+<a href=#237 id=237 data-nosnippet>237</a>    </span><span class="kw">let </span>rng = <span class="kw-2">&amp;mut </span>rand::thread_rng();
 <a href=#238 id=238 data-nosnippet>238</a>
-<a href=#239 id=239 data-nosnippet>239</a>    <span class="comment">// For each of the programs, generate a deployment transaction.
-<a href=#240 id=240 data-nosnippet>240</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>transactions = Vec::new();
-<a href=#241 id=241 data-nosnippet>241</a>    <span class="kw">for </span>Task { id, program, priority_fee, record, .. } <span class="kw">in </span>local {
-<a href=#242 id=242 data-nosnippet>242</a>        <span class="comment">// If the program is a local dependency that is not skipped, generate a deployment transaction.
-<a href=#243 id=243 data-nosnippet>243</a>        </span><span class="kw">if </span>!skipped.contains(<span class="kw-2">&amp;</span>id) {
-<a href=#244 id=244 data-nosnippet>244</a>            <span class="macro">println!</span>(<span class="string">"📦 Creating deployment transaction for '{}'...\n"</span>, id.to_string().bold());
-<a href=#245 id=245 data-nosnippet>245</a>            <span class="comment">// Generate the transaction.
-<a href=#246 id=246 data-nosnippet>246</a>            </span><span class="kw">let </span>transaction =
-<a href=#247 id=247 data-nosnippet>247</a>                vm.deploy(<span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>program, record, priority_fee.unwrap_or(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>query), rng)
-<a href=#248 id=248 data-nosnippet>248</a>                    .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to generate deployment transaction: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#249 id=249 data-nosnippet>249</a>            <span class="comment">// Get the deployment.
-<a href=#250 id=250 data-nosnippet>250</a>            </span><span class="kw">let </span>deployment = transaction.deployment().expect(<span class="string">"Expected a deployment in the transaction"</span>);
-<a href=#251 id=251 data-nosnippet>251</a>            <span class="comment">// Print the deployment stats.
-<a href=#252 id=252 data-nosnippet>252</a>            </span>print_deployment_stats(<span class="kw-2">&amp;</span>vm, <span class="kw-2">&amp;</span>id.to_string(), deployment, priority_fee)<span class="question-mark">?</span>;
-<a href=#253 id=253 data-nosnippet>253</a>            <span class="comment">// Validate the deployment limits.
-<a href=#254 id=254 data-nosnippet>254</a>            </span>validate_deployment_limits(deployment, <span class="kw-2">&amp;</span>id, <span class="kw-2">&amp;</span>network)<span class="question-mark">?</span>;
-<a href=#255 id=255 data-nosnippet>255</a>            <span class="comment">// Save the transaction.
-<a href=#256 id=256 data-nosnippet>256</a>            </span>transactions.push((id, transaction));
-<a href=#257 id=257 data-nosnippet>257</a>        }
-<a href=#258 id=258 data-nosnippet>258</a>        <span class="comment">// Add the program to the VM.
-<a href=#259 id=259 data-nosnippet>259</a>        </span>vm.process().write().add_program(<span class="kw-2">&amp;</span>program)<span class="question-mark">?</span>;
-<a href=#260 id=260 data-nosnippet>260</a>    }
-<a href=#261 id=261 data-nosnippet>261</a>
-<a href=#262 id=262 data-nosnippet>262</a>    <span class="comment">// If the `print` option is set, print the deployment transaction to the console.
-<a href=#263 id=263 data-nosnippet>263</a>    // The transaction is printed in JSON format.
-<a href=#264 id=264 data-nosnippet>264</a>    </span><span class="kw">if </span>command.action.print {
-<a href=#265 id=265 data-nosnippet>265</a>        <span class="kw">for </span>(program_name, transaction) <span class="kw">in </span>transactions.iter() {
-<a href=#266 id=266 data-nosnippet>266</a>            <span class="comment">// Pretty-print the transaction.
-<a href=#267 id=267 data-nosnippet>267</a>            </span><span class="kw">let </span>transaction_json = serde_json::to_string_pretty(transaction)
-<a href=#268 id=268 data-nosnippet>268</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to serialize transaction: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#269 id=269 data-nosnippet>269</a>            <span class="macro">println!</span>(<span class="string">"🖨️ Printing deployment for {program_name}\n{transaction_json}"</span>)
-<a href=#270 id=270 data-nosnippet>270</a>        }
-<a href=#271 id=271 data-nosnippet>271</a>    }
-<a href=#272 id=272 data-nosnippet>272</a>
-<a href=#273 id=273 data-nosnippet>273</a>    <span class="comment">// If the `save` option is set, save each deployment transaction to a file in the specified directory.
-<a href=#274 id=274 data-nosnippet>274</a>    // The file format is `program_name.deployment.json`.
-<a href=#275 id=275 data-nosnippet>275</a>    // The directory is created if it doesn't exist.
-<a href=#276 id=276 data-nosnippet>276</a>    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>command.action.save {
-<a href=#277 id=277 data-nosnippet>277</a>        <span class="comment">// Create the directory if it doesn't exist.
-<a href=#278 id=278 data-nosnippet>278</a>        </span>std::fs::create_dir_all(path).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to create directory: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#279 id=279 data-nosnippet>279</a>        <span class="kw">for </span>(program_name, transaction) <span class="kw">in </span>transactions.iter() {
-<a href=#280 id=280 data-nosnippet>280</a>            <span class="comment">// Save the transaction to a file.
-<a href=#281 id=281 data-nosnippet>281</a>            </span><span class="kw">let </span>file_path = PathBuf::from(path).join(<span class="macro">format!</span>(<span class="string">"{program_name}.deployment.json"</span>));
-<a href=#282 id=282 data-nosnippet>282</a>            <span class="macro">println!</span>(<span class="string">"💾 Saving deployment for {program_name} at {}"</span>, file_path.display());
-<a href=#283 id=283 data-nosnippet>283</a>            <span class="kw">let </span>transaction_json = serde_json::to_string_pretty(transaction)
-<a href=#284 id=284 data-nosnippet>284</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to serialize transaction: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#285 id=285 data-nosnippet>285</a>            std::fs::write(file_path, transaction_json)
-<a href=#286 id=286 data-nosnippet>286</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to write transaction to file: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#287 id=287 data-nosnippet>287</a>        }
-<a href=#288 id=288 data-nosnippet>288</a>    }
-<a href=#289 id=289 data-nosnippet>289</a>
-<a href=#290 id=290 data-nosnippet>290</a>    <span class="comment">// If the `broadcast` option is set, broadcast each upgrade transaction to the network.
-<a href=#291 id=291 data-nosnippet>291</a>    </span><span class="kw">if </span>command.action.broadcast {
-<a href=#292 id=292 data-nosnippet>292</a>        <span class="kw">for </span>(i, (program_id, transaction)) <span class="kw">in </span>transactions.iter().enumerate() {
-<a href=#293 id=293 data-nosnippet>293</a>            <span class="macro">println!</span>(<span class="string">"📡 Broadcasting upgrade for {program_id}..."</span>);
-<a href=#294 id=294 data-nosnippet>294</a>            <span class="comment">// Get and confirm the fee with the user.
-<a href=#295 id=295 data-nosnippet>295</a>            </span><span class="kw">let </span>fee = transaction.fee_transition().expect(<span class="string">"Expected a fee in the transaction"</span>);
-<a href=#296 id=296 data-nosnippet>296</a>            <span class="kw">if </span>!confirm_fee(<span class="kw-2">&amp;</span>fee, <span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>address, <span class="kw-2">&amp;</span>endpoint, network, <span class="kw-2">&amp;</span>context, command.extra.yes)<span class="question-mark">? </span>{
-<a href=#297 id=297 data-nosnippet>297</a>                <span class="macro">println!</span>(<span class="string">"⏩ Upgrade skipped."</span>);
-<a href=#298 id=298 data-nosnippet>298</a>                <span class="kw">continue</span>;
-<a href=#299 id=299 data-nosnippet>299</a>            }
-<a href=#300 id=300 data-nosnippet>300</a>            <span class="kw">let </span>fee_id = fee.id().to_string();
-<a href=#301 id=301 data-nosnippet>301</a>            <span class="kw">let </span>id = transaction.id().to_string();
-<a href=#302 id=302 data-nosnippet>302</a>            <span class="kw">let </span>height_before = check_transaction::current_height(<span class="kw-2">&amp;</span>endpoint, network)<span class="question-mark">?</span>;
-<a href=#303 id=303 data-nosnippet>303</a>            <span class="comment">// Broadcast the transaction to the network.
-<a href=#304 id=304 data-nosnippet>304</a>            </span><span class="kw">let </span>(message, status) = handle_broadcast(
-<a href=#305 id=305 data-nosnippet>305</a>                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{endpoint}/{network}/transaction/broadcast"</span>),
-<a href=#306 id=306 data-nosnippet>306</a>                transaction,
-<a href=#307 id=307 data-nosnippet>307</a>                <span class="kw-2">&amp;</span>program_id.to_string(),
-<a href=#308 id=308 data-nosnippet>308</a>            )<span class="question-mark">?</span>;
-<a href=#309 id=309 data-nosnippet>309</a>
-<a href=#310 id=310 data-nosnippet>310</a>            <span class="kw">let </span>fail_and_prompt = |msg| {
-<a href=#311 id=311 data-nosnippet>311</a>                <span class="macro">println!</span>(<span class="string">"❌ Failed to upgrade program {program_id}: {msg}."</span>);
-<a href=#312 id=312 data-nosnippet>312</a>                <span class="kw">let </span>count = transactions.len() - i - <span class="number">1</span>;
-<a href=#313 id=313 data-nosnippet>313</a>                <span class="comment">// Check if the user wants to continue with the next upgrade.
-<a href=#314 id=314 data-nosnippet>314</a>                </span><span class="kw">if </span>count &gt; <span class="number">0 </span>{
-<a href=#315 id=315 data-nosnippet>315</a>                    confirm(<span class="string">"Do you want to continue with the next upgrade?"</span>, command.extra.yes)
-<a href=#316 id=316 data-nosnippet>316</a>                } <span class="kw">else </span>{
-<a href=#317 id=317 data-nosnippet>317</a>                    <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
-<a href=#318 id=318 data-nosnippet>318</a>                }
-<a href=#319 id=319 data-nosnippet>319</a>            };
-<a href=#320 id=320 data-nosnippet>320</a>
-<a href=#321 id=321 data-nosnippet>321</a>            <span class="kw">match </span>status {
-<a href=#322 id=322 data-nosnippet>322</a>                <span class="number">200</span>..=<span class="number">299 </span>=&gt; {
-<a href=#323 id=323 data-nosnippet>323</a>                    <span class="kw">let </span>status = check_transaction::check_transaction_with_message(
-<a href=#324 id=324 data-nosnippet>324</a>                        <span class="kw-2">&amp;</span>id,
-<a href=#325 id=325 data-nosnippet>325</a>                        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>fee_id),
-<a href=#326 id=326 data-nosnippet>326</a>                        <span class="kw-2">&amp;</span>endpoint,
-<a href=#327 id=327 data-nosnippet>327</a>                        network,
-<a href=#328 id=328 data-nosnippet>328</a>                        height_before + <span class="number">1</span>,
-<a href=#329 id=329 data-nosnippet>329</a>                        command.extra.max_wait,
-<a href=#330 id=330 data-nosnippet>330</a>                        command.extra.blocks_to_check,
-<a href=#331 id=331 data-nosnippet>331</a>                    )<span class="question-mark">?</span>;
-<a href=#332 id=332 data-nosnippet>332</a>                    <span class="kw">if </span>status == <span class="prelude-val">Some</span>(TransactionStatus::Accepted) {
-<a href=#333 id=333 data-nosnippet>333</a>                        <span class="macro">println!</span>(<span class="string">"✅ Upgrade confirmed!"</span>);
-<a href=#334 id=334 data-nosnippet>334</a>                    } <span class="kw">else if </span>fail_and_prompt(<span class="string">"could not find the transaction on the network"</span>)<span class="question-mark">? </span>{
-<a href=#335 id=335 data-nosnippet>335</a>                        <span class="kw">continue</span>;
-<a href=#336 id=336 data-nosnippet>336</a>                    } <span class="kw">else </span>{
-<a href=#337 id=337 data-nosnippet>337</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#338 id=338 data-nosnippet>338</a>                    }
-<a href=#339 id=339 data-nosnippet>339</a>                }
-<a href=#340 id=340 data-nosnippet>340</a>                <span class="kw">_ </span>=&gt; {
-<a href=#341 id=341 data-nosnippet>341</a>                    <span class="kw">if </span>fail_and_prompt(<span class="kw-2">&amp;</span>message)<span class="question-mark">? </span>{
-<a href=#342 id=342 data-nosnippet>342</a>                        <span class="kw">continue</span>;
-<a href=#343 id=343 data-nosnippet>343</a>                    } <span class="kw">else </span>{
-<a href=#344 id=344 data-nosnippet>344</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#345 id=345 data-nosnippet>345</a>                    }
-<a href=#346 id=346 data-nosnippet>346</a>                }
-<a href=#347 id=347 data-nosnippet>347</a>            }
-<a href=#348 id=348 data-nosnippet>348</a>        }
-<a href=#349 id=349 data-nosnippet>349</a>    }
-<a href=#350 id=350 data-nosnippet>350</a>
-<a href=#351 id=351 data-nosnippet>351</a>    <span class="prelude-val">Ok</span>(())
-<a href=#352 id=352 data-nosnippet>352</a>}
+<a href=#239 id=239 data-nosnippet>239</a>    <span class="comment">// Initialize a new VM.
+<a href=#240 id=240 data-nosnippet>240</a>    </span><span class="kw">let </span>vm = VM::from(ConsensusStore::&lt;N, ConsensusMemory&lt;N&gt;&gt;::open(StorageMode::Production)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+<a href=#241 id=241 data-nosnippet>241</a>
+<a href=#242 id=242 data-nosnippet>242</a>    <span class="comment">// Load all the programs from the network into the VM.
+<a href=#243 id=243 data-nosnippet>243</a>    </span><span class="kw">let </span>programs_and_editions = program_ids
+<a href=#244 id=244 data-nosnippet>244</a>        .iter()
+<a href=#245 id=245 data-nosnippet>245</a>        .map(|id| {
+<a href=#246 id=246 data-nosnippet>246</a>            <span class="comment">// Load the program from the network.
+<a href=#247 id=247 data-nosnippet>247</a>            </span><span class="kw">let </span>program = leo_package::Program::fetch(
+<a href=#248 id=248 data-nosnippet>248</a>                Symbol::intern(<span class="kw-2">&amp;</span>id.name().to_string()),
+<a href=#249 id=249 data-nosnippet>249</a>                <span class="prelude-val">None</span>,
+<a href=#250 id=250 data-nosnippet>250</a>                context.home()<span class="question-mark">?</span>,
+<a href=#251 id=251 data-nosnippet>251</a>                network,
+<a href=#252 id=252 data-nosnippet>252</a>                <span class="kw-2">&amp;</span>endpoint,
+<a href=#253 id=253 data-nosnippet>253</a>                <span class="bool-val">true</span>,
+<a href=#254 id=254 data-nosnippet>254</a>            )<span class="question-mark">?</span>;
+<a href=#255 id=255 data-nosnippet>255</a>            <span class="kw">let </span>ProgramData::Bytecode(bytecode) = program.data <span class="kw">else </span>{
+<a href=#256 id=256 data-nosnippet>256</a>                <span class="macro">panic!</span>(<span class="string">"Expected bytecode when fetching a remote program"</span>);
+<a href=#257 id=257 data-nosnippet>257</a>            };
+<a href=#258 id=258 data-nosnippet>258</a>            <span class="comment">// Parse the program bytecode.
+<a href=#259 id=259 data-nosnippet>259</a>            </span><span class="kw">let </span>bytecode = Program::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>bytecode)
+<a href=#260 id=260 data-nosnippet>260</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse program: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#261 id=261 data-nosnippet>261</a>            <span class="comment">// Return the bytecode and edition.
+<a href=#262 id=262 data-nosnippet>262</a>            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
+<a href=#263 id=263 data-nosnippet>263</a>            </span><span class="prelude-val">Ok</span>((bytecode, program.edition.unwrap_or(<span class="number">1</span>)))
+<a href=#264 id=264 data-nosnippet>264</a>        })
+<a href=#265 id=265 data-nosnippet>265</a>        .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>;
+<a href=#266 id=266 data-nosnippet>266</a>    vm.process().write().add_programs_with_editions(<span class="kw-2">&amp;</span>programs_and_editions)<span class="question-mark">?</span>;
+<a href=#267 id=267 data-nosnippet>267</a>
+<a href=#268 id=268 data-nosnippet>268</a>    <span class="comment">// Print the programs and their editions in the VM.
+<a href=#269 id=269 data-nosnippet>269</a>    </span><span class="macro">println!</span>(<span class="string">"Loaded the following programs into the VM:"</span>);
+<a href=#270 id=270 data-nosnippet>270</a>    <span class="kw">for </span>program_id <span class="kw">in </span>vm.process().read().program_ids() {
+<a href=#271 id=271 data-nosnippet>271</a>        <span class="kw">let </span>edition = <span class="kw-2">*</span>vm.process().read().get_stack(program_id)<span class="question-mark">?</span>.program_edition();
+<a href=#272 id=272 data-nosnippet>272</a>        <span class="kw">if </span>program_id.to_string() == <span class="string">"credits.aleo" </span>{
+<a href=#273 id=273 data-nosnippet>273</a>            <span class="macro">println!</span>(<span class="string">" - credits.aleo (default)"</span>);
+<a href=#274 id=274 data-nosnippet>274</a>        } <span class="kw">else </span>{
+<a href=#275 id=275 data-nosnippet>275</a>            <span class="macro">println!</span>(<span class="string">" - {program_id} (edition {edition})"</span>);
+<a href=#276 id=276 data-nosnippet>276</a>        }
+<a href=#277 id=277 data-nosnippet>277</a>    }
+<a href=#278 id=278 data-nosnippet>278</a>    <span class="macro">println!</span>();
+<a href=#279 id=279 data-nosnippet>279</a>
+<a href=#280 id=280 data-nosnippet>280</a>    <span class="comment">// Specify the query
+<a href=#281 id=281 data-nosnippet>281</a>    </span><span class="kw">let </span>query = SnarkVMQuery::&lt;N, BlockMemory&lt;N&gt;&gt;::from(<span class="kw-2">&amp;</span>endpoint);
+<a href=#282 id=282 data-nosnippet>282</a>
+<a href=#283 id=283 data-nosnippet>283</a>    <span class="comment">// For each of the programs, generate a deployment transaction.
+<a href=#284 id=284 data-nosnippet>284</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>transactions = Vec::new();
+<a href=#285 id=285 data-nosnippet>285</a>    <span class="kw">for </span>Task { id, program, priority_fee, record, .. } <span class="kw">in </span>local {
+<a href=#286 id=286 data-nosnippet>286</a>        <span class="comment">// If the program is a local dependency that is not skipped, generate a deployment transaction.
+<a href=#287 id=287 data-nosnippet>287</a>        </span><span class="kw">if </span>!skipped.contains(<span class="kw-2">&amp;</span>id) {
+<a href=#288 id=288 data-nosnippet>288</a>            <span class="macro">println!</span>(<span class="string">"📦 Creating deployment transaction for '{}'...\n"</span>, id.to_string().bold());
+<a href=#289 id=289 data-nosnippet>289</a>            <span class="comment">// Generate the transaction.
+<a href=#290 id=290 data-nosnippet>290</a>            </span><span class="kw">let </span>transaction =
+<a href=#291 id=291 data-nosnippet>291</a>                vm.deploy(<span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>program, record, priority_fee.unwrap_or(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>query), rng)
+<a href=#292 id=292 data-nosnippet>292</a>                    .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to generate deployment transaction: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#293 id=293 data-nosnippet>293</a>            <span class="comment">// Get the deployment.
+<a href=#294 id=294 data-nosnippet>294</a>            </span><span class="kw">let </span>deployment = transaction.deployment().expect(<span class="string">"Expected a deployment in the transaction"</span>);
+<a href=#295 id=295 data-nosnippet>295</a>            <span class="comment">// Print the deployment stats.
+<a href=#296 id=296 data-nosnippet>296</a>            </span>print_deployment_stats(<span class="kw-2">&amp;</span>vm, <span class="kw-2">&amp;</span>id.to_string(), deployment, priority_fee)<span class="question-mark">?</span>;
+<a href=#297 id=297 data-nosnippet>297</a>            <span class="comment">// Validate the deployment limits.
+<a href=#298 id=298 data-nosnippet>298</a>            </span>validate_deployment_limits(deployment, <span class="kw-2">&amp;</span>id, <span class="kw-2">&amp;</span>network)<span class="question-mark">?</span>;
+<a href=#299 id=299 data-nosnippet>299</a>            <span class="comment">// Save the transaction.
+<a href=#300 id=300 data-nosnippet>300</a>            </span>transactions.push((id, transaction));
+<a href=#301 id=301 data-nosnippet>301</a>        }
+<a href=#302 id=302 data-nosnippet>302</a>        <span class="comment">// Add the program to the VM.
+<a href=#303 id=303 data-nosnippet>303</a>        </span>vm.process().write().add_program(<span class="kw-2">&amp;</span>program)<span class="question-mark">?</span>;
+<a href=#304 id=304 data-nosnippet>304</a>    }
+<a href=#305 id=305 data-nosnippet>305</a>
+<a href=#306 id=306 data-nosnippet>306</a>    <span class="comment">// If the `print` option is set, print the deployment transaction to the console.
+<a href=#307 id=307 data-nosnippet>307</a>    // The transaction is printed in JSON format.
+<a href=#308 id=308 data-nosnippet>308</a>    </span><span class="kw">if </span>command.action.print {
+<a href=#309 id=309 data-nosnippet>309</a>        <span class="kw">for </span>(program_name, transaction) <span class="kw">in </span>transactions.iter() {
+<a href=#310 id=310 data-nosnippet>310</a>            <span class="comment">// Pretty-print the transaction.
+<a href=#311 id=311 data-nosnippet>311</a>            </span><span class="kw">let </span>transaction_json = serde_json::to_string_pretty(transaction)
+<a href=#312 id=312 data-nosnippet>312</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to serialize transaction: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#313 id=313 data-nosnippet>313</a>            <span class="macro">println!</span>(<span class="string">"🖨️ Printing deployment for {program_name}\n{transaction_json}"</span>)
+<a href=#314 id=314 data-nosnippet>314</a>        }
+<a href=#315 id=315 data-nosnippet>315</a>    }
+<a href=#316 id=316 data-nosnippet>316</a>
+<a href=#317 id=317 data-nosnippet>317</a>    <span class="comment">// If the `save` option is set, save each deployment transaction to a file in the specified directory.
+<a href=#318 id=318 data-nosnippet>318</a>    // The file format is `program_name.deployment.json`.
+<a href=#319 id=319 data-nosnippet>319</a>    // The directory is created if it doesn't exist.
+<a href=#320 id=320 data-nosnippet>320</a>    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>command.action.save {
+<a href=#321 id=321 data-nosnippet>321</a>        <span class="comment">// Create the directory if it doesn't exist.
+<a href=#322 id=322 data-nosnippet>322</a>        </span>std::fs::create_dir_all(path).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to create directory: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#323 id=323 data-nosnippet>323</a>        <span class="kw">for </span>(program_name, transaction) <span class="kw">in </span>transactions.iter() {
+<a href=#324 id=324 data-nosnippet>324</a>            <span class="comment">// Save the transaction to a file.
+<a href=#325 id=325 data-nosnippet>325</a>            </span><span class="kw">let </span>file_path = PathBuf::from(path).join(<span class="macro">format!</span>(<span class="string">"{program_name}.deployment.json"</span>));
+<a href=#326 id=326 data-nosnippet>326</a>            <span class="macro">println!</span>(<span class="string">"💾 Saving deployment for {program_name} at {}"</span>, file_path.display());
+<a href=#327 id=327 data-nosnippet>327</a>            <span class="kw">let </span>transaction_json = serde_json::to_string_pretty(transaction)
+<a href=#328 id=328 data-nosnippet>328</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to serialize transaction: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#329 id=329 data-nosnippet>329</a>            std::fs::write(file_path, transaction_json)
+<a href=#330 id=330 data-nosnippet>330</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to write transaction to file: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#331 id=331 data-nosnippet>331</a>        }
+<a href=#332 id=332 data-nosnippet>332</a>    }
+<a href=#333 id=333 data-nosnippet>333</a>
+<a href=#334 id=334 data-nosnippet>334</a>    <span class="comment">// If the `broadcast` option is set, broadcast each upgrade transaction to the network.
+<a href=#335 id=335 data-nosnippet>335</a>    </span><span class="kw">if </span>command.action.broadcast {
+<a href=#336 id=336 data-nosnippet>336</a>        <span class="kw">for </span>(i, (program_id, transaction)) <span class="kw">in </span>transactions.iter().enumerate() {
+<a href=#337 id=337 data-nosnippet>337</a>            <span class="macro">println!</span>(<span class="string">"📡 Broadcasting upgrade for {program_id}..."</span>);
+<a href=#338 id=338 data-nosnippet>338</a>            <span class="comment">// Get and confirm the fee with the user.
+<a href=#339 id=339 data-nosnippet>339</a>            </span><span class="kw">let </span>fee = transaction.fee_transition().expect(<span class="string">"Expected a fee in the transaction"</span>);
+<a href=#340 id=340 data-nosnippet>340</a>            <span class="kw">if </span>!confirm_fee(<span class="kw-2">&amp;</span>fee, <span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>address, <span class="kw-2">&amp;</span>endpoint, network, <span class="kw-2">&amp;</span>context, command.extra.yes)<span class="question-mark">? </span>{
+<a href=#341 id=341 data-nosnippet>341</a>                <span class="macro">println!</span>(<span class="string">"⏩ Upgrade skipped."</span>);
+<a href=#342 id=342 data-nosnippet>342</a>                <span class="kw">continue</span>;
+<a href=#343 id=343 data-nosnippet>343</a>            }
+<a href=#344 id=344 data-nosnippet>344</a>            <span class="kw">let </span>fee_id = fee.id().to_string();
+<a href=#345 id=345 data-nosnippet>345</a>            <span class="kw">let </span>id = transaction.id().to_string();
+<a href=#346 id=346 data-nosnippet>346</a>            <span class="kw">let </span>height_before = check_transaction::current_height(<span class="kw-2">&amp;</span>endpoint, network)<span class="question-mark">?</span>;
+<a href=#347 id=347 data-nosnippet>347</a>            <span class="comment">// Broadcast the transaction to the network.
+<a href=#348 id=348 data-nosnippet>348</a>            </span><span class="kw">let </span>(message, status) = handle_broadcast(
+<a href=#349 id=349 data-nosnippet>349</a>                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{endpoint}/{network}/transaction/broadcast"</span>),
+<a href=#350 id=350 data-nosnippet>350</a>                transaction,
+<a href=#351 id=351 data-nosnippet>351</a>                <span class="kw-2">&amp;</span>program_id.to_string(),
+<a href=#352 id=352 data-nosnippet>352</a>            )<span class="question-mark">?</span>;
 <a href=#353 id=353 data-nosnippet>353</a>
-<a href=#354 id=354 data-nosnippet>354</a><span class="doccomment">/// Check the tasks to warn the user about any potential issues.
-<a href=#355 id=355 data-nosnippet>355</a>/// The following properties are checked:
-<a href=#356 id=356 data-nosnippet>356</a>/// - If the transaction is to be broadcast:
-<a href=#357 id=357 data-nosnippet>357</a>///     - The program exists on the network and the new program is a valid upgrade.
-<a href=#358 id=358 data-nosnippet>358</a>///     - If the consensus version is less than V9, the program does not use V9 features.
-<a href=#359 id=359 data-nosnippet>359</a>///     - If the consensus version is V9 or greater, the program contains a constructor.
-<a href=#360 id=360 data-nosnippet>360</a></span><span class="kw">fn </span>check_tasks_for_warnings&lt;N: Network&gt;(
-<a href=#361 id=361 data-nosnippet>361</a>    endpoint: <span class="kw-2">&amp;</span>str,
-<a href=#362 id=362 data-nosnippet>362</a>    network: NetworkName,
-<a href=#363 id=363 data-nosnippet>363</a>    tasks: <span class="kw-2">&amp;</span>[Task&lt;N&gt;],
-<a href=#364 id=364 data-nosnippet>364</a>    consensus_version: ConsensusVersion,
-<a href=#365 id=365 data-nosnippet>365</a>    command: <span class="kw-2">&amp;</span>LeoUpgrade,
-<a href=#366 id=366 data-nosnippet>366</a>) -&gt; Vec&lt;String&gt; {
-<a href=#367 id=367 data-nosnippet>367</a>    <span class="kw">let </span><span class="kw-2">mut </span>warnings = Vec::new();
-<a href=#368 id=368 data-nosnippet>368</a>    <span class="kw">for </span>Task { id, program, is_local, .. } <span class="kw">in </span>tasks {
-<a href=#369 id=369 data-nosnippet>369</a>        <span class="kw">if </span>!is_local || !command.action.broadcast {
-<a href=#370 id=370 data-nosnippet>370</a>            <span class="kw">continue</span>;
-<a href=#371 id=371 data-nosnippet>371</a>        }
-<a href=#372 id=372 data-nosnippet>372</a>
-<a href=#373 id=373 data-nosnippet>373</a>        <span class="comment">// Check if the program exists on the network.
-<a href=#374 id=374 data-nosnippet>374</a>        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(remote_program) = fetch_program_from_network(<span class="kw-2">&amp;</span>id.to_string(), endpoint, network) {
-<a href=#375 id=375 data-nosnippet>375</a>            <span class="comment">// Parse the program.
-<a href=#376 id=376 data-nosnippet>376</a>            </span><span class="kw">let </span>remote_program = <span class="kw">match </span>Program::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>remote_program) {
-<a href=#377 id=377 data-nosnippet>377</a>                <span class="prelude-val">Ok</span>(program) =&gt; program,
-<a href=#378 id=378 data-nosnippet>378</a>                <span class="prelude-val">Err</span>(e) =&gt; {
-<a href=#379 id=379 data-nosnippet>379</a>                    warnings.push(<span class="macro">format!</span>(<span class="string">"Could not parse '{id}' from the network. Error: {e}"</span>,));
-<a href=#380 id=380 data-nosnippet>380</a>                    <span class="kw">continue</span>;
-<a href=#381 id=381 data-nosnippet>381</a>                }
-<a href=#382 id=382 data-nosnippet>382</a>            };
-<a href=#383 id=383 data-nosnippet>383</a>            <span class="comment">// Check if the program is a valid upgrade.
-<a href=#384 id=384 data-nosnippet>384</a>            </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = Stack::check_upgrade_is_valid(<span class="kw-2">&amp;</span>remote_program, program) {
-<a href=#385 id=385 data-nosnippet>385</a>                warnings.push(<span class="macro">format!</span>(
-<a href=#386 id=386 data-nosnippet>386</a>                    <span class="string">"The program '{id}' is not a valid upgrade. The upgrade will likely fail. Error: {e}"</span>,
-<a href=#387 id=387 data-nosnippet>387</a>                ));
-<a href=#388 id=388 data-nosnippet>388</a>            }
-<a href=#389 id=389 data-nosnippet>389</a>        } <span class="kw">else </span>{
-<a href=#390 id=390 data-nosnippet>390</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' does not exist on the network. The upgrade will likely fail."</span>,));
-<a href=#391 id=391 data-nosnippet>391</a>        }
-<a href=#392 id=392 data-nosnippet>392</a>
-<a href=#393 id=393 data-nosnippet>393</a>        <span class="comment">// Check if the program uses V9 features.
-<a href=#394 id=394 data-nosnippet>394</a>        </span><span class="kw">if </span>consensus_version &lt; ConsensusVersion::V9 &amp;&amp; program.contains_v9_syntax() {
-<a href=#395 id=395 data-nosnippet>395</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' uses V9 features but the consensus version is less than V9. The upgrade will likely fail"</span>));
-<a href=#396 id=396 data-nosnippet>396</a>        }
-<a href=#397 id=397 data-nosnippet>397</a>        <span class="comment">// Check if the program contains a constructor.
-<a href=#398 id=398 data-nosnippet>398</a>        </span><span class="kw">if </span>consensus_version &gt;= ConsensusVersion::V9 &amp;&amp; !program.contains_constructor() {
-<a href=#399 id=399 data-nosnippet>399</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' does not contain a constructor. The upgrade will likely fail"</span>,));
-<a href=#400 id=400 data-nosnippet>400</a>        }
-<a href=#401 id=401 data-nosnippet>401</a>    }
-<a href=#402 id=402 data-nosnippet>402</a>    warnings
-<a href=#403 id=403 data-nosnippet>403</a>}
-<a href=#404 id=404 data-nosnippet>404</a>
-<a href=#405 id=405 data-nosnippet>405</a><span class="comment">// Convert the `LeoUpgrade` into a `LeoDeploy` command.
-<a href=#406 id=406 data-nosnippet>406</a></span><span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>LeoUpgrade&gt; <span class="kw">for </span>LeoDeploy {
-<a href=#407 id=407 data-nosnippet>407</a>    <span class="kw">fn </span>from(upgrade: <span class="kw-2">&amp;</span>LeoUpgrade) -&gt; <span class="self">Self </span>{
-<a href=#408 id=408 data-nosnippet>408</a>        <span class="self">Self </span>{
-<a href=#409 id=409 data-nosnippet>409</a>            fee_options: upgrade.fee_options.clone(),
-<a href=#410 id=410 data-nosnippet>410</a>            action: upgrade.action.clone(),
-<a href=#411 id=411 data-nosnippet>411</a>            env_override: upgrade.env_override.clone(),
-<a href=#412 id=412 data-nosnippet>412</a>            extra: upgrade.extra.clone(),
-<a href=#413 id=413 data-nosnippet>413</a>            skip: upgrade.skip.clone(),
-<a href=#414 id=414 data-nosnippet>414</a>            build_options: upgrade.build_options.clone(),
+<a href=#354 id=354 data-nosnippet>354</a>            <span class="kw">let </span>fail_and_prompt = |msg| {
+<a href=#355 id=355 data-nosnippet>355</a>                <span class="macro">println!</span>(<span class="string">"❌ Failed to upgrade program {program_id}: {msg}."</span>);
+<a href=#356 id=356 data-nosnippet>356</a>                <span class="kw">let </span>count = transactions.len() - i - <span class="number">1</span>;
+<a href=#357 id=357 data-nosnippet>357</a>                <span class="comment">// Check if the user wants to continue with the next upgrade.
+<a href=#358 id=358 data-nosnippet>358</a>                </span><span class="kw">if </span>count &gt; <span class="number">0 </span>{
+<a href=#359 id=359 data-nosnippet>359</a>                    confirm(<span class="string">"Do you want to continue with the next upgrade?"</span>, command.extra.yes)
+<a href=#360 id=360 data-nosnippet>360</a>                } <span class="kw">else </span>{
+<a href=#361 id=361 data-nosnippet>361</a>                    <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
+<a href=#362 id=362 data-nosnippet>362</a>                }
+<a href=#363 id=363 data-nosnippet>363</a>            };
+<a href=#364 id=364 data-nosnippet>364</a>
+<a href=#365 id=365 data-nosnippet>365</a>            <span class="kw">match </span>status {
+<a href=#366 id=366 data-nosnippet>366</a>                <span class="number">200</span>..=<span class="number">299 </span>=&gt; {
+<a href=#367 id=367 data-nosnippet>367</a>                    <span class="kw">let </span>status = check_transaction::check_transaction_with_message(
+<a href=#368 id=368 data-nosnippet>368</a>                        <span class="kw-2">&amp;</span>id,
+<a href=#369 id=369 data-nosnippet>369</a>                        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>fee_id),
+<a href=#370 id=370 data-nosnippet>370</a>                        <span class="kw-2">&amp;</span>endpoint,
+<a href=#371 id=371 data-nosnippet>371</a>                        network,
+<a href=#372 id=372 data-nosnippet>372</a>                        height_before + <span class="number">1</span>,
+<a href=#373 id=373 data-nosnippet>373</a>                        command.extra.max_wait,
+<a href=#374 id=374 data-nosnippet>374</a>                        command.extra.blocks_to_check,
+<a href=#375 id=375 data-nosnippet>375</a>                    )<span class="question-mark">?</span>;
+<a href=#376 id=376 data-nosnippet>376</a>                    <span class="kw">if </span>status == <span class="prelude-val">Some</span>(TransactionStatus::Accepted) {
+<a href=#377 id=377 data-nosnippet>377</a>                        <span class="macro">println!</span>(<span class="string">"✅ Upgrade confirmed!"</span>);
+<a href=#378 id=378 data-nosnippet>378</a>                    } <span class="kw">else if </span>fail_and_prompt(<span class="string">"could not find the transaction on the network"</span>)<span class="question-mark">? </span>{
+<a href=#379 id=379 data-nosnippet>379</a>                        <span class="kw">continue</span>;
+<a href=#380 id=380 data-nosnippet>380</a>                    } <span class="kw">else </span>{
+<a href=#381 id=381 data-nosnippet>381</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#382 id=382 data-nosnippet>382</a>                    }
+<a href=#383 id=383 data-nosnippet>383</a>                }
+<a href=#384 id=384 data-nosnippet>384</a>                <span class="kw">_ </span>=&gt; {
+<a href=#385 id=385 data-nosnippet>385</a>                    <span class="kw">if </span>fail_and_prompt(<span class="kw-2">&amp;</span>message)<span class="question-mark">? </span>{
+<a href=#386 id=386 data-nosnippet>386</a>                        <span class="kw">continue</span>;
+<a href=#387 id=387 data-nosnippet>387</a>                    } <span class="kw">else </span>{
+<a href=#388 id=388 data-nosnippet>388</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#389 id=389 data-nosnippet>389</a>                    }
+<a href=#390 id=390 data-nosnippet>390</a>                }
+<a href=#391 id=391 data-nosnippet>391</a>            }
+<a href=#392 id=392 data-nosnippet>392</a>        }
+<a href=#393 id=393 data-nosnippet>393</a>    }
+<a href=#394 id=394 data-nosnippet>394</a>
+<a href=#395 id=395 data-nosnippet>395</a>    <span class="prelude-val">Ok</span>(())
+<a href=#396 id=396 data-nosnippet>396</a>}
+<a href=#397 id=397 data-nosnippet>397</a>
+<a href=#398 id=398 data-nosnippet>398</a><span class="doccomment">/// Check the tasks to warn the user about any potential issues.
+<a href=#399 id=399 data-nosnippet>399</a>/// The following properties are checked:
+<a href=#400 id=400 data-nosnippet>400</a>/// - If the transaction is to be broadcast:
+<a href=#401 id=401 data-nosnippet>401</a>///     - The program exists on the network and the new program is a valid upgrade.
+<a href=#402 id=402 data-nosnippet>402</a>///     - If the consensus version is less than V9, the program does not use V9 features.
+<a href=#403 id=403 data-nosnippet>403</a>///     - If the consensus version is V9 or greater, the program contains a constructor.
+<a href=#404 id=404 data-nosnippet>404</a></span><span class="kw">fn </span>check_tasks_for_warnings&lt;N: Network&gt;(
+<a href=#405 id=405 data-nosnippet>405</a>    endpoint: <span class="kw-2">&amp;</span>str,
+<a href=#406 id=406 data-nosnippet>406</a>    network: NetworkName,
+<a href=#407 id=407 data-nosnippet>407</a>    tasks: <span class="kw-2">&amp;</span>[Task&lt;N&gt;],
+<a href=#408 id=408 data-nosnippet>408</a>    consensus_version: ConsensusVersion,
+<a href=#409 id=409 data-nosnippet>409</a>    command: <span class="kw-2">&amp;</span>LeoUpgrade,
+<a href=#410 id=410 data-nosnippet>410</a>) -&gt; Vec&lt;String&gt; {
+<a href=#411 id=411 data-nosnippet>411</a>    <span class="kw">let </span><span class="kw-2">mut </span>warnings = Vec::new();
+<a href=#412 id=412 data-nosnippet>412</a>    <span class="kw">for </span>Task { id, program, is_local, .. } <span class="kw">in </span>tasks {
+<a href=#413 id=413 data-nosnippet>413</a>        <span class="kw">if </span>!is_local || !command.action.broadcast {
+<a href=#414 id=414 data-nosnippet>414</a>            <span class="kw">continue</span>;
 <a href=#415 id=415 data-nosnippet>415</a>        }
-<a href=#416 id=416 data-nosnippet>416</a>    }
-<a href=#417 id=417 data-nosnippet>417</a>}</code></pre></div></section></main></body></html>
+<a href=#416 id=416 data-nosnippet>416</a>
+<a href=#417 id=417 data-nosnippet>417</a>        <span class="comment">// Check if the program exists on the network.
+<a href=#418 id=418 data-nosnippet>418</a>        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(remote_program) = fetch_program_from_network(<span class="kw-2">&amp;</span>id.to_string(), endpoint, network) {
+<a href=#419 id=419 data-nosnippet>419</a>            <span class="comment">// Parse the program.
+<a href=#420 id=420 data-nosnippet>420</a>            </span><span class="kw">let </span>remote_program = <span class="kw">match </span>Program::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>remote_program) {
+<a href=#421 id=421 data-nosnippet>421</a>                <span class="prelude-val">Ok</span>(program) =&gt; program,
+<a href=#422 id=422 data-nosnippet>422</a>                <span class="prelude-val">Err</span>(e) =&gt; {
+<a href=#423 id=423 data-nosnippet>423</a>                    warnings.push(<span class="macro">format!</span>(<span class="string">"Could not parse '{id}' from the network. Error: {e}"</span>,));
+<a href=#424 id=424 data-nosnippet>424</a>                    <span class="kw">continue</span>;
+<a href=#425 id=425 data-nosnippet>425</a>                }
+<a href=#426 id=426 data-nosnippet>426</a>            };
+<a href=#427 id=427 data-nosnippet>427</a>            <span class="comment">// Check if the program is a valid upgrade.
+<a href=#428 id=428 data-nosnippet>428</a>            </span><span class="kw">if </span>remote_program.contains_constructor() {
+<a href=#429 id=429 data-nosnippet>429</a>                <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = Stack::check_upgrade_is_valid(<span class="kw-2">&amp;</span>remote_program, program) {
+<a href=#430 id=430 data-nosnippet>430</a>                    warnings.push(<span class="macro">format!</span>(
+<a href=#431 id=431 data-nosnippet>431</a>                        <span class="string">"The program '{id}' is not a valid upgrade. The upgrade will likely fail. Error: {e}"</span>,
+<a href=#432 id=432 data-nosnippet>432</a>                    ));
+<a href=#433 id=433 data-nosnippet>433</a>                }
+<a href=#434 id=434 data-nosnippet>434</a>            } <span class="kw">else if </span>consensus_version &gt;= ConsensusVersion::V8 {
+<a href=#435 id=435 data-nosnippet>435</a>                warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' can only ever be upgraded once and its contents cannot be changed. Otherwise, the upgrade will likely fail."</span>));
+<a href=#436 id=436 data-nosnippet>436</a>            } <span class="kw">else </span>{
+<a href=#437 id=437 data-nosnippet>437</a>                warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' does not have a constructor and is not eligible for a one-time upgrade (&gt;= `ConsensusVersion::V8`). The upgrade will likely fail."</span>));
+<a href=#438 id=438 data-nosnippet>438</a>            }
+<a href=#439 id=439 data-nosnippet>439</a>        } <span class="kw">else </span>{
+<a href=#440 id=440 data-nosnippet>440</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' does not exist on the network. The upgrade will likely fail."</span>,));
+<a href=#441 id=441 data-nosnippet>441</a>        }
+<a href=#442 id=442 data-nosnippet>442</a>        <span class="comment">// Check if the program has a valid naming scheme.
+<a href=#443 id=443 data-nosnippet>443</a>        </span><span class="kw">if </span>consensus_version &gt;= ConsensusVersion::V7 {
+<a href=#444 id=444 data-nosnippet>444</a>            <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = program.check_program_naming_structure() {
+<a href=#445 id=445 data-nosnippet>445</a>                warnings.push(<span class="macro">format!</span>(
+<a href=#446 id=446 data-nosnippet>446</a>                    <span class="string">"The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
+<a href=#447 id=447 data-nosnippet>447</a>                </span>));
+<a href=#448 id=448 data-nosnippet>448</a>            }
+<a href=#449 id=449 data-nosnippet>449</a>        }
+<a href=#450 id=450 data-nosnippet>450</a>        <span class="comment">// Check if the program contains restricted keywords.
+<a href=#451 id=451 data-nosnippet>451</a>        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = program.check_restricted_keywords_for_consensus_version(consensus_version) {
+<a href=#452 id=452 data-nosnippet>452</a>            warnings.push(<span class="macro">format!</span>(
+<a href=#453 id=453 data-nosnippet>453</a>                <span class="string">"The program '{id}' contains restricted keywords for consensus version {}: {e}. The deployment will likely fail."</span>,
+<a href=#454 id=454 data-nosnippet>454</a>                consensus_version <span class="kw">as </span>u8
+<a href=#455 id=455 data-nosnippet>455</a>            ));
+<a href=#456 id=456 data-nosnippet>456</a>        }
+<a href=#457 id=457 data-nosnippet>457</a>        <span class="comment">// Check if the program uses V9 features.
+<a href=#458 id=458 data-nosnippet>458</a>        </span><span class="kw">if </span>consensus_version &lt; ConsensusVersion::V9 &amp;&amp; program.contains_v9_syntax() {
+<a href=#459 id=459 data-nosnippet>459</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' uses V9 features but the consensus version is less than V9. The upgrade will likely fail"</span>));
+<a href=#460 id=460 data-nosnippet>460</a>        }
+<a href=#461 id=461 data-nosnippet>461</a>        <span class="comment">// Check if the program contains a constructor.
+<a href=#462 id=462 data-nosnippet>462</a>        </span><span class="kw">if </span>consensus_version &gt;= ConsensusVersion::V9 &amp;&amp; !program.contains_constructor() {
+<a href=#463 id=463 data-nosnippet>463</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' does not contain a constructor. The upgrade will likely fail"</span>,));
+<a href=#464 id=464 data-nosnippet>464</a>        }
+<a href=#465 id=465 data-nosnippet>465</a>        <span class="comment">// Check for a consensus version mismatch.
+<a href=#466 id=466 data-nosnippet>466</a>        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+<a href=#467 id=467 data-nosnippet>467</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"{e}. In some cases, the deployment may fail"</span>));
+<a href=#468 id=468 data-nosnippet>468</a>        }
+<a href=#469 id=469 data-nosnippet>469</a>    }
+<a href=#470 id=470 data-nosnippet>470</a>    warnings
+<a href=#471 id=471 data-nosnippet>471</a>}
+<a href=#472 id=472 data-nosnippet>472</a>
+<a href=#473 id=473 data-nosnippet>473</a><span class="comment">// Convert the `LeoUpgrade` into a `LeoDeploy` command.
+<a href=#474 id=474 data-nosnippet>474</a></span><span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>LeoUpgrade&gt; <span class="kw">for </span>LeoDeploy {
+<a href=#475 id=475 data-nosnippet>475</a>    <span class="kw">fn </span>from(upgrade: <span class="kw-2">&amp;</span>LeoUpgrade) -&gt; <span class="self">Self </span>{
+<a href=#476 id=476 data-nosnippet>476</a>        <span class="self">Self </span>{
+<a href=#477 id=477 data-nosnippet>477</a>            fee_options: upgrade.fee_options.clone(),
+<a href=#478 id=478 data-nosnippet>478</a>            action: upgrade.action.clone(),
+<a href=#479 id=479 data-nosnippet>479</a>            env_override: upgrade.env_override.clone(),
+<a href=#480 id=480 data-nosnippet>480</a>            extra: upgrade.extra.clone(),
+<a href=#481 id=481 data-nosnippet>481</a>            skip: upgrade.skip.clone(),
+<a href=#482 id=482 data-nosnippet>482</a>            build_options: upgrade.build_options.clone(),
+<a href=#483 id=483 data-nosnippet>483</a>        }
+<a href=#484 id=484 data-nosnippet>484</a>    }
+<a href=#485 id=485 data-nosnippet>485</a>}</code></pre></div></section></main></body></html>

@@ -25,11 +25,11 @@
 <a href=#25 id=25 data-nosnippet>25</a></span><span class="kw">pub enum </span>NetworkName {
 <a href=#26 id=26 data-nosnippet>26</a>    <span class="attr">#[default]
 <a href=#27 id=27 data-nosnippet>27</a>    #[serde(rename = <span class="string">"testnet"</span>)]
-<a href=#28 id=28 data-nosnippet>28</a>    </span>TestnetV0,
+<a href=#28 id=28 data-nosnippet>28</a>    </span>TestnetV0 = <span class="number">1</span>,
 <a href=#29 id=29 data-nosnippet>29</a>    <span class="attr">#[serde(rename = <span class="string">"mainnet"</span>)]
-<a href=#30 id=30 data-nosnippet>30</a>    </span>MainnetV0,
+<a href=#30 id=30 data-nosnippet>30</a>    </span>MainnetV0 = <span class="number">0</span>,
 <a href=#31 id=31 data-nosnippet>31</a>    <span class="attr">#[serde(rename = <span class="string">"canary"</span>)]
-<a href=#32 id=32 data-nosnippet>32</a>    </span>CanaryV0,
+<a href=#32 id=32 data-nosnippet>32</a>    </span>CanaryV0 = <span class="number">2</span>,
 <a href=#33 id=33 data-nosnippet>33</a>}
 <a href=#34 id=34 data-nosnippet>34</a>
 <a href=#35 id=35 data-nosnippet>35</a><span class="kw">impl </span>NetworkName {

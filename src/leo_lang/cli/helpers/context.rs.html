@@ -77,53 +77,51 @@
 <a href=#77 id=77 data-nosnippet>77</a>        <span class="prelude-val">Ok</span>(manifest)
 <a href=#78 id=78 data-nosnippet>78</a>    }
 <a href=#79 id=79 data-nosnippet>79</a>
-<a href=#80 id=80 data-nosnippet>80</a>    <span class="doccomment">/// Returns the private key from the .env file specified in the directory.
-<a href=#81 id=81 data-nosnippet>81</a>    </span><span class="kw">pub fn </span>dotenv_private_key&lt;N: Network&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PrivateKey&lt;N&gt;&gt; {
-<a href=#82 id=82 data-nosnippet>82</a>        dotenvy::from_path(<span class="self">self</span>.dir()<span class="question-mark">?</span>.join(<span class="string">".env"</span>)).map_err(|<span class="kw">_</span>| CliError::failed_to_get_private_key_from_env())<span class="question-mark">?</span>;
-<a href=#83 id=83 data-nosnippet>83</a>        <span class="comment">// Load the private key from the environment.
-<a href=#84 id=84 data-nosnippet>84</a>        </span><span class="kw">let </span>private_key = dotenvy::var(<span class="string">"PRIVATE_KEY"</span>).map_err(|<span class="kw">_</span>| CliError::failed_to_get_private_key_from_env())<span class="question-mark">?</span>;
-<a href=#85 id=85 data-nosnippet>85</a>        <span class="comment">// Parse the private key.
-<a href=#86 id=86 data-nosnippet>86</a>        </span><span class="prelude-val">Ok</span>(PrivateKey::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>)
-<a href=#87 id=87 data-nosnippet>87</a>    }
-<a href=#88 id=88 data-nosnippet>88</a>
-<a href=#89 id=89 data-nosnippet>89</a>    <span class="doccomment">/// Returns the endpoint from the .env file specified in the directory.
-<a href=#90 id=90 data-nosnippet>90</a>    </span><span class="kw">pub fn </span>dotenv_endpoint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-<a href=#91 id=91 data-nosnippet>91</a>        dotenvy::from_path(<span class="self">self</span>.dir()<span class="question-mark">?</span>.join(<span class="string">".env"</span>)).map_err(|<span class="kw">_</span>| CliError::failed_to_get_endpoint_from_env())<span class="question-mark">?</span>;
-<a href=#92 id=92 data-nosnippet>92</a>        <span class="comment">// Load the endpoint from the environment.
-<a href=#93 id=93 data-nosnippet>93</a>        </span><span class="prelude-val">Ok</span>(dotenvy::var(<span class="string">"ENDPOINT"</span>).map_err(|<span class="kw">_</span>| CliError::failed_to_get_endpoint_from_env())<span class="question-mark">?</span>)
-<a href=#94 id=94 data-nosnippet>94</a>    }
-<a href=#95 id=95 data-nosnippet>95</a>
-<a href=#96 id=96 data-nosnippet>96</a>    <span class="doccomment">/// Returns the network from the .env file specified in the directory.
-<a href=#97 id=97 data-nosnippet>97</a>    </span><span class="kw">pub fn </span>dotenv_network(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-<a href=#98 id=98 data-nosnippet>98</a>        dotenvy::from_path(<span class="self">self</span>.dir()<span class="question-mark">?</span>.join(<span class="string">".env"</span>)).map_err(|<span class="kw">_</span>| CliError::failed_to_get_network_from_env())<span class="question-mark">?</span>;
-<a href=#99 id=99 data-nosnippet>99</a>        <span class="comment">// Load the network from the environment.
-<a href=#100 id=100 data-nosnippet>100</a>        </span><span class="prelude-val">Ok</span>(dotenvy::var(<span class="string">"NETWORK"</span>).map_err(|<span class="kw">_</span>| CliError::failed_to_get_network_from_env())<span class="question-mark">?</span>)
-<a href=#101 id=101 data-nosnippet>101</a>    }
-<a href=#102 id=102 data-nosnippet>102</a>
-<a href=#103 id=103 data-nosnippet>103</a>    <span class="doccomment">/// Returns the endpoint to interact with the network.
-<a href=#104 id=104 data-nosnippet>104</a>    /// If the `--endpoint` options is not provided, it will default to the one in the `.env` file.
-<a href=#105 id=105 data-nosnippet>105</a>    </span><span class="kw">pub fn </span>get_endpoint(<span class="kw-2">&amp;</span><span class="self">self</span>, endpoint: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-<a href=#106 id=106 data-nosnippet>106</a>        <span class="kw">match </span>endpoint {
-<a href=#107 id=107 data-nosnippet>107</a>            <span class="prelude-val">Some</span>(endpoint) =&gt; <span class="prelude-val">Ok</span>(endpoint.clone()),
-<a href=#108 id=108 data-nosnippet>108</a>            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.dotenv_endpoint()<span class="question-mark">?</span>),
-<a href=#109 id=109 data-nosnippet>109</a>        }
-<a href=#110 id=110 data-nosnippet>110</a>    }
-<a href=#111 id=111 data-nosnippet>111</a>
-<a href=#112 id=112 data-nosnippet>112</a>    <span class="doccomment">/// Returns the network name.
-<a href=#113 id=113 data-nosnippet>113</a>    /// If the `--network` options is not provided, it will default to the one in the `.env` file.
-<a href=#114 id=114 data-nosnippet>114</a>    </span><span class="kw">pub fn </span>get_network(<span class="kw-2">&amp;</span><span class="self">self</span>, network: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-<a href=#115 id=115 data-nosnippet>115</a>        <span class="kw">match </span>network {
-<a href=#116 id=116 data-nosnippet>116</a>            <span class="prelude-val">Some</span>(network) =&gt; <span class="prelude-val">Ok</span>(network.clone()),
-<a href=#117 id=117 data-nosnippet>117</a>            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.dotenv_network()<span class="question-mark">?</span>),
-<a href=#118 id=118 data-nosnippet>118</a>        }
-<a href=#119 id=119 data-nosnippet>119</a>    }
-<a href=#120 id=120 data-nosnippet>120</a>
-<a href=#121 id=121 data-nosnippet>121</a>    <span class="doccomment">/// Returns the private key.
-<a href=#122 id=122 data-nosnippet>122</a>    /// If the `--private-key` options is not provided, it will default to the one in the `.env` file.
-<a href=#123 id=123 data-nosnippet>123</a>    </span><span class="kw">pub fn </span>get_private_key&lt;N: Network&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, private_key: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;PrivateKey&lt;N&gt;&gt; {
-<a href=#124 id=124 data-nosnippet>124</a>        <span class="kw">match </span>private_key {
-<a href=#125 id=125 data-nosnippet>125</a>            <span class="prelude-val">Some</span>(private_key) =&gt; <span class="prelude-val">Ok</span>(PrivateKey::&lt;N&gt;::from_str(private_key)<span class="question-mark">?</span>),
-<a href=#126 id=126 data-nosnippet>126</a>            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.dotenv_private_key(),
-<a href=#127 id=127 data-nosnippet>127</a>        }
-<a href=#128 id=128 data-nosnippet>128</a>    }
-<a href=#129 id=129 data-nosnippet>129</a>}</code></pre></div></section></main></body></html>
+<a href=#80 id=80 data-nosnippet>80</a>    <span class="doccomment">/// Returns the endpoint to interact with the network.
+<a href=#81 id=81 data-nosnippet>81</a>    /// If the `--endpoint` options is not provided, it will default to the environment variable.
+<a href=#82 id=82 data-nosnippet>82</a>    </span><span class="kw">pub fn </span>get_endpoint(<span class="kw-2">&amp;</span><span class="self">self</span>, endpoint: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+<a href=#83 id=83 data-nosnippet>83</a>        <span class="kw">match </span>endpoint {
+<a href=#84 id=84 data-nosnippet>84</a>            <span class="prelude-val">Some</span>(endpoint) =&gt; <span class="prelude-val">Ok</span>(endpoint.clone()),
+<a href=#85 id=85 data-nosnippet>85</a>            <span class="prelude-val">None </span>=&gt; {
+<a href=#86 id=86 data-nosnippet>86</a>                <span class="comment">// Load the endpoint from the environment.
+<a href=#87 id=87 data-nosnippet>87</a>                </span>dotenvy::var(<span class="string">"ENDPOINT"</span>).map_err(|e| {
+<a href=#88 id=88 data-nosnippet>88</a>                    CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to load `ENDPOINT` from the environment: {e}"</span>)).into()
+<a href=#89 id=89 data-nosnippet>89</a>                })
+<a href=#90 id=90 data-nosnippet>90</a>            }
+<a href=#91 id=91 data-nosnippet>91</a>        }
+<a href=#92 id=92 data-nosnippet>92</a>    }
+<a href=#93 id=93 data-nosnippet>93</a>
+<a href=#94 id=94 data-nosnippet>94</a>    <span class="doccomment">/// Returns the network name.
+<a href=#95 id=95 data-nosnippet>95</a>    /// If the `--network` options is not provided, it will default to the environment variable.
+<a href=#96 id=96 data-nosnippet>96</a>    </span><span class="kw">pub fn </span>get_network(<span class="kw-2">&amp;</span><span class="self">self</span>, network: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+<a href=#97 id=97 data-nosnippet>97</a>        <span class="kw">match </span>network {
+<a href=#98 id=98 data-nosnippet>98</a>            <span class="prelude-val">Some</span>(network) =&gt; <span class="prelude-val">Ok</span>(network.clone()),
+<a href=#99 id=99 data-nosnippet>99</a>            <span class="prelude-val">None </span>=&gt; {
+<a href=#100 id=100 data-nosnippet>100</a>                <span class="comment">// Load the network from the environment.
+<a href=#101 id=101 data-nosnippet>101</a>                </span>dotenvy::var(<span class="string">"NETWORK"</span>)
+<a href=#102 id=102 data-nosnippet>102</a>                    .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to load `NETWORK` from the environment: {e}"</span>)).into())
+<a href=#103 id=103 data-nosnippet>103</a>            }
+<a href=#104 id=104 data-nosnippet>104</a>        }
+<a href=#105 id=105 data-nosnippet>105</a>    }
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a>    <span class="doccomment">/// Returns the private key.
+<a href=#108 id=108 data-nosnippet>108</a>    /// If the `--private-key` options is not provided, it will default to the environment variable.
+<a href=#109 id=109 data-nosnippet>109</a>    </span><span class="kw">pub fn </span>get_private_key&lt;N: Network&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, private_key: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;PrivateKey&lt;N&gt;&gt; {
+<a href=#110 id=110 data-nosnippet>110</a>        <span class="kw">match </span>private_key {
+<a href=#111 id=111 data-nosnippet>111</a>            <span class="prelude-val">Some</span>(private_key) =&gt; <span class="prelude-val">Ok</span>(PrivateKey::&lt;N&gt;::from_str(private_key)<span class="question-mark">?</span>),
+<a href=#112 id=112 data-nosnippet>112</a>            <span class="prelude-val">None </span>=&gt; {
+<a href=#113 id=113 data-nosnippet>113</a>                <span class="comment">// Load the private key from the environment.
+<a href=#114 id=114 data-nosnippet>114</a>                </span><span class="kw">let </span>private_key = dotenvy::var(<span class="string">"PRIVATE_KEY"</span>)
+<a href=#115 id=115 data-nosnippet>115</a>                    .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to load `PRIVATE_KEY` from the environment: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#116 id=116 data-nosnippet>116</a>                <span class="comment">// Parse the private key.
+<a href=#117 id=117 data-nosnippet>117</a>                </span><span class="prelude-val">Ok</span>(PrivateKey::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>)
+<a href=#118 id=118 data-nosnippet>118</a>            }
+<a href=#119 id=119 data-nosnippet>119</a>        }
+<a href=#120 id=120 data-nosnippet>120</a>    }
+<a href=#121 id=121 data-nosnippet>121</a>
+<a href=#122 id=122 data-nosnippet>122</a>    <span class="doccomment">/// Returns whether the devnet flag is set.
+<a href=#123 id=123 data-nosnippet>123</a>    /// If the `--devnet` flag is not set, check if the environment variable is set, otherwise default to `false`.
+<a href=#124 id=124 data-nosnippet>124</a>    </span><span class="kw">pub fn </span>get_is_devnet(<span class="kw-2">&amp;</span><span class="self">self</span>, devnet: bool) -&gt; bool {
+<a href=#125 id=125 data-nosnippet>125</a>        <span class="kw">if </span>devnet { <span class="bool-val">true </span>} <span class="kw">else </span>{ dotenvy::var(<span class="string">"DEVNET"</span>).is_ok() }
+<a href=#126 id=126 data-nosnippet>126</a>    }
+<a href=#127 id=127 data-nosnippet>127</a>}</code></pre></div></section></main></body></html>

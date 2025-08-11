@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["clean_snarkos","install_snarkos"]};
