@@ -81,6 +81,23 @@ impl Interpreter {
         )
     }
 
+    /// Parses a Leo source file and its modules into an `Ast`.
+    ///
+    /// # Arguments
+    /// - `path`: The path to the main `.leo` source file (e.g. `main.leo`).
+    /// - `modules`: A list of paths to module `.leo` files associated with the main file.
+    /// - `handler`: The compiler's diagnostic handler for reporting errors.
+    /// - `node_builder`: Utility for constructing unique node IDs in the AST.
+    /// - `network`: The target network.
+    ///
+    /// # Returns
+    /// - `Ok(Ast)`: If parsing succeeds.
+    /// - `Err(CompilerError)`: If file I/O or parsing fails.
+    ///
+    /// # Behavior
+    /// - Reads the contents of the main file and all modules.
+    /// - Registers each source file with the compiler's source map (via `with_session_globals`).
+    /// - Invokes the parser to produce the full AST including modules.
     fn get_ast(
         path: &std::path::PathBuf,
         modules: &[std::path::PathBuf],
@@ -102,6 +119,34 @@ impl Interpreter {
         leo_parser::parse_ast(handler.clone(), node_builder, &source_file, &modules, network)
     }
 
+    /// Partitions `.leo` source files into `(main_file, module_files)` pairs based on directory structure.
+    ///
+    /// This function takes an iterator over `.leo` file paths and:
+    /// - Identifies files named `main.leo`, treating them as the root of a compilation unit.
+    /// - For each `main.leo`, finds all other `.leo` files in the same directory or subdirectories,
+    ///   treating them as module files for that main file.
+    /// - Returns a list of pairs: the `main.leo` path and a vector of its corresponding module paths.
+    ///
+    /// # Arguments
+    /// - `leo_source_files`: An iterator over paths to `.leo` files (e.g. from walking a project directory).
+    ///
+    /// # Returns
+    /// - A `Vec<(PathBuf, Vec<PathBuf>)>` where:
+    ///   - The first element is the path to `main.leo`.
+    ///   - The second is a list of module file paths relative to that `main.leo`.
+    ///
+    /// # Example
+    /// Given:
+    /// ```text
+    /// src/
+    /// ├── main.leo
+    /// ├── foo.leo
+    /// └── utils/bar.leo
+    /// ```
+    /// This function would return:
+    /// ```
+    /// [("src/main.leo", ["src/foo.leo", "src/utils/bar.leo"])]
+    /// ```
     fn partition_leo_files(
         leo_source_files: &mut dyn Iterator<Item = &std::path::Path>,
     ) -> Vec<(PathBuf, Vec<PathBuf>)> {

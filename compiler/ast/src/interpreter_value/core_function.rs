@@ -1135,7 +1135,7 @@ pub fn evaluate_core_function(
         CoreFunction::MappingRemove => {
             let key = helper.pop_value()?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) if path.segments.len() == 1 => (None, path.as_symbol()),
+                Expression::Path(path) => (None, path.as_symbol()),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
                 _ => tc_fail!(),
             };

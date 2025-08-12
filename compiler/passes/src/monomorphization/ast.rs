@@ -97,7 +97,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // identifier in the user code.
         let new_callee_path = input_call.function.with_updated_last_symbol(leo_span::Symbol::intern(&format!(
             "\"{}::[{}]\"",
-            input_call.function.symbols().last().unwrap(),
+            input_call.function.as_symbol(),
             input_call.const_arguments.iter().format(", ")
         )));
 
@@ -114,9 +114,9 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
 
             // Function to replace identifier expressions with their corresponding const argument or keep them unchanged.
             let replace_identifier = |expr: &Expression| match expr {
-                Expression::Path(path) => const_param_map
-                    .get(path.symbols().last().unwrap())
-                    .map_or(Expression::Path(path.clone()), |&expr| expr.clone()),
+                Expression::Path(path) => {
+                    const_param_map.get(&path.as_symbol()).map_or(Expression::Path(path.clone()), |&expr| expr.clone())
+                }
                 _ => expr.clone(),
             };
 
@@ -142,7 +142,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             self.reconstructed_functions.insert(new_callee_path.absolute_path().to_vec(), function);
 
             // Now keep track of the function we just monomorphized
-            self.monomorphized_functions.insert(input_call.function.symbols());
+            self.monomorphized_functions.insert(input_call.function.absolute_path().to_vec());
         }
 
         // At this stage, we know that we're going to modify the program

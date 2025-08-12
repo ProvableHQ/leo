@@ -20,9 +20,19 @@ use leo_ast::{NetworkName, Stub};
 use leo_errors::{Handler, LeoError};
 use leo_span::{Symbol, source_map::FileName};
 
+use std::path::PathBuf;
+
 use indexmap::IndexMap;
 
-/// Compiles a complete inlined test file containing the main program and modules separated by markers.
+pub const MODULE_DELIMITER: &str = "// --- Next Module:";
+
+/// Compiles a complete program from a single source string that may contain
+/// embedded modules marked by a delimiter.
+///
+/// The source string is expected to contain sections separated by the `MODULE_DELIMITER`,
+/// each representing either the main source or a named module. The compiler parses each
+/// section and compiles the full program, including any modules.
+///
 pub fn whole_compile(
     source: &str,
     handler: &Handler,
@@ -38,26 +48,24 @@ pub fn whole_compile(
         NetworkName::TestnetV0,
     );
 
-    if !source.contains("// --- Next Module:") {
-        // Fast path: no modules, just compile the main source
+    if !source.contains(MODULE_DELIMITER) {
+        // Fast path: no modules
         let filename = FileName::Custom("compiler-test".into());
         let bytecode = compiler.compile(source, filename.clone(), &Vec::new())?;
         return Ok((bytecode, compiler.program_name.unwrap()));
     }
 
-    // Parse the main source and modules
-    let lines = source.lines().peekable();
     let mut main_source = String::new();
-    let mut modules = Vec::new();
+    let mut modules: Vec<(String, PathBuf)> = Vec::new();
 
-    let mut current_module_path: Option<String> = None;
+    let mut current_module_path: Option<PathBuf> = None;
     let mut current_module_source = String::new();
 
-    for line in lines {
-        if let Some(rest) = line.strip_prefix("// --- Next Module: ") {
-            // Save previous module or main source
+    for line in source.lines() {
+        if let Some(rest) = line.strip_prefix(MODULE_DELIMITER) {
+            // Save previous block
             if let Some(path) = current_module_path.take() {
-                modules.push((current_module_source.clone(), FileName::Custom(path)));
+                modules.push((current_module_source.clone(), path));
                 current_module_source.clear();
             } else {
                 main_source = current_module_source.clone();
@@ -65,36 +73,31 @@ pub fn whole_compile(
             }
 
             // Start new module
-            let path = rest.trim().trim_end_matches(" --- //").to_string();
-            current_module_path = Some(path);
+            let trimmed_path = rest.trim().trim_end_matches(" --- //");
+            current_module_path = Some(PathBuf::from(trimmed_path));
         } else {
             current_module_source.push_str(line);
             current_module_source.push('\n');
         }
     }
 
-    // Push the last module, if any
+    // Push the last module or main
     if let Some(path) = current_module_path {
-        modules.push((current_module_source.clone(), FileName::Custom(path)));
+        modules.push((current_module_source.clone(), path));
     } else {
         main_source = current_module_source;
     }
 
-    // === Sort modules by path depth (deeper first) ===
+    // === Sort modules by path depth (deepest first) ===
     modules.sort_by(|(_, a), (_, b)| {
-        let a_depth = match a {
-            FileName::Custom(s) => std::path::Path::new(s).components().count(),
-            _ => 0, // Shouldn't happen
-        };
-        let b_depth = match b {
-            FileName::Custom(s) => std::path::Path::new(s).components().count(),
-            _ => 0,
-        };
-        b_depth.cmp(&a_depth)
+        let depth_a = a.components().count();
+        let depth_b = b.components().count();
+        depth_b.cmp(&depth_a)
     });
 
-    // Prepare module refs: Vec<(&str, FileName)>
-    let module_refs: Vec<(&str, FileName)> = modules.iter().map(|(src, fname)| (src.as_str(), fname.clone())).collect();
+    // Prepare module references for compiler
+    let module_refs: Vec<(&str, FileName)> =
+        modules.iter().map(|(src, path)| (src.as_str(), FileName::Custom(path.to_string_lossy().into()))).collect();
 
     let filename = FileName::Custom("compiler-test".into());
     let bytecode = compiler.compile(&main_source, filename, &module_refs)?;

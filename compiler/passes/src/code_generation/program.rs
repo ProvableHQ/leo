@@ -148,7 +148,13 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // Add private symbol to composite types.
         self.composite_mapping.insert(absolute_path.to_vec(), (false, String::from("private"))); // todo: private by default here.
 
-        let mut output_string = format!("\nstruct {}:\n", Self::legalize_struct_path(absolute_path)); // todo: check if this is safe from name conflicts.
+        let mut output_string = format!(
+            "\nstruct {}:\n",
+            Self::legalize_path(absolute_path).unwrap_or_else(|| panic!(
+                "path format cannot be legalize at this point: {}",
+                absolute_path.iter().join("::")
+            ))
+        ); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in struct_.members.iter() {
@@ -250,7 +256,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     let location = futures
                         .next()
                         .expect("Type checking guarantees we have future locations for each future input");
-                    format!("{}.aleo/{}.future", location.program, location.path.iter().format("::"))
+                    let [future_name] = location.path.as_slice() else {
+                        panic!("All futures must have a single segment paths since they don't belong to submodules.")
+                    };
+                    format!("{}.aleo/{}.future", location.program, future_name)
                 } else {
                     self.visit_type_with_visibility(&input.type_, visibility)
                 }

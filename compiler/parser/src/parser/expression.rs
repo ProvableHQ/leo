@@ -395,7 +395,7 @@ impl ParserContext<'_> {
         } else {
             Path {
                 segments: vec![*variant, member_name],
-                resolved_path: None,
+                absolute_path: None,
                 span: variant.span + member_name.span,
                 id: self.node_builder.next_id(),
             }
@@ -824,7 +824,7 @@ impl ParserContext<'_> {
 
                 let path = Path {
                     segments: path_segments.clone(),
-                    resolved_path: None,
+                    absolute_path: None,
                     span: path_span,
                     id: self.node_builder.next_id(),
                 };

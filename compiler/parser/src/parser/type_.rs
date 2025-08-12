@@ -141,7 +141,7 @@ impl ParserContext<'_> {
                 Type::Composite(CompositeType {
                     path: Path {
                         segments: path_segments,
-                        resolved_path: None,
+                        absolute_path: None,
                         span: path_span,
                         id: self.node_builder.next_id(),
                     },

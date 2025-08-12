@@ -48,7 +48,7 @@ where
     F: Fn(&Expression) -> Expression,
 {
     node_builder: &'a NodeBuilder,
-    refresh_ids: bool,
+    refresh_expr_ids: bool,
     replace: F,
 }
 
@@ -56,8 +56,8 @@ impl<'a, F> Replacer<'a, F>
 where
     F: Fn(&Expression) -> Expression,
 {
-    pub fn new(replace: F, refresh_ids: bool, node_builder: &'a NodeBuilder) -> Self {
-        Self { replace, refresh_ids, node_builder }
+    pub fn new(replace: F, refresh_expr_ids: bool, node_builder: &'a NodeBuilder) -> Self {
+        Self { replace, refresh_expr_ids, node_builder }
     }
 }
 
@@ -100,7 +100,7 @@ where
         };
 
         // Refresh IDs if required
-        if self.refresh_ids {
+        if self.refresh_expr_ids {
             new_expr.0.set_id(self.node_builder.next_id());
         }
         new_expr

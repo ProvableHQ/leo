@@ -322,7 +322,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
         let call_to_finalize = CallExpression {
             function: Path {
                 segments: vec![make_identifier(finalize_fn_name)],
-                resolved_path: Some(vec![finalize_fn_name]), // the finalize function lives in the top level program scope
+                absolute_path: Some(vec![finalize_fn_name]), // the finalize function lives in the top level program scope
                 span: Span::default(),
                 id: self.state.node_builder.next_id(),
             },

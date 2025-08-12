@@ -36,7 +36,7 @@ impl Pass for PathResolution {
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let mut ast = std::mem::take(&mut state.ast);
-        let mut visitor = PathResolutionVisitor { state, module: Vec::new(), modified: false };
+        let mut visitor = PathResolutionVisitor { state, module: Vec::new() };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err().map_err(|e| *e)?;
         visitor.state.ast = ast;

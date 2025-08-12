@@ -286,7 +286,7 @@ impl CodeGeneratingVisitor<'_> {
                 format!("{record_name}.{type_}")
             } else {
                 // foo; // no visibility for structs
-                Self::legalize_struct_path(input.path.absolute_path())
+                Self::legalize_path(input.path.absolute_path()).expect("path format cannot be legalize at this point")
             }
         } else {
             panic!("All composite types should be known at this phase of compilation")
@@ -348,7 +348,7 @@ impl CodeGeneratingVisitor<'_> {
     fn visit_member_access(&mut self, input: &MemberAccess) -> (String, String) {
         // Handle `self.address`, `self.caller`, `self.checksum`, `self.edition`, `self.id`, `self.program_owner`, `self.signer`.
         if let Expression::Path(path) = input.inner.borrow()
-            && matches!(path.resolved_path.as_deref(), Some([sym::SelfLower]))
+            && matches!(path.absolute_path.as_deref(), Some([sym::SelfLower]))
         {
             // Get the current program ID.
             let program_id = self.program_id.expect("Program ID should be set before traversing the program");

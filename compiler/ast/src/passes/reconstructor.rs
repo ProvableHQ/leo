@@ -488,8 +488,6 @@ pub trait ProgramReconstructor: AstReconstructor {
         Module {
             program_name: input.program_name,
             path: input.path,
-            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
-            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             consts: input
                 .consts
                 .into_iter()
@@ -498,6 +496,8 @@ pub trait ProgramReconstructor: AstReconstructor {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
+            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
         }
     }
 

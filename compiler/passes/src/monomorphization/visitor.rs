@@ -88,7 +88,7 @@ impl MonomorphizationVisitor<'_> {
         // Check if the new struct name is not already present in `reconstructed_structs`. This ensures that we do not
         // add a duplicate definition for the same struct.
         if self.reconstructed_structs.get(new_struct_path.absolute_path()).is_none() {
-            let full_name = path.resolved_path.clone().unwrap();
+            let full_name = path.absolute_path.clone().unwrap();
             // Look up the already reconstructed struct by name.
             let struct_ = self
                 .reconstructed_structs

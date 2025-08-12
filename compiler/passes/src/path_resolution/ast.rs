@@ -31,7 +31,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     type AdditionalOutput = ();
 
     fn reconstruct_composite_type(&mut self, mut input: CompositeType) -> (Type, Self::AdditionalOutput) {
-        input.path.resolved_path =
+        input.path.absolute_path =
             Some(self.module.iter().cloned().chain(input.path.symbols().iter().cloned()).collect());
         (
             Type::Composite(CompositeType {
@@ -52,7 +52,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     }
 
     fn reconstruct_call(&mut self, mut input: CallExpression) -> (Expression, Self::AdditionalOutput) {
-        input.function.resolved_path =
+        input.function.absolute_path =
             Some(self.module.iter().cloned().chain(input.function.symbols().iter().cloned()).collect());
         (
             CallExpression {
@@ -71,7 +71,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     }
 
     fn reconstruct_struct_init(&mut self, mut input: StructExpression) -> (Expression, Self::AdditionalOutput) {
-        input.path.resolved_path =
+        input.path.absolute_path =
             Some(self.module.iter().cloned().chain(input.path.symbols().iter().cloned()).collect());
         (
             StructExpression {
@@ -101,7 +101,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     fn reconstruct_path(&mut self, mut input: Path) -> (Expression, Self::AdditionalOutput) {
         // Because some paths may be paths to global consts, we have to prefix all paths at this
         // stage because we don't have semantic information just yet.
-        input.resolved_path = Some(self.module.iter().cloned().chain(input.symbols().iter().cloned()).collect());
+        input.absolute_path = Some(self.module.iter().cloned().chain(input.symbols().iter().cloned()).collect());
         (input.into(), Default::default())
     }
 }

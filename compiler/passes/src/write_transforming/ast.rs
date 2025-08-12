@@ -38,7 +38,7 @@ impl WriteTransformingVisitor<'_> {
 }
 
 impl WriteTransformingVisitor<'_> {
-    fn reconstruct_identifier_(&mut self, input: Identifier) -> (Expression, Vec<Statement>) {
+    fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Vec<Statement>) {
         let ty = self.state.type_table.get(&input.id()).unwrap();
         let mut statements = Vec::new();
         if let Some(array_members) = self.array_members.get(&input.name) {
@@ -51,7 +51,7 @@ impl WriteTransformingVisitor<'_> {
                     .clone()
                     .iter()
                     .map(|identifier| {
-                        let (expr, statements2) = self.reconstruct_identifier_(*identifier);
+                        let (expr, statements2) = self.reconstruct_identifier(*identifier);
                         statements.extend(statements2);
                         expr
                     })
@@ -81,7 +81,7 @@ impl WriteTransformingVisitor<'_> {
                     .clone()
                     .iter()
                     .map(|(field_name, ident)| {
-                        let (expr, statements2) = self.reconstruct_identifier_(*ident);
+                        let (expr, statements2) = self.reconstruct_identifier(*ident);
                         statements.extend(statements2);
                         StructVariableInitializer {
                             identifier: Identifier::new(*field_name, self.state.node_builder.next_id()),
@@ -116,11 +116,7 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
     /* Expressions */
     fn reconstruct_path(&mut self, input: Path) -> (Expression, Self::AdditionalOutput) {
         if input.segments.len() == 1 {
-            self.reconstruct_identifier_(Identifier {
-                name: *input.symbols().last().unwrap(),
-                span: input.span,
-                id: input.id,
-            })
+            self.reconstruct_identifier(Identifier { name: input.as_symbol(), span: input.span, id: input.id })
         } else {
             (input.into(), Default::default())
         }
@@ -130,8 +126,8 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
         let Expression::Path(ref array_name) = input.array else {
             panic!("SSA ensures that this is a Path.");
         };
-        if let Some(member) = self.get_array_member(*array_name.symbols().last().unwrap(), &input.index) {
-            self.reconstruct_identifier_(member)
+        if let Some(member) = self.get_array_member(array_name.as_symbol(), &input.index) {
+            self.reconstruct_identifier(member)
         } else {
             (input.into(), Default::default())
         }
@@ -141,8 +137,8 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
         let Expression::Path(ref struct_name) = input.inner else {
             panic!("SSA ensures that this is a Path.");
         };
-        if let Some(member) = self.get_struct_member(*struct_name.symbols().last().unwrap(), input.name.name) {
-            self.reconstruct_identifier_(member)
+        if let Some(member) = self.get_struct_member(struct_name.as_symbol(), input.name.name) {
+            self.reconstruct_identifier(member)
         } else {
             (input.into(), Default::default())
         }

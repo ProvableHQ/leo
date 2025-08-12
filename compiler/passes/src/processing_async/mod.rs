@@ -14,6 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+/// A transform pass that resolves and reconstructs AST paths by prefixing them with the current module path.
+///
+/// The main goal is to fully qualify all paths by prepending the current module's path segments
+/// before semantic analysis is performed. Since semantic information (e.g., symbol resolution)
+/// is not yet available at this stage, this pass conservatively prefixes all paths to ensure
+/// that references to items (functions, types, constants, structs) are correctly scoped.
+///
+/// # Key behaviors:
+/// - Composite types have their `resolved_path` set to the concatenation of the current module path and the type's path.
+/// - Function call expressions have their function path fully qualified similarly.
+/// - Struct initializers have their paths prefixed, and their member expressions recursively reconstructed.
+/// - Standalone paths are prefixed as well, accounting for possible global constants.
+///
+/// # Note:
+/// This pass does not perform full semantic resolution; it prepares the AST paths for later
+/// stages by making all paths absolute or fully qualified relative to the current module context.
 use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
 
 use leo_ast::ProgramReconstructor as _;

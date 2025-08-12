@@ -97,6 +97,6 @@ impl From<Identifier> for Expression {
 // Converts an `Identifier` to a `Path`
 impl From<Identifier> for Path {
     fn from(value: Identifier) -> Self {
-        Path { segments: vec![value], resolved_path: Some(vec![value.name]), span: value.span, id: value.id }
+        Path { segments: vec![value], absolute_path: Some(vec![value.name]), span: value.span, id: value.id }
     }
 }

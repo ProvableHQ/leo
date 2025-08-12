@@ -75,8 +75,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             .filter(|location| location.program == self.program).collect::<Vec<_>>();
 
         for function_name in &order {
-            // None: If `function_name` is not in `input.functions`, then it must be an external function.
-            // TODO: Check that this is indeed an external function. Requires a redesign of the symbol table.
+            // Reconstruct functions in post-order.
             if let Some(function) = self.function_map.swap_remove(&function_name.path) {
                 // Reconstruct the function.
                 let reconstructed_function = self.reconstruct_function(function.clone());
@@ -107,19 +106,11 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Now retain only functions that are either not yet monomorphized or are still referenced by calls.
         self.reconstructed_functions.retain(|f, _| {
             let is_monomorphized = self.monomorphized_functions.contains(f);
-            let is_still_called = self.unresolved_calls.iter().any(|c| c.function.symbols() == *f);
+            let is_still_called = self.unresolved_calls.iter().any(|c| c.function.absolute_path() == f);
             !is_monomorphized || is_still_called
         });
 
-        // Move reconstructed structs into the final `ProgramScope`, clearing the temporary storage for the next scope.
-        let structs = self
-            .reconstructed_structs
-            .clone()
-            .into_iter()
-            .filter_map(|(p, c)| if p.len() == 1 { Some((*p.last().unwrap(), c.clone())) } else { None })
-            .collect::<Vec<_>>();
-
-        // Move reconstructed functions into the final `ProgramScope`, clearing the temporary storage for the next scope.
+        // Move reconstructed functions into the final `ProgramScope`.
         // Make sure to place transitions before all the other functions.
         let (transitions, mut non_transitions): (Vec<_>, Vec<_>) =
             self.reconstructed_functions.clone().into_iter().partition(|(_, f)| f.variant.is_transition());
@@ -130,7 +121,14 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Return the fully reconstructed scope with updated functions.
         ProgramScope {
             program_id: input.program_id,
-            structs,
+            structs: self
+                .reconstructed_structs
+                .iter()
+                .filter_map(|(path, c)| {
+                    // only consider structs defined at program scope. The rest will be added to their parent module.
+                    path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, c.clone()))
+                })
+                .collect(),
             mappings,
             functions: all_functions
                 .iter()
@@ -198,6 +196,8 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
     }
 
     fn reconstruct_module(&mut self, input: Module) -> Module {
+        // Here we're reconstructing structs and functions from `reconstructed_functions` and
+        // `reconstructed_structs` based on their paths and whether they match the module path
         Module {
             structs: self
                 .reconstructed_structs

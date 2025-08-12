@@ -1,6 +1,6 @@
 program multifile.aleo;
 
-struct Foo:
+struct Foo__2GvnLDk7lVd:
     a as [u32; 11u32];
 
 struct Foo__DEaGXd8fTqV:
@@ -31,7 +31,7 @@ function main:
     cast 42u32 42u32 42u32 42u32 42u32 42u32 into r0 as [u32; 6u32];
     cast r0 into r1 as Foo__DEaGXd8fTqV;
     cast 69u32 69u32 69u32 69u32 69u32 69u32 69u32 69u32 69u32 69u32 69u32 into r2 as [u32; 11u32];
-    cast r2 into r3 as Foo;
+    cast r2 into r3 as Foo__2GvnLDk7lVd;
     add 6u32 11u32 into r4;
     add r4 r1.a[3u32] into r5;
     add r5 r3.a[3u32] into r6;
@@ -49,7 +49,7 @@ function main:
     add r17 999999u32 into r18;
     add r6 r18 into r19;
     cast 6u32 6u32 6u32 6u32 6u32 6u32 6u32 6u32 6u32 6u32 6u32 into r20 as [u32; 11u32];
-    cast r20 into r21 as Foo;
+    cast r20 into r21 as Foo__2GvnLDk7lVd;
     add r21.a[0u32] 110u32 into r22;
     add r22 11u32 into r23;
     add r19 r23 into r24;

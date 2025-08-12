@@ -137,7 +137,7 @@ pub fn value_to_expression(value: &Value, span: Span, node_builder: &NodeBuilder
             path: Path {
                 segments: x.path.iter().map(|segment| Identifier::new(*segment, node_builder.next_id())).collect(),
                 id: node_builder.next_id(),
-                resolved_path: Some(x.path.clone()),
+                absolute_path: Some(x.path.clone()),
                 span,
             },
             const_arguments: Vec::new(), // `Value`s don't have const arguments

@@ -104,8 +104,10 @@ impl Type {
                 .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
             (Type::Composite(left), Type::Composite(right)) => {
                 // Two composite types are the same if their programs and their _absolute_ paths match.
+                // If the absolute paths are not available, then we really can't compare the two
+                // types and we just return `false` to be conservative.
                 (left.program == right.program)
-                    && match (&left.path.resolved_path, &right.path.resolved_path) {
+                    && match (&left.path.absolute_path, &right.path.absolute_path) {
                         (Some(l), Some(r)) => l == r,
                         _ => false,
                     }

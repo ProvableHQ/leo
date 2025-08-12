@@ -30,7 +30,9 @@ impl CodeGeneratingVisitor<'_> {
             | Type::Future(..)
             | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
-            Type::Composite(CompositeType { path, .. }) => Self::legalize_struct_path(path.absolute_path()),
+            Type::Composite(CompositeType { path, .. }) => {
+                Self::legalize_path(path.absolute_path()).expect("path format cannot be legalize at this point")
+            }
             Type::Boolean => {
                 // Leo calls this just `bool`, which isn't what we need.
                 "boolean".into()

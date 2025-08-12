@@ -296,13 +296,13 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                     .collect::<Vec<Symbol>>();
                 if let Type::Composite(struct_member_type) = type_ {
                     // Note that since there are no cycles in the program dependency graph, there are no cycles in the struct dependency graph caused by external structs.
-                    self.state.struct_graph.add_edge(composite_path, struct_member_type.path.symbols());
+                    self.state.struct_graph.add_edge(composite_path, struct_member_type.path.absolute_path().to_vec());
                 } else if let Type::Array(array_type) = type_ {
                     // Get the base element type.
                     let base_element_type = array_type.base_element_type();
                     // If the base element type is a struct, then add it to the struct dependency graph.
                     if let Type::Composite(member_type) = base_element_type {
-                        self.state.struct_graph.add_edge(composite_path, member_type.path.symbols());
+                        self.state.struct_graph.add_edge(composite_path, member_type.path.absolute_path().to_vec());
                     }
                 }
 

@@ -26,20 +26,46 @@ use std::{fs, path::PathBuf, str::FromStr as _};
 
 pub static TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
 
+/// A special token used to separate modules in test input source code.
+const MODULE_SEPARATOR: &str = "// --- Next Module:";
+
+/// Runs a Leo test case provided as a string, with optional inlined module definitions.
+///
+/// # Behavior
+/// - If the source contains no `MODULE_SEPARATOR`, it is treated as a standalone Leo file and executed directly.
+/// - If the source contains inlined modules separated by `MODULE_SEPARATOR`, it will:
+///   - Split the input into a main source and its modules,
+///   - Write each source to a temporary file structure,
+///   - Compile and interpret them as a single Leo program.
+///
+/// # Arguments
+/// - `test`: The input Leo program as a string. Can include inlined modules using `MODULE_SEPARATOR`.
+///
+/// # Returns
+/// - A string containing either the result of interpretation, an error message, or "no value received".
+///
+/// # Panics
+/// - Panics on file I/O failure or if the Leo interpreter setup fails.
+/// - Panics if the hardcoded private key is invalid.
 fn runner_leo_test(test: &str) -> String {
-    if !test.contains("// --- Next Module:") {
+    if !test.contains(MODULE_SEPARATOR) {
+        // === Simple case: single source file ===
         create_session_if_not_set_then(|_| {
             let tempdir = tempfile::tempdir().expect("tempdir");
-            let mut filename = PathBuf::from(tempdir.path());
-            filename.push("main.leo");
+
+            // Write source to temporary main.leo file
+            let filename = tempdir.path().join("main.leo");
             fs::write(&filename, test).expect("write failed");
 
+            // Set up interpreter using testnet private key
             let private_key: PrivateKey<TestnetV0> =
-                PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should be able to parse private key");
-            let address = Address::try_from(&private_key).expect("should be able to create address");
+                PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
+            let address = Address::try_from(&private_key).expect("should create address");
+
             let empty: [&PathBuf; 0] = [];
             let mut interpreter = Interpreter::new([filename].iter(), empty, address, 0, NetworkName::TestnetV0)
                 .expect("creating interpreter");
+
             match interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into())) {
                 Err(e) => format!("{e}\n"),
                 Ok(None) => "no value received\n".to_string(),
@@ -47,10 +73,11 @@ fn runner_leo_test(test: &str) -> String {
             }
         })
     } else {
+        // === Multi-module case ===
         create_session_if_not_set_then(|_| {
             let tempdir = tempfile::tempdir().expect("tempdir");
 
-            // === Step 1: Parse modules and main source ===
+            // === Step 1: Parse test source into main and modules ===
             let lines = test.lines().peekable();
             let mut main_source = String::new();
             let mut modules = Vec::new();
@@ -59,7 +86,8 @@ fn runner_leo_test(test: &str) -> String {
             let mut current_module_source = String::new();
 
             for line in lines {
-                if let Some(rest) = line.strip_prefix("// --- Next Module: ") {
+                if let Some(rest) = line.strip_prefix(MODULE_SEPARATOR) {
+                    // Save previous module or main
                     if let Some(path) = current_module_path.take() {
                         modules.push((current_module_source.clone(), path));
                         current_module_source.clear();
@@ -68,6 +96,7 @@ fn runner_leo_test(test: &str) -> String {
                         current_module_source.clear();
                     }
 
+                    // Prepare the new module path
                     let mut path = rest.trim().trim_end_matches(" --- //").to_string();
                     path.push_str(".leo");
                     current_module_path = Some(path);
@@ -77,33 +106,31 @@ fn runner_leo_test(test: &str) -> String {
                 }
             }
 
-            // Handle last segment
+            // Save last module or main source
             if let Some(path) = current_module_path {
                 modules.push((current_module_source.clone(), path));
             } else {
                 main_source = current_module_source;
             }
 
-            // === Step 2: Sort modules by path depth ===
+            // === Step 2: Sort modules by path depth (deepest first) ===
             modules.sort_by(|(_, a), (_, b)| {
                 let a_depth = std::path::Path::new(a).components().count();
                 let b_depth = std::path::Path::new(b).components().count();
                 b_depth.cmp(&a_depth)
             });
 
-            // === Step 3: Write all files to shared tempdir ===
+            // === Step 3: Write all source files into the temp directory ===
             let mut filenames = Vec::new();
 
             // Write main source to main.leo
-            let mut main_path = PathBuf::from(tempdir.path());
-            main_path.push("main.leo");
+            let main_path = tempdir.path().join("main.leo");
             std::fs::write(&main_path, main_source).expect("write main failed");
             filenames.push(main_path.clone());
 
-            // Write module sources
+            // Write module files to appropriate relative paths
             for (source, path) in modules {
-                let mut full_path = PathBuf::from(tempdir.path());
-                full_path.push(&path);
+                let full_path = tempdir.path().join(&path);
 
                 // Ensure parent directories exist
                 if let Some(parent) = full_path.parent() {
@@ -114,10 +141,10 @@ fn runner_leo_test(test: &str) -> String {
                 filenames.push(full_path);
             }
 
-            // === Step 4: Run interpreter ===
+            // === Step 4: Run interpreter on main() ===
             let private_key: PrivateKey<TestnetV0> =
-                PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should be able to parse private key");
-            let address = Address::try_from(&private_key).expect("should be able to create address");
+                PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
+            let address = Address::try_from(&private_key).expect("should create address");
 
             let empty: [&PathBuf; 0] = [];
 

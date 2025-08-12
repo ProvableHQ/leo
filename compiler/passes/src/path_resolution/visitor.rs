@@ -20,11 +20,8 @@ use leo_span::Symbol;
 
 pub struct PathResolutionVisitor<'a> {
     pub state: &'a mut CompilerState,
-    /// A map of reconstructed functions in the current program scope.
+    /// The current module.
     pub module: Vec<Symbol>,
-    /// Indicates whether this pass actually processed any async blocks.
-    #[allow(dead_code)]
-    pub modified: bool,
 }
 
 impl PathResolutionVisitor<'_> {

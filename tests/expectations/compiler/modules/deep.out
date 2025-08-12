@@ -6,12 +6,12 @@ struct Foo__KN4SHuYiDFN:
 struct Foo__2Rn9ACFPIh3:
     a as [u32; 3u32];
 
-struct Foo:
+struct Foo__8n3BEGIXogs:
     a as [u32; 2u32];
 
 function main:
     cast 1u32 1u32 into r0 as [u32; 2u32];
-    cast r0 into r1 as Foo;
+    cast r0 into r1 as Foo__8n3BEGIXogs;
     cast 2u32 2u32 2u32 into r2 as [u32; 3u32];
     cast r2 into r3 as Foo__2Rn9ACFPIh3;
     cast 3u32 3u32 3u32 3u32 into r4 as [u32; 4u32];
