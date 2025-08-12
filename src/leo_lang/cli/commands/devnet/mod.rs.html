@@ -101,7 +101,7 @@
 <a href=#101 id=101 data-nosnippet>101</a>    }
 <a href=#102 id=102 data-nosnippet>102</a>
 <a href=#103 id=103 data-nosnippet>103</a>    <span class="kw">fn </span>apply(<span class="self">self</span>, _cx: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-<a href=#104 id=104 data-nosnippet>104</a>        <span class="self">self</span>.handle_apply().map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed start devnet: {e}"</span>)).into())
+<a href=#104 id=104 data-nosnippet>104</a>        <span class="self">self</span>.handle_apply().map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to start devnet: {e}"</span>)).into())
 <a href=#105 id=105 data-nosnippet>105</a>    }
 <a href=#106 id=106 data-nosnippet>106</a>}
 <a href=#107 id=107 data-nosnippet>107</a>
