@@ -95,12 +95,12 @@ jobs:
       - name: Build
         # Use an older version of this Docker image as newer versions don't have OpenSSL.
         run: |
-          docker pull clux/muslrust:1.88.0-stable
+          docker pull clux/muslrust:1.85.1-stable
           docker run \
             -v ${{ github.workspace }}:/volume \
             -v cargo-cache:/root/.cargo/registry \
             --rm \
-            -t clux/muslrust:1.88.0-stable \
+            -t clux/muslrust:1.85.1-stable \
             bash -c "
               rustup install stable &&
               rustup default stable &&
