@@ -430,22 +430,22 @@
 <a href=#430 id=430 data-nosnippet>430</a>    <span class="macro">format!</span>(
 <a href=#431 id=431 data-nosnippet>431</a>        <span class="string">r#"// The '{name}' program.
 <a href=#432 id=432 data-nosnippet>432</a>program {name}.aleo {{
-<a href=#433 id=433 data-nosnippet>433</a>    transition main(public a: u32, b: u32) -&gt; u32 {{
-<a href=#434 id=434 data-nosnippet>434</a>        let c: u32 = a + b;
-<a href=#435 id=435 data-nosnippet>435</a>        return c;
-<a href=#436 id=436 data-nosnippet>436</a>    }}
-<a href=#437 id=437 data-nosnippet>437</a>    
-<a href=#438 id=438 data-nosnippet>438</a>    // This is the constructor for the program.
-<a href=#439 id=439 data-nosnippet>439</a>    // The constructor allows you to manage program upgrades.
-<a href=#440 id=440 data-nosnippet>440</a>    // It is called when the program is deployed or upgraded.
-<a href=#441 id=441 data-nosnippet>441</a>    // It is currently configured to **prevent** upgrades.
-<a href=#442 id=442 data-nosnippet>442</a>    // Other configurations include: 
-<a href=#443 id=443 data-nosnippet>443</a>    //  - @admin(address="aleo1...")
-<a href=#444 id=444 data-nosnippet>444</a>    //  - @checksum(mapping="credits.aleo/fixme", key="0field")
-<a href=#445 id=445 data-nosnippet>445</a>    //  - @custom
-<a href=#446 id=446 data-nosnippet>446</a>    // For more information, please refer to the documentation: &lt;TODO&gt;.
-<a href=#447 id=447 data-nosnippet>447</a>    @noupgrade
-<a href=#448 id=448 data-nosnippet>448</a>    async constructor() {{}}
+<a href=#433 id=433 data-nosnippet>433</a>    // This is the constructor for the program.
+<a href=#434 id=434 data-nosnippet>434</a>    // The constructor allows you to manage program upgrades.
+<a href=#435 id=435 data-nosnippet>435</a>    // It is called when the program is deployed or upgraded.
+<a href=#436 id=436 data-nosnippet>436</a>    // It is currently configured to **prevent** upgrades.
+<a href=#437 id=437 data-nosnippet>437</a>    // Other configurations include: 
+<a href=#438 id=438 data-nosnippet>438</a>    //  - @admin(address="aleo1...")
+<a href=#439 id=439 data-nosnippet>439</a>    //  - @checksum(mapping="credits.aleo/fixme", key="0field")
+<a href=#440 id=440 data-nosnippet>440</a>    //  - @custom
+<a href=#441 id=441 data-nosnippet>441</a>    // For more information, please refer to the documentation: `https://docs.leo-lang.org/guides/upgradability`
+<a href=#442 id=442 data-nosnippet>442</a>    @noupgrade
+<a href=#443 id=443 data-nosnippet>443</a>    async constructor() {{}}
+<a href=#444 id=444 data-nosnippet>444</a>    
+<a href=#445 id=445 data-nosnippet>445</a>    transition main(public a: u32, b: u32) -&gt; u32 {{
+<a href=#446 id=446 data-nosnippet>446</a>        let c: u32 = a + b;
+<a href=#447 id=447 data-nosnippet>447</a>        return c;
+<a href=#448 id=448 data-nosnippet>448</a>    }}
 <a href=#449 id=449 data-nosnippet>449</a>}}
 <a href=#450 id=450 data-nosnippet>450</a>"#
 <a href=#451 id=451 data-nosnippet>451</a>    </span>)
